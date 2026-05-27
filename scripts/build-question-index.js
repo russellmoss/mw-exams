@@ -290,6 +290,38 @@ function main() {
   console.log(`\nIndex written to: ${OUTPUT}`);
   console.log(`Total questions: ${allQuestions.length}`);
   console.log(`File size: ${(fs.statSync(OUTPUT).size / 1024 / 1024).toFixed(1)} MB`);
+
+  // Build pipeline context — the reference files the question generation prompt needs
+  const pipelineContext = {
+    examinerReportSynthesis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'examiner_report_synthesis.md')),
+    curveballAnalysis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'curveball_analysis.md')),
+    sourcingGuide: loadTextFile(path.join(ROOT, 'outputs', 'mock_exams', 'mock_exam_sourcing_guide.md')),
+    wineCompositionAnalysis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'question_wine_composition_analysis.md')),
+    geographicVocabularyRules: `The examiners use a strict abstract hierarchy: "country", "region", "sub-region", "area", "origin". They NEVER name specific geographic features, landforms, valleys, rivers, mountain ranges, or appellations in question stems. In 10 years of papers (2011-2025, 112 questions), the only geographic proper noun in a stem is "Rhône Valley" (2017 P2 Q4), used as a region name. NEVER use "broad valley", "river valley", "mountain range", "coastal region", "volcanic soils", "lake shore", or "appellation".`,
+    historicalQuestionExamples: extractHistoricalExamples(historical),
+  };
+
+  const PIPELINE_OUTPUT = path.join(ROOT, 'study-app', 'public', 'data', 'pipeline-context.json');
+  fs.writeFileSync(PIPELINE_OUTPUT, JSON.stringify(pipelineContext, null, 2));
+  console.log(`Pipeline context written to: ${PIPELINE_OUTPUT}`);
+  console.log(`Pipeline context size: ${(fs.statSync(PIPELINE_OUTPUT).size / 1024).toFixed(0)} KB`);
+}
+
+function extractHistoricalExamples(questions) {
+  // Get 3 example questions per paper to show the AI what real MW questions look like
+  const examples = {};
+  for (const paper of [1, 2, 3]) {
+    const paperQs = questions.filter(q => q.paper === paper && q.source === 'historical');
+    // Pick diverse examples
+    const selected = paperQs.slice(0, 6).map(q => ({
+      year: q.year,
+      family: q.family,
+      text: q.text.slice(0, 500),
+      wineCount: q.wines.length,
+    }));
+    examples[`p${paper}`] = selected;
+  }
+  return examples;
 }
 
 main();

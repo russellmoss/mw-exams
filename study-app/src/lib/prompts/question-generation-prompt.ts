@@ -1,3 +1,27 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+
+let cachedContext: PipelineContext | null = null;
+
+interface PipelineContext {
+  examinerReportSynthesis: string;
+  curveballAnalysis: string;
+  sourcingGuide: string;
+  wineCompositionAnalysis: string;
+  geographicVocabularyRules: string;
+  historicalQuestionExamples: Record<
+    string,
+    { year: number; family: string; text: string; wineCount: number }[]
+  >;
+}
+
+function loadPipelineContext(): PipelineContext {
+  if (cachedContext) return cachedContext;
+  const filePath = join(process.cwd(), "public", "data", "pipeline-context.json");
+  cachedContext = JSON.parse(readFileSync(filePath, "utf-8"));
+  return cachedContext!;
+}
+
 const FAMILY_DESCRIPTIONS: Record<string, string> = {
   F1: "Same Variety — all wines share the same single grape variety, from different countries or regions. Tests variety recognition under changing terroir/style conditions.",
   F2: "Same Origin — wines from the same country or region, different varieties or styles. Tests regional literacy and internal diversity.",
@@ -8,59 +32,73 @@ const FAMILY_DESCRIPTIONS: Record<string, string> = {
   F7: "Quality Hierarchy — wines from same region at different legal classification tiers. Tests quality calibration within a formal system.",
 };
 
-const PAPER_CONTEXTS: Record<number, string> = {
-  1: "Paper 1: White still wines. Typical varieties: Chardonnay, Riesling, Sauvignon Blanc, Chenin Blanc, Pinot Gris/Grigio, Semillon, Viognier, Gewurztraminer, Gruner Veltliner, Albarino, Verdejo, Godello, Marsanne, Roussanne.",
-  2: "Paper 2: Red still wines. Typical varieties: Pinot Noir, Cabernet Sauvignon, Merlot, Syrah/Shiraz, Nebbiolo, Sangiovese, Tempranillo, Grenache/Garnacha, Cabernet Franc, Malbec, Aglianico, Nerello Mascalese, Mencia, Zinfandel/Primitivo, Tannat.",
-  3: "Paper 3: Special wines — sparkling, fortified, sweet, rose, oxidative. Categories include: Champagne, Cremant, Cava, Franciacorta, English sparkling, Prosecco, Port (Ruby/Tawny/Vintage/LBV/Colheita), Sherry (Fino/Manzanilla/Amontillado/Oloroso/Palo Cortado/PX), Madeira, VDN, Sauternes, Tokaji, Icewine, Vin Santo, Recioto, late harvest Riesling.",
-};
-
 export function buildQuestionGenerationPrompt(
   paper: number,
   family: string
 ): { system: string; user: string } {
+  const ctx = loadPipelineContext();
+
   const familyDesc =
     family !== "any" && FAMILY_DESCRIPTIONS[family]
       ? FAMILY_DESCRIPTIONS[family]
       : "Any question type — choose the most interesting and varied structure.";
 
-  const paperContext = PAPER_CONTEXTS[paper] || PAPER_CONTEXTS[1];
+  const examples = ctx.historicalQuestionExamples[`p${paper}`] || [];
+  const exampleText = examples
+    .map(
+      (e) =>
+        `[${e.year} P${paper}, ${e.family}, ${e.wineCount} wines]: ${e.text}`
+    )
+    .join("\n\n");
 
-  const system = `You are an expert Master of Wine exam question writer. You create authentic MW practical exam questions that follow the exact voice, structure, and conventions of the real IMW examination.
+  const system = `You are an expert Master of Wine exam question writer creating a single question for Paper ${paper}. You follow the EXACT voice, structure, and constraints of the real IMW examination.
 
-## Exam conventions
-- The MW practical exam has three papers: Paper 1 (whites), Paper 2 (reds), Paper 3 (special).
-- Each paper has 12 wines across 3-5 questions.
-- Question stems use a strict abstract geographic vocabulary: "same country", "same region", "sub-region", "origin". NEVER use specific geographic features (valleys, rivers, mountains), NEVER use "appellation" (the IMW says "region" or "sub-region"), NEVER name specific places as clues.
-- Marks are allocated per sub-question with specific values shown in parentheses.
-- Total marks per question typically range from 50-100.
-- Questions must allow marks even when identification fails — at least one sub-part should reward describing what is in the glass.
+## GEOGRAPHIC VOCABULARY RULES (MANDATORY)
+${ctx.geographicVocabularyRules}
 
-## Wine selection rules
-- All wines must be REAL wines that exist — real producers, real cuvees, real regions.
-- Use 2026-aware vintage realism: young whites 2024-2025, young reds 2023-2024, older only if maturity is tested.
-- Include at least one curveball (lesser-known but defensible) per question of 4+ wines.
-- Curveballs must be anchored by recognizable wines.
-- Wines should span different quality/price tiers when the question tests quality calibration.
-- Never exceed ~$400 retail per bottle (the IMW must buy ~25 bottles of each wine).
+## EXAMINER EXPECTATIONS (from 13 examiner reports, 2017-2025)
+${ctx.examinerReportSynthesis}
 
-## ${paperContext}
+## CURVEBALL DESIGN CONSTRAINTS
+${ctx.curveballAnalysis}
 
-## Question family for this question
-${familyDesc}`;
+## WINE SOURCING GUIDE
+${ctx.sourcingGuide}
 
-  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? ` of type ${family}` : ""}.
+## WINE COMPOSITION RULES (variety repetition, mechanism diversity, price tiers)
+${ctx.wineCompositionAnalysis}
 
-Output in this exact format:
+## QUESTION FAMILY FOR THIS QUESTION
+${familyDesc}
+
+## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper})
+Study these carefully. Your question must sound like these — same voice, same abstraction level, same mark allocation style:
+
+${exampleText}
+
+## CRITICAL OUTPUT RULES
+1. Question stems use ONLY abstract geographic vocabulary: "same country", "same region", "same sub-region", "different countries". NEVER name valleys, rivers, mountains, or appellations.
+2. Sub-questions use lettered labels: a), b), c), d). NOT (a), NOT **(a)**.
+3. Marks shown as: (15 marks) or (4 x 8 marks). NOT **(25 marks)**, NOT bold marks.
+4. NO markdown formatting in the question stem. No bold, no italic, no &nbsp;. Plain text only.
+5. The question stem is what a candidate reads on paper. It must read naturally as printed text.
+6. Wines must be REAL — real producers, real cuvees, verifiable in wine-searcher.
+7. Use 2026-appropriate vintages: young whites 2024-2025, young reds 2023-2024, older only when maturity is the point.
+8. Total marks for a single question: 50-120 (not always 100).
+9. Mark allocation must reflect examiner priorities: identification 35-45%, quality/maturity 20-35%, winemaking 15-21%, commercial 5-15%.`;
+
+  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.
+
+Output in this EXACT format (no markdown formatting in the question text):
 
 ## Question
 
-[The question stem with sub-questions and mark allocations. Use authentic MW phrasing.]
+[Plain text question stem. Lettered sub-questions: a) b) c) d). Marks in parentheses. NO bold, NO italic.]
 
 ## Wines
 
-1. [Full wine details: Producer/Cuvee, Vintage. Region, Country. (ABV%)]
+1. [Producer, Cuvee, Vintage. Region, Country. (ABV%)]
 2. ...
-[Continue for all wines in the question]
 
 ## Metadata
 
@@ -68,10 +106,8 @@ Output in this exact format:
 - Family: [F1-F7]
 - Subcategory: [specific subcategory]
 - Variety: [the key variety/varieties]
-- Countries: [list of countries represented]
-- Curveball: [which wine if any, and why — or "None"]
-
-Be creative. Don't default to the most obvious choice. Consider lesser-used but defensible varieties, regions, and structures.`;
+- Countries: [list]
+- Curveball: [which wine and why, or "None"]`;
 
   return { system, user };
 }
