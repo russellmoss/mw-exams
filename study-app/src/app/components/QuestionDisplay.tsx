@@ -5,6 +5,8 @@ import type { Question } from "@/lib/study-session";
 interface QuestionDisplayProps {
   question: Question;
   onStartReasoning: () => void;
+  onGenerateFresh?: () => void;
+  isGenerating?: boolean;
 }
 
 function parseQuestionText(text: string): {
@@ -118,6 +120,8 @@ function parseQuestionText(text: string): {
 export function QuestionDisplay({
   question,
   onStartReasoning,
+  onGenerateFresh,
+  isGenerating,
 }: QuestionDisplayProps) {
   const paperLabel =
     question.paper === 1
@@ -213,13 +217,22 @@ export function QuestionDisplay({
       </div>
 
       {/* CTA */}
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-3">
         <button
           onClick={onStartReasoning}
           className="px-10 py-3.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-xl transition-colors duration-200 cursor-pointer text-[15px]"
         >
           Begin Stem Analysis
         </button>
+        {onGenerateFresh && (
+          <button
+            onClick={onGenerateFresh}
+            disabled={isGenerating}
+            className="text-sm text-muted hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {isGenerating ? "Generating..." : "Skip — generate a fresh question instead"}
+          </button>
+        )}
       </div>
     </div>
   );

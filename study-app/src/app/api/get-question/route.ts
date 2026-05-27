@@ -86,10 +86,16 @@ function extractSection(
 
 export async function POST(request: Request) {
   try {
-    const { paper, family } = await request.json();
+    const { paper, family, forceFresh } = await request.json();
 
     if (!paper) {
       return Response.json({ error: "Missing paper" }, { status: 400 });
+    }
+
+    // Skip bank and generate fresh if requested
+    if (forceFresh) {
+      console.log(`Force fresh question requested for P${paper} ${family || "any"}`);
+      return generateFreshQuestion(paper, family);
     }
 
     // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
@@ -129,62 +135,8 @@ export async function POST(request: Request) {
       });
     }
 
-    // 2. No pre-populated questions available — generate on the fly
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-    const prompt = buildQuestionGenerationPrompt(paper, family || "any");
-
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2000,
-      system: prompt.system,
-      messages: [{ role: "user", content: prompt.user }],
-    });
-
-    const text = message.content
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
-      .join("");
-
-    // Parse the generated question
-    const parsed = parseGeneratedQuestion(text, paper, family || "F4");
-
-    if (!parsed) {
-      return Response.json(
-        { error: "Failed to parse generated question" },
-        { status: 500 }
-      );
-    }
-
-    // Save to Neon (without model answer initially)
-    const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
-    const saved = await saveGeneratedQuestion({
-      questionId,
-      paper,
-      family: parsed.family,
-      familyLabel: parsed.familyLabel,
-      subcategory: parsed.subcategory,
-      questionText: parsed.questionText,
-      wines: parsed.wines,
-      totalMarks: parsed.totalMarks,
-      metadata: { generatedOnTheFly: true },
-    });
-
-    // Fire-and-forget: kick off model answer generation immediately
-    // This runs in the background while the user sees the question
-    generateModelAnswerInBackground(
-      questionId,
-      parsed.questionText,
-      parsed.wines,
-      paper,
-      parsed.family
-    );
-
-    return Response.json({
-      source: "generated",
-      question: saved,
-      hasModelAnswer: false,
-    });
+    // PRIORITY 3: Generate fresh on the fly
+    return generateFreshQuestion(paper, family);
   } catch (err) {
     console.error("get-question error:", err);
     return Response.json(
@@ -192,6 +144,60 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+async function generateFreshQuestion(paper: number, family: string | undefined) {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const prompt = buildQuestionGenerationPrompt(paper, family || "any");
+
+  const message = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 2000,
+    system: prompt.system,
+    messages: [{ role: "user", content: prompt.user }],
+  });
+
+  const text = message.content
+    .filter((b) => b.type === "text")
+    .map((b) => b.text)
+    .join("");
+
+  const parsed = parseGeneratedQuestion(text, paper, family || "F4");
+
+  if (!parsed) {
+    return Response.json(
+      { error: "Failed to parse generated question" },
+      { status: 500 }
+    );
+  }
+
+  const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
+  const saved = await saveGeneratedQuestion({
+    questionId,
+    paper,
+    family: parsed.family,
+    familyLabel: parsed.familyLabel,
+    subcategory: parsed.subcategory,
+    questionText: parsed.questionText,
+    wines: parsed.wines,
+    totalMarks: parsed.totalMarks,
+    metadata: { generatedOnTheFly: true },
+  });
+
+  generateModelAnswerInBackground(
+    questionId,
+    parsed.questionText,
+    parsed.wines,
+    paper,
+    parsed.family
+  );
+
+  return Response.json({
+    source: "generated",
+    question: saved,
+    hasModelAnswer: false,
+  });
 }
 
 function parseGeneratedQuestion(

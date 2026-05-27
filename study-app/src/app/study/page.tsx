@@ -25,6 +25,7 @@ export default function StudyPage() {
   const [waitingForModel, setWaitingForModel] = useState(false);
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [preGlassReasoning, setPreGlassReasoning] = useState("");
+  const [isGeneratingFresh, setIsGeneratingFresh] = useState(false);
 
   const evalStream = useStreaming();
   const modelAnswerPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -292,6 +293,87 @@ export default function StudyPage() {
     [state, preGlassReasoning, attemptId, evalStream]
   );
 
+  // Handle generate fresh question (skip banked, get a new one)
+  const handleGenerateFresh = useCallback(async () => {
+    if (state.step !== "question") return;
+    setIsGeneratingFresh(true);
+
+    try {
+      const res = await fetch("/api/get-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paper: state.question.paper,
+          family: state.question.family,
+          forceFresh: true,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const q = data.question;
+      const question = {
+        id: q.question_id,
+        source: data.source,
+        paper: q.paper,
+        questionNumber: 1,
+        text: q.question_text,
+        wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
+        totalMarks: q.total_marks,
+        family: q.family,
+        familyLabel: q.family_label,
+        subcategory: q.subcategory || "",
+        hasModelAnswer: data.hasModelAnswer,
+        hasDecisionMatrix: false,
+        hasWineResearch: false,
+        modelAnswer: q.model_answer || "",
+        proposedAnnotation: q.proposed_annotation || "",
+        reasoningTrace: q.reasoning_trace || "",
+        studyDiagramAssist: q.study_diagram_assist || "",
+        year: null,
+      };
+
+      sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+      setModelAnswerReady(data.hasModelAnswer);
+      dispatch({ type: "SELECT_QUESTION", question });
+
+      // Create attempt
+      fetch("/api/save-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", questionId: question.id }),
+      })
+        .then((r) => r.json())
+        .then((d) => { if (d.attempt?.id) setAttemptId(d.attempt.id); })
+        .catch(() => {});
+
+      // Background model answer gen if needed
+      if (!data.hasModelAnswer) {
+        fetch("/api/generate-model-answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionId: question.id,
+            questionText: question.text,
+            wines: question.wines,
+            paper: question.paper,
+            family: question.family,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.success) setModelAnswerReady(true);
+          })
+          .catch(() => {});
+      }
+    } catch (err) {
+      console.error("Generate fresh error:", err);
+    } finally {
+      setIsGeneratingFresh(false);
+    }
+  }, [state]);
+
   // Handle next question
   const handleNextQuestion = useCallback(() => {
     evalStream.reset();
@@ -394,6 +476,8 @@ export default function StudyPage() {
             <QuestionDisplay
               question={state.question}
               onStartReasoning={() => dispatch({ type: "START_PRE_GLASS" })}
+              onGenerateFresh={handleGenerateFresh}
+              isGenerating={isGeneratingFresh}
             />
           )}
 

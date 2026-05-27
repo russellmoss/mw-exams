@@ -8,7 +8,7 @@ export interface Wine {
 export interface Question {
   id: string;
   source: string;
-  year: number;
+  year: number | null;
   paper: number;
   questionNumber: number;
   text: string;
