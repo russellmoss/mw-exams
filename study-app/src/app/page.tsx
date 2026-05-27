@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
@@ -10,6 +11,7 @@ type LandingStep = "select-paper" | "select-family" | "generating";
 
 export default function Home() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<LandingStep>("select-paper");
@@ -18,8 +20,16 @@ export default function Home() {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [recentAttempts, setRecentAttempts] = useState<unknown[]>([]);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
   // Load question counts from Neon
   useEffect(() => {
+    if (!user) return;
     fetch("/api/question-counts")
       .then((r) => r.json())
       .then((data) => {
@@ -47,7 +57,7 @@ export default function Home() {
         console.error("Failed to load counts:", err);
         setLoading(false);
       });
-  }, []);
+  }, [user]);
 
   const handlePaperSelect = useCallback((paper: number) => {
     setSelectedPaper(paper);
@@ -131,7 +141,7 @@ export default function Home() {
       {/* Main */}
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-10">
-          {loading && (
+          {(loading || authLoading) && (
             <div className="flex items-center justify-center py-20">
               <div className="flex items-center gap-3 text-muted">
                 <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />

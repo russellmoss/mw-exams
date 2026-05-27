@@ -1,16 +1,18 @@
-import { createAttempt, updateAttempt } from "@/lib/db";
+import { createAttempt, createAttemptWithUser, updateAttempt } from "@/lib/db";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { action, attemptId, questionId, ...data } = await request.json();
+    const { action, attemptId, questionId, userId, ...data } = await request.json();
 
     if (action === "create") {
       if (!questionId) {
         return Response.json({ error: "Missing questionId" }, { status: 400 });
       }
-      const attempt = await createAttempt(questionId);
+      const attempt = userId
+        ? await createAttemptWithUser(questionId, userId)
+        : await createAttempt(questionId);
       return Response.json({ attempt });
     }
 

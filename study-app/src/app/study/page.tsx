@@ -2,6 +2,7 @@
 
 import { useReducer, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
 import {
   studyReducer,
   initialStudyState,
@@ -19,6 +20,7 @@ import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
 
 export default function StudyPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
@@ -39,11 +41,11 @@ export default function StudyPage() {
         const question: Question = JSON.parse(stored);
         dispatch({ type: "SELECT_QUESTION", question });
 
-        // Create attempt in Neon
+        // Create attempt in Neon (with user_id if logged in)
         fetch("/api/save-attempt", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "create", questionId: question.id }),
+          body: JSON.stringify({ action: "create", questionId: question.id, userId: user?.id || null }),
         })
           .then((r) => r.json())
           .then((d) => {
@@ -339,11 +341,11 @@ export default function StudyPage() {
       setModelAnswerReady(data.hasModelAnswer);
       dispatch({ type: "SELECT_QUESTION", question });
 
-      // Create attempt
+      // Create attempt (with user_id if logged in)
       fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", questionId: question.id }),
+        body: JSON.stringify({ action: "create", questionId: question.id, userId: user?.id || null }),
       })
         .then((r) => r.json())
         .then((d) => { if (d.attempt?.id) setAttemptId(d.attempt.id); })

@@ -145,6 +145,16 @@ export async function createAttempt(questionId: string): Promise<UserAttempt> {
   return rows[0] as UserAttempt;
 }
 
+export async function createAttemptWithUser(questionId: string, userId: number): Promise<UserAttempt> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO user_attempts (question_id, user_id)
+    VALUES (${questionId}, ${userId})
+    RETURNING *
+  `;
+  return rows[0] as UserAttempt;
+}
+
 export async function updateAttempt(
   attemptId: number,
   data: Partial<{
@@ -213,4 +223,112 @@ export async function getRecentAttempts(limit = 20): Promise<
     ORDER BY a.started_at DESC
     LIMIT ${limit}
   `) as (UserAttempt & { paper: number; family: string; family_label: string })[];
+}
+
+export interface AttemptWithDetails extends UserAttempt {
+  paper: number;
+  family: string;
+  family_label: string;
+  question_text: string;
+  wines: { slot: number; fullText: string }[];
+  model_answer: string | null;
+  total_marks: number;
+}
+
+export async function getUserAttempts(userId: number, limit = 50): Promise<AttemptWithDetails[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT
+      a.*,
+      q.paper,
+      q.family,
+      q.family_label,
+      q.question_text,
+      q.wines,
+      q.model_answer,
+      q.total_marks
+    FROM user_attempts a
+    JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE a.user_id = ${userId}
+    ORDER BY a.started_at DESC
+    LIMIT ${limit}
+  `) as AttemptWithDetails[];
+}
+
+export interface UserStats {
+  total_attempts: number;
+  completed_attempts: number;
+  pass_count: number;
+  fail_count: number;
+  borderline_count: number;
+  by_paper: { paper: number; total: number; pass: number; fail: number; borderline: number }[];
+  by_family: { family: string; family_label: string; total: number; pass: number }[];
+  recent_results: { pass_estimate: string; started_at: string }[];
+}
+
+export async function getUserStats(userId: number): Promise<UserStats> {
+  const sql = getDb();
+
+  // Aggregate totals
+  const totals = await sql`
+    SELECT
+      COUNT(*)::int as total_attempts,
+      COUNT(CASE WHEN completed_at IS NOT NULL THEN 1 END)::int as completed_attempts,
+      COUNT(CASE WHEN pass_estimate = 'pass' THEN 1 END)::int as pass_count,
+      COUNT(CASE WHEN pass_estimate = 'fail' THEN 1 END)::int as fail_count,
+      COUNT(CASE WHEN pass_estimate = 'borderline' THEN 1 END)::int as borderline_count
+    FROM user_attempts
+    WHERE user_id = ${userId}
+  `;
+
+  // By paper
+  const byPaper = await sql`
+    SELECT
+      q.paper,
+      COUNT(*)::int as total,
+      COUNT(CASE WHEN a.pass_estimate = 'pass' THEN 1 END)::int as pass,
+      COUNT(CASE WHEN a.pass_estimate = 'fail' THEN 1 END)::int as fail,
+      COUNT(CASE WHEN a.pass_estimate = 'borderline' THEN 1 END)::int as borderline
+    FROM user_attempts a
+    JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL
+    GROUP BY q.paper
+    ORDER BY q.paper
+  `;
+
+  // By family
+  const byFamily = await sql`
+    SELECT
+      q.family,
+      q.family_label,
+      COUNT(*)::int as total,
+      COUNT(CASE WHEN a.pass_estimate = 'pass' THEN 1 END)::int as pass
+    FROM user_attempts a
+    JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL
+    GROUP BY q.family, q.family_label
+    ORDER BY total DESC
+  `;
+
+  // Recent 5 results
+  const recentResults = await sql`
+    SELECT pass_estimate, started_at
+    FROM user_attempts
+    WHERE user_id = ${userId} AND completed_at IS NOT NULL AND pass_estimate IS NOT NULL
+    ORDER BY completed_at DESC
+    LIMIT 5
+  `;
+
+  const t = totals[0] || { total_attempts: 0, completed_attempts: 0, pass_count: 0, fail_count: 0, borderline_count: 0 };
+
+  return {
+    total_attempts: t.total_attempts as number,
+    completed_attempts: t.completed_attempts as number,
+    pass_count: t.pass_count as number,
+    fail_count: t.fail_count as number,
+    borderline_count: t.borderline_count as number,
+    by_paper: byPaper as UserStats["by_paper"],
+    by_family: byFamily as UserStats["by_family"],
+    recent_results: recentResults as UserStats["recent_results"],
+  };
 }
