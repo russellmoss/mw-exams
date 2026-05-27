@@ -364,7 +364,6 @@ interface Filters {
   results: Set<string>;
   papers: Set<number>;
   families: Set<string>;
-  subcategories: Set<string>;
 }
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
@@ -382,39 +381,43 @@ function applyFilters(attempts: AttemptDetail[], filters: Filters): AttemptDetai
     }
     if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
     if (filters.families.size > 0 && !filters.families.has(a.family_label)) return false;
-    if (filters.subcategories.size > 0) {
-      const sub = a.subcategory || "Uncategorized";
-      if (!filters.subcategories.has(sub)) return false;
-    }
     return true;
   });
 }
 
-function ChipFilter({ label, options, selected, onToggle }: {
-  label: string;
-  options: { value: string; display: string; color?: string }[];
-  selected: Set<string>;
-  onToggle: (value: string) => void;
+function groupBySubcategory(attempts: AttemptDetail[]): { subcategory: string; attempts: AttemptDetail[] }[] {
+  const map = new Map<string, AttemptDetail[]>();
+  for (const a of attempts) {
+    const key = a.subcategory || "Uncategorized";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(a);
+  }
+  return [...map.entries()].map(([subcategory, attempts]) => ({ subcategory, attempts }));
+}
+
+const FAMILY_SHORT: Record<string, string> = {
+  "Same Variety": "Same Variety",
+  "Same Origin": "Same Origin",
+  "Blend Logic": "Blend",
+  "Mixed Breadth": "Breadth",
+  "Method / Production": "Method",
+  "Style Mechanism": "Style",
+  "Quality Hierarchy": "Hierarchy",
+};
+
+function Chip({ active, color, onClick, children }: {
+  active: boolean;
+  color?: string;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
+  const colorClass = active && color ? color : active
+    ? "bg-accent text-background font-semibold"
+    : "bg-card hover:bg-card-hover text-muted border border-border";
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-xs text-muted shrink-0">{label}:</span>
-      {options.map((opt) => {
-        const active = selected.has(opt.value);
-        const colorClass = active && opt.color ? opt.color : active
-          ? "bg-accent text-background font-semibold"
-          : "bg-card hover:bg-card-hover text-muted border border-border";
-        return (
-          <button
-            key={opt.value}
-            onClick={() => onToggle(opt.value)}
-            className={`px-2.5 py-1 text-xs rounded-md transition-colors cursor-pointer ${colorClass}`}
-          >
-            {opt.display}
-          </button>
-        );
-      })}
-    </div>
+    <button onClick={onClick} className={`px-2.5 py-1 text-xs rounded-md transition-colors cursor-pointer ${colorClass}`}>
+      {children}
+    </button>
   );
 }
 
@@ -429,7 +432,6 @@ export default function HistoryPage() {
     results: new Set(),
     papers: new Set(),
     families: new Set(),
-    subcategories: new Set(),
   });
 
   // Redirect to login if not authenticated
@@ -663,71 +665,79 @@ export default function HistoryPage() {
                 </button>
               </div>
             ) : (
-              <>
-              {(() => {
-                const uniqueFamilies = [...new Set(attempts.map((a) => a.family_label))].sort();
-                const uniqueSubcategories = [...new Set(attempts.map((a) => a.subcategory || "Uncategorized"))].sort();
+              <>{(() => {
+                const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size;
+
+                // Apply paper + result filters first to determine what families are visible
+                const afterPaperAndResult = attempts.filter((a) => {
+                  if (filters.results.size > 0) {
+                    const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
+                    if (!filters.results.has(result)) return false;
+                  }
+                  if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
+                  return true;
+                });
+
+                // Dynamic: only show families that exist in the paper+result filtered set
+                const visibleFamilies = [...new Set(afterPaperAndResult.map((a) => a.family_label))].sort();
                 const uniquePapers = [...new Set(attempts.map((a) => a.paper))].sort();
-                const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.subcategories.size;
+
                 const filtered = applyFilters(attempts, filters);
+                const grouped = groupBySubcategory(filtered);
 
                 return (
                   <>
-                    {/* Filter controls */}
-                    <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-xs text-muted uppercase tracking-wider">Filters</h3>
+                    {/* Filter bar */}
+                    <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-2.5">
+                      {/* Row 1: Paper + Result */}
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-1.5">
+                          {uniquePapers.map((p) => (
+                            <Chip
+                              key={p}
+                              active={filters.papers.has(p)}
+                              onClick={() => setFilters((f) => ({ ...f, papers: toggleInSet(f.papers, p) }))}
+                            >
+                              {paperLabel(p)}
+                            </Chip>
+                          ))}
+                        </div>
+
+                        <div className="w-px h-5 bg-border" />
+
+                        <div className="flex items-center gap-1.5">
+                          <Chip active={filters.results.has("pass")} color="bg-success/20 text-success font-semibold border border-success/40" onClick={() => setFilters((f) => ({ ...f, results: toggleInSet(f.results, "pass") }))}>Pass</Chip>
+                          <Chip active={filters.results.has("borderline")} color="bg-borderline/20 text-borderline font-semibold border border-borderline/40" onClick={() => setFilters((f) => ({ ...f, results: toggleInSet(f.results, "borderline") }))}>Borderline</Chip>
+                          <Chip active={filters.results.has("fail")} color="bg-fail/20 text-fail font-semibold border border-fail/40" onClick={() => setFilters((f) => ({ ...f, results: toggleInSet(f.results, "fail") }))}>Fail</Chip>
+                          <Chip active={filters.results.has("in_progress")} color="bg-accent/15 text-accent font-semibold border border-accent/30" onClick={() => setFilters((f) => ({ ...f, results: toggleInSet(f.results, "in_progress") }))}>In Progress</Chip>
+                        </div>
+
                         {activeFilterCount > 0 && (
-                          <button
-                            onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), subcategories: new Set() })}
-                            className="text-xs text-accent hover:text-accent-hover cursor-pointer"
-                          >
-                            Clear all ({activeFilterCount})
-                          </button>
+                          <>
+                            <div className="w-px h-5 bg-border" />
+                            <button
+                              onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set() })}
+                              className="text-xs text-accent hover:text-accent-hover cursor-pointer"
+                            >
+                              Clear ({activeFilterCount})
+                            </button>
+                          </>
                         )}
                       </div>
 
-                      {/* Result filter */}
-                      <ChipFilter
-                        label="Result"
-                        options={[
-                          { value: "pass", display: "Pass", color: "bg-success/20 text-success font-semibold border border-success/40" },
-                          { value: "borderline", display: "Borderline", color: "bg-borderline/20 text-borderline font-semibold border border-borderline/40" },
-                          { value: "fail", display: "Fail", color: "bg-fail/20 text-fail font-semibold border border-fail/40" },
-                          { value: "in_progress", display: "In Progress", color: "bg-accent/15 text-accent font-semibold border border-accent/30" },
-                        ]}
-                        selected={filters.results}
-                        onToggle={(v) => setFilters((f) => ({ ...f, results: toggleInSet(f.results, v) }))}
-                      />
-
-                      {/* Paper filter */}
-                      {uniquePapers.length > 1 && (
-                        <ChipFilter
-                          label="Paper"
-                          options={uniquePapers.map((p) => ({ value: String(p), display: paperLabel(p) }))}
-                          selected={new Set([...filters.papers].map(String))}
-                          onToggle={(v) => setFilters((f) => ({ ...f, papers: toggleInSet(f.papers, Number(v)) }))}
-                        />
-                      )}
-
-                      {/* Family filter */}
-                      {uniqueFamilies.length > 1 && (
-                        <ChipFilter
-                          label="Family"
-                          options={uniqueFamilies.map((fl) => ({ value: fl, display: fl }))}
-                          selected={filters.families}
-                          onToggle={(v) => setFilters((f) => ({ ...f, families: toggleInSet(f.families, v) }))}
-                        />
-                      )}
-
-                      {/* Subcategory filter */}
-                      {uniqueSubcategories.length > 1 && (
-                        <ChipFilter
-                          label="Subcategory"
-                          options={uniqueSubcategories.map((sc) => ({ value: sc, display: sc.length > 50 ? sc.slice(0, 50) + "..." : sc }))}
-                          selected={filters.subcategories}
-                          onToggle={(v) => setFilters((f) => ({ ...f, subcategories: toggleInSet(f.subcategories, v) }))}
-                        />
+                      {/* Row 2: Family (dynamic — only shows families present in current paper+result filter) */}
+                      {visibleFamilies.length > 1 && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
+                          {visibleFamilies.map((fl) => (
+                            <Chip
+                              key={fl}
+                              active={filters.families.has(fl)}
+                              onClick={() => setFilters((f) => ({ ...f, families: toggleInSet(f.families, fl) }))}
+                            >
+                              {FAMILY_SHORT[fl] || fl}
+                            </Chip>
+                          ))}
+                        </div>
                       )}
                     </div>
 
@@ -738,22 +748,41 @@ export default function HistoryPage() {
                       </p>
                     )}
 
-                    {/* Filtered list */}
+                    {/* Grouped list by subcategory */}
                     {filtered.length === 0 ? (
                       <div className="bg-card rounded-xl border border-border p-6 text-center">
                         <p className="text-sm text-muted">No attempts match these filters.</p>
                       </div>
-                    ) : (
+                    ) : grouped.length === 1 ? (
                       <div className="bg-card rounded-xl border border-border overflow-hidden">
                         {filtered.map((attempt) => (
                           <AttemptCard key={attempt.id} attempt={attempt} />
                         ))}
                       </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {grouped.map((group) => (
+                          <div key={group.subcategory}>
+                            <div className="flex items-center gap-2 mb-2 px-1">
+                              <h3 className="text-xs font-semibold text-muted uppercase tracking-wider truncate">
+                                {group.subcategory}
+                              </h3>
+                              <span className="text-xs text-muted/50 shrink-0">
+                                ({group.attempts.length})
+                              </span>
+                            </div>
+                            <div className="bg-card rounded-xl border border-border overflow-hidden">
+                              {group.attempts.map((attempt) => (
+                                <AttemptCard key={attempt.id} attempt={attempt} />
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </>
                 );
-              })()}
-              </>
+              })()}</>
             )}
           </div>
         </div>
