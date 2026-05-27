@@ -51,9 +51,9 @@ function parseQuestionText(text: string): {
       continue;
     }
 
-    // Check for sub-question like (a), (b), (c), (i), (ii)
+    // Check for sub-question: matches both "a) ..." and "(a) ..."
     const subMatch = line.match(
-      /^\(([a-z]|[iv]+)\)\s*(.*)/i
+      /^\(?([a-z]|[iv]+)\)\s*(.*)/i
     );
     if (subMatch) {
       if (currentSub) subQuestions.push(currentSub);
