@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import type { Question } from "@/lib/study-session";
+import { useSpeech } from "@/lib/use-speech";
+import { MicButton } from "./MicButton";
 
 interface PreGlassReasoningProps {
   question: Question;
@@ -14,12 +16,22 @@ export function PreGlassReasoning({
 }: PreGlassReasoningProps) {
   const [reasoning, setReasoning] = useState("");
 
+  const handleTranscript = useCallback((text: string) => {
+    setReasoning((prev) => {
+      const trimmed = prev.trim();
+      if (trimmed.length === 0) return text;
+      return trimmed + " " + text;
+    });
+  }, []);
+
+  const speech = useSpeech(handleTranscript);
+
   const paperLabel =
     question.paper === 1
-      ? "Paper 1 -- Whites"
+      ? "Paper 1 — Whites"
       : question.paper === 2
-        ? "Paper 2 -- Reds"
-        : "Paper 3 -- Special";
+        ? "Paper 2 — Reds"
+        : "Paper 3 — Special";
 
   return (
     <div>
@@ -27,9 +39,6 @@ export function PreGlassReasoning({
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <span className="text-xs font-mono px-2 py-1 rounded bg-accent/20 text-accent">
           {paperLabel}
-        </span>
-        <span className="text-xs font-mono px-2 py-1 rounded bg-card text-muted">
-          {question.year} Q{question.questionNumber}
         </span>
         <span className="text-xs font-semibold text-accent">
           Pre-Glass Analysis
@@ -59,28 +68,46 @@ export function PreGlassReasoning({
         </p>
       </div>
 
-      {/* Reasoning textarea */}
-      <textarea
-        value={reasoning}
-        onChange={(e) => setReasoning(e.target.value)}
-        placeholder="Write your pre-glass stem analysis here...
+      {/* Reasoning textarea with mic */}
+      <div className="relative">
+        <textarea
+          value={reasoning}
+          onChange={(e) => setReasoning(e.target.value)}
+          placeholder="Type or speak your pre-glass stem analysis..."
+          className={`w-full min-h-[200px] bg-card border rounded-xl p-4 pr-14 text-foreground text-[15px] leading-relaxed resize-y placeholder:text-muted/50 focus:outline-none transition-colors ${
+            speech.isListening
+              ? "border-fail/60 bg-fail/5"
+              : "border-border focus:border-accent/60"
+          }`}
+          rows={10}
+        />
+        <div className="absolute top-3 right-3">
+          <MicButton
+            isListening={speech.isListening}
+            isSupported={speech.isSupported}
+            onClick={speech.toggle}
+          />
+        </div>
+      </div>
 
-For example:
-- Paper 1 means white wines
-- 4 wines from the same region + same vintage suggests a quality hierarchy
-- High marks for origin identification means the region has distinguishable tiers
-- Likely candidates: Burgundy (Chablis to Grand Cru), Loire, Alsace..."
-        className="w-full min-h-[200px] bg-card border border-border rounded-xl p-4 text-foreground text-[15px] leading-relaxed resize-y placeholder:text-muted/50 focus:outline-none focus:border-accent/60 transition-colors"
-        rows={10}
-      />
-
-      {/* Character count and submit */}
+      {/* Status + submit */}
       <div className="flex items-center justify-between mt-4">
-        <span className="text-xs text-muted tabular-nums">
-          {reasoning.length} characters
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted tabular-nums">
+            {reasoning.length} characters
+          </span>
+          {speech.isListening && (
+            <span className="text-xs text-fail flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-fail animate-pulse" />
+              Listening...
+            </span>
+          )}
+        </div>
         <button
-          onClick={() => onSubmit(reasoning)}
+          onClick={() => {
+            speech.stop();
+            onSubmit(reasoning);
+          }}
           disabled={reasoning.trim().length < 20}
           className={`px-8 py-3 font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
             reasoning.trim().length >= 20
