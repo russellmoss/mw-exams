@@ -52,8 +52,8 @@ Please evaluate this candidate's answer against the model answer. Assess identif
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
-              const chunk = `data: ${event.delta.text}\n\n`;
-              controller.enqueue(encoder.encode(chunk));
+              const jsonChunk = JSON.stringify({ t: event.delta.text });
+              controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
             }
           }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));

@@ -65,7 +65,17 @@ export function useStreaming(): UseStreamingResult {
             if (line.startsWith("data: ")) {
               const data = line.slice(6);
               if (data === "[DONE]") continue;
-              accumulated += data;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.t) {
+                  accumulated += parsed.t;
+                } else if (parsed.error) {
+                  accumulated += `\n\n**Error:** ${parsed.error}`;
+                }
+              } catch {
+                // Fallback for non-JSON data
+                accumulated += data;
+              }
               setText(accumulated);
             }
           }

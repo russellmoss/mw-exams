@@ -62,15 +62,22 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
   color: var(--foreground);
 }
+.markdown-content h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
 .markdown-content h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  margin-top: 1rem;
-  color: var(--foreground);
+  margin-top: 1.25rem;
+  color: var(--accent);
 }
 .markdown-content p {
   margin-bottom: 0.75rem;

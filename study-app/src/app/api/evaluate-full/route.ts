@@ -111,8 +111,9 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
+              const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(
-                encoder.encode(`data: ${event.delta.text}\n\n`)
+                encoder.encode(`data: ${jsonChunk}\n\n`)
               );
             }
           }
@@ -121,7 +122,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
         } catch (err) {
           controller.enqueue(
             encoder.encode(
-              `data: [Error: ${err instanceof Error ? err.message : "unknown"}]\n\n`
+              `data: ${JSON.stringify({ error: err instanceof Error ? err.message : "unknown" })}\n\n`
             )
           );
           controller.close();
