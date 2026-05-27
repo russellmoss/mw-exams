@@ -52,7 +52,6 @@ export function FamilyFilter({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {families.map((f) => {
           const count = counts[f] || 0;
-          if (f !== "any" && count === 0) return null;
 
           const label = f === "any" ? "Any Family" : FAMILY_LABELS[f] || f;
           const desc =
@@ -60,16 +59,18 @@ export function FamilyFilter({
               ? "Random across all question types"
               : FAMILY_DESCRIPTIONS[f] || "";
 
+          const countLabel =
+            count > 0
+              ? `${count} in bank`
+              : "generates fresh";
+
           return (
             <button
               key={f}
               onClick={() => onSelect(f)}
-              disabled={count === 0}
-              className={`group text-left rounded-lg border border-border p-4 transition-all duration-200 cursor-pointer ${
-                count > 0
-                  ? "hover:border-accent/60 hover:bg-card-hover"
-                  : "opacity-40 cursor-not-allowed"
-              } ${f === "any" ? "sm:col-span-2 bg-card-hover border-accent/30" : "bg-card"}`}
+              className={`group text-left rounded-lg border border-border p-4 transition-all duration-200 cursor-pointer hover:border-accent/60 hover:bg-card-hover ${
+                f === "any" ? "sm:col-span-2 bg-card-hover border-accent/30" : "bg-card"
+              }`}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="font-medium text-foreground">
@@ -81,7 +82,7 @@ export function FamilyFilter({
                   {label}
                 </span>
                 <span className="text-xs text-muted tabular-nums">
-                  {count} {count === 1 ? "question" : "questions"}
+                  {countLabel}
                 </span>
               </div>
               <p className="text-xs text-muted leading-relaxed">{desc}</p>
