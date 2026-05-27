@@ -292,7 +292,14 @@ function main() {
   console.log(`File size: ${(fs.statSync(OUTPUT).size / 1024 / 1024).toFixed(1)} MB`);
 
   // Build pipeline context — the reference files the question generation prompt needs
+  // This includes the ACTUAL agent instruction files so the app and CLI pipeline stay in sync
+  const AGENTS_DIR = path.join(ROOT, '.claude', 'agents');
   const pipelineContext = {
+    // Agent instructions (the source of truth for question + answer generation)
+    mockExamWriterAgent: loadTextFile(path.join(AGENTS_DIR, 'mock-exam-writer.md')),
+    mockAnswerWriterAgent: loadTextFile(path.join(AGENTS_DIR, 'mock-answer-writer.md')),
+    sharedRules: loadTextFile(path.join(AGENTS_DIR, '_shared_rules.md')),
+    // Heuristics and analysis files
     examinerReportSynthesis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'examiner_report_synthesis.md')),
     curveballAnalysis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'curveball_analysis.md')),
     sourcingGuide: loadTextFile(path.join(ROOT, 'outputs', 'mock_exams', 'mock_exam_sourcing_guide.md')),
