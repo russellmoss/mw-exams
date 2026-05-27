@@ -149,7 +149,17 @@ export async function POST(request: Request) {
 async function generateFreshQuestion(paper: number, family: string | undefined) {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  const prompt = buildQuestionGenerationPrompt(paper, family || "any");
+  // Pull existing wines from the bank for deduplication
+  const allQuestions = await getQuestionsByFilter(paper);
+  const existingWines: string[] = [];
+  for (const q of allQuestions) {
+    const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
+    for (const w of wines) {
+      existingWines.push(w.fullText);
+    }
+  }
+
+  const prompt = buildQuestionGenerationPrompt(paper, family || "any", existingWines);
 
   const message = await client.messages.create({
     model: "claude-sonnet-4-6",
@@ -172,10 +182,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined) 
     );
   }
 
-  // Validate paper scope — reject white wines in P2, red wines in P1
+  // Validate paper scope + variety consistency
   const scopeCheck = validatePaperScope(paper, parsed.wines);
-  if (!scopeCheck.valid) {
-    console.error(`Paper scope violation for P${paper}:`, scopeCheck.violations);
+  const varietyCheck = validateVarietyConsistency(parsed.questionText, parsed.wines);
+  const allViolations = [...scopeCheck.violations, ...varietyCheck.violations];
+
+  if (allViolations.length > 0) {
+    console.error(`Validation failures for P${paper}:`, allViolations);
     // Retry once with a fresh generation rather than serving a bad question
     const retryMessage = await client.messages.create({
       model: "claude-sonnet-4-6",
@@ -187,11 +200,12 @@ async function generateFreshQuestion(paper: number, family: string | undefined) 
     const retryParsed = parseGeneratedQuestion(retryText, paper, family || "F4");
     if (retryParsed) {
       const retryScope = validatePaperScope(paper, retryParsed.wines);
-      if (retryScope.valid) {
+      const retryVariety = validateVarietyConsistency(retryParsed.questionText, retryParsed.wines);
+      if (retryScope.valid && retryVariety.valid) {
         Object.assign(parsed, retryParsed);
-        console.log("Retry succeeded — paper scope now valid");
+        console.log("Retry succeeded — all validations now pass");
       } else {
-        console.error("Retry also failed paper scope check:", retryScope.violations);
+        console.error("Retry also failed validation:", [...retryScope.violations, ...retryVariety.violations]);
       }
     }
   }
@@ -243,7 +257,38 @@ function validatePaperScope(paper: number, wines: { slot: number; fullText: stri
       if (RED_GRAPE_INDICATORS.test(text)) {
         violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a red wine in Paper 1 (whites only)`);
       }
+    } else if (paper === 3) {
+      const isWhiteGrape = WHITE_GRAPE_INDICATORS.test(text);
+      const isRedGrape = RED_GRAPE_INDICATORS.test(text);
+      const hasSpecialIndicator = /\b(sparkling|champagne|cava|prosecco|cremant|sekt|brut|blanc\s*de|rose|rosé|fortified|sherry|port|madeira|marsala|vin\s*santo|tokaj|aszu|sauternes|barsac|beerenauslese|trockenbeerenauslese|auslese|spätlese|kabinett|ice\s*wine|eiswein|passito|recioto|amarone|brachetto|moscato|muscat|rutherglen|maury|banyuls|rivesaltes|pedro\s*ximenez|oloroso|amontillado|manzanilla|fino|palo\s*cortado|VDN|vin\s*doux|late\s*harvest|botrytis|noble\s*rot|vendange\s*tardive|SGN|szamorodni)\b/i.test(text);
+      const hasLowAlcohol = text.match(/\((\d+(?:\.\d+)?)%\)/);
+      const abv = hasLowAlcohol ? parseFloat(hasLowAlcohol[1]) : null;
+      const isLikelySweet = abv !== null && abv <= 10;
+      if ((isWhiteGrape || isRedGrape) && !hasSpecialIndicator && !isLikelySweet) {
+        violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a standard still wine in Paper 3 (sparkling/fortified/sweet/rosé/oxidative only)`);
+      }
     }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const stemSaysOneVariety = /same single grape variety/i.test(questionText);
+  if (!stemSaysOneVariety) return { valid: true, violations };
+
+  const detectedVarieties: string[] = [];
+  for (const wine of wines) {
+    const text = wine.fullText.toLowerCase();
+    const whiteMatch = text.match(WHITE_GRAPE_INDICATORS);
+    const redMatch = text.match(RED_GRAPE_INDICATORS);
+    const variety = (whiteMatch?.[0] || redMatch?.[0] || "unknown").toLowerCase().trim();
+    detectedVarieties.push(variety);
+  }
+
+  const uniqueVarieties = [...new Set(detectedVarieties.filter(v => v !== "unknown"))];
+  if (uniqueVarieties.length > 1) {
+    violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
   }
   return { valid: violations.length === 0, violations };
 }

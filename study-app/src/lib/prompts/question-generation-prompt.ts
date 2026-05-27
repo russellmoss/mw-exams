@@ -27,7 +27,8 @@ function loadPipelineContext(): PipelineContext {
 
 export function buildQuestionGenerationPrompt(
   paper: number,
-  family: string
+  family: string,
+  existingWines?: string[]
 ): { system: string; user: string } {
   const ctx = loadPipelineContext();
 
@@ -77,6 +78,11 @@ ${ctx.wineCompositionAnalysis}
 ## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper} — match this voice exactly)
 ${exampleText}
 
+${existingWines && existingWines.length > 0 ? `## WINE DEDUPLICATION — DO NOT REUSE THESE PRODUCERS/WINES
+The following wines already exist in the question bank. Do NOT select the same producer+cuvée combination for your new question. Choose different producers from the same variety/region instead.
+
+${existingWines.join("\n")}
+` : ""}
 ## CRITICAL OUTPUT RULES
 1. NO markdown formatting in the question stem. No **bold**, no *italic*, no &nbsp;. Plain text only.
 2. Sub-questions use: a) b) c) d). NOT (a), NOT **(a)**.
