@@ -1,0 +1,106 @@
+{
+  "batch_id": "2014_p3",
+  "year": 2014,
+  "paper": 3,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2014 p3 w1",
+    "/research-wine 2014 p3 w2",
+    "/research-wine 2014 p3 w3",
+    "/research-wine 2014 p3 w4",
+    "/research-wine 2014 p3 w5",
+    "/research-wine 2014 p3 w6",
+    "/research-wine 2014 p3 w7",
+    "/research-wine 2014 p3 w8",
+    "/research-wine 2014 p3 w9",
+    "/research-wine 2014 p3 w10",
+    "/research-wine 2014 p3 w11",
+    "/research-wine 2014 p3 w12"
+  ],
+  "wines": [
+    {
+      "id": "2014_p3_w1",
+      "year": 2014,
+      "paper": 3,
+      "slot": 1,
+      "full_text": "Cava, L'Hereu, Raventos i Blanc. 2011. Penedes, Spain (12%)"
+    },
+    {
+      "id": "2014_p3_w2",
+      "year": 2014,
+      "paper": 3,
+      "slot": 2,
+      "full_text": "Vouvray Brut, Francois Pinon. NV. Loire, France (12.5%)"
+    },
+    {
+      "id": "2014_p3_w3",
+      "year": 2014,
+      "paper": 3,
+      "slot": 3,
+      "full_text": "Riesling, Sektmanufaktur Graf. 2010. Pfalz, Germany (12.5%)"
+    },
+    {
+      "id": "2014_p3_w4",
+      "year": 2014,
+      "paper": 3,
+      "slot": 4,
+      "full_text": "Le Reve, Blanc de Blancs, Domaine Carneros. 2006. Carneros, California, USA (12%)"
+    },
+    {
+      "id": "2014_p3_w5",
+      "year": 2014,
+      "paper": 3,
+      "slot": 5,
+      "full_text": "East India Solera Sherry, Lustau. NV. Jerez, Spain (20%)"
+    },
+    {
+      "id": "2014_p3_w6",
+      "year": 2014,
+      "paper": 3,
+      "slot": 6,
+      "full_text": "15-yr old Malmsey, Blandy's. NV. Madeira, Portugal (19%)"
+    },
+    {
+      "id": "2014_p3_w7",
+      "year": 2014,
+      "paper": 3,
+      "slot": 7,
+      "full_text": "Six Grapes, Reserve Port, Graham's. NV. Port, Portugal (20%)"
+    },
+    {
+      "id": "2014_p3_w8",
+      "year": 2014,
+      "paper": 3,
+      "slot": 8,
+      "full_text": "Banyuls, Rimage, Domaine La Tour Vieille. 2011. Roussillon, France (16%)"
+    },
+    {
+      "id": "2014_p3_w9",
+      "year": 2014,
+      "paper": 3,
+      "slot": 9,
+      "full_text": "Miraval Rose. 2013. Cotes de Provence, France (13%)"
+    },
+    {
+      "id": "2014_p3_w10",
+      "year": 2014,
+      "paper": 3,
+      "slot": 10,
+      "full_text": "Pheasant's Tears, Rkatsiteli. 2011. Kakheti, Georgia (12.5%)"
+    },
+    {
+      "id": "2014_p3_w11",
+      "year": 2014,
+      "paper": 3,
+      "slot": 11,
+      "full_text": "Menage a Trois, Folie a Deux Winery. 2012. California, USA (13.5%)"
+    },
+    {
+      "id": "2014_p3_w12",
+      "year": 2014,
+      "paper": 3,
+      "slot": 12,
+      "full_text": "Amarone della Valpolicella, Allegrini. 2009. Veneto, Italy (15.5%)"
+    }
+  ]
+}

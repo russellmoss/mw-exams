@@ -1,0 +1,4789 @@
+{
+  "mocks": [
+    {
+      "mock_id": "mock_full_2026_05_26",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-4 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on quality, style, and capacity to age. (4 x 13 marks)\n\n### Question 2\nWines 5-7 are from the same country.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the style and winemaking. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast their commercial positioning. (15 marks)\n\n### Question 3\nWines 8-10 are blends of the same two grape varieties.\n\nFor all three wines:\n\na) Identify the grape varieties. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 8 marks)\n\nc) Comment on style, oak handling, and quality. (3 x 12 marks)\n\n### Question 4\nWines 11 and 12 are from the same single grape variety.\n\nFor both wines:\n\na) Identify the grape variety. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (2 x 10 marks)\n\nc) Discuss style, maturity, and winemaking. (2 x 15 marks)\n\n### Wines\n\n1. Chablis Grand Cru Vaudésir, Domaine Louis Michel, 2012. Burgundy, France. (13%)\n2. Bâtard-Montrachet Grand Cru, Domaine Paul Pernot, 2012. Burgundy, France. (13.5%)\n3. Puligny-Montrachet, Jean-Marc Boillot, 2012. Burgundy, France. (13%)\n4. Chardonnay, Yellow Tail, 2023. South Eastern Australia, Australia. (13%)\n5. Muscadet Sèvre-et-Maine Monnières Saint-Fiacre l'Ancestrale, Vignobles Günther-Chéreau, 2018. Loire, France. (12%)\n6. Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)\n7. Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)\n8. Château de Fieuzal Blanc, 2021. Pessac-Léognan, France. (12.5%)\n9. Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)\n10. Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec, France. (12.5%)\n11. Pinot Gris, Charles Schleret, 2007. Alsace, France. (14%)\n12. Pinot Gris, Neudorf, 2015. Nelson, New Zealand. (14%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on quality, style, and capacity to age. ### question # wines are from the sa",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F7",
+          "subtype": "F7x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led"
+          ],
+          "stem": "Wines 1-4 are from four different countries.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (4 x 10 marks)\n\nb) Comment on style, quality, and maturity. (4 x 10 marks)\n\n### Question 2\nWines 5-8 are from Europe. They come from four different single grape varieties, each closely associated with their origin.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (4 x 9 marks)\n\nb) Discuss quality within the context of the region of production. (4 x 8 marks)\n\nc) Comment on the likely commercial positioning. (4 x 5 marks)\n\n### Question 3\nWines 9-12 are a mixed bag.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 7 marks)\n\nb) Comment on the method of production with specific reference to tannin management and oak. (4 x 8 marks)\n\nc) Comment on style, quality, and capacity to age. (4 x 10 marks)\n\n### Wines\n\n1. Monthelie, 1er Cru Clos Les Champs Fulliot, Bouchard Père et Fils, 2010. Burgundy, France. (13.5%)\n2. Pinot Noir, Greywacke, 2012. Marlborough, New Zealand. (14%)\n3. Rioja Reserva, Bodegas Muga, 2010. Rioja, Spain. (14%)\n4. Portrait Shiraz, Peter Lehmann, 2013. Barossa Valley, Australia. (14.5%)\n5. Gevrey Chambertin, 1er Cru Les Corbeaux, Domaine Bruno Clavelier, 2009. Burgundy, France. (13%)\n6. Fleurie, Bouchard Père et Fils, 2013. Beaujolais, France. (12.5%)\n7. Chianti Classico, Felsina Berardenga, 2011. Tuscany, Italy. (14%)\n8. Nebbiolo delle Langhe, Castello di Verduno, 2013. Piemonte, Italy. (13.5%)\n9. Brunello di Montalcino, San Polino, 2009. Tuscany, Italy. (14%)\n10. Barolo, DaGromis, Gaja, 2010. Piemonte, Italy. (14%)\n11. Merlot, Beringer, 2011. Napa Valley, California. (14.5%)\n12. Magnificat, Franciscan, 2011. Napa Valley, California. (14%)",
+          "canonical_stem": "wines are from four different countries. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on style, quality, and maturity. ### question # wines are from europe. they come from four different single grape varieties, eac",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1 and 2 are sparkling wines from two different countries.\n\nFor each wine:\n\na) Identify the origin and grape variety or varieties as closely as possible. (2 x 10 marks)\n\nb) Comment on the method of production, style, and quality. (2 x 15 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast their commercial positioning. (20 marks)\n\n### Question 2\nWines 3 and 4 are from the same region.\n\nWith reference to both wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the winemaking of the two wines. (15 marks)\n\nc) Comment on the quality and commercial potential of each wine. (20 marks)\n\n### Question 3\nWines 5-9 all have residual sugar.\n\nFor each wine:\n\na) State the level of residual sugar. (5 x 2 marks)\n\nb) State the alcohol level. (5 x 2 marks)\n\nc) Identify the region and grape variety/ies as closely as possible. (5 x 10 marks)\n\nd) Comment on the winemaking. (5 x 8 marks)\n\n### Question 4\nWines 10-12 are fortified wines.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Discuss style, quality, and maturity. (3 x 10 marks)\n\nc) Comment on the method of production and elevage. (3 x 7 marks)\n\n### Wines\n\n1. Riesling Sekt Extra Dry, Dr. Loosen, NV. Mosel, Germany. (11.5%)\n2. Riesling, Framingham, 2023. Marlborough, New Zealand. (12%)\n3. Chardonnay En Flandre, Domaine de la Touraize, 2021. Arbois, Jura, France. (12.5%)\n4. L’Etoile, Domaine de Montbourgeau, 2018. Jura, France. (14.5%)\n5. Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)\n6. Beerenauslese Cuvée, Kracher, 2019. Burgenland, Austria. (11%)\n7. Vin Santo del Chianti Classico, Badia a Coltibuono, 2014. Tuscany, Italy. (15.5%)\n8. Muscat de Beaumes de Venise, Domaine de Durban, 2020. Rhône Valley, France. (15%)\n9. Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)\n10. Sercial 10 Years Old, Henriques & Henriques, NV. Madeira, Portugal. (20%)\n11. Fine Ruby Port, Cockburns, NV. Douro, Portugal. (19%)\n12. 40 Year Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "canonical_stem": "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin and grape variety or varieties as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare an",
+          "slots": [
+            1,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Chablis Grand Cru Vaudésir, Domaine Louis Michel, 2012. Burgundy, France. (13%)",
+          "motifs": [
+            "chablis grand cru vaudesir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Bâtard-Montrachet Grand Cru, Domaine Paul Pernot, 2012. Burgundy, France. (13.5%)",
+          "motifs": [
+            "bâtard-montrachet grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Puligny-Montrachet, Jean-Marc Boillot, 2012. Burgundy, France. (13%)",
+          "motifs": [
+            "puligny-montrachet"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Chardonnay, Yellow Tail, 2023. South Eastern Australia, Australia. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Muscadet Sèvre-et-Maine Monnières Saint-Fiacre l'Ancestrale, Vignobles Günther-Chéreau, 2018. Loire, France. (12%)",
+          "motifs": [
+            "muscadet sevre-et-maine monnieres saint-fiacre l'ancestrale"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)",
+          "motifs": [
+            "riesling",
+            "riesling silberberg de rorschwihr"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray clos du bourg demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Château de Fieuzal Blanc, 2021. Pessac-Léognan, France. (12.5%)",
+          "motifs": [
+            "château de fieuzal blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)",
+          "motifs": [
+            "sauvignon semillon circa 77"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec, France. (12.5%)",
+          "motifs": [
+            "bordeaux",
+            "château rieussec r de rieussec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Pinot Gris, Charles Schleret, 2007. Alsace, France. (14%)",
+          "motifs": [
+            "pinot gris"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Pinot Gris, Neudorf, 2015. Nelson, New Zealand. (14%)",
+          "motifs": [
+            "pinot gris"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Monthelie, 1er Cru Clos Les Champs Fulliot, Bouchard Père et Fils, 2010. Burgundy, France. (13.5%)",
+          "motifs": [
+            "monthelie"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Pinot Noir, Greywacke, 2012. Marlborough, New Zealand. (14%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Rioja Reserva, Bodegas Muga, 2010. Rioja, Spain. (14%)",
+          "motifs": [
+            "rioja reserva"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Portrait Shiraz, Peter Lehmann, 2013. Barossa Valley, Australia. (14.5%)",
+          "motifs": [
+            "portrait shiraz"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Gevrey Chambertin, 1er Cru Les Corbeaux, Domaine Bruno Clavelier, 2009. Burgundy, France. (13%)",
+          "motifs": [
+            "gevrey chambertin"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Fleurie, Bouchard Père et Fils, 2013. Beaujolais, France. (12.5%)",
+          "motifs": [
+            "fleurie"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Chianti Classico, Felsina Berardenga, 2011. Tuscany, Italy. (14%)",
+          "motifs": [
+            "chianti",
+            "chianti classico"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Nebbiolo delle Langhe, Castello di Verduno, 2013. Piemonte, Italy. (13.5%)",
+          "motifs": [
+            "nebbiolo",
+            "nebbiolo delle langhe"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Brunello di Montalcino, San Polino, 2009. Tuscany, Italy. (14%)",
+          "motifs": [
+            "brunello di montalcino"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Barolo, DaGromis, Gaja, 2010. Piemonte, Italy. (14%)",
+          "motifs": [
+            "barolo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Merlot, Beringer, 2011. Napa Valley, California. (14.5%)",
+          "motifs": [
+            "merlot"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Magnificat, Franciscan, 2011. Napa Valley, California. (14%)",
+          "motifs": [
+            "magnificat"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Riesling Sekt Extra Dry, Dr. Loosen, NV. Mosel, Germany. (11.5%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "riesling sekt extra dry"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Riesling, Framingham, 2023. Marlborough, New Zealand. (12%)",
+          "motifs": [
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Chardonnay En Flandre, Domaine de la Touraize, 2021. Arbois, Jura, France. (12.5%)",
+          "motifs": [
+            "chardonnay en flandre"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "L’Etoile, Domaine de Montbourgeau, 2018. Jura, France. (14.5%)",
+          "motifs": [
+            "l’etoile"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)",
+          "motifs": [
+            "icewine",
+            "vidal icewine"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Beerenauslese Cuvée, Kracher, 2019. Burgenland, Austria. (11%)",
+          "motifs": [
+            "beerenauslese cuvee"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Vin Santo del Chianti Classico, Badia a Coltibuono, 2014. Tuscany, Italy. (15.5%)",
+          "motifs": [
+            "chianti",
+            "vin santo del chianti classico"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Muscat de Beaumes de Venise, Domaine de Durban, 2020. Rhône Valley, France. (15%)",
+          "motifs": [
+            "muscat de beaumes de venise"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)",
+          "motifs": [
+            "clos du bourg demi-sec",
+            "huet",
+            "vouvray"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Sercial 10 Years Old, Henriques & Henriques, NV. Madeira, Portugal. (20%)",
+          "motifs": [
+            "madeira",
+            "sercial 10 years old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "Fine Ruby Port, Cockburns, NV. Douro, Portugal. (19%)",
+          "motifs": [
+            "fine ruby port"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "40 Year Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "motifs": [
+            "40 year tawny port"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v2",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v2.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-4 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on style, quality, and capacity to age. (4 x 13 marks)\n\n### Question 2\nWines 5-7 are from the same country.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the style and commercial positioning. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Comment on how natural factors and winemaking shape the different styles. (15 marks)\n\n### Question 3\nWines 8-10 are blends of the same two grape varieties.\n\nFor all three wines:\n\na) Identify the grape varieties. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 8 marks)\n\nc) Comment on style, oak handling, and quality. (3 x 12 marks)\n\n### Question 4\nWines 11 and 12 are from the same single grape variety and region.\n\nFor both wines:\n\na) Identify the grape variety and origin as closely as possible. (2 x 10 marks)\n\nb) Compare and contrast the style, quality, and winemaking. (30 marks)\n\n### Wines\n\n1. Chardonnay, Yellow Tail, 2023. South Eastern Australia, Australia. (13%)\n2. Elgin Highlands Chardonnay, Iona, 2022. Elgin, South Africa. (12.5%)\n3. Chardonnay, Moss Wood, 2023. Margaret River, Australia. (13%)\n4. Corton-Charlemagne Grand Cru, Domaine Louis Jadot, 2019. Burgundy, France. (13.5%)\n5. Muscadet Sèvre-et-Maine Monnières Saint-Fiacre l'Ancestrale, Vignobles Günther-Chéreau, 2018. Loire, France. (12%)\n6. Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)\n7. Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)\n8. Château de Fieuzal Blanc, 2021. Pessac-Léognan, France. (12.5%)\n9. Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)\n10. Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec, France. (12.5%)\n11. Sauvignon Blanc, Cowrie Bay, 2023. Marlborough, New Zealand. (13%)\n12. Sauvignon Blanc Section 94, Dog Point, 2018. Marlborough, New Zealand. (13.5%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, quality, and capacity to age. ### question # wines are from the sa",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend"
+          ],
+          "stem": "Wines 1-4 are from the same country and region.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 8 marks)\n\nb) Comment on the grape variety or blend, style, and winemaking. (4 x 9 marks)\n\nc) Comment on quality and commercial positioning. (4 x 8 marks)\n\n### Question 2\nWines 5-8 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Discuss the style, quality, and maturity. (4 x 11 marks)\n\n### Question 3\nWines 9-12 are a mixed bag.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 7 marks)\n\nb) Comment on the method of production with specific reference to tannin management and oak. (4 x 8 marks)\n\nc) Comment on style, quality, and capacity to age. (4 x 10 marks)\n\n### Wines\n\n1. Côtes du Rhône Réserve, Famille Perrin, 2022. Rhône Valley, France. (14%)\n2. Crozes-Hermitage \"Papillon\", Domaine Gilles Robin, 2023. Rhône Valley, France. (13%)\n3. Gigondas, Château de Saint Cosme, 2022. Rhône Valley, France. (14.5%)\n4. Cornas Granit 30, Domaine Vincent Paris, 2022. Rhône Valley, France. (13%)\n5. Savigny-les-Beaune Les Goudelettes, Domaine Antonin Guyon, 2021. Burgundy, France. (13.5%)\n6. Pinot Noir, Dutton-Goldfield, 2022. Sonoma, USA. (13.5%)\n7. Pinot Noir, Rockburn, 2022. Central Otago, New Zealand. (13.5%)\n8. Pinot Noir, Humberto Canale, 2021. Patagonia, Argentina. (13.5%)\n9. Barolo, Diego Conterno, 2018. Piedmont, Italy. (14.5%)\n10. Brunello di Montalcino Amore e Magia, Podere Le Ripi, 2017. Tuscany, Italy. (14.5%)\n11. Cabernet Franc, El Enemigo, 2021. Mendoza, Argentina. (13.5%)\n12. Barbera d'Alba Trevie, Vietti, 2022. Piedmont, Italy. (14.5%)",
+          "canonical_stem": "wines are from the same country and region. for each wine: a) identify the origin as closely as possible. b) comment on the grape variety or blend, style, and winemaking. c) comment on quality and commercial positioning. ### question # wines are from the same ",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1 and 2 are sparkling wines from two different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 10 marks)\n\nb) Comment on the method of production, style, and quality. (2 x 15 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast the commercial opportunities and challenges. (20 marks)\n\n### Question 2\nWines 3 and 4 are from the same region.\n\nWith reference to both wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the winemaking of the two wines. (15 marks)\n\nc) Comment on the quality and commercial potential of each wine. (20 marks)\n\n### Question 3\nWines 5-9 all have residual sugar.\n\nFor each wine:\n\na) State the level of residual sugar. (5 x 2 marks)\n\nb) State the alcohol level. (5 x 2 marks)\n\nc) Identify the region and grape variety/ies as closely as possible. (5 x 10 marks)\n\nd) Comment on the winemaking. (5 x 8 marks)\n\n### Question 4\nWines 10-12 are fortified wines.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Discuss style, quality, and maturity. (3 x 10 marks)\n\nc) Comment on the method of production and elevage. (3 x 7 marks)\n\n### Wines\n\n1. Brut J Schram Blancs, Schramsberg, 2014. North Coast, California, USA. (12.3%)\n2. Cava Reserva Brut Nature, Avinyó, 2018. Penedès, Spain. (12%)\n3. Chardonnay En Flandre, Domaine de la Touraize, 2021. Arbois, Jura, France. (12.5%)\n4. L’Etoile, Domaine de Montbourgeau, 2018. Jura, France. (14.5%)\n5. Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)\n6. Beerenauslese Cuvée, Kracher, 2019. Burgenland, Austria. (11%)\n7. Vin Santo del Chianti Classico, Badia a Coltibuono, 2014. Tuscany, Italy. (15.5%)\n8. Muscat de Beaumes de Venise, Domaine de Durban, 2020. Rhône Valley, France. (15%)\n9. Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)\n10. Sercial 10 Years Old, Henriques & Henriques, NV. Madeira, Portugal. (20%)\n11. Fine Ruby Port, Cockburn's, NV. Douro, Portugal. (19%)\n12. 40 Year Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "canonical_stem": "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare and contrast the commercial oppor",
+          "slots": [
+            1,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Chardonnay, Yellow Tail, 2023. South Eastern Australia, Australia. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Elgin Highlands Chardonnay, Iona, 2022. Elgin, South Africa. (12.5%)",
+          "motifs": [
+            "elgin highlands chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Chardonnay, Moss Wood, 2023. Margaret River, Australia. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Corton-Charlemagne Grand Cru, Domaine Louis Jadot, 2019. Burgundy, France. (13.5%)",
+          "motifs": [
+            "corton-charlemagne grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Muscadet Sèvre-et-Maine Monnières Saint-Fiacre l'Ancestrale, Vignobles Günther-Chéreau, 2018. Loire, France. (12%)",
+          "motifs": [
+            "muscadet sevre-et-maine monnieres saint-fiacre l'ancestrale"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)",
+          "motifs": [
+            "riesling",
+            "riesling silberberg de rorschwihr"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray clos du bourg demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Château de Fieuzal Blanc, 2021. Pessac-Léognan, France. (12.5%)",
+          "motifs": [
+            "château de fieuzal blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)",
+          "motifs": [
+            "sauvignon semillon circa 77"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec, France. (12.5%)",
+          "motifs": [
+            "bordeaux",
+            "château rieussec r de rieussec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Sauvignon Blanc, Cowrie Bay, 2023. Marlborough, New Zealand. (13%)",
+          "motifs": [
+            "sauvignon blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Sauvignon Blanc Section 94, Dog Point, 2018. Marlborough, New Zealand. (13.5%)",
+          "motifs": [
+            "sauvignon blanc",
+            "sauvignon blanc section 94"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Côtes du Rhône Réserve, Famille Perrin, 2022. Rhône Valley, France. (14%)",
+          "motifs": [
+            "cotes du rhone reserve"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Crozes-Hermitage \"Papillon\", Domaine Gilles Robin, 2023. Rhône Valley, France. (13%)",
+          "motifs": [
+            "crozes-hermitage \"papillon\""
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Gigondas, Château de Saint Cosme, 2022. Rhône Valley, France. (14.5%)",
+          "motifs": [
+            "gigondas"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Cornas Granit 30, Domaine Vincent Paris, 2022. Rhône Valley, France. (13%)",
+          "motifs": [
+            "cornas granit 30"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Savigny-les-Beaune Les Goudelettes, Domaine Antonin Guyon, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "savigny-les-beaune les goudelettes"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Pinot Noir, Dutton-Goldfield, 2022. Sonoma, USA. (13.5%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Pinot Noir, Rockburn, 2022. Central Otago, New Zealand. (13.5%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Pinot Noir, Humberto Canale, 2021. Patagonia, Argentina. (13.5%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Barolo, Diego Conterno, 2018. Piedmont, Italy. (14.5%)",
+          "motifs": [
+            "barolo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Brunello di Montalcino Amore e Magia, Podere Le Ripi, 2017. Tuscany, Italy. (14.5%)",
+          "motifs": [
+            "brunello di montalcino amore e magia"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Cabernet Franc, El Enemigo, 2021. Mendoza, Argentina. (13.5%)",
+          "motifs": [
+            "cabernet franc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Barbera d'Alba Trevie, Vietti, 2022. Piedmont, Italy. (14.5%)",
+          "motifs": [
+            "barbera d'alba trevie"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Brut J Schram Blancs, Schramsberg, 2014. North Coast, California, USA. (12.3%)",
+          "motifs": [
+            "brut j schram blancs"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Cava Reserva Brut Nature, Avinyó, 2018. Penedès, Spain. (12%)",
+          "motifs": [
+            "cava",
+            "cava reserva brut nature"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Chardonnay En Flandre, Domaine de la Touraize, 2021. Arbois, Jura, France. (12.5%)",
+          "motifs": [
+            "chardonnay en flandre"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "L’Etoile, Domaine de Montbourgeau, 2018. Jura, France. (14.5%)",
+          "motifs": [
+            "l’etoile"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)",
+          "motifs": [
+            "icewine",
+            "vidal icewine"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Beerenauslese Cuvée, Kracher, 2019. Burgenland, Austria. (11%)",
+          "motifs": [
+            "beerenauslese cuvee"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Vin Santo del Chianti Classico, Badia a Coltibuono, 2014. Tuscany, Italy. (15.5%)",
+          "motifs": [
+            "chianti",
+            "vin santo del chianti classico"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Muscat de Beaumes de Venise, Domaine de Durban, 2020. Rhône Valley, France. (15%)",
+          "motifs": [
+            "muscat de beaumes de venise"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)",
+          "motifs": [
+            "clos du bourg demi-sec",
+            "huet",
+            "vouvray"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Sercial 10 Years Old, Henriques & Henriques, NV. Madeira, Portugal. (20%)",
+          "motifs": [
+            "madeira",
+            "sercial 10 years old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "Fine Ruby Port, Cockburn's, NV. Douro, Portugal. (19%)",
+          "motifs": [
+            "fine ruby port"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v2",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "40 Year Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "motifs": [
+            "40 year tawny port"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v3",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v3.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-4 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on style, quality, and capacity to age. (4 x 13 marks)\n\n### Question 2\nWines 5-7 are from the same country.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the style and commercial positioning. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Comment on how natural factors and winemaking shape the different styles. (15 marks)\n\n### Question 3\nWines 8-10 are blends of the same two grape varieties.\n\nFor all three wines:\n\na) Identify the grape varieties. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 8 marks)\n\nc) Comment on style, oak handling, and quality. (3 x 12 marks)\n\n### Question 4\nWines 11 and 12 are from the same single grape variety and region.\n\nFor both wines:\n\na) Identify the grape variety and origin as closely as possible. (2 x 10 marks)\n\nb) Compare and contrast the style, quality, and winemaking. (30 marks)\n\n### Wines\n\n1. Riesling Trocken, Donnhoff, 2024. Nahe, Germany. (12%)\n2. Single Vineyard Riesling, Pewsey Vale, 2024. Eden Valley, Australia. (12.5%)\n3. Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)\n4. Riesling Loibenberg Smaragd, Emmerich Knoll, 2023. Wachau, Austria. (13.5%)\n5. Muscadet Sevre-et-Maine Monnieres Saint-Fiacre l'Ancestrale, Vignobles Gunther-Chereau, 2018. Loire, France. (12%)\n6. Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)\n7. Clos Windsbuhl Pinot Gris, Zind-Humbrecht, 2020. Alsace, France. (13.5%)\n8. Chateau Carbonnieux Blanc, 2022. Pessac-Leognan, France. (13%)\n9. Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)\n10. Isliedh, Cape Point Vineyards, 2022. Cape Town, South Africa. (14%)\n11. Chablis 1er Cru Montmains, Domaine Laroche, 2022. Chablis, Burgundy, France. (13%)\n12. Chablis Grand Cru Les Clos, William Fevre, 2021. Chablis, Burgundy, France. (13%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, quality, and capacity to age. ### question # wines are from the sa",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-3 are from the same country and region.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 9 marks)\n\nb) Comment on the grape variety or blend, style, and maturity. (3 x 10 marks)\n\nc) Comment on quality and commercial positioning. (3 x 8 marks)\n\n### Question 2\nWines 4-6 are from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 9 marks)\n\nc) Discuss the style, quality, and maturity. (3 x 12 marks)\n\n### Question 3\nWines 7-9 are from the same country.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss quality within the context of the region of production. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Comment on their likely commercial positioning. (16 marks)\n\n### Question 4\nWines 10-12 are from the same single grape variety and broad region.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 9 marks)\n\nb) Comment on style, winemaking, and quality. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast structure and capacity to age. (16 marks)\n\n### Wines\n\n1. Vina Alberdi Reserva, La Rioja Alta, 2019. Rioja, Spain. (14%)\n2. Rioja Reserva, Bodegas Muga, 2019. Rioja, Spain. (14%)\n3. Rioja Gran Reserva 904, La Rioja Alta, 2015. Rioja, Spain. (14.5%)\n4. Savigny-les-Beaune Les Goudelettes, Domaine Antonin Guyon, 2021. Burgundy, France. (13.5%)\n5. Pinot Noir, Dutton-Goldfield, 2022. Russian River Valley, California, USA. (13.5%)\n6. Pinot Noir, Rockburn, 2022. Central Otago, New Zealand. (13.5%)\n7. Chianti Classico Berardenga, Felsina, 2022. Tuscany, Italy. (13.5%)\n8. Vino Nobile di Montepulciano Asinone, Poliziano, 2021. Tuscany, Italy. (14%)\n9. Brunello di Montalcino, Altesino, 2019. Tuscany, Italy. (14.5%)\n10. Crozes-Hermitage Papillon, Domaine Gilles Robin, 2023. Northern Rhone, France. (13%)\n11. Saint-Joseph Offerus, J. L. Chave Selection, 2022. Northern Rhone, France. (13.5%)\n12. Cornas Granit 30, Domaine Vincent Paris, 2022. Northern Rhone, France. (13%)",
+          "canonical_stem": "wines are from the same country and region. for each wine: a) identify the origin as closely as possible. b) comment on the grape variety or blend, style, and maturity. c) comment on quality and commercial positioning. ### question # wines are from the same si",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1 and 2 are sparkling wines from two different countries.\n\nFor each wine:\n\na) Identify the origin and grape variety or varieties as closely as possible. (2 x 10 marks)\n\nb) Comment on the method of production, style, and quality. (2 x 15 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast their commercial positioning. (20 marks)\n\n### Question 2\nWines 3 and 4 are from the same region.\n\nWith reference to both wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the winemaking of the two wines. (15 marks)\n\nc) Comment on the quality and commercial potential of each wine. (20 marks)\n\n### Question 3\nWines 5-8 all have residual sugar.\n\nFor each wine:\n\na) State the level of residual sugar. (4 x 2 marks)\n\nb) State the alcohol level. (4 x 2 marks)\n\nc) Identify the region and grape variety/ies as closely as possible. (4 x 10 marks)\n\nd) Comment on the winemaking. (4 x 8 marks)\n\n### Question 4\nWines 9-12 are fortified wines.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 8 marks)\n\nb) Discuss style, quality, and maturity. (4 x 9 marks)\n\nc) Comment on the method of production and elevage. (4 x 6 marks)\n\n### Wines\n\n1. Brut Reserve, Billecart-Salmon, NV. Champagne, France. (12%)\n2. Imperial, Gramona, 2018. Corpinnat, Spain. (12%)\n3. Dry Furmint, Royal Tokaji, 2022. Tokaj, Hungary. (13%)\n4. Tokaji Aszu 5 Puttonyos, Royal Tokaji, 2017. Tokaj, Hungary. (11%)\n5. Blue Slate Riesling Kabinett, Dr. Loosen, 2024. Mosel, Germany. (8.5%)\n6. Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)\n7. Muscat de Beaumes-de-Venise, Domaine de Durban, 2020. Rhone Valley, France. (15%)\n8. Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)\n9. Tio Pepe Fino, Gonzalez Byass, NV. Jerez, Spain. (15%)\n10. Sercial 10 Years Old, Henriques and Henriques, NV. Madeira, Portugal. (20%)\n11. Fine Ruby Port, Cockburn's, NV. Douro, Portugal. (19%)\n12. 20 Year Old Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "canonical_stem": "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin and grape variety or varieties as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare an",
+          "slots": [
+            1,
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Riesling Trocken, Donnhoff, 2024. Nahe, Germany. (12%)",
+          "motifs": [
+            "riesling",
+            "riesling trocken"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Single Vineyard Riesling, Pewsey Vale, 2024. Eden Valley, Australia. (12.5%)",
+          "motifs": [
+            "riesling",
+            "single vineyard riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Riesling Silberberg de Rorschwihr, Rolly Gassmann, 2021. Alsace, France. (13.5%)",
+          "motifs": [
+            "riesling",
+            "riesling silberberg de rorschwihr"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Riesling Loibenberg Smaragd, Emmerich Knoll, 2023. Wachau, Austria. (13.5%)",
+          "motifs": [
+            "riesling",
+            "riesling loibenberg smaragd"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Muscadet Sevre-et-Maine Monnieres Saint-Fiacre l'Ancestrale, Vignobles Gunther-Chereau, 2018. Loire, France. (12%)",
+          "motifs": [
+            "muscadet sevre-et-maine monnieres saint-fiacre l'ancestrale"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray clos du bourg demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Clos Windsbuhl Pinot Gris, Zind-Humbrecht, 2020. Alsace, France. (13.5%)",
+          "motifs": [
+            "clos windsbuhl pinot gris"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Chateau Carbonnieux Blanc, 2022. Pessac-Leognan, France. (13%)",
+          "motifs": [
+            "chateau carbonnieux blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Sauvignon Semillon Circa 77, Xanadu, 2023. Margaret River, Australia. (13%)",
+          "motifs": [
+            "sauvignon semillon circa 77"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Isliedh, Cape Point Vineyards, 2022. Cape Town, South Africa. (14%)",
+          "motifs": [
+            "isliedh"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Chablis 1er Cru Montmains, Domaine Laroche, 2022. Chablis, Burgundy, France. (13%)",
+          "motifs": [
+            "chablis 1er cru montmains"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Chablis Grand Cru Les Clos, William Fevre, 2021. Chablis, Burgundy, France. (13%)",
+          "motifs": [
+            "chablis grand cru les clos"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Vina Alberdi Reserva, La Rioja Alta, 2019. Rioja, Spain. (14%)",
+          "motifs": [
+            "vina alberdi reserva"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Rioja Reserva, Bodegas Muga, 2019. Rioja, Spain. (14%)",
+          "motifs": [
+            "rioja reserva"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Rioja Gran Reserva 904, La Rioja Alta, 2015. Rioja, Spain. (14.5%)",
+          "motifs": [
+            "rioja gran reserva 904"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Savigny-les-Beaune Les Goudelettes, Domaine Antonin Guyon, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "savigny-les-beaune les goudelettes"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Pinot Noir, Dutton-Goldfield, 2022. Russian River Valley, California, USA. (13.5%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Pinot Noir, Rockburn, 2022. Central Otago, New Zealand. (13.5%)",
+          "motifs": [
+            "pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Chianti Classico Berardenga, Felsina, 2022. Tuscany, Italy. (13.5%)",
+          "motifs": [
+            "chianti",
+            "chianti classico berardenga"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Vino Nobile di Montepulciano Asinone, Poliziano, 2021. Tuscany, Italy. (14%)",
+          "motifs": [
+            "vino nobile di montepulciano asinone"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Brunello di Montalcino, Altesino, 2019. Tuscany, Italy. (14.5%)",
+          "motifs": [
+            "brunello di montalcino"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Crozes-Hermitage Papillon, Domaine Gilles Robin, 2023. Northern Rhone, France. (13%)",
+          "motifs": [
+            "crozes-hermitage papillon"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Saint-Joseph Offerus, J. L. Chave Selection, 2022. Northern Rhone, France. (13.5%)",
+          "motifs": [
+            "saint-joseph offerus"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Cornas Granit 30, Domaine Vincent Paris, 2022. Northern Rhone, France. (13%)",
+          "motifs": [
+            "cornas granit 30"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Brut Reserve, Billecart-Salmon, NV. Champagne, France. (12%)",
+          "motifs": [
+            "brut reserve",
+            "champagne"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Imperial, Gramona, 2018. Corpinnat, Spain. (12%)",
+          "motifs": [
+            "imperial"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Dry Furmint, Royal Tokaji, 2022. Tokaj, Hungary. (13%)",
+          "motifs": [
+            "dry furmint",
+            "tokaji"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "Tokaji Aszu 5 Puttonyos, Royal Tokaji, 2017. Tokaj, Hungary. (11%)",
+          "motifs": [
+            "tokaji",
+            "tokaji aszu 5 puttonyos"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Blue Slate Riesling Kabinett, Dr. Loosen, 2024. Mosel, Germany. (8.5%)",
+          "motifs": [
+            "blue slate riesling kabinett",
+            "mosel",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)",
+          "motifs": [
+            "clos du bourg demi-sec",
+            "huet",
+            "vouvray"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Muscat de Beaumes-de-Venise, Domaine de Durban, 2020. Rhone Valley, France. (15%)",
+          "motifs": [
+            "muscat de beaumes-de-venise"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)",
+          "motifs": [
+            "icewine",
+            "vidal icewine"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Tio Pepe Fino, Gonzalez Byass, NV. Jerez, Spain. (15%)",
+          "motifs": [
+            "jerez",
+            "tio pepe fino"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Sercial 10 Years Old, Henriques and Henriques, NV. Madeira, Portugal. (20%)",
+          "motifs": [
+            "madeira",
+            "sercial 10 years old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "Fine Ruby Port, Cockburn's, NV. Douro, Portugal. (19%)",
+          "motifs": [
+            "fine ruby port"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v3",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "20 Year Old Tawny Port, Kopke, NV. Douro, Portugal. (20%)",
+          "motifs": [
+            "20 year old tawny port"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v4",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v4.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1c",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "same-variety",
+            "ranking",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-4 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on style, quality, and capacity to age. (4 x 13 marks)\n\n### Question 2\nWines 5-7 have been selected to illustrate different levels of quality and commercial ambition within a classic white-wine category.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style and winemaking. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Rank the wines in quality order and justify your ranking. (16 marks)\n\nd) Comment on their likely commercial positioning. (12 marks)\n\n### Question 3\nWines 8-10 are from the same region.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the style of each wine. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast how site, residual sugar, and winemaking shape the finished wines. (16 marks)\n\n### Question 4\nWines 11 and 12 are two vintages of the same wine.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (2 x 10 marks)\n\nb) Comment on the stage of development of each wine. (2 x 10 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast style, quality, and capacity to age. (20 marks)\n\n### Wines\n\n1. Chablis, Domaine Christian Moreau Pere et Fils, 2023. Chablis, Burgundy, France. (12.5%)\n2. Art Series Chardonnay, Leeuwin Estate, 2023. Margaret River, Western Australia. (13.5%)\n3. Chardonnay, Au Bon Climat, 2023. Santa Barbara County, California, USA. (13%)\n4. Chardonnay, Hamilton Russell Vineyards, 2024. Hemel-en-Aarde Valley, South Africa. (13%)\n5. Petit Chablis, La Chablisienne, 2024. Burgundy, France. (12%)\n6. Chablis 1er Cru Vaillons, William Fevre, 2023. Burgundy, France. (13%)\n7. Corton-Charlemagne Grand Cru, Bonneau du Martray, 2021. Burgundy, France. (13.5%)\n8. Savennieres Clos du Papillon, Domaine du Closel, 2022. Loire, France. (13.5%)\n9. Vouvray Le Mont Sec, Domaine Huet, 2023. Loire, France. (13%)\n10. Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)\n11. Polish Hill Riesling, Grosset, 2024. Clare Valley, South Australia. (12.5%)\n12. Polish Hill Riesling, Grosset, 2018. Clare Valley, South Australia. (12.5%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, quality, and capacity to age. ### question # wines have been selec",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "ranking",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-3 are from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 9 marks)\n\nc) Comment on style, tannin management, and quality. (3 x 10 marks)\n\nWith reference to all three wines:\n\nd) Compare and contrast how climate and winemaking shape the finished wines. (16 marks)\n\n### Question 2\nWines 4-6 have been selected to illustrate different levels of quality and commercial ambition within one classic red-wine category.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style and structural profile. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Rank the wines in quality order and justify your ranking. (16 marks)\n\nd) Comment on their likely commercial positioning. (12 marks)\n\n### Question 3\nWines 7-9 are from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 10 marks)\n\nb) Comment on grape variety or blend, style, and quality. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast how grape composition, elevage, and market ambition shape the different styles. (20 marks)\n\n### Wines\n\n1. Crozes-Hermitage Les Jalets, Paul Jaboulet Aine, 2023. Northern Rhone, France. (13%)\n2. Syrah, El Enemigo, 2022. Gualtallary, Mendoza, Argentina. (13.5%)\n3. Syrah, Giant Steps, 2023. Yarra Valley, Victoria, Australia. (13%)\n4. Bourgogne Pinot Noir, Joseph Drouhin, 2023. Burgundy, France. (12.5%)\n5. Savigny-les-Beaune 1er Cru Les Lavieres, Domaine Chandon de Briailles, 2022. Burgundy, France. (13%)\n6. Clos de Vougeot Grand Cru, Domaine Faiveley, 2021. Burgundy, France. (13.5%)\n7. Chateau Poujeaux, 2022. Moulis-en-Medoc, Bordeaux, France. (13.5%)\n8. Chateau Smith Haut Lafitte, 2021. Pessac-Leognan, Bordeaux, France. (14%)\n9. Chateau La Fleur-Petrus, 2021. Pomerol, Bordeaux, France. (14.5%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all three wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, tannin management, and quality. with reference to all three wines",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "ranking",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1 and 2 are sparkling wines from two different countries.\n\nFor each wine:\n\na) Identify the origin and grape variety or varieties as closely as possible. (2 x 10 marks)\n\nb) Comment on the method of production, style, and quality. (2 x 15 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast their likely commercial positioning. (20 marks)\n\n### Question 2\nWines 3 and 4 are from the same region.\n\nWith reference to both wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the maturation of the two wines. (15 marks)\n\nc) Comment on the quality and likely commercial positioning of each wine. (20 marks)\n\n### Question 3\nWines 5-7 have been selected to illustrate different levels of quality and commercial ambition within one classic sweet-wine category.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on sweetness, concentration, and balance. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Rank the wines in quality order and justify your ranking. (16 marks)\n\nd) Comment on the production method and likely commercial positioning of each wine. (12 marks)\n\n### Wines\n\n1. Classic Cuvee, Nyetimber, NV. West Sussex, England. (12%)\n2. Cuvee Prestige Edizione 47, Ca' del Bosco, NV. Franciacorta, Lombardy, Italy. (12.5%)\n3. Tio Pepe Fino en Rama, Gonzalez Byass, NV. Jerez, Spain. (15%)\n4. Amontillado Napoleon, Bodegas Hidalgo La Gitana, NV. Jerez, Spain. (18%)\n5. Wehlener Sonnenuhr Riesling Kabinett, Joh. Jos. Prum, 2024. Mosel, Germany. (8%)\n6. Riesling Auslese Goldkapsel, Fritz Haag, 2023. Mosel, Germany. (7.5%)\n7. Riesling Trockenbeerenauslese, Dr. Loosen, 2022. Mosel, Germany. (7%)",
+          "canonical_stem": "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin and grape variety or varieties as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare an",
+          "slots": [
+            1,
+            3,
+            5,
+            6,
+            7
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Chablis, Domaine Christian Moreau Pere et Fils, 2023. Chablis, Burgundy, France. (12.5%)",
+          "motifs": [
+            "chablis"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Art Series Chardonnay, Leeuwin Estate, 2023. Margaret River, Western Australia. (13.5%)",
+          "motifs": [
+            "art series chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Chardonnay, Au Bon Climat, 2023. Santa Barbara County, California, USA. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Chardonnay, Hamilton Russell Vineyards, 2024. Hemel-en-Aarde Valley, South Africa. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Petit Chablis, La Chablisienne, 2024. Burgundy, France. (12%)",
+          "motifs": [
+            "petit chablis"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Chablis 1er Cru Vaillons, William Fevre, 2023. Burgundy, France. (13%)",
+          "motifs": [
+            "chablis 1er cru vaillons"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Corton-Charlemagne Grand Cru, Bonneau du Martray, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "corton-charlemagne grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Savennieres Clos du Papillon, Domaine du Closel, 2022. Loire, France. (13.5%)",
+          "motifs": [
+            "savennieres clos du papillon",
+            "savennières"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Vouvray Le Mont Sec, Domaine Huet, 2023. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray le mont sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray clos du bourg demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Polish Hill Riesling, Grosset, 2024. Clare Valley, South Australia. (12.5%)",
+          "motifs": [
+            "polish hill riesling",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Polish Hill Riesling, Grosset, 2018. Clare Valley, South Australia. (12.5%)",
+          "motifs": [
+            "polish hill riesling",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Crozes-Hermitage Les Jalets, Paul Jaboulet Aine, 2023. Northern Rhone, France. (13%)",
+          "motifs": [
+            "crozes-hermitage les jalets"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Syrah, El Enemigo, 2022. Gualtallary, Mendoza, Argentina. (13.5%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Syrah, Giant Steps, 2023. Yarra Valley, Victoria, Australia. (13%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Bourgogne Pinot Noir, Joseph Drouhin, 2023. Burgundy, France. (12.5%)",
+          "motifs": [
+            "bourgogne pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Savigny-les-Beaune 1er Cru Les Lavieres, Domaine Chandon de Briailles, 2022. Burgundy, France. (13%)",
+          "motifs": [
+            "savigny-les-beaune 1er cru les lavieres"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Clos de Vougeot Grand Cru, Domaine Faiveley, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "clos de vougeot grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Chateau Poujeaux, 2022. Moulis-en-Medoc, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "chateau poujeaux"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Chateau Smith Haut Lafitte, 2021. Pessac-Leognan, Bordeaux, France. (14%)",
+          "motifs": [
+            "bordeaux",
+            "chateau smith haut lafitte"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Chateau La Fleur-Petrus, 2021. Pomerol, Bordeaux, France. (14.5%)",
+          "motifs": [
+            "bordeaux",
+            "chateau la fleur-petrus"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Classic Cuvee, Nyetimber, NV. West Sussex, England. (12%)",
+          "motifs": [
+            "classic cuvee"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Cuvee Prestige Edizione 47, Ca' del Bosco, NV. Franciacorta, Lombardy, Italy. (12.5%)",
+          "motifs": [
+            "cuvee prestige edizione 47"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Tio Pepe Fino en Rama, Gonzalez Byass, NV. Jerez, Spain. (15%)",
+          "motifs": [
+            "jerez",
+            "tio pepe fino en rama"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "Amontillado Napoleon, Bodegas Hidalgo La Gitana, NV. Jerez, Spain. (18%)",
+          "motifs": [
+            "amontillado napoleon",
+            "jerez"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Wehlener Sonnenuhr Riesling Kabinett, Joh. Jos. Prum, 2024. Mosel, Germany. (8%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "wehlener sonnenuhr riesling kabinett"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Riesling Auslese Goldkapsel, Fritz Haag, 2023. Mosel, Germany. (7.5%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "riesling auslese goldkapsel"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v4",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Riesling Trockenbeerenauslese, Dr. Loosen, 2022. Mosel, Germany. (7%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "riesling trockenbeerenauslese"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v5",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v5.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "ranking",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-4 are from four different countries and four different single varieties.\n\nFor each wine:\n\na) Identify the grape variety and the origin as closely as possible. (4 x 8 marks)\n\nb) Comment on winemaking. (4 x 5 marks)\n\nc) Comment on style, quality and commercial potential. (4 x 12 marks)\n\n### Question 2\nWines 5-7 have been selected to illustrate different levels of quality and commercial ambition within a classic white-wine category.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style and winemaking. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Rank the wines in quality order and justify your ranking. (16 marks)\n\nd) Comment on their likely commercial positioning. (12 marks)\n\n### Question 3\nWines 8-10 are from the same region.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the style of each wine. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast how site, residual sugar, and winemaking shape the finished wines. (16 marks)\n\n### Question 4\nWines 11 and 12 are two vintages of the same wine.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (2 x 10 marks)\n\nb) Comment on the stage of development of each wine. (2 x 10 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast style, quality, and capacity to age. (20 marks)\n\n### Wines\n\n1. Chablis, Domaine Christian Moreau Pere et Fils, 2023. Chablis, Burgundy, France. (12.5%)\n2. Art Series Chardonnay, Leeuwin Estate, 2023. Margaret River, Western Australia. (13.5%)\n3. Chardonnay, Au Bon Climat, 2023. Santa Barbara County, California, USA. (13%)\n4. Chardonnay, Hamilton Russell Vineyards, 2024. Hemel-en-Aarde Valley, South Africa. (13%)\n5. Petit Chablis, La Chablisienne, 2024. Burgundy, France. (12%)\n6. Chablis 1er Cru Vaillons, William Fevre, 2023. Burgundy, France. (13%)\n7. Corton-Charlemagne Grand Cru, Bonneau du Martray, 2021. Burgundy, France. (13.5%)\n8. Savennieres Clos du Papillon, Domaine du Closel, 2022. Loire, France. (13.5%)\n9. Vouvray Le Mont Sec, Domaine Huet, 2023. Loire, France. (13%)\n10. Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)\n11. Polish Hill Riesling, Grosset, 2024. Clare Valley, South Australia. (12.5%)\n12. Polish Hill Riesling, Grosset, 2018. Clare Valley, South Australia. (12.5%)",
+          "canonical_stem": "wines are from four different countries and four different single varieties. for each wine: a) identify the grape variety and the origin as closely as possible. b) comment on winemaking. c) comment on style, quality and commercial potential. ### question # win",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "blend",
+            "ranking",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1-3 are from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 9 marks)\n\nc) Comment on style, tannin management, and quality. (3 x 10 marks)\n\nWith reference to all three wines:\n\nd) Compare and contrast how climate and winemaking shape the finished wines. (16 marks)\n\n### Question 2\nWines 4-6 have been selected to illustrate different levels of quality and commercial ambition within one classic red-wine category.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style and structural profile. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Rank the wines in quality order and justify your ranking. (16 marks)\n\nd) Comment on their likely commercial positioning. (12 marks)\n\n### Question 3\nWines 7-9 are from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 10 marks)\n\nb) Comment on grape variety or blend, style, and quality. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast how grape composition, elevage, and market ambition shape the different styles. (20 marks)\n\n### Question 4\nWines 10-12 are made from the same single grape variety.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style, quality and commercial potential. (3 x 10 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast climate, oak handling and maturity. (16 marks)\n\n### Wines\n\n1. Crozes-Hermitage Les Jalets, Paul Jaboulet Aine, 2023. Northern Rhone, France. (13%)\n2. Syrah, El Enemigo, 2022. Gualtallary, Mendoza, Argentina. (13.5%)\n3. Syrah, Giant Steps, 2023. Yarra Valley, Victoria, Australia. (13%)\n4. Bourgogne Pinot Noir, Joseph Drouhin, 2023. Burgundy, France. (12.5%)\n5. Savigny-les-Beaune 1er Cru Les Lavieres, Domaine Chandon de Briailles, 2022. Burgundy, France. (13%)\n6. Clos de Vougeot Grand Cru, Domaine Faiveley, 2021. Burgundy, France. (13.5%)\n7. Chateau Poujeaux, 2022. Moulis-en-Medoc, Bordeaux, France. (13.5%)\n8. Chateau Smith Haut Lafitte, 2021. Pessac-Leognan, Bordeaux, France. (14%)\n9. Chateau La Fleur-Petrus, 2021. Pomerol, Bordeaux, France. (14.5%)\n10. Cabernet Sauvignon, Robert Mondavi, 2009. Napa Valley, California, USA. (14.5%)\n11. Cabernet Sauvignon, The Cigar, Yalumba, 2009. Coonawarra, South Australia. (14.5%)\n12. Cabernet Sauvignon, Silver Oak, 2012. Alexander Valley, California, USA. (14.2%)",
+          "canonical_stem": "wines are from the same single grape variety. with reference to all three wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, tannin management, and quality. with reference to all three wines",
+          "slots": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "compare-contrast"
+          ],
+          "stem": "Wines 1 and 2 are sparkling wines from two different countries.\n\nFor each wine:\n\na) Identify the origin and grape variety or varieties as closely as possible. (2 x 10 marks)\n\nb) Comment on the method of production, style, and quality. (2 x 15 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast their likely commercial positioning. (20 marks)\n\n### Question 2\nWines 3-5 are from the same region.\n\nWith reference to all three wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the level of quality and market position of the three wines. (15 marks)\n\nc) Comment on the stage of development of each wine. (20 marks)\n\n### Question 3\nWines 6-8 are from the same region and the same grape family.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on style and quality. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Compare and contrast maturity, structure and commercial positioning. (16 marks)\n\n### Question 4\nWines 9-12 are all fortified wines.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 8 marks)\n\nb) Comment on style, quality and maturity. (4 x 9 marks)\n\nWith reference to all four wines:\n\nc) Compare and contrast production method and commercial positioning. (20 marks)\n\n### Wines\n\n1. Classic Cuvee, Nyetimber, NV. West Sussex, England. (12%)\n2. Cuvee Prestige Edizione 47, Ca' del Bosco, NV. Franciacorta, Lombardy, Italy. (12.5%)\n3. Rudi Pichler Ried Hochrain Riesling Smaragd, 2024. Wachau, Austria. (13%)\n4. Ried Renner 1OeTW, Kamptal, Gruener Veltliner, Allram, 2023. Kamptal, Austria. (13%)\n5. Wieninger Wiener Gemischter Satz, 2024. Wien, Austria. (12%)\n6. Jaboulet Crozes-Hermitage Les Jalets, 2023. Northern Rhone, France. (13%)\n7. Cote Rotie Brune et Blonde, 2021. Northern Rhone, France. (14%)\n8. Cote Rotie La Landonne, Delas Freres, 2012. Northern Rhone, France. (13.5%)\n9. Manzanilla Papirusa, Lustau, NV. Sanlucar de Barrameda, Spain. (15%)\n10. Palo Cortado, Cayetano del Pino y Cia, NV. Jerez de la Frontera, Spain. (20%)\n11. 20 Year Old Tawny Port, Graham's, NV. Douro, Portugal. (20%)\n12. 10 Year Old Sercial, Henriques and Henriques, NV. Madeira, Portugal. (20%)",
+          "canonical_stem": "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin and grape variety or varieties as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare an",
+          "slots": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Chablis, Domaine Christian Moreau Pere et Fils, 2023. Chablis, Burgundy, France. (12.5%)",
+          "motifs": [
+            "chablis"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Art Series Chardonnay, Leeuwin Estate, 2023. Margaret River, Western Australia. (13.5%)",
+          "motifs": [
+            "art series chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Chardonnay, Au Bon Climat, 2023. Santa Barbara County, California, USA. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Chardonnay, Hamilton Russell Vineyards, 2024. Hemel-en-Aarde Valley, South Africa. (13%)",
+          "motifs": [
+            "chardonnay"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Petit Chablis, La Chablisienne, 2024. Burgundy, France. (12%)",
+          "motifs": [
+            "petit chablis"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Chablis 1er Cru Vaillons, William Fevre, 2023. Burgundy, France. (13%)",
+          "motifs": [
+            "chablis 1er cru vaillons"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Corton-Charlemagne Grand Cru, Bonneau du Martray, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "corton-charlemagne grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Savennieres Clos du Papillon, Domaine du Closel, 2022. Loire, France. (13.5%)",
+          "motifs": [
+            "savennieres clos du papillon",
+            "savennières"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Vouvray Le Mont Sec, Domaine Huet, 2023. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray le mont sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Vouvray Clos du Bourg Demi-Sec, Domaine Huet, 2022. Loire, France. (13%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray clos du bourg demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Polish Hill Riesling, Grosset, 2024. Clare Valley, South Australia. (12.5%)",
+          "motifs": [
+            "polish hill riesling",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Polish Hill Riesling, Grosset, 2018. Clare Valley, South Australia. (12.5%)",
+          "motifs": [
+            "polish hill riesling",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Crozes-Hermitage Les Jalets, Paul Jaboulet Aine, 2023. Northern Rhone, France. (13%)",
+          "motifs": [
+            "crozes-hermitage les jalets"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Syrah, El Enemigo, 2022. Gualtallary, Mendoza, Argentina. (13.5%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Syrah, Giant Steps, 2023. Yarra Valley, Victoria, Australia. (13%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Bourgogne Pinot Noir, Joseph Drouhin, 2023. Burgundy, France. (12.5%)",
+          "motifs": [
+            "bourgogne pinot noir"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Savigny-les-Beaune 1er Cru Les Lavieres, Domaine Chandon de Briailles, 2022. Burgundy, France. (13%)",
+          "motifs": [
+            "savigny-les-beaune 1er cru les lavieres"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Clos de Vougeot Grand Cru, Domaine Faiveley, 2021. Burgundy, France. (13.5%)",
+          "motifs": [
+            "clos de vougeot grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Chateau Poujeaux, 2022. Moulis-en-Medoc, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "chateau poujeaux"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Chateau Smith Haut Lafitte, 2021. Pessac-Leognan, Bordeaux, France. (14%)",
+          "motifs": [
+            "bordeaux",
+            "chateau smith haut lafitte"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Chateau La Fleur-Petrus, 2021. Pomerol, Bordeaux, France. (14.5%)",
+          "motifs": [
+            "bordeaux",
+            "chateau la fleur-petrus"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Cabernet Sauvignon, Robert Mondavi, 2009. Napa Valley, California, USA. (14.5%)",
+          "motifs": [
+            "cabernet sauvignon"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Cabernet Sauvignon, The Cigar, Yalumba, 2009. Coonawarra, South Australia. (14.5%)",
+          "motifs": [
+            "cabernet sauvignon"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Cabernet Sauvignon, Silver Oak, 2012. Alexander Valley, California, USA. (14.2%)",
+          "motifs": [
+            "cabernet sauvignon"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Classic Cuvee, Nyetimber, NV. West Sussex, England. (12%)",
+          "motifs": [
+            "classic cuvee"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Cuvee Prestige Edizione 47, Ca' del Bosco, NV. Franciacorta, Lombardy, Italy. (12.5%)",
+          "motifs": [
+            "cuvee prestige edizione 47"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Rudi Pichler Ried Hochrain Riesling Smaragd, 2024. Wachau, Austria. (13%)",
+          "motifs": [
+            "riesling",
+            "rudi pichler ried hochrain riesling smaragd"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "Ried Renner 1OeTW, Kamptal, Gruener Veltliner, Allram, 2023. Kamptal, Austria. (13%)",
+          "motifs": [
+            "ried renner 1oetw"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Wieninger Wiener Gemischter Satz, 2024. Wien, Austria. (12%)",
+          "motifs": [
+            "wieninger wiener gemischter satz"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Jaboulet Crozes-Hermitage Les Jalets, 2023. Northern Rhone, France. (13%)",
+          "motifs": [
+            "jaboulet crozes-hermitage les jalets"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Cote Rotie Brune et Blonde, 2021. Northern Rhone, France. (14%)",
+          "motifs": [
+            "cote rotie brune et blonde"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Cote Rotie La Landonne, Delas Freres, 2012. Northern Rhone, France. (13.5%)",
+          "motifs": [
+            "cote rotie la landonne"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Manzanilla Papirusa, Lustau, NV. Sanlucar de Barrameda, Spain. (15%)",
+          "motifs": [
+            "manzanilla papirusa"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Palo Cortado, Cayetano del Pino y Cia, NV. Jerez de la Frontera, Spain. (20%)",
+          "motifs": [
+            "jerez",
+            "palo cortado"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "20 Year Old Tawny Port, Graham's, NV. Douro, Portugal. (20%)",
+          "motifs": [
+            "20 year old tawny port"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v5",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "10 Year Old Sercial, Henriques and Henriques, NV. Madeira, Portugal. (20%)",
+          "motifs": [
+            "10 year old sercial",
+            "madeira"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v6",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v6.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1b",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-variety"
+          ],
+          "stem": "Wines 1-4 are all made from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (20 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 10 marks)\n\nc) Discuss quality with reference to winemaking techniques and style. (4 x 10 marks)",
+          "canonical_stem": "wines are all made from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) discuss quality with reference to winemaking techniques and style. ",
+          "slots": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "question": 2,
+          "position": "p1_q2",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "commercial-position-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "ranking"
+          ],
+          "stem": "Wines 5-7 are all made from the same single grape variety and come from the same country.\n\nWith reference to all three wines:\n\na) Identify the grape variety and country of origin. (15 marks)\n\nFor each wine:\n\nb) Identify the specific origin as closely as possible. (3 x 7 marks)\n\nc) Rank the wines in quality order, justifying your ranking with reference to origin, site expression, producer reputation and regional hierarchy. (24 marks)\n\nd) Comment on the commercial positioning of each wine. (3 x 5 marks)",
+          "canonical_stem": "wines are all made from the same single grape variety and come from the same country. with reference to all three wines: a) identify the grape variety and country of origin. for each wine: b) identify the specific origin as closely as possible. c) rank the win",
+          "slots": [
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "question": 3,
+          "position": "p1_q3",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country"
+          ],
+          "stem": "Wines 8-10 come from the same country but from three different single grape varieties.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Comment on the method of production. (3 x 5 marks)\n\nc) Discuss quality, style, and potential for further development. (3 x 10 marks)",
+          "canonical_stem": "wines come from the same country but from three different single grape varieties. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on the method of production. c) discuss quality, style, and potential for further devel",
+          "slots": [
+            8,
+            9,
+            10
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "question": 4,
+          "position": "p1_q4",
+          "family": "F1",
+          "subtype": "F1c",
+          "tags": [
+            "method-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "same-variety"
+          ],
+          "stem": "Wines 11 and 12 are made from the same single grape variety from the same region of origin.\n\nFor both wines:\n\na) Identify the grape variety and region as closely as possible. (20 marks)\n\nFor each wine:\n\nb) Comment on the stage of maturity and the relative importance of natural versus human factors in shaping the wine's style. (2 x 15 marks)",
+          "canonical_stem": "wines # and # are made from the same single grape variety from the same region of origin. for both wines: a) identify the grape variety and region as closely as possible. for each wine: b) comment on the stage of maturity and the relative importance of natural",
+          "slots": [
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1b",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-variety"
+          ],
+          "stem": "Wines 1-4 are made from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on how climate and winemaking have influenced the quality and style of the wine. (4 x 12 marks)",
+          "canonical_stem": "wines are made from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on how climate and winemaking have influenced the quality and style of ",
+          "slots": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "question": 2,
+          "position": "p2_q2",
+          "family": "F7",
+          "subtype": "F7x",
+          "tags": [
+            "quality-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "ranking"
+          ],
+          "stem": "Wines 5-8 are from the same country and region, but from four different producers.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies as closely as possible. (4 x 10 marks)\n\nb) Discuss quality within the context of the region of origin. (4 x 8 marks)\n\nWith reference to all four wines:\n\nc) Rank the wines by quality, justifying your ranking. (12 marks)",
+          "canonical_stem": "wines are from the same country and region, but from four different producers. for each wine: a) identify the origin and grape variety/ies as closely as possible. b) discuss quality within the context of the region of origin. with reference to all four wines: ",
+          "slots": [
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "question": 3,
+          "position": "p2_q3",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "commercial-position-led",
+            "origin-led",
+            "variety-led",
+            "same-country"
+          ],
+          "stem": "Wines 9-12 come from the same country but from four different regions. Each wine is from a different single or predominant grape variety.\n\nWith reference to all four wines:\n\na) Identify the country of origin. (12 marks)\n\nFor each wine:\n\nb) Identify the origin and grape variety/ies as closely as possible. (4 x 9 marks)\n\nc) Comment on quality and commercial appeal. (4 x 8 marks)",
+          "canonical_stem": "wines come from the same country but from four different regions. each wine is from a different single or predominant grape variety. with reference to all four wines: a) identify the country of origin. for each wine: b) identify the origin and grape variety/ie",
+          "slots": [
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F5",
+          "subtype": "F5x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "origin-led",
+            "variety-led"
+          ],
+          "stem": "Wines 1-3 are sparkling wines from three different countries. None of the wines are from Champagne.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to the grape variety/ies used. (3 x 8 marks)\n\nb) Discuss the method of production. (3 x 10 marks)\n\nc) Comment on quality and commercial positioning. (3 x 7 marks)",
+          "canonical_stem": "wines are sparkling wines from three different countries. none of the wines are from champagne. for each wine: a) identify the origin as closely as possible with reference to the grape variety/ies used. b) discuss the method of production. c) comment on qualit",
+          "slots": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "question": 2,
+          "position": "p3_q2",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "same-region",
+            "same-producer",
+            "compare-contrast"
+          ],
+          "stem": "Wines 4-7 are from the same region and the same producer.\n\nWith reference to all four wines:\n\na) Identify the region of origin as closely as possible. (15 marks)\n\nb) Compare and contrast the winemaking techniques used across the four wines. (20 marks)\n\nFor each wine:\n\nc) Comment on quality, style, and commercial appeal. (4 x 8 marks)",
+          "canonical_stem": "wines are from the same region and the same producer. with reference to all four wines: a) identify the region of origin as closely as possible. b) compare and contrast the winemaking techniques used across the four wines. for each wine: c) comment on quality,",
+          "slots": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "question": 3,
+          "position": "p3_q3",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led"
+          ],
+          "stem": "Wines 8-12 are from five different countries and have in common the presence of residual sugar.\n\nFor each wine:\n\na) State the approximate level of residual sugar (g/l). (5 x 2 marks)\n\nb) State the approximate alcohol level (%). (5 x 2 marks)\n\nc) Identify the origin and grape variety/ies as closely as possible. (5 x 8 marks)\n\nd) Discuss the mechanism by which sweetness has been achieved and comment on quality and maturity. (5 x 8 marks)",
+          "canonical_stem": "wines are from five different countries and have in common the presence of residual sugar. for each wine: a) state the approximate level of residual sugar (g/l). b) state the approximate alcohol level (%). c) identify the origin and grape variety/ies as closel",
+          "slots": [
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Riesling Wehlener Sonnenuhr Auslese, Joh. Jos. Prüm, 2020. Mosel, Germany. (8.5%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "riesling wehlener sonnenuhr auslese"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Riesling Grand Cru Schlossberg, Weinbach, 2022. Alsace, France. (13%)",
+          "motifs": [
+            "riesling",
+            "riesling grand cru schlossberg"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Polish Hill Riesling, Grosset, 2024. Clare Valley, South Australia. (12.5%)",
+          "motifs": [
+            "polish hill riesling",
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Riesling Ried Kellerberg Smaragd, FX Pichler, 2021. Wachau, Austria. (13.5%)",
+          "motifs": [
+            "riesling",
+            "riesling ried kellerberg smaragd"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Sancerre Les Romains, Henri Bourgeois, 2024. Loire Valley, France. (13%)",
+          "motifs": [
+            "sancerre",
+            "sancerre les romains"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Menetou-Salon Les Bornés, Domaine de Chasseignes, 2024. Loire Valley, France. (12.5%)",
+          "motifs": [
+            "menetou-salon",
+            "menetou-salon les bornes"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Pouilly-Fumé Les Berthiers, Jean-Claude Dagueneau, 2023. Loire Valley, France. (13%)",
+          "motifs": [
+            "pouilly-fume",
+            "pouilly-fume les berthiers"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Pinot Gris Terre Brune, Domaine Ernest Burn, 2022. Alsace, France. (14%)",
+          "motifs": [
+            "pinot gris terre brune"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Gewurztraminer Clos Windsbuhl, Zind-Humbrecht, 2021. Alsace, France. (14.5%)",
+          "motifs": [
+            "gewurztraminer clos windsbuhl"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Muscat Goldert Grand Cru, Zind-Humbrecht, 2022. Alsace, France. (14%)",
+          "motifs": [
+            "muscat goldert grand cru"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Vouvray Le Mont Sec, Domaine Huet, 2023. Loire Valley, France. (12.5%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray le mont sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Vouvray Le Mont Demi-Sec, Domaine Huet, 2015. Loire Valley, France. (12.5%)",
+          "motifs": [
+            "huet",
+            "vouvray",
+            "vouvray le mont demi-sec"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Saint-Joseph, Stéphane Ogier, 2022. Northern Rhône, France. (13.5%)",
+          "motifs": [
+            "saint-joseph"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Shiraz Penfolds RWT, 2021. Barossa Valley, South Australia. (14.5%)",
+          "motifs": [
+            "shiraz penfolds rwt"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Syrah, Mullineux Single Terroir Granite, 2022. Swartland, South Africa. (13.5%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Syrah, Craggy Range Le Sol, 2021. Hawke's Bay, New Zealand. (13%)",
+          "motifs": [
+            "syrah"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Château de Pez, 2019. Saint-Estèphe, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "château de pez"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Château Gruaud-Larose, 2019. Saint-Julien, Bordeaux, France. (14%)",
+          "motifs": [
+            "bordeaux",
+            "château gruaud-larose",
+            "saint-julien"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Château Pichon Comtesse de Lalande, 2016. Pauillac, Bordeaux, France. (13%)",
+          "motifs": [
+            "bordeaux",
+            "château pichon comtesse de lalande",
+            "pauillac"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Château Mouton Rothschild, 2015. Pauillac, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "château mouton rothschild",
+            "pauillac"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Chianti Classico Gran Selezione Vigneto Bucerchiale, Fèlsina, 2020. Tuscany, Italy. (14.5%)",
+          "motifs": [
+            "chianti",
+            "chianti classico gran selezione vigneto bucerchiale"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Barolo Bricco Rocche, Ceretto, 2019. Piedmont, Italy. (14%)",
+          "motifs": [
+            "barolo",
+            "barolo bricco rocche"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Etna Rosso Prephylloxera, Benanti, 2021. Sicily, Italy. (13%)",
+          "motifs": [
+            "etna",
+            "etna rosso prephylloxera"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Aglianico del Vulture Titolo, Elena Fucci, 2021. Basilicata, Italy. (14%)",
+          "motifs": [
+            "aglianico del vulture titolo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Cremant de Loire Brut, Domaine Langlois-Chateau, NV. Loire Valley, France. (12%)",
+          "motifs": [
+            "cremant de loire brut"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Cava Gran Reserva Brut Nature, Gramona III Lustros, 2019. Penedès, Spain. (12%)",
+          "motifs": [
+            "cava",
+            "cava gran reserva brut nature"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Nyetimber Classic Cuvee, NV. West Sussex, England. (12%)",
+          "motifs": [
+            "nyetimber classic cuvee"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "Sercial 10 Year Old, Henriques & Henriques, NV. Madeira, Portugal. (19.5%)",
+          "motifs": [
+            "madeira",
+            "sercial 10 year old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Verdelho 15 Year Old, Henriques & Henriques, NV. Madeira, Portugal. (20%)",
+          "motifs": [
+            "madeira",
+            "verdelho 15 year old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Bual 10 Year Old, Blandy's, NV. Madeira, Portugal. (19%)",
+          "motifs": [
+            "bual 10 year old",
+            "madeira"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Malmsey 15 Year Old, Blandy's, NV. Madeira, Portugal. (19%)",
+          "motifs": [
+            "madeira",
+            "malmsey 15 year old"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Muscat de Beaumes-de-Venise, Domaine de Durban, 2023. Rhône Valley, France. (15%)",
+          "motifs": [
+            "muscat de beaumes-de-venise"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Muscat Liqueur, Chambers Rosewood Vineyards, NV. Rutherglen, Victoria, Australia. (17.5%)",
+          "motifs": [
+            "muscat liqueur",
+            "rutherglen"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Riesling Trockenbeerenauslese, Egon Müller Scharzhof, 2016. Mosel, Germany. (7%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "riesling trockenbeerenauslese"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "Tokaji Aszú 6 Puttonyos, Royal Tokaji, 2017. Tokaj, Hungary. (10.5%)",
+          "motifs": [
+            "tokaji",
+            "tokaji aszú 6 puttonyos"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v6",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "Riesling Icewine, Inniskillin, 2022. Niagara Peninsula, Ontario, Canada. (9%)",
+          "motifs": [
+            "icewine",
+            "riesling",
+            "riesling icewine"
+          ]
+        }
+      ]
+    },
+    {
+      "mock_id": "mock_full_2026_05_26_v7",
+      "path": "C:\\Users\\russe\\Documents\\MW_exam\\outputs\\mock_exams\\mock_full_2026_05_26_v7.md",
+      "questions": [
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "question": 1,
+          "position": "p1_q1",
+          "family": "F1",
+          "subtype": "F1b",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-variety"
+          ],
+          "stem": "Wines 1–4 are all made from the same single grape variety. The wines come from four different countries.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (20 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 10 marks)\n\nc) Discuss the style, quality, and capacity to age, with reference to climate and winemaking. (4 x 10 marks)",
+          "canonical_stem": "wines are all made from the same single grape variety. the wines come from four different countries. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) discuss the style, quality, a",
+          "slots": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "question": 2,
+          "position": "p1_q2",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-producer"
+          ],
+          "stem": "Wines 5–7 come from the same producer in the same appellation and are presented in ascending order of hierarchy.\n\nWith reference to all three wines:\n\na) Identify the producer, appellation, and grape variety. (15 marks)\n\nFor each wine:\n\nb) Identify the specific tier within the appellation's hierarchy. (3 x 5 marks)\n\nc) Comment on style, concentration, and quality in the context of the tier. (3 x 10 marks)\n\nWith reference to all three wines:\n\nd) Comment on commercial positioning and market demand for each tier. (15 marks)",
+          "canonical_stem": "wines come from the same producer in the same appellation and are presented in ascending order of hierarchy. with reference to all three wines: a) identify the producer, appellation, and grape variety. for each wine: b) identify the specific tier within the ap",
+          "slots": [
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "question": 3,
+          "position": "p1_q3",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "method-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-country"
+          ],
+          "stem": "Wines 8–10 come from the same country and the same broad region. Each wine is made from a different single grape variety.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Comment on style and winemaking. (3 x 8 marks)\n\nWith reference to all three wines:\n\nc) Discuss how site, altitude, and variety interact to shape the different styles. (14 marks)",
+          "canonical_stem": "wines come from the same country and the same broad region. each wine is made from a different single grape variety. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on style and winemaking. with reference to all three",
+          "slots": [
+            8,
+            9,
+            10
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "question": 4,
+          "position": "p1_q4",
+          "family": "F1",
+          "subtype": "F1c",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-region",
+            "same-variety",
+            "compare-contrast"
+          ],
+          "stem": "Wines 11 and 12 are made from the same single grape variety and come from the same region.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (2 x 10 marks)\n\nb) Comment on the stage of maturity and the winemaking style. (2 x 10 marks)\n\nWith reference to both wines:\n\nc) Compare and contrast their style, quality, and capacity to age. (20 marks)",
+          "canonical_stem": "wines # and # are made from the same single grape variety and come from the same region. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on the stage of maturity and the winemaking style. with reference to both wines:",
+          "slots": [
+            11
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "question": 1,
+          "position": "p2_q1",
+          "family": "F1",
+          "subtype": "F1b",
+          "tags": [
+            "method-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "variety-led",
+            "same-variety"
+          ],
+          "stem": "Wines 1–4 are all made from the same single grape variety. The wines come from four different countries.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on how climate and winemaking have shaped the style and structure of each wine. (4 x 11 marks)\n\nWith reference to all four wines:\n\nd) Discuss the commercial prospects for this variety in each country represented. (20 marks)",
+          "canonical_stem": "wines are all made from the same single grape variety. the wines come from four different countries. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on how climate and wi",
+          "slots": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "question": 2,
+          "position": "p2_q2",
+          "family": "F1",
+          "subtype": "F1a",
+          "tags": [
+            "quality-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "same-variety",
+            "ranking"
+          ],
+          "stem": "Wines 5–8 are all made from the same single grape variety and come from the same country and region.\n\nWith reference to all four wines:\n\na) Identify the grape variety, country, and region. (16 marks)\n\nFor each wine:\n\nb) Identify the specific appellation or classification as closely as possible. (4 x 8 marks)\n\nc) Comment on quality within the context of the appellation. (4 x 8 marks)\n\nWith reference to all four wines:\n\nd) Rank the wines in quality order and justify your ranking. (12 marks)",
+          "canonical_stem": "wines are all made from the same single grape variety and come from the same country and region. with reference to all four wines: a) identify the grape variety, country, and region. for each wine: b) identify the specific appellation or classification as clos",
+          "slots": [
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "question": 3,
+          "position": "p2_q3",
+          "family": "F3",
+          "subtype": "F3x",
+          "tags": [
+            "method-led",
+            "maturity-led",
+            "origin-led",
+            "variety-led",
+            "same-country",
+            "blend"
+          ],
+          "stem": "Wines 9–12 are from the same country and the same broad region.\n\nWith reference to all four wines:\n\na) Identify the country and broad region. (12 marks)\n\nFor each wine:\n\nb) Identify the specific appellation as closely as possible. (4 x 8 marks)\n\nc) Comment on grape variety or blend, winemaking, and maturity. (4 x 9 marks)",
+          "canonical_stem": "wines are from the same country and the same broad region. with reference to all four wines: a) identify the country and broad region. for each wine: b) identify the specific appellation as closely as possible. c) comment on grape variety or blend, winemaking,",
+          "slots": [
+            9,
+            10,
+            11,
+            12
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "question": 1,
+          "position": "p3_q1",
+          "family": "F3",
+          "subtype": "F3x",
+          "tags": [
+            "quality-led",
+            "method-led",
+            "commercial-position-led",
+            "origin-led",
+            "variety-led",
+            "blend"
+          ],
+          "stem": "Wines 1–3 are all sparkling wines from three different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to the grape variety or varieties used. (3 x 8 marks)\n\nb) Discuss the method of production. (3 x 10 marks)\n\nc) Comment on quality and commercial positioning. (3 x 7 marks)",
+          "canonical_stem": "wines are all sparkling wines from three different countries. for each wine: a) identify the origin as closely as possible with reference to the grape variety or varieties used. b) discuss the method of production. c) comment on quality and commercial position",
+          "slots": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "question": 2,
+          "position": "p3_q2",
+          "family": "F2",
+          "subtype": "F2x",
+          "tags": [
+            "quality-led",
+            "commercial-position-led",
+            "structure-led",
+            "origin-led",
+            "same-region",
+            "compare-contrast"
+          ],
+          "stem": "Wines 4–7 are from the same region and each comes from a different producer.\n\nWith reference to all four wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nFor each wine:\n\nb) Identify the specific style and production method. (4 x 8 marks)\n\nc) Comment on quality, style, and commercial appeal. (4 x 7 marks)\n\nWith reference to all four wines:\n\nd) Compare and contrast the level of oxidation and its role in shaping each wine. (16 marks)",
+          "canonical_stem": "wines are from the same region and each comes from a different producer. with reference to all four wines: a) identify the region as closely as possible. for each wine: b) identify the specific style and production method. c) comment on quality, style, and com",
+          "slots": [
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "question": 3,
+          "position": "p3_q3",
+          "family": "F6",
+          "subtype": "F6a",
+          "tags": [
+            "quality-led",
+            "maturity-led",
+            "structure-led",
+            "origin-led",
+            "variety-led"
+          ],
+          "stem": "Wines 8–12 are from five different countries and all have residual sugar.\n\nFor each wine:\n\na) State the approximate level of residual sugar (g/l). (5 x 2 marks)\n\nb) State the approximate alcohol level (%). (5 x 2 marks)\n\nc) Identify the origin and grape variety or varieties as closely as possible. (5 x 8 marks)\n\nd) Discuss the mechanism by which sweetness has been achieved and comment on quality and maturity. (5 x 8 marks)",
+          "canonical_stem": "wines are from five different countries and all have residual sugar. for each wine: a) state the approximate level of residual sugar (g/l). b) state the approximate alcohol level (%). c) identify the origin and grape variety or varieties as closely as possible",
+          "slots": [
+            8,
+            9,
+            10,
+            11,
+            12
+          ]
+        }
+      ],
+      "wines": [
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 1,
+          "wine_text": "Sancerre La Croix du Roy, Lucien Crochet, 2024. Loire Valley, France. (13%)",
+          "motifs": [
+            "sancerre",
+            "sancerre la croix du roy"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 2,
+          "wine_text": "Sauvignon Blanc, Cloudy Bay, 2024. Marlborough, New Zealand. (13%)",
+          "motifs": [
+            "sauvignon blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 3,
+          "wine_text": "Reserve Sauvignon Blanc, Ken Forrester, 2024. Stellenbosch, South Africa. (13.5%)",
+          "motifs": [
+            "reserve sauvignon blanc",
+            "sauvignon blanc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 4,
+          "wine_text": "Sauvignon Blanc Estate, Spottswoode, 2024. Napa Valley, California, USA. (14%)",
+          "motifs": [
+            "sauvignon blanc",
+            "sauvignon blanc estate"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 5,
+          "wine_text": "Riesling, Trimbach, 2024. Alsace, France. (12.5%)",
+          "motifs": [
+            "riesling"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 6,
+          "wine_text": "Riesling Cuvée Frédéric Emile, Trimbach, 2022. Alsace, France. (13%)",
+          "motifs": [
+            "riesling",
+            "riesling cuvee frederic emile"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 7,
+          "wine_text": "Riesling Clos Sainte Hune, Trimbach, 2021. Alsace, France. (13%)",
+          "motifs": [
+            "riesling",
+            "riesling clos sainte hune"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 8,
+          "wine_text": "Pinot Grigio Benefizium Porer, Alois Lageder, 2024. Alto Adige, Italy. (13%)",
+          "motifs": [
+            "pinot grigio benefizium porer"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 9,
+          "wine_text": "Gewurztraminer Nussbaumer, Cantina Tramin, 2023. Alto Adige, Italy. (14%)",
+          "motifs": [
+            "gewurztraminer nussbaumer"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 10,
+          "wine_text": "Kerner Praepositus, Abbazia di Novacella, 2024. Alto Adige, Italy. (13.5%)",
+          "motifs": [
+            "kerner praepositus"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 11,
+          "wine_text": "Savennières Roche aux Moines, Domaine aux Moines, 2023. Loire Valley, France. (13%)",
+          "motifs": [
+            "savennieres roche aux moines",
+            "savennières"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 1,
+          "slot": 12,
+          "wine_text": "Vouvray Demi-Sec Clos Naudin, Philippe Foreau, 2016. Loire Valley, France. (12.5%)",
+          "motifs": [
+            "foreau",
+            "vouvray",
+            "vouvray demi-sec",
+            "vouvray demi-sec clos naudin"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 1,
+          "wine_text": "Chinon Les Picasses, Olga Raffault, 2022. Loire Valley, France. (13%)",
+          "motifs": [
+            "chinon les picasses"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 2,
+          "wine_text": "Cabernet Franc, Casa Silva, 2022. Colchagua Valley, Chile. (14%)",
+          "motifs": [
+            "cabernet franc"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 3,
+          "wine_text": "Cabernet Franc Crimson, Ata Rangi, 2023. Martinborough, New Zealand. (13%)",
+          "motifs": [
+            "cabernet franc",
+            "cabernet franc crimson"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 4,
+          "wine_text": "Cabernet Franc Two-Fourteen, Lang & Reed, 2022. North Coast, California, USA. (13.5%)",
+          "motifs": [
+            "cabernet franc",
+            "cabernet franc two-fourteen"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 5,
+          "wine_text": "Langhe Nebbiolo, Bruno Giacosa, 2022. Piedmont, Italy. (14%)",
+          "motifs": [
+            "langhe nebbiolo",
+            "nebbiolo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 6,
+          "wine_text": "Barolo, Marchesi di Gresy, 2020. Piedmont, Italy. (14.5%)",
+          "motifs": [
+            "barolo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 7,
+          "wine_text": "Barolo Bussia, Giacomo Fenocchio, 2019. Piedmont, Italy. (14.5%)",
+          "motifs": [
+            "barolo",
+            "barolo bussia"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 8,
+          "wine_text": "Barbaresco Rio Sordo, Produttori del Barbaresco, 2021. Piedmont, Italy. (14%)",
+          "motifs": [
+            "barbaresco",
+            "barbaresco rio sordo"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 9,
+          "wine_text": "Château Léoville Barton, 2019. Saint-Julien, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "château leoville barton",
+            "saint-julien"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 10,
+          "wine_text": "Château La Tour de By, 2020. Médoc, Bordeaux, France. (13%)",
+          "motifs": [
+            "bordeaux",
+            "château la tour de by"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 11,
+          "wine_text": "Château Haut-Bailly, 2019. Pessac-Léognan, Bordeaux, France. (13.5%)",
+          "motifs": [
+            "bordeaux",
+            "château haut-bailly"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 2,
+          "slot": 12,
+          "wine_text": "Château Canon-la-Gaffelière, 2020. Saint-Émilion, Bordeaux, France. (14%)",
+          "motifs": [
+            "bordeaux",
+            "château canon-la-gaffeliere"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 1,
+          "wine_text": "Champagne Premier Cru Blanc de Blancs, Lallier, NV. Champagne, France. (12.5%)",
+          "motifs": [
+            "champagne",
+            "champagne premier cru blanc de blancs"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 2,
+          "wine_text": "Cava Brut Nature Gran Reserva, Castellroig, 2019. Penedès, Spain. (11.5%)",
+          "motifs": [
+            "cava",
+            "cava brut nature gran reserva"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 3,
+          "wine_text": "Cartizze Dry, Adami, NV. Conegliano Valdobbiadene, Veneto, Italy. (11%)",
+          "motifs": [
+            "cartizze",
+            "cartizze dry"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 4,
+          "wine_text": "La Guita Manzanilla, Hijos de Rainera Pérez Marín, NV. Sanlúcar de Barrameda, Spain. (15%)",
+          "motifs": [
+            "la guita manzanilla"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 5,
+          "wine_text": "Los Arcos Amontillado, Lustau, NV. Jerez de la Frontera, Spain. (18.5%)",
+          "motifs": [
+            "jerez",
+            "los arcos amontillado"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 6,
+          "wine_text": "Emperatriz Eugenia Oloroso, Barbadillo, NV. Jerez de la Frontera, Spain. (20%)",
+          "motifs": [
+            "emperatriz eugenia oloroso",
+            "jerez"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 7,
+          "wine_text": "Pedro Ximénez Celestino, Romate, NV. Jerez de la Frontera, Spain. (15%)",
+          "motifs": [
+            "jerez",
+            "pedro ximenez celestino"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 8,
+          "wine_text": "Zeltinger Sonnenuhr Riesling Spätlese, Selbach-Oster, 2023. Mosel, Germany. (8.5%)",
+          "motifs": [
+            "mosel",
+            "riesling",
+            "zeltinger sonnenuhr riesling spatlese"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 9,
+          "wine_text": "Château Guiraud, 2019. Sauternes, France. (14%)",
+          "motifs": [
+            "château guiraud",
+            "sauternes"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 10,
+          "wine_text": "Vidal Icewine, Henry of Pelham, 2022. Niagara Peninsula, Ontario, Canada. (10.5%)",
+          "motifs": [
+            "icewine",
+            "vidal icewine"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 11,
+          "wine_text": "Ben Ryé Passito di Pantelleria, Donnafugata, 2021. Sicily, Italy. (14.5%)",
+          "motifs": [
+            "ben rye passito di pantelleria"
+          ]
+        },
+        {
+          "mock_id": "mock_full_2026_05_26_v7",
+          "paper": 3,
+          "slot": 12,
+          "wine_text": "Maury Vintage, Mas Amiel, 2020. Roussillon, France. (16%)",
+          "motifs": [
+            "maury vintage"
+          ]
+        }
+      ]
+    }
+  ],
+  "question_count": 35,
+  "wine_count": 244,
+  "repeated_positions": [
+    {
+      "position": "p1_q1",
+      "n_mocks": 7,
+      "dominant_family": "F1/F1a",
+      "dominant_count": 3,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, quality, and capacity to age. ### question # wines are from the sa",
+          2
+        ],
+        [
+          "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on quality, style, and capacity to age. ### question # wines are from the sa",
+          1
+        ],
+        [
+          "wines are from the same single grape variety. with reference to all four wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, quality, and capacity to age. ### question # wines have been selec",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26",
+        "mock_full_2026_05_26_v2",
+        "mock_full_2026_05_26_v3",
+        "mock_full_2026_05_26_v4",
+        "mock_full_2026_05_26_v5",
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p1_q3",
+      "n_mocks": 2,
+      "dominant_family": "F2/F2x",
+      "dominant_count": 2,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines come from the same country but from three different single grape varieties. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on the method of production. c) discuss quality, style, and potential for further devel",
+          1
+        ],
+        [
+          "wines come from the same country and the same broad region. each wine is made from a different single grape variety. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on style and winemaking. with reference to all three",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p1_q4",
+      "n_mocks": 2,
+      "dominant_family": "F1/F1c",
+      "dominant_count": 2,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines # and # are made from the same single grape variety from the same region of origin. for both wines: a) identify the grape variety and region as closely as possible. for each wine: b) comment on the stage of maturity and the relative importance of natural",
+          1
+        ],
+        [
+          "wines # and # are made from the same single grape variety and come from the same region. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on the stage of maturity and the winemaking style. with reference to both wines:",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p2_q1",
+      "n_mocks": 7,
+      "dominant_family": "F1/F1a",
+      "dominant_count": 4,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines are from the same single grape variety. with reference to all three wines: a) identify the grape variety. for each wine: b) identify the origin as closely as possible. c) comment on style, tannin management, and quality. with reference to all three wines",
+          2
+        ],
+        [
+          "wines are from four different countries. for each wine: a) identify the grape variety and origin as closely as possible. b) comment on style, quality, and maturity. ### question # wines are from europe. they come from four different single grape varieties, eac",
+          1
+        ],
+        [
+          "wines are from the same country and region. for each wine: a) identify the origin as closely as possible. b) comment on the grape variety or blend, style, and winemaking. c) comment on quality and commercial positioning. ### question # wines are from the same ",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26",
+        "mock_full_2026_05_26_v2",
+        "mock_full_2026_05_26_v3",
+        "mock_full_2026_05_26_v4",
+        "mock_full_2026_05_26_v5",
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p3_q1",
+      "n_mocks": 7,
+      "dominant_family": "F6/F6a",
+      "dominant_count": 4,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin and grape variety or varieties as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare an",
+          4
+        ],
+        [
+          "wines # and # are sparkling wines from two different countries. for each wine: a) identify the origin as closely as possible. b) comment on the method of production, style, and quality. with reference to both wines: c) compare and contrast the commercial oppor",
+          1
+        ],
+        [
+          "wines are sparkling wines from three different countries. none of the wines are from champagne. for each wine: a) identify the origin as closely as possible with reference to the grape variety/ies used. b) discuss the method of production. c) comment on qualit",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26",
+        "mock_full_2026_05_26_v2",
+        "mock_full_2026_05_26_v3",
+        "mock_full_2026_05_26_v4",
+        "mock_full_2026_05_26_v5",
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p3_q2",
+      "n_mocks": 2,
+      "dominant_family": "F2/F2x",
+      "dominant_count": 2,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines are from the same region and the same producer. with reference to all four wines: a) identify the region of origin as closely as possible. b) compare and contrast the winemaking techniques used across the four wines. for each wine: c) comment on quality,",
+          1
+        ],
+        [
+          "wines are from the same region and each comes from a different producer. with reference to all four wines: a) identify the region as closely as possible. for each wine: b) identify the specific style and production method. c) comment on quality, style, and com",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    },
+    {
+      "position": "p3_q3",
+      "n_mocks": 2,
+      "dominant_family": "F6/F6a",
+      "dominant_count": 2,
+      "exact_or_near_stem_repeats": [
+        [
+          "wines are from five different countries and have in common the presence of residual sugar. for each wine: a) state the approximate level of residual sugar (g/l). b) state the approximate alcohol level (%). c) identify the origin and grape variety/ies as closel",
+          1
+        ],
+        [
+          "wines are from five different countries and all have residual sugar. for each wine: a) state the approximate level of residual sugar (g/l). b) state the approximate alcohol level (%). c) identify the origin and grape variety or varieties as closely as possible",
+          1
+        ]
+      ],
+      "mock_ids": [
+        "mock_full_2026_05_26_v6",
+        "mock_full_2026_05_26_v7"
+      ]
+    }
+  ],
+  "repeated_motifs": [
+    {
+      "motif": "riesling",
+      "total_mock_count": 27,
+      "mock_count": 7,
+      "by_mock": {
+        "mock_full_2026_05_26": 3,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 5,
+        "mock_full_2026_05_26_v4": 5,
+        "mock_full_2026_05_26_v5": 3,
+        "mock_full_2026_05_26_v6": 6,
+        "mock_full_2026_05_26_v7": 4
+      }
+    },
+    {
+      "motif": "bordeaux",
+      "total_mock_count": 16,
+      "mock_count": 6,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v4": 3,
+        "mock_full_2026_05_26_v5": 3,
+        "mock_full_2026_05_26_v6": 4,
+        "mock_full_2026_05_26_v7": 4
+      }
+    },
+    {
+      "motif": "vouvray",
+      "total_mock_count": 13,
+      "mock_count": 7,
+      "by_mock": {
+        "mock_full_2026_05_26": 2,
+        "mock_full_2026_05_26_v2": 2,
+        "mock_full_2026_05_26_v3": 2,
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 2,
+        "mock_full_2026_05_26_v6": 2,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "huet",
+      "total_mock_count": 12,
+      "mock_count": 6,
+      "by_mock": {
+        "mock_full_2026_05_26": 2,
+        "mock_full_2026_05_26_v2": 2,
+        "mock_full_2026_05_26_v3": 2,
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 2,
+        "mock_full_2026_05_26_v6": 2
+      }
+    },
+    {
+      "motif": "mosel",
+      "total_mock_count": 8,
+      "mock_count": 5,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v4": 3,
+        "mock_full_2026_05_26_v6": 2,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "madeira",
+      "total_mock_count": 8,
+      "mock_count": 5,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v5": 1,
+        "mock_full_2026_05_26_v6": 4
+      }
+    },
+    {
+      "motif": "chardonnay",
+      "total_mock_count": 7,
+      "mock_count": 4,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 2,
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 2
+      }
+    },
+    {
+      "motif": "jerez",
+      "total_mock_count": 7,
+      "mock_count": 4,
+      "by_mock": {
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 1,
+        "mock_full_2026_05_26_v7": 3
+      }
+    },
+    {
+      "motif": "pinot noir",
+      "total_mock_count": 6,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 3,
+        "mock_full_2026_05_26_v3": 2
+      }
+    },
+    {
+      "motif": "syrah",
+      "total_mock_count": 6,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 2,
+        "mock_full_2026_05_26_v6": 2
+      }
+    },
+    {
+      "motif": "vouvray clos du bourg demi-sec",
+      "total_mock_count": 5,
+      "mock_count": 5,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chianti",
+      "total_mock_count": 5,
+      "mock_count": 4,
+      "by_mock": {
+        "mock_full_2026_05_26": 2,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "barolo",
+      "total_mock_count": 5,
+      "mock_count": 4,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v6": 1,
+        "mock_full_2026_05_26_v7": 2
+      }
+    },
+    {
+      "motif": "icewine",
+      "total_mock_count": 5,
+      "mock_count": 5,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v6": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "sauvignon blanc",
+      "total_mock_count": 5,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 2,
+        "mock_full_2026_05_26_v7": 3
+      }
+    },
+    {
+      "motif": "polish hill riesling",
+      "total_mock_count": 5,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 2,
+        "mock_full_2026_05_26_v5": 2,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "vidal icewine",
+      "total_mock_count": 4,
+      "mock_count": 4,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "cabernet franc",
+      "total_mock_count": 4,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v7": 3
+      }
+    },
+    {
+      "motif": "muscadet sevre-et-maine monnieres saint-fiacre l'ancestrale",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "riesling silberberg de rorschwihr",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "sauvignon semillon circa 77",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "clos du bourg demi-sec",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "sercial 10 years old",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "fine ruby port",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "corton-charlemagne grand cru",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "cava",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v6": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "tokaji",
+      "total_mock_count": 3,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v3": 2,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "savennières",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "vouvray le mont sec",
+      "total_mock_count": 3,
+      "mock_count": 3,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "cabernet sauvignon",
+      "total_mock_count": 3,
+      "mock_count": 1,
+      "by_mock": {
+        "mock_full_2026_05_26_v5": 3
+      }
+    },
+    {
+      "motif": "château de fieuzal blanc",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "château rieussec r de rieussec",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "pinot gris",
+      "total_mock_count": 2,
+      "mock_count": 1,
+      "by_mock": {
+        "mock_full_2026_05_26": 2
+      }
+    },
+    {
+      "motif": "rioja reserva",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "nebbiolo",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "brunello di montalcino",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "chardonnay en flandre",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "l’etoile",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "beerenauslese cuvee",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "vin santo del chianti classico",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "muscat de beaumes de venise",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "40 year tawny port",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26": 1,
+        "mock_full_2026_05_26_v2": 1
+      }
+    },
+    {
+      "motif": "cornas granit 30",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "savigny-les-beaune les goudelettes",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v2": 1,
+        "mock_full_2026_05_26_v3": 1
+      }
+    },
+    {
+      "motif": "champagne",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "muscat de beaumes-de-venise",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "20 year old tawny port",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v3": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chablis",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "art series chardonnay",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "petit chablis",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chablis 1er cru vaillons",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "savennieres clos du papillon",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "crozes-hermitage les jalets",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "bourgogne pinot noir",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "savigny-les-beaune 1er cru les lavieres",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "clos de vougeot grand cru",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chateau poujeaux",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chateau smith haut lafitte",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "chateau la fleur-petrus",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "classic cuvee",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "cuvee prestige edizione 47",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v5": 1
+      }
+    },
+    {
+      "motif": "riesling trockenbeerenauslese",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v4": 1,
+        "mock_full_2026_05_26_v6": 1
+      }
+    },
+    {
+      "motif": "sancerre",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v6": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "saint-julien",
+      "total_mock_count": 2,
+      "mock_count": 2,
+      "by_mock": {
+        "mock_full_2026_05_26_v6": 1,
+        "mock_full_2026_05_26_v7": 1
+      }
+    },
+    {
+      "motif": "pauillac",
+      "total_mock_count": 2,
+      "mock_count": 1,
+      "by_mock": {
+        "mock_full_2026_05_26_v6": 2
+      }
+    }
+  ],
+  "historical_positions": {
+    "positions": {
+      "p1_q1": {
+        "F2/F2x": 4,
+        "F7/F7d": 2,
+        "F3/F3b": 1,
+        "F2/F2a": 2,
+        "F1/F1b": 3,
+        "F3/F3a": 2
+      },
+      "p1_q2": {
+        "F1/F1b": 7,
+        "F2/F2x": 1,
+        "F1/F1a": 1,
+        "F4/F4a": 3,
+        "F4/F4b": 1,
+        "F2/F2a": 1
+      },
+      "p1_q3": {
+        "F4/F4x": 2,
+        "F2/F2x": 2,
+        "F4/F4a": 2,
+        "F1/F1b": 2,
+        "F5/F5f": 1,
+        "F7/F7b": 1,
+        "F2/F2a": 3,
+        "F3/F3b": 1
+      },
+      "p2_q1": {
+        "F2/F2x": 2,
+        "F4/F4x": 1,
+        "F7/F7x": 1,
+        "F1/F1b": 3,
+        "F1/F1c": 1,
+        "F4/F4a": 1,
+        "F4/F4c": 1,
+        "F3/F3c": 1,
+        "F7/F7d": 1,
+        "F3/F3d": 1,
+        "F2/F2a": 1
+      },
+      "p2_q2": {
+        "F1/F1c": 1,
+        "F4/F4x": 1,
+        "F2/F2x": 2,
+        "F4/F4a": 4,
+        "F1/F1b": 2,
+        "F2/F2a": 2,
+        "F2/F2d": 1,
+        "F4/F4c": 1
+      },
+      "p2_q3": {
+        "F2/F2x": 2,
+        "F4/F4x": 1,
+        "F7/F7x": 1,
+        "F2/F2a": 1,
+        "F7/F7d": 1,
+        "F4/F4a": 3,
+        "F1/F1c": 1,
+        "F4/F4c": 2,
+        "F2/F2d": 1,
+        "F1/F1b": 1
+      },
+      "p2_q4": {
+        "F4/F4x": 2,
+        "F2/F2a": 1,
+        "F2/F2d": 1,
+        "F4/F4a": 2,
+        "F1/F1c": 1
+      },
+      "p2_q5": {
+        "F1/F1b": 1,
+        "F4/F4c": 1,
+        "F1/F1c": 1
+      },
+      "p1_q4": {
+        "F4/F4x": 1,
+        "F1/F1a": 1,
+        "F2/F2a": 2,
+        "F4/F4a": 2,
+        "F5/F5e": 1
+      },
+      "p3_q1": {
+        "F7/F7x": 1,
+        "F2/F2x": 1,
+        "F5/F5x": 1,
+        "F5/F5b": 1,
+        "F1/F1d": 2,
+        "F4/F4a": 3,
+        "F7/F7b": 1,
+        "F2/F2d": 1,
+        "F5/F5a": 2
+      },
+      "p3_q2": {
+        "F4/F4x": 1,
+        "F5/F5x": 1,
+        "F3/F3x": 1,
+        "F4/F4a": 1,
+        "F5/F5c": 1,
+        "F5/F5f": 1,
+        "F2/F2a": 2,
+        "F2/F2d": 1,
+        "F5/F5d": 3,
+        "F2/F2b": 1
+      },
+      "p3_q3": {
+        "F1/F1d": 1,
+        "F6/F6a": 3,
+        "F5/F5x": 1,
+        "F4/F4a": 4,
+        "F4/F4c": 1,
+        "F2/F2d": 2,
+        "F7/F7a": 1
+      },
+      "p3_q4": {
+        "F1/F1d": 3,
+        "F5/F5x": 1,
+        "F7/F7b": 1,
+        "F5/F5c": 1,
+        "F6/F6a": 1
+      },
+      "p1_q5": {
+        "F4/F4x": 1,
+        "F4/F4a": 1,
+        "F1/F1b": 1
+      },
+      "p3_q5": {
+        "F2/F2a": 1,
+        "F6/F6a": 1
+      },
+      "p3_q6": {
+        "F5/F5c": 1
+      }
+    },
+    "p3_q1_stems": [
+      {
+        "year": 2012,
+        "family": "F7",
+        "subtype": "F7x",
+        "text": "Wines 1 and 2 are from the same region and same producer.\nWith reference to both wines:\na) Identify the region of origin as closely as possible (10 marks)\nb) Compare the most relevant winemaking techniques involved in the production of the wines (20 marks)\nc) Compare maturity and quality, stating which is the higher quality wine (20 marks)"
+      },
+      {
+        "year": 2013,
+        "family": "F2",
+        "subtype": "F2x",
+        "text": "Wines 1-3 are all from the same country.\nFor all three wines\na) Identify the country and regions of origin. (24 marks)\nFor each wine\nc) Comment on the method of production. (7 marks)\nd) Discuss the quality with particular reference to commercial potential. (10 marks)"
+      },
+      {
+        "year": 2014,
+        "family": "F5",
+        "subtype": "F5x",
+        "text": "Wines 1-4 are from four different countries. None of the wines are from Champagne.\nFor each wine\na) Identify the origin as closely as possible with reference to the grape variety(ies) used. (4 x 10 marks)\nb) Discuss the method of production. (4 x 7 marks)\nc) Comment on quality and commercial position. (4 x 8 marks)"
+      },
+      {
+        "year": 2015,
+        "family": "F5",
+        "subtype": "F5b",
+        "text": "Wines 1-4 are all from Europe.\n\nFor each wine:\n\na) Discuss the major factors involved in the method of production, with particular reference to the role of yeast. (4 x 15 marks)\n\nb) Comment on quality and style. (4 x 10 marks)"
+      },
+      {
+        "year": 2016,
+        "family": "F1",
+        "subtype": "F1d",
+        "text": "Wines 1-5 are all made from the same single grape variety.\n\nFor each wine:\n\na) Discuss winemaking, with particular reference to oak. (5 x 10 marks)\n\nb) Identify the origin as closely as possible. (5 x 8 marks)\n\nc) Comment on quality and commercial appeal. (5 x 7 marks)"
+      },
+      {
+        "year": 2017,
+        "family": "F4",
+        "subtype": "F4a",
+        "text": "Wines 1-3 are rosés from three different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to the style. (3 x 7 marks)\n\nb) Highlight the key winemaking techniques used. (3 x 8 marks)\n\nc) Discuss the commercial appeal and market positioning. (3 x 10 marks)"
+      },
+      {
+        "year": 2018,
+        "family": "F7",
+        "subtype": "F7b",
+        "text": "Wines 1-6 are presented as pairs, 1 and 2, 3 and 4, and 5 and 6\\. Each pair is made by a different single producer.\n\nFor each pair:\n\na) Identify the origin, as closely as possible. (3 x 10 marks)\n\nb) Comment on the key winemaking techniques used. (3 x 12 marks)\n\nc) Identify the vintage(s) and consider its/their key characteristics. (3 x 10 marks)\n\nd) Discuss the quality and maturity of the wines. (3 x 18 marks)"
+      },
+      {
+        "year": 2019,
+        "family": "F2",
+        "subtype": "F2d",
+        "text": "Wines 1-2 are both from the same region.\n\nFor both wines:\n\na) Identify the region. (10 marks)\n\nb) Compare and contrast the method of production. (15 marks)\n\nc) Compare and contrast the style, quality and commercial appeal of the two wines. (25 marks)"
+      },
+      {
+        "year": 2021,
+        "family": "F4",
+        "subtype": "F4a",
+        "text": "Wines 1-3 are all sparkling wines.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies used. (3 x 10 marks)\n\nb) Comment on the method of production. (3 x 5 marks)\n\nc) Comment on the quality and commercial position. (3 x 10 marks)"
+      },
+      {
+        "year": 2022,
+        "family": "F4",
+        "subtype": "F4a",
+        "text": "Wines 1-4 are all sparkling rosé wines. Wines 1 and 2 are from one country, and wines 3 and 4 are from another country.\n\nFor each wine:\n\na) Identify the origin as closely as possible and the grape variety(ies) used. (4 x 10 marks)\n\nb) Comment on the key winemaking techniques. (4 x 10 marks)\n\nc) Comment on the quality within the context of the origin. (4 x 5 marks)"
+      },
+      {
+        "year": 2023,
+        "family": "F5",
+        "subtype": "F5a",
+        "text": "Wines 1-4 are traditional method sparkling wines from four different countries. None is from Champagne.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies as closely as possible. (4 x 13 marks)\n\nb) Comment on quality in the context of origin. (4 x 10 marks)\n\nc) State the residual sugar. (4 x 2 marks)"
+      },
+      {
+        "year": 2024,
+        "family": "F5",
+        "subtype": "F5a",
+        "text": "Wines 1 and 2 are sparkling wines, neither of the wines are from Champagne.\n\nFor each wine:\n\na) Discuss the quality, winemaking, and style. (2 x 15 marks)\n\nFor both wines:\n\nb) Compare and contrast the commercial opportunities and challenges. (20 marks)"
+      },
+      {
+        "year": 2025,
+        "family": "F1",
+        "subtype": "F1d",
+        "text": "Wines 1 to 3 are made from the same single grape variety.\n\na) Identify the grape variety with reference to all three wines. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 7 marks)\n\nc) Comment on the winemaking techniques. (3 x 5 marks)\n\nd) Comment on the style and quality. (3 x 9 marks)"
+      }
+    ]
+  },
+  "historical_motifs": {
+    "muscat d'alsace": 1,
+    "riesling": 33,
+    "pinot gris": 7,
+    "chablis": 5,
+    "chardonnay": 17,
+    "semillon": 5,
+    "torrontes": 3,
+    "sauvignon blanc": 10,
+    "condrieu": 3,
+    "monopole": 1,
+    "john x merriman": 1,
+    "syrah": 7,
+    "pinotage": 2,
+    "beaujolais villages": 2,
+    "fleurie": 2,
+    "barolo": 5,
+    "dolcetto d'alba": 1,
+    "barbera d'alba": 1,
+    "château giscours": 1,
+    "bordeaux": 25,
+    "contino reserva": 1,
+    "merlot": 4,
+    "taittinger comtes de champagne": 1,
+    "champagne": 15,
+    "de laurency": 1,
+    "verdelho": 1,
+    "madeira": 8,
+    "sercial": 1,
+    "pinot noir": 14,
+    "fonseca guimaraens": 1,
+    "taylor's 10 year old tawny port": 1,
+    "mosel": 12,
+    "wehlener sonnenuhr kabinett": 1,
+    "brauneberger juffer sonnenhur spatlese": 1,
+    "domaine du noble": 1,
+    "sauternes": 8,
+    "château suduiraut": 1,
+    "muscadet sevre-et-maine sur lie": 1,
+    "vouvray": 7,
+    "vouvray sec cuvee silex": 1,
+    "menetou salon cuvee beatrice": 1,
+    "coteaux du layon chaume": 1,
+    "pinot grigio": 1,
+    "pinot gris reserve": 1,
+    "puligny montrachet": 2,
+    "meursault": 2,
+    "corton charlemagne": 3,
+    "marsanne": 1,
+    "crozes-hermitage": 1,
+    "carmenere": 2,
+    "cabernet sauvignon": 5,
+    "lady may": 1,
+    "château quinault": 1,
+    "geremia": 1,
+    "zweigelt": 2,
+    "vale do bomfim": 1,
+    "cornas": 1,
+    "the boxer": 1,
+    "louis roederer brut vintage": 1,
+    "louis roederer brut premier": 1,
+    "vouvray petillant": 1,
+    "huet": 3,
+    "sparkling shiraz": 1,
+    "sauvignon blanc brut": 1,
+    "sparkling zinfandel rose": 1,
+    "zeltinger himmelreich riesling eiswein 'junior'": 1,
+    "kayena botrytis riesling": 1,
+    "muscat": 3,
+    "barefoot moscato": 1,
+    "moscato passito di pantelleria 'ben rye'": 1,
+    "vina gravonia": 2,
+    "albarino": 6,
+    "gruner veltliner": 2,
+    "riesling wachstum bodenstein smaragd": 1,
+    "riesling 'd'": 1,
+    "omaka reserve chardonnay": 1,
+    "chenin blanc": 4,
+    "chenin": 9,
+    "gavi di gavi": 1,
+    "assyrtiko": 1,
+    "gewurztraminer reserve": 1,
+    "rully": 1,
+    "vosne romanee": 1,
+    "te kahu": 1,
+    "priorat gratallops": 1,
+    "grenache besson vineyard": 1,
+    "châteauneuf-du-pape": 1,
+    "bush vine grenache": 1,
+    "valpolicella ripasso": 1,
+    "gran corte": 1,
+    "prosecco": 4,
+    "prosecco superiore 'oro puro'": 1,
+    "lambrusco": 1,
+    "franciacorta gran cuvee brut": 1,
+    "vat 1 semillon": 1,
+    "château villa bel air blanc": 1,
+    "castelnau de suduiraut": 1,
+    "urziger wurzgarten riesling kabinett": 1,
+    "jurancon": 1,
+    "tokaji": 7,
+    "tokaji 5 puttonyos aszu": 1,
+    "cuvee beerenauslese": 1,
+    "vidal ice wine": 1,
+    "vin santo": 2,
+    "viognier": 2,
+    "sauvignon blanc - semillon": 1,
+    "watervale riesling": 2,
+    "deidesheimer kieselberg riesling": 1,
+    "sancerre": 3,
+    "saint joseph": 1,
+    "shiraz": 2,
+    "chateau lynch bages": 2,
+    "pauillac": 2,
+    "chateau nenin": 2,
+    "villacreces": 1,
+    "petalos": 1,
+    "simply garnacha": 1,
+    "vina ardanza": 1,
+    "cava": 5,
+    "vouvray brut": 1,
+    "le reve": 1,
+    "east india solera sherry": 1,
+    "sherry": 3,
+    "jerez": 8,
+    "15-yr old malmsey": 1,
+    "six grapes": 1,
+    "banyuls": 1,
+    "miraval rose": 1,
+    "pheasant's tears": 1,
+    "menage a trois": 1,
+    "amarone della valpolicella": 2,
+    "chablis grand cru vaudesir": 1,
+    "bâtard montrachet grand cru": 1,
+    "durnsteiner kellerberg": 1,
+    "gewurztraminer": 5,
+    "monthelie": 1,
+    "gevrey chambertin": 1,
+    "rioja reserva": 1,
+    "portrait shiraz": 1,
+    "chianti classico": 1,
+    "chianti": 5,
+    "brunello di montalcino": 2,
+    "nebbiolo delle langhe": 1,
+    "nebbiolo": 1,
+    "‘magnificat’": 1,
+    "billecart-salmon vintage extra brut": 1,
+    "knightor vineyard rose": 1,
+    "inocente fino": 1,
+    "arbois": 1,
+    "quinta da cavadinha vintage port": 1,
+    "jmk shiraz vp": 1,
+    "matusalem": 1,
+    "colheita": 1,
+    "brauenberger juffer-sonnenuhr riesling spatlese": 1,
+    "riesling icewine": 1,
+    "icewine": 2,
+    "tokaji aszú": 2,
+    "château brown": 1,
+    "châteauneuf du pape": 4,
+    "clos windsbuhl pinot gris": 1,
+    "acodo white rioja": 1,
+    "crios de susana balbo torrontes": 1,
+    "morgon": 1,
+    "moulin à vent clos de rochegres": 1,
+    "spatburgunder blauschiefer": 1,
+    "château leoville barton": 1,
+    "château berliquet": 1,
+    "cote rotie": 2,
+    "malbec": 3,
+    "blaufrankisch": 2,
+    "tributo carmenere": 1,
+    "‘initial’ blanc de blancs": 1,
+    "blanc de blancs": 1,
+    "puligny montrachet vieilles vignes": 1,
+    "mâcon blanc villages": 1,
+    "palo cortado": 2,
+    "20 year old tawny port": 1,
+    "10 year old sercial": 1,
+    "château guiraud": 1,
+    "valpolicella ripasso superiore": 1,
+    "recioto della valpolicella": 1,
+    "muscadet sevre et maine": 1,
+    "savennières": 2,
+    "savennieres": 1,
+    "pouilly fume": 1,
+    "soave classico": 1,
+    "roero arneis": 1,
+    "muscat reserve": 1,
+    "château montrose": 1,
+    "cabernet sauvignon / shiraz": 1,
+    "rubicon": 1,
+    "montepulciano d’abruzzo": 1,
+    "chianti classico riserva": 1,
+    "etna": 3,
+    "etna rosso": 2,
+    "chinon": 1,
+    "spatburgunder": 1,
+    "lagrein": 1,
+    "white zinfandel": 1,
+    "billette rose": 1,
+    "pelorus rose": 1,
+    "‘amber’": 1,
+    "cuvee juveniles": 1,
+    "cote de nuits villages": 1,
+    "nuits st georges": 1,
+    "maury ‘grande reserve’": 1,
+    "red shoulder ranch chardonnay": 1,
+    "hunting hill chardonnay": 1,
+    "ried lamm": 1,
+    "la rocca": 1,
+    "old vine chenin blanc": 1,
+    "kiedrich grafenberg": 1,
+    "eitelsbacher karthauserhof riesling auslese": 1,
+    "brunello di montalcino riserva": 1,
+    "chambolle musigny": 1,
+    "château clos de sarpe": 1,
+    "baron de ley": 1,
+    "pinot noir reserve": 1,
+    "zinfandel": 2,
+    "dom perignon": 2,
+    "château coutet": 3,
+    "taylor’s vintage": 2,
+    "domaine de chevalier blanc": 1,
+    "châteauneuf du pape blanc": 1,
+    "saint-romain": 1,
+    "cinsault": 1,
+    "la garnacha de mustiguillo": 1,
+    "bandol": 1,
+    "sancerre les boucauds": 1,
+    "sauvignon blanc reserve": 2,
+    "château la louviere": 1,
+    "rioja blanco": 1,
+    "grillo": 1,
+    "moscato d’asti": 1,
+    "m3 chardonnay": 1,
+    "chinuri": 1,
+    "vecchio samperi": 1,
+    "château de la greniere": 1,
+    "vigna d’alceo": 1,
+    "saumur-champigny": 1,
+    "santa maria pinot noir": 1,
+    "single vineyard tannat": 1,
+    "douro": 1,
+    "villányi franc": 1,
+    "grand brut": 1,
+    "brut grand cru millesime": 1,
+    "prosecco superiore": 1,
+    "rosado": 1,
+    "rose of pinot noir": 1,
+    "manzanilla papirusa": 1,
+    "cuvee speciale": 1,
+    "ben rye passito de pantelleria": 1,
+    "rutherglen": 2,
+    "vin jaune": 1,
+    "inopia blanc": 1,
+    "wally chenin blanc": 1,
+    "clos du papillon": 1,
+    "botanica chenin blanc": 1,
+    "riesling burgstall federspiel": 1,
+    "riesling ried kellerberg smaragd": 1,
+    "moscato": 1,
+    "chateau ducru-beaucaillou": 3,
+    "barbaresco": 1,
+    "grenache the custodian": 1,
+    "petite sirah": 1,
+    "terrunyo carmenere block 27": 1,
+    "cotes du rhone": 1,
+    "la montesa crianza": 1,
+    "castillo ygay gran reserva": 1,
+    "brut imperial": 1,
+    "pol roger": 1,
+    "brut quartet": 1,
+    "brachetto d’aqui": 1,
+    "vintage port": 1,
+    "maury": 2,
+    "rutherglen muscat classic 12 years": 1,
+    "oloroso pata de gallina almacenista": 1,
+    "matusalem oloroso dulce 30 years": 1,
+    "full rich": 1,
+    "single harvest boal": 1,
+    "meursault les chevalieres": 1,
+    "riesling springvale": 1,
+    "marsanne museum release": 1,
+    "pinot grigio delle venezie": 1,
+    "etna bianco di sei": 1,
+    "roussanne": 1,
+    "chinon cuvee terroir": 1,
+    "château larrivet haut-brion": 1,
+    "chianti classico ‘brolio’": 1,
+    "bourgogne hautes cotes de beaune": 1,
+    "clos vougeot": 1,
+    "malbec ‘serie a’": 1,
+    "malbec reserve old vine": 1,
+    "lytton springs": 1,
+    "prosecco rose brut": 1,
+    "spumante rosato ‘cadelvento’": 1,
+    "rose brut": 2,
+    "brut rose": 1,
+    "riesling spatlese": 1,
+    "t noble late harvest chenin blanc": 1,
+    "tokaji aszú 5 puttonyos": 2,
+    "recioto della valpolicella classico": 1,
+    "10 year tawny port": 1,
+    "para 10 year grand tawny": 1,
+    "sancerre les baronnes": 1,
+    "semillon granito": 1,
+    "riesling kabinett": 1,
+    "viognier mon grand-pere etait limonadier": 1,
+    "chenin blanc petit": 1,
+    "barolo ravera": 1,
+    "valpolicella": 1,
+    "taurasi riserva ‘piano di montevergine’": 1,
+    "rioja gran reserva imperial": 1,
+    "margaux": 1,
+    "grenache samuel’s collection bush vine": 1,
+    "nuits-saint-georges vieilles vignes": 1,
+    "cahors ‘probus’": 1,
+    "cava brut nature reserva de la familia": 1,
+    "brut blanc de blancs": 1,
+    "riesling extra brut": 1,
+    "rose les clans": 1,
+    "furmint tokaji": 1,
+    "garnacha old vines cabrida": 1,
+    "grenache yount mill vineyard": 1,
+    "riesling urziger wurzgarten kabinett": 1,
+    "riesling iphofer julius-echter-berg grosses gewachs": 1,
+    "corton-charlemagne": 1,
+    "sauvignon blanc section 94": 1,
+    "moschofilero wild ferment": 1,
+    "gewurztraminer furstentum grand cru": 1,
+    "jurancon sec tauzy": 1,
+    "château de fieuzal": 1,
+    "châteauneuf-du-pape blanc": 1,
+    "syrah outer limits": 1,
+    "cornas brise cailloux": 1,
+    "shiraz the bogan": 1,
+    "brunello di montalcino amore e magia": 1,
+    "château beau-sejour becot": 1,
+    "rioja gran reserva 890": 1,
+    "savigny-les-beaune les goudelettes": 1,
+    "pinot noir wismer-parke": 1,
+    "spatburgunder sasbacher limburg erste lage": 1,
+    "brut j schram blancs": 1,
+    "cava reserva brut nature": 1,
+    "chardonnay en flandre": 1,
+    "l’etoile": 1,
+    "château rieussec r de rieussec": 1,
+    "rieussec carmes de rieussec": 1,
+    "château rieussec": 1,
+    "vidal icewine": 1,
+    "beerenauslese cuvee": 1,
+    "vin santo del chianti classico": 1,
+    "muscat de beaumes de venise": 1,
+    "clos du bourg demi-sec": 1,
+    "château de fieuzal blanc": 1,
+    "sauvignon semillon circa 77": 1,
+    "chablis 1er cru cote de lechet": 1,
+    "muscadet sevre-et-maine monnieres saint-fiacre l’ancestrale": 1,
+    "riesling silberberg de rorschwihr": 1,
+    "vouvray clos du bourg demi-sec": 1,
+    "riesling flussterrassen": 1,
+    "rioja blanco gran reserva": 1,
+    "vin santo del chianti rufina": 1,
+    "chinon les barnabes": 1,
+    "cabernet franc": 1,
+    "toscana igt “aranum”": 1,
+    "gigondas": 1,
+    "crozes-hermitage “papillon”": 1,
+    "cornas granit 30": 1,
+    "cotes du rhone reserve": 1,
+    "touriga nacional": 1,
+    "barbera d’alba trevie": 1,
+    "beaujolais villages “le perreon”": 1,
+    "xinomavro “hedgehog”": 1,
+    "riesling sekt extra dry": 1,
+    "riesling beerenauslese": 1,
+    "cava brut reserva “essential púrpura”": 1,
+    "la bruja": 1,
+    "oloroso vors 30 years": 1,
+    "cote de provence cru classe": 1,
+    "pinot gris spiegel grand cru": 1,
+    "tokaji edes szamorodni": 1,
+    "sercial 10 years old": 1,
+    "fine ruby port": 1,
+    "40 year tawny port": 1,
+    "__total_wines__": 504
+  }
+}

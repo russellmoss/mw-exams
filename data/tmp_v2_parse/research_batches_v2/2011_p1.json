@@ -1,0 +1,106 @@
+{
+  "batch_id": "2011_p1",
+  "year": 2011,
+  "paper": 1,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2011 p1 w1",
+    "/research-wine 2011 p1 w2",
+    "/research-wine 2011 p1 w3",
+    "/research-wine 2011 p1 w4",
+    "/research-wine 2011 p1 w5",
+    "/research-wine 2011 p1 w6",
+    "/research-wine 2011 p1 w7",
+    "/research-wine 2011 p1 w8",
+    "/research-wine 2011 p1 w9",
+    "/research-wine 2011 p1 w10",
+    "/research-wine 2011 p1 w11",
+    "/research-wine 2011 p1 w12"
+  ],
+  "wines": [
+    {
+      "id": "2011_p1_w1",
+      "year": 2011,
+      "paper": 1,
+      "slot": 1,
+      "full_text": "Muscat D'Alsace, Rolly Gassmann. 2007. Alsace, France (12.5%)"
+    },
+    {
+      "id": "2011_p1_w2",
+      "year": 2011,
+      "paper": 1,
+      "slot": 2,
+      "full_text": "Riesling, Kappelweg de Rorschwihr, Rolly Gassmann. 2002. Alsace, France (12.5%)"
+    },
+    {
+      "id": "2011_p1_w3",
+      "year": 2011,
+      "paper": 1,
+      "slot": 3,
+      "full_text": "Pinot Gris, Vendanges Tardives, Rotleibel de Rorschwihr, Rolly Gassmann. 1996. Alsace, France (12.5%)"
+    },
+    {
+      "id": "2011_p1_w4",
+      "year": 2011,
+      "paper": 1,
+      "slot": 4,
+      "full_text": "Chablis, 1er Cru Les Vaillons, Billaud-Simon. 2007. Burgundy, France (13.0%)"
+    },
+    {
+      "id": "2011_p1_w5",
+      "year": 2011,
+      "paper": 1,
+      "slot": 5,
+      "full_text": "Chardonnay, Yellow Label, Wolf Blass. 2009. South Australia, Australia (13.0%)"
+    },
+    {
+      "id": "2011_p1_w6",
+      "year": 2011,
+      "paper": 1,
+      "slot": 6,
+      "full_text": "Chardonnay, Saintsbury. 2008. Carneros, California (13.5%)"
+    },
+    {
+      "id": "2011_p1_w7",
+      "year": 2011,
+      "paper": 1,
+      "slot": 7,
+      "full_text": "Semillon, Vat 1, Tyrrell's. 2002. Hunter Valley, Australia (10.0%)"
+    },
+    {
+      "id": "2011_p1_w8",
+      "year": 2011,
+      "paper": 1,
+      "slot": 8,
+      "full_text": "Riesling, Smaragd, Ried Kellerberg Durnsteiner, Weingut Knoll. 2007. Wachau, Austria (13.5%)"
+    },
+    {
+      "id": "2011_p1_w9",
+      "year": 2011,
+      "paper": 1,
+      "slot": 9,
+      "full_text": "Torrontes, Crios, Susana Balbo. 2010. Salta, Argentina (13.5%)"
+    },
+    {
+      "id": "2011_p1_w10",
+      "year": 2011,
+      "paper": 1,
+      "slot": 10,
+      "full_text": "Sauvignon Blanc, Errazuriz. 2010. Aconcagua, Chile (13.5%)"
+    },
+    {
+      "id": "2011_p1_w11",
+      "year": 2011,
+      "paper": 1,
+      "slot": 11,
+      "full_text": "Condrieu, De Poncins, Villard. 2009. Rhone, France (13.5%)"
+    },
+    {
+      "id": "2011_p1_w12",
+      "year": 2011,
+      "paper": 1,
+      "slot": 12,
+      "full_text": "Monopole, CVNE. 2008. Rioja, Spain (13.5%)"
+    }
+  ]
+}

@@ -1,0 +1,552 @@
+{
+  "metadata": {
+    "description": "Historical analysis of how the IMW composes wine flights for each question type. Used as guardrails for mock exam generation.",
+    "corpus_years": [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025],
+    "total_years": 14,
+    "generated": "2026-05-26"
+  },
+  "sweet_wine_flights": {
+    "description": "All P3 questions with sweet wine flights as a central theme",
+    "historical_flights": [
+      {
+        "year": 2012,
+        "paper": 3,
+        "question": 3,
+        "flight_size": 2,
+        "question_type": "same_variety_sweet_comparison",
+        "wines": [
+          {
+            "slot": 7,
+            "wine": "Zeltinger Himmelreich Riesling Eiswein, Selbach Oster 2009",
+            "mechanism": "ice_wine",
+            "variety": "Riesling",
+            "country": "Germany",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 8,
+            "wine": "Kayena Botrytis Riesling, Tamar Ridge 2009",
+            "mechanism": "botrytis",
+            "variety": "Riesling",
+            "country": "Australia",
+            "price_tier": "mainstream"
+          }
+        ],
+        "distinct_mechanisms": 2,
+        "distinct_varieties": 1,
+        "distinct_countries": 2,
+        "variety_repeated": true,
+        "variety_repetition_justified": true,
+        "justification": "Same-variety question — both Riesling by design"
+      },
+      {
+        "year": 2012,
+        "paper": 3,
+        "question": 4,
+        "flight_size": 4,
+        "question_type": "same_variety_production_comparison",
+        "wines": [
+          {
+            "slot": 9,
+            "wine": "Asti, Martini NV",
+            "mechanism": "stopped_fermentation",
+            "variety": "Muscat",
+            "country": "Italy",
+            "price_tier": "value"
+          },
+          {
+            "slot": 10,
+            "wine": "Muscat VDN Cuvee Reserve NV Rivesaltes",
+            "mechanism": "fortification_vdn",
+            "variety": "Muscat",
+            "country": "France",
+            "price_tier": "mainstream"
+          },
+          {
+            "slot": 11,
+            "wine": "Barefoot Moscato NV",
+            "mechanism": "stopped_fermentation",
+            "variety": "Muscat",
+            "country": "USA",
+            "price_tier": "value"
+          },
+          {
+            "slot": 12,
+            "wine": "Moscato Passito di Pantelleria Ben Rye 2009",
+            "mechanism": "passerillage",
+            "variety": "Muscat",
+            "country": "Italy",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 3,
+        "distinct_varieties": 1,
+        "distinct_countries": 3,
+        "variety_repeated": true,
+        "variety_repetition_justified": true,
+        "justification": "Same-variety question (F1d) — all Muscat by design to test production knowledge"
+      },
+      {
+        "year": 2013,
+        "paper": 3,
+        "question": 3,
+        "flight_size": 6,
+        "question_type": "mechanism_breadth",
+        "wines": [
+          {
+            "slot": 7,
+            "wine": "Urziger Wurzgarten Riesling Kabinett, Dr Loosen 2009",
+            "mechanism": "natural_rs",
+            "variety": "Riesling",
+            "country": "Germany",
+            "price_tier": "mainstream"
+          },
+          {
+            "slot": 8,
+            "wine": "Jurancon, Chateau Jolys 2010",
+            "mechanism": "late_harvest",
+            "variety": "Petit Manseng",
+            "country": "France",
+            "price_tier": "mainstream"
+          },
+          {
+            "slot": 9,
+            "wine": "Tokaji 5 Puttonyos Aszu, Royal Tokaji 2008",
+            "mechanism": "botrytis",
+            "variety": "Furmint",
+            "country": "Hungary",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 10,
+            "wine": "Cuvee Beerenauslese, Alois Kracher 2010",
+            "mechanism": "botrytis",
+            "variety": "Blend",
+            "country": "Austria",
+            "price_tier": "super_premium"
+          },
+          {
+            "slot": 11,
+            "wine": "Vidal Ice Wine, Peller Estate 2010",
+            "mechanism": "ice_wine",
+            "variety": "Vidal",
+            "country": "Canada",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 12,
+            "wine": "Vin Santo, Capezzana 2006",
+            "mechanism": "passerillage",
+            "variety": "Trebbiano/Malvasia",
+            "country": "Italy",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 5,
+        "distinct_varieties": 6,
+        "distinct_countries": 6,
+        "variety_repeated": false,
+        "mechanism_repeated": true,
+        "mechanism_repetition_note": "Botrytis x2 (Tokaji + Kracher BA) but different countries, varieties, and price tiers"
+      },
+      {
+        "year": 2015,
+        "paper": 3,
+        "question": 3,
+        "flight_size": 4,
+        "question_type": "mechanism_breadth",
+        "wines": [
+          {
+            "slot": 9,
+            "wine": "Brauenberger Juffer-Sonnenuhr Riesling Spatlese, Richter 2008",
+            "mechanism": "natural_rs",
+            "variety": "Riesling",
+            "country": "Germany",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 10,
+            "wine": "Riesling Icewine, Inniskillin 2012",
+            "mechanism": "ice_wine",
+            "variety": "Riesling",
+            "country": "Canada",
+            "price_tier": "super_premium"
+          },
+          {
+            "slot": 11,
+            "wine": "Tokaji Aszu 5 Puttonyos, Royal Tokaji 2008",
+            "mechanism": "botrytis",
+            "variety": "Furmint",
+            "country": "Hungary",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 12,
+            "wine": "Vin Santo, Isole e Olena 2005",
+            "mechanism": "passerillage",
+            "variety": "Trebbiano/Malvasia",
+            "country": "Italy",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 4,
+        "distinct_varieties": 3,
+        "distinct_countries": 4,
+        "variety_repeated": true,
+        "variety_repetition_note": "Riesling x2 but used for radically different mechanisms (Spatlese vs Eiswein)"
+      },
+      {
+        "year": 2016,
+        "paper": 3,
+        "question": 3,
+        "flight_size": 2,
+        "question_type": "botrytis_comparison",
+        "wines": [
+          {
+            "slot": 9,
+            "wine": "Tokaji Aszu 6 Puttonyos, Royal Tokay 2011",
+            "mechanism": "botrytis",
+            "variety": "Furmint",
+            "country": "Hungary",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 10,
+            "wine": "Chateau Guiraud 1er Cru Classe 2001",
+            "mechanism": "botrytis",
+            "variety": "Semillon/Sauvignon",
+            "country": "France",
+            "price_tier": "super_premium"
+          }
+        ],
+        "distinct_mechanisms": 1,
+        "distinct_varieties": 2,
+        "distinct_countries": 2,
+        "mechanism_repeated": true,
+        "mechanism_repetition_justified": true,
+        "justification": "Deliberate botrytis-vs-botrytis comparison — only 2-wine pair"
+      },
+      {
+        "year": 2019,
+        "paper": 3,
+        "question": 5,
+        "flight_size": 2,
+        "question_type": "sweet_compare_contrast",
+        "wines": [
+          {
+            "slot": 11,
+            "wine": "Ben Rye Passito de Pantelleria, Donnafugata 2016",
+            "mechanism": "passerillage",
+            "variety": "Muscat/Zibibbo",
+            "country": "Italy",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 12,
+            "wine": "Muscat, Campbells NV Rutherglen",
+            "mechanism": "fortification_rutherglen",
+            "variety": "Muscat",
+            "country": "Australia",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 2,
+        "distinct_varieties": 1,
+        "distinct_countries": 2,
+        "variety_repeated": true,
+        "variety_repetition_note": "Both Muscat but different mechanisms — this is the point of the question"
+      },
+      {
+        "year": 2021,
+        "paper": 3,
+        "question": 2,
+        "flight_size": 5,
+        "question_type": "method_diversity",
+        "wines": [
+          {
+            "slot": 4,
+            "wine": "Amarone della Valpolicella, Torre del Falasco 2015",
+            "mechanism": "passerillage",
+            "variety": "Corvina blend",
+            "country": "Italy",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 5,
+            "wine": "Brachetto d'Aqui, Contero 2020",
+            "mechanism": "stopped_fermentation",
+            "variety": "Brachetto",
+            "country": "Italy",
+            "price_tier": "value"
+          },
+          {
+            "slot": 6,
+            "wine": "Vintage Port, Graham's 2000",
+            "mechanism": "fortification_port",
+            "variety": "Touriga blend",
+            "country": "Portugal",
+            "price_tier": "super_premium"
+          },
+          {
+            "slot": 7,
+            "wine": "Maury, Domaine Pouderoux NV",
+            "mechanism": "fortification_vdn",
+            "variety": "Grenache",
+            "country": "France",
+            "price_tier": "mainstream"
+          },
+          {
+            "slot": 8,
+            "wine": "Rutherglen Muscat Classic, Stanton & Killeen NV",
+            "mechanism": "fortification_rutherglen",
+            "variety": "Muscat",
+            "country": "Australia",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 4,
+        "distinct_varieties": 5,
+        "distinct_countries": 4,
+        "mechanism_repeated": true,
+        "mechanism_repetition_note": "3 wines involve fortification but IMW treats Port/VDN/Rutherglen as distinct methods"
+      },
+      {
+        "year": 2022,
+        "paper": 3,
+        "question": 2,
+        "flight_size": 5,
+        "question_type": "residual_sugar_spectrum",
+        "wines": [
+          {
+            "slot": 5,
+            "wine": "Gewurztraminer, Te Whare Ra 2020",
+            "mechanism": "natural_rs",
+            "variety": "Gewurztraminer",
+            "country": "New Zealand",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 6,
+            "wine": "Riesling Spatlese, Schloss Reinhartshausen 2015",
+            "mechanism": "natural_rs",
+            "variety": "Riesling",
+            "country": "Germany",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 7,
+            "wine": "T Noble Late Harvest Chenin Blanc, Ken Forrester 2019",
+            "mechanism": "late_harvest",
+            "variety": "Chenin Blanc",
+            "country": "South Africa",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 8,
+            "wine": "Tokaji Aszu 5 Puttonyos, Sauska 2017",
+            "mechanism": "botrytis",
+            "variety": "Furmint",
+            "country": "Hungary",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 9,
+            "wine": "Chateau Coutet 2016 Sauternes-Barsac",
+            "mechanism": "botrytis",
+            "variety": "Semillon",
+            "country": "France",
+            "price_tier": "super_premium"
+          }
+        ],
+        "distinct_mechanisms": 3,
+        "distinct_varieties": 5,
+        "distinct_countries": 5,
+        "mechanism_repeated": true,
+        "mechanism_repetition_note": "Botrytis x2 and natural RS x2, but all 5 varieties different, all 5 countries different. Flight emphasizes RS spectrum from off-dry to lusciously sweet."
+      },
+      {
+        "year": 2024,
+        "paper": 3,
+        "question": 4,
+        "flight_size": 5,
+        "question_type": "mechanism_breadth",
+        "wines": [
+          {
+            "slot": 8,
+            "wine": "Vidal Icewine, Inniskillin 2021",
+            "mechanism": "ice_wine",
+            "variety": "Vidal",
+            "country": "Canada",
+            "price_tier": "super_premium"
+          },
+          {
+            "slot": 9,
+            "wine": "Beerenauslese Cuvee, Kracher 2019",
+            "mechanism": "botrytis",
+            "variety": "Blend",
+            "country": "Austria",
+            "price_tier": "super_premium"
+          },
+          {
+            "slot": 10,
+            "wine": "Vin Santo del Chianti Classico, Badia a Coltibuono 2014",
+            "mechanism": "passerillage",
+            "variety": "Trebbiano/Malvasia",
+            "country": "Italy",
+            "price_tier": "premium"
+          },
+          {
+            "slot": 11,
+            "wine": "Muscat de Beaumes de Venise, Domaine de Durban 2020",
+            "mechanism": "fortification_vdn",
+            "variety": "Muscat",
+            "country": "France",
+            "price_tier": "mainstream"
+          },
+          {
+            "slot": 12,
+            "wine": "Clos du Bourg Demi-Sec, Domaine Huet 2020",
+            "mechanism": "natural_rs",
+            "variety": "Chenin Blanc",
+            "country": "France",
+            "price_tier": "premium"
+          }
+        ],
+        "distinct_mechanisms": 5,
+        "distinct_varieties": 5,
+        "distinct_countries": 4,
+        "variety_repeated": false,
+        "note": "Gold standard for mechanism-breadth sweet flight. All 5 mechanisms distinct, all 5 varieties distinct."
+      }
+    ],
+    "summary_statistics": {
+      "flight_sizes": {
+        "min": 2,
+        "max": 6,
+        "mean": 3.8
+      },
+      "distinct_mechanisms_per_flight": {
+        "min": 1,
+        "max": 5,
+        "mean": 3.3,
+        "note": "Min of 1 only in deliberate compare-contrast pairs (2016). For 4+ wine flights, min is 3."
+      },
+      "mechanism_repetition_rate": "Occurs in ~55% of flights, but always with compensating variety/country diversity",
+      "variety_repetition_in_mechanism_flights": "Only in same-variety questions or 2-wine pairs — never in 4+ wine mechanism-breadth flights"
+    }
+  },
+  "guardrails": {
+    "sweet_flights": {
+      "S1_mechanism_diversity": {
+        "rule": "Minimum distinct mechanisms by flight size",
+        "thresholds": {
+          "2_wines": 1,
+          "3_wines": 2,
+          "4_wines": 3,
+          "5_wines": 4,
+          "6_wines": 5
+        }
+      },
+      "S2_no_same_mechanism_same_variety": {
+        "rule": "Never pair two wines sharing BOTH the same mechanism AND the same variety in a mechanism-testing question"
+      },
+      "S3_price_ratio_limit": {
+        "rule": "Maximum price ratio between most and least expensive sweet wine",
+        "max_ratio": 20,
+        "note": "A $500 TBA is acceptable alongside a $25 Spatlese; a $3000 TBA alongside a $15 Moscato is not"
+      },
+      "S4_sweetness_spectrum": {
+        "rule": "Include at least 3 different sweetness levels in a 5-wine flight",
+        "levels": ["off_dry_10_30gl", "medium_sweet_30_80gl", "sweet_80_150gl", "luscious_150plus_gl", "fortified_sweet"]
+      },
+      "S5_variety_diversity": {
+        "rule": "In mechanism-breadth questions, all varieties should be distinct",
+        "exception": "Same-variety questions (F1d) may repeat variety"
+      }
+    },
+    "general": {
+      "G1_variety_repetition": {
+        "rule": "Variety repetition within a question must be intentional and stem-justified",
+        "allowed_in": ["F1_same_variety_questions"],
+        "limited_in": ["F5_F6_method_questions_max_1_repeat"],
+        "forbidden_in": ["F4_mixed_identification"]
+      },
+      "G2_price_tier_balance": {
+        "rule": "No more than 2 wines from same tier in 4+ wine flight",
+        "luxury_constraint": "Max 1 luxury wine (>$200) per question"
+      },
+      "G3_country_diversity": {
+        "targets_by_flight_size": {
+          "2_wines": "2 countries unless same-origin",
+          "3_wines": "2-3 countries",
+          "4_wines": "3-4 countries unless same-origin",
+          "5_wines": "4-5 countries unless same-origin",
+          "6_wines": "5-6 countries unless same-origin"
+        }
+      },
+      "G4_curveball_budget": {
+        "per_question_max": 1,
+        "per_paper_max": 2
+      }
+    },
+    "mechanism_taxonomy": {
+      "distinct_mechanisms": [
+        "ice_wine",
+        "botrytis",
+        "passerillage",
+        "fortification_port",
+        "fortification_vdn",
+        "fortification_sherry",
+        "fortification_madeira",
+        "fortification_rutherglen",
+        "natural_rs",
+        "late_harvest",
+        "stopped_fermentation"
+      ],
+      "grouping_note": "Fortification sub-types are considered distinct methods by the IMW. Port, VDN, Sherry, Madeira, and Rutherglen are each separate traditions."
+    }
+  },
+  "v6_mock_evaluation": {
+    "paper": 3,
+    "question": 3,
+    "violations": [
+      {
+        "id": "V1",
+        "severity": "HIGH",
+        "rule_violated": "S2, G1",
+        "description": "Muscat variety repeated (Beaumes-de-Venise + Rutherglen) — no historical precedent in mechanism-breadth flights"
+      },
+      {
+        "id": "V2",
+        "severity": "HIGH",
+        "rule_violated": "S2",
+        "description": "Two fortified Muscat wines share both mechanism (fortification) and variety (Muscat)"
+      },
+      {
+        "id": "V3",
+        "severity": "MODERATE",
+        "rule_violated": "S1",
+        "description": "Botrytis mechanism repeated (TBA + Tokaji Aszu) — precedent exists but only with compensating diversity"
+      },
+      {
+        "id": "V4",
+        "severity": "HIGH",
+        "rule_violated": "S1",
+        "description": "Only 3 distinct mechanisms in 5-wine flight (fortification, botrytis, ice). Historical minimum for 5 wines is 4."
+      },
+      {
+        "id": "V5",
+        "severity": "HIGH",
+        "rule_violated": "S3",
+        "description": "Egon Muller TBA (~$2000-5000) creates extreme price ratio >50:1. Historical max is ~20:1."
+      },
+      {
+        "id": "V6",
+        "severity": "MODERATE",
+        "rule_violated": "S4",
+        "description": "Missing passerillage and natural RS mechanisms — present in 4/5 historical flights"
+      }
+    ],
+    "overall_assessment": "3 HIGH + 2 MODERATE violations. Flight should be rebuilt from scratch."
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "batch_id": "2014_p2",
+  "year": 2014,
+  "paper": 2,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2014 p2 w1",
+    "/research-wine 2014 p2 w2",
+    "/research-wine 2014 p2 w3",
+    "/research-wine 2014 p2 w4",
+    "/research-wine 2014 p2 w5",
+    "/research-wine 2014 p2 w6",
+    "/research-wine 2014 p2 w7",
+    "/research-wine 2014 p2 w8",
+    "/research-wine 2014 p2 w9",
+    "/research-wine 2014 p2 w10",
+    "/research-wine 2014 p2 w11",
+    "/research-wine 2014 p2 w12"
+  ],
+  "wines": [
+    {
+      "id": "2014_p2_w1",
+      "year": 2014,
+      "paper": 2,
+      "slot": 1,
+      "full_text": "Saint Joseph, Silice, Pierre et Jerome Coursodon. 2010. Rhone, France (14%)"
+    },
+    {
+      "id": "2014_p2_w2",
+      "year": 2014,
+      "paper": 2,
+      "slot": 2,
+      "full_text": "Syrah, La Cumbre, Errazuriz. 2008. Aconcagua Valley, Chile (14.5%)"
+    },
+    {
+      "id": "2014_p2_w3",
+      "year": 2014,
+      "paper": 2,
+      "slot": 3,
+      "full_text": "Syrah, Qupe. 2011, Central Coast, California, USA (13.5%)"
+    },
+    {
+      "id": "2014_p2_w4",
+      "year": 2014,
+      "paper": 2,
+      "slot": 4,
+      "full_text": "Shiraz, The Dead Arm, d'Arenberg. 2009. McLaren Vale, South Australia, Australia (14.5%)"
+    },
+    {
+      "id": "2014_p2_w5",
+      "year": 2014,
+      "paper": 2,
+      "slot": 5,
+      "full_text": "Chateau Lynch Bages. 2006. Pauillac, Bordeaux, France (13%)"
+    },
+    {
+      "id": "2014_p2_w6",
+      "year": 2014,
+      "paper": 2,
+      "slot": 6,
+      "full_text": "Chateau Nenin. 2008. Pomerol, Bordeaux, France (13.5%)"
+    },
+    {
+      "id": "2014_p2_w7",
+      "year": 2014,
+      "paper": 2,
+      "slot": 7,
+      "full_text": "Chateau Lynch Bages. 2009. Pauillac, Bordeaux, France (13.5%)"
+    },
+    {
+      "id": "2014_p2_w8",
+      "year": 2014,
+      "paper": 2,
+      "slot": 8,
+      "full_text": "Chateau Nenin. 2010. Pomerol, Bordeaux, France (14.5%)"
+    },
+    {
+      "id": "2014_p2_w9",
+      "year": 2014,
+      "paper": 2,
+      "slot": 9,
+      "full_text": "Villacreces. 2009. Ribera del Duero, Spain (14%)"
+    },
+    {
+      "id": "2014_p2_w10",
+      "year": 2014,
+      "paper": 2,
+      "slot": 10,
+      "full_text": "Petalos, J. Palacios. 2011. Bierzo, Spain (14.5%)"
+    },
+    {
+      "id": "2014_p2_w11",
+      "year": 2014,
+      "paper": 2,
+      "slot": 11,
+      "full_text": "Simply Garnacha, Bodegas Borsao for Tesco. 2013. Campo de Borja, Spain (13.5%)"
+    },
+    {
+      "id": "2014_p2_w12",
+      "year": 2014,
+      "paper": 2,
+      "slot": 12,
+      "full_text": "Vina Ardanza, Reserva, La Rioja Alta S.A. 2004. Rioja, Spain (13.5%)"
+    }
+  ]
+}

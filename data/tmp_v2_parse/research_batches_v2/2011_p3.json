@@ -1,0 +1,106 @@
+{
+  "batch_id": "2011_p3",
+  "year": 2011,
+  "paper": 3,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2011 p3 w1",
+    "/research-wine 2011 p3 w2",
+    "/research-wine 2011 p3 w3",
+    "/research-wine 2011 p3 w4",
+    "/research-wine 2011 p3 w5",
+    "/research-wine 2011 p3 w6",
+    "/research-wine 2011 p3 w7",
+    "/research-wine 2011 p3 w8",
+    "/research-wine 2011 p3 w9",
+    "/research-wine 2011 p3 w10",
+    "/research-wine 2011 p3 w11",
+    "/research-wine 2011 p3 w12"
+  ],
+  "wines": [
+    {
+      "id": "2011_p3_w1",
+      "year": 2011,
+      "paper": 3,
+      "slot": 1,
+      "full_text": "Taittinger Comtes de Champagne, Blanc de Blancs. 1999. Champagne, France (12.0%)"
+    },
+    {
+      "id": "2011_p3_w2",
+      "year": 2011,
+      "paper": 3,
+      "slot": 2,
+      "full_text": "De Laurency, Brut. NV. Champagne, France (12.0%)"
+    },
+    {
+      "id": "2011_p3_w3",
+      "year": 2011,
+      "paper": 3,
+      "slot": 3,
+      "full_text": "Verdelho, 15 years old, Henriques and Henriques. NV. Madeira, Portugal (20.0%)"
+    },
+    {
+      "id": "2011_p3_w4",
+      "year": 2011,
+      "paper": 3,
+      "slot": 4,
+      "full_text": "Sercial, 10 years old, Henriques and Henriques. NV. Madeira, Portugal (20.0%)"
+    },
+    {
+      "id": "2011_p3_w5",
+      "year": 2011,
+      "paper": 3,
+      "slot": 5,
+      "full_text": "Pinot Noir, The Edge. 2009. Martinborough, New Zealand (14.5%)"
+    },
+    {
+      "id": "2011_p3_w6",
+      "year": 2011,
+      "paper": 3,
+      "slot": 6,
+      "full_text": "Pinot Noir, Escarpment. 2008. Martinborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "2011_p3_w7",
+      "year": 2011,
+      "paper": 3,
+      "slot": 7,
+      "full_text": "Fonseca Guimaraens, Vintage Port. 1995. Douro, Portugal (20.5%)"
+    },
+    {
+      "id": "2011_p3_w8",
+      "year": 2011,
+      "paper": 3,
+      "slot": 8,
+      "full_text": "Taylor's 10 year old Tawny Port. NV. Douro, Portugal (20.0%)"
+    },
+    {
+      "id": "2011_p3_w9",
+      "year": 2011,
+      "paper": 3,
+      "slot": 9,
+      "full_text": "Wehlener Sonnenuhr Kabinett, Joh. Jos. Prüm. 2007. Mosel, Germany (9.0%)"
+    },
+    {
+      "id": "2011_p3_w10",
+      "year": 2011,
+      "paper": 3,
+      "slot": 10,
+      "full_text": "Brauneberger Juffer Sonnenhur Spatlese, Fritz Haag. 2002. Mosel, Germany (8.0%)"
+    },
+    {
+      "id": "2011_p3_w11",
+      "year": 2011,
+      "paper": 3,
+      "slot": 11,
+      "full_text": "Domaine du Noble, Loupiac. 2005. Bordeaux, France (13.0%)"
+    },
+    {
+      "id": "2011_p3_w12",
+      "year": 2011,
+      "paper": 3,
+      "slot": 12,
+      "full_text": "Château Suduiraut, Sauternes. 2005. Bordeaux, France (13.5%)"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "mock_exam_id": "mock_full_2026_05_26_v6",
+  "wines": {
+    "p1_w3": {
+      "producer": "Grosset",
+      "wine_name": "Polish Hill Riesling",
+      "vintage": "2024",
+      "country": "Australia",
+      "region": "Clare Valley",
+      "sub_region": "Polish Hill",
+      "appellation": "Clare Valley",
+      "grape_variety": "Riesling",
+      "sources": [
+        "https://www.grosset.com.au/polish-hill-vineyard/",
+        "https://www.grosset.com.au/wine/polish-hill/52025/"
+      ],
+      "verified_notes": [
+        "Grosset Polish Hill Riesling is from the Polish Hill vineyard in Clare Valley, South Australia.",
+        "The producer describes the site as shallow shales over clay and gravel, over blue slate.",
+        "This is Australian dry Riesling, not Mosel Riesling."
+      ]
+    }
+  }
+}

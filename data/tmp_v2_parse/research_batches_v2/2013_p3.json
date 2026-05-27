@@ -1,0 +1,106 @@
+{
+  "batch_id": "2013_p3",
+  "year": 2013,
+  "paper": 3,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2013 p3 w1",
+    "/research-wine 2013 p3 w2",
+    "/research-wine 2013 p3 w3",
+    "/research-wine 2013 p3 w4",
+    "/research-wine 2013 p3 w5",
+    "/research-wine 2013 p3 w6",
+    "/research-wine 2013 p3 w7",
+    "/research-wine 2013 p3 w8",
+    "/research-wine 2013 p3 w9",
+    "/research-wine 2013 p3 w10",
+    "/research-wine 2013 p3 w11",
+    "/research-wine 2013 p3 w12"
+  ],
+  "wines": [
+    {
+      "id": "2013_p3_w1",
+      "year": 2013,
+      "paper": 3,
+      "slot": 1,
+      "full_text": "Prosecco Superiore 'Oro Puro', Valdo. NV, Valdobbiadene, Veneto, Italy"
+    },
+    {
+      "id": "2013_p3_w2",
+      "year": 2013,
+      "paper": 3,
+      "slot": 2,
+      "full_text": "Lambrusco, Grasparossa di Castelvetro, Villa Cialdini. 2011, Emilia Romagna, Italy"
+    },
+    {
+      "id": "2013_p3_w3",
+      "year": 2013,
+      "paper": 3,
+      "slot": 3,
+      "full_text": "Franciacorta Gran Cuvée Brut, Bellavista. 2007, Lombardy, Italy"
+    },
+    {
+      "id": "2013_p3_w4",
+      "year": 2013,
+      "paper": 3,
+      "slot": 4,
+      "full_text": "Vat 1 Semillon, Tyrrell's. 2006, Hunter Valley, Australia"
+    },
+    {
+      "id": "2013_p3_w5",
+      "year": 2013,
+      "paper": 3,
+      "slot": 5,
+      "full_text": "Château Villa Bel Air Blanc. 2010, Graves, Bordeaux, France"
+    },
+    {
+      "id": "2013_p3_w6",
+      "year": 2013,
+      "paper": 3,
+      "slot": 6,
+      "full_text": "Castelnau de Suduiraut. 2007, Sauternes, France"
+    },
+    {
+      "id": "2013_p3_w7",
+      "year": 2013,
+      "paper": 3,
+      "slot": 7,
+      "full_text": "Ürziger Würzgarten Riesling Kabinett, Dr Loosen. 2009, Mosel, Germany"
+    },
+    {
+      "id": "2013_p3_w8",
+      "year": 2013,
+      "paper": 3,
+      "slot": 8,
+      "full_text": "Jurancon, Château Jolys, Cuvée Jean. 2010, Jurancon, South West France"
+    },
+    {
+      "id": "2013_p3_w9",
+      "year": 2013,
+      "paper": 3,
+      "slot": 9,
+      "full_text": "Tokaji 5 Puttonyos Aszu, Royal Tokaji. 2008, Tokaj, Hungary"
+    },
+    {
+      "id": "2013_p3_w10",
+      "year": 2013,
+      "paper": 3,
+      "slot": 10,
+      "full_text": "Cuvée Beerenauslese, Alois Kracher. 2010, Burgenland, Austria"
+    },
+    {
+      "id": "2013_p3_w11",
+      "year": 2013,
+      "paper": 3,
+      "slot": 11,
+      "full_text": "Vidal Ice Wine, Peller Estate. 2010, Niagara Peninsula, Canada"
+    },
+    {
+      "id": "2013_p3_w12",
+      "year": 2013,
+      "paper": 3,
+      "slot": 12,
+      "full_text": "Vin Santo, Capezzana. 2006, Tuscany, Italy"
+    }
+  ]
+}

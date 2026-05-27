@@ -1,0 +1,49 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Build plan (per user request — keep local only)
+BUILD_PLAN.md
+mw_build_plan.md
+*build_plan*.md
+MW_Build_Plan.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Claude Code local artifacts (not the agents themselves)
+.claude/local/
+.claude/cache/
+
+# Outputs that are large or regenerable
+outputs/**/*.draft.md
+
+# Logs
+*.log
+logs/

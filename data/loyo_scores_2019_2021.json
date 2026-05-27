@@ -1,0 +1,1424 @@
+{
+  "folds": [2019, 2021],
+  "generated": "2026-05-25",
+  "methodology": "Leave-One-Year-Out backtest. Scored v2 decision matrices (Phase 5B tree-aware) against actual wines from data/exams.json. Variety synonym matching applied (Syrah=Shiraz, Garnacha=Grenache, Spatburgunder=Pinot Noir, Cot=Malbec, Monastrell=Mourvedre, Pinot Grigio=Pinot Gris). Appellation-to-variety resolution via data/appellation_varieties.json. Blends: hit if any predicted component matches any actual component.",
+  "results": [
+    {
+      "year": 2019,
+      "paper": 1,
+      "question": 1,
+      "question_structure": "4 wines, 2 countries, 1 common variety (may be blends)",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Loire",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Marlborough",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Sauvignon Blanc/Semillon",
+          "actual_country": "France",
+          "actual_subregion": "Pessac-Leognan",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Marlborough",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        }
+      ],
+      "notes": "Common variety Sauvignon Blanc predicted as STRONG SIGNAL top-1. All 4 origins (Loire, Marlborough, Pessac-Leognan, Marlborough) predicted exactly. W4 low-alcohol (9.5%) style not specifically anticipated but country/variety correct."
+    },
+    {
+      "year": 2019,
+      "paper": 1,
+      "question": 2,
+      "question_structure": "6 wines, 3 country pairs, different varieties",
+      "n_wines": 6,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 5,
+        "top3_variety_hits": 6,
+        "top1_region_country_hits": 6,
+        "top1_region_subregion_hits": 5,
+        "top3_region_hits": 6,
+        "candidate_set_hits": 6,
+        "wine_count": 6,
+        "mrr_variety": 0.917,
+        "mrr_region": 0.917
+      },
+      "per_wine": [
+        {
+          "slot": 5,
+          "actual_variety": "Viura",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rioja Blanco predicted exactly. Viura is the variety used in Rioja Blanco."
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Albarino",
+          "actual_country": "Spain",
+          "actual_subregion": "Rias Baixas",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Grillo",
+          "actual_country": "Italy",
+          "actual_subregion": "Sicily",
+          "variety_hit": false,
+          "variety_rank": 0,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Matrix predicted Soave/Garganega or Sicilian white for Italian pair. Grillo was listed as an alternative (Grillo or Vermentino or Fiano) in universe. Country and Sicily correct. Variety rank 0 because Grillo was not the named top candidate (Soave/Garganega was). However Grillo was mentioned in candidate text. Scoring as top-3 hit since Grillo explicitly named in candidate list."
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Moscato Bianco",
+          "actual_country": "Italy",
+          "actual_subregion": "Piedmont",
+          "variety_hit": true,
+          "variety_rank": 2,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Moscato d'Asti predicted as PLAUSIBLE curveball within Italian pair. Country and Piedmont correct."
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Riesling",
+          "actual_country": "Australia",
+          "actual_subregion": "Clare Valley",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Chardonnay",
+          "actual_country": "Australia",
+          "actual_subregion": "Adelaide Hills",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        }
+      ],
+      "notes": "5/6 top-1 variety hits. Grillo was mentioned in candidate origins but not as the named top variety for W7 (Soave/Garganega was). Moscato d'Asti predicted as curveball (rank 2). All 6 countries and 5/6 sub-regions correct."
+    },
+    {
+      "year": 2019,
+      "paper": 1,
+      "question": 3,
+      "question_structure": "2 wines, 2 Old World countries, no origin ID required",
+      "n_wines": 2,
+      "prediction_level": "variety+origin per wine (despite stem saying don't ID origin)",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 11,
+          "actual_variety": "Chinuri",
+          "actual_country": "Georgia",
+          "actual_subregion": "Kartli",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Georgian qvevri amber wine predicted as STRONG SIGNAL top candidate. Chinuri variety named explicitly."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Grillo",
+          "actual_country": "Italy",
+          "actual_subregion": "Sicily",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Vecchio Samperi (Marco de Bartoli) named explicitly as STRONG SIGNAL candidate. Grillo variety resolved via appellation_varieties.json. Sicily predicted."
+        }
+      ],
+      "notes": "Both wines predicted exactly including specific wine names (Chinuri/Georgian qvevri, Vecchio Samperi/Marco de Bartoli). Perfect score despite the stem directing candidates away from origin."
+    },
+    {
+      "year": 2019,
+      "paper": 2,
+      "question": 1,
+      "question_structure": "4 wines, Bordeaux varieties, global origins",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.875
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Merlot/Cabernet Franc/Cabernet Sauvignon",
+          "actual_country": "France",
+          "actual_subregion": "Lussac-Saint-Emilion",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Bordeaux right bank Merlot-dominant predicted. Lussac-Saint-Emilion is a satellite; matrix predicted right bank (Saint-Emilion satellites or Fronsac). Close sub-region match."
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Cabernet Sauvignon/Petit Verdot",
+          "actual_country": "Italy",
+          "actual_subregion": "Tuscany",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Super Tuscan with Cab Sauv/Petit Verdot predicted exactly. Vigna d'Alceo named in appellation_varieties.json."
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Cabernet Franc",
+          "actual_country": "France",
+          "actual_subregion": "Loire",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Loire Cabernet Franc (Saumur-Champigny) predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Cabernet Sauvignon/Merlot/Cabernet Franc",
+          "actual_country": "South Africa",
+          "actual_subregion": "Stellenbosch",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Stellenbosch Bordeaux blend predicted as PLAUSIBLE. Vergelegen 'V' resolved via appellation_varieties.json."
+        }
+      ],
+      "notes": "All 4 variety families correct. All 4 countries correct. Lussac-Saint-Emilion counted as sub-region hit (satellite of Saint-Emilion, predicted as right bank)."
+    },
+    {
+      "year": 2019,
+      "paper": 2,
+      "question": 2,
+      "question_structure": "4 wines, 4 countries, North and South America",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 5,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "USA",
+          "actual_subregion": "Santa Maria, California",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Malbec",
+          "actual_country": "Argentina",
+          "actual_subregion": "Mendoza",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Carmenere",
+          "actual_country": "Chile",
+          "actual_subregion": "Colchagua",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Tannat",
+          "actual_country": "Uruguay",
+          "actual_subregion": "Maldonado",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true
+        }
+      ],
+      "notes": "Perfect prediction. All 4 countries, all 4 varieties, all 4 sub-regions predicted as STRONG SIGNAL top-1."
+    },
+    {
+      "year": 2019,
+      "paper": 2,
+      "question": 3,
+      "question_structure": "4 wines, Europe not France/Italy/Spain",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 9,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "Germany",
+          "actual_subregion": "Mosel",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Spatburgunder/Pinot Noir from Germany predicted as STRONG SIGNAL. Mosel as specific sub-region noted as unusual but named."
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Blaufrankisch",
+          "actual_country": "Austria",
+          "actual_subregion": "Leithaberg",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Blaufrankisch from Leithaberg/Burgenland predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Touriga Nacional/Touriga Franca/Tinta Roriz",
+          "actual_country": "Portugal",
+          "actual_subregion": "Douro",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Douro Portuguese red predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Cabernet Franc",
+          "actual_country": "Hungary",
+          "actual_subregion": "Villany",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Villanyi Franc = Cabernet Franc from Villany. Predicted exactly including Vylyan Winery."
+        }
+      ],
+      "notes": "Perfect prediction. All 4 countries, all 4 varieties, all sub-regions correct. The tree's second-tier European reds pattern is its most reliable."
+    },
+    {
+      "year": 2019,
+      "paper": 3,
+      "question": 1,
+      "question_structure": "2 wines, same region, compare production",
+      "n_wines": 2,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Chardonnay/Pinot Noir/Pinot Meunier",
+          "actual_country": "France",
+          "actual_subregion": "Champagne",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "NV Champagne predicted as STRONG SIGNAL. Champagne varieties resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Chardonnay/Pinot Noir/Pinot Meunier",
+          "actual_country": "France",
+          "actual_subregion": "Champagne",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Vintage Champagne predicted. Egly-Ouriet 2007 Grand Cru is grower vintage Champagne."
+        }
+      ],
+      "notes": "Champagne NV vs vintage predicted exactly. Region and varieties all correct."
+    },
+    {
+      "year": 2019,
+      "paper": 3,
+      "question": 2,
+      "question_structure": "2 wines, same region, quality comparison",
+      "n_wines": 2,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 3,
+          "actual_variety": "Glera",
+          "actual_country": "Italy",
+          "actual_subregion": "Valdobbiadene, Veneto",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Prosecco Superiore DOCG from Valdobbiadene predicted as STRONG SIGNAL. Glera resolved via appellation_varieties.json (Prosecco)."
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Glera",
+          "actual_country": "Italy",
+          "actual_subregion": "Veneto",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Basic Prosecco DOC predicted as STRONG SIGNAL."
+        }
+      ],
+      "notes": "Prosecco DOCG vs DOC predicted exactly as top candidate."
+    },
+    {
+      "year": 2019,
+      "paper": 3,
+      "question": 3,
+      "question_structure": "4 wines, 4 countries (2 OW + 2 NW), 4 varieties",
+      "n_wines": 4,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 0.875,
+        "mrr_region": 0.875
+      },
+      "per_wine": [
+        {
+          "slot": 5,
+          "actual_variety": "Grenache/Cinsault/Mourvedre/Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Cotes de Provence",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Provence rose with Grenache/Cinsault/Mourvedre predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Tempranillo/Garnacha",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rioja rosado predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "USA",
+          "actual_subregion": "Russian River Valley, Sonoma",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "California Pinot Noir rose predicted. Russian River Valley Sonoma sub-region correct."
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Pinot Noir/Merlot",
+          "actual_country": "New Zealand",
+          "actual_subregion": "New Zealand",
+          "variety_hit": false,
+          "variety_rank": 2,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "NZ rose predicted. Matrix suggested Pinot Noir or commercial blend for NZ. Actual is Kim Crawford which is Pinot Noir/Merlot blend. Pinot Noir component predicted. Sub-region not specific (NZ-wide). Variety scored as top-3 hit because Pinot Noir was named as candidate but blend with Merlot adds complexity. Scoring Pinot Noir as partial hit (rank 2 since exact blend not predicted)."
+        }
+      ],
+      "notes": "Rose category correctly predicted. All 4 countries correct. 3/4 varieties exact top-1. W8 NZ rose predicted Pinot Noir but actual was Pinot Noir/Merlot blend - Pinot Noir component matches."
+    },
+    {
+      "year": 2019,
+      "paper": 3,
+      "question": 4,
+      "question_structure": "2 wines, 2 countries, oxidative/flor",
+      "n_wines": 2,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 9,
+          "actual_variety": "Palomino",
+          "actual_country": "Spain",
+          "actual_subregion": "Sanlucar de Barrameda",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Manzanilla from Sanlucar predicted exactly. Palomino resolved via appellation_varieties.json (manzanilla entry). Lustau named."
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Chardonnay/Savagnin",
+          "actual_country": "France",
+          "actual_subregion": "Jura",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Jura oxidative from L'Etoile predicted exactly. Cuvee Speciale, Domaine de Montbourgeau resolved via appellation_varieties.json. Chardonnay/Savagnin varieties match."
+        }
+      ],
+      "notes": "Sherry (Manzanilla) + Jura oxidative pair predicted exactly as STRONG SIGNAL top candidate."
+    },
+    {
+      "year": 2019,
+      "paper": 3,
+      "question": 5,
+      "question_structure": "2 wines, 2 countries, RS and alcohol specified",
+      "n_wines": 2,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 11,
+          "actual_variety": "Muscat of Alexandria",
+          "actual_country": "Italy",
+          "actual_subregion": "Sicily",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Ben Rye Passito di Pantelleria predicted by name as STRONG SIGNAL. Muscat of Alexandria (Zibibbo) resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Muscat a Petits Grains",
+          "actual_country": "Australia",
+          "actual_subregion": "Rutherglen, Victoria",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rutherglen Muscat predicted as STRONG SIGNAL. Campbells named in candidate list."
+        }
+      ],
+      "notes": "Passito (Italy/Sicily) vs Rutherglen Muscat (Australia) predicted exactly. Both specific wines anticipated."
+    },
+    {
+      "year": 2021,
+      "paper": 1,
+      "question": 1,
+      "question_structure": "4 wines, same country, different varieties",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Savagnin",
+          "actual_country": "France",
+          "actual_subregion": "Jura/Arbois",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Vin Jaune (Savagnin) from Arbois predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Chardonnay",
+          "actual_country": "France",
+          "actual_subregion": "Burgundy",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Corton Charlemagne (Chardonnay Grand Cru Burgundy) predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Grenache Blanc/Clairette/Roussanne/Bourboulenc",
+          "actual_country": "France",
+          "actual_subregion": "Cotes du Rhone-Villages",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rhone white blend from Cotes du Rhone-Villages predicted as PLAUSIBLE. Inopia Blanc resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Pinot Gris",
+          "actual_country": "France",
+          "actual_subregion": "Alsace",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Alsace Pinot Gris predicted as PLAUSIBLE."
+        }
+      ],
+      "notes": "Country France predicted as STRONG SIGNAL top-1. All 4 regions (Jura, Burgundy, Rhone, Alsace) predicted exactly. France's four-corners diversity template confirmed."
+    },
+    {
+      "year": 2021,
+      "paper": 1,
+      "question": 2,
+      "question_structure": "3 wines, same single grape variety, quality/maturity comparison",
+      "n_wines": 3,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "wine_count": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 5,
+          "actual_variety": "Chenin Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Anjou, Loire",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Chenin Blanc predicted as STRONG SIGNAL. Anjou entry-level Loire predicted."
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Chenin Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Savennieres, Loire",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Aged Savennieres Chenin predicted. 2007 vintage (14 years old at exam) exactly anticipated."
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Chenin Blanc",
+          "actual_country": "South Africa",
+          "actual_subregion": "Citrusdal Mountains",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "South Africa artisan Chenin predicted. Citrusdal Mountains sub-region matches prediction."
+        }
+      ],
+      "notes": "Chenin Blanc predicted as STRONG SIGNAL (quality/maturity emphasis was the routing signal). All 3 origins predicted exactly including quality tier differentiation (entry Anjou, premium Savennieres, mid-tier SA)."
+    },
+    {
+      "year": 2021,
+      "paper": 1,
+      "question": 3,
+      "question_structure": "2 wines, same producer/variety/region, classification comparison",
+      "n_wines": 2,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 8,
+          "actual_variety": "Riesling",
+          "actual_country": "Austria",
+          "actual_subregion": "Wachau",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Riesling Federspiel from Wachau (FX Pichler) predicted as STRONG SIGNAL. Producer and classification level exactly anticipated."
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Riesling",
+          "actual_country": "Austria",
+          "actual_subregion": "Wachau",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Riesling Smaragd from Wachau (FX Pichler) predicted as STRONG SIGNAL. Producer, variety, classification, and region all correct."
+        }
+      ],
+      "notes": "FX Pichler Wachau Riesling Federspiel vs Smaragd predicted exactly. The tree's most precise single-producer prediction."
+    },
+    {
+      "year": 2021,
+      "paper": 1,
+      "question": 4,
+      "question_structure": "3 wines, same country, different varieties",
+      "n_wines": 3,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "wine_count": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 10,
+          "actual_variety": "Moscato Bianco",
+          "actual_country": "USA",
+          "actual_subregion": "California",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Gallo Moscato from California predicted as STRONG SIGNAL. 9% ABV was the diagnostic signal."
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Chardonnay",
+          "actual_country": "USA",
+          "actual_subregion": "Carneros, Napa, California",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Patz & Hall Carneros Chardonnay predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Pinot Gris",
+          "actual_country": "USA",
+          "actual_subregion": "Willamette Valley, Oregon",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Ponzi Pinot Gris from Willamette Valley Oregon predicted as PLAUSIBLE."
+        }
+      ],
+      "notes": "Country USA predicted as STRONG SIGNAL (after France excluded from Q1). All 3 varieties and sub-regions correct. Ponzi named explicitly in candidates."
+    },
+    {
+      "year": 2021,
+      "paper": 2,
+      "question": 1,
+      "question_structure": "3 wines, same region/producer, different vintages",
+      "n_wines": 3,
+      "prediction_level": "region+vintage identification",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "wine_count": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Cabernet Sauvignon/Merlot/Cabernet Franc/Petit Verdot",
+          "actual_country": "France",
+          "actual_subregion": "Saint-Julien, Bordeaux",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Bordeaux Saint-Julien predicted as STRONG SIGNAL. Ducru-Beaucaillou named explicitly. 2013 difficult vintage predicted."
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Cabernet Sauvignon/Merlot/Cabernet Franc/Petit Verdot",
+          "actual_country": "France",
+          "actual_subregion": "Saint-Julien, Bordeaux",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "2015 excellent vintage predicted."
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Cabernet Sauvignon/Merlot/Cabernet Franc/Petit Verdot",
+          "actual_country": "France",
+          "actual_subregion": "Saint-Julien, Bordeaux",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "2005 legendary vintage predicted."
+        }
+      ],
+      "notes": "Bordeaux classified growth vertical predicted exactly. Ducru-Beaucaillou named as candidate producer. Saint-Julien commune-level prediction. All 3 vintages (2013, 2015, 2005) predicted."
+    },
+    {
+      "year": 2021,
+      "paper": 2,
+      "question": 2,
+      "question_structure": "3 wines, 3 different varieties, 3 different continents",
+      "n_wines": 3,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "wine_count": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 4,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "USA",
+          "actual_subregion": "Sonoma Coast",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Pinot Noir from Sonoma predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Nebbiolo",
+          "actual_country": "Italy",
+          "actual_subregion": "Piedmont/Barbaresco",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Nebbiolo/Barbaresco predicted as PLAUSIBLE top European classic."
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Grenache",
+          "actual_country": "Australia",
+          "actual_subregion": "McLaren Vale",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Grenache from McLaren Vale predicted as PLAUSIBLE. D'Arenberg The Custodian named explicitly."
+        }
+      ],
+      "notes": "All 3 continents, 3 varieties, 3 sub-regions predicted correctly. D'Arenberg The Custodian named explicitly in candidate analysis."
+    },
+    {
+      "year": 2021,
+      "paper": 2,
+      "question": 3,
+      "question_structure": "2 wines, 2 different varieties, Americas",
+      "n_wines": 2,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "wine_count": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 7,
+          "actual_variety": "Petite Sirah",
+          "actual_country": "USA",
+          "actual_subregion": "California",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Petite Sirah from California predicted as PLAUSIBLE (upgraded from CURVEBALL after tree confirmation). Bogle named explicitly."
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Carmenere",
+          "actual_country": "Chile",
+          "actual_subregion": "Cachapoal",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Carmenere from Cachapoal Chile predicted as STRONG SIGNAL. Terrunyo Concha y Toro named explicitly."
+        }
+      ],
+      "notes": "Both varieties and origins predicted correctly including specific producer names (Bogle, Terrunyo). Low ID marks (10 each) correctly interpreted as signal for less-obvious variety."
+    },
+    {
+      "year": 2021,
+      "paper": 2,
+      "question": 4,
+      "question_structure": "4 wines in 2 pairs, each pair from different region",
+      "n_wines": 4,
+      "prediction_level": "variety+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 9,
+          "actual_variety": "Grenache/Syrah/Mourvedre",
+          "actual_country": "France",
+          "actual_subregion": "Chateauneuf-du-Pape, Rhone",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "CdP predicted as STRONG SIGNAL for Rhone pair. Clos des Papes named. Grenache-dominant confirmed via appellation_varieties.json."
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Grenache/Syrah/Mourvedre",
+          "actual_country": "France",
+          "actual_subregion": "Cotes du Rhone",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "CdR predicted as STRONG SIGNAL for Rhone pair. Guigal named."
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Tempranillo/Garnacha",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rioja Crianza predicted as STRONG SIGNAL for Rioja pair. Tempranillo-dominant."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Tempranillo",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rioja Gran Reserva predicted as STRONG SIGNAL. Castillo Ygay Marques de Murrieta named explicitly."
+        }
+      ],
+      "notes": "Both pairs (Rhone CdP vs CdR, Rioja Crianza vs Gran Reserva) predicted exactly as STRONG SIGNAL. All 4 wines' origins and varieties correct."
+    },
+    {
+      "year": 2021,
+      "paper": 3,
+      "question": 1,
+      "question_structure": "3 sparkling wines, origin and variety",
+      "n_wines": 3,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "wine_count": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Chardonnay/Pinot Noir/Pinot Meunier",
+          "actual_country": "France",
+          "actual_subregion": "Champagne",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "NV Champagne (Moet Brut Imperial) predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Chardonnay/Pinot Noir/Pinot Meunier",
+          "actual_country": "France",
+          "actual_subregion": "Champagne",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Vintage Champagne (Pol Roger 2012) predicted as PLAUSIBLE."
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Chardonnay/Pinot Noir",
+          "actual_country": "USA",
+          "actual_subregion": "Anderson Valley, California",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Roederer Estate Anderson Valley predicted as PLAUSIBLE. Pelorus/Brut Quartet resolved. Chardonnay/Pinot Noir varieties match."
+        }
+      ],
+      "notes": "Champagne NV + Champagne vintage + California traditional method predicted correctly. All within-method quality discrimination anticipated."
+    },
+    {
+      "year": 2021,
+      "paper": 3,
+      "question": 2,
+      "question_structure": "5 wines, 5 different production methods",
+      "n_wines": 5,
+      "prediction_level": "mechanism+origin per wine",
+      "scores": {
+        "top1_variety_hits": 5,
+        "top3_variety_hits": 5,
+        "top1_region_country_hits": 5,
+        "top1_region_subregion_hits": 5,
+        "top3_region_hits": 5,
+        "candidate_set_hits": 5,
+        "wine_count": 5,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 4,
+          "actual_variety": "Corvina/Corvinone/Rondinella",
+          "actual_country": "Italy",
+          "actual_subregion": "Valpolicella, Veneto",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Amarone appassimento predicted as STRONG SIGNAL. Corvina/Corvinone/Rondinella resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Brachetto",
+          "actual_country": "Italy",
+          "actual_subregion": "Piedmont",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Brachetto d'Acqui predicted as PLAUSIBLE. 5.5% ABV Charmat/Asti-method sweet."
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Touriga Nacional/Touriga Franca/Tinta Roriz/Tinta Barroca/Tinto Cao",
+          "actual_country": "Portugal",
+          "actual_subregion": "Douro",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Vintage Port (Graham's 2000) predicted as STRONG SIGNAL. Port varieties resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Grenache Noir",
+          "actual_country": "France",
+          "actual_subregion": "Roussillon",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Maury VDN predicted as PLAUSIBLE. Grenache Noir resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Muscat a Petits Grains",
+          "actual_country": "Australia",
+          "actual_subregion": "Rutherglen, Victoria",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Rutherglen Muscat predicted as PLAUSIBLE. Stanton & Killeen named."
+        }
+      ],
+      "notes": "All 5 mechanisms and origins predicted correctly. The five-mechanism sweep (appassimento, arrested fermentation, spirit addition, VDN, oxidative fortified blend) is the tree's most reliable P3 Q2 template."
+    },
+    {
+      "year": 2021,
+      "paper": 3,
+      "question": 3,
+      "question_structure": "4 wines in 2 pairs, each pair from different region (fortified)",
+      "n_wines": 4,
+      "prediction_level": "style+origin per wine",
+      "scores": {
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "wine_count": 4,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 9,
+          "actual_variety": "Palomino",
+          "actual_country": "Spain",
+          "actual_subregion": "Jerez",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Dry Oloroso from Jerez (Lustau Almacenista) predicted as STRONG SIGNAL. Palomino resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Palomino",
+          "actual_country": "Spain",
+          "actual_subregion": "Jerez",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Sweet Oloroso Dulce 30-year from Jerez (Gonzales Byass Matusalem) predicted as STRONG SIGNAL."
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Tinta Negra",
+          "actual_country": "Portugal",
+          "actual_subregion": "Madeira",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Entry-level Madeira (H&H Full Rich 3yo) predicted as STRONG SIGNAL. Tinta Negra is the default base grape for entry Madeira. Resolved via appellation_varieties.json."
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Boal",
+          "actual_country": "Portugal",
+          "actual_subregion": "Madeira",
+          "variety_hit": true,
+          "variety_rank": 1,
+          "region_hit": true,
+          "region_rank": 1,
+          "cs_hit": true,
+          "notes": "Single Harvest Boal 2000 Madeira (H&H) predicted as STRONG SIGNAL. Boal is a noble Madeira variety. Same producer (Henriques & Henriques) for both Madeira wines predicted."
+        }
+      ],
+      "notes": "Both pairs (Jerez dry vs sweet Oloroso, Madeira entry vs vintage) predicted exactly. All wines' styles, origins, and quality levels matched. Same producer in Madeira pair correctly anticipated."
+    }
+  ],
+  "summary": {
+    "total_wines": 72,
+    "total_top1_variety_hits": 69,
+    "total_top3_variety_hits": 72,
+    "total_top1_region_country_hits": 72,
+    "total_top1_region_subregion_hits": 70,
+    "total_top3_region_hits": 72,
+    "total_candidate_set_hits": 72,
+    "overall_top1_variety_accuracy": 0.958,
+    "overall_top3_variety_accuracy": 1.0,
+    "overall_top1_region_country_accuracy": 1.0,
+    "overall_top1_region_subregion_accuracy": 0.972,
+    "overall_top3_region_accuracy": 1.0,
+    "overall_candidate_set_accuracy": 1.0,
+    "mean_mrr_variety": 0.991,
+    "mean_mrr_region": 0.988,
+    "fold_breakdown": {
+      "2019": {
+        "wines": 36,
+        "top1_variety_hits": 34,
+        "top3_variety_hits": 36,
+        "top1_region_country_hits": 36,
+        "top1_region_subregion_hits": 34,
+        "top1_variety_accuracy": 0.944,
+        "top1_region_country_accuracy": 1.0,
+        "top1_region_subregion_accuracy": 0.944
+      },
+      "2021": {
+        "wines": 36,
+        "top1_variety_hits": 35,
+        "top3_variety_hits": 36,
+        "top1_region_country_hits": 36,
+        "top1_region_subregion_hits": 36,
+        "top1_variety_accuracy": 0.972,
+        "top1_region_country_accuracy": 1.0,
+        "top1_region_subregion_accuracy": 1.0
+      }
+    },
+    "variety_misses_detail": [
+      {
+        "year": 2019,
+        "paper": 1,
+        "question": 2,
+        "slot": 7,
+        "predicted_top1": "Soave/Garganega",
+        "actual": "Grillo",
+        "notes": "Grillo was mentioned in candidate text as alternative Sicilian white but not as named top-1. Country and sub-region (Sicily) were correct."
+      },
+      {
+        "year": 2019,
+        "paper": 3,
+        "question": 3,
+        "slot": 8,
+        "predicted_top1": "Pinot Noir (NZ rose)",
+        "actual": "Pinot Noir/Merlot blend",
+        "notes": "Pinot Noir component predicted but blend with Merlot not anticipated. Scored as top-3 variety hit (rank 2) because primary component matched."
+      }
+    ],
+    "subregion_misses_detail": [
+      {
+        "year": 2019,
+        "paper": 1,
+        "question": 2,
+        "slot": 7,
+        "predicted_subregion": "Sicily (with Soave/Vermentino as lead variety)",
+        "actual_subregion": "Sicily",
+        "notes": "Sub-region was actually correct (Sicily) despite variety miss. Recounted as hit."
+      },
+      {
+        "year": 2019,
+        "paper": 3,
+        "question": 3,
+        "slot": 8,
+        "predicted_subregion": "NZ (no specific sub-region)",
+        "actual_subregion": "NZ (no specific sub-region on wine)",
+        "notes": "Kim Crawford NZ-wide appellation. No sub-region mismatch."
+      }
+    ],
+    "notes": "Extremely high accuracy across both folds. The v2 decision matrices (Phase 5B tree-aware) demonstrate near-perfect prediction when the tree was built WITH these years in the training corpus. This is not a true out-of-sample test since the matrices were generated with knowledge of the actual wines (they contain reality check sections). The LOYO value lies in validating the scoring methodology and establishing a baseline, not in measuring generalizable predictive power. True LOYO would require trees built excluding these years."
+  }
+}

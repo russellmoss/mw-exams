@@ -1,0 +1,24 @@
+{
+  "new_years": [
+    2014,
+    2013,
+    2012,
+    2011
+  ],
+  "overlap_years": [],
+  "add_years": [
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "question_counts_by_year": {
+    "2014": 10,
+    "2013": 12,
+    "2012": 11,
+    "2011": 8
+  },
+  "new_wine_count": 144,
+  "missing_from_canonical_count": 144,
+  "missing_research_count": 144
+}

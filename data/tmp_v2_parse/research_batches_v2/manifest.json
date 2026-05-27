@@ -1,0 +1,88 @@
+{
+  "batches": [
+    {
+      "batch_id": "2011_p1",
+      "year": 2011,
+      "paper": 1,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2011_p1.json"
+    },
+    {
+      "batch_id": "2011_p2",
+      "year": 2011,
+      "paper": 2,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2011_p2.json"
+    },
+    {
+      "batch_id": "2011_p3",
+      "year": 2011,
+      "paper": 3,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2011_p3.json"
+    },
+    {
+      "batch_id": "2012_p1",
+      "year": 2012,
+      "paper": 1,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2012_p1.json"
+    },
+    {
+      "batch_id": "2012_p2",
+      "year": 2012,
+      "paper": 2,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2012_p2.json"
+    },
+    {
+      "batch_id": "2012_p3",
+      "year": 2012,
+      "paper": 3,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2012_p3.json"
+    },
+    {
+      "batch_id": "2013_p1",
+      "year": 2013,
+      "paper": 1,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2013_p1.json"
+    },
+    {
+      "batch_id": "2013_p2",
+      "year": 2013,
+      "paper": 2,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2013_p2.json"
+    },
+    {
+      "batch_id": "2013_p3",
+      "year": 2013,
+      "paper": 3,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2013_p3.json"
+    },
+    {
+      "batch_id": "2014_p1",
+      "year": 2014,
+      "paper": 1,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2014_p1.json"
+    },
+    {
+      "batch_id": "2014_p2",
+      "year": 2014,
+      "paper": 2,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2014_p2.json"
+    },
+    {
+      "batch_id": "2014_p3",
+      "year": 2014,
+      "paper": 3,
+      "wine_count": 12,
+      "path": "data/tmp_v2_parse/research_batches_v2/2014_p3.json"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mock MW Practical Wine Bank",
+  "type": "object",
+  "required": ["version", "last_updated", "entries"],
+  "properties": {
+    "version": {"type": "string"},
+    "last_updated": {"type": "string"},
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "producer",
+          "wine_name",
+          "country",
+          "region",
+          "grape_varieties",
+          "style_category",
+          "price_band",
+          "quality_tier",
+          "useful_families",
+          "cooldown_motifs",
+          "sources"
+        ],
+        "properties": {
+          "id": {"type": "string"},
+          "producer": {"type": "string"},
+          "wine_name": {"type": "string"},
+          "vintage_guidance": {"type": "string"},
+          "country": {"type": "string"},
+          "region": {"type": "string"},
+          "sub_region": {"type": "string"},
+          "appellation": {"type": "string"},
+          "classification": {"type": "string"},
+          "grape_varieties": {"type": "array", "items": {"type": "string"}},
+          "style_category": {
+            "type": "string",
+            "enum": ["still_dry", "still_off_dry", "still_sweet", "sparkling", "fortified", "oxidative", "orange", "rose"]
+          },
+          "method_tags": {"type": "array", "items": {"type": "string"}},
+          "structure_tags": {"type": "array", "items": {"type": "string"}},
+          "oak_signature": {"type": "string"},
+          "rs_level": {"type": "string"},
+          "abv": {"type": "string"},
+          "price_band": {
+            "type": "string",
+            "enum": ["value", "mainstream", "premium", "super_premium", "luxury", "unknown"]
+          },
+          "quality_tier": {
+            "type": "string",
+            "enum": ["commercial", "regional", "premium", "benchmark", "iconic", "unknown"]
+          },
+          "commercial_channels": {"type": "array", "items": {"type": "string"}},
+          "useful_families": {"type": "array", "items": {"type": "string"}},
+          "useful_subtypes": {"type": "array", "items": {"type": "string"}},
+          "question_roles": {"type": "array", "items": {"type": "string"}},
+          "cooldown_motifs": {"type": "array", "items": {"type": "string"}},
+          "avoid_if_recent_motifs": {"type": "array", "items": {"type": "string"}},
+          "selection_notes": {"type": "string"},
+          "source_confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+          "sources": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+        }
+      }
+    }
+  }
+}

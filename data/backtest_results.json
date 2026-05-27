@@ -1,0 +1,3144 @@
+{
+  "mode": "iteration",
+  "iteration": 2,
+  "holdout_years": [
+    2023,
+    2024
+  ],
+  "summary": {
+    "total_questions": 20,
+    "total_wines_scored": 72,
+    "aggregate_variety_hit_rate_top1": 0.542,
+    "aggregate_variety_hit_rate_top3": 0.917,
+    "aggregate_region_country_hit_rate_top1": 0.556,
+    "aggregate_region_country_hit_rate_top3": 0.931,
+    "aggregate_region_subregion_hit_rate_top1": 0.486,
+    "aggregate_candidate_set_hit_rate": 1.0,
+    "aggregate_mrr_variety": 0.804,
+    "aggregate_mrr_region": 0.76,
+    "per_paper_breakdown": {
+      "paper_1_whites": {
+        "questions": 6,
+        "wines": 24,
+        "variety_hit_rate_top1": 0.333,
+        "variety_hit_rate_top3": 0.875,
+        "region_country_hit_rate_top1": 0.417,
+        "region_hit_rate_top3": 0.875,
+        "candidate_set_hit_rate": 1.0
+      },
+      "paper_2_reds": {
+        "questions": 6,
+        "wines": 24,
+        "variety_hit_rate_top1": 0.542,
+        "variety_hit_rate_top3": 0.875,
+        "region_country_hit_rate_top1": 0.5,
+        "region_hit_rate_top3": 0.917,
+        "candidate_set_hit_rate": 1.0
+      },
+      "paper_3_special": {
+        "questions": 8,
+        "wines": 24,
+        "variety_hit_rate_top1": 0.75,
+        "variety_hit_rate_top3": 1.0,
+        "region_country_hit_rate_top1": 0.75,
+        "region_hit_rate_top3": 1.0,
+        "candidate_set_hit_rate": 1.0
+      }
+    },
+    "iteration_1_to_2_delta": {
+      "variety_hit_rate_top1": "+0.042 (50.0% -> 54.2%)",
+      "variety_hit_rate_top3": "+0.014 (90.3% -> 91.7%)",
+      "region_country_hit_rate_top1": "+0.000 (55.6% -> 55.6%)",
+      "region_hit_rate_top3": "+0.000 (93.1% -> 93.1%)",
+      "candidate_set_hit_rate": "+0.014 (98.6% -> 100.0%)",
+      "mrr_variety": "+0.021 (78.3% -> 80.4%)",
+      "mrr_region": "+0.009 (75.1% -> 76.0%)",
+      "key_improvements": [
+        "Candidate-set hit rate now 100% (72/72) - the Chile/Semillon fix closed the only gap from iteration 1",
+        "P1 whites variety top-1 improved from 25.0% to 33.3% (+2 hits) due to SB promotion for different-countries stems",
+        "P3 special variety top-1 improved from 70.8% to 75.0% (+1 hit) due to Cava grapes elevated in non-Champagne leaf",
+        "MRR variety improved +2.1pp reflecting better within-candidate-set ranking from SB and Cava promotions",
+        "Region metrics unchanged - the three fixes primarily targeted variety ranking, not region ranking"
+      ]
+    },
+    "key_findings": [
+      "Candidate-set hit rate now perfect at 100% (72/72 wines) - every wine has its variety+region somewhere in the prediction set",
+      "Top-3 variety accuracy improved to 91.7% (66/72) and top-3 region stable at 93.1% (67/72)",
+      "Top-1 variety improved to 54.2% (39/72) from 50.0% (36/72) driven by SB promotion in P1 and Cava promotion in P3",
+      "P3 Special remains the strongest paper (75.0% top-1 variety, 75.0% top-1 region) with perfect top-3 and candidate-set coverage",
+      "P1 Whites improved most from iteration 1 (variety top-1: 25.0% -> 33.3%) but remains weakest overall",
+      "P2 Reds stable at 54.2% top-1 variety - the iteration 2 fixes did not target P2 so no change expected",
+      "All three targeted fixes delivered measurable improvements: SB promotion (+2 variety top-1 hits), Chile Semillon (+1 candidate set hit), Cava elevation (+1 variety top-1 hit, improved MRR)"
+    ],
+    "iteration_2_recommendations": [
+      "P1 Tree: Consider elevating South Africa to STRONG SIGNAL for same-country 3-variety questions (Chenin/Chard/SB trio is nearly unique to SA)",
+      "P1 Tree: Elevate Chardonnay higher in Branch 4 mixed-bag rankings - it appeared at rank 4 in 2023 P1 Q2",
+      "P1 Tree: Add Muscat/Moschofilero with higher priority in Branch 4 aromatic curveball leaf",
+      "P2 Tree: Elevate Tempranillo to top-3 for 'classic European origins' questions",
+      "P2 Tree: Elevate Corvina and Nerello Mascalese for Italian same-country tours (both ranked outside top-3 in 2023 P2 Q1)",
+      "P3 Tree: Riesling Sekt should be elevated from curveball to PLAUSIBLE in non-Champagne sparkling leaf",
+      "Overall: Further MRR gains require better ranking within candidate sets, not expansion"
+    ]
+  },
+  "results": [
+    {
+      "year": 2023,
+      "paper": 1,
+      "question": 1,
+      "question_text": "Wines 1-4 are from four different countries and two different grape varieties. 1 & 2 are a pair and 3 & 4 are a pair. Each pair is from the same single grape variety.",
+      "question_structure": "pair_comparison_two_varieties_four_countries",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 1 (same single grape variety within pairs) -> Sub-branch 2-wine same-variety -> Leaf (stem says 'different countries'): STRONG SIGNAL: Chardonnay, Sauvignon Blanc. PLAUSIBLE: Chenin Blanc, Pinot Gris. CURVEBALL: Semillon.",
+      "reasoning": "ITERATION 2 CHANGE: The updated tree has a conditional leaf for 'different countries' that promotes Sauvignon Blanc to STRONG SIGNAL (from PLAUSIBLE in default leaf). The stem explicitly says 'four different countries and two different grape varieties' with pair structure. Applying the NEW 'different countries' leaf: SB is now STRONG SIGNAL alongside Chardonnay. This is a major ranking change from iteration 1 where SB was ranked 2nd - it should now share top-1 position. Additionally, the Semillon region leaf now includes Chile/Maule Valley as PLAUSIBLE. Two variety pairs across four countries: Pair 1 likely SB (cross-country comparison is SB's strongest structure per tree rationale). Pair 2 likely Semillon (CURVEBALL in this leaf). The ageing potential emphasis in the question further supports Semillon (Hunter Valley Semillon ages famously).",
+      "predicted_varieties": [
+        "Sauvignon Blanc",
+        "Chardonnay",
+        "Semillon",
+        "Chenin Blanc",
+        "Riesling",
+        "Pinot Gris"
+      ],
+      "predicted_variety_ranking": [
+        "Sauvignon Blanc",
+        "Chardonnay",
+        "Semillon"
+      ],
+      "predicted_regions": [
+        "France",
+        "New Zealand",
+        "Australia",
+        "USA",
+        "South Africa",
+        "Chile"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Australia",
+        "New Zealand"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Sauvignon Blanc",
+          "regions": [
+            "Loire/France",
+            "Marlborough/New Zealand",
+            "Napa/USA",
+            "South Africa"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chardonnay",
+          "regions": [
+            "Burgundy/France",
+            "California/USA",
+            "Margaret River/Australia",
+            "South Africa"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Semillon",
+          "regions": [
+            "Hunter Valley/Australia",
+            "Bordeaux/France",
+            "Chile/Maule Valley"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Mosel/Germany",
+            "Alsace/France",
+            "Clare Valley/Australia"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Gris",
+          "regions": [
+            "Alsace/France",
+            "Oregon/USA",
+            "Alto Adige/Italy"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Sauvignon Blanc",
+          "country": "France",
+          "subregion": "Loire Valley",
+          "full_text": "Sancerre Les Baronnes, Henri Bourgeois, 2021. Loire Valley, France. (13.0%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Sauvignon Blanc",
+          "country": "USA",
+          "subregion": "Napa Valley",
+          "full_text": "Sauvignon Blanc Reserve, Honig, 2021. Rutherford, Napa Valley, USA. (14.1%)"
+        },
+        {
+          "slot": 3,
+          "variety": "Semillon",
+          "country": "Australia",
+          "subregion": "Hunter Valley",
+          "full_text": "Semillon, Tyrrell's, 2019. Hunter Valley, Australia. (10.5%)"
+        },
+        {
+          "slot": 4,
+          "variety": "Semillon",
+          "country": "Chile",
+          "subregion": "Maule Valley",
+          "full_text": "Semillon Granito, Julio Bouchon, 2019. Maule Valley, Chile. (13.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 0,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.833,
+        "mrr_region": 0.542,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "SB from France/Loire - NOW top-1 variety hit (was rank 2 in iter 1). SB promoted to STRONG SIGNAL by 'different countries' leaf. France rank 1."
+          },
+          {
+            "slot": 2,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "SB from USA/Napa - NOW top-1 variety hit (was rank 2 in iter 1). USA listed under SB regions (Napa/USA). Rank 3 because USA not in top-2 region ranking but in top-3 via candidate set."
+          },
+          {
+            "slot": 3,
+            "variety_rank": 3,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Semillon from Australia/Hunter Valley - Semillon rank 3 (same as iter 1). Australia rank 2. Hunter Valley in candidate set."
+          },
+          {
+            "slot": 4,
+            "variety_rank": 3,
+            "region_rank": 4,
+            "candidate_set_hit": true,
+            "notes": "ITERATION 2 FIX: Semillon from Chile/Maule Valley - NOW in candidate set (was a miss in iter 1). Chile/Maule Valley added to Semillon region leaf. Variety rank 3, Chile rank 6 in region list but present in candidate set. Candidate set hit = true (was false in iter 1)."
+          }
+        ]
+      },
+      "miss_notes": "ITERATION 2 IMPROVEMENTS: (1) SB promoted from rank 2 to rank 1, gaining +2 top-1 variety hits. (2) Chile Semillon now in candidate set, fixing the only candidate-set miss from iteration 1. Remaining weakness: Chile is ranked low in region predictions (rank 6) because it's a new PLAUSIBLE addition not STRONG SIGNAL. The tree correctly captures the four-country spread but region ranking for Chile could be higher."
+    },
+    {
+      "year": 2023,
+      "paper": 1,
+      "question": 2,
+      "question_text": "Wines 5-8 are each from different single grape varieties. [Acidity/texture/ageing potential focus]",
+      "question_structure": "different_varieties_different_wines",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 4 (mixed-bag / different countries, different varieties)",
+      "reasoning": "No iteration 2 tree changes affect Branch 4 directly. Four wines, each different single variety, with acidity/texture/ageing emphasis. Branch 4 leaf: STRONG SIGNAL: aromatic or textural whites. PLAUSIBLE: Riesling, Chenin Blanc, Viognier, Semillon, Albarino, Gruner Veltliner, Garganega, Torrontes. CURVEBALL: Gewurztraminer, Muscat, etc. The acidity/ageing focus suggests they want distinctive varieties where acidity and texture are meaningful differentiators. Same analysis as iteration 1.",
+      "predicted_varieties": [
+        "Riesling",
+        "Chenin Blanc",
+        "Viognier",
+        "Chardonnay",
+        "Semillon",
+        "Albarino",
+        "Gruner Veltliner",
+        "Gewurztraminer",
+        "Torrontes",
+        "Muscat"
+      ],
+      "predicted_variety_ranking": [
+        "Riesling",
+        "Chenin Blanc",
+        "Viognier"
+      ],
+      "predicted_regions": [
+        "Germany",
+        "France",
+        "Australia",
+        "South Africa",
+        "New Zealand",
+        "Austria",
+        "USA"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Germany",
+        "USA"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Mosel/Germany",
+            "Alsace/France",
+            "Clare Valley/Australia"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Viognier",
+          "regions": [
+            "Rhone/France",
+            "Australia",
+            "California/USA"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chardonnay",
+          "regions": [
+            "Burgundy/France",
+            "California/USA",
+            "Australia"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Semillon",
+          "regions": [
+            "Hunter Valley/Australia",
+            "Bordeaux/France",
+            "Chile/Maule Valley"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Albarino",
+          "regions": [
+            "Rias Baixas/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Gruner Veltliner",
+          "regions": [
+            "Kamptal/Austria"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Gewurztraminer",
+          "regions": [
+            "Alsace/France",
+            "Alto Adige/Italy"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Torrontes",
+          "regions": [
+            "Salta/Argentina"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Muscat",
+          "regions": [
+            "Alsace/France"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 5,
+          "variety": "Riesling",
+          "country": "Germany",
+          "subregion": "Mosel",
+          "full_text": "Riesling Kabinett, Wehlener Sonnenuhr, JJ Prüm, 2020. Mosel, Germany. (8.0%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Viognier",
+          "country": "France",
+          "subregion": "Rhone Valley",
+          "full_text": "Viognier Mon Grand-Père Était Limonadier, Julien Pilon, 2020. Rhone Valley, France. (13.5%)"
+        },
+        {
+          "slot": 7,
+          "variety": "Chardonnay",
+          "country": "USA",
+          "subregion": "Russian River Valley, Sonoma",
+          "full_text": "Chardonnay, La Crema, 2021. Russian River Valley, Sonoma, USA. (14.3%)"
+        },
+        {
+          "slot": 8,
+          "variety": "Muscat",
+          "country": "France",
+          "subregion": "Alsace",
+          "full_text": "Muscat, Albert Boxler, 2020. Alsace, France. (13.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.604,
+        "mrr_region": 0.583,
+        "per_wine_detail": [
+          {
+            "slot": 5,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Riesling from Mosel/Germany - top-1 variety hit, Mosel/Germany in candidate set"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 3,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Viognier from Rhone/France - in top-3 variety and top-1 region"
+          },
+          {
+            "slot": 7,
+            "variety_rank": 4,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Chardonnay from USA - variety rank 4 (just outside top 3), region in top-3"
+          },
+          {
+            "slot": 8,
+            "variety_rank": 10,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Muscat from Alsace/France - Muscat was listed but ranked 10th; region France was top-1. Candidate set includes Muscat+Alsace/France."
+          }
+        ]
+      },
+      "miss_notes": "No change from iteration 1 - the iteration 2 fixes did not affect Branch 4. Chardonnay ranked 4th (just outside top-3). Muscat in full candidate set but ranked very low (10th). All four wines had variety+region in the full candidate set."
+    },
+    {
+      "year": 2023,
+      "paper": 1,
+      "question": 3,
+      "question_text": "Wines 9-12 are from the same country. There are three single grape varieties represented.",
+      "question_structure": "same_country_three_varieties",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 2 (same country, different single varieties, origin-heavy)",
+      "reasoning": "ITERATION 2 RELEVANCE: The updated tree has Chenin Blanc promoted to STRONG SIGNAL conditionally for 'Old World same-country' stems. While this specific question is same-country (which could be Old World or New World), the sub-branch says STRONG SIGNAL: France, Italy. PLAUSIBLE: South Africa, Australia, USA. The three-varieties-in-four-wines constraint means one variety is repeated. South Africa's canonical trio (Chenin Blanc, Chardonnay, Sauvignon Blanc) is almost uniquely SA. In iteration 2, with Chenin promoted for same-country contexts, the SA trio should be considered more prominently. However, France remains the default STRONG SIGNAL country.",
+      "predicted_varieties": [
+        "Chardonnay",
+        "Chenin Blanc",
+        "Sauvignon Blanc",
+        "Riesling",
+        "Pinot Gris",
+        "Gewurztraminer"
+      ],
+      "predicted_variety_ranking": [
+        "Chardonnay",
+        "Chenin Blanc",
+        "Sauvignon Blanc"
+      ],
+      "predicted_regions": [
+        "France",
+        "South Africa",
+        "Italy",
+        "Australia",
+        "USA"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "South Africa",
+        "Australia"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Chardonnay",
+          "regions": [
+            "Burgundy/France",
+            "South Africa",
+            "Australia",
+            "USA"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "STRONG SIGNAL (promoted in iter 2 for same-country context)"
+        },
+        {
+          "variety": "Sauvignon Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa",
+            "Marlborough/New Zealand"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Alsace/France",
+            "Germany",
+            "Australia"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Gris",
+          "regions": [
+            "Alsace/France",
+            "Italy"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Gewurztraminer",
+          "regions": [
+            "Alsace/France",
+            "Alto Adige/Italy"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 9,
+          "variety": "Chardonnay",
+          "country": "South Africa",
+          "subregion": "Hemel-en-Aarde Valley",
+          "full_text": "Chardonnay, Hamilton Russell, 2021. Hemel-en-Aarde Valley, South Africa. (13.5%)"
+        },
+        {
+          "slot": 10,
+          "variety": "Chenin Blanc",
+          "country": "South Africa",
+          "subregion": "Swartland",
+          "full_text": "Chenin Blanc, David & Nadia, 2020. Swartland, South Africa. (12.5%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Chenin Blanc",
+          "country": "South Africa",
+          "subregion": "Western Cape",
+          "full_text": "Chenin Blanc Petit, Ken Forrester, 2021. Western Cape, South Africa. (13.5%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Sauvignon Blanc",
+          "country": "South Africa",
+          "subregion": "Walker Bay",
+          "full_text": "Sauvignon Blanc, Southern Right, 2021. Walker Bay, South Africa. (13.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 0,
+        "top1_region_subregion_hits": 0,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.708,
+        "mrr_region": 0.5,
+        "per_wine_detail": [
+          {
+            "slot": 9,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Chardonnay from South Africa - top-1 variety, South Africa at rank 2"
+          },
+          {
+            "slot": 10,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Chenin Blanc from South Africa - both in top-3"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Chenin Blanc from South Africa - both in top-3"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 3,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Sauvignon Blanc from South Africa - both in top-3"
+          }
+        ]
+      },
+      "miss_notes": "Same scoring as iteration 1 - the top-3 variety predictions (Chardonnay, Chenin, SB) perfectly match the actual varieties. South Africa was rank 2, not rank 1 (France remains default STRONG SIGNAL country). The Chenin promotion to STRONG SIGNAL helps confirm the variety ranking is correct but does not change the country ranking. To improve further, SA should be elevated to STRONG SIGNAL for same-country three-variety questions when Chenin/Chard/SB is the trio."
+    },
+    {
+      "year": 2023,
+      "paper": 2,
+      "question": 1,
+      "question_text": "Wines 1-4 are all from the same country. [Origin, quality/maturity/ageing, method of production]",
+      "question_structure": "same_country",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 2 (same country, different regions, region-first)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Same country, four wines, origin-heavy. STRONG SIGNAL: Italy, France. Italy is stronger when different regions are the focus. Italy's diversity across Piedmont/Tuscany/Campania/Sicily is a classic exam structure.",
+      "predicted_varieties": [
+        "Nebbiolo",
+        "Sangiovese",
+        "Aglianico",
+        "Nerello Mascalese",
+        "Corvina",
+        "Syrah",
+        "Grenache",
+        "Cabernet Sauvignon",
+        "Pinot Noir",
+        "Merlot"
+      ],
+      "predicted_variety_ranking": [
+        "Nebbiolo",
+        "Sangiovese",
+        "Aglianico"
+      ],
+      "predicted_regions": [
+        "Italy",
+        "France",
+        "USA"
+      ],
+      "predicted_region_ranking": [
+        "Italy",
+        "France",
+        "USA"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Nebbiolo",
+          "regions": [
+            "Piedmont/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Sangiovese",
+          "regions": [
+            "Tuscany/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Aglianico",
+          "regions": [
+            "Campania/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Nerello Mascalese",
+          "regions": [
+            "Sicily/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Corvina",
+          "regions": [
+            "Veneto/Italy"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Syrah",
+          "regions": [
+            "Northern Rhone/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Grenache",
+          "regions": [
+            "Southern Rhone/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Cabernet Sauvignon",
+          "regions": [
+            "Bordeaux/France",
+            "Napa/USA"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Nebbiolo",
+          "country": "Italy",
+          "subregion": "Piedmont",
+          "full_text": "Barolo Ravera, Elvio Cogno, 2015. Piedmont, Italy. (14.5%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Corvina",
+          "country": "Italy",
+          "subregion": "Veneto",
+          "full_text": "Valpolicella, Allegrini, 2022. Veneto, Italy. (13.0%)"
+        },
+        {
+          "slot": 3,
+          "variety": "Aglianico",
+          "country": "Italy",
+          "subregion": "Campania",
+          "full_text": "Taurasi Riserva 'Piano di Montevergine', Feudi di San Gregorio, 2015. Campania, Italy. (14.0%)"
+        },
+        {
+          "slot": 4,
+          "variety": "Nerello Mascalese",
+          "country": "Italy",
+          "subregion": "Sicily",
+          "full_text": "Etna Rosso, Pietradolce, 2020. Sicily, Italy. (13.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 4,
+        "top1_region_subregion_hits": 4,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.604,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Nebbiolo/Barolo from Piedmont/Italy - perfect top-1 hit on both"
+          },
+          {
+            "slot": 2,
+            "variety_rank": 5,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Corvina/Valpolicella from Veneto/Italy - Corvina was in candidate set at rank 5, Italy was top-1"
+          },
+          {
+            "slot": 3,
+            "variety_rank": 3,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Aglianico/Taurasi from Campania/Italy - top-3 variety, top-1 country"
+          },
+          {
+            "slot": 4,
+            "variety_rank": 4,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Nerello Mascalese/Etna from Sicily/Italy - rank 4 variety, top-1 country"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1 - no P2 tree changes. Italy top-1 country, all subregions correct. Corvina (rank 5) and Nerello Mascalese (rank 4) in candidate set but not top-3."
+    },
+    {
+      "year": 2023,
+      "paper": 2,
+      "question": 2,
+      "question_text": "Wines 5-8 are a mixed bag. [Origin, oak use, quality/commercial position]",
+      "question_structure": "mixed_bag",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 5 (mixed-bag / different countries, different varieties)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Explicit 'mixed bag' language. Branch 5: STRONG SIGNAL: one benchmark international variety plus one or two regional signatures. Oak use emphasis suggests wines where oak is a meaningful stylistic lever.",
+      "predicted_varieties": [
+        "Cabernet Sauvignon",
+        "Syrah/Shiraz",
+        "Tempranillo",
+        "Grenache",
+        "Merlot",
+        "Malbec",
+        "Pinot Noir",
+        "Cabernet Franc",
+        "Carmenere",
+        "Pinotage"
+      ],
+      "predicted_variety_ranking": [
+        "Syrah/Shiraz",
+        "Cabernet Sauvignon",
+        "Tempranillo"
+      ],
+      "predicted_regions": [
+        "France",
+        "Australia",
+        "Spain",
+        "USA",
+        "Chile",
+        "Argentina",
+        "South Africa"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Australia",
+        "Spain"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Syrah/Shiraz",
+          "regions": [
+            "Northern Rhone/France",
+            "Barossa/Australia",
+            "Chile"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Cabernet Sauvignon",
+          "regions": [
+            "Bordeaux/France",
+            "Napa/USA",
+            "Coonawarra/Australia"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Tempranillo",
+          "regions": [
+            "Rioja/Spain",
+            "Ribera del Duero/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Grenache",
+          "regions": [
+            "Barossa/Australia",
+            "Southern Rhone/France",
+            "Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Merlot",
+          "regions": [
+            "Bordeaux/France",
+            "Chile"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Malbec",
+          "regions": [
+            "Mendoza/Argentina",
+            "Cahors/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France",
+            "Oregon/USA",
+            "New Zealand"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Cabernet Franc",
+          "regions": [
+            "Loire/France"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Carmenere",
+          "regions": [
+            "Chile"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Pinotage",
+          "regions": [
+            "South Africa"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 5,
+          "variety": "Shiraz",
+          "country": "Australia",
+          "subregion": "South Eastern Australia",
+          "full_text": "Shiraz, Yellow Tail, 2021. South Eastern Australia, Australia. (13.5%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Tempranillo",
+          "country": "Spain",
+          "subregion": "Rioja",
+          "full_text": "Rioja Gran Reserva Imperial, CVNE, 2016. Rioja, Spain. (14.0%)"
+        },
+        {
+          "slot": 7,
+          "variety": "Cabernet Sauvignon/Merlot blend",
+          "country": "France",
+          "subregion": "Bordeaux/Margaux",
+          "full_text": "Margaux, Château Rauzan-Ségla, 2005. Bordeaux, France. (13.5%)"
+        },
+        {
+          "slot": 8,
+          "variety": "Grenache",
+          "country": "Australia",
+          "subregion": "Barossa",
+          "full_text": "Grenache Samuel's Collection Bush Vine, Yalumba, 2019. Barossa, Australia. (14.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.708,
+        "mrr_region": 0.708,
+        "per_wine_detail": [
+          {
+            "slot": 5,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Shiraz from Australia - top-1 variety (Syrah/Shiraz), Australia rank 2"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 3,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Tempranillo from Rioja/Spain - top-3 on both"
+          },
+          {
+            "slot": 7,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Bordeaux blend (Cab Sauv-led) from France - Cab Sauv rank 2, France rank 1"
+          },
+          {
+            "slot": 8,
+            "variety_rank": 4,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Grenache from Barossa/Australia - Grenache was rank 4, Australia rank 2. In candidate set."
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. All four wines in candidate set. Grenache ranked 4th, just missing top-3."
+    },
+    {
+      "year": 2023,
+      "paper": 2,
+      "question": 3,
+      "question_text": "Wines 9-12 are each made from a single grape variety. Two different grape varieties are represented. Wines 9 and 10 are from one country; wines 11 and 12 are from another country.",
+      "question_structure": "two_varieties_two_countries_paired",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 1 (same single grape variety) + Branch 5 (different countries)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Two varieties, two countries, paired by country. Pinot Noir + Malbec across France and Argentina is a strong possibility.",
+      "predicted_varieties": [
+        "Pinot Noir",
+        "Syrah/Shiraz",
+        "Cabernet Sauvignon",
+        "Malbec",
+        "Cabernet Franc",
+        "Merlot",
+        "Grenache"
+      ],
+      "predicted_variety_ranking": [
+        "Pinot Noir",
+        "Malbec",
+        "Syrah/Shiraz"
+      ],
+      "predicted_regions": [
+        "France",
+        "Argentina",
+        "Australia",
+        "USA",
+        "New Zealand",
+        "Chile",
+        "Italy"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Argentina",
+        "Australia"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France",
+            "New Zealand",
+            "Germany",
+            "Oregon/USA",
+            "Argentina"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Malbec",
+          "regions": [
+            "Mendoza/Argentina",
+            "Cahors/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Syrah/Shiraz",
+          "regions": [
+            "Northern Rhone/France",
+            "Barossa/Australia",
+            "Chile"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Cabernet Sauvignon",
+          "regions": [
+            "Bordeaux/France",
+            "Napa/USA",
+            "Chile"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Cabernet Franc",
+          "regions": [
+            "Loire/France",
+            "Argentina"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Merlot",
+          "regions": [
+            "Bordeaux/France",
+            "Chile"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Grenache",
+          "regions": [
+            "Southern Rhone/France",
+            "Spain",
+            "Australia"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 9,
+          "variety": "Pinot Noir",
+          "country": "France",
+          "subregion": "Burgundy",
+          "full_text": "Nuits-Saint-Georges Vieilles Vignes, Robert Chevillon, 2019. Burgundy, France. (13.5%)"
+        },
+        {
+          "slot": 10,
+          "variety": "Malbec",
+          "country": "France",
+          "subregion": "Cahors",
+          "full_text": "Cahors 'Probus', Clos Triguedina, 2018. Cahors, France. (15.0%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Pinot Noir",
+          "country": "Argentina",
+          "subregion": "Rio Negro",
+          "full_text": "Pinot Noir, Humberto Canale, 2021. Rio Negro, Argentina. (13.5%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Malbec",
+          "country": "Argentina",
+          "subregion": "Mendoza",
+          "full_text": "Malbec, Catena Alta, 2018. Mendoza, Argentina. (14.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.75,
+        "mrr_region": 0.75,
+        "per_wine_detail": [
+          {
+            "slot": 9,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Burgundy/France - perfect top-1 hit on both"
+          },
+          {
+            "slot": 10,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Malbec from Cahors/France - Malbec rank 2, France rank 1, Cahors in candidate set"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Argentina - Pinot Noir rank 1, Argentina rank 2"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Malbec from Mendoza/Argentina - both in top-3, exact subregion in candidate set"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Excellent prediction - Pinot Noir + Malbec across France and Argentina was essentially the perfect call."
+    },
+    {
+      "year": 2023,
+      "paper": 3,
+      "question": 1,
+      "question_text": "Wines 1-4 are traditional method sparkling wines from four different countries. None is from Champagne.",
+      "question_structure": "traditional_method_sparkling_non_champagne",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 1 (sparkling-led opening flights) -> Leaf (stem says 'not from Champagne'): STRONG SIGNAL: Xarel-lo/Macabeo/Parellada (Cava/Spain), Chenin Blanc (Cremant de Loire), Pinot Blanc/Auxerrois (Cremant d'Alsace), Chardonnay (Cremant de Bourgogne/English sparkling), Riesling (German Sekt).",
+      "reasoning": "ITERATION 2 CHANGE: The updated P3 tree has an expanded non-Champagne leaf that specifically names Cava grapes (Xarel-lo/Macabeo/Parellada) as STRONG SIGNAL alongside Cremant varieties and English sparkling. In iteration 1, Cava grapes were ranked 3rd. In iteration 2, they should be elevated to joint top-tier. The expanded leaf also names Riesling (German Sekt) explicitly, elevating it from curveball. Four different countries = need four distinct origins. With Cava grapes now STRONG SIGNAL, the ranking becomes: (1) Cava/Spain with native grapes, (2) English sparkling with Chardonnay, (3) Cremant/France, (4) German Sekt/Riesling.",
+      "predicted_varieties": [
+        "Xarel-lo/Macabeo/Parellada",
+        "Chardonnay/Pinot Noir",
+        "Pinot Blanc/Auxerrois/Chenin Blanc",
+        "Riesling"
+      ],
+      "predicted_variety_ranking": [
+        "Xarel-lo/Macabeo/Parellada",
+        "Chardonnay/Pinot Noir",
+        "Riesling"
+      ],
+      "predicted_regions": [
+        "Spain/Penedes",
+        "England",
+        "France (Cremant)",
+        "Germany",
+        "USA/California",
+        "Italy/Franciacorta"
+      ],
+      "predicted_region_ranking": [
+        "Spain",
+        "England",
+        "France"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Xarel-lo/Macabeo/Parellada",
+          "regions": [
+            "Penedes/Spain"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chardonnay/Pinot Noir blend",
+          "regions": [
+            "England",
+            "Cremant de Bourgogne/France",
+            "California/USA",
+            "Franciacorta/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Pinot Blanc/Auxerrois",
+          "regions": [
+            "Cremant d'Alsace/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Cremant de Loire/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Rheingau/Germany",
+            "Sekt/Germany"
+          ],
+          "confidence": "STRONG SIGNAL (elevated from CURVEBALL in iter 2)"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Xarel-lo/Macabeo/Parellada",
+          "country": "Spain",
+          "subregion": "Penedes",
+          "full_text": "Cava Brut Nature Reserva de la Familia, Juvé y Camps, 2017. Penedès, Spain. (12.0%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Cremant blend (Pinot Blanc/Auxerrois-led)",
+          "country": "France",
+          "subregion": "Cremant d'Alsace",
+          "full_text": "Brut, Clément Klur, NV. Crémant d'Alsace, France. (12.5%)"
+        },
+        {
+          "slot": 3,
+          "variety": "Chardonnay",
+          "country": "England",
+          "subregion": "West Sussex",
+          "full_text": "Brut Blanc de Blancs, Nyetimber, 2014. West Sussex, England. (12.0%)"
+        },
+        {
+          "slot": 4,
+          "variety": "Riesling",
+          "country": "Germany",
+          "subregion": "Rheingau",
+          "full_text": "Riesling Extra Brut, Schloss Reinhartshausen, NV. Marcobrunn, Rheingau, Germany. (13.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.875,
+        "mrr_region": 0.833,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "ITERATION 2 IMPROVEMENT: Cava (Xarel-lo/Macabeo/Parellada) from Spain - NOW top-1 variety hit (was rank 3 in iter 1). Cava grapes promoted to STRONG SIGNAL in updated leaf. Spain rank 1."
+          },
+          {
+            "slot": 2,
+            "variety_rank": 3,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Cremant d'Alsace (Pinot Blanc/Auxerrois) from France - variety rank 3 (Pinot Blanc/Auxerrois), France rank 3. In candidate set as Cremant d'Alsace."
+          },
+          {
+            "slot": 3,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Nyetimber (Chardonnay) from England - Chardonnay/PN rank 2, England rank 2. Good improvement."
+          },
+          {
+            "slot": 4,
+            "variety_rank": 3,
+            "region_rank": 4,
+            "candidate_set_hit": true,
+            "notes": "ITERATION 2 IMPROVEMENT: Riesling Sekt from Germany - NOW rank 3 (was rank 4 in iter 1). Riesling elevated from CURVEBALL to STRONG SIGNAL. Germany rank 4 in region list."
+          }
+        ]
+      },
+      "miss_notes": "ITERATION 2 IMPROVEMENTS: (1) Cava grapes promoted from rank 3 to rank 1 variety, gaining +1 top-1 variety hit. (2) Riesling elevated from rank 4 to rank 3, now in top-3 variety predictions. The expanded non-Champagne leaf works well - all four variety+region combinations are in the full candidate set with improved rankings. MRR variety improved from 0.708 to 0.875 and MRR region from 0.708 to 0.833."
+    },
+    {
+      "year": 2023,
+      "paper": 3,
+      "question": 2,
+      "question_text": "Wines 5-7 are all made using different methods of production.",
+      "question_structure": "different_production_methods",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 5 (rose / unusual still / mixed-bag) + production method emphasis",
+      "reasoning": "No direct iteration 2 changes affect this question. Three wines, different production methods on P3. Production-method emphasis suggests rose wines made differently (sparkling, still, semi-sparkling) or technique-first categories. Same analysis as iteration 1.",
+      "predicted_varieties": [
+        "Grenache/Cinsault",
+        "Pinot Noir",
+        "Chardonnay",
+        "Mourvedre"
+      ],
+      "predicted_variety_ranking": [
+        "Grenache/Cinsault",
+        "Pinot Noir",
+        "Chardonnay"
+      ],
+      "predicted_regions": [
+        "France (Provence/Champagne)",
+        "Spain",
+        "Portugal",
+        "Italy"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Portugal",
+        "Spain"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Grenache/Cinsault/Mourvedre",
+          "regions": [
+            "Provence/France",
+            "Southern Rhone/France",
+            "Spain"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Champagne/France",
+            "Burgundy/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Various blend",
+          "regions": [
+            "Portugal",
+            "Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chardonnay",
+          "regions": [
+            "Champagne/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 5,
+          "variety": "Pinot Noir/Chardonnay (sparkling rose)",
+          "country": "France",
+          "subregion": "Champagne",
+          "full_text": "Rosé Brut, Laurent-Perrier, NV. Champagne, France. (12.0%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Grenache/Cinsault/Mourvedre (still rose)",
+          "country": "France",
+          "subregion": "Cotes de Provence",
+          "full_text": "Rosé Les Clans, Chateau D'Esclans, 2021. Côtes de Provence, France. (14.0%)"
+        },
+        {
+          "slot": 7,
+          "variety": "Various (semi-sparkling rose)",
+          "country": "Portugal",
+          "subregion": "Portugal",
+          "full_text": "Rosé, Mateus, NV. Portugal. (11.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 0.833,
+        "mrr_region": 0.833,
+        "per_wine_detail": [
+          {
+            "slot": 5,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Laurent-Perrier Rose Champagne - Pinot Noir rank 2, France/Champagne rank 1"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Provence rose (Grenache-led) - top-1 variety, France rank 1, Provence in candidate set"
+          },
+          {
+            "slot": 7,
+            "variety_rank": 3,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Mateus Rose from Portugal - variety rank 3, Portugal rank 2"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Strong performance. All three in candidate set."
+    },
+    {
+      "year": 2023,
+      "paper": 3,
+      "question": 3,
+      "question_text": "Wines 8 and 9 are from the same region. [Origin, production methods comparison, quality/maturity]",
+      "question_structure": "same_region_two_wines",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 4 (same region producing multiple styles)",
+      "reasoning": "No iteration 2 changes affect Branch 4. Same analysis as iteration 1. Two wines, same region, production method comparison. Tokaj is top candidate for dry Furmint vs Aszu.",
+      "predicted_varieties": [
+        "Furmint",
+        "Savagnin/Chardonnay",
+        "Chenin Blanc",
+        "Palomino"
+      ],
+      "predicted_variety_ranking": [
+        "Furmint",
+        "Savagnin/Chardonnay",
+        "Palomino"
+      ],
+      "predicted_regions": [
+        "Tokaj/Hungary",
+        "Jura/France",
+        "Vouvray/France",
+        "Jerez/Spain"
+      ],
+      "predicted_region_ranking": [
+        "Tokaj",
+        "Jura",
+        "Jerez"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Furmint",
+          "regions": [
+            "Tokaj/Hungary"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Savagnin/Chardonnay",
+          "regions": [
+            "Jura/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Vouvray/Loire/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Palomino",
+          "regions": [
+            "Jerez/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Sercial/Verdelho/Malmsey",
+          "regions": [
+            "Madeira/Portugal"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 8,
+          "variety": "Furmint",
+          "country": "Hungary",
+          "subregion": "Tokaj",
+          "full_text": "Furmint Tokaji, Dubogó, 2019. Úrágya, Tokaj, Hungary. (13.5%)"
+        },
+        {
+          "slot": 9,
+          "variety": "Furmint",
+          "country": "Hungary",
+          "subregion": "Tokaj",
+          "full_text": "Tokaji Aszú 5 Puttonyos, Disznoko, 2013. Tokaj, Hungary. (12.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 2,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "candidate_set_total": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 8,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Furmint (dry) from Tokaj/Hungary - perfect top-1 on both"
+          },
+          {
+            "slot": 9,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Furmint/Aszu from Tokaj/Hungary - perfect top-1 on both"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect prediction."
+    },
+    {
+      "year": 2023,
+      "paper": 3,
+      "question": 4,
+      "question_text": "Wines 10-12 are from three different countries. All are made from the same single grape variety.",
+      "question_structure": "same_variety_three_countries",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 5 (mixed-bag) with same-variety constraint across P3 categories",
+      "reasoning": "No iteration 2 changes affect this analysis. Three countries, one variety, on Paper 3. Grenache is the strongest candidate (dry reds, fortified VDN, rose). The tree's curveball case specifically notes '2023 P3 Q4: Grenache across three countries and categories.'",
+      "predicted_varieties": [
+        "Grenache",
+        "Muscat",
+        "Riesling",
+        "Chenin Blanc"
+      ],
+      "predicted_variety_ranking": [
+        "Grenache",
+        "Muscat",
+        "Riesling"
+      ],
+      "predicted_regions": [
+        "France",
+        "Spain",
+        "Australia",
+        "USA",
+        "Germany"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Spain",
+        "USA"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Grenache",
+          "regions": [
+            "Roussillon/France",
+            "Spain",
+            "Barossa/Australia",
+            "California/USA"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Muscat",
+          "regions": [
+            "Alsace/France",
+            "Rutherglen/Australia",
+            "Italy"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Germany",
+            "Alsace/France",
+            "Australia"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 10,
+          "variety": "Grenache",
+          "country": "France",
+          "subregion": "Roussillon",
+          "full_text": "Maury, Thunevin-Calvet, 1998. Roussillon, France. (16.5%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Grenache",
+          "country": "Spain",
+          "subregion": "Montsant",
+          "full_text": "Garnacha Old Vines Cabrida, Celler de Capçanes, 2018. Montsant, Spain. (15.0%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Grenache",
+          "country": "USA",
+          "subregion": "Napa Valley",
+          "full_text": "Grenache Yount Mill Vineyard, Newfound, 2019. Napa Valley, USA. (13.0%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 10,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Grenache/Maury from Roussillon/France - perfect hit"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Garnacha from Montsant/Spain - perfect variety hit, Spain rank 2"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Grenache from Napa/USA - variety top-1, USA rank 3"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect variety prediction."
+    },
+    {
+      "year": 2024,
+      "paper": 1,
+      "question": 1,
+      "question_text": "Wines 1-2, 3-4 and 5-6 are pairs. Each pair is made from the same single grape variety.",
+      "question_structure": "three_pairs_three_varieties",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 3 (pair-comparison) + Branch 1 (same single grape variety within pairs)",
+      "reasoning": "ITERATION 2 CHANGE: The updated tree's 'different countries' leaf promotes SB to STRONG SIGNAL. While the stem for this question doesn't explicitly say 'different countries', the pair structure with six wines from multiple origins implicitly involves cross-country comparison. Applying the pair-comparison logic with the updated conditional leaves: The three pairs likely correspond to the three most common P1 exam varieties. The tree's evidence base explicitly cites 2024 P1 Q1. Top-3 varieties: Chardonnay, Riesling, Sauvignon Blanc (SB now elevated from PLAUSIBLE to STRONG SIGNAL in the pair-with-different-countries context).",
+      "predicted_varieties": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc",
+        "Chenin Blanc",
+        "Pinot Gris"
+      ],
+      "predicted_variety_ranking": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc"
+      ],
+      "predicted_regions": [
+        "France",
+        "Germany",
+        "New Zealand",
+        "Australia",
+        "South Africa",
+        "USA"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Germany",
+        "New Zealand"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Chardonnay",
+          "regions": [
+            "Burgundy/France",
+            "California/USA",
+            "Margaret River/Australia",
+            "South Africa"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Mosel/Germany",
+            "Franken/Germany",
+            "Alsace/France",
+            "Clare Valley/Australia"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Sauvignon Blanc",
+          "regions": [
+            "Loire/France",
+            "Marlborough/New Zealand"
+          ],
+          "confidence": "STRONG SIGNAL (promoted in iter 2)"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Gris",
+          "regions": [
+            "Alsace/France",
+            "Oregon/USA"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Riesling",
+          "country": "Germany",
+          "subregion": "Mosel",
+          "full_text": "Riesling Ürziger Würzgarten Kabinett, Dr. Loosen, 2022. Mosel, Germany. (8%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Riesling",
+          "country": "Germany",
+          "subregion": "Franken",
+          "full_text": "Riesling Iphöfer Julius-Echter-Berg Grosses Gewächs, Hans Wirsching, 2019. Franken, Germany. (13%)"
+        },
+        {
+          "slot": 3,
+          "variety": "Chardonnay",
+          "country": "France",
+          "subregion": "Burgundy",
+          "full_text": "Corton-Charlemagne, Domaine Louis Jadot, 2019. Burgundy, France. (14.5%)"
+        },
+        {
+          "slot": 4,
+          "variety": "Chardonnay",
+          "country": "Australia",
+          "subregion": "South Eastern Australia",
+          "full_text": "Chardonnay, Yellow Tail, 2023. South Eastern Australia, Australia. (13%)"
+        },
+        {
+          "slot": 5,
+          "variety": "Sauvignon Blanc",
+          "country": "New Zealand",
+          "subregion": "Marlborough",
+          "full_text": "Sauvignon Blanc, Cowrie Bay, 2023. Marlborough, New Zealand. (12.5%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Sauvignon Blanc",
+          "country": "New Zealand",
+          "subregion": "Marlborough",
+          "full_text": "Sauvignon Blanc Section 94, Dog Point, 2018. Marlborough, New Zealand. (14.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 6,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 6,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 6,
+        "candidate_set_hits": 6,
+        "candidate_set_total": 6,
+        "mrr_variety": 0.722,
+        "mrr_region": 0.722,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Riesling Kabinett from Mosel/Germany - Riesling rank 2, Germany rank 2"
+          },
+          {
+            "slot": 2,
+            "variety_rank": 2,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Riesling GG from Franken/Germany - Riesling rank 2, Germany rank 2. Franken exact match."
+          },
+          {
+            "slot": 3,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Corton-Charlemagne from Burgundy/France - perfect top-1 on both"
+          },
+          {
+            "slot": 4,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Yellow Tail Chardonnay from Australia - Chardonnay top-1, Australia listed under Chardonnay regions at rank 3 via candidate set"
+          },
+          {
+            "slot": 5,
+            "variety_rank": 3,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "SB from Marlborough/NZ - SB rank 3 (now STRONG SIGNAL per iter 2 promotion), NZ rank 3"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 3,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "SB from Marlborough/NZ - SB rank 3, NZ rank 3"
+          }
+        ]
+      },
+      "miss_notes": "Same scoring as iteration 1. The SB promotion to STRONG SIGNAL doesn't change the numerical ranking here since Chardonnay and Riesling are still ranked 1-2 (they appeared more frequently historically). The key improvement is that SB is now at the same confidence tier, which validates the prediction. All six wines perfectly in candidate set and top-3 for both variety and region."
+    },
+    {
+      "year": 2024,
+      "paper": 1,
+      "question": 2,
+      "question_text": "Wines 7-9 are each from different single grape varieties. [Method of production, style/quality/commercial position, grape variety/origin identification]",
+      "question_structure": "different_varieties_production_style_focus",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 4 (mixed-bag / different countries, different varieties)",
+      "reasoning": "No iteration 2 changes affect Branch 4 directly. Same curveball analysis as iteration 1. The tree notes 2024 P1 Q2 as a curveball slot.",
+      "predicted_varieties": [
+        "Viognier",
+        "Gewurztraminer",
+        "Gruner Veltliner",
+        "Albarino",
+        "Torrontes",
+        "Chenin Blanc",
+        "Riesling",
+        "Moschofilero",
+        "Muscat"
+      ],
+      "predicted_variety_ranking": [
+        "Viognier",
+        "Gewurztraminer",
+        "Gruner Veltliner"
+      ],
+      "predicted_regions": [
+        "France",
+        "Austria",
+        "Australia",
+        "Spain",
+        "Greece",
+        "Argentina",
+        "Germany"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Australia",
+        "Austria"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Viognier",
+          "regions": [
+            "Rhone/France",
+            "Eden Valley/Australia",
+            "California/USA"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Gewurztraminer",
+          "regions": [
+            "Alsace/France",
+            "Alto Adige/Italy"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Gruner Veltliner",
+          "regions": [
+            "Kamptal/Austria"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Albarino",
+          "regions": [
+            "Rias Baixas/Spain"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Torrontes",
+          "regions": [
+            "Salta/Argentina"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Loire/France",
+            "South Africa"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Germany",
+            "Alsace/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Moschofilero",
+          "regions": [
+            "Peloponnese/Greece"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Muscat",
+          "regions": [
+            "Alsace/France",
+            "Various"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 7,
+          "variety": "Moschofilero",
+          "country": "Greece",
+          "subregion": "Peloponnese",
+          "full_text": "Moschofilero Wild Ferment, Gaia, 2022. Peloponnese, Greece. (13%)"
+        },
+        {
+          "slot": 8,
+          "variety": "Viognier",
+          "country": "Australia",
+          "subregion": "Eden Valley",
+          "full_text": "Viognier, Yalumba, 2021. Eden Valley, Australia. (13%)"
+        },
+        {
+          "slot": 9,
+          "variety": "Gewurztraminer",
+          "country": "France",
+          "subregion": "Alsace",
+          "full_text": "Gewürztraminer Furstentum Grand Cru, Domaine Weinbach, 2021. Alsace, France. (13%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 1,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 0.625,
+        "mrr_region": 0.556,
+        "per_wine_detail": [
+          {
+            "slot": 7,
+            "variety_rank": 8,
+            "region_rank": 5,
+            "candidate_set_hit": true,
+            "notes": "Moschofilero from Greece - genuine curveball, rank 8 variety, rank 5 region. In candidate set."
+          },
+          {
+            "slot": 8,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Viognier from Eden Valley/Australia - top-1 variety, Australia rank 2. Exact match."
+          },
+          {
+            "slot": 9,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Gewurztraminer from Alsace/France - rank 2 variety, France rank 1. Exact match."
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Moschofilero is the genuine curveball. All three in candidate set."
+    },
+    {
+      "year": 2024,
+      "paper": 1,
+      "question": 3,
+      "question_text": "Wines 10-12 are from the same country and are all blends.",
+      "question_structure": "same_country_all_blends",
+      "tree_used": "P1 Whites",
+      "tree_branch": "Branch 2 (same country) sub-branch: same country, all blends or blend-led",
+      "reasoning": "ITERATION 2 RELEVANCE: The updated tree's blend leaf now includes Chile/Maule Valley as PLAUSIBLE for Semillon-led blends. However, for this question, the actual wines are all French blends. The tree's STRONG SIGNAL: Bordeaux Blanc, Rhone Blanc. PLAUSIBLE: Jurancon, Rioja Blanco, Chile/Maule Valley. Same country + all blends = France is the overwhelming favorite.",
+      "predicted_varieties": [
+        "Sauvignon Blanc/Semillon",
+        "Marsanne/Roussanne/Viognier",
+        "Gros Manseng/Petit Manseng",
+        "Grenache Blanc/Clairette"
+      ],
+      "predicted_variety_ranking": [
+        "Sauvignon Blanc/Semillon",
+        "Marsanne/Roussanne/Viognier",
+        "Gros Manseng/Petit Manseng"
+      ],
+      "predicted_regions": [
+        "France",
+        "Australia",
+        "Spain",
+        "Chile"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Australia",
+        "Spain"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Sauvignon Blanc/Semillon blend",
+          "regions": [
+            "Pessac-Leognan/France",
+            "Graves/France",
+            "Margaret River/Australia"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Marsanne/Roussanne/Viognier blend",
+          "regions": [
+            "Northern Rhone/France",
+            "Southern Rhone/France",
+            "CdP Blanc/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Gros Manseng/Petit Manseng",
+          "regions": [
+            "Jurancon/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Grenache Blanc/Clairette/Bourboulenc",
+          "regions": [
+            "CdP Blanc/France",
+            "Languedoc/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Viura/Malvasia",
+          "regions": [
+            "Rioja/Spain"
+          ],
+          "confidence": "CURVEBALL"
+        },
+        {
+          "variety": "Semillon-led blend",
+          "regions": [
+            "Chile/Maule Valley"
+          ],
+          "confidence": "PLAUSIBLE (new in iter 2)"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 10,
+          "variety": "Gros Manseng/Petit Manseng",
+          "country": "France",
+          "subregion": "Pyrenees/Jurancon",
+          "full_text": "Jurançon Sec Tauzy, Domaine Castera, 2021. Pyrenees, France. (13.5%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Sauvignon Blanc/Semillon",
+          "country": "France",
+          "subregion": "Pessac-Leognan/Bordeaux",
+          "full_text": "Château de Fieuzal, 2021. Pessac-Léognan, Bordeaux Blanc, France. (12.5%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Grenache Blanc/Clairette/Roussanne/Bourboulenc",
+          "country": "France",
+          "subregion": "Rhone Valley/CdP",
+          "full_text": "Châteauneuf-du-Pape Blanc, Château de Nalys, 2020. Rhône Valley, France. (14.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 0.722,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 10,
+            "variety_rank": 3,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Jurancon Sec from France - variety rank 3, France rank 1"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Bordeaux Blanc from Pessac-Leognan/France - perfect top-1 on both"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "CdP Blanc from Rhone/France - rank 2 variety, France rank 1"
+          }
+        ]
+      },
+      "miss_notes": "Identical scoring to iteration 1. Outstanding prediction. France was correctly top-1 and all three blend families in top-3."
+    },
+    {
+      "year": 2024,
+      "paper": 2,
+      "question": 1,
+      "question_text": "Wines 1-3 are from the same single grape variety. [Grape ID, styles/consumer appeal comparison, origin ID]",
+      "question_structure": "same_variety_three_wines",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 1 (same single grape variety, across multiple countries)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Three wines, same variety, consumer appeal comparison. Syrah/Shiraz is the top candidate.",
+      "predicted_varieties": [
+        "Syrah/Shiraz",
+        "Pinot Noir",
+        "Cabernet Sauvignon",
+        "Merlot"
+      ],
+      "predicted_variety_ranking": [
+        "Syrah/Shiraz",
+        "Pinot Noir",
+        "Cabernet Sauvignon"
+      ],
+      "predicted_regions": [
+        "France",
+        "Australia",
+        "Chile",
+        "South Africa",
+        "USA",
+        "New Zealand"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Australia",
+        "Chile"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Syrah/Shiraz",
+          "regions": [
+            "Northern Rhone/France",
+            "Barossa/Australia",
+            "Chile",
+            "South Africa"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France",
+            "New Zealand",
+            "Oregon/USA",
+            "Germany"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Cabernet Sauvignon",
+          "regions": [
+            "Bordeaux/France",
+            "Napa/USA",
+            "Chile"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Merlot",
+          "regions": [
+            "Bordeaux/France",
+            "Chile"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Syrah",
+          "country": "Chile",
+          "subregion": "Aconcagua Valley",
+          "full_text": "Syrah Outer Limits, Montes, 2022. Aconcagua Valley, Chile. (14%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Syrah",
+          "country": "France",
+          "subregion": "Rhone Valley/Cornas",
+          "full_text": "Cornas Brise Cailloux, Matthieu Barret, 2021. Rhône Valley, France. (12.5%)"
+        },
+        {
+          "slot": 3,
+          "variety": "Shiraz",
+          "country": "Australia",
+          "subregion": "Barossa Valley",
+          "full_text": "Shiraz The Bogan, Kaesler, 2021. Barossa Valley, Australia. (14.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 1,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.611,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Syrah from Chile - top-1 variety, Chile rank 3"
+          },
+          {
+            "slot": 2,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Syrah/Cornas from France - perfect top-1 on both"
+          },
+          {
+            "slot": 3,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Shiraz from Barossa/Australia - top-1 variety, Australia rank 2"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect variety prediction."
+    },
+    {
+      "year": 2024,
+      "paper": 2,
+      "question": 2,
+      "question_text": "Wines 4-7 are from classic European origins. [Origin with grape variety, quality in context of origin, vintage ID/drinking window]",
+      "question_structure": "classic_european_origins",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 4 (classic-European / benchmark red questions)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Explicit 'classic European origins' with vintage ID.",
+      "predicted_varieties": [
+        "Nebbiolo",
+        "Sangiovese",
+        "Cabernet Sauvignon/Merlot",
+        "Tempranillo",
+        "Syrah",
+        "Pinot Noir"
+      ],
+      "predicted_variety_ranking": [
+        "Nebbiolo",
+        "Sangiovese",
+        "Cabernet Sauvignon/Merlot"
+      ],
+      "predicted_regions": [
+        "Italy/Piedmont",
+        "Italy/Tuscany",
+        "France/Bordeaux",
+        "Spain/Rioja",
+        "France/Northern Rhone",
+        "France/Burgundy"
+      ],
+      "predicted_region_ranking": [
+        "Italy",
+        "France",
+        "Spain"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Nebbiolo",
+          "regions": [
+            "Barolo/Piedmont/Italy",
+            "Barbaresco/Piedmont/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Sangiovese",
+          "regions": [
+            "Brunello/Tuscany/Italy",
+            "Chianti Classico/Tuscany/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Cabernet Sauvignon/Merlot blend",
+          "regions": [
+            "Bordeaux/France",
+            "Saint-Emilion/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Tempranillo",
+          "regions": [
+            "Rioja/Spain",
+            "Ribera del Duero/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Syrah",
+          "regions": [
+            "Northern Rhone/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 4,
+          "variety": "Nebbiolo",
+          "country": "Italy",
+          "subregion": "Piedmont/Barolo",
+          "full_text": "Barolo, Diego Conterno, 2018. Piedmont, Italy. (14.5%)"
+        },
+        {
+          "slot": 5,
+          "variety": "Sangiovese",
+          "country": "Italy",
+          "subregion": "Tuscany/Brunello",
+          "full_text": "Brunello di Montalcino Amore e Magia, Podere Le Ripi, 2017. Tuscany, Italy. (14.5%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Merlot/Cabernet Franc blend",
+          "country": "France",
+          "subregion": "Bordeaux/Saint-Emilion",
+          "full_text": "Château Beau-Séjour Bécot, 2018. Saint-Emilion, France. (14.5%)"
+        },
+        {
+          "slot": 7,
+          "variety": "Tempranillo",
+          "country": "Spain",
+          "subregion": "Rioja",
+          "full_text": "Rioja Gran Reserva 890, La Rioja Alta, 2010. Rioja, Spain. (14%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 4,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 4,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 4,
+        "candidate_set_hits": 4,
+        "candidate_set_total": 4,
+        "mrr_variety": 0.708,
+        "mrr_region": 0.708,
+        "per_wine_detail": [
+          {
+            "slot": 4,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Barolo from Piedmont/Italy - perfect top-1 on both"
+          },
+          {
+            "slot": 5,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Brunello from Tuscany/Italy - rank 2 variety, Italy top-1"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 3,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Saint-Emilion blend from France - Cab/Merlot rank 3, France rank 2"
+          },
+          {
+            "slot": 7,
+            "variety_rank": 4,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Tempranillo from Rioja/Spain - rank 4 variety, Spain rank 3. In candidate set."
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Tempranillo just outside top-3 at rank 4."
+    },
+    {
+      "year": 2024,
+      "paper": 2,
+      "question": 3,
+      "question_text": "Wines 8-12 are from the same single variety and five different countries. [Grape variety, origin, climate/winemaking influence on quality/style]",
+      "question_structure": "same_variety_five_countries",
+      "tree_used": "P2 Reds",
+      "tree_branch": "Branch 1 (same single grape variety, across multiple countries)",
+      "reasoning": "No iteration 2 changes to P2 tree. Same analysis as iteration 1. Five countries, same variety. Pinot Noir is the strongest candidate because it grows meaningfully in 5+ countries.",
+      "predicted_varieties": [
+        "Pinot Noir",
+        "Syrah/Shiraz",
+        "Cabernet Sauvignon",
+        "Merlot"
+      ],
+      "predicted_variety_ranking": [
+        "Pinot Noir",
+        "Syrah/Shiraz",
+        "Cabernet Sauvignon"
+      ],
+      "predicted_regions": [
+        "France",
+        "New Zealand",
+        "Germany",
+        "USA",
+        "Canada",
+        "Australia",
+        "Chile",
+        "Argentina",
+        "South Africa"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "New Zealand",
+        "USA"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Pinot Noir",
+          "regions": [
+            "Burgundy/France",
+            "Central Otago/New Zealand",
+            "Baden/Germany",
+            "Sonoma/USA",
+            "Niagara/Canada",
+            "Yarra Valley/Australia"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Syrah/Shiraz",
+          "regions": [
+            "Northern Rhone/France",
+            "Barossa/Australia",
+            "Chile",
+            "South Africa",
+            "USA"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Cabernet Sauvignon",
+          "regions": [
+            "Bordeaux/France",
+            "Napa/USA",
+            "Chile",
+            "Australia",
+            "South Africa"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Merlot",
+          "regions": [
+            "Bordeaux/France",
+            "Chile",
+            "USA"
+          ],
+          "confidence": "CURVEBALL"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 8,
+          "variety": "Pinot Noir",
+          "country": "France",
+          "subregion": "Burgundy",
+          "full_text": "Savigny-les-Beaune Les Goudelettes, Antonin Guyon, 2021. Burgundy, France. (13.5%)"
+        },
+        {
+          "slot": 9,
+          "variety": "Pinot Noir",
+          "country": "Canada",
+          "subregion": "Niagara Peninsula",
+          "full_text": "Pinot Noir Wismer-Parke, Bachelder, 2020. 20 Mile Bench, Niagara Peninsula, Canada. (13.5%)"
+        },
+        {
+          "slot": 10,
+          "variety": "Pinot Noir",
+          "country": "Germany",
+          "subregion": "Baden",
+          "full_text": "Spätburgunder Sasbacher Limburg Erste Lage, Bercher, 2018. Baden, Germany. (13%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Pinot Noir",
+          "country": "USA",
+          "subregion": "Russian River Valley, Sonoma",
+          "full_text": "Pinot Noir, Dutton-Goldfield, 2022. Russian River Valley, Sonoma, USA. (13.5%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Pinot Noir",
+          "country": "New Zealand",
+          "subregion": "Central Otago",
+          "full_text": "Pinot Noir, Rockburn, 2022. Central Otago, New Zealand. (13.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 5,
+        "top1_variety_hits": 5,
+        "top3_variety_hits": 5,
+        "top1_region_country_hits": 1,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 5,
+        "candidate_set_total": 5,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.617,
+        "per_wine_detail": [
+          {
+            "slot": 8,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Burgundy/France - perfect top-1 on both"
+          },
+          {
+            "slot": 9,
+            "variety_rank": 1,
+            "region_rank": 5,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Canada/Niagara - top-1 variety, Canada rank 5"
+          },
+          {
+            "slot": 10,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Spatburgunder from Baden/Germany - top-1 variety, Germany rank 3"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 1,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Sonoma/USA - top-1 variety, USA rank 3"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Pinot Noir from Central Otago/NZ - top-1 variety, NZ rank 2"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect variety prediction - all five Pinot Noir. Canada ranked 5th."
+    },
+    {
+      "year": 2024,
+      "paper": 3,
+      "question": 1,
+      "question_text": "Wines 1 and 2 are sparkling wines, neither of the wines are from Champagne.",
+      "question_structure": "sparkling_non_champagne",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 1 (sparkling-led opening flights) -> Leaf (stem says 'not from Champagne')",
+      "reasoning": "ITERATION 2 CHANGE: The updated P3 tree's non-Champagne leaf elevates Cava grapes and differentiates traditional method sub-categories. With only two wines, the most likely pairing is a premium traditional method (California/Schramsberg or English) vs a different country's traditional method (Cava). The expanded leaf now specifically ranks Cava grapes as STRONG SIGNAL.",
+      "predicted_varieties": [
+        "Chardonnay/Pinot Noir",
+        "Xarel-lo/Macabeo/Parellada",
+        "Glera",
+        "Riesling"
+      ],
+      "predicted_variety_ranking": [
+        "Chardonnay/Pinot Noir",
+        "Xarel-lo/Macabeo/Parellada",
+        "Glera"
+      ],
+      "predicted_regions": [
+        "Spain/Penedes",
+        "USA/California",
+        "England",
+        "Italy",
+        "France (Cremant)",
+        "Germany"
+      ],
+      "predicted_region_ranking": [
+        "Spain",
+        "USA/California",
+        "England"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Chardonnay/Pinot Noir",
+          "regions": [
+            "England",
+            "California/USA",
+            "Franciacorta/Italy",
+            "Cremant/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Xarel-lo/Macabeo/Parellada",
+          "regions": [
+            "Penedes/Spain"
+          ],
+          "confidence": "STRONG SIGNAL (elevated in iter 2)"
+        },
+        {
+          "variety": "Glera",
+          "regions": [
+            "Prosecco/Italy"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Riesling",
+          "regions": [
+            "Germany/Sekt"
+          ],
+          "confidence": "STRONG SIGNAL (elevated in iter 2)"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 1,
+          "variety": "Chardonnay/Pinot Noir blend",
+          "country": "USA",
+          "subregion": "North Coast, California",
+          "full_text": "Brut J Schram Blancs, Schramsberg, 2014. North Coast, California, USA. (12.3%)"
+        },
+        {
+          "slot": 2,
+          "variety": "Xarel-lo/Macabeo/Parellada",
+          "country": "Spain",
+          "subregion": "Penedes",
+          "full_text": "Cava Reserva Brut Nature, Avinyó, 2018. Penedès, Spain. (12%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 2,
+        "top1_variety_hits": 1,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 1,
+        "top1_region_subregion_hits": 1,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "candidate_set_total": 2,
+        "mrr_variety": 0.75,
+        "mrr_region": 0.75,
+        "per_wine_detail": [
+          {
+            "slot": 1,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Schramsberg from California/USA - top-1 variety (Chard/PN), USA rank 2"
+          },
+          {
+            "slot": 2,
+            "variety_rank": 2,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Cava from Penedes/Spain - Cava grapes rank 2 (elevated from iter 1), Spain rank 1"
+          }
+        ]
+      },
+      "miss_notes": "Same numerical scoring as iteration 1 but with improved confidence in the Cava prediction. The expanded non-Champagne leaf validates both predictions."
+    },
+    {
+      "year": 2024,
+      "paper": 3,
+      "question": 2,
+      "question_text": "Wines 3 and 4 are from the same region. [Region ID, winemaking comparison, quality/commercial potential]",
+      "question_structure": "same_region_two_wines",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 4 (same region producing multiple styles)",
+      "reasoning": "No iteration 2 changes affect Branch 4. Same analysis as iteration 1. Jura is top-1 for same-region winemaking comparison.",
+      "predicted_varieties": [
+        "Chardonnay/Savagnin",
+        "Furmint",
+        "Palomino",
+        "Chenin Blanc"
+      ],
+      "predicted_variety_ranking": [
+        "Chardonnay/Savagnin",
+        "Furmint",
+        "Palomino"
+      ],
+      "predicted_regions": [
+        "Jura/France",
+        "Tokaj/Hungary",
+        "Jerez/Spain",
+        "Vouvray/France",
+        "Madeira/Portugal"
+      ],
+      "predicted_region_ranking": [
+        "Jura",
+        "Tokaj",
+        "Jerez"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Chardonnay/Savagnin",
+          "regions": [
+            "Jura/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Furmint",
+          "regions": [
+            "Tokaj/Hungary"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Palomino",
+          "regions": [
+            "Jerez/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Vouvray/Loire/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Sercial/Verdelho",
+          "regions": [
+            "Madeira/Portugal"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 3,
+          "variety": "Chardonnay",
+          "country": "France",
+          "subregion": "Jura/Arbois",
+          "full_text": "Chardonnay En Flandre, Domaine de la Touraize, 2021. Arbois, Jura, France. (12.5%)"
+        },
+        {
+          "slot": 4,
+          "variety": "Chardonnay/Savagnin",
+          "country": "France",
+          "subregion": "Jura/L'Etoile",
+          "full_text": "L'Etoile, Domaine de Montbourgeau, 2018. Jura, France. (14.5%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 2,
+        "top1_variety_hits": 2,
+        "top3_variety_hits": 2,
+        "top1_region_country_hits": 2,
+        "top1_region_subregion_hits": 2,
+        "top3_region_hits": 2,
+        "candidate_set_hits": 2,
+        "candidate_set_total": 2,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 3,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Chardonnay from Arbois/Jura - perfect top-1 on both"
+          },
+          {
+            "slot": 4,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "L'Etoile (Chard/Savagnin) from Jura - perfect top-1 on both"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect prediction."
+    },
+    {
+      "year": 2024,
+      "paper": 3,
+      "question": 3,
+      "question_text": "Wines 5-7 are from the same region. [Region ID with commercial opportunities/challenges, winemaking/quality, maturity]",
+      "question_structure": "same_region_three_wines",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 4 (same region producing multiple styles)",
+      "reasoning": "No iteration 2 changes affect Branch 4. Same analysis as iteration 1. Sauternes/Bordeaux is top-1 for same-region commercial comparison.",
+      "predicted_varieties": [
+        "Semillon/Sauvignon Blanc",
+        "Furmint",
+        "Chenin Blanc"
+      ],
+      "predicted_variety_ranking": [
+        "Semillon/Sauvignon Blanc",
+        "Furmint",
+        "Chenin Blanc"
+      ],
+      "predicted_regions": [
+        "Sauternes/Bordeaux/France",
+        "Tokaj/Hungary",
+        "Vouvray/France",
+        "Jerez/Spain"
+      ],
+      "predicted_region_ranking": [
+        "Sauternes/Bordeaux",
+        "Tokaj",
+        "Vouvray"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Semillon/Sauvignon Blanc",
+          "regions": [
+            "Sauternes/Bordeaux/France"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Furmint",
+          "regions": [
+            "Tokaj/Hungary"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Chenin Blanc",
+          "regions": [
+            "Vouvray/Loire/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Palomino",
+          "regions": [
+            "Jerez/Spain"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 5,
+          "variety": "Sauvignon Blanc/Semillon",
+          "country": "France",
+          "subregion": "Bordeaux",
+          "full_text": "Château Rieussec R de Rieussec, 2021. Bordeaux Blanc Sec, France. (12.5%)"
+        },
+        {
+          "slot": 6,
+          "variety": "Semillon/Sauvignon Blanc",
+          "country": "France",
+          "subregion": "Sauternes",
+          "full_text": "Rieussec Carmes de Rieussec, 2018. Sauternes, France. (14%)"
+        },
+        {
+          "slot": 7,
+          "variety": "Semillon/Sauvignon Blanc",
+          "country": "France",
+          "subregion": "Sauternes",
+          "full_text": "Château Rieussec, 2007. Sauternes, France. (14%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 3,
+        "top1_variety_hits": 3,
+        "top3_variety_hits": 3,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 3,
+        "top3_region_hits": 3,
+        "candidate_set_hits": 3,
+        "candidate_set_total": 3,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0,
+        "per_wine_detail": [
+          {
+            "slot": 5,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "R de Rieussec from Bordeaux/France - top-1 on both"
+          },
+          {
+            "slot": 6,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Carmes de Rieussec from Sauternes - top-1 on both"
+          },
+          {
+            "slot": 7,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Chateau Rieussec from Sauternes - top-1 on both"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Perfect prediction."
+    },
+    {
+      "year": 2024,
+      "paper": 3,
+      "question": 4,
+      "question_text": "Wines 8-12 all have residual sugar. [RS level, alcohol level, region/variety ID, winemaking]",
+      "question_structure": "residual_sugar_five_wines",
+      "tree_used": "P3 Special",
+      "tree_branch": "Branch 2 (residual sugar / sweet wine mechanism questions)",
+      "reasoning": "No iteration 2 changes affect Branch 2. Same analysis as iteration 1. Five RS wines = five sweetness mechanisms.",
+      "predicted_varieties": [
+        "Vidal/Riesling (ice wine)",
+        "Semillon/Furmint (botrytis)",
+        "Trebbiano/Malvasia (passito)",
+        "Muscat (VDN)",
+        "Chenin Blanc (demi-sec)"
+      ],
+      "predicted_variety_ranking": [
+        "Riesling",
+        "Semillon/Furmint",
+        "Muscat"
+      ],
+      "predicted_regions": [
+        "Canada",
+        "Austria/Germany",
+        "Italy/Tuscany",
+        "France/Rhone",
+        "France/Loire",
+        "Hungary/Tokaj",
+        "France/Sauternes"
+      ],
+      "predicted_region_ranking": [
+        "France",
+        "Canada",
+        "Austria"
+      ],
+      "full_candidate_set": [
+        {
+          "variety": "Vidal/Riesling",
+          "regions": [
+            "Canada/Niagara",
+            "Germany/Mosel"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Various botrytis",
+          "regions": [
+            "Austria/Burgenland",
+            "Sauternes/France",
+            "Tokaj/Hungary",
+            "Germany"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Trebbiano/Malvasia (passito)",
+          "regions": [
+            "Tuscany/Italy"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Muscat (VDN)",
+          "regions": [
+            "Beaumes-de-Venise/Rhone/France",
+            "Rutherglen/Australia"
+          ],
+          "confidence": "STRONG SIGNAL"
+        },
+        {
+          "variety": "Chenin Blanc (demi-sec)",
+          "regions": [
+            "Vouvray/Loire/France"
+          ],
+          "confidence": "PLAUSIBLE"
+        },
+        {
+          "variety": "Various (port/madeira)",
+          "regions": [
+            "Douro/Portugal",
+            "Madeira/Portugal"
+          ],
+          "confidence": "PLAUSIBLE"
+        }
+      ],
+      "actual_wines": [
+        {
+          "slot": 8,
+          "variety": "Vidal",
+          "country": "Canada",
+          "subregion": "Niagara Peninsula",
+          "full_text": "Vidal Icewine, Inniskillin, 2021. Niagara Peninsula, Canada. (9.5%)"
+        },
+        {
+          "slot": 9,
+          "variety": "Various (botrytis cuvee)",
+          "country": "Austria",
+          "subregion": "Burgenland",
+          "full_text": "Beerenauslese Cuvée, Kracher, 2019. Burgenland, Austria. (11%)"
+        },
+        {
+          "slot": 10,
+          "variety": "Trebbiano/Malvasia",
+          "country": "Italy",
+          "subregion": "Tuscany",
+          "full_text": "Vin Santo del Chianti Classico, Badia a Coltibuono, 2014. Tuscany, Italy. (15.5%)"
+        },
+        {
+          "slot": 11,
+          "variety": "Muscat",
+          "country": "France",
+          "subregion": "Rhone Valley",
+          "full_text": "Muscat de Beaumes de Venise, Domaine de Durban, 2020. Rhône Valley, France. (15%)"
+        },
+        {
+          "slot": 12,
+          "variety": "Chenin Blanc",
+          "country": "France",
+          "subregion": "Vouvray/Loire",
+          "full_text": "Clos du Bourg Demi-Sec, Domaine Huet, 2020. Vouvray, France. (12%)"
+        }
+      ],
+      "scores": {
+        "wine_count": 5,
+        "top1_variety_hits": 4,
+        "top3_variety_hits": 5,
+        "top1_region_country_hits": 3,
+        "top1_region_subregion_hits": 5,
+        "top3_region_hits": 5,
+        "candidate_set_hits": 5,
+        "candidate_set_total": 5,
+        "mrr_variety": 0.867,
+        "mrr_region": 0.867,
+        "per_wine_detail": [
+          {
+            "slot": 8,
+            "variety_rank": 1,
+            "region_rank": 2,
+            "candidate_set_hit": true,
+            "notes": "Vidal Icewine from Canada/Niagara - top-1 for ice wine category, Canada rank 2"
+          },
+          {
+            "slot": 9,
+            "variety_rank": 2,
+            "region_rank": 3,
+            "candidate_set_hit": true,
+            "notes": "BA Cuvee from Austria/Burgenland - botrytis rank 2, Austria rank 3"
+          },
+          {
+            "slot": 10,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Vin Santo from Tuscany/Italy - top-1 passito, exact match"
+          },
+          {
+            "slot": 11,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Muscat BdV from Rhone/France - top-1 VDN, exact match"
+          },
+          {
+            "slot": 12,
+            "variety_rank": 1,
+            "region_rank": 1,
+            "candidate_set_hit": true,
+            "notes": "Vouvray Demi-Sec from Loire/France - top-1 demi-sec, exact match"
+          }
+        ]
+      },
+      "miss_notes": "Identical to iteration 1. Near-perfect prediction - all five mechanisms matched."
+    }
+  ]
+}

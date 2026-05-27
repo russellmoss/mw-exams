@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P3 Special -- Mermaid Study Diagrams Print Pack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #161616;
+      --muted: #5a554f;
+      --line: #2c2c2c;
+      --paper: #fffdf8;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #efe7d8;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .print-shell {
+      width: min(1100px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 20px 0 40px;
+    }
+
+    .print-intro {
+      margin: 0 0 18px;
+      padding: 18px 20px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .print-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .print-link,
+    .print-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #fff6d8;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .print-intro h1 {
+      margin: 0 0 8px;
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+    }
+
+    .print-intro p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .print-sheet {
+      margin: 0 0 18px;
+      padding: 18px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .sheet-header {
+      margin-bottom: 12px;
+    }
+
+    .sheet-kicker {
+      margin: 0 0 6px;
+      color: #8c3b2f;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .sheet-header h1 {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      line-height: 1.15;
+    }
+
+    .sheet-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .sheet-diagram svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    @page portrait-sheet {
+      size: portrait;
+      margin: 10mm;
+    }
+
+    @page landscape-sheet {
+      size: landscape;
+      margin: 10mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .print-shell {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .print-intro {
+        display: none;
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        break-after: page;
+      }
+
+      .print-sheet.portrait {
+        page: portrait-sheet;
+      }
+
+      .print-sheet.landscape {
+        page: landscape-sheet;
+      }
+
+      .sheet-header {
+        margin: 0 0 6mm;
+      }
+
+      .sheet-kicker {
+        font-size: 9pt;
+      }
+
+      .sheet-header h1 {
+        font-size: 18pt;
+      }
+
+      .print-sheet.landscape .sheet-diagram {
+        width: 277mm;
+        height: 165mm;
+      }
+
+      .print-sheet.portrait .sheet-diagram {
+        width: 190mm;
+        height: 240mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="print-shell">
+    <section class="print-intro">
+      <h1>P3 Special -- Mermaid Study Diagrams Print Pack</h1>
+      <p>One diagram per page. Wide diagrams are set to landscape; tall diagrams are set to portrait.</p>
+      <div class="print-actions">
+        <button type="button" class="print-trigger" onclick="window.print()">Print / Save PDF</button>
+        <a class="print-link" href="./index.html">Back to Index</a>
+      </div>
+    </section>
+    <section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>1. Stem Routing: Which Family?</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    START[&quot;Read P3 stem&quot;] --&gt; V{&quot;Same variety?&quot;}
+    V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
+    V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
+    O --&gt;|Yes| F2[&quot;F2 Same Origin&lt;br/&gt;(regional diversity)&quot;]
+    O --&gt;|No| METHOD{&quot;Method/production&lt;br/&gt;marks dominate?&lt;br/&gt;&#x27;winemaking techniques&#x27;&lt;br/&gt;&#x27;method of production&#x27;&quot;}
+    METHOD --&gt;|Yes| F5_OR_6{&quot;RS/alcohol axis&lt;br/&gt;explicitly tested?&quot;}
+    F5_OR_6 --&gt;|&quot;&#x27;State RS and alcohol&#x27;&lt;br/&gt;ladder language&quot;| F6[&quot;F6 Style Axis&lt;br/&gt;(RS x alcohol matrix)&quot;]
+    F5_OR_6 --&gt;|&quot;Method explanation&lt;br/&gt;is the mark driver&quot;| F5[&quot;F5 Method&lt;br/&gt;(production dominant)&quot;]
+    METHOD --&gt;|No| HIER3{&quot;Classification/&lt;br/&gt;commercial marks&lt;br/&gt;dominate?&quot;}
+    HIER3 --&gt;|Yes| F7[&quot;F7 Hierarchy&lt;br/&gt;(classification ladder)&quot;]
+    HIER3 --&gt;|No| F4[&quot;F4 Breadth&lt;br/&gt;(anti-overlink)&quot;]
+
+    style F1 fill:#e8f5e9
+    style F2 fill:#e3f2fd
+    style F4 fill:#fce4ec
+    style F5 fill:#f3e5f5
+    style F6 fill:#e0f7fa
+    style F7 fill:#fff9c4"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>2. F5 Method -- THE Engine of P3 (10 questions) - Step 1: Production Family Lock</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    FIRST[&quot;DO NOT start with variety.&lt;br/&gt;Start with production family.&quot;] --&gt; EFF{&quot;Effervescence?&quot;}
+    EFF --&gt;|&quot;Full mousse&quot;| SPARK[&quot;SPARKLING&quot;]
+    EFF --&gt;|&quot;Petillant&quot;| SEMI[&quot;Semi-sparkling&lt;br/&gt;(Lambrusco/pet-nat)&quot;]
+    EFF --&gt;|&quot;Still&quot;| SPIRIT{&quot;Spirit warmth?&lt;br/&gt;Above 16%?&quot;}
+    SPIRIT --&gt;|Yes| FORT[&quot;FORTIFIED&quot;]
+    SPIRIT --&gt;|No| SWEET{&quot;Sweet?&quot;}
+    SWEET --&gt;|Yes| SWEET_FAM[&quot;SWEET&lt;br/&gt;(non-fortified)&quot;]
+    SWEET --&gt;|No| OX{&quot;Oxidative markers?&lt;br/&gt;Walnut/almond/aldehyde?&quot;}
+    OX --&gt;|Yes| OX_FAM[&quot;OXIDATIVE /&lt;br/&gt;FLOR / UNUSUAL&quot;]
+    OX --&gt;|No| STILL[&quot;DRY STILL&lt;br/&gt;(rare in F5)&quot;]
+
+    style FIRST fill:#f3e5f5,stroke:#7b1fa2"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>2. F5 Method -- THE Engine of P3 (10 questions) - Step 2: Within Each Family</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    SPARK2[&quot;SPARKLING&quot;] --&gt; S_METH{&quot;Mousse + autolysis?&quot;}
+    S_METH --&gt;|&quot;Fine persistent&lt;br/&gt;+ biscuit/brioche&quot;| TRAD[&quot;Traditional method&quot;]
+    S_METH --&gt;|&quot;Soft frothy&lt;br/&gt;+ pear/apple&quot;| TANK[&quot;Tank/Charmat&quot;]
+
+    TRAD --&gt; TRAD_O{&quot;Acid + finish?&quot;}
+    TRAD_O --&gt;|&quot;Tight, longest finish&quot;| CHAMP[&quot;Champagne&quot;]
+    TRAD_O --&gt;|&quot;Green apple, very high acid&quot;| ENG[&quot;English sparkling&quot;]
+    TRAD_O --&gt;|&quot;Softer mid, almond&quot;| CAVA[&quot;Cava&quot;]
+    TRAD_O --&gt;|&quot;Elegant, moderate&quot;| CREM[&quot;Cremant&quot;]
+
+    TANK --&gt; TANK_O{&quot;Fruit + alc?&quot;}
+    TANK_O --&gt;|&quot;Pear, 11%&quot;| PROS[&quot;Prosecco&quot;]
+    TANK_O --&gt;|&quot;Red fruit, low alc&quot;| LAMB[&quot;Lambrusco&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>2. F5 Method -- THE Engine of P3 (10 questions) - Step 2: Within Each Family</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    FORT2[&quot;FORTIFIED&quot;] --&gt; F_OX{&quot;Oxidation profile?&quot;}
+    F_OX --&gt;|&quot;Saline/almond&lt;br/&gt;bruised apple&lt;br/&gt;BONE DRY&quot;| FLOR[&quot;Fino/Manzanilla&lt;br/&gt;(flor-aged)&quot;]
+    F_OX --&gt;|&quot;Walnut/orange peel&lt;br/&gt;DRY&quot;| OLOR[&quot;Oloroso&lt;br/&gt;(oxidative aged)&quot;]
+    F_OX --&gt;|&quot;Volatile lift&lt;br/&gt;curry/nuts&lt;br/&gt;ELECTRIC ACID&quot;| MAD[&quot;Madeira&quot;]
+    F_OX --&gt;|&quot;Sweet red fruit&lt;br/&gt;grippy tannin&lt;br/&gt;spirit heat&quot;| PORT[&quot;Port&quot;]
+    F_OX --&gt;|&quot;Brown nut&lt;br/&gt;raisin/caramel&lt;br/&gt;very sweet&quot;| PX_TW[&quot;PX or old Tawny&quot;]
+
+    FLOR --&gt; FLOR_D{&quot;More saline?&quot;}
+    FLOR_D --&gt;|&quot;Yes, lighter&quot;| MANZ[&quot;Manzanilla&quot;]
+    FLOR_D --&gt;|&quot;Broader, yeastier&quot;| FINO2[&quot;Fino&quot;]
+
+    PORT --&gt; PORT_T{&quot;Fruit vs nut?&quot;}
+    PORT_T --&gt;|&quot;Bright red/black fruit&quot;| RUBY[&quot;Ruby/LBV/Vintage&quot;]
+    PORT_T --&gt;|&quot;Cooked fruit+rancio&quot;| TAWNY[&quot;Tawny 10/20/40yr&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>2. F5 Method -- THE Engine of P3 (10 questions) - Step 2: Within Each Family</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    SW[&quot;SWEET&lt;br/&gt;(non-fortified)&quot;] --&gt; MECH{&quot;Mechanism?&quot;}
+    MECH --&gt;|&quot;Honey/saffron&lt;br/&gt;low alc, high acid&lt;br/&gt;botrytis funk&quot;| BOT[&quot;BOTRYTIS&quot;]
+    MECH --&gt;|&quot;Pure frozen fruit&lt;br/&gt;electric acid&lt;br/&gt;~10% ABV&quot;| ICE[&quot;ICEWINE&quot;]
+    MECH --&gt;|&quot;Raisin/fig/nut&lt;br/&gt;14-16% no spirit heat&quot;| PASS[&quot;PASSITO&quot;]
+    MECH --&gt;|&quot;Light floral&lt;br/&gt;off-dry, moderate&quot;| LH[&quot;LATE HARVEST&quot;]
+
+    BOT --&gt; BOT_O{&quot;Signature?&quot;}
+    BOT_O --&gt;|&quot;Orange peel+ginger&quot;| TOK[&quot;Tokaji Aszu&quot;]
+    BOT_O --&gt;|&quot;Beeswax+pineapple&quot;| SAUT[&quot;Sauternes&quot;]
+    BOT_O --&gt;|&quot;Lime+petrol structure&quot;| BA_TBA[&quot;BA / TBA&quot;]
+
+    ICE --&gt; ICE_O{&quot;Grape?&quot;}
+    ICE_O --&gt;|&quot;Tropical&quot;| VID[&quot;Vidal (Canada)&quot;]
+    ICE_O --&gt;|&quot;Lime+petrol&quot;| REIS_ICE[&quot;Riesling Eiswein&quot;]
+
+    PASS --&gt; PASS_O{&quot;Profile?&quot;}
+    PASS_O --&gt;|&quot;Nutty, amber&quot;| VSAN[&quot;Vin Santo&quot;]
+    PASS_O --&gt;|&quot;Dried red fruit&quot;| REC[&quot;Recioto&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>3. F4 Breadth -- Anti-Overlink (9 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    RULE3[&quot;HARD RULE:&lt;br/&gt;Each wine is a&lt;br/&gt;SEPARATE problem.&lt;br/&gt;Reset between wines.&quot;] --&gt; CAT{&quot;Category first:&quot;}
+    CAT --&gt;|&quot;Sparkling&quot;| USE_SPARK[&quot;Use F5 sparkling tree&quot;]
+    CAT --&gt;|&quot;Fortified&quot;| USE_FORT[&quot;Use F5 fortified tree&quot;]
+    CAT --&gt;|&quot;Sweet&quot;| USE_SWEET[&quot;Use F5 sweet tree&quot;]
+    CAT --&gt;|&quot;Rose&quot;| ROSE{&quot;Pale pink?&lt;br/&gt;light body?&quot;}
+    CAT --&gt;|&quot;Dry still&quot;| STILL3[&quot;Treat as P1/P2&lt;br/&gt;variety ID problem&quot;]
+
+    ROSE --&gt;|&quot;Provence style&quot;| PROV[&quot;Grenache/Cinsault&lt;br/&gt;Provence&quot;]
+    ROSE --&gt;|&quot;Darker, structured&quot;| OTHER_R[&quot;Tavel / Rioja rosado&lt;br/&gt;/ NW Pinot rose&quot;]
+
+    style RULE3 fill:#fce4ec,stroke:#c62828"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>4. F1 Cross-Style Single Variety (4 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    ANCHOR[&quot;Find the cleanest&lt;br/&gt;DRIEST wine.&lt;br/&gt;Confirm grape there.&quot;] --&gt; LOCK3[&quot;Lock grape.&lt;br/&gt;Do NOT flip on&lt;br/&gt;sweet/sparkling wines.&quot;]
+    LOCK3 --&gt; GRAPES{&quot;Which grape&lt;br/&gt;spans P3 categories?&quot;}
+    GRAPES --&gt;|&quot;Lime+petrol across&lt;br/&gt;dry/sweet/Sekt&quot;| RIES3[&quot;Riesling&quot;]
+    GRAPES --&gt;|&quot;Quince+wax across&lt;br/&gt;dry/sweet/Cremant&quot;| CHEN3[&quot;Chenin Blanc&quot;]
+    GRAPES --&gt;|&quot;Apple+lees across&lt;br/&gt;still/Champagne&quot;| CHAR3[&quot;Chardonnay&quot;]
+    GRAPES --&gt;|&quot;Strawberry+pepper&lt;br/&gt;still/VDN/rose&quot;| GREN3[&quot;Grenache&quot;]
+    GRAPES --&gt;|&quot;Floral+grapey&lt;br/&gt;dry/sweet/Asti&quot;| MUSC3[&quot;Muscat&quot;]
+    GRAPES --&gt;|&quot;Smoke+honey across&lt;br/&gt;dry/Aszu&quot;| FUR3[&quot;Furmint&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>5. F6 Style Axis -- RS x Alcohol Matrix (4 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    EST[&quot;1. Estimate ALCOHOL&lt;br/&gt;from warmth/weight&quot;] --&gt; RS[&quot;2. Estimate RS&lt;br/&gt;from sweetness x acid&quot;]
+    RS --&gt; PLOT[&quot;3. Plot on matrix:&quot;]
+
+    PLOT --&gt; GRID[&quot;RS x Alcohol Grid&quot;]
+
+    GRID --&gt; LL[&quot;LOW RS + LOW ALC&lt;br/&gt;Mosel Kabinett&lt;br/&gt;Vouvray demi-sec&quot;]
+    GRID --&gt; LH[&quot;LOW RS + HIGH ALC&lt;br/&gt;Dry table outlier&quot;]
+    GRID --&gt; HL[&quot;HIGH RS + LOW ALC&lt;br/&gt;Icewine ~250g/L ~10%&lt;br/&gt;BA/TBA ~150g/L ~11%&quot;]
+    GRID --&gt; HH[&quot;HIGH RS + HIGH ALC&lt;br/&gt;Sauternes ~120g/L ~14%&lt;br/&gt;Tokaji Aszu ~13%&quot;]
+    GRID --&gt; VH[&quot;VERY HIGH RS + FORT&lt;br/&gt;PX, old Tawny&lt;br/&gt;Rutherglen Muscat&quot;]
+
+    style GRID fill:#e0f7fa,stroke:#006064"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P3 Special -- Mermaid Study Diagrams</p><h1>6. F7 Hierarchy -- Classification Cards (3 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    CAT7[&quot;Category lock&quot;] --&gt; SYS{&quot;Which classification&lt;br/&gt;system?&quot;}
+    SYS --&gt;|Port| PORT7[&quot;Ruby -&gt; LBV -&gt; Vintage&lt;br/&gt;10yr Tawny -&gt; 20yr -&gt; 40yr&quot;]
+    SYS --&gt;|Sherry| SHER7[&quot;Fino -&gt; Amontillado -&gt; Oloroso&lt;br/&gt;VOS (20yr) -&gt; VORS (30yr)&quot;]
+    SYS --&gt;|Madeira| MAD7[&quot;3yr blend -&gt; 5yr -&gt; 10yr&lt;br/&gt;15yr -&gt; 20yr -&gt; Frasqueira&quot;]
+    SYS --&gt;|Champagne| CHAMP7[&quot;NV -&gt; Vintage -&gt; Prestige&lt;br/&gt;Blanc de Blancs GC&quot;]
+    SYS --&gt;|Tokaji| TOK7[&quot;Dry Furmint -&gt; Szamorodni&lt;br/&gt;Aszu 5p -&gt; Aszu 6p -&gt; Eszencia&quot;]
+    SYS --&gt;|&quot;German Riesling&quot;| GER7[&quot;Kabinett -&gt; Spatlese -&gt; Auslese&lt;br/&gt;BA -&gt; TBA / GG&quot;]
+
+    PORT7 --&gt; RULE7[&quot;Conservative rule:&lt;br/&gt;When between two tiers,&lt;br/&gt;choose the LOWER one&quot;]
+    SHER7 --&gt; RULE7
+    MAD7 --&gt; RULE7
+
+    style RULE7 fill:#fff9c4,stroke:#f57f17"><div class="sheet-render"></div></div></section>
+  </main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: false,
+        curve: 'basis'
+      },
+      themeVariables: {
+        fontFamily: 'Source Sans 3, sans-serif',
+        fontSize: '18px',
+        primaryTextColor: '#121212',
+        secondaryTextColor: '#121212',
+        tertiaryTextColor: '#121212',
+        mainBkg: '#fffdf8',
+        primaryColor: '#fff3c4',
+        primaryBorderColor: '#2c2c2c',
+        lineColor: '#2c2c2c',
+        clusterBkg: '#fffaf0',
+        clusterBorder: '#2c2c2c',
+        nodeBorder: '#2c2c2c',
+        edgeLabelBackground: '#fffdf8'
+      }
+    });
+
+    async function renderSheets() {
+      const sheets = document.querySelectorAll('.sheet-diagram');
+      for (const [index, sheet] of [...sheets].entries()) {
+        const definition = sheet.dataset.mermaid;
+        if (!definition) continue;
+        const renderId = `print-sheet-${index}-${Date.now()}`;
+        const rendered = await mermaid.render(renderId, definition, undefined, document.createElement('div'));
+        const target = sheet.querySelector('.sheet-render');
+        if (target) target.innerHTML = rendered.svg;
+      }
+    }
+
+    function fitSheets() {
+      document.querySelectorAll('.print-sheet').forEach((sheet) => {
+        const svg = sheet.querySelector('svg');
+        const wrap = sheet.querySelector('.sheet-diagram');
+        if (!svg || !wrap) return;
+
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+        const viewBox = svg.viewBox?.baseVal;
+        const naturalWidth = viewBox?.width || 1000;
+        const naturalHeight = viewBox?.height || 800;
+        const aspectRatio = naturalWidth / Math.max(naturalHeight, 1);
+        const shouldUseLandscape = aspectRatio > 0.78;
+        sheet.classList.toggle('landscape', shouldUseLandscape);
+        sheet.classList.toggle('portrait', !shouldUseLandscape);
+        const isLandscape = shouldUseLandscape;
+        const availableWidth = wrap.clientWidth || (isLandscape ? 1047 : 718);
+        const availableHeight = wrap.clientHeight || (isLandscape ? 624 : 907);
+        const widthRatio = availableWidth / Math.max(naturalWidth, 1);
+        const heightRatio = availableHeight / Math.max(naturalHeight, 1);
+        const scale = Math.min(widthRatio, heightRatio, 1);
+        const fittedWidth = Math.max(Math.floor(naturalWidth * scale), 280);
+        const fittedHeight = Math.max(Math.floor(naturalHeight * scale), 220);
+
+        svg.style.width = `${fittedWidth}px`;
+        svg.style.height = `${fittedHeight}px`;
+        svg.style.maxWidth = 'none';
+        svg.style.maxHeight = 'none';
+      });
+    }
+
+    window.addEventListener('load', async () => {
+      await renderSheets();
+      setTimeout(fitSheets, 180);
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autoprint') === '1') {
+        setTimeout(() => window.print(), 350);
+      }
+    });
+    window.addEventListener('beforeprint', fitSheets);
+  </script>
+</body>
+</html>

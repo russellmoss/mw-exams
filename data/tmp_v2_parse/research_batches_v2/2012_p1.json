@@ -1,0 +1,106 @@
+{
+  "batch_id": "2012_p1",
+  "year": 2012,
+  "paper": 1,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2012 p1 w1",
+    "/research-wine 2012 p1 w2",
+    "/research-wine 2012 p1 w3",
+    "/research-wine 2012 p1 w4",
+    "/research-wine 2012 p1 w5",
+    "/research-wine 2012 p1 w6",
+    "/research-wine 2012 p1 w7",
+    "/research-wine 2012 p1 w8",
+    "/research-wine 2012 p1 w9",
+    "/research-wine 2012 p1 w10",
+    "/research-wine 2012 p1 w11",
+    "/research-wine 2012 p1 w12"
+  ],
+  "wines": [
+    {
+      "id": "2012_p1_w1",
+      "year": 2012,
+      "paper": 1,
+      "slot": 1,
+      "full_text": "Muscadet Sèvre-et-Maine Sur Lie, Château de la Bretesche. 2010. Loire, France (12%)"
+    },
+    {
+      "id": "2012_p1_w2",
+      "year": 2012,
+      "paper": 1,
+      "slot": 2,
+      "full_text": "Vouvray Sec Cuvée Silex, D. Vigneau-Chevreau. 2010. Loire, France (13%)"
+    },
+    {
+      "id": "2012_p1_w3",
+      "year": 2012,
+      "paper": 1,
+      "slot": 3,
+      "full_text": "Menetou Salon Cuvée Beatrice, Henry Pellé. 2010. Loire, France (13%)"
+    },
+    {
+      "id": "2012_p1_w4",
+      "year": 2012,
+      "paper": 1,
+      "slot": 4,
+      "full_text": "Coteaux du Layon Chaume, Domaine des Forges. 2009. Loire, France (12%)"
+    },
+    {
+      "id": "2012_p1_w5",
+      "year": 2012,
+      "paper": 1,
+      "slot": 5,
+      "full_text": "Pinot Grigio, Forte Alto. 2010. Alto Adige, Italy (12%)"
+    },
+    {
+      "id": "2012_p1_w6",
+      "year": 2012,
+      "paper": 1,
+      "slot": 6,
+      "full_text": "Pinot Gris, Wither Hills. 2011. Marlborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "2012_p1_w7",
+      "year": 2012,
+      "paper": 1,
+      "slot": 7,
+      "full_text": "Pinot Gris Réserve, Zind Humbrecht. 2009. Alsace, France (13.5%)"
+    },
+    {
+      "id": "2012_p1_w8",
+      "year": 2012,
+      "paper": 1,
+      "slot": 8,
+      "full_text": "Puligny Montrachet, 1er Cru Perrières, Jean Louis Chavy. 2008. Côte d'Or, Burgundy, France (13.5%)"
+    },
+    {
+      "id": "2012_p1_w9",
+      "year": 2012,
+      "paper": 1,
+      "slot": 9,
+      "full_text": "Meursault, Pierre Morey. 2008. Côte d'Or, Burgundy, France (12.5%)"
+    },
+    {
+      "id": "2012_p1_w10",
+      "year": 2012,
+      "paper": 1,
+      "slot": 10,
+      "full_text": "Corton Charlemagne, Patrick Javillier. 2008. Côte d'Or, Burgundy, France (13.5%)"
+    },
+    {
+      "id": "2012_p1_w11",
+      "year": 2012,
+      "paper": 1,
+      "slot": 11,
+      "full_text": "Marsanne, Tahbilk. 2008. Victoria, Australia (13.5%)"
+    },
+    {
+      "id": "2012_p1_w12",
+      "year": 2012,
+      "paper": 1,
+      "slot": 12,
+      "full_text": "Crozes-Hermitage, Blanc, Alain Graillot. 2010. Rhône, France (13%)"
+    }
+  ]
+}

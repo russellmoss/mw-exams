@@ -1,0 +1,1871 @@
+[
+  {
+    "year": 2011,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2011,
+    "paper": 2,
+    "question": 5,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      8,
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      7,
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2012,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 1,
+    "question": 5,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      3,
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2013,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2014,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "This question is looking whites from same region and vintage.  It’s all whites.  What are famous white regions? It could be Burgundy, Alsace, Mosel, Rheingau, Marlborough, Hunter Valley (Semillon).  We taste them and they are relatively neutral whites but with some oak etc. leading us to Burgundy chardonnay.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6
+    ],
+    "annotation": "This question is looking whites from the same variety but different countries. So again more likely one of the top produced single variety whites in the world especially because they are different countries. So this is going to be an international variety. In this case its Chenin one from South Africa and one from France.  I think with quesitons like this we should also consider chenin and semillon every time because those, while not most voluminous, are grown in multiple countries at volume around the world in meaningful ways.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "This question is looking whites from the same single varieties of different countries, this leads us to probably being one of the top 5 single variety whites in the world so probably of Chardonnay, Pinot gris/grigio, Riesling or Muscat, but also maybe Sauvignon blanc. There could also potentially be other whites like Chenin or Albarino.  Tasting through, we fine wine 10 is very aromatic and floral probably something like Gewurz or Muscat, wine 11 is very oily and dense like a Viognier and wine 12 is clearly a Riesling as its very distinctive, wine 7 through 9 are the most difficult. But it goes from less aromatic to more aromatic with the first three being the more muted and the other three being more bombastic.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "This question is looking at wines made from Pinot noir it is asking us to identify the origins comment on winemaking and discuss quality and maturity with reference to the wines ability to improve and comment on commercial appeal.  In this case we know the wines are likely from Burgundy, New Zealand or Willammette Valley Oregon or Sonoma, California.  We taste through these and recognize wine 1 and 3 are particularly closed off and less pure in expression than wine 2, so wine 1 and 3 must be old world and are likely burgundy.  Wine 1 is more powerful than wine 3, which then leads us to wine 1 being cote de nuits and wine 3 being cote de beaune. Wine 2 we would put in either NZ or Oregon because its clean and pure fruit and lower in alcohol and higher in acidity than what we would typically find in Sonoma.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "This question is looking at red wines from three different countries from one variety or predominant variety. Again that doesnt narrow it down much other than to red wine making regions. Upon tasting the wines, we find that two are high alcohol and therefore probably warmer climates and one is relatively delicate and lower in alcohol and higher in acid, so likely a cooler climate red wich probably takes us to something like Gamay or Pinot.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "annotation": "This question is looking at red wines from same country and two regions where 7 & 8 are from one region and 9 and 10 are from another.  So far its hard to deduce what the wines could be because you are gotten to “one country that has different red wine making regions” of which you could have Italy, France, Spain, The US, Australia and South Africa (more likely not South Africa as you’re probably only dealing with Stellenbosch and MAYBE the Western Cape…but unlikely).  Upon tasting the wines, its clear that they are old world in nature as tehy dont have purity of fruit, they are a little rustic and sanguine.  A couple wines are high acid, high tannin and relatively high alcohol which suggests Italy and Barolo.  Baroloa is a fairly distinctive wine and there are two Nebbiolo in this flight, that would land us in Italy.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "This question is looking for reds of the same country and region but from different predominant grape varieties. That really narrows it down. What regions around the world will have different predominant grape varieties in their red wines?  It could be Bordeaux with the right and left bank. It could be Napa (who has similar blends).  It could potentially be GSM blends from Northern Rhone or Australia.  That’s about it.  In this case its Napa and one is Merlot and the other is Cab dominant.  You’d know region because its just clean pure fruit aromas and flavors youd know varieties because the merlot dominant wine is going to be plush and plummy and relatively low in tannin where the Cab dominant wine will be more tannic and deeper and tobbacoy etc.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "This is looking 4 different wines from Europe off the bat we notice that there are two sparkling wines and two oxidative still wines.  We know that the question is asking about “with particular reference to the role of yeast” so we know that they want us to talk about yeast autolysis and we can be fairly sure that we are going to talk about flor yeast with the oxidative whites so one is probably a fino sherry and the other is probably either another fino sherry or something like Arbois as there are really only two places in europe known for aging under flor.  The bubbles might both be champagne or one could be champagne and one from England.  So this question also wants us to discuss yeast autolysis.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "This is a line up for 4 fortified wines two red and two white.  They are from three different countries.  What countries make fortified wines and are well known? Portugal, Spain, Australia, France and Italy.  They ask to comment on quality and maturity so they are looking at wines with some age and some that are young and some that are cheap and some that are expensive.  They are also really interested in the production methods.  Looking at the flight we see two red and two whites, the reds being the Quinta da Cavadinha Vintage Port  and JMK Shiraz VP the whites being the Matusalem Sherry  and Colheita Madeira.  The Quinta is older than the JMK and the Matusalem is older than the Colheita which we would be able to see in the color and aromatic qualities.  It would want us to distinguish between the winemaking techniques and quality of these wines with the younger wines being of more approachable and simple character than the older wines.",
+    "is_filled": true
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "This is looking at 4 different sweet wines from four different countries.  Thse are most likely going to be wines like Tokaji, Sauternes, Trokenbeerenauslese from Germany or some other sweet german riesling, maybe an ice wine from Canada and maybe vin santo from Italy it could also be sweet port potentially, but if they are all white it will likely be those, but it could also be white port. In this case, its a Spatlese form Germany, an ice wine from canada, a tokaji and a vin santo.  They want you to be able to distinguish levels of sugar between them, the ice wine is going to be insanely sweet whereas the spatlese is likely to be the lowest level of sugar of all of them.  From most to least sugar it would go ice wine, vin santo, tokaji and spatlese.",
+    "is_filled": true
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 5,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      3,
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 5,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      8,
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 5,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 5,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 6,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      7,
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 5,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      3,
+      4,
+      5
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 4,
+    "wines": [
+      9,
+      10
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 5,
+    "wines": [
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "This tests the ability to identify specific varieties and varied winemaking techniques.  These would also need to be grapes that have radically different quality and aging capabilities depending on certain factors.",
+    "is_filled": true
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "Variety is less important here, indicating lesser known varietals.  More important is understanding climatic influences that can be tasted in the glass, and how that impacts quality and the ability to age.",
+    "is_filled": true
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "Tests knowledge of which countries produce multiple different international varietals; in a question like this there often can be an oddball grape thrown in to also test knowledge of what other random grapes might be grown in that country.  Here, quality and market potential are also tested, suggesting grapes with a range of quality levels as well as varying commercial potential.  Winemaking is few points here, suggesting that these wines are more expressive of grape character rather than wienemaking influence.",
+    "is_filled": true
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "*This tests the ability to identify specific grape varieties.  More importantly, the ability to know which varieties are made in vastly different quality levels (e.g. grand cru white burgundy vs. entry level chardonnay).  Within that, whether the wine is built for agebility or immediate consumption).  These will be more commonly known wines, so the question also expects the test taker to know where these specific styles of each wine are made, and why.*",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      7,
+      8,
+      9
+    ],
+    "annotation": "This tests the ability to identify how wines are made (e.g. with wild yeast, or in oak, or with reductive or oxidative winemaking).  Secondly, what the style is, and if the test taker can discern which of these random wines are better.  With these less common wines, the question asks how the wines would be sold and to whom.  Lastly, what the grape is and where it is from.  The fact the the grape and origin are last and are only worth 6 marks suggests that the will be not mainstream wines, and that the guessing of a specific grape is less important than understanding how it is made and how good it is objectively.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "This tests both the ability to know a variety of white blends, and which countries might make multiple styles of white blends.   The question also tests the ability to discern oak, and how the oak is used (fermented in, vs aged in, size, age of barrels etc).  Lastly, the style and how it is positined commercially.  Note that in this case the origin and production take preference over the other three.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "This tests the ability to correctly identify a grape that can be made in vastly different styles, in cool and hot climates, and at a wide range of price points.  This in turn should directly impact where and how the wine is sold and to who.  Lastly, and far less importantly, is where each of the wines is from.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "annotation": "This tests the ability to correctly identify high quality wines that are highly typical for their style.  These are generally recognizable wines. Note the term of variety/ies used will almost always indicate that one or more of these wines is a blend.  Then, it tests the ability to discern the quality level of wines that will most likely have a range (e.g. rated growth bordeaux vs. generic bordeaux).  Lastly it tests the knowledge of vintages, which is a combination of testing how old the wine is and knowledge of whether a specific vintage was hot or cold.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "Five single variety wines from five different countries points directly at a well known international varietal.  Getting the origin correct is less important (only 5 marks), while it really points to a wine that can thrive in different climates, and has the ability to let the grape character define the wine, or let the winemaker shape the wine.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "*This tests the ability to discern which wine is of higher quality, often related to time on lees, vintage or blend, or higher quality vineyards (grand cru).  It also tests knowledge of non-Champagne sparkling wine regions.  The winemaking suggests that the test taker needs to correctly identify between single varietal vs blends, use of reserve wines, and lengthy aging.  The question wants to know why each wine would be successful or not, testing the knowledge of the global sparkling market and which areas are growth segments.*",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      3,
+      4
+    ],
+    "annotation": "This question tests knowledge of winemaking under flor or voile.  The region should be fairly obvious, but knowledge of where winemaking under flor exists and then understanding that in that region they make both styles.  While last, the higher number of marks points to being able to discern quality differences, and where a winery might be able to sell lesser known wines with distinct flavor profiles.",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      5,
+      6,
+      7
+    ],
+    "annotation": "*This tests understanding of which styles of wines and regions are facing commercial headwinds and for what reasons.  This generally would indicate that the answer is not a international varietal with broad appeal.  Secondly, it tests if the test taker knows where they make both sweet and dry styles of the same wine.  At 30 marks that is important.  This also tests the ability to discern both quality and age between two different levels of quality and age in similar wines.*",
+    "is_filled": true
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 4,
+    "wines": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "This tests if you can discern how a wine can be made sweet (icewine, botrytis, late harvest, arrested fermentation).  Secondarily whether the wine is fortified or not.  Subsequent to that, where these styles might be made (icewine is generally only made in Canada or Austria).  The winemaking further confirms the test takers ability to discern how the wine was made sweet.",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2
+    ],
+    "annotation": "This is testing your knowledge of white blends.   They are both still whites, so we know that is is highly likely that is one of  two possible blends which would be a white bordeaux blend which they are, or a Marsanne and Rousanne blend from Rhone, California or Australia.",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "This is testing your knowledge of a single white grape variety.  In these questions, it’s likely they will best testing one of the top 5 single white grape varieties that are made into single varietal wines.  So it would either be Chardonnay, Pinot Gris (or grigio), Riesling or MAYBE muscat.  Because they are asking about style quality and maturity, they are also probably interested in wines that can age, which of those varieties it could really only be Chardonnay or Riesling.  In this case it was all Chardonnay.\n\n###\n\n###\n\n###\n\n###\n\n###\n\n###",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9
+    ],
+    "annotation": "This is testing your knowledge of varietal white wines from the same country.   This narrows it down because there have to be 3 different single white varietal wines that are well known globally, this could be France with Chardonnay from Burgundy, Riesling from Alsace or Pinot gris from Alsace, Sauvignon blanc from Loire or of course Melon de Bourgogne.  It is unlikely going to be Spain as that would likely only be white rioja, albarino and maybe sherry.  It is unlikely going to be Italy as it’s hard to find 3 well known distinct whites from Italy.  It could be the US with Chardonnay from CA, Sauvignon blanc from CA and Pinot gris from Oregon and maybe Riesling from the Fingerlakes.  It could be New zealand with Chardonnay from Kumeu River, Sauvignon blanc from Marlborough and maybe Riesling from Wanaka, but unlikely to be NZ as the third white is lesser known.   It could be Australian Riesling, Semillon and Chardonnay. It could POSSIBLY be Chening blanc, Sauvignon blanc and Chardonnay from South Africa, but again pretty unlikely.  It’s most likely going to be french which in this case it is French Muscadet, Riesling from alsace and chenin from loire.",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 4,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "This is testing your knowledge important white wine styles across three european countries.   From there we can narrow down to probably Italy, Germany, Austria Spain and France.  They ask specifically about “ with reference to the relative importance of human inputs versus natural factors” which means there is likely some human element to the winemaking that will be important to this so things like arrested fermentations, oxidative winemaking, lees stirring, oak contact etc. they will want you to talk about how the climate impacted the wine like cool climate resulting in higher acidity in the riesling and lesser acid in the rioja due to warmer climate.  They will want you to talk about the sweet wine and how the fruit was dried and the yeast ferment until they just stop due to high osmotic pressure of the sugar and alcohol. This question is sort of a grab bag, but you should definitely be able to identify the riesling easily and probably the white rioja as those are so distinct the Vin Santo may be lesser able to ID but the taster should know its sweet and should be able to deduce that it’s not Sauternes or a trockenbeerenauslese which would be the other two major european sweet wines or possibly also Tokaji, so they can then from there deduce it may be a vin santo. (there are really only 4 major sweet wines of Europe).",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "This is testing your knowledge a single red grape variety, it’s probably going to be one of the top 5 red varieties in the world which could be Cabernet Sauvignon, Pinot noir, Syrah/Shiraz, Tempranillo Merlot. However, in this case it’s actually Cabernet Franc, which people may or may not get, but they may get due to presence of pyrazines on the aroma.  They will likely go between Cabernet Sauvignon or Cabernet Franc, but should likely pick Cab Franc due to presence of pyrazines.  So for this question, you need to have different climates of this grape.  You cant really do Cab Sauv for this because its all grown all over the world in warm climates.  Pinot noir kind of works because you could have Russian River and Willamette and cool climates.  Tempranillo is only really grown in and around Rioja so it cant be that.  It could potentially be Syrah from hot and cool climates maybe.  Cabernet Franc is grown in cool and warm climates.",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "This question is less about correctly identifying the exact variety and origin and is more about understanding the nature of the wine (fruit forward vs. complex, funky vs. modern) and then what level of quality the wine is.  Often they will include wines of different quality levels but not always.   The question further tests for the testees knowledge of where this wine might be sold (domestically vs. on international markets, based on style) and also via which channel (grocery, fine dining, wine clubs, auctions, etc).",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "First and foremost, the question tests the ability to correctly identify Riesling, which has a very recognizable aroma profile, and also is made in different styles (sweet vs dry, oxidative vs. reductive). Then the question is asking where these different styles might come from and why (acid levels, sugar levels, etc).",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "This question tests the understanding of which countries make a variety of styles, including sparkling, fortified, and still wines.  Next, it is testing the knowledge of traditional method sparkling winemaking, still wine winemaking, and fortified solera style winemaking.  Lastly, it is testing the ability to perceive quality differences, not across wines, but within a category (e.g. sparkling), and once again who would buy this wine, where they would be (channel and country) and for what reason.",
+    "is_filled": true
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "This tests for the ability to discern a wide range of wine styles, from light rose to off-dry whites, to fortified.  Within that, the question wants to know how good the wine is (within its category) and where it would be sold (again, country, channel and to whom).  Lastly, they are testing the ability to discern uncommon winemaking techniques across a range of wines.",
+    "is_filled": true
+  }
+]

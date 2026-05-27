@@ -1,0 +1,106 @@
+{
+  "batch_id": "2012_p3",
+  "year": 2012,
+  "paper": 3,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2012 p3 w1",
+    "/research-wine 2012 p3 w2",
+    "/research-wine 2012 p3 w3",
+    "/research-wine 2012 p3 w4",
+    "/research-wine 2012 p3 w5",
+    "/research-wine 2012 p3 w6",
+    "/research-wine 2012 p3 w7",
+    "/research-wine 2012 p3 w8",
+    "/research-wine 2012 p3 w9",
+    "/research-wine 2012 p3 w10",
+    "/research-wine 2012 p3 w11",
+    "/research-wine 2012 p3 w12"
+  ],
+  "wines": [
+    {
+      "id": "2012_p3_w1",
+      "year": 2012,
+      "paper": 3,
+      "slot": 1,
+      "full_text": "Louis Roederer Brut Vintage. 2004. Champagne, France (12%)"
+    },
+    {
+      "id": "2012_p3_w2",
+      "year": 2012,
+      "paper": 3,
+      "slot": 2,
+      "full_text": "Louis Roederer Brut Premier. N/V. Champagne, France (12%)"
+    },
+    {
+      "id": "2012_p3_w3",
+      "year": 2012,
+      "paper": 3,
+      "slot": 3,
+      "full_text": "Vouvray Pétillant, Huet. 2005. Loire, France (12%)"
+    },
+    {
+      "id": "2012_p3_w4",
+      "year": 2012,
+      "paper": 3,
+      "slot": 4,
+      "full_text": "Sparkling Shiraz, Jacob's Creek. N/V. South East Australia, Australia (12.5%)"
+    },
+    {
+      "id": "2012_p3_w5",
+      "year": 2012,
+      "paper": 3,
+      "slot": 5,
+      "full_text": "Sauvignon Blanc Brut, Brancott Estate. N/V. Marlborough, New Zealand (13%)"
+    },
+    {
+      "id": "2012_p3_w6",
+      "year": 2012,
+      "paper": 3,
+      "slot": 6,
+      "full_text": "Sparkling Zinfandel Rosé, Beringer. N/V. California, USA (11%)"
+    },
+    {
+      "id": "2012_p3_w7",
+      "year": 2012,
+      "paper": 3,
+      "slot": 7,
+      "full_text": "Zeltinger Himmelreich Riesling Eiswein 'Junior', Selbach Oster. 2009. Mosel, Germany (8%)"
+    },
+    {
+      "id": "2012_p3_w8",
+      "year": 2012,
+      "paper": 3,
+      "slot": 8,
+      "full_text": "Kayena Botrytis Riesling, Tamar Ridge. 2009. Tasmania, Australia (9%)"
+    },
+    {
+      "id": "2012_p3_w9",
+      "year": 2012,
+      "paper": 3,
+      "slot": 9,
+      "full_text": "Asti, Martini. N/V. Piedmont, Italy (7.5%)"
+    },
+    {
+      "id": "2012_p3_w10",
+      "year": 2012,
+      "paper": 3,
+      "slot": 10,
+      "full_text": "Muscat, Vin Doux Naturel, Cuvée Réserve. N/V. Rivesaltes, France (15%)"
+    },
+    {
+      "id": "2012_p3_w11",
+      "year": 2012,
+      "paper": 3,
+      "slot": 11,
+      "full_text": "Barefoot Moscato. N/V. California, USA (8.5%)"
+    },
+    {
+      "id": "2012_p3_w12",
+      "year": 2012,
+      "paper": 3,
+      "slot": 12,
+      "full_text": "Moscato Passito di Pantelleria 'Ben Rye'. 2009. Sicily, Italy (14.5%)"
+    }
+  ]
+}

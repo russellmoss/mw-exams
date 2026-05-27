@@ -1,0 +1,1010 @@
+[
+  {
+    "id": "2014_p1_w1",
+    "year": 2014,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Viognier, Organic, Yalumba. 2012. South Australia, Australia (14.5%)"
+  },
+  {
+    "id": "2014_p1_w2",
+    "year": 2014,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "Semillon, Bin 9000, McGuigan. 2007. Hunter Valley, Australia (11%)"
+  },
+  {
+    "id": "2014_p1_w3",
+    "year": 2014,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Chardonnay, Shadowfax Wines. 2009. Victoria, Australia (13%)"
+  },
+  {
+    "id": "2014_p1_w4",
+    "year": 2014,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Sauvignon Blanc - Semillon, Suckfizzle, Stella Bella Wines. 2009. Margaret River, Australia (13%)"
+  },
+  {
+    "id": "2014_p1_w5",
+    "year": 2014,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Watervale Riesling, Mount Horrocks. 2013. Clare Valley, South Australia, Australia (12.5%)"
+  },
+  {
+    "id": "2014_p1_w6",
+    "year": 2014,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "Riesling, Grand Cru Muenchberg, Domaine Ostertag. 2011. Alsace, France (13.5%)"
+  },
+  {
+    "id": "2014_p1_w7",
+    "year": 2014,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Riesling, Domaine Rewa. 2011. Central Otago, New Zealand (11.5%)"
+  },
+  {
+    "id": "2014_p1_w8",
+    "year": 2014,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Deidesheimer Kieselberg Riesling, Kabinett Trocken, Dr. von Bassermann-Jordan. 2011. Pfalz, Germany (11.5%)"
+  },
+  {
+    "id": "2014_p1_w9",
+    "year": 2014,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "Chablis, Grand Cru Les Clos, Duplessis. 2010. Burgundy, France (13%)"
+  },
+  {
+    "id": "2014_p1_w10",
+    "year": 2014,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Chardonnay, Coddington, Kumeu River. 2011. Auckland, New Zealand (13.5%)"
+  },
+  {
+    "id": "2014_p1_w11",
+    "year": 2014,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Sancerre, Domaine Vacheron. 2012. Loire, France (12.5%)"
+  },
+  {
+    "id": "2014_p1_w12",
+    "year": 2014,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Sauvignon Blanc, Tinpot Hut. 2013. Marlborough, New Zealand (13%)"
+  },
+  {
+    "id": "2014_p2_w1",
+    "year": 2014,
+    "paper": 2,
+    "slot": 1,
+    "full_text": "Saint Joseph, Silice, Pierre et Jerome Coursodon. 2010. Rhone, France (14%)"
+  },
+  {
+    "id": "2014_p2_w2",
+    "year": 2014,
+    "paper": 2,
+    "slot": 2,
+    "full_text": "Syrah, La Cumbre, Errazuriz. 2008. Aconcagua Valley, Chile (14.5%)"
+  },
+  {
+    "id": "2014_p2_w3",
+    "year": 2014,
+    "paper": 2,
+    "slot": 3,
+    "full_text": "Syrah, Qupe. 2011, Central Coast, California, USA (13.5%)"
+  },
+  {
+    "id": "2014_p2_w4",
+    "year": 2014,
+    "paper": 2,
+    "slot": 4,
+    "full_text": "Shiraz, The Dead Arm, d'Arenberg. 2009. McLaren Vale, South Australia, Australia (14.5%)"
+  },
+  {
+    "id": "2014_p2_w5",
+    "year": 2014,
+    "paper": 2,
+    "slot": 5,
+    "full_text": "Chateau Lynch Bages. 2006. Pauillac, Bordeaux, France (13%)"
+  },
+  {
+    "id": "2014_p2_w6",
+    "year": 2014,
+    "paper": 2,
+    "slot": 6,
+    "full_text": "Chateau Nenin. 2008. Pomerol, Bordeaux, France (13.5%)"
+  },
+  {
+    "id": "2014_p2_w7",
+    "year": 2014,
+    "paper": 2,
+    "slot": 7,
+    "full_text": "Chateau Lynch Bages. 2009. Pauillac, Bordeaux, France (13.5%)"
+  },
+  {
+    "id": "2014_p2_w8",
+    "year": 2014,
+    "paper": 2,
+    "slot": 8,
+    "full_text": "Chateau Nenin. 2010. Pomerol, Bordeaux, France (14.5%)"
+  },
+  {
+    "id": "2014_p2_w9",
+    "year": 2014,
+    "paper": 2,
+    "slot": 9,
+    "full_text": "Villacreces. 2009. Ribera del Duero, Spain (14%)"
+  },
+  {
+    "id": "2014_p2_w10",
+    "year": 2014,
+    "paper": 2,
+    "slot": 10,
+    "full_text": "Petalos, J. Palacios. 2011. Bierzo, Spain (14.5%)"
+  },
+  {
+    "id": "2014_p2_w11",
+    "year": 2014,
+    "paper": 2,
+    "slot": 11,
+    "full_text": "Simply Garnacha, Bodegas Borsao for Tesco. 2013. Campo de Borja, Spain (13.5%)"
+  },
+  {
+    "id": "2014_p2_w12",
+    "year": 2014,
+    "paper": 2,
+    "slot": 12,
+    "full_text": "Vina Ardanza, Reserva, La Rioja Alta S.A. 2004. Rioja, Spain (13.5%)"
+  },
+  {
+    "id": "2014_p3_w1",
+    "year": 2014,
+    "paper": 3,
+    "slot": 1,
+    "full_text": "Cava, L'Hereu, Raventos i Blanc. 2011. Penedes, Spain (12%)"
+  },
+  {
+    "id": "2014_p3_w2",
+    "year": 2014,
+    "paper": 3,
+    "slot": 2,
+    "full_text": "Vouvray Brut, Francois Pinon. NV. Loire, France (12.5%)"
+  },
+  {
+    "id": "2014_p3_w3",
+    "year": 2014,
+    "paper": 3,
+    "slot": 3,
+    "full_text": "Riesling, Sektmanufaktur Graf. 2010. Pfalz, Germany (12.5%)"
+  },
+  {
+    "id": "2014_p3_w4",
+    "year": 2014,
+    "paper": 3,
+    "slot": 4,
+    "full_text": "Le Reve, Blanc de Blancs, Domaine Carneros. 2006. Carneros, California, USA (12%)"
+  },
+  {
+    "id": "2014_p3_w5",
+    "year": 2014,
+    "paper": 3,
+    "slot": 5,
+    "full_text": "East India Solera Sherry, Lustau. NV. Jerez, Spain (20%)"
+  },
+  {
+    "id": "2014_p3_w6",
+    "year": 2014,
+    "paper": 3,
+    "slot": 6,
+    "full_text": "15-yr old Malmsey, Blandy's. NV. Madeira, Portugal (19%)"
+  },
+  {
+    "id": "2014_p3_w7",
+    "year": 2014,
+    "paper": 3,
+    "slot": 7,
+    "full_text": "Six Grapes, Reserve Port, Graham's. NV. Port, Portugal (20%)"
+  },
+  {
+    "id": "2014_p3_w8",
+    "year": 2014,
+    "paper": 3,
+    "slot": 8,
+    "full_text": "Banyuls, Rimage, Domaine La Tour Vieille. 2011. Roussillon, France (16%)"
+  },
+  {
+    "id": "2014_p3_w9",
+    "year": 2014,
+    "paper": 3,
+    "slot": 9,
+    "full_text": "Miraval Rose. 2013. Cotes de Provence, France (13%)"
+  },
+  {
+    "id": "2014_p3_w10",
+    "year": 2014,
+    "paper": 3,
+    "slot": 10,
+    "full_text": "Pheasant's Tears, Rkatsiteli. 2011. Kakheti, Georgia (12.5%)"
+  },
+  {
+    "id": "2014_p3_w11",
+    "year": 2014,
+    "paper": 3,
+    "slot": 11,
+    "full_text": "Menage a Trois, Folie a Deux Winery. 2012. California, USA (13.5%)"
+  },
+  {
+    "id": "2014_p3_w12",
+    "year": 2014,
+    "paper": 3,
+    "slot": 12,
+    "full_text": "Amarone della Valpolicella, Allegrini. 2009. Veneto, Italy (15.5%)"
+  },
+  {
+    "id": "2013_p1_w1",
+    "year": 2013,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Vina Gravonia, Lopez de Heredia. 2003, Rioja, Spain"
+  },
+  {
+    "id": "2013_p1_w2",
+    "year": 2013,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "Albarino, Granbazan. 2011, Rias Baixas, Spain"
+  },
+  {
+    "id": "2013_p1_w3",
+    "year": 2013,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Gruner Veltliner, Gobelsburger. 2011, Kamptal, Austria"
+  },
+  {
+    "id": "2013_p1_w4",
+    "year": 2013,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Riesling Wachstum Bodenstein Smaragd, Prager. 2011, Wachau, Austria"
+  },
+  {
+    "id": "2013_p1_w5",
+    "year": 2013,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Riesling 'D', Te Whare Ra. 2011, Marlborough, New Zealand"
+  },
+  {
+    "id": "2013_p1_w6",
+    "year": 2013,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "Omaka Reserve Chardonnay, Saint Clair. 2011, Marlborough, New Zealand"
+  },
+  {
+    "id": "2013_p1_w7",
+    "year": 2013,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Chenin Blanc, Man Vintners. 2012, Coastal, South Africa"
+  },
+  {
+    "id": "2013_p1_w8",
+    "year": 2013,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Chenin Blanc, De Morgenzon. 2011, Stellenbosch, South Africa"
+  },
+  {
+    "id": "2013_p1_w9",
+    "year": 2013,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "Gavi di Gavi, Rovereto, Ernesto Picollo. 2011, Piedmont, Italy"
+  },
+  {
+    "id": "2013_p1_w10",
+    "year": 2013,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Assyrtiko, Sigalas. 2011, Santorini, Greece"
+  },
+  {
+    "id": "2013_p1_w11",
+    "year": 2013,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Gewurztraminer Reserve, Gustave Lorentz. 2011, Alsace, France"
+  },
+  {
+    "id": "2013_p1_w12",
+    "year": 2013,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Chardonnay, Cuv\u00e9e Sauvage, Franciscan. 2010, Carneros, California"
+  },
+  {
+    "id": "2013_p2_w1",
+    "year": 2013,
+    "paper": 2,
+    "slot": 1,
+    "full_text": "Rully, Jean-Baptiste Ponsot. 2009, Burgundy, France"
+  },
+  {
+    "id": "2013_p2_w2",
+    "year": 2013,
+    "paper": 2,
+    "slot": 2,
+    "full_text": "Vosne Roman\u00e9e, En Orveaux, Sylvain Cathiard. 2006, Burgundy, France"
+  },
+  {
+    "id": "2013_p2_w3",
+    "year": 2013,
+    "paper": 2,
+    "slot": 3,
+    "full_text": "Pinot Noir, Peregrine. 2010, Central Otago, New Zealand"
+  },
+  {
+    "id": "2013_p2_w4",
+    "year": 2013,
+    "paper": 2,
+    "slot": 4,
+    "full_text": "Te Kahu, Craggy Range. 2010, Gimblett Gravels, Hawkes Bay, New Zealand"
+  },
+  {
+    "id": "2013_p2_w5",
+    "year": 2013,
+    "paper": 2,
+    "slot": 5,
+    "full_text": "Syrah, Elephant Hill. 2010, Hawkes Bay, New Zealand"
+  },
+  {
+    "id": "2013_p2_w6",
+    "year": 2013,
+    "paper": 2,
+    "slot": 6,
+    "full_text": "Priorat Gratallops, Alvaro Palacios. 2010, Priorat, Spain"
+  },
+  {
+    "id": "2013_p2_w7",
+    "year": 2013,
+    "paper": 2,
+    "slot": 7,
+    "full_text": "Grenache Besson Vineyard, Birichino. 2010, Central Coast, USA"
+  },
+  {
+    "id": "2013_p2_w8",
+    "year": 2013,
+    "paper": 2,
+    "slot": 8,
+    "full_text": "Ch\u00e2teauneuf-du-Pape, Le Vieux Donjon. 2009, Rh\u00f4ne Valley, France"
+  },
+  {
+    "id": "2013_p2_w9",
+    "year": 2013,
+    "paper": 2,
+    "slot": 9,
+    "full_text": "Bush Vine Grenache, Yalumba. 2011, Barossa Valley, Australia"
+  },
+  {
+    "id": "2013_p2_w10",
+    "year": 2013,
+    "paper": 2,
+    "slot": 10,
+    "full_text": "Beaujolais Villages, Jacques D\u00e9pagneux. 2011, Beaujolais, France"
+  },
+  {
+    "id": "2013_p2_w11",
+    "year": 2013,
+    "paper": 2,
+    "slot": 11,
+    "full_text": "Valpolicella Ripasso, Fabiano. 2010, Veneto, Italy"
+  },
+  {
+    "id": "2013_p2_w12",
+    "year": 2013,
+    "paper": 2,
+    "slot": 12,
+    "full_text": "Gran Corte, Pulenta. 2008, Luj\u00e1n de Cuyo, Argentina"
+  },
+  {
+    "id": "2013_p3_w1",
+    "year": 2013,
+    "paper": 3,
+    "slot": 1,
+    "full_text": "Prosecco Superiore 'Oro Puro', Valdo. NV, Valdobbiadene, Veneto, Italy"
+  },
+  {
+    "id": "2013_p3_w2",
+    "year": 2013,
+    "paper": 3,
+    "slot": 2,
+    "full_text": "Lambrusco, Grasparossa di Castelvetro, Villa Cialdini. 2011, Emilia Romagna, Italy"
+  },
+  {
+    "id": "2013_p3_w3",
+    "year": 2013,
+    "paper": 3,
+    "slot": 3,
+    "full_text": "Franciacorta Gran Cuv\u00e9e Brut, Bellavista. 2007, Lombardy, Italy"
+  },
+  {
+    "id": "2013_p3_w4",
+    "year": 2013,
+    "paper": 3,
+    "slot": 4,
+    "full_text": "Vat 1 Semillon, Tyrrell's. 2006, Hunter Valley, Australia"
+  },
+  {
+    "id": "2013_p3_w5",
+    "year": 2013,
+    "paper": 3,
+    "slot": 5,
+    "full_text": "Ch\u00e2teau Villa Bel Air Blanc. 2010, Graves, Bordeaux, France"
+  },
+  {
+    "id": "2013_p3_w6",
+    "year": 2013,
+    "paper": 3,
+    "slot": 6,
+    "full_text": "Castelnau de Suduiraut. 2007, Sauternes, France"
+  },
+  {
+    "id": "2013_p3_w7",
+    "year": 2013,
+    "paper": 3,
+    "slot": 7,
+    "full_text": "\u00dcrziger W\u00fcrzgarten Riesling Kabinett, Dr Loosen. 2009, Mosel, Germany"
+  },
+  {
+    "id": "2013_p3_w8",
+    "year": 2013,
+    "paper": 3,
+    "slot": 8,
+    "full_text": "Jurancon, Ch\u00e2teau Jolys, Cuv\u00e9e Jean. 2010, Jurancon, South West France"
+  },
+  {
+    "id": "2013_p3_w9",
+    "year": 2013,
+    "paper": 3,
+    "slot": 9,
+    "full_text": "Tokaji 5 Puttonyos Aszu, Royal Tokaji. 2008, Tokaj, Hungary"
+  },
+  {
+    "id": "2013_p3_w10",
+    "year": 2013,
+    "paper": 3,
+    "slot": 10,
+    "full_text": "Cuv\u00e9e Beerenauslese, Alois Kracher. 2010, Burgenland, Austria"
+  },
+  {
+    "id": "2013_p3_w11",
+    "year": 2013,
+    "paper": 3,
+    "slot": 11,
+    "full_text": "Vidal Ice Wine, Peller Estate. 2010, Niagara Peninsula, Canada"
+  },
+  {
+    "id": "2013_p3_w12",
+    "year": 2013,
+    "paper": 3,
+    "slot": 12,
+    "full_text": "Vin Santo, Capezzana. 2006, Tuscany, Italy"
+  },
+  {
+    "id": "2012_p1_w1",
+    "year": 2012,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Muscadet S\u00e8vre-et-Maine Sur Lie, Ch\u00e2teau de la Bretesche. 2010. Loire, France (12%)"
+  },
+  {
+    "id": "2012_p1_w2",
+    "year": 2012,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "Vouvray Sec Cuv\u00e9e Silex, D. Vigneau-Chevreau. 2010. Loire, France (13%)"
+  },
+  {
+    "id": "2012_p1_w3",
+    "year": 2012,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Menetou Salon Cuv\u00e9e Beatrice, Henry Pell\u00e9. 2010. Loire, France (13%)"
+  },
+  {
+    "id": "2012_p1_w4",
+    "year": 2012,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Coteaux du Layon Chaume, Domaine des Forges. 2009. Loire, France (12%)"
+  },
+  {
+    "id": "2012_p1_w5",
+    "year": 2012,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Pinot Grigio, Forte Alto. 2010. Alto Adige, Italy (12%)"
+  },
+  {
+    "id": "2012_p1_w6",
+    "year": 2012,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "Pinot Gris, Wither Hills. 2011. Marlborough, New Zealand (13.5%)"
+  },
+  {
+    "id": "2012_p1_w7",
+    "year": 2012,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Pinot Gris R\u00e9serve, Zind Humbrecht. 2009. Alsace, France (13.5%)"
+  },
+  {
+    "id": "2012_p1_w8",
+    "year": 2012,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Puligny Montrachet, 1er Cru Perri\u00e8res, Jean Louis Chavy. 2008. C\u00f4te d'Or, Burgundy, France (13.5%)"
+  },
+  {
+    "id": "2012_p1_w9",
+    "year": 2012,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "Meursault, Pierre Morey. 2008. C\u00f4te d'Or, Burgundy, France (12.5%)"
+  },
+  {
+    "id": "2012_p1_w10",
+    "year": 2012,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Corton Charlemagne, Patrick Javillier. 2008. C\u00f4te d'Or, Burgundy, France (13.5%)"
+  },
+  {
+    "id": "2012_p1_w11",
+    "year": 2012,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Marsanne, Tahbilk. 2008. Victoria, Australia (13.5%)"
+  },
+  {
+    "id": "2012_p1_w12",
+    "year": 2012,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Crozes-Hermitage, Blanc, Alain Graillot. 2010. Rh\u00f4ne, France (13%)"
+  },
+  {
+    "id": "2012_p2_w1",
+    "year": 2012,
+    "paper": 2,
+    "slot": 1,
+    "full_text": "Carmenere, '120', Santa Rita. 2010. Central Valley, Chile (13.5%)"
+  },
+  {
+    "id": "2012_p2_w2",
+    "year": 2012,
+    "paper": 2,
+    "slot": 2,
+    "full_text": "Cabernet Sauvignon, Robert Mondavi. 2009. Napa Valley, California (14.5%)"
+  },
+  {
+    "id": "2012_p2_w3",
+    "year": 2012,
+    "paper": 2,
+    "slot": 3,
+    "full_text": "Cabernet Sauvignon, The Cigar, Yalumba. 2009. Coonawarra, Australia (14.5%)"
+  },
+  {
+    "id": "2012_p2_w4",
+    "year": 2012,
+    "paper": 2,
+    "slot": 4,
+    "full_text": "Lady May, Glenelly. 2008. Stellenbosch, South Africa (14.5%)"
+  },
+  {
+    "id": "2012_p2_w5",
+    "year": 2012,
+    "paper": 2,
+    "slot": 5,
+    "full_text": "Ch\u00e2teau Quinault, L'Enclos. Grand Cru. 2006. Saint Emilion, Bordeaux (13.5%)"
+  },
+  {
+    "id": "2012_p2_w6",
+    "year": 2012,
+    "paper": 2,
+    "slot": 6,
+    "full_text": "Geremia, Rocca di Montegrossi. 2007. Tuscany, Italy (14.5%)"
+  },
+  {
+    "id": "2012_p2_w7",
+    "year": 2012,
+    "paper": 2,
+    "slot": 7,
+    "full_text": "Zweigelt, Claus Preisinger. 2008. Burgenland, Austria (12.5%)"
+  },
+  {
+    "id": "2012_p2_w8",
+    "year": 2012,
+    "paper": 2,
+    "slot": 8,
+    "full_text": "Vale do Bomfim, Dow. 2008. Douro, Portugal (14%)"
+  },
+  {
+    "id": "2012_p2_w9",
+    "year": 2012,
+    "paper": 2,
+    "slot": 9,
+    "full_text": "Pinot Noir, Becker Estate. 2009. Pfalz, Germany (13%)"
+  },
+  {
+    "id": "2012_p2_w10",
+    "year": 2012,
+    "paper": 2,
+    "slot": 10,
+    "full_text": "Syrah, Fess Parker's Vineyard, JC Cellars. 2009. Santa Barbara, California (14.8%)"
+  },
+  {
+    "id": "2012_p2_w11",
+    "year": 2012,
+    "paper": 2,
+    "slot": 11,
+    "full_text": "Cornas, Les Vieilles Vignes, Alain Voge. 2007. Rh\u00f4ne, France (13%)"
+  },
+  {
+    "id": "2012_p2_w12",
+    "year": 2012,
+    "paper": 2,
+    "slot": 12,
+    "full_text": "The Boxer, Mollydooker. 2010. South Australia, Australia (16%)"
+  },
+  {
+    "id": "2012_p3_w1",
+    "year": 2012,
+    "paper": 3,
+    "slot": 1,
+    "full_text": "Louis Roederer Brut Vintage. 2004. Champagne, France (12%)"
+  },
+  {
+    "id": "2012_p3_w2",
+    "year": 2012,
+    "paper": 3,
+    "slot": 2,
+    "full_text": "Louis Roederer Brut Premier. N/V. Champagne, France (12%)"
+  },
+  {
+    "id": "2012_p3_w3",
+    "year": 2012,
+    "paper": 3,
+    "slot": 3,
+    "full_text": "Vouvray P\u00e9tillant, Huet. 2005. Loire, France (12%)"
+  },
+  {
+    "id": "2012_p3_w4",
+    "year": 2012,
+    "paper": 3,
+    "slot": 4,
+    "full_text": "Sparkling Shiraz, Jacob's Creek. N/V. South East Australia, Australia (12.5%)"
+  },
+  {
+    "id": "2012_p3_w5",
+    "year": 2012,
+    "paper": 3,
+    "slot": 5,
+    "full_text": "Sauvignon Blanc Brut, Brancott Estate. N/V. Marlborough, New Zealand (13%)"
+  },
+  {
+    "id": "2012_p3_w6",
+    "year": 2012,
+    "paper": 3,
+    "slot": 6,
+    "full_text": "Sparkling Zinfandel Ros\u00e9, Beringer. N/V. California, USA (11%)"
+  },
+  {
+    "id": "2012_p3_w7",
+    "year": 2012,
+    "paper": 3,
+    "slot": 7,
+    "full_text": "Zeltinger Himmelreich Riesling Eiswein 'Junior', Selbach Oster. 2009. Mosel, Germany (8%)"
+  },
+  {
+    "id": "2012_p3_w8",
+    "year": 2012,
+    "paper": 3,
+    "slot": 8,
+    "full_text": "Kayena Botrytis Riesling, Tamar Ridge. 2009. Tasmania, Australia (9%)"
+  },
+  {
+    "id": "2012_p3_w9",
+    "year": 2012,
+    "paper": 3,
+    "slot": 9,
+    "full_text": "Asti, Martini. N/V. Piedmont, Italy (7.5%)"
+  },
+  {
+    "id": "2012_p3_w10",
+    "year": 2012,
+    "paper": 3,
+    "slot": 10,
+    "full_text": "Muscat, Vin Doux Naturel, Cuv\u00e9e R\u00e9serve. N/V. Rivesaltes, France (15%)"
+  },
+  {
+    "id": "2012_p3_w11",
+    "year": 2012,
+    "paper": 3,
+    "slot": 11,
+    "full_text": "Barefoot Moscato. N/V. California, USA (8.5%)"
+  },
+  {
+    "id": "2012_p3_w12",
+    "year": 2012,
+    "paper": 3,
+    "slot": 12,
+    "full_text": "Moscato Passito di Pantelleria 'Ben Rye'. 2009. Sicily, Italy (14.5%)"
+  },
+  {
+    "id": "2011_p1_w1",
+    "year": 2011,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Muscat D'Alsace, Rolly Gassmann. 2007. Alsace, France (12.5%)"
+  },
+  {
+    "id": "2011_p1_w2",
+    "year": 2011,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "Riesling, Kappelweg de Rorschwihr, Rolly Gassmann. 2002. Alsace, France (12.5%)"
+  },
+  {
+    "id": "2011_p1_w3",
+    "year": 2011,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Pinot Gris, Vendanges Tardives, Rotleibel de Rorschwihr, Rolly Gassmann. 1996. Alsace, France (12.5%)"
+  },
+  {
+    "id": "2011_p1_w4",
+    "year": 2011,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Chablis, 1er Cru Les Vaillons, Billaud-Simon. 2007. Burgundy, France (13.0%)"
+  },
+  {
+    "id": "2011_p1_w5",
+    "year": 2011,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Chardonnay, Yellow Label, Wolf Blass. 2009. South Australia, Australia (13.0%)"
+  },
+  {
+    "id": "2011_p1_w6",
+    "year": 2011,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "Chardonnay, Saintsbury. 2008. Carneros, California (13.5%)"
+  },
+  {
+    "id": "2011_p1_w7",
+    "year": 2011,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Semillon, Vat 1, Tyrrell's. 2002. Hunter Valley, Australia (10.0%)"
+  },
+  {
+    "id": "2011_p1_w8",
+    "year": 2011,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Riesling, Smaragd, Ried Kellerberg Durnsteiner, Weingut Knoll. 2007. Wachau, Austria (13.5%)"
+  },
+  {
+    "id": "2011_p1_w9",
+    "year": 2011,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "Torrontes, Crios, Susana Balbo. 2010. Salta, Argentina (13.5%)"
+  },
+  {
+    "id": "2011_p1_w10",
+    "year": 2011,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Sauvignon Blanc, Errazuriz. 2010. Aconcagua, Chile (13.5%)"
+  },
+  {
+    "id": "2011_p1_w11",
+    "year": 2011,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Condrieu, De Poncins, Villard. 2009. Rhone, France (13.5%)"
+  },
+  {
+    "id": "2011_p1_w12",
+    "year": 2011,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Monopole, CVNE. 2008. Rioja, Spain (13.5%)"
+  },
+  {
+    "id": "2011_p2_w1",
+    "year": 2011,
+    "paper": 2,
+    "slot": 1,
+    "full_text": "John X Merriman, Rustenberg. 2008. Stellenbosch, South Africa (14.5%)"
+  },
+  {
+    "id": "2011_p2_w2",
+    "year": 2011,
+    "paper": 2,
+    "slot": 2,
+    "full_text": "Syrah, Jordan. 2007. Stellenbosch, South Africa (15.0%)"
+  },
+  {
+    "id": "2011_p2_w3",
+    "year": 2011,
+    "paper": 2,
+    "slot": 3,
+    "full_text": "Pinotage, Greywacke, Cape Chamonix. 2008. Franschhoek, South Africa (14.0%)"
+  },
+  {
+    "id": "2011_p2_w4",
+    "year": 2011,
+    "paper": 2,
+    "slot": 4,
+    "full_text": "Beaujolais Villages, Duboeuf. 2009. Beaujolais, France (13.0%)"
+  },
+  {
+    "id": "2011_p2_w5",
+    "year": 2011,
+    "paper": 2,
+    "slot": 5,
+    "full_text": "Fleurie, La Roilette, Metrat. 2009. Beaujolais, France (13.0%)"
+  },
+  {
+    "id": "2011_p2_w6",
+    "year": 2011,
+    "paper": 2,
+    "slot": 6,
+    "full_text": "Barolo, Massolino. 2006. Piedmont, Italy (14.0%)"
+  },
+  {
+    "id": "2011_p2_w7",
+    "year": 2011,
+    "paper": 2,
+    "slot": 7,
+    "full_text": "Dolcetto D'Alba, GD Vajra. 2009. Piedmont, Italy (13.0%)"
+  },
+  {
+    "id": "2011_p2_w8",
+    "year": 2011,
+    "paper": 2,
+    "slot": 8,
+    "full_text": "Barbera D'Alba, Gisep, Massolino. 2007. Piedmont, Italy (15.0%)"
+  },
+  {
+    "id": "2011_p2_w9",
+    "year": 2011,
+    "paper": 2,
+    "slot": 9,
+    "full_text": "Ch\u00e2teau Giscours. 2002. Margaux, Bordeaux, France (13.0%)"
+  },
+  {
+    "id": "2011_p2_w10",
+    "year": 2011,
+    "paper": 2,
+    "slot": 10,
+    "full_text": "Contino Reserva. 2005. Rioja, Spain (14%)"
+  },
+  {
+    "id": "2011_p2_w11",
+    "year": 2011,
+    "paper": 2,
+    "slot": 11,
+    "full_text": "Merlot, Fetzer. 2008. California, USA (13.5%)"
+  },
+  {
+    "id": "2011_p2_w12",
+    "year": 2011,
+    "paper": 2,
+    "slot": 12,
+    "full_text": "Merlot, Errazuriz. 2009. Aconcagua, Chile (13.5%)"
+  },
+  {
+    "id": "2011_p3_w1",
+    "year": 2011,
+    "paper": 3,
+    "slot": 1,
+    "full_text": "Taittinger Comtes de Champagne, Blanc de Blancs. 1999. Champagne, France (12.0%)"
+  },
+  {
+    "id": "2011_p3_w2",
+    "year": 2011,
+    "paper": 3,
+    "slot": 2,
+    "full_text": "De Laurency, Brut. NV. Champagne, France (12.0%)"
+  },
+  {
+    "id": "2011_p3_w3",
+    "year": 2011,
+    "paper": 3,
+    "slot": 3,
+    "full_text": "Verdelho, 15 years old, Henriques and Henriques. NV. Madeira, Portugal (20.0%)"
+  },
+  {
+    "id": "2011_p3_w4",
+    "year": 2011,
+    "paper": 3,
+    "slot": 4,
+    "full_text": "Sercial, 10 years old, Henriques and Henriques. NV. Madeira, Portugal (20.0%)"
+  },
+  {
+    "id": "2011_p3_w5",
+    "year": 2011,
+    "paper": 3,
+    "slot": 5,
+    "full_text": "Pinot Noir, The Edge. 2009. Martinborough, New Zealand (14.5%)"
+  },
+  {
+    "id": "2011_p3_w6",
+    "year": 2011,
+    "paper": 3,
+    "slot": 6,
+    "full_text": "Pinot Noir, Escarpment. 2008. Martinborough, New Zealand (13.5%)"
+  },
+  {
+    "id": "2011_p3_w7",
+    "year": 2011,
+    "paper": 3,
+    "slot": 7,
+    "full_text": "Fonseca Guimaraens, Vintage Port. 1995. Douro, Portugal (20.5%)"
+  },
+  {
+    "id": "2011_p3_w8",
+    "year": 2011,
+    "paper": 3,
+    "slot": 8,
+    "full_text": "Taylor's 10 year old Tawny Port. NV. Douro, Portugal (20.0%)"
+  },
+  {
+    "id": "2011_p3_w9",
+    "year": 2011,
+    "paper": 3,
+    "slot": 9,
+    "full_text": "Wehlener Sonnenuhr Kabinett, Joh. Jos. Pr\u00fcm. 2007. Mosel, Germany (9.0%)"
+  },
+  {
+    "id": "2011_p3_w10",
+    "year": 2011,
+    "paper": 3,
+    "slot": 10,
+    "full_text": "Brauneberger Juffer Sonnenhur Spatlese, Fritz Haag. 2002. Mosel, Germany (8.0%)"
+  },
+  {
+    "id": "2011_p3_w11",
+    "year": 2011,
+    "paper": 3,
+    "slot": 11,
+    "full_text": "Domaine du Noble, Loupiac. 2005. Bordeaux, France (13.0%)"
+  },
+  {
+    "id": "2011_p3_w12",
+    "year": 2011,
+    "paper": 3,
+    "slot": 12,
+    "full_text": "Ch\u00e2teau Suduiraut, Sauternes. 2005. Bordeaux, France (13.5%)"
+  }
+]

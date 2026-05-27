@@ -1,0 +1,1779 @@
+{
+  "fold_years": [
+    2024,
+    2025
+  ],
+  "total_questions": 20,
+  "total_wines": 72,
+  "questions": [
+    {
+      "question_id": "2024_p1_q1",
+      "year": 2024,
+      "paper": 1,
+      "question": 1,
+      "n_wines": 6,
+      "scores": {
+        "top1_variety": 0.3333,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.3333,
+        "top1_region_subregion": 0.8333,
+        "top3_region": 0.6667,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.6111,
+        "mrr_region": 0.4722
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Riesling",
+          "actual_country": "Germany",
+          "actual_subregion": "Mosel",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Riesling",
+          "actual_country": "Germany",
+          "actual_subregion": "Franken",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Chardonnay",
+          "actual_country": "France",
+          "actual_subregion": "Burgundy",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Chardonnay",
+          "actual_country": "Australia",
+          "actual_subregion": "Unknown",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Marlborough",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 0,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 0.0
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Marlborough",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 0,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 0.0
+        }
+      ],
+      "predicted_varieties": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc",
+        "Chenin Blanc",
+        "Chenin"
+      ],
+      "predicted_regions": [
+        "Germany",
+        "Australia",
+        "France"
+      ]
+    },
+    {
+      "question_id": "2024_p1_q2",
+      "year": 2024,
+      "paper": 1,
+      "question": 2,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.3333,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 0.6667,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.6111,
+        "mrr_region": 0.3611
+      },
+      "per_wine": [
+        {
+          "slot": 7,
+          "actual_variety": "Moschofilero",
+          "actual_country": "Greece",
+          "actual_subregion": "Peloponnese",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Viognier",
+          "actual_country": "Australia",
+          "actual_subregion": "Eden Valley",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Gewurztraminer",
+          "actual_country": "France",
+          "actual_subregion": "Alsace",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.25
+        }
+      ],
+      "predicted_varieties": [
+        "Viognier",
+        "Gewurztraminer",
+        "Moschofilero",
+        "Gruner Veltliner",
+        "Roussanne"
+      ],
+      "predicted_regions": [
+        "Austria",
+        "Greece",
+        "Australia",
+        "France"
+      ]
+    },
+    {
+      "question_id": "2024_p1_q3",
+      "year": 2024,
+      "paper": 1,
+      "question": 3,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.0,
+        "top3_variety": 0.0,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 0.6667,
+        "mrr_variety": 0.1204,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 10,
+          "actual_variety": "Gros Manseng/Petit Manseng",
+          "actual_country": "France",
+          "actual_subregion": "Jura",
+          "variety_rank": 9,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.1111111111111111,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Cabernet Sauvignon/Merlot",
+          "actual_country": "France",
+          "actual_subregion": "Bordeaux",
+          "variety_rank": 0,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Grenache Blanc/Clairette",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 4,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.25,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Sauvignon Blanc",
+        "Semillon",
+        "Marsanne",
+        "Roussanne",
+        "Grenache"
+      ],
+      "predicted_regions": [
+        "France"
+      ]
+    },
+    {
+      "question_id": "2024_p2_q1",
+      "year": 2024,
+      "paper": 2,
+      "question": 1,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.0,
+        "top1_region_subregion": 0.6667,
+        "top3_region": 0.6667,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.3611
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Syrah",
+          "actual_country": "Chile",
+          "actual_subregion": "Aconcagua",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Shiraz",
+          "actual_country": "Australia",
+          "actual_subregion": "Barossa",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.25
+        }
+      ],
+      "predicted_varieties": [
+        "Shiraz",
+        "Syrah",
+        "Pinot Noir",
+        "Cabernet Sauvignon",
+        "Merlot"
+      ],
+      "predicted_regions": [
+        "South Africa",
+        "Chile",
+        "France",
+        "Australia"
+      ]
+    },
+    {
+      "question_id": "2024_p2_q2",
+      "year": 2024,
+      "paper": 2,
+      "question": 2,
+      "n_wines": 4,
+      "scores": {
+        "top1_variety": 0.25,
+        "top3_variety": 0.75,
+        "top1_region_country": 0.5,
+        "top1_region_subregion": 0.75,
+        "top3_region": 1.0,
+        "candidate_set": 0.75,
+        "mrr_variety": 0.494,
+        "mrr_region": 0.7083
+      },
+      "per_wine": [
+        {
+          "slot": 4,
+          "actual_variety": "Nebbiolo",
+          "actual_country": "Italy",
+          "actual_subregion": "Piedmont",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Sangiovese",
+          "actual_country": "Italy",
+          "actual_subregion": "Tuscany",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Merlot/Cabernet Franc",
+          "actual_country": "France",
+          "actual_subregion": "Unknown",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Tempranillo/Garnacha",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_rank": 7,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.14285714285714285,
+          "mrr_region": 0.3333333333333333
+        }
+      ],
+      "predicted_varieties": [
+        "Nebbiolo",
+        "Sangiovese",
+        "Merlot",
+        "Merlot-dominant",
+        "Cabernet Franc"
+      ],
+      "predicted_regions": [
+        "Italy",
+        "France",
+        "Spain"
+      ]
+    },
+    {
+      "question_id": "2024_p2_q3",
+      "year": 2024,
+      "paper": 2,
+      "question": 3,
+      "n_wines": 5,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.2,
+        "top1_region_subregion": 1.0,
+        "top3_region": 0.6,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.4567
+      },
+      "per_wine": [
+        {
+          "slot": 8,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "France",
+          "actual_subregion": "Burgundy",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "Canada",
+          "actual_subregion": "Niagara",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "Germany",
+          "actual_subregion": "Baden",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "USA",
+          "actual_subregion": "Sonoma",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.25
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Pinot Noir",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Central Otago",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 5,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.2
+        }
+      ],
+      "predicted_varieties": [
+        "Pinot Noir",
+        "Shiraz",
+        "Syrah",
+        "Cabernet Sauvignon",
+        "Merlot"
+      ],
+      "predicted_regions": [
+        "France",
+        "Germany",
+        "Canada",
+        "USA",
+        "New Zealand"
+      ]
+    },
+    {
+      "question_id": "2024_p3_q1",
+      "year": 2024,
+      "paper": 3,
+      "question": 1,
+      "n_wines": 2,
+      "scores": {
+        "top1_variety": 0.5,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.5,
+        "top1_region_subregion": 0.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.75,
+        "mrr_region": 0.75
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Chardonnay",
+          "actual_country": "USA",
+          "actual_subregion": "Unknown",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Xarel-lo/Macabeo",
+          "actual_country": "Spain",
+          "actual_subregion": "Penedes",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.5
+        }
+      ],
+      "predicted_varieties": [
+        "Chardonnay",
+        "Xarel-lo",
+        "Macabeo",
+        "Chenin Blanc",
+        "Chenin"
+      ],
+      "predicted_regions": [
+        "USA",
+        "Spain"
+      ]
+    },
+    {
+      "question_id": "2024_p3_q2",
+      "year": 2024,
+      "paper": 3,
+      "question": 2,
+      "n_wines": 2,
+      "scores": {
+        "top1_variety": 0.0,
+        "top3_variety": 0.0,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 0.0,
+        "mrr_variety": 0.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 3,
+          "actual_variety": "Chardonnay",
+          "actual_country": "France",
+          "actual_subregion": "Jura",
+          "variety_rank": 0,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Chardonnay/Savagnin",
+          "actual_country": "France",
+          "actual_subregion": "Jura",
+          "variety_rank": 0,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.0,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Palomino",
+        "Semillon"
+      ],
+      "predicted_regions": [
+        "France"
+      ]
+    },
+    {
+      "question_id": "2024_p3_q3",
+      "year": 2024,
+      "paper": 3,
+      "question": 3,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 5,
+          "actual_variety": "Sauvignon Blanc/Semillon",
+          "actual_country": "France",
+          "actual_subregion": "Bordeaux",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Semillon/Sauvignon Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Sauternes",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Semillon/Sauvignon Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Sauternes",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Semillon",
+        "Chenin Blanc",
+        "Pinot Blanc",
+        "Auxerrois",
+        "Riesling"
+      ],
+      "predicted_regions": [
+        "France"
+      ]
+    },
+    {
+      "question_id": "2024_p3_q4",
+      "year": 2024,
+      "paper": 3,
+      "question": 4,
+      "n_wines": 5,
+      "scores": {
+        "top1_variety": 0.2,
+        "top3_variety": 0.4,
+        "top1_region_country": 0.2,
+        "top1_region_subregion": 0.6,
+        "top3_region": 0.6,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.4186,
+        "mrr_region": 0.4667
+      },
+      "per_wine": [
+        {
+          "slot": 8,
+          "actual_variety": "Vidal",
+          "actual_country": "Canada",
+          "actual_subregion": "Niagara",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Chardonnay/Welschriesling",
+          "actual_country": "Austria",
+          "actual_subregion": "Burgenland",
+          "variety_rank": 7,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.14285714285714285,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Trebbiano/Malvasia",
+          "actual_country": "Italy",
+          "actual_subregion": "Tuscany",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Muscat",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 4,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.25,
+          "mrr_region": 0.25
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Chenin Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Unknown",
+          "variety_rank": 5,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.2,
+          "mrr_region": 0.25
+        }
+      ],
+      "predicted_varieties": [
+        "Vidal",
+        "Trebbiano",
+        "Malvasia",
+        "Muscat",
+        "Chenin Blanc"
+      ],
+      "predicted_regions": [
+        "Canada",
+        "Austria",
+        "Italy",
+        "France"
+      ]
+    },
+    {
+      "question_id": "2025_p1_q1",
+      "year": 2025,
+      "paper": 1,
+      "question": 1,
+      "n_wines": 2,
+      "scores": {
+        "top1_variety": 0.5,
+        "top3_variety": 0.5,
+        "top1_region_country": 0.5,
+        "top1_region_subregion": 0.0,
+        "top3_region": 0.5,
+        "candidate_set": 0.5,
+        "mrr_variety": 0.5,
+        "mrr_region": 0.5
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Cabernet Sauvignon/Merlot",
+          "actual_country": "France",
+          "actual_subregion": "Pessac-Leognan",
+          "variety_rank": 0,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": false,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Sauvignon Blanc",
+          "actual_country": "Australia",
+          "actual_subregion": "Margaret River",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 0,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.0
+        }
+      ],
+      "predicted_varieties": [
+        "Sauvignon Blanc",
+        "Semillon",
+        "Roussanne",
+        "Marsanne",
+        "Chenin Blanc"
+      ],
+      "predicted_regions": [
+        "France",
+        "Unknown"
+      ]
+    },
+    {
+      "question_id": "2025_p1_q2",
+      "year": 2025,
+      "paper": 1,
+      "question": 2,
+      "n_wines": 4,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.25,
+        "top1_region_subregion": 1.0,
+        "top3_region": 0.75,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.5208
+      },
+      "per_wine": [
+        {
+          "slot": 3,
+          "actual_variety": "Chardonnay",
+          "actual_country": "France",
+          "actual_subregion": "Burgundy",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 4,
+          "actual_variety": "Chardonnay",
+          "actual_country": "USA",
+          "actual_subregion": "Monterey",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Chardonnay",
+          "actual_country": "South Africa",
+          "actual_subregion": "Elgin",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Chardonnay",
+          "actual_country": "Australia",
+          "actual_subregion": "Margaret River",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.25
+        }
+      ],
+      "predicted_varieties": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc",
+        "Chenin Blanc",
+        "Chenin"
+      ],
+      "predicted_regions": [
+        "France",
+        "USA",
+        "South Africa",
+        "Australia"
+      ]
+    },
+    {
+      "question_id": "2025_p1_q3",
+      "year": 2025,
+      "paper": 1,
+      "question": 3,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.3333,
+        "top3_variety": 0.6667,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.5833,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 7,
+          "actual_variety": "Melon de Bourgogne",
+          "actual_country": "France",
+          "actual_subregion": "Loire",
+          "variety_rank": 4,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.25,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Riesling",
+          "actual_country": "France",
+          "actual_subregion": "Alsace",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Chenin Blanc",
+          "actual_country": "France",
+          "actual_subregion": "Loire",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Riesling",
+        "Chenin Blanc",
+        "Chenin",
+        "Melon de Bourgogne",
+        "Melon"
+      ],
+      "predicted_regions": [
+        "France"
+      ]
+    },
+    {
+      "question_id": "2025_p1_q4",
+      "year": 2025,
+      "paper": 1,
+      "question": 4,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.3333,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.3333,
+        "top1_region_subregion": 0.6667,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.6667,
+        "mrr_region": 0.6111
+      },
+      "per_wine": [
+        {
+          "slot": 10,
+          "actual_variety": "Riesling",
+          "actual_country": "Germany",
+          "actual_subregion": "Mosel",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Viura/Malvasia",
+          "actual_country": "Spain",
+          "actual_subregion": "Rioja",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Trebbiano/Malvasia",
+          "actual_country": "Italy",
+          "actual_subregion": "Tuscany",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.3333333333333333
+        }
+      ],
+      "predicted_varieties": [
+        "Riesling",
+        "Malvasia",
+        "Garnacha",
+        "Garnacha Blanca",
+        "Trebbiano"
+      ],
+      "predicted_regions": [
+        "Germany",
+        "Spain",
+        "Italy"
+      ]
+    },
+    {
+      "question_id": "2025_p2_q1",
+      "year": 2025,
+      "paper": 2,
+      "question": 1,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.6667,
+        "top3_variety": 0.6667,
+        "top1_region_country": 0.3333,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.75,
+        "mrr_region": 0.6111
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Cabernet Franc",
+          "actual_country": "France",
+          "actual_subregion": "Loire",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Cabernet Franc",
+          "actual_country": "Argentina",
+          "actual_subregion": "Mendoza",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Sangiovese/Cabernet Sauvignon",
+          "actual_country": "Italy",
+          "actual_subregion": "Tuscany",
+          "variety_rank": 4,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.25,
+          "mrr_region": 0.3333333333333333
+        }
+      ],
+      "predicted_varieties": [
+        "Cabernet Franc",
+        "Shiraz",
+        "Syrah",
+        "Cabernet Sauvignon",
+        "Pinot Noir"
+      ],
+      "predicted_regions": [
+        "France",
+        "Argentina",
+        "Italy"
+      ]
+    },
+    {
+      "question_id": "2025_p2_q2",
+      "year": 2025,
+      "paper": 2,
+      "question": 2,
+      "n_wines": 4,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 4,
+          "actual_variety": "Grenache/Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 7,
+          "actual_variety": "Grenache/Syrah",
+          "actual_country": "France",
+          "actual_subregion": "Rhone",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Syrah",
+        "Grenache",
+        "Mourvedre",
+        "Cinsault"
+      ],
+      "predicted_regions": [
+        "France"
+      ]
+    },
+    {
+      "question_id": "2025_p2_q3",
+      "year": 2025,
+      "paper": 2,
+      "question": 3,
+      "n_wines": 5,
+      "scores": {
+        "top1_variety": 0.2,
+        "top3_variety": 0.6,
+        "top1_region_country": 0.2,
+        "top1_region_subregion": 0.8,
+        "top3_region": 0.6,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.4567,
+        "mrr_region": 0.4567
+      },
+      "per_wine": [
+        {
+          "slot": 8,
+          "actual_variety": "Touriga Nacional",
+          "actual_country": "Portugal",
+          "actual_subregion": "Douro",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Zweigelt",
+          "actual_country": "Austria",
+          "actual_subregion": "Unknown",
+          "variety_rank": 4,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": false,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.25,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Barbera",
+          "actual_country": "Italy",
+          "actual_subregion": "Piedmont",
+          "variety_rank": 5,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.2,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Gamay",
+          "actual_country": "France",
+          "actual_subregion": "Beaujolais",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 4,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 0.25
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Xinomavro",
+          "actual_country": "Greece",
+          "actual_subregion": "Amyndeon",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 5,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 0.2
+        }
+      ],
+      "predicted_varieties": [
+        "Touriga Nacional",
+        "Gamay",
+        "Xinomavro",
+        "Zweigelt",
+        "Barbera"
+      ],
+      "predicted_regions": [
+        "Portugal",
+        "Austria",
+        "Italy",
+        "France",
+        "Greece"
+      ]
+    },
+    {
+      "question_id": "2025_p3_q1",
+      "year": 2025,
+      "paper": 3,
+      "question": 1,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 1.0,
+        "top3_variety": 1.0,
+        "top1_region_country": 0.6667,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 1.0,
+        "mrr_region": 0.7778
+      },
+      "per_wine": [
+        {
+          "slot": 1,
+          "actual_variety": "Riesling",
+          "actual_country": "Germany",
+          "actual_subregion": "Mosel",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 2,
+          "actual_variety": "Riesling",
+          "actual_country": "New Zealand",
+          "actual_subregion": "Marlborough",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 3,
+          "actual_variety": "Riesling",
+          "actual_country": "Germany",
+          "actual_subregion": "Mosel",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Riesling",
+        "Muscat",
+        "Chenin Blanc",
+        "Chenin",
+        "Pinot Noir"
+      ],
+      "predicted_regions": [
+        "Germany",
+        "Australia",
+        "New Zealand"
+      ]
+    },
+    {
+      "question_id": "2025_p3_q2",
+      "year": 2025,
+      "paper": 3,
+      "question": 2,
+      "n_wines": 3,
+      "scores": {
+        "top1_variety": 0.3333,
+        "top3_variety": 1.0,
+        "top1_region_country": 1.0,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 1.0,
+        "mrr_variety": 0.6111,
+        "mrr_region": 1.0
+      },
+      "per_wine": [
+        {
+          "slot": 4,
+          "actual_variety": "Xarel-lo/Macabeo",
+          "actual_country": "Spain",
+          "actual_subregion": "Penedes",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 5,
+          "actual_variety": "Garnacha",
+          "actual_country": "Spain",
+          "actual_subregion": "Sierra de Gredos",
+          "variety_rank": 2,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.5,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 6,
+          "actual_variety": "Palomino",
+          "actual_country": "Spain",
+          "actual_subregion": "Jerez",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 1.0
+        }
+      ],
+      "predicted_varieties": [
+        "Xarel-lo",
+        "Garnacha",
+        "Palomino",
+        "Macabeo",
+        "Parellada"
+      ],
+      "predicted_regions": [
+        "Spain"
+      ]
+    },
+    {
+      "question_id": "2025_p3_q3",
+      "year": 2025,
+      "paper": 3,
+      "question": 3,
+      "n_wines": 6,
+      "scores": {
+        "top1_variety": 0.1667,
+        "top3_variety": 0.3333,
+        "top1_region_country": 0.3333,
+        "top1_region_subregion": 1.0,
+        "top3_region": 1.0,
+        "candidate_set": 0.3333,
+        "mrr_variety": 0.289,
+        "mrr_region": 0.5833
+      },
+      "per_wine": [
+        {
+          "slot": 7,
+          "actual_variety": "Grenache/Cinsault",
+          "actual_country": "France",
+          "actual_subregion": "Provence",
+          "variety_rank": 1,
+          "variety_top1": true,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 1.0,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 8,
+          "actual_variety": "Pinot Gris",
+          "actual_country": "France",
+          "actual_subregion": "Alsace",
+          "variety_rank": 3,
+          "variety_top1": false,
+          "variety_top3": true,
+          "region_rank": 1,
+          "region_top1": true,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.3333333333333333,
+          "mrr_region": 1.0
+        },
+        {
+          "slot": 9,
+          "actual_variety": "Furmint/Harslevelu",
+          "actual_country": "Hungary",
+          "actual_subregion": "Tokaj",
+          "variety_rank": 7,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 2,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.14285714285714285,
+          "mrr_region": 0.5
+        },
+        {
+          "slot": 10,
+          "actual_variety": "Sercial",
+          "actual_country": "Portugal",
+          "actual_subregion": "Madeira",
+          "variety_rank": 11,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": true,
+          "mrr_variety": 0.09090909090909091,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 11,
+          "actual_variety": "Touriga Nacional/Touriga Franca",
+          "actual_country": "Portugal",
+          "actual_subregion": "Douro",
+          "variety_rank": 12,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.08333333333333333,
+          "mrr_region": 0.3333333333333333
+        },
+        {
+          "slot": 12,
+          "actual_variety": "Touriga Nacional/Touriga Franca",
+          "actual_country": "Portugal",
+          "actual_subregion": "Douro",
+          "variety_rank": 12,
+          "variety_top1": false,
+          "variety_top3": false,
+          "region_rank": 3,
+          "region_top1": false,
+          "subregion_hit": true,
+          "candidate_set_hit": false,
+          "mrr_variety": 0.08333333333333333,
+          "mrr_region": 0.3333333333333333
+        }
+      ],
+      "predicted_varieties": [
+        "Grenache",
+        "Cinsault",
+        "Pinot Gris",
+        "Riesling",
+        "Gewurztraminer"
+      ],
+      "predicted_regions": [
+        "France",
+        "Hungary",
+        "Portugal"
+      ]
+    }
+  ],
+  "per_year": {
+    "2024": {
+      "n_questions": 10,
+      "scores": {
+        "top1_variety": 0.4617,
+        "top3_variety": 0.715,
+        "top1_region_country": 0.4733,
+        "top1_region_subregion": 0.785,
+        "top3_region": 0.82,
+        "candidate_set": 0.8417,
+        "mrr_variety": 0.6005,
+        "mrr_region": 0.6576
+      }
+    },
+    "2025": {
+      "n_questions": 10,
+      "scores": {
+        "top1_variety": 0.5533,
+        "top3_variety": 0.7767,
+        "top1_region_country": 0.5617,
+        "top1_region_subregion": 0.8467,
+        "top3_region": 0.885,
+        "candidate_set": 0.8833,
+        "mrr_variety": 0.6857,
+        "mrr_region": 0.7061
+      }
+    }
+  },
+  "overall": {
+    "top1_variety": 0.5075,
+    "top3_variety": 0.7458,
+    "top1_region_country": 0.5175,
+    "top1_region_subregion": 0.8158,
+    "top3_region": 0.8525,
+    "candidate_set": 0.8625,
+    "mrr_variety": 0.6431,
+    "mrr_region": 0.6818
+  },
+  "per_paper": {
+    "1": {
+      "n_questions": 7,
+      "scores": {
+        "top1_variety": 0.4048,
+        "top3_variety": 0.7381,
+        "top1_region_country": 0.4881,
+        "top1_region_subregion": 0.7857,
+        "top3_region": 0.7976,
+        "candidate_set": 0.881,
+        "mrr_variety": 0.5847,
+        "mrr_region": 0.6379
+      }
+    },
+    "2": {
+      "n_questions": 6,
+      "scores": {
+        "top1_variety": 0.6861,
+        "top3_variety": 0.8361,
+        "top1_region_country": 0.3722,
+        "top1_region_subregion": 0.8694,
+        "top3_region": 0.8111,
+        "candidate_set": 0.9583,
+        "mrr_variety": 0.7835,
+        "mrr_region": 0.599
+      }
+    },
+    "3": {
+      "n_questions": 7,
+      "scores": {
+        "top1_variety": 0.4571,
+        "top3_variety": 0.6762,
+        "top1_region_country": 0.6714,
+        "top1_region_subregion": 0.8,
+        "top3_region": 0.9429,
+        "candidate_set": 0.7619,
+        "mrr_variety": 0.5812,
+        "mrr_region": 0.7968
+      }
+    }
+  }
+}

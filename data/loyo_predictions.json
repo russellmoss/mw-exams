@@ -1,0 +1,7867 @@
+[
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Riesling",
+      "Pinot Gris"
+    ],
+    "region_ranking": [
+      "France",
+      "Unknown"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Riesling",
+        "raw": "Alsace: four wines would likely span different varieties (Riesling, Pinot Gris, Gewürztraminer, Pinot Blanc), not four sub-appellations of one region; less natural fit for a same-variety quality hiera"
+      },
+      "2": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "",
+        "raw": "Chablis Premier Cru or Côte de Beaune village (Meursault village or Puligny-Montrachet village); step up in complexity and body"
+      },
+      "3": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "",
+        "raw": "Chablis Grand Cru (one of the seven — Vaudésir, Valmur, Les Clos, Grenouilles, Preuses, Bougros, Blanchots) or Puligny-Montrachet Premier Cru; material increase in concentration and length"
+      },
+      "4": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "",
+        "raw": "Grand Cru — Bâtard-Montrachet or Bienvenues-Bâtard-Montrachet (richest, most powerful) or Corton-Charlemagne (more mineral, elegant)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chenin Blanc",
+      "Chenin",
+      "Chardonnay",
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "South Africa",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "",
+        "raw": "South Africa → Swartland or Piekenierskloof (old vine),"
+      },
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Loire Valley → Vouvray (Chenin sec), Savennières,"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Semillon",
+      "| W8 | Sémillon |",
+      "Gruner Veltliner",
+      "| W9 | Grüner Veltliner |",
+      "Gewurztraminer",
+      "Viognier",
+      "Riesling",
+      "Albarino",
+      "| W7 | Albariño |"
+    ],
+    "region_ranking": [
+      "Spain",
+      "Australia",
+      "Austria",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Albariño",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Sémillon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grüner Veltliner",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "7": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rias Baixas, Spain"
+      },
+      "8": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "Margaret River, Western Australia"
+      },
+      "9": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Wachau, Austria"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Alsace, France"
+      },
+      "11": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Condrieu, Rhône, France"
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Alsace, France (Léon Beyer style — bone dry, aged)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 9,
+      "origin_slots_parsed": 6,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 0,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Tempranillo",
+      "Garnacha",
+      "Mazuelo",
+      "Graciano",
+      "Shiraz",
+      "Syrah",
+      "Gamay",
+      "Grenache",
+      "Malbec",
+      "Cabernet Sauvignon"
+    ],
+    "region_ranking": [
+      "Spain",
+      "Australia",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Tempranillo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Mazuelo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Graciano",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Barossa Valley, Australia",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Gamay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain"
+      },
+      "5": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "Barossa Valley, South Australia"
+      },
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Beaujolais cru (Fleurie / Morgon / Moulin-à-Vent), France"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 10,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Sangiovese",
+      "Nebbiolo",
+      "Corvina",
+      "Aglianico"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Corvina",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Aglianico",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 2,
+    "question": 4,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Cabernet Franc"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.3 fortified/oxidative + Branch 5.1 sparkling",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier",
+      "English Sparkling",
+      "Palomino",
+      "Manzanilla",
+      "Fino",
+      "Savagnin"
+    ],
+    "region_ranking": [
+      "France",
+      "England",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Savagnin",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Champagne Pinot Noir / Chardonnay / Pinot Meunier classic blend"
+      },
+      "2": {
+        "countries": [
+          "England"
+        ],
+        "variety": "Chardonnay",
+        "raw": "England — Cornwall or southern counties Pinot Noir / Pinot Meunier / Chardonnay (Champagne varieties on English chalk-belt soils)"
+      },
+      "3": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — Jerez or Sanlúcar de Barrameda Palomino"
+      },
+      "4": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Savagnin",
+        "raw": "France — Jura — Arbois / L'Étoile / Château-Chalon Savagnin"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth + Branch 4.2 partly linked (one country contributes two wines)",
+    "variety_ranking": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Muscat",
+      "Palomino",
+      "Fino",
+      "Sercial"
+    ],
+    "region_ranking": [
+      "Portugal",
+      "Australia",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sercial",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Port",
+        "raw": "Portugal — Douro"
+      },
+      "6": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "Australia — Barossa Valley or McLaren Vale"
+      },
+      "7": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Spain — Jerez"
+      },
+      "8": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Madeira",
+        "raw": "Portugal — Madeira (single-vintage Colheita or age-statement)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 10,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2015,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f6-style-mechanism-comparative-set-p3",
+    "variety_ranking": [
+      "Riesling",
+      "Furmint",
+      "Harslevelu",
+      "Muscat Lunel",
+      "Tokaji",
+      "Trebbiano",
+      "Malvasia",
+      "Vin Santo",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "Unknown",
+      "France",
+      "Hungary",
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Icewine",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Harslevelu",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Hungary"
+        ]
+      },
+      {
+        "variety": "Muscat Lunel",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Hungary"
+        ]
+      },
+      {
+        "variety": "Trebbiano",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Malvasia",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Muscat",
+        "raw": "Fortified sweet wines (Port, VDN Muscat, Rutherglen): alcohol would push 17–20%+; the explicit RS tick-box and the question's four-country spread do not fit a fortified-dominant flight — and a candida"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Sauternes",
+        "raw": "Sauternes alongside Tokaji: two botrytis wines would collapse the mechanism spread and repeat the same vineyard-to-bottle production narrative — the examiner builds a question to test four different e"
+      },
+      "11": {
+        "countries": [
+          "Hungary"
+        ],
+        "variety": "Tokaji",
+        "raw": "— Hungary, Tokaj: Aszú 5 puttonyos (Royal Tokaji, Disznókő); ~11–12% ABV; ~120–180 g/L RS; saffron, orange peel, ginger, dried apricot; structured acid."
+      },
+      "12": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Vin Santo",
+        "raw": "— Italy, Tuscany: Vin Santo (Isole e Olena, Avignonesi); ~14–16% ABV; ~100–150 g/L RS; amber, raisin, walnut, caramel oxidation; lower acid."
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 9,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f3-blend--composition-logic-set-p1",
+    "variety_ranking": [
+      "Sauvignon Blanc",
+      "Roussanne",
+      "Chenin"
+    ],
+    "region_ranking": [
+      "Germany",
+      "Austria",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Roussanne",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Germany",
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Germany / Austria: not white blend cultures at exam level"
+      },
+      "2": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "New Zealand: predominantly single-variety whites; no domestic blend tradition testable at this depth"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Chenin Blanc",
+      "Chenin",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "USA"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "3": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "USA → California → Central Coast or large-volume producer"
+      },
+      "4": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "USA → California → Sonoma Mountain, Sonoma Coast, or"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Pinot Gris",
+      "Riesling",
+      "Chenin Blanc",
+      "Chenin",
+      "Viognier"
+    ],
+    "region_ranking": [
+      "France",
+      "USA"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "rich, waxy, possibly off-dry, 13.5–14.5%",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "STRONG SIGNAL; mass-market",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Alsace → Grand Cru or single-vineyard cru;"
+      },
+      "6": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "Oregon (Willamette Valley, Ponzi / King Estate / A to Z)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 4,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Albarino",
+      "Slot W8: Albariño — Spain, Rías Baixas DO"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Albariño",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 1,
+    "question": 5,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Torrontes",
+      "| W9 | Torrontés |",
+      "Gewurztraminer",
+      "Chenin Blanc",
+      "Riesling"
+    ],
+    "region_ranking": [
+      "Argentina",
+      "New Zealand",
+      "France",
+      "Austria"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Torrontés",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Mendoza or Salta, Argentina"
+      },
+      "10": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "Nelson, New Zealand"
+      },
+      "11": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Vouvray, Loire Valley, France"
+      },
+      "12": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Wachau, Austria (Ried Schütt Dürnsteiner)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Gamay"
+    ],
+    "region_ranking": [
+      "Unknown",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Gamay",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Nebbiolo",
+        "raw": "Barolo — Nebbiolo, traditional Slavonian-oak long-maceration vs. modern barrique/shorter maceration."
+      },
+      "2": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Tempranillo",
+        "raw": "Rioja — Tempranillo, traditional American-oak extended ageing vs. modern French-oak fruit-forward."
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4,
+      5
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Pinot Noir"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p2",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot"
+    ],
+    "region_ranking": [
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "| W7 | Right Bank Grand Cru or Grand Cru Classé",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "Left Bank Bordeaux — Saint-Julien, Pauillac, Margaux, or Saint-Estèphe; Cabernet Sauvignon dominant; cru classé level (2nd through 5th growth); firm cassis, cedar, graphite, structured tannins"
+      },
+      "7": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Merlot",
+        "raw": "Right Bank Bordeaux — Saint-Émilion or Pomerol; Merlot dominant; Grand Cru or Grand Cru Classé level; plum, chocolate, rounder tannins, softer mid-palate"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 4,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Syrah",
+      "Sangiovese",
+      "Nebbiolo",
+      "Tempranillo"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 2,
+    "question": 5,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Malbec",
+      "Blaufrankisch",
+      "Variety: Blaufränkisch",
+      "Carmenere",
+      "Variety: Carmenère",
+      "Touriga Nacional",
+      "Xinomavro",
+      "Pinotage"
+    ],
+    "region_ranking": [
+      "Argentina",
+      "Austria",
+      "Chile"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Malbec",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Mendoza or Salta, Argentina",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Blaufränkisch",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Burgenland, Austria",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Xinomavro",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Carmenère",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Colchagua Valley or Maipo Valley, Chile",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinotage",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "10": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Mendoza or Salta, Argentina"
+      },
+      "11": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Burgenland, Austria (Moric or equivalent serious producer)"
+      },
+      "12": {
+        "countries": [
+          "Chile"
+        ],
+        "variety": "",
+        "raw": "Colchagua Valley or Maipo Valley, Chile"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f1-same-variety-comparative-set-p3",
+    "variety_ranking": [
+      "Chardonnay",
+      "Chenin Blanc",
+      "Chenin",
+      "Viognier"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.3 fortified / oxidative mechanism",
+    "variety_ranking": [
+      "Palomino",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Sercial"
+    ],
+    "region_ranking": [
+      "Spain",
+      "Portugal"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sercial",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "6": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — Jerez — Palomino-based"
+      },
+      "7": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Touriga Nacional",
+        "raw": "Portugal — Douro Touriga Nacional / Touriga Franca / Tinta Roriz / Tinta Cão field blend"
+      },
+      "8": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Madeira",
+        "raw": "Portugal — Madeira Sercial (driest) or Verdelho (off-dry) given the question's quality / maturity band rewards a discussable dry-end Madeira"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth (two-wine paired variant overlapping F2 botrytis territory)",
+    "variety_ranking": [
+      "Furmint",
+      "Harslevelu",
+      "Muscat Lunel",
+      "Tokaji",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "Hungary",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Furmint",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Harslevelu",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat Lunel",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Hungary"
+        ],
+        "variety": "Furmint",
+        "raw": "Hungary — Tokaj Furmint-dominant (with Hárslevelű and / or Sárgamuskotály)"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Sauvignon Blanc",
+        "raw": "France — Bordeaux — Sauternes or Barsac Sémillon-dominant (with Sauvignon Blanc adding citrus freshness and Muscadelle adding aromatic lift)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2016,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p3",
+    "variety_ranking": [
+      "Corvina",
+      "Sercial"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Recioto",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Corvina",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Sercial",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Alsace VT + SGN from one producer",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Melon de Bourgogne",
+      "Chenin Blanc",
+      "Sauvignon Blanc"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Melon de Bourgogne",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Pinot Gris",
+      "Chardonnay",
+      "Riesling",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "France",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "off-dry)",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "New Zealand"
+        ]
+      },
+      {
+        "variety": "remaining PLAUSIBLE slot and rises to",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Alsace; style, alcohol, and age-development rule"
+      },
+      "5": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "Pinot Gris",
+        "raw": "New Zealand → Nelson or Marlborough (Nelson Pinot Gris is"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Garganega",
+      "Arneis"
+    ],
+    "region_ranking": [
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Garganega",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Arneis",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "6": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Soave Classico, Veneto, Italy"
+      },
+      "7": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Roero Arneis, Piemonte, Italy"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 4,
+    "wine_slots": [
+      8,
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Muscat",
+      "Albarino",
+      "Viognier",
+      "Riesling",
+      "Gruner Veltliner"
+    ],
+    "region_ranking": [
+      "France",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Albarino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Gruner Veltliner",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "8": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Muscat",
+        "raw": "Alsace, France — Muscat Réserve tier Muscat Blanc a Petits Grains (dry Alsace Muscat)"
+      },
+      "9": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rias Baixas, Galicia, Spain Albarino"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Viognier",
+        "raw": "Condrieu, Northern Rhone Valley, France (Cote Rotie appellation area) Viognier"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 1,
+    "question": 5,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Semillon"
+    ],
+    "region_ranking": [
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "oak, mineral, brighter, less evolved;",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "11": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Burgundy → Cote de Beaune (Meursault, Puligny-"
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Burgundy → Chablis; the chalk-mineral signature"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot",
+      "Shiraz",
+      "Merlot-led"
+    ],
+    "region_ranking": [
+      "France",
+      "Australia",
+      "USA",
+      "South Africa"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Petit Verdot",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "but Cab Franc + Cab Sauv present",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Alexander Valley or Napa Valley, California, USA",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Origin: Stellenbosch, South Africa",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Bordeaux Left Bank (Saint-Estèphe or Médoc), France"
+      },
+      "2": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "South Australia (Barossa Valley or South Eastern Australia), Australia"
+      },
+      "3": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "Alexander Valley or Napa Valley, California, USA"
+      },
+      "4": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "",
+        "raw": "Stellenbosch, South Africa"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Nebbiolo",
+      "Montepulciano + Sangiovese + Nebbiolo + Nerello"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Italy as country",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Montepulciano",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "France as country",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Australia as country",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Cabernet Franc",
+      "Pinot Noir",
+      "Pinotage",
+      "Malbec",
+      "Zweigelt"
+    ],
+    "region_ranking": [
+      "France",
+      "Germany",
+      "South Africa",
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Origin: Baden, Germany",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinotage",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Origin: Stellenbosch, South Africa",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Variety: Lagrein",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Origin: Südtirol",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Zweigelt",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Chinon or Bourgueil, Loire Valley, France"
+      },
+      "10": {
+        "countries": [
+          "Germany"
+        ],
+        "variety": "",
+        "raw": "Baden, Germany"
+      },
+      "11": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "",
+        "raw": "Stellenbosch, South Africa"
+      },
+      "12": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Südtirol / Alto Adige, Italy"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth (rosé commercial-spectrum variant)",
+    "variety_ranking": [
+      "Zinfandel"
+    ],
+    "region_ranking": [
+      "USA",
+      "France",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Zinfandel",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "USA"
+        ]
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "Zinfandel",
+        "raw": "USA — California (Central Valley / Lodi) Zinfandel (run as a white-style rosé)"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Syrah",
+        "raw": "France — Provence — Côtes de Provence (or Coteaux d'Aix / Bandol Rosé at premium tier) Grenache + Cinsault + Mourvèdre + Syrah + Vermentino (Rolle) blend"
+      },
+      "3": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "Chardonnay",
+        "raw": "New Zealand — Marlborough (Cloudy Bay Pelorus or similar) Pinot Noir + Chardonnay (Champagne varieties)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.4 hybrid F5 (origin-de-emphasised, style-commercial)",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Pinot Noir",
+      "Tempranillo"
+    ],
+    "region_ranking": [
+      "Italy",
+      "Australia",
+      "Georgia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Skin-contact",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Natural",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pet-nat or other ancestral-method sparkling →",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": [
+          "Italy",
+          "Australia",
+          "Georgia"
+        ],
+        "variety": "",
+        "raw": "Australia (Margaret River biodynamic), Italy (Friuli orange tradition), Slovenia (Brda), Georgia (qvevri amber) all credible. The stem deliberately removes this"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 1,
+      "expected_slots": 1
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f6-style-mechanism-comparative-set-p3",
+    "variety_ranking": [
+      "Riesling",
+      "Gewürztraminer",
+      "Moscato",
+      "Muscat",
+      "Chenin Blanc",
+      "Pinot Gris"
+    ],
+    "region_ranking": [
+      "Unknown"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Gewürztraminer",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Moscato",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "Unknown"
+        ]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Chardonnay",
+        "raw": "Chardonnay or Sauvignon Blanc: not associated with RS quantification as a primary examination skill; commercial potential essay would be generic rather than RS-mechanism-specific."
+      },
+      "6": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Muscat",
+        "raw": "Two wines from the same aromatic family (e.g. two Muscats): the stem explicitly states \"different single grape varieties.\""
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f1-same-variety-comparative-set-p3",
+    "variety_ranking": [
+      "Grenache",
+      "Garnacha",
+      "Shiraz",
+      "Syrah",
+      "Monastrell"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Monastrell",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 5,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Pinot Noir",
+      "Nebbiolo"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2017,
+    "paper": 3,
+    "question": 6,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.3 fortified / oxidative + commercial archetype overlay",
+    "variety_ranking": [
+      "Palomino",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Grenache Noir",
+      "Banyuls",
+      "Maury",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port"
+    ],
+    "region_ranking": [
+      "Spain",
+      "France",
+      "Portugal"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "11": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — Jerez — Palomino-based"
+      },
+      "12": {
+        "countries": [
+          "France",
+          "Portugal"
+        ],
+        "variety": "Grenache",
+        "raw": "France (Roussillon — Maury / Banyuls — Grenache Noir) OR Portugal (Douro — Touriga Nacional blend Port). The French VDN reading is preferred when the wine reads slightly fresher and less Vintage-Port-"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 10,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Riesling",
+      "Sauvignon Blanc"
+    ],
+    "region_ranking": [
+      "Australia",
+      "France",
+      "USA",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Yellow Tail style)",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "W3: most plausible = Napa Valley, California",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "or South Africa Hemel-en-Aarde)",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "Australia → South Eastern Australia GI (very broad); Yellow"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France → Burgundy → Chablis Grand Cru (Les Préuses /"
+      },
+      "3": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "USA → California → Napa Valley; the alcohol, oak dominance,"
+      },
+      "4": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "New Zealand → Auckland / Waikato (Kumeu River is the"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Semillon",
+      "Gruner Veltliner",
+      "Garganega",
+      "Chenin Blanc",
+      "Torrontes"
+    ],
+    "region_ranking": [
+      "Australia",
+      "Spain",
+      "Austria",
+      "Italy",
+      "South Africa",
+      "Argentina"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Semillon",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Australia"
+        ]
+      },
+      {
+        "variety": "Gruner Veltliner",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Garganega",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "South Africa"
+        ]
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "South Africa"
+        ]
+      },
+      {
+        "variety": "Torrontes",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Semillon",
+        "raw": "Hunter Valley, New South Wales, Australia Semillon"
+      },
+      "6": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain (Rioja Blanco Gran Reserva or Reserva tier — Lopez de Heredia Viña Gravonia is the canonical reference wine) Viura (Macabeo)"
+      },
+      "7": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Kamptal, Austria (Ried Lamm single vineyard — Schloss Gobelsburg is a known producer) Gruner Veltliner"
+      },
+      "8": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Garganega",
+        "raw": "Veneto, Italy — Soave Classico DOC (Pieropan La Rocca single vineyard is the canonical quality reference) Garganega (Soave Classico)"
+      },
+      "9": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "Chenin Blanc",
+        "raw": "Stellenbosch, South Africa (Raats, Ken Forrester, Sadie Family are the canonical IMW reference producers) Chenin Blanc (old vine)"
+      },
+      "10": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Mendoza (Valle de Uco) or Salta (Cafayate), Argentina Torrontes"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 6,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Riesling",
+      "Semillon",
+      "Chenin"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Slot W11",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W12",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Sangiovese",
+      "Pinot Noir",
+      "Syrah",
+      "Viognier",
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Merlot-dominant",
+      "Tempranillo",
+      "Garnacha",
+      "Mazuelo",
+      "Graciano",
+      "Nebbiolo"
+    ],
+    "region_ranking": [
+      "Italy",
+      "France",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Right Bank",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Mazuelo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Graciano",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Tuscany, Italy — Brunello di Montalcino"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Burgundy, France — Chambolle-Musigny, Gevrey-Chambertin, or Vosne-Romanée"
+      },
+      "3": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Northern Rhône, France — Côte-Rôtie or Hermitage"
+      },
+      "4": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Bordeaux, France — Saint-Émilion (Right Bank) or Médoc (Left Bank)"
+      },
+      "5": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain — Gran Reserva"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 12,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Shiraz",
+      "Syrah"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Syrah",
+      "Malbec"
+    ],
+    "region_ranking": [
+      "Argentina",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "Argentina"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "Malbec",
+        "raw": "Malbec / Mendoza: Uco Valley single-vineyard vs. regional blend — PLAUSIBLE."
+      },
+      "10": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Grenache",
+        "raw": "Grenache / Barossa (McLaren Vale): but this appears in other years and Grenache is more naturally an F3 blend family grape."
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 2,
+    "question": 4,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Zinfandel",
+      "Cabernet Sauvignon",
+      "Petite Sirah",
+      "Malbec",
+      "Carmenere",
+      "Branch-C: Carmenère, Chile"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Zinfandel",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Petite Sirah",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Carmenère",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p3",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier",
+      "Semillon",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Palomino"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 11,
+      "origin_slots_parsed": 0,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Sauvignon Blanc",
+      "Sémillon",
+      "Grenache",
+      "Grenache Blanc",
+      "Roussanne",
+      "Chardonnay",
+      "Chenin Blanc",
+      "Pinot Gris",
+      "Riesling"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sémillon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Roussanne",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Clairette",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 9,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2018,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.3 hidden organising theme (Rhône-associated varieties grown outside the Rhône)",
+    "variety_ranking": [
+      "Cinsault",
+      "Birichino-style Lodi old-vine Cinsault; the tree's elevated Cinsault call",
+      "Garnacha",
+      "Mourvedre",
+      "technically outside the Rhône proper; serious Mourvèdre expression"
+    ],
+    "region_ranking": [
+      "USA",
+      "South Africa",
+      "Spain",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cinsault",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Mourvèdre",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "10": {
+        "countries": [
+          "USA",
+          "South Africa"
+        ],
+        "variety": "",
+        "raw": "USA — California — Lodi (Birichino Bechthold Vineyard archetype) or South Africa Stellenbosch Cinsault"
+      },
+      "11": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Spain — Terra Alta / La Mancha (El Terrerazo) / Aragon / Madrid Garnacha"
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "France — Provence — Bandol Mourvèdre (Monastrell)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f3-blend--composition-logic-set-p1",
+    "variety_ranking": [
+      "Sauvignon Blanc",
+      "Sémillon",
+      "Chardonnay"
+    ],
+    "region_ranking": [
+      "Unknown",
+      "France",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sémillon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Pinot Gris",
+        "raw": "Pinot Gris: rarely blended in classic still-wine context; two-country argument is weak"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Viognier",
+        "raw": "Viognier: could blend in northern Rhône but two-country constraint is awkward"
+      },
+      "3": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Pessac-Léognan or Bordeaux Blanc, France — SB-Sémillon blend; barrel-fermented; broader texture, vanilla/toast, waxy Sémillon mid-palate; 12.5% ABV"
+      },
+      "4": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "Marlborough, New Zealand — second NZ SB; potentially different quality tier (Awatere vs Wairau), different producer style, or deliberately low-alcohol expression"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.2 partly linked",
+    "variety_ranking": [
+      "Riesling",
+      "Grillo"
+    ],
+    "region_ranking": [
+      "Spain",
+      "Italy",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Grillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Fiano",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Vermentino — Sicily",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Australia"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain Viura (Macabeo) — white Rioja Reserva style"
+      },
+      "6": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rias Baixas, Galicia, Spain Albarino"
+      },
+      "7": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Sicily, Italy (southern Italy) Grillo (or other Sicilian dry white — Catarratto, Fiano di Avellino, Vermentino)"
+      },
+      "8": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Muscat",
+        "raw": "Piedmont (Canelli/Santo Stefano Belbo), Italy Muscat Bianco (Moscato d'Asti)"
+      },
+      "9": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Riesling",
+        "raw": "Clare Valley (Watervale sub-zone), South Australia, Australia Riesling"
+      },
+      "10": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Chardonnay",
+        "raw": "Adelaide Hills, South Australia, Australia Chardonnay"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 6,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f5-method--production-dominant-set-p1",
+    "variety_ranking": [
+      "Rkatsiteli",
+      "Grillo",
+      "Savagnin"
+    ],
+    "region_ranking": [
+      "Spain",
+      "Unknown"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Rkatsiteli",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grillo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Savagnin",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "11": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Spanish whites: too closely associated with recognizable profiles (Albariño, Verdejo, Rioja Blanco)"
+      },
+      "12": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Riesling",
+        "raw": "Riesling: too distinctive a profile to warrant \"do not identify origin\" instruction"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f3-blend--composition-logic-set-p2 — Branch 3.1 single-blend-family-across-origins / Branch 3.3 varietal-role-within-blend (Bordeaux-variety family across four origins)",
+    "variety_ranking": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon",
+      "right-bank satellite; Merlot-dominant blend"
+    ],
+    "region_ranking": [
+      "France",
+      "Italy",
+      "South Africa"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Fronsac",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "France — Bordeaux — right-bank satellite (Lussac-Saint-Émilion / Fronsac / Castillon Côtes de Bordeaux) Merlot-dominant (~60–80%) + Cabernet Franc / Cabernet Sauvignon supporting"
+      },
+      "2": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "Italy — Tuscany (Bolgheri or Maremma; Super Tuscan style) Cabernet Sauvignon-led with Petit Verdot (and possibly Cab Franc / Merlot) supporting"
+      },
+      "3": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Cabernet Franc",
+        "raw": "France — Loire — Saumur-Champigny (most likely) or Chinon Cabernet Franc 100% (Loire single-varietal tradition)"
+      },
+      "4": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "South Africa — Stellenbosch (premium estate; Vergelegen / Kanonkop tier) Cabernet Sauvignon-led + Merlot + Cabernet Franc + Petit Verdot"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Malbec",
+      "Carmenere",
+      "Best guess: Carmenère, Colchagua or Maipo, Chile",
+      "Tannat",
+      "Cabernet Sauvignon",
+      "Zinfandel"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Zinfandel",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Carmenère",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tannat",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 7,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Blaufrankisch",
+      "Best guess: Blaufränkisch, Austria — Leithaberg DAC or Mittelburgenland",
+      "Touriga Nacional",
+      "Cabernet Franc",
+      "Zweigelt",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Xinomavro"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Blaufränkisch",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Zweigelt",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Xinomavro",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 12,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Glera",
+      "Prosecco"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Glera",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth (rosé commercial-spectrum four-wine variant)",
+    "variety_ranking": [
+      "Grenache",
+      "Côtes de Provence; Grenache-led blend",
+      "Cinsault",
+      "Tempranillo",
+      "Tempranillo or Garnacha"
+    ],
+    "region_ranking": [
+      "France",
+      "Spain",
+      "USA",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cinsault",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Syrah",
+        "raw": "France — Provence — Côtes de Provence (Miraval / Whispering Angel archetype) Grenache + Cinsault + Mourvèdre + Syrah / Rolle blend"
+      },
+      "6": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Tempranillo",
+        "raw": "Spain — Rioja or Navarra Tempranillo (Rioja) or Garnacha (Navarra) — single-variety dominant"
+      },
+      "7": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "Pinot Noir",
+        "raw": "USA — California — Russian River Valley / Sonoma (Rodney Strong archetype) Pinot Noir"
+      },
+      "8": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "Sauvignon Blanc",
+        "raw": "New Zealand (Kim Crawford archetype; multi-region or appellation-NZ-wide) Pinot Noir or commercial blend with Sauvignon Blanc-influenced aromatic lift"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.3 fortified/oxidative (Sherry vs Jura yeast-film pair)",
+    "variety_ranking": [
+      "Palomino",
+      "Manzanilla",
+      "Fino",
+      "Savagnin"
+    ],
+    "region_ranking": [
+      "Spain",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Savagnin",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — **Sanlúcar de Barrameda** (Manzanilla — saline / chamomile / coastal influence) preferred over Jerez (Fino) when the wine reads particularly saline / coastal Palomino"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Savagnin",
+        "raw": "France — Jura — Arbois / L'Étoile / Château-Chalon Savagnin"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 5,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f6-style-mechanism-comparative-set-p3",
+    "variety_ranking": [
+      "Muscat",
+      "Muscat of Alexandria; or Tuscany — Vin Santo; or Veneto — Recioto di Soave",
+      "Trebbiano",
+      "Malvasia",
+      "Vin Santo",
+      "Muscat de Beaumes-de-Venise or Banyuls",
+      "Grenache Noir",
+      "Banyuls",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port"
+    ],
+    "region_ranking": [
+      "Portugal",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Pantelleria — Zibibbo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Trebbiano",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malvasia",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Passito",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Recioto",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache Noir",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "11": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Amontillado",
+        "raw": "Dry fortified wines (Fino, Amontillado, dry Madeira): explicit RS sub-question rules these out — a bone-dry wine would score 0 g/L and waste the sub-question marks."
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Champagne",
+        "raw": "Sparkling sweet wines: Q1 and Q2 in this paper already covered sparkling (Champagne and Prosecco respectively); mousse would dominate the production narrative."
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 14,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Savagnin",
+      "Chardonnay",
+      "Pinot Gris",
+      "Riesling"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Savagnin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W3: Rhône, France — white blend",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [
+      "Chenin Blanc"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Slot W5",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W6",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W7",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p1",
+    "variety_ranking": [
+      "Riesling",
+      "Chardonnay",
+      "Chenin Blanc"
+    ],
+    "region_ranking": [
+      "Unknown",
+      "Austria"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "8": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Sauvignon Blanc",
+        "raw": "Sauvignon Blanc: few producers make tiered single-variety SBs from one region at exam depth"
+      },
+      "9": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Any New World variety: the \"same producer, same region\" pair with classification hierarchy is primarily a European construct; the Wachau classification system has no New World equivalent"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 1,
+    "question": 4,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Moscato",
+      "Chardonnay",
+      "Pinot Gris"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Moscato",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p2",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Pinot Noir",
+      "Nebbiolo",
+      "Tempranillo"
+    ],
+    "region_ranking": [
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "| W1 | Difficult",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "| W2 | Good to excellent vintage",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "| W3 | Legendary vintage",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Bordeaux, Saint-Julien — difficult vintage; lighter ruby, higher acid, slightly lean, possibly some green/herbal hints; fruit does not fully carry the oak; drink sooner"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Bordeaux, Saint-Julien — good to excellent vintage; deep ruby, generous black fruit, ripe polished tannins, approachable now; good concentration; primary-to-secondary development"
+      },
+      "3": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Bordeaux, Saint-Julien — legendary vintage; deepest colour (brick/garnet rim from age), most evolved tertiary character (leather, tobacco, cedar, dried fruit), finest and most integrated tannins; requ"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Nebbiolo",
+      "Grenache",
+      "Cabernet Sauvignon",
+      "Sangiovese",
+      "Tempranillo",
+      "Shiraz",
+      "Syrah"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Carmenere",
+      "Best guess: Carmenère, Chile — Cachapoal or Colchagua",
+      "Petite Sirah",
+      "Zinfandel",
+      "Cabernet Sauvignon",
+      "Malbec"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Petite Sirah",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Zinfandel",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Carmenère",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 2,
+    "question": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Grenache"
+    ],
+    "region_ranking": [
+      "France",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Châteauneuf-du-Pape, Rhône, France — Clos des Papes or Château Rayas or similar; premium CdP; concentrated dark red fruit, complex, 14.5–15% ABV"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Grenache",
+        "raw": "Côtes du Rhône, Rhône, France — Guigal or Perrin or similar; entry-level Grenache-dominant; lighter, fruitier, shorter finish; 14–14.5% ABV"
+      },
+      "11": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain — Crianza level (La Montesa or similar); 2016–2018 vintage; shorter oak aging; more primary fruit"
+      },
+      "12": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rioja, Spain — Gran Reserva (Marqués de Murrieta Castillo Ygay or Muga or CVNE Imperial); older vintage (2010 or earlier); extended American oak aging; dried herb, vanilla, integrated structure"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth (sparkling-led variant overlapping F5a method-locked sparkling)",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "region_ranking": [
+      "France",
+      "USA"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Champagne (NV commercial house) Chardonnay + Pinot Noir + Pinot Meunier (classic Champagne blend)"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Champagne (vintage) Chardonnay-led or Pinot Noir-led vintage blend (Pol Roger / Bollinger Grande Année)"
+      },
+      "3": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "Chardonnay",
+        "raw": "USA — Anderson Valley, California (Roederer Estate); alternatives: Carneros (Domaine Carneros), Napa (Schramsberg) Chardonnay + Pinot Noir (Champagne varieties on Anderson Valley fruit)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.2 sweetness-mechanism + Branch 5.4 hybrid different-methods",
+    "variety_ranking": [
+      "Corvina",
+      "Brachetto",
+      "Moscato",
+      "Moscato d'Asti",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Grenache Noir",
+      "Banyuls",
+      "Maury",
+      "Muscat"
+    ],
+    "region_ranking": [
+      "Italy",
+      "Portugal",
+      "France",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Corvina",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Brachetto",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Moscato",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Asti",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "partial-Charmat method",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "fractional blending",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Corvina",
+        "raw": "Italy — Veneto — Valpolicella Corvina + Corvinone + Rondinella"
+      },
+      "5": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Italy — Piedmont — Acqui DOCG Brachetto"
+      },
+      "6": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Touriga Nacional",
+        "raw": "Portugal — Douro Touriga Nacional + Touriga Franca + Tinta Roriz field blend"
+      },
+      "7": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Grenache",
+        "raw": "France — Roussillon — Maury or Banyuls Grenache Noir"
+      },
+      "8": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Muscat",
+        "raw": "Australia — Victoria — Rutherglen Muscat à Petits Grains Rouge (\"Brown Muscat\")"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 14,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2021,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.2 partly linked (two-pairs-from-two-regions variant overlapping F2 same-origin)",
+    "variety_ranking": [
+      "Palomino",
+      "Verdelho"
+    ],
+    "region_ranking": [
+      "Spain",
+      "USA",
+      "Portugal"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Verdelho",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — Jerez (almacenista or VOS-tier producer; Lustau Almacenista archetype) Palomino"
+      },
+      "10": {
+        "countries": [
+          "Spain",
+          "USA"
+        ],
+        "variety": "Palomino",
+        "raw": "Spain — Jerez (Matusalem 30 Years Gonzales Byass archetype) Palomino (Oloroso base) + Pedro Ximénez (sweetening blend)"
+      },
+      "11": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Madeira",
+        "raw": "Portugal — Madeira (Henriques & Henriques Full Rich 3yo archetype) Tinta Negra (entry-tier workhorse grape)"
+      },
+      "12": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Madeira",
+        "raw": "Portugal — Madeira (Henriques & Henriques Single Harvest Boal 2000 archetype) Boal (medium-sweet noble grape) or Verdelho (off-dry-medium) or Malmsey (sweet)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Sémillon",
+      "Riesling"
+    ],
+    "region_ranking": [
+      "Unknown"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sémillon",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "CURVEBALL",
+        "regions": [
+          "Unknown"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Riesling",
+        "raw": "Riesling: oak almost never used as differentiating variable; wine-pair structure would not focus on it"
+      },
+      "2": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Pinot Gris",
+        "raw": "Pinot Gris / Gewürztraminer: same logic"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4,
+      5
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Riesling",
+      "Chardonnay"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Pinot Grigio",
+      "Gewurztraminer"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Grigio",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 2,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 1,
+    "question": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Torrontés",
+      "Albariño",
+      "Grüner Veltliner",
+      "Roussanne",
+      "Furmint"
+    ],
+    "region_ranking": [
+      "Argentina",
+      "Spain",
+      "Austria",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Torrontés",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Albariño",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grüner Veltliner",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Roussanne",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Salta or Mendoza, Argentina Torrontés (STRONG SIGNAL)"
+      },
+      "10": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Rias Baixas, Galicia, Spain Albariño (STRONG SIGNAL)"
+      },
+      "11": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Kamptal or Wachau, Austria Grüner Veltliner (STRONG SIGNAL)"
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Saint-Péray, Rhône, France (100% Roussanne); or Hermitage Blanc (Roussanne/Marsanne blend) Roussanne (PLAUSIBLE)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f3-blend--composition-logic-set-p2 — Branch 3.4 blend-vs-varietal-expression contrast (three single varieties + one blend of those three)",
+    "variety_ranking": [
+      "Cabernet Franc",
+      "Cabernet Franc; Chinon",
+      "Cabernet Sauvignon",
+      "Cabernet Sauvignon; Oakville-tier; the global single-variety Cab Sauv benchmark",
+      "Merlot",
+      "Merlot; the strongest single-variety Merlot identity outside Bordeaux right bank"
+    ],
+    "region_ranking": [
+      "France",
+      "USA",
+      "Chile"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Cabernet Franc",
+        "raw": "France — Loire — Chinon (or Saumur-Champigny / Bourgueil) Cabernet Franc 100%"
+      },
+      "2": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "USA — Napa Valley — Oakville / Rutherford / St. Helena tier Cabernet Sauvignon (≥85% / 100% single-varietal)"
+      },
+      "3": {
+        "countries": [
+          "Chile"
+        ],
+        "variety": "Merlot",
+        "raw": "Chile — Colchagua or Rapel (potentially Apalta) Merlot (≥85% / 100% single-varietal)"
+      },
+      "4": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Cabernet Sauvignon",
+        "raw": "France — Bordeaux — Pessac-Léognan (left bank of Garonne; gravelly soils; Cru Classé tier) Cabernet Sauvignon-led (~50–60%) + Merlot (~30%) + Cabernet Franc (~10%) — the classic left-bank-of-Garonne r"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Sangiovese",
+      "Pinot Noir",
+      "Nebbiolo",
+      "Tempranillo"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Nebbiolo",
+      "Merlot"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nebbiolo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 4,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Malbec",
+      "Zinfandel",
+      "Tempranillo",
+      "Syrah"
+    ],
+    "region_ranking": [
+      "Argentina"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "With those three major families used, the remaining",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Zinfandel",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Mendoza, Argentina. Sub-region not decisively stated by"
+      },
+      "10": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Uco Valley, Mendoza, Argentina (Gualtallary / Vista Flores"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 2,
+    "question": 5,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Zinfandel",
+      "Tempranillo",
+      "Grenache",
+      "Syrah"
+    ],
+    "region_ranking": [
+      "USA"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Remaining",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Zinfandel",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "11": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "Dry Creek Valley, Sonoma County, California, USA"
+      },
+      "12": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "Dry Creek Valley, Sonoma County, California, USA"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.2 partly linked (two pairs from two countries; sparkling-rosé category-locked variant)",
+    "variety_ranking": [
+      "Glera",
+      "Charmat method; Glera + Pinot Nero; very topical post-2020 category launch",
+      "Prosecco",
+      "Lambrusco",
+      "Charmat or ancestral; lower-ABV; Lambrusco grape varieties",
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "region_ranking": [
+      "Italy",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Glera",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Lambrusco",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cremant",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Glera",
+        "raw": "Italy — Veneto (Prosecco DOC) Glera (≥85%) + Pinot Nero (10–15% for colour)"
+      },
+      "2": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Italy — Emilia-Romagna (Lambrusco) Lambrusco di Sorbara or Lambrusco Salamino (red varieties)"
+      },
+      "3": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Champagne (Bollinger NV archetype) Pinot Noir + Chardonnay + Pinot Meunier (Champagne varieties); rosé colour by blending still red wine into the cuvée before second fermentation (or by saign"
+      },
+      "4": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Pinot Noir",
+        "raw": "France — Burgundy (Crémant de Bourgogne) or Loire / Alsace / Limoux Pinot Noir (Crémant de Bourgogne); or Cabernet Franc / Pineau d'Aunis (Loire); or Pinot Noir (Alsace)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.2 sweetness-mechanism (sweet-white-led variant)",
+    "variety_ranking": [
+      "Riesling",
+      "Chenin",
+      "Furmint",
+      "botrytis Furmint-based",
+      "Harslevelu",
+      "Muscat Lunel",
+      "Tokaji",
+      "Semillon",
+      "botrytis Sémillon-based"
+    ],
+    "region_ranking": [
+      "New Zealand",
+      "Germany",
+      "South Africa",
+      "Hungary",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Germany"
+        ]
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Harslevelu",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat Lunel",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sémillon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "New Zealand — Marlborough Gewürztraminer"
+      },
+      "6": {
+        "countries": [
+          "Germany"
+        ],
+        "variety": "Riesling",
+        "raw": "Germany — Rheingau or Mosel Riesling"
+      },
+      "7": {
+        "countries": [
+          "South Africa"
+        ],
+        "variety": "Chenin Blanc",
+        "raw": "South Africa — Stellenbosch Chenin Blanc"
+      },
+      "8": {
+        "countries": [
+          "Hungary"
+        ],
+        "variety": "Furmint",
+        "raw": "Hungary — Tokaj Furmint (with Hárslevelű possible)"
+      },
+      "9": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Sauvignon Blanc",
+        "raw": "France — Bordeaux — Sauternes-Barsac Sémillon-dominant (with Sauvignon Blanc and Muscadelle)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 9,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2022,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f4-mixed-identification-breadth-set-p3 — Branch 4.1 pure breadth (oxidative-sweet / fortified family-resemblance variant)",
+    "variety_ranking": [
+      "Trebbiano",
+      "Malvasia",
+      "Vin Santo",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port",
+      "Shiraz",
+      "Seppeltsfield Para 10-Year archetype; oxidative cask-aged Aussie fortified — sometimes from Shiraz",
+      "Muscat"
+    ],
+    "region_ranking": [
+      "Italy",
+      "Portugal",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Trebbiano",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malvasia",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Passito",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Recioto",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Mataro",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "10": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Corvina",
+        "raw": "Italy — Veneto — Valpolicella Classico Corvina + Rondinella + Corvinone + Molinara (Valpolicella varieties)"
+      },
+      "11": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Touriga Nacional",
+        "raw": "Portugal — Douro — Tawny Port (10yo or 20yo) Touriga Nacional + Touriga Franca + Tinta Roriz + Tinta Barroca + Tinto Cão (Douro varieties)"
+      },
+      "12": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Grenache",
+        "raw": "Australia — Barossa Valley (Seppeltsfield) or Rutherglen (if Muscat) Shiraz / Mataro / Grenache base (Para Grand Tawny style) OR Muscat à Petits Grains Rouges (Rutherglen Muscat)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 12,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Slot W1",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W2",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W3",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W4",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 0,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Riesling",
+      "Chardonnay",
+      "Viognier",
+      "Gewurztraminer",
+      "Muscat",
+      "Chenin Blanc",
+      "Chenin",
+      "Pinot Gris"
+    ],
+    "region_ranking": [
+      "Germany",
+      "France",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Germany"
+        ]
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Australia"
+        ]
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Germany"
+        ],
+        "variety": "Riesling",
+        "raw": "Mosel, Germany (Kabinett tier); not required by stem Riesling (STRONG SIGNAL)"
+      },
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Viognier",
+        "raw": "Rhône Valley, France (Northern Rhône style or regional); not required by stem Viognier (PLAUSIBLE)"
+      },
+      "7": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "Chardonnay",
+        "raw": "Moderate-to-warm New World region (Sonoma, Russian River, Margaret River, etc.); not required by stem Chardonnay (STRONG SIGNAL)"
+      },
+      "8": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Muscat",
+        "raw": "Alsace, France; not required by stem Muscat (PLAUSIBLE) — Alsace Muscat Blanc or Muscat Ottonel"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 8,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Chardonnay",
+      "Chenin Blanc",
+      "Sauvignon Blanc"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Nebbiolo",
+      "Corvina",
+      "Aglianico",
+      "Nerello Mascalese"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Nebbiolo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Corvina",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Aglianico",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Nerello Mascalese",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Shiraz",
+      "Tempranillo",
+      "Merlot",
+      "Grenache"
+    ],
+    "region_ranking": [
+      "Australia",
+      "Chile",
+      "Spain",
+      "Unknown",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Australia",
+          "Chile",
+          "Unknown"
+        ]
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "Australia",
+          "Chile"
+        ],
+        "variety": "Merlot",
+        "raw": "W5 Branch-B: Chile commercial Merlot / Carmenère if commodity is Southern Hemisphere but not Australian"
+      },
+      "6": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "W6 Branch-B: Rioja Reserva if oak integration is less evolved than Gran Reserva"
+      },
+      "7": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Merlot",
+        "raw": "W7 Branch-B: Saint-Émilion classified (Merlot-dominant) if Right Bank rather than Left Bank expression"
+      },
+      "8": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Grenache",
+        "raw": "W8 Branch-B: Southern Rhône Grenache (Côtes du Rhône or CdP second tier) if old-world fruit profile over new-world warmth"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Malbec",
+      "Cabernet Sauvignon",
+      "Tempranillo",
+      "Shiraz",
+      "Syrah"
+    ],
+    "region_ranking": [
+      "France",
+      "Argentina"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Argentina",
+          "France"
+        ]
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Argentina",
+          "France"
+        ]
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "9": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Pinot Noir",
+        "raw": "Burgundy, France — village or premier cru Pinot Noir (Nuits-Saint-Georges, Gevrey-Chambertin); restrained, earthy, fine tannin; ~13.5% ABV"
+      },
+      "10": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Malbec",
+        "raw": "Cahors, France — Cot/Malbec; very dark, firm, tannic, iron/earthy; can reach 15% in warm years; dramatically different from Argentine Malbec"
+      },
+      "11": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "Pinot Noir",
+        "raw": "Rio Negro / Patagonia, Argentina — cool-climate Pinot Noir; lighter than Mendoza; some ripe fruit but more structured than expected for the latitude"
+      },
+      "12": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "Malbec",
+        "raw": "Mendoza, Argentina — flagship Malbec (Catena or similar); deep purple, violet, plush, concentrated; ~14% ABV"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.1 sparkling-led F5",
+    "variety_ranking": [
+      "Xarel-lo",
+      "Macabeo",
+      "Parellada",
+      "Cava",
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier",
+      "English Sparkling",
+      "Riesling",
+      "Sekt"
+    ],
+    "region_ranking": [
+      "Spain",
+      "France",
+      "England",
+      "Germany"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Xarel-lo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      },
+      {
+        "variety": "Macabeo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      },
+      {
+        "variety": "Parellada",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      },
+      {
+        "variety": "Cremant",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Cava",
+        "raw": "Spain → Penedès (Cava DO) Macabeo + Xarel-lo + Parellada (classic Cava blend)"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Crémant d'Alsace likeliest (Pinot Blanc / Auxerrois signature); Crémant de Bourgogne the strong alternative (Chardonnay-led) Pinot Blanc + Auxerrois (Alsace) OR Chardonnay + Pinot Noir (Bourg"
+      },
+      "3": {
+        "countries": [
+          "England"
+        ],
+        "variety": "Chardonnay",
+        "raw": "England — West Sussex / Hampshire / Kent (chalk belt). Likely Blanc de Blancs given clean Chardonnay-driven profile Chardonnay (Blanc de Blancs) OR Chardonnay + Pinot Noir + Pinot Meunier classic blen"
+      },
+      "4": {
+        "countries": [
+          "Germany"
+        ],
+        "variety": "Riesling",
+        "raw": "Germany — Rheingau / Mosel / Pfalz. Premium Winzersekt category Riesling, single-variety traditional method"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 10,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.4 hybrid different-methods (rosé-method variant)",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port"
+    ],
+    "region_ranking": [
+      "France",
+      "Portugal"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chardonnay",
+        "raw": "France — Champagne Pinot Noir + Pinot Meunier + Chardonnay classic blend"
+      },
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Syrah",
+        "raw": "France — Provence — Côtes de Provence Cru Classé Grenache + Cinsault + Syrah + Vermentino (Rolle) blend"
+      },
+      "7": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Touriga Nacional",
+        "raw": "Portugal — multi-region commercial blend Baga + Touriga Nacional + other Portuguese blend"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 9,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Furmint",
+      "Savagnin",
+      "Palomino",
+      "Semillon"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Furmint",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Savagnin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f1-same-variety-comparative-set-p3",
+    "variety_ranking": [
+      "Grenache",
+      "Garnacha",
+      "Muscat",
+      "Riesling"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Slot W1",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W2",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W3",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W4",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W5",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W6",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "The tree's",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 0,
+      "origin_slots_parsed": 0,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f4-mixed-identification-breadth-set-p1 — Branch 4.1 pure breadth",
+    "variety_ranking": [
+      "Viognier",
+      "Gewurztraminer",
+      "Moschofilero",
+      "Grüner Veltliner",
+      "Roussanne",
+      "Muscat"
+    ],
+    "region_ranking": [
+      "Greece",
+      "France",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Moschofilero",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Viognier",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Australia",
+          "France"
+        ]
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Grüner Veltliner",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Roussanne",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "7": {
+        "countries": [
+          "Greece"
+        ],
+        "variety": "",
+        "raw": "Peloponnese (Mantinia PDO), Greece Moschofilero (PLAUSIBLE)"
+      },
+      "8": {
+        "countries": [
+          "France",
+          "Australia"
+        ],
+        "variety": "Viognier",
+        "raw": "Eden Valley, South Australia; or Condrieu, Northern Rhône, France Viognier (STRONG SIGNAL)"
+      },
+      "9": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Gewurztraminer",
+        "raw": "Alsace, France — Grand Cru vineyard site Gewurztraminer (STRONG SIGNAL)"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f3-blend--composition-logic-set-p1",
+    "variety_ranking": [
+      "Grenache"
+    ],
+    "region_ranking": [
+      "Germany",
+      "Austria",
+      "New Zealand",
+      "South Africa",
+      "France"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Grenache",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "10": {
+        "countries": [
+          "Germany",
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Germany / Austria: not white blend countries in the exam sense"
+      },
+      "11": {
+        "countries": [
+          "New Zealand",
+          "South Africa"
+        ],
+        "variety": "",
+        "raw": "New Zealand / South Africa: insufficient blend tradition diversity for three distinct identifiable styles"
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Grenache",
+        "raw": "Rhône Valley — Châteauneuf-du-Pape Blanc (Grenache Blanc / Clairette / Roussanne / Bourboulenc) or Hermitage Blanc; higher alcohol (14–14.5%), stone fruit, Mediterranean weight; oak variable by produc"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Shiraz",
+      "Syrah",
+      "Pinot Noir",
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "region_ranking": [
+      "Chile",
+      "France",
+      "Australia"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Chile"
+        ]
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "W1: New World mid-weight",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "W2: Old World cool-climate",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "W3: New World warm-climate",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Chile"
+        ],
+        "variety": "Syrah",
+        "raw": "Chile (Aconcagua Valley, Maipo, or Casablanca Valley Syrah)"
+      },
+      "2": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Northern Rhône, France. Cornas if most tannic and dense;"
+      },
+      "3": {
+        "countries": [
+          "Australia"
+        ],
+        "variety": "",
+        "raw": "Barossa Valley or McLaren Vale, South Australia. Barossa:"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Nebbiolo",
+      "Sangiovese",
+      "Merlot",
+      "Tempranillo"
+    ],
+    "region_ranking": [
+      "Italy",
+      "France",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Nebbiolo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Nebbiolo",
+        "raw": "Barolo or Barbaresco, Piedmont, Italy — Nebbiolo; very high tannin and acid; pale/brick colour for age; rose/tar signature; 14–14.5% ABV"
+      },
+      "5": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Sangiovese",
+        "raw": "Brunello di Montalcino, Tuscany, Italy — Sangiovese; sour cherry, dried herbs, leather; long ageing requirement (no release before year 5); 14–14.5% ABV"
+      },
+      "6": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Merlot",
+        "raw": "Bordeaux Right Bank, France — Saint-Émilion or Pomerol; Merlot-dominant; plum/chocolate; softer rounder tannins vs. Left Bank; 14–14.5% ABV (2018 was a warm year)"
+      },
+      "7": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Tempranillo",
+        "raw": "Rioja Gran Reserva, Spain — Tempranillo; extended American oak; minimum 2 years oak + 3 years bottle; 2010 vintage at peak release; 14% ABV"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 4,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Pinot Noir",
+      "Shiraz",
+      "Syrah",
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Malbec"
+    ],
+    "region_ranking": [
+      "France",
+      "Canada",
+      "Germany",
+      "USA",
+      "New Zealand"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Pinot Noir",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Malbec",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "W8:  France",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "W9:  Canada",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "W10: Germany",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "W11: USA",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "W12: New Zealand",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "8": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Burgundy, France. Côte de Nuits if most earthy/savoury;"
+      },
+      "9": {
+        "countries": [
+          "Canada"
+        ],
+        "variety": "",
+        "raw": "Niagara Peninsula (Ontario, Canada) most likely if very"
+      },
+      "10": {
+        "countries": [
+          "Germany"
+        ],
+        "variety": "",
+        "raw": "Germany — Baden (Kaiserstuhl volcanic soils), Ahr (slate),"
+      },
+      "11": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "",
+        "raw": "Russian River Valley (Sonoma, California) if rounder and"
+      },
+      "12": {
+        "countries": [
+          "New Zealand"
+        ],
+        "variety": "",
+        "raw": "Central Otago if concentrated, schist-mineral, structured,"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f5-method--production-dominant-set-p3 — Branch 5.1 sparkling-led F5",
+    "variety_ranking": [
+      "Xarel-lo",
+      "Macabeo",
+      "Parellada",
+      "Cava"
+    ],
+    "region_ranking": [
+      "USA",
+      "Spain"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Xarel-lo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      },
+      {
+        "variety": "Macabeo",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      },
+      {
+        "variety": "Parellada",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Spain"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "USA"
+        ],
+        "variety": "Chardonnay",
+        "raw": "California — North Coast / Carneros — prestige American sparkling house Chardonnay-dominant; possibly Pinot Noir component"
+      },
+      "2": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "Cava",
+        "raw": "Spain — Penedès — Cava DO Xarel-lo + Macabeo + Parellada classic Cava blend"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Palomino",
+      "Fino",
+      "Semillon"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Tokaj, Hungary",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 3,
+      "origin_slots_parsed": 0,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Sauvignon Blanc"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscadelle",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 1,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2024,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f6-style-mechanism-comparative-set-p3",
+    "variety_ranking": [
+      "Riesling",
+      "Vidal",
+      "Chardonnay",
+      "or Chardonnay",
+      "Welschriesling",
+      "Sangiovese",
+      "or Sangiovese for rosato Vin Santo",
+      "Trebbiano",
+      "Malvasia",
+      "Vin Santo",
+      "Muscat",
+      "Chenin Blanc",
+      "Chenin"
+    ],
+    "region_ranking": [
+      "France",
+      "Austria",
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Vidal",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Scheurebe in blend",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Welschriesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Trebbiano",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Malvasia",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Italy"
+        ]
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE",
+        "regions": [
+          "France"
+        ]
+      }
+    ],
+    "origins_per_slot": {
+      "8": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Sauternes",
+        "raw": "Sauternes: already used in P3 Q3; IMW does not repeat regions within the same paper."
+      },
+      "9": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "Beerenauslese",
+        "raw": "— Austria, Burgenland: Beerenauslese Cuvée, Kracher; botrytis-affected; ~100–200 g/L RS; ~11% ABV; honey/apricot/marmalade; Neusiedlersee fog conditions."
+      },
+      "10": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Vin Santo",
+        "raw": "— Italy, Tuscany: Vin Santo del Chianti Classico (Isole e Olena, Badia a Coltibuono, Avignonesi); passito drying; ~80–160 g/L RS; ~14–16% ABV; amber; raisin/walnut/caramel oxidation; caratelli ageing."
+      },
+      "11": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Muscat",
+        "raw": "— France, Rhône Valley: Muscat de Beaumes-de-Venise, Domaine de Durban or Jaboulet; VDN fortified via mutage; Muscat Blanc à Petits Grains; grapey/floral/apricot; ~15% ABV; ~100–120 g/L RS."
+      },
+      "12": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Chenin Blanc",
+        "raw": "— France, Loire Valley (Vouvray): Clos du Bourg Demi-Sec, Domaine Huet; Chenin Blanc; arrested fermentation; lightest RS in the flight (~20–50 g/L); ~12% ABV; quince/apple/wax."
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 13,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f3-blend--composition-logic-set-p1",
+    "variety_ranking": [
+      "Sauvignon Blanc",
+      "Roussanne",
+      "Marsanne",
+      "Chenin Blanc",
+      "Chardonnay",
+      "Chenin"
+    ],
+    "region_ranking": [
+      "Unknown"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Sauvignon Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Roussanne",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Marsanne",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Pinot Gris",
+        "raw": "Pinot Gris + anything: no classic two-variety template"
+      },
+      "2": {
+        "countries": [
+          "Unknown"
+        ],
+        "variety": "Viognier",
+        "raw": "Viognier + anything as a stable two-variety blend: not a canonical recipe in the way SB/Sém is"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 2,
+      "expected_slots": 2
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f1-same-variety-comparative-set-p1",
+    "variety_ranking": [],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Slot W3",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W4",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W5",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Slot W6",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 0,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f2-same-origin-comparative-set-p1",
+    "variety_ranking": [
+      "Riesling",
+      "Chenin Blanc",
+      "Chenin",
+      "Melon de Bourgogne",
+      "Melon",
+      "Chardonnay"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Melon de Bourgogne",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Melon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 1,
+    "question": 4,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p1_family_tree_pack.md#f5-method--production-dominant-set-p1",
+    "variety_ranking": [
+      "Riesling",
+      "Malvasia",
+      "Garnacha",
+      "Garnacha Blanca",
+      "Trebbiano",
+      "Sangiovese",
+      "Sangiovese Bianco",
+      "Vin Santo",
+      "Gruner Veltliner",
+      "Grüner Veltliner, Austria",
+      "Furmint"
+    ],
+    "region_ranking": [
+      "England",
+      "Spain",
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Viura",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Malvasia",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Trebbiano",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sangiovese",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grüner Veltliner",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "10": {
+        "countries": [
+          "England"
+        ],
+        "variety": "",
+        "raw": "England, Switzerland, Luxembourg: insufficient exam weight for this question structure; rarely appear in the corpus"
+      },
+      "11": {
+        "countries": [
+          "Spain"
+        ],
+        "variety": "",
+        "raw": "Spain — White Rioja Gran Reserva; \"human inputs dominant\"; 12–12.5% ABV; years of oak ageing; golden/amber colour with development"
+      },
+      "12": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "Vin Santo",
+        "raw": "Italy — Vin Santo del Chianti (Classico or Rufina); \"extreme human inputs\"; 13–15% ABV; appassimento + caratelli barrel + multi-year ageing; semi-sweet or dry sweet"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 11,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f1-same-variety-comparative-set-p2",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Cabernet Franc",
+      "Shiraz",
+      "Syrah",
+      "Pinot Noir"
+    ],
+    "region_ranking": [
+      "France",
+      "Argentina",
+      "Italy"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cabernet Franc",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Shiraz",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Syrah",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "CURVEBALL"
+      },
+      {
+        "variety": "W1: Loire Valley, France",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "W2: Mendoza, Argentina",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "W3: Tuscany, Italy",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": [
+          "France"
+        ],
+        "variety": "",
+        "raw": "Loire Valley, France. Chinon (Vienne/Indre clay-limestone"
+      },
+      "2": {
+        "countries": [
+          "Argentina"
+        ],
+        "variety": "",
+        "raw": "Mendoza, Argentina. Uco Valley if higher elevation,"
+      },
+      "3": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Tuscany, Italy. IGT Toscana or DOC Bolgheri for Cabernet"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 3,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2",
+    "variety_ranking": [
+      "Syrah",
+      "Grenache",
+      "Mourvèdre",
+      "Cinsault"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Syrah",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Mourvèdre",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Cinsault",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 4,
+      "origin_slots_parsed": 0,
+      "expected_slots": 4
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2",
+    "variety_ranking": [
+      "Touriga Nacional",
+      "Gamay",
+      "Xinomavro",
+      "Zweigelt",
+      "Barbera",
+      "Barbera d'Alba"
+    ],
+    "region_ranking": [
+      "Portugal",
+      "Austria",
+      "Italy",
+      "France",
+      "Greece"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "Portugal"
+        ]
+      },
+      {
+        "variety": "Zweigelt",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Barbera",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "d'Asti",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Gamay",
+        "confidence": "STRONG SIGNAL",
+        "regions": [
+          "France"
+        ]
+      },
+      {
+        "variety": "Xinomavro",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {
+      "8": {
+        "countries": [
+          "Portugal"
+        ],
+        "variety": "Touriga Nacional",
+        "raw": "Douro, Portugal — Touriga Nacional; deep purple, violet, massive tannin, high alcohol; Quinta do Vallado, Ramos Pinto, Niepoort table wine or similar; ~14% ABV"
+      },
+      "9": {
+        "countries": [
+          "Austria"
+        ],
+        "variety": "",
+        "raw": "Niederösterreich, Austria — Zweigelt; blue-black fruit, alpine freshness, juicy and lower tannin; mid-weight; ~12.5–13.5% ABV"
+      },
+      "10": {
+        "countries": [
+          "Italy"
+        ],
+        "variety": "",
+        "raw": "Piedmont, Italy — Barbera d'Alba or d'Asti; cherry / almond, very high acid, deep colour, crunchy fruit; top producers include Vietti, Giacomo Conterno; ~14–14.5% ABV"
+      },
+      "11": {
+        "countries": [
+          "France"
+        ],
+        "variety": "Gamay",
+        "raw": "Beaujolais, France — Gamay; crunchy red fruit, low tannin, juicy acid; villages or cru level; carbonic notes if Nouveau-style; ~12.5–13% ABV"
+      },
+      "12": {
+        "countries": [
+          "Greece"
+        ],
+        "variety": "",
+        "raw": "Amyndeon or Naoussa, Greece — Xinomavro; tomato / olive / savory red fruit, firm acid, firm tannin, pale garnet; Alpha Estate (Amyndeon) or Ktima Dalamara (Naoussa); ~14% ABV"
+      }
+    },
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": true,
+      "has_tree_path": true,
+      "variety_count": 6,
+      "origin_slots_parsed": 5,
+      "expected_slots": 5
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f1-same-variety-comparative-set-p3",
+    "variety_ranking": [
+      "Riesling",
+      "Muscat",
+      "Chenin Blanc",
+      "Chenin",
+      "Pinot Noir"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chenin",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3",
+    "variety_ranking": [
+      "Xarel-lo",
+      "Garnacha",
+      "Palomino",
+      "Macabeo",
+      "Parellada"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Xarel-lo",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Garnacha",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Macabeo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Parellada",
+        "confidence": "CURVEBALL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 5,
+      "origin_slots_parsed": 0,
+      "expected_slots": 3
+    }
+  },
+  {
+    "year": 2025,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "tree_path": "outputs/master_trees/p3_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p3",
+    "variety_ranking": [
+      "Grenache",
+      "Cinsault",
+      "Pinot Gris",
+      "Riesling",
+      "Gewurztraminer",
+      "or Gewurztraminer",
+      "Furmint",
+      "Harslevelu",
+      "Muscat Lunel",
+      "Tokaji",
+      "Sercial",
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao",
+      "Port"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Grenache",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Cinsault",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Rose",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Pinot Gris",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Gewurztraminer",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Harslevelu",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Muscat Lunel",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Sercial",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Nacional",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Touriga Franca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Roriz",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinta Barroca",
+        "confidence": "STRONG SIGNAL"
+      },
+      {
+        "variety": "Tinto Cao",
+        "confidence": "STRONG SIGNAL"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": true,
+      "has_origins": false,
+      "has_tree_path": true,
+      "variety_count": 17,
+      "origin_slots_parsed": 0,
+      "expected_slots": 6
+    }
+  },
+  {
+    "year": 0,
+    "paper": 0,
+    "question": 0,
+    "wine_slots": [],
+    "tree_path": "",
+    "variety_ranking": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Tempranillo",
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier",
+      "Semillon",
+      "Palomino",
+      "Sercial",
+      "Muscat",
+      "Grenache",
+      "Cinsault"
+    ],
+    "region_ranking": [],
+    "full_candidate_set": [
+      {
+        "variety": "Cabernet Sauvignon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Merlot",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Tempranillo",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Chardonnay",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Noir",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Pinot Meunier",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Semillon",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Sercial",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Muscat",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Grenache",
+        "confidence": "PLAUSIBLE"
+      },
+      {
+        "variety": "Cinsault",
+        "confidence": "PLAUSIBLE"
+      }
+    ],
+    "origins_per_slot": {},
+    "parse_quality": {
+      "has_varieties": false,
+      "has_origins": false,
+      "has_tree_path": false,
+      "variety_count": 12,
+      "origin_slots_parsed": 0,
+      "expected_slots": 0
+    }
+  }
+]

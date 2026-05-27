@@ -1,0 +1,106 @@
+{
+  "batch_id": "2014_p1",
+  "year": 2014,
+  "paper": 1,
+  "wine_count": 12,
+  "commands": [
+    "/research-wine 2014 p1 w1",
+    "/research-wine 2014 p1 w2",
+    "/research-wine 2014 p1 w3",
+    "/research-wine 2014 p1 w4",
+    "/research-wine 2014 p1 w5",
+    "/research-wine 2014 p1 w6",
+    "/research-wine 2014 p1 w7",
+    "/research-wine 2014 p1 w8",
+    "/research-wine 2014 p1 w9",
+    "/research-wine 2014 p1 w10",
+    "/research-wine 2014 p1 w11",
+    "/research-wine 2014 p1 w12"
+  ],
+  "wines": [
+    {
+      "id": "2014_p1_w1",
+      "year": 2014,
+      "paper": 1,
+      "slot": 1,
+      "full_text": "Viognier, Organic, Yalumba. 2012. South Australia, Australia (14.5%)"
+    },
+    {
+      "id": "2014_p1_w2",
+      "year": 2014,
+      "paper": 1,
+      "slot": 2,
+      "full_text": "Semillon, Bin 9000, McGuigan. 2007. Hunter Valley, Australia (11%)"
+    },
+    {
+      "id": "2014_p1_w3",
+      "year": 2014,
+      "paper": 1,
+      "slot": 3,
+      "full_text": "Chardonnay, Shadowfax Wines. 2009. Victoria, Australia (13%)"
+    },
+    {
+      "id": "2014_p1_w4",
+      "year": 2014,
+      "paper": 1,
+      "slot": 4,
+      "full_text": "Sauvignon Blanc - Semillon, Suckfizzle, Stella Bella Wines. 2009. Margaret River, Australia (13%)"
+    },
+    {
+      "id": "2014_p1_w5",
+      "year": 2014,
+      "paper": 1,
+      "slot": 5,
+      "full_text": "Watervale Riesling, Mount Horrocks. 2013. Clare Valley, South Australia, Australia (12.5%)"
+    },
+    {
+      "id": "2014_p1_w6",
+      "year": 2014,
+      "paper": 1,
+      "slot": 6,
+      "full_text": "Riesling, Grand Cru Muenchberg, Domaine Ostertag. 2011. Alsace, France (13.5%)"
+    },
+    {
+      "id": "2014_p1_w7",
+      "year": 2014,
+      "paper": 1,
+      "slot": 7,
+      "full_text": "Riesling, Domaine Rewa. 2011. Central Otago, New Zealand (11.5%)"
+    },
+    {
+      "id": "2014_p1_w8",
+      "year": 2014,
+      "paper": 1,
+      "slot": 8,
+      "full_text": "Deidesheimer Kieselberg Riesling, Kabinett Trocken, Dr. von Bassermann-Jordan. 2011. Pfalz, Germany (11.5%)"
+    },
+    {
+      "id": "2014_p1_w9",
+      "year": 2014,
+      "paper": 1,
+      "slot": 9,
+      "full_text": "Chablis, Grand Cru Les Clos, Duplessis. 2010. Burgundy, France (13%)"
+    },
+    {
+      "id": "2014_p1_w10",
+      "year": 2014,
+      "paper": 1,
+      "slot": 10,
+      "full_text": "Chardonnay, Coddington, Kumeu River. 2011. Auckland, New Zealand (13.5%)"
+    },
+    {
+      "id": "2014_p1_w11",
+      "year": 2014,
+      "paper": 1,
+      "slot": 11,
+      "full_text": "Sancerre, Domaine Vacheron. 2012. Loire, France (12.5%)"
+    },
+    {
+      "id": "2014_p1_w12",
+      "year": 2014,
+      "paper": 1,
+      "slot": 12,
+      "full_text": "Sauvignon Blanc, Tinpot Hut. 2013. Marlborough, New Zealand (13%)"
+    }
+  ]
+}
