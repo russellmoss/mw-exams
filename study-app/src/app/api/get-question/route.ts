@@ -172,6 +172,30 @@ async function generateFreshQuestion(paper: number, family: string | undefined) 
     );
   }
 
+  // Validate paper scope — reject white wines in P2, red wines in P1
+  const scopeCheck = validatePaperScope(paper, parsed.wines);
+  if (!scopeCheck.valid) {
+    console.error(`Paper scope violation for P${paper}:`, scopeCheck.violations);
+    // Retry once with a fresh generation rather than serving a bad question
+    const retryMessage = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      system: prompt.system,
+      messages: [{ role: "user", content: prompt.user }],
+    });
+    const retryText = retryMessage.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+    const retryParsed = parseGeneratedQuestion(retryText, paper, family || "F4");
+    if (retryParsed) {
+      const retryScope = validatePaperScope(paper, retryParsed.wines);
+      if (retryScope.valid) {
+        Object.assign(parsed, retryParsed);
+        console.log("Retry succeeded — paper scope now valid");
+      } else {
+        console.error("Retry also failed paper scope check:", retryScope.violations);
+      }
+    }
+  }
+
   const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
   const saved = await saveGeneratedQuestion({
     questionId,
@@ -182,7 +206,11 @@ async function generateFreshQuestion(paper: number, family: string | undefined) 
     questionText: parsed.questionText,
     wines: parsed.wines,
     totalMarks: parsed.totalMarks,
-    metadata: { generatedOnTheFly: true },
+    metadata: {
+      generatedOnTheFly: true,
+      generationReasoning: parsed.generationReasoning,
+      paperScopeCheck: scopeCheck,
+    },
   });
 
   generateModelAnswerInBackground(
@@ -200,6 +228,26 @@ async function generateFreshQuestion(paper: number, family: string | undefined) 
   });
 }
 
+const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling|pinot\s*gri[gs]|gewurz|muscat|moscato|viognier|chenin|semillon|albarino|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera)\b/i;
+const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufrankisch|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc)\b/i;
+
+function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  for (const wine of wines) {
+    const text = wine.fullText.toLowerCase();
+    if (paper === 2) {
+      if (WHITE_GRAPE_INDICATORS.test(text)) {
+        violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a white wine in Paper 2 (reds only)`);
+      }
+    } else if (paper === 1) {
+      if (RED_GRAPE_INDICATORS.test(text)) {
+        violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a red wine in Paper 1 (whites only)`);
+      }
+    }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
 function parseGeneratedQuestion(
   text: string,
   paper: number,
@@ -211,6 +259,7 @@ function parseGeneratedQuestion(
   questionText: string;
   wines: { slot: number; fullText: string }[];
   totalMarks: number;
+  generationReasoning: string | null;
 } | null {
   try {
     // Extract question text (between ## Question and ## Wines)
@@ -236,6 +285,12 @@ function parseGeneratedQuestion(
     const familyMatch = text.match(/Family:\s*(F\d)/i);
     const familyLabelMatch = text.match(/Family:\s*F\d\s*[-–]\s*(.*)/i);
     const subcatMatch = text.match(/Subcategory:\s*(.*)/i);
+
+    // Extract generation reasoning
+    const reasoningMatch = text.match(
+      /## Generation Reasoning\s*\n([\s\S]*?)(?=\n## Paper Scope|\n## |$)/i
+    );
+    const generationReasoning = reasoningMatch ? reasoningMatch[1].trim() : null;
 
     const FAMILY_LABELS: Record<string, string> = {
       F1: "Same Variety",
@@ -269,6 +324,7 @@ function parseGeneratedQuestion(
       questionText,
       wines,
       totalMarks,
+      generationReasoning,
     };
   } catch {
     return null;

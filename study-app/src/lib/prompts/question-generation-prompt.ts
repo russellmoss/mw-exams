@@ -41,7 +41,17 @@ export function buildQuestionGenerationPrompt(
 
   // Use the actual mock-exam-writer agent instructions as the core system prompt
   // This keeps the app and CLI pipeline in perfect sync
+  const paperScope = paper === 1
+    ? "WHITE STILL WINES ONLY. Every wine in this question MUST be a white still wine. No reds, no rosés, no sparkling, no fortified, no sweet wines (unless a white wine with residual sugar like Riesling Spätlese or Vouvray demi-sec)."
+    : paper === 2
+      ? "RED STILL WINES ONLY. Every wine in this question MUST be a red still wine. No whites, no rosés, no sparkling, no fortified. All wines must be made from red grape varieties."
+      : "SPARKLING, FORTIFIED, SWEET, ROSÉ, AND OXIDATIVE WINES ONLY. Every wine in this question must be from one of these categories. No standard still dry whites or reds.";
+
   const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
+
+## ABSOLUTE PAPER SCOPE CONSTRAINT (VIOLATION = AUTOMATIC FAILURE)
+Paper ${paper}: ${paperScope}
+This is non-negotiable. If you include a wine that violates this scope, the entire question is invalid. Check every wine against this constraint before outputting.
 
 ## YOUR TASK
 Generate ONE question with wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
@@ -93,7 +103,15 @@ Output in this EXACT format:
 - Subcategory: [specific subcategory]
 - Variety: [the key variety/varieties]
 - Countries: [list]
-- Curveball: [which wine and why, or "None"]`;
+- Curveball: [which wine and why, or "None"]
+
+## Generation Reasoning
+
+[2-4 sentences explaining: Why this question structure? Why these wines? What constraint trade-offs did you make? What examiner principle does this question test? This field is stored for debugging — be honest about your choices.]
+
+## Paper Scope Check
+
+[Confirm: "All ${paper === 1 ? 'wines are white still wines' : paper === 2 ? 'wines are red still wines' : 'wines are sparkling/fortified/sweet/rosé/oxidative'} — VERIFIED." List each wine and its color/type to prove compliance.]`;
 
   return { system, user };
 }

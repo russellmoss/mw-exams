@@ -35,6 +35,7 @@ export interface UserAttempt {
   marks_estimate: string | null;
   started_at: string;
   completed_at: string | null;
+  user_feedback: string | null;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -166,6 +167,7 @@ export async function updateAttempt(
     pass_estimate: string;
     marks_estimate: string;
     completed_at: string;
+    user_feedback: string;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
@@ -207,6 +209,12 @@ export async function updateAttempt(
     `;
     return rows[0] as UserAttempt;
   }
+  if (data.user_feedback !== undefined) {
+    const rows = await sql`
+      UPDATE user_attempts SET user_feedback = ${data.user_feedback} WHERE id = ${attemptId} RETURNING *
+    `;
+    return rows[0] as UserAttempt;
+  }
 
   const rows = await sql`SELECT * FROM user_attempts WHERE id = ${attemptId}`;
   return rows[0] as UserAttempt;
@@ -233,6 +241,7 @@ export interface AttemptWithDetails extends UserAttempt {
   wines: { slot: number; fullText: string }[];
   model_answer: string | null;
   total_marks: number;
+  subcategory: string | null;
 }
 
 export async function getUserAttempts(userId: number, limit = 50): Promise<AttemptWithDetails[]> {
@@ -243,6 +252,7 @@ export async function getUserAttempts(userId: number, limit = 50): Promise<Attem
       q.paper,
       q.family,
       q.family_label,
+      q.subcategory,
       q.question_text,
       q.wines,
       q.model_answer,

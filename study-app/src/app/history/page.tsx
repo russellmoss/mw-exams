@@ -24,6 +24,8 @@ interface AttemptDetail {
   wines: { slot: number; fullText: string }[] | string;
   model_answer: string | null;
   total_marks: number;
+  user_feedback: string | null;
+  subcategory: string | null;
 }
 
 interface Stats {
@@ -90,11 +92,58 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 }
 
 function AttemptCard({ attempt }: { attempt: AttemptDetail }) {
+  const router = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [feedbackText, setFeedbackText] = useState(attempt.user_feedback || "");
+  const [feedbackSaved, setFeedbackSaved] = useState(!!attempt.user_feedback);
+  const [savingFeedback, setSavingFeedback] = useState(false);
   const wines = typeof attempt.wines === "string" ? JSON.parse(attempt.wines) : attempt.wines;
   const tastingNotes = typeof attempt.tasting_notes === "string"
     ? JSON.parse(attempt.tasting_notes)
     : attempt.tasting_notes;
+
+  const handleRedo = () => {
+    const questionData = {
+      id: attempt.question_id,
+      source: "history-redo",
+      year: null,
+      paper: attempt.paper,
+      questionNumber: 1,
+      text: attempt.question_text,
+      wines: wines,
+      totalMarks: attempt.total_marks,
+      family: attempt.family,
+      familyLabel: attempt.family_label,
+      subcategory: attempt.subcategory || "",
+      hasModelAnswer: !!attempt.model_answer,
+      hasDecisionMatrix: false,
+      hasWineResearch: false,
+      modelAnswer: attempt.model_answer || undefined,
+    };
+    sessionStorage.setItem("mw-current-question", JSON.stringify(questionData));
+    router.push("/study");
+  };
+
+  const handleSaveFeedback = async () => {
+    if (!feedbackText.trim()) return;
+    setSavingFeedback(true);
+    try {
+      await fetch("/api/save-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update",
+          attemptId: attempt.id,
+          user_feedback: feedbackText.trim(),
+        }),
+      });
+      setFeedbackSaved(true);
+    } catch (err) {
+      console.error("Failed to save feedback:", err);
+    } finally {
+      setSavingFeedback(false);
+    }
+  };
 
   return (
     <div className="border-b border-border last:border-b-0">
@@ -157,6 +206,31 @@ function AttemptCard({ attempt }: { attempt: AttemptDetail }) {
       {/* Expanded content */}
       {expanded && (
         <div className="px-5 pb-5 space-y-4">
+          {/* Quick actions bar */}
+          {attempt.completed_at && (
+            <div className="flex items-center gap-3 py-2">
+              <button
+                onClick={handleRedo}
+                className="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer bg-accent hover:bg-accent-hover text-background"
+              >
+                Redo This Question
+              </button>
+              <button
+                onClick={() => {
+                  const el = document.getElementById(`feedback-${attempt.id}`);
+                  el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el?.querySelector("textarea")?.focus();
+                }}
+                className="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer bg-card hover:bg-card-hover border border-border text-foreground"
+              >
+                Leave Feedback
+              </button>
+              {feedbackSaved && (
+                <span className="text-xs text-success">Feedback saved</span>
+              )}
+            </div>
+          )}
+
           {/* Question stem */}
           <ExpandedSection title="Question Stem">
             <div className="markdown-content text-sm">
@@ -222,6 +296,53 @@ function AttemptCard({ attempt }: { attempt: AttemptDetail }) {
               </div>
             </ExpandedSection>
           )}
+
+          {/* User feedback / dispute */}
+          {attempt.completed_at && (
+            <div id={`feedback-${attempt.id}`}>
+            <ExpandedSection title="Your Feedback">
+              <div className="space-y-3">
+                <p className="text-xs text-muted">
+                  Disagree with the evaluation? Note what you think was missed or misjudged. This helps calibrate the system over time.
+                </p>
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => {
+                    setFeedbackText(e.target.value);
+                    setFeedbackSaved(false);
+                  }}
+                  placeholder="e.g., I correctly identified the Riesling as Mosel Kabinett — the critique docked marks for not mentioning Spätlese but I explicitly ruled it out based on alcohol level..."
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent resize-y min-h-[80px]"
+                  rows={3}
+                />
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleSaveFeedback}
+                    disabled={savingFeedback || !feedbackText.trim() || feedbackSaved}
+                    className="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed bg-accent hover:bg-accent-hover text-background"
+                  >
+                    {savingFeedback ? "Saving..." : feedbackSaved ? "Saved" : "Save Feedback"}
+                  </button>
+                  {feedbackSaved && (
+                    <span className="text-xs text-success">Feedback recorded</span>
+                  )}
+                </div>
+              </div>
+            </ExpandedSection>
+            </div>
+          )}
+
+          {/* Redo button */}
+          {attempt.completed_at && (
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleRedo}
+                className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer bg-card hover:bg-card-hover border border-border text-foreground"
+              >
+                Redo This Question
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -239,6 +360,64 @@ function ExpandedSection({ title, children }: { title: string; children: React.R
   );
 }
 
+interface Filters {
+  results: Set<string>;
+  papers: Set<number>;
+  families: Set<string>;
+  subcategories: Set<string>;
+}
+
+function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
+}
+
+function applyFilters(attempts: AttemptDetail[], filters: Filters): AttemptDetail[] {
+  return attempts.filter((a) => {
+    if (filters.results.size > 0) {
+      const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
+      if (!filters.results.has(result)) return false;
+    }
+    if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
+    if (filters.families.size > 0 && !filters.families.has(a.family_label)) return false;
+    if (filters.subcategories.size > 0) {
+      const sub = a.subcategory || "Uncategorized";
+      if (!filters.subcategories.has(sub)) return false;
+    }
+    return true;
+  });
+}
+
+function ChipFilter({ label, options, selected, onToggle }: {
+  label: string;
+  options: { value: string; display: string; color?: string }[];
+  selected: Set<string>;
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="text-xs text-muted shrink-0">{label}:</span>
+      {options.map((opt) => {
+        const active = selected.has(opt.value);
+        const colorClass = active && opt.color ? opt.color : active
+          ? "bg-accent text-background font-semibold"
+          : "bg-card hover:bg-card-hover text-muted border border-border";
+        return (
+          <button
+            key={opt.value}
+            onClick={() => onToggle(opt.value)}
+            className={`px-2.5 py-1 text-xs rounded-md transition-colors cursor-pointer ${colorClass}`}
+          >
+            {opt.display}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function HistoryPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -246,6 +425,12 @@ export default function HistoryPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>({
+    results: new Set(),
+    papers: new Set(),
+    families: new Set(),
+    subcategories: new Set(),
+  });
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -299,6 +484,9 @@ export default function HistoryPage() {
   const passRate = stats && stats.completed_attempts > 0
     ? Math.round((stats.pass_count / stats.completed_attempts) * 100)
     : 0;
+  const passOrBorderlineRate = stats && stats.completed_attempts > 0
+    ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100)
+    : 0;
 
   return (
     <div className="flex flex-col flex-1">
@@ -333,10 +521,10 @@ export default function HistoryPage() {
                     : undefined}
                 />
                 <StatCard
-                  label="Pass Rate"
-                  value={stats.completed_attempts > 0 ? `${passRate}%` : "--"}
+                  label="Results"
+                  value={stats.completed_attempts > 0 ? `${stats.pass_count}P / ${stats.borderline_count}B / ${stats.fail_count}F` : "--"}
                   sub={stats.completed_attempts > 0
-                    ? `${stats.pass_count}P / ${stats.borderline_count}B / ${stats.fail_count}F`
+                    ? `${passRate}% pass · ${passOrBorderlineRate}% pass+borderline`
                     : "No completed attempts"}
                 />
                 <StatCard
@@ -475,11 +663,97 @@ export default function HistoryPage() {
                 </button>
               </div>
             ) : (
-              <div className="bg-card rounded-xl border border-border overflow-hidden">
-                {attempts.map((attempt) => (
-                  <AttemptCard key={attempt.id} attempt={attempt} />
-                ))}
-              </div>
+              <>
+              {(() => {
+                const uniqueFamilies = [...new Set(attempts.map((a) => a.family_label))].sort();
+                const uniqueSubcategories = [...new Set(attempts.map((a) => a.subcategory || "Uncategorized"))].sort();
+                const uniquePapers = [...new Set(attempts.map((a) => a.paper))].sort();
+                const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.subcategories.size;
+                const filtered = applyFilters(attempts, filters);
+
+                return (
+                  <>
+                    {/* Filter controls */}
+                    <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs text-muted uppercase tracking-wider">Filters</h3>
+                        {activeFilterCount > 0 && (
+                          <button
+                            onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), subcategories: new Set() })}
+                            className="text-xs text-accent hover:text-accent-hover cursor-pointer"
+                          >
+                            Clear all ({activeFilterCount})
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Result filter */}
+                      <ChipFilter
+                        label="Result"
+                        options={[
+                          { value: "pass", display: "Pass", color: "bg-success/20 text-success font-semibold border border-success/40" },
+                          { value: "borderline", display: "Borderline", color: "bg-borderline/20 text-borderline font-semibold border border-borderline/40" },
+                          { value: "fail", display: "Fail", color: "bg-fail/20 text-fail font-semibold border border-fail/40" },
+                          { value: "in_progress", display: "In Progress", color: "bg-accent/15 text-accent font-semibold border border-accent/30" },
+                        ]}
+                        selected={filters.results}
+                        onToggle={(v) => setFilters((f) => ({ ...f, results: toggleInSet(f.results, v) }))}
+                      />
+
+                      {/* Paper filter */}
+                      {uniquePapers.length > 1 && (
+                        <ChipFilter
+                          label="Paper"
+                          options={uniquePapers.map((p) => ({ value: String(p), display: paperLabel(p) }))}
+                          selected={new Set([...filters.papers].map(String))}
+                          onToggle={(v) => setFilters((f) => ({ ...f, papers: toggleInSet(f.papers, Number(v)) }))}
+                        />
+                      )}
+
+                      {/* Family filter */}
+                      {uniqueFamilies.length > 1 && (
+                        <ChipFilter
+                          label="Family"
+                          options={uniqueFamilies.map((fl) => ({ value: fl, display: fl }))}
+                          selected={filters.families}
+                          onToggle={(v) => setFilters((f) => ({ ...f, families: toggleInSet(f.families, v) }))}
+                        />
+                      )}
+
+                      {/* Subcategory filter */}
+                      {uniqueSubcategories.length > 1 && (
+                        <ChipFilter
+                          label="Subcategory"
+                          options={uniqueSubcategories.map((sc) => ({ value: sc, display: sc.length > 50 ? sc.slice(0, 50) + "..." : sc }))}
+                          selected={filters.subcategories}
+                          onToggle={(v) => setFilters((f) => ({ ...f, subcategories: toggleInSet(f.subcategories, v) }))}
+                        />
+                      )}
+                    </div>
+
+                    {/* Result count */}
+                    {activeFilterCount > 0 && (
+                      <p className="text-xs text-muted mb-3">
+                        Showing {filtered.length} of {attempts.length} attempts
+                      </p>
+                    )}
+
+                    {/* Filtered list */}
+                    {filtered.length === 0 ? (
+                      <div className="bg-card rounded-xl border border-border p-6 text-center">
+                        <p className="text-sm text-muted">No attempts match these filters.</p>
+                      </div>
+                    ) : (
+                      <div className="bg-card rounded-xl border border-border overflow-hidden">
+                        {filtered.map((attempt) => (
+                          <AttemptCard key={attempt.id} attempt={attempt} />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+              </>
             )}
           </div>
         </div>
