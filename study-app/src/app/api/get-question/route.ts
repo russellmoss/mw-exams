@@ -1,4 +1,4 @@
-import { getQuestionsByFilter, getRecentAttempts } from "@/lib/db";
+import { getQuestionsByFilter, getRecentAttempts, getUnansweredQuestions } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
@@ -92,27 +92,11 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing paper" }, { status: 400 });
     }
 
-    // 1. Check for pre-populated questions in Neon
-    const available = await getQuestionsByFilter(paper, family);
-    const recentAttempts = await getRecentAttempts(100);
-
-    // Build set of recently seen question IDs in this category
-    const categoryAttempts = recentAttempts
-      .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
-      .map((a) => a.question_id);
-
-    // Find questions not seen recently (must see 7 others before repeat)
-    const unseenOrStale = available.filter((q) => {
-      const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
-      if (lastSeenIdx === -1) return true; // never seen
-      return lastSeenIdx >= 7; // seen but 7+ others since
-    });
-
-    // Prefer pre-populated questions with model answers
-    const withAnswers = unseenOrStale.filter((q) => q.model_answer && q.model_answer.length > 100);
-
-    if (withAnswers.length > 0) {
-      const picked = withAnswers[Math.floor(Math.random() * withAnswers.length)];
+    // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
+    const unanswered = await getUnansweredQuestions(paper, family);
+    if (unanswered.length > 0) {
+      const picked = unanswered[Math.floor(Math.random() * unanswered.length)];
+      console.log(`Serving unanswered banked question: ${picked.question_id}`);
       return Response.json({
         source: "pre-populated",
         question: picked,
@@ -120,13 +104,28 @@ export async function POST(request: Request) {
       });
     }
 
-    // Fallback: any unseen pre-populated question (even without model answer)
-    if (unseenOrStale.length > 0) {
-      const picked = unseenOrStale[Math.floor(Math.random() * unseenOrStale.length)];
+    // PRIORITY 2: Previously answered but stale (seen 7+ others since last attempt)
+    const available = await getQuestionsByFilter(paper, family);
+    const recentAttempts = await getRecentAttempts(100);
+
+    const categoryAttempts = recentAttempts
+      .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
+      .map((a) => a.question_id);
+
+    const staleWithAnswers = available.filter((q) => {
+      if (!q.model_answer || q.model_answer.length < 100) return false;
+      const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
+      if (lastSeenIdx === -1) return false; // unanswered ones already handled above
+      return lastSeenIdx >= 7; // seen but 7+ others since
+    });
+
+    if (staleWithAnswers.length > 0) {
+      const picked = staleWithAnswers[Math.floor(Math.random() * staleWithAnswers.length)];
+      console.log(`Serving stale banked question: ${picked.question_id}`);
       return Response.json({
         source: "pre-populated",
         question: picked,
-        hasModelAnswer: !!(picked.model_answer && picked.model_answer.length > 100),
+        hasModelAnswer: true,
       });
     }
 

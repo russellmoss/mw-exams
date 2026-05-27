@@ -95,6 +95,34 @@ export async function getQuestionsByFilter(
   `) as GeneratedQuestion[];
 }
 
+export async function getUnansweredQuestions(
+  paper: number,
+  family?: string
+): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  if (family && family !== "any") {
+    return (await sql`
+      SELECT q.* FROM generated_questions q
+      LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
+      WHERE q.paper = ${paper}
+        AND q.family = ${family}
+        AND q.model_answer IS NOT NULL
+        AND length(q.model_answer) > 100
+        AND a.id IS NULL
+      ORDER BY q.created_at ASC
+    `) as GeneratedQuestion[];
+  }
+  return (await sql`
+    SELECT q.* FROM generated_questions q
+    LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
+    WHERE q.paper = ${paper}
+      AND q.model_answer IS NOT NULL
+      AND length(q.model_answer) > 100
+      AND a.id IS NULL
+    ORDER BY q.created_at ASC
+  `) as GeneratedQuestion[];
+}
+
 export async function getQuestionCounts(): Promise<
   { paper: number; family: string; count: number }[]
 > {
