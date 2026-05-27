@@ -15,6 +15,7 @@ import { StreamingFeedback } from "../components/StreamingFeedback";
 import { WineReveal } from "../components/WineReveal";
 import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
+import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
 
 export default function StudyPage() {
   const router = useRouter();
@@ -572,7 +573,7 @@ export default function StudyPage() {
             </div>
           )}
 
-          {/* Model answer reveal */}
+          {/* Model answer reveal + decision tree walkthrough */}
           {state.step === "reveal-answer" && (
             <div className="space-y-6">
               <StreamingFeedback
@@ -580,6 +581,10 @@ export default function StudyPage() {
                 isStreaming={false}
                 error={null}
                 title="Full Debrief"
+              />
+              <DecisionTreeWalkthrough
+                paper={state.question.paper}
+                studyDiagramAssist={state.question.studyDiagramAssist}
               />
               <ModelAnswerReveal
                 question={state.question}
