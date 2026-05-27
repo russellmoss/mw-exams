@@ -2,9 +2,87 @@ import { getQuestionsByFilter, getRecentAttempts } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
+import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+// Fire-and-forget background model answer generation
+function generateModelAnswerInBackground(
+  questionId: string,
+  questionText: string,
+  wines: { slot: number; fullText: string }[],
+  paper: number,
+  family: string
+) {
+  (async () => {
+    try {
+      const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const prompt = buildModelAnswerPrompt(questionText, wines, paper);
+
+      const message = await client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4000,
+        system: prompt.system,
+        messages: [{ role: "user", content: prompt.user }],
+      });
+
+      const text = message.content
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("");
+
+      const modelAnswer = extractSection(text, "Model Answer", "Proposed Annotation") || text;
+      const proposedAnnotation = extractSection(text, "Proposed Annotation", "Reasoning Trace");
+      const reasoningTrace = extractSection(text, "Reasoning Trace", "Study Diagram");
+      const studyDiagramAssist = extractSection(text, "Study Diagram", null);
+
+      await saveGeneratedQuestion({
+        questionId,
+        paper,
+        family,
+        familyLabel: "",
+        questionText,
+        wines,
+        totalMarks: 100,
+        modelAnswer,
+        proposedAnnotation: proposedAnnotation || undefined,
+        reasoningTrace: reasoningTrace || undefined,
+        studyDiagramAssist: studyDiagramAssist || undefined,
+      });
+
+      console.log(`Background model answer generated for ${questionId}`);
+    } catch (err) {
+      console.error(`Background model answer failed for ${questionId}:`, err);
+    }
+  })();
+}
+
+function extractSection(
+  text: string,
+  startHeader: string,
+  endHeader: string | null
+): string | null {
+  const startPattern = new RegExp(
+    `#+\\s*\\d*\\.?\\s*${startHeader}[\\s\\S]*?\\n`,
+    "i"
+  );
+  const startMatch = text.match(startPattern);
+  if (!startMatch) return null;
+
+  const startIdx = text.indexOf(startMatch[0]) + startMatch[0].length;
+
+  if (endHeader) {
+    const endPattern = new RegExp(`#+\\s*\\d*\\.?\\s*${endHeader}`, "i");
+    const remaining = text.slice(startIdx);
+    const endMatch = remaining.match(endPattern);
+    if (endMatch) {
+      return remaining.slice(0, remaining.indexOf(endMatch[0])).trim();
+    }
+  }
+
+  return text.slice(startIdx).trim();
+}
 
 export async function POST(request: Request) {
   try {
@@ -79,9 +157,10 @@ export async function POST(request: Request) {
       );
     }
 
-    // Save to Neon (without model answer — that generates in background)
+    // Save to Neon (without model answer initially)
+    const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
     const saved = await saveGeneratedQuestion({
-      questionId: `gen_p${paper}_${family || "any"}_${Date.now()}`,
+      questionId,
       paper,
       family: parsed.family,
       familyLabel: parsed.familyLabel,
@@ -91,6 +170,16 @@ export async function POST(request: Request) {
       totalMarks: parsed.totalMarks,
       metadata: { generatedOnTheFly: true },
     });
+
+    // Fire-and-forget: kick off model answer generation immediately
+    // This runs in the background while the user sees the question
+    generateModelAnswerInBackground(
+      questionId,
+      parsed.questionText,
+      parsed.wines,
+      paper,
+      parsed.family
+    );
 
     return Response.json({
       source: "generated",

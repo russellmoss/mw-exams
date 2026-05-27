@@ -12,10 +12,28 @@ function parseQuestionText(text: string): {
   subQuestions: { label: string; text: string; marks: string }[];
   totalMarks: string | null;
 } {
-  const lines = text
+  // Pre-process: insert newlines before sub-question markers that are inline
+  let processed = text
     .replace(/&nbsp;/g, " ")
     .replace(/\*\*/g, "")
-    .replace(/\*/g, "")
+    .replace(/\*/g, "");
+
+  // Split inline sub-questions: "... a) ..." → "...\na) ..."
+  // Match letter labels like "a)", "b)", "c)" and roman "i)", "ii)" that appear mid-text
+  processed = processed.replace(/\s+([a-z])\)\s+/gi, (match, letter) => {
+    // Only split if it looks like a sub-question label (single letter a-z)
+    if (letter.match(/^[a-h]$/i)) return `\n${letter}) `;
+    return match;
+  });
+  // Also handle roman numerals
+  processed = processed.replace(/\s+(i{1,3}|iv|v)\)\s+/gi, (match, numeral) => {
+    return `\n${numeral}) `;
+  });
+  // Split on "For each wine:" "For all" "With reference to" mid-line
+  processed = processed.replace(/\.\s+(For (?:each|all|both) wine)/gi, ".\n$1");
+  processed = processed.replace(/\.\s+(With reference to)/gi, ".\n$1");
+
+  const lines = processed
     .split("\n")
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
