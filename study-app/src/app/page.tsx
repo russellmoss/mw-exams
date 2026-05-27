@@ -5,62 +5,114 @@ import { useRouter } from "next/navigation";
 import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
-import {
-  loadQuestionIndex,
-  filterQuestions,
-  selectRandomQuestion,
-  getQuestionCounts,
-  type QuestionIndex,
-} from "@/lib/question-loader";
 
-type LandingStep = "select-paper" | "select-family";
+type LandingStep = "select-paper" | "select-family" | "generating";
 
 export default function Home() {
   const router = useRouter();
-  const [index, setIndex] = useState<QuestionIndex | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<LandingStep>("select-paper");
   const [selectedPaper, setSelectedPaper] = useState<number>(0);
+  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [recentAttempts, setRecentAttempts] = useState<unknown[]>([]);
 
+  // Load question counts from Neon
   useEffect(() => {
-    loadQuestionIndex()
+    fetch("/api/question-counts")
+      .then((r) => r.json())
       .then((data) => {
-        setIndex(data);
+        if (data.counts) {
+          // Build counts by paper
+          const allCounts: Record<string, Record<string, number>> = {};
+          let total = 0;
+          for (const row of data.counts) {
+            const key = `p${row.paper}`;
+            if (!allCounts[key]) allCounts[key] = { any: 0 };
+            allCounts[key][row.family] = row.count;
+            allCounts[key].any += row.count;
+            total += row.count;
+          }
+          setTotalQuestions(total);
+          // Store for later use
+          sessionStorage.setItem("mw-question-counts", JSON.stringify(allCounts));
+        }
+        if (data.recentAttempts) {
+          setRecentAttempts(data.recentAttempts);
+        }
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        console.error("Failed to load counts:", err);
         setLoading(false);
       });
   }, []);
 
   const handlePaperSelect = useCallback((paper: number) => {
     setSelectedPaper(paper);
+
+    // Load paper-specific counts
+    const stored = sessionStorage.getItem("mw-question-counts");
+    if (stored) {
+      const allCounts = JSON.parse(stored);
+      setCounts(allCounts[`p${paper}`] || { any: 0 });
+    }
+
     setStep("select-family");
   }, []);
 
   const handleFamilySelect = useCallback(
-    (family: string) => {
-      if (!index) return;
+    async (family: string) => {
+      setStep("generating");
+      setError(null);
 
-      const filtered = filterQuestions(index.questions, selectedPaper, family);
-      const question = selectRandomQuestion(filtered);
+      try {
+        const res = await fetch("/api/get-question", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paper: selectedPaper, family }),
+        });
 
-      if (!question) {
-        setError("No questions available for this filter.");
-        return;
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        // Map DB question to the Question type the study page expects
+        const q = data.question;
+        const question = {
+          id: q.question_id,
+          source: data.source,
+          paper: q.paper,
+          questionNumber: 1,
+          text: q.question_text,
+          wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
+          totalMarks: q.total_marks,
+          family: q.family,
+          familyLabel: q.family_label,
+          subcategory: q.subcategory || "",
+          hasModelAnswer: data.hasModelAnswer,
+          hasDecisionMatrix: false,
+          hasWineResearch: false,
+          modelAnswer: q.model_answer || "",
+          proposedAnnotation: q.proposed_annotation || "",
+          reasoningTrace: q.reasoning_trace || "",
+          studyDiagramAssist: q.study_diagram_assist || "",
+          year: null,
+        };
+
+        sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+        router.push("/study");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to get question");
+        setStep("select-family");
       }
-
-      // Store selected question in sessionStorage for the study page
-      sessionStorage.setItem("mw-current-question", JSON.stringify(question));
-      router.push("/study");
     },
-    [index, selectedPaper, router]
+    [selectedPaper, router]
   );
-
-  const counts =
-    index && selectedPaper ? getQuestionCounts(index.questions, selectedPaper) : {};
 
   return (
     <div className="flex flex-col flex-1">
@@ -91,7 +143,7 @@ export default function Home() {
                   className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
                   style={{ animationDelay: "0.6s" }}
                 />
-                <span className="ml-2 text-sm">Loading question bank...</span>
+                <span className="ml-2 text-sm">Loading...</span>
               </div>
             </div>
           )}
@@ -102,7 +154,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setError(null);
-                  setStep("select-paper");
+                  setStep("select-family");
                 }}
                 className="text-xs text-fail/70 hover:text-fail mt-2 underline cursor-pointer"
               >
@@ -111,36 +163,59 @@ export default function Home() {
             </div>
           )}
 
-          {!loading && !error && index && (
-            <>
-              {step === "select-paper" && (
-                <div>
-                  <div className="mb-8">
-                    <h2 className="text-xl font-semibold text-foreground mb-2">
-                      Choose a paper
-                    </h2>
-                    <p className="text-sm text-muted">
-                      {index.totalQuestions} questions from 2011-2025 historical
-                      exams and mock papers
-                    </p>
-                  </div>
-                  <PaperSelector onSelect={handlePaperSelect} />
-                </div>
-              )}
+          {!loading && step === "select-paper" && (
+            <div>
+              <div className="mb-8">
+                <h2 className="text-xl font-semibold text-foreground mb-2">
+                  Choose a paper
+                </h2>
+                <p className="text-sm text-muted">
+                  {totalQuestions > 0
+                    ? `${totalQuestions} questions in the bank`
+                    : "Questions will be generated fresh for you"}
+                </p>
+              </div>
+              <PaperSelector onSelect={handlePaperSelect} />
+            </div>
+          )}
 
-              {step === "select-family" && (
-                <FamilyFilter
-                  paper={selectedPaper}
-                  counts={counts}
-                  onSelect={handleFamilySelect}
-                  onBack={() => setStep("select-paper")}
+          {step === "select-family" && (
+            <FamilyFilter
+              paper={selectedPaper}
+              counts={counts}
+              onSelect={handleFamilySelect}
+              onBack={() => setStep("select-paper")}
+            />
+          )}
+
+          {step === "generating" && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex items-center gap-3 text-muted mb-4">
+                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
+                <div
+                  className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
+                  style={{ animationDelay: "0.3s" }}
                 />
-              )}
-            </>
+                <div
+                  className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
+                  style={{ animationDelay: "0.6s" }}
+                />
+              </div>
+              <p className="text-foreground font-semibold mb-2">
+                Preparing your question...
+              </p>
+              <p className="text-sm text-muted text-center max-w-md">
+                {totalQuestions > 0
+                  ? "Selecting from the question bank."
+                  : "Generating a fresh question with AI. This takes about 30-60 seconds."}
+              </p>
+            </div>
           )}
 
           {/* Session history */}
-          {step === "select-paper" && !loading && <SessionHistory />}
+          {step === "select-paper" && !loading && (
+            <SessionHistory />
+          )}
         </div>
       </main>
 
@@ -148,8 +223,7 @@ export default function Home() {
       <footer className="border-t border-border">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <p className="text-xs text-muted text-center">
-            Built for MW practical exam preparation. Based on 10 years of
-            historical papers.
+            Built for MW practical exam preparation. Powered by Claude.
           </p>
         </div>
       </footer>

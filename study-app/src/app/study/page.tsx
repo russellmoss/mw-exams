@@ -1,14 +1,14 @@
 "use client";
 
-import { useReducer, useEffect, useState, useCallback } from "react";
+import { useReducer, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   studyReducer,
   initialStudyState,
   type Question,
+  type StudyState,
 } from "@/lib/study-session";
 import { useStreaming } from "@/lib/use-streaming";
-import { saveSession } from "@/lib/session-tracker";
 import { QuestionDisplay } from "../components/QuestionDisplay";
 import { PreGlassReasoning } from "../components/PreGlassReasoning";
 import { StreamingFeedback } from "../components/StreamingFeedback";
@@ -21,9 +21,13 @@ export default function StudyPage() {
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
+  const [modelAnswerReady, setModelAnswerReady] = useState(false);
+  const [waitingForModel, setWaitingForModel] = useState(false);
+  const [attemptId, setAttemptId] = useState<number | null>(null);
+  const [preGlassReasoning, setPreGlassReasoning] = useState("");
 
-  const preGlassStream = useStreaming();
-  const answerStream = useStreaming();
+  const evalStream = useStreaming();
+  const modelAnswerPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Load question from sessionStorage on mount
   useEffect(() => {
@@ -32,6 +36,51 @@ export default function StudyPage() {
       try {
         const question: Question = JSON.parse(stored);
         dispatch({ type: "SELECT_QUESTION", question });
+
+        // Create attempt in Neon
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "create", questionId: question.id }),
+        })
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.attempt?.id) setAttemptId(d.attempt.id);
+          })
+          .catch(() => {});
+
+        // If question doesn't have a model answer, start background generation
+        if (!question.modelAnswer || question.modelAnswer.length < 100) {
+          fetch("/api/generate-model-answer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              questionId: question.id,
+              questionText: question.text,
+              wines: question.wines,
+              paper: question.paper,
+              family: question.family,
+            }),
+          })
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.success && d.question?.model_answer) {
+                // Update the question in state with the model answer
+                const updated = {
+                  ...question,
+                  modelAnswer: d.question.model_answer,
+                  proposedAnnotation: d.question.proposed_annotation,
+                  reasoningTrace: d.question.reasoning_trace,
+                  studyDiagramAssist: d.question.study_diagram_assist,
+                };
+                sessionStorage.setItem("mw-current-question", JSON.stringify(updated));
+                setModelAnswerReady(true);
+              }
+            })
+            .catch(() => {});
+        } else {
+          setModelAnswerReady(true);
+        }
       } catch {
         router.push("/");
       }
@@ -40,25 +89,62 @@ export default function StudyPage() {
     }
   }, [router]);
 
-  // Handle pre-glass reasoning submission
+  // Poll for model answer readiness (if generated in background)
+  useEffect(() => {
+    if (modelAnswerReady) return;
+    if (state.step === "select-paper") return;
+
+    const question = state.question;
+
+    modelAnswerPollRef.current = setInterval(async () => {
+      try {
+        const res = await fetch("/api/check-model-answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId: question.id }),
+        });
+        const data = await res.json();
+        if (data.ready) {
+          setModelAnswerReady(true);
+          if (modelAnswerPollRef.current) {
+            clearInterval(modelAnswerPollRef.current);
+          }
+        }
+      } catch {}
+    }, 5000);
+
+    return () => {
+      if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
+    };
+  }, [modelAnswerReady, state]);
+
+  // Handle pre-glass reasoning submission — just save, don't evaluate yet
   const handleReasoningSubmit = useCallback(
     async (reasoning: string) => {
       if (state.step !== "pre-glass") return;
+      setPreGlassReasoning(reasoning);
+
+      // Save to Neon
+      if (attemptId) {
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            attemptId,
+            pre_glass_reasoning: reasoning,
+          }),
+        }).catch(() => {});
+      }
+
+      // Skip straight to reveal (no mid-flow feedback)
       dispatch({ type: "SUBMIT_REASONING", reasoning });
-
-      const feedback = await preGlassStream.startStream(
-        "/api/evaluate-reasoning",
-        {
-          questionText: state.question.text,
-          reasoning,
-          paper: state.question.paper,
-          decisionMatrixContent: state.question.decisionMatrixContent || "",
-        }
-      );
-
-      dispatch({ type: "PRE_GLASS_FEEDBACK_DONE", feedback });
+      dispatch({
+        type: "PRE_GLASS_FEEDBACK_DONE",
+        feedback: "(Feedback will be shown at the end)",
+      });
     },
-    [state, preGlassStream]
+    [state, attemptId]
   );
 
   // Handle wine reveal
@@ -76,6 +162,20 @@ export default function StudyPage() {
       if (!res.ok) throw new Error(`Failed: ${res.status}`);
       const data = await res.json();
       setTastingNotes(data.tastingNotes);
+
+      // Save tasting notes to Neon
+      if (attemptId) {
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            attemptId,
+            tasting_notes: data.tastingNotes,
+          }),
+        }).catch(() => {});
+      }
+
       dispatch({ type: "REVEAL_WINES", tastingNotes: data.tastingNotes });
     } catch (err) {
       console.error("Tasting generation error:", err);
@@ -87,59 +187,124 @@ export default function StudyPage() {
     } finally {
       setTastingLoading(false);
     }
-  }, [state]);
+  }, [state, attemptId]);
 
-  // Handle answer submission
+  // Handle answer submission — get the full evaluation
   const handleAnswerSubmit = useCallback(
     async (answer: string) => {
       if (state.step !== "answer") return;
       dispatch({ type: "SUBMIT_ANSWER", answer });
 
-      const feedback = await answerStream.startStream(
-        "/api/evaluate-answer",
-        {
-          questionText: state.question.text,
-          answer,
-          modelAnswer: state.question.modelAnswer || "",
-          paper: state.question.paper,
-        }
-      );
+      // Save answer to Neon
+      if (attemptId) {
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            attemptId,
+            user_answer: answer,
+          }),
+        }).catch(() => {});
+      }
 
-      // Save attempt to session history
-      const lower = feedback.toLowerCase();
-      const passEstimate: "pass" | "fail" | "borderline" | null =
-        lower.includes("unlikely to pass") || lower.includes("not pass") || lower.includes("would fail")
-          ? "fail"
-          : lower.includes("borderline")
-            ? "borderline"
-            : lower.includes("pass")
-              ? "pass"
-              : null;
+      // Check if model answer is ready
+      if (!modelAnswerReady) {
+        setWaitingForModel(true);
+        // Poll until ready
+        const poll = setInterval(async () => {
+          try {
+            const res = await fetch("/api/check-model-answer", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ questionId: state.question.id }),
+            });
+            const data = await res.json();
+            if (data.ready) {
+              clearInterval(poll);
+              setWaitingForModel(false);
+              setModelAnswerReady(true);
+              runFinalEvaluation(answer);
+            }
+          } catch {}
+        }, 3000);
+        return;
+      }
 
-      saveSession({
-        questionId: state.question.id,
+      runFinalEvaluation(answer);
+    },
+    [state, attemptId, modelAnswerReady]
+  );
+
+  // Run the combined final evaluation
+  const runFinalEvaluation = useCallback(
+    async (answer: string) => {
+      if (state.step !== "feedback" && state.step !== "answer") return;
+
+      // Get latest model answer from sessionStorage (may have been updated by background gen)
+      const stored = sessionStorage.getItem("mw-current-question");
+      let modelAnswer = "";
+      if (stored) {
+        try {
+          const q = JSON.parse(stored);
+          modelAnswer = q.modelAnswer || "";
+        } catch {}
+      }
+
+      const feedback = await evalStream.startStream("/api/evaluate-full", {
+        questionText: state.question.text,
+        preGlassReasoning,
+        userAnswer: answer,
+        modelAnswer,
         paper: state.question.paper,
-        family: state.question.family,
-        familyLabel: state.question.familyLabel,
-        timestamp: Date.now(),
-        passEstimate,
-        marksEstimate: null,
       });
+
+      // Save feedback to Neon
+      if (attemptId) {
+        const lower = feedback.toLowerCase();
+        const passEstimate =
+          lower.includes("unlikely to pass") ||
+          lower.includes("not pass") ||
+          lower.includes("would fail") ||
+          lower.includes("**result: fail**")
+            ? "fail"
+            : lower.includes("borderline") || lower.includes("**result: borderline**")
+              ? "borderline"
+              : lower.includes("**result: pass**")
+                ? "pass"
+                : null;
+
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            attemptId,
+            answer_feedback: feedback,
+            pass_estimate: passEstimate,
+            completed_at: new Date().toISOString(),
+          }),
+        }).catch(() => {});
+      }
 
       dispatch({ type: "ANSWER_FEEDBACK_DONE", feedback });
     },
-    [state, answerStream]
+    [state, preGlassReasoning, attemptId, evalStream]
   );
 
   // Handle next question
   const handleNextQuestion = useCallback(() => {
-    preGlassStream.reset();
-    answerStream.reset();
+    evalStream.reset();
     setTastingNotes([]);
     setTastingLoading(false);
+    setModelAnswerReady(false);
+    setWaitingForModel(false);
+    setAttemptId(null);
+    setPreGlassReasoning("");
+    if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
     dispatch({ type: "RESET" });
     router.push("/");
-  }, [router, preGlassStream, answerStream]);
+  }, [router, evalStream]);
 
   const currentQuestion =
     state.step !== "select-paper" ? state.question : null;
@@ -180,12 +345,11 @@ export default function StudyPage() {
               {[
                 { key: "question", label: "Question" },
                 { key: "pre-glass", label: "Stem Analysis" },
-                { key: "pre-glass-feedback", label: "Feedback" },
-                { key: "reveal", label: "Reveal" },
+                { key: "reveal", label: "Tasting" },
                 { key: "answer", label: "Answer" },
-                { key: "feedback", label: "Evaluation" },
+                { key: "feedback", label: "Results" },
                 { key: "reveal-answer", label: "Review" },
-              ].map((s, i) => {
+              ].map((s) => {
                 const steps = [
                   "question",
                   "pre-glass",
@@ -197,8 +361,10 @@ export default function StudyPage() {
                 ];
                 const currentIdx = steps.indexOf(state.step);
                 const stepIdx = steps.indexOf(s.key);
-                const isActive = stepIdx === currentIdx;
-                const isDone = stepIdx < currentIdx;
+                const isActive =
+                  s.key === state.step ||
+                  (s.key === "reveal" && state.step === "pre-glass-feedback");
+                const isDone = stepIdx < currentIdx && stepIdx !== -1;
 
                 return (
                   <div
@@ -239,29 +405,18 @@ export default function StudyPage() {
             />
           )}
 
-          {/* Pre-glass feedback streaming */}
-          {state.step === "pre-glass-feedback" && (
+          {/* Skip pre-glass-feedback, go straight to reveal */}
+          {(state.step === "pre-glass-feedback" || state.step === "reveal") && (
             <div className="space-y-6">
-              <StreamingFeedback
-                text={preGlassStream.text}
-                isStreaming={preGlassStream.isStreaming}
-                error={preGlassStream.error}
-                title="Coaching Feedback"
-              />
-            </div>
-          )}
-
-          {/* Wine reveal */}
-          {state.step === "reveal" && (
-            <div className="space-y-6">
-              <StreamingFeedback
-                text={
-                  state.preGlassFeedback
-                }
-                isStreaming={false}
-                error={null}
-                title="Your Stem Analysis Feedback"
-              />
+              <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
+                <p className="text-sm text-muted mb-2">
+                  Your stem analysis has been saved. Full feedback will be
+                  provided at the end.
+                </p>
+                <p className="text-foreground font-semibold">
+                  Now let&apos;s taste the wines.
+                </p>
+              </div>
               <div className="flex justify-center">
                 <button
                   onClick={handleRevealWines}
@@ -270,7 +425,7 @@ export default function StudyPage() {
                 >
                   {tastingLoading
                     ? "Generating tasting notes..."
-                    : "Reveal Wines & Tasting Notes"}
+                    : "Reveal Tasting Notes"}
                 </button>
               </div>
               {tastingLoading && (
@@ -298,15 +453,38 @@ export default function StudyPage() {
             </div>
           )}
 
-          {/* Answer feedback streaming */}
+          {/* Waiting for model answer / Evaluation streaming */}
           {state.step === "feedback" && (
             <div className="space-y-6">
-              <StreamingFeedback
-                text={answerStream.text}
-                isStreaming={answerStream.isStreaming}
-                error={answerStream.error}
-                title="Examiner Evaluation"
-              />
+              {waitingForModel ? (
+                <div className="bg-card rounded-xl border border-border p-8 text-center">
+                  <div className="flex items-center justify-center gap-3 mb-4">
+                    <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
+                    <div
+                      className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
+                      style={{ animationDelay: "0.3s" }}
+                    />
+                    <div
+                      className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
+                      style={{ animationDelay: "0.6s" }}
+                    />
+                  </div>
+                  <p className="text-foreground font-semibold mb-2">
+                    Preparing your results...
+                  </p>
+                  <p className="text-sm text-muted">
+                    The model answer is still being generated. This usually
+                    takes 1-2 minutes.
+                  </p>
+                </div>
+              ) : (
+                <StreamingFeedback
+                  text={evalStream.text}
+                  isStreaming={evalStream.isStreaming}
+                  error={evalStream.error}
+                  title="Full Debrief"
+                />
+              )}
             </div>
           )}
 
@@ -317,7 +495,7 @@ export default function StudyPage() {
                 text={state.answerFeedback}
                 isStreaming={false}
                 error={null}
-                title="Examiner Evaluation"
+                title="Full Debrief"
               />
               <ModelAnswerReveal
                 question={state.question}

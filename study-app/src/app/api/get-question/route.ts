@@ -1,0 +1,182 @@
+import { getQuestionsByFilter, getRecentAttempts } from "@/lib/db";
+import Anthropic from "@anthropic-ai/sdk";
+import { saveGeneratedQuestion } from "@/lib/db";
+import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
+
+export const runtime = "nodejs";
+export const maxDuration = 120;
+
+export async function POST(request: Request) {
+  try {
+    const { paper, family } = await request.json();
+
+    if (!paper) {
+      return Response.json({ error: "Missing paper" }, { status: 400 });
+    }
+
+    // 1. Check for pre-populated questions in Neon
+    const available = await getQuestionsByFilter(paper, family);
+    const recentAttempts = await getRecentAttempts(100);
+
+    // Build set of recently seen question IDs in this category
+    const categoryAttempts = recentAttempts
+      .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
+      .map((a) => a.question_id);
+
+    // Find questions not seen recently (must see 7 others before repeat)
+    const unseenOrStale = available.filter((q) => {
+      const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
+      if (lastSeenIdx === -1) return true; // never seen
+      return lastSeenIdx >= 7; // seen but 7+ others since
+    });
+
+    // Prefer pre-populated questions with model answers
+    const withAnswers = unseenOrStale.filter((q) => q.model_answer && q.model_answer.length > 100);
+
+    if (withAnswers.length > 0) {
+      const picked = withAnswers[Math.floor(Math.random() * withAnswers.length)];
+      return Response.json({
+        source: "pre-populated",
+        question: picked,
+        hasModelAnswer: true,
+      });
+    }
+
+    // Fallback: any unseen pre-populated question (even without model answer)
+    if (unseenOrStale.length > 0) {
+      const picked = unseenOrStale[Math.floor(Math.random() * unseenOrStale.length)];
+      return Response.json({
+        source: "pre-populated",
+        question: picked,
+        hasModelAnswer: !!(picked.model_answer && picked.model_answer.length > 100),
+      });
+    }
+
+    // 2. No pre-populated questions available — generate on the fly
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const prompt = buildQuestionGenerationPrompt(paper, family || "any");
+
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      system: prompt.system,
+      messages: [{ role: "user", content: prompt.user }],
+    });
+
+    const text = message.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("");
+
+    // Parse the generated question
+    const parsed = parseGeneratedQuestion(text, paper, family || "F4");
+
+    if (!parsed) {
+      return Response.json(
+        { error: "Failed to parse generated question" },
+        { status: 500 }
+      );
+    }
+
+    // Save to Neon (without model answer — that generates in background)
+    const saved = await saveGeneratedQuestion({
+      questionId: `gen_p${paper}_${family || "any"}_${Date.now()}`,
+      paper,
+      family: parsed.family,
+      familyLabel: parsed.familyLabel,
+      subcategory: parsed.subcategory,
+      questionText: parsed.questionText,
+      wines: parsed.wines,
+      totalMarks: parsed.totalMarks,
+      metadata: { generatedOnTheFly: true },
+    });
+
+    return Response.json({
+      source: "generated",
+      question: saved,
+      hasModelAnswer: false,
+    });
+  } catch (err) {
+    console.error("get-question error:", err);
+    return Response.json(
+      { error: err instanceof Error ? err.message : "Internal error" },
+      { status: 500 }
+    );
+  }
+}
+
+function parseGeneratedQuestion(
+  text: string,
+  paper: number,
+  family: string
+): {
+  family: string;
+  familyLabel: string;
+  subcategory: string;
+  questionText: string;
+  wines: { slot: number; fullText: string }[];
+  totalMarks: number;
+} | null {
+  try {
+    // Extract question text (between ## Question and ## Wines)
+    const questionMatch = text.match(
+      /## Question\s*\n([\s\S]*?)(?=\n## Wines|\n## Metadata)/i
+    );
+    const questionText = questionMatch ? questionMatch[1].trim() : "";
+
+    // Extract wines
+    const winesMatch = text.match(
+      /## Wines\s*\n([\s\S]*?)(?=\n## Metadata|\n## |$)/i
+    );
+    const wines: { slot: number; fullText: string }[] = [];
+    if (winesMatch) {
+      const lines = winesMatch[1].split("\n").filter((l) => /^\d+\./.test(l.trim()));
+      for (const line of lines) {
+        const m = line.match(/^(\d+)\.\s+(.*)/);
+        if (m) wines.push({ slot: parseInt(m[1]), fullText: m[2].trim() });
+      }
+    }
+
+    // Extract metadata
+    const familyMatch = text.match(/Family:\s*(F\d)/i);
+    const familyLabelMatch = text.match(/Family:\s*F\d\s*[-–]\s*(.*)/i);
+    const subcatMatch = text.match(/Subcategory:\s*(.*)/i);
+
+    const FAMILY_LABELS: Record<string, string> = {
+      F1: "Same Variety",
+      F2: "Same Origin",
+      F3: "Blend Logic",
+      F4: "Mixed Breadth",
+      F5: "Method / Production",
+      F6: "Style Mechanism",
+      F7: "Quality Hierarchy",
+    };
+
+    const parsedFamily = familyMatch ? familyMatch[1] : family;
+    const parsedLabel = familyLabelMatch
+      ? familyLabelMatch[1].trim()
+      : FAMILY_LABELS[parsedFamily] || "Unknown";
+
+    // Extract marks
+    let totalMarks = 0;
+    const mult = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
+    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
+    const single = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
+    for (const m of single) totalMarks += parseInt(m[1]);
+    if (!totalMarks) totalMarks = 100;
+
+    if (!questionText || wines.length === 0) return null;
+
+    return {
+      family: parsedFamily,
+      familyLabel: parsedLabel,
+      subcategory: subcatMatch ? subcatMatch[1].trim() : "",
+      questionText,
+      wines,
+      totalMarks,
+    };
+  } catch {
+    return null;
+  }
+}
