@@ -7,72 +7,202 @@ interface QuestionDisplayProps {
   onStartReasoning: () => void;
 }
 
+function parseQuestionText(text: string): {
+  preamble: string;
+  subQuestions: { label: string; text: string; marks: string }[];
+  totalMarks: string | null;
+} {
+  const lines = text
+    .replace(/&nbsp;/g, " ")
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  const preambleLines: string[] = [];
+  const subQuestions: { label: string; text: string; marks: string }[] = [];
+  let totalMarks: string | null = null;
+  let currentSub: { label: string; text: string; marks: string } | null = null;
+
+  for (const line of lines) {
+    // Check for total marks
+    const totalMatch = line.match(/^Total:\s*(\d+\s*marks?)/i);
+    if (totalMatch) {
+      totalMarks = totalMatch[1];
+      continue;
+    }
+
+    // Check for sub-question like (a), (b), (c), (i), (ii)
+    const subMatch = line.match(
+      /^\(([a-z]|[iv]+)\)\s*(.*)/i
+    );
+    if (subMatch) {
+      if (currentSub) subQuestions.push(currentSub);
+      const label = subMatch[1];
+      let rest = subMatch[2];
+
+      // Extract marks from the text
+      let marks = "";
+      const marksMatch = rest.match(/\((\d+(?:\s*[x×]\s*\d+)?\s*(?:marks?)?(?:\s*=\s*\d+\s*marks?)?)\)\s*$/i);
+      if (marksMatch) {
+        marks = marksMatch[1];
+        rest = rest.slice(0, rest.lastIndexOf("(" + marksMatch[1])).trim();
+      }
+
+      currentSub = { label, text: rest, marks };
+      continue;
+    }
+
+    // Check for standalone marks line
+    const standaloneMarks = line.match(/^\((\d+(?:\s*[x×]\s*\d+)?\s*(?:marks?)?(?:\s*=\s*\d+\s*marks?)?)\)\s*$/i);
+    if (standaloneMarks && currentSub) {
+      currentSub.marks = standaloneMarks[1];
+      continue;
+    }
+
+    // Check for "For each wine:" or "With reference to" prefixes
+    const contextMatch = line.match(/^(For (?:each|all|both) wine|With reference to|For each of|Then for each)/i);
+    if (contextMatch) {
+      if (currentSub) {
+        currentSub.text += " " + line;
+      } else {
+        preambleLines.push(line);
+      }
+      continue;
+    }
+
+    // If we have an active sub-question, append to it
+    if (currentSub) {
+      // Could be continuation text or a marks line
+      if (line.match(/^\d+\s*marks?$/i) || line.match(/^\(\d+/)) {
+        const m = line.replace(/[()]/g, "").trim();
+        if (!currentSub.marks) currentSub.marks = m;
+      } else {
+        currentSub.text += " " + line;
+      }
+      continue;
+    }
+
+    // Otherwise it's preamble
+    preambleLines.push(line);
+  }
+
+  if (currentSub) subQuestions.push(currentSub);
+
+  return {
+    preamble: preambleLines.join(" "),
+    subQuestions,
+    totalMarks,
+  };
+}
+
 export function QuestionDisplay({
   question,
   onStartReasoning,
 }: QuestionDisplayProps) {
   const paperLabel =
     question.paper === 1
-      ? "Paper 1 -- Whites"
+      ? "Paper 1 — Whites"
       : question.paper === 2
-        ? "Paper 2 -- Reds"
-        : "Paper 3 -- Special";
+        ? "Paper 2 — Reds"
+        : "Paper 3 — Special";
+
+  const parsed = parseQuestionText(question.text);
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-wrap items-center gap-3 mb-6">
-        <span className="text-xs font-mono px-2 py-1 rounded bg-accent/20 text-accent">
+      {/* Header badges */}
+      <div className="flex flex-wrap items-center gap-2 mb-8">
+        <span className="text-xs font-mono px-3 py-1.5 rounded-full bg-accent/15 text-accent border border-accent/20">
           {paperLabel}
         </span>
-        <span className="text-xs font-mono px-2 py-1 rounded bg-card text-muted">
-          {question.year} Q{question.questionNumber}
+        <span className="text-xs font-mono px-3 py-1.5 rounded-full bg-card text-muted border border-border">
+          {question.familyLabel}
         </span>
-        <span className="text-xs font-mono px-2 py-1 rounded bg-card text-muted">
-          {question.family}: {question.familyLabel}
-        </span>
-        <span className="text-xs font-mono px-2 py-1 rounded bg-card text-muted">
+        <span className="text-xs font-mono px-3 py-1.5 rounded-full bg-card text-muted border border-border">
           {question.totalMarks} marks
         </span>
       </div>
 
-      {/* Question stem */}
-      <div className="bg-card rounded-xl border border-border p-6 mb-6">
-        <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
-          Question Stem
-        </h3>
-        <div className="text-foreground leading-relaxed whitespace-pre-line text-[15px]">
-          {question.text}
+      {/* Question card */}
+      <div className="bg-card rounded-2xl border border-border overflow-hidden mb-8">
+        {/* Preamble */}
+        <div className="px-8 pt-8 pb-6">
+          <p className="text-lg text-foreground leading-relaxed font-medium">
+            {parsed.preamble}
+          </p>
         </div>
+
+        {/* Sub-questions */}
+        {parsed.subQuestions.length > 0 && (
+          <div className="border-t border-border/50">
+            {parsed.subQuestions.map((sq, i) => (
+              <div
+                key={i}
+                className={`px-8 py-5 flex gap-4 ${
+                  i < parsed.subQuestions.length - 1
+                    ? "border-b border-border/30"
+                    : ""
+                }`}
+              >
+                <span className="text-accent font-mono text-sm font-semibold shrink-0 mt-0.5">
+                  {sq.label})
+                </span>
+                <div className="flex-1">
+                  <p className="text-[15px] text-foreground/90 leading-relaxed">
+                    {sq.text}
+                  </p>
+                </div>
+                {sq.marks && (
+                  <span className="text-xs text-muted font-mono shrink-0 mt-0.5 whitespace-nowrap">
+                    {sq.marks}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Total marks footer */}
+        {parsed.totalMarks && (
+          <div className="px-8 py-3 bg-border/10 border-t border-border/50">
+            <p className="text-xs text-muted font-mono text-right">
+              Total: {parsed.totalMarks}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Wine count indicator */}
-      <div className="bg-card rounded-lg border border-border p-4 mb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1.5">
+      <div className="bg-card/50 rounded-xl border border-border/50 p-5 mb-8">
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1">
             {question.wines.map((w) => (
               <div
                 key={w.slot}
-                className="w-5 h-8 rounded-sm bg-border/50 border border-border"
+                className="w-4 h-7 rounded-sm bg-accent/10 border border-accent/20"
                 title={`Wine ${w.slot}`}
               />
             ))}
           </div>
           <span className="text-sm text-muted">
             {question.wines.length}{" "}
-            {question.wines.length === 1 ? "wine" : "wines"} in this flight
-            &mdash; identities hidden until after your stem analysis
+            {question.wines.length === 1 ? "wine" : "wines"} in this flight —
+            identities hidden until after your stem analysis
           </span>
         </div>
       </div>
 
       {/* CTA */}
-      <button
-        onClick={onStartReasoning}
-        className="w-full sm:w-auto px-8 py-3 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
-      >
-        Begin Stem Analysis
-      </button>
+      <div className="flex justify-center">
+        <button
+          onClick={onStartReasoning}
+          className="px-10 py-3.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-xl transition-colors duration-200 cursor-pointer text-[15px]"
+        >
+          Begin Stem Analysis
+        </button>
+      </div>
     </div>
   );
 }

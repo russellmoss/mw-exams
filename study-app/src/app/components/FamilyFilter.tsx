@@ -3,13 +3,13 @@
 import { FAMILY_LABELS } from "@/lib/question-loader";
 
 const FAMILY_DESCRIPTIONS: Record<string, string> = {
-  F1: "4 Chardonnays from different countries",
-  F2: "Wines from the same country, different varieties",
-  F3: "Compare blends across origins",
-  F4: "Each wine independent -- test your range",
-  F5: "Sparkling methods, sweet mechanisms, production",
-  F6: "Maturity axis, sweetness spectrum, style",
-  F7: "Village to 1er Cru to Grand Cru",
+  F1: "All wines share one grape variety across different origins or styles",
+  F2: "Wines from the same country or region, testing internal diversity",
+  F3: "Blended wines where composition and component roles are key",
+  F4: "Each wine is independent — tests breadth of identification",
+  F5: "Focus on how the wine was made: sparkling, fortified, or sweet mechanisms",
+  F6: "Wines grouped by a structural axis: maturity, sweetness, or style",
+  F7: "Wines at different tiers within a legal classification system",
 };
 
 interface FamilyFilterProps {
