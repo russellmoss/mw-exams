@@ -32,20 +32,22 @@ export function useSpeech(onTranscript: (text: string) => void): UseSpeechResult
     recognition.interimResults = true;
     recognition.lang = "en-US";
 
-    let finalTranscript = "";
-
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interim = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript + " ";
-          onTranscript(finalTranscript.trim());
-        } else {
-          interim += result[0].transcript;
+          const chunk = result[0].transcript.trim();
+          if (chunk) onTranscript(chunk);
         }
       }
-      setTranscript(finalTranscript + interim);
+      // Show interim results for visual feedback
+      let interim = "";
+      for (let i = 0; i < event.results.length; i++) {
+        if (!event.results[i].isFinal) {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      setTranscript(interim);
     };
 
     recognition.onend = () => {
