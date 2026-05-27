@@ -584,6 +584,7 @@ export default function StudyPage() {
               />
               <DecisionTreeWalkthrough
                 paper={state.question.paper}
+                family={state.question.family}
                 studyDiagramAssist={state.question.studyDiagramAssist}
               />
               <ModelAnswerReveal
