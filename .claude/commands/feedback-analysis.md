@@ -1,5 +1,5 @@
 ---
-description: Analyze user feedback on generated questions against the MW exam corpus. Recommends accept or reject.
+description: Analyze user feedback on generated questions against the past 10 years of real MW exams. Recommends accept or reject.
 argument-hint: <question_id> [question_id2] [question_id3] ...
 ---
 
@@ -9,9 +9,9 @@ Arguments: $ARGUMENTS (one or more question IDs, e.g. `gen_p1_F2_1779913929557 g
 
 ## Purpose
 
-Users leave feedback on generated MW exam questions — often disagreeing with the AI evaluation, questioning the wine selection, or flagging issues with question design. This command determines whether each piece of feedback should be **accepted** (leading to a pipeline change) or **rejected** (the system is already correct), grounded in the actual MW exam corpus.
+Users leave feedback on generated MW exam questions — often disagreeing with the AI evaluation, questioning the wine selection, or flagging issues with question design. This command determines whether each piece of feedback should be **accepted** (leading to a pipeline change) or **rejected** (the system is already correct), grounded in what the real MW exam has actually done over the past 10 years (2011–2025).
 
-The key principle: the MW exam has done surprising things historically. A candidate saying "this would NEVER happen" may be wrong — if the corpus shows it HAS happened, the feedback should be rejected and the system preserved. Conversely, if the feedback identifies a genuine gap or error not seen in the corpus, it should be accepted.
+The key principle: the MW exam has done surprising things historically. A candidate saying "this would NEVER happen" may be wrong — if the past exams show it HAS happened, the feedback should be rejected and the system preserved. Conversely, if the feedback identifies a genuine gap or error not seen in any past exam, it should be accepted.
 
 ## Workflow
 
@@ -50,11 +50,11 @@ Parse the user's feedback to identify their specific claim(s):
 - Are they saying the wines don't match what MW exams actually do?
 - Are they suggesting a structural change to how questions are generated?
 
-### Step 3: Cross-reference against the MW exam corpus
+### Step 3: Cross-reference against the past 10 years of real MW exams
 
 Read the structured exam data to check the claim:
 
-1. **Read `data/exams.json`** — check if the pattern the user says "would never happen" has actually occurred in the 10-year corpus (2014-2023). Look for:
+1. **Read `data/exams.json`** — check if the pattern the user says "would never happen" has actually occurred in real MW exams (2011–2025). Look for:
    - Similar question structures (same family type, same number of wines)
    - Similar wine selections (same varieties, same regions, same blend patterns)
    - Similar stem phrasing patterns
@@ -82,10 +82,10 @@ For each question, produce a structured analysis:
 ### Claim Analysis
 {What exactly is the user claiming? Break it into specific testable assertions.}
 
-### Corpus Evidence
-{What does the 10-year MW exam corpus say? Cite specific years/papers/questions.
-If the pattern HAS occurred historically, cite the exact instance.
-If it HASN'T, note the absence but consider whether it's a deliberate gap or just hasn't come up yet.}
+### Evidence from Past MW Exams (2011–2025)
+{What do the real MW exams from the past 10+ years show? Cite specific years/papers/questions.
+If the pattern HAS occurred in a real exam, cite the exact instance.
+If it HASN'T appeared in any past exam, note the absence but consider whether it's a deliberate gap or just hasn't come up yet.}
 
 ### Current Pipeline Check
 {Does the current generation prompt or validation logic already handle this?
@@ -117,13 +117,13 @@ And if any are ACCEPT, list the specific pipeline changes needed in priority ord
 
 ## Important Rules
 
-1. **The corpus is authoritative.** If the MW exam has done something historically, the generated questions should be allowed to do it too. "This seems unusual" is not a valid reason to reject a pattern that appears in the actual exams.
+1. **The past exams are authoritative.** If the real MW exam has done something in any year from 2011–2025, the generated questions should be allowed to do it too. "This seems unusual" is not a valid reason to reject a pattern that appears in a real past exam.
 
 2. **Don't over-correct.** A single feedback item about an edge case doesn't warrant a sweeping prompt change. Scope the fix tightly to the actual issue.
 
 3. **Distinguish evaluation feedback from generation feedback.** If the user is saying "I was right and the AI scored me wrong," that's an evaluation quality issue, not a generation pipeline issue. Note this difference.
 
-4. **Consider the candidate's level.** MW candidates are experts. Their feedback often contains genuine insight. Don't dismiss it reflexively — but do verify it against the corpus.
+4. **Consider the candidate's level.** MW candidates are experts. Their feedback often contains genuine insight. Don't dismiss it reflexively — but do verify it against what the real exams have actually done.
 
 5. **Be specific about changes.** Don't say "update the prompt." Say "In `question-generation-prompt.ts`, add to the SAME-ORIGIN DIVERSITY GUARDRAIL section: ..."
 

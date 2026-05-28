@@ -20,9 +20,11 @@ export async function POST(request: Request) {
     const sql = neon(process.env.DATABASE_URL!);
     const attempts = await sql`
       SELECT a.id, a.user_feedback, a.user_answer, a.user_id,
-        q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer
+        q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer,
+        u.name as user_name
       FROM user_attempts a
       JOIN generated_questions q ON a.question_id = q.question_id
+      JOIN users u ON a.user_id = u.id
       WHERE a.id = ${attemptId}
     `;
 
@@ -55,12 +57,13 @@ export async function POST(request: Request) {
       modelAnswer: attempt.model_answer as string | null,
       userAnswer: attempt.user_answer as string | null,
       userFeedback: attempt.user_feedback as string,
+      userName: attempt.user_name as string,
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 2000,
+      max_tokens: 4000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });
