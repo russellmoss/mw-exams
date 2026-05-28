@@ -9,6 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
+import { neon } from "@neondatabase/serverless";
 import { getLatestOpus } from "@/lib/model-resolver";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
@@ -119,6 +120,40 @@ function extractSection(
   return text.slice(startIdx).trim();
 }
 
+async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string): Promise<GeneratedQuestion> {
+  if (question.paper !== 3) return question;
+  const wines = typeof question.wines === "string" ? JSON.parse(question.wines) : question.wines;
+  const hasAppearances = wines.some((w: { appearance?: string }) => w.appearance);
+  if (hasAppearances) return question;
+
+  try {
+    const client = new Anthropic({ apiKey });
+    const wineList = wines.map((w: { slot: number; fullText: string }) => `${w.slot}. ${w.fullText}`).join("\n");
+    const message = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 500,
+      system: `For each wine, describe ONLY what a candidate would see in the glass — color, clarity, bubbles if present, viscosity. No aromas, no tastes, no wine-type labels. Be accurate for the specific wine. One line per wine, 10-20 words. Output as JSON array: [{"slot":1,"appearance":"..."},...]`,
+      messages: [{ role: "user", content: `Generate visual appearance notes:\n${wineList}` }],
+    });
+    const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+    const match = text.match(/\[[\s\S]*\]/);
+    if (match) {
+      const appearances = JSON.parse(match[0]) as { slot: number; appearance: string }[];
+      for (const a of appearances) {
+        const wine = wines.find((w: { slot: number }) => w.slot === a.slot);
+        if (wine) wine.appearance = a.appearance;
+      }
+      // Save back to DB
+      const sql = neon(process.env.DATABASE_URL!);
+      await sql`UPDATE generated_questions SET wines = ${JSON.stringify(wines)} WHERE question_id = ${question.question_id}`;
+      return { ...question, wines };
+    }
+  } catch (err) {
+    console.error("Failed to generate P3 appearances:", err);
+  }
+  return question;
+}
+
 function getWineCount(q: GeneratedQuestion): number {
   const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
   return Array.isArray(wines) ? wines.length : 0;
@@ -162,7 +197,8 @@ export async function POST(request: Request) {
     // Prefer non-4-wine flights for families that are over-indexed on 4-wine
     const unanswered = await getUnansweredQuestions(paper, family);
     if (unanswered.length > 0) {
-      const picked = pickFlightSizeAware(unanswered, family);
+      let picked = pickFlightSizeAware(unanswered, family);
+      picked = await ensureP3Appearances(picked, userApiKey);
       console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
@@ -187,7 +223,8 @@ export async function POST(request: Request) {
     });
 
     if (staleWithAnswers.length > 0) {
-      const picked = pickFlightSizeAware(staleWithAnswers, family);
+      let picked = pickFlightSizeAware(staleWithAnswers, family);
+      picked = await ensureP3Appearances(picked, userApiKey);
       console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
