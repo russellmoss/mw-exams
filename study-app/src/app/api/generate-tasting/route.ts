@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
 
     // Try to load stored wine profiles from DB first, fall back to bank lookup
-    let wineProfiles = lookupWines(wines);
+    let wineProfiles = await lookupWines(wines);
     if (questionId) {
       try {
         const sql = neon(process.env.DATABASE_URL!);

@@ -1,27 +1,34 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEntry } from "./wine-bank-lookup";
+import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEntry, type TastingGrid } from "./wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
-import { readFileSync, writeFileSync } from "fs";
-import { join } from "path";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 
 async function searchTavily(query: string): Promise<{ snippets: string[]; sources: string[] }> {
   const tavilyKey = process.env.TAVILY_API_KEY;
-  if (!tavilyKey) return { snippets: [], sources: [] };
+  if (!tavilyKey) {
+    console.warn("TAVILY_API_KEY not set — skipping web research");
+    return { snippets: [], sources: [] };
+  }
 
   try {
     const res = await fetch(TAVILY_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${tavilyKey}`,
+      },
       body: JSON.stringify({
-        api_key: tavilyKey,
         query,
         max_results: 6,
         search_depth: "basic",
       }),
     });
-    if (!res.ok) return { snippets: [], sources: [] };
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(`Tavily API error ${res.status}: ${body.slice(0, 200)}`);
+      return { snippets: [], sources: [] };
+    }
     const data = await res.json();
     const snippets: string[] = [];
     const sources: string[] = [];
@@ -29,8 +36,10 @@ async function searchTavily(query: string): Promise<{ snippets: string[]; source
       if (r.content) snippets.push(r.content.slice(0, 400));
       if (r.url) sources.push(r.url);
     }
+    console.log(`Tavily returned ${snippets.length} snippets for: ${query.slice(0, 80)}`);
     return { snippets, sources };
-  } catch {
+  } catch (err) {
+    console.error("Tavily search failed:", err);
     return { snippets: [], sources: [] };
   }
 }
@@ -58,97 +67,116 @@ async function researchWineViaTavily(
   const query = `${identity.producer} ${identity.wineName} ${identity.vintage} tasting notes appearance color aroma palate review`;
 
   const tavily = await searchTavily(query);
-  const hasTavilyResults = tavily.snippets.length >= 2;
+  const hasTavilyResults = tavily.snippets.length >= 1;
 
-  if (hasTavilyResults) {
-    // Use Claude to synthesize real tasting data from Tavily snippets
-    try {
-      const client = new Anthropic({ apiKey });
-      const message = await client.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        system: `You are synthesizing real tasting notes from web search results into a structured profile. Extract ONLY what the sources actually say — do not add your own descriptions. If sources conflict, note the consensus.
+  const GRID_SYSTEM = `You are an MW-level wine expert building a structured tasting grid. Use the MW Systematic Approach to Tasting (SAT) framework.
+
+For every field, use the standard MW vocabulary scales:
+- color: e.g. "lemon-green", "gold", "ruby", "garnet", "tawny"
+- clarity: "clear", "slight haze", "hazy"
+- viscosity: "low", "medium", "high"
+- nose_intensity: "light", "medium(-)", "medium", "medium(+)", "pronounced"
+- nose_descriptors: specific aromas — fruit, floral, herbal, oak, earth, etc.
+- palate_sweetness: "dry", "off-dry", "medium-dry", "medium-sweet", "sweet", "luscious"
+- palate_acid: "low", "medium(-)", "medium", "medium(+)", "high"
+- palate_tannin: "low", "medium(-)", "medium", "medium(+)", "high" (or "n/a" for whites)
+- palate_body: "light", "medium(-)", "medium", "medium(+)", "full"
+- palate_alcohol: "low", "medium", "medium(+)", "high"
+- palate_flavor_descriptors: specific palate flavors, oak influence, secondary/tertiary notes
+- palate_finish: "short", "medium(-)", "medium", "medium(+)", "long"
+- quality_assessment: "poor", "acceptable", "good", "very good", "outstanding"
 
 Output exactly one JSON object (no markdown, no code fences):
-{"appearance": "...", "nose_summary": "...", "palate_summary": "...", "structural_summary": "...", "source_names": ["source1", "source2"], "confidence": "high|medium"}`,
+{"color":"...","clarity":"...","viscosity":"...","nose_intensity":"...","nose_descriptors":"...","palate_sweetness":"...","palate_acid":"...","palate_tannin":"...","palate_body":"...","palate_alcohol":"...","palate_flavor_descriptors":"...","palate_finish":"...","quality_assessment":"...","sources":["..."],"inferred_fields":["field names you had to infer rather than find stated"]}`;
+
+  const client = new Anthropic({ apiKey });
+  let grid: TastingGrid | null = null;
+  let sourceMethod: WineProfile["source_method"] = "none";
+  let confidence: "high" | "medium" | "low" = "low";
+
+  if (hasTavilyResults) {
+    // Step 1: Extract what Tavily sources explicitly state
+    try {
+      const message = await client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: GRID_SYSTEM + `\n\nIMPORTANT: You have real search results below. Extract every detail the sources state. For fields where sources give no information, write "NOT_FOUND" as the value — do NOT guess. Put "NOT_FOUND" fields in inferred_fields.`,
         messages: [{
           role: "user",
-          content: `Wine: ${wine.fullText}\n\nSearch results:\n${tavily.snippets.map((s, i) => `[${i + 1}] ${s}`).join("\n\n")}\n\nSynthesize the tasting profile from these real sources. Only include what the sources say.`,
+          content: `Wine: ${wine.fullText}\n\nSearch results:\n${tavily.snippets.map((s, i) => `[${i + 1}] ${s}`).join("\n\n")}\n\nBuild the tasting grid from these sources. Use "NOT_FOUND" for anything the sources don't cover.`,
         }],
       });
 
-      const text = message.content
-        .filter((b) => b.type === "text")
-        .map((b) => b.text)
-        .join("");
-
+      const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        return {
-          bank_match: null,
-          tasting_profile: {
-            appearance: parsed.appearance || "",
-            nose_summary: parsed.nose_summary || "",
-            palate_summary: parsed.palate_summary || "",
-            structural_summary: parsed.structural_summary || "",
-            sources: tavily.sources.slice(0, 4),
-          },
-          confidence: (parsed.confidence as "high" | "medium") || "medium",
-          source_method: "tavily_research" as WineProfile["source_method"],
-          enriched_at: new Date().toISOString(),
-        };
+        grid = JSON.parse(jsonMatch[0]) as TastingGrid;
+        grid.sources = tavily.sources.slice(0, 4);
+        sourceMethod = "tavily_research";
+        confidence = "medium";
       }
     } catch (err) {
-      console.error("Tavily synthesis failed for", wine.fullText, err);
+      console.error("Tavily grid extraction failed for", wine.fullText, err);
     }
   }
 
-  // Fallback: LLM knowledge only
-  for (let attempt = 0; attempt < 2; attempt++) {
+  // Step 2: Fill gaps — either from Tavily partial grid or from scratch
+  const hasGaps = grid && Object.values(grid).some((v) => v === "NOT_FOUND");
+  if (!grid || hasGaps) {
     try {
-      const client = new Anthropic({ apiKey });
+      const gapContext = grid
+        ? `\n\nA partial grid was extracted from web sources:\n${JSON.stringify(grid)}\n\nFill ONLY the "NOT_FOUND" fields using your expert knowledge of this exact producer, cuvée, vintage, and region. Keep all non-NOT_FOUND values exactly as they are. Update inferred_fields to list every field you filled in.`
+        : `\n\nNo web sources were available. Build the complete grid from your knowledge of this exact producer, cuvée, and vintage. Be specific to THIS wine, not generic. List all fields in inferred_fields.`;
+
       const message = await client.messages.create({
         model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        system: `You are a wine expert. Produce a tasting profile for a specific wine based on your knowledge of this exact producer, cuvée, and vintage. Be accurate to THIS wine, not generic for the variety or region.
-
-You MUST output exactly one JSON object with no markdown formatting, no code fences, no explanation — just the JSON:
-{"appearance": "color, clarity, viscosity description", "nose_summary": "2-3 sentences of specific aromas", "palate_summary": "2-3 sentences of flavors, texture, finish", "structural_summary": "acid, tannin, body, alcohol, finish length", "sources": ["what you based this on — be honest"], "confidence": "high or medium or low"}`,
+        max_tokens: 1000,
+        system: GRID_SYSTEM + `\n\nYou are filling in gaps using your expert wine knowledge. Be accurate to this specific wine — use your knowledge of the producer's style, the appellation norms, and the vintage character.`,
         messages: [{
           role: "user",
-          content: `Produce a tasting profile for: ${wine.fullText}`,
+          content: `Wine: ${wine.fullText}${gapContext}`,
         }],
       });
 
-      const text = message.content
-        .filter((b) => b.type === "text")
-        .map((b) => b.text)
-        .join("");
-
+      const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        if (parsed.appearance || parsed.nose_summary || parsed.palate_summary) {
-          return {
-            bank_match: null,
-            tasting_profile: {
-              appearance: parsed.appearance || "",
-              nose_summary: parsed.nose_summary || "",
-              palate_summary: parsed.palate_summary || "",
-              structural_summary: parsed.structural_summary || "",
-              sources: parsed.sources || ["LLM wine knowledge — not verified"],
-            },
-            confidence: (parsed.confidence as "high" | "medium" | "low") || "low",
-            source_method: "llm_enrichment",
-            enriched_at: new Date().toISOString(),
-          };
+        const filled = JSON.parse(jsonMatch[0]) as TastingGrid;
+        if (!grid) {
+          grid = filled;
+          sourceMethod = "llm_enrichment";
+          confidence = "medium";
+        } else {
+          // Merge: keep Tavily values, fill NOT_FOUND with LLM
+          const gridAny = grid as unknown as Record<string, unknown>;
+          for (const [k, v] of Object.entries(filled)) {
+            if (gridAny[k] === "NOT_FOUND") {
+              gridAny[k] = v;
+            }
+          }
+          grid.inferred_fields = filled.inferred_fields || [];
         }
       }
-      console.error(`LLM enrichment attempt ${attempt + 1} returned unparseable response for`, wine.fullText, text.slice(0, 200));
     } catch (err) {
-      console.error(`LLM enrichment attempt ${attempt + 1} failed for`, wine.fullText, err);
+      console.error("LLM gap-fill failed for", wine.fullText, err);
     }
+  }
+
+  if (grid) {
+    return {
+      bank_match: null,
+      tasting_profile: {
+        appearance: `${grid.color}, ${grid.clarity}, ${grid.viscosity} viscosity`,
+        nose_summary: `${grid.nose_intensity} intensity. ${grid.nose_descriptors}`,
+        palate_summary: `${grid.palate_flavor_descriptors}. Finish: ${grid.palate_finish}.`,
+        structural_summary: `Sweetness: ${grid.palate_sweetness}. Acid: ${grid.palate_acid}. Tannin: ${grid.palate_tannin}. Body: ${grid.palate_body}. Alcohol: ${grid.palate_alcohol}.`,
+        sources: grid.sources || [],
+      },
+      tasting_grid: grid,
+      confidence,
+      source_method: sourceMethod,
+      enriched_at: new Date().toISOString(),
+    };
   }
 
   return {
@@ -160,42 +188,36 @@ You MUST output exactly one JSON object with no markdown formatting, no code fen
   };
 }
 
-function addToWineBank(wine: { slot: number; fullText: string }, profile: WineProfile): void {
+async function addToWineBank(wine: { slot: number; fullText: string }, profile: WineProfile): Promise<void> {
   try {
-    const bankPath = join(process.cwd(), "public", "data", "mock_wine_bank.json");
-    const raw = readFileSync(bankPath, "utf-8");
-    const bank: WineBankEntry[] = JSON.parse(raw);
-
+    const sql = neon(process.env.DATABASE_URL!);
     const identity = parseWineIdentity(wine.fullText);
     const id = `${identity.country.toLowerCase().replace(/\s+/g, "_")}_${identity.region.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${identity.producer.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`.slice(0, 80);
 
-    const exists = bank.some((e) =>
-      e.producer?.toLowerCase() === identity.producer.toLowerCase() &&
-      e.wine_name?.toLowerCase() === identity.wineName.toLowerCase()
-    );
-    if (exists) return;
-
-    const newEntry: WineBankEntry = {
-      id,
-      producer: identity.producer,
-      wine_name: identity.wineName,
-      country: identity.country,
-      region: identity.region,
-      grape_varieties: [],
-      style_category: "still_dry",
-      tasting_profile: profile.tasting_profile ? {
-        appearance: profile.tasting_profile.appearance,
-        nose_summary: profile.tasting_profile.nose_summary,
-        palate_summary: profile.tasting_profile.palate_summary,
-        sources: profile.tasting_profile.sources,
-        confidence: profile.confidence,
-      } : undefined,
-    };
-
-    bank.push(newEntry);
-    writeFileSync(bankPath, JSON.stringify(bank, null, 2), "utf-8");
+    await sql`
+      INSERT INTO wine_bank (id, producer, wine_name, country, region, tasting_profile, source)
+      VALUES (
+        ${id},
+        ${identity.producer},
+        ${identity.wineName},
+        ${identity.country},
+        ${identity.region},
+        ${profile.tasting_profile ? JSON.stringify({
+          appearance: profile.tasting_profile.appearance,
+          nose_summary: profile.tasting_profile.nose_summary,
+          palate_summary: profile.tasting_profile.palate_summary,
+          sources: profile.tasting_profile.sources,
+          confidence: profile.confidence,
+        }) : null},
+        ${profile.source_method}
+      )
+      ON CONFLICT (id) DO UPDATE SET
+        tasting_profile = COALESCE(EXCLUDED.tasting_profile, wine_bank.tasting_profile),
+        updated_at = now()
+    `;
+    console.log(`Added wine to DB bank: ${id} (${identity.producer} ${identity.wineName})`);
   } catch (err) {
-    console.error("Failed to add wine to bank:", err);
+    console.error("Failed to add wine to DB bank:", err);
   }
 }
 
@@ -204,7 +226,7 @@ export async function enrichWineProfiles(
   wines: { slot: number; fullText: string }[],
   apiKey: string
 ): Promise<Record<string, WineProfile>> {
-  const profiles = lookupWines(wines);
+  const profiles = await lookupWines(wines);
 
   const needsEnrichment = wines.filter(
     (w) => profiles[String(w.slot)]?.source_method === "none"
@@ -216,7 +238,7 @@ export async function enrichWineProfiles(
     profiles[String(wine.slot)] = profile;
 
     if (profile.tasting_profile) {
-      addToWineBank(wine, profile);
+      await addToWineBank(wine, profile);
     }
   }
 

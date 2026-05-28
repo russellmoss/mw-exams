@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { neon } from "@neondatabase/serverless";
 
 export interface WineBankEntry {
   id: string;
@@ -27,6 +28,24 @@ export interface WineBankEntry {
   };
 }
 
+export interface TastingGrid {
+  color: string;
+  clarity: string;
+  viscosity: string;
+  nose_intensity: string;
+  nose_descriptors: string;
+  palate_sweetness: string;
+  palate_acid: string;
+  palate_tannin: string;
+  palate_body: string;
+  palate_alcohol: string;
+  palate_flavor_descriptors: string;
+  palate_finish: string;
+  quality_assessment: string;
+  sources: string[];
+  inferred_fields: string[];
+}
+
 export interface WineProfile {
   bank_match: string | null;
   tasting_profile: {
@@ -36,6 +55,7 @@ export interface WineProfile {
     structural_summary: string;
     sources: string[];
   } | null;
+  tasting_grid?: TastingGrid | null;
   confidence: "high" | "medium" | "low";
   source_method: "bank_lookup" | "llm_enrichment" | "tavily_research" | "none";
   enriched_at: string;
@@ -48,6 +68,7 @@ export interface WineProfile {
 }
 
 let cachedBank: WineBankEntry[] | null = null;
+let dbBankLoaded = false;
 
 function loadBank(): WineBankEntry[] {
   if (cachedBank) return cachedBank;
@@ -60,6 +81,48 @@ function loadBank(): WineBankEntry[] {
     cachedBank = [];
     return [];
   }
+}
+
+async function loadBankWithDb(): Promise<WineBankEntry[]> {
+  const fileBank = loadBank();
+  if (dbBankLoaded) return fileBank;
+
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`SELECT * FROM wine_bank`;
+    const fileIds = new Set(fileBank.map((e) => e.id));
+    for (const row of rows) {
+      if (!fileIds.has(row.id as string)) {
+        const tp = row.tasting_profile as Record<string, string> | null;
+        fileBank.push({
+          id: row.id as string,
+          producer: row.producer as string,
+          wine_name: row.wine_name as string,
+          country: row.country as string,
+          region: row.region as string,
+          grape_varieties: (row.grape_varieties as string[]) || [],
+          style_category: (row.style_category as string) || "still_dry",
+          structure_tags: (row.structure_tags as string[]) || undefined,
+          oak_signature: row.oak_signature as string | undefined,
+          rs_level: row.rs_level as string | undefined,
+          quality_tier: row.quality_tier as string | undefined,
+          tasting_profile: tp ? {
+            appearance: tp.appearance,
+            nose_summary: tp.nose_summary,
+            palate_summary: tp.palate_summary,
+            sources: (tp.sources as unknown as string[]) || [],
+            confidence: tp.confidence,
+          } : undefined,
+        });
+      }
+    }
+    dbBankLoaded = true;
+    cachedBank = fileBank;
+    console.log(`Wine bank loaded: ${fileBank.length} entries (${rows.length} from DB)`);
+  } catch (err) {
+    console.error("Failed to load DB wine bank, using file bank only:", err);
+  }
+  return fileBank;
 }
 
 function normalize(text: string): string {
@@ -157,7 +220,8 @@ export function buildStructuralProfile(entry: WineBankEntry): string {
   return parts.join(", ");
 }
 
-export function lookupWines(wines: { slot: number; fullText: string }[]): Record<string, WineProfile> {
+export async function lookupWines(wines: { slot: number; fullText: string }[]): Promise<Record<string, WineProfile>> {
+  await loadBankWithDb();
   const profiles: Record<string, WineProfile> = {};
   for (const wine of wines) {
     const match = lookupWine(wine.fullText);

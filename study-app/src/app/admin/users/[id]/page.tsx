@@ -32,6 +32,153 @@ const STEP_LABELS: Record<string, string> = {
   "reveal-answer": "Reviewing model answer",
 };
 
+const STEP_ORDER = ["question", "pre-glass", "pre-glass-feedback", "reveal", "answer", "feedback", "reveal-answer"];
+
+function stepProgress(step: string): number {
+  const idx = STEP_ORDER.indexOf(step);
+  return idx >= 0 ? Math.round(((idx + 1) / STEP_ORDER.length) * 100) : 10;
+}
+
+function winesRevealed(step: string): boolean {
+  const revealIdx = STEP_ORDER.indexOf("reveal");
+  const currentIdx = STEP_ORDER.indexOf(step);
+  return currentIdx >= revealIdx;
+}
+
+function LiveSessionPanel({ session }: { session: LiveSession }) {
+  const [expanded, setExpanded] = useState(false);
+  const wines = typeof session.wines === "string" ? JSON.parse(session.wines) : session.wines;
+  const elapsed = Math.round((Date.now() - new Date(session.started_at).getTime()) / 60000);
+  const showWines = winesRevealed(session.current_step);
+  const progress = stepProgress(session.current_step);
+
+  return (
+    <div className="mb-6 bg-success/5 rounded-2xl border-2 border-success/30 relative overflow-hidden">
+      {/* Progress bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-success/20">
+        <div className="h-full bg-success transition-all duration-500" style={{ width: `${progress}%` }} />
+      </div>
+
+      {/* Clickable header */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-6 text-left cursor-pointer hover:bg-success/10 transition-colors"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-success animate-pulse" />
+            <h3 className="text-sm font-semibold text-success uppercase tracking-wider">Live Now</h3>
+            <span className="text-xs text-muted">Updated every 5s</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-mono px-2 py-0.5 rounded bg-success/15 text-success">
+              {STEP_LABELS[session.current_step] || session.current_step}
+            </span>
+            <span className="text-xs text-muted">{elapsed} min</span>
+            <svg className={`w-4 h-4 text-muted transition-transform ${expanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-xs font-mono text-muted">P{session.paper} / {session.family_label}</span>
+          <p className="text-sm text-foreground/80 truncate">{session.question_text.slice(0, 120)}</p>
+        </div>
+      </button>
+
+      {/* Expanded view */}
+      {expanded && (
+        <div className="px-6 pb-6 space-y-5 border-t border-success/20">
+          {/* Step progress */}
+          <div className="pt-4 flex items-center gap-2">
+            {STEP_ORDER.map((s) => {
+              const isCurrent = s === session.current_step;
+              const isPast = STEP_ORDER.indexOf(s) < STEP_ORDER.indexOf(session.current_step);
+              return (
+                <div key={s} className="flex items-center gap-1.5">
+                  <div className={`w-2.5 h-2.5 rounded-full ${isCurrent ? "bg-success animate-pulse" : isPast ? "bg-success/60" : "bg-muted/20"}`} />
+                  <span className={`text-[10px] ${isCurrent ? "text-success font-semibold" : isPast ? "text-muted" : "text-muted/40"}`}>
+                    {(STEP_LABELS[s] || s).split(" ").slice(0, 2).join(" ")}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Full question text */}
+          <div>
+            <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Full Question</h4>
+            <div className="bg-background/50 rounded-lg p-4 border border-success/20">
+              <div className="markdown-content text-sm"><ReactMarkdown>{session.question_text}</ReactMarkdown></div>
+            </div>
+          </div>
+
+          {/* Wines — only if revealed in the session */}
+          {showWines && wines && wines.length > 0 && (
+            <div>
+              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Wines ({wines.length})</h4>
+              <div className="bg-background/50 rounded-lg p-4 border border-success/20 space-y-1.5">
+                {wines.map((w: { slot: number; fullText: string }) => (
+                  <p key={w.slot} className="text-sm text-foreground/80">
+                    <span className="text-success font-mono font-semibold">Wine {w.slot}:</span> {w.fullText}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
+          {!showWines && (
+            <div>
+              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Wines</h4>
+              <div className="bg-background/50 rounded-lg p-4 border border-success/20">
+                <p className="text-sm text-muted italic">Not yet revealed — candidate is on pre-glass analysis</p>
+              </div>
+            </div>
+          )}
+
+          {/* Pre-glass reasoning */}
+          {session.pre_glass_reasoning && (
+            <div>
+              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Stem Analysis</h4>
+              <div className="bg-background/50 rounded-lg p-4 border border-success/20">
+                <div className="markdown-content text-sm text-foreground/80">
+                  <ReactMarkdown>{session.pre_glass_reasoning}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Answer */}
+          {session.user_answer && (
+            <div>
+              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Answer</h4>
+              <div className="bg-background/50 rounded-lg p-4 border border-success/20">
+                <div className="markdown-content text-sm text-foreground/80">
+                  <ReactMarkdown>{session.user_answer}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Timing */}
+          <div className="flex items-center gap-3 pt-2 border-t border-success/10">
+            <span className="text-xs text-muted">Started {new Date(session.started_at).toLocaleTimeString()}</span>
+            <span className="text-xs text-muted">•</span>
+            <span className="text-xs text-muted">{elapsed} min elapsed</span>
+            {wines && wines.length > 0 && (
+              <>
+                <span className="text-xs text-muted">•</span>
+                <span className={`text-xs font-semibold ${elapsed / wines.length > 12 ? "text-fail" : elapsed / wines.length > 8 ? "text-borderline" : "text-success"}`}>
+                  {(elapsed / wines.length).toFixed(1)} min/wine
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminUserHistoryPage() {
   const router = useRouter();
   const params = useParams();
@@ -130,79 +277,7 @@ export default function AdminUserHistoryPage() {
           )}
 
           {/* Live session indicator */}
-          {liveSession && (
-            <div className="mb-6 bg-success/5 rounded-2xl border-2 border-success/30 p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-success/40">
-                <div className="h-full bg-success animate-pulse" style={{ width: "100%" }} />
-              </div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-3 h-3 rounded-full bg-success animate-pulse" />
-                <h3 className="text-sm font-semibold text-success uppercase tracking-wider">
-                  Live Now
-                </h3>
-                <span className="text-xs text-muted">
-                  Updated every 5s
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                {/* Current step */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted shrink-0 w-20">Step</span>
-                  <span className="text-sm font-semibold text-success">
-                    {STEP_LABELS[liveSession.current_step] || liveSession.current_step}
-                  </span>
-                </div>
-
-                {/* Question info */}
-                <div className="flex items-start gap-3">
-                  <span className="text-xs text-muted shrink-0 w-20 pt-0.5">Question</span>
-                  <div>
-                    <span className="text-xs font-mono text-muted">
-                      P{liveSession.paper} / {liveSession.family_label}
-                    </span>
-                    <p className="text-sm text-foreground/80 mt-1 line-clamp-2">
-                      {liveSession.question_text.slice(0, 200)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Pre-glass reasoning if submitted */}
-                {liveSession.pre_glass_reasoning && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-xs text-muted shrink-0 w-20 pt-0.5">Stem Analysis</span>
-                    <div className="bg-background/50 rounded-lg p-3 flex-1 border border-success/20">
-                      <div className="markdown-content text-sm text-foreground/80">
-                        <ReactMarkdown>{liveSession.pre_glass_reasoning}</ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Answer if submitted */}
-                {liveSession.user_answer && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-xs text-muted shrink-0 w-20 pt-0.5">Answer</span>
-                    <div className="bg-background/50 rounded-lg p-3 flex-1 border border-success/20">
-                      <div className="markdown-content text-sm text-foreground/80">
-                        <ReactMarkdown>{liveSession.user_answer}</ReactMarkdown>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Time elapsed */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted shrink-0 w-20">Started</span>
-                  <span className="text-xs text-muted">
-                    {new Date(liveSession.started_at).toLocaleTimeString()}
-                    {" — "}
-                    {Math.round((Date.now() - new Date(liveSession.started_at).getTime()) / 60000)} min ago
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
+          {liveSession && <LiveSessionPanel session={liveSession} />}
 
           <HistoryView
             attempts={attempts}

@@ -18,6 +18,7 @@ export function buildAnswerEvaluationSystemPrompt(paper: number): string {
 5. **Commercial awareness is valued.** Price positioning, market context, drinking window, food pairing potential -- these demonstrate MW-level thinking.
 6. **Marks are available for EVERY sub-question.** Candidates who skip sub-questions or merge them lose marks. Each lettered sub-part has its own allocation.
 7. **Time management is implicit.** Overly long answers on early sub-questions that leave later ones thin lose marks overall.
+8. **Scale depth expectations to mark allocation.** An 8-mark sub-question covering style, quality AND commercial expects ~3 focused sentences total (one per dimension). A 15-mark version expects a full paragraph per dimension. A 25-mark version expects detailed comparative analysis. When a candidate writes concise but correct answers for low-mark questions, award most available marks — do not penalize brevity that matches the allocation. A candidate who names the correct style in one sentence, gives two quality drivers, and states a price range with channel has answered an 8-mark question well. Only penalize if key dimensions are entirely missing, not if they are brief.
 
 ## Your evaluation approach
 1. Read the model answer carefully to understand what the ideal response covers.
@@ -43,8 +44,8 @@ Use this structure:
 **[Sub-question letter]) [Sub-question topic]** ([marks available])
 - What you got right: ...
 - What could improve: ...
-- Model answer included: [key points they missed]
 - Estimated marks: X/Y
+- For deeper study: [Only for sub-questions where the candidate earned most marks but additional depth would show mastery. Frame as enrichment, not penalty. Omit entirely if not applicable.]
 
 ### Key takeaways
 [2-3 bullet points on what to focus on for next time]

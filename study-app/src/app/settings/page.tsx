@@ -20,7 +20,6 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
-  const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState<string | null>(null);
@@ -173,14 +172,13 @@ export default function SettingsPage() {
                   const res = await fetch("/api/user/change-password", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
+                    body: JSON.stringify({ newPassword: newPw }),
                   });
                   const data = await res.json();
                   if (!res.ok) {
                     setPwError(data.error || "Failed to change password");
                   } else {
                     setPwSuccess("Password changed successfully.");
-                    setCurrentPw("");
                     setNewPw("");
                   }
                 } catch {
@@ -191,18 +189,6 @@ export default function SettingsPage() {
               }}
               className="space-y-4"
             >
-              <div>
-                <label htmlFor="currentPw" className="block text-sm font-medium text-foreground mb-1.5">
-                  Current password
-                </label>
-                <input
-                  id="currentPw"
-                  type="password"
-                  value={currentPw}
-                  onChange={(e) => setCurrentPw(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
-                />
-              </div>
               <div>
                 <label htmlFor="newPw" className="block text-sm font-medium text-foreground mb-1.5">
                   New password
@@ -218,7 +204,7 @@ export default function SettingsPage() {
               </div>
               <button
                 type="submit"
-                disabled={pwSaving || !currentPw || newPw.length < 6}
+                disabled={pwSaving || newPw.length < 6}
                 className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {pwSaving ? "Changing..." : "Change password"}
