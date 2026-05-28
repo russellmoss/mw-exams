@@ -117,6 +117,40 @@ function extractSection(
   return text.slice(startIdx).trim();
 }
 
+let cachedLatestOpus: { model: string; fetchedAt: number } | null = null;
+
+async function getLatestOpus(apiKey: string): Promise<string> {
+  const CACHE_TTL = 1000 * 60 * 60; // 1 hour
+  if (cachedLatestOpus && Date.now() - cachedLatestOpus.fetchedAt < CACHE_TTL) {
+    return cachedLatestOpus.model;
+  }
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/models?limit=20", {
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const opusModels = (data.data || [])
+        .filter((m: { id: string }) => m.id.includes("opus"))
+        .sort((a: { created_at: string }, b: { created_at: string }) =>
+          b.created_at.localeCompare(a.created_at)
+        );
+      if (opusModels.length > 0) {
+        const latest = opusModels[0].id;
+        cachedLatestOpus = { model: latest, fetchedAt: Date.now() };
+        console.log(`Latest Opus model: ${latest}`);
+        return latest;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch models list:", err);
+  }
+  return "claude-sonnet-4-6";
+}
+
 function getWineCount(q: GeneratedQuestion): number {
   const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
   return Array.isArray(wines) ? wines.length : 0;
@@ -251,7 +285,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const model = attempt === 1 ? "claude-opus-4-8" : "claude-sonnet-4-6";
+    const model = attempt === 1 ? await getLatestOpus(apiKey) : "claude-sonnet-4-6";
     let message;
     try {
       message = await client.messages.create({
@@ -261,7 +295,6 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
         messages: [{ role: "user", content: prompt.user }],
       });
     } catch (modelErr: unknown) {
-      // If Opus 404s, don't waste the attempt — retry immediately with Sonnet
       if (model !== "claude-sonnet-4-6" && modelErr instanceof Error && modelErr.message?.includes("404")) {
         console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
         message = await client.messages.create({
