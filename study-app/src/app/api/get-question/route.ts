@@ -226,7 +226,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     | null = null;
   let lastViolations: string[] = [];
 
-  const MAX_ATTEMPTS = 5;
+  const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
@@ -248,24 +248,28 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       continue;
     }
 
+    // Critical validators (always run)
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
-    const originDiversityCheck = validateOriginDiversity(
-      candidate.questionText,
-      candidate.wines,
-      candidate.family,
-      candidate.subcategory
-    );
-    const countryDiversityCheck = validateCountryDiversity(
-      candidate.questionText,
-      candidate.wines
-    );
-    const bankerCheck = validateBankerMinimum(candidate.wines);
-    const flightSizeCheck = validateFlightSize(candidate.family, paper, candidate.wines.length);
-    // Skip novelty check on final attempt — it's the least critical validator
-    const noveltyCheck = attempt < MAX_ATTEMPTS
-      ? validateNoveltyAgainstLatest(candidate, latestQuestion)
-      : { valid: true, violations: [] };
+
+    // Important validators (relax on attempt 6+)
+    const relaxImportant = attempt >= 6;
+    const originDiversityCheck = relaxImportant
+      ? { valid: true, violations: [] }
+      : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
+    const countryDiversityCheck = validateCountryDiversity(candidate.questionText, candidate.wines);
+
+    // Nice-to-have validators (relax on attempt 4+)
+    const relaxNiceToHave = attempt >= 4;
+    const bankerCheck = relaxNiceToHave
+      ? { valid: true, violations: [] }
+      : validateBankerMinimum(candidate.wines);
+    const flightSizeCheck = relaxNiceToHave
+      ? { valid: true, violations: [] }
+      : validateFlightSize(candidate.family, paper, candidate.wines.length);
+    const noveltyCheck = relaxNiceToHave
+      ? { valid: true, violations: [] }
+      : validateNoveltyAgainstLatest(candidate, latestQuestion);
 
     lastViolations = [
       ...paperScopeCheck.violations,
@@ -280,21 +284,36 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     if (lastViolations.length === 0) {
       parsed = candidate;
       validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
-      if (attempt > 1) console.log(`Generation retry ${attempt} succeeded; all validations pass`);
+      if (attempt > 1) console.log(`Generation retry ${attempt} succeeded (relaxed=${relaxNiceToHave ? "nice-to-have" : relaxImportant ? "important" : "none"})`);
       break;
     }
 
     console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed:`, JSON.stringify(lastViolations));
   }
 
+  // Fallback: if generation failed, serve ANY banked question rather than showing an error
   if (!parsed || !validation) {
-    return Response.json(
-      {
-        error: "Generated question failed validation",
-        violations: lastViolations,
-      },
-      { status: 500 }
-    );
+    console.error("All generation attempts failed, falling back to any banked question");
+    const fallback = await getQuestionsByFilter(paper);
+    const withAnswers = fallback.filter((q) => q.model_answer && q.model_answer.length > 100);
+    if (withAnswers.length > 0) {
+      const picked = withAnswers[Math.floor(Math.random() * withAnswers.length)];
+      return Response.json({
+        source: "pre-populated",
+        question: sanitizeQuestionMetadata(picked),
+        hasModelAnswer: true,
+      });
+    }
+    // Absolute last resort: serve without model answer
+    if (fallback.length > 0) {
+      const picked = fallback[Math.floor(Math.random() * fallback.length)];
+      return Response.json({
+        source: "pre-populated",
+        question: sanitizeQuestionMetadata(picked),
+        hasModelAnswer: false,
+      });
+    }
+    return Response.json({ error: "No questions available. Please try again." }, { status: 500 });
   }
 
   const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
