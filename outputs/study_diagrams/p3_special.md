@@ -24,7 +24,50 @@ flowchart TD
     style F7 fill:#fff9c4
 ```
 
-## 2. F5 Method -- THE Engine of P3 (10 questions)
+## 2. Visual Triage (Layer A.5 -- before you smell)
+
+```mermaid
+flowchart TD
+    EYES["LOOK at the flight<br/>before picking up a glass"] --> BUB{"Bubbles?"}
+    BUB -->|"Persistent mousse"| SPARK_VIS["SPARKLING<br/>→ use sparkling tree"]
+    BUB -->|"Slight spritz"| SEMI_VIS["Semi-sparkling?<br/>(Lambrusco / pet-nat)"]
+    BUB -->|"None"| COLOR{"Color?"}
+
+    COLOR -->|"Pale lemon<br/>to straw"| PALE["Sweet white<br/>or rare dry still"]
+    COLOR -->|"Deep gold<br/>to amber"| AMBER["Oxidative / aged sweet<br/>Vin Santo, old Sauternes,<br/>Tokaji, Jura, Sherry"]
+    COLOR -->|"Mahogany<br/>to brown"| DARK["Old fortified<br/>Tawny 20-40yr, Madeira,<br/>Rutherglen, PX"]
+    COLOR -->|"Deep ruby<br/>to purple"| RUBY["Young fortified red<br/>Ruby/LBV Port,<br/>Banyuls Rimage, Recioto"]
+    COLOR -->|"Garnet<br/>to brick"| GARNET["Aged Port/Banyuls<br/>or mature still red"]
+    COLOR -->|"Salmon<br/>to pink"| PINK["ROSE<br/>→ use rose leaves"]
+    COLOR -->|"Copper<br/>to orange"| ORANGE["CURVEBALL:<br/>Orange/amber wine"]
+
+    AMBER --> TEARS{"Thick tears?"}
+    DARK --> TEARS
+    RUBY --> TEARS
+    TEARS -->|"Very slow, viscous"| FORT_SWEET["High sugar or<br/>high alcohol<br/>→ FORTIFIED or SWEET"]
+    TEARS -->|"Normal"| CHECK["Confirm on nose<br/>before committing"]
+
+    style EYES fill:#fff3e0,stroke:#e65100
+    style SPARK_VIS fill:#e8f5e9
+    style FORT_SWEET fill:#fce4ec
+    style ORANGE fill:#f3e5f5
+```
+
+### Visual Triage Quick-Reference
+
+```mermaid
+flowchart LR
+    VT["Color → Category<br/>Quick Map"] --> C1["Pale + bubbles<br/>= Sparkling"]
+    VT --> C2["Gold/amber + still<br/>= Oxidative or<br/>aged sweet"]
+    VT --> C3["Dark brown + still<br/>= Old fortified"]
+    VT --> C4["Ruby/purple + still<br/>= Young fortified red"]
+    VT --> C5["Pink<br/>= Rose"]
+    VT --> C6["Copper/orange<br/>= Amber wine"]
+
+    style VT fill:#fff3e0,stroke:#e65100
+```
+
+## 3. F5 Method -- THE Engine of P3 (10 questions)
 
 ### Step 1: Production Family Lock
 
@@ -103,7 +146,7 @@ flowchart LR
     PASS_O -->|"Dried red fruit"| REC["Recioto"]
 ```
 
-## 3. F4 Breadth -- Anti-Overlink (9 questions)
+## 4. F4 Breadth -- Anti-Overlink (9 questions)
 
 ```mermaid
 flowchart TD
@@ -120,7 +163,7 @@ flowchart TD
     style RULE3 fill:#fce4ec,stroke:#c62828
 ```
 
-## 4. F1 Cross-Style Single Variety (4 questions)
+## 5. F1 Cross-Style Single Variety (4 questions)
 
 ```mermaid
 flowchart LR
@@ -134,7 +177,7 @@ flowchart LR
     GRAPES -->|"Smoke+honey across<br/>dry/Aszu"| FUR3["Furmint"]
 ```
 
-## 5. F6 Style Axis -- RS x Alcohol Matrix (4 questions)
+## 6. F6 Style Axis -- RS x Alcohol Matrix (4 questions)
 
 ```mermaid
 flowchart TD
@@ -152,7 +195,7 @@ flowchart TD
     style GRID fill:#e0f7fa,stroke:#006064
 ```
 
-## 6. F7 Hierarchy -- Classification Cards (3 questions)
+## 7. F7 Hierarchy -- Classification Cards (3 questions)
 
 ```mermaid
 flowchart TD

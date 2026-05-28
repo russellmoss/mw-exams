@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "outputs" / "study_diagrams"
 SITE_DIR = ROOT / "outputs" / "study_diagrams_site"
+APP_DIR = ROOT / "study-app" / "public" / "diagrams"
 
 FILES = [
     ("variety_cards.md", "variety-cards.html", "Top Variety Cards"),
@@ -999,6 +1000,81 @@ p {
 """
 
 
+def app_page_template(title: str, content: str, print_filename: str) -> str:
+    """Dark-themed version of page_template for the Vercel app."""
+    base = page_template(title, content, print_filename)
+    base = base.replace(
+        '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
+        '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+        "  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap\" rel=\"stylesheet\">\n"
+        '  <link rel="stylesheet" href="./assets/site.css">',
+        '<link rel="stylesheet" href="./assets/site.css">\n'
+        '  <link rel="icon" href="/favicon.ico">',
+    )
+    base = base.replace(
+        '<a class="home-link" href="./index.html">MW Study Diagrams</a>',
+        '<a class="back-to-app" href="/">&larr; Back to Study App</a>\n'
+        '      <a class="home-link" href="./index.html">Study Diagrams</a>',
+    )
+    return base
+
+
+def app_index_template(cards: list[tuple[str, str]]) -> str:
+    links = "\n".join(
+        f'        <a class="index-card" href="./{filename}">'
+        f"<h2>{html.escape(title)}</h2>"
+        f"<p>Interactive decision tree with zoom, pan, and print.</p></a>"
+        for filename, title in cards
+    )
+    print_links = "\n".join(
+        f'        <a class="index-card" href="./{fn}">'
+        f"<h2>{html.escape(title)}</h2>"
+        f"<p>Print-optimized layout.</p></a>"
+        for fn, title in [
+            ("variety-cards-print.html", "Variety Cards"),
+            ("p1-whites-print.html", "P1 Whites"),
+            ("p2-reds-print.html", "P2 Reds"),
+            ("p3-special-print.html", "P3 Special"),
+        ]
+    )
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study Diagrams — MW Study App</title>
+  <link rel="stylesheet" href="./assets/site.css">
+  <link rel="icon" href="/favicon.ico">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="back-to-app" href="/">&larr; Back to Study App</a>
+    </div>
+  </header>
+  <main class="index-shell">
+    <section class="hero-card">
+      <p class="eyebrow">Decision Trees</p>
+      <h1>Study Diagrams</h1>
+      <p class="hero-copy">Interactive decision trees for stem analysis. Zoom, pan, and print.</p>
+      <div class="index-grid">
+{links}
+      </div>
+      <h2>Print Packs</h2>
+      <p>One diagram per page, auto-rotated for best fit. Use your browser's Print / Save as PDF.</p>
+      <div class="index-grid">
+{print_links}
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+"""
+
+
+APP_CSS = (Path(__file__).resolve().parent.parent / "study-app" / "public" / "diagrams" / "assets" / "site.css")
+
+
 def main() -> None:
     assets_dir = SITE_DIR / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
@@ -1044,6 +1120,33 @@ Use the `*-print.html` pages for PDF or paper.
         cards.append((output_name, label))
 
     (SITE_DIR / "index.html").write_text(index_template(cards), encoding="utf-8")
+
+    # --- Also build dark-themed copy for the Vercel app ---
+    app_assets = APP_DIR / "assets"
+    app_assets.mkdir(parents=True, exist_ok=True)
+    # Preserve the hand-edited dark CSS if it exists; otherwise skip
+    if not (app_assets / "site.css").exists():
+        (app_assets / "site.css").write_text(SITE_CSS, encoding="utf-8")
+
+    # Reset counter so diagram IDs are consistent
+    global DIAGRAM_COUNTER
+    saved_counter = DIAGRAM_COUNTER
+    DIAGRAM_COUNTER = 0
+
+    app_cards: list[tuple[str, str]] = []
+    for source_name, output_name, label in FILES:
+        md_path = SOURCE_DIR / source_name
+        title, content, print_diagrams = render_markdown(md_path.read_text(encoding="utf-8"))
+        print_name = output_name.replace(".html", "-print.html")
+        (APP_DIR / output_name).write_text(app_page_template(title, content, print_name), encoding="utf-8")
+        (APP_DIR / print_name).write_text(
+            print_pack_template(title, print_diagrams),
+            encoding="utf-8",
+        )
+        app_cards.append((output_name, label))
+
+    (APP_DIR / "index.html").write_text(app_index_template(app_cards), encoding="utf-8")
+    DIAGRAM_COUNTER = saved_counter
 
 
 if __name__ == "__main__":

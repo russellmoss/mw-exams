@@ -61,6 +61,12 @@ export function NavBar() {
           >
             History
           </Link>
+          <a
+            href="/diagrams/"
+            className="text-sm font-medium transition-colors text-muted hover:text-foreground"
+          >
+            Diagrams
+          </a>
           <Link
             href="/settings"
             className={`text-sm font-medium transition-colors ${

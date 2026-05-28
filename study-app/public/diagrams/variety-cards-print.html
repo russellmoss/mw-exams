@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top Variety Confirmation Cards Print Pack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #161616;
+      --muted: #5a554f;
+      --line: #2c2c2c;
+      --paper: #fffdf8;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #efe7d8;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .print-shell {
+      width: min(1100px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 20px 0 40px;
+    }
+
+    .print-intro {
+      margin: 0 0 18px;
+      padding: 18px 20px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .print-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .print-link,
+    .print-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #fff6d8;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .print-intro h1 {
+      margin: 0 0 8px;
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+    }
+
+    .print-intro p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .print-sheet {
+      margin: 0 0 18px;
+      padding: 18px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .sheet-header {
+      margin-bottom: 12px;
+    }
+
+    .sheet-kicker {
+      margin: 0 0 6px;
+      color: #8c3b2f;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .sheet-header h1 {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      line-height: 1.15;
+    }
+
+    .sheet-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .sheet-diagram svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    @page portrait-sheet {
+      size: portrait;
+      margin: 10mm;
+    }
+
+    @page landscape-sheet {
+      size: landscape;
+      margin: 10mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .print-shell {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .print-intro {
+        display: none;
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        break-after: page;
+      }
+
+      .print-sheet.portrait {
+        page: portrait-sheet;
+      }
+
+      .print-sheet.landscape {
+        page: landscape-sheet;
+      }
+
+      .sheet-header {
+        margin: 0 0 6mm;
+      }
+
+      .sheet-kicker {
+        font-size: 9pt;
+      }
+
+      .sheet-header h1 {
+        font-size: 18pt;
+      }
+
+      .print-sheet.landscape .sheet-diagram {
+        width: 277mm;
+        height: 165mm;
+      }
+
+      .print-sheet.portrait .sheet-diagram {
+        width: 190mm;
+        height: 240mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="print-shell">
+    <section class="print-intro">
+      <h1>Top Variety Confirmation Cards Print Pack</h1>
+      <p>One diagram per page. Wide diagrams are set to landscape; tall diagrams are set to portrait.</p>
+      <div class="print-actions">
+        <button type="button" class="print-trigger" onclick="window.print()">Print / Save PDF</button>
+        <a class="print-link" href="./index.html">Back to Index</a>
+      </div>
+    </section>
+    <section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">Top Variety Confirmation Cards</p><h1>White Varieties</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    subgraph CHARDONNAY [&quot;Chardonnay (35 wines)&quot;]
+        CH_SIG[&quot;Apple, citrus, stone fruit&quot;]
+        CH_OAK[&quot;± butter, vanilla, hazelnut&quot;]
+        CH_TELL[&quot;MLF cream + lees weight&quot;]
+        CH_SPLIT[&quot;Steel/chalk = Chablis&lt;br/&gt;Rich/oak = CdB/Napa&lt;br/&gt;Tropical/plush = NW&quot;]
+    end
+
+    subgraph RIESLING [&quot;Riesling (21 wines)&quot;]
+        R_SIG[&quot;Lime, green apple, floral&quot;]
+        R_TELL[&quot;PETROL + electric acid&quot;]
+        R_ALC[&quot;Alcohol is the key:&lt;br/&gt;7-9% = Mosel&lt;br/&gt;11-12% = Clare/Eden&lt;br/&gt;12-13% = Alsace/GG&quot;]
+    end
+
+    subgraph SAUVIGNON_BLANC [&quot;Sauvignon Blanc (14 wines)&quot;]
+        SB_SIG[&quot;Pyrazine: grass, bell pepper&quot;]
+        SB_TELL[&quot;Passionfruit = Marlborough&lt;br/&gt;Flint/smoke = Loire&lt;br/&gt;Green fig = SA/Chile&quot;]
+        SB_TRAP[&quot;Trap: can look like&lt;br/&gt;young Chenin if no pyrazine&quot;]
+    end
+
+    subgraph CHENIN_BLANC [&quot;Chenin Blanc (13 wines)&quot;]
+        CB_SIG[&quot;Wax, lanolin, quince&quot;]
+        CB_TELL[&quot;Phenolic grip on finish&lt;br/&gt;+ high acid even when ripe&quot;]
+        CB_SPLIT[&quot;Reductive/lean = Loire&lt;br/&gt;Rich/barrel = Swartland&lt;br/&gt;Honeyed = Vouvray moelleux&quot;]
+    end"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">Top Variety Confirmation Cards</p><h1>Red Varieties</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    subgraph PINOT_NOIR [&quot;Pinot Noir (27 wines)&quot;]
+        PN_SIG[&quot;Translucent ruby colour&quot;]
+        PN_TELL[&quot;Red fruit + earth + HIGH ACID&lt;br/&gt;+ fine silky tannin&quot;]
+        PN_SPLIT[&quot;Earth/mushroom = Burgundy&lt;br/&gt;Cherry/purity = NZ&lt;br/&gt;Riper/spice = Sonoma/Yarra&lt;br/&gt;Smoke+structure = Germany&quot;]
+    end
+
+    subgraph SYRAH [&quot;Syrah/Shiraz (10 wines)&quot;]
+        SY_SIG[&quot;Pepper, violets, dark fruit&quot;]
+        SY_TELL[&quot;Cool: pepper+meat+savoury&lt;br/&gt;Warm: jam+sweet oak+high alc&quot;]
+        SY_SPLIT[&quot;Pepper = N.Rhone/Hawkes Bay&lt;br/&gt;Jam+oak = Barossa&lt;br/&gt;Olive = Stellenbosch&quot;]
+    end
+
+    subgraph CAB_SAUV [&quot;Cabernet Sauvignon (in blends, ~15 wines)&quot;]
+        CS_SIG[&quot;Cassis, cedar, graphite&quot;]
+        CS_TELL[&quot;Firm fine-grained tannin&lt;br/&gt;+ structural backbone&quot;]
+        CS_SPLIT[&quot;Cedar/gravel = Bordeaux&lt;br/&gt;Plush/dense = Napa&lt;br/&gt;Eucalyptus = Coonawarra&lt;br/&gt;Cocoa/polish = Super Tuscan&quot;]
+    end
+
+    subgraph SANGIOVESE [&quot;Sangiovese (7 wines)&quot;]
+        SG_SIG[&quot;Sour cherry, dried herbs&quot;]
+        SG_TELL[&quot;HIGH ACID + savoury&lt;br/&gt;+ dusty/leather tannin&quot;]
+        SG_SPLIT[&quot;Lean/herbs = Chianti CL&lt;br/&gt;Concentrated = Brunello&lt;br/&gt;Oak polish = Super Tuscan&quot;]
+    end"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">Top Variety Confirmation Cards</p><h1>P3 Fortified/Sweet Varieties</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    subgraph PALOMINO [&quot;Palomino / Sherry (8 wines)&quot;]
+        PA_SIG[&quot;Saline, almond, chamomile&quot;]
+        PA_TELL[&quot;Bone dry + aldehydic&lt;br/&gt;= flor-aged (Fino/Manz)&lt;br/&gt;Walnut + dry = Oloroso&lt;br/&gt;Delicate + dry = Palo Cortado&quot;]
+        PA_KEY[&quot;Key: 15% = flor limit&lt;br/&gt;Above 17% = oxidative only&quot;]
+    end
+
+    subgraph TOURIGA [&quot;Touriga Nacional / Port (9 wines)&quot;]
+        TN_SIG[&quot;Violets, cassis, dark chocolate&quot;]
+        TN_TELL[&quot;Spirit warmth + RS&lt;br/&gt;+ grippy young tannin = Port&quot;]
+        TN_SPLIT[&quot;Bright fruit = Ruby/LBV&lt;br/&gt;Cooked fruit+rancio = Tawny&lt;br/&gt;Dense+structured = Vintage&quot;]
+    end
+
+    subgraph FURMINT [&quot;Furmint / Tokaji (5 wines)&quot;]
+        FU_SIG[&quot;Smoke, honey, orange peel&quot;]
+        FU_TELL[&quot;Ginger + saffron + electric acid&lt;br/&gt;= botrytis Tokaji Aszu&quot;]
+        FU_SPLIT[&quot;Dry+flinty = dry Furmint&lt;br/&gt;Off-dry = Szamorodni&lt;br/&gt;Sweet+complex = 5-6 putt Aszu&quot;]
+    end
+
+    subgraph MUSCAT [&quot;Muscat (7 wines)&quot;]
+        MU_SIG[&quot;Grapey, floral, orange blossom&quot;]
+        MU_TELL[&quot;Primary grapey aroma&lt;br/&gt;persists across all styles&quot;]
+        MU_SPLIT[&quot;Light+fizzy = Asti/Moscato&lt;br/&gt;Rich+sweet = Rutherglen&lt;br/&gt;Amber+dried = VDN Beaumes&quot;]
+    end"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">Top Variety Confirmation Cards</p><h1>Quick-Reference: The 5 Killer Tells</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    subgraph TELLS [&quot;If you see THIS, commit IMMEDIATELY&quot;]
+        T1[&quot;Petrol + lime + electric acid&lt;br/&gt;= RIESLING (100% reliable)&quot;]
+        T2[&quot;Lychee + rose + low acid&lt;br/&gt;= GEWURZTRAMINER&quot;]
+        T3[&quot;Pyrazine (grass/pepper)&lt;br/&gt;= SAUVIGNON BLANC&quot;]
+        T4[&quot;Translucent ruby + earth&lt;br/&gt;+ fine tannin = PINOT NOIR&quot;]
+        T5[&quot;Saline + almond + bone dry&lt;br/&gt;+ 15% ABV = FINO SHERRY&quot;]
+    end
+
+    style TELLS fill:#e8f5e9,stroke:#2e7d32"><div class="sheet-render"></div></div></section>
+  </main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: false,
+        curve: 'basis'
+      },
+      themeVariables: {
+        fontFamily: 'Source Sans 3, sans-serif',
+        fontSize: '18px',
+        primaryTextColor: '#121212',
+        secondaryTextColor: '#121212',
+        tertiaryTextColor: '#121212',
+        mainBkg: '#fffdf8',
+        primaryColor: '#fff3c4',
+        primaryBorderColor: '#2c2c2c',
+        lineColor: '#2c2c2c',
+        clusterBkg: '#fffaf0',
+        clusterBorder: '#2c2c2c',
+        nodeBorder: '#2c2c2c',
+        edgeLabelBackground: '#fffdf8'
+      }
+    });
+
+    async function renderSheets() {
+      const sheets = document.querySelectorAll('.sheet-diagram');
+      for (const [index, sheet] of [...sheets].entries()) {
+        const definition = sheet.dataset.mermaid;
+        if (!definition) continue;
+        const renderId = `print-sheet-${index}-${Date.now()}`;
+        const rendered = await mermaid.render(renderId, definition, undefined, document.createElement('div'));
+        const target = sheet.querySelector('.sheet-render');
+        if (target) target.innerHTML = rendered.svg;
+      }
+    }
+
+    function fitSheets() {
+      document.querySelectorAll('.print-sheet').forEach((sheet) => {
+        const svg = sheet.querySelector('svg');
+        const wrap = sheet.querySelector('.sheet-diagram');
+        if (!svg || !wrap) return;
+
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+        const viewBox = svg.viewBox?.baseVal;
+        const naturalWidth = viewBox?.width || 1000;
+        const naturalHeight = viewBox?.height || 800;
+        const aspectRatio = naturalWidth / Math.max(naturalHeight, 1);
+        const shouldUseLandscape = aspectRatio > 0.78;
+        sheet.classList.toggle('landscape', shouldUseLandscape);
+        sheet.classList.toggle('portrait', !shouldUseLandscape);
+        const isLandscape = shouldUseLandscape;
+        const availableWidth = wrap.clientWidth || (isLandscape ? 1047 : 718);
+        const availableHeight = wrap.clientHeight || (isLandscape ? 624 : 907);
+        const widthRatio = availableWidth / Math.max(naturalWidth, 1);
+        const heightRatio = availableHeight / Math.max(naturalHeight, 1);
+        const scale = Math.min(widthRatio, heightRatio, 1);
+        const fittedWidth = Math.max(Math.floor(naturalWidth * scale), 280);
+        const fittedHeight = Math.max(Math.floor(naturalHeight * scale), 220);
+
+        svg.style.width = `${fittedWidth}px`;
+        svg.style.height = `${fittedHeight}px`;
+        svg.style.maxWidth = 'none';
+        svg.style.maxHeight = 'none';
+      });
+    }
+
+    window.addEventListener('load', async () => {
+      await renderSheets();
+      setTimeout(fitSheets, 180);
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autoprint') === '1') {
+        setTimeout(() => window.print(), 350);
+      }
+    });
+    window.addEventListener('beforeprint', fitSheets);
+  </script>
+</body>
+</html>

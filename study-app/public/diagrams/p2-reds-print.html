@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2 Reds -- Mermaid Study Diagrams Print Pack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --ink: #161616;
+      --muted: #5a554f;
+      --line: #2c2c2c;
+      --paper: #fffdf8;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #efe7d8;
+      font-family: 'Source Sans 3', sans-serif;
+    }
+
+    .print-shell {
+      width: min(1100px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 20px 0 40px;
+    }
+
+    .print-intro {
+      margin: 0 0 18px;
+      padding: 18px 20px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .print-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .print-link,
+    .print-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #fff6d8;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .print-intro h1 {
+      margin: 0 0 8px;
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+    }
+
+    .print-intro p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .print-sheet {
+      margin: 0 0 18px;
+      padding: 18px;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+    }
+
+    .sheet-header {
+      margin-bottom: 12px;
+    }
+
+    .sheet-kicker {
+      margin: 0 0 6px;
+      color: #8c3b2f;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .sheet-header h1 {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      line-height: 1.15;
+    }
+
+    .sheet-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .sheet-diagram svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    @page portrait-sheet {
+      size: portrait;
+      margin: 10mm;
+    }
+
+    @page landscape-sheet {
+      size: landscape;
+      margin: 10mm;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .print-shell {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .print-intro {
+        display: none;
+      }
+
+      .print-sheet {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        break-after: page;
+      }
+
+      .print-sheet.portrait {
+        page: portrait-sheet;
+      }
+
+      .print-sheet.landscape {
+        page: landscape-sheet;
+      }
+
+      .sheet-header {
+        margin: 0 0 6mm;
+      }
+
+      .sheet-kicker {
+        font-size: 9pt;
+      }
+
+      .sheet-header h1 {
+        font-size: 18pt;
+      }
+
+      .print-sheet.landscape .sheet-diagram {
+        width: 277mm;
+        height: 165mm;
+      }
+
+      .print-sheet.portrait .sheet-diagram {
+        width: 190mm;
+        height: 240mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="print-shell">
+    <section class="print-intro">
+      <h1>P2 Reds -- Mermaid Study Diagrams Print Pack</h1>
+      <p>One diagram per page. Wide diagrams are set to landscape; tall diagrams are set to portrait.</p>
+      <div class="print-actions">
+        <button type="button" class="print-trigger" onclick="window.print()">Print / Save PDF</button>
+        <a class="print-link" href="./index.html">Back to Index</a>
+      </div>
+    </section>
+    <section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>1. Stem Routing: Which Family?</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    START[&quot;Read P2 stem&quot;] --&gt; V{&quot;Same variety&lt;br/&gt;stated or implied?&quot;}
+    V --&gt;|Yes| F1[&quot;F1 Same Variety&lt;br/&gt;(Pinot/Syrah/Cab)&quot;]
+    V --&gt;|No| BL{&quot;Blend language?&lt;br/&gt;&#x27;Bordeaux varieties&#x27;&lt;br/&gt;&#x27;blends&#x27;&quot;}
+    BL --&gt;|Yes| F3[&quot;F3 Blend Logic&lt;br/&gt;(Bordeaux/GSM/Iberian)&quot;]
+    BL --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
+    O --&gt;|Yes| HIER{&quot;Heavy quality/&lt;br/&gt;classification marks?&quot;}
+    HIER --&gt;|Yes| F7[&quot;F7 Hierarchy&quot;]
+    HIER --&gt;|No| F2[&quot;F2 Same Origin&quot;]
+    O --&gt;|No| F4[&quot;F4 Breadth&lt;br/&gt;(anti-overlink)&quot;]
+
+    style F1 fill:#e8f5e9
+    style F2 fill:#e3f2fd
+    style F3 fill:#fff3e0
+    style F4 fill:#fce4ec
+    style F7 fill:#fff9c4"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>2. F1 Same Variety -- Tasting Tree (10 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    LOCK[&quot;Confirm grape on&lt;br/&gt;the most typical wine.&lt;br/&gt;Do NOT flip later.&quot;] --&gt; GRAPE{&quot;Grape family?&quot;}
+
+    GRAPE --&gt;|&quot;Translucent ruby&lt;br/&gt;red fruit, earth&lt;br/&gt;high acid, fine tannin&quot;| PN[&quot;Pinot Noir&quot;]
+    GRAPE --&gt;|&quot;Purple, pepper&lt;br/&gt;violets, smoked meat&lt;br/&gt;savoury frame&quot;| SY[&quot;Syrah/Shiraz&quot;]
+    GRAPE --&gt;|&quot;Cassis, cedar&lt;br/&gt;graphite, firm tannin&quot;| CS[&quot;Cabernet Sauvignon&quot;]
+    GRAPE --&gt;|&quot;Pale garnet&lt;br/&gt;rose, tar, savage tannin&quot;| NEB[&quot;Nebbiolo&quot;]
+    GRAPE --&gt;|&quot;Sour cherry&lt;br/&gt;dried herb, high acid&quot;| SANG[&quot;Sangiovese&quot;]
+
+    PN --&gt; PN_O{&quot;Earth/restraint&lt;br/&gt;vs cherry/ripeness?&quot;}
+    PN_O --&gt;|&quot;Earth + mushroom&quot;| BURG_PN[&quot;Burgundy&quot;]
+    PN_O --&gt;|&quot;Cherry + purity&quot;| NZ_PN[&quot;NZ/Oregon&quot;]
+    PN_O --&gt;|&quot;Riper, broader&quot;| SONO[&quot;Sonoma/Yarra&quot;]
+    PN_O --&gt;|&quot;Smoke + spice&quot;| GER_PN[&quot;Germany&quot;]
+
+    SY --&gt; SY_O{&quot;Pepper vs jam?&quot;}
+    SY_O --&gt;|&quot;Pepper + savoury&quot;| NRH[&quot;N. Rhone/Hawke&#x27;s Bay&quot;]
+    SY_O --&gt;|&quot;Jam + sweet oak + alc&quot;| BAR[&quot;Barossa/McLaren Vale&quot;]
+    SY_O --&gt;|&quot;Medium, olive&quot;| SA_SY[&quot;Stellenbosch/Swartland&quot;]
+
+    CS --&gt; CS_O{&quot;Restraint vs plush?&quot;}
+    CS_O --&gt;|&quot;Lean + cedar + gravel&quot;| BDX_CS[&quot;Bordeaux&quot;]
+    CS_O --&gt;|&quot;Plush + density + oak&quot;| NAPA[&quot;Napa/Stellenbosch&quot;]
+    CS_O --&gt;|&quot;Eucalyptus + mint&quot;| COONA[&quot;Coonawarra/Margaret R&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>3. F2 Same Origin -- Tasting Tree (8 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    ORIGIN[&quot;Lock the country&quot;] --&gt; WHICH{&quot;Which country?&quot;}
+    WHICH --&gt;|France| FR2[&quot;Pinot Noir Burgundy&lt;br/&gt;+ Cab/Merlot Bordeaux&lt;br/&gt;+ Syrah Rhone&lt;br/&gt;+ Grenache S. Rhone&quot;]
+    WHICH --&gt;|Italy| IT2[&quot;Nebbiolo Piedmont&lt;br/&gt;+ Sangiovese Tuscany&lt;br/&gt;+ Aglianico Campania&lt;br/&gt;+ Nerello Etna&lt;br/&gt;+ Corvina Veneto&quot;]
+    WHICH --&gt;|Spain| ES2[&quot;Tempranillo Rioja&lt;br/&gt;+ Garnacha Priorat&lt;br/&gt;+ Monastrell Jumilla&lt;br/&gt;+ Mencia Bierzo&quot;]
+    WHICH --&gt;|&quot;Same region&quot;| REG{&quot;Which region?&quot;}
+    REG --&gt;|Bordeaux| BDX_R[&quot;Left bank Cab&lt;br/&gt;vs Right bank Merlot&quot;]
+    REG --&gt;|Burgundy| BURG_R[&quot;Village vs&lt;br/&gt;Premier vs Grand Cru&quot;]
+    REG --&gt;|Rhone| RH_R[&quot;N. Rhone Syrah&lt;br/&gt;vs S. Rhone GSM&quot;]
+    REG --&gt;|Tuscany| TUS_R[&quot;Chianti Classico&lt;br/&gt;vs Brunello&quot;]"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>4. F3 Blend Logic -- Tasting Tree (2 questions, high leverage)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    FAM{&quot;Blend family from&lt;br/&gt;lead aroma + tannin?&quot;} --&gt;|&quot;Cassis+cedar&lt;br/&gt;graphite+firm&quot;| BDX_BL[&quot;Bordeaux Family&quot;]
+    FAM --&gt;|&quot;Strawberry+pepper&lt;br/&gt;herbs+warm+alc&quot;| GSM_BL[&quot;GSM / Rhone Family&quot;]
+    FAM --&gt;|&quot;Sour cherry+herb&lt;br/&gt;leather+high acid&quot;| TUS_BL[&quot;Tuscan Family&quot;]
+    FAM --&gt;|&quot;Black fruit+vanilla&lt;br/&gt;Am.oak+sweet tannin&quot;| RIO_BL[&quot;Rioja / Iberian&quot;]
+    FAM --&gt;|&quot;Bramble+dense+spice&lt;br/&gt;grippy young tannin&quot;| DOU_BL[&quot;Douro Blend&quot;]
+
+    BDX_BL --&gt; COMP{&quot;Dominant grape?&quot;}
+    COMP --&gt;|&quot;Cassis structure&quot;| CS_BL[&quot;Cab Sauv-led&lt;br/&gt;Left Bank/Napa/Stell&quot;]
+    COMP --&gt;|&quot;Plum flesh softer&quot;| ME_BL[&quot;Merlot-led&lt;br/&gt;Right Bank/Chile&quot;]
+    COMP --&gt;|&quot;Violet+pyrazine&lt;br/&gt;raspberry&quot;| CF_BL[&quot;Cab Franc-led&lt;br/&gt;Loire/Stellenbosch&quot;]
+
+    GSM_BL --&gt; GSM_COMP{&quot;Dominant?&quot;}
+    GSM_COMP --&gt;|&quot;Warm strawberry&quot;| GR_BL[&quot;Grenache-led&lt;br/&gt;Chateauneuf/Priorat&quot;]
+    GSM_COMP --&gt;|&quot;Black olive+meat&quot;| MV_BL[&quot;Mourvedre-led&lt;br/&gt;Bandol&quot;]
+
+    style BDX_BL fill:#fff3e0,stroke:#e65100
+    style GSM_BL fill:#e8f5e9,stroke:#2e7d32"><div class="sheet-render"></div></div></section>
+<section class="print-sheet portrait" data-initial-orientation="portrait"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>5. F4 Breadth -- Tasting Tree (15 questions, largest bucket)</h1></header><div class="sheet-diagram" data-mermaid="flowchart TD
+    RULE[&quot;HARD RULE:&lt;br/&gt;Do NOT infer wine N&lt;br/&gt;from wine N-1&quot;] --&gt; PER[&quot;Per wine independently:&quot;]
+    PER --&gt; COL{&quot;Colour + intensity?&quot;}
+    COL --&gt;|&quot;Translucent ruby&quot;| LIGHT{&quot;Red fruit profile?&quot;}
+    COL --&gt;|&quot;Mid ruby-purple&quot;| MED{&quot;Fruit + structure?&quot;}
+    COL --&gt;|&quot;Deep purple-black&quot;| DARK{&quot;Tannin + oak?&quot;}
+
+    LIGHT --&gt;|&quot;Cherry+earth+fine&quot;| PN4[&quot;Pinot Noir&quot;]
+    LIGHT --&gt;|&quot;Cherry+banana+light&quot;| GAM4[&quot;Gamay&quot;]
+    LIGHT --&gt;|&quot;Tomato leaf+pyrazine&quot;| CF4[&quot;Cab Franc&quot;]
+    LIGHT --&gt;|&quot;Alpine spice+fresh&quot;| BF4[&quot;Blaufrankisch&quot;]
+
+    MED --&gt;|&quot;Sour cherry+herb+acid&quot;| SANG4[&quot;Sangiovese&quot;]
+    MED --&gt;|&quot;Cherry+dust+Am.oak&quot;| TEMP4[&quot;Tempranillo&quot;]
+    MED --&gt;|&quot;Pepper+violet+savoury&quot;| SY4[&quot;Cool Syrah&quot;]
+    MED --&gt;|&quot;Dried herb+smoky&quot;| XINO[&quot;Xinomavro&quot;]
+
+    DARK --&gt;|&quot;Cassis+cedar+graphite&quot;| CS4[&quot;Cab Sauv&quot;]
+    DARK --&gt;|&quot;Jam+pepper+sweet oak&quot;| SHIR4[&quot;Warm Shiraz&quot;]
+    DARK --&gt;|&quot;Smoky+tar+cocoa&quot;| PINO4[&quot;Pinotage&quot;]
+    DARK --&gt;|&quot;Rose+tar+savage&quot;| NEB4[&quot;Nebbiolo&quot;]
+    DARK --&gt;|&quot;Plum+chocolate+soft&quot;| MERL4[&quot;Merlot&quot;]
+
+    style RULE fill:#fce4ec,stroke:#c62828"><div class="sheet-render"></div></div></section>
+<section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P2 Reds -- Mermaid Study Diagrams</p><h1>6. F7 Hierarchy -- Key Signals (2 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    REG7[&quot;Confirm region&lt;br/&gt;(usually Bordeaux&lt;br/&gt;or Burgundy)&quot;] --&gt; PLACE{&quot;Place on ladder&lt;br/&gt;by concentration,&lt;br/&gt;length, complexity,&lt;br/&gt;integration&quot;}
+    PLACE --&gt;|&quot;Short, simple&quot;| E7[&quot;Village / Cru Bourgeois&quot;]
+    PLACE --&gt;|&quot;Moderate complexity&quot;| M7[&quot;Premier Cru /&lt;br/&gt;Reserva&quot;]
+    PLACE --&gt;|&quot;Concentrated,&lt;br/&gt;very long finish&quot;| T7[&quot;Grand Cru /&lt;br/&gt;Classified Growth /&lt;br/&gt;Gran Reserva&quot;]
+
+    T7 --&gt; VIN{&quot;Vintage ID?&lt;br/&gt;Tertiary markers&lt;br/&gt;cohort knowledge&quot;}
+
+    style E7 fill:#e3f2fd
+    style M7 fill:#fff3e0
+    style T7 fill:#fce4ec"><div class="sheet-render"></div></div></section>
+  </main>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'base',
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: false,
+        curve: 'basis'
+      },
+      themeVariables: {
+        fontFamily: 'Source Sans 3, sans-serif',
+        fontSize: '18px',
+        primaryTextColor: '#121212',
+        secondaryTextColor: '#121212',
+        tertiaryTextColor: '#121212',
+        mainBkg: '#fffdf8',
+        primaryColor: '#fff3c4',
+        primaryBorderColor: '#2c2c2c',
+        lineColor: '#2c2c2c',
+        clusterBkg: '#fffaf0',
+        clusterBorder: '#2c2c2c',
+        nodeBorder: '#2c2c2c',
+        edgeLabelBackground: '#fffdf8'
+      }
+    });
+
+    async function renderSheets() {
+      const sheets = document.querySelectorAll('.sheet-diagram');
+      for (const [index, sheet] of [...sheets].entries()) {
+        const definition = sheet.dataset.mermaid;
+        if (!definition) continue;
+        const renderId = `print-sheet-${index}-${Date.now()}`;
+        const rendered = await mermaid.render(renderId, definition, undefined, document.createElement('div'));
+        const target = sheet.querySelector('.sheet-render');
+        if (target) target.innerHTML = rendered.svg;
+      }
+    }
+
+    function fitSheets() {
+      document.querySelectorAll('.print-sheet').forEach((sheet) => {
+        const svg = sheet.querySelector('svg');
+        const wrap = sheet.querySelector('.sheet-diagram');
+        if (!svg || !wrap) return;
+
+        svg.removeAttribute('width');
+        svg.removeAttribute('height');
+        const viewBox = svg.viewBox?.baseVal;
+        const naturalWidth = viewBox?.width || 1000;
+        const naturalHeight = viewBox?.height || 800;
+        const aspectRatio = naturalWidth / Math.max(naturalHeight, 1);
+        const shouldUseLandscape = aspectRatio > 0.78;
+        sheet.classList.toggle('landscape', shouldUseLandscape);
+        sheet.classList.toggle('portrait', !shouldUseLandscape);
+        const isLandscape = shouldUseLandscape;
+        const availableWidth = wrap.clientWidth || (isLandscape ? 1047 : 718);
+        const availableHeight = wrap.clientHeight || (isLandscape ? 624 : 907);
+        const widthRatio = availableWidth / Math.max(naturalWidth, 1);
+        const heightRatio = availableHeight / Math.max(naturalHeight, 1);
+        const scale = Math.min(widthRatio, heightRatio, 1);
+        const fittedWidth = Math.max(Math.floor(naturalWidth * scale), 280);
+        const fittedHeight = Math.max(Math.floor(naturalHeight * scale), 220);
+
+        svg.style.width = `${fittedWidth}px`;
+        svg.style.height = `${fittedHeight}px`;
+        svg.style.maxWidth = 'none';
+        svg.style.maxHeight = 'none';
+      });
+    }
+
+    window.addEventListener('load', async () => {
+      await renderSheets();
+      setTimeout(fitSheets, 180);
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autoprint') === '1') {
+        setTimeout(() => window.print(), 350);
+      }
+    });
+    window.addEventListener('beforeprint', fitSheets);
+  </script>
+</body>
+</html>

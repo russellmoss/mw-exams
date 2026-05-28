@@ -56,6 +56,33 @@ This tree targets **variety + region** accuracy. Producer, vintage, and vineyard
 - **Leaf (same country, three-category spread):** STRONG SIGNAL: Spain with Cava/Penedès + Garnacha still wine (Gredos or similar) + Sherry/Jerez (Palomino). PLAUSIBLE: France with Crémant + still + VDN, Portugal with espumante + still + fortified. CURVEBALL: single-category country flights.
 - **Anti-collapse rule:** if a P3 mixed-bag or same-country question clearly spans sparkling, still, and fortified/sweet categories, never collapse the prediction to one grape family. Keep at least one candidate alive for each category represented.
 
+## Layer A.5 - Visual Triage (what you see before you smell)
+
+Paper 3 is the only paper where visual appearance is itself a major diagnostic tool. Before picking up any glass, scan the flight and sort wines by what you see. This step collapses the P3 universe from "could be anything" to a specific production category.
+
+### Step 1: Bubbles
+- **Persistent fine mousse visible in glass** → SPARKLING. Route to Branch 1 / sparkling leaves.
+- **No bubbles** → continue to Step 2.
+- **Very slight spritz / pétillant** → keep semi-sparkling (Lambrusco, pét-nat) alive but do not commit.
+
+### Step 2: Color family
+- **Pale lemon to straw, no bubbles** → likely sweet white (botrytis, late harvest) or dry still white appearing in P3 (rare). If multiple wines share this color, consider a same-variety cross-style set.
+- **Deep gold to amber** → STRONG SIGNAL: oxidative or aged sweet. Vin Santo, old Sauternes, aged Tokaji, old Vouvray, oxidative Jura. If spirit warmth confirmed on palate → Amontillado, Oloroso, Madeira, old Tawny Port.
+- **Mahogany to dark brown** → STRONG SIGNAL: very old fortified. Old Tawny Port (20/30/40yr), Madeira (Malmsey/Bual), Rutherglen Muscat, aged PX.
+- **Pale tawny / amber-orange** → could be young tawny, Amontillado, Palo Cortado, dry Madeira (Sercial/Verdelho).
+- **Deep ruby to purple, opaque** → STRONG SIGNAL: young fortified red. Ruby/LBV/Vintage Port, Banyuls Rimage, Recioto della Valpolicella. If no spirit heat on palate → passito or concentrated still red in P3.
+- **Garnet to brick red, some development** → aged Port (Tawny-leaning), Banyuls traditional, Maury.
+- **Pale salmon to pink** → ROSÉ. Route to rosé leaves. If also sparkling → sparkling rosé.
+- **Pale copper to orange/amber with no brown** → CURVEBALL: orange/amber wine (skin-contact white). Evidence base: 2017 P3 Q2.
+
+### Step 3: Viscosity and tears
+- **Very slow, thick tears** → high sugar (sweet) and/or high alcohol (fortified). Cross-reference with color: amber + thick tears = old sweet fortified; pale gold + thick tears = concentrated botrytis or Icewine.
+- **Fast, thin tears** → lower sugar and alcohol. Less likely to be fortified or very sweet.
+- **Legs staining the glass with color** → heavily extracted and/or aged fortified.
+
+### How visual triage connects to Layer B
+After categorizing each wine visually, apply the relevant Layer B sub-tree: sparkling wines go to the sparkling sensory overlay, amber/fortified wines go to the fortified overlay, etc. The visual triage prevents the most common P3 error: spending nose and palate time chasing the wrong production family.
+
 ## Layer B - In-glass decision tree (sensory overlay)
 
 ### For sparkling-led leaves
