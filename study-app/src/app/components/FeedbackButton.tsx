@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useSpeech } from "@/lib/use-speech";
+import { MicButton } from "./MicButton";
 
 interface FeedbackButtonProps {
   attemptId: number | null;
@@ -13,6 +15,16 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
   const [sent, setSent] = useState(false);
   const [saving, setSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleTranscript = useCallback((text: string) => {
+    setFeedback((prev) => {
+      const trimmed = prev.trim();
+      if (trimmed.length === 0) return text;
+      return trimmed + " " + text;
+    });
+  }, []);
+
+  const speech = useSpeech(handleTranscript);
 
   useEffect(() => {
     if (open && textareaRef.current) {
@@ -101,17 +113,36 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
                   <p className="text-xs text-muted mb-3">
                     Anything about the question, tasting notes, grading, or the app itself. This gets saved to your attempt record.
                   </p>
-                  <textarea
-                    ref={textareaRef}
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="e.g. The tasting notes felt off, grading was too harsh, question was ambiguous..."
-                    className="w-full min-h-[100px] bg-background border border-border rounded-lg p-3 text-sm text-foreground placeholder:text-muted/50 focus:outline-none focus:border-accent/60 resize-y"
-                    rows={4}
-                  />
+                  <div className="relative">
+                    <textarea
+                      ref={textareaRef}
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="Type or speak your feedback..."
+                      className={`w-full min-h-[100px] bg-background border rounded-lg p-3 pr-12 text-sm text-foreground placeholder:text-muted/50 focus:outline-none resize-y ${
+                        speech.isListening
+                          ? "border-fail/60 bg-fail/5"
+                          : "border-border focus:border-accent/60"
+                      }`}
+                      rows={4}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <MicButton
+                        isListening={speech.isListening}
+                        isSupported={speech.isSupported}
+                        onClick={speech.toggle}
+                      />
+                    </div>
+                  </div>
+                  {speech.isListening && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-fail animate-pulse" />
+                      <span className="text-xs text-fail">Listening...</span>
+                    </div>
+                  )}
                   <div className="flex justify-end mt-3">
                     <button
-                      onClick={handleSubmit}
+                      onClick={() => { speech.stop(); handleSubmit(); }}
                       disabled={!feedback.trim() || !attemptId || saving}
                       className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
                         feedback.trim() && attemptId && !saving
