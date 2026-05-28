@@ -58,18 +58,6 @@ export default function StudyPage() {
         const question: Question = JSON.parse(stored);
         dispatch({ type: "SELECT_QUESTION", question });
 
-        // Create attempt in Neon (with user_id if logged in)
-        fetch("/api/save-attempt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "create", questionId: question.id, userId: userIdRef.current || null }),
-        })
-          .then((r) => r.json())
-          .then((d) => {
-            if (d.attempt?.id) setAttemptId(d.attempt.id);
-          })
-          .catch(() => {});
-
         const hasAnswer = question.modelAnswer && question.modelAnswer.length >= 100;
         if (!hasAnswer) {
           fetch("/api/generate-model-answer", {
@@ -108,6 +96,26 @@ export default function StudyPage() {
       router.push("/");
     }
   }, [router]);
+
+  // Create attempt once auth is loaded — ensures user_id is never null
+  useEffect(() => {
+    if (!user?.id || attemptId) return;
+    const stored = sessionStorage.getItem("mw-current-question");
+    if (!stored) return;
+    try {
+      const question: Question = JSON.parse(stored);
+      fetch("/api/save-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "create", questionId: question.id, userId: user.id }),
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.attempt?.id) setAttemptId(d.attempt.id);
+        })
+        .catch(() => {});
+    } catch {}
+  }, [user?.id, attemptId]);
 
   // Poll for model answer readiness (if generated in background)
   useEffect(() => {
