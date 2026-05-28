@@ -20,6 +20,11 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwSuccess, setPwSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -143,6 +148,82 @@ export default function SettingsPage() {
                 </span>
               </div>
             </div>
+          </section>
+
+          {/* Change Password */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-4">Change Password</h2>
+            {pwError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{pwError}</p>
+              </div>
+            )}
+            {pwSuccess && (
+              <div className="bg-success/10 border border-success/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-success">{pwSuccess}</p>
+              </div>
+            )}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setPwError(null);
+                setPwSuccess(null);
+                setPwSaving(true);
+                try {
+                  const res = await fetch("/api/user/change-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) {
+                    setPwError(data.error || "Failed to change password");
+                  } else {
+                    setPwSuccess("Password changed successfully.");
+                    setCurrentPw("");
+                    setNewPw("");
+                  }
+                } catch {
+                  setPwError("Network error");
+                } finally {
+                  setPwSaving(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label htmlFor="currentPw" className="block text-sm font-medium text-foreground mb-1.5">
+                  Current password
+                </label>
+                <input
+                  id="currentPw"
+                  type="password"
+                  value={currentPw}
+                  onChange={(e) => setCurrentPw(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="newPw" className="block text-sm font-medium text-foreground mb-1.5">
+                  New password
+                </label>
+                <input
+                  id="newPw"
+                  type="password"
+                  value={newPw}
+                  onChange={(e) => setNewPw(e.target.value)}
+                  placeholder="At least 6 characters"
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={pwSaving || !currentPw || newPw.length < 6}
+                className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {pwSaving ? "Changing..." : "Change password"}
+              </button>
+            </form>
           </section>
 
           {/* API Key section */}
