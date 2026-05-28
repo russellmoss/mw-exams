@@ -1,5 +1,93 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { neon } from "@neondatabase/serverless";
+
+const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
+  F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
+  F2: { 2: 42, 3: 33, 4: 25 },
+  F3: { 2: 33, 3: 17, 4: 50 },
+  F4: { 2: 12, 3: 27, 4: 46, 5: 6, 6: 9 },
+  F5: { 1: 8, 2: 33, 3: 25, 4: 17, 5: 17 },
+  F6: { 2: 50, 4: 25, 5: 25 },
+  F7: { 2: 50, 3: 13, 4: 12, 6: 25 },
+  any: { 2: 33, 3: 28, 4: 29, 5: 5, 6: 5 },
+};
+
+async function pickFlightSizeFromDistribution(
+  paper: number,
+  family: string,
+  _existingWines?: string[]
+): Promise<number> {
+  const target = TARGET_DISTRIBUTIONS[family] || TARGET_DISTRIBUTIONS.any;
+
+  // P1 never uses 5-wine flights
+  const sizes = Object.entries(target)
+    .map(([s, w]) => [parseInt(s), w] as [number, number])
+    .filter(([s]) => !(paper === 1 && s === 5));
+
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const familyFilter = family && family !== "any" ? family : null;
+
+    const rows = familyFilter
+      ? await sql`
+          SELECT jsonb_array_length(wines::jsonb) as wine_count, COUNT(*)::int as total
+          FROM generated_questions
+          WHERE paper = ${paper} AND family = ${familyFilter}
+          GROUP BY jsonb_array_length(wines::jsonb)
+        `
+      : await sql`
+          SELECT jsonb_array_length(wines::jsonb) as wine_count, COUNT(*)::int as total
+          FROM generated_questions
+          WHERE paper = ${paper}
+          GROUP BY jsonb_array_length(wines::jsonb)
+        `;
+
+    const current: Record<number, number> = {};
+    let totalGenerated = 0;
+    for (const r of rows) {
+      current[r.wine_count as number] = r.total as number;
+      totalGenerated += r.total as number;
+    }
+
+    if (totalGenerated < 3) {
+      // Not enough data — use pure random from target distribution
+      const totalWeight = sizes.reduce((sum, [, w]) => sum + w, 0);
+      let roll = Math.random() * totalWeight;
+      for (const [size, weight] of sizes) {
+        roll -= weight;
+        if (roll <= 0) return size;
+      }
+      return sizes[0][0];
+    }
+
+    // Calculate which size is most underrepresented vs target
+    const totalTarget = sizes.reduce((sum, [, w]) => sum + w, 0);
+    let bestSize = sizes[0][0];
+    let bestGap = -Infinity;
+
+    for (const [size, targetPct] of sizes) {
+      const targetShare = targetPct / totalTarget;
+      const actualShare = (current[size] || 0) / totalGenerated;
+      const gap = targetShare - actualShare;
+      if (gap > bestGap) {
+        bestGap = gap;
+        bestSize = size;
+      }
+    }
+
+    return bestSize;
+  } catch (err) {
+    console.error("Flight size DB lookup failed, using random:", err);
+    const totalWeight = sizes.reduce((sum, [, w]) => sum + w, 0);
+    let roll = Math.random() * totalWeight;
+    for (const [size, weight] of sizes) {
+      roll -= weight;
+      if (roll <= 0) return size;
+    }
+    return sizes[0][0];
+  }
+}
 
 let cachedContext: PipelineContext | null = null;
 
@@ -25,7 +113,7 @@ function loadPipelineContext(): PipelineContext {
   return cachedContext!;
 }
 
-export function buildQuestionGenerationPrompt(
+export async function buildQuestionGenerationPrompt(
   paper: number,
   family: string,
   existingWines?: string[],
@@ -35,7 +123,7 @@ export function buildQuestionGenerationPrompt(
     paper: number;
     family: string;
   } | null
-): { system: string; user: string } {
+): Promise<{ system: string; user: string }> {
   const ctx = loadPipelineContext();
 
   const examples = ctx.historicalQuestionExamples[`p${paper}`] || [];
@@ -54,30 +142,9 @@ export function buildQuestionGenerationPrompt(
       ? "RED STILL WINES ONLY. Every wine in this question MUST be a red still wine. No whites, no rosés, no sparkling, no fortified. All wines must be made from red grape varieties."
       : "SPARKLING, FORTIFIED, SWEET, ROSÉ, AND OXIDATIVE WINES ONLY. Every wine in this question must be from one of these categories. No standard still dry whites or reds.";
 
-  // Pre-roll the flight size based on historical corpus distributions
-  const flightSizeDistributions: Record<string, [number, number][]> = {
-    F1: [[2, 44], [3, 32], [4, 12], [5, 8], [6, 4]],
-    F2: [[2, 42], [3, 33], [4, 25]],
-    F3: [[2, 33], [3, 17], [4, 50]],
-    F4: [[2, 12], [3, 27], [4, 46], [5, 6], [6, 9]],
-    F5: [[1, 8], [2, 33], [3, 25], [4, 17], [5, 17]],
-    F6: [[2, 50], [4, 25], [5, 25]],
-    F7: [[2, 50], [3, 13], [4, 12], [6, 25]],
-    any: [[2, 33], [3, 28], [4, 29], [5, 5], [6, 5]],
-  };
-
-  // P1 never uses 5-wine flights
-  const p1Adjust = (dist: [number, number][]) =>
-    paper === 1 ? dist.filter(([size]) => size !== 5) : dist;
-
-  const dist = p1Adjust(flightSizeDistributions[family || "any"] || flightSizeDistributions.any);
-  const totalWeight = dist.reduce((sum, [, w]) => sum + w, 0);
-  let roll = Math.random() * totalWeight;
-  let targetFlightSize = dist[0][0];
-  for (const [size, weight] of dist) {
-    roll -= weight;
-    if (roll <= 0) { targetFlightSize = size; break; }
-  }
+  // Pre-roll the flight size based on historical corpus distributions,
+  // adjusted by what's already in the database to maintain correct ratios
+  const targetFlightSize = await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
 
   const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
 

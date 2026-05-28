@@ -220,7 +220,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 
   const recentGenerated = await getRecentGeneratedQuestions(1);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
-  const prompt = buildQuestionGenerationPrompt(
+  const prompt = await buildQuestionGenerationPrompt(
     paper,
     family || "any",
     existingWines,
