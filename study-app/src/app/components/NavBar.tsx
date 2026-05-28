@@ -52,6 +52,12 @@ export function NavBar() {
           >
             Study
           </Link>
+          <a
+            href="/diagrams/"
+            className="text-sm font-medium transition-colors text-muted hover:text-foreground"
+          >
+            Diagrams
+          </a>
           <Link
             href="/history"
             className={`text-sm font-medium transition-colors ${
@@ -62,12 +68,6 @@ export function NavBar() {
           >
             History
           </Link>
-          <a
-            href="/diagrams/"
-            className="text-sm font-medium transition-colors text-muted hover:text-foreground"
-          >
-            Diagrams
-          </a>
           <Link
             href="/methodology"
             className={`text-sm font-medium transition-colors ${

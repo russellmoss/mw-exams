@@ -671,7 +671,7 @@ function parseGeneratedQuestion(
     if (winesMatch) {
       const lines = winesMatch[1].split("\n").filter((l) => /^\d+\./.test(l.trim()));
       for (const line of lines) {
-        const m = line.match(/^(\d+)\.\s+(.*)/);
+        const m = line.trim().match(/^(\d+)\.\s+(.*)/);
         if (m) wines.push({ slot: parseInt(m[1]), fullText: m[2].trim() });
       }
     }
@@ -683,7 +683,7 @@ function parseGeneratedQuestion(
     if (appearanceMatch) {
       const lines = appearanceMatch[1].split("\n").filter((l) => /^\d+\./.test(l.trim()));
       for (const line of lines) {
-        const m = line.match(/^(\d+)\.\s+(.*)/);
+        const m = line.trim().match(/^(\d+)\.\s+(.*)/);
         if (m) {
           const slot = parseInt(m[1]);
           const wine = wines.find((w) => w.slot === slot);
@@ -714,6 +714,16 @@ function parseGeneratedQuestion(
     if (!totalMarks) totalMarks = 100;
 
     if (!questionText || wines.length === 0) return null;
+
+    // Stem says "Wines 1 to N" — parsed wines must match
+    const stemCountMatch = questionText.match(/wines\s+1\s+(?:to|–|-)\s+(\d+)/i);
+    if (stemCountMatch) {
+      const expected = parseInt(stemCountMatch[1]);
+      if (wines.length < expected) {
+        console.error(`Parse mismatch: stem expects ${expected} wines but parsed ${wines.length}`);
+        return null;
+      }
+    }
 
     return {
       family: parsedFamily,
