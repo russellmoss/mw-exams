@@ -124,12 +124,16 @@ When the stem says "each from a different, single grape variety" or "each is mad
 - GOOD: Rutherglen Muscat (100% Muscat), Amontillado (100% Palomino), Banyuls (predominantly Grenache), single-varietal Riesling, Nebbiolo (Barolo/Barbaresco)
 If you want to include a blend, remove the "single grape variety" language from the stem, or say "predominantly from a different grape variety" without the word "single."
 
+## WINE NAME / LABEL INTEGRITY
+For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
+
 ## CRITICAL OUTPUT RULES
 1. NO markdown formatting in the question stem. No **bold**, no *italic*, no &nbsp;. Plain text only.
 2. Sub-questions use: a) b) c) d). NOT (a), NOT **(a)**.
 3. Marks shown as: (15 marks) or (4 x 8 marks). Plain parentheses, no bold.
 4. The question reads like it would appear on a printed exam paper.
-5. Metadata must never reveal the answer. Family is only the code (F1-F7). Subcategory describes structure only and must not contain a country, region, appellation, producer, grape variety, or parenthetical answer clue.`;
+5. Metadata must never reveal the answer. Family is only the code (F1-F7). Subcategory describes structure only and must not contain a country, region, appellation, producer, grape variety, or parenthetical answer clue.
+6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction. Never output a pre-correction wine.`;
 
   const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.
 

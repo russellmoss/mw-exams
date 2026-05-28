@@ -328,7 +328,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 }
 
 const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling|pinot\s*gri[gs]|gewurz|muscat|moscato|viognier|chenin|semillon|albarino|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera)\b/i;
-const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufrankisch|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc)\b/i;
+const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc|cinsault|monastrell)\b/i;
 
 const APPELLATION_TO_PRIMARY_VARIETY: { pattern: RegExp; variety: string }[] = [
   { pattern: /\b(barolo|barbaresco|gattinara|ghemme|carema|valtellina|sforzato)\b/i, variety: "nebbiolo" },
@@ -425,6 +425,28 @@ function validateVarietyConsistency(questionText: string, wines: { slot: number;
     const uniqueVarieties = [...new Set(detectedVarieties.filter(v => v !== "unknown"))];
     if (uniqueVarieties.length > 1) {
       violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
+    }
+
+    // Name-label cross-check: scan each wine's text for ANY grape name that contradicts the flight variety
+    const flightVariety = uniqueVarieties[0] || null;
+    if (flightVariety) {
+      const allGrapePatterns = [WHITE_GRAPE_INDICATORS, RED_GRAPE_INDICATORS];
+      for (const wine of wines) {
+        const text = wine.fullText.toLowerCase();
+        for (const pattern of allGrapePatterns) {
+          const matches = text.match(new RegExp(pattern.source, "gi"));
+          if (matches) {
+            for (const match of matches) {
+              const normalized = normalizeVariety(match.trim());
+              if (normalized !== flightVariety && normalized !== "unknown") {
+                violations.push(
+                  `Wine ${wine.slot} name contains "${match.trim()}" which is a different variety than the flight variety "${flightVariety}". Wine labels must not contradict the same-variety constraint.`
+                );
+              }
+            }
+          }
+        }
+      }
     }
   }
 
