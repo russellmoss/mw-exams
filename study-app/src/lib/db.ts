@@ -412,7 +412,7 @@ export async function getUserNotifications(userId: number): Promise<{
   const sql = getDb();
   const countRows = await sql`
     SELECT COUNT(*)::int as count FROM feedback_analyses
-    WHERE user_id = ${userId} AND is_read = false
+    WHERE user_id = ${userId} AND is_read = false AND status IN ('complete', 'error')
   `;
   const analyses = await sql`
     SELECT fa.*, a.user_feedback,
@@ -420,7 +420,7 @@ export async function getUserNotifications(userId: number): Promise<{
     FROM feedback_analyses fa
     JOIN user_attempts a ON fa.attempt_id = a.id
     JOIN generated_questions q ON a.question_id = q.question_id
-    WHERE fa.user_id = ${userId}
+    WHERE fa.user_id = ${userId} AND fa.status IN ('complete', 'error')
     ORDER BY fa.updated_at DESC
     LIMIT 10
   `;
