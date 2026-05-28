@@ -321,7 +321,7 @@ export interface UserStats {
   fail_count: number;
   borderline_count: number;
   by_paper: { paper: number; total: number; pass: number; fail: number; borderline: number }[];
-  by_family: { family: string; family_label: string; total: number; pass: number }[];
+  by_family: { family: string; family_label: string; total: number; pass: number; borderline: number; fail: number }[];
   recent_results: { pass_estimate: string; started_at: string }[];
 }
 
@@ -490,7 +490,9 @@ export async function getUserStats(userId: number): Promise<UserStats> {
       q.family,
       q.family_label,
       COUNT(*)::int as total,
-      COUNT(CASE WHEN a.pass_estimate = 'pass' THEN 1 END)::int as pass
+      COUNT(CASE WHEN a.pass_estimate = 'pass' THEN 1 END)::int as pass,
+      COUNT(CASE WHEN a.pass_estimate = 'borderline' THEN 1 END)::int as borderline,
+      COUNT(CASE WHEN a.pass_estimate = 'fail' THEN 1 END)::int as fail
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
     WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL

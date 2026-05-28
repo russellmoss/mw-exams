@@ -248,6 +248,17 @@ GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1
 ## WINE NAME / LABEL INTEGRITY
 For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
 
+## STEM-WINE CONSISTENCY: RESIDUAL SUGAR CLAIMS
+When the stem says "both wines have residual sugar" or "all wines have residual sugar," EVERY wine in the flight must have MEANINGFUL residual sugar — at least 10g/L, detectable as off-dry or sweet on the palate. Do NOT include essentially dry wines (like Savennières, dry Alsace Riesling, brut Champagne, dry Furmint) in an RS-focused flight. The MW only uses "residual sugar" language when sweetness is a defining characteristic of the wine, not for trace amounts that are sub-threshold.
+
+Examples of wines that do NOT qualify as "having residual sugar":
+- Savennières (legally up to 7g/L but functionally bone dry)
+- Dry Alsace Riesling or Grüner Veltliner
+- Brut sparkling wines (dosage RS is not what the MW means)
+- Any wine a candidate would taste and call "dry"
+
+If you want to compare a sweet wine with a dry wine from the same region, phrase the stem as "compare and contrast the sweetness levels" or do not claim both have RS. The MW is precise with RS language — when they say it, they mean it.
+
 ## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
 Minimum marks per written sub-question: **5 marks**.
 The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:

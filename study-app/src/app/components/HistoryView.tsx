@@ -86,7 +86,7 @@ export interface Stats {
   fail_count: number;
   borderline_count: number;
   by_paper: { paper: number; total: number; pass: number; fail: number; borderline: number }[];
-  by_family: { family: string; family_label: string; total: number; pass: number }[];
+  by_family: { family: string; family_label: string; total: number; pass: number; borderline: number; fail: number }[];
   recent_results: { pass_estimate: string; started_at: string }[];
 }
 
@@ -481,8 +481,8 @@ export function HistoryView({
             />
             <StatCard
               label="Results"
-              value={stats.completed_attempts > 0 ? `${stats.pass_count}P / ${stats.borderline_count}B / ${stats.fail_count}F` : "--"}
-              sub={stats.completed_attempts > 0 ? `${passRate}% pass · ${passOrBorderlineRate}% pass+borderline` : "No completed attempts"}
+              value={stats.completed_attempts > 0 ? `${passOrBorderlineRate}% exam-ready` : "--"}
+              sub={stats.completed_attempts > 0 ? `${stats.pass_count}P + ${stats.borderline_count}B + ${stats.fail_count}F — borderlines are near-passes` : "No completed attempts"}
             />
             <StatCard
               label="Papers Practiced"
@@ -509,12 +509,15 @@ export function HistoryView({
               ) : (
                 <div className="space-y-3">
                   {stats.by_paper.map((p) => {
-                    const pRate = p.total > 0 ? Math.round((p.pass / p.total) * 100) : 0;
+                    const passAndBorderline = p.pass + p.borderline;
+                    const pbRate = p.total > 0 ? Math.round((passAndBorderline / p.total) * 100) : 0;
                     return (
                       <div key={p.paper}>
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-sm font-medium text-foreground">{paperLabel(p.paper)}</span>
-                          <span className="text-xs text-muted">{p.total} attempts / {pRate}% pass</span>
+                          <span className="text-xs text-muted">
+                            {p.total} attempts · {p.pass}P {p.borderline}B {p.fail}F · {pbRate}% pass+borderline
+                          </span>
                         </div>
                         <div className="w-full h-2 bg-background rounded-full overflow-hidden">
                           <div className="h-full flex">
@@ -557,12 +560,18 @@ export function HistoryView({
                 <p className="text-sm text-muted">No completed attempts yet</p>
               ) : (
                 <div className="space-y-1.5">
-                  {stats.by_family.slice(0, 6).map((f) => (
-                    <div key={f.family} className="flex items-center justify-between">
-                      <span className="text-sm text-foreground">{f.family_label}</span>
-                      <span className="text-xs text-muted">{f.total} attempts / {f.total > 0 ? Math.round((f.pass / f.total) * 100) : 0}% pass</span>
-                    </div>
-                  ))}
+                  {stats.by_family.slice(0, 6).map((f) => {
+                    const pb = f.pass + (f.borderline || 0);
+                    const pbRate = f.total > 0 ? Math.round((pb / f.total) * 100) : 0;
+                    return (
+                      <div key={f.family} className="flex items-center justify-between">
+                        <span className="text-sm text-foreground">{f.family_label}</span>
+                        <span className="text-xs text-muted">
+                          {f.total} · {f.pass}P {f.borderline || 0}B {f.fail || 0}F · {pbRate}% P+B
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
