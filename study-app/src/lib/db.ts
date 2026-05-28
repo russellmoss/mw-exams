@@ -87,12 +87,20 @@ export async function getQuestionsByFilter(
     return (await sql`
       SELECT * FROM generated_questions
       WHERE paper = ${paper} AND family = ${family}
+        AND question_id NOT IN (
+          SELECT DISTINCT ua.question_id FROM user_attempts ua
+          WHERE ua.feedback_status = 'accepted'
+        )
       ORDER BY created_at DESC
     `) as GeneratedQuestion[];
   }
   return (await sql`
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
+      AND question_id NOT IN (
+        SELECT DISTINCT ua.question_id FROM user_attempts ua
+        WHERE ua.feedback_status = 'accepted'
+      )
     ORDER BY created_at DESC
   `) as GeneratedQuestion[];
 }
@@ -120,6 +128,10 @@ export async function getUnansweredQuestions(
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
+        AND q.question_id NOT IN (
+          SELECT DISTINCT ua.question_id FROM user_attempts ua
+          WHERE ua.feedback_status = 'accepted'
+        )
       ORDER BY q.created_at ASC
     `) as GeneratedQuestion[];
   }
@@ -130,6 +142,10 @@ export async function getUnansweredQuestions(
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
+      AND q.question_id NOT IN (
+        SELECT DISTINCT ua.question_id FROM user_attempts ua
+        WHERE ua.feedback_status = 'accepted'
+      )
     ORDER BY q.created_at ASC
   `) as GeneratedQuestion[];
 }
