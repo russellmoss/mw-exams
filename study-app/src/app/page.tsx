@@ -8,7 +8,8 @@ import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
 
-type LandingStep = "select-paper" | "select-family" | "generating";
+type LandingStep = "select-paper" | "select-family" | "select-mode" | "generating";
+type StudyMode = "full" | "stem-only";
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function Home() {
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [, setRecentAttempts] = useState<unknown[]>([]);
+  const [selectedFamily, setSelectedFamily] = useState<string>("");
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -74,7 +76,15 @@ export default function Home() {
   }, []);
 
   const handleFamilySelect = useCallback(
-    async (family: string) => {
+    (family: string) => {
+      setSelectedFamily(family);
+      setStep("select-mode");
+    },
+    []
+  );
+
+  const handleModeSelect = useCallback(
+    async (mode: StudyMode) => {
       setStep("generating");
       setError(null);
 
@@ -82,7 +92,7 @@ export default function Home() {
         const res = await fetch("/api/get-question", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paper: selectedPaper, family }),
+          body: JSON.stringify({ paper: selectedPaper, family: selectedFamily }),
         });
 
         if (!res.ok) {
@@ -99,7 +109,6 @@ export default function Home() {
 
         const data = await res.json();
 
-        // Map DB question to the Question type the study page expects
         const q = data.question;
         const question = {
           id: q.question_id,
@@ -123,13 +132,14 @@ export default function Home() {
         };
 
         sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+        sessionStorage.setItem("mw-study-mode", mode);
         router.push("/study");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to get question");
         setStep("select-family");
       }
     },
-    [selectedPaper, router]
+    [selectedPaper, selectedFamily, router]
   );
 
   return (
@@ -235,6 +245,62 @@ export default function Home() {
               onSelect={handleFamilySelect}
               onBack={() => setStep("select-paper")}
             />
+          )}
+
+          {step === "select-mode" && (
+            <div className="max-w-lg mx-auto">
+              <button
+                onClick={() => setStep("select-family")}
+                className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1 cursor-pointer"
+              >
+                &larr; Back
+              </button>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Choose your practice mode</h2>
+              <p className="text-sm text-muted mb-6">How do you want to work this question?</p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleModeSelect("full")}
+                  className="w-full text-left bg-card rounded-xl border border-border hover:border-accent/50 p-5 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Full Question</h3>
+                      <p className="text-sm text-muted mt-1">
+                        Stem analysis, tasting notes, write your answer, get full feedback with marks.
+                        The complete exam simulation.
+                      </p>
+                      <p className="text-xs text-muted/70 mt-2">~20-30 minutes</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleModeSelect("stem-only")}
+                  className="w-full text-left bg-card rounded-xl border border-border hover:border-accent/50 p-5 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Stem Analysis Only</h3>
+                      <p className="text-sm text-muted mt-1">
+                        Practice reading the question stem. What does it tell you before you taste?
+                        Get coaching on your reasoning, then see the wines.
+                      </p>
+                      <p className="text-xs text-muted/70 mt-2">~5-10 minutes</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
           )}
 
           {step === "generating" && (

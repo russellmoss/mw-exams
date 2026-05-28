@@ -27,6 +27,7 @@ export default function StudyPage() {
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
+  const [studyMode, setStudyMode] = useState<"full" | "stem-only">("full");
   const [modelAnswerReady, setModelAnswerReady] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -50,8 +51,11 @@ export default function StudyPage() {
 
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
 
-  // Load question from sessionStorage on mount
+  // Load question and mode from sessionStorage on mount
   useEffect(() => {
+    const mode = sessionStorage.getItem("mw-study-mode");
+    if (mode === "stem-only") setStudyMode("stem-only");
+
     const stored = sessionStorage.getItem("mw-current-question");
     if (stored) {
       try {
@@ -146,7 +150,7 @@ export default function StudyPage() {
     };
   }, [modelAnswerReady, state]);
 
-  // Handle pre-glass reasoning submission — just save, don't evaluate yet
+  // Handle pre-glass reasoning submission
   const handleReasoningSubmit = useCallback(
     async (reasoning: string) => {
       if (state.step !== "pre-glass") return;
@@ -165,14 +169,39 @@ export default function StudyPage() {
         }).catch(() => {});
       }
 
-      // Skip straight to reveal (no mid-flow feedback)
       dispatch({ type: "SUBMIT_REASONING", reasoning });
-      dispatch({
-        type: "PRE_GLASS_FEEDBACK_DONE",
-        feedback: "(Feedback will be shown at the end)",
-      });
+
+      if (studyMode === "stem-only") {
+        // In stem-only mode, stream the pre-glass feedback immediately
+        const wineAppearances = state.question.wines
+          .filter((w) => w.appearance)
+          .map((w) => ({ slot: w.slot, appearance: w.appearance! }));
+
+        const feedback = await evalStream.startStream("/api/evaluate-reasoning", {
+          questionText: state.question.text,
+          reasoning,
+          paper: state.question.paper,
+          ...(wineAppearances.length > 0 && { wineAppearances }),
+        });
+
+        if (attemptId && feedback) {
+          fetch("/api/save-attempt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "update", attemptId, pre_glass_feedback: feedback }),
+          }).catch(() => {});
+        }
+
+        dispatch({ type: "PRE_GLASS_FEEDBACK_DONE", feedback: feedback || "" });
+      } else {
+        // Full mode: skip straight to reveal (feedback shown at end)
+        dispatch({
+          type: "PRE_GLASS_FEEDBACK_DONE",
+          feedback: "(Feedback will be shown at the end)",
+        });
+      }
     },
-    [state, attemptId]
+    [state, attemptId, studyMode, evalStream]
   );
 
   // Handle wine reveal
@@ -468,14 +497,19 @@ export default function StudyPage() {
         <div className="border-b border-border">
           <div className="max-w-4xl mx-auto px-6">
             <div className="flex">
-              {[
+              {(studyMode === "stem-only" ? [
+                { key: "question", label: "Question" },
+                { key: "pre-glass", label: "Stem Analysis" },
+                { key: "pre-glass-feedback", label: "Coaching" },
+                { key: "reveal", label: "Wines" },
+              ] : [
                 { key: "question", label: "Question" },
                 { key: "pre-glass", label: "Stem Analysis" },
                 { key: "reveal", label: "Tasting" },
                 { key: "answer", label: "Answer" },
                 { key: "feedback", label: "Results" },
                 { key: "reveal-answer", label: "Review" },
-              ].map((s) => {
+              ]).map((s) => {
                 const steps = [
                   "question",
                   "pre-glass",
@@ -533,8 +567,70 @@ export default function StudyPage() {
             />
           )}
 
-          {/* Skip pre-glass-feedback, go straight to reveal */}
-          {(state.step === "pre-glass-feedback" || state.step === "reveal") && (
+          {/* Stem-only mode: show streaming feedback then wine reveal */}
+          {studyMode === "stem-only" && state.step === "pre-glass-feedback" && (
+            <div className="space-y-6">
+              {evalStream.isStreaming || evalStream.text ? (
+                <StreamingFeedback
+                  text={evalStream.text}
+                  isStreaming={evalStream.isStreaming}
+                  title="Stem Analysis Coaching"
+                  error={null}
+                />
+              ) : (
+                <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
+                  <div className="flex items-center justify-center gap-2 text-muted">
+                    <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
+                    <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
+                    <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
+                    <span className="ml-2 text-sm">Analyzing your stem reasoning...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Stem-only mode: after feedback done, show wine reveal + done */}
+          {studyMode === "stem-only" && state.step === "reveal" && (
+            <div className="space-y-6">
+              {state.preGlassFeedback && state.preGlassFeedback !== "(Feedback will be shown at the end)" && (
+                <StreamingFeedback
+                  text={state.preGlassFeedback}
+                  isStreaming={false}
+                  title="Stem Analysis Coaching"
+                  error={null}
+                />
+              )}
+
+              <div className="bg-card rounded-xl border border-border p-6">
+                <h3 className="text-lg font-semibold text-foreground mb-4">The Wines</h3>
+                <div className="space-y-3">
+                  {state.question.wines.map((w) => (
+                    <div key={w.slot} className="flex gap-3 bg-background rounded-lg p-3 border border-border/50">
+                      <span className="text-accent font-mono font-bold shrink-0">{w.slot}.</span>
+                      <span className="text-foreground text-sm">{w.fullText}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={() => {
+                    sessionStorage.removeItem("mw-current-question");
+                    sessionStorage.removeItem("mw-study-mode");
+                    router.push("/");
+                  }}
+                  className="px-8 py-3 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  Practice Another Question
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Full mode: skip pre-glass-feedback, go to tasting reveal */}
+          {studyMode === "full" && (state.step === "pre-glass-feedback" || state.step === "reveal") && (
             <div className="space-y-6">
               <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
                 <p className="text-sm text-muted mb-2">
