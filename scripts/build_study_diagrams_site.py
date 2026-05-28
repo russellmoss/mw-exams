@@ -1000,6 +1000,20 @@ p {
 """
 
 
+APP_NAV_HTML = """<nav class="app-nav no-print">
+  <div class="app-nav-inner">
+    <div class="app-nav-links">
+      <a href="/"><img src="/logo.png" alt="BWC" width="28" height="28" class="app-nav-logo"></a>
+      <a href="/" class="app-nav-link">Study</a>
+      <a href="/history" class="app-nav-link">History</a>
+      <a href="/diagrams/index.html" class="app-nav-link app-nav-active">Diagrams</a>
+      <a href="/methodology" class="app-nav-link">Methodology</a>
+      <a href="/settings" class="app-nav-link">Settings</a>
+    </div>
+  </div>
+</nav>"""
+
+
 def app_page_template(title: str, content: str, print_filename: str) -> str:
     """Dark-themed version of page_template for the Vercel app."""
     base = page_template(title, content, print_filename)
@@ -1012,16 +1026,25 @@ def app_page_template(title: str, content: str, print_filename: str) -> str:
         '<link rel="stylesheet" href="/diagrams/assets/site.css">\n'
         '  <link rel="icon" href="/favicon.ico">',
     )
-    # Add back-to-app link, use absolute home link
+    # Replace the old header with the app nav + diagram sub-header
     base = base.replace(
-        '<a class="home-link" href="./index.html">MW Study Diagrams</a>',
-        '<a class="back-to-app" href="/">&larr; Back to Study App</a>\n'
-        '      <a class="home-link" href="/diagrams/index.html">Study Diagrams</a>',
-    )
-    # Fix print button link to absolute path
-    base = base.replace(
-        f"'./{html.escape(print_filename)}?autoprint=1'",
-        f"'/diagrams/{html.escape(print_filename)}?autoprint=1'",
+        '  <header class="site-header">\n'
+        '    <div class="header-inner">\n'
+        '      <a class="home-link" href="./index.html">MW Study Diagrams</a>\n'
+        '      <div class="header-actions no-print">\n'
+        f"        <button type=\"button\" class=\"print-button\" onclick=\"window.location.href='./{html.escape(print_filename)}?autoprint=1'\">Print / Save PDF</button>\n"
+        '      </div>\n'
+        '    </div>\n'
+        '  </header>',
+        f'{APP_NAV_HTML}\n'
+        '  <header class="site-header">\n'
+        '    <div class="header-inner">\n'
+        '      <a class="home-link" href="/diagrams/index.html">Study Diagrams</a>\n'
+        '      <div class="header-actions no-print">\n'
+        f"        <button type=\"button\" class=\"print-button\" onclick=\"window.location.href='/diagrams/{html.escape(print_filename)}?autoprint=1'\">Print / Save PDF</button>\n"
+        '      </div>\n'
+        '    </div>\n'
+        '  </header>',
     )
     return base
 
@@ -1054,11 +1077,7 @@ def app_index_template(cards: list[tuple[str, str]]) -> str:
   <link rel="icon" href="/favicon.ico">
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <a class="back-to-app" href="/">&larr; Back to Study App</a>
-    </div>
-  </header>
+{APP_NAV_HTML}
   <main class="index-shell">
     <section class="hero-card">
       <p class="eyebrow">Decision Trees</p>

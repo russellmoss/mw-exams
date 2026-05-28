@@ -18,6 +18,47 @@ html {
   -webkit-print-color-adjust: exact;
 }
 
+/* App navigation bar — matches the Next.js NavBar */
+.app-nav {
+  border-bottom: 1px solid var(--line);
+  background: rgba(28, 25, 23, 0.5);
+}
+
+.app-nav-inner {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 0.625rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.app-nav-logo {
+  display: block;
+}
+
+.app-nav-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.app-nav-link:hover {
+  color: var(--ink);
+}
+
+.app-nav-link.app-nav-active {
+  color: var(--accent);
+}
+
 body {
   margin: 0;
   color: var(--ink);
