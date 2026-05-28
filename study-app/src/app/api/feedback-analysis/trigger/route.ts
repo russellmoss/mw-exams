@@ -21,6 +21,7 @@ export async function POST(request: Request) {
     const attempts = await sql`
       SELECT a.id, a.user_feedback, a.user_answer, a.user_id,
         q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer,
+        q.metadata,
         u.name as user_name
       FROM user_attempts a
       JOIN generated_questions q ON a.question_id = q.question_id
@@ -48,6 +49,10 @@ export async function POST(request: Request) {
       ? JSON.parse(attempt.wines)
       : attempt.wines;
 
+    const metadata = typeof attempt.metadata === "string"
+      ? JSON.parse(attempt.metadata)
+      : attempt.metadata;
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
       wines,
@@ -58,6 +63,7 @@ export async function POST(request: Request) {
       userAnswer: attempt.user_answer as string | null,
       userFeedback: attempt.user_feedback as string,
       userName: attempt.user_name as string,
+      questionMetadata: metadata as Record<string, unknown> | null,
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });

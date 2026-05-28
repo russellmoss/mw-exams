@@ -17,6 +17,7 @@ export function buildFeedbackAnalysisPrompt(params: {
   userAnswer: string | null;
   userFeedback: string;
   userName?: string;
+  questionMetadata?: Record<string, unknown> | null;
   previousThread?: ThreadMessage[];
 }): { system: string; user: string } {
   // Load ALL historical questions for cross-reference (not just same paper)
@@ -160,6 +161,18 @@ ${params.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}
 ${params.userAnswer ? `### User's Answer\n${params.userAnswer}` : ""}
 
 ${params.modelAnswer ? `### Model Answer (reference — for context on what the system told the user)\n${params.modelAnswer.slice(0, 4000)}` : ""}
+
+${params.questionMetadata ? `### Question Generation Metadata (internal — shows WHY the system made its choices)
+This is the system's internal reasoning when it generated this question. Use it to understand what the system already considered and whether the user's feedback points to something the system missed vs something it deliberately chose.
+
+**Generation Reasoning:** ${(params.questionMetadata as Record<string, unknown>).generationReasoning || "Not available"}
+
+**Validation Results:**
+${(params.questionMetadata as Record<string, unknown>).paperScopeCheck ? `- Paper Scope Check: ${JSON.stringify((params.questionMetadata as Record<string, unknown>).paperScopeCheck)}` : ""}
+${(params.questionMetadata as Record<string, unknown>).varietyCheck ? `- Variety Check: ${JSON.stringify((params.questionMetadata as Record<string, unknown>).varietyCheck)}` : ""}
+${(params.questionMetadata as Record<string, unknown>).originDiversityCheck ? `- Origin Diversity Check: ${JSON.stringify((params.questionMetadata as Record<string, unknown>).originDiversityCheck)}` : ""}
+${(params.questionMetadata as Record<string, unknown>).countryDiversityCheck ? `- Country Diversity Check: ${JSON.stringify((params.questionMetadata as Record<string, unknown>).countryDiversityCheck)}` : ""}
+${(params.questionMetadata as Record<string, unknown>).noveltyCheck ? `- Novelty Check: ${JSON.stringify((params.questionMetadata as Record<string, unknown>).noveltyCheck)}` : ""}` : ""}
 ${threadContext}
 
 Please analyze this feedback using the workflow above and produce your structured recommendation.`;
