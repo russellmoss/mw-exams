@@ -251,13 +251,29 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const model = "claude-sonnet-4-6";
-    const message = await client.messages.create({
-      model,
-      max_tokens: 2000,
-      system: prompt.system,
-      messages: [{ role: "user", content: prompt.user }],
-    });
+    const model = attempt === 1 ? "claude-opus-4-8" : "claude-sonnet-4-6";
+    let message;
+    try {
+      message = await client.messages.create({
+        model,
+        max_tokens: 2000,
+        system: prompt.system,
+        messages: [{ role: "user", content: prompt.user }],
+      });
+    } catch (modelErr: unknown) {
+      // If Opus 404s, don't waste the attempt — retry immediately with Sonnet
+      if (model !== "claude-sonnet-4-6" && modelErr instanceof Error && modelErr.message?.includes("404")) {
+        console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
+        message = await client.messages.create({
+          model: "claude-sonnet-4-6",
+          max_tokens: 2000,
+          system: prompt.system,
+          messages: [{ role: "user", content: prompt.user }],
+        });
+      } else {
+        throw modelErr;
+      }
+    }
 
     const text = message.content
       .filter((b) => b.type === "text")
