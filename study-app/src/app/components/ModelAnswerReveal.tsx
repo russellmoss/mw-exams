@@ -3,6 +3,14 @@
 import ReactMarkdown from "react-markdown";
 import type { Question } from "@/lib/study-session";
 
+function stripFrontmatter(text: string): string {
+  return text
+    .replace(/^```markdown\s*\n?/, "")
+    .replace(/```\s*$/, "")
+    .replace(/^---\n[\s\S]*?\n---\n*/m, "")
+    .trim();
+}
+
 interface ModelAnswerRevealProps {
   question: Question;
   onNextQuestion: () => void;
@@ -12,7 +20,9 @@ export function ModelAnswerReveal({
   question,
   onNextQuestion,
 }: ModelAnswerRevealProps) {
-  const hasModelAnswer = question.modelAnswer && question.modelAnswer.length > 0;
+  const rawModelAnswer = question.modelAnswer || "";
+  const cleanedModelAnswer = stripFrontmatter(rawModelAnswer);
+  const hasModelAnswer = cleanedModelAnswer.length > 0;
   const hasAnnotation =
     question.proposedAnnotation && question.proposedAnnotation.length > 0;
   const hasStudyDiagram =
@@ -34,7 +44,7 @@ export function ModelAnswerReveal({
               <span className="text-xs font-mono text-muted w-16 shrink-0 pt-0.5">
                 Wine {w.slot}
               </span>
-              <span className="text-sm text-foreground font-[family-name:var(--font-geist-mono)]">
+              <span className="text-sm text-foreground">
                 {w.fullText}
               </span>
             </div>
@@ -44,12 +54,12 @@ export function ModelAnswerReveal({
 
       {/* Model answer */}
       {hasModelAnswer && (
-        <div className="bg-card rounded-xl border border-border p-6">
+        <div className="bg-card rounded-xl border border-border p-6 overflow-hidden">
           <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             Model Answer
           </h3>
-          <div className="markdown-content text-[15px] leading-relaxed font-[family-name:var(--font-geist-mono)]">
-            <ReactMarkdown>{question.modelAnswer!}</ReactMarkdown>
+          <div className="markdown-content text-[15px] leading-relaxed">
+            <ReactMarkdown>{cleanedModelAnswer}</ReactMarkdown>
           </div>
         </div>
       )}
