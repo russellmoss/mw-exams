@@ -171,13 +171,43 @@ GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1
 ## WINE NAME / LABEL INTEGRITY
 For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
 
+## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
+Minimum marks per written sub-question: **5 marks**.
+The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:
+- 2 marks: "State the level of residual sugar" or "State the alcohol level" — one-number answers
+- 3 marks: Same type of quick factual answers
+NEVER allocate 2-4 marks for written answers like "Comment on commercial position" or "Discuss winemaking." These require sentences and always get 5+ marks.
+
+Typical per-wine mark ranges for written sub-questions:
+- Identification (variety + origin): 8-15 marks
+- Winemaking / method of production: 5-10 marks
+- Quality / maturity: 5-10 marks
+- Commercial position: 5-10 marks
+- Style: 5-10 marks (often combined with quality)
+
+## STYLE SUB-QUESTIONS (MANDATORY — include in most questions)
+"Style" is one of the most common sub-question types in the MW exam. It appears in 60+ questions across the corpus, and in nearly EVERY question in 2024-2025. The generation system must include style questions.
+
+Common style phrasings from recent exams (use these as templates):
+- "Comment on the style, quality, and commercial position" (combined — most common in 2024-2025)
+- "Comment on the style and quality"
+- "Discuss how climate and winemaking techniques have influenced the quality and style"
+- "Comment on the style of the wine with reference to the relative importance of human inputs versus natural factors"
+- "Compare and contrast the styles and consumer appeal"
+- "Comment on the style, winemaking and quality"
+
+At least ONE sub-question should reference "style" unless the question is purely identification-focused. This reflects the modern exam's emphasis on style convergence and differentiation.
+
+Weight recent exam years (2021-2025) more heavily when designing sub-questions. The exam is evolving — style questions barely existed before 2016 but now appear on nearly every question.
+
 ## CRITICAL OUTPUT RULES
 1. NO markdown formatting in the question stem. No **bold**, no *italic*, no &nbsp;. Plain text only.
 2. Sub-questions use: a) b) c) d). NOT (a), NOT **(a)**.
 3. Marks shown as: (15 marks) or (4 x 8 marks). Plain parentheses, no bold.
 4. The question reads like it would appear on a printed exam paper.
 5. Metadata must never reveal the answer. Family is only the code (F1-F7). Subcategory describes structure only and must not contain a country, region, appellation, producer, grape variety, or parenthetical answer clue.
-6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction. Never output a pre-correction wine.`;
+6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction. Never output a pre-correction wine.
+7. Every written sub-question must be worth at least 5 marks. Only "State RS" or "State ABV" can be 2-3 marks.`;
 
   const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.
 

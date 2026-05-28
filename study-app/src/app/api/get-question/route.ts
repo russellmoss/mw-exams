@@ -217,6 +217,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     | {
         paperScopeCheck: ReturnType<typeof validatePaperScope>;
         varietyCheck: ReturnType<typeof validateVarietyConsistency>;
+        markCheck: ReturnType<typeof validateMarkAllocation>;
         originDiversityCheck: ReturnType<typeof validateOriginDiversity>;
         countryDiversityCheck: ReturnType<typeof validateCountryDiversity>;
         bankerCheck: ReturnType<typeof validateBankerMinimum>;
@@ -252,6 +253,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     // Critical validators (always run)
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
+    const markCheck = validateMarkAllocation(candidate.questionText);
 
     // Important validators (relax on attempt 6+)
     const relaxImportant = attempt >= 6;
@@ -275,6 +277,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     lastViolations = [
       ...paperScopeCheck.violations,
       ...varietyCheck.violations,
+      ...markCheck.violations,
       ...originDiversityCheck.violations,
       ...countryDiversityCheck.violations,
       ...bankerCheck.violations,
@@ -284,7 +287,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 
     if (lastViolations.length === 0) {
       parsed = candidate;
-      validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
+      validation = { paperScopeCheck, varietyCheck, markCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded (relaxed=${relaxNiceToHave ? "nice-to-have" : relaxImportant ? "important" : "none"})`);
       break;
     }
@@ -332,6 +335,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       generationReasoning: parsed.generationReasoning,
       paperScopeCheck: validation.paperScopeCheck,
       varietyCheck: validation.varietyCheck,
+      markCheck: validation.markCheck,
       originDiversityCheck: validation.originDiversityCheck,
       countryDiversityCheck: validation.countryDiversityCheck,
       bankerCheck: validation.bankerCheck,
@@ -599,6 +603,44 @@ function validateBankerMinimum(
     );
   }
 
+  return { valid: violations.length === 0, violations };
+}
+
+function validateMarkAllocation(questionText: string): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  // Find per-wine mark allocations like (4 x 2 marks) or (3 x 3 marks)
+  const perWineMarks = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
+  for (const m of perWineMarks) {
+    const perWine = parseInt(m[2]);
+    if (perWine <= 4) {
+      // Check if the sub-question is a "state RS/ABV" type (allowed at 2-3 marks)
+      const idx = questionText.indexOf(m[0]);
+      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
+      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
+        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
+      if (!isStateQuestion) {
+        violations.push(
+          `Sub-question "${m[0]}" allocates only ${perWine} marks per wine for a written answer. The MW exam only uses 2-4 marks for numerical "state RS/ABV" answers. Written sub-questions must be at least 5 marks.`
+        );
+      }
+    }
+  }
+  // Also check single mark allocations
+  const singleMarks = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
+  for (const m of singleMarks) {
+    const marks = parseInt(m[1]);
+    if (marks <= 4 && marks >= 1) {
+      const idx = questionText.indexOf(m[0]);
+      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
+      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
+        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
+      if (!isStateQuestion) {
+        violations.push(
+          `Sub-question "${m[0]}" allocates only ${marks} marks for a written answer. Written sub-questions must be at least 5 marks.`
+        );
+      }
+    }
+  }
   return { valid: violations.length === 0, violations };
 }
 
