@@ -5,15 +5,33 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { TimingBadge } from "./StudyTimer";
 
-function stripModelAnswerBody(text: string): string {
+function parseModelAnswer(text: string): {
+  answer: string;
+  annotation: string;
+  reasoning: string;
+  studyDiagram: string;
+} {
   const cleaned = text
     .replace(/^```markdown\s*\n?/, "")
     .replace(/```\s*$/, "")
     .replace(/^---\n[\s\S]*?\n---\n*/m, "")
     .trim();
-  // Only show the answer body, not the annotation/trace/diagram sections
+
   const cutoff = cleaned.search(/\n#{1,2}\s*\d+\.\s*(?:Proposed Annotation|Reasoning Trace|Study Diagram)/i);
-  return cutoff > 0 ? cleaned.slice(0, cutoff).trim() : cleaned;
+  const answer = cutoff > 0 ? cleaned.slice(0, cutoff).trim() : cleaned;
+
+  const findSection = (label: string) => {
+    const pattern = new RegExp(`#{1,2}\\s*\\d+\\.\\s*${label}([\\s\\S]*?)(?=\\n#{1,2}\\s*\\d+\\.|$)`, "i");
+    const match = cleaned.match(pattern);
+    return match ? match[1].trim() : "";
+  };
+
+  return {
+    answer,
+    annotation: findSection("Proposed Annotation"),
+    reasoning: findSection("Reasoning Trace"),
+    studyDiagram: findSection("Study Diagram"),
+  };
 }
 
 function CopyId({ id }: { id: string }) {
@@ -264,11 +282,31 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             </ExpandedSection>
           )}
 
-          {attempt.model_answer && (
-            <ExpandedSection title="Model Answer">
-              <div className="markdown-content text-sm"><ReactMarkdown>{stripModelAnswerBody(attempt.model_answer)}</ReactMarkdown></div>
-            </ExpandedSection>
-          )}
+          {attempt.model_answer && (() => {
+            const parsed = parseModelAnswer(attempt.model_answer!);
+            return (
+              <>
+                <ExpandedSection title="Model Answer">
+                  <div className="markdown-content text-sm"><ReactMarkdown>{parsed.answer}</ReactMarkdown></div>
+                </ExpandedSection>
+                {parsed.annotation && (
+                  <ExpandedSection title="Examiner Intent / Annotation">
+                    <div className="markdown-content text-sm"><ReactMarkdown>{parsed.annotation}</ReactMarkdown></div>
+                  </ExpandedSection>
+                )}
+                {parsed.reasoning && (
+                  <ExpandedSection title="Reasoning Trace">
+                    <div className="markdown-content text-sm"><ReactMarkdown>{parsed.reasoning}</ReactMarkdown></div>
+                  </ExpandedSection>
+                )}
+                {parsed.studyDiagram && (
+                  <ExpandedSection title="Study Diagram Assist">
+                    <div className="markdown-content text-sm"><ReactMarkdown>{parsed.studyDiagram}</ReactMarkdown></div>
+                  </ExpandedSection>
+                )}
+              </>
+            );
+          })()}
 
           {attempt.user_feedback && (
             <ExpandedSection title={`User Feedback${reviewStatus ? ` — ${reviewStatus === "accepted" ? "Accepted" : "Rejected"}` : ""}`}>
