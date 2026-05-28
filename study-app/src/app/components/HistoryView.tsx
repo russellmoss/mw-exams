@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { TimingBadge } from "./StudyTimer";
 
+function stripFrontmatter(text: string): string {
+  return text
+    .replace(/^```markdown\s*\n?/, "")
+    .replace(/```\s*$/, "")
+    .replace(/^---\n[\s\S]*?\n---\n*/m, "")
+    .trim();
+}
+
 function CopyId({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -255,7 +263,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
 
           {attempt.model_answer && (
             <ExpandedSection title="Model Answer">
-              <div className="markdown-content text-sm"><ReactMarkdown>{attempt.model_answer}</ReactMarkdown></div>
+              <div className="markdown-content text-sm"><ReactMarkdown>{stripFrontmatter(attempt.model_answer)}</ReactMarkdown></div>
             </ExpandedSection>
           )}
 
