@@ -301,6 +301,135 @@ export interface UserStats {
   recent_results: { pass_estimate: string; started_at: string }[];
 }
 
+// ── Feedback Analyses ──
+
+export interface FeedbackAnalysis {
+  id: number;
+  attempt_id: number;
+  user_id: number;
+  recommendation: "accept" | "reject" | "pending" | null;
+  thread: { role: "system" | "user"; content: string; timestamp: string }[];
+  is_read: boolean;
+  status: "analyzing" | "complete" | "error";
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function createFeedbackAnalysis(attemptId: number, userId: number): Promise<FeedbackAnalysis> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO feedback_analyses (attempt_id, user_id, status, thread)
+    VALUES (${attemptId}, ${userId}, 'analyzing', '[]'::jsonb)
+    RETURNING *
+  `;
+  const analysis = rows[0] as FeedbackAnalysis;
+  await sql`UPDATE user_attempts SET auto_analysis_id = ${analysis.id} WHERE id = ${attemptId}`;
+  return analysis;
+}
+
+export async function updateFeedbackAnalysis(
+  id: number,
+  data: Partial<{
+    recommendation: string;
+    thread: unknown[];
+    status: string;
+    error_message: string;
+    is_read: boolean;
+  }>
+): Promise<FeedbackAnalysis> {
+  const sql = getDb();
+  if (data.status === "complete" && data.thread && data.recommendation) {
+    const rows = await sql`
+      UPDATE feedback_analyses SET
+        status = 'complete',
+        recommendation = ${data.recommendation},
+        thread = ${JSON.stringify(data.thread)},
+        updated_at = NOW()
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as FeedbackAnalysis;
+  }
+  if (data.status === "error") {
+    const rows = await sql`
+      UPDATE feedback_analyses SET
+        status = 'error',
+        error_message = ${data.error_message || "Unknown error"},
+        updated_at = NOW()
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as FeedbackAnalysis;
+  }
+  if (data.is_read !== undefined) {
+    const rows = await sql`
+      UPDATE feedback_analyses SET is_read = ${data.is_read}, updated_at = NOW()
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as FeedbackAnalysis;
+  }
+  if (data.thread) {
+    const rows = await sql`
+      UPDATE feedback_analyses SET
+        thread = ${JSON.stringify(data.thread)},
+        status = ${data.status || "analyzing"},
+        is_read = false,
+        updated_at = NOW()
+      WHERE id = ${id} RETURNING *
+    `;
+    return rows[0] as FeedbackAnalysis;
+  }
+  const rows = await sql`SELECT * FROM feedback_analyses WHERE id = ${id}`;
+  return rows[0] as FeedbackAnalysis;
+}
+
+export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis & {
+  question_text: string;
+  wines: unknown;
+  paper: number;
+  family: string;
+  family_label: string;
+  user_feedback: string;
+  user_answer: string | null;
+  model_answer: string | null;
+}) | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT fa.*, a.user_feedback, a.user_answer,
+      q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer
+    FROM feedback_analyses fa
+    JOIN user_attempts a ON fa.attempt_id = a.id
+    JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE fa.id = ${id}
+  `;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (rows[0] as any) || null;
+}
+
+export async function getUserNotifications(userId: number): Promise<{
+  unreadCount: number;
+  analyses: (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string })[];
+}> {
+  const sql = getDb();
+  const countRows = await sql`
+    SELECT COUNT(*)::int as count FROM feedback_analyses
+    WHERE user_id = ${userId} AND is_read = false
+  `;
+  const analyses = await sql`
+    SELECT fa.*, a.user_feedback,
+      q.question_text, q.paper, q.family_label
+    FROM feedback_analyses fa
+    JOIN user_attempts a ON fa.attempt_id = a.id
+    JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE fa.user_id = ${userId}
+    ORDER BY fa.updated_at DESC
+    LIMIT 10
+  `;
+  return {
+    unreadCount: (countRows[0]?.count as number) || 0,
+    analyses: analyses as (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string })[],
+  };
+}
+
 export async function getUserStats(userId: number): Promise<UserStats> {
   const sql = getDb();
 

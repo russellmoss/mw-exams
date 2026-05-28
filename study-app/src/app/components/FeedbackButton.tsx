@@ -39,12 +39,19 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
           user_feedback: `[${step}] ${feedback.trim()}`,
         }),
       });
+      // Fire-and-forget: trigger background analysis
+      fetch("/api/feedback-analysis/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId }),
+      }).catch(() => {});
+
       setSent(true);
       setFeedback("");
       setTimeout(() => {
         setOpen(false);
         setSent(false);
-      }, 1500);
+      }, 2500);
     } catch {
       // silently fail
     } finally {
@@ -87,6 +94,7 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
               {sent ? (
                 <div className="text-center py-4">
                   <p className="text-sm text-accent font-medium">Thanks! Feedback saved.</p>
+                  <p className="text-xs text-muted mt-1">Analysis will appear in your notifications.</p>
                 </div>
               ) : (
                 <>

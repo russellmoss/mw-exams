@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { NotificationBell } from "./NotificationBell";
 
 export function NavBar() {
   const { user, loading, logout } = useAuth();
@@ -102,6 +103,7 @@ export function NavBar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <NotificationBell />
           <span className="text-xs text-muted">
             {user.name}
           </span>
