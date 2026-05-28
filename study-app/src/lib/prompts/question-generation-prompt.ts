@@ -89,6 +89,89 @@ async function pickFlightSizeFromDistribution(
   }
 }
 
+// P3 wine style category distribution from 49-question corpus
+const P3_STYLE_DISTRIBUTION: Record<string, number> = {
+  sparkling: 31,
+  sweet: 22,
+  still_dry: 20,
+  fortified: 18,
+  rose: 6,
+  oxidative: 2,
+};
+
+async function pickP3StyleCategory(): Promise<string> {
+  const styles = Object.entries(P3_STYLE_DISTRIBUTION);
+
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    // Count generated P3 questions by dominant wine style
+    const rows = await sql`
+      SELECT
+        CASE
+          WHEN wines::text ILIKE '%champagne%' OR wines::text ILIKE '%cremant%' OR wines::text ILIKE '%cava%'
+            OR wines::text ILIKE '%prosecco%' OR wines::text ILIKE '%sekt%' OR wines::text ILIKE '%sparkling%'
+            OR wines::text ILIKE '%brut%' OR wines::text ILIKE '%franciacorta%' THEN 'sparkling'
+          WHEN wines::text ILIKE '%port%' OR wines::text ILIKE '%sherry%' OR wines::text ILIKE '%madeira%'
+            OR wines::text ILIKE '%amontillado%' OR wines::text ILIKE '%oloroso%' OR wines::text ILIKE '%fino%'
+            OR wines::text ILIKE '%manzanilla%' OR wines::text ILIKE '%vin santo%' OR wines::text ILIKE '%banyuls%'
+            OR wines::text ILIKE '%rutherglen%' THEN 'fortified'
+          WHEN wines::text ILIKE '%sauternes%' OR wines::text ILIKE '%tokaji%' OR wines::text ILIKE '%icewine%'
+            OR wines::text ILIKE '%beerenauslese%' OR wines::text ILIKE '%spatlese%' OR wines::text ILIKE '%auslese%'
+            OR wines::text ILIKE '%quarts de chaume%' OR wines::text ILIKE '%late harvest%' THEN 'sweet'
+          WHEN wines::text ILIKE '%rosé%' OR wines::text ILIKE '%rose%' OR wines::text ILIKE '%rosado%' THEN 'rose'
+          WHEN wines::text ILIKE '%vin jaune%' OR wines::text ILIKE '%orange%' OR wines::text ILIKE '%amber%' THEN 'oxidative'
+          ELSE 'still_dry'
+        END as style_cat,
+        COUNT(*)::int as total
+      FROM generated_questions
+      WHERE paper = 3
+      GROUP BY style_cat
+    `;
+
+    const current: Record<string, number> = {};
+    let totalGenerated = 0;
+    for (const r of rows) {
+      current[r.style_cat as string] = r.total as number;
+      totalGenerated += r.total as number;
+    }
+
+    if (totalGenerated < 3) {
+      const totalWeight = styles.reduce((sum, [, w]) => sum + w, 0);
+      let roll = Math.random() * totalWeight;
+      for (const [style, weight] of styles) {
+        roll -= weight;
+        if (roll <= 0) return style;
+      }
+      return styles[0][0];
+    }
+
+    const totalTarget = styles.reduce((sum, [, w]) => sum + w, 0);
+    let bestStyle = styles[0][0];
+    let bestGap = -Infinity;
+
+    for (const [style, targetPct] of styles) {
+      const targetShare = targetPct / totalTarget;
+      const actualShare = (current[style] || 0) / totalGenerated;
+      const gap = targetShare - actualShare;
+      if (gap > bestGap) {
+        bestGap = gap;
+        bestStyle = style;
+      }
+    }
+
+    return bestStyle;
+  } catch (err) {
+    console.error("P3 style distribution lookup failed:", err);
+    const totalWeight = styles.reduce((sum, [, w]) => sum + w, 0);
+    let roll = Math.random() * totalWeight;
+    for (const [style, weight] of styles) {
+      roll -= weight;
+      if (roll <= 0) return style;
+    }
+    return styles[0][0];
+  }
+}
+
 let cachedContext: PipelineContext | null = null;
 
 interface PipelineContext {
@@ -145,6 +228,7 @@ export async function buildQuestionGenerationPrompt(
   // Pre-roll the flight size based on historical corpus distributions,
   // adjusted by what's already in the database to maintain correct ratios
   const targetFlightSize = await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
+  const targetP3Style = paper === 3 ? await pickP3StyleCategory() : null;
 
   const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
 
@@ -158,7 +242,13 @@ ${targetFlightSize === 2 ? "This is a pair comparison — the most common format
 ${targetFlightSize === 3 ? "This is a three-wine flight — common for same-origin or same-variety questions with regional spread." : ""}
 ${targetFlightSize >= 5 ? "This is a larger comparative flight — use it for breadth questions, mechanism comparisons, or hierarchy ladders." : ""}
 
-## YOUR TASK
+${targetP3Style ? `## P3 WINE STYLE CATEGORY FOR THIS QUESTION: ${targetP3Style.toUpperCase()} (MANDATORY)
+This Paper 3 question must feature ${targetP3Style} wines as the primary category. This was selected from the corpus distribution to ensure users practice all P3 categories at realistic frequencies.
+
+Corpus distribution: sparkling=31%, sweet=22%, still_dry=20%, fortified=18%, rose=6%, oxidative=2%.
+
+${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Sekt, Cap Classique." : ""}${targetP3Style === "fortified" ? "Select fortified wines — Port, Sherry, Madeira, Banyuls, Rutherglen, VDN, Marsala." : ""}${targetP3Style === "sweet" ? "Select sweet wines with meaningful RS — Sauternes, Tokaji, BA/TBA, Icewine, Quarts de Chaume, Vin Santo, late harvest." : ""}${targetP3Style === "rose" ? "Select rosé wines — Provence, Tavel, Bandol, sparkling rosé, New World rosé." : ""}${targetP3Style === "oxidative" ? "Select oxidative wines — Vin Jaune, orange/amber wines, oxidative Jura, sous voile styles." : ""}${targetP3Style === "still_dry" ? "Select still dry wines that belong in Paper 3 context — often unusual varieties, rare styles, or wines that cross paper boundaries (e.g., Grenache across dry/fortified, Furmint dry alongside Tokaji sweet)." : ""}
+` : ""}## YOUR TASK
 Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
 
 ## MOCK EXAM WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)

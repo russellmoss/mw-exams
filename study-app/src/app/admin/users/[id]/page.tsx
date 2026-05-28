@@ -113,24 +113,23 @@ function LiveSessionPanel({ session }: { session: LiveSession }) {
             </div>
           </div>
 
-          {/* Wines — only if revealed in the session */}
-          {showWines && wines && wines.length > 0 && (
+          {/* Wines — always visible to admin */}
+          {wines && wines.length > 0 && (
             <div>
-              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Wines ({wines.length})</h4>
-              <div className="bg-background/50 rounded-lg p-4 border border-success/20 space-y-1.5">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="text-xs text-muted uppercase tracking-wider">Wines ({wines.length})</h4>
+                {!showWines && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-borderline/15 text-borderline border border-borderline/30">
+                    Not yet revealed to candidate
+                  </span>
+                )}
+              </div>
+              <div className={`bg-background/50 rounded-lg p-4 border space-y-1.5 ${showWines ? "border-success/20" : "border-borderline/20"}`}>
                 {wines.map((w: { slot: number; fullText: string }) => (
                   <p key={w.slot} className="text-sm text-foreground/80">
                     <span className="text-success font-mono font-semibold">Wine {w.slot}:</span> {w.fullText}
                   </p>
                 ))}
-              </div>
-            </div>
-          )}
-          {!showWines && (
-            <div>
-              <h4 className="text-xs text-muted uppercase tracking-wider mb-2">Wines</h4>
-              <div className="bg-background/50 rounded-lg p-4 border border-success/20">
-                <p className="text-sm text-muted italic">Not yet revealed — candidate is on pre-glass analysis</p>
               </div>
             </div>
           )}
