@@ -54,35 +54,45 @@ export function buildQuestionGenerationPrompt(
       ? "RED STILL WINES ONLY. Every wine in this question MUST be a red still wine. No whites, no rosés, no sparkling, no fortified. All wines must be made from red grape varieties."
       : "SPARKLING, FORTIFIED, SWEET, ROSÉ, AND OXIDATIVE WINES ONLY. Every wine in this question must be from one of these categories. No standard still dry whites or reds.";
 
+  // Pre-roll the flight size based on historical corpus distributions
+  const flightSizeDistributions: Record<string, [number, number][]> = {
+    F1: [[2, 44], [3, 32], [4, 12], [5, 8], [6, 4]],
+    F2: [[2, 42], [3, 33], [4, 25]],
+    F3: [[2, 33], [3, 17], [4, 50]],
+    F4: [[2, 12], [3, 27], [4, 46], [5, 6], [6, 9]],
+    F5: [[1, 8], [2, 33], [3, 25], [4, 17], [5, 17]],
+    F6: [[2, 50], [4, 25], [5, 25]],
+    F7: [[2, 50], [3, 13], [4, 12], [6, 25]],
+    any: [[2, 33], [3, 28], [4, 29], [5, 5], [6, 5]],
+  };
+
+  // P1 never uses 5-wine flights
+  const p1Adjust = (dist: [number, number][]) =>
+    paper === 1 ? dist.filter(([size]) => size !== 5) : dist;
+
+  const dist = p1Adjust(flightSizeDistributions[family || "any"] || flightSizeDistributions.any);
+  const totalWeight = dist.reduce((sum, [, w]) => sum + w, 0);
+  let roll = Math.random() * totalWeight;
+  let targetFlightSize = dist[0][0];
+  for (const [size, weight] of dist) {
+    roll -= weight;
+    if (roll <= 0) { targetFlightSize = size; break; }
+  }
+
   const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
 
 ## ABSOLUTE PAPER SCOPE CONSTRAINT (VIOLATION = AUTOMATIC FAILURE)
 Paper ${paper}: ${paperScope}
 This is non-negotiable. If you include a wine that violates this scope, the entire question is invalid. Check every wine against this constraint before outputting.
 
-## FLIGHT SIZE DISTRIBUTION (CRITICAL — do not default to 4 wines)
-The MW exam uses a wide range of flight sizes. The system is over-generating 4-wine flights. Use these historically observed distributions to select the RIGHT number of wines for the question family:
-
-Overall corpus (153 questions): 2 wines=33%, 3 wines=28%, 4 wines=29%, 5-6 wines=10%
-
-By family:
-- F1 Same Variety: 2 wines=44%, 3 wines=32%, 4 wines=12%. DEFAULT TO 2 OR 3, not 4.
-- F2 Same Origin: 2 wines=42%, 3 wines=33%, 4 wines=25%. DEFAULT TO 2 OR 3, not 4.
-- F3 Blend Logic: 2 wines=33%, 4 wines=50%. Either 2 or 4.
-- F4 Mixed Breadth: 4 wines=46%, 3 wines=27%, 6 wines=9%. 4 is appropriate here but 3 is also common.
-- F5 Method/Production: 2 wines=33%, 3 wines=25%, 4 wines=17%, 5 wines=17%. Spread across all sizes.
-- F6 Style Mechanism: 2 wines=50%, 4-5 wines=50%. Either a pair or a larger comparative set.
-- F7 Hierarchy: 2 wines=50%, 6 wines=25%. Pairs dominate; occasionally large comparison sets.
-
-Paper-specific:
-- P1: Never uses 5-wine flights. 2-wine (35%), 3-wine (27%), 4-wine (29%), 6-wine (10%).
-- P2: 4-wine is most common (35%) but 2 and 3 are equally frequent (29% each).
-- P3: Most varied — 2-wine (35%), 3-wine (27%), 4-wine (22%), 5-wine (8%), 6-wine (6%).
-
-DO NOT always generate 4 wines. Match the family's historical distribution. For F1 and F2, a 2-wine pair comparison is the MOST COMMON format — use it frequently.
+## FLIGHT SIZE FOR THIS QUESTION: ${targetFlightSize} WINES (MANDATORY)
+This question MUST have exactly ${targetFlightSize} ${targetFlightSize === 1 ? "wine" : "wines"}. This number was selected from the historical corpus distribution for ${family || "this paper"} to ensure realistic variety in flight sizes. Do NOT change it to a different number.
+${targetFlightSize === 2 ? "This is a pair comparison — the most common format for this question type. Design the question around comparing and contrasting two wines." : ""}
+${targetFlightSize === 3 ? "This is a three-wine flight — common for same-origin or same-variety questions with regional spread." : ""}
+${targetFlightSize >= 5 ? "This is a larger comparative flight — use it for breadth questions, mechanism comparisons, or hierarchy ladders." : ""}
 
 ## YOUR TASK
-Generate ONE question with wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
+Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
 
 ## MOCK EXAM WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
 ${ctx.mockExamWriterAgent}
