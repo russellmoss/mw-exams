@@ -121,6 +121,16 @@ export default function StudyPage() {
     } catch {}
   }, [user?.id, attemptId]);
 
+  // Broadcast current step for live admin view
+  useEffect(() => {
+    if (!attemptId || state.step === "select-paper") return;
+    fetch("/api/save-attempt", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "update", attemptId, current_step: state.step }),
+    }).catch(() => {});
+  }, [state.step, attemptId]);
+
   // Poll for model answer readiness (if generated in background)
   useEffect(() => {
     if (modelAnswerReady) return;

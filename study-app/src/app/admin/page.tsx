@@ -41,6 +41,9 @@ export default function AdminPage() {
   const [newIsAdmin, setNewIsAdmin] = useState(false);
   const [creating, setCreating] = useState(false);
 
+  // Live sessions
+  const [liveUserIds, setLiveUserIds] = useState<Set<number>>(new Set());
+
   // Feedback
   const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, rejected: 0 });
   const [modalFilter, setModalFilter] = useState<string | null>(null);
@@ -65,6 +68,21 @@ export default function AdminPage() {
         })
         .catch(() => setError("Failed to load data"))
         .finally(() => setLoading(false));
+
+      // Poll live sessions
+      const pollLive = () => {
+        fetch("/api/admin/live-sessions")
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (data?.sessions) {
+              setLiveUserIds(new Set(data.sessions.map((s: { user_id: number }) => s.user_id)));
+            }
+          })
+          .catch(() => {});
+      };
+      pollLive();
+      const interval = setInterval(pollLive, 5000);
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -344,6 +362,12 @@ export default function AdminPage() {
                       >
                         {u.name}
                       </Link>
+                      {liveUserIds.has(u.id) && (
+                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-success/20 text-success flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                          Live
+                        </span>
+                      )}
                       {u.is_admin && (
                         <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent">
                           Admin

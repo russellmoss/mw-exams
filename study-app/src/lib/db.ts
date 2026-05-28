@@ -195,10 +195,17 @@ export async function updateAttempt(
     completed_at: string;
     user_feedback: string;
     elapsed_seconds: number;
+    current_step: string;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
 
+  if (data.current_step !== undefined) {
+    const rows = await sql`
+      UPDATE user_attempts SET current_step = ${data.current_step} WHERE id = ${attemptId} RETURNING *
+    `;
+    return rows[0] as UserAttempt;
+  }
   if (data.pre_glass_reasoning !== undefined) {
     const rows = await sql`
       UPDATE user_attempts SET pre_glass_reasoning = ${data.pre_glass_reasoning} WHERE id = ${attemptId} RETURNING *
