@@ -418,13 +418,24 @@ function validateVarietyConsistency(questionText: string, wines: { slot: number;
   const stemSaysOneVariety = /same single grape variety/i.test(questionText);
 
   if (stemSaysOneVariety) {
-    const detectedVarieties: string[] = [];
-    for (const wine of wines) {
-      detectedVarieties.push(detectPrimaryVariety(wine.fullText));
-    }
-    const uniqueVarieties = [...new Set(detectedVarieties.filter(v => v !== "unknown"))];
+    const wineVarieties = wines.map((wine) => ({
+      slot: wine.slot,
+      variety: detectPrimaryVariety(wine.fullText),
+      text: wine.fullText,
+    }));
+    const detected = wineVarieties.filter((w) => w.variety !== "unknown");
+    const undetected = wineVarieties.filter((w) => w.variety === "unknown");
+    const uniqueVarieties = [...new Set(detected.map((w) => w.variety))];
+
     if (uniqueVarieties.length > 1) {
       violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
+    }
+
+    // Flag wines where variety cannot be detected — suspicious in a same-variety flight
+    for (const w of undetected) {
+      violations.push(
+        `Wine ${w.slot} ("${w.text}") — variety undetectable in a same-variety flight. Every wine's name or appellation must clearly map to the declared variety.`
+      );
     }
 
     // Name-label cross-check: scan each wine's text for ANY grape name that contradicts the flight variety
@@ -460,6 +471,22 @@ function validateVarietyConsistency(questionText: string, wines: { slot: number;
           `Stem says each wine is a single grape variety, but Wine ${wine.slot} ("${wine.fullText}") is a known blend category. Single-variety stems require every wine to be genuinely single-varietal.`
         );
       }
+    }
+
+    // Check for variety duplicates in "each different variety" flights
+    const perWineVarieties = wines.map((w) => ({
+      slot: w.slot,
+      variety: detectPrimaryVariety(w.fullText),
+    }));
+    const knownPerWine = perWineVarieties.filter((w) => w.variety !== "unknown");
+    const uniquePerWine = new Set(knownPerWine.map((w) => w.variety));
+    if (knownPerWine.length >= 2 && uniquePerWine.size < knownPerWine.length) {
+      const dupes = [...uniquePerWine].filter(
+        (v) => knownPerWine.filter((w) => w.variety === v).length > 1
+      );
+      violations.push(
+        `Stem says each wine is a different variety, but detected duplicates: ${dupes.join(", ")}. Each wine must be a distinct variety.`
+      );
     }
   }
 
