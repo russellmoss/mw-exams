@@ -335,6 +335,16 @@ BAD: Montlouis sparkling + Bourgogne Blanc + Hermitage Blanc + Deiss field blend
 GOOD: Puligny-Montrachet 1er Cru + Sancerre + Hermitage Blanc + Deiss field blend (2 bankers, 1 curveball)
 GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1 curveball)
 
+## F4 (MIXED BREADTH) WINE SELECTION — QUALITY TIER CAP
+F4 "grab bag" questions test VARIETAL IDENTIFICATION and REGIONAL TYPICITY, not quality prestige. The 10-year MW corpus consistently uses mid-tier, regional-identity wines for this question family — not icon cuvées or prestige bottlings.
+
+Wine selection rules for F4:
+- Choose wines that are REPRESENTATIVE of their variety and region at a good-to-very-good quality level. The identification challenge should be "what variety and where" — not "how prestigious is this wine."
+- AVOID icon/prestige cuvées: no First Growths, no Grand Cru Burgundy, no cult wines, no joint-venture icons (Almaviva, Opus One, Sassicaia). These belong in F1 (same variety), F2 (same country), or F7 (quality hierarchy) flights.
+- AVOID village-level Côte de Nuits Burgundy (Vosne-Romanée, Gevrey-Chambertin) as an F4 wine — it's too quality-coded. Use a Bourgogne Rouge or a regional Pinot Noir instead if you need Pinot Noir in F4.
+- IDEAL F4 wines (from real MW exams): Chinon Cab Franc, Baden Spätburgunder, Pinotage from Stellenbosch, Lagrein from Alto Adige, Touriga Nacional from Douro, Zweigelt from Austria, Barbera d'Alba, Xinomavro from Greece, Tannat from Uruguay, Carménère from Chile, Malbec from Mendoza (estate level, not icon).
+- The banker in F4 should be a well-known VARIETY from its classic region (e.g., a good Chinon, a solid Stellenbosch Pinotage) — not a prestige producer.
+
 ## WINE NAME / LABEL INTEGRITY
 For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
 

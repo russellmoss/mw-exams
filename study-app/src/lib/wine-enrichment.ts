@@ -121,11 +121,25 @@ Output exactly one JSON object (no markdown, no code fences):
   }
 
   // Step 2: Fill gaps — either from Tavily partial grid or from scratch
-  const hasGaps = grid && Object.values(grid).some((v) => v === "NOT_FOUND");
+  const isGap = (v: unknown): boolean => {
+    if (!v || v === "NOT_FOUND") return true;
+    const s = String(v).toLowerCase();
+    return s.includes("not described") || s.includes("not found") || s.includes("not available")
+      || s.length < 5 || s === "n/a" || s === "unknown" || s === "red, still" || s === "white, still";
+  };
+  const hasGaps = grid && Object.entries(grid)
+    .filter(([k]) => !["sources", "inferred_fields"].includes(k))
+    .some(([, v]) => isGap(v));
   if (!grid || hasGaps) {
     try {
+      // Mark all gap fields for the LLM
+      const gapFields = grid
+        ? Object.entries(grid)
+            .filter(([k, v]) => !["sources", "inferred_fields"].includes(k) && isGap(v))
+            .map(([k]) => k)
+        : [];
       const gapContext = grid
-        ? `\n\nA partial grid was extracted from web sources:\n${JSON.stringify(grid)}\n\nFill ONLY the "NOT_FOUND" fields using your expert knowledge of this exact producer, cuvée, vintage, and region. Keep all non-NOT_FOUND values exactly as they are. Update inferred_fields to list every field you filled in.`
+        ? `\n\nA partial grid was extracted from web sources:\n${JSON.stringify(grid)}\n\nThe following fields are incomplete or missing: ${gapFields.join(", ")}. Fill these fields using your expert knowledge of this exact producer, cuvée, vintage, and region. Keep all well-populated values exactly as they are. Update inferred_fields to list every field you filled in.`
         : `\n\nNo web sources were available. Build the complete grid from your knowledge of this exact producer, cuvée, and vintage. Be specific to THIS wine, not generic. List all fields in inferred_fields.`;
 
       const message = await client.messages.create({
@@ -147,10 +161,10 @@ Output exactly one JSON object (no markdown, no code fences):
           sourceMethod = "llm_enrichment";
           confidence = "medium";
         } else {
-          // Merge: keep Tavily values, fill NOT_FOUND with LLM
+          // Merge: keep Tavily values, fill gaps with LLM
           const gridAny = grid as unknown as Record<string, unknown>;
           for (const [k, v] of Object.entries(filled)) {
-            if (gridAny[k] === "NOT_FOUND") {
+            if (isGap(gridAny[k])) {
               gridAny[k] = v;
             }
           }
@@ -163,13 +177,18 @@ Output exactly one JSON object (no markdown, no code fences):
   }
 
   if (grid) {
+    // Final check: if any key fields are still gaps after all processing, downgrade confidence
+    const keyFields = [grid.color, grid.nose_descriptors, grid.palate_flavor_descriptors];
+    const stillHasGaps = keyFields.some((v) => isGap(v));
+    if (stillHasGaps) confidence = "low";
+
     return {
       bank_match: null,
       tasting_profile: {
-        appearance: `${grid.color}, ${grid.clarity}, ${grid.viscosity} viscosity`,
-        nose_summary: `${grid.nose_intensity} intensity. ${grid.nose_descriptors}`,
-        palate_summary: `${grid.palate_flavor_descriptors}. Finish: ${grid.palate_finish}.`,
-        structural_summary: `Sweetness: ${grid.palate_sweetness}. Acid: ${grid.palate_acid}. Tannin: ${grid.palate_tannin}. Body: ${grid.palate_body}. Alcohol: ${grid.palate_alcohol}.`,
+        appearance: `${grid.color || "ruby"}, ${grid.clarity || "clear"}, ${grid.viscosity || "medium"} viscosity`,
+        nose_summary: `${grid.nose_intensity || "medium"} intensity. ${grid.nose_descriptors || ""}`.trim(),
+        palate_summary: `${grid.palate_flavor_descriptors || ""}. Finish: ${grid.palate_finish || "medium"}.`.trim(),
+        structural_summary: `Sweetness: ${grid.palate_sweetness || "dry"}. Acid: ${grid.palate_acid || "medium"}. Tannin: ${grid.palate_tannin || "n/a"}. Body: ${grid.palate_body || "medium"}. Alcohol: ${grid.palate_alcohol || "medium"}.`,
         sources: grid.sources || [],
       },
       tasting_grid: grid,
