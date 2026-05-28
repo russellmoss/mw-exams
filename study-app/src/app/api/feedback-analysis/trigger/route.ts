@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const keyResult = await requireApiKey(request);
     if (keyResult instanceof Response) return keyResult;
 
-    const { attemptId } = await request.json();
+    const { attemptId, userFeedback: passedFeedback } = await request.json();
     if (!attemptId) {
       return Response.json({ error: "Missing attemptId" }, { status: 400 });
     }
@@ -29,11 +29,15 @@ export async function POST(request: Request) {
       WHERE a.id = ${attemptId}
     `;
 
-    if (!attempts[0] || !attempts[0].user_feedback) {
-      return Response.json({ error: "No feedback found" }, { status: 404 });
+    if (!attempts[0]) {
+      return Response.json({ error: "Attempt not found" }, { status: 404 });
     }
 
     const attempt = attempts[0];
+    const feedbackText = (attempt.user_feedback as string) || passedFeedback;
+    if (!feedbackText) {
+      return Response.json({ error: "No feedback found" }, { status: 404 });
+    }
 
     const existing = await sql`
       SELECT id, status FROM feedback_analyses
@@ -61,7 +65,7 @@ export async function POST(request: Request) {
       familyLabel: attempt.family_label as string,
       modelAnswer: attempt.model_answer as string | null,
       userAnswer: attempt.user_answer as string | null,
-      userFeedback: attempt.user_feedback as string,
+      userFeedback: feedbackText,
       userName: attempt.user_name as string,
       questionMetadata: metadata as Record<string, unknown> | null,
     });

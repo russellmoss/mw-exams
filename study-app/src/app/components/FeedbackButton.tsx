@@ -43,7 +43,7 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
       fetch("/api/feedback-analysis/trigger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId }),
+        body: JSON.stringify({ attemptId, userFeedback: `[${step}] ${feedback.trim()}` }),
       }).catch(() => {});
 
       setSent(true);
