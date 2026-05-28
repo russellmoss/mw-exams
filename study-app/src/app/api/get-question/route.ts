@@ -220,7 +220,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     }
   }
 
-  const recentGenerated = await getRecentGeneratedQuestions(1);
+  const recentGenerated = await getRecentGeneratedQuestions(5);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
   const prompt = await buildQuestionGenerationPrompt(
     paper,
@@ -311,7 +311,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
     const noveltyCheck = relaxNiceToHave
       ? { valid: true, violations: [] }
-      : validateNoveltyAgainstLatest(candidate, latestQuestion);
+      : validateNoveltyAgainstLatest(candidate, latestQuestion, recentGenerated.map(normalizeGeneratedQuestionWines));
 
     lastViolations = [
       ...paperScopeCheck.violations,
@@ -875,31 +875,42 @@ function normalizeGeneratedQuestionWines(
 
 function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
-  latestQuestion: NormalizedGeneratedQuestion | null
+  latestQuestion: NormalizedGeneratedQuestion | null,
+  recentQuestions?: NormalizedGeneratedQuestion[]
 ): { valid: boolean; violations: string[] } {
-  if (!latestQuestion) return { valid: true, violations: [] };
-
-  const latestWines = latestQuestion.wines.map((w) => w.fullText).join("\n");
-  const candidateWines = candidate.wines.map((w) => w.fullText).join("\n");
   const violations: string[] = [];
+  const questionsToCheck = recentQuestions?.length
+    ? recentQuestions
+    : latestQuestion ? [latestQuestion] : [];
 
-  if (candidate.questionText.trim() === latestQuestion.question_text.trim()) {
-    violations.push("Generated question repeats the latest question stem");
-  }
-  if (candidateWines === latestWines) {
-    violations.push("Generated question repeats the latest wine set");
-  }
+  if (questionsToCheck.length === 0) return { valid: true, violations };
 
+  const candidateWines = candidate.wines.map((w) => w.fullText).join("\n");
   const candidateVarieties = new Set(candidate.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
-  const latestVarieties = new Set(latestQuestion.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
   const candidateCountries = new Set(candidate.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
-  const latestCountries = new Set(latestQuestion.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
-  const samePaperAndFamily = candidate.family === latestQuestion.family;
-  const sameCountryPattern = jaccard(candidateCountries, latestCountries) >= 0.8;
-  const similarVarietyPattern = jaccard(candidateVarieties, latestVarieties) >= 0.6;
 
-  if (samePaperAndFamily && sameCountryPattern && similarVarietyPattern) {
-    violations.push("Generated question is too similar to the latest generated question's family/country/variety pattern");
+  for (const recent of questionsToCheck) {
+    const recentWines = recent.wines.map((w) => w.fullText).join("\n");
+
+    if (candidate.questionText.trim() === recent.question_text.trim()) {
+      violations.push("Generated question repeats a recent question stem");
+      break;
+    }
+    if (candidateWines === recentWines) {
+      violations.push("Generated question repeats a recent wine set");
+      break;
+    }
+
+    const recentVarieties = new Set(recent.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
+    const recentCountries = new Set(recent.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
+    const samePaperAndFamily = candidate.family === recent.family;
+    const sameCountryPattern = jaccard(candidateCountries, recentCountries) >= 0.8;
+    const similarVarietyPattern = jaccard(candidateVarieties, recentVarieties) >= 0.6;
+
+    if (samePaperAndFamily && sameCountryPattern && similarVarietyPattern) {
+      violations.push("Generated question is too similar to a recent question's family/country/variety pattern");
+      break;
+    }
   }
 
   return { valid: violations.length === 0, violations };
