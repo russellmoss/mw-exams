@@ -8,6 +8,7 @@ import {
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
+import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
 
@@ -310,6 +311,11 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       noveltyCheck: validation.noveltyCheck,
     },
   });
+
+  // Fire-and-forget: enrich wine profiles in background
+  enrichWineProfiles(questionId, parsed.wines, apiKey).catch((err) =>
+    console.error("Wine enrichment background error:", err)
+  );
 
   generateModelAnswerInBackground(
     questionId,

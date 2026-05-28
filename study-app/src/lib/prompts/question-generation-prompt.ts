@@ -159,7 +159,8 @@ RULES for appearance notes:
 - Describe ONLY visual observations — no aroma, no taste, no wine-type labels.
 - Do NOT name the wine category (do not say "fortified", "sparkling", "sweet", etc.).
 - DO mention: color (pale lemon, deep gold, amber, tawny, ruby, garnet, salmon pink, etc.), clarity, bubbles/mousse if present, viscosity/tears.
-- Be accurate for the specific wine — a 10-Year Tawny Port looks different from a Rutherglen Muscat.
+- Be accurate for the SPECIFIC wine you selected — a 10-Year Tawny Port looks different from a Rutherglen Muscat. An old-vine concentrated Syrah is NOT "pale ruby." A Vin Santo is NOT "pale gold." Base your description on what THIS wine actually looks like, not a generic version of the variety.
+- If you know the wine's structural profile (e.g., style, oak treatment, RS level, quality tier), use that knowledge to inform the visual description.
 - Keep each note to one line, 10-20 words.
 ` : ''}
 ## Metadata

@@ -5,6 +5,8 @@ import {
 } from "@/lib/prompts/tasting-prompt";
 import { sanitizeTastingNotes } from "@/lib/tasting-sanitizer";
 import { requireApiKey } from "@/lib/api-key";
+import { lookupWines } from "@/lib/wine-bank-lookup";
+import { neon } from "@neondatabase/serverless";
 
 export const runtime = "nodejs";
 
@@ -13,7 +15,7 @@ export async function POST(request: Request) {
     const keyResult = await requireApiKey(request);
     if (keyResult instanceof Response) return keyResult;
 
-    const { wines } = await request.json();
+    const { wines, questionId } = await request.json();
 
     if (!wines || !Array.isArray(wines) || wines.length === 0) {
       return new Response(
@@ -22,10 +24,25 @@ export async function POST(request: Request) {
       );
     }
 
+    // Try to load stored wine profiles from DB first, fall back to bank lookup
+    let wineProfiles = lookupWines(wines);
+    if (questionId) {
+      try {
+        const sql = neon(process.env.DATABASE_URL!);
+        const rows = await sql`
+          SELECT wine_profiles FROM generated_questions WHERE question_id = ${questionId}
+        `;
+        const stored = rows[0]?.wine_profiles;
+        if (stored && typeof stored === "object" && Object.keys(stored).length > 0) {
+          wineProfiles = stored as typeof wineProfiles;
+        }
+      } catch {}
+    }
+
     const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const systemPrompt = buildTastingSystemPrompt();
-    const userPrompt = buildTastingUserPrompt(wines);
+    const userPrompt = buildTastingUserPrompt(wines, wineProfiles);
 
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",

@@ -185,7 +185,7 @@ export default function StudyPage() {
       const res = await fetch("/api/generate-tasting", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wines: state.question.wines }),
+        body: JSON.stringify({ wines: state.question.wines, questionId: state.question.id }),
       });
 
       if (!res.ok) throw new Error(`Failed: ${res.status}`);

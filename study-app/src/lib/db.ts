@@ -20,6 +20,7 @@ export interface GeneratedQuestion {
   reasoning_trace: string | null;
   study_diagram_assist: string | null;
   metadata: Record<string, unknown>;
+  wine_profiles: Record<string, unknown>;
   created_at: string;
 }
 
