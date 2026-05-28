@@ -117,6 +117,27 @@ function extractSection(
   return text.slice(startIdx).trim();
 }
 
+function getWineCount(q: GeneratedQuestion): number {
+  const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
+  return Array.isArray(wines) ? wines.length : 0;
+}
+
+function pickFlightSizeAware(questions: GeneratedQuestion[], family?: string): GeneratedQuestion {
+  if (questions.length <= 1) return questions[0];
+
+  // For families where 4-wine is over-represented, prefer non-4-wine options
+  const preferSmaller = !family || family === "any" || ["F1", "F2", "F5", "F7"].includes(family);
+
+  if (preferSmaller) {
+    const nonFour = questions.filter((q) => getWineCount(q) !== 4);
+    if (nonFour.length > 0) {
+      return nonFour[Math.floor(Math.random() * nonFour.length)];
+    }
+  }
+
+  return questions[Math.floor(Math.random() * questions.length)];
+}
+
 export async function POST(request: Request) {
   try {
     const keyResult = await requireApiKey(request);
@@ -136,10 +157,11 @@ export async function POST(request: Request) {
     }
 
     // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
+    // Prefer non-4-wine flights for families that are over-indexed on 4-wine
     const unanswered = await getUnansweredQuestions(paper, family);
     if (unanswered.length > 0) {
-      const picked = unanswered[Math.floor(Math.random() * unanswered.length)];
-      console.log(`Serving unanswered banked question: ${picked.question_id}`);
+      const picked = pickFlightSizeAware(unanswered, family);
+      console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
         question: sanitizeQuestionMetadata(picked),
@@ -163,8 +185,8 @@ export async function POST(request: Request) {
     });
 
     if (staleWithAnswers.length > 0) {
-      const picked = staleWithAnswers[Math.floor(Math.random() * staleWithAnswers.length)];
-      console.log(`Serving stale banked question: ${picked.question_id}`);
+      const picked = pickFlightSizeAware(staleWithAnswers, family);
+      console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
         question: sanitizeQuestionMetadata(picked),
