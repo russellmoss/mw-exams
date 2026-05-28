@@ -159,6 +159,39 @@ function getWineCount(q: GeneratedQuestion): number {
   return Array.isArray(wines) ? wines.length : 0;
 }
 
+function validateBankedQuestion(q: GeneratedQuestion): boolean {
+  const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
+  const wineCount = Array.isArray(wines) ? wines.length : 0;
+  if (wineCount === 0) return false;
+
+  const questionText = q.question_text || "";
+
+  // Run critical validators against banked questions
+  const markCheck = validateMarkAllocation(questionText, wineCount);
+  if (!markCheck.valid) {
+    console.log(`Bank filter: ${q.question_id} failed mark check: ${markCheck.violations[0]}`);
+    return false;
+  }
+
+  const varietyCheck = validateVarietyConsistency(questionText, wines);
+  if (!varietyCheck.valid) {
+    console.log(`Bank filter: ${q.question_id} failed variety check: ${varietyCheck.violations[0]}`);
+    return false;
+  }
+
+  const paperScopeCheck = validatePaperScope(q.paper, wines);
+  if (!paperScopeCheck.valid) {
+    console.log(`Bank filter: ${q.question_id} failed paper scope: ${paperScopeCheck.violations[0]}`);
+    return false;
+  }
+
+  return true;
+}
+
+function filterValidBanked(questions: GeneratedQuestion[]): GeneratedQuestion[] {
+  return questions.filter(validateBankedQuestion);
+}
+
 function pickFlightSizeAware(questions: GeneratedQuestion[], family?: string): GeneratedQuestion {
   if (questions.length <= 1) return questions[0];
 
@@ -194,8 +227,8 @@ export async function POST(request: Request) {
     }
 
     // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
-    // Prefer non-4-wine flights for families that are over-indexed on 4-wine
-    const unanswered = await getUnansweredQuestions(paper, family);
+    // Filter through current validators — catches legacy questions that predate new rules
+    const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family));
     if (unanswered.length > 0) {
       let picked = pickFlightSizeAware(unanswered, family);
       picked = await ensureP3Appearances(picked, userApiKey);
@@ -215,7 +248,8 @@ export async function POST(request: Request) {
       .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
       .map((a) => a.question_id);
 
-    const staleWithAnswers = available.filter((q) => {
+    const validAvailable = filterValidBanked(available);
+    const staleWithAnswers = validAvailable.filter((q) => {
       if (!q.model_answer || q.model_answer.length < 100) return false;
       const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
       if (lastSeenIdx === -1) return false;
@@ -374,7 +408,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
   // Fallback: if generation failed, serve ANY banked question rather than showing an error
   if (!parsed || !validation) {
     console.error("All generation attempts failed, falling back to any banked question");
-    const fallback = await getQuestionsByFilter(paper);
+    const fallback = filterValidBanked(await getQuestionsByFilter(paper));
     const withAnswers = fallback.filter((q) => q.model_answer && q.model_answer.length > 100);
     if (withAnswers.length > 0) {
       const picked = withAnswers[Math.floor(Math.random() * withAnswers.length)];
