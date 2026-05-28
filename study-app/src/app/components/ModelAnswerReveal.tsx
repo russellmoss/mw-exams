@@ -3,12 +3,36 @@
 import ReactMarkdown from "react-markdown";
 import type { Question } from "@/lib/study-session";
 
-function stripFrontmatter(text: string): string {
-  return text
+function cleanModelAnswer(text: string): {
+  answer: string;
+  annotation: string;
+  reasoning: string;
+  studyDiagram: string;
+} {
+  const cleaned = text
     .replace(/^```markdown\s*\n?/, "")
     .replace(/```\s*$/, "")
     .replace(/^---\n[\s\S]*?\n---\n*/m, "")
     .trim();
+
+  // Split into sections by ## numbered headers like "## 2. Proposed Annotation" or "# 2. Proposed Annotation"
+  const sectionPattern = /\n(?=#{1,2}\s*\d+\.\s*(?:Proposed Annotation|Reasoning Trace|Study Diagram))/i;
+  const parts = cleaned.split(sectionPattern);
+
+  const answer = parts[0]?.trim() || cleaned;
+
+  const findSection = (label: string) => {
+    const pattern = new RegExp(`#{1,2}\\s*\\d+\\.\\s*${label}[\\s\\S]*?(?=\\n#{1,2}\\s*\\d+\\.|$)`, "i");
+    const match = cleaned.match(pattern);
+    return match ? match[0].trim() : "";
+  };
+
+  return {
+    answer,
+    annotation: findSection("Proposed Annotation"),
+    reasoning: findSection("Reasoning Trace"),
+    studyDiagram: findSection("Study Diagram"),
+  };
 }
 
 interface ModelAnswerRevealProps {
@@ -20,13 +44,18 @@ export function ModelAnswerReveal({
   question,
   onNextQuestion,
 }: ModelAnswerRevealProps) {
-  const rawModelAnswer = question.modelAnswer || "";
-  const cleanedModelAnswer = stripFrontmatter(rawModelAnswer);
-  const hasModelAnswer = cleanedModelAnswer.length > 0;
-  const hasAnnotation =
-    question.proposedAnnotation && question.proposedAnnotation.length > 0;
-  const hasStudyDiagram =
-    question.studyDiagramAssist && question.studyDiagramAssist.length > 0;
+  const parsed = cleanModelAnswer(question.modelAnswer || "");
+  const hasModelAnswer = parsed.answer.length > 0;
+  // Use dedicated fields if available, otherwise fall back to parsed sections from model answer
+  const annotationText = (question.proposedAnnotation && question.proposedAnnotation.length > 0)
+    ? question.proposedAnnotation
+    : parsed.annotation;
+  const hasAnnotation = annotationText.length > 0;
+  const studyDiagramText = (question.studyDiagramAssist && question.studyDiagramAssist.length > 0)
+    ? question.studyDiagramAssist
+    : parsed.studyDiagram;
+  const hasStudyDiagram = studyDiagramText.length > 0;
+  const hasReasoning = parsed.reasoning.length > 0;
 
   return (
     <div className="space-y-6">
@@ -52,14 +81,14 @@ export function ModelAnswerReveal({
         </div>
       </div>
 
-      {/* Model answer */}
+      {/* Model answer — only the answer body, not annotation/trace/diagram */}
       {hasModelAnswer && (
         <div className="bg-card rounded-xl border border-border p-6 overflow-hidden">
           <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             Model Answer
           </h3>
           <div className="markdown-content text-[15px] leading-relaxed">
-            <ReactMarkdown>{cleanedModelAnswer}</ReactMarkdown>
+            <ReactMarkdown>{parsed.answer}</ReactMarkdown>
           </div>
         </div>
       )}
@@ -72,7 +101,21 @@ export function ModelAnswerReveal({
           </summary>
           <div className="px-6 pb-6">
             <div className="markdown-content text-sm leading-relaxed">
-              <ReactMarkdown>{question.proposedAnnotation!}</ReactMarkdown>
+              <ReactMarkdown>{annotationText}</ReactMarkdown>
+            </div>
+          </div>
+        </details>
+      )}
+
+      {/* Reasoning trace */}
+      {hasReasoning && (
+        <details className="bg-card rounded-xl border border-border">
+          <summary className="px-6 py-4 cursor-pointer text-sm font-semibold text-muted uppercase tracking-wider hover:text-foreground transition-colors">
+            Reasoning Trace
+          </summary>
+          <div className="px-6 pb-6">
+            <div className="markdown-content text-sm leading-relaxed">
+              <ReactMarkdown>{parsed.reasoning}</ReactMarkdown>
             </div>
           </div>
         </details>
@@ -86,7 +129,7 @@ export function ModelAnswerReveal({
           </summary>
           <div className="px-6 pb-6">
             <div className="markdown-content text-sm leading-relaxed">
-              <ReactMarkdown>{question.studyDiagramAssist!}</ReactMarkdown>
+              <ReactMarkdown>{studyDiagramText}</ReactMarkdown>
             </div>
           </div>
         </details>

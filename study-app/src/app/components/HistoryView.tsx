@@ -5,12 +5,15 @@ import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { TimingBadge } from "./StudyTimer";
 
-function stripFrontmatter(text: string): string {
-  return text
+function stripModelAnswerBody(text: string): string {
+  const cleaned = text
     .replace(/^```markdown\s*\n?/, "")
     .replace(/```\s*$/, "")
     .replace(/^---\n[\s\S]*?\n---\n*/m, "")
     .trim();
+  // Only show the answer body, not the annotation/trace/diagram sections
+  const cutoff = cleaned.search(/\n#{1,2}\s*\d+\.\s*(?:Proposed Annotation|Reasoning Trace|Study Diagram)/i);
+  return cutoff > 0 ? cleaned.slice(0, cutoff).trim() : cleaned;
 }
 
 function CopyId({ id }: { id: string }) {
@@ -263,7 +266,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
 
           {attempt.model_answer && (
             <ExpandedSection title="Model Answer">
-              <div className="markdown-content text-sm"><ReactMarkdown>{stripFrontmatter(attempt.model_answer)}</ReactMarkdown></div>
+              <div className="markdown-content text-sm"><ReactMarkdown>{stripModelAnswerBody(attempt.model_answer)}</ReactMarkdown></div>
             </ExpandedSection>
           )}
 
