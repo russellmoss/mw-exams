@@ -74,37 +74,72 @@ function normalize(text: string): string {
     .trim();
 }
 
-function tokenScore(query: string, target: string): number {
-  const qTokens = new Set(query.split(" ").filter(t => t.length > 2));
-  const tTokens = new Set(target.split(" ").filter(t => t.length > 2));
-  if (qTokens.size === 0 || tTokens.size === 0) return 0;
-  let hits = 0;
-  for (const t of tTokens) {
-    for (const q of qTokens) {
-      if (q.includes(t) || t.includes(q)) { hits++; break; }
+// Generic wine words that should NOT count toward matching
+const NOISE_WORDS = new Set([
+  "chateau", "domaine", "bodega", "bodegas", "weingut", "tenuta", "casa",
+  "maison", "clos", "vina", "wines", "wine", "estate", "vineyards", "vineyard",
+  "cellars", "cellar", "family", "reserve", "reserva", "riserva", "gran",
+  "grand", "cru", "premier", "old", "vines", "single", "the", "del", "des",
+  "les", "and", "von", "van", "rouge", "blanc", "rosso", "bianco", "tinto",
+]);
+
+function matchScore(queryText: string, entry: WineBankEntry): number {
+  const query = normalize(queryText);
+  const producerNorm = normalize(entry.producer);
+  const wineNorm = normalize(entry.wine_name);
+
+  // Extract meaningful tokens (skip noise words and short tokens)
+  const meaningful = (text: string) =>
+    text.split(" ").filter((t) => t.length > 2 && !NOISE_WORDS.has(t));
+
+  const queryTokens = meaningful(query);
+  const producerTokens = meaningful(producerNorm);
+  const wineTokens = meaningful(wineNorm);
+
+  if (producerTokens.length === 0) return 0;
+
+  // Producer match: how many producer tokens appear in the query?
+  let producerHits = 0;
+  for (const pt of producerTokens) {
+    if (queryTokens.some((qt) => qt === pt || qt.includes(pt) || pt.includes(qt))) {
+      producerHits++;
     }
   }
-  return hits / Math.max(tTokens.size, 1);
+  const producerScore = producerHits / producerTokens.length;
+
+  // Require at least 60% of producer tokens to match
+  if (producerScore < 0.6) return 0;
+
+  // Wine name match: how many wine name tokens appear in the query?
+  let wineHits = 0;
+  for (const wt of wineTokens) {
+    if (queryTokens.some((qt) => qt === wt || qt.includes(wt) || wt.includes(qt))) {
+      wineHits++;
+    }
+  }
+  const wineScore = wineTokens.length > 0 ? wineHits / wineTokens.length : 0;
+
+  // Combined: producer match is weighted 60%, wine name 40%
+  return producerScore * 0.6 + wineScore * 0.4;
 }
 
 export function lookupWine(fullText: string): { entry: WineBankEntry; score: number } | null {
   const bank = loadBank();
   if (bank.length === 0) return null;
 
-  const query = normalize(fullText);
   let bestMatch: WineBankEntry | null = null;
   let bestScore = 0;
 
   for (const entry of bank) {
-    const target = normalize(`${entry.producer} ${entry.wine_name}`);
-    const score = tokenScore(query, target);
+    const score = matchScore(fullText, entry);
     if (score > bestScore) {
       bestScore = score;
       bestMatch = entry;
     }
   }
 
-  if (bestScore >= 0.5 && bestMatch) {
+  // Require 0.7+ combined score (producer must match + some wine name overlap)
+  if (bestScore >= 0.7 && bestMatch) {
     return { entry: bestMatch, score: bestScore };
   }
   return null;

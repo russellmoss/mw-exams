@@ -105,43 +105,50 @@ Output exactly one JSON object (no markdown, no code fences):
   }
 
   // Fallback: LLM knowledge only
-  try {
-    const client = new Anthropic({ apiKey });
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 500,
-      system: `Produce a tasting profile for a specific wine based on your knowledge. Be accurate to THIS wine/producer/vintage, not generic. Output exactly one JSON object (no markdown):
-{"appearance": "...", "nose_summary": "...", "palate_summary": "...", "structural_summary": "...", "sources": ["what you based this on"], "confidence": "high|medium|low"}`,
-      messages: [{
-        role: "user",
-        content: `Wine: ${wine.fullText}`,
-      }],
-    });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const client = new Anthropic({ apiKey });
+      const message = await client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 800,
+        system: `You are a wine expert. Produce a tasting profile for a specific wine based on your knowledge of this exact producer, cuvée, and vintage. Be accurate to THIS wine, not generic for the variety or region.
 
-    const text = message.content
-      .filter((b) => b.type === "text")
-      .map((b) => b.text)
-      .join("");
+You MUST output exactly one JSON object with no markdown formatting, no code fences, no explanation — just the JSON:
+{"appearance": "color, clarity, viscosity description", "nose_summary": "2-3 sentences of specific aromas", "palate_summary": "2-3 sentences of flavors, texture, finish", "structural_summary": "acid, tannin, body, alcohol, finish length", "sources": ["what you based this on — be honest"], "confidence": "high or medium or low"}`,
+        messages: [{
+          role: "user",
+          content: `Produce a tasting profile for: ${wine.fullText}`,
+        }],
+      });
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        bank_match: null,
-        tasting_profile: {
-          appearance: parsed.appearance || "",
-          nose_summary: parsed.nose_summary || "",
-          palate_summary: parsed.palate_summary || "",
-          structural_summary: parsed.structural_summary || "",
-          sources: parsed.sources || ["LLM wine knowledge — not verified"],
-        },
-        confidence: (parsed.confidence as "high" | "medium" | "low") || "low",
-        source_method: "llm_enrichment",
-        enriched_at: new Date().toISOString(),
-      };
+      const text = message.content
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("");
+
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (parsed.appearance || parsed.nose_summary || parsed.palate_summary) {
+          return {
+            bank_match: null,
+            tasting_profile: {
+              appearance: parsed.appearance || "",
+              nose_summary: parsed.nose_summary || "",
+              palate_summary: parsed.palate_summary || "",
+              structural_summary: parsed.structural_summary || "",
+              sources: parsed.sources || ["LLM wine knowledge — not verified"],
+            },
+            confidence: (parsed.confidence as "high" | "medium" | "low") || "low",
+            source_method: "llm_enrichment",
+            enriched_at: new Date().toISOString(),
+          };
+        }
+      }
+      console.error(`LLM enrichment attempt ${attempt + 1} returned unparseable response for`, wine.fullText, text.slice(0, 200));
+    } catch (err) {
+      console.error(`LLM enrichment attempt ${attempt + 1} failed for`, wine.fullText, err);
     }
-  } catch (err) {
-    console.error("LLM enrichment failed for", wine.fullText, err);
   }
 
   return {
