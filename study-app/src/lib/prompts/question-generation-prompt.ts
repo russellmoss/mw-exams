@@ -359,6 +359,16 @@ Examples of wines that do NOT qualify as "having residual sugar":
 
 If you want to compare a sweet wine with a dry wine from the same region, phrase the stem as "compare and contrast the sweetness levels" or do not claim both have RS. The MW is precise with RS language — when they say it, they mean it.
 
+## 25 MARKS PER WINE (ABSOLUTE — violation = automatic failure)
+Every wine in the question MUST receive exactly 25 marks total across all sub-questions. This is universal in the MW exam from 2014-2025 — zero exceptions across 122 questions.
+- 2-wine question = 50 marks total
+- 3-wine question = 75 marks total
+- 4-wine question = 100 marks total
+- 5-wine question = 125 marks total
+- 6-wine question = 150 marks total
+
+Some marks may be allocated to "all wines" sub-questions (e.g., "Identify the country of origin" worth 15 marks shared across the flight). Divide these equally across wines when calculating. The per-wine total must still equal 25.
+
 ## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
 Minimum marks per written sub-question: **5 marks**.
 The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:

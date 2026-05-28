@@ -292,7 +292,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     // Critical validators (always run)
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
-    const markCheck = validateMarkAllocation(candidate.questionText);
+    const markCheck = validateMarkAllocation(candidate.questionText, candidate.wines.length);
 
     // Important validators (relax on attempt 6+)
     const relaxImportant = attempt >= 6;
@@ -645,8 +645,27 @@ function validateBankerMinimum(
   return { valid: violations.length === 0, violations };
 }
 
-function validateMarkAllocation(questionText: string): { valid: boolean; violations: string[] } {
+function validateMarkAllocation(questionText: string, wineCount?: number): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
+
+  // Check 25-marks-per-wine rule
+  if (wineCount && wineCount > 0) {
+    let totalMarks = 0;
+    const mult = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
+    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
+    const single = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
+    for (const m of single) totalMarks += parseInt(m[1]);
+
+    if (totalMarks > 0) {
+      const expectedTotal = wineCount * 25;
+      if (Math.abs(totalMarks - expectedTotal) > 2) {
+        violations.push(
+          `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
+        );
+      }
+    }
+  }
+
   // Find per-wine mark allocations like (4 x 2 marks) or (3 x 3 marks)
   const perWineMarks = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
   for (const m of perWineMarks) {
