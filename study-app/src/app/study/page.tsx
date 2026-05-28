@@ -614,6 +614,16 @@ export default function StudyPage() {
                 </div>
               </div>
 
+              {/* Inline feedback prompt for stem-only */}
+              <div className="bg-card/50 rounded-xl border border-border/50 p-5 text-center">
+                <p className="text-sm text-muted mb-3">
+                  Was the coaching accurate? Any issues with this question?
+                </p>
+                <p className="text-xs text-muted">
+                  Use the <span className="text-accent font-medium">Feedback</span> button (bottom-left) to let us know.
+                </p>
+              </div>
+
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => {
