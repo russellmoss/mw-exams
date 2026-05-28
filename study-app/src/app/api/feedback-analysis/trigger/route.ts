@@ -3,9 +3,62 @@ import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { createFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
 import { neon } from "@neondatabase/serverless";
+import { getLatestOpus } from "@/lib/model-resolver";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+const TAVILY_API_URL = "https://api.tavily.com/search";
+
+async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feedback: string): Promise<string> {
+  const tavilyKey = process.env.TAVILY_API_KEY;
+  if (!tavilyKey) return "";
+
+  // Search for each wine mentioned in the feedback to get real facts
+  const wineNames = wines.map((w) => {
+    const parts = w.fullText.split(".");
+    return parts[0]?.trim() || w.fullText;
+  });
+
+  const results: string[] = [];
+  // Search for the wines + key claims in the feedback
+  const queries = [
+    ...wineNames.slice(0, 3).map((name) => `${name} grape variety winemaking technique`),
+  ];
+
+  // Also search for specific claims in the feedback
+  const claimKeywords = feedback.match(/\b(merlot|cabernet|pinot|syrah|shiraz|chardonnay|riesling|nebbiolo|sangiovese|tempranillo|grenache|palomino|whole cluster|stem inclusion|carbonic|malolactic|oak|barrel|fermentation|maceration|biodynamic|organic|natural wine)\b/gi);
+  if (claimKeywords && claimKeywords.length > 0) {
+    const wineContext = wineNames[0] || "";
+    queries.push(`${wineContext} ${[...new Set(claimKeywords)].slice(0, 3).join(" ")}`);
+  }
+
+  for (const query of queries.slice(0, 3)) {
+    try {
+      const res = await fetch(TAVILY_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: tavilyKey,
+          query,
+          max_results: 3,
+          search_depth: "basic",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        for (const r of (data.results || []).slice(0, 2)) {
+          if (r.content) {
+            results.push(`[Source: ${r.url}]\n${r.content.slice(0, 300)}`);
+          }
+        }
+      }
+    } catch {}
+  }
+
+  if (results.length === 0) return "";
+  return `\n\n## Web Research for Fact-Checking (from Tavily)\nThe following real-world sources were found to help verify the user's claims:\n\n${results.join("\n\n---\n\n")}`;
+}
 
 export async function POST(request: Request) {
   try {
@@ -57,6 +110,9 @@ export async function POST(request: Request) {
       ? JSON.parse(attempt.metadata)
       : attempt.metadata;
 
+    // Fact-check user claims via Tavily before running analysis
+    const factCheckContext = await tavilyFactCheck(wines, feedbackText);
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
       wines,
@@ -71,11 +127,12 @@ export async function POST(request: Request) {
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
+    const opusModel = await getLatestOpus(keyResult.apiKey);
     const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: opusModel,
       max_tokens: 4000,
       system: prompt.system,
-      messages: [{ role: "user", content: prompt.user }],
+      messages: [{ role: "user", content: prompt.user + factCheckContext }],
     });
 
     const analysisText = message.content
@@ -87,7 +144,9 @@ export async function POST(request: Request) {
       ? "accept"
       : /recommendation:\s*\*?\*?reject/i.test(analysisText)
         ? "reject"
-        : "pending";
+        : /recommendation:\s*\*?\*?partial/i.test(analysisText)
+          ? "pending"
+          : "pending";
 
     const thread = [{
       role: "system" as const,
