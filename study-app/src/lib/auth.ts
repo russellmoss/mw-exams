@@ -9,6 +9,7 @@ export interface AuthUser {
   id: number;
   email: string;
   name: string;
+  isAdmin: boolean;
 }
 
 interface JwtPayload {
@@ -48,11 +49,13 @@ export async function getUser(request: Request): Promise<AuthUser | null> {
   // Verify the user still exists in the database
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT id, email, name FROM users WHERE id = ${payload.userId}
+    SELECT id, email, name, is_admin, is_active FROM users WHERE id = ${payload.userId}
   `;
 
   if (rows.length === 0) return null;
-  return rows[0] as AuthUser;
+  const row = rows[0];
+  if (row.is_active === false) return null;
+  return { id: row.id as number, email: row.email as string, name: row.name as string, isAdmin: row.is_admin as boolean };
 }
 
 export function createSessionCookie(token: string): string {

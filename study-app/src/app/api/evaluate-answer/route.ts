@@ -1,10 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluation-prompt";
+import { requireApiKey } from "@/lib/api-key";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const keyResult = await requireApiKey(request);
+    if (keyResult instanceof Response) return keyResult;
+
     const { questionText, answer, modelAnswer, paper } = await request.json();
 
     if (!questionText || !answer || !paper) {
@@ -14,7 +18,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const systemPrompt = buildAnswerEvaluationSystemPrompt(paper);
 

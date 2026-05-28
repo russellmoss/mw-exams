@@ -1,12 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion, type GeneratedQuestion } from "@/lib/db";
+import { saveGeneratedQuestion } from "@/lib/db";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { requireApiKey } from "@/lib/api-key";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
   try {
+    const keyResult = await requireApiKey(request);
+    if (keyResult instanceof Response) return keyResult;
+
     const { questionId, questionText, wines, paper, family } =
       await request.json();
 
@@ -14,7 +18,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const prompt = buildModelAnswerPrompt(questionText, wines, paper);
 

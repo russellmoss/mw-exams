@@ -55,6 +55,27 @@ export function PreGlassReasoning({
         </div>
       </details>
 
+      {/* Visual appearance cues for Paper 3 */}
+      {question.paper === 3 && question.wines.some((w) => w.appearance) && (
+        <div className="bg-card rounded-lg border border-accent/20 mb-6 p-4">
+          <p className="text-xs font-semibold text-accent mb-2 uppercase tracking-wide">
+            Visual Appearance (what you see in the glasses)
+          </p>
+          <div className="space-y-1.5">
+            {question.wines.map((w) =>
+              w.appearance ? (
+                <div key={w.slot} className="flex gap-2 text-sm">
+                  <span className="text-muted font-mono shrink-0">
+                    {w.slot}.
+                  </span>
+                  <span className="text-foreground/80">{w.appearance}</span>
+                </div>
+              ) : null
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Instructions */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold mb-2">

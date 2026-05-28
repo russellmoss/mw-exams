@@ -2,7 +2,8 @@
 
 export function buildPreGlassSystemPrompt(
   paper: number,
-  decisionMatrixContent?: string
+  decisionMatrixContent?: string,
+  wineAppearances?: { slot: number; appearance: string }[]
 ): string {
   const paperName =
     paper === 1 ? "Paper 1 (White Wines)" : paper === 2 ? "Paper 2 (Red Wines)" : "Paper 3 (Special -- sparkling, fortified, sweet, rose, oxidative)";
@@ -36,7 +37,13 @@ You are a supportive, experienced coach. Your job is to:
 - Keep your feedback concise -- this is coaching, not a lecture. 300-400 words maximum.
 - Use markdown formatting: bold for key points, bullet lists for signals.
 - End with one or two specific things to look for in the glass based on the stem analysis.
-${treeSection}
+${wineAppearances && wineAppearances.length > 0 ? `
+## Visual appearance available
+The candidate was shown visual appearance notes for each wine (replicating what they would see in a real exam). When evaluating their reasoning, note whether they effectively used these visual cues to narrow the field. For Paper 3 especially, visual appearance (color, bubbles, viscosity) is a critical pre-smell diagnostic signal.
+
+Wine appearances shown to candidate:
+${wineAppearances.map((w) => `${w.slot}. ${w.appearance}`).join("\n")}
+` : ""}${treeSection}
 
 ## Confidence tiers
 When discussing likelihood of varieties/regions, use these tiers rather than percentages:

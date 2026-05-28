@@ -1,11 +1,15 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildPreGlassSystemPrompt } from "@/lib/prompts/pre-glass-prompt";
+import { requireApiKey } from "@/lib/api-key";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { questionText, reasoning, paper, decisionMatrixContent } =
+    const keyResult = await requireApiKey(request);
+    if (keyResult instanceof Response) return keyResult;
+
+    const { questionText, reasoning, paper, decisionMatrixContent, wineAppearances } =
       await request.json();
 
     if (!questionText || !reasoning || !paper) {
@@ -15,11 +19,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const systemPrompt = buildPreGlassSystemPrompt(
       paper,
-      decisionMatrixContent
+      decisionMatrixContent,
+      wineAppearances
     );
 
     const stream = await client.messages.stream({

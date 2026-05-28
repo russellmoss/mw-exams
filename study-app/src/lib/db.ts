@@ -13,7 +13,7 @@ export interface GeneratedQuestion {
   family_label: string;
   subcategory: string | null;
   question_text: string;
-  wines: { slot: number; fullText: string }[];
+  wines: { slot: number; fullText: string; appearance?: string }[];
   total_marks: number;
   model_answer: string | null;
   proposed_annotation: string | null;
@@ -45,7 +45,7 @@ export async function saveGeneratedQuestion(q: {
   familyLabel: string;
   subcategory?: string;
   questionText: string;
-  wines: { slot: number; fullText: string }[];
+  wines: { slot: number; fullText: string; appearance?: string }[];
   totalMarks: number;
   modelAnswer?: string;
   proposedAnnotation?: string;
@@ -93,6 +93,15 @@ export async function getQuestionsByFilter(
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
     ORDER BY created_at DESC
+  `) as GeneratedQuestion[];
+}
+
+export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM generated_questions
+    ORDER BY created_at DESC
+    LIMIT ${limit}
   `) as GeneratedQuestion[];
 }
 
@@ -168,11 +177,10 @@ export async function updateAttempt(
     marks_estimate: string;
     completed_at: string;
     user_feedback: string;
+    elapsed_seconds: number;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
-  const sets: string[] = [];
-  const values: unknown[] = [];
 
   if (data.pre_glass_reasoning !== undefined) {
     const rows = await sql`
@@ -204,6 +212,7 @@ export async function updateAttempt(
         answer_feedback = ${data.answer_feedback},
         pass_estimate = ${data.pass_estimate || null},
         marks_estimate = ${data.marks_estimate || null},
+        elapsed_seconds = ${data.elapsed_seconds || null},
         completed_at = NOW()
       WHERE id = ${attemptId} RETURNING *
     `;
@@ -217,6 +226,22 @@ export async function updateAttempt(
   }
 
   const rows = await sql`SELECT * FROM user_attempts WHERE id = ${attemptId}`;
+  return rows[0] as UserAttempt;
+}
+
+export async function reviewFeedback(
+  attemptId: number,
+  status: string,
+  adminNote: string | null
+): Promise<UserAttempt> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE user_attempts SET
+      feedback_status = ${status},
+      feedback_admin_note = ${adminNote},
+      feedback_reviewed_at = NOW()
+    WHERE id = ${attemptId} RETURNING *
+  `;
   return rows[0] as UserAttempt;
 }
 

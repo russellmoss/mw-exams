@@ -3,6 +3,7 @@
 export interface Wine {
   slot: number;
   fullText: string;
+  appearance?: string;
 }
 
 export interface Question {

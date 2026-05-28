@@ -1,23 +1,28 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { requireApiKey } from "@/lib/api-key";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
+    const keyResult = await requireApiKey(request);
+    if (keyResult instanceof Response) return keyResult;
+
     const {
       questionText,
       preGlassReasoning,
       userAnswer,
       modelAnswer,
       paper,
+      wineAppearances,
     } = await request.json();
 
     if (!questionText || !userAnswer || !paper) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const paperName =
       paper === 1
@@ -109,7 +114,10 @@ Keep total feedback under 1000 words. Be specific, not generic. Use the exact he
 
     let userMessage = `## Question
 ${questionText}
-
+${wineAppearances && wineAppearances.length > 0 ? `
+## Visual Appearance (shown to candidate before tasting)
+${wineAppearances.map((w: { slot: number; appearance: string }) => `${w.slot}. ${w.appearance}`).join("\n")}
+` : ""}
 ## Candidate's Pre-Glass Reasoning
 ${preGlassReasoning || "(No pre-glass reasoning submitted)"}
 

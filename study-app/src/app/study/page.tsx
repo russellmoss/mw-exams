@@ -7,7 +7,7 @@ import {
   studyReducer,
   initialStudyState,
   type Question,
-  type StudyState,
+
 } from "@/lib/study-session";
 import { useStreaming } from "@/lib/use-streaming";
 import { QuestionDisplay } from "../components/QuestionDisplay";
@@ -17,14 +17,28 @@ import { WineReveal } from "../components/WineReveal";
 import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
+import { StudyTimerDisplay, FloatingTimer, TimingFeedback, useStudyTimer } from "../components/StudyTimer";
+import { FeedbackButton } from "../components/FeedbackButton";
 
 export default function StudyPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const userIdRef = useRef(user?.id);
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
-  const [modelAnswerReady, setModelAnswerReady] = useState(false);
+  const [modelAnswerReady, setModelAnswerReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const s = sessionStorage.getItem("mw-current-question");
+      if (s) {
+        const q = JSON.parse(s);
+        return !!(q.modelAnswer && q.modelAnswer.length >= 100);
+      }
+    } catch {}
+    return false;
+  });
+  const modelAnswerReadyRef = useRef(modelAnswerReady);
   const [waitingForModel, setWaitingForModel] = useState(false);
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [preGlassReasoning, setPreGlassReasoning] = useState("");
@@ -32,6 +46,9 @@ export default function StudyPage() {
 
   const evalStream = useStreaming();
   const modelAnswerPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timer = useStudyTimer();
+
+  useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
 
   // Load question from sessionStorage on mount
   useEffect(() => {
@@ -45,7 +62,7 @@ export default function StudyPage() {
         fetch("/api/save-attempt", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "create", questionId: question.id, userId: user?.id || null }),
+          body: JSON.stringify({ action: "create", questionId: question.id, userId: userIdRef.current || null }),
         })
           .then((r) => r.json())
           .then((d) => {
@@ -53,8 +70,8 @@ export default function StudyPage() {
           })
           .catch(() => {});
 
-        // If question doesn't have a model answer, start background generation
-        if (!question.modelAnswer || question.modelAnswer.length < 100) {
+        const hasAnswer = question.modelAnswer && question.modelAnswer.length >= 100;
+        if (!hasAnswer) {
           fetch("/api/generate-model-answer", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -69,7 +86,6 @@ export default function StudyPage() {
             .then((r) => r.json())
             .then((d) => {
               if (d.success && d.question?.model_answer) {
-                // Update the question in state with the model answer
                 const updated = {
                   ...question,
                   modelAnswer: d.question.model_answer,
@@ -83,7 +99,7 @@ export default function StudyPage() {
             })
             .catch(() => {});
         } else {
-          setModelAnswerReady(true);
+          modelAnswerReadyRef.current = true;
         }
       } catch {
         router.push("/");
@@ -155,6 +171,7 @@ export default function StudyPage() {
   const handleRevealWines = useCallback(async () => {
     if (state.step !== "reveal") return;
     setTastingLoading(true);
+    timer.pause();
 
     try {
       const res = await fetch("/api/generate-tasting", {
@@ -190,62 +207,16 @@ export default function StudyPage() {
       dispatch({ type: "REVEAL_WINES", tastingNotes: fallback });
     } finally {
       setTastingLoading(false);
+      timer.resume();
     }
-  }, [state, attemptId]);
-
-  // Handle answer submission — get the full evaluation
-  const handleAnswerSubmit = useCallback(
-    async (answer: string) => {
-      if (state.step !== "answer") return;
-      dispatch({ type: "SUBMIT_ANSWER", answer });
-
-      // Save answer to Neon
-      if (attemptId) {
-        fetch("/api/save-attempt", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "update",
-            attemptId,
-            user_answer: answer,
-          }),
-        }).catch(() => {});
-      }
-
-      // Check if model answer is ready
-      if (!modelAnswerReady) {
-        setWaitingForModel(true);
-        // Poll until ready
-        const poll = setInterval(async () => {
-          try {
-            const res = await fetch("/api/check-model-answer", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ questionId: state.question.id }),
-            });
-            const data = await res.json();
-            if (data.ready) {
-              clearInterval(poll);
-              setWaitingForModel(false);
-              setModelAnswerReady(true);
-              runFinalEvaluation(answer);
-            }
-          } catch {}
-        }, 3000);
-        return;
-      }
-
-      runFinalEvaluation(answer);
-    },
-    [state, attemptId, modelAnswerReady]
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, attemptId, timer.pause, timer.resume]);
 
   // Run the combined final evaluation
   const runFinalEvaluation = useCallback(
     async (answer: string) => {
       if (state.step !== "feedback" && state.step !== "answer") return;
 
-      // Get latest model answer from sessionStorage (may have been updated by background gen)
       const stored = sessionStorage.getItem("mw-current-question");
       let modelAnswer = "";
       if (stored) {
@@ -255,15 +226,19 @@ export default function StudyPage() {
         } catch {}
       }
 
+      const wineAppearances = state.question.wines
+        .filter((w) => w.appearance)
+        .map((w) => ({ slot: w.slot, appearance: w.appearance! }));
+
       const feedback = await evalStream.startStream("/api/evaluate-full", {
         questionText: state.question.text,
         preGlassReasoning,
         userAnswer: answer,
         modelAnswer,
         paper: state.question.paper,
+        ...(wineAppearances.length > 0 && { wineAppearances }),
       });
 
-      // Save feedback to Neon
       if (attemptId) {
         const lower = feedback.toLowerCase();
         const passEstimate =
@@ -286,6 +261,7 @@ export default function StudyPage() {
             attemptId,
             answer_feedback: feedback,
             pass_estimate: passEstimate,
+            elapsed_seconds: timer.getElapsed(),
             completed_at: new Date().toISOString(),
           }),
         }).catch(() => {});
@@ -293,7 +269,57 @@ export default function StudyPage() {
 
       dispatch({ type: "ANSWER_FEEDBACK_DONE", feedback });
     },
-    [state, preGlassReasoning, attemptId, evalStream]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, preGlassReasoning, attemptId, evalStream, timer.getElapsed]
+  );
+
+  const runFinalEvaluationRef = useRef(runFinalEvaluation);
+  useEffect(() => { runFinalEvaluationRef.current = runFinalEvaluation; }, [runFinalEvaluation]);
+
+  // Handle answer submission — get the full evaluation
+  const handleAnswerSubmit = useCallback(
+    async (answer: string) => {
+      if (state.step !== "answer") return;
+      timer.stop();
+      dispatch({ type: "SUBMIT_ANSWER", answer });
+
+      if (attemptId) {
+        fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "update",
+            attemptId,
+            user_answer: answer,
+          }),
+        }).catch(() => {});
+      }
+
+      if (!modelAnswerReady) {
+        setWaitingForModel(true);
+        const poll = setInterval(async () => {
+          try {
+            const res = await fetch("/api/check-model-answer", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ questionId: state.question.id }),
+            });
+            const data = await res.json();
+            if (data.ready) {
+              clearInterval(poll);
+              setWaitingForModel(false);
+              setModelAnswerReady(true);
+              runFinalEvaluationRef.current(answer);
+            }
+          } catch {}
+        }, 3000);
+        return;
+      }
+
+      runFinalEvaluationRef.current(answer);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, attemptId, modelAnswerReady, timer.stop]
   );
 
   // Handle generate fresh question (skip banked, get a new one)
@@ -345,7 +371,7 @@ export default function StudyPage() {
       fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", questionId: question.id, userId: user?.id || null }),
+        body: JSON.stringify({ action: "create", questionId: question.id, userId: userIdRef.current || null }),
       })
         .then((r) => r.json())
         .then((d) => { if (d.attempt?.id) setAttemptId(d.attempt.id); })
@@ -380,6 +406,7 @@ export default function StudyPage() {
   // Handle next question
   const handleNextQuestion = useCallback(() => {
     evalStream.reset();
+    timer.reset();
     setTastingNotes([]);
     setTastingLoading(false);
     setModelAnswerReady(false);
@@ -389,7 +416,7 @@ export default function StudyPage() {
     if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
     dispatch({ type: "RESET" });
     router.push("/");
-  }, [router, evalStream]);
+  }, [router, evalStream, timer]);
 
   const currentQuestion =
     state.step !== "select-paper" ? state.question : null;
@@ -407,6 +434,12 @@ export default function StudyPage() {
           </button>
           {currentQuestion && (
             <div className="flex items-center gap-3">
+              <StudyTimerDisplay
+                elapsed={timer.elapsed}
+                paused={timer.paused}
+                stopped={timer.stopped}
+                wineCount={currentQuestion.wines.length}
+              />
               <span className="text-xs font-mono px-2 py-1 rounded bg-accent/20 text-accent">
                 {currentQuestion.paper === 1
                   ? "P1 Whites"
@@ -536,6 +569,7 @@ export default function StudyPage() {
               <AnswerInput
                 question={state.question}
                 onSubmit={handleAnswerSubmit}
+                tastingNotes={tastingNotes}
               />
             </div>
           )}
@@ -578,6 +612,9 @@ export default function StudyPage() {
           {/* Model answer reveal + decision tree walkthrough */}
           {state.step === "reveal-answer" && (
             <div className="space-y-6">
+              {timer.elapsed > 0 && (
+                <TimingFeedback seconds={timer.elapsed} wineCount={state.question.wines.length} />
+              )}
               <StreamingFeedback
                 text={state.answerFeedback}
                 isStreaming={false}
@@ -597,6 +634,21 @@ export default function StudyPage() {
           )}
         </div>
       </main>
+
+      {/* Floating timer — visible during active steps, hidden on review */}
+      {currentQuestion && !timer.stopped && state.step !== "reveal-answer" && state.step !== "feedback" && (
+        <FloatingTimer
+          elapsed={timer.elapsed}
+          paused={timer.paused}
+          stopped={timer.stopped}
+          wineCount={currentQuestion.wines.length}
+        />
+      )}
+
+      {/* Persistent feedback button — available throughout the entire question flow */}
+      {currentQuestion && (
+        <FeedbackButton attemptId={attemptId} step={state.step} />
+      )}
     </div>
   );
 }

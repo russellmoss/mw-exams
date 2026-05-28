@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
@@ -18,7 +19,7 @@ export default function Home() {
   const [selectedPaper, setSelectedPaper] = useState<number>(0);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [totalQuestions, setTotalQuestions] = useState(0);
-  const [recentAttempts, setRecentAttempts] = useState<unknown[]>([]);
+  const [, setRecentAttempts] = useState<unknown[]>([]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -85,8 +86,15 @@ export default function Home() {
         });
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || `HTTP ${res.status}`);
+          let msg = `HTTP ${res.status}`;
+          try {
+            const errData = await res.json();
+            msg = errData.error || msg;
+            if (errData.violations?.length) msg += ` (${errData.violations.join("; ")})`;
+          } catch {
+            if (res.status === 504) msg = "Question generation timed out. This can happen when generating fresh questions. Please try again.";
+          }
+          throw new Error(msg);
         }
 
         const data = await res.json();
@@ -128,13 +136,16 @@ export default function Home() {
     <div className="flex flex-col flex-1">
       {/* Header */}
       <header className="border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-6">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            MW Practical Exam Study Tool
-          </h1>
-          <p className="text-sm text-muted mt-1">
-            Practice stem analysis, tasting, and answer writing with AI coaching
-          </p>
+        <div className="max-w-4xl mx-auto px-6 py-6 flex items-center gap-4">
+          <Image src="/logo.png" alt="Bhutan Wine Company" width={56} height={56} />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">
+              MW Practical Exam Study Tool
+            </h1>
+            <p className="text-sm text-muted mt-1">
+              Practice stem analysis, tasting, and answer writing with AI coaching
+            </p>
+          </div>
         </div>
       </header>
 
@@ -173,7 +184,35 @@ export default function Home() {
             </div>
           )}
 
-          {!loading && step === "select-paper" && (
+          {!loading && !authLoading && user && !user.hasApiKey && (
+            <div className="bg-fail/10 border-2 border-fail/40 rounded-xl p-8 mb-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-fail/20 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-fail" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold text-fail mb-2">API key required to use this app</h2>
+                  <p className="text-sm text-foreground mb-1">
+                    This app uses Claude AI to generate questions, tasting notes, and feedback.
+                    You need to add your own Anthropic API key before you can start studying.
+                  </p>
+                  <p className="text-sm text-muted mb-4">
+                    Go to Settings where we&apos;ll walk you through getting a key — it takes about 2 minutes.
+                  </p>
+                  <button
+                    onClick={() => router.push("/settings")}
+                    className="px-8 py-3 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer text-sm"
+                  >
+                    Set up your API key &rarr;
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!loading && step === "select-paper" && (user?.hasApiKey !== false) && (
             <div>
               <div className="mb-8">
                 <h2 className="text-xl font-semibold text-foreground mb-2">

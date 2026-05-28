@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   loadSessions,
   clearSessions,
@@ -9,12 +9,8 @@ import {
 } from "@/lib/session-tracker";
 
 export function SessionHistory() {
-  const [sessions, setSessions] = useState<SessionEntry[]>([]);
+  const [sessions, setSessions] = useState<SessionEntry[]>(() => loadSessions());
   const [showAll, setShowAll] = useState(false);
-
-  useEffect(() => {
-    setSessions(loadSessions());
-  }, []);
 
   if (sessions.length === 0) return null;
 

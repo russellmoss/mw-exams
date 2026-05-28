@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     const sql = neon(process.env.DATABASE_URL!);
     const rows = await sql`
-      SELECT id, email, name, password_hash FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, email, name, password_hash, is_admin, is_active FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
 
     if (rows.length === 0) {
@@ -37,7 +37,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const authUser = { id: user.id as number, email: user.email as string, name: user.name as string };
+    if (user.is_active === false) {
+      return Response.json({ error: "Account is disabled" }, { status: 403 });
+    }
+
+    const authUser = { id: user.id as number, email: user.email as string, name: user.name as string, isAdmin: user.is_admin as boolean };
     const token = signToken(authUser);
 
     return new Response(

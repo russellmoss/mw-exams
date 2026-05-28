@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
@@ -21,9 +22,25 @@ export function NavBar() {
   };
 
   return (
+    <>
+      {!user.hasApiKey && pathname !== "/settings" && (
+        <div className="bg-fail/15 border-b border-fail/30">
+          <div className="max-w-4xl mx-auto px-6 py-2 flex items-center justify-between">
+            <p className="text-xs text-fail font-medium">
+              You need to add your Anthropic API key to use this app.
+            </p>
+            <Link href="/settings" className="text-xs text-fail font-semibold hover:underline shrink-0 ml-4">
+              Add key &rarr;
+            </Link>
+          </div>
+        </div>
+      )}
     <nav className="border-b border-border bg-card/50">
       <div className="max-w-4xl mx-auto px-6 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-6">
+          <Link href="/" className="shrink-0">
+            <Image src="/logo.png" alt="BWC" width={28} height={28} />
+          </Link>
           <Link
             href="/"
             className={`text-sm font-medium transition-colors ${
@@ -44,6 +61,28 @@ export function NavBar() {
           >
             History
           </Link>
+          <Link
+            href="/settings"
+            className={`text-sm font-medium transition-colors ${
+              pathname === "/settings"
+                ? "text-accent"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Settings
+          </Link>
+          {user.isAdmin && (
+            <Link
+              href="/admin"
+              className={`text-sm font-medium transition-colors ${
+                pathname === "/admin"
+                  ? "text-accent"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -59,5 +98,6 @@ export function NavBar() {
         </div>
       </div>
     </nav>
+    </>
   );
 }

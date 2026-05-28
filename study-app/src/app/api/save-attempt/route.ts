@@ -1,10 +1,12 @@
-import { createAttempt, createAttemptWithUser, updateAttempt } from "@/lib/db";
+import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback } from "@/lib/db";
+import { getUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { action, attemptId, questionId, userId, ...data } = await request.json();
+    const body = await request.json();
+    const { action, attemptId, questionId, userId, ...data } = body;
 
     if (action === "create") {
       if (!questionId) {
@@ -21,6 +23,18 @@ export async function POST(request: Request) {
         return Response.json({ error: "Missing attemptId" }, { status: 400 });
       }
       const attempt = await updateAttempt(attemptId, data);
+      return Response.json({ attempt });
+    }
+
+    if (action === "review-feedback") {
+      const user = await getUser(request);
+      if (!user || !user.isAdmin) {
+        return Response.json({ error: "Forbidden" }, { status: 403 });
+      }
+      if (!attemptId || !body.feedbackStatus) {
+        return Response.json({ error: "Missing attemptId or feedbackStatus" }, { status: 400 });
+      }
+      const attempt = await reviewFeedback(attemptId, body.feedbackStatus, body.adminNote || null);
       return Response.json({ attempt });
     }
 
