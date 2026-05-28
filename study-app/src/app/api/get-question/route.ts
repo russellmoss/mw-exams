@@ -220,6 +220,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
         originDiversityCheck: ReturnType<typeof validateOriginDiversity>;
         countryDiversityCheck: ReturnType<typeof validateCountryDiversity>;
         bankerCheck: ReturnType<typeof validateBankerMinimum>;
+        flightSizeCheck: ReturnType<typeof validateFlightSize>;
         noveltyCheck: ReturnType<typeof validateNoveltyAgainstLatest>;
       }
     | null = null;
@@ -260,6 +261,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       candidate.wines
     );
     const bankerCheck = validateBankerMinimum(candidate.wines);
+    const flightSizeCheck = validateFlightSize(candidate.family, paper, candidate.wines.length);
     // Skip novelty check on final attempt — it's the least critical validator
     const noveltyCheck = attempt < MAX_ATTEMPTS
       ? validateNoveltyAgainstLatest(candidate, latestQuestion)
@@ -271,12 +273,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       ...originDiversityCheck.violations,
       ...countryDiversityCheck.violations,
       ...bankerCheck.violations,
+      ...flightSizeCheck.violations,
       ...noveltyCheck.violations,
     ];
 
     if (lastViolations.length === 0) {
       parsed = candidate;
-      validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, noveltyCheck };
+      validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded; all validations pass`);
       break;
     }
@@ -312,6 +315,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       originDiversityCheck: validation.originDiversityCheck,
       countryDiversityCheck: validation.countryDiversityCheck,
       bankerCheck: validation.bankerCheck,
+      flightSizeCheck: validation.flightSizeCheck,
       noveltyCheck: validation.noveltyCheck,
     },
   });
@@ -573,6 +577,39 @@ function validateBankerMinimum(
       `appellation (e.g., Premier Cru Burgundy, classified Bordeaux, Barolo, Marlborough, Sancerre) ` +
       `that any MW candidate should identify confidently.`
     );
+  }
+
+  return { valid: violations.length === 0, violations };
+}
+
+const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; typical: number[] }> = {
+  F1: { min: 2, max: 6, typical: [2, 3] },
+  F2: { min: 2, max: 4, typical: [2, 3] },
+  F3: { min: 2, max: 4, typical: [2, 4] },
+  F4: { min: 2, max: 6, typical: [3, 4] },
+  F5: { min: 1, max: 5, typical: [2, 3, 4] },
+  F6: { min: 2, max: 5, typical: [2, 4, 5] },
+  F7: { min: 2, max: 6, typical: [2, 6] },
+};
+
+function validateFlightSize(
+  family: string,
+  paper: number,
+  wineCount: number
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const range = FAMILY_FLIGHT_RANGES[family];
+  if (!range) return { valid: true, violations };
+
+  if (wineCount < range.min || wineCount > range.max) {
+    violations.push(
+      `Flight of ${wineCount} wines is outside historical range for ${family} (${range.min}-${range.max} wines). Regenerate with a different flight size.`
+    );
+  }
+
+  // P1 never uses 5-wine flights
+  if (paper === 1 && wineCount === 5) {
+    violations.push("Paper 1 has never used a 5-wine flight in the corpus. Use 2, 3, 4, or 6.");
   }
 
   return { valid: violations.length === 0, violations };
