@@ -68,6 +68,16 @@ export function NavBar() {
             Diagrams
           </a>
           <Link
+            href="/methodology"
+            className={`text-sm font-medium transition-colors ${
+              pathname === "/methodology"
+                ? "text-accent"
+                : "text-muted hover:text-foreground"
+            }`}
+          >
+            Methodology
+          </Link>
+          <Link
             href="/settings"
             className={`text-sm font-medium transition-colors ${
               pathname === "/settings"
