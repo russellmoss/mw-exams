@@ -118,6 +118,12 @@ If you want two wines from the same country, the stem must either:
 - Not mention "different countries" at all
 - Say "same country" or "same region"
 
+## SINGLE-VARIETY STEM CONSTRAINT
+When the stem says "each from a different, single grape variety" or "each is made predominantly from a different, single grape variety" or similar per-wine single-variety language, EVERY wine must genuinely be a single-varietal wine. Do NOT include known blend categories:
+- BAD: Tawny Port (always a multi-variety Douro blend), Champagne (typically Chardonnay/Pinot Noir/Meunier), Bordeaux blends, Chateauneuf-du-Pape (GSM blend), Amarone/Valpolicella (Corvina blend), Cava (Xarel-lo/Macabeo/Parellada)
+- GOOD: Rutherglen Muscat (100% Muscat), Amontillado (100% Palomino), Banyuls (predominantly Grenache), single-varietal Riesling, Nebbiolo (Barolo/Barbaresco)
+If you want to include a blend, remove the "single grape variety" language from the stem, or say "predominantly from a different grape variety" without the word "single."
+
 ## CRITICAL OUTPUT RULES
 1. NO markdown formatting in the question stem. No **bold**, no *italic*, no &nbsp;. Plain text only.
 2. Sub-questions use: a) b) c) d). NOT (a), NOT **(a)**.

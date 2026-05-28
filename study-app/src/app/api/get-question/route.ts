@@ -403,20 +403,44 @@ function validatePaperScope(paper: number, wines: { slot: number; fullText: stri
   return { valid: violations.length === 0, violations };
 }
 
+const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|champagne\s*(brut|nv|vintage|rose)|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
+
+function isLikelyBlend(fullText: string): boolean {
+  const text = fullText.toLowerCase();
+  if (KNOWN_BLEND_INDICATORS.test(text)) return true;
+  const variety = detectPrimaryVariety(fullText);
+  if (variety.includes("blend")) return true;
+  return false;
+}
+
 function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const stemSaysOneVariety = /same single grape variety/i.test(questionText);
-  if (!stemSaysOneVariety) return { valid: true, violations };
 
-  const detectedVarieties: string[] = [];
-  for (const wine of wines) {
-    detectedVarieties.push(detectPrimaryVariety(wine.fullText));
+  if (stemSaysOneVariety) {
+    const detectedVarieties: string[] = [];
+    for (const wine of wines) {
+      detectedVarieties.push(detectPrimaryVariety(wine.fullText));
+    }
+    const uniqueVarieties = [...new Set(detectedVarieties.filter(v => v !== "unknown"))];
+    if (uniqueVarieties.length > 1) {
+      violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
+    }
   }
 
-  const uniqueVarieties = [...new Set(detectedVarieties.filter(v => v !== "unknown"))];
-  if (uniqueVarieties.length > 1) {
-    violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
+  const stemSaysEachSingleVariety = /\beach\b.*\b(single|one)\s*(grape\s*)?variet/i.test(questionText)
+    || /\bdifferent[,]?\s*(single|predominant)\s*(grape\s*)?variet/i.test(questionText);
+
+  if (stemSaysEachSingleVariety) {
+    for (const wine of wines) {
+      if (isLikelyBlend(wine.fullText)) {
+        violations.push(
+          `Stem says each wine is a single grape variety, but Wine ${wine.slot} ("${wine.fullText}") is a known blend category. Single-variety stems require every wine to be genuinely single-varietal.`
+        );
+      }
+    }
   }
+
   return { valid: violations.length === 0, violations };
 }
 
