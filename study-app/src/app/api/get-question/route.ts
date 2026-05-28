@@ -219,6 +219,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
         varietyCheck: ReturnType<typeof validateVarietyConsistency>;
         originDiversityCheck: ReturnType<typeof validateOriginDiversity>;
         countryDiversityCheck: ReturnType<typeof validateCountryDiversity>;
+        bankerCheck: ReturnType<typeof validateBankerMinimum>;
         noveltyCheck: ReturnType<typeof validateNoveltyAgainstLatest>;
       }
     | null = null;
@@ -258,6 +259,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       candidate.questionText,
       candidate.wines
     );
+    const bankerCheck = validateBankerMinimum(candidate.wines);
     // Skip novelty check on final attempt — it's the least critical validator
     const noveltyCheck = attempt < MAX_ATTEMPTS
       ? validateNoveltyAgainstLatest(candidate, latestQuestion)
@@ -268,12 +270,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       ...varietyCheck.violations,
       ...originDiversityCheck.violations,
       ...countryDiversityCheck.violations,
+      ...bankerCheck.violations,
       ...noveltyCheck.violations,
     ];
 
     if (lastViolations.length === 0) {
       parsed = candidate;
-      validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, noveltyCheck };
+      validation = { paperScopeCheck, varietyCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, noveltyCheck };
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded; all validations pass`);
       break;
     }
@@ -308,6 +311,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       varietyCheck: validation.varietyCheck,
       originDiversityCheck: validation.originDiversityCheck,
       countryDiversityCheck: validation.countryDiversityCheck,
+      bankerCheck: validation.bankerCheck,
       noveltyCheck: validation.noveltyCheck,
     },
   });
@@ -545,6 +549,33 @@ function parseWordNumber(word: string): number | null {
   const n = parseInt(word);
   if (!isNaN(n)) return n;
   return map[word.toLowerCase()] ?? null;
+}
+
+const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cru\s*class[eé]|pauillac|margaux|saint[- ]julien|saint[- ]estephe|saint[- ]emilion|pomerol|pessac[- ]leognan|sauternes|barsac|meursault|puligny[- ]montrachet|chassagne[- ]montrachet|chablis|corton|gevrey[- ]chambertin|chambolle[- ]musigny|vosne[- ]roman[eé]e|nuits[- ]saint|pommard|volnay|barolo|barbaresco|brunello|chianti\s*classico|vino\s*nobile|taurasi|hermitage|cote[- ]rotie|cornas|chateauneuf[- ]du[- ]pape|marlborough|sancerre|pouilly[- ]fum[eé]|vouvray|savennieres|clos\s*ste\s*hune|alsace\s*grand\s*cru|rioja\s*(gran\s*)?reserva|ribera\s*del\s*duero|priorat|vintage\s*port|lbv|tawny\s*\d+|fino|manzanilla|amontillado|oloroso|palo\s*cortado|madeira|tokaj|rutherford|oakville|stags\s*leap|napa\s*valley|sonoma\s*coast|willamette|stellenbosch|hawkes?\s*bay|waipara|clare\s*valley|eden\s*valley|barossa|margaret\s*river|yarra\s*valley|wachau|kamptal)\b/i;
+
+function validateBankerMinimum(
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  if (wines.length < 3) return { valid: true, violations };
+
+  let bankerCount = 0;
+  for (const wine of wines) {
+    if (BENCHMARK_APPELLATIONS.test(wine.fullText)) {
+      bankerCount++;
+    }
+  }
+
+  if (bankerCount === 0) {
+    violations.push(
+      `Flight of ${wines.length} wines has no recognizable benchmark appellation. ` +
+      `Every flight of 3+ wines must include at least one banker — a wine from a benchmark ` +
+      `appellation (e.g., Premier Cru Burgundy, classified Bordeaux, Barolo, Marlborough, Sancerre) ` +
+      `that any MW candidate should identify confidently.`
+    );
+  }
+
+  return { valid: violations.length === 0, violations };
 }
 
 function validateCountryDiversity(

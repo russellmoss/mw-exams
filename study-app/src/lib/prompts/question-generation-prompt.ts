@@ -124,6 +124,29 @@ When the stem says "each from a different, single grape variety" or "each is mad
 - GOOD: Rutherglen Muscat (100% Muscat), Amontillado (100% Palomino), Banyuls (predominantly Grenache), single-varietal Riesling, Nebbiolo (Barolo/Barbaresco)
 If you want to include a blend, remove the "single grape variety" language from the stem, or say "predominantly from a different grape variety" without the word "single."
 
+## BANKER MINIMUM RULE (mandatory for flights of 3+ wines)
+Every flight of 3 or more wines MUST include at least one "banker" — a benchmark or iconic wine that any well-prepared MW candidate should identify confidently. The MW exam always does this. In 6 examined France same-country P1 flights (2012-2025), EVERY flight had at least 1 benchmark/iconic wine. Most had 2+.
+
+What counts as a banker:
+- Premier Cru or Grand Cru Burgundy (not generic Bourgogne or regional)
+- Classified Bordeaux (Cru Classé, not generic)
+- Marlborough Sauvignon Blanc from a recognized producer
+- Barolo/Barbaresco DOCG from a known producer
+- Fino/Manzanilla Sherry, classified Sauternes, Vintage/LBV Port
+- Any wine with a specific official classification or appellation hierarchy that a candidate can name
+
+What does NOT count as a banker:
+- Generic regional wines (Bourgogne Blanc, basic Côtes du Rhône)
+- Obscure producers from well-known regions
+- Curveball wines that happen to be from famous countries
+- Wines where the variety or style is unusual for the region
+
+The banker is the anchor that establishes the baseline. The curveball(s) then differentiate candidates above that baseline. A flight with no banker is disproportionately difficult and prevents the examiners from evaluating mastery of the classics.
+
+BAD: Montlouis sparkling + Bourgogne Blanc + Hermitage Blanc + Deiss field blend (0 bankers, 2 curveballs)
+GOOD: Puligny-Montrachet 1er Cru + Sancerre + Hermitage Blanc + Deiss field blend (2 bankers, 1 curveball)
+GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1 curveball)
+
 ## WINE NAME / LABEL INTEGRITY
 For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
 
