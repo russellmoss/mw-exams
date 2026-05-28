@@ -1,8 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-
 function StatCard({ value, label, sub }: { value: string; label: string; sub?: string }) {
   return (
     <div className="bg-card rounded-xl border border-border p-5 text-center">
@@ -59,29 +56,22 @@ const NAV_ITEMS = [
 
 export default function MethodologyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50">
-        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="shrink-0">
-              <Image src="/logo.png" alt="BWC" width={28} height={28} />
-            </Link>
-            <span className="text-sm font-medium text-accent">Methodology</span>
-          </div>
-          <Link href="/" className="text-sm text-muted hover:text-foreground transition-colors">
-            Back to Study App
-          </Link>
+    <div className="flex flex-col flex-1">
+      <header className="border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Methodology</h1>
+          <p className="text-sm text-muted mt-1">How we built this — research-driven exam preparation</p>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-6 py-10 space-y-8">
+      <main className="flex-1">
+        <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
         {/* Hero */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">Research-Driven Exam Preparation</p>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             How We Built This
-          </h1>
+          </h2>
           <p className="text-lg text-muted max-w-2xl mx-auto leading-relaxed">
             A study engine grounded in 14 years of MW practical exam data, 13 examiner reports,
             and rigorous backtesting -- not intuition.
@@ -589,6 +579,7 @@ export default function MethodologyPage() {
               what it could plausibly be, and what to taste for to tell the difference. That&apos;s the edge.
             </p>
           </div>
+        </div>
         </div>
       </main>
     </div>

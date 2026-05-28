@@ -48,12 +48,14 @@ export default function HistoryPage() {
 
   return (
     <div className="flex flex-col flex-1">
+      <header className="border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Study History</h1>
+          <p className="text-sm text-muted mt-1">Track your progress across practice sessions</p>
+        </div>
+      </header>
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Study History</h1>
-            <p className="text-sm text-muted mt-1">Track your progress across practice sessions</p>
-          </div>
 
           {error && (
             <div className="bg-fail/10 border border-fail/30 rounded-lg p-4 mb-6">
