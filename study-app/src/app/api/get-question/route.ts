@@ -9,6 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
+import { getLatestOpus } from "@/lib/model-resolver";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
 
@@ -51,10 +52,11 @@ function generateModelAnswerInBackground(
   (async () => {
     try {
       const client = new Anthropic({ apiKey });
+      const opusModel = await getLatestOpus(apiKey);
       const prompt = buildModelAnswerPrompt(questionText, wines, paper);
 
       const message = await client.messages.create({
-        model: "claude-sonnet-4-6",
+        model: opusModel,
         max_tokens: 4000,
         system: prompt.system,
         messages: [{ role: "user", content: prompt.user }],
@@ -115,40 +117,6 @@ function extractSection(
   }
 
   return text.slice(startIdx).trim();
-}
-
-let cachedLatestOpus: { model: string; fetchedAt: number } | null = null;
-
-async function getLatestOpus(apiKey: string): Promise<string> {
-  const CACHE_TTL = 1000 * 60 * 60; // 1 hour
-  if (cachedLatestOpus && Date.now() - cachedLatestOpus.fetchedAt < CACHE_TTL) {
-    return cachedLatestOpus.model;
-  }
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/models?limit=20", {
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const opusModels = (data.data || [])
-        .filter((m: { id: string }) => m.id.includes("opus"))
-        .sort((a: { created_at: string }, b: { created_at: string }) =>
-          b.created_at.localeCompare(a.created_at)
-        );
-      if (opusModels.length > 0) {
-        const latest = opusModels[0].id;
-        cachedLatestOpus = { model: latest, fetchedAt: Date.now() };
-        console.log(`Latest Opus model: ${latest}`);
-        return latest;
-      }
-    }
-  } catch (err) {
-    console.error("Failed to fetch models list:", err);
-  }
-  return "claude-sonnet-4-6";
 }
 
 function getWineCount(q: GeneratedQuestion): number {

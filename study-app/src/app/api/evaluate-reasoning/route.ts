@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildPreGlassSystemPrompt } from "@/lib/prompts/pre-glass-prompt";
 import { requireApiKey } from "@/lib/api-key";
+import { getLatestOpus } from "@/lib/model-resolver";
 
 export const runtime = "nodejs";
 
@@ -27,8 +28,9 @@ export async function POST(request: Request) {
       wineAppearances
     );
 
+    const opusModel = await getLatestOpus(keyResult.apiKey);
     const stream = await client.messages.stream({
-      model: "claude-sonnet-4-6",
+      model: opusModel,
       max_tokens: 1500,
       system: systemPrompt,
       messages: [

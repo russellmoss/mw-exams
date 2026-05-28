@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
+import { getLatestOpus } from "@/lib/model-resolver";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -19,11 +20,12 @@ export async function POST(request: Request) {
     }
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
+    const opusModel = await getLatestOpus(keyResult.apiKey);
 
     const prompt = buildModelAnswerPrompt(questionText, wines, paper);
 
     const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: opusModel,
       max_tokens: 4000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],

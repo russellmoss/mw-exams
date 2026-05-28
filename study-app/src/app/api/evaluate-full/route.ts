@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
+import { getLatestOpus } from "@/lib/model-resolver";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -135,8 +136,9 @@ ${modelAnswer}`;
 
 Please provide the full debrief: pre-glass review, answer evaluation with pass/fail and per-sub-question marks, and key takeaways.`;
 
+    const opusModel = await getLatestOpus(keyResult.apiKey);
     const stream = await client.messages.stream({
-      model: "claude-sonnet-4-6",
+      model: opusModel,
       max_tokens: 3000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
