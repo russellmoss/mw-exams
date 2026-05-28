@@ -98,7 +98,19 @@ If it HASN'T appeared in any past exam, note the absence but consider whether it
 {Does the current generation prompt or validation logic already handle this?
 If so, how? If not, what's the gap?}
 
-### Recommendation: ACCEPT or REJECT
+### Factual Check on User's Claims
+{Check every factual claim the user makes about wine, winemaking, or the exam. If any are incorrect or imprecise, note them here with the correct information. This is educational — MW candidates benefit from having misconceptions corrected respectfully. Examples:
+- User says "these are Merlot" but the wines are Cabernet Franc → correct this
+- User says "whole cluster is common in the Loire" but it's actually rare → note this
+- User says "the MW would never test X" but the corpus shows they have → cite the evidence
+If all claims are factually correct, say "All factual claims verified."}
+
+### Recommendation: ACCEPT, REJECT, or PARTIAL
+
+Use PARTIAL when:
+- Some claims are valid but others are factually wrong
+- The question has a real issue but the user's diagnosis of WHY is incorrect
+- The user raises a valid nuance (e.g., winemaking technique) but the core question design is sound
 
 **Reasoning:** {2-3 sentences explaining why}
 
@@ -107,6 +119,9 @@ If so, how? If not, what's the gap?}
 
 **If REJECT — Explanation for User:**
 {What to tell the user — respectful, educational, citing evidence from past real MW exams.}
+
+**If PARTIAL — What's Right and What's Wrong:**
+{Acknowledge the valid points. Correct the invalid ones with evidence. Explain what action (if any) is being taken.}
 
 ## Important Rules
 
