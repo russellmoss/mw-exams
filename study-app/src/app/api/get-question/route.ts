@@ -251,7 +251,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
 
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const model = attempt === 1 ? "claude-opus-4-0" : "claude-sonnet-4-6";
+    const model = "claude-sonnet-4-6";
     const message = await client.messages.create({
       model,
       max_tokens: 2000,
