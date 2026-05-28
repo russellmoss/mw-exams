@@ -23,13 +23,30 @@ export function NotificationBell() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const prevUnreadRef = useRef(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const soundEnabledRef = useRef(true);
+
+  useEffect(() => {
+    audioRef.current = new Audio("/notification.mp3");
+    audioRef.current.volume = 0.7;
+    fetch("/api/user/sound-preference")
+      .then((r) => r.json())
+      .then((d) => { soundEnabledRef.current = d.soundEnabled !== false; })
+      .catch(() => {});
+  }, []);
 
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch("/api/feedback-notifications");
       if (!res.ok) return;
       const data = await res.json();
-      setUnreadCount(data.unreadCount || 0);
+      const newCount = data.unreadCount || 0;
+      if (newCount > prevUnreadRef.current && prevUnreadRef.current >= 0 && soundEnabledRef.current) {
+        audioRef.current?.play().catch(() => {});
+      }
+      prevUnreadRef.current = newCount;
+      setUnreadCount(newCount);
       setAnalyses(data.analyses || []);
     } catch {}
   }, []);

@@ -18,6 +18,8 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundLoading, setSoundLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -39,6 +41,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
+      fetch("/api/user/sound-preference")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => { if (d) setSoundEnabled(d.soundEnabled !== false); })
+        .catch(() => {});
       fetch("/api/user/api-key")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data) setKeyInfo(data); })
@@ -256,6 +262,49 @@ export default function SettingsPage() {
                 {saving ? "Validating & saving..." : keyInfo?.hasKey ? "Replace key" : "Save key"}
               </button>
             </form>
+          </section>
+
+          {/* Notification Sound */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2">Notification Sound</h2>
+            <p className="text-sm text-muted mb-4">
+              A sound plays when your feedback analysis is complete and ready for review.
+            </p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={async () => {
+                    setSoundLoading(true);
+                    const next = !soundEnabled;
+                    try {
+                      await fetch("/api/user/sound-preference", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ soundEnabled: next }),
+                      });
+                      setSoundEnabled(next);
+                    } catch {} finally { setSoundLoading(false); }
+                  }}
+                  disabled={soundLoading}
+                  className={`relative w-11 h-6 rounded-full transition-colors cursor-pointer ${soundEnabled ? "bg-accent" : "bg-border"}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-background rounded-full transition-transform ${soundEnabled ? "translate-x-5" : ""}`} />
+                </button>
+                <span className="text-sm text-foreground">
+                  {soundEnabled ? "Sound on" : "Sound muted"}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  const a = new Audio("/notification.mp3");
+                  a.volume = 0.7;
+                  a.play().catch(() => {});
+                }}
+                className="text-xs text-accent hover:text-accent-hover transition-colors cursor-pointer"
+              >
+                Preview sound
+              </button>
+            </div>
           </section>
         </div>
       </main>
