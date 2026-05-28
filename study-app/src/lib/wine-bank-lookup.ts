@@ -37,7 +37,7 @@ export interface WineProfile {
     sources: string[];
   } | null;
   confidence: "high" | "medium" | "low";
-  source_method: "bank_lookup" | "llm_enrichment" | "none";
+  source_method: "bank_lookup" | "llm_enrichment" | "tavily_research" | "none";
   enriched_at: string;
   structural_tags?: string[];
   style_category?: string;
