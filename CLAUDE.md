@@ -87,6 +87,26 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 - `/generate-mock-exam pN` — produce a new mock paper for the given paper number
 - `/study-batch` — run a randomized study session pulling questions from history
 
+## Deploying the study app
+
+The Vercel git integration does NOT auto-deploy. Deploy manually:
+
+```bash
+cd study-app && npx vercel --prod
+```
+
+Production URL: https://study-app-blond-nine.vercel.app
+
+The Vercel project ID is `prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM`, org `team_UMX0qBzZ61GaCUri4A9hydvQ`. The deploy command needs a ~5 min timeout since the build takes ~45s.
+
+To rebuild the study diagrams (after editing markdown in `outputs/study_diagrams/`):
+
+```bash
+python scripts/build_study_diagrams_site.py
+```
+
+This outputs to both `outputs/study_diagrams_site/` (standalone, light theme) and `study-app/public/diagrams/` (Vercel, dark theme).
+
 ## Token economy
 
 The source MD is 2,500+ lines. Do NOT load it into context routinely. The structured JSON exists so agents can read targeted slices. When an agent needs a specific question's text, read it from `data/exams.json`. When an agent needs wine research, read the relevant file in `data/wine_research/`.

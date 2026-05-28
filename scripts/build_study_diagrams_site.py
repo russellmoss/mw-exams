@@ -1003,31 +1003,38 @@ p {
 def app_page_template(title: str, content: str, print_filename: str) -> str:
     """Dark-themed version of page_template for the Vercel app."""
     base = page_template(title, content, print_filename)
+    # Remove Google Fonts, use absolute CSS path
     base = base.replace(
         '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
         '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
         "  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap\" rel=\"stylesheet\">\n"
         '  <link rel="stylesheet" href="./assets/site.css">',
-        '<link rel="stylesheet" href="./assets/site.css">\n'
+        '<link rel="stylesheet" href="/diagrams/assets/site.css">\n'
         '  <link rel="icon" href="/favicon.ico">',
     )
+    # Add back-to-app link, use absolute home link
     base = base.replace(
         '<a class="home-link" href="./index.html">MW Study Diagrams</a>',
         '<a class="back-to-app" href="/">&larr; Back to Study App</a>\n'
-        '      <a class="home-link" href="./index.html">Study Diagrams</a>',
+        '      <a class="home-link" href="/diagrams/index.html">Study Diagrams</a>',
+    )
+    # Fix print button link to absolute path
+    base = base.replace(
+        f"'./{html.escape(print_filename)}?autoprint=1'",
+        f"'/diagrams/{html.escape(print_filename)}?autoprint=1'",
     )
     return base
 
 
 def app_index_template(cards: list[tuple[str, str]]) -> str:
     links = "\n".join(
-        f'        <a class="index-card" href="./{filename}">'
+        f'        <a class="index-card" href="/diagrams/{filename}">'
         f"<h2>{html.escape(title)}</h2>"
         f"<p>Interactive decision tree with zoom, pan, and print.</p></a>"
         for filename, title in cards
     )
     print_links = "\n".join(
-        f'        <a class="index-card" href="./{fn}">'
+        f'        <a class="index-card" href="/diagrams/{fn}">'
         f"<h2>{html.escape(title)}</h2>"
         f"<p>Print-optimized layout.</p></a>"
         for fn, title in [
@@ -1043,7 +1050,7 @@ def app_index_template(cards: list[tuple[str, str]]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Study Diagrams — MW Study App</title>
-  <link rel="stylesheet" href="./assets/site.css">
+  <link rel="stylesheet" href="/diagrams/assets/site.css">
   <link rel="icon" href="/favicon.ico">
 </head>
 <body>
@@ -1139,10 +1146,9 @@ Use the `*-print.html` pages for PDF or paper.
         title, content, print_diagrams = render_markdown(md_path.read_text(encoding="utf-8"))
         print_name = output_name.replace(".html", "-print.html")
         (APP_DIR / output_name).write_text(app_page_template(title, content, print_name), encoding="utf-8")
-        (APP_DIR / print_name).write_text(
-            print_pack_template(title, print_diagrams),
-            encoding="utf-8",
-        )
+        app_print = print_pack_template(title, print_diagrams)
+        app_print = app_print.replace('href="./index.html"', 'href="/diagrams/index.html"')
+        (APP_DIR / print_name).write_text(app_print, encoding="utf-8")
         app_cards.append((output_name, label))
 
     (APP_DIR / "index.html").write_text(app_index_template(app_cards), encoding="utf-8")
