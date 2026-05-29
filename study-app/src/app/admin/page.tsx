@@ -45,7 +45,7 @@ export default function AdminPage() {
   const [liveUserIds, setLiveUserIds] = useState<Set<number>>(new Set());
 
   // Feedback
-  const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, rejected: 0 });
+  const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, partial: 0, rejected: 0 });
   const [modalFilter, setModalFilter] = useState<string | null>(null);
   const [modalAttempts, setModalAttempts] = useState<AttemptDetail[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
@@ -297,7 +297,9 @@ export default function AdminPage() {
             >
               <p className="text-xs text-muted uppercase tracking-wider mb-1">Accepted</p>
               <p className="text-3xl font-bold text-success">{feedbackCounts.accepted}</p>
-              <p className="text-xs text-muted mt-1">Changes applied</p>
+              <p className="text-xs text-muted mt-1">
+                Changes applied{feedbackCounts.partial > 0 && <span className="text-borderline"> · incl. {feedbackCounts.partial} partial</span>}
+              </p>
             </button>
             <button
               onClick={() => openFeedbackModal("rejected")}

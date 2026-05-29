@@ -147,7 +147,7 @@ export async function POST(request: Request) {
       : /recommendation:\s*\*?\*?reject/i.test(analysisText)
         ? "reject"
         : /recommendation:\s*\*?\*?partial/i.test(analysisText)
-          ? "pending"
+          ? "partial"
           : "pending";
 
     const thread = [{
@@ -163,11 +163,16 @@ export async function POST(request: Request) {
     });
 
     // Auto-Apply: when the toggle is on, the AI's recommendation is authoritative and the item
-    // leaves the open queue without human review. ACCEPT dispatches the verify-and-ship GitHub
-    // Action; REJECT is auto-rejected in place. A non-committal PENDING/PARTIAL is left open for a
-    // human (the AI did not actually decide). Failures here never break the analysis response.
+    // leaves the open queue without human review.
+    //   accept  -> dispatch the verify-and-ship GitHub Action (status 'accepted')
+    //   reject  -> auto-reject in place (status 'rejected')
+    //   partial -> auto-mark partial (status 'partial'): some points valid but the core question
+    //              is sound, so it lands in the Accepted bucket for review without shipping code.
+    //   pending -> left open (the AI did not actually decide).
+    // Failures here never break the analysis response.
     let autoApplied = false;
     let autoRejected = false;
+    let autoPartial = false;
     if (await isAutoApplyEnabled()) {
       if (recommendation === "accept") {
         try {
@@ -188,10 +193,22 @@ export async function POST(request: Request) {
         } catch (rejErr) {
           console.error("auto-reject failed:", rejErr);
         }
+      } else if (recommendation === "partial") {
+        try {
+          await reviewFeedback(
+            attemptId,
+            "partial",
+            "Auto-marked partial by Auto-Apply — some points valid; review recommended (no code shipped).",
+            "auto"
+          );
+          autoPartial = true;
+        } catch (partErr) {
+          console.error("auto-partial failed:", partErr);
+        }
       }
     }
 
-    return Response.json({ id: analysis.id, status: "complete", recommendation, autoApplied, autoRejected });
+    return Response.json({ id: analysis.id, status: "complete", recommendation, autoApplied, autoRejected, autoPartial });
   } catch (err) {
     console.error("feedback-analysis trigger error:", err);
     return Response.json(

@@ -187,6 +187,46 @@ function ExpandedSection({ title, children }: { title: string; children: React.R
   );
 }
 
+// Decision groups used by the admin filter chips. Color is keyed to the feedback_status
+// (accepted=green, partial=orange, rejected=red); the "auto" flag drives the 🤖 marker.
+type DecisionGroup = "auto-accept" | "partial" | "auto-reject" | "manual";
+
+interface Decision {
+  group: DecisionGroup;
+  auto: boolean;
+  label: string; // e.g. "Auto-accepted", "Partial", "Rejected"
+  tail: string; // trailing clause for the detail badge
+  chip: string; // tailwind classes for the small badge
+  bg: string; // tailwind classes for the card background tint
+  color: string; // CSS var for the card's left accent border
+}
+
+function getDecision(status: string | null, decidedBy: string | null | undefined): Decision | null {
+  if (!status) return null;
+  const auto = decidedBy === "auto";
+  if (status === "partial") {
+    return { group: "partial", auto, label: "Partial", tail: "— review recommended",
+      chip: "bg-borderline/20 text-borderline", bg: "bg-borderline/5", color: "var(--borderline)" };
+  }
+  if (status === "accepted") {
+    return { group: auto ? "auto-accept" : "manual", auto, label: auto ? "Auto-accepted" : "Accepted",
+      tail: "— change applied", chip: "bg-success/20 text-success", bg: "bg-success/5", color: "var(--success)" };
+  }
+  if (status === "rejected") {
+    return { group: auto ? "auto-reject" : "manual", auto, label: auto ? "Auto-rejected" : "Rejected",
+      tail: "— no change needed", chip: "bg-fail/20 text-fail", bg: "bg-fail/5", color: "var(--fail)" };
+  }
+  return null;
+}
+
+function DecisionBadge({ decision }: { decision: Decision }) {
+  return (
+    <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${decision.chip}`}>
+      {decision.auto ? "🤖 " : ""}{decision.label}
+    </span>
+  );
+}
+
 function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; readOnly?: boolean; isAdmin?: boolean }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
@@ -201,6 +241,8 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const commitSha = attempt.commit_sha || null;
   const prUrl = attempt.pr_url || null;
   const deployState = attempt.deploy_state || null;
+  // Live decision reflects the current review state (so manual Accept/Reject updates instantly).
+  const decision = getDecision(reviewStatus, attempt.feedback_decided_by);
 
   const handleApplyShip = async () => {
     setApplying(true);
@@ -262,7 +304,10 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   };
 
   return (
-    <div className="border-b border-border last:border-b-0">
+    <div
+      className={`border-b border-border last:border-b-0 ${decision ? decision.bg : ""}`}
+      style={decision ? { borderLeft: `4px solid ${decision.color}` } : undefined}
+    >
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full px-5 py-4 flex items-center gap-4 hover:bg-card-hover transition-colors cursor-pointer text-left"
@@ -277,6 +322,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">{paperLabel(attempt.paper)}</span>
             <span className="text-xs text-muted">{attempt.family_label}</span>
             <CopyId id={attempt.question_id} />
+            {decision && <DecisionBadge decision={decision} />}
           </div>
           <p className="text-sm text-foreground truncate">
             {attempt.question_text.slice(0, 120)}{attempt.question_text.length > 120 ? "..." : ""}
@@ -382,7 +428,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           })()}
 
           {attempt.user_feedback && (
-            <ExpandedSection title={`User Feedback${reviewStatus ? ` — ${attempt.feedback_decided_by === "auto" ? "Auto-" : ""}${reviewStatus === "accepted" ? "Accepted" : "Rejected"}` : ""}`}>
+            <ExpandedSection title={`User Feedback${decision ? ` — ${decision.label}` : ""}`}>
               <div className="markdown-content text-sm mb-3"><ReactMarkdown>{attempt.user_feedback}</ReactMarkdown></div>
               {isAdmin && (
                 <div className="border-t border-border/60 pt-3 space-y-2">
@@ -391,19 +437,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                       Auto-analysis: <span className={`font-semibold ${attempt.auto_recommendation === "accept" ? "text-success" : attempt.auto_recommendation === "reject" ? "text-fail" : "text-borderline"}`}>{attempt.auto_recommendation.toUpperCase()}</span>
                     </div>
                   )}
-                  {reviewStatus && (
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {attempt.feedback_decided_by === "auto" && (
-                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent" title="Decided automatically by Auto-Apply — no human review">
-                          🤖 Auto
-                        </span>
-                      )}
-                      <div className={`text-xs px-2 py-1 rounded inline-block ${reviewStatus === "accepted" ? "bg-success/15 text-success" : "bg-fail/15 text-fail"}`}>
-                        {reviewStatus === "accepted"
-                          ? `${attempt.feedback_decided_by === "auto" ? "Auto-accepted" : "Accepted"} — change applied`
-                          : `${attempt.feedback_decided_by === "auto" ? "Auto-rejected" : "Rejected"} — no change needed`}
-                        {attempt.feedback_reviewed_at && <span className="ml-1 text-muted">({new Date(attempt.feedback_reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})</span>}
-                      </div>
+                  {decision && (
+                    <div className={`text-xs px-2 py-1 rounded inline-flex items-center gap-1.5 ${decision.chip}`}
+                         title={decision.auto ? "Decided automatically by Auto-Apply — no human review" : undefined}>
+                      <span className="font-semibold">{decision.auto ? "🤖 " : ""}{decision.label} {decision.tail}</span>
+                      {attempt.feedback_reviewed_at && <span className="text-muted">({new Date(attempt.feedback_reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})</span>}
                     </div>
                   )}
                   {attempt.feedback_admin_note && reviewStatus && (
@@ -504,6 +542,7 @@ interface Filters {
   results: Set<string>;
   papers: Set<number>;
   families: Set<string>;
+  decisions: Set<string>; // DecisionGroup values: auto-accept | partial | auto-reject | manual
 }
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
@@ -521,6 +560,10 @@ function applyFilters(attempts: AttemptDetail[], filters: Filters): AttemptDetai
     }
     if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
     if (filters.families.size > 0 && !filters.families.has(a.family_label)) return false;
+    if (filters.decisions.size > 0) {
+      const d = getDecision(a.feedback_status, a.feedback_decided_by);
+      if (!d || !filters.decisions.has(d.group)) return false;
+    }
     return true;
   });
 }
@@ -553,7 +596,7 @@ export function HistoryView({
   isAdmin?: boolean;
   emptyAction?: React.ReactNode;
 }) {
-  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set() });
+  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set() });
 
   const passRate = stats && stats.completed_attempts > 0 ? Math.round((stats.pass_count / stats.completed_attempts) * 100) : 0;
   const passOrBorderlineRate = stats && stats.completed_attempts > 0 ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100) : 0;
@@ -694,7 +737,8 @@ export function HistoryView({
         ) : (
           <>
             {(() => {
-              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size;
+              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.decisions.size;
+              const hasDecisions = isAdmin && attempts.some((a) => a.feedback_status);
               const afterPaperAndResult = attempts.filter((a) => {
                 if (filters.results.size > 0) {
                   const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
@@ -726,10 +770,19 @@ export function HistoryView({
                       {activeFilterCount > 0 && (
                         <>
                           <div className="w-px h-5 bg-border" />
-                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
+                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
                         </>
                       )}
                     </div>
+                    {hasDecisions && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
+                        <span className="text-[10px] uppercase tracking-wider text-muted mr-1">Decision</span>
+                        <Chip active={filters.decisions.has("auto-accept")} color="bg-success/20 text-success font-semibold border border-success/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "auto-accept") }))}>🤖 Auto-accepted</Chip>
+                        <Chip active={filters.decisions.has("partial")} color="bg-borderline/20 text-borderline font-semibold border border-borderline/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "partial") }))}>Partial</Chip>
+                        <Chip active={filters.decisions.has("auto-reject")} color="bg-fail/20 text-fail font-semibold border border-fail/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "auto-reject") }))}>🤖 Auto-rejected</Chip>
+                        <Chip active={filters.decisions.has("manual")} onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "manual") }))}>Manual</Chip>
+                      </div>
+                    )}
                     {visibleFamilies.length > 1 && (
                       <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
                         {visibleFamilies.map((fl) => (

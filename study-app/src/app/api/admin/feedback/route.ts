@@ -34,6 +34,9 @@ export async function GET(request: Request) {
         ORDER BY a.completed_at DESC
       `;
     } else if (status === "accepted" || status === "rejected") {
+      // The Accepted bucket also surfaces PARTIAL items (valid points, core question sound) so
+      // the admin sees them alongside full accepts (rendered orange in the UI).
+      const statuses = status === "accepted" ? ["accepted", "partial"] : ["rejected"];
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
           q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
@@ -45,7 +48,7 @@ export async function GET(request: Request) {
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
-        WHERE a.feedback_status = ${status}
+        WHERE a.feedback_status = ANY(${statuses})
         ORDER BY a.feedback_reviewed_at DESC
       `;
     } else {
@@ -68,7 +71,8 @@ export async function GET(request: Request) {
     const counts = await sql`
       SELECT
         COUNT(CASE WHEN user_feedback IS NOT NULL AND feedback_status IS NULL THEN 1 END)::int as open,
-        COUNT(CASE WHEN feedback_status = 'accepted' THEN 1 END)::int as accepted,
+        COUNT(CASE WHEN feedback_status IN ('accepted', 'partial') THEN 1 END)::int as accepted,
+        COUNT(CASE WHEN feedback_status = 'partial' THEN 1 END)::int as partial,
         COUNT(CASE WHEN feedback_status = 'rejected' THEN 1 END)::int as rejected
       FROM user_attempts
       WHERE user_feedback IS NOT NULL
@@ -76,7 +80,7 @@ export async function GET(request: Request) {
 
     return Response.json({
       attempts,
-      counts: counts[0] || { open: 0, accepted: 0, rejected: 0 },
+      counts: counts[0] || { open: 0, accepted: 0, partial: 0, rejected: 0 },
     });
   } catch (err) {
     console.error("GET admin/feedback error:", err);

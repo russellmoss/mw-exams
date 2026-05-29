@@ -90,7 +90,9 @@ export async function POST(
             ? "accept"
             : /recommendation:\s*\*?\*?reject/i.test(fullText)
               ? "reject"
-              : "pending";
+              : /recommendation:\s*\*?\*?partial/i.test(fullText)
+                ? "partial"
+                : "pending";
 
           await updateFeedbackAnalysis(analysisId, {
             thread,
