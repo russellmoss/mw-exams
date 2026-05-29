@@ -1,4 +1,5 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<!-- auto-feedback pipeline verified end-to-end on 2026-05-29 -->
 
 <!-- Deploys automatically to Vercel on push to `master` (Root Directory: study-app). -->
 
