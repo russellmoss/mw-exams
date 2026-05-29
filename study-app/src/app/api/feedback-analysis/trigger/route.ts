@@ -4,6 +4,8 @@ import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-pro
 import { createFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
 import { neon } from "@neondatabase/serverless";
 import { getLatestOpus } from "@/lib/model-resolver";
+import { isAutoApplyEnabled } from "@/lib/settings";
+import { applyFeedbackChange } from "@/lib/apply-change";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -160,7 +162,19 @@ export async function POST(request: Request) {
       thread,
     });
 
-    return Response.json({ id: analysis.id, status: "complete", recommendation });
+    // Auto-apply: when the toggle is on and the analysis recommends ACCEPT, dispatch the
+    // verify-and-ship GitHub Action. Failures here never break the analysis response.
+    let autoApplied = false;
+    if (recommendation === "accept" && (await isAutoApplyEnabled())) {
+      try {
+        await applyFeedbackChange({ attemptId, appliedBy: "auto" });
+        autoApplied = true;
+      } catch (applyErr) {
+        console.error("auto-apply dispatch failed:", applyErr);
+      }
+    }
+
+    return Response.json({ id: analysis.id, status: "complete", recommendation, autoApplied });
   } catch (err) {
     console.error("feedback-analysis trigger error:", err);
     return Response.json(

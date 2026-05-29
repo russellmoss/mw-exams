@@ -338,6 +338,48 @@ export interface FeedbackAnalysis {
   error_message: string | null;
   created_at: string;
   updated_at: string;
+  // Auto-apply pipeline audit (set by the dispatch path and the GitHub Action)
+  apply_status: string | null; // dispatched|verifying|merged|deployed|pr_opened|failed
+  work_branch: string | null;
+  commit_sha: string | null;
+  pr_url: string | null;
+  deploy_state: string | null;
+  applied_by: string | null; // 'auto' | 'admin:{id}'
+  applied_at: string | null;
+  apply_error: string | null;
+}
+
+/**
+ * Update the auto-apply audit columns on a feedback_analyses row. Only non-null fields are
+ * written (COALESCE), and applied_at is stamped once on first write. The GitHub Action also
+ * writes these columns directly via scripts/record-apply.mjs.
+ */
+export async function recordApply(
+  analysisId: number,
+  data: Partial<{
+    apply_status: string;
+    work_branch: string;
+    commit_sha: string;
+    pr_url: string;
+    deploy_state: string;
+    applied_by: string;
+    apply_error: string;
+  }>
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE feedback_analyses SET
+      apply_status = COALESCE(${data.apply_status ?? null}::text, apply_status),
+      work_branch  = COALESCE(${data.work_branch ?? null}::text, work_branch),
+      commit_sha   = COALESCE(${data.commit_sha ?? null}::text, commit_sha),
+      pr_url       = COALESCE(${data.pr_url ?? null}::text, pr_url),
+      deploy_state = COALESCE(${data.deploy_state ?? null}::text, deploy_state),
+      applied_by   = COALESCE(${data.applied_by ?? null}::text, applied_by),
+      apply_error  = COALESCE(${data.apply_error ?? null}::text, apply_error),
+      applied_at   = CASE WHEN applied_at IS NULL THEN NOW() ELSE applied_at END,
+      updated_at   = NOW()
+    WHERE id = ${analysisId}
+  `;
 }
 
 export async function createFeedbackAnalysis(attemptId: number, userId: number): Promise<FeedbackAnalysis> {

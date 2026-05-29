@@ -77,6 +77,15 @@ export interface AttemptDetail {
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
   elapsed_seconds: number | null;
+  // Auto-apply pipeline (admin views only)
+  auto_recommendation?: string | null;
+  apply_status?: string | null; // dispatched|verifying|merged|deployed|pr_opened|failed
+  work_branch?: string | null;
+  commit_sha?: string | null;
+  pr_url?: string | null;
+  deploy_state?: string | null;
+  applied_by?: string | null;
+  apply_error?: string | null;
 }
 
 export interface Stats {
@@ -115,6 +124,47 @@ function PassBadge({ estimate }: { estimate: string | null }) {
   return <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${color}`}>{estimate.charAt(0).toUpperCase() + estimate.slice(1)}</span>;
 }
 
+const GITHUB_REPO_URL = "https://github.com/russellmoss/mw-exams";
+
+function ApplyStatusBadge({ status, commitSha, prUrl, deployState, error }: {
+  status: string;
+  commitSha: string | null;
+  prUrl: string | null;
+  deployState: string | null;
+  error: string | null;
+}) {
+  const map: Record<string, { label: string; cls: string }> = {
+    dispatched: { label: "Dispatched — CI starting", cls: "bg-accent/15 text-accent" },
+    verifying: { label: "Verifying (lint · typecheck · build)", cls: "bg-accent/15 text-accent" },
+    merged: { label: "Merged to master", cls: "bg-success/15 text-success" },
+    deployed: { label: "Deployed to production", cls: "bg-success/15 text-success" },
+    pr_opened: { label: "Couldn’t verify — PR opened for review", cls: "bg-borderline/15 text-borderline" },
+    failed: { label: "Pipeline failed", cls: "bg-fail/15 text-fail" },
+  };
+  const s = map[status] || { label: status, cls: "bg-muted/20 text-muted" };
+  return (
+    <div className="space-y-1">
+      <div className={`text-xs px-2 py-1 rounded inline-flex items-center gap-2 ${s.cls}`}>
+        <span className="font-semibold">{s.label}</span>
+        {deployState && <span className="text-muted">· deploy: {deployState}</span>}
+      </div>
+      <div className="flex items-center gap-3 text-xs">
+        {commitSha && (
+          <a href={`${GITHUB_REPO_URL}/commit/${commitSha}`} target="_blank" rel="noreferrer" className="text-accent hover:underline">
+            commit {commitSha.slice(0, 7)}
+          </a>
+        )}
+        {prUrl && (
+          <a href={prUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline">
+            view PR
+          </a>
+        )}
+      </div>
+      {error && <p className="text-xs text-fail italic">{error}</p>}
+    </div>
+  );
+}
+
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
     <div className="bg-card rounded-xl border border-border p-4">
@@ -145,6 +195,28 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const [adminNote, setAdminNote] = useState(attempt.feedback_admin_note || "");
   const [reviewSaving, setReviewSaving] = useState(false);
   const [savingFeedback, setSavingFeedback] = useState(false);
+  const [applyState, setApplyState] = useState<string | null>(attempt.apply_status || null);
+  const [applying, setApplying] = useState(false);
+  const commitSha = attempt.commit_sha || null;
+  const prUrl = attempt.pr_url || null;
+  const deployState = attempt.deploy_state || null;
+
+  const handleApplyShip = async () => {
+    setApplying(true);
+    try {
+      const res = await fetch("/api/admin/apply-change", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attemptId: attempt.id }),
+      });
+      if (res.ok) {
+        setReviewStatus("accepted");
+        setApplyState("dispatched");
+      }
+    } finally {
+      setApplying(false);
+    }
+  };
   const wines = typeof attempt.wines === "string" ? JSON.parse(attempt.wines) : attempt.wines;
   const wineCount = Array.isArray(wines) ? wines.length : 4;
   const tastingNotes = typeof attempt.tasting_notes === "string" ? JSON.parse(attempt.tasting_notes) : attempt.tasting_notes;
@@ -313,6 +385,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
               <div className="markdown-content text-sm mb-3"><ReactMarkdown>{attempt.user_feedback}</ReactMarkdown></div>
               {isAdmin && (
                 <div className="border-t border-border/60 pt-3 space-y-2">
+                  {attempt.auto_recommendation && (
+                    <div className="text-xs text-muted">
+                      Auto-analysis: <span className={`font-semibold ${attempt.auto_recommendation === "accept" ? "text-success" : attempt.auto_recommendation === "reject" ? "text-fail" : "text-borderline"}`}>{attempt.auto_recommendation.toUpperCase()}</span>
+                    </div>
+                  )}
                   {reviewStatus && (
                     <div className={`text-xs px-2 py-1 rounded inline-block ${reviewStatus === "accepted" ? "bg-success/15 text-success" : "bg-fail/15 text-fail"}`}>
                       {reviewStatus === "accepted" ? "Accepted — change applied" : "Rejected — no change needed"}
@@ -322,6 +399,10 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                   {attempt.feedback_admin_note && reviewStatus && (
                     <p className="text-xs text-muted italic">{attempt.feedback_admin_note}</p>
                   )}
+
+                  {/* Auto-apply pipeline status */}
+                  {applyState && <ApplyStatusBadge status={applyState} commitSha={commitSha} prUrl={prUrl} deployState={deployState} error={attempt.apply_error || null} />}
+
                   {!reviewStatus && (
                     <>
                       <textarea
@@ -331,7 +412,15 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                         className="w-full px-3 py-2 text-xs rounded-lg border border-border bg-background text-foreground placeholder:text-muted/50 focus:outline-none focus:ring-1 focus:ring-accent resize-y min-h-[50px]"
                         rows={2}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={handleApplyShip}
+                          disabled={applying || reviewSaving}
+                          title="Auto-code the change, verify in CI (lint/typecheck/build), and ship if green"
+                          className="px-3 py-1 text-xs font-semibold rounded-md bg-accent/15 text-accent border border-accent/40 hover:bg-accent/25 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {applying ? "Dispatching…" : "Apply & ship 🚀"}
+                        </button>
                         <button
                           onClick={async () => {
                             setReviewSaving(true);
@@ -339,10 +428,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                             setReviewStatus("accepted");
                             setReviewSaving(false);
                           }}
-                          disabled={reviewSaving}
+                          disabled={reviewSaving || applying}
+                          title="Mark accepted without shipping code (manual change)"
                           className="px-3 py-1 text-xs font-semibold rounded-md bg-success/15 text-success border border-success/30 hover:bg-success/25 transition-colors cursor-pointer disabled:opacity-50"
                         >
-                          Accept & Applied
+                          Accept (no ship)
                         </button>
                         <button
                           onClick={async () => {
@@ -351,7 +441,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                             setReviewStatus("rejected");
                             setReviewSaving(false);
                           }}
-                          disabled={reviewSaving}
+                          disabled={reviewSaving || applying}
                           className="px-3 py-1 text-xs font-semibold rounded-md bg-fail/15 text-fail border border-fail/30 hover:bg-fail/25 transition-colors cursor-pointer disabled:opacity-50"
                         >
                           Reject

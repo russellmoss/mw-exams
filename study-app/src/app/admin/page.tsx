@@ -50,6 +50,32 @@ export default function AdminPage() {
   const [modalAttempts, setModalAttempts] = useState<AttemptDetail[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
 
+  // Auto-apply pipeline toggle
+  const [autoApply, setAutoApply] = useState(false);
+  const [hardDisabled, setHardDisabled] = useState(false);
+  const [savingToggle, setSavingToggle] = useState(false);
+
+  const toggleAutoApply = async () => {
+    const next = !autoApply;
+    if (next && !window.confirm("Turn ON Auto-Apply?\n\nEvery feedback item the analysis marks ACCEPT will automatically rewrite code, be verified (lint + typecheck + build) in CI, and — if green — merge to master and deploy to production with NO human review.")) {
+      return;
+    }
+    setSavingToggle(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ autoApply: next }),
+      });
+      if (res.ok) setAutoApply(next);
+      else setError("Failed to update Auto-Apply setting");
+    } catch {
+      setError("Network error");
+    } finally {
+      setSavingToggle(false);
+    }
+  };
+
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) {
       router.push("/");
@@ -61,10 +87,15 @@ export default function AdminPage() {
       Promise.all([
         fetch("/api/admin/users").then((r) => r.ok ? r.json() : null),
         fetch("/api/admin/feedback").then((r) => r.ok ? r.json() : null),
+        fetch("/api/admin/settings").then((r) => r.ok ? r.json() : null),
       ])
-        .then(([userData, feedbackData]) => {
+        .then(([userData, feedbackData, settingsData]) => {
           if (userData?.users) setUsers(userData.users);
           if (feedbackData?.counts) setFeedbackCounts(feedbackData.counts);
+          if (settingsData) {
+            setAutoApply(!!settingsData.autoApply);
+            setHardDisabled(!!settingsData.hardDisabled);
+          }
         })
         .catch(() => setError("Failed to load data"))
         .finally(() => setLoading(false));
@@ -217,6 +248,38 @@ export default function AdminPage() {
               </button>
             </div>
           )}
+
+          {/* Auto-Apply pipeline toggle */}
+          <div className={`rounded-xl border-2 p-5 mb-6 ${autoApply ? "border-success bg-success/5" : "border-border bg-card"}`}>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-bold text-foreground">Auto-Apply</h2>
+                  <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${autoApply ? "bg-success/20 text-success" : "bg-muted/20 text-muted"}`}>
+                    {autoApply ? "ON" : "OFF"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted mt-1 max-w-xl">
+                  When ON, any feedback the analysis marks <span className="font-semibold">ACCEPT</span> is auto-coded,
+                  verified in CI (lint + typecheck + build, with self-heal), and — if green — merged to{" "}
+                  <code className="text-foreground">master</code> and deployed to production with no human review.
+                  Unverifiable changes open a PR instead. When OFF, use “Apply &amp; ship” per item.
+                </p>
+                {hardDisabled && (
+                  <p className="text-xs text-fail mt-1">Overridden OFF by <code>AUTO_APPLY_HARD_DISABLE</code> env — toggle has no effect.</p>
+                )}
+              </div>
+              <button
+                onClick={toggleAutoApply}
+                disabled={savingToggle || hardDisabled}
+                role="switch"
+                aria-checked={autoApply}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted/40"}`}
+              >
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
+              </button>
+            </div>
+          </div>
 
           {/* Feedback scorecards */}
           <div className="grid grid-cols-3 gap-4 mb-8">
