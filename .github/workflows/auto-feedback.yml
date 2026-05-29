@@ -1,0 +1,225 @@
+name: auto-feedback
+
+# Verified feedback → code-change → ship pipeline.
+# The study-app fires a repository_dispatch (event_type: auto-feedback) when an accepted
+# feedback item should become a code change. This workflow makes the change with headless
+# Claude, verifies it (lint + typecheck + build) with a self-heal retry loop, and:
+#   - GREEN  → merges to master (Vercel auto-deploys) and confirms the deploy.
+#   - RED    → opens a PR for review; master is never touched by an unverified change.
+# Results are written back to feedback_analyses for the admin UI.
+
+on:
+  repository_dispatch:
+    types: [auto-feedback]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-feedback-${{ github.event.client_payload.attemptId }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      ATTEMPT_ID: ${{ github.event.client_payload.attemptId }}
+      ANALYSIS_ID: ${{ github.event.client_payload.analysisId }}
+      WORK_BRANCH: ${{ github.event.client_payload.workBranch }}
+      APPLIED_BY: ${{ github.event.client_payload.appliedBy }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APP_DIR: study-app
+      VERCEL_PROJECT_ID: prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM
+      VERCEL_TEAM_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Configure git identity
+        run: |
+          git config user.name "mw-auto-feedback[bot]"
+          git config user.email "auto-feedback@users.noreply.github.com"
+
+      - name: Create work branch
+        run: git checkout -b "$WORK_BRANCH"
+
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Write change brief
+        env:
+          PROPOSED: ${{ github.event.client_payload.analysisText }}
+          USER_FEEDBACK: ${{ github.event.client_payload.userFeedback }}
+          QUESTION_TEXT: ${{ github.event.client_payload.questionText }}
+          PAPER: ${{ github.event.client_payload.paper }}
+          FAMILY_LABEL: ${{ github.event.client_payload.familyLabel }}
+        run: |
+          mkdir -p /tmp/af
+          {
+            echo "# Feedback-driven change request"
+            echo
+            echo "Paper $PAPER — $FAMILY_LABEL"
+            echo
+            echo "## User feedback"
+            echo "$USER_FEEDBACK"
+            echo
+            echo "## Question text"
+            echo "$QUESTION_TEXT"
+            echo
+            echo "## Analysis & proposed change (authoritative — implement this)"
+            echo "$PROPOSED"
+          } > /tmp/af/brief.md
+          echo "----- brief.md -----"
+          cat /tmp/af/brief.md
+
+      - name: Implement + verify + self-heal
+        id: heal
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          set +e
+          BRIEF="$(cat /tmp/af/brief.md)"
+          CHECKS=/tmp/af/checks.log
+          MAX=3
+          ATTEMPT=0
+          SUCCESS=0
+          while [ $ATTEMPT -lt $MAX ]; do
+            ATTEMPT=$((ATTEMPT+1))
+            echo "::group::Claude iteration $ATTEMPT"
+            if [ $ATTEMPT -eq 1 ]; then
+              INSTRUCTION="You are applying a user-feedback-driven change to this repository. The Next.js study-app lives at $(pwd). Implement the change described below with minimal, correct edits anywhere in the repository. Do NOT change unrelated behavior or reformat untouched code."
+            else
+              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors and satisfy the original request. Failing output follows:
+
+$(cat $CHECKS)"
+            fi
+            printf '%s\n\n%s\n' "$INSTRUCTION" "$BRIEF" > /tmp/af/prompt.txt
+            claude --bare -p "$(cat /tmp/af/prompt.txt)" \
+              --allowedTools "Bash,Read,Edit,Write,Glob,Grep" \
+              --max-turns 40 \
+              --model claude-opus-4-8
+            echo "::endgroup::"
+
+            echo "::group::Authoritative checks (iteration $ATTEMPT)"
+            : > $CHECKS
+            # Lint is ADVISORY (the repo has pre-existing lint debt and next build does not
+            # gate on it). We report new-vs-old lint for visibility but do not block on it.
+            echo "--- npm run lint (advisory) ---" | tee -a $CHECKS
+            npm run lint 2>&1 | tee -a $CHECKS; L=${PIPESTATUS[0]}
+            # tsc + build are the BLOCKING gate. next build runs the TS compiler and fails on
+            # type errors, so passing build == production-safe.
+            echo "--- npx tsc --noEmit (blocking) ---" | tee -a $CHECKS
+            npx tsc --noEmit 2>&1 | tee -a $CHECKS; T=${PIPESTATUS[0]}
+            echo "--- npm run build (blocking) ---" | tee -a $CHECKS
+            npm run build 2>&1 | tee -a $CHECKS; B=${PIPESTATUS[0]}
+            echo "::endgroup::"
+            echo "lint=$L (advisory) tsc=$T build=$B"
+            if [ $T -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
+          done
+          echo "success=$SUCCESS" >> "$GITHUB_OUTPUT"
+
+          # Stage changes (whole repo — Claude may edit anything), excluding generated data.
+          cd "$GITHUB_WORKSPACE"
+          git add -A
+          git reset -- "$APP_DIR/public/data/pipeline-context.json" "$APP_DIR/public/data/question-index.json" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no_changes=1" >> "$GITHUB_OUTPUT"
+            echo "No code changes were produced."
+          else
+            git commit -m "[auto-feedback attempt:${ATTEMPT_ID}] apply user feedback" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge to master (verified)
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
+        id: merge
+        run: |
+          set -e
+          git push origin "$WORK_BRANCH"
+          git checkout master
+          git pull --ff-only origin master
+          if ! git merge --no-ff -m "[auto-feedback attempt:${ATTEMPT_ID}] merge verified change" "$WORK_BRANCH"; then
+            git merge --abort || true
+            git checkout "$WORK_BRANCH"
+            if ! git rebase master; then
+              git rebase --abort || true
+              echo "conflict=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git push --force-with-lease origin "$WORK_BRANCH"
+            git checkout master
+            git merge --no-ff -m "[auto-feedback attempt:${ATTEMPT_ID}] merge verified change" "$WORK_BRANCH"
+          fi
+          git push origin master
+          echo "merged=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Confirm Vercel deployment
+        if: steps.merge.outputs.merged == '1'
+        id: deploy
+        run: |
+          SHA="${{ steps.merge.outputs.sha }}"
+          STATE="PENDING"
+          for i in $(seq 1 40); do
+            RES=$(curl -s "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&limit=5" -H "Authorization: Bearer $VERCEL_TOKEN")
+            STATE=$(node -e "try{const d=JSON.parse(process.argv[1]);const sha=process.argv[2];const m=(d.deployments||[]).find(x=>x.meta&&x.meta.githubCommitSha&&x.meta.githubCommitSha.startsWith(sha.slice(0,12)));console.log(m?(m.state||m.readyState):'PENDING')}catch(e){console.log('PENDING')}" "$RES" "$SHA")
+            echo "poll $i: $STATE"
+            if [ "$STATE" = "READY" ] || [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then break; fi
+            sleep 15
+          done
+          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+
+      - name: Open PR (could not verify)
+        if: >-
+          always() &&
+          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1') &&
+          steps.heal.outputs.no_changes != '1'
+        id: pr
+        run: |
+          git push origin "$WORK_BRANCH" || true
+          PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
+            --title "[auto-feedback] attempt ${ATTEMPT_ID}: needs review" \
+            --body "Automated feedback change could not be verified+merged (CI failed after retries, or a merge conflict). Review the run logs, fix, and merge manually. master/production were not touched." 2>&1) || true
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "$PR_URL"
+
+      - name: Record result in Neon
+        if: always()
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          MERGED: ${{ steps.merge.outputs.merged }}
+          DEPLOY_STATE: ${{ steps.deploy.outputs.state }}
+          COMMIT_SHA: ${{ steps.merge.outputs.sha }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+          NO_CHANGES: ${{ steps.heal.outputs.no_changes }}
+        run: |
+          if [ "$MERGED" = "1" ]; then
+            if [ "$DEPLOY_STATE" = "READY" ]; then APPLY_STATUS=deployed; else APPLY_STATUS=merged; fi
+          elif printf '%s' "$PR_URL" | grep -q 'http'; then
+            APPLY_STATUS=pr_opened
+          else
+            APPLY_STATUS=failed
+          fi
+          if [ "$NO_CHANGES" = "1" ]; then
+            APPLY_STATUS=failed
+            export APPLY_ERROR="No code changes were produced for this feedback."
+          fi
+          # Only pass a clean PR URL through (gh prints the URL on success).
+          if ! printf '%s' "$PR_URL" | grep -q 'http'; then PR_URL=""; fi
+          export APPLY_STATUS COMMIT_SHA PR_URL DEPLOY_STATE
+          node scripts/record-apply.mjs

@@ -89,13 +89,13 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 
 ## Deploying the study app
 
-**Auto-deploy is ON.** The Vercel project is git-connected to `russellmoss/mw-exams`, production branch `master`. A push to `master` that changes anything under `MW_exam/study-app/` triggers a production redeploy automatically.
+**Auto-deploy is ON.** The Vercel project is git-connected to `russellmoss/mw-exams`, production branch `master`. A push to `master` that changes anything under `study-app/` triggers a production redeploy automatically.
 
 ```bash
-git push origin master   # → auto-deploys if MW_exam/study-app/ changed
+git push origin master   # → auto-deploys if study-app/ changed
 ```
 
-Important repo layout note: the git repo root is the whole `C:/Users/russe/Documents` folder (it also contains `horseplay/`, `dashboard/`, etc.), so the Vercel **Root Directory is `MW_exam/study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in that directory changed. Commits to other projects in the repo will NOT redeploy study-app.
+Repo layout note: the git repo is rooted at this MW_exam project (the repo root IS this folder — `study-app/`, `data/`, `source/`, `outputs/`, `.github/` are all at the root). The Vercel **Root Directory is `study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in `study-app/` changed. The working tree lives at `C:/Users/russe/Documents/MW_exam`; the parent `Documents` folder is no longer a git repo.
 
 Manual deploy is still available if needed (e.g. to deploy uncommitted local changes):
 
