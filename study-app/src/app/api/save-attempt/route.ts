@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       if (!attemptId || !body.feedbackStatus) {
         return Response.json({ error: "Missing attemptId or feedbackStatus" }, { status: 400 });
       }
-      const attempt = await reviewFeedback(attemptId, body.feedbackStatus, body.adminNote || null);
+      const attempt = await reviewFeedback(attemptId, body.feedbackStatus, body.adminNote || null, "manual");
       return Response.json({ attempt });
     }
 

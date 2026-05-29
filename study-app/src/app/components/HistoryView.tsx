@@ -76,6 +76,7 @@ export interface AttemptDetail {
   feedback_status: string | null;
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
+  feedback_decided_by?: string | null; // 'auto' | 'manual'
   elapsed_seconds: number | null;
   // Auto-apply pipeline (admin views only)
   auto_recommendation?: string | null;
@@ -381,7 +382,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           })()}
 
           {attempt.user_feedback && (
-            <ExpandedSection title={`User Feedback${reviewStatus ? ` — ${reviewStatus === "accepted" ? "Accepted" : "Rejected"}` : ""}`}>
+            <ExpandedSection title={`User Feedback${reviewStatus ? ` — ${attempt.feedback_decided_by === "auto" ? "Auto-" : ""}${reviewStatus === "accepted" ? "Accepted" : "Rejected"}` : ""}`}>
               <div className="markdown-content text-sm mb-3"><ReactMarkdown>{attempt.user_feedback}</ReactMarkdown></div>
               {isAdmin && (
                 <div className="border-t border-border/60 pt-3 space-y-2">
@@ -391,9 +392,18 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                     </div>
                   )}
                   {reviewStatus && (
-                    <div className={`text-xs px-2 py-1 rounded inline-block ${reviewStatus === "accepted" ? "bg-success/15 text-success" : "bg-fail/15 text-fail"}`}>
-                      {reviewStatus === "accepted" ? "Accepted — change applied" : "Rejected — no change needed"}
-                      {attempt.feedback_reviewed_at && <span className="ml-1 text-muted">({new Date(attempt.feedback_reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})</span>}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {attempt.feedback_decided_by === "auto" && (
+                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent" title="Decided automatically by Auto-Apply — no human review">
+                          🤖 Auto
+                        </span>
+                      )}
+                      <div className={`text-xs px-2 py-1 rounded inline-block ${reviewStatus === "accepted" ? "bg-success/15 text-success" : "bg-fail/15 text-fail"}`}>
+                        {reviewStatus === "accepted"
+                          ? `${attempt.feedback_decided_by === "auto" ? "Auto-accepted" : "Accepted"} — change applied`
+                          : `${attempt.feedback_decided_by === "auto" ? "Auto-rejected" : "Rejected"} — no change needed`}
+                        {attempt.feedback_reviewed_at && <span className="ml-1 text-muted">({new Date(attempt.feedback_reviewed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})</span>}
+                      </div>
                     </div>
                   )}
                   {attempt.feedback_admin_note && reviewStatus && (

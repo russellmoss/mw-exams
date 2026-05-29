@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback } from "@/lib/db";
 import { neon } from "@neondatabase/serverless";
 import { getLatestOpus } from "@/lib/model-resolver";
 import { isAutoApplyEnabled } from "@/lib/settings";
@@ -162,19 +162,36 @@ export async function POST(request: Request) {
       thread,
     });
 
-    // Auto-apply: when the toggle is on and the analysis recommends ACCEPT, dispatch the
-    // verify-and-ship GitHub Action. Failures here never break the analysis response.
+    // Auto-Apply: when the toggle is on, the AI's recommendation is authoritative and the item
+    // leaves the open queue without human review. ACCEPT dispatches the verify-and-ship GitHub
+    // Action; REJECT is auto-rejected in place. A non-committal PENDING/PARTIAL is left open for a
+    // human (the AI did not actually decide). Failures here never break the analysis response.
     let autoApplied = false;
-    if (recommendation === "accept" && (await isAutoApplyEnabled())) {
-      try {
-        await applyFeedbackChange({ attemptId, appliedBy: "auto" });
-        autoApplied = true;
-      } catch (applyErr) {
-        console.error("auto-apply dispatch failed:", applyErr);
+    let autoRejected = false;
+    if (await isAutoApplyEnabled()) {
+      if (recommendation === "accept") {
+        try {
+          await applyFeedbackChange({ attemptId, appliedBy: "auto" });
+          autoApplied = true;
+        } catch (applyErr) {
+          console.error("auto-apply dispatch failed:", applyErr);
+        }
+      } else if (recommendation === "reject") {
+        try {
+          await reviewFeedback(
+            attemptId,
+            "rejected",
+            "Auto-rejected by Auto-Apply — analysis recommended reject.",
+            "auto"
+          );
+          autoRejected = true;
+        } catch (rejErr) {
+          console.error("auto-reject failed:", rejErr);
+        }
       }
     }
 
-    return Response.json({ id: analysis.id, status: "complete", recommendation, autoApplied });
+    return Response.json({ id: analysis.id, status: "complete", recommendation, autoApplied, autoRejected });
   } catch (err) {
     console.error("feedback-analysis trigger error:", err);
     return Response.json(

@@ -74,7 +74,13 @@ export async function applyFeedbackChange(opts: {
   });
 
   // Move the item out of the open-feedback queue; the Action updates the final state.
-  await reviewFeedback(attemptId, "accepted", `Auto-apply dispatched (${appliedBy})`);
+  // appliedBy is 'auto' for the Auto-Apply pipeline, 'admin:{id}' for a manual "Apply & ship".
+  await reviewFeedback(
+    attemptId,
+    "accepted",
+    `Auto-apply dispatched (${appliedBy})`,
+    appliedBy === "auto" ? "auto" : "manual"
+  );
 
   return { dispatched: true, workBranch, analysisId };
 }

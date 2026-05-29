@@ -37,6 +37,11 @@ export interface UserAttempt {
   started_at: string;
   completed_at: string | null;
   user_feedback: string | null;
+  feedback_status: string | null;
+  feedback_admin_note: string | null;
+  feedback_reviewed_at: string | null;
+  // Who made the accept/reject decision: 'auto' (Auto-Apply pipeline) or 'manual' (admin).
+  feedback_decided_by: string | null;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -256,13 +261,15 @@ export async function updateAttempt(
 export async function reviewFeedback(
   attemptId: number,
   status: string,
-  adminNote: string | null
+  adminNote: string | null,
+  decidedBy: "auto" | "manual" = "manual"
 ): Promise<UserAttempt> {
   const sql = getDb();
   const rows = await sql`
     UPDATE user_attempts SET
       feedback_status = ${status},
       feedback_admin_note = ${adminNote},
+      feedback_decided_by = ${decidedBy},
       feedback_reviewed_at = NOW()
     WHERE id = ${attemptId} RETURNING *
   `;

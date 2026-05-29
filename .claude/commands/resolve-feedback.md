@@ -58,11 +58,11 @@ If there's an auto-analysis with a recommendation, summarize its key finding in 
 After showing all open items, ask the user for each one:
 - **Accept** — Apply the recommended change. If auto-analysis has a specific proposed change, implement it (edit the file, update the prompt/validator). Then mark in DB:
   ```sql
-  UPDATE user_attempts SET feedback_status = 'accepted', feedback_admin_note = '{note}', feedback_reviewed_at = now() WHERE id = {attempt_id}
+  UPDATE user_attempts SET feedback_status = 'accepted', feedback_admin_note = '{note}', feedback_decided_by = 'manual', feedback_reviewed_at = now() WHERE id = {attempt_id}
   ```
 - **Reject** — Write an admin note explaining why, mark in DB:
   ```sql
-  UPDATE user_attempts SET feedback_status = 'rejected', feedback_admin_note = '{note}', feedback_reviewed_at = now() WHERE id = {attempt_id}
+  UPDATE user_attempts SET feedback_status = 'rejected', feedback_admin_note = '{note}', feedback_decided_by = 'manual', feedback_reviewed_at = now() WHERE id = {attempt_id}
   ```
 - **Iterate** — The admin wants to discuss or add context before deciding. Ask follow-up questions.
 - **Deep dive** — Run `/feedback-analysis {question_id}` for full corpus cross-referencing on this specific item.
