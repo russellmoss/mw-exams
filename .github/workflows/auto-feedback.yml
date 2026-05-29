@@ -65,22 +65,13 @@ jobs:
       - name: Write change brief
         env:
           PROPOSED: ${{ github.event.client_payload.analysisText }}
-          USER_FEEDBACK: ${{ github.event.client_payload.userFeedback }}
-          QUESTION_TEXT: ${{ github.event.client_payload.questionText }}
-          PAPER: ${{ github.event.client_payload.paper }}
-          FAMILY_LABEL: ${{ github.event.client_payload.familyLabel }}
+          CONTEXT: ${{ github.event.client_payload.context }}
         run: |
           mkdir -p /tmp/af
           {
             echo "# Feedback-driven change request"
             echo
-            echo "Paper $PAPER — $FAMILY_LABEL"
-            echo
-            echo "## User feedback"
-            echo "$USER_FEEDBACK"
-            echo
-            echo "## Question text"
-            echo "$QUESTION_TEXT"
+            echo "$CONTEXT"
             echo
             echo "## Analysis & proposed change (authoritative — implement this)"
             echo "$PROPOSED"

@@ -1,16 +1,13 @@
 const REPO = "russellmoss/mw-exams";
 
+// NOTE: GitHub repository_dispatch caps client_payload at 10 top-level properties, so
+// question context is consolidated into a single `context` string.
 export interface AutoFeedbackPayload {
   attemptId: number;
   analysisId: number;
   appliedBy: string; // 'auto' | 'admin:{id}'
   workBranch: string;
-  questionId: string;
-  paper: number;
-  family: string;
-  familyLabel: string;
-  questionText: string;
-  userFeedback: string | null;
+  context: string; // paper / family / question / user feedback, preformatted
   analysisText: string; // full analysis text (contains the "Proposed Change" section)
 }
 

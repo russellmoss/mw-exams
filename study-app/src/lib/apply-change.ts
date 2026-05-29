@@ -47,17 +47,23 @@ export async function applyFeedbackChange(opts: {
   const analysisId = r.analysis_id as number;
   const workBranch = `auto-feedback/attempt-${attemptId}`;
 
+  const context = [
+    `Paper ${r.paper} — ${r.family_label} (${r.family})`,
+    `Question ID: ${r.question_id}`,
+    ``,
+    `## User feedback`,
+    (r.user_feedback as string) || "(none)",
+    ``,
+    `## Question text`,
+    (r.question_text as string) || "(none)",
+  ].join("\n");
+
   await dispatchAutoFeedback({
     attemptId,
     analysisId,
     appliedBy,
     workBranch,
-    questionId: r.question_id as string,
-    paper: r.paper as number,
-    family: r.family as string,
-    familyLabel: r.family_label as string,
-    questionText: r.question_text as string,
-    userFeedback: (r.user_feedback as string) ?? null,
+    context,
     analysisText,
   });
 
