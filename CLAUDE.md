@@ -89,18 +89,29 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 
 ## Deploying the study app
 
-**Auto-deploy is ON.** The Vercel project is git-connected to `russellmoss/mw-exams`, production branch `master`. A push to `master` that changes anything under `study-app/` triggers a production redeploy automatically.
+**⚠️ Auto-deploy is currently BROKEN.** Vercel still stores the git connection to
+`russellmoss/mw-exams` (production branch `master`), but the Vercel GitHub App lost repo
+access when the repo was moved/re-created, so pushes to `master` no longer trigger any
+build (verified 2026-05-29 — a push produced neither a production nor a preview deploy).
+**To restore auto-deploy:** on GitHub, grant the Vercel GitHub App access to the
+`mw-exams` repo (github.com/settings/installations → Vercel → Configure → add the repo),
+or reinstall from the Vercel dashboard (Project → Settings → Git). Until then, use the
+manual deploy below.
 
 ```bash
-git push origin master   # → auto-deploys if study-app/ changed
+git push origin master   # pushes code, but does NOT auto-deploy until the GitHub App is re-granted access
 ```
 
 Repo layout note: the git repo is rooted at this MW_exam project (the repo root IS this folder — `study-app/`, `data/`, `source/`, `outputs/`, `.github/` are all at the root). The Vercel **Root Directory is `study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in `study-app/` changed. The working tree lives at `C:/Users/russe/Documents/MW_exam`; the parent `Documents` folder is no longer a git repo.
 
-Manual deploy is still available if needed (e.g. to deploy uncommitted local changes):
+**Manual deploy (current working method).** Because the Vercel Root Directory is `study-app`,
+run the deploy from the **repo root** (`MW_exam`), NOT from inside `study-app/` (that makes
+Vercel look for `study-app/study-app` and fails). The repo root is linked to the project via
+`.vercel/` (gitignored):
 
 ```bash
-cd study-app && npx vercel --prod
+# from C:/Users/russe/Documents/MW_exam (repo root)
+npx vercel --prod --yes
 ```
 
 Production URL: https://study-app-blond-nine.vercel.app

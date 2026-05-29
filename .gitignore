@@ -47,3 +47,4 @@ outputs/**/*.draft.md
 # Logs
 *.log
 logs/
+.vercel
