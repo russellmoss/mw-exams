@@ -92,14 +92,16 @@ jobs:
           while [ $ATTEMPT -lt $MAX ]; do
             ATTEMPT=$((ATTEMPT+1))
             echo "::group::Claude iteration $ATTEMPT"
-            if [ $ATTEMPT -eq 1 ]; then
+            if [ "$ATTEMPT" -eq 1 ]; then
               INSTRUCTION="You are applying a user-feedback-driven change to this repository. The Next.js study-app lives at $(pwd). Implement the change described below with minimal, correct edits anywhere in the repository. Do NOT change unrelated behavior or reformat untouched code."
             else
-              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors and satisfy the original request. Failing output follows:
-
-$(cat $CHECKS)"
+              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
             fi
-            printf '%s\n\n%s\n' "$INSTRUCTION" "$BRIEF" > /tmp/af/prompt.txt
+            {
+              printf '%s\n\n' "$INSTRUCTION"
+              cat /tmp/af/brief.md
+              if [ "$ATTEMPT" -gt 1 ]; then printf '\n\n## Failing CI output\n'; cat "$CHECKS"; fi
+            } > /tmp/af/prompt.txt
             claude --bare -p "$(cat /tmp/af/prompt.txt)" \
               --allowedTools "Bash,Read,Edit,Write,Glob,Grep" \
               --max-turns 40 \
