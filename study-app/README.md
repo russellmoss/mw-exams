@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+<!-- Deploys automatically to Vercel on push to `master` (Root Directory: MW_exam/study-app). -->
+
 ## Getting Started
 
 First, run the development server:

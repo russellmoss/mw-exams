@@ -89,7 +89,15 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 
 ## Deploying the study app
 
-The Vercel git integration does NOT auto-deploy. Deploy manually:
+**Auto-deploy is ON.** The Vercel project is git-connected to `russellmoss/mw-exams`, production branch `master`. A push to `master` that changes anything under `MW_exam/study-app/` triggers a production redeploy automatically.
+
+```bash
+git push origin master   # → auto-deploys if MW_exam/study-app/ changed
+```
+
+Important repo layout note: the git repo root is the whole `C:/Users/russe/Documents` folder (it also contains `horseplay/`, `dashboard/`, etc.), so the Vercel **Root Directory is `MW_exam/study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in that directory changed. Commits to other projects in the repo will NOT redeploy study-app.
+
+Manual deploy is still available if needed (e.g. to deploy uncommitted local changes):
 
 ```bash
 cd study-app && npx vercel --prod
@@ -97,7 +105,7 @@ cd study-app && npx vercel --prod
 
 Production URL: https://study-app-blond-nine.vercel.app
 
-The Vercel project ID is `prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM`, org `team_UMX0qBzZ61GaCUri4A9hydvQ`. The deploy command needs a ~5 min timeout since the build takes ~45s.
+The Vercel project ID is `prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM`, org `team_UMX0qBzZ61GaCUri4A9hydvQ`. A manual deploy command needs a ~5 min timeout since the build takes ~45s.
 
 To rebuild the study diagrams (after editing markdown in `outputs/study_diagrams/`):
 
