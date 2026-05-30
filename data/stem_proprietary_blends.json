@@ -202,11 +202,16 @@
         "Pinot Blanc",
         "Aligote"
       ],
-      "dominant": null,
+      "dominant": "Pinot Gris",
       "is_blend": true,
       "confidence": "medium",
       "source": "https://aubonclimat.com/news/hildegard-origin-story",
-      "notes": "Producer does not disclose proportions"
+      "notes": "Pinot Gris-led white field blend (Pinot Gris/Pinot Blanc/Aligoté) in the Burgundian tradition; named for Hildegard von Bingen. NOT Chardonnay. Producer does not disclose proportions.",
+      "confusables": [
+        { "variety": "Chardonnay", "region": "California", "country": "USA", "note": "deliberate trap: same country as the paired Stony Hill Chardonnay, but a different variety" },
+        { "variety": "Pinot Gris", "region": "Alsace", "country": "France" },
+        { "variety": "Pinot Gris", "region": "Willamette Valley, Oregon", "country": "USA" }
+      ]
     },
     {
       "match": "l ermitage",

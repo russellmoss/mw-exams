@@ -123,6 +123,13 @@ function resolveVariety(wp, ft, col) {
   for (const [t, c] of lexList) if (nf.includes(t)) return { v: [c], src: "lexicon" };
   return { v: [], src: "none" };
 }
+// The proprietary entry whose `match` is a substring of the wine text, if any. Used to attach
+// curated cross-variety confusables (e.g. the "California Chardonnay" trap for ABC Hildegard)
+// regardless of which source resolved the variety.
+function proprietaryMatch(ft) {
+  for (const [m, entry] of propList) if (norm(ft).includes(m)) return entry;
+  return null;
+}
 function resolveOrigin(ft) {
   const s = ft.replace(/\([^)]*\)\s*$/, "").trim(); // drop trailing (ABV%)
   const segs = s.split(".").map((x) => x.trim()).filter(Boolean);
@@ -183,12 +190,22 @@ async function build() {
     const ground = [];
     const source = {};
     const problems = [];
+    const curatedConfusables = [];
     for (const w of wines) {
       const prof = wp[String(w.slot)] || {};
       const col = colour(w.fullText, r.paper);
       const { v, src } = resolveVariety(prof, w.fullText, col);
       const o = resolveOrigin(w.fullText);
       source[w.slot] = src;
+      // Curated cross-variety confusables for proprietary/icon wines (e.g. the "California
+      // Chardonnay" trap for ABC Hildegard, which is a Pinot Gris-led blend, not Chardonnay).
+      const pm = proprietaryMatch(w.fullText);
+      if (pm && Array.isArray(pm.confusables)) {
+        for (const c of pm.confusables) {
+          if (!c || !c.variety || !c.region) continue;
+          curatedConfusables.push({ variety: c.variety, region: c.region, country: c.country || null, tier: "PLAUSIBLE" });
+        }
+      }
       // §2b consistency: variety present, origin present, consistent with profile grapes if any
       if (!v.length) problems.push(`W${w.slot} no-variety`);
       if (!o.ok) problems.push(`W${w.slot} no-origin`);
@@ -214,6 +231,14 @@ async function build() {
       ground.push(bucket);
     }
     const plausible = plausibleFor(ground);
+    // Prepend curated confusables (deduped by variety|region), so deliberate traps are always present.
+    const seenPl = new Set(plausible.map((p) => `${norm(p.variety)}|${norm(p.region)}`));
+    for (const c of curatedConfusables) {
+      const k = `${norm(c.variety)}|${norm(c.region)}`;
+      if (seenPl.has(k)) continue;
+      seenPl.add(k);
+      plausible.unshift(c);
+    }
     const ok = problems.length === 0;
     if (ok) validated++;
     else failures.push(`${r.question_id} (P${r.paper} ${r.family}): ${problems.join("; ")}`);
