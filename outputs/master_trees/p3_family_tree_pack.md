@@ -585,7 +585,7 @@ Remaining for P3 (deferred or lower priority):
 
 ## How this pack interacts with the master tree
 
-- The master tree (`p3_special_tree.md`) is still the entry point. Read it first when an unseen P3 paper is in front of you.
+- The master tree (`p3_special_tree.md`) is still the entry point. Read it first when an unseen P3 paper is in front of you. **Start at its Layer B visual trunk** (Step 1 Visual triage → Step 2 confirmation gate): sort every wine by appearance into a production family *before* working any family section here.
 - The moment the stem reveals a family, switch into the matching family section here.
 - The two layers do not contradict — this pack expands the family layer that the master tree references but cannot fully unfold.
 

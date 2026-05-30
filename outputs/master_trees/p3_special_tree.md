@@ -2,6 +2,7 @@
 paper: 3
 tree_name: P3 Special Master Decision Tree
 generated: 2026-05-25
+last_refactored: 2026-05-30  # Layer B rerooted on visual appearance (visual triage promoted from Layer A.5 to the trunk of the in-glass tree)
 questions_analyzed: [2015_p3_q1, 2015_p3_q2, 2015_p3_q3, 2016_p3_q1, 2016_p3_q2, 2016_p3_q3, 2016_p3_q4, 2017_p3_q1, 2017_p3_q2, 2017_p3_q3, 2017_p3_q4, 2017_p3_q5, 2017_p3_q6, 2018_p3_q1, 2018_p3_q2, 2018_p3_q3, 2019_p3_q1, 2019_p3_q2, 2019_p3_q3, 2019_p3_q4, 2019_p3_q5, 2021_p3_q1, 2021_p3_q2, 2021_p3_q3, 2022_p3_q1, 2022_p3_q2, 2022_p3_q3, 2023_p3_q1, 2023_p3_q2, 2023_p3_q3, 2023_p3_q4, 2024_p3_q1, 2024_p3_q2, 2024_p3_q3, 2024_p3_q4, 2025_p3_q1, 2025_p3_q2, 2025_p3_q3]
 accuracy_target: variety + region (not exact wine)
 ---
@@ -10,6 +11,17 @@ accuracy_target: variety + region (not exact wine)
 
 ## Accuracy target
 This tree targets **variety + region** accuracy. Producer, vintage, and vineyard identification are bonus, not the target. A correct prediction = right variety AND right country/region, with method/style category often equally important on Paper 3.
+
+## P3 order of operations (how to use this tree)
+
+Paper 3 is the **only** paper where you should let your eyes lead. The production family — sparkling, sweet, rosé, orange, fortified, oxidative — is usually obvious at a glance, and the family is what carries the marks on P3. So the operational sequence is:
+
+1. **LOOK first (Layer B, Step 1 — the trunk).** Before lifting a glass, scan the whole flight and visually sort every wine into a production family: bubbles? pink? deep gold/amber and thick? mahogany/brown? deep opaque red? copper/orange? This single step collapses "could be anything" into a specific family.
+2. **Confirm with one sniff + one sip (Layer B, Step 2 — the confirmation gate).** Resolve the few visual ambiguities — chiefly spirit heat, sweetness vs acid, mousse persistence, flor vs oxidative markers.
+3. **Drop into the matching family sub-tree (Layer B, Step 3).** Each visual gate routes to one sensory sub-tree below.
+4. **Layer in the stem (Layer A) to narrow region/variety.** On P3 the stem mostly tells you the *structure of the flight* and the commercial framing; use it to pin country/variety once the family is fixed.
+
+Read Layer A first if you have the question paper in hand — it is genuine pre-tasting context — but the **in-glass workflow begins with the visual trunk in Layer B**, not with variety guessing.
 
 ## Layer A - Pre-tasting decision tree (question stem only)
 
@@ -56,36 +68,55 @@ This tree targets **variety + region** accuracy. Producer, vintage, and vineyard
 - **Leaf (same country, three-category spread):** STRONG SIGNAL: Spain with Cava/Penedès + Garnacha still wine (Gredos or similar) + Sherry/Jerez (Palomino). PLAUSIBLE: France with Crémant + still + VDN, Portugal with espumante + still + fortified. CURVEBALL: single-category country flights.
 - **Anti-collapse rule:** if a P3 mixed-bag or same-country question clearly spans sparkling, still, and fortified/sweet categories, never collapse the prediction to one grape family. Keep at least one candidate alive for each category represented.
 
-## Layer A.5 - Visual Triage (what you see before you smell)
+## Layer B - In-glass deductive tree (visual-first)
 
-Paper 3 is the only paper where visual appearance is itself a major diagnostic tool. Before picking up any glass, scan the flight and sort wines by what you see. This step collapses the P3 universe from "could be anything" to a specific production category.
+On P3 the in-glass tree is **rooted in what you see**. Work Step 1 → Step 2 → Step 3 in order. Do not start with variety.
 
-### Step 1: Bubbles
-- **Persistent fine mousse visible in glass** → SPARKLING. Route to Branch 1 / sparkling leaves.
-- **No bubbles** → continue to Step 2.
-- **Very slight spritz / pétillant** → keep semi-sparkling (Lambrusco, pét-nat) alive but do not commit.
+### Step 1: Visual triage (the trunk — do this before lifting a glass)
 
-### Step 2: Color family
-- **Pale lemon to straw, no bubbles** → likely sweet white (botrytis, late harvest) or dry still white appearing in P3 (rare). If multiple wines share this color, consider a same-variety cross-style set.
-- **Deep gold to amber** → STRONG SIGNAL: oxidative or aged sweet. Vin Santo, old Sauternes, aged Tokaji, old Vouvray, oxidative Jura. If spirit warmth confirmed on palate → Amontillado, Oloroso, Madeira, old Tawny Port.
-- **Mahogany to dark brown** → STRONG SIGNAL: very old fortified. Old Tawny Port (20/30/40yr), Madeira (Malmsey/Bual), Rutherglen Muscat, aged PX.
-- **Pale tawny / amber-orange** → could be young tawny, Amontillado, Palo Cortado, dry Madeira (Sercial/Verdelho).
-- **Deep ruby to purple, opaque** → STRONG SIGNAL: young fortified red. Ruby/LBV/Vintage Port, Banyuls Rimage, Recioto della Valpolicella. If no spirit heat on palate → passito or concentrated still red in P3.
-- **Garnet to brick red, some development** → aged Port (Tawny-leaning), Banyuls traditional, Maury.
-- **Pale salmon to pink** → ROSÉ. Route to rosé leaves. If also sparkling → sparkling rosé.
-- **Pale copper to orange/amber with no brown** → CURVEBALL: orange/amber wine (skin-contact white). Evidence base: 2017 P3 Q2.
+Scan the whole flight and run each wine through these gates in order. The first gate it trips assigns its production family.
 
-### Step 3: Viscosity and tears
-- **Very slow, thick tears** → high sugar (sweet) and/or high alcohol (fortified). Cross-reference with color: amber + thick tears = old sweet fortified; pale gold + thick tears = concentrated botrytis or Icewine.
-- **Fast, thin tears** → lower sugar and alcohol. Less likely to be fortified or very sweet.
-- **Legs staining the glass with color** → heavily extracted and/or aged fortified.
+**Gate 1 — Bubbles?**
+- **Persistent fine mousse / sustained bead** → SPARKLING. → *Sparkling family sub-tree.*
+- **Light spritz / pétillant, bead fading** → semi-sparkling: pét-nat, Lambrusco, frizzante Moscato/Asti, lightly sparkling Vinho Verde. Keep alive; confirm on palate.
+- **Pink + bubbles** → sparkling rosé (catch it here, at Gate 1).
+- **No bubbles** → Gate 2.
 
-### How visual triage connects to Layer B
-After categorizing each wine visually, apply the relevant Layer B sub-tree: sparkling wines go to the sparkling sensory overlay, amber/fortified wines go to the fortified overlay, etc. The visual triage prevents the most common P3 error: spending nose and palate time chasing the wrong production family.
+**Gate 2 — Pink?**
+- **Pale salmon → deep pink, still** → ROSÉ (or light red). → *Rosé / mixed-bag sub-tree.*
+- **Not pink** → Gate 3.
 
-## Layer B - In-glass decision tree (sensory overlay)
+**Gate 3 — Hue, intensity and viscosity.** Split white/amber spectrum from red spectrum.
 
-### For sparkling-led leaves
+*White / amber spectrum:*
+- **Pale lemon–straw, thin-to-normal tears** → likely DRY STILL WHITE (rare in P3) or light off-dry; low priority. Often the dry "anchor" wine in a same-variety cross-style set (e.g. the dry Riesling/Chenin in a single-grape flight). Confirm RS on palate.
+- **Pale lemon–straw but THICK, slow tears (glycerol)** → concentrated sweet at *low* alcohol: ICEWINE / EISWEIN, or young botrytis. → *Sweet-wine sub-tree (Icewine/botrytis lane).*
+- **Deep gold → amber, thick tears, NO bubbles** → the central P3 ambiguity — three families share this look: (a) SWEET (botrytis BA/TBA/Sauternes/Tokaji, late-harvest, passito/Vin Santo); (b) OXIDATIVE unfortified (Jura/Vin Jaune, old Vouvray, dry oxidative Tokaji/Szamorodni); (c) lighter FORTIFIED (Amontillado, dry Madeira Sercial/Verdelho). **Do not commit — resolve at Step 2 by spirit heat + sweetness.**
+- **Pale tawny / amber-orange** → young Tawny, Amontillado, Palo Cortado, dry Madeira. → confirm spirit heat → *Fortified / oxidative sub-tree.*
+- **Copper / orange / amber, no brown, sometimes hazy, possible light tannin** → ORANGE / skin-contact white. → *Rosé / mixed-bag sub-tree (orange lane).* Evidence base: 2017 P3 Q2.
+
+*Red spectrum:*
+- **Deep ruby–purple, opaque, staining tears** → young FORTIFIED RED (Ruby/LBV/Vintage Port, Banyuls Rimage, Recioto della Valpolicella) OR concentrated passito/still red. → confirm spirit heat → *Fortified sub-tree* (heat present) vs *Sweet-wine sub-tree* (no heat = passito).
+- **Garnet → brick, some development** → aged Port (Tawny-leaning), traditional Banyuls/Maury. → *Fortified sub-tree.*
+- **Mahogany → dark brown, viscous, colour-staining legs** → very old FORTIFIED: old Tawny (20/30/40yr), Madeira Bual/Malmsey, PX, Rutherglen Muscat. → *Fortified sub-tree.*
+
+### Step 2: Confirmation gate (one sniff + one sip resolves the ambiguities)
+
+For any wine the visual gate left split, these four cues lock the family:
+
+- **Spirit warmth at the back palate (heat above ~16%)?**
+  - **Yes + sweet** → fortified sweet (Port, VDN/Banyuls, PX, Rutherglen Muscat, sweet Madeira Bual/Malmsey).
+  - **Yes + dry/off-dry** → fortified dry / oxidative (Fino/Manzanilla/Amontillado/Oloroso, dry Madeira Sercial/Verdelho, Marsala).
+  - **No** → non-fortified: sweet (botrytis / Icewine / passito / late-harvest) **or** unfortified oxidative (Jura / Vin Jaune) **or** dry still.
+- **Sweetness vs acid** → places the non-fortified sweet wines on the mechanism ladder (electric acid + ~10% = Icewine; honey/saffron + noble rot = botrytis; raisin/fig + 14–16% no heat = passito).
+- **Mousse persistence + autolysis** → confirms traditional-method vs tank/ancestral sparkling.
+- **Flor markers (saline/almond/bruised apple) vs oxidative markers (walnut/caramel/rancio) vs volatile + curry (Madeira)** → splits the fortified/oxidative families.
+
+### Step 3: Family sub-trees (the destinations)
+
+Once Steps 1–2 have fixed the family, work the matching sub-tree below, then layer in the Layer A stem signals to narrow region/variety.
+
+#### → Sparkling family sub-tree
 - **Persistent fine mousse + autolysis**
   - survive: traditional method sparkling. eliminate still, tank-only aromatic sparkling. Evidence base: 2021 P3 Q1, 2023 P3 Q1, 2024 P3 Q1.
   - **Higher acid, chalk, subtle dosage, long lees character** -> promote Champagne/English sparkling/Crémant. eliminate Prosecco.
@@ -95,7 +126,7 @@ After categorizing each wine visually, apply the relevant Layer B sub-tree: spar
   - **Pear, simpler fruit, lower autolysis, softer mousse** -> promote Prosecco or tank-method styles. eliminate Champagne-like branches.
   - **If same grape across styles and one wine is still or sweet** -> keep Riesling/Chardonnay cross-style branch alive rather than forcing all wines into sparkling.
 
-### For sweet-wine mechanism leaves
+#### → Sweet-wine family sub-tree
 - **Very high sweetness + low alcohol + piercing acid**
   - survive: Icewine/Eiswein branch. eliminate fortified sweet and passito. Evidence base: 2015 P3 Q3, 2024 P3 Q4.
 - **Honey/apricot/saffron + noble-rot signature + medium alcohol**
@@ -105,7 +136,7 @@ After categorizing each wine visually, apply the relevant Layer B sub-tree: spar
 - **Spirit warmth + sweet grapey or nutty profile**
   - survive: fortified sweet or fortified oxidative. eliminate non-fortified sweet wines. Evidence base: 2017 P3 Q6, 2021 P3 Q2, 2025 P3 Q3.
 
-### For fortified / oxidative leaves
+#### → Fortified / oxidative family sub-tree
 - **Flor-derived saline/almond/bruised-apple notes with dry finish**
   - survive: Fino/Manzanilla/Amontillado/Palo Cortado family. eliminate Port and Madeira. Evidence base: 2015 P3 Q1, 2016 P3 Q2, 2019 P3 Q4, 2021 P3 Q2.
 - **Volatile lift, curry, nuts, very high acidity, caramelized depth**
@@ -115,14 +146,14 @@ After categorizing each wine visually, apply the relevant Layer B sub-tree: spar
 - **Oxidative but unfortified with walnut/curry and no spirit heat**
   - survive: Jura oxidative / Vin Jaune / old Vin Santo-dry branch. eliminate classical fortified categories. Evidence base: 2019 P3 Q4, 2024 P3 Q2.
 
-### For same-region multi-style leaves
+#### → Same-region multi-style sub-tree
 - **Dry vs sweet from same region**
   - if one wine is oxidative and another fresh from the same place, survive regions with deliberate dual traditions: Jura, Tokaj, Sauternes/Bordeaux sweet-dry crossover.
   - eliminate regions that cannot credibly produce both styles. Evidence base: 2024 P3 Q2, 2024 P3 Q3, 2023 P3 Q3.
 - **Same producer, different style**
   - keep vintage, lees age, fortification timing, oxidation regime, and dosage/RS as the decision levers rather than changing country. Evidence base: 2016 P3 Q4, 2018 P3 Q1.
 
-### For rose / mixed-bag / curveball leaves
+#### → Rosé / mixed-bag / curveball sub-tree (incl. orange/skin-contact lane)
 - **Pale copper or amber with tannic grip**
   - survive: orange/amber wine. eliminate orthodox rose and oxidative fortified if no spirit heat. Evidence base: 2017 P3 Q2.
 - **Dry red-fruited but structurally P3, not classic P2**

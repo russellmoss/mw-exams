@@ -20,9 +20,145 @@
   </header>
   <main class="page-shell">
     <article class="content-card">
-      <nav class="toc"><a class="toc-item toc-level-2" href="#1-stem-routing-which-family">1. Stem Routing: Which Family?</a><a class="toc-item toc-level-2" href="#2-visual-triage-layer-a-5-before-you-smell">2. Visual Triage (Layer A.5 -- before you smell)</a><a class="toc-item toc-level-3" href="#visual-triage-quick-reference">Visual Triage Quick-Reference</a><a class="toc-item toc-level-2" href="#3-f5-method-the-engine-of-p3-10-questions">3. F5 Method -- THE Engine of P3 (10 questions)</a><a class="toc-item toc-level-3" href="#step-1-production-family-lock">Step 1: Production Family Lock</a><a class="toc-item toc-level-3" href="#step-2-within-each-family">Step 2: Within Each Family</a><a class="toc-item toc-level-2" href="#4-f4-breadth-anti-overlink-9-questions">4. F4 Breadth -- Anti-Overlink (9 questions)</a><a class="toc-item toc-level-2" href="#5-f1-cross-style-single-variety-4-questions">5. F1 Cross-Style Single Variety (4 questions)</a><a class="toc-item toc-level-2" href="#6-f6-style-axis-rs-x-alcohol-matrix-4-questions">6. F6 Style Axis -- RS x Alcohol Matrix (4 questions)</a><a class="toc-item toc-level-2" href="#7-f7-hierarchy-classification-cards-3-questions">7. F7 Hierarchy -- Classification Cards (3 questions)</a></nav><h1 id="p3-special-mermaid-study-diagrams">P3 Special -- Mermaid Study Diagrams</h1>
-<h2 id="1-stem-routing-which-family">1. Stem Routing: Which Family?</h2>
+      <nav class="toc"><a class="toc-item toc-level-2" href="#1-visual-triage-start-here-the-trunk-of-the-tasting-tree">1. Visual Triage -- START HERE (the trunk of the tasting tree)</a><a class="toc-item toc-level-3" href="#step-2-confirmation-cues-resolve-the-look-alikes">Step 2 confirmation cues (resolve the look-alikes)</a><a class="toc-item toc-level-2" href="#2-stem-routing-which-family-pre-tasting-region-overlay">2. Stem Routing: Which Family? (pre-tasting / region overlay)</a><a class="toc-item toc-level-2" href="#3-f5-method-the-engine-of-p3-10-questions">3. F5 Method -- THE Engine of P3 (10 questions)</a><a class="toc-item toc-level-3" href="#step-1-production-family-lock">Step 1: Production Family Lock</a><a class="toc-item toc-level-3" href="#step-2-within-each-family">Step 2: Within Each Family</a><a class="toc-item toc-level-2" href="#4-f4-breadth-anti-overlink-9-questions">4. F4 Breadth -- Anti-Overlink (9 questions)</a><a class="toc-item toc-level-2" href="#5-f1-cross-style-single-variety-4-questions">5. F1 Cross-Style Single Variety (4 questions)</a><a class="toc-item toc-level-2" href="#6-f6-style-axis-rs-x-alcohol-matrix-4-questions">6. F6 Style Axis -- RS x Alcohol Matrix (4 questions)</a><a class="toc-item toc-level-2" href="#7-f7-hierarchy-classification-cards-3-questions">7. F7 Hierarchy -- Classification Cards (3 questions)</a></nav><h1 id="p3-special-mermaid-study-diagrams">P3 Special -- Mermaid Study Diagrams</h1>
+<p>&gt; **P3 order of operations:** on Paper 3 you let your eyes lead. Start at the **Visual Triage trunk** (Section 1) to sort every wine into a production family by appearance, confirm with one sniff + one sip, then drop into the family sub-tree. Use **Stem Routing** (Section 2) as pre-tasting context to narrow region/variety once the family is fixed.</p>
+<h2 id="1-visual-triage-start-here-the-trunk-of-the-tasting-tree">1. Visual Triage -- START HERE (the trunk of the tasting tree)</h2>
+<p>This is the root of the in-glass tree on P3. Run every wine through Gate 1 -&gt; Gate 2 -&gt; Gate 3; the first gate it trips assigns its family. Resolve any leftover ambiguity at the Step 2 confirmation gate.</p>
 <section class="diagram-card" data-diagram-id="diagram-18" data-mermaid="flowchart TD
+    EYES[&quot;START IN THE ROOM:&lt;br/&gt;LOOK before you smell.&lt;br/&gt;Sort every wine by appearance.&quot;] --&gt; G1{&quot;GATE 1&lt;br/&gt;Bubbles?&quot;}
+    G1 --&gt;|&quot;Persistent fine mousse&quot;| SPARK[&quot;SPARKLING&lt;br/&gt;→ sparkling sub-tree&quot;]
+    G1 --&gt;|&quot;Light spritz / petillant&quot;| SEMI[&quot;Semi-sparkling&lt;br/&gt;(pet-nat, Lambrusco,&lt;br/&gt;frizzante Moscato)&quot;]
+    G1 --&gt;|&quot;Pink + bubbles&quot;| SPROSE[&quot;Sparkling ROSE&quot;]
+    G1 --&gt;|&quot;No bubbles&quot;| G2{&quot;GATE 2&lt;br/&gt;Pink?&quot;}
+
+    G2 --&gt;|&quot;Salmon to deep pink&quot;| ROSE[&quot;ROSE / light red&lt;br/&gt;→ rose sub-tree&quot;]
+    G2 --&gt;|&quot;Not pink&quot;| G3{&quot;GATE 3&lt;br/&gt;Hue + intensity&lt;br/&gt;+ viscosity&quot;}
+
+    G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
+    G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
+
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
+    WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
+    WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
+    WSPEC --&gt;|&quot;Copper-orange,&lt;br/&gt;no brown, hazy,&lt;br/&gt;light tannin&quot;| ORANGE[&quot;ORANGE / skin-contact&lt;br/&gt;→ curveball sub-tree&quot;]
+
+    RSPEC --&gt;|&quot;Deep ruby-purple,&lt;br/&gt;opaque, staining&quot;| YFRED[&quot;Young fortified red&lt;br/&gt;(Port/Banyuls/Recioto)&lt;br/&gt;OR concentrated passito&quot;]
+    RSPEC --&gt;|&quot;Garnet-brick,&lt;br/&gt;developed&quot;| AGEDP[&quot;Aged Port / Banyuls /&lt;br/&gt;Maury → fortified sub-tree&quot;]
+    RSPEC --&gt;|&quot;Mahogany-brown,&lt;br/&gt;viscous&quot;| OLDFORT[&quot;Very old fortified&lt;br/&gt;(old Tawny, Madeira Bual/Malmsey,&lt;br/&gt;PX, Rutherglen)&lt;br/&gt;→ fortified sub-tree&quot;]
+
+    AMBIG --&gt; G4{&quot;STEP 2 — CONFIRM&lt;br/&gt;one sniff + one sip&quot;}
+    YFRED --&gt; G4
+    G4 --&gt;|&quot;Spirit heat + sweet&quot;| FSWEET[&quot;Fortified sweet&lt;br/&gt;(Port/VDN/PX/sweet Madeira)&quot;]
+    G4 --&gt;|&quot;Spirit heat + dry&quot;| FDRY[&quot;Fortified dry / oxidative&lt;br/&gt;(Sherry/dry Madeira/Marsala)&quot;]
+    G4 --&gt;|&quot;No heat + sweet&quot;| NFSWEET[&quot;Non-fortified sweet&lt;br/&gt;(botrytis / Icewine / passito)&quot;]
+    G4 --&gt;|&quot;No heat + dry-oxidative&quot;| OXUN[&quot;Unfortified oxidative&lt;br/&gt;(Jura / Vin Jaune)&quot;]
+
+    style EYES fill:#fff3e0,stroke:#e65100
+    style SPARK fill:#e8f5e9
+    style ROSE fill:#fce4ec
+    style ORANGE fill:#f3e5f5
+    style AMBIG fill:#fff9c4,stroke:#f57f17
+    style G4 fill:#e0f7fa,stroke:#006064"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-18"><div class="mermaid">flowchart TD
+    EYES[&quot;START IN THE ROOM:&lt;br/&gt;LOOK before you smell.&lt;br/&gt;Sort every wine by appearance.&quot;] --&gt; G1{&quot;GATE 1&lt;br/&gt;Bubbles?&quot;}
+    G1 --&gt;|&quot;Persistent fine mousse&quot;| SPARK[&quot;SPARKLING&lt;br/&gt;→ sparkling sub-tree&quot;]
+    G1 --&gt;|&quot;Light spritz / petillant&quot;| SEMI[&quot;Semi-sparkling&lt;br/&gt;(pet-nat, Lambrusco,&lt;br/&gt;frizzante Moscato)&quot;]
+    G1 --&gt;|&quot;Pink + bubbles&quot;| SPROSE[&quot;Sparkling ROSE&quot;]
+    G1 --&gt;|&quot;No bubbles&quot;| G2{&quot;GATE 2&lt;br/&gt;Pink?&quot;}
+
+    G2 --&gt;|&quot;Salmon to deep pink&quot;| ROSE[&quot;ROSE / light red&lt;br/&gt;→ rose sub-tree&quot;]
+    G2 --&gt;|&quot;Not pink&quot;| G3{&quot;GATE 3&lt;br/&gt;Hue + intensity&lt;br/&gt;+ viscosity&quot;}
+
+    G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
+    G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
+
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
+    WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
+    WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
+    WSPEC --&gt;|&quot;Copper-orange,&lt;br/&gt;no brown, hazy,&lt;br/&gt;light tannin&quot;| ORANGE[&quot;ORANGE / skin-contact&lt;br/&gt;→ curveball sub-tree&quot;]
+
+    RSPEC --&gt;|&quot;Deep ruby-purple,&lt;br/&gt;opaque, staining&quot;| YFRED[&quot;Young fortified red&lt;br/&gt;(Port/Banyuls/Recioto)&lt;br/&gt;OR concentrated passito&quot;]
+    RSPEC --&gt;|&quot;Garnet-brick,&lt;br/&gt;developed&quot;| AGEDP[&quot;Aged Port / Banyuls /&lt;br/&gt;Maury → fortified sub-tree&quot;]
+    RSPEC --&gt;|&quot;Mahogany-brown,&lt;br/&gt;viscous&quot;| OLDFORT[&quot;Very old fortified&lt;br/&gt;(old Tawny, Madeira Bual/Malmsey,&lt;br/&gt;PX, Rutherglen)&lt;br/&gt;→ fortified sub-tree&quot;]
+
+    AMBIG --&gt; G4{&quot;STEP 2 — CONFIRM&lt;br/&gt;one sniff + one sip&quot;}
+    YFRED --&gt; G4
+    G4 --&gt;|&quot;Spirit heat + sweet&quot;| FSWEET[&quot;Fortified sweet&lt;br/&gt;(Port/VDN/PX/sweet Madeira)&quot;]
+    G4 --&gt;|&quot;Spirit heat + dry&quot;| FDRY[&quot;Fortified dry / oxidative&lt;br/&gt;(Sherry/dry Madeira/Marsala)&quot;]
+    G4 --&gt;|&quot;No heat + sweet&quot;| NFSWEET[&quot;Non-fortified sweet&lt;br/&gt;(botrytis / Icewine / passito)&quot;]
+    G4 --&gt;|&quot;No heat + dry-oxidative&quot;| OXUN[&quot;Unfortified oxidative&lt;br/&gt;(Jura / Vin Jaune)&quot;]
+
+    style EYES fill:#fff3e0,stroke:#e65100
+    style SPARK fill:#e8f5e9
+    style ROSE fill:#fce4ec
+    style ORANGE fill:#f3e5f5
+    style AMBIG fill:#fff9c4,stroke:#f57f17
+    style G4 fill:#e0f7fa,stroke:#006064</div></div></div><p class="diagram-note no-print">Use +/- or pinch and drag on touch devices.</p><div class="print-diagram"><div class="mermaid print-mermaid">flowchart TD
+    EYES[&quot;START IN THE ROOM:&lt;br/&gt;LOOK before you smell.&lt;br/&gt;Sort every wine by appearance.&quot;] --&gt; G1{&quot;GATE 1&lt;br/&gt;Bubbles?&quot;}
+    G1 --&gt;|&quot;Persistent fine mousse&quot;| SPARK[&quot;SPARKLING&lt;br/&gt;→ sparkling sub-tree&quot;]
+    G1 --&gt;|&quot;Light spritz / petillant&quot;| SEMI[&quot;Semi-sparkling&lt;br/&gt;(pet-nat, Lambrusco,&lt;br/&gt;frizzante Moscato)&quot;]
+    G1 --&gt;|&quot;Pink + bubbles&quot;| SPROSE[&quot;Sparkling ROSE&quot;]
+    G1 --&gt;|&quot;No bubbles&quot;| G2{&quot;GATE 2&lt;br/&gt;Pink?&quot;}
+
+    G2 --&gt;|&quot;Salmon to deep pink&quot;| ROSE[&quot;ROSE / light red&lt;br/&gt;→ rose sub-tree&quot;]
+    G2 --&gt;|&quot;Not pink&quot;| G3{&quot;GATE 3&lt;br/&gt;Hue + intensity&lt;br/&gt;+ viscosity&quot;}
+
+    G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
+    G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
+
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
+    WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
+    WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
+    WSPEC --&gt;|&quot;Copper-orange,&lt;br/&gt;no brown, hazy,&lt;br/&gt;light tannin&quot;| ORANGE[&quot;ORANGE / skin-contact&lt;br/&gt;→ curveball sub-tree&quot;]
+
+    RSPEC --&gt;|&quot;Deep ruby-purple,&lt;br/&gt;opaque, staining&quot;| YFRED[&quot;Young fortified red&lt;br/&gt;(Port/Banyuls/Recioto)&lt;br/&gt;OR concentrated passito&quot;]
+    RSPEC --&gt;|&quot;Garnet-brick,&lt;br/&gt;developed&quot;| AGEDP[&quot;Aged Port / Banyuls /&lt;br/&gt;Maury → fortified sub-tree&quot;]
+    RSPEC --&gt;|&quot;Mahogany-brown,&lt;br/&gt;viscous&quot;| OLDFORT[&quot;Very old fortified&lt;br/&gt;(old Tawny, Madeira Bual/Malmsey,&lt;br/&gt;PX, Rutherglen)&lt;br/&gt;→ fortified sub-tree&quot;]
+
+    AMBIG --&gt; G4{&quot;STEP 2 — CONFIRM&lt;br/&gt;one sniff + one sip&quot;}
+    YFRED --&gt; G4
+    G4 --&gt;|&quot;Spirit heat + sweet&quot;| FSWEET[&quot;Fortified sweet&lt;br/&gt;(Port/VDN/PX/sweet Madeira)&quot;]
+    G4 --&gt;|&quot;Spirit heat + dry&quot;| FDRY[&quot;Fortified dry / oxidative&lt;br/&gt;(Sherry/dry Madeira/Marsala)&quot;]
+    G4 --&gt;|&quot;No heat + sweet&quot;| NFSWEET[&quot;Non-fortified sweet&lt;br/&gt;(botrytis / Icewine / passito)&quot;]
+    G4 --&gt;|&quot;No heat + dry-oxidative&quot;| OXUN[&quot;Unfortified oxidative&lt;br/&gt;(Jura / Vin Jaune)&quot;]
+
+    style EYES fill:#fff3e0,stroke:#e65100
+    style SPARK fill:#e8f5e9
+    style ROSE fill:#fce4ec
+    style ORANGE fill:#f3e5f5
+    style AMBIG fill:#fff9c4,stroke:#f57f17
+    style G4 fill:#e0f7fa,stroke:#006064</div></div></section>
+<h3 id="step-2-confirmation-cues-resolve-the-look-alikes">Step 2 confirmation cues (resolve the look-alikes)</h3>
+<section class="diagram-card" data-diagram-id="diagram-19" data-mermaid="flowchart LR
+    CUE[&quot;After visual triage,&lt;br/&gt;one sniff + one sip:&quot;] --&gt; H{&quot;Spirit heat&lt;br/&gt;above ~16%?&quot;}
+    H --&gt;|&quot;Yes&quot;| HY[&quot;FORTIFIED&lt;br/&gt;(sweet vs dry next)&quot;]
+    H --&gt;|&quot;No&quot;| HN[&quot;Not fortified&quot;]
+    CUE --&gt; RS[&quot;Sweetness vs acid&lt;br/&gt;→ sweet-wine mechanism&lt;br/&gt;(Icewine / botrytis / passito)&quot;]
+    CUE --&gt; MOU[&quot;Mousse + autolysis&lt;br/&gt;→ traditional vs tank sparkling&quot;]
+    CUE --&gt; FL[&quot;Flor vs oxidative vs&lt;br/&gt;volatile+curry (Madeira)&lt;br/&gt;→ splits fortified/oxidative&quot;]
+
+    style CUE fill:#e0f7fa,stroke:#006064"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-19"><div class="mermaid">flowchart LR
+    CUE[&quot;After visual triage,&lt;br/&gt;one sniff + one sip:&quot;] --&gt; H{&quot;Spirit heat&lt;br/&gt;above ~16%?&quot;}
+    H --&gt;|&quot;Yes&quot;| HY[&quot;FORTIFIED&lt;br/&gt;(sweet vs dry next)&quot;]
+    H --&gt;|&quot;No&quot;| HN[&quot;Not fortified&quot;]
+    CUE --&gt; RS[&quot;Sweetness vs acid&lt;br/&gt;→ sweet-wine mechanism&lt;br/&gt;(Icewine / botrytis / passito)&quot;]
+    CUE --&gt; MOU[&quot;Mousse + autolysis&lt;br/&gt;→ traditional vs tank sparkling&quot;]
+    CUE --&gt; FL[&quot;Flor vs oxidative vs&lt;br/&gt;volatile+curry (Madeira)&lt;br/&gt;→ splits fortified/oxidative&quot;]
+
+    style CUE fill:#e0f7fa,stroke:#006064</div></div></div><p class="diagram-note no-print">Use +/- or pinch and drag on touch devices.</p><div class="print-diagram"><div class="mermaid print-mermaid">flowchart LR
+    CUE[&quot;After visual triage,&lt;br/&gt;one sniff + one sip:&quot;] --&gt; H{&quot;Spirit heat&lt;br/&gt;above ~16%?&quot;}
+    H --&gt;|&quot;Yes&quot;| HY[&quot;FORTIFIED&lt;br/&gt;(sweet vs dry next)&quot;]
+    H --&gt;|&quot;No&quot;| HN[&quot;Not fortified&quot;]
+    CUE --&gt; RS[&quot;Sweetness vs acid&lt;br/&gt;→ sweet-wine mechanism&lt;br/&gt;(Icewine / botrytis / passito)&quot;]
+    CUE --&gt; MOU[&quot;Mousse + autolysis&lt;br/&gt;→ traditional vs tank sparkling&quot;]
+    CUE --&gt; FL[&quot;Flor vs oxidative vs&lt;br/&gt;volatile+curry (Madeira)&lt;br/&gt;→ splits fortified/oxidative&quot;]
+
+    style CUE fill:#e0f7fa,stroke:#006064</div></div></section>
+<h2 id="2-stem-routing-which-family-pre-tasting-region-overlay">2. Stem Routing: Which Family? (pre-tasting / region overlay)</h2>
+<p>Read the stem first for context, but use it to *narrow region/variety once the visual trunk has fixed the family* -- not to guess the wine before you look.</p>
+<section class="diagram-card" data-diagram-id="diagram-20" data-mermaid="flowchart TD
     START[&quot;Read P3 stem&quot;] --&gt; V{&quot;Same variety?&quot;}
     V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
     V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
@@ -40,7 +176,7 @@
     style F4 fill:#fce4ec
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
-    style F7 fill:#fff9c4"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-18"><div class="mermaid">flowchart TD
+    style F7 fill:#fff9c4"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-20"><div class="mermaid">flowchart TD
     START[&quot;Read P3 stem&quot;] --&gt; V{&quot;Same variety?&quot;}
     V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
     V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
@@ -77,103 +213,6 @@
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
     style F7 fill:#fff9c4</div></div></section>
-<h2 id="2-visual-triage-layer-a-5-before-you-smell">2. Visual Triage (Layer A.5 -- before you smell)</h2>
-<section class="diagram-card" data-diagram-id="diagram-19" data-mermaid="flowchart TD
-    EYES[&quot;LOOK at the flight&lt;br/&gt;before picking up a glass&quot;] --&gt; BUB{&quot;Bubbles?&quot;}
-    BUB --&gt;|&quot;Persistent mousse&quot;| SPARK_VIS[&quot;SPARKLING&lt;br/&gt;→ use sparkling tree&quot;]
-    BUB --&gt;|&quot;Slight spritz&quot;| SEMI_VIS[&quot;Semi-sparkling?&lt;br/&gt;(Lambrusco / pet-nat)&quot;]
-    BUB --&gt;|&quot;None&quot;| COLOR{&quot;Color?&quot;}
-
-    COLOR --&gt;|&quot;Pale lemon&lt;br/&gt;to straw&quot;| PALE[&quot;Sweet white&lt;br/&gt;or rare dry still&quot;]
-    COLOR --&gt;|&quot;Deep gold&lt;br/&gt;to amber&quot;| AMBER[&quot;Oxidative / aged sweet&lt;br/&gt;Vin Santo, old Sauternes,&lt;br/&gt;Tokaji, Jura, Sherry&quot;]
-    COLOR --&gt;|&quot;Mahogany&lt;br/&gt;to brown&quot;| DARK[&quot;Old fortified&lt;br/&gt;Tawny 20-40yr, Madeira,&lt;br/&gt;Rutherglen, PX&quot;]
-    COLOR --&gt;|&quot;Deep ruby&lt;br/&gt;to purple&quot;| RUBY[&quot;Young fortified red&lt;br/&gt;Ruby/LBV Port,&lt;br/&gt;Banyuls Rimage, Recioto&quot;]
-    COLOR --&gt;|&quot;Garnet&lt;br/&gt;to brick&quot;| GARNET[&quot;Aged Port/Banyuls&lt;br/&gt;or mature still red&quot;]
-    COLOR --&gt;|&quot;Salmon&lt;br/&gt;to pink&quot;| PINK[&quot;ROSE&lt;br/&gt;→ use rose leaves&quot;]
-    COLOR --&gt;|&quot;Copper&lt;br/&gt;to orange&quot;| ORANGE[&quot;CURVEBALL:&lt;br/&gt;Orange/amber wine&quot;]
-
-    AMBER --&gt; TEARS{&quot;Thick tears?&quot;}
-    DARK --&gt; TEARS
-    RUBY --&gt; TEARS
-    TEARS --&gt;|&quot;Very slow, viscous&quot;| FORT_SWEET[&quot;High sugar or&lt;br/&gt;high alcohol&lt;br/&gt;→ FORTIFIED or SWEET&quot;]
-    TEARS --&gt;|&quot;Normal&quot;| CHECK[&quot;Confirm on nose&lt;br/&gt;before committing&quot;]
-
-    style EYES fill:#fff3e0,stroke:#e65100
-    style SPARK_VIS fill:#e8f5e9
-    style FORT_SWEET fill:#fce4ec
-    style ORANGE fill:#f3e5f5"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-19"><div class="mermaid">flowchart TD
-    EYES[&quot;LOOK at the flight&lt;br/&gt;before picking up a glass&quot;] --&gt; BUB{&quot;Bubbles?&quot;}
-    BUB --&gt;|&quot;Persistent mousse&quot;| SPARK_VIS[&quot;SPARKLING&lt;br/&gt;→ use sparkling tree&quot;]
-    BUB --&gt;|&quot;Slight spritz&quot;| SEMI_VIS[&quot;Semi-sparkling?&lt;br/&gt;(Lambrusco / pet-nat)&quot;]
-    BUB --&gt;|&quot;None&quot;| COLOR{&quot;Color?&quot;}
-
-    COLOR --&gt;|&quot;Pale lemon&lt;br/&gt;to straw&quot;| PALE[&quot;Sweet white&lt;br/&gt;or rare dry still&quot;]
-    COLOR --&gt;|&quot;Deep gold&lt;br/&gt;to amber&quot;| AMBER[&quot;Oxidative / aged sweet&lt;br/&gt;Vin Santo, old Sauternes,&lt;br/&gt;Tokaji, Jura, Sherry&quot;]
-    COLOR --&gt;|&quot;Mahogany&lt;br/&gt;to brown&quot;| DARK[&quot;Old fortified&lt;br/&gt;Tawny 20-40yr, Madeira,&lt;br/&gt;Rutherglen, PX&quot;]
-    COLOR --&gt;|&quot;Deep ruby&lt;br/&gt;to purple&quot;| RUBY[&quot;Young fortified red&lt;br/&gt;Ruby/LBV Port,&lt;br/&gt;Banyuls Rimage, Recioto&quot;]
-    COLOR --&gt;|&quot;Garnet&lt;br/&gt;to brick&quot;| GARNET[&quot;Aged Port/Banyuls&lt;br/&gt;or mature still red&quot;]
-    COLOR --&gt;|&quot;Salmon&lt;br/&gt;to pink&quot;| PINK[&quot;ROSE&lt;br/&gt;→ use rose leaves&quot;]
-    COLOR --&gt;|&quot;Copper&lt;br/&gt;to orange&quot;| ORANGE[&quot;CURVEBALL:&lt;br/&gt;Orange/amber wine&quot;]
-
-    AMBER --&gt; TEARS{&quot;Thick tears?&quot;}
-    DARK --&gt; TEARS
-    RUBY --&gt; TEARS
-    TEARS --&gt;|&quot;Very slow, viscous&quot;| FORT_SWEET[&quot;High sugar or&lt;br/&gt;high alcohol&lt;br/&gt;→ FORTIFIED or SWEET&quot;]
-    TEARS --&gt;|&quot;Normal&quot;| CHECK[&quot;Confirm on nose&lt;br/&gt;before committing&quot;]
-
-    style EYES fill:#fff3e0,stroke:#e65100
-    style SPARK_VIS fill:#e8f5e9
-    style FORT_SWEET fill:#fce4ec
-    style ORANGE fill:#f3e5f5</div></div></div><p class="diagram-note no-print">Use +/- or pinch and drag on touch devices.</p><div class="print-diagram"><div class="mermaid print-mermaid">flowchart TD
-    EYES[&quot;LOOK at the flight&lt;br/&gt;before picking up a glass&quot;] --&gt; BUB{&quot;Bubbles?&quot;}
-    BUB --&gt;|&quot;Persistent mousse&quot;| SPARK_VIS[&quot;SPARKLING&lt;br/&gt;→ use sparkling tree&quot;]
-    BUB --&gt;|&quot;Slight spritz&quot;| SEMI_VIS[&quot;Semi-sparkling?&lt;br/&gt;(Lambrusco / pet-nat)&quot;]
-    BUB --&gt;|&quot;None&quot;| COLOR{&quot;Color?&quot;}
-
-    COLOR --&gt;|&quot;Pale lemon&lt;br/&gt;to straw&quot;| PALE[&quot;Sweet white&lt;br/&gt;or rare dry still&quot;]
-    COLOR --&gt;|&quot;Deep gold&lt;br/&gt;to amber&quot;| AMBER[&quot;Oxidative / aged sweet&lt;br/&gt;Vin Santo, old Sauternes,&lt;br/&gt;Tokaji, Jura, Sherry&quot;]
-    COLOR --&gt;|&quot;Mahogany&lt;br/&gt;to brown&quot;| DARK[&quot;Old fortified&lt;br/&gt;Tawny 20-40yr, Madeira,&lt;br/&gt;Rutherglen, PX&quot;]
-    COLOR --&gt;|&quot;Deep ruby&lt;br/&gt;to purple&quot;| RUBY[&quot;Young fortified red&lt;br/&gt;Ruby/LBV Port,&lt;br/&gt;Banyuls Rimage, Recioto&quot;]
-    COLOR --&gt;|&quot;Garnet&lt;br/&gt;to brick&quot;| GARNET[&quot;Aged Port/Banyuls&lt;br/&gt;or mature still red&quot;]
-    COLOR --&gt;|&quot;Salmon&lt;br/&gt;to pink&quot;| PINK[&quot;ROSE&lt;br/&gt;→ use rose leaves&quot;]
-    COLOR --&gt;|&quot;Copper&lt;br/&gt;to orange&quot;| ORANGE[&quot;CURVEBALL:&lt;br/&gt;Orange/amber wine&quot;]
-
-    AMBER --&gt; TEARS{&quot;Thick tears?&quot;}
-    DARK --&gt; TEARS
-    RUBY --&gt; TEARS
-    TEARS --&gt;|&quot;Very slow, viscous&quot;| FORT_SWEET[&quot;High sugar or&lt;br/&gt;high alcohol&lt;br/&gt;→ FORTIFIED or SWEET&quot;]
-    TEARS --&gt;|&quot;Normal&quot;| CHECK[&quot;Confirm on nose&lt;br/&gt;before committing&quot;]
-
-    style EYES fill:#fff3e0,stroke:#e65100
-    style SPARK_VIS fill:#e8f5e9
-    style FORT_SWEET fill:#fce4ec
-    style ORANGE fill:#f3e5f5</div></div></section>
-<h3 id="visual-triage-quick-reference">Visual Triage Quick-Reference</h3>
-<section class="diagram-card" data-diagram-id="diagram-20" data-mermaid="flowchart LR
-    VT[&quot;Color → Category&lt;br/&gt;Quick Map&quot;] --&gt; C1[&quot;Pale + bubbles&lt;br/&gt;= Sparkling&quot;]
-    VT --&gt; C2[&quot;Gold/amber + still&lt;br/&gt;= Oxidative or&lt;br/&gt;aged sweet&quot;]
-    VT --&gt; C3[&quot;Dark brown + still&lt;br/&gt;= Old fortified&quot;]
-    VT --&gt; C4[&quot;Ruby/purple + still&lt;br/&gt;= Young fortified red&quot;]
-    VT --&gt; C5[&quot;Pink&lt;br/&gt;= Rose&quot;]
-    VT --&gt; C6[&quot;Copper/orange&lt;br/&gt;= Amber wine&quot;]
-
-    style VT fill:#fff3e0,stroke:#e65100"><div class="diagram-toolbar no-print"><button type="button" class="zoom-button" data-action="zoom-out">-</button><button type="button" class="zoom-button" data-action="zoom-in">+</button><button type="button" class="zoom-button" data-action="reset">Reset</button><button type="button" class="zoom-button" data-action="download-svg">SVG</button></div><div class="diagram-scroll"><div class="diagram-stage" id="diagram-20"><div class="mermaid">flowchart LR
-    VT[&quot;Color → Category&lt;br/&gt;Quick Map&quot;] --&gt; C1[&quot;Pale + bubbles&lt;br/&gt;= Sparkling&quot;]
-    VT --&gt; C2[&quot;Gold/amber + still&lt;br/&gt;= Oxidative or&lt;br/&gt;aged sweet&quot;]
-    VT --&gt; C3[&quot;Dark brown + still&lt;br/&gt;= Old fortified&quot;]
-    VT --&gt; C4[&quot;Ruby/purple + still&lt;br/&gt;= Young fortified red&quot;]
-    VT --&gt; C5[&quot;Pink&lt;br/&gt;= Rose&quot;]
-    VT --&gt; C6[&quot;Copper/orange&lt;br/&gt;= Amber wine&quot;]
-
-    style VT fill:#fff3e0,stroke:#e65100</div></div></div><p class="diagram-note no-print">Use +/- or pinch and drag on touch devices.</p><div class="print-diagram"><div class="mermaid print-mermaid">flowchart LR
-    VT[&quot;Color → Category&lt;br/&gt;Quick Map&quot;] --&gt; C1[&quot;Pale + bubbles&lt;br/&gt;= Sparkling&quot;]
-    VT --&gt; C2[&quot;Gold/amber + still&lt;br/&gt;= Oxidative or&lt;br/&gt;aged sweet&quot;]
-    VT --&gt; C3[&quot;Dark brown + still&lt;br/&gt;= Old fortified&quot;]
-    VT --&gt; C4[&quot;Ruby/purple + still&lt;br/&gt;= Young fortified red&quot;]
-    VT --&gt; C5[&quot;Pink&lt;br/&gt;= Rose&quot;]
-    VT --&gt; C6[&quot;Copper/orange&lt;br/&gt;= Amber wine&quot;]
-
-    style VT fill:#fff3e0,stroke:#e65100</div></div></section>
 <h2 id="3-f5-method-the-engine-of-p3-10-questions">3. F5 Method -- THE Engine of P3 (10 questions)</h2>
 <h3 id="step-1-production-family-lock">Step 1: Production Family Lock</h3>
 <section class="diagram-card" data-diagram-id="diagram-21" data-mermaid="flowchart TD

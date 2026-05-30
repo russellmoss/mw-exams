@@ -1,6 +1,67 @@
 # P3 Special -- Mermaid Study Diagrams
 
-## 1. Stem Routing: Which Family?
+> **P3 order of operations:** on Paper 3 you let your eyes lead. Start at the **Visual Triage trunk** (Section 1) to sort every wine into a production family by appearance, confirm with one sniff + one sip, then drop into the family sub-tree. Use **Stem Routing** (Section 2) as pre-tasting context to narrow region/variety once the family is fixed.
+
+## 1. Visual Triage -- START HERE (the trunk of the tasting tree)
+
+This is the root of the in-glass tree on P3. Run every wine through Gate 1 -> Gate 2 -> Gate 3; the first gate it trips assigns its family. Resolve any leftover ambiguity at the Step 2 confirmation gate.
+
+```mermaid
+flowchart TD
+    EYES["START IN THE ROOM:<br/>LOOK before you smell.<br/>Sort every wine by appearance."] --> G1{"GATE 1<br/>Bubbles?"}
+    G1 -->|"Persistent fine mousse"| SPARK["SPARKLING<br/>→ sparkling sub-tree"]
+    G1 -->|"Light spritz / petillant"| SEMI["Semi-sparkling<br/>(pet-nat, Lambrusco,<br/>frizzante Moscato)"]
+    G1 -->|"Pink + bubbles"| SPROSE["Sparkling ROSE"]
+    G1 -->|"No bubbles"| G2{"GATE 2<br/>Pink?"}
+
+    G2 -->|"Salmon to deep pink"| ROSE["ROSE / light red<br/>→ rose sub-tree"]
+    G2 -->|"Not pink"| G3{"GATE 3<br/>Hue + intensity<br/>+ viscosity"}
+
+    G3 -->|"WHITE / AMBER<br/>spectrum"| WSPEC{"White-amber<br/>colour?"}
+    G3 -->|"RED<br/>spectrum"| RSPEC{"Red<br/>colour?"}
+
+    WSPEC -->|"Pale lemon-straw<br/>+ thin tears"| DRYW["Dry still white (rare)<br/>or light off-dry<br/>often the anchor wine"]
+    WSPEC -->|"Pale lemon-straw<br/>+ THICK tears"| ICEW["Icewine / Eiswein<br/>or young botrytis<br/>→ sweet sub-tree"]
+    WSPEC -->|"Deep gold-amber<br/>+ thick tears<br/>NO bubbles"| AMBIG["AMBIGUOUS:<br/>sweet OR oxidative<br/>OR lighter fortified"]
+    WSPEC -->|"Pale tawny /<br/>amber-orange"| TAWNY["Young Tawny, Amontillado,<br/>Palo Cortado, dry Madeira<br/>→ fortified sub-tree"]
+    WSPEC -->|"Copper-orange,<br/>no brown, hazy,<br/>light tannin"| ORANGE["ORANGE / skin-contact<br/>→ curveball sub-tree"]
+
+    RSPEC -->|"Deep ruby-purple,<br/>opaque, staining"| YFRED["Young fortified red<br/>(Port/Banyuls/Recioto)<br/>OR concentrated passito"]
+    RSPEC -->|"Garnet-brick,<br/>developed"| AGEDP["Aged Port / Banyuls /<br/>Maury → fortified sub-tree"]
+    RSPEC -->|"Mahogany-brown,<br/>viscous"| OLDFORT["Very old fortified<br/>(old Tawny, Madeira Bual/Malmsey,<br/>PX, Rutherglen)<br/>→ fortified sub-tree"]
+
+    AMBIG --> G4{"STEP 2 — CONFIRM<br/>one sniff + one sip"}
+    YFRED --> G4
+    G4 -->|"Spirit heat + sweet"| FSWEET["Fortified sweet<br/>(Port/VDN/PX/sweet Madeira)"]
+    G4 -->|"Spirit heat + dry"| FDRY["Fortified dry / oxidative<br/>(Sherry/dry Madeira/Marsala)"]
+    G4 -->|"No heat + sweet"| NFSWEET["Non-fortified sweet<br/>(botrytis / Icewine / passito)"]
+    G4 -->|"No heat + dry-oxidative"| OXUN["Unfortified oxidative<br/>(Jura / Vin Jaune)"]
+
+    style EYES fill:#fff3e0,stroke:#e65100
+    style SPARK fill:#e8f5e9
+    style ROSE fill:#fce4ec
+    style ORANGE fill:#f3e5f5
+    style AMBIG fill:#fff9c4,stroke:#f57f17
+    style G4 fill:#e0f7fa,stroke:#006064
+```
+
+### Step 2 confirmation cues (resolve the look-alikes)
+
+```mermaid
+flowchart LR
+    CUE["After visual triage,<br/>one sniff + one sip:"] --> H{"Spirit heat<br/>above ~16%?"}
+    H -->|"Yes"| HY["FORTIFIED<br/>(sweet vs dry next)"]
+    H -->|"No"| HN["Not fortified"]
+    CUE --> RS["Sweetness vs acid<br/>→ sweet-wine mechanism<br/>(Icewine / botrytis / passito)"]
+    CUE --> MOU["Mousse + autolysis<br/>→ traditional vs tank sparkling"]
+    CUE --> FL["Flor vs oxidative vs<br/>volatile+curry (Madeira)<br/>→ splits fortified/oxidative"]
+
+    style CUE fill:#e0f7fa,stroke:#006064
+```
+
+## 2. Stem Routing: Which Family? (pre-tasting / region overlay)
+
+Read the stem first for context, but use it to *narrow region/variety once the visual trunk has fixed the family* -- not to guess the wine before you look.
 
 ```mermaid
 flowchart TD
@@ -22,49 +83,6 @@ flowchart TD
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
     style F7 fill:#fff9c4
-```
-
-## 2. Visual Triage (Layer A.5 -- before you smell)
-
-```mermaid
-flowchart TD
-    EYES["LOOK at the flight<br/>before picking up a glass"] --> BUB{"Bubbles?"}
-    BUB -->|"Persistent mousse"| SPARK_VIS["SPARKLING<br/>→ use sparkling tree"]
-    BUB -->|"Slight spritz"| SEMI_VIS["Semi-sparkling?<br/>(Lambrusco / pet-nat)"]
-    BUB -->|"None"| COLOR{"Color?"}
-
-    COLOR -->|"Pale lemon<br/>to straw"| PALE["Sweet white<br/>or rare dry still"]
-    COLOR -->|"Deep gold<br/>to amber"| AMBER["Oxidative / aged sweet<br/>Vin Santo, old Sauternes,<br/>Tokaji, Jura, Sherry"]
-    COLOR -->|"Mahogany<br/>to brown"| DARK["Old fortified<br/>Tawny 20-40yr, Madeira,<br/>Rutherglen, PX"]
-    COLOR -->|"Deep ruby<br/>to purple"| RUBY["Young fortified red<br/>Ruby/LBV Port,<br/>Banyuls Rimage, Recioto"]
-    COLOR -->|"Garnet<br/>to brick"| GARNET["Aged Port/Banyuls<br/>or mature still red"]
-    COLOR -->|"Salmon<br/>to pink"| PINK["ROSE<br/>→ use rose leaves"]
-    COLOR -->|"Copper<br/>to orange"| ORANGE["CURVEBALL:<br/>Orange/amber wine"]
-
-    AMBER --> TEARS{"Thick tears?"}
-    DARK --> TEARS
-    RUBY --> TEARS
-    TEARS -->|"Very slow, viscous"| FORT_SWEET["High sugar or<br/>high alcohol<br/>→ FORTIFIED or SWEET"]
-    TEARS -->|"Normal"| CHECK["Confirm on nose<br/>before committing"]
-
-    style EYES fill:#fff3e0,stroke:#e65100
-    style SPARK_VIS fill:#e8f5e9
-    style FORT_SWEET fill:#fce4ec
-    style ORANGE fill:#f3e5f5
-```
-
-### Visual Triage Quick-Reference
-
-```mermaid
-flowchart LR
-    VT["Color → Category<br/>Quick Map"] --> C1["Pale + bubbles<br/>= Sparkling"]
-    VT --> C2["Gold/amber + still<br/>= Oxidative or<br/>aged sweet"]
-    VT --> C3["Dark brown + still<br/>= Old fortified"]
-    VT --> C4["Ruby/purple + still<br/>= Young fortified red"]
-    VT --> C5["Pink<br/>= Rose"]
-    VT --> C6["Copper/orange<br/>= Amber wine"]
-
-    style VT fill:#fff3e0,stroke:#e65100
 ```
 
 ## 3. F5 Method -- THE Engine of P3 (10 questions)
