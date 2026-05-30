@@ -354,7 +354,7 @@ export default function CostsPage() {
           {data?.mediaCache && (
             <Panel
               title="Feedback image cache"
-              subtitle={`${num(data.mediaCache.rows)} images cached · ${bytes(data.mediaCache.bytes)} in Neon · reused ${num(data.mediaCache.callsSaved)} times, saving ~${usd(data.mediaCache.costSaved)} in Tavily calls${data.mediaCache.missing ? ` · ${num(data.mediaCache.missing)} empty` : ""}`}
+              subtitle={`${num(data.mediaCache.rows)} images cached · ${bytes(data.mediaCache.bytes)} in Neon · reused ${num(data.mediaCache.callsSaved)} times (${data.mediaCache.totalUses > 0 ? Math.round((data.mediaCache.callsSaved / data.mediaCache.totalUses) * 100) : 0}% hit rate), saving ~${usd(data.mediaCache.costSaved)} in Tavily calls${data.mediaCache.missing ? ` · ${num(data.mediaCache.missing)} empty` : ""}`}
             >
               <SimpleTable
                 head={["Image query", "Reuses", "Size"]}
