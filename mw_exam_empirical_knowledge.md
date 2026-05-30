@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0087).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0086).**
 - **2026-05-30 — scoring truth: enriched EK-0001/EK-0041 — exactly-25-marks/wine is a *modern-exam*
   convention (~2013 onward; pre-2013 papers differed), now hard-enforced (R6 soft→hard); recorded the
@@ -678,6 +679,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 101 | 10 | P1/F2 | reject | auto | "Pinot Noir is not in Burgundy" — obviously false test feedback | EK-0066 |
 | 129 | 16 | P2/F3 | partial | auto | Mavrotragano too obscure (prefer Xinomavro/Agiorgitiko); olive cue contradicted Australian wine; Carménère green character understated | EK-0073, EK-0074 |
 | 139 | 22 | P2/F1 | accept | auto | Stem Sniper should grade ambiguous single-answer origin questions on the plausible set, not exact per-wine pick | EK-0086 |
+| 141 | 23 | P3/F7 | accept | auto | novelty check is not session-aware; same question+wines re-served to same user same day | EK-0087 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
@@ -812,6 +814,11 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   the user. **Prevention:** treat browser `continuous=true` as a hint, not a guarantee — long-form dictation
   must auto-restart on `onend` rather than trusting the engine to stay open. (Same lesson family as EK-0064:
   a declared flag is not an enforced behavior.)
+
+### EK-0087 · Novelty check is not session-aware — same question/wines served twice in a session
+- **tier:** PROCESS · **status:** live
+- **evidence:** ledger: attempt #141 / analysis #23 (accept)
+- **claim:** **Symptom:** a user received the exact same question with the exact same wines twice in one day (a P3 sparkling-pair, Crémant de Limoux + Nyetimber), despite the novelty check reporting `{"valid":true}`. **Root cause:** the novelty check (EK-0051) compares against the historical/static corpus and the last 3–5 served questions in a category, but is **not session-aware** — it does not dedupe against what was just served to this same user, and/or the question was retrieved/cached rather than regenerated. **Fix (pending):** make the novelty/dedup check session-aware so a recently-served question+wine set is not re-served to the same user. **Prevention:** track per-session served question signatures and exclude them at serve time.
 
 ---
 
