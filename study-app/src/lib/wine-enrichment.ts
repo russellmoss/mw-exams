@@ -1,10 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEntry, type TastingGrid } from "./wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
+import { logClaudeUsage, logTavilyUsage } from "./usage-log";
+import { selectModel } from "./model-selector";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 
-async function searchTavily(query: string): Promise<{ snippets: string[]; sources: string[] }> {
+// Usage-tracking context threaded from the request so each enrichment call (Tavily + Claude)
+// is attributed to the right source/user/question.
+type EnrichMeta = { source?: "user" | "server"; userId?: number | null; questionId?: string | null };
+
+async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippets: string[]; sources: string[] }> {
   const tavilyKey = process.env.TAVILY_API_KEY;
   if (!tavilyKey) {
     console.warn("TAVILY_API_KEY not set — skipping web research");
@@ -27,6 +33,7 @@ async function searchTavily(query: string): Promise<{ snippets: string[]; source
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.error(`Tavily API error ${res.status}: ${body.slice(0, 200)}`);
+      logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId, questionId: meta?.questionId, success: false });
       return { snippets: [], sources: [] };
     }
     const data = await res.json();
@@ -37,9 +44,11 @@ async function searchTavily(query: string): Promise<{ snippets: string[]; source
       if (r.url) sources.push(r.url);
     }
     console.log(`Tavily returned ${snippets.length} snippets for: ${query.slice(0, 80)}`);
+    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: (data.results || []).length, userId: meta?.userId, questionId: meta?.questionId, success: true });
     return { snippets, sources };
   } catch (err) {
     console.error("Tavily search failed:", err);
+    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId, questionId: meta?.questionId, success: false });
     return { snippets: [], sources: [] };
   }
 }
@@ -61,12 +70,13 @@ function parseWineIdentity(fullText: string): { producer: string; wineName: stri
 
 async function researchWineViaTavily(
   wine: { slot: number; fullText: string },
-  apiKey: string
+  apiKey: string,
+  meta?: EnrichMeta
 ): Promise<WineProfile> {
   const identity = parseWineIdentity(wine.fullText);
   const query = `${identity.producer} ${identity.wineName} ${identity.vintage} tasting notes appearance color aroma palate review`;
 
-  const tavily = await searchTavily(query);
+  const tavily = await searchTavily(query, meta);
   const hasTavilyResults = tavily.snippets.length >= 1;
 
   const GRID_SYSTEM = `You are an MW-level wine expert building a structured tasting grid. Use the MW Systematic Approach to Tasting (SAT) framework.
@@ -90,6 +100,7 @@ Output exactly one JSON object (no markdown, no code fences):
 {"color":"...","clarity":"...","viscosity":"...","nose_intensity":"...","nose_descriptors":"...","palate_sweetness":"...","palate_acid":"...","palate_tannin":"...","palate_body":"...","palate_alcohol":"...","palate_flavor_descriptors":"...","palate_finish":"...","quality_assessment":"...","sources":["..."],"inferred_fields":["field names you had to infer rather than find stated"]}`;
 
   const client = new Anthropic({ apiKey });
+  const { model: enrichModel, abGroup: enrichAb } = await selectModel("wine_enrichment", apiKey, "sonnet");
   let grid: TastingGrid | null = null;
   let sourceMethod: WineProfile["source_method"] = "none";
   let confidence: "high" | "medium" | "low" = "low";
@@ -97,8 +108,9 @@ Output exactly one JSON object (no markdown, no code fences):
   if (hasTavilyResults) {
     // Step 1: Extract what Tavily sources explicitly state
     try {
+      const t0 = Date.now();
       const message = await client.messages.create({
-        model: "claude-sonnet-4-6",
+        model: enrichModel,
         max_tokens: 1000,
         system: GRID_SYSTEM + `\n\nIMPORTANT: You have real search results below. Extract every detail the sources state. For fields where sources give no information, write "NOT_FOUND" as the value — do NOT guess. Put "NOT_FOUND" fields in inferred_fields.`,
         messages: [{
@@ -106,6 +118,11 @@ Output exactly one JSON object (no markdown, no code fences):
           content: `Wine: ${wine.fullText}\n\nSearch results:\n${tavily.snippets.map((s, i) => `[${i + 1}] ${s}`).join("\n\n")}\n\nBuild the tasting grid from these sources. Use "NOT_FOUND" for anything the sources don't cover.`,
         }],
       });
+      logClaudeUsage(
+        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup: enrichAb },
+        message.usage,
+        { latencyMs: Date.now() - t0 }
+      );
 
       const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -142,8 +159,9 @@ Output exactly one JSON object (no markdown, no code fences):
         ? `\n\nA partial grid was extracted from web sources:\n${JSON.stringify(grid)}\n\nThe following fields are incomplete or missing: ${gapFields.join(", ")}. Fill these fields using your expert knowledge of this exact producer, cuvée, vintage, and region. Keep all well-populated values exactly as they are. Update inferred_fields to list every field you filled in.`
         : `\n\nNo web sources were available. Build the complete grid from your knowledge of this exact producer, cuvée, and vintage. Be specific to THIS wine, not generic. List all fields in inferred_fields.`;
 
+      const t0 = Date.now();
       const message = await client.messages.create({
-        model: "claude-sonnet-4-6",
+        model: enrichModel,
         max_tokens: 1000,
         system: GRID_SYSTEM + `\n\nYou are filling in gaps using your expert wine knowledge. Be accurate to this specific wine — use your knowledge of the producer's style, the appellation norms, and the vintage character.`,
         messages: [{
@@ -151,6 +169,11 @@ Output exactly one JSON object (no markdown, no code fences):
           content: `Wine: ${wine.fullText}${gapContext}`,
         }],
       });
+      logClaudeUsage(
+        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup: enrichAb },
+        message.usage,
+        { latencyMs: Date.now() - t0 }
+      );
 
       const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -243,9 +266,11 @@ async function addToWineBank(wine: { slot: number; fullText: string }, profile: 
 export async function enrichWineProfiles(
   questionId: string,
   wines: { slot: number; fullText: string }[],
-  apiKey: string
+  apiKey: string,
+  meta?: { source?: "user" | "server"; userId?: number | null }
 ): Promise<Record<string, WineProfile>> {
   const profiles = await lookupWines(wines);
+  const enrichMeta: EnrichMeta = { source: meta?.source, userId: meta?.userId, questionId };
 
   const needsEnrichment = wines.filter(
     (w) => profiles[String(w.slot)]?.source_method === "none"
@@ -253,7 +278,7 @@ export async function enrichWineProfiles(
 
   // Research each non-bank wine via Tavily, then add to bank
   for (const wine of needsEnrichment) {
-    const profile = await researchWineViaTavily(wine, apiKey);
+    const profile = await researchWineViaTavily(wine, apiKey, enrichMeta);
     profiles[String(wine.slot)] = profile;
 
     if (profile.tasting_profile) {

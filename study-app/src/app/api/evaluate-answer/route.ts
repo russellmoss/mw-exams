@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluation-prompt";
 import { requireApiKey } from "@/lib/api-key";
+import { logClaudeUsage } from "@/lib/usage-log";
+import { selectModel } from "@/lib/model-selector";
 
 export const runtime = "nodejs";
 
@@ -39,8 +41,10 @@ ${modelAnswer}`;
 
 Please evaluate this candidate's answer against the model answer. Assess identification accuracy, reasoning quality, specificity, and completeness for each sub-question.`;
 
+    const { model, abGroup } = await selectModel("answer_grading", keyResult.apiKey, "sonnet");
+    const t0 = Date.now();
     const stream = await client.messages.stream({
-      model: "claude-sonnet-4-6",
+      model,
       max_tokens: 2000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -60,6 +64,12 @@ Please evaluate this candidate's answer against the model answer. Assess identif
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
             }
           }
+          const final = await stream.finalMessage();
+          logClaudeUsage(
+            { taskType: "answer_grading", model, source: keyResult.source, userId: keyResult.user.id, abGroup },
+            final.usage,
+            { latencyMs: Date.now() - t0 }
+          );
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {

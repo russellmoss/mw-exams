@@ -1,0 +1,67 @@
+name: empirical-knowledge-sync
+
+# Weekly consolidation pass for the living knowledge base mw_exam_empirical_knowledge.md.
+#
+# The zero-latency path is the incremental step inside auto-feedback.yml (fires the moment a feedback
+# item resolves). This cron is the CATCH-UP / consolidation pass: it sweeps up any resolved feedback
+# the incremental path missed (e.g. items resolved without dispatching the apply workflow, or runs
+# where the incremental step failed and warned), and lets Claude re-cohere the doc.
+#
+# It runs the shared core in consolidate mode and commits straight to master (no PR, no branch — it is
+# a document, per empirical_knowledge_doc_plan.md). Loop/deploy-safe: a root-level .md push triggers no
+# workflow (this is schedule/dispatch-triggered, not push) and no build (git auto-deploy is disabled
+# and the Vercel ignored-build-step is scoped to study-app/).
+
+on:
+  schedule:
+    # Weekly, Mondays 05:00 UTC (after the Neon maintenance window on Fridays; quiet time).
+    - cron: "0 5 * * 1"
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: empirical-knowledge-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      APP_DIR: study-app
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Configure git identity
+        run: |
+          git config user.name "empirical-sync[bot]"
+          git config user.email "empirical-sync@users.noreply.github.com"
+
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Consolidate empirical knowledge (→ master)
+        # Process every resolved feedback item not yet in the cursor, apply Claude's cited entries,
+        # and commit + push to master. Non-fatal: a failure here must never wedge the repo.
+        run: |
+          set +e
+          node "$APP_DIR/scripts/sync-empirical-knowledge.mjs" --mode consolidate --commit
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            echo "::warning title=empirical sync::consolidation pass failed (exit $RC); knowledge doc not updated this run."
+          fi
+          # Always succeed — the cron is best-effort; the incremental path and next week's run cover gaps.
+          exit 0

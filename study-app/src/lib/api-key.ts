@@ -51,7 +51,7 @@ export async function getUserApiKey(
  */
 export async function requireApiKey(
   request: Request
-): Promise<{ user: AuthUser; apiKey: string } | Response> {
+): Promise<{ user: AuthUser; apiKey: string; source: "user" | "server" } | Response> {
   const result = await getUserApiKey(request);
 
   if (!result.user) {
@@ -65,5 +65,5 @@ export async function requireApiKey(
     );
   }
 
-  return { user: result.user, apiKey: result.key.apiKey };
+  return { user: result.user, apiKey: result.key.apiKey, source: result.key.source };
 }

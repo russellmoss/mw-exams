@@ -2,6 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { getFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
+import { logClaudeUsage } from "@/lib/usage-log";
+import { selectModel } from "@/lib/model-selector";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -59,8 +61,10 @@ export async function POST(
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
+    const { model, abGroup } = await selectModel("feedback_reply", keyResult.apiKey, "sonnet");
+    const t0 = Date.now();
     const stream = await client.messages.stream({
-      model: "claude-sonnet-4-6",
+      model,
       max_tokens: 2000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
@@ -99,6 +103,13 @@ export async function POST(
             status: "complete",
             recommendation,
           });
+
+          const final = await stream.finalMessage();
+          logClaudeUsage(
+            { taskType: "feedback_reply", model, source: keyResult.source, userId: keyResult.user.id, abGroup },
+            final.usage,
+            { latencyMs: Date.now() - t0 }
+          );
 
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();

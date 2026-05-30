@@ -10,12 +10,17 @@ import { saveGeneratedQuestion } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { neon } from "@neondatabase/serverless";
-import { getLatestOpus } from "@/lib/model-resolver";
+import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+// Usage-tracking context threaded from the request through the background helpers so
+// each Claude call is attributed to the right source (server key = we pay) and user.
+type UsageMeta = { source: "user" | "server"; userId: number | null };
 
 const FAMILY_LABELS: Record<string, string> = {
   F1: "Same Variety",
@@ -48,20 +53,27 @@ function generateModelAnswerInBackground(
   wines: { slot: number; fullText: string }[],
   paper: number,
   family: string,
-  apiKey: string
+  apiKey: string,
+  meta?: UsageMeta
 ) {
   (async () => {
     try {
       const client = new Anthropic({ apiKey });
-      const opusModel = await getLatestOpus(apiKey);
+      const { model, abGroup } = await selectModel("model_answer", apiKey, "opus");
       const prompt = buildModelAnswerPrompt(questionText, wines, paper);
 
+      const t0 = Date.now();
       const message = await client.messages.create({
-        model: opusModel,
+        model,
         max_tokens: 4000,
         system: prompt.system,
         messages: [{ role: "user", content: prompt.user }],
       });
+      logClaudeUsage(
+        { taskType: "model_answer", model, source: meta?.source, userId: meta?.userId, questionId, abGroup },
+        message.usage,
+        { latencyMs: Date.now() - t0 }
+      );
 
       const text = message.content
         .filter((b) => b.type === "text")
@@ -120,7 +132,7 @@ function extractSection(
   return text.slice(startIdx).trim();
 }
 
-async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string): Promise<GeneratedQuestion> {
+async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string, meta?: UsageMeta): Promise<GeneratedQuestion> {
   if (question.paper !== 3) return question;
   const wines = typeof question.wines === "string" ? JSON.parse(question.wines) : question.wines;
   const hasAppearances = wines.some((w: { appearance?: string }) => w.appearance);
@@ -128,13 +140,20 @@ async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string):
 
   try {
     const client = new Anthropic({ apiKey });
+    const { model, abGroup } = await selectModel("question_appearance", apiKey, "sonnet");
     const wineList = wines.map((w: { slot: number; fullText: string }) => `${w.slot}. ${w.fullText}`).join("\n");
+    const t0 = Date.now();
     const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model,
       max_tokens: 500,
       system: `For each wine, describe ONLY what a candidate would see in the glass — color, clarity, bubbles if present, viscosity. No aromas, no tastes, no wine-type labels. Be accurate for the specific wine. One line per wine, 10-20 words. Output as JSON array: [{"slot":1,"appearance":"..."},...]`,
       messages: [{ role: "user", content: `Generate visual appearance notes:\n${wineList}` }],
     });
+    logClaudeUsage(
+      { taskType: "question_appearance", model, source: meta?.source, userId: meta?.userId, questionId: question.question_id, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
     const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
     const match = text.match(/\[[\s\S]*\]/);
     if (match) {
@@ -222,6 +241,7 @@ export async function POST(request: Request) {
     const keyResult = await requireApiKey(request);
     if (keyResult instanceof Response) return keyResult;
     const userApiKey = keyResult.apiKey;
+    const meta: UsageMeta = { source: keyResult.source, userId: keyResult.user.id };
 
     const { paper, family, forceFresh } = await request.json();
 
@@ -232,7 +252,7 @@ export async function POST(request: Request) {
     // Skip bank and generate fresh if requested
     if (forceFresh) {
       console.log(`Force fresh question requested for P${paper} ${family || "any"}`);
-      return generateFreshQuestion(paper, family, userApiKey);
+      return generateFreshQuestion(paper, family, userApiKey, meta);
     }
 
     // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
@@ -240,7 +260,7 @@ export async function POST(request: Request) {
     const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family));
     if (unanswered.length > 0) {
       let picked = pickFlightSizeAware(unanswered, family);
-      picked = await ensureP3Appearances(picked, userApiKey);
+      picked = await ensureP3Appearances(picked, userApiKey, meta);
       console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
@@ -267,7 +287,7 @@ export async function POST(request: Request) {
 
     if (staleWithAnswers.length > 0) {
       let picked = pickFlightSizeAware(staleWithAnswers, family);
-      picked = await ensureP3Appearances(picked, userApiKey);
+      picked = await ensureP3Appearances(picked, userApiKey, meta);
       console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
@@ -277,7 +297,7 @@ export async function POST(request: Request) {
     }
 
     // PRIORITY 3: Generate fresh on the fly
-    return generateFreshQuestion(paper, family, userApiKey);
+    return generateFreshQuestion(paper, family, userApiKey, meta);
   } catch (err) {
     console.error("get-question error:", err);
     return Response.json(
@@ -287,7 +307,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function generateFreshQuestion(paper: number, family: string | undefined, apiKey: string) {
+async function generateFreshQuestion(paper: number, family: string | undefined, apiKey: string, meta?: UsageMeta) {
   const client = new Anthropic({ apiKey });
 
   // Pull existing wines from the bank for deduplication
@@ -331,6 +351,14 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     | null = null;
   let lastViolations: string[] = [];
 
+  // A/B model arm for question generation. Picked once: attempt 1 uses the selected arm
+  // (Opus by default); retries always fall back to Sonnet (not part of the experiment).
+  // The arm that produced the served question is stamped into metadata for the Phase 3
+  // accuracy join (generated_questions → feedback outcome).
+  const gen = await selectModel("question_generation", apiKey, "opus");
+  let genModelUsed: string | null = null;
+  let genAbGroup: string | null = null;
+
   // Wall-clock budget. A slow or throttled model (the Anthropic SDK retries 429/529/5xx with
   // backoff, so one "call" can take a minute) must never push this request past Vercel's
   // function limit and trigger a 504. When the budget is spent we stop generating and serve a
@@ -348,9 +376,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       );
       break;
     }
-    const model = attempt === 1 ? await getLatestOpus(apiKey) : "claude-sonnet-4-6";
+    const model = attempt === 1 ? gen.model : "claude-sonnet-4-6";
+    const attemptAb = attempt === 1 ? gen.abGroup : null;
     const callOpts = { timeout: CALL_TIMEOUT_MS, maxRetries: 1 } as const;
     let message;
+    let producedModel = model;
+    let producedAb = attemptAb;
+    const t0 = Date.now();
     try {
       message = await client.messages.create(
         {
@@ -361,11 +393,17 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
         },
         callOpts
       );
+      logClaudeUsage(
+        { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, abGroup: attemptAb },
+        message.usage,
+        { latencyMs: Date.now() - t0 }
+      );
     } catch (modelErr: unknown) {
       const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
       if (model !== "claude-sonnet-4-6" && msg.includes("404")) {
         // Configured Opus id unavailable — retry this attempt on Sonnet.
         console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
+        const tRetry = Date.now();
         try {
           message = await client.messages.create(
             {
@@ -375,6 +413,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
               messages: [{ role: "user", content: prompt.user }],
             },
             callOpts
+          );
+          producedModel = "claude-sonnet-4-6";
+          producedAb = null;
+          logClaudeUsage(
+            { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId, abGroup: null },
+            message.usage,
+            { latencyMs: Date.now() - tRetry }
           );
         } catch (retryErr: unknown) {
           lastViolations = [`Model call failed: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`];
@@ -441,6 +486,8 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     if (lastViolations.length === 0) {
       parsed = candidate;
       validation = { paperScopeCheck, varietyCheck, markCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
+      genModelUsed = producedModel;
+      genAbGroup = producedAb;
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded (relaxed=${relaxNiceToHave ? "nice-to-have" : relaxImportant ? "important" : "none"})`);
       break;
     }
@@ -494,11 +541,13 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       bankerCheck: validation.bankerCheck,
       flightSizeCheck: validation.flightSizeCheck,
       noveltyCheck: validation.noveltyCheck,
+      genModel: genModelUsed,
+      genAbGroup,
     },
   });
 
   // Fire-and-forget: enrich wine profiles in background
-  enrichWineProfiles(questionId, parsed.wines, apiKey).catch((err) =>
+  enrichWineProfiles(questionId, parsed.wines, apiKey, meta).catch((err) =>
     console.error("Wine enrichment background error:", err)
   );
 
@@ -508,7 +557,8 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     parsed.wines,
     paper,
     parsed.family,
-    apiKey
+    apiKey,
+    meta
   );
 
   return Response.json({

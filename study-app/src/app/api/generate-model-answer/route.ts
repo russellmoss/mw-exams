@@ -2,7 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion } from "@/lib/db";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
-import { getLatestOpus } from "@/lib/model-resolver";
+import { selectModel } from "@/lib/model-selector";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -20,16 +21,22 @@ export async function POST(request: Request) {
     }
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
-    const opusModel = await getLatestOpus(keyResult.apiKey);
+    const { model, abGroup } = await selectModel("model_answer", keyResult.apiKey, "opus");
 
     const prompt = buildModelAnswerPrompt(questionText, wines, paper);
 
+    const t0 = Date.now();
     const message = await client.messages.create({
-      model: opusModel,
+      model,
       max_tokens: 4000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });
+    logClaudeUsage(
+      { taskType: "model_answer", model, source: keyResult.source, userId: keyResult.user.id, questionId, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
 
     const text = message.content
       .filter((b) => b.type === "text")

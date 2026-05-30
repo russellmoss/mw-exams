@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildPreGlassSystemPrompt } from "@/lib/prompts/pre-glass-prompt";
 import { requireApiKey } from "@/lib/api-key";
-import { getLatestOpus } from "@/lib/model-resolver";
+import { selectModel } from "@/lib/model-selector";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 
@@ -28,9 +29,10 @@ export async function POST(request: Request) {
       wineAppearances
     );
 
-    const opusModel = await getLatestOpus(keyResult.apiKey);
+    const { model, abGroup } = await selectModel("reasoning_grading", keyResult.apiKey, "opus");
+    const t0 = Date.now();
     const stream = await client.messages.stream({
-      model: opusModel,
+      model,
       max_tokens: 1500,
       system: systemPrompt,
       messages: [
@@ -61,6 +63,12 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
             }
           }
+          const final = await stream.finalMessage();
+          logClaudeUsage(
+            { taskType: "reasoning_grading", model, source: keyResult.source, userId: keyResult.user.id, abGroup },
+            final.usage,
+            { latencyMs: Date.now() - t0 }
+          );
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {

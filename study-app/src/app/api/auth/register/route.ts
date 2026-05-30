@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { signToken, createSessionCookie } from "@/lib/auth";
 import { encrypt } from "@/lib/encryption";
 import Anthropic from "@anthropic-ai/sdk";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 
@@ -49,11 +50,15 @@ export async function POST(request: Request) {
 
       try {
         const client = new Anthropic({ apiKey: trimmedKey });
-        await client.messages.create({
+        const validation = await client.messages.create({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 10,
           messages: [{ role: "user", content: "Hi" }],
         });
+        logClaudeUsage(
+          { taskType: "key_validation", model: "claude-haiku-4-5-20251001", source: "user", userId: null },
+          validation.usage
+        );
       } catch (err) {
         const msg = err instanceof Error ? err.message : "";
         if (msg.includes("401") || msg.includes("authentication") || msg.includes("invalid")) {

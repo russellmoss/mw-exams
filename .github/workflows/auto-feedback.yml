@@ -302,3 +302,25 @@ jobs:
           if ! printf '%s' "$PR_URL" | grep -q 'http'; then PR_URL=""; fi
           export APPLY_STATUS COMMIT_SHA PR_URL DEPLOY_STATE
           node scripts/record-apply.mjs
+
+      - name: Update empirical knowledge doc (incremental, → master)
+        # Zero-latency knowledge capture: this resolved feedback IS evidence the exam model had a
+        # gap, so the same event that changed the code also updates mw_exam_empirical_knowledge.md.
+        # Runs LAST and for EVERY outcome (merged / PR-gated / failed / no-change) because the
+        # learning lives in the finding, not the merge. Claude (Opus) writes cited, live entries and
+        # the script commits straight to master (no PR/branch).
+        #
+        # Loop- & deploy-safe: a root-level .md push triggers NO workflow (auto-feedback fires on
+        # repository_dispatch, not push) and NO build (git auto-deploy disabled; the Vercel
+        # ignored-build-step is scoped to study-app/). [skip ci] is added belt-and-suspenders.
+        # Fully NON-FATAL: continue-on-error so it can never undo or red-flag the code change above.
+        if: always() && env.ANALYSIS_ID != ''
+        continue-on-error: true
+        run: |
+          set +e
+          # Land the doc on master regardless of which branch this run ended on.
+          git checkout master || { echo "::warning title=empirical sync::could not checkout master; skipped"; exit 0; }
+          git pull --ff-only origin master || true
+          node "$APP_DIR/scripts/sync-empirical-knowledge.mjs" \
+            --mode incremental --analysis-id "$ANALYSIS_ID" --commit \
+            || echo "::warning title=empirical sync::knowledge doc not updated for analysis $ANALYSIS_ID"

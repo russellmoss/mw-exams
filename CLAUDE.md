@@ -19,6 +19,23 @@ This project builds study materials for the Institute of Masters of Wine (IMW) p
 - **Wine ID format**: `YYYY_pN_wM`, e.g. `2024_p1_w3` is "Master of Wine Exam 2024, Paper 1, Wine 3".
 - All textual content (wine names, question text) is treated as authoritative and never paraphrased when extracted from source.
 
+## The definitive empirical guide — `mw_exam_empirical_knowledge.md`
+
+`mw_exam_empirical_knowledge.md` (repo root) is the **canonical, evidence-cited summary of everything
+we know to be true (or very directionally correct) about the MW exam** — how it is structured and
+created, how examiners think and grade, what wines/qualities/styles appear by paper, the
+question-generation rules, and a catalog of app bugs and their fixes. It is the definitive reference
+for reasoning about the exam and for generating questions/answers.
+
+- It is a **living document**: seeded from the agentic research in `outputs/` + the feedback ledger,
+  and grown automatically whenever user feedback resolves (see `empirical_knowledge_doc_plan.md`).
+- **Read the relevant section on demand — do NOT load the whole file routinely** (token economy, same
+  rule as the source MD). It is organized into numbered sections (§1 structure, §2 examiner mindset,
+  §3 grading, §4 wine/price/style distribution by paper, §5 question-generation rules, §6 feedback
+  ledger, §7 app-bug catalog, §8 cross-refs, §9 open questions); jump to the section you need.
+- Entries are cited (artifact path, corpus reference, backtest stat, or `user_attempts`/
+  `feedback_analyses` ledger row) and tiered (STRONG SIGNAL / PLAUSIBLE / CURVEBALL / PROCESS).
+
 ## Data sources (read these, don't duplicate them)
 
 - `source/MW_Practical_Papers_Compilation.md` — the human-readable annotated source. **Authoritative for question text and wine names.** Do not modify.
@@ -86,6 +103,7 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 - `/answer-question YYYY pN qM` — produce an 8-minute mock answer
 - `/generate-mock-exam pN` — produce a new mock paper for the given paper number
 - `/study-batch` — run a randomized study session pulling questions from history
+- `/optimize-costs [30d|7d|24h] [apply]` — analyze `model_usage`/`tavily_usage` vs feedback+validity signals; recommend a per-task model mix, project savings, flag cost↔accuracy tradeoffs. Writes `outputs/cost_reports/{date}.md`. See `cost-tracking-system` memory.
 
 ## Deploying the study app
 

@@ -2,6 +2,7 @@ import { getUser } from "@/lib/auth";
 import { neon } from "@neondatabase/serverless";
 import { encrypt } from "@/lib/encryption";
 import Anthropic from "@anthropic-ai/sdk";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 
@@ -63,11 +64,15 @@ export async function POST(request: Request) {
     // Validate the key with a lightweight API call
     try {
       const client = new Anthropic({ apiKey: trimmed });
-      await client.messages.create({
+      const validation = await client.messages.create({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 10,
         messages: [{ role: "user", content: "Hi" }],
       });
+      logClaudeUsage(
+        { taskType: "key_validation", model: "claude-haiku-4-5-20251001", source: "user", userId: user.id },
+        validation.usage
+      );
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       if (msg.includes("401") || msg.includes("authentication") || msg.includes("invalid")) {

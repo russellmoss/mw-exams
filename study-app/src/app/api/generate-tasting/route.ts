@@ -7,6 +7,8 @@ import { sanitizeTastingNotes } from "@/lib/tasting-sanitizer";
 import { requireApiKey } from "@/lib/api-key";
 import { lookupWines } from "@/lib/wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
+import { logClaudeUsage } from "@/lib/usage-log";
+import { selectModel } from "@/lib/model-selector";
 
 export const runtime = "nodejs";
 
@@ -44,12 +46,19 @@ export async function POST(request: Request) {
     const systemPrompt = buildTastingSystemPrompt();
     const userPrompt = buildTastingUserPrompt(wines, wineProfiles);
 
+    const { model, abGroup } = await selectModel("tasting_generation", keyResult.apiKey, "sonnet");
+    const t0 = Date.now();
     const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model,
       max_tokens: 3000,
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
     });
+    logClaudeUsage(
+      { taskType: "tasting_generation", model, source: keyResult.source, userId: keyResult.user.id, questionId: questionId ?? null, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
 
     // Extract text from the response
     const text = message.content

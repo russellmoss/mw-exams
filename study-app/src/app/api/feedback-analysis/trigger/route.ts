@@ -3,16 +3,17 @@ import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback } from "@/lib/db";
 import { neon } from "@neondatabase/serverless";
-import { getLatestOpus } from "@/lib/model-resolver";
+import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
+import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 
-async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feedback: string): Promise<string> {
+async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feedback: string, userId: number | null): Promise<string> {
   const tavilyKey = process.env.TAVILY_API_KEY;
   if (!tavilyKey) return "";
 
@@ -36,6 +37,8 @@ async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feed
   }
 
   for (const query of queries.slice(0, 3)) {
+    let ok = false;
+    let resultsCount = 0;
     try {
       const res = await fetch(TAVILY_API_URL, {
         method: "POST",
@@ -49,6 +52,8 @@ async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feed
       });
       if (res.ok) {
         const data = await res.json();
+        ok = true;
+        resultsCount = (data.results || []).length;
         for (const r of (data.results || []).slice(0, 2)) {
           if (r.content) {
             results.push(`[Source: ${r.url}]\n${r.content.slice(0, 300)}`);
@@ -56,6 +61,7 @@ async function tavilyFactCheck(wines: { slot: number; fullText: string }[], feed
         }
       }
     } catch {}
+    logTavilyUsage({ taskType: "feedback_factcheck", query, resultsCount, userId, success: ok });
   }
 
   if (results.length === 0) return "";
@@ -113,7 +119,7 @@ export async function POST(request: Request) {
       : attempt.metadata;
 
     // Fact-check user claims via Tavily before running analysis
-    const factCheckContext = await tavilyFactCheck(wines, feedbackText);
+    const factCheckContext = await tavilyFactCheck(wines, feedbackText, (attempt.user_id as number) ?? null);
 
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
@@ -129,13 +135,19 @@ export async function POST(request: Request) {
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
-    const opusModel = await getLatestOpus(keyResult.apiKey);
+    const { model, abGroup } = await selectModel("feedback_analysis", keyResult.apiKey, "opus");
+    const t0 = Date.now();
     const message = await client.messages.create({
-      model: opusModel,
+      model,
       max_tokens: 4000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user + factCheckContext }],
     });
+    logClaudeUsage(
+      { taskType: "feedback_analysis", model, source: keyResult.source, userId: (attempt.user_id as number) ?? null, attemptId, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
 
     const analysisText = message.content
       .filter((b) => b.type === "text")

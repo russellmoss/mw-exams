@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
-import { getLatestOpus } from "@/lib/model-resolver";
+import { selectModel } from "@/lib/model-selector";
+import { logClaudeUsage } from "@/lib/usage-log";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -136,9 +137,10 @@ ${modelAnswer}`;
 
 Please provide the full debrief: pre-glass review, answer evaluation with pass/fail and per-sub-question marks, and key takeaways.`;
 
-    const opusModel = await getLatestOpus(keyResult.apiKey);
+    const { model, abGroup } = await selectModel("full_debrief", keyResult.apiKey, "opus");
+    const t0 = Date.now();
     const stream = await client.messages.stream({
-      model: opusModel,
+      model,
       max_tokens: 3000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
@@ -160,6 +162,12 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
               );
             }
           }
+          const final = await stream.finalMessage();
+          logClaudeUsage(
+            { taskType: "full_debrief", model, source: keyResult.source, userId: keyResult.user.id, abGroup },
+            final.usage,
+            { latencyMs: Date.now() - t0 }
+          );
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {
