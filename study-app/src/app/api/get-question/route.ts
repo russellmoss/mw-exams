@@ -452,6 +452,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
     const markCheck = validateMarkAllocation(candidate.questionText, candidate.wines.length);
+    const consistencyCheck = validateGenerationConsistency(candidate.generationReasoning, candidate.wines);
 
     // Important validators (relax on attempt 6+)
     const relaxImportant = attempt >= 6;
@@ -476,6 +477,7 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
       ...paperScopeCheck.violations,
       ...varietyCheck.violations,
       ...markCheck.violations,
+      ...consistencyCheck.violations,
       ...originDiversityCheck.violations,
       ...countryDiversityCheck.violations,
       ...bankerCheck.violations,
@@ -647,6 +649,66 @@ function validatePaperScope(paper: number, wines: { slot: number; fullText: stri
       if ((isWhiteGrape || isRedGrape) && !hasSpecialIndicator && !isLikelySweet && !isLikelyFortified) {
         violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a standard still wine in Paper 3 (sparkling/fortified/sweet/rosé/oxidative only)`);
       }
+    }
+  }
+
+  // Paper 3 oxidative still-white sub-rule (flight-level). P3 admits a STILL white only when its
+  // oxidation is flor/sous voile-driven (Jura Vin Jaune / Savagnin sous voile) OR it is paired
+  // with a fortified/biologically-aged wine that supplies a genuine P3 contrast (oxidative-vs-
+  // biological, or still-vs-fortified). Conventionally cask-oxidized still whites (oxidative white
+  // Rioja, oxidative aged Hunter Semillon) are Paper 1 wines (corpus: 2018/2025 P1) and must NOT
+  // be the basis of a P3 question. The plain "standard still wine" check above misses these
+  // because the producer/cuvée name carries no grape token to match.
+  if (paper === 3) {
+    const FLOR_SOUS_VOILE = /\b(vin\s*jaune|sous\s*voile|ch[aâ]teau[\s-]*chalon|l['’`]?\s*[ée]toile|[ée]toile|savagnin|arbois|jura|flor)\b/i;
+    const FORTIFIED_OR_FLOR = /\b(fortified|sherry|jerez|fino|manzanilla|amontillado|oloroso|palo\s*cortado|cream|pedro\s*xim[eé]nez|port|madeira|marsala|banyuls|rivesaltes|maury|rutherglen|vin\s*doux|vdn|vin\s*jaune|sous\s*voile|ch[aâ]teau[\s-]*chalon|flor)\b/i;
+    const CONVENTIONAL_OX_WHITE_NAME = /\b(rioja[\s-]*blanc[oa]|blanc[oa][\s-]*(?:gran[\s-]*)?reserva|gran[\s-]*reserva[\s-]*blanc[oa]|viura|tondonia|gravonia|castillo[\s-]*ygay|lopez[\s-]*de[\s-]*heredia|marqu[eé]s[\s-]*de[\s-]*murrieta)\b/i;
+    const hasAnchor = wines.some((w) => FORTIFIED_OR_FLOR.test(w.fullText));
+    for (const wine of wines) {
+      const text = wine.fullText;
+      if (FLOR_SOUS_VOILE.test(text) || FORTIFIED_OR_FLOR.test(text)) continue; // legitimately P3
+      const isConvOxWhite =
+        CONVENTIONAL_OX_WHITE_NAME.test(text) ||
+        (/oxidativ/i.test(text) && WHITE_GRAPE_INDICATORS.test(text)) ||
+        (/\bhunter\b/i.test(text) && /\bs[eé]millon\b/i.test(text));
+      if (isConvOxWhite && !hasAnchor) {
+        violations.push(
+          `Wine ${wine.slot}: "${wine.fullText}" is a conventionally cask-oxidized still white (a Paper 1 style). Paper 3 still whites must be flor/sous voile-driven (e.g. Jura Vin Jaune) OR paired with a fortified/biologically-aged wine for a genuine oxidative-vs-biological contrast.`
+        );
+      }
+    }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+// Generation-reasoning ↔ wine-list consistency. Root-cause guard for intent/output drift: the
+// generator can *reason* it is building a P3-legitimate still-vs-fortified contrast (e.g. naming a
+// "biological-flor Fino" as a flight wine) while the wine selection collapses into two still wines,
+// losing the fortified/biological half that justified P3 scope. If the reasoning names a fortified
+// or flor wine that appears in NO actual wine, flag for regeneration.
+function validateGenerationConsistency(
+  reasoning: string | null | undefined,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  if (!reasoning) return { valid: true, violations };
+  const r = reasoning.toLowerCase();
+  const allWineText = wines.map((w) => w.fullText.toLowerCase()).join(" | ");
+  // Each family: a style the reasoning may claim to have built the flight around, and the tokens
+  // that prove at least one wine actually delivers it. Kept to high-signal, wine-identifying styles
+  // to avoid false positives from wines merely mentioned for contrast.
+  const FAMILIES: { name: string; reason: RegExp; wine: RegExp }[] = [
+    {
+      name: "biological/flor Sherry (Fino/Manzanilla) or sous-voile wine",
+      reason: /\b(biological[\s-]*flor|flor[\s-]*fino|fino\s*sherry|fino\b|manzanilla)\b/i,
+      wine: /\b(fino|manzanilla|amontillado|oloroso|palo\s*cortado|sherry|jerez|sous\s*voile|vin\s*jaune|ch[aâ]teau[\s-]*chalon|flor|savagnin)\b/i,
+    },
+  ];
+  for (const fam of FAMILIES) {
+    if (fam.reason.test(r) && !fam.wine.test(allWineText)) {
+      violations.push(
+        `Generation reasoning references a ${fam.name} as part of the flight, but no wine in the list matches that style — intent/output drift. Regenerate restoring the named wine.`
+      );
     }
   }
   return { valid: violations.length === 0, violations };

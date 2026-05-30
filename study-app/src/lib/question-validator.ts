@@ -120,5 +120,37 @@ export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations
   if (q.totalMarks && wines.length && q.totalMarks !== wines.length * 25)
     v.push({ rule: "marks", severity: "hard", detail: `total_marks ${q.totalMarks} != ${wines.length}×25` });
 
+  // R7 — Paper 3 oxidative still-white scope. Paper 3's mandate is sparkling/fortified/sweet/rosé
+  // and oxidative/biologically-aged styles. The corpus (2011–2025) admits a STILL white into P3
+  // only when (a) its oxidation is flor/sous voile-driven (Jura Vin Jaune / Savagnin sous voile),
+  // or (b) it is paired with a fortified or biologically-aged wine that supplies a genuine
+  // P3-category contrast (oxidative-vs-biological, or still-vs-fortified). Conventionally
+  // cask-oxidized still whites (oxidative white Rioja, oxidative aged Hunter Semillon) are corpus-
+  // attested PAPER 1 wines (2018/2025 P1) — no P3 question pairs two still, non-flor oxidative
+  // whites. HARD: the question is mis-papered and must be regenerated (restore the fortified/flor
+  // half). This is the scope drift that the get-question Paper Scope Check missed.
+  if (q.paper === 3 && wines.length > 0) {
+    const blob = (w: AuditWine) => norm(`${w.region || ""} ${w.style || ""} ${(w.varieties || []).join(" ")}`);
+    const FLOR_SOUS_VOILE = /vin\s*jaune|sous\s*voile|chateau[\s-]*chalon|l['`’ ]?\s*etoile|\betoile\b|savagnin|\bjura\b|\bflor\b/;
+    const FORTIFIED_OR_FLOR = /fortified|sherry|jerez|\bfino\b|manzanilla|amontillado|oloroso|palo\s*cortado|\bport\b|madeira|marsala|banyuls|rivesaltes|maury|rutherglen|vin\s*doux|\bvdn\b|vin\s*jaune|sous\s*voile|chateau[\s-]*chalon|\bflor\b/;
+    const WHITE_HINT = /viura|macabeo|malvasia|garnacha\s*blanca|grenache\s*blanc|albari|verdejo|hondarrabi|semillon|hunter|\bwhite\b|\bblanc/;
+    const isConvOxWhite = (w: AuditWine) => {
+      const b = blob(w);
+      if (FLOR_SOUS_VOILE.test(b) || FORTIFIED_OR_FLOR.test(b)) return false; // flor / fortified ⇒ legitimately P3
+      const namedWhiteRioja = /\brioja\b/.test(b) && WHITE_HINT.test(b);
+      const namedHunterSem = /hunter/.test(b) && /semillon/.test(b);
+      const oxidativeWhite = /oxidativ/.test(b) && WHITE_HINT.test(b);
+      return namedWhiteRioja || namedHunterSem || oxidativeWhite;
+    };
+    const hasAnchor = wines.some((w) => FORTIFIED_OR_FLOR.test(blob(w)));
+    const offenders = wines.filter(isConvOxWhite);
+    if (offenders.length > 0 && !hasAnchor)
+      v.push({
+        rule: "p3-oxidative-white",
+        severity: "hard",
+        detail: `Paper 3 conventionally-oxidative still white(s) with no fortified/flor anchor: ${offenders.map((w) => w.region || (w.varieties || []).join("/") || `wine ${w.slot}`).join("; ")}. Such wines (oxidative white Rioja, oxidative Hunter Semillon) are Paper 1 styles; P3 admits a still white only when flor/sous voile-driven or paired with a fortified/biologically-aged wine.`,
+      });
+  }
+
   return { ok: !v.some((x) => x.severity === "hard"), violations: v };
 }
