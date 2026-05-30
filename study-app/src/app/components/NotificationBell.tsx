@@ -16,6 +16,7 @@ interface AnalysisSummary {
   family_label: string;
   user_feedback: string;
   has_narration: boolean;
+  pending_narration: boolean;
 }
 
 export function NotificationBell() {
@@ -24,11 +25,11 @@ export function NotificationBell() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const prevUnreadRef = useRef(0);
   const soundEnabledRef = useRef(true);
-  // Narration ids we've already spoken, so a re-poll never replays the same clip.
-  const spokenRef = useRef<Set<number>>(new Set());
-  const firstLoadRef = useRef(true);
+  // Guards against firing twice within one mount, in the window between starting
+  // playback and the server flag (narration_played_at) coming back on the next
+  // poll. Persistent play-once across navigations/reloads is enforced server-side.
+  const speakingRef = useRef(false);
 
   useEffect(() => {
     fetch("/api/user/sound-preference")
@@ -37,13 +38,28 @@ export function NotificationBell() {
       .catch(() => {});
   }, []);
 
-  // Speak the verdict for one analysis (spoken-only — no chime). Fire-and-forget.
+  // Speak one verdict clip (spoken-only — no chime). Marks it (and any backlog)
+  // played server-side ONLY once playback actually starts, so a blocked autoplay
+  // leaves it pending to retry later, and a successful play never repeats.
   const speakNarration = useCallback((id: number) => {
-    if (spokenRef.current.has(id)) return;
-    spokenRef.current.add(id);
+    if (speakingRef.current) return;
+    speakingRef.current = true;
     const audio = new Audio(`/api/feedback-notifications/${id}/audio`);
     audio.volume = 0.9;
-    audio.play().catch(() => {});
+    audio
+      .play()
+      .then(() => {
+        // Consume the backlog server-side, THEN release the guard — by the time
+        // this resolves these rows read as played, so the next poll can't refire
+        // them, but a genuinely new verdict arriving later still plays.
+        fetch("/api/feedback-notifications/mark-narration-played", { method: "POST" })
+          .catch(() => {})
+          .finally(() => { speakingRef.current = false; });
+      })
+      .catch(() => {
+        // Autoplay blocked (no user gesture yet) — stay pending, retry next time.
+        speakingRef.current = false;
+      });
   }, []);
 
   const fetchNotifications = useCallback(async () => {
@@ -51,26 +67,17 @@ export function NotificationBell() {
       const res = await fetch("/api/feedback-notifications");
       if (!res.ok) return;
       const data = await res.json();
-      const newCount = data.unreadCount || 0;
       const list: AnalysisSummary[] = data.analyses || [];
 
-      // On a count increase, speak the newest unread, complete verdict that has
-      // narration ready. Skip the very first load so we don't read out a backlog
-      // of old unread items when the page mounts.
-      if (!firstLoadRef.current && newCount > prevUnreadRef.current && soundEnabledRef.current) {
-        const fresh = list.find(
-          (a) => a.status === "complete" && !a.is_read && a.has_narration && !spokenRef.current.has(a.id)
-        );
-        if (fresh) speakNarration(fresh.id);
-      }
-      // Seed the spoken set on first load so existing unread items aren't queued.
-      if (firstLoadRef.current) {
-        for (const a of list) if (!a.is_read) spokenRef.current.add(a.id);
-        firstLoadRef.current = false;
+      // Play the newest narration the user has never heard. "Pending" is decided
+      // by the server (narration ready AND not yet marked played), so this fires
+      // at most once per verdict, ever — regardless of navigations or reloads.
+      if (soundEnabledRef.current && !speakingRef.current) {
+        const pending = list.find((a) => a.status === "complete" && a.pending_narration);
+        if (pending) speakNarration(pending.id);
       }
 
-      prevUnreadRef.current = newCount;
-      setUnreadCount(newCount);
+      setUnreadCount(data.unreadCount || 0);
       setAnalyses(list);
     } catch {}
   }, [speakNarration]);

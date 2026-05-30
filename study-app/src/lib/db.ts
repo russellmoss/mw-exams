@@ -496,6 +496,25 @@ export async function getNarrationAudio(
   return (rows[0]?.narration_audio as string | null) || null;
 }
 
+/**
+ * Mark a user's verdict narrations as already spoken so the bell never replays
+ * them. Called once playback actually starts. Stamps the given analysis plus any
+ * other still-unplayed narrations the user has, so a backlog that accumulated
+ * while they were away is consumed by the single clip they just heard (at most
+ * one sound per catch-up, nothing refires later). Returns rows affected.
+ */
+export async function markNarrationsPlayed(userId: number): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE feedback_analyses SET narration_played_at = NOW()
+    WHERE user_id = ${userId}
+      AND narration_audio IS NOT NULL
+      AND narration_played_at IS NULL
+    RETURNING id
+  `;
+  return rows.length;
+}
+
 export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis & {
   question_text: string;
   wines: unknown;
@@ -521,7 +540,7 @@ export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis
 
 export async function getUserNotifications(userId: number): Promise<{
   unreadCount: number;
-  analyses: (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean })[];
+  analyses: (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean; pending_narration: boolean })[];
 }> {
   const sql = getDb();
   const countRows = await sql`
@@ -532,6 +551,8 @@ export async function getUserNotifications(userId: number): Promise<{
     SELECT fa.id, fa.attempt_id, fa.user_id, fa.recommendation, fa.thread,
       fa.is_read, fa.status, fa.error_message, fa.created_at, fa.updated_at,
       (fa.narration_audio IS NOT NULL) AS has_narration,
+      -- Narration that exists but the bell has not yet spoken. Drives play-once.
+      (fa.narration_audio IS NOT NULL AND fa.narration_played_at IS NULL) AS pending_narration,
       a.user_feedback,
       q.question_text, q.paper, q.family_label
     FROM feedback_analyses fa
@@ -543,7 +564,7 @@ export async function getUserNotifications(userId: number): Promise<{
   `;
   return {
     unreadCount: (countRows[0]?.count as number) || 0,
-    analyses: analyses as (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean })[],
+    analyses: analyses as (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean; pending_narration: boolean })[],
   };
 }
 
