@@ -1,11 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration } from "@/lib/db";
 import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
+import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 
 /**
  * Server-side feedback analysis — the durable core of the "feedback → analysis →
@@ -87,6 +88,91 @@ async function tavilyFactCheck(
 
   if (results.length === 0) return "";
   return `\n\n## Web Research for Fact-Checking (from Tavily)\nThe following real-world sources were found to help verify the user's claims:\n\n${results.join("\n\n---\n\n")}`;
+}
+
+/**
+ * Write a 2–3 sentence, spoken-aloud explanation of the verdict (Sonnet) and
+ * voice it (ElevenLabs), storing both on the analysis row. Best-effort: any
+ * failure here is swallowed so it never blocks the analysis from completing —
+ * the notification just arrives without sound. The Sonnet call lands in
+ * model_usage (task `notification_narration`); the TTS call in elevenlabs_usage.
+ */
+async function generateVerdictNarration(opts: {
+  analysisId: number;
+  attemptId: number;
+  userId: number | null;
+  apiKey: string;
+  source: "user" | "server";
+  recommendation: string;
+  analysisText: string;
+  userName: string;
+}): Promise<void> {
+  try {
+    if (!isElevenLabsConfigured()) return; // no key → skip silently (no narration)
+
+    const client = new Anthropic({ apiKey: opts.apiKey });
+    const { model, abGroup } = await selectModel("notification_narration", opts.apiKey, "sonnet");
+
+    const verdictWord =
+      opts.recommendation === "accept"
+        ? "accepted"
+        : opts.recommendation === "reject"
+          ? "rejected"
+          : opts.recommendation === "partial"
+            ? "partially accepted"
+            : "reviewed";
+
+    const system =
+      "You write a SPOKEN notification, read aloud to a Master of Wine candidate, " +
+      "explaining how the system handled the feedback they left on a practice question. " +
+      "Warm, encouraging, educational tone — like a mentor. Address them directly as 'you'. " +
+      "STRICT: 2 to 3 sentences, no more. Plain prose only — no markdown, no lists, no headings, " +
+      "no emojis, no stage directions. Do not start with 'Recommendation' or restate the verdict label; " +
+      "speak naturally. Make clear their feedback was " + verdictWord + " and give the key reason why, " +
+      "so they learn something about the exam from it.";
+
+    const user =
+      `The candidate's feedback was ${verdictWord}. Here is the full written analysis it was based on:\n\n` +
+      `${opts.analysisText.slice(0, 6000)}\n\n` +
+      `Write the 2–3 sentence spoken explanation now.`;
+
+    const t0 = Date.now();
+    const message = await client.messages.create({
+      model,
+      max_tokens: 300,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    logClaudeUsage(
+      { taskType: "notification_narration", model, source: opts.source, userId: opts.userId, attemptId: opts.attemptId, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
+
+    const narrationText = message.content
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("")
+      .trim();
+    if (!narrationText) return;
+
+    const tts = await synthesizeSpeech(narrationText, {
+      taskType: "notification_narration",
+      userId: opts.userId,
+      attemptId: opts.attemptId,
+      analysisId: opts.analysisId,
+    });
+    if (!tts) return; // synthesis failed → no audio, notification stays silent
+
+    await saveNarration(opts.analysisId, {
+      text: narrationText,
+      audioBase64: tts.audioBase64,
+      voiceId: tts.voiceId,
+      characters: tts.characters,
+    });
+  } catch (err) {
+    console.error("generateVerdictNarration error (non-fatal):", err);
+  }
 }
 
 /**
@@ -188,6 +274,20 @@ export async function runFeedbackAnalysis(opts: {
     const thread = [
       { role: "system" as const, content: analysisText, timestamp: new Date().toISOString() },
     ];
+
+    // Generate the spoken verdict BEFORE flipping to 'complete': the notification
+    // only surfaces once status is complete, so doing this first guarantees the
+    // audio is ready the moment the bell shows it (playback is spoken-only).
+    await generateVerdictNarration({
+      analysisId: analysis.id,
+      attemptId,
+      userId: (attempt.user_id as number) ?? null,
+      apiKey,
+      source,
+      recommendation,
+      analysisText,
+      userName: attempt.user_name as string,
+    });
 
     await updateFeedbackAnalysis(analysis.id, { status: "complete", recommendation, thread });
 

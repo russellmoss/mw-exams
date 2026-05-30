@@ -15,6 +15,14 @@ import { neon } from "@neondatabase/serverless";
 
 export const TAVILY_COST_PER_CREDIT = 0.008; // $/credit (basic search = 1 credit)
 
+// ElevenLabs TTS is billed per character (≈ 1 credit/char). The USD value of a
+// credit is plan-dependent, so this is an ESTIMATE used only for the Cost
+// dashboard — override with ELEVENLABS_USD_PER_1K_CHARS to match your plan.
+// VERIFY against https://elevenlabs.io/pricing when the plan changes.
+export const ELEVENLABS_USD_PER_1K_CHARS = Number(
+  process.env.ELEVENLABS_USD_PER_1K_CHARS || 0.18
+);
+
 interface ModelPrice {
   input: number;
   output: number;
@@ -130,5 +138,45 @@ export async function logTavilyUsage(ctx: TavilyUsageContext): Promise<void> {
     `;
   } catch (err) {
     console.error("[usage-log] failed to record Tavily usage:", err);
+  }
+}
+
+export interface ElevenLabsUsageContext {
+  taskType: string;
+  voiceId?: string | null;
+  modelId?: string | null;
+  characters: number;
+  userId?: number | null;
+  attemptId?: number | null;
+  analysisId?: number | null;
+}
+
+/**
+ * Record one ElevenLabs TTS synthesis. Characters synthesized ≈ credits ≈ cost
+ * basis. Fire-and-forget; swallows its own errors so a logging failure never
+ * breaks narration generation.
+ */
+export async function logElevenLabsUsage(
+  ctx: ElevenLabsUsageContext,
+  opts?: { latencyMs?: number; success?: boolean; error?: string }
+): Promise<void> {
+  try {
+    const characters = Math.max(0, Math.round(ctx.characters || 0));
+    const credits = characters; // ≈ 1 credit/char (conservative; turbo bills less)
+    const cost = (characters / 1000) * ELEVENLABS_USD_PER_1K_CHARS;
+    const sql = neon(process.env.DATABASE_URL!);
+    await sql`
+      INSERT INTO elevenlabs_usage (
+        task_type, voice_id, model_id, characters, credits, cost_usd,
+        user_id, attempt_id, analysis_id, latency_ms, success, error
+      ) VALUES (
+        ${ctx.taskType}, ${ctx.voiceId ?? null}, ${ctx.modelId ?? null},
+        ${characters}, ${credits}, ${cost},
+        ${ctx.userId ?? null}, ${ctx.attemptId ?? null}, ${ctx.analysisId ?? null},
+        ${opts?.latencyMs ?? null}, ${opts?.success ?? true}, ${opts?.error ?? null}
+      )
+    `;
+  } catch (err) {
+    console.error("[usage-log] failed to record ElevenLabs usage:", err);
   }
 }

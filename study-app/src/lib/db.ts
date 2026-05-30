@@ -463,6 +463,39 @@ export async function updateFeedbackAnalysis(
   return rows[0] as FeedbackAnalysis;
 }
 
+/**
+ * Store the spoken-verdict narration on an analysis row. Best-effort: called
+ * just before the row flips to 'complete' so the audio is ready the instant the
+ * notification surfaces. audioBase64 is base64-encoded mp3 (kept inline).
+ */
+export async function saveNarration(
+  analysisId: number,
+  data: { text: string; audioBase64: string; voiceId: string; characters: number }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE feedback_analyses SET
+      narration_text  = ${data.text},
+      narration_audio = ${data.audioBase64},
+      narration_voice = ${data.voiceId},
+      narration_chars = ${data.characters}
+    WHERE id = ${analysisId}
+  `;
+}
+
+/** Fetch just the narration audio (base64 mp3) for one analysis, scoped to its owner. */
+export async function getNarrationAudio(
+  analysisId: number,
+  userId: number
+): Promise<string | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT narration_audio FROM feedback_analyses
+    WHERE id = ${analysisId} AND user_id = ${userId}
+  `;
+  return (rows[0]?.narration_audio as string | null) || null;
+}
+
 export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis & {
   question_text: string;
   wines: unknown;
@@ -488,7 +521,7 @@ export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis
 
 export async function getUserNotifications(userId: number): Promise<{
   unreadCount: number;
-  analyses: (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string })[];
+  analyses: (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean })[];
 }> {
   const sql = getDb();
   const countRows = await sql`
@@ -496,7 +529,10 @@ export async function getUserNotifications(userId: number): Promise<{
     WHERE user_id = ${userId} AND is_read = false AND status IN ('complete', 'error')
   `;
   const analyses = await sql`
-    SELECT fa.*, a.user_feedback,
+    SELECT fa.id, fa.attempt_id, fa.user_id, fa.recommendation, fa.thread,
+      fa.is_read, fa.status, fa.error_message, fa.created_at, fa.updated_at,
+      (fa.narration_audio IS NOT NULL) AS has_narration,
+      a.user_feedback,
       q.question_text, q.paper, q.family_label
     FROM feedback_analyses fa
     JOIN user_attempts a ON fa.attempt_id = a.id
@@ -507,7 +543,7 @@ export async function getUserNotifications(userId: number): Promise<{
   `;
   return {
     unreadCount: (countRows[0]?.count as number) || 0,
-    analyses: analyses as (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string })[],
+    analyses: analyses as (FeedbackAnalysis & { question_text: string; paper: number; family_label: string; user_feedback: string; has_narration: boolean })[],
   };
 }
 

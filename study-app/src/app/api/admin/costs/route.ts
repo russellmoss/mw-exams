@@ -46,6 +46,9 @@ export async function GET(request: Request) {
       tavilyTotals,
       tavilyByTask,
       tavilyByDay,
+      elevenLabsTotals,
+      elevenLabsByTask,
+      elevenLabsByDay,
     ] = await Promise.all([
       sql`
         SELECT
@@ -184,10 +187,45 @@ export async function GET(request: Request) {
         GROUP BY day
         ORDER BY day
       `,
+      sql`
+        SELECT COUNT(*)::int AS calls,
+          COALESCE(SUM(characters), 0)::bigint AS characters,
+          COALESCE(SUM(credits), 0)::bigint AS credits,
+          COALESCE(SUM(cost_usd), 0) AS cost_usd,
+          COUNT(*) FILTER (WHERE NOT success)::int AS errors
+        FROM elevenlabs_usage
+        WHERE (${from}::timestamptz IS NULL OR created_at >= ${from}::timestamptz)
+          AND (${to}::timestamptz IS NULL OR created_at < ${to}::timestamptz)
+          AND (${task}::text IS NULL OR task_type = ${task})
+      `,
+      sql`
+        SELECT task_type,
+          COUNT(*)::int AS calls,
+          COALESCE(SUM(characters), 0)::bigint AS characters,
+          COALESCE(SUM(cost_usd), 0) AS cost_usd
+        FROM elevenlabs_usage
+        WHERE (${from}::timestamptz IS NULL OR created_at >= ${from}::timestamptz)
+          AND (${to}::timestamptz IS NULL OR created_at < ${to}::timestamptz)
+          AND (${task}::text IS NULL OR task_type = ${task})
+        GROUP BY task_type
+        ORDER BY cost_usd DESC
+      `,
+      sql`
+        SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day,
+          COALESCE(SUM(cost_usd), 0) AS cost_usd,
+          COUNT(*)::int AS calls
+        FROM elevenlabs_usage
+        WHERE (${from}::timestamptz IS NULL OR created_at >= ${from}::timestamptz)
+          AND (${to}::timestamptz IS NULL OR created_at < ${to}::timestamptz)
+          AND (${task}::text IS NULL OR task_type = ${task})
+        GROUP BY day
+        ORDER BY day
+      `,
     ]);
 
     const claudeCost = Number(totals[0]?.cost_usd || 0);
     const tavilyCost = Number(tavilyTotals[0]?.cost_usd || 0);
+    const elevenLabsCost = Number(elevenLabsTotals[0]?.cost_usd || 0);
 
     // Distinct values for the filter dropdowns (unfiltered, so the UI can always widen).
     const [models, tasks] = await Promise.all([
@@ -199,9 +237,12 @@ export async function GET(request: Request) {
       summary: {
         claudeCost,
         tavilyCost,
-        totalCost: claudeCost + tavilyCost,
+        elevenLabsCost,
+        totalCost: claudeCost + tavilyCost + elevenLabsCost,
         claudeCalls: Number(totals[0]?.calls || 0),
         tavilyCalls: Number(tavilyTotals[0]?.calls || 0),
+        elevenLabsCalls: Number(elevenLabsTotals[0]?.calls || 0),
+        elevenLabsChars: Number(elevenLabsTotals[0]?.characters || 0),
         inputTokens: Number(totals[0]?.input_tokens || 0),
         outputTokens: Number(totals[0]?.output_tokens || 0),
         cacheReadTokens: Number(totals[0]?.cache_read_tokens || 0),
@@ -215,6 +256,7 @@ export async function GET(request: Request) {
       byModelTask,
       byDay,
       tavily: { byTask: tavilyByTask, byDay: tavilyByDay },
+      elevenLabs: { byTask: elevenLabsByTask, byDay: elevenLabsByDay },
       recent,
       filterOptions: {
         models: models.map((r) => r.model as string),

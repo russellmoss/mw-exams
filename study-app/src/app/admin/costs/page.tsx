@@ -9,9 +9,12 @@ import { useAuth } from "@/lib/auth-context";
 interface Summary {
   claudeCost: number;
   tavilyCost: number;
+  elevenLabsCost: number;
   totalCost: number;
   claudeCalls: number;
   tavilyCalls: number;
+  elevenLabsCalls: number;
+  elevenLabsChars: number;
   inputTokens: number;
   outputTokens: number;
   cacheReadTokens: number;
@@ -24,6 +27,7 @@ interface ByTask { task_type: string; calls: number; cost_usd: number; input_tok
 interface BySource { source: string; calls: number; cost_usd: number; }
 interface ByModelTask { task_type: string; model: string; calls: number; cost_usd: number; avg_cost_usd: number; avg_input_tokens: number; avg_output_tokens: number; avg_latency_ms: number; errors: number; }
 interface TavilyByTask { task_type: string; calls: number; credits: number; cost_usd: number; }
+interface ElevenLabsByTask { task_type: string; calls: number; characters: number; cost_usd: number; }
 interface RecentRow {
   id: number; created_at: string; task_type: string; model: string; source: string;
   user_id: number | null; question_id: string | null; ab_group: string | null;
@@ -38,6 +42,7 @@ interface CostData {
   byModelTask: ByModelTask[];
   byDay: { day: string; cost_usd: number; calls: number }[];
   tavily: { byTask: TavilyByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
+  elevenLabs: { byTask: ElevenLabsByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
   recent: RecentRow[];
   filterOptions: { models: string[]; tasks: string[] };
 }
@@ -235,10 +240,11 @@ export default function CostsPage() {
 
           {/* Summary cards */}
           {s && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <SummaryCard label="Total spend" value={usd(s.totalCost)} sub={`${num(s.claudeCalls + s.tavilyCalls)} calls`} accent />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <SummaryCard label="Total spend" value={usd(s.totalCost)} sub={`${num(s.claudeCalls + s.tavilyCalls + s.elevenLabsCalls)} calls`} accent />
               <SummaryCard label="Claude" value={usd(s.claudeCost)} sub={`${num(s.claudeCalls)} calls · ${s.errors} errors`} />
               <SummaryCard label="Tavily" value={usd(s.tavilyCost)} sub={`${num(s.tavilyCalls)} searches · ${num(s.tavilyCredits)} credits`} />
+              <SummaryCard label="ElevenLabs (TTS)" value={usd(s.elevenLabsCost)} sub={`${num(s.elevenLabsCalls)} clips · ${num(s.elevenLabsChars)} chars`} />
               <SummaryCard label="Tokens (in / out)" value={`${num(s.inputTokens)} / ${num(s.outputTokens)}`} sub={`cache read ${num(s.cacheReadTokens)}`} />
             </div>
           )}
@@ -313,6 +319,17 @@ export default function CostsPage() {
               <SimpleTable
                 head={["Task", "Searches", "Credits", "Cost"]}
                 rows={(data?.tavily.byTask || []).map((t) => [t.task_type, num(t.calls), num(t.credits), usd(t.cost_usd)])}
+                right={[false, true, true, true]}
+              />
+            </Panel>
+          )}
+
+          {/* ElevenLabs breakdown */}
+          {(data?.elevenLabs.byTask.length ?? 0) > 0 && (
+            <Panel title="ElevenLabs (text-to-speech)" subtitle="Spoken verdict narration. Cost is an estimate — ~$0.18 per 1k characters (plan-dependent; set ELEVENLABS_USD_PER_1K_CHARS).">
+              <SimpleTable
+                head={["Task", "Clips", "Characters", "Cost"]}
+                rows={(data?.elevenLabs.byTask || []).map((t) => [t.task_type, num(t.calls), num(t.characters), usd(t.cost_usd)])}
                 right={[false, true, true, true]}
               />
             </Panel>

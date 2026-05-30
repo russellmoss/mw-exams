@@ -6,7 +6,7 @@ import { FeedbackAnalysisPanel } from "./FeedbackAnalysisPanel";
 interface AnalysisSummary {
   id: number;
   attempt_id: number;
-  recommendation: "accept" | "reject" | "pending" | null;
+  recommendation: "accept" | "reject" | "partial" | "pending" | null;
   status: "analyzing" | "complete" | "error";
   is_read: boolean;
   created_at: string;
@@ -15,6 +15,7 @@ interface AnalysisSummary {
   paper: number;
   family_label: string;
   user_feedback: string;
+  has_narration: boolean;
 }
 
 export function NotificationBell() {
@@ -24,16 +25,25 @@ export function NotificationBell() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const prevUnreadRef = useRef(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const soundEnabledRef = useRef(true);
+  // Narration ids we've already spoken, so a re-poll never replays the same clip.
+  const spokenRef = useRef<Set<number>>(new Set());
+  const firstLoadRef = useRef(true);
 
   useEffect(() => {
-    audioRef.current = new Audio("/notification.mp3");
-    audioRef.current.volume = 0.7;
     fetch("/api/user/sound-preference")
       .then((r) => r.json())
       .then((d) => { soundEnabledRef.current = d.soundEnabled !== false; })
       .catch(() => {});
+  }, []);
+
+  // Speak the verdict for one analysis (spoken-only — no chime). Fire-and-forget.
+  const speakNarration = useCallback((id: number) => {
+    if (spokenRef.current.has(id)) return;
+    spokenRef.current.add(id);
+    const audio = new Audio(`/api/feedback-notifications/${id}/audio`);
+    audio.volume = 0.9;
+    audio.play().catch(() => {});
   }, []);
 
   const fetchNotifications = useCallback(async () => {
@@ -42,14 +52,28 @@ export function NotificationBell() {
       if (!res.ok) return;
       const data = await res.json();
       const newCount = data.unreadCount || 0;
-      if (newCount > prevUnreadRef.current && prevUnreadRef.current >= 0 && soundEnabledRef.current) {
-        audioRef.current?.play().catch(() => {});
+      const list: AnalysisSummary[] = data.analyses || [];
+
+      // On a count increase, speak the newest unread, complete verdict that has
+      // narration ready. Skip the very first load so we don't read out a backlog
+      // of old unread items when the page mounts.
+      if (!firstLoadRef.current && newCount > prevUnreadRef.current && soundEnabledRef.current) {
+        const fresh = list.find(
+          (a) => a.status === "complete" && !a.is_read && a.has_narration && !spokenRef.current.has(a.id)
+        );
+        if (fresh) speakNarration(fresh.id);
       }
+      // Seed the spoken set on first load so existing unread items aren't queued.
+      if (firstLoadRef.current) {
+        for (const a of list) if (!a.is_read) spokenRef.current.add(a.id);
+        firstLoadRef.current = false;
+      }
+
       prevUnreadRef.current = newCount;
       setUnreadCount(newCount);
-      setAnalyses(data.analyses || []);
+      setAnalyses(list);
     } catch {}
-  }, []);
+  }, [speakNarration]);
 
   useEffect(() => {
     fetchNotifications();
@@ -88,6 +112,7 @@ export function NotificationBell() {
     if (status === "error") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-fail/20 text-fail">Error</span>;
     if (rec === "accept") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success">Accept</span>;
     if (rec === "reject") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-fail/20 text-fail">Reject</span>;
+    if (rec === "partial") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-borderline/20 text-borderline">Partial</span>;
     return <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/20 text-muted">Pending</span>;
   };
 

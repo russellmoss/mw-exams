@@ -29,6 +29,7 @@ export const AB_TASKS: { task: string; label: string; defaultTier: ModelTier }[]
   { task: "wine_enrichment", label: "Wine enrichment", defaultTier: "sonnet" },
   { task: "question_appearance", label: "P3 appearance notes", defaultTier: "sonnet" },
   { task: "feedback_reply", label: "Feedback reply", defaultTier: "sonnet" },
+  { task: "notification_narration", label: "Verdict narration (spoken)", defaultTier: "sonnet" },
 ];
 
 export const AB_CONFIG_KEY = "model_ab_config";
