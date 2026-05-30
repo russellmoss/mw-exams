@@ -37,11 +37,63 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — expand: added §0.5 (provenance — the agentic research pipeline) and §10
+  (validation & backtesting); distribution audit of `outputs/heuristics/*` + `outputs/backtest_reports/*`
+  added EK-0075…EK-0084; completed the §8 artifact index (all 13 heuristics + 5 backtest files,
+  `taxonomy_tags/`, `managerial_methodology.md`); fixed a duplicate id (§9 mark-distribution EK-0070 → EK-0085).**
 - **2026-05-30 — consolidate: 1 feedback item(s) processed → 2 new entries (EK-0073, EK-0074).**
 - **2026-05-30 — Seed.** Created from `outputs/heuristics/*`, `outputs/master_trees/*`,
   `outputs/backtest_reports/*`, `study-app/src/lib/question-validator.ts`,
   `question_quality_remediation_plan.md`, and a full read of the feedback ledger (26 items:
   ~18 accepts, 2 partials, rest rejected). EK-0001 … EK-0072.
+
+---
+
+## §0.5 · Provenance — how this knowledge was built
+
+> "How we know what we know." The exam knowledge below is not opinion: it was produced by a
+> multi-stage **agentic research pipeline** run over the historical corpus **before** any app code was
+> written, then grown by the live feedback loop (§6). Full method: `docs/methodology.md` (technical,
+> 11 stages) and `docs/managerial_methodology.md` (narrative). The deep artifacts are indexed in §8.
+
+**The corpus.** Real IMW practical papers spanning **2011–2025 (14 sat years; 2020 cancelled)** —
+**42 papers, 153 questions, 504 wines** — parsed verbatim from
+`source/MW_Practical_Papers_Compilation.md` (2,585 lines) by a deterministic Python parser
+(`scripts/parse_source.py`) into `data/exams.json` / `data/wines.json` / `data/annotations.json`. No
+inference at parse time; wine text is authoritative (CLAUDE.md). The **core analytical corpus** is the
+**112 questions / 360 wines of 2015–2025** (the years with full structured coverage); the wider
+504-wine / 153-question set (2011–2025) is used for distribution counts (curveball, price tier).
+
+**The pipeline (each stage names its output artifact):**
+
+1. **Wine research** — the `wine-researcher` agent pulled tasting notes / tech sheets / vintage
+   character for every wine via Tavily, one cited file per wine → `data/wine_research/` (504 files).
+2. **Examiner-report synthesis** — **13 official examiner reports (8 practical + 5 chief, 2017–2025)**
+   distilled into the **Seven Cardinal Rules** of marking → `outputs/heuristics/examiner_report_synthesis.md`.
+   This is the source of the grading philosophy in §2–§3.
+3. **Expert annotation** — 32 questions hand-annotated by the candidate in deductive-narrowing style;
+   the `annotation-proposer` drafted the rest (review-gated, never auto-merged) →
+   `data/annotations.json`, `outputs/proposed_annotations/`.
+4. **Decision matrices** — the `question-analyst` analysed all 112 questions twice: stem-only
+   (Phase 5A, unbiased training input) → `outputs/decision_matrices/`, then tree-aware (Phase 5B) →
+   `outputs/decision_matrices_v2/`.
+5. **Taxonomy & pattern extraction** — the `taxonomy-tagger` classified every question into the
+   F1–F8 families → `outputs/taxonomy_tags/` (112 files); the `heuristics-extractor` produced **30
+   numbered examiner patterns** plus the curveball / price-tier / composition / classification
+   analyses → `outputs/heuristics/` (13 files). This is the source of the distribution facts in §4.
+6. **Master decision trees** — the `tree-synthesizer` built the three candidate-facing trees
+   (Layer A stem routing → Layer B sensory; P3 adds Layer A.5 visual triage) + family packs →
+   `outputs/master_trees/`. These are the core study artifact (CLAUDE.md).
+7. **Backtesting** — the `tree-backtester` validated the trees by **Leave-One-Year-Out (LOYO)**
+   cross-validation (train 9 years, predict the held-out year, ×10 folds, 360 wines, deterministic
+   scorer). Post-fix accuracy **72.8% top-1 variety / 89.2% top-3 / 95.6% candidate-set** →
+   `outputs/backtest_reports/`. Full validation story and known limits in §10.
+8. **Generation + feedback loop** — the validated knowledge feeds question generation (`study-app`),
+   and every resolved piece of user feedback is checked against this corpus before any rule change
+   (the corpus is authoritative — see §6 and `empirical_knowledge_doc_plan.md`).
+
+Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a real-exam pass rate of
+**~10%**.
 
 ---
 
@@ -359,6 +411,77 @@ features. Read the **relevant section on demand**; do not load the whole file ro
 - **evidence:** ledger: attempt #129 / analysis #16 (partial)
 - **claim:** When deploying a Greek indigenous-red curveball, prefer varieties with a meaningful production base and benchmark presence: Xinomavro (Naoussa, Amyndeon) and Agiorgitiko (Nemea). The corpus uses Xinomavro twice (2025 P2 Q3 Alpha Estate Amyndeon; Kir-Yianni Ramnista, Naoussa) and never uses Mavrotragano, which is grown almost exclusively on Santorini by a tiny handful of producers and is implausibly obscure as an exam curveball. MW curveballs (Tannat, Xinomavro, Nerello Mascalese, Lagrein) favour rare-but-established varieties, not ultra-niche ones.
 
+### EK-0075 · Per-variety corpus census — what actually appears, and how often
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/backtest_reports/loyo_report.md` §5 (360 scored wines, 2015–2025)
+- **claim:** The empirical prior for "what is in the glass" (count across the scored corpus):
+  Chardonnay 35 · Pinot Noir 27 · Riesling 21 · Cabernet Sauvignon/Merlot (Bordeaux blend) 15 ·
+  Sauvignon Blanc 14 · Chenin Blanc 13 · Chardonnay/Pinot Noir (sparkling) 12 · Syrah 10 ·
+  Grenache/Tempranillo 9 · Touriga Franca/Nacional 9 · Grenache/Syrah 9 · Palomino 8 · Pinot Gris 8 ·
+  Sauvignon Blanc/Sémillon 8 · Sangiovese 7 · Muscat 7 · Gewürztraminer 6 · Nebbiolo 6 · Malbec 6 ·
+  Cabernet Franc 6 · Grenache 6 · Albariño 5 · Furmint/Hárslevelű 5 · Corvina 5. A long tail of
+  single-appearance varieties fills the rest — but these ~24 carry the bulk of the corpus.
+
+### EK-0076 · Wine role & benchmark-status census (504 wines)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/heuristics/historical_wine_classification.md` (504 wines)
+- **claim:** What *job* a wine does in a flight, by count:
+  - **benchmark_status:** nonbenchmark (foil) 181 · benchmark_classic 154 · iconic_benchmark 124 · benchmark_regional 45
+  - **question_role:** method_reference 307 · maturity_reference 69 · commercial_foil 54 · benchmark_anchor 35 · supporting_reference 25 · sweetness_reference 6 · comparative_peer 4 · curveball_probe 4
+  - **commercial_tier:** specialist_premium 238 · commercial 221 · fine_wine 45
+  - **maturity_role:** developing 216 · young_primary 126 · mature_tertiary 93 · NV-category 49 · oxidative/natively-aged 13
+
+  Takeaway: the **modal exam wine is a developing, specialist-premium wine chosen as a winemaking/method
+  reference** (307 of 504), and ~36% are non-benchmark foils — not icons. Corroborates EK-0030/EK-0031.
+
+### EK-0077 · Family taxonomy — absolute counts and the paper × family grid (112 questions)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/heuristics/question_taxonomy_index.md` (extends EK-0052)
+- **claim:** Across the 112-question core corpus: **F1 25 · F2 24 · F3 6 · F4 33 · F5 12 · F6 4 · F7 8**
+  (F8 is an analysis-only tag, not generated). **F4 (Mixed-ID Breadth) is the single largest family.**
+  Paper × family:
+  - **P1:** F1 11 · F2 8 · F3 4 · F4 9 · F5 2 · F7 3
+  - **P2:** F1 10 · F2 8 · F3 2 · **F4 15** · F7 2  *(P2 is F4-dominated)*
+  - **P3:** F1 4 · F2 8 · F4 9 · **F5 10** · F6 4 · F7 3  *(P3 carries nearly all F5 method + F6 style-mechanism questions)*
+
+  NOTE: a wider 153-question scoring corpus (`wine_selection_logic_by_question_type.md`) reports
+  different totals (e.g. F4 = 43) — always state which corpus when quoting family counts.
+
+### EK-0078 · Stem-phrase frequency — how often each framing actually appears
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/heuristics/examiner_patterns.md` (stem-phrase appendix; extends EK-0053)
+- **claim:** Corpus frequency of the framings the candidate must recognize on sight: variety-ID
+  explicitly requested ~35% (39 Qs) · "same single grape variety" ~21% (24) · commercial/market
+  sub-question ~26% (29) · "same country" ~17% (19) · "same region" ~15% (17) · "compare and contrast"
+  ~12% (13) · "different countries/varieties" ~10% (11+) · explicit pairs 6 · explicit "mixed bag" 2.
+  **Vintage is explicitly asked in only ~4–5 questions in 10 years** — do not over-weight vintage ID.
+
+### EK-0079 · Quality & method questions overwhelmingly use winemaking-diverse flights
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/heuristics/winemaking_diversity_quality_questions.md` (91 quality/method questions)
+- **claim:** Of 91 quality-or-method questions, **82% deliberately mix winemaking approaches** (oak
+  regime, MLF, lees, vessel, fermentation temp) and only 9% are homogeneous. By paper: P1 25/30
+  high-diversity, P3 33/38, P2 17/23 (P2 is the outlier, with 4 homogeneous flights). A generated
+  quality/method question should default to winemaking diversity across the flight, not one technique.
+
+### EK-0080 · Sweet-flight composition metrics (extends EK-0039)
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/heuristics/question_wine_composition_analysis.md`
+- **claim:** Historical P3 sweet flights average ~**3.8 wines, ~3.3 distinct sweetness-creation
+  mechanisms, ~3.6 varieties, ~3.7 countries** — near-maximal spread on mechanism, variety and origin
+  at once. Mechanism diversity (botrytis / passerillage / late-harvest / icewine /
+  fortification-arrest / oxidative), not origin, is the organizing axis (see EK-0039).
+
+### EK-0081 · Each family activates specific contrast axes (the wine-selection logic)
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/heuristics/wine_selection_logic_by_question_type.md` (153 questions × 8
+  contrast axes; fit: 113 strong / 23 acceptable / 6 weak / 11 fail)
+- **claim:** Wines are chosen so the flight "lights up" the axes its family tests. Mean axis
+  activation: **F5** method questions max winemaking (~0.98) and origin (~1.00); **F4** breadth max
+  variety (~0.97) and origin (~0.97); **F7** hierarchy is the only family routinely carrying
+  luxury-tier wines (~5–10%) while F4 carries almost none (~0–2%). Generation should pick wines that
+  make the family's intended contrast *observable from the glass*, not merely thematically related.
+
 ---
 
 ## §5 · Question generation rules
@@ -671,18 +794,28 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 
 This document is a synthesis layer. The deep artifacts it draws on (do not duplicate — cite/link):
 
+- **Methodology / provenance (how it was built — see §0.5):** `docs/methodology.md` (technical,
+  11 stages), `docs/managerial_methodology.md` (narrative).
 - **Master decision trees (the candidate's exam strategy):** `outputs/master_trees/p1_whites_tree.md`,
   `p2_reds_tree.md`, `p3_special_tree.md` (Layer A stem routing → Layer B sensory; P3 adds Layer A.5
   visual triage), plus per-family packs `p{1,2,3}_family_tree_pack.md`.
-- **Examiner heuristics:** `outputs/heuristics/examiner_patterns.md` (30 patterns),
-  `examiner_report_synthesis.md` (7 Cardinal Rules), `question_taxonomy.md` (F1–F8),
-  `curveball_analysis.md`, `quality_price_tier_analysis.md`, `question_wine_composition_analysis.md`,
-  `family_matrix_templates.md`.
-- **Per-question analysis:** `outputs/decision_matrices/` (112 stem-only) and
-  `outputs/decision_matrices_v2/` (112 tree-aware). Training input — not study material.
-- **Validation/accuracy:** `outputs/backtest_reports/loyo_postfix_audit.md` (post-fix LOYO: **72.8%
-  top-1 variety, 89.2% top-3, 95.6% candidate-set**).
-- **Answer-writing rules:** `docs/mw_write_pipeline_guidance.md`. **Methodology:** `docs/methodology.md`.
+- **Examiner heuristics (`outputs/heuristics/`, 13 files):** `examiner_patterns.md` (30 patterns +
+  stem-phrase appendix), `examiner_report_synthesis.md` (7 Cardinal Rules from 13 reports),
+  `question_taxonomy.md` + `question_taxonomy_index.md` (F1–F8 schema + counts), `curveball_analysis.md`,
+  `quality_price_tier_analysis.md`, `question_wine_composition_analysis.md` (sweet-flight mechanisms),
+  `historical_wine_classification.md` (benchmark / role / tier census), `wine_selection_logic_by_question_type.md`
+  (contrast-axis fit by family), `winemaking_diversity_quality_questions.md`,
+  `p1_production_method_contrast_audit.md`, `family_matrix_templates.md`, `decision_tree_remaining_work.md`.
+- **Per-question analysis:** `outputs/taxonomy_tags/` (112 family-tagged questions),
+  `outputs/decision_matrices/` (112 stem-only) and `outputs/decision_matrices_v2/` (112 tree-aware).
+  Training input — not study material.
+- **Validation / accuracy (`outputs/backtest_reports/`, 5 files — see §10):** `loyo_report.md` (pre-fix
+  LOYO + per-variety census), `loyo_postfix_audit.md` (**post-fix 72.8% / 89.2% / 95.6%**),
+  `loyo_audit_2015_2018_2024_2025.md` (scoring-defect findings), `iteration_report.md`,
+  `exam_predictor_backtest.md` (next-year structure forecast). Prediction data:
+  `data/loyo_predictions.json`, `data/predicted_2026_exam_profile.json`.
+- **Study diagrams:** `outputs/study_diagrams/` (Mermaid flowcharts) → `study-app/public/diagrams/`.
+- **Answer-writing rules:** `docs/mw_write_pipeline_guidance.md`.
 - **Validator + pipeline:** `study-app/src/lib/question-validator.ts`; remediation history in
   `question_quality_remediation_plan.md`.
 
@@ -712,7 +845,7 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   focus, climate-driven fruitiness, New/Old World style convergence). The **exact weighting curve** is
   not yet defined — currently a qualitative lean, not a parameter.
 
-### EK-0070 · Mark distribution by family is assumed, not measured
+### EK-0085 · Mark distribution by family is assumed, not measured
 - **tier:** CURVEBALL · **status:** live
 - **evidence:** §3 entries; `outputs/heuristics/examiner_patterns.md`
 - **claim:** We know ID is ~35–45% and quality/commercial are rising, but we do not yet have a
@@ -733,4 +866,49 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
 - **claim:** P3 appearance cues are now generated and shown, but we have not yet confirmed (via fresh
   feedback) that they are *accurate and useful* — e.g. that a stated colour matches the keyed style.
   Watch for feedback that a visual cue misled the candidate.
+
+---
+
+## §10 · Validation, backtesting & known model limits
+
+> How we proved the trees work, and where they still fail. Source: `outputs/backtest_reports/`.
+> See §0.5 stage 7 for where this sits in the pipeline.
+
+### EK-0082 · LOYO backtesting — method and result (pre-fix → post-fix)
+- **tier:** PROCESS · **status:** live
+- **evidence:** `outputs/backtest_reports/loyo_report.md`, `loyo_postfix_audit.md`, `loyo_audit_2015_2018_2024_2025.md`
+- **claim:** The master trees are validated by **Leave-One-Year-Out** cross-validation: for each of
+  10 folds, train on 9 years and predict the held-out year's wines from the stem + tree alone (360
+  wines, deterministic Python scorer with appellation lookup + synonym normalization; metrics =
+  top-1/top-3 variety, top-1 country, candidate-set hit, MRR). **Pre-fix:** top-1 variety 51.3%,
+  top-3 70.7%, candidate-set 82.5% vs a naive most-common-per-paper baseline of 16.9% (**+34.4pp**).
+  **Post-fix** (after 5 scoring-defect fixes + tree edits): **72.8% / 89.2% / 95.6%**. Per-paper,
+  **P2 is strongest and P1 weakest** on top-1 variety; **hardest years are 2023 and 2025**, easiest
+  2016 and 2021. Cite **only the post-fix** figures downstream — pre-fix country/sub-region metrics
+  were measured incoherently (audit findings A–D). Post-fix tree edits of record: Melon/Muscadet
+  survival in French-white tours; a Rhône same-region blend+single-variety rule; a broadened
+  Europe-only indigenous branch (Austria/Italy/Greece kept alive); a two-wine non-Champagne
+  commercial-sparkling leaf; and a P3 **"never single-lock a mixed-category flight"** anti-collapse rule.
+
+### EK-0083 · Systematic failure mode — blend labels collapse to their dominant variety
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/backtest_reports/loyo_report.md` §5 (quantifies the weak spots in EK-0068)
+- **claim:** The trees score **0% top-1** on multi-grape labels because they collapse a blend to its
+  lead grape: Cabernet Sauvignon/Merlot (15 wines), Sauvignon Blanc/Sémillon (8), Cabernet Franc/Merlot
+  (4), Grenache/Tempranillo (9), Grenache/Syrah (9), Touriga Franca/Nacional (9, often → Chardonnay),
+  Chardonnay/Pinot Noir sparkling (12, → Chardonnay), Corvina blends (5). **Aromatic/indigenous whites**
+  also collapse to Riesling: Gewürztraminer, Furmint/Hárslevelű, and Grüner Veltliner all 0% top-1.
+  Practical consequence: when a stem implies a blend or an aromatic/indigenous white, **do not trust a
+  single-variety leaf — widen to the candidate set** (which still scores 95.6%). This is the measured,
+  quantified version of the weak-spots noted in EK-0068.
+
+### EK-0084 · A separate "exam-structure predictor" forecasts next year's paper shape
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/backtest_reports/exam_predictor_backtest.md`; `data/predicted_2026_exam_profile.json`
+- **claim:** Beyond per-wine ID, a sequence-aware 5-layer model predicts the **structure** of an
+  upcoming paper (question count, family archetype per question, slot-level variety/country/style),
+  backtested 2022–2025. It predicts the **exact question-count per paper correctly in every paper-year
+  (12/12)**; top-3 hit rates: style 97.6%, question-role 92.9%, country 81.0%, variety 59.5%; structure
+  mean-F1 0.499. **P2 structure is the hardest to predict.** It is explicitly *"a steering layer, not an
+  oracle"* — useful for biasing mock-exam generation toward likely shapes, not for guaranteeing content.
 </content>
