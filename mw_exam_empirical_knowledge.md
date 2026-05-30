@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0088).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0087).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0086).**
@@ -498,6 +499,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   luxury-tier wines (~5–10%) while F4 carries almost none (~0–2%). Generation should pick wines that
   make the family's intended contrast *observable from the glass*, not merely thematically related.
 
+### EK-0088 · P3 still-white inclusions are flor/sous-voile, paired with a non-still anchor — not two conventional still whites
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #145 / analysis #25 (accept); outputs/heuristics/examiner_patterns.md §4.1
+- **claim:** Paper 3 is built around non-still styles (sparkling, fortified, sweet, rosé) plus oxidative/biologically-aged styles. Still oxidative whites DO appear on P3, but always as a flor/sous-voile style (Jura Savagnin/Chardonnay, e.g. 2015 P3 Q1, 2019 P3 Q4, 2024 P3 Q2) paired against a fortified or sparkling anchor. The corpus has NO P3 question pairing two conventionally-oxidative, non-flor still white wines. Conventionally-oxidative white Rioja (López de Heredia, Murrieta) is corpus-attested as a Paper 1 wine (2018 P1 breadth, 2025 P1 three-countries), not P3. A two-still-white oxidative pairing belongs on P1; it is only P3-appropriate if at least one wine is non-still (e.g. a Sherry or sparkling anchor).
+
 ---
 
 ## §5 · Question generation rules
@@ -682,6 +688,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 139 | 22 | P2/F1 | accept | auto | Stem Sniper should grade ambiguous single-answer origin questions on the plausible set, not exact per-wine pick | EK-0086 |
 | 141 | 23 | P3/F7 | accept | auto | novelty check is not session-aware; same question+wines re-served to same user same day | EK-0087 |
 | 143 | 24 | P3/F4 | accept | auto | Another session-not-aware novelty failure (same question re-served); already covered by EK-0087 | EK-0087 |
+| 145 | 25 | P3/F7 | accept | auto | P3 still-white inclusions must be flor/sous-voile paired with a non-still anchor; two conventional still whites belong on P1 | EK-0088 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
