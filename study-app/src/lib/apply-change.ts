@@ -58,25 +58,50 @@ export async function applyFeedbackChange(opts: {
     (r.question_text as string) || "(none)",
   ].join("\n");
 
-  // Feature isolation: Stem Sniper feedback (data or logic) must stay within Stem Sniper-owned
-  // files. The Action diff-guards the change against these prefixes and opens a PR (instead of
-  // merging) if it strays. Empty allowedPaths = repo-wide (existing tasting/question feedback).
+  // Route by the analysis's Kind line. Feedback CAN reach question generation and the validators
+  // (the most common root cause), but those high-stakes code changes are PR-gated (reviewOnly);
+  // answer-key data fixes auto-apply (scoped); a one-off bad question is quarantined here directly.
+  const kind = (analysisText.match(/Kind:\s*\**(answer-key|question|generation|validator)\**/i)?.[1] || "").toLowerCase();
   const isStemSniper = /\[stem-sniper\]/i.test((r.user_feedback as string) || "");
-  const allowedPaths = isStemSniper
-    ? [
-        "study-app/src/app/stem-sniper/",
-        "study-app/src/app/components/StemSniper",
-        "study-app/src/app/api/stem-sniper/",
-        "study-app/src/lib/stem-scoring.ts",
-        "study-app/public/data/stem-autocomplete.json",
-        "study-app/scripts/build-stem-",
-        "study-app/scripts/test-stem-scoring.mjs",
-        "data/variety_lexicon.json",
-        "data/appellation_varieties.json",
-        "data/stem_proprietary_blends.json",
-        "data/stem_style_lexicon.json",
-      ].join("\n")
-    : "";
+  const questionId = r.question_id as string;
+
+  // Kind: question — quarantine THIS question directly (no Action). Hides it from BOTH flows
+  // (Stem Sniper via stem_answer_keys.validated, main flow via generated_questions.invalid_reasons).
+  // Phase D regenerates it later.
+  if (kind === "question") {
+    const reason = [{ rule: "feedback-question", severity: "hard", detail: ((r.user_feedback as string) || "").slice(0, 300) }];
+    await sql`ALTER TABLE generated_questions ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
+    await sql`UPDATE generated_questions SET invalid_reasons = ${JSON.stringify(reason)}::jsonb WHERE question_id = ${questionId}`;
+    await sql`UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${JSON.stringify(reason)}::jsonb WHERE question_id = ${questionId}`;
+    await recordApply(analysisId, { apply_status: "quarantined", applied_by: appliedBy });
+    await reviewFeedback(attemptId, "accepted", `Question quarantined as invalid (${appliedBy})`, appliedBy === "auto" ? "auto" : "manual");
+    return { dispatched: false, workBranch, analysisId };
+  }
+
+  const STEM = [
+    "study-app/src/app/stem-sniper/", "study-app/src/app/components/StemSniper",
+    "study-app/src/app/api/stem-sniper/", "study-app/src/lib/stem-scoring.ts",
+    "study-app/public/data/stem-autocomplete.json", "study-app/scripts/build-stem-",
+    "study-app/scripts/test-stem-scoring.mjs", "data/variety_lexicon.json",
+    "data/appellation_varieties.json", "data/stem_proprietary_blends.json", "data/stem_style_lexicon.json",
+  ];
+  const GEN = [
+    "study-app/src/lib/prompts/question-generation-prompt.ts", "study-app/src/lib/wine-enrichment.ts",
+    "study-app/src/lib/wine-bank-lookup.ts", "study-app/src/app/api/get-question/",
+    "study-app/src/app/api/generate-tasting/", "data/mock_wine_bank.json",
+  ];
+  const VALIDATOR = [
+    "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
+    "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
+  ];
+
+  // Feature isolation by Kind. generation/validator are PR-gated (reviewOnly) for human review;
+  // answer-key is auto + scoped. No Kind + not Stem Sniper → repo-wide auto (legacy main-flow).
+  let allowedPaths = "";
+  let reviewOnly = false;
+  if (kind === "answer-key" || (!kind && isStemSniper)) allowedPaths = STEM.join("\n");
+  else if (kind === "generation") { allowedPaths = GEN.join("\n"); reviewOnly = true; }
+  else if (kind === "validator") { allowedPaths = VALIDATOR.join("\n"); reviewOnly = true; }
 
   await dispatchAutoFeedback({
     attemptId,
@@ -86,6 +111,7 @@ export async function applyFeedbackChange(opts: {
     context,
     analysisText,
     allowedPaths,
+    reviewOnly: reviewOnly ? "true" : "",
   });
 
   await recordApply(analysisId, {

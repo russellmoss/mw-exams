@@ -10,6 +10,7 @@ export interface AutoFeedbackPayload {
   context: string; // paper / family / question / user feedback, preformatted
   analysisText: string; // full analysis text (contains the "Proposed Change" section)
   allowedPaths?: string; // newline-separated path prefixes the change must stay within (feature isolation); empty = repo-wide
+  reviewOnly?: string; // "true" = high-stakes (generation/validator) — open a PR for review even if in-scope, never auto-merge
 }
 
 /**

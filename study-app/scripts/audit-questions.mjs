@@ -6,7 +6,8 @@ import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion } from "../src/lib/question-validator.ts";
 
-const sql = neon(readFileSync(".env.local", "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim());
+const DB = process.env.DATABASE_URL || readFileSync(".env.local", "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim();
+const sql = neon(DB);
 const apply = process.argv.includes("--apply");
 
 if (apply) {

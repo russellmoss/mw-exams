@@ -34,6 +34,7 @@ jobs:
       WORK_BRANCH: ${{ github.event.client_payload.workBranch }}
       APPLIED_BY: ${{ github.event.client_payload.appliedBy }}
       ALLOWED_PATHS: ${{ github.event.client_payload.allowedPaths }}
+      REVIEW_ONLY: ${{ github.event.client_payload.reviewOnly }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -182,7 +183,8 @@ jobs:
           if [ "$STRAY" -eq 0 ]; then echo "All ${#CHANGED[@]} changed file(s) within allowed paths."; fi
 
       - name: Merge to master (verified)
-        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1'
+        # reviewOnly (generation/validator changes) are PR-gated for human review — never auto-merged.
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1' && env.REVIEW_ONLY != 'true'
         id: merge
         run: |
           set -e
@@ -204,6 +206,22 @@ jobs:
           git push origin master
           echo "merged=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Rebuild keys + re-audit (CF-2)
+        # An answer-key data/builder change is INERT until stem_answer_keys is rebuilt; a
+        # validator/generation change should re-flag the corpus. Run the matching script against the
+        # live DB (DATABASE_URL is in env; the scripts read it). Non-fatal — never undo a good merge.
+        if: steps.merge.outputs.merged == '1'
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          CHANGED=$(git diff --name-only HEAD^ HEAD)
+          echo "changed files:"; echo "$CHANGED"
+          if echo "$CHANGED" | grep -qE 'stem_proprietary_blends|stem_style_lexicon|variety_lexicon|appellation_varieties|build-stem-answer-keys'; then
+            echo "Rebuilding stem_answer_keys…"; node scripts/build-stem-answer-keys.mjs || echo "::warning title=key rebuild failed::stem_answer_keys not rebuilt"
+          fi
+          if echo "$CHANGED" | grep -qE 'question-validator|audit-questions|question-generation-prompt|get-question'; then
+            echo "Re-auditing corpus…"; node scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
+          fi
 
       - name: Deploy to Vercel (explicit prod)
         # Deploy explicitly with the token — independent of the (broken) Vercel GitHub App.
@@ -238,15 +256,17 @@ jobs:
             exit 1
           fi
 
-      - name: Open PR (could not verify or out of scope)
+      - name: Open PR (review required, could not verify, or out of scope)
         if: >-
           always() &&
-          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1' || steps.scope.outputs.out_of_scope == '1') &&
+          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1' || steps.scope.outputs.out_of_scope == '1' || env.REVIEW_ONLY == 'true') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
         run: |
           git push origin "$WORK_BRANCH" || true
-          if [ "${{ steps.scope.outputs.out_of_scope }}" = "1" ]; then
+          if [ "$REVIEW_ONLY" = "true" ]; then
+            REASON="High-stakes change (Kind: generation/validator) — PR-gated for human review by policy. The change is verified (CI green) and scoped, but generation/validator edits must be reviewed before merging. master/production were not touched."
+          elif [ "${{ steps.scope.outputs.out_of_scope }}" = "1" ]; then
             REASON="The change touched files OUTSIDE the allowed scope for this feedback (feature isolation). Review the diff — it must stay within the feature's own files. master/production were not touched."
           else
             REASON="Automated feedback change could not be verified+merged (CI failed after retries, or a merge conflict). Review the run logs, fix, and merge manually. master/production were not touched."

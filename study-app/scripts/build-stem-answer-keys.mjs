@@ -26,8 +26,10 @@ import { neon } from "@neondatabase/serverless";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const dataFile = (f) => JSON.parse(readFileSync(join(ROOT, "data", f), "utf8"));
 
-const env = readFileSync(join(ROOT, "study-app", ".env.local"), "utf8");
-const DATABASE_URL = env.match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim();
+// Prefer the env var (CI / the auto-feedback Action) and fall back to study-app/.env.local (local).
+const DATABASE_URL =
+  process.env.DATABASE_URL ||
+  readFileSync(join(ROOT, "study-app", ".env.local"), "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim();
 const sql = neon(DATABASE_URL);
 
 // ---------- normalization ----------

@@ -59,33 +59,37 @@ export function buildFeedbackAnalysisPrompt(params: {
   // Stem Sniper feedback (tagged "[stem-sniper]") is about the ANSWER KEY for a stem, not the
   // question design. Reframe the analysis and ask it to classify the fix as data vs code.
   const isStemSniper = /\[stem-sniper\]/i.test(params.userFeedback || "");
-  const stemSniperBlock = isStemSniper
+  const stemSniperFraming = isStemSniper
     ? `
 
-## ⚠ STEM SNIPER MODE — answer-key feedback (overrides the framing below)
-
-This feedback comes from the **Stem Sniper** drill, where the candidate predicts variety+region
-(Papers 1–2) or **style/method**+region (Paper 3) for the flight from the stem alone. The
-feedback is about the **answer key** for this question — the ground-truth variety/style/region
-buckets and the plausible/confusable set — NOT the question design or the AI evaluation.
-
-Evaluate specifically:
-- Is each wine's ground-truth **variety / style / region** correct? (e.g. "this Sherry is
-  Manzanilla, not Amontillado"; "Vosne-Romanée is Pinot Noir"; "region should be Bordeaux, not
-  'Bordeaux Blanc'"). For Paper 3 the key axis is STYLE/METHOD, not variety.
-- Is the **plausible/confusable** set sensible (what a prepared candidate could narrow to)?
-- Are the **confidence tiers** reasonable?
-
-You MUST end your analysis with a Kind line classifying the fix:
-- **Kind: answer-key** — the fix is to answer-key DATA (a wrong/missing variety, style, region,
-  or plausible bucket). The common case; applied to the stem_answer_keys data, not app code.
-- **Kind: code** — the fix is to Stem Sniper logic (scoring, the style lexicon, the appellation
-  map, the UI). Only when the data is right but the behaviour is wrong.
-
-Stay strictly scoped to Stem Sniper data/logic. Do NOT propose changes to question generation,
-answer evaluation, or any other feature.
+## STEM SNIPER CONTEXT
+This feedback came from the **Stem Sniper** drill (predict variety+region, or **style/method**+region
+for Paper 3, from the stem). It often concerns the **answer key** (ground-truth variety/style/region
+buckets, the plausible/confusable set, tiers — e.g. "this Sherry is Manzanilla, not Amontillado";
+"Vosne-Romanée is Pinot Noir"; "region should be Bordeaux, not 'Bordeaux Blanc'"). BUT it may instead
+reveal a **bad question** or a **generation/validator gap**. Do not assume it is only an answer-key
+issue — classify it with the Kind line below.
 `
     : "";
+  // Every analysis ends with a Kind line so apply-change can route the fix (and PR-gate the
+  // high-stakes generation/validator ones). Feedback CAN and SHOULD reach question generation
+  // and the validators — that is the most common root cause of a wrong question.
+  const kindClassification = `
+
+## CLASSIFY THE FIX (required) — end your analysis with a single Kind line
+- **Kind: answer-key** — a Stem Sniper answer-key DATA error (variety / style / region / plausible /
+  tier). Applied to the stem_answer_keys data + a key rebuild; no app code.
+- **Kind: question** — THIS specific generated question is invalid: its stem contradicts its wines
+  (e.g. "four different countries" but two share a country; "same single grape variety" but the wines
+  are different grapes). The question itself is quarantined/regenerated — not a code change.
+- **Kind: generation** — the generation PIPELINE produces a *class* of bad questions; propose a change
+  to the generation prompt/logic. (High-stakes — will be PR-gated for human review.)
+- **Kind: validator** — a bad question PASSED validation and reached the user; propose a stronger check
+  in the question validator. (High-stakes — PR-gated.)
+Pick the NARROWEST Kind that fixes the root cause: a one-off bad question is \`question\`; a recurring
+pattern is \`generation\` or \`validator\`.
+`;
+  const stemSniperBlock = stemSniperFraming + kindClassification;
 
   const system = `You are running feedback analysis for the MW Practical Exam Study System.
 ${stemSniperBlock}
