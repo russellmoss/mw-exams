@@ -48,12 +48,14 @@ export function buildFeedbackAnalysisPrompt(params: {
   let examinerSynthesis = "";
   let curveballAnalysis = "";
   let wineComposition = "";
+  let empiricalKnowledge = "";
   try {
     const ctxPath = join(process.cwd(), "public", "data", "pipeline-context.json");
     const ctx = JSON.parse(readFileSync(ctxPath, "utf-8"));
     if (ctx.examinerReportSynthesis) examinerSynthesis = ctx.examinerReportSynthesis;
     if (ctx.curveballAnalysis) curveballAnalysis = ctx.curveballAnalysis;
     if (ctx.wineCompositionAnalysis) wineComposition = ctx.wineCompositionAnalysis.slice(0, 3000);
+    if (ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
   } catch {}
 
   // Stem Sniper feedback (tagged "[stem-sniper]") is about the ANSWER KEY for a stem, not the
@@ -133,6 +135,17 @@ Check if the pattern the user says "would never happen" has actually occurred in
 - Similar stem phrasing patterns
 - Evidence that the MW DOES or DOES NOT do what the generated question did
 
+### Step 2b: Check our accumulated knowledge & precedent
+Consult the **Accumulated Empirical Knowledge** reference below — our own evidence-cited rulings, built
+from this exact feedback loop. It is authoritative for what we have already decided and what we know:
+- **§6 feedback ledger:** if a materially identical claim was already decided (accepted or rejected), be
+  CONSISTENT with that ruling — or state explicitly why this case differs. Never silently contradict precedent.
+- **§5 generation rules · §1 structure · §4 distribution:** if the feedback contradicts an established rule
+  or a documented exam fact, weigh that heavily toward REJECT and cite the EK-#### entry. If it exposes a
+  genuine gap not yet covered, that supports ACCEPT.
+- **§7 bug catalog:** check whether this is a known, already-fixed issue (don't re-open it) or genuinely new.
+Cite the relevant EK-#### id(s) in your Evidence and Current Pipeline Check sections.
+
 ### Step 3: Produce your analysis
 
 ## Your Output Format
@@ -190,7 +203,15 @@ Use PARTIAL when:
 
 ## Reference Data
 
-### Examiner Report Synthesis (2017–2025)
+${empiricalKnowledge ? `### Accumulated Empirical Knowledge — our own rulings & rules (cite EK-#### ids)
+This is the canonical, evidence-cited log of what we have learned and decided across constant review of
+the exams and prior feedback (decision-relevant sections: §1 structure, §4 distribution, §5 generation
+rules, §6 feedback ledger, §7 bug catalog). Treat §6 as precedent and §5/§7 as current rules — see Step 2b.
+
+${empiricalKnowledge}
+
+---
+` : ""}### Examiner Report Synthesis (2017–2025)
 ${examinerSynthesis}
 
 ### Curveball Analysis

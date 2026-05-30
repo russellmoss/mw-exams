@@ -291,6 +291,36 @@ function main() {
   console.log(`Total questions: ${allQuestions.length}`);
   console.log(`File size: ${(fs.statSync(OUTPUT).size / 1024 / 1024).toFixed(1)} MB`);
 
+  // Extract the decision-relevant sections of the canonical empirical-knowledge doc for the
+  // feedback-analysis agent (so it knows our accumulated rulings/precedent, not just the corpus).
+  // Per the doc's own token-economy rule we do NOT ship the whole thing: keep §1 structure,
+  // §4 distribution, §5 generation rules, §6 feedback ledger, §7 bug catalog — and drop the heavy
+  // §4 wine-census tables (EK-0075..0081, 0088). §2/§3 (grading/examiner mindset) are omitted
+  // because the examiner-report synthesis already covers that ground.
+  function extractEmpiricalDigest() {
+    const p = path.join(ROOT, 'mw_exam_empirical_knowledge.md');
+    if (!fs.existsSync(p)) return '';
+    const INCLUDE_SECTIONS = new Set(['1', '4', '5', '6', '7']);
+    const EXCLUDE_EK = new Set(['EK-0075', 'EK-0076', 'EK-0077', 'EK-0078', 'EK-0079', 'EK-0080', 'EK-0081', 'EK-0088']);
+    const out = [];
+    let inSection = false;
+    let skipEk = false;
+    for (const line of fs.readFileSync(p, 'utf-8').split('\n')) {
+      const sec = line.match(/^##\s*§([0-9.]+)/);
+      if (sec) {
+        inSection = INCLUDE_SECTIONS.has(sec[1].split('.')[0]);
+        skipEk = false;
+        if (inSection) out.push(line);
+        continue;
+      }
+      if (!inSection) continue;
+      const ek = line.match(/^###\s*(EK-\d{4})/);
+      if (ek) { skipEk = EXCLUDE_EK.has(ek[1]); if (!skipEk) out.push(line); continue; }
+      if (!skipEk) out.push(line);
+    }
+    return out.join('\n').trim();
+  }
+
   // Build pipeline context — the reference files the question generation prompt needs
   // This includes the ACTUAL agent instruction files so the app and CLI pipeline stay in sync
   const AGENTS_DIR = path.join(ROOT, '.claude', 'agents');
@@ -306,6 +336,8 @@ function main() {
     wineCompositionAnalysis: loadTextFile(path.join(ROOT, 'outputs', 'heuristics', 'question_wine_composition_analysis.md')),
     geographicVocabularyRules: `The examiners use a strict abstract hierarchy: "country", "region", "sub-region", "area", "origin". They NEVER name specific geographic features, landforms, valleys, rivers, mountain ranges, or appellations in question stems. In 10 years of papers (2011-2025, 112 questions), the only geographic proper noun in a stem is "Rhône Valley" (2017 P2 Q4), used as a region name. NEVER use "broad valley", "river valley", "mountain range", "coastal region", "volcanic soils", "lake shore", or "appellation".`,
     historicalQuestionExamples: extractHistoricalExamples(historical),
+    // Accumulated rulings/precedent for the feedback-analysis agent (decision-relevant EK sections).
+    empiricalKnowledgeDigest: extractEmpiricalDigest(),
   };
 
   const PIPELINE_OUTPUT = path.join(ROOT, 'study-app', 'public', 'data', 'pipeline-context.json');
