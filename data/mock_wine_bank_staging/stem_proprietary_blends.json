@@ -1,0 +1,1163 @@
+{
+  "_note": "15 proprietary/icon blends added 2026-05-30; appended directly to mock_wine_bank.json (merge script needs object-format fix). Provenance record.",
+  "entries": [
+    {
+      "id": "fr_provence_trevallon_alpilles_rouge",
+      "producer": "Domaine de Trévallon",
+      "wine_name": "IGP Alpilles Rouge",
+      "country": "France",
+      "region": "Provence",
+      "sub_region": "Les Alpilles",
+      "appellation": "IGP Alpilles",
+      "classification": "IGP (declassified from AOC Les Baux-de-Provence)",
+      "style_category": "still_dry",
+      "method_tags": [
+        "organic",
+        "whole_cluster_fermentation",
+        "native_yeast",
+        "no_filtration",
+        "no_fining",
+        "hand_harvest",
+        "large_neutral_oak_botti",
+        "minimal_so2"
+      ],
+      "structure_tags": [
+        "full_body",
+        "fine_tannin",
+        "cassis",
+        "black_cherry",
+        "garrigue",
+        "eucalypt",
+        "cedar",
+        "black_pepper",
+        "mineral",
+        "long_finish"
+      ],
+      "oak_signature": "large_neutral_foudres_24_months",
+      "rs_level": "dry",
+      "abv": "13.5%",
+      "price_band": "super_premium",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "allocation"
+      ],
+      "vintage_guidance": "Drink from ~5 years; top vintages cellar 15-25 years. Recent releases (2019-2022) via allocation/specialist retail.",
+      "useful_families": [
+        "F3",
+        "F7",
+        "F2"
+      ],
+      "question_roles": [
+        "provence_cabernet_syrah_blend_curveball",
+        "mediterranean_icon_red"
+      ],
+      "cooldown_motifs": [
+        "trevallon",
+        "provence",
+        "alpilles",
+        "cabernet_sauvignon",
+        "syrah",
+        "bordeaux_provence_blend"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep ruby with violet highlights; bright.",
+        "nose_summary": "Black currant, Morello cherry, raspberry, cocoa, smoked pepper, eucalyptus and garrigue from the Alpilles limestone.",
+        "palate_summary": "Full-bodied yet elegant, silky tannins; cassis and black cherry; peppery Syrah edge, Cabernet depth; long mineral finish.",
+        "sources": [
+          "https://www.beauneimports.com/producer/domaine-de-trevallon",
+          "https://www.polanerselections.com/producers/trevallon"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.beauneimports.com/producer/domaine-de-trevallon",
+        "https://www.polanerselections.com/producers/trevallon",
+        "https://www.wine-searcher.com/find/dom+de+trevallon+igp+alpilles+pays+france"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Syrah"
+      ]
+    },
+    {
+      "id": "fr_jura_chateau_d_arlay_vin_de_paille",
+      "producer": "Château d'Arlay",
+      "wine_name": "Vin de Paille",
+      "country": "France",
+      "region": "Jura",
+      "sub_region": "Côtes du Jura",
+      "appellation": "Côtes du Jura",
+      "classification": "AOC Côtes du Jura Vin de Paille",
+      "style_category": "still_sweet",
+      "method_tags": [
+        "passerillage",
+        "straw_drying",
+        "hand_harvest",
+        "hand_sort",
+        "native_yeast",
+        "old_barrel",
+        "long_barrel_age_over_two_years",
+        "no_filtration"
+      ],
+      "structure_tags": [
+        "full_body",
+        "high_acid",
+        "apricot",
+        "raisin",
+        "quince",
+        "honey",
+        "marmalade",
+        "almond",
+        "amber_color",
+        "long_finish"
+      ],
+      "oak_signature": "old_french_oak_4_years",
+      "rs_level": "sweet (~60-130 g/L)",
+      "abv": "14%",
+      "price_band": "super_premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "specialist_retail",
+        "fine_wine_retail",
+        "restaurant"
+      ],
+      "vintage_guidance": "Tiny production in 375ml; 20+ year ageing potential. 2019/2022 recently available.",
+      "useful_families": [
+        "F6",
+        "F7"
+      ],
+      "question_roles": [
+        "jura_vin_de_paille_anchor",
+        "straw_wine_sweet_curveball"
+      ],
+      "cooldown_motifs": [
+        "vin_de_paille",
+        "jura",
+        "savagnin",
+        "straw_wine",
+        "sweet",
+        "arlay"
+      ],
+      "tasting_profile": {
+        "appearance": "Luminous amber-gold, concentrated.",
+        "nose_summary": "Dried raisin, prune, candied apricot, honeyed beeswax, cinnamon, dark chocolate; mineral undercurrent.",
+        "palate_summary": "Full-bodied, richly sweet but not cloying, lively Jura acidity; dried fruit, honey, marmalade, toasted almond; long mineral finish.",
+        "sources": [
+          "https://www.deconinckwine.com/en/produit/cote-du-jura-vin-de-paille-2019"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.deconinckwine.com/en/produit/cote-du-jura-vin-de-paille-2019",
+        "https://www.winewithseth.com/winewiki/vin-de-paille-jura"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Savagnin",
+        "Chardonnay",
+        "Poulsard",
+        "Trousseau"
+      ]
+    },
+    {
+      "id": "fr_alsace_marcel_deiss_altenberg_de_bergheim_gc",
+      "producer": "Domaine Marcel Deiss",
+      "wine_name": "Altenberg de Bergheim Grand Cru",
+      "country": "France",
+      "region": "Alsace",
+      "sub_region": "Bergheim (Haut-Rhin)",
+      "appellation": "Alsace Grand Cru Altenberg de Bergheim",
+      "classification": "Grand Cru AOC (field blend permitted)",
+      "style_category": "still_sweet",
+      "method_tags": [
+        "field_blend",
+        "co_fermented",
+        "whole_bunch_press",
+        "native_yeast",
+        "large_oak_botti",
+        "lees_aging",
+        "no_malolactic",
+        "hand_harvest"
+      ],
+      "structure_tags": [
+        "full_body",
+        "high_acid",
+        "peach",
+        "apricot",
+        "quince",
+        "citrus_oil",
+        "honey",
+        "almond",
+        "saline_mineral",
+        "long_finish"
+      ],
+      "oak_signature": "large_neutral_foudres",
+      "rs_level": "sweet (~60 g/L)",
+      "abv": "11.5%",
+      "price_band": "super_premium",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "allocation",
+        "restaurant"
+      ],
+      "vintage_guidance": "Needs 5-10 years to integrate; ages 20-30. Vines co-planted 1977-1997 on Jurassic limestone/marl.",
+      "useful_families": [
+        "F3",
+        "F6",
+        "F7"
+      ],
+      "question_roles": [
+        "alsace_field_blend_curveball",
+        "complantation_grand_cru_reference"
+      ],
+      "cooldown_motifs": [
+        "alsace",
+        "grand_cru",
+        "field_blend",
+        "complantation",
+        "riesling",
+        "marcel_deiss"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep golden-amber, viscous.",
+        "nose_summary": "Lemon balm, orange zest, candied quince, peach, honey, almond paste; subtle mineral nuance.",
+        "palate_summary": "Full-bodied yet fresh; apricot/peach/quince balanced by saline-mineral acidity; ~60 g/L RS in balance; long bitter-orange finish.",
+        "sources": [
+          "https://www.marceldeiss.com/en/our-wines/2-grand-cru-alsace-altenberg-de-bergheim.html"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.marceldeiss.com/en/our-wines/2-grand-cru-alsace-altenberg-de-bergheim.html",
+        "https://www.wine-searcher.com/regions-altenberg+de+bergheim"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Riesling",
+        "Gewurztraminer",
+        "Pinot Gris",
+        "Pinot Blanc",
+        "Muscat",
+        "Sylvaner",
+        "Pinot Noir",
+        "Chasselas"
+      ]
+    },
+    {
+      "id": "it_friuli_livio_felluga_terre_alte",
+      "producer": "Livio Felluga",
+      "wine_name": "Terre Alte",
+      "country": "Italy",
+      "region": "Friuli-Venezia Giulia",
+      "sub_region": "Friuli Colli Orientali",
+      "appellation": "Friuli Colli Orientali DOC",
+      "classification": "DOC",
+      "style_category": "still_dry",
+      "method_tags": [
+        "hand_harvest",
+        "cold_settling",
+        "temperature_controlled_fermentation",
+        "stainless_and_oak_fermentation",
+        "lees",
+        "no_malolactic",
+        "low_yield"
+      ],
+      "structure_tags": [
+        "full_body",
+        "medium_plus_acid",
+        "white_peach",
+        "pear",
+        "blossom",
+        "almond",
+        "white_flowers",
+        "mineral",
+        "saline",
+        "long_finish"
+      ],
+      "oak_signature": "large_neutral_oak_partial",
+      "rs_level": "dry",
+      "abv": "13.5%",
+      "price_band": "premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "restaurant",
+        "specialist_retail"
+      ],
+      "vintage_guidance": "Benchmark Friuli white; 10-15 year ageing potential from top vintages. Recent vintages via specialist retail.",
+      "useful_families": [
+        "F3",
+        "F2"
+      ],
+      "question_roles": [
+        "friuli_white_blend_benchmark",
+        "italian_white_blend_curveball"
+      ],
+      "cooldown_motifs": [
+        "friuli",
+        "colli_orientali",
+        "friulano",
+        "white_blend",
+        "livio_felluga"
+      ],
+      "tasting_profile": {
+        "appearance": "Bright golden-yellow with green highlights.",
+        "nose_summary": "White peach, pear, citrus blossom, white flowers, almond; mineral/saline ponca-soil character.",
+        "palate_summary": "Full-bodied for an Italian white; fresh acid balancing ripe stone fruit; almond and citrus persistence; long mineral finish; gains nutty/honeyed complexity with age.",
+        "sources": [
+          "https://www.liviofelluga.it/en/"
+        ],
+        "confidence": "medium"
+      },
+      "sources": [
+        "https://www.liviofelluga.it/en/"
+      ],
+      "source_confidence": "medium",
+      "grape_varieties": [
+        "Friulano",
+        "Pinot Blanc",
+        "Sauvignon Blanc"
+      ]
+    },
+    {
+      "id": "es_valencia_mustiguillo_quincha_corral",
+      "producer": "Bodegas Mustiguillo",
+      "wine_name": "Quincha Corral",
+      "country": "Spain",
+      "region": "Valencia",
+      "sub_region": "El Terrerazo",
+      "appellation": "Vino de Pago El Terrerazo",
+      "classification": "Vino de Pago",
+      "style_category": "still_dry",
+      "method_tags": [
+        "hand_sorted",
+        "destemmed",
+        "fermentation_in_large_french_oak",
+        "punchdown_pumpover",
+        "extended_maceration",
+        "barrel_malolactic",
+        "large_french_oak_botti",
+        "free_run_juice_blend",
+        "no_filtration",
+        "organic_viticulture"
+      ],
+      "structure_tags": [
+        "full_body",
+        "firm_tannin",
+        "blackberry",
+        "plum",
+        "violet",
+        "spice",
+        "wild_thyme",
+        "earthy",
+        "long_finish"
+      ],
+      "oak_signature": "large_french_oak_35hl_20_months",
+      "rs_level": "dry (<1.5 g/L)",
+      "abv": "14.5%",
+      "price_band": "super_premium",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "allocation",
+        "restaurant"
+      ],
+      "vintage_guidance": "Definitive single-vineyard old-vine Bobal; drink now to 10+ years. Top vintages ~EUR60-100.",
+      "useful_families": [
+        "F1",
+        "F4"
+      ],
+      "question_roles": [
+        "bobal_variety_anchor",
+        "spanish_single_variety_curveball"
+      ],
+      "cooldown_motifs": [
+        "bobal",
+        "el_terrerazo",
+        "valencia",
+        "utiel_requena",
+        "mustiguillo"
+      ],
+      "tasting_profile": {
+        "appearance": "Dark ruby-picota with violet highlights; opaque core.",
+        "nose_summary": "Intense blackberry and black plum with thyme and spice; old-vine Bobal complexity.",
+        "palate_summary": "Full-bodied, firm ripe tannins from extended maceration; free-run only for polish; integrated large-format oak; long fresh finish with notable acidity.",
+        "sources": [
+          "https://www.mustiguillo.com/en/wines/quincha-corral/"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.mustiguillo.com/en/wines/quincha-corral/"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Bobal"
+      ]
+    },
+    {
+      "id": "au_barossa_torbreck_runrig",
+      "producer": "Torbreck Vintners",
+      "wine_name": "RunRig",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "sub_region": "Barossa Valley (multi-site)",
+      "appellation": "Barossa Valley GI",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "co_fermented_with_viognier",
+        "hand_harvested",
+        "dry_farmed_bush_vine",
+        "open_top_fermenters",
+        "native_yeast",
+        "basket_pressed",
+        "barrel_malolactic",
+        "long_lees",
+        "unfined",
+        "unfiltered",
+        "french_oak_barriques"
+      ],
+      "structure_tags": [
+        "full_body",
+        "fine_tannin",
+        "high_alcohol",
+        "blackberry",
+        "black_cherry",
+        "cassis",
+        "liquorice",
+        "dark_chocolate",
+        "smoky",
+        "floral",
+        "long_finish"
+      ],
+      "oak_signature": "circa_40_50_percent_new_french_oak_30_months",
+      "rs_level": "dry",
+      "abv": "15.0-15.5%",
+      "price_band": "luxury",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "allocation",
+        "specialist_retail"
+      ],
+      "vintage_guidance": "Released ~3 years post-harvest (current ~2020-2022); cellars 20-30 years in top vintages.",
+      "useful_families": [
+        "F3",
+        "F7",
+        "F1"
+      ],
+      "question_roles": [
+        "barossa_shiraz_icon",
+        "shiraz_viognier_coferment_reference"
+      ],
+      "cooldown_motifs": [
+        "barossa",
+        "shiraz",
+        "viognier_coferment",
+        "torbreck",
+        "australian_icon",
+        "runrig"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep inky garnet-purple with purple rim.",
+        "nose_summary": "Blackberry, black cherry, cassis, sour plum; liquorice, dark chocolate, smoked oak; Viognier floral lift (orange blossom, star anise).",
+        "palate_summary": "Full-bodied, dense, velvety; firm fine-grained tannins; bright acidity; black-forest fruit, olive, dried herb, smoked pepper, clove, vanilla; long cocoa-graphite finish.",
+        "sources": [
+          "https://torbreck.com/products/2022-runrig"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://torbreck.com/products/2022-runrig"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Syrah",
+        "Viognier"
+      ]
+    },
+    {
+      "id": "au_yarra_yarra_yering_dry_red_no2",
+      "producer": "Yarra Yering",
+      "wine_name": "Dry Red Wine No. 2",
+      "country": "Australia",
+      "region": "Yarra Valley",
+      "sub_region": "Yarra Valley, Victoria",
+      "appellation": "Yarra Valley GI",
+      "classification": "Langton's Classified",
+      "style_category": "still_dry",
+      "method_tags": [
+        "co_fermented_with_viognier",
+        "hand_harvested",
+        "cool_climate",
+        "french_oak"
+      ],
+      "structure_tags": [
+        "medium_full_body",
+        "fine_tannin",
+        "violet",
+        "red_dark_fruit",
+        "plum",
+        "berry",
+        "spice",
+        "savoury"
+      ],
+      "oak_signature": "unknown",
+      "rs_level": "dry",
+      "abv": "unknown",
+      "price_band": "super_premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "specialist_retail",
+        "allocation",
+        "fine_wine_retail"
+      ],
+      "vintage_guidance": "Recent releases (2021-2024) via allocation/specialist retail; cellars 15-20 years in top vintages.",
+      "useful_families": [
+        "F3",
+        "F7"
+      ],
+      "question_roles": [
+        "cool_climate_rhone_blend_reference",
+        "yarra_shiraz_benchmark"
+      ],
+      "cooldown_motifs": [
+        "yarra_valley",
+        "shiraz",
+        "rhone_blend",
+        "yarra_yering"
+      ],
+      "tasting_profile": {
+        "appearance": "unknown",
+        "nose_summary": "Violet, cranberry, plum, bramble; fragrant five-spice; sweet-savoury interplay.",
+        "palate_summary": "Complex, layered summer-pudding fruits; cigar-box and cardamom spice; firm yet fine tannins; dry spice finish.",
+        "sources": [
+          "https://shop.yarrayering.com/2022-dry-red-wine-no-2/"
+        ],
+        "confidence": "medium"
+      },
+      "sources": [
+        "https://shop.yarrayering.com/2022-dry-red-wine-no-2/",
+        "Source needed: current-vintage ABV and oak regime not published"
+      ],
+      "source_confidence": "medium",
+      "grape_varieties": [
+        "Syrah",
+        "Mourvedre",
+        "Marsanne",
+        "Viognier"
+      ]
+    },
+    {
+      "id": "au_barossa_sami_odi_little_wine",
+      "producer": "Sami-Odi",
+      "wine_name": "Little Wine",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "sub_region": "Barossa Valley, South Australia",
+      "appellation": "Barossa Valley GI",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "multi_vintage_assemblage",
+        "organic",
+        "low_yield",
+        "allocation_only"
+      ],
+      "structure_tags": [
+        "medium_body",
+        "red_dark_fruit",
+        "black_pepper",
+        "spice",
+        "savoury"
+      ],
+      "oak_signature": "unknown",
+      "rs_level": "dry",
+      "abv": "13.8%",
+      "price_band": "premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "allocation",
+        "specialist_retail"
+      ],
+      "vintage_guidance": "Non-vintage multi-vintage assemblage (numbered editions); low production via allocation; drink within ~5-8 years of release.",
+      "useful_families": [
+        "F1",
+        "F4"
+      ],
+      "question_roles": [
+        "multi_vintage_syrah_curveball",
+        "barossa_syrah_artisan_reference"
+      ],
+      "cooldown_motifs": [
+        "barossa",
+        "syrah",
+        "multi_vintage",
+        "sami_odi"
+      ],
+      "tasting_profile": {
+        "appearance": "unknown",
+        "nose_summary": "Source needed: full tasting notes not available from an accessible source.",
+        "palate_summary": "Source needed: 100% Syrah multi-vintage Barossa assemblage; detailed palate notes not accessible.",
+        "sources": [
+          "https://sami-odi.com/wines"
+        ],
+        "confidence": "low"
+      },
+      "sources": [
+        "https://sami-odi.com/wines",
+        "Source needed: full tasting notes / vinification not accessible"
+      ],
+      "source_confidence": "low",
+      "grape_varieties": [
+        "Syrah"
+      ]
+    },
+    {
+      "id": "za_stellenbosch_kanonkop_paul_sauer",
+      "producer": "Kanonkop Wine Estate",
+      "wine_name": "Paul Sauer",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "sub_region": "Simonsberg-Stellenbosch",
+      "appellation": "Stellenbosch WO",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "concrete_vat_fermentation",
+        "punchdown_pumpover",
+        "barrel_malolactic",
+        "high_new_oak",
+        "french_oak",
+        "extended_aging_24_months",
+        "dry_farmed",
+        "bordeaux_blend"
+      ],
+      "structure_tags": [
+        "full_body",
+        "firm_tannin",
+        "cassis",
+        "red_berry",
+        "cedar",
+        "tobacco",
+        "earthy",
+        "spice",
+        "long_finish"
+      ],
+      "oak_signature": "100_percent_new_french_oak_24_months",
+      "rs_level": "dry (2.8-3.3 g/L)",
+      "abv": "13.0-13.5%",
+      "price_band": "super_premium",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "allocation"
+      ],
+      "vintage_guidance": "Released ~2-3 years post-harvest; 20-25 year ageing potential. 2019 and 2021 both excellent.",
+      "useful_families": [
+        "F3",
+        "F7"
+      ],
+      "question_roles": [
+        "stellenbosch_bordeaux_blend_benchmark",
+        "south_africa_cabernet_icon"
+      ],
+      "cooldown_motifs": [
+        "stellenbosch",
+        "bordeaux_blend",
+        "cabernet_sauvignon",
+        "kanonkop",
+        "south_africa",
+        "paul_sauer"
+      ],
+      "tasting_profile": {
+        "appearance": "Saturated deep ruby.",
+        "nose_summary": "Tilled earth, nutmeg, bouquet garni, cedar, cassis, red fruit, cigar box, tea leaf.",
+        "palate_summary": "Classic, refined, elegant; precise tannins; clever new-oak integration; complex fruit; long youthful finish.",
+        "sources": [
+          "https://kanonkop.co.za/wp-content/uploads/2022/06/Paul-Sauer-2019.pdf",
+          "https://kanonkop.co.za/wp-content/uploads/2024/06/KanonkopPaulSauer2021-TastingSheet.pdf"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://kanonkop.co.za/wp-content/uploads/2022/06/Paul-Sauer-2019.pdf",
+        "https://kanonkop.co.za/wp-content/uploads/2024/06/KanonkopPaulSauer2021-TastingSheet.pdf"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Cabernet Franc",
+        "Merlot"
+      ]
+    },
+    {
+      "id": "cl_maipo_almaviva",
+      "producer": "Almaviva (Concha y Toro / Baron Philippe de Rothschild)",
+      "wine_name": "Almaviva",
+      "country": "Chile",
+      "region": "Maipo Valley",
+      "sub_region": "Puente Alto",
+      "appellation": "Puente Alto, Maipo Valley DO",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "bordeaux_blend",
+        "gravity_flow",
+        "hand_harvested",
+        "high_new_oak",
+        "french_oak",
+        "extended_aging_24_months"
+      ],
+      "structure_tags": [
+        "full_body",
+        "ripe_tannin",
+        "cassis",
+        "red_berry",
+        "tobacco",
+        "cedar",
+        "earthy",
+        "olive",
+        "spice",
+        "long_finish"
+      ],
+      "oak_signature": "circa_70_100_percent_new_french_oak_18_20_months",
+      "rs_level": "dry",
+      "abv": "unknown",
+      "price_band": "luxury",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "allocation",
+        "specialist_retail",
+        "restaurant"
+      ],
+      "vintage_guidance": "Vintages 1996-2023; older (2010-2018) on secondary market; 20+ year ageing in top years. 2017 scored 100 pts.",
+      "useful_families": [
+        "F3",
+        "F7"
+      ],
+      "question_roles": [
+        "chile_icon_bordeaux_blend",
+        "maipo_cabernet_carmenere_anchor"
+      ],
+      "cooldown_motifs": [
+        "maipo",
+        "puente_alto",
+        "cabernet_sauvignon",
+        "carmenere",
+        "chile_icon",
+        "almaviva"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep, opaque ruby-red.",
+        "nose_summary": "Pure, focused cassis, strawberry, dewberry; tobacco, cedar, earth, olive, soft spice.",
+        "palate_summary": "Outstanding amplitude and balance; smooth texture; great acidity; round polished tannins; long complex finish. Carménère adds the Chilean signature.",
+        "sources": [
+          "https://www.almavivawinery.com/the-wine"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.almavivawinery.com/the-wine",
+        "Source needed: ABV not published on producer site"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Carmenere",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ]
+    },
+    {
+      "id": "ar_mendoza_clos_de_los_siete",
+      "producer": "Clos de los Siete (Michel Rolland)",
+      "wine_name": "Clos de los Siete",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "sub_region": "Uco Valley (Vista Flores)",
+      "appellation": "Valle de Uco",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "cold_maceration_5_days_10c",
+        "pumpover",
+        "french_oak_aging",
+        "concrete_tanks_for_oxidative_varieties",
+        "no_fining",
+        "no_filtration",
+        "hand_harvest"
+      ],
+      "structure_tags": [
+        "full_body",
+        "fine_tannin",
+        "blackberry",
+        "plum",
+        "violet",
+        "vanilla",
+        "spice",
+        "mineral",
+        "fresh_acidity"
+      ],
+      "oak_signature": "70pct_french_oak_third_new_30pct_concrete_11_months",
+      "rs_level": "dry",
+      "abv": "14.5%",
+      "price_band": "value",
+      "quality_tier": "premium",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "restaurant"
+      ],
+      "vintage_guidance": "Consistent value blend (2017-2022) ~US$18-23; approachable young, develops 5-8 years.",
+      "useful_families": [
+        "F3",
+        "F4"
+      ],
+      "question_roles": [
+        "argentine_blend_value_anchor",
+        "mendoza_malbec_blend_floor"
+      ],
+      "cooldown_motifs": [
+        "mendoza",
+        "uco_valley",
+        "malbec",
+        "argentine_blend",
+        "rolland",
+        "clos_de_los_siete"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep ruby to inky purple.",
+        "nose_summary": "Blackberry, black plum, violet, cinnamon, vanilla, mineral; wild herb and dark chocolate in some vintages.",
+        "palate_summary": "Medium-full body, silky polished tannins, ripe dark-cherry fruit, balanced acidity, long spice-and-cocoa finish.",
+        "sources": [
+          "https://www.closdelossiete.com/wp-content/uploads/2023/01/CDL7_2019_EN.pdf"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://www.closdelossiete.com/wp-content/uploads/2023/01/CDL7_2019_EN.pdf",
+        "https://www.closdelossiete.com/wp-content/uploads/2023/01/CDL7_2020_EN.pdf"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Malbec",
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Syrah",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ]
+    },
+    {
+      "id": "ar_mendoza_achaval_ferrer_quimera",
+      "producer": "Achával-Ferrer",
+      "wine_name": "Quimera",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "sub_region": "Luján de Cuyo",
+      "appellation": "Mendoza",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "co_fermentation",
+        "concrete_vat_fermentation",
+        "barrel_malolactic",
+        "french_oak_aging",
+        "no_fining",
+        "no_filtration",
+        "old_vines",
+        "hand_harvest"
+      ],
+      "structure_tags": [
+        "full_body",
+        "fine_tannin",
+        "blackberry",
+        "plum",
+        "cassis",
+        "chocolate",
+        "tobacco",
+        "liquorice",
+        "mineral",
+        "violet"
+      ],
+      "oak_signature": "13_15_months_french_oak_circa_50_60_new",
+      "rs_level": "dry",
+      "abv": "14.0-14.8%",
+      "price_band": "premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "restaurant",
+        "allocation"
+      ],
+      "vintage_guidance": "Recent vintages (2019-2022) ~US$35-45; low-to-mid 90s scores; improves 5-10 years.",
+      "useful_families": [
+        "F3",
+        "F7"
+      ],
+      "question_roles": [
+        "argentine_malbec_blend_benchmark",
+        "mendoza_premium_blend"
+      ],
+      "cooldown_motifs": [
+        "mendoza",
+        "malbec",
+        "argentine_blend",
+        "achaval_ferrer",
+        "quimera"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep, dense ruby.",
+        "nose_summary": "Dark fruit (blackberry, cassis, plum), violet, tobacco, chocolate, mineral, earthy; herbaceous cedar/rosemary spice.",
+        "palate_summary": "Full-bodied, plush, concentrated; fine polished tannins; racy acidity cutting richness; long mineral finish with tobacco and liquorice.",
+        "sources": [
+          "https://achaval-ferrer.com/fichas/Ficha_Quimera_2012.pdf"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://achaval-ferrer.com/fichas/Ficha_Quimera_2012.pdf",
+        "https://theswirlingdervish.com/wp-content/uploads/2017/05/techsheet_quimera_2013.pdf"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Malbec",
+        "Cabernet Sauvignon",
+        "Cabernet Franc",
+        "Merlot",
+        "Petit Verdot"
+      ]
+    },
+    {
+      "id": "us_santa_maria_au_bon_climat_hildegard",
+      "producer": "Au Bon Climat",
+      "wine_name": "Hildegard",
+      "country": "USA",
+      "region": "California",
+      "sub_region": "Santa Maria Valley, Santa Barbara County",
+      "appellation": "Santa Maria Valley",
+      "classification": "unknown",
+      "style_category": "still_dry",
+      "method_tags": [
+        "varieties_vinified_separately",
+        "barrel_fermented",
+        "french_oak",
+        "malolactic",
+        "lees"
+      ],
+      "structure_tags": [
+        "medium_full_body",
+        "textural",
+        "citrus",
+        "stone_fruit",
+        "fresh_acidity"
+      ],
+      "oak_signature": "barrel_fermented_french_oak_proportions_undisclosed",
+      "rs_level": "dry",
+      "abv": "unknown",
+      "price_band": "premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "restaurant"
+      ],
+      "vintage_guidance": "Made annually since 1998; inspired by historic Corton-Charlemagne plantings. Best 2-5 years from vintage.",
+      "useful_families": [
+        "F3",
+        "F6"
+      ],
+      "question_roles": [
+        "california_white_blend_curveball",
+        "old_world_inspired_white_reference"
+      ],
+      "cooldown_motifs": [
+        "santa_maria",
+        "pinot_gris",
+        "pinot_blanc",
+        "aligote",
+        "white_blend",
+        "au_bon_climat"
+      ],
+      "tasting_profile": {
+        "appearance": "unknown",
+        "nose_summary": "Expressive citrus and stone fruit framed by oak; complex aromatic profile (Pinot Gris/Pinot Blanc/Aligoté).",
+        "palate_summary": "Opulent yet fresh, velvety mouthfeel, bright citrus, creamy oak/lees texture, good underlying acidity.",
+        "sources": [
+          "https://aubonclimat.com/news/hildegard-origin-story"
+        ],
+        "confidence": "medium"
+      },
+      "sources": [
+        "https://aubonclimat.com/news/hildegard-origin-story"
+      ],
+      "source_confidence": "medium",
+      "grape_varieties": [
+        "Pinot Gris",
+        "Pinot Blanc",
+        "Aligote"
+      ]
+    },
+    {
+      "id": "us_anderson_valley_roederer_estate_lermitage",
+      "producer": "Roederer Estate",
+      "wine_name": "L'Ermitage Brut",
+      "country": "USA",
+      "region": "California",
+      "sub_region": "Anderson Valley, Mendocino County",
+      "appellation": "Anderson Valley",
+      "classification": "unknown",
+      "style_category": "sparkling",
+      "method_tags": [
+        "traditional_method",
+        "extended_lees",
+        "reserve_wines",
+        "barrel_fermentation_old_oak",
+        "malolactic",
+        "hand_harvest",
+        "estate_grown_100pct"
+      ],
+      "structure_tags": [
+        "fine_persistent_mousse",
+        "brioche",
+        "citrus_oil",
+        "apple",
+        "pear",
+        "hazelnut",
+        "patisserie",
+        "mineral",
+        "long_finish"
+      ],
+      "oak_signature": "partial_old_french_oak_for_reserve_wines",
+      "rs_level": "brut",
+      "abv": "unknown",
+      "price_band": "super_premium",
+      "quality_tier": "iconic",
+      "commercial_channels": [
+        "fine_wine_retail",
+        "specialist_retail",
+        "restaurant",
+        "allocation"
+      ],
+      "vintage_guidance": "Vintage prestige cuvée with extended lees ageing; 2019 scored 100 pts (Wine Enthusiast). Typically US$60-90.",
+      "useful_families": [
+        "F6",
+        "F7"
+      ],
+      "question_roles": [
+        "california_traditional_method_prestige",
+        "champagne_alternative_sparkling_anchor"
+      ],
+      "cooldown_motifs": [
+        "anderson_valley",
+        "traditional_method",
+        "sparkling",
+        "roederer_estate",
+        "prestige_cuvee",
+        "lermitage"
+      ],
+      "tasting_profile": {
+        "appearance": "Pale gold with fine persistent mousse.",
+        "nose_summary": "Brioche, toasted hazelnut, citrus zest, green apple, pear, cream, mineral.",
+        "palate_summary": "Full-bodied for sparkling, creamy mousse, tension between richness and bright acidity, long mineral finish with autolytic complexity.",
+        "sources": [
+          "https://roedererestate.com/"
+        ],
+        "confidence": "medium"
+      },
+      "sources": [
+        "https://roedererestate.com/",
+        "Source needed: ABV/dosage tech sheet not accessible"
+      ],
+      "source_confidence": "medium",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Noir"
+      ]
+    },
+    {
+      "id": "at_burgenland_kracher_cuvee_beerenauslese",
+      "producer": "Kracher",
+      "wine_name": "Cuvée Beerenauslese",
+      "country": "Austria",
+      "region": "Burgenland",
+      "sub_region": "Neusiedlersee / Seewinkel",
+      "appellation": "Burgenland",
+      "classification": "Beerenauslese (Prädikat)",
+      "style_category": "still_sweet",
+      "method_tags": [
+        "botrytis_noble_rot",
+        "successive_tries_hand_harvest",
+        "fermentation_stopped_residual_sugar",
+        "stainless_steel"
+      ],
+      "structure_tags": [
+        "full_body",
+        "very_high_residual_sugar",
+        "apricot",
+        "white_peach",
+        "honey",
+        "saline",
+        "fresh_acidity",
+        "sweet"
+      ],
+      "oak_signature": "none",
+      "rs_level": "sweet",
+      "abv": "11%",
+      "price_band": "premium",
+      "quality_tier": "benchmark",
+      "commercial_channels": [
+        "specialist_retail",
+        "fine_wine_retail",
+        "restaurant"
+      ],
+      "vintage_guidance": "375ml; released when botrytis allows; decades of ageing potential. 2021 scored 93-95.",
+      "useful_families": [
+        "F6",
+        "F7"
+      ],
+      "question_roles": [
+        "austrian_botrytis_BA_anchor",
+        "sweet_cuvee_botrytis_reference"
+      ],
+      "cooldown_motifs": [
+        "burgenland",
+        "botrytis",
+        "beerenauslese",
+        "chardonnay",
+        "welschriesling",
+        "sweet",
+        "kracher"
+      ],
+      "tasting_profile": {
+        "appearance": "Deep golden, viscous.",
+        "nose_summary": "Fresh honeyed dried/stewed apricot, white peach, pineapple; saline Seewinkel mineral note.",
+        "palate_summary": "Full-bodied, lush, refined; integrated sweetness balanced by fine acidity; caramel and honey finish with saline persistence.",
+        "sources": [
+          "https://shop.kracher.at/en/2021-Beerenauslese-Cuvee"
+        ],
+        "confidence": "high"
+      },
+      "sources": [
+        "https://shop.kracher.at/en/2021-Beerenauslese-Cuvee",
+        "Source needed: exact RS g/L not published"
+      ],
+      "source_confidence": "high",
+      "grape_varieties": [
+        "Chardonnay",
+        "Welschriesling"
+      ]
+    }
+  ]
+}
