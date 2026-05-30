@@ -1,6 +1,33 @@
 {
-  "_comment": "Cursor for sync-empirical-knowledge.mjs. processedAttemptIds = user_attempts.id already reflected in mw_exam_empirical_knowledge.md. Seeded 2026-05-30 with all 26 feedback items captured in the initial seed (§6 ledger).",
-  "lastSyncAt": "2026-05-30T00:00:00.000Z",
-  "lastReviewedAt": "2026-05-30T14:00:57.368Z",
-  "processedAttemptIds": [36, 47, 49, 53, 55, 57, 61, 62, 63, 64, 65, 66, 71, 73, 79, 89, 92, 95, 96, 98, 99, 101, 102, 119, 120, 121]
+  "lastSyncAt": "2026-05-30T17:21:27.359Z",
+  "lastReviewedAt": "2026-05-30T17:10:51.716Z",
+  "processedAttemptIds": [
+    36,
+    47,
+    49,
+    53,
+    55,
+    57,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    71,
+    73,
+    79,
+    89,
+    92,
+    95,
+    96,
+    98,
+    99,
+    101,
+    102,
+    119,
+    120,
+    121,
+    129
+  ]
 }

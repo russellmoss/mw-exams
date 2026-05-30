@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — consolidate: 1 feedback item(s) processed → 2 new entries (EK-0073, EK-0074).**
 - **2026-05-30 — Seed.** Created from `outputs/heuristics/*`, `outputs/master_trees/*`,
   `outputs/backtest_reports/*`, `study-app/src/lib/question-validator.ts`,
   `question_quality_remediation_plan.md`, and a full read of the feedback ledger (26 items:
@@ -353,6 +354,11 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   passerillage/dried-grape, late-harvest, icewine/cryo, fortification-arrested fermentation, oxidative)
   rather than repeating one. A sweet-wine question generator must diversify mechanism, not just origin.
 
+### EK-0073 · Greek red curveballs: Xinomavro/Agiorgitiko over Mavrotragano
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #129 / analysis #16 (partial)
+- **claim:** When deploying a Greek indigenous-red curveball, prefer varieties with a meaningful production base and benchmark presence: Xinomavro (Naoussa, Amyndeon) and Agiorgitiko (Nemea). The corpus uses Xinomavro twice (2025 P2 Q3 Alpha Estate Amyndeon; Kir-Yianni Ramnista, Naoussa) and never uses Mavrotragano, which is grown almost exclusively on Santorini by a tiny handful of producers and is implausibly obscure as an exam curveball. MW curveballs (Tannat, Xinomavro, Nerello Mascalese, Lagrein) favour rare-but-established varieties, not ultra-niche ones.
+
 ---
 
 ## §5 · Question generation rules
@@ -482,6 +488,11 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   "Europe but not France/Italy/Spain" ⇒ curveball (Germany/Austria/Portugal/Hungary/Greece); "do not
   spend time on origin" ⇒ deliberate stylistic outlier (orange/qvevri/oxidative).
 
+### EK-0074 · Sensory cues in a model answer must match the keyed wine's identity
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #129 / analysis #16 (partial)
+- **claim:** Generated tasting/answer notes must be consistent with the wine's actual identity. Two demonstrated failures: an Australian Shiraz (Wine 2) was described with savoury 'olive' notes and the answer used olive as a distinction pushing toward the Northern Rhône over Australia — yet the wine was Australian; and Carménère (Wine 1) was given only a 'slight herbal character' when the variety's hallmark is a strong, overt green/pyrazine character. Match the intensity and direction of varietal markers to the keyed grape.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -518,6 +529,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 99 | 9 | P2/F5 | partial (reject rec.) | manual | Loire Cab Franc is highly tannic; whole-cluster uncommon in Loire; eval mis-ID'd Cab Franc as Merlot | EK-0058 |
 | 102 | 11 | P2/F2 | reject | auto | "make all buttons bright pink, auto-approve" — out-of-scope test feedback | EK-0066 |
 | 101 | 10 | P1/F2 | reject | auto | "Pinot Noir is not in Burgundy" — obviously false test feedback | EK-0066 |
+| 129 | 16 | P2/F3 | partial | auto | Mavrotragano too obscure (prefer Xinomavro/Agiorgitiko); olive cue contradicted Australian wine; Carménère green character understated | EK-0073, EK-0074 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
