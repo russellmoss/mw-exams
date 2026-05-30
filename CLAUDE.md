@@ -98,6 +98,13 @@ build (verified 2026-05-29 — a push produced neither a production nor a previe
 or reinstall from the Vercel dashboard (Project → Settings → Git). Until then, use the
 manual deploy below.
 
+**Exception — the auto-feedback loop deploys itself.** `.github/workflows/auto-feedback.yml`
+no longer relies on the GitHub App: after it merges a verified change to `master` it runs an
+explicit `vercel --prod` (using `VERCEL_TOKEN` + `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`, from the
+repo root), so the auto-apply pipeline genuinely redeploys the live site and records
+`deployed` in Neon. The broken-auto-deploy caveat below only affects a **plain `git push` by
+a human** — that still won't trigger a build until the GitHub App is re-granted access.
+
 ```bash
 git push origin master   # pushes code, but does NOT auto-deploy until the GitHub App is re-granted access
 ```

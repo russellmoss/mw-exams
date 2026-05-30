@@ -4,9 +4,14 @@ name: auto-feedback
 # The study-app fires a repository_dispatch (event_type: auto-feedback) when an accepted
 # feedback item should become a code change. This workflow makes the change with headless
 # Claude, verifies it (lint + typecheck + build) with a self-heal retry loop, and:
-#   - GREEN  → merges to master (Vercel auto-deploys) and confirms the deploy.
+#   - GREEN  → merges to master, then deploys to Vercel EXPLICITLY (`vercel --prod`).
 #   - RED    → opens a PR for review; master is never touched by an unverified change.
 # Results are written back to feedback_analyses for the admin UI.
+#
+# NOTE: we deploy explicitly rather than relying on Vercel's git auto-deploy. The Vercel
+# GitHub App lost repo access (see CLAUDE.md), so a plain push to master does NOT trigger a
+# build. The explicit `vercel --prod` step below uses VERCEL_TOKEN and is independent of the
+# GitHub App, so the auto-apply loop genuinely redeploys the live site.
 
 on:
   repository_dispatch:
@@ -35,6 +40,9 @@ jobs:
       APP_DIR: study-app
       VERCEL_PROJECT_ID: prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM
       VERCEL_TEAM_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
+      # The Vercel CLI reads VERCEL_ORG_ID + VERCEL_PROJECT_ID to link the project without a
+      # committed .vercel/ folder (.vercel is gitignored). VERCEL_ORG_ID == the team id.
+      VERCEL_ORG_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
     steps:
       - name: Checkout master
         uses: actions/checkout@v4
@@ -162,20 +170,33 @@ jobs:
           echo "merged=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Confirm Vercel deployment
+      - name: Deploy to Vercel (explicit prod)
+        # Deploy explicitly with the token — independent of the (broken) Vercel GitHub App.
+        # Runs from the REPO ROOT, not study-app: the Vercel project's Root Directory is
+        # 'study-app', so deploying from inside it would make Vercel look for study-app/study-app
+        # and fail (see CLAUDE.md "Manual deploy"). The default working-directory IS the repo
+        # root, so we do not set working-directory here.
         if: steps.merge.outputs.merged == '1'
         id: deploy
         run: |
-          SHA="${{ steps.merge.outputs.sha }}"
-          STATE="PENDING"
-          for i in $(seq 1 40); do
-            RES=$(curl -s "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&limit=5" -H "Authorization: Bearer $VERCEL_TOKEN")
-            STATE=$(node -e "try{const d=JSON.parse(process.argv[1]);const sha=process.argv[2];const m=(d.deployments||[]).find(x=>x.meta&&x.meta.githubCommitSha&&x.meta.githubCommitSha.startsWith(sha.slice(0,12)));console.log(m?(m.state||m.readyState):'PENDING')}catch(e){console.log('PENDING')}" "$RES" "$SHA")
-            echo "poll $i: $STATE"
-            if [ "$STATE" = "READY" ] || [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then break; fi
-            sleep 15
-          done
-          echo "state=$STATE" >> "$GITHUB_OUTPUT"
+          set +e
+          mkdir -p /tmp/af
+          npm i -g vercel@latest
+          # Link + pull production settings (encodes Root Directory = study-app). Non-fatal:
+          # if linking is already resolvable from VERCEL_ORG_ID/PROJECT_ID, deploy still works.
+          vercel pull --yes --environment=production --token "$VERCEL_TOKEN" 2>&1 | tee /tmp/af/vercel-pull.log
+          # `vercel deploy --prod` blocks until the build is READY and exits non-zero on failure,
+          # so the CLI exit code is the authoritative deploy state (no API polling needed).
+          DEPLOY_URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>/tmp/af/vercel-deploy.log)
+          RC=$?
+          cat /tmp/af/vercel-deploy.log
+          echo "vercel exit=$RC url=$DEPLOY_URL"
+          if [ "$RC" -eq 0 ] && [ -n "$DEPLOY_URL" ]; then
+            echo "state=READY" >> "$GITHUB_OUTPUT"
+            echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=ERROR" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Open PR (could not verify)
         if: >-
