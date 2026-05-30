@@ -123,6 +123,13 @@ function resolveVariety(wp, ft, col) {
   for (const [t, c] of lexList) if (nf.includes(t)) return { v: [c], src: "lexicon" };
   return { v: [], src: "none" };
 }
+// The proprietary entry whose `match` is a substring of the wine text, if any. Used to attach
+// curated cross-variety confusables (e.g. the "California Chardonnay" trap for ABC Hildegard)
+// regardless of which source resolved the variety.
+function proprietaryMatch(ft) {
+  for (const [m, entry] of propList) if (norm(ft).includes(m)) return entry;
+  return null;
+}
 function resolveOrigin(ft) {
   const s = ft.replace(/\([^)]*\)\s*$/, "").trim(); // drop trailing (ABV%)
   const segs = s.split(".").map((x) => x.trim()).filter(Boolean);
@@ -133,6 +140,24 @@ function resolveOrigin(ft) {
   const ok = parts.length >= 1 && /[a-z]/i.test(country) && last.length > 1;
   return { region, country, ok };
 }
+// ---------- Origin Diversity Check ----------
+// Stems of the "same variety, N different countries" form (P2 Q1-style) promise a specific number
+// of DISTINCT countries. If the keyed origins don't deliver that many distinct countries (e.g. two
+// USA wines under a "four different countries" stem), the stem contradicts its own answer key and
+// the region prediction is unanswerable as framed — so the key must fail §2b validation.
+const COUNTRY_NUMWORD = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+  seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+};
+// The count of distinct countries a stem promises, or null if it makes no such promise.
+function promisedCountryCount(stem) {
+  const m = norm(stem).match(
+    /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b\s+(?:different\s+)?countries\b/
+  );
+  if (!m) return null;
+  return /^\d+$/.test(m[1]) ? Number(m[1]) : COUNTRY_NUMWORD[m[1]] || null;
+}
+
 // plausible buckets: same variety, OTHER classic regions
 function plausibleFor(groundTruth) {
   const seen = new Set(groundTruth.map((g) => `${norm(g.region)}|${g.varieties.map(norm).join("/")}`));
@@ -173,7 +198,7 @@ async function migrate() {
 // ---------- build ----------
 async function build() {
   const rows = await sql`
-    SELECT question_id, paper, family, wines, wine_profiles
+    SELECT question_id, paper, family, question_text, wines, wine_profiles
     FROM generated_questions WHERE wine_profiles IS NOT NULL`;
   let validated = 0;
   const failures = [];
@@ -183,12 +208,22 @@ async function build() {
     const ground = [];
     const source = {};
     const problems = [];
+    const curatedConfusables = [];
     for (const w of wines) {
       const prof = wp[String(w.slot)] || {};
       const col = colour(w.fullText, r.paper);
       const { v, src } = resolveVariety(prof, w.fullText, col);
       const o = resolveOrigin(w.fullText);
       source[w.slot] = src;
+      // Curated cross-variety confusables for proprietary/icon wines (e.g. the "California
+      // Chardonnay" trap for ABC Hildegard, which is a Pinot Gris-led blend, not Chardonnay).
+      const pm = proprietaryMatch(w.fullText);
+      if (pm && Array.isArray(pm.confusables)) {
+        for (const c of pm.confusables) {
+          if (!c || !c.variety || !c.region) continue;
+          curatedConfusables.push({ variety: c.variety, region: c.region, country: c.country || null, tier: "PLAUSIBLE" });
+        }
+      }
       // §2b consistency: variety present, origin present, consistent with profile grapes if any
       if (!v.length) problems.push(`W${w.slot} no-variety`);
       if (!o.ok) problems.push(`W${w.slot} no-origin`);
@@ -213,7 +248,28 @@ async function build() {
       }
       ground.push(bucket);
     }
+    // Origin Diversity Check: a "N different countries" stem must be backed by N distinct keyed
+    // countries. Fewer distinct countries (a duplicate country, e.g. two USA wines) is an internal
+    // contradiction between the stem and the answer key, so the key fails validation.
+    const promisedCountries = promisedCountryCount(r.question_text || "");
+    if (promisedCountries) {
+      const distinctCountries = new Set(ground.map((g) => norm(g.country)).filter(Boolean));
+      if (distinctCountries.size < promisedCountries) {
+        problems.push(
+          `country-diversity mismatch (stem promises ${promisedCountries} different countries, ` +
+            `keyed origins have only ${distinctCountries.size} distinct)`
+        );
+      }
+    }
     const plausible = plausibleFor(ground);
+    // Prepend curated confusables (deduped by variety|region), so deliberate traps are always present.
+    const seenPl = new Set(plausible.map((p) => `${norm(p.variety)}|${norm(p.region)}`));
+    for (const c of curatedConfusables) {
+      const k = `${norm(c.variety)}|${norm(c.region)}`;
+      if (seenPl.has(k)) continue;
+      seenPl.add(k);
+      plausible.unshift(c);
+    }
     const ok = problems.length === 0;
     if (ok) validated++;
     else failures.push(`${r.question_id} (P${r.paper} ${r.family}): ${problems.join("; ")}`);
