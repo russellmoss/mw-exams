@@ -152,8 +152,11 @@ async function tavilyFactCheck(
     try {
       const res = await fetch(TAVILY_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ api_key: tavilyKey, query, max_results: 3, search_depth: "basic" }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tavilyKey}`,
+        },
+        body: JSON.stringify({ query, max_results: 3, search_depth: "basic" }),
       });
       if (res.ok) {
         const data = await res.json();

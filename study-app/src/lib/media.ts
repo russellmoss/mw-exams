@@ -76,9 +76,11 @@ async function tavilyImageSearch(query: string, userId: number | null): Promise<
   try {
     const res = await fetch(TAVILY_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
       body: JSON.stringify({
-        api_key: key,
         query,
         max_results: 5,
         include_images: true,
