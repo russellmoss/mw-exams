@@ -1,0 +1,44 @@
+// The consolidated MW practical MARKING rubric — the single source of truth for how
+// every grader scores a candidate's answer, so the per-answer grader (Sonnet) and the
+// full-debrief grader (Opus) mark identically instead of drifting apart. Sourced from
+// the IMW Practical & Chief Examiners' Reports 2017-2025 (see
+// outputs/heuristics/grading_gap_analysis.md); quotes cited inline by year.
+//
+// Pairs with FUNNELLING_PRINCIPLE (how identity should be ARGUED) — that constant is
+// injected alongside this one. Keep both in sync with the examiner reports.
+
+export const MARKING_PRINCIPLES = `## How the IMW actually marks a practical answer (calibration — read FIRST)
+- **Identification is only ~40% of the marks** (≈39–46% across 2021–2024). A correct ID with thin quality / winemaking / maturity / commercial answers CANNOT pass; a wrong-but-well-reasoned ID with strong other sub-answers CAN. Never over-reward a bare correct name.
+- **Most ID marks live in the ARGUMENT, not the conclusion** — "a much higher proportion of the marks available for identification [are] for the argument rather than for the conclusion" (2022). Award the larger share of an ID sub-question to the structural reasoning and elimination.
+- **Grade wrong IDs on a PLAUSIBILITY GRADIENT** — an adjacent/stylistically plausible wrong call earns real partial credit; an implausible one earns little ("USA → Australia still received some credit, however Italy … few marks" — 2021). Not binary.
+- **The pass mark is an ABSOLUTE 65% per paper, not a curve.** Anchor the verdict to marks, not vibes: FAIL < 50, BORDERLINE ≈ 55–64, PASS ≥ 65 (D 50–54, C 55–59, B 65–69). A script averaging under ~45% does not recover.
+- **A pass needs mastery across FOUR dimensions** — structural/tasting accuracy, communication, theory accuracy, and quality judgement (2024). A spike in one cannot rescue a hole in another.
+
+## The Cardinal Rules of marking
+1. **Reasoning > identification.** Sound logic to a wrong-but-plausible call earns marks; a bare right answer with no argument earns little.
+2. **Specificity within the call earns more** — "Chablis Grand Cru" > "Burgundy white" > "French Chardonnay." But when origin is asked, stopping at a non-region such as "Northern Rhône" with no sub-region "will often yield a zero mark" (2024): the funnel must land somewhere concrete.
+3. **Quality must be CONTEXTUALISED and CALIBRATED.** Bare "good quality" earns nothing. Name the official/legal tier where one exists and is relevant, even if not explicitly asked (Grand Cru Classé, DOCG, Prädikat, VORS) — "we do expect an official quality level if there is one and it is relevant" (2025). Penalise mis-calibration BOTH ways: UNDER-calling a great wine (often origin bias — "do not assume that old world wines will always be the superior examples", 2017) AND OVER-calling a lesser one (a Côtes du Rhône called Châteauneuf, a Ruby called Vintage Port — 2025). Do not let MATURITY be mistaken for QUALITY (2019).
+4. **Winemaking must connect to the glass with specific parameters** (% new oak, toast level, MLF, lees, maceration length), not a generic technique list.
+5. **Maturity / drinking-window answers need FOUR parts** for full marks: (a) current age/vintage estimate, (b) ready to drink now or needs age, (c) how much longer it will improve, (d) how long it holds before decline — with CONCRETE timeframes, not "matured for many years" (2023). A "drinking window" question IS a maturity question even when not labelled one (2024); if maturity reasoning is absent, that sub-part scores near zero regardless of a correct ID.
+6. **Commercial answers need** channel (on/off-trade, Michelin vs local pub), geography (domestic / export / global), a realistic price, the competitive set, and a drinking window. Rote "sell it in a steakhouse / by-the-glass to affluent connoisseurs" and food-pairing lists are "rarely rewarded" (2022–2024).
+7. **Answer EVERY sub-question separately, and answer the EXACT question asked** — not an adjacent one:
+   - "Opportunities AND challenges" → both halves required; award zero for an omitted half (2024).
+   - "Compare/contrast the wines" → explicit cross-referencing required; describing each in isolation scores half at best (2024).
+   - "Quality in the context of origin" / "climate with respect to quality" → must tie quality/style back to origin or climate causally; free-floating quality loses the marks (2023, 2024).
+   - A specific frame ("relative importance of human inputs vs nature", "quality GLOBALLY") → generic winemaking detail or region-only benchmarking is off-brief (2025).
+   - Award NOTHING for content that merely restates information already given in the stem (2023).
+8. **Depth scales to the mark allocation.** An 8-mark part covering style+quality+commercial expects ~3 focused sentences (one per dimension); 15- and 25-mark versions expect proportionally more. Reward concise-but-complete answers on low-tariff parts — do not penalise brevity that matches the allocation; only penalise missing dimensions. A mis-framed HIGH-tariff part (e.g. one worth 15% of the paper) costs disproportionately (2025).
+9. **No cut-and-paste across wines.** Examiners deliberately choose wines that differ, so near-identical wording, the same technique applied to every wine ("cold soak" or "whole-bunch" on all of them), or recycled commercial boilerplate "creates considerable doubt in the mind of the reader" (2024). Mark down failure to differentiate even when each statement is individually defensible.
+10. **Structural evidence is the foundation and must be SELF-CONSISTENT.** Cross-check the candidate's OWN stated alcohol / acidity / tannin / residual sugar against the wine they named. A contradiction — "Champagne at 14% alcohol", "a VDN at 20%", a dry-wine alcohol on a botrytis sweet wine — is a logical impossibility: award NO conclusion mark for that sub-question even if a figure is individually plausible, and flag it as a theory error (2022). Watch the CASCADE error: a candidate who misidentifies a wine and then writes quality/style/commercial answers describing what they GUESSED rather than what is in the glass — mark those sub-questions down for being disconnected from the glass (2021, 2022). BUT do not cascade-penalise a sound answer merely because the ID is wrong: if the downstream answer describes the GLASS faithfully, score it on its own merits — candidates "could have misidentified the varieties and still passed" (2023).
+
+## Howlers and the borderline (a HARD rule)
+The practical is "a theory exam with a tasting" — production-method, appellation and legal facts are marked, not decorative. Treat as a HOWLER any factually impossible or grossly wrong claim: a wrong country/region pairing ("Douro, Spain"), an impossible parameter (15% alcohol for a Burgundian Pinot, 20% for a VDN), or a wrong production method for a classic style (Tawny Port aged in a solera, Amontillado at 14.5%, Tawny Port called Vintage). A howler caps the affected sub-question's conclusion mark at zero AND reduces confidence in adjacent claims. Decisive: **if your aggregate lands the candidate at BORDERLINE and the script contains a clear howler, resolve to FAIL and name it** — examiners "do not feel confident about a borderline candidate who makes obvious theory mistakes" (2024).
+
+## Professionalism (minor, but real)
+Flag misspelled appellation/variety/producer names and unprofessional or vague jargon (colloquialisms like "stonking"; catch-all labels like "PREMIUM" used without context) as minor credibility deductions — these "do not encourage the examiners to have confidence" (2018, 2019, 2021). Note them; do not over-weight.
+
+## Top-band differentiator
+Reserve the highest marks for answers that get "under the skin of the wine" (2022): engaged, specific sensory description and second-order insight (e.g. reasoning that an exceptional producer exceeds a classification's minimum sugar requirement). Genuine enthusiasm conveyed in the writing is rewarded by examiners (2025); flat, formulaic prose on a great wine is not.
+
+## Tone — faithful verdict, constructive voice
+Grade to the examiner-faithful standard above — INCLUDING tipping a borderline to FAIL on a clear howler and zeroing fabricated/cascade answers — but keep the WRITTEN feedback constructive and coaching: lead with what worked, be specific and actionable, and frame each gap as the path to the next band. The verdict is honest; the voice is encouraging.`;
