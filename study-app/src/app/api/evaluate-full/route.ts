@@ -4,7 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
-import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
+import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       modelAnswer,
       paper,
       wineAppearances,
+      wines,
     } = await request.json();
 
     if (!questionText || !userAnswer || !paper) {
@@ -136,13 +137,18 @@ ${modelAnswer}`;
 
 Please provide the full debrief: pre-glass review, answer evaluation with pass/fail and per-sub-question marks, and key takeaways.`;
 
+    // Constrain debrief imagery to the revealed wines (user feedback FA#28): build the answer-wine
+    // allow-list and tell the model to query only those wines' regions/producers/varieties.
+    const imageAllowList = deriveWineSubjects(wines);
+
     const { model, abGroup } = await selectModel("full_debrief", keyResult.apiKey, "opus");
     const t0 = Date.now();
     const stream = await client.messages.stream({
       model,
       max_tokens: 4000,
       system:
-        systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS,
+        systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
+        "\n" + answerImageConstraint(wines),
       messages: [{ role: "user", content: userMessage }],
     });
 
@@ -154,8 +160,11 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
           let fullText = "";
           // Resolve image tokens AS THEY STREAM and push each one the moment it's ready, so the hero
           // (line 1) and inline images surface mid-generation instead of all at the end.
-          const imageStreamer = createImageStreamer(keyResult.user.id, (token, markdown) =>
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ image: { token, markdown } })}\n\n`))
+          const imageStreamer = createImageStreamer(
+            keyResult.user.id,
+            (token, markdown) =>
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ image: { token, markdown } })}\n\n`)),
+            imageAllowList
           );
           for await (const event of stream) {
             if (
@@ -181,7 +190,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
           // so this is cheap. Best-effort — tokens are stripped on failure.
           try {
             await imageStreamer.flush();
-            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
+            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id, imageAllowList);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
           } catch (enrichErr) {
             console.error("full-debrief image enrichment failed:", enrichErr);

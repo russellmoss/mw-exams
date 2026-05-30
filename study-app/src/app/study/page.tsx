@@ -283,6 +283,8 @@ export default function StudyPage() {
         userAnswer: answer,
         modelAnswer,
         paper: state.question.paper,
+        // Revealed wines — constrain debrief imagery to these (regions/producers/varieties only).
+        wines: state.question.wines.map((w) => ({ slot: w.slot, fullText: w.fullText })),
         ...(wineAppearances.length > 0 && { wineAppearances }),
       });
 

@@ -132,6 +132,75 @@ function scoreTokens(s: string): string[] {
     .filter((t) => t.length >= 3 && !SCORE_STOPWORDS.has(t));
 }
 
+// Words on a wine label that don't identify WHICH wine (so they can't legitimately tie an image to a
+// keyed answer wine). Region/appellation/producer/variety/country tokens are what matter.
+const SUBJECT_STOPWORDS = new Set([
+  "wine", "wines", "vineyard", "vineyards", "estate", "winery", "wineries", "region", "grape", "grapes",
+  "bottle", "glass", "white", "red", "rose", "blanc", "blanco", "bianco", "rouge", "dry", "sec", "brut",
+  "cuvee", "vintage", "reserva", "reserve", "domaine", "chateau", "weingut", "tenuta", "the", "and",
+  "from", "with", "non", "year", "years", "old", "single", "blend", "quality", "premium", "method",
+  // Generic geographic suffixes shared across unrelated appellations — keeping them would let e.g.
+  // "Barossa Valley" match a "Napa Valley" image. The distinctive proper noun (Barossa, Napa) carries identity.
+  "valley", "coast", "hills", "hill", "county", "river", "mountain", "mountains", "sea", "district",
+]);
+
+// Two tokens identify the same subject when equal, or when one is a prefix of the other (length >= 4):
+// this absorbs morphological variants like Australia/Australian, Chile/Chilean without matching
+// unrelated lookalikes (Barossa vs Barolo are neither equal nor a prefix of each other).
+function subjectTokenMatch(a: string, b: string): boolean {
+  if (a === b) return true;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  return short.length >= 4 && long.startsWith(short);
+}
+
+// Build the allow-list of image subjects for a debrief: the identifying tokens (region / appellation /
+// producer / variety / country) of the REVEALED answer wines. An image is only shown if its query
+// shares one of these tokens — so the candidate never sees a region or bottle outside the answer
+// (user feedback FA#28: hero/inline photos depicted wines that were not in the correct answer).
+export function deriveWineSubjects(
+  wines: { fullText?: string | null }[] | null | undefined
+): string[] {
+  if (!Array.isArray(wines)) return [];
+  const subjects = new Set<string>();
+  for (const w of wines) {
+    for (const tok of normalizeQueryKey(w?.fullText || "").split(" ")) {
+      if (tok.length >= 4 && !SUBJECT_STOPWORDS.has(tok)) subjects.add(tok);
+    }
+  }
+  return [...subjects];
+}
+
+// True when an image query depicts one of the answer wines, i.e. shares an identifying token with the
+// allow-list. An EMPTY allow-list means "no constraint" (e.g. pre-glass, where the answer isn't known)
+// so everything passes — behaviour is never more restrictive than before unless a list is supplied.
+export function imageSubjectInAnswerSet(query: string, allowList: string[]): boolean {
+  if (!allowList || allowList.length === 0) return true;
+  const qTokens = normalizeQueryKey(query)
+    .split(" ")
+    .filter((t) => t.length >= 4 && !SUBJECT_STOPWORDS.has(t));
+  return qTokens.some((q) => allowList.some((a) => subjectTokenMatch(q, a)));
+}
+
+// Extra system-prompt block for the FULL DEBRIEF (post-reveal, wines known): hard-constrains every
+// image query to the revealed wines so the model stops illustrating with off-answer regions.
+export function answerImageConstraint(
+  wines: { slot: number; fullText?: string | null }[] | null | undefined
+): string {
+  if (!Array.isArray(wines) || wines.length === 0) return "";
+  const lines = wines.map((w) => `- Wine ${w.slot}: ${w.fullText || "(unknown)"}`).join("\n");
+  return `
+## IMAGE SUBJECTS ARE LIMITED TO THE REVEALED WINES (hard rule)
+This is a post-tasting debrief, so the answer is KNOWN. EVERY image query — the hero AND every inline
+[[IMG:...]] token — MUST depict the region, appellation, producer, or grape variety of one of THESE
+revealed wines, and nothing else:
+${lines}
+Use a listed wine's own region/producer/variety in the query (e.g. its appellation's vineyards). NEVER
+query a region, country, grape, or producer that is not represented above. The hero should depict the
+most important/representative wine in the flight. Any image not tied to a listed wine is DISCARDED, so
+an off-answer query simply wastes the slot.
+`;
+}
+
 // Relevance of a Tavily image (by its description) to the search query: weighted token overlap, with
 // longer tokens (place/producer names like "barossa", "sauternes") counting double. 0 when the image
 // has no description or shares no meaningful tokens — those fall back to Tavily's own ranking order.
@@ -267,7 +336,8 @@ function imageTokenRe(): RegExp {
 // final texts agree. Best-effort: a failed fetch emits an empty replacement (token simply disappears).
 export function createImageStreamer(
   userId: number | null,
-  emit: (token: string, markdown: string) => void
+  emit: (token: string, markdown: string) => void,
+  allowList: string[] = []
 ): { feed: (fullText: string) => void; flush: () => Promise<void> } {
   const seen = new Set<number>(); // start indices already dispatched (fullText is append-only)
   const pending: Promise<void>[] = [];
@@ -281,6 +351,14 @@ export function createImageStreamer(
       if (seen.has(m.index)) continue;
       seen.add(m.index);
       const isHero = m[1] === "HERO";
+      const token = m[0];
+      const query = m[2];
+      const caption = cleanText(m[3]);
+      // Drop images that don't depict an answer wine (no fetch, no slot consumed) — just remove the token.
+      if (!imageSubjectInAnswerSet(query, allowList)) {
+        emit(token, "");
+        continue;
+      }
       if (isHero) {
         if (heroDone) continue;
         heroDone = true;
@@ -288,9 +366,6 @@ export function createImageStreamer(
         if (inlineCount >= MAX_IMAGES_PER_FEEDBACK) continue;
         inlineCount++;
       }
-      const token = m[0];
-      const query = m[2];
-      const caption = cleanText(m[3]);
       pending.push(
         getOrCreateMedia(query, userId)
           .then((id) => emit(token, imageMarkdown(id, caption, isHero)))
@@ -315,10 +390,18 @@ export function stripImageTokens(text: string): string {
 // images, rewriting them as markdown (image + caption). The hero image's alt is prefixed with
 // "HERO::" so the renderer can style it as a banner. Always returns clean markdown — every token is
 // removed even when an image couldn't be fetched.
-export async function enrichFeedbackWithImages(text: string, userId: number | null): Promise<string> {
+export async function enrichFeedbackWithImages(
+  text: string,
+  userId: number | null,
+  allowList: string[] = []
+): Promise<string> {
   if (!text || !/\[\[(?:IMG|HERO):/.test(text)) return stripImageTokens(text);
 
-  const all = [...text.matchAll(imageTokenRe())];
+  // When an allow-list is supplied (debrief), keep only tokens whose query depicts an answer wine;
+  // the rest are left unmatched and stripped below (no image shown for off-answer subjects).
+  const all = [...text.matchAll(imageTokenRe())].filter((m) =>
+    imageSubjectInAnswerSet(m[2], allowList)
+  );
   const heroMatch = all.find((m) => m[1] === "HERO");
   const imgMatches = all.filter((m) => m[1] === "IMG").slice(0, MAX_IMAGES_PER_FEEDBACK);
 
