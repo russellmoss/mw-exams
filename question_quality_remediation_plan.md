@@ -65,11 +65,12 @@ Track these here and tick them off; do not consider the program complete while a
   Phase **D** (regenerate the 6 so the corpus recovers). Until B0 + D are done, a user can still hit
   these 6 in the main flow. **☑ B0 — DONE + DEPLOYED (commit f8c958f).** The 6 are flagged on
   `generated_questions` and excluded by every main-flow fetcher + the serve-time bank filter
-  (verified: 49 total → 43 serveable, 0 of the 6 ever served, local + prod). **◑ D — 4/7 replaced
-  (2026-05-30); 3 remain hidden, blocked on Anthropic API credits.** The 4 regenerated questions are
-  live + agentically verified (incl. a bonus false-key fix: Catena White Stones Chardonnay was mis-keyed
-  Malbec via a fuzzy bank match — resolver now guards against label conflicts). Re-run
-  `remediate-questions.mjs --apply` once credits are restored to replace the last 3 and reach 0 HARD.
+  (verified: 49 total → 43 serveable, 0 of the 6 ever served, local + prod). **☑ D — DONE
+  (2026-05-30): all 7 quarantined questions regenerated + verified (7/7 agentically correct), old rows
+  archived. Final audit = 0 HARD; 49/49 live keys validated.** Includes a bonus false-key fix (Catena
+  White Stones Chardonnay was mis-keyed Malbec via a fuzzy producer/region bank match — `resolveVariety`
+  + the §2b check now reject a bank/profile variety that conflicts with the grape named on the label).
+  **CF-1 is fully closed** — neither study flow can serve any of the original invalid questions.
 - **CF-2 — Answer-key/builder auto-fixes are inert until the keys rebuild.** ✅ **CLOSED (df7939f).**
   `auto-feedback.yml` now has a post-merge "Rebuild keys + re-audit" step: runs
   `build-stem-answer-keys.mjs` when stem data/builder files changed, and `audit-questions.mjs --apply`
@@ -370,7 +371,14 @@ await dispatchAutoFeedback({ ...payload, allowedPaths: ROUTE.allowedPaths.join("
 
 ## Phase D — Remediate the corpus (clean + full)
 
-> **STATUS: ⏳ MOSTLY DONE — 4/7 replaced, 3 blocked on Anthropic API credits (2026-05-30).**
+> **STATUS: ✅ DONE — 7/7 replaced + verified; live corpus 0 HARD, 49/49 validated (2026-05-30).**
+> The credit-blocked re-run completed: gen_p2_F3→Rioja/Douro (different varieties), gen_p2_F6→Syrah
+> (Hermitage/Heathcote), gen_p3_F1→two Huet Vouvray Chenins (dry vs moelleux). Agentic check on those
+> three: **3/3 fully correct.** Final `audit-questions.mjs` = **0 HARD violations**; every live
+> (non-archived) key validated. **CF-1 fully closed.** (History preserved: the 7 originals + failed
+> attempts remain as `metadata.archived` rows, skipped by build/audit and both study flows.)
+>
+> _(Earlier partial run, for the record: 4/7 replaced before Anthropic credits were exhausted.)_
 > Built `remediate-questions.mjs` (+ `ts-loader.mjs` so Node can run the app's `.ts` libs with their
 > extensionless imports) and refactored `build-stem-answer-keys.mjs` to export a reusable
 > `buildKeyForRow`/`upsertKey` and **skip `metadata.archived` rows** (audit too). The remediation loop
