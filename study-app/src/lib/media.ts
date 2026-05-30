@@ -11,6 +11,7 @@ import { logTavilyUsage } from "./usage-log";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 const MAX_IMAGE_BYTES = 5_000_000; // 5 MB cap — skip anything larger
+const MIN_IMAGE_BYTES = 10_000; // ~10 KB floor — skip icons/spacers/thumbnails (not real photos)
 const DOWNLOAD_TIMEOUT_MS = 8_000;
 const MAX_IMAGES_PER_FEEDBACK = 3;
 
@@ -21,12 +22,19 @@ export const IMAGE_TOKEN_INSTRUCTIONS = `
 ### Hero image (always — the very first line of your response)
 Begin your response with EXACTLY ONE hero token, on its own first line, before any other text:
 
-[[HERO: query="<vineyards of the most relevant region, or an iconic winery, for this wine>" | caption="<one-sentence subtitle>"]]
+[[HERO: query="<ONE specific, named wine place — a region's vineyards or an iconic estate>" | caption="<one-sentence subtitle>"]]
 
-The hero is a sweeping, scene-setting banner — a wine region's vineyards or a famous estate, e.g.
-query="Barossa Valley vineyards rolling hills" or query="Chateau d'Yquem estate Sauternes". Choose the
-most likely region or producer for the wine under discussion. For pre-glass stem analysis (before the
-wine is known), use the most likely region implied by the stem.
+The hero is a sweeping, scene-setting banner of a SINGLE real place, e.g.
+query="Barossa Valley vineyards rolling hills" or query="Chateau d'Yquem estate Sauternes".
+
+CRITICAL hero rules (a bad hero query returns an irrelevant stock collage):
+- Name ONE concrete, recognisable place or estate. The query MUST contain a proper place/producer name
+  plus the word "vineyard", "vineyards", "estate", or "winery" (e.g. "Mosel Riesling vineyards steep slate").
+- For a MULTI-WINE / multi-region flight, do NOT try to represent every wine. Pick the SINGLE most
+  important region for the flight (your STRONG SIGNAL or the flight's headline region) and show only that.
+- NEVER write an abstract or thematic query (e.g. "five countries five varieties", "wine comparison",
+  "structural tasting") — those return nonsensical montages. Always a real geographic place.
+- For pre-glass stem analysis (wine not yet known), use the single most likely region implied by the stem.
 
 ### Inline images (up to three, through the body)
 Then break up the written feedback with up to THREE more relevant images. Wherever a picture would help
@@ -123,7 +131,7 @@ async function downloadImage(url: string): Promise<{ base64: string; contentType
     const ct = (res.headers.get("content-type") || "").toLowerCase();
     if (!ct.startsWith("image/")) return null;
     const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length === 0 || buf.length > MAX_IMAGE_BYTES) return null;
+    if (buf.length < MIN_IMAGE_BYTES || buf.length > MAX_IMAGE_BYTES) return null;
     return { base64: buf.toString("base64"), contentType: ct.split(";")[0].trim() };
   } catch {
     return null;

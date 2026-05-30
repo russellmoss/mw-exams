@@ -3,6 +3,7 @@
 import { isValidElement, useMemo } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
 import { MermaidDiagram } from "./MermaidDiagram";
+import { FeedbackImage } from "./FeedbackImage";
 
 // Renderer for generated feedback. Feedback markdown can contain a hero image (its alt is prefixed
 // with "HERO::" by enrichFeedbackWithImages), up to three inline illustrations, and — in the full
@@ -22,15 +23,7 @@ function buildComponents(streaming: boolean): Components {
       const src = typeof props.src === "string" ? props.src : "";
       const isHero = alt.startsWith("HERO::");
       const cleanAlt = isHero ? alt.slice("HERO::".length) : alt;
-      return (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={cleanAlt}
-          className={isHero ? "hero-image" : undefined}
-          loading="lazy"
-        />
-      );
+      return <FeedbackImage src={src} alt={cleanAlt} isHero={isHero} />;
     },
     // react-markdown renders a fenced block as <pre><code class="language-xxx">…</code></pre>.
     // Intercept language-mermaid and render the diagram instead of a code block.

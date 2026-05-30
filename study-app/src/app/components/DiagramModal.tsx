@@ -3,15 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
-// Fullscreen lightbox for a rendered diagram (Mermaid SVG markup). Wheel / +/- buttons zoom,
-// click-drag pans, Esc or the backdrop closes. Rendered through a portal on document.body so it
-// escapes the feedback card's overflow/stacking context.
+// Fullscreen lightbox for a rendered diagram (Mermaid SVG markup) OR a photo (imgSrc). Wheel / +/-
+// buttons zoom, click-drag pans, Esc or the backdrop closes. Rendered through a portal on
+// document.body so it escapes the feedback card's overflow/stacking context.
 export function DiagramModal({
   svg,
+  imgSrc,
   title,
   onClose,
 }: {
-  svg: string;
+  svg?: string;
+  imgSrc?: string;
   title?: string;
   onClose: () => void;
 }) {
@@ -76,6 +78,12 @@ export function DiagramModal({
   const btn =
     "h-8 min-w-8 px-2 rounded-lg border border-border bg-card text-muted hover:text-foreground hover:border-muted text-sm flex items-center justify-center";
 
+  const stageStyle: React.CSSProperties = {
+    transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})`,
+    transformOrigin: "center center",
+    transition: isDragging ? "none" : "transform 60ms linear",
+  };
+
   return createPortal(
     <div
       className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex flex-col"
@@ -116,16 +124,28 @@ export function DiagramModal({
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
       >
-        <div
-          className="w-full h-full flex items-center justify-center [&_svg]:max-w-none [&_svg]:w-auto"
-          style={{
-            transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})`,
-            transformOrigin: "center center",
-            transition: isDragging ? "none" : "transform 60ms linear",
-          }}
-          onClick={(e) => e.stopPropagation()}
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
+        {svg ? (
+          <div
+            className="w-full h-full flex items-center justify-center [&_svg]:max-w-none [&_svg]:w-auto"
+            style={stageStyle}
+            onClick={(e) => e.stopPropagation()}
+            dangerouslySetInnerHTML={{ __html: svg }}
+          />
+        ) : (
+          <div
+            className="w-full h-full flex items-center justify-center"
+            style={stageStyle}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imgSrc}
+              alt={title || "image"}
+              draggable={false}
+              className="max-w-none w-auto max-h-[85vh]"
+            />
+          </div>
+        )}
       </div>
 
       <div className="px-4 py-2 text-center text-xs text-muted border-t border-border/60">
