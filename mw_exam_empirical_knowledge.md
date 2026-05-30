@@ -156,8 +156,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** examiner_report_synthesis §1 (2024 quote); §1 mark-allocation table
 - **claim:** Identification is being de-emphasized in favour of analytical competencies.
-  Mark allocation trend: ID **46%→39%** (2022→2023), Quality **22%→37%**. Model ID at ~35–45% of a
-  question's marks; quality/maturity/winemaking/commercial collectively 55–65%.
+  Mark allocation trend: ID **46%→39%** (2022→2023), Quality **22%→37%**. NB these are **paper-wide
+  averages, not a per-question rule** — any single question allocates whatever it prints, and the
+  spread is wide (e.g. 2023 P1 Q1: variety ID 20/100, winemaking 30, quality+ageing 50). Use the
+  paper-wide ~35–45% ID figure only to *distribute* marks across a generated paper; grade and answer
+  to the **printed per-question tariff**. See EK-0089.
 
 ### EK-0007 · Cardinal Rule 1 — Reasoning > Identification
 - **tier:** STRONG SIGNAL · **status:** live
@@ -236,6 +239,19 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ## §3 · Answer grading guidelines
 
+> **Why our grading agents are built this way.** §2 + §3 are not just description — they are the
+> source for how the app actually grades. The principles here are encoded in two shared prompt
+> constants injected into every grader so the per-answer grader (`answer_grading`, Sonnet) and the
+> full-debrief grader (`full_debrief`, Opus) mark identically:
+> - `study-app/src/lib/prompts/marking-principles.ts` → `MARKING_PRINCIPLES` (calibration + cardinal
+>   rules + the howler/cascade/over-calling/cut-and-paste rules below).
+> - `study-app/src/lib/prompts/funnelling.ts` → `FUNNELLING_PRINCIPLE` (EK-0014; how identity must be
+>   *argued*). Also injected into model-answer generation so generated answers demonstrate it.
+> These were consolidated from a full 13-report mining pass (Practical + Chief, 2017–2025) recorded in
+> `outputs/heuristics/grading_gap_analysis.md`. **Temperament: faithful verdict, constructive voice** —
+> the PASS/BORDERLINE/FAIL result reflects how the IMW would actually grade (a howler can tip a
+> borderline to fail; fabricated/cascade answers are zeroed), but the written feedback stays coaching.
+
 ### EK-0017 · Grading depth must be proportional to marks (Cardinal Rule 8)
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** ledger: attempt #79 (accept, manual) — "Added Cardinal Rule 8: mark-proportional depth scaling"
@@ -288,6 +304,63 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** PLAUSIBLE · **status:** live
 - **evidence:** ledger: attempt #139 / analysis #22 (accept); examiner_report_synthesis §2.1
 - **claim:** When a same-variety flight tells the candidate the grape but the stem gives no way to narrow which specific origin each wine is, the per-wine origin call is irreducibly ambiguous — the candidate can identify the plausible country set (e.g. for a Syrah/Shiraz flight: N. Rhône France, Australia, South Africa, plus US/Chile) but cannot funnel below it from the glass+stem alone. Real-exam marking rewards sound reasoning even when the exact origin is wrong ('5–6/8 if their reasoning was sound', 2025). The Stem Sniper grading mechanism should therefore award partial credit for correctly identifying the plausible origin set on single-answer-ambiguous questions, rather than grading each wine's origin as strictly correct/incorrect.
+
+### EK-0089 · Grade to the PRINTED per-question tariff, not a fixed ID %
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** grading_gap_analysis §4; corpus: 2023 P1 Q1 (a 2×10 / 2×15 / 2×25 split)
+- **claim:** The authoritative weighting is always the marks the question prints, sub-part by sub-part.
+  Identification's share swings widely by question — as low as **20%** (2023 P1 Q1: variety ID 20 of
+  100, winemaking 30, quality+ageing 50; origin not even asked). The paper-wide ~40% ID average
+  (EK-0006) is a *temperament* check, never a per-question formula: a correct ID with thin answers on
+  the higher-tariff parts still fails; a wrong-but-reasoned ID can pass when those parts are strong.
+  Encoded in `MARKING_PRINCIPLES` as the first calibration rule.
+
+### EK-0090 · Most ID marks reward the argument; wrong IDs are scored on a plausibility gradient
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** grading_gap_analysis §4 (2022, 2021)
+- **claim:** Within an identification sub-question the larger share of marks is for the **argument
+  (structural reasoning + elimination), not the bare conclusion** — "a much higher proportion of the
+  marks… for the argument rather than for the conclusion" (2022). Grade wrong IDs on a sliding scale of
+  plausibility, not binary: an adjacent/stylistically-plausible miss earns real partial credit, an
+  implausible one little ("USA → Australia still received some credit, however Italy… few marks", 2021).
+
+### EK-0091 · Internal-consistency / cascade error (the most-penalized 2021–2025 failure mode)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** grading_gap_analysis §2 P1 (2021, 2022)
+- **claim:** Cross-check the candidate's OWN stated structure (alcohol/acidity/tannin/RS) against the
+  wine they named: a contradiction ("Champagne at 14%", "a VDN at 20%") is a logical impossibility →
+  **no conclusion mark** for that sub-question, flagged as a theory error (2022). Watch the **cascade**:
+  a candidate who misidentifies and then writes quality/style/commercial for the *guessed* wine rather
+  than the glass — mark those down for being disconnected from the glass (2021). But do NOT cascade-
+  penalize a sound answer merely because the ID is wrong (EK-0016): if it describes the glass faithfully,
+  score on its own merits. This is the detection-and-scoring complement to shoehorning (EK-0009).
+
+### EK-0092 · Quality mis-calibration cuts both ways; maturity ≠ quality
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** grading_gap_analysis §2 P1 (2025, 2017, 2019); extends EK-0008
+- **claim:** Penalize **over-calling** (a Côtes du Rhône called Châteauneuf, a Ruby called Vintage Port —
+  2025) as a distinct error that dents examiner confidence, not just under-calling. Don't let "Old World
+  = superior" stand unargued (2017). Don't let a **developed** wine be mistaken for a **great** one —
+  "many mistook its maturity for quality" (2019). Name the official tier where one exists even if not
+  explicitly asked (2025).
+
+### EK-0093 · Verdict mechanics — absolute bands, four-dimension mastery, howler override
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** grading_gap_analysis §4 (2018, 2021, 2024)
+- **claim:** Pass is an **absolute 65%** per paper, not a curve; anchor verdicts to marks (F<50,
+  BORDERLINE ~55–64, PASS ≥65; sub-45% does not recover). A pass needs mastery across **four
+  dimensions** — structural reading, communication, theory accuracy, quality judgement (2024); a spike
+  in one can't rescue a hole in another. **Howler override:** if the aggregate lands at BORDERLINE and a
+  clear theory howler is present (EK-0015), resolve to FAIL and name it — examiners withhold the benefit
+  of the doubt from a borderline candidate making obvious theory mistakes (2024).
+
+### EK-0094 · Top-band differentiator — "under the skin of the wine"
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** grading_gap_analysis §2 P3 (2022, 2025)
+- **claim:** Reserve the highest marks for engaged, specific, second-order insight — e.g. reasoning that
+  an exceptional producer exceeds a classification's minimum sugar requirement (2025) — i.e. getting
+  "under the skin of the wine" (2022). Genuine enthusiasm conveyed in the writing is rewarded; flat,
+  formulaic prose on a great wine is not. Use this to separate a *good* answer from an *outstanding* one.
 
 ---
 
