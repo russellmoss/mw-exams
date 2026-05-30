@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { FeedbackMarkdown } from "./FeedbackMarkdown";
 import { TimingBadge } from "./StudyTimer";
 
 function parseModelAnswer(text: string): {
@@ -397,7 +398,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
 
           {attempt.answer_feedback && (
             <ExpandedSection title="AI Evaluation / Debrief">
-              <div className="markdown-content text-sm"><ReactMarkdown>{attempt.answer_feedback}</ReactMarkdown></div>
+              <div className="markdown-content text-sm"><FeedbackMarkdown>{attempt.answer_feedback}</FeedbackMarkdown></div>
             </ExpandedSection>
           )}
 

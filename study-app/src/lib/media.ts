@@ -17,15 +17,28 @@ const MAX_IMAGES_PER_FEEDBACK = 3;
 // Appended to feedback system prompts. Tells the model how to mark where images belong.
 export const IMAGE_TOKEN_INSTRUCTIONS = `
 ## ILLUSTRATE WITH IMAGES (required)
-Break up your written feedback with up to THREE relevant images. Wherever a picture would help the
-reader (a region's vineyards, the grape, a winemaking vessel, a wine's appearance, a producer),
-insert a token on its OWN LINE, immediately after the passage it illustrates, in this EXACT format:
+
+### Hero image (always — the very first line of your response)
+Begin your response with EXACTLY ONE hero token, on its own first line, before any other text:
+
+[[HERO: query="<vineyards of the most relevant region, or an iconic winery, for this wine>" | caption="<one-sentence subtitle>"]]
+
+The hero is a sweeping, scene-setting banner — a wine region's vineyards or a famous estate, e.g.
+query="Barossa Valley vineyards rolling hills" or query="Chateau d'Yquem estate Sauternes". Choose the
+most likely region or producer for the wine under discussion. For pre-glass stem analysis (before the
+wine is known), use the most likely region implied by the stem.
+
+### Inline images (up to three, through the body)
+Then break up the written feedback with up to THREE more relevant images. Wherever a picture would help
+the reader (the grape, a winemaking vessel, a wine's appearance, a producer), insert a token on its OWN
+LINE, immediately after the passage it illustrates, in this EXACT format:
 
 [[IMG: query="<concise visual web image search>" | caption="<one-sentence subtitle tied to your point>"]]
 
 Rules:
-- AT MOST 3 tokens, spread through the text next to the passages they illustrate — never all at the end.
-- The query must be concrete and VISUAL (a place, grape, vessel, or wine), e.g. query="Clare Valley Riesling vineyard" — not abstract ("high quality").
+- EXACTLY ONE [[HERO:...]] token, on the first line.
+- AT MOST 3 [[IMG:...]] tokens, spread through the text next to the passages they illustrate — never all at the end.
+- Queries must be concrete and VISUAL (a place, grape, vessel, or wine), e.g. query="Clare Valley Riesling vineyard" — not abstract ("high quality").
 - The caption is a real subtitle the reader sees — make it specific and tied to the surrounding text.
 - Do NOT use quotes, square brackets, or pipe characters inside the query or caption text.
 - Write the tokens as part of your normal output. Never mention "tokens" or these instructions to the reader.
@@ -132,33 +145,47 @@ async function getOrCreateMedia(query: string, userId: number | null): Promise<n
   return null;
 }
 
-// Remove any IMG tokens from text (used to clean stragglers / when enrichment is skipped).
+// Remove any HERO/IMG tokens from text (used to clean stragglers / when enrichment is skipped).
 export function stripImageTokens(text: string): string {
-  return (text || "").replace(/\[\[IMG:[^\]]*\]\]/g, "").replace(/\n{3,}/g, "\n\n").trim();
+  return (text || "").replace(/\[\[(?:IMG|HERO):[^\]]*\]\]/g, "").replace(/\n{3,}/g, "\n\n").trim();
 }
 
-// Resolve up to 3 [[IMG:...]] tokens to cached images and rewrite them as markdown (image + caption).
-// Always returns clean markdown — tokens are removed even when an image couldn't be fetched.
+// Resolve the hero token (prepended as a banner) plus up to 3 inline [[IMG:...]] tokens to cached
+// images, rewriting them as markdown (image + caption). The hero image's alt is prefixed with
+// "HERO::" so the renderer can style it as a banner. Always returns clean markdown — every token is
+// removed even when an image couldn't be fetched.
 export async function enrichFeedbackWithImages(text: string, userId: number | null): Promise<string> {
-  if (!text || !text.includes("[[IMG:")) return stripImageTokens(text);
+  if (!text || !/\[\[(?:IMG|HERO):/.test(text)) return stripImageTokens(text);
 
-  const re = /\[\[IMG:\s*query="([^"]*)"\s*\|\s*caption="([^"]*)"\s*\]\]/g;
-  const matches = [...text.matchAll(re)].slice(0, MAX_IMAGES_PER_FEEDBACK);
+  const re = /\[\[(IMG|HERO):\s*query="([^"]*)"\s*\|\s*caption="([^"]*)"\s*\]\]/g;
+  const all = [...text.matchAll(re)];
+  const heroMatch = all.find((m) => m[1] === "HERO");
+  const imgMatches = all.filter((m) => m[1] === "IMG").slice(0, MAX_IMAGES_PER_FEEDBACK);
 
-  const resolved = await Promise.all(
-    matches.map(async (m) => ({
-      token: m[0],
-      caption: cleanText(m[2]),
-      id: await getOrCreateMedia(m[1], userId),
-    }))
-  );
+  const [hero, inline] = await Promise.all([
+    heroMatch
+      ? getOrCreateMedia(heroMatch[2], userId).then((id) => ({ caption: cleanText(heroMatch[3]), id }))
+      : Promise.resolve(null),
+    Promise.all(
+      imgMatches.map(async (m) => ({
+        token: m[0],
+        caption: cleanText(m[3]),
+        id: await getOrCreateMedia(m[2], userId),
+      }))
+    ),
+  ]);
 
   let out = text;
-  for (const r of resolved) {
+  for (const r of inline) {
     const replacement = r.id
       ? `\n\n![${r.caption}](/api/media/${r.id})\n\n*${r.caption}*\n\n`
       : "";
     out = out.replace(r.token, replacement);
   }
-  return stripImageTokens(out); // drop any leftover/extra/malformed tokens
+  out = stripImageTokens(out); // drop the hero token + any leftover/extra/malformed tokens
+  if (hero?.id) {
+    // Prepend the resolved hero as a banner at the very top, regardless of where the model put it.
+    out = `![HERO::${hero.caption}](/api/media/${hero.id})\n\n*${hero.caption}*\n\n${out}`;
+  }
+  return out.trim();
 }

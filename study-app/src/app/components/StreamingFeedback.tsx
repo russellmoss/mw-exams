@@ -1,6 +1,6 @@
 "use client";
 
-import ReactMarkdown from "react-markdown";
+import { FeedbackMarkdown } from "./FeedbackMarkdown";
 
 interface StreamingFeedbackProps {
   text: string;
@@ -37,7 +37,7 @@ export function StreamingFeedback({
 
       {text ? (
         <div className="markdown-content text-[15px] leading-relaxed">
-          <ReactMarkdown>{text}</ReactMarkdown>
+          <FeedbackMarkdown>{text}</FeedbackMarkdown>
         </div>
       ) : isStreaming ? (
         <div className="flex items-center gap-2 text-muted">

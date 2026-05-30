@@ -6,7 +6,7 @@ import { useState, useCallback, useRef } from "react";
 // markers; the server replaces them with real images and sends a final "enriched" payload. Until
 // that lands we just suppress the tokens so the user never sees the raw markup.
 function hideImageTokens(text: string): string {
-  return text.replace(/\[\[IMG:[^\]]*\]\]/g, "");
+  return text.replace(/\[\[(?:IMG|HERO):[^\]]*\]\]/g, "");
 }
 
 interface UseStreamingResult {
