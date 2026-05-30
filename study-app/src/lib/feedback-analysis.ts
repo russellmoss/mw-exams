@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis } from "@/lib/db";
 import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
@@ -209,12 +209,16 @@ async function generateVerdictNarration(opts: {
       "Warm, encouraging, educational tone — like a mentor. Address them directly as 'you'. " +
       "STRICT: 2 to 3 sentences, no more. Plain prose only — no markdown, no lists, no headings, " +
       "no emojis, no stage directions. Do not start with 'Recommendation' or restate the verdict label; " +
-      "speak naturally. Make clear their feedback was " + verdictWord + " and give the key reason why, " +
+      "speak naturally. NEVER mention internal codes (e.g. 'EK-0042'), file paths, or routing labels like " +
+      "'Kind:' — speak in plain, everyday language; you may reference real past exams (e.g. 'past Paper 3 " +
+      "exams') as precedent. Make clear their feedback was " + verdictWord + " and give the key reason why, " +
       "so they learn something about the exam from it.";
 
+    // Only the candidate-facing part of the analysis (everything before the [[INTERNAL]] marker).
+    const candidateFacing = (opts.analysisText.split("[[INTERNAL]]")[0] || opts.analysisText).trim();
     const user =
-      `The candidate's feedback was ${verdictWord}. Here is the full written analysis it was based on:\n\n` +
-      `${opts.analysisText.slice(0, 6000)}\n\n` +
+      `The candidate's feedback was ${verdictWord}. Here is the explanation it was based on:\n\n` +
+      `${candidateFacing.slice(0, 6000)}\n\n` +
       `Write the 2–3 sentence spoken explanation now.`;
 
     const t0 = Date.now();
@@ -311,6 +315,9 @@ export async function runFeedbackAnalysis(opts: {
       (attempt.user_id as number) ?? null
     );
 
+    // Live empirical knowledge (paper-filtered) from the Neon projection — always current.
+    const empiricalKnowledge = await getEmpiricalKnowledgeForAnalysis(attempt.paper as number);
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
       wines,
@@ -321,6 +328,7 @@ export async function runFeedbackAnalysis(opts: {
       userAnswer: attempt.user_answer as string | null,
       userFeedback: feedbackText,
       userName: attempt.user_name as string,
+      empiricalKnowledge,
       questionMetadata: metadata as Record<string, unknown> | null,
     });
 

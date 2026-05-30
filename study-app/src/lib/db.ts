@@ -289,6 +289,17 @@ export async function reviewFeedback(
   return rows[0] as UserAttempt;
 }
 
+// Serve a cached feedback image (base64 bytes) by id. Used by /api/media/[id].
+export async function getMediaById(
+  id: number
+): Promise<{ content_type: string; image_base64: string } | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT content_type, image_base64 FROM media_cache
+    WHERE id = ${id} AND image_base64 IS NOT NULL`;
+  return rows.length ? (rows[0] as { content_type: string; image_base64: string }) : null;
+}
+
 export async function getRecentAttempts(limit = 20, userId?: number | null): Promise<
   (UserAttempt & { paper: number; family: string; family_label: string })[]
 > {
@@ -546,6 +557,47 @@ export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis
   `;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (rows[0] as any) || null;
+}
+
+/**
+ * Decision-relevant empirical knowledge for the feedback-analysis agent, read live from the
+ * `empirical_knowledge` projection (kept in sync with mw_exam_empirical_knowledge.md). Always
+ * includes the generation rules / prior-rulings ledger / bug catalog (§5/§6/§7); includes the
+ * structure/distribution facts (§1/§4) only when they're paper-agnostic or match this paper.
+ * Returns a compact text block grouped by section, or "" if the table is empty/unavailable.
+ */
+export async function getEmpiricalKnowledgeForAnalysis(paper: number): Promise<string> {
+  const sql = getDb();
+  let rows: Record<string, unknown>[];
+  try {
+    rows = (await sql`
+      SELECT ek_id, section, tier, title, claim
+      FROM empirical_knowledge
+      WHERE status = 'live'
+        AND (section IN (5, 6, 7) OR (section IN (1, 4) AND (paper IS NULL OR paper = ${paper})))
+      ORDER BY section, ek_id
+    `) as Record<string, unknown>[];
+  } catch {
+    return ""; // table not present yet → caller falls back to the build-time digest
+  }
+  if (!rows.length) return "";
+  const LABELS: Record<number, string> = {
+    1: "§1 · Exam structure",
+    4: "§4 · Wine selection & distribution (paper-relevant)",
+    5: "§5 · Question-generation rules",
+    6: "§6 · Prior feedback rulings (precedent)",
+    7: "§7 · App bug catalog / known fixes",
+  };
+  const bySection = new Map<number, string[]>();
+  for (const r of rows) {
+    const sec = Number(r.section);
+    const arr = bySection.get(sec) || [];
+    arr.push(`- ${r.ek_id} · ${r.title} [${r.tier}]: ${r.claim}`);
+    bySection.set(sec, arr);
+  }
+  return [...bySection.entries()]
+    .map(([sec, items]) => `### ${LABELS[sec] || `§${sec}`}\n${items.join("\n")}`)
+    .join("\n\n");
 }
 
 export async function getUserNotifications(userId: number): Promise<{

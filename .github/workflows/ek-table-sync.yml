@@ -1,0 +1,58 @@
+name: ek-table-sync
+
+# Keep the Neon `empirical_knowledge` projection in sync with the canonical doc.
+#
+# mw_exam_empirical_knowledge.md is the source of truth; the feedback-analysis agent reads a queryable
+# MIRROR of it from Neon at runtime (so a freshly-synced ruling is visible immediately — no
+# build-question-index rerun, no Vercel deploy). Whenever the doc changes on master — whether from the
+# empirical-sync bot (incremental in auto-feedback.yml or the weekly consolidate) or a human edit — this
+# rebuilds the table from the doc. GitHub Actions runs on push regardless of the [skip ci] convention,
+# so the bot's [skip ci] knowledge commits still trigger it. It only writes to Neon; it makes no commit
+# and no deploy.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "mw_exam_empirical_knowledge.md"
+  workflow_dispatch: {} # allow manual refresh from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ek-table-sync
+  cancel-in-progress: false
+
+jobs:
+  sync-table:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      APP_DIR: study-app
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Rebuild empirical_knowledge table from the doc
+        # Best-effort: a failure here must never wedge the repo — the doc is still canonical and the
+        # next doc change (or a manual dispatch) will reconcile the table.
+        run: |
+          set +e
+          node "$APP_DIR/scripts/sync-ek-table.mjs"
+          RC=$?
+          if [ "$RC" -ne 0 ]; then
+            echo "::warning title=ek-table sync::table rebuild failed (exit $RC); empirical_knowledge may be stale until the next run."
+          fi
+          exit 0

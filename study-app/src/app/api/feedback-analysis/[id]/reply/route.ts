@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { getFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
+import { getFeedbackAnalysis, updateFeedbackAnalysis, getEmpiricalKnowledgeForAnalysis } from "@/lib/db";
 import { reconcileAttemptDecision } from "@/lib/feedback-analysis";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
@@ -49,6 +49,8 @@ export async function POST(
       ? JSON.parse(analysis.wines)
       : analysis.wines;
 
+    const empiricalKnowledge = await getEmpiricalKnowledgeForAnalysis(analysis.paper);
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: analysis.question_text,
       wines,
@@ -58,6 +60,7 @@ export async function POST(
       modelAnswer: analysis.model_answer,
       userAnswer: analysis.user_answer,
       userFeedback: analysis.user_feedback,
+      empiricalKnowledge,
       previousThread: thread,
     });
 

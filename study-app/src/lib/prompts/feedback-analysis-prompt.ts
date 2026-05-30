@@ -19,6 +19,9 @@ export function buildFeedbackAnalysisPrompt(params: {
   userName?: string;
   questionMetadata?: Record<string, unknown> | null;
   previousThread?: ThreadMessage[];
+  /** Live empirical knowledge from the Neon projection (paper-filtered). Falls back to the
+   *  build-time digest in pipeline-context.json when not supplied. */
+  empiricalKnowledge?: string;
 }): { system: string; user: string } {
   // Load ALL historical questions for cross-reference (not just same paper)
   let allQuestions = "";
@@ -48,14 +51,16 @@ export function buildFeedbackAnalysisPrompt(params: {
   let examinerSynthesis = "";
   let curveballAnalysis = "";
   let wineComposition = "";
-  let empiricalKnowledge = "";
+  // Live empirical knowledge wins; the build-time digest is only a cold fallback (e.g. if the
+  // Neon projection is unavailable or hasn't been backfilled yet).
+  let empiricalKnowledge = params.empiricalKnowledge || "";
   try {
     const ctxPath = join(process.cwd(), "public", "data", "pipeline-context.json");
     const ctx = JSON.parse(readFileSync(ctxPath, "utf-8"));
     if (ctx.examinerReportSynthesis) examinerSynthesis = ctx.examinerReportSynthesis;
     if (ctx.curveballAnalysis) curveballAnalysis = ctx.curveballAnalysis;
     if (ctx.wineCompositionAnalysis) wineComposition = ctx.wineCompositionAnalysis.slice(0, 3000);
-    if (ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
+    if (!empiricalKnowledge && ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
   } catch {}
 
   // Stem Sniper feedback (tagged "[stem-sniper]") is about the ANSWER KEY for a stem, not the
@@ -78,7 +83,7 @@ issue — classify it with the Kind line below.
   // and the validators — that is the most common root cause of a wrong question.
   const kindClassification = `
 
-## CLASSIFY THE FIX (required) — end your analysis with a single Kind line
+## CLASSIFY THE FIX (required) — put the Kind line in the INTERNAL section (after the [[INTERNAL]] marker), never in the candidate-facing part
 - **Kind: answer-key** — a Stem Sniper answer-key DATA error (variety / style / region / plausible /
   tier). Applied to the stem_answer_keys data + a key rebuild; no app code.
 - **Kind: question** — THIS specific generated question is invalid: its stem contradicts its wines
@@ -144,50 +149,63 @@ from this exact feedback loop. It is authoritative for what we have already deci
   or a documented exam fact, weigh that heavily toward REJECT and cite the EK-#### entry. If it exposes a
   genuine gap not yet covered, that supports ACCEPT.
 - **§7 bug catalog:** check whether this is a known, already-fixed issue (don't re-open it) or genuinely new.
-Cite the relevant EK-#### id(s) in your Evidence and Current Pipeline Check sections.
+Use this knowledge to reason and to stay consistent with precedent. In the **candidate-facing** part of
+your answer, refer to precedent in PLAIN LANGUAGE ("past papers have shown…", "our review of the exams
+established…") — never print EK-#### ids, file paths, or the Kind line there. Reference EK-#### ids only
+in the INTERNAL section (after the [[INTERNAL]] marker).
 
 ### Step 3: Produce your analysis
 
 ## Your Output Format
 
-Produce EXACTLY this structure:
+Produce TWO parts separated by a line containing EXACTLY \`[[INTERNAL]]\` on its own line.
+
+### PART 1 — CANDIDATE-FACING (the candidate who left the feedback reads this)
+Keep it high-level, respectful and educational. **NO EK-#### ids, NO file paths, NO code, NO "Kind:" line.**
+Back up your reasoning with precedent in PLAIN LANGUAGE (cite real past exams by year/paper/question is fine —
+"the 2019 Paper 3 did exactly this"; just never internal codes). Use this structure:
 
 ### Claim Analysis
 {What exactly is the user claiming? Break it into specific testable assertions.}
 
 ### Evidence from Past MW Exams (2011–2025)
-{What do the real MW exams from the past 10+ years show? Cite specific years/papers/questions.
-If the pattern HAS occurred in a real exam, cite the exact instance with year, paper, and question number.
-If it HASN'T appeared in any past exam, note the absence but consider whether it's a deliberate gap or just hasn't come up yet.}
-
-### Current Pipeline Check
-{Does the current generation prompt or validation logic already handle this?
-If so, how? If not, what's the gap?}
+{What do the real MW exams show? If the pattern HAS occurred, cite the instance (year, paper, question).
+If it HASN'T, note the absence and whether it's a deliberate gap or just hasn't come up. Plain language only.}
 
 ### Factual Check on User's Claims
-{Check every factual claim the user makes about wine, winemaking, or the exam. If any are incorrect or imprecise, note them here with the correct information. This is educational — MW candidates benefit from having misconceptions corrected respectfully. Examples:
+{Check every factual claim the user makes about wine, winemaking, or the exam. If any are incorrect or imprecise, correct them respectfully (educational). Examples:
 - User says "these are Merlot" but the wines are Cabernet Franc → correct this
 - User says "whole cluster is common in the Loire" but it's actually rare → note this
 - User says "the MW would never test X" but the corpus shows they have → cite the evidence
 If all claims are factually correct, say "All factual claims verified."}
 
 ### Recommendation: ACCEPT, REJECT, or PARTIAL
-
 Use PARTIAL when:
 - Some claims are valid but others are factually wrong
 - The question has a real issue but the user's diagnosis of WHY is incorrect
 - The user raises a valid nuance (e.g., winemaking technique) but the core question design is sound
 
-**Reasoning:** {2-3 sentences explaining why}
+**Reasoning:** {2-3 sentences, plain language, why — backed by precedent}
+
+**What this means for you:**
+{Speak to the candidate. ACCEPT → acknowledge the valid point and that the system will be improved (no code detail). REJECT → respectful, educational explanation citing past real exams. PARTIAL → what's right, what isn't, and what (if anything) changes.}
+
+[[INTERNAL]]
+
+### PART 2 — INTERNAL (engineering/admin only — NOT shown to the candidate)
+Put ALL routing and technical detail here. This is where EK-#### references, file paths, the proposed
+code change, and the Kind line belong.
+
+### Current Pipeline Check
+{Does the current generation prompt or validation logic already handle this? If so how; if not, the gap.}
+
+### Precedent / EK references
+{The EK-#### entries that informed this decision, if any — and whether this is consistent with prior rulings.}
 
 **If ACCEPT — Proposed Change:**
-{Specific, actionable change to make. Name the constraint, the section, the wording.}
+{Specific, actionable change. Name the constraint, the section, and the file/layer it belongs in (see WHERE THE LOGIC LIVES).}
 
-**If REJECT — Explanation for User:**
-{What to tell the user — respectful, educational, citing evidence from past real MW exams.}
-
-**If PARTIAL — What's Right and What's Wrong:**
-{Acknowledge the valid points. Correct the invalid ones with evidence. Explain what action (if any) is being taken.}
+{End with the Kind line — see CLASSIFY THE FIX.}
 
 ## Important Rules
 

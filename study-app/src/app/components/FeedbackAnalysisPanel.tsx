@@ -82,6 +82,10 @@ export function FeedbackAnalysisPanel({
     }
   };
 
+  // Analyses carry an engineering-only tail after a [[INTERNAL]] marker (EK refs, file paths,
+  // proposed code change, the Kind routing line). The candidate sees only the part before it.
+  const candidateFacing = (text: string) => (text.split("[[INTERNAL]]")[0] || text).trim();
+
   const recBadge = (rec: string | null) => {
     if (rec === "accept") return <span className="text-xs px-2 py-1 rounded-full bg-success/15 text-success font-semibold">ACCEPT</span>;
     if (rec === "reject") return <span className="text-xs px-2 py-1 rounded-full bg-fail/15 text-fail font-semibold">REJECT</span>;
@@ -142,7 +146,7 @@ export function FeedbackAnalysisPanel({
                     </span>
                   </div>
                   <div className="markdown-content text-sm">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    <ReactMarkdown>{msg.role === "system" ? candidateFacing(msg.content) : msg.content}</ReactMarkdown>
                   </div>
                 </div>
               ))}
@@ -155,7 +159,7 @@ export function FeedbackAnalysisPanel({
                     <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                   </div>
                   <div className="markdown-content text-sm">
-                    <ReactMarkdown>{stream.text}</ReactMarkdown>
+                    <ReactMarkdown>{candidateFacing(stream.text)}</ReactMarkdown>
                   </div>
                 </div>
               )}
