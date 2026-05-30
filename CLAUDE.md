@@ -89,24 +89,24 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 
 ## Deploying the study app
 
-**⚠️ Auto-deploy is currently BROKEN.** Vercel still stores the git connection to
-`russellmoss/mw-exams` (production branch `master`), but the Vercel GitHub App lost repo
-access when the repo was moved/re-created, so pushes to `master` no longer trigger any
-build (verified 2026-05-29 — a push produced neither a production nor a preview deploy).
-**To restore auto-deploy:** on GitHub, grant the Vercel GitHub App access to the
-`mw-exams` repo (github.com/settings/installations → Vercel → Configure → add the repo),
-or reinstall from the Vercel dashboard (Project → Settings → Git). Until then, use the
-manual deploy below.
+**Deploys are EXPLICIT-ONLY (verified 2026-05-30).** Vercel's git auto-deploy is
+deliberately **disabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": false}`).
+History: the Vercel GitHub App first lost repo access (auto-deploy silently dead), then it
+came back — at which point pushes auto-deployed AND the auto-feedback workflow's explicit
+`vercel --prod` also ran, producing duplicate production builds racing for the alias. To make
+deploys deterministic (exactly one production deploy, fully under our control, robust whether
+or not the GitHub App is connected), git-triggered deploys are now off and **all deploys go
+through the Vercel CLI**:
 
-**Exception — the auto-feedback loop deploys itself.** `.github/workflows/auto-feedback.yml`
-no longer relies on the GitHub App: after it merges a verified change to `master` it runs an
-explicit `vercel --prod` (using `VERCEL_TOKEN` + `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`, from the
-repo root), so the auto-apply pipeline genuinely redeploys the live site and records
-`deployed` in Neon. The broken-auto-deploy caveat below only affects a **plain `git push` by
-a human** — that still won't trigger a build until the GitHub App is re-granted access.
+- **Auto-apply loop:** `.github/workflows/auto-feedback.yml` runs an explicit `vercel --prod`
+  (using `VERCEL_TOKEN` + `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`, from the repo root) after it
+  merges a verified change to `master`. The step fails loudly (red + `::error::`) if the
+  deploy fails, and Neon records `deployed` only on a true `READY`.
+- **Humans:** a bare `git push origin master` does **NOT** deploy (by design). Use the manual
+  deploy below.
 
 ```bash
-git push origin master   # pushes code, but does NOT auto-deploy until the GitHub App is re-granted access
+git push origin master   # pushes code only — git auto-deploy is disabled; deploy explicitly (below)
 ```
 
 Repo layout note: the git repo is rooted at this MW_exam project (the repo root IS this folder — `study-app/`, `data/`, `source/`, `outputs/`, `.github/` are all at the root). The Vercel **Root Directory is `study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in `study-app/` changed. The working tree lives at `C:/Users/russe/Documents/MW_exam`; the parent `Documents` folder is no longer a git repo.
