@@ -405,7 +405,15 @@ Weight recent exam years (2021-2025) more heavily when designing sub-questions. 
 4. The question reads like it would appear on a printed exam paper.
 5. Metadata must never reveal the answer. Family is only the code (F1-F7). Subcategory describes structure only and must not contain a country, region, appellation, producer, grape variety, or parenthetical answer clue.
 6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction. Never output a pre-correction wine.
-7. Every written sub-question must be worth at least 5 marks. Only "State RS" or "State ABV" can be 2-3 marks.`;
+7. Every written sub-question must be worth at least 5 marks. Only "State RS" or "State ABV" can be 2-3 marks.
+
+## FINAL SELF-CHECK (run this before output; if any check fails, FIX the wines and output the corrected version)
+- If the stem says "N different countries": list each wine's country — they MUST be N genuinely DISTINCT countries (two wines from the USA do NOT satisfy "four different countries").
+- If the stem says "same single grape variety": every wine's dominant grape MUST be identical (no blends of a different grape, no second variety).
+- If the stem says "different grape varieties" (and not "predominantly"): every wine's dominant grape MUST be distinct — no repeats.
+- If the stem says "same country": every wine MUST be from that one country.
+- Marks MUST total 25 per wine.
+A question that fails any of these is INVALID and will be rejected by the validator — do not output it.`;
 
   const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.
 

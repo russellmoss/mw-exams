@@ -92,6 +92,7 @@ export async function getQuestionsByFilter(
     return (await sql`
       SELECT * FROM generated_questions
       WHERE paper = ${paper} AND family = ${family}
+        AND invalid_reasons IS NULL
         AND question_id NOT IN (
           SELECT DISTINCT ua.question_id FROM user_attempts ua
           WHERE ua.feedback_status = 'accepted'
@@ -102,6 +103,7 @@ export async function getQuestionsByFilter(
   return (await sql`
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
+      AND invalid_reasons IS NULL
       AND question_id NOT IN (
         SELECT DISTINCT ua.question_id FROM user_attempts ua
         WHERE ua.feedback_status = 'accepted'
@@ -114,6 +116,7 @@ export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQ
   const sql = getDb();
   return (await sql`
     SELECT * FROM generated_questions
+    WHERE invalid_reasons IS NULL
     ORDER BY created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
@@ -130,6 +133,7 @@ export async function getUnansweredQuestions(
       LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
       WHERE q.paper = ${paper}
         AND q.family = ${family}
+        AND q.invalid_reasons IS NULL
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
@@ -144,6 +148,7 @@ export async function getUnansweredQuestions(
     SELECT q.* FROM generated_questions q
     LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
     WHERE q.paper = ${paper}
+      AND q.invalid_reasons IS NULL
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL

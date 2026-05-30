@@ -185,6 +185,15 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
     return false;
   }
 
+  // Country diversity was previously NOT re-checked at serve time, so a banked question whose stem
+  // promises "N different countries" but whose wines repeat a country (e.g. two USA wines under a
+  // "four different countries" stem) could still be served. Re-run it on every banked question.
+  const countryCheck = validateCountryDiversity(questionText, wines);
+  if (!countryCheck.valid) {
+    console.log(`Bank filter: ${q.question_id} failed country diversity: ${countryCheck.violations[0]}`);
+    return false;
+  }
+
   return true;
 }
 

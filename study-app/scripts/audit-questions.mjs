@@ -9,7 +9,11 @@ import { validateQuestion } from "../src/lib/question-validator.ts";
 const sql = neon(readFileSync(".env.local", "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim());
 const apply = process.argv.includes("--apply");
 
-if (apply) await sql`ALTER TABLE stem_answer_keys ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
+if (apply) {
+  await sql`ALTER TABLE stem_answer_keys ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
+  // CF-1: flag the question row itself so the MAIN study flow (not just Stem Sniper) can exclude it.
+  await sql`ALTER TABLE generated_questions ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
+}
 
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, k.ground_truth, k.validated
@@ -34,8 +38,12 @@ for (const r of rows) {
     hardCount++;
     if (apply) {
       await sql`UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${JSON.stringify(hard)}::jsonb WHERE question_id = ${r.question_id}`;
+      await sql`UPDATE generated_questions SET invalid_reasons = ${JSON.stringify(hard)}::jsonb WHERE question_id = ${r.question_id}`;
       quarantined++;
     }
+  } else if (apply) {
+    // clean now — clear any stale flag so a fixed/regenerated question returns to service
+    await sql`UPDATE generated_questions SET invalid_reasons = NULL WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL`;
   }
   if (!hard.length && res.violations.length) softCount++;
 }
