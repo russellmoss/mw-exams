@@ -4,14 +4,16 @@ name: auto-feedback
 # The study-app fires a repository_dispatch (event_type: auto-feedback) when an accepted
 # feedback item should become a code change. This workflow makes the change with headless
 # Claude, verifies it (lint + typecheck + build) with a self-heal retry loop, and:
-#   - GREEN  → merges to master, then deploys to Vercel EXPLICITLY (`vercel --prod`).
+#   - GREEN  → merges to master. Vercel git auto-deploy then ships it (single deploy path).
 #   - RED    → opens a PR for review; master is never touched by an unverified change.
 # Results are written back to feedback_analyses for the admin UI.
 #
-# NOTE: we deploy explicitly rather than relying on Vercel's git auto-deploy. The Vercel
-# GitHub App lost repo access (see CLAUDE.md), so a plain push to master does NOT trigger a
-# build. The explicit `vercel --prod` step below uses VERCEL_TOKEN and is independent of the
-# GitHub App, so the auto-apply loop genuinely redeploys the live site.
+# DEPLOY MODEL: git auto-deploy is ENABLED (study-app/vercel.json git.deploymentEnabled=true), so a
+# merge to master that touches study-app/ is built + deployed by Vercel automatically — the single
+# deploy path shared by human pushes and these bot merges. This workflow no longer runs an explicit
+# `vercel --prod`. The vercel.json ignoreCommand skips builds for [skip ci] commits (e.g. the
+# knowledge-doc sync) and for commits that don't touch study-app/. (Requires the Vercel↔GitHub
+# integration to be connected; if it ever disconnects, fall back to a manual `npx vercel --prod`.)
 
 on:
   repository_dispatch:
@@ -37,14 +39,8 @@ jobs:
       REVIEW_ONLY: ${{ github.event.client_payload.reviewOnly }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       APP_DIR: study-app
-      VERCEL_PROJECT_ID: prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM
-      VERCEL_TEAM_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
-      # The Vercel CLI reads VERCEL_ORG_ID + VERCEL_PROJECT_ID to link the project without a
-      # committed .vercel/ folder (.vercel is gitignored). VERCEL_ORG_ID == the team id.
-      VERCEL_ORG_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
     steps:
       - name: Checkout master
         uses: actions/checkout@v4
@@ -223,38 +219,8 @@ jobs:
             echo "Re-auditing corpus…"; node scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
           fi
 
-      - name: Deploy to Vercel (explicit prod)
-        # Deploy explicitly with the token — independent of the (broken) Vercel GitHub App.
-        # Runs from the REPO ROOT, not study-app: the Vercel project's Root Directory is
-        # 'study-app', so deploying from inside it would make Vercel look for study-app/study-app
-        # and fail (see CLAUDE.md "Manual deploy"). The default working-directory IS the repo
-        # root, so we do not set working-directory here.
-        if: steps.merge.outputs.merged == '1'
-        id: deploy
-        run: |
-          set +e
-          mkdir -p /tmp/af
-          npm i -g vercel@latest
-          # Link + pull production settings (encodes Root Directory = study-app). Non-fatal:
-          # if linking is already resolvable from VERCEL_ORG_ID/PROJECT_ID, deploy still works.
-          vercel pull --yes --environment=production --token "$VERCEL_TOKEN" 2>&1 | tee /tmp/af/vercel-pull.log
-          # `vercel deploy --prod` blocks until the build is READY and exits non-zero on failure,
-          # so the CLI exit code is the authoritative deploy state (no API polling needed).
-          DEPLOY_URL=$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" 2>/tmp/af/vercel-deploy.log)
-          RC=$?
-          cat /tmp/af/vercel-deploy.log
-          echo "vercel exit=$RC url=$DEPLOY_URL"
-          if [ "$RC" -eq 0 ] && [ -n "$DEPLOY_URL" ]; then
-            echo "state=READY" >> "$GITHUB_OUTPUT"
-            echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-          else
-            # Fail loudly: the change is already merged to master, but the live site did NOT
-            # update. A red step + annotation makes that visible (the old silent-green hid it).
-            # "Record result in Neon" still runs (always()) and records `merged`, not `deployed`.
-            echo "state=ERROR" >> "$GITHUB_OUTPUT"
-            echo "::error title=Vercel deploy failed::vercel exited $RC. Change is on master but NOT deployed. Check VERCEL_TOKEN validity. Log above."
-            exit 1
-          fi
+      # NOTE: no explicit Vercel deploy step. Once "Merge to master" pushes a study-app/ change,
+      # Vercel git auto-deploy builds + ships it automatically (single deploy path; see header).
 
       - name: Open PR (review required, could not verify, or out of scope)
         if: >-
@@ -282,13 +248,14 @@ jobs:
         working-directory: ${{ env.APP_DIR }}
         env:
           MERGED: ${{ steps.merge.outputs.merged }}
-          DEPLOY_STATE: ${{ steps.deploy.outputs.state }}
           COMMIT_SHA: ${{ steps.merge.outputs.sha }}
           PR_URL: ${{ steps.pr.outputs.pr_url }}
           NO_CHANGES: ${{ steps.heal.outputs.no_changes }}
         run: |
+          # Deploy is now async via Vercel git auto-deploy, so the workflow only knows it MERGED —
+          # the live deploy lands seconds later (watch the Vercel dashboard if it matters).
           if [ "$MERGED" = "1" ]; then
-            if [ "$DEPLOY_STATE" = "READY" ]; then APPLY_STATUS=deployed; else APPLY_STATUS=merged; fi
+            APPLY_STATUS=merged
           elif printf '%s' "$PR_URL" | grep -q 'http'; then
             APPLY_STATUS=pr_opened
           else
@@ -300,7 +267,7 @@ jobs:
           fi
           # Only pass a clean PR URL through (gh prints the URL on success).
           if ! printf '%s' "$PR_URL" | grep -q 'http'; then PR_URL=""; fi
-          export APPLY_STATUS COMMIT_SHA PR_URL DEPLOY_STATE
+          export APPLY_STATUS COMMIT_SHA PR_URL
           node scripts/record-apply.mjs
 
       - name: Update empirical knowledge doc (incremental, → master)
@@ -311,8 +278,8 @@ jobs:
         # the script commits straight to master (no PR/branch).
         #
         # Loop- & deploy-safe: a root-level .md push triggers NO workflow (auto-feedback fires on
-        # repository_dispatch, not push) and NO build (git auto-deploy disabled; the Vercel
-        # ignored-build-step is scoped to study-app/). [skip ci] is added belt-and-suspenders.
+        # repository_dispatch, not push) and NO Vercel build — the commit carries [skip ci] and the
+        # vercel.json ignoreCommand skips [skip ci] commits (and any commit not touching study-app/).
         # Fully NON-FATAL: continue-on-error so it can never undo or red-flag the code change above.
         if: always() && env.ANALYSIS_ID != ''
         continue-on-error: true

@@ -107,32 +107,41 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 
 ## Deploying the study app
 
-**Deploys are EXPLICIT-ONLY (verified 2026-05-30).** Vercel's git auto-deploy is
-deliberately **disabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": false}`).
-History: the Vercel GitHub App first lost repo access (auto-deploy silently dead), then it
-came back — at which point pushes auto-deployed AND the auto-feedback workflow's explicit
-`vercel --prod` also ran, producing duplicate production builds racing for the alias. To make
-deploys deterministic (exactly one production deploy, fully under our control, robust whether
-or not the GitHub App is connected), git-triggered deploys are now off and **all deploys go
-through the Vercel CLI**:
+**Deploys are GIT AUTO-DEPLOY, single-path (changed 2026-05-30).** Vercel git auto-deploy is
+**enabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": true}`). A push to `master`
+that touches `study-app/` is built and deployed by Vercel automatically — for **both** human pushes
+and the auto-feedback bot's merges. There is **one** deploy path (git); nothing runs an explicit
+`vercel --prod` in CI anymore.
 
-- **Auto-apply loop:** `.github/workflows/auto-feedback.yml` runs an explicit `vercel --prod`
-  (using `VERCEL_TOKEN` + `VERCEL_ORG_ID`/`VERCEL_PROJECT_ID`, from the repo root) after it
-  merges a verified change to `master`. The step fails loudly (red + `::error::`) if the
-  deploy fails, and Neon records `deployed` only on a true `READY`.
-- **Humans:** a bare `git push origin master` does **NOT** deploy (by design). Use the manual
-  deploy below.
+A versioned **`ignoreCommand`** in `study-app/vercel.json` decides what builds:
 
-```bash
-git push origin master   # pushes code only — git auto-deploy is disabled; deploy explicitly (below)
+```jsonc
+// study-app/vercel.json
+"ignoreCommand": "if git log -1 --pretty=%s | grep -q '\\[skip ci\\]'; then exit 0; else git diff --quiet HEAD^ HEAD ./; fi"
 ```
 
-Repo layout note: the git repo is rooted at this MW_exam project (the repo root IS this folder — `study-app/`, `data/`, `source/`, `outputs/`, `.github/` are all at the root). The Vercel **Root Directory is `study-app`** and an **Ignored Build Step** (`git diff --quiet HEAD^ HEAD .`) skips builds when nothing in `study-app/` changed. The working tree lives at `C:/Users/russe/Documents/MW_exam`; the parent `Documents` folder is no longer a git repo.
+- Commit message contains `[skip ci]` → **skip** (used by the empirical-knowledge sync commits).
+- Otherwise build **only if** something under `study-app/` changed (`./` = the Vercel Root Directory,
+  which is `study-app`). So root-only commits (docs, `data/`, `outputs/`) never trigger a build.
 
-**Manual deploy (current working method).** Because the Vercel Root Directory is `study-app`,
-run the deploy from the **repo root** (`MW_exam`), NOT from inside `study-app/` (that makes
-Vercel look for `study-app/study-app` and fails). The repo root is linked to the project via
-`.vercel/` (gitignored):
+History (why it was the other way): the Vercel GitHub App once lost repo access, so we moved to an
+explicit `vercel --prod` in `auto-feedback.yml`; when the App came back, pushes AND the explicit
+deploy both fired → duplicate racing builds, so git auto-deploy was disabled. We've now consolidated
+on the single git path (explicit deploy removed) — simpler, no duplicates. **This depends on the
+Vercel↔GitHub integration staying connected.** If it ever disconnects (auto-deploys go silent), use
+the manual fallback below and/or reconnect the integration in the Vercel dashboard.
+
+```bash
+git pull --rebase origin master   # ALWAYS pull first — the bot pushes to master; never force-push
+git push origin master            # a study-app/ change here now auto-deploys via Vercel git
+```
+
+Repo layout note: the git repo is rooted at this MW_exam project (the repo root IS this folder — `study-app/`, `data/`, `source/`, `outputs/`, `.github/` are all at the root). The Vercel **Root Directory is `study-app`**; the `ignoreCommand` above is the (now versioned) Ignored Build Step. The working tree lives at `C:/Users/russe/Documents/MW_exam`; the parent `Documents` folder is no longer a git repo.
+
+**Manual deploy (fallback if git auto-deploy is ever down).** Because the Vercel Root Directory is
+`study-app`, run from the **repo root** (`MW_exam`), NOT from inside `study-app/` (that makes Vercel
+look for `study-app/study-app` and fails). The repo root is linked to the project via `.vercel/`
+(gitignored):
 
 ```bash
 # from C:/Users/russe/Documents/MW_exam (repo root)

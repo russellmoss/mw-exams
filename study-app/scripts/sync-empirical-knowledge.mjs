@@ -359,8 +359,8 @@ function gitCommit(summary) {
     "commit", "-m", `chore(knowledge): ${summary} [skip ci]`,
   ]);
   // Push to master; if another concurrent run pushed first, rebase on origin/master and retry once.
-  // (Doc commits never trigger CI or a deploy — auto-feedback fires on repository_dispatch, and git
-  // auto-deploy is disabled — so this is a content-only push.)
+  // (Doc commits are content-only: the [skip ci] message + the vercel.json ignoreCommand mean Vercel
+  // skips them, and no GitHub workflow triggers on push — so this never builds or deploys.)
   try {
     run(["push", "origin", "HEAD:master"]);
   } catch {

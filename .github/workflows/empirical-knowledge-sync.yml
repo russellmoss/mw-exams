@@ -9,8 +9,9 @@ name: empirical-knowledge-sync
 #
 # It runs the shared core in consolidate mode and commits straight to master (no PR, no branch — it is
 # a document, per empirical_knowledge_doc_plan.md). Loop/deploy-safe: a root-level .md push triggers no
-# workflow (this is schedule/dispatch-triggered, not push) and no build (git auto-deploy is disabled
-# and the Vercel ignored-build-step is scoped to study-app/).
+# workflow (this is schedule/dispatch-triggered, not push) and no Vercel build — the commit carries
+# [skip ci] and the vercel.json ignoreCommand skips [skip ci] commits (and any commit not touching
+# study-app/).
 
 on:
   schedule:

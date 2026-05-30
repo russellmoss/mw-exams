@@ -177,11 +177,10 @@ scripts/sync-empirical-knowledge.mjs  (or a CLI Claude step driven by a brief)
   rejected) — a rejected-because-X is also a real learning. The knowledge is in the *finding*,
   not only in a successful merge.
 - **No sync cursor needed here** — it processes the one item from this run.
-- **Loop / deploy safety:** committing a root-level `.md` to master triggers nothing —
-  `auto-feedback.yml` is fired by `repository_dispatch`, not by push, and git auto-deploy is
-  disabled (`study-app/vercel.json`). The Vercel ignored-build-step is scoped to `study-app/`,
-  so a root doc change wouldn't deploy even if auto-deploy were on. No loop, no extra build.
-  (`[skip ci]` in the commit message is therefore unnecessary, but harmless if we add it.)
+- **Loop / deploy safety:** committing a root-level `.md` to master triggers no workflow
+  (`auto-feedback.yml` is fired by `repository_dispatch`, not by push). Git auto-deploy IS enabled
+  now, but the doc commit carries `[skip ci]` and the `vercel.json` `ignoreCommand` skips `[skip ci]`
+  commits (and any commit not touching `study-app/`), so it never builds or deploys. No loop, no build.
 - **Ordering:** runs last so it never interferes with the code merge/deploy; the doc lands as a
   separate small commit right after.
 
