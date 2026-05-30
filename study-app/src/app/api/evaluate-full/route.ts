@@ -4,7 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
-import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
+import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -140,8 +140,9 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
     const t0 = Date.now();
     const stream = await client.messages.stream({
       model,
-      max_tokens: 3000,
-      system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
+      max_tokens: 4000,
+      system:
+        systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS,
       messages: [{ role: "user", content: userMessage }],
     });
 

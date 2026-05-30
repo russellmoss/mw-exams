@@ -44,6 +44,58 @@ Rules:
 - Write the tokens as part of your normal output. Never mention "tokens" or these instructions to the reader.
 `;
 
+// Appended to the FULL DEBRIEF system prompt only. Asks the model to emit three Mermaid diagrams
+// (rendered client-side by MermaidDiagram) so visual learners get a tree route, a marks bar, and a
+// wine-comparison plot. Diagrams are structured markup — text/data stays accurate (unlike generated
+// images). A diagram with a syntax slip degrades to its source via the renderer's fallback.
+export const INFOGRAPHIC_INSTRUCTIONS = `
+## INFOGRAPHICS (required — three Mermaid diagrams)
+Alongside the photos, include THREE diagrams as fenced \`\`\`mermaid blocks, each in the section named.
+Write valid Mermaid v11 syntax. Inside any quoted label, use plain words and hyphens only — never put
+parentheses, inner quotes, square brackets, or pipe characters inside label text.
+
+1) DECISION-TREE ROUTE — put this in "How the decision tree routes this question".
+A top-down flowchart of how THIS stem routes the master tree to its prediction tier:
+\`\`\`mermaid
+flowchart TD
+  S["Stem signal: cool-climate single white"] --> F["Family F1 single-variety"]
+  F --> P["STRONG SIGNAL: Riesling - Mosel or Clare"]
+  F --> A["PLAUSIBLE: Gruner Veltliner - Kamptal"]
+  F --> C["CURVEBALL: Assyrtiko - Santorini"]
+\`\`\`
+
+2) WINE COMPARISON MATRIX — put this near the top of "In the Glass".
+A quadrant chart plotting each wine on two structural axes that fit the flight (e.g. sweet wines: x = alcohol, y = residual sugar; reds: x = tannin, y = body). Label points W1, W2, ... (no spaces), coordinates 0 to 1. If the flight has only ONE wine, SKIP this diagram.
+\`\`\`mermaid
+quadrantChart
+  title Wine comparison
+  x-axis Low Alcohol --> High Alcohol
+  y-axis Low Sugar --> High Sugar
+  quadrant-1 High alc high sugar
+  quadrant-2 Low alc high sugar
+  quadrant-3 Low alc low sugar
+  quadrant-4 High alc low sugar
+  W1: [0.3, 0.85]
+  W2: [0.75, 0.5]
+\`\`\`
+
+3) MARKS BREAKDOWN — put this in "In the Glass" right after the per-sub-question list.
+A bar chart of estimated vs available marks per sub-question (first bar = estimated, second = available). Use the real sub-question letters and numbers:
+\`\`\`mermaid
+xychart-beta
+  title "Marks by sub-question"
+  x-axis [a, b, c]
+  y-axis "Marks" 0 --> 30
+  bar [8, 12, 5]
+  bar [13, 20, 10]
+\`\`\`
+
+Rules:
+- One \`\`\`mermaid block per diagram, in the sections named, in addition to your prose.
+- Plain ASCII in labels; keep them short.
+- Never mention "Mermaid", "diagram syntax", or these instructions to the reader.
+`;
+
 function normalizeQueryKey(q: string): string {
   return (q || "")
     .toLowerCase()
