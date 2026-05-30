@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0087).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0086).**
 - **2026-05-30 — scoring truth: enriched EK-0001/EK-0041 — exactly-25-marks/wine is a *modern-exam*
@@ -680,6 +681,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 129 | 16 | P2/F3 | partial | auto | Mavrotragano too obscure (prefer Xinomavro/Agiorgitiko); olive cue contradicted Australian wine; Carménère green character understated | EK-0073, EK-0074 |
 | 139 | 22 | P2/F1 | accept | auto | Stem Sniper should grade ambiguous single-answer origin questions on the plausible set, not exact per-wine pick | EK-0086 |
 | 141 | 23 | P3/F7 | accept | auto | novelty check is not session-aware; same question+wines re-served to same user same day | EK-0087 |
+| 143 | 24 | P3/F4 | accept | auto | Another session-not-aware novelty failure (same question re-served); already covered by EK-0087 | EK-0087 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
