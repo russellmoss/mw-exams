@@ -16,7 +16,7 @@ The exam is shifting away from identification and toward analytical competencies
 
 **Key quote (2024)**: "The MW practical exam is a theory exam with a tasting. This is truer today than ever before."
 
-**Implication for mock exams**: Questions must allocate marks consistently with this trend. Identification should be ~35–45% of marks per question. Quality/maturity/winemaking/commercial should collectively be 55–65%.
+**Implication for mock exams**: These percentages are PAPER-WIDE averages, not a per-question rule — individual questions vary enormously (e.g. 2023 P1 Q1 allocates only 20 of 100 marks to identification, with 30 to winemaking and 50 to quality+ageing). Distribute marks so that, *across the whole paper*, identification is ~35–45% and quality/maturity/winemaking/commercial collectively ~55–65%, while letting any single question's split be driven by what it sensibly tests.
 
 ## 2. The Seven Cardinal Rules (Recurring Across All Reports)
 
