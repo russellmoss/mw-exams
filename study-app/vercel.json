@@ -3,5 +3,11 @@
   "git": {
     "deploymentEnabled": true
   },
-  "ignoreCommand": "if git log -1 --pretty=%s | grep -q '\\[skip ci\\]'; then exit 0; else git diff --quiet HEAD^ HEAD ./; fi"
+  "ignoreCommand": "if git log -1 --pretty=%s | grep -q '\\[skip ci\\]'; then exit 0; else git diff --quiet HEAD^ HEAD ./; fi",
+  "crons": [
+    {
+      "path": "/api/cron/sweep-feedback",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }

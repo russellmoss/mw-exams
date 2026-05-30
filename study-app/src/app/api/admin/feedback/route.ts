@@ -1,7 +1,12 @@
+import { after } from "next/server";
 import { getUser } from "@/lib/auth";
 import { neon } from "@neondatabase/serverless";
+import { sweepStrandedFeedback } from "@/lib/feedback-analysis";
 
 export const runtime = "nodejs";
+// Opportunistic stranded-feedback sweep runs in `after()`, which can keep this
+// invocation alive past the response while it analyzes a small batch.
+export const maxDuration = 120;
 
 export async function GET(request: Request) {
   try {
@@ -9,6 +14,17 @@ export async function GET(request: Request) {
     if (!user || !user.isAdmin) {
       return Response.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    // Self-heal: any time an admin views the feedback queue, analyze a small batch of
+    // feedback that was submitted but never analyzed. Runs post-response so the list
+    // returns instantly; the cron sweeper covers times nobody is looking.
+    after(async () => {
+      try {
+        await sweepStrandedFeedback(3);
+      } catch (err) {
+        console.error("[admin/feedback] opportunistic sweep failed:", err);
+      }
+    });
 
     const url = new URL(request.url);
     const status = url.searchParams.get("status");

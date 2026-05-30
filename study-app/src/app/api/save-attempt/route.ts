@@ -1,7 +1,12 @@
+import { after } from "next/server";
 import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback } from "@/lib/db";
 import { getUser } from "@/lib/auth";
+import { runFeedbackAnalysis } from "@/lib/feedback-analysis";
 
 export const runtime = "nodejs";
+// Feedback analysis runs in `after()` (post-response), so this invocation may stay
+// alive up to ~2 minutes for that background work even though the response is instant.
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
@@ -23,6 +28,26 @@ export async function POST(request: Request) {
         return Response.json({ error: "Missing attemptId" }, { status: 400 });
       }
       const attempt = await updateAttempt(attemptId, data);
+
+      // If this update is what added the user's feedback, kick off analysis SERVER-SIDE
+      // (decoupled from the browser). `after()` keeps the function alive past the response,
+      // so closing the tab can no longer strand the feedback. We only fire the first time
+      // (attempt had no analysis yet); runFeedbackAnalysis also guards against concurrent runs.
+      if (
+        typeof data.user_feedback === "string" &&
+        data.user_feedback.trim() &&
+        !attempt.auto_analysis_id
+      ) {
+        const id = attempt.id;
+        after(async () => {
+          try {
+            await runFeedbackAnalysis({ attemptId: id, source: "server" });
+          } catch (err) {
+            console.error("[save-attempt] background feedback analysis failed:", err);
+          }
+        });
+      }
+
       return Response.json({ attempt });
     }
 

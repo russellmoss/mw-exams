@@ -42,6 +42,9 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
     setSaving(true);
 
     try {
+      // Saving the feedback now triggers analysis SERVER-SIDE (see /api/save-attempt),
+      // so we no longer fire a fragile client-side analysis request that a tab close
+      // could cancel and strand. Just persist the feedback.
       await fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,12 +54,6 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
           user_feedback: `[${step}] ${feedback.trim()}`,
         }),
       });
-      // Fire-and-forget: trigger background analysis
-      fetch("/api/feedback-analysis/trigger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ attemptId, userFeedback: `[${step}] ${feedback.trim()}` }),
-      }).catch(() => {});
 
       setSent(true);
       setFeedback("");

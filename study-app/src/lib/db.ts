@@ -42,6 +42,9 @@ export interface UserAttempt {
   feedback_reviewed_at: string | null;
   // Who made the accept/reject decision: 'auto' (Auto-Apply pipeline) or 'manual' (admin).
   feedback_decided_by: string | null;
+  // Set once feedback analysis has been kicked off (links to feedback_analyses.id). NULL means
+  // the feedback was never analyzed — the "stranded" set the sweeper looks for.
+  auto_analysis_id: number | null;
 }
 
 export async function saveGeneratedQuestion(q: {
