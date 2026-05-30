@@ -37,6 +37,7 @@ export interface UserAttempt {
   started_at: string;
   completed_at: string | null;
   user_feedback: string | null;
+  feedback_submitted_at: string | null;
   feedback_status: string | null;
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
@@ -256,8 +257,13 @@ export async function updateAttempt(
     return rows[0] as UserAttempt;
   }
   if (data.user_feedback !== undefined) {
+    // Stamp when feedback was left (kept stable across later edits via COALESCE) so
+    // the admin dashboard can sort by feedback recency rather than question completion.
     const rows = await sql`
-      UPDATE user_attempts SET user_feedback = ${data.user_feedback} WHERE id = ${attemptId} RETURNING *
+      UPDATE user_attempts SET
+        user_feedback = ${data.user_feedback},
+        feedback_submitted_at = COALESCE(feedback_submitted_at, NOW())
+      WHERE id = ${attemptId} RETURNING *
     `;
     return rows[0] as UserAttempt;
   }

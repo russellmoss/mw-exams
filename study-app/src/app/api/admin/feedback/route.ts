@@ -47,7 +47,7 @@ export async function GET(request: Request) {
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
         WHERE a.user_feedback IS NOT NULL AND a.feedback_status IS NULL
-        ORDER BY a.completed_at DESC
+        ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
     } else if (status === "accepted" || status === "rejected") {
       // The Accepted bucket also surfaces PARTIAL items (valid points, core question sound) so
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
         WHERE a.feedback_status = ANY(${statuses})
-        ORDER BY a.feedback_reviewed_at DESC
+        ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.feedback_reviewed_at DESC
       `;
     } else {
       attempts = await sql`
@@ -80,7 +80,7 @@ export async function GET(request: Request) {
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
         WHERE a.user_feedback IS NOT NULL
-        ORDER BY a.completed_at DESC
+        ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
     }
 
