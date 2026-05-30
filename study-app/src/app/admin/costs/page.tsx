@@ -84,6 +84,9 @@ export default function CostsPage() {
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
+  // Top-level tab: usage scorecards (default) vs. the A/B model-mix editor
+  const [tab, setTab] = useState<"usage" | "mix">("usage");
+
   useEffect(() => {
     if (!authLoading && (!user || !user.isAdmin)) router.push("/");
   }, [authLoading, user, router]);
@@ -174,6 +177,12 @@ export default function CostsPage() {
             ← Back to admin
           </Link>
         </div>
+        <div className="max-w-6xl mx-auto px-6">
+          <nav className="flex gap-1 -mb-px">
+            <TabButton active={tab === "usage"} onClick={() => setTab("usage")}>Usage</TabButton>
+            <TabButton active={tab === "mix"} onClick={() => setTab("mix")}>Model mix</TabButton>
+          </nav>
+        </div>
       </header>
 
       <main className="flex-1">
@@ -184,6 +193,10 @@ export default function CostsPage() {
             </div>
           )}
 
+          {tab === "mix" && <AbPanel />}
+
+          {tab === "usage" && (
+          <>
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex rounded-lg border border-border overflow-hidden">
@@ -219,9 +232,6 @@ export default function CostsPage() {
             )}
             {loading && <span className="text-xs text-muted">updating…</span>}
           </div>
-
-          {/* A/B model split config */}
-          <AbPanel />
 
           {/* Summary cards */}
           {s && (
@@ -351,6 +361,8 @@ export default function CostsPage() {
               </table>
             </div>
           </Panel>
+          </>
+          )}
         </div>
       </main>
     </div>
@@ -494,6 +506,19 @@ function AbPanel() {
 }
 
 // ── Small presentational components ───────────────────────────────────────────
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
+        active ? "border-accent text-foreground" : "border-transparent text-muted hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function SummaryCard({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
   return (
     <div className={`rounded-xl border p-4 ${accent ? "border-accent/40 bg-accent/5" : "border-border bg-card"}`}>
