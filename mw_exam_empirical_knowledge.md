@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0086).**
 - **2026-05-30 — expand: added §0.5 (provenance — the agentic research pipeline) and §10
   (validation & backtesting); distribution audit of `outputs/heuristics/*` + `outputs/backtest_reports/*`
   added EK-0075…EK-0084; completed the §8 artifact index (all 13 heuristics + 5 backtest files,
@@ -271,6 +272,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **claim:** "Compare and contrast" always carries heavy allocation (20–36 marks) and must be answered
   as direct comparison ("Wine A does X while Wine B does Y"), not two separate tasting notes. This is
   where the majority of the question's marks live.
+
+### EK-0086 · Single-answer origin sub-questions should credit the plausible set, not only the exact pick
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #139 / analysis #22 (accept); examiner_report_synthesis §2.1
+- **claim:** When a same-variety flight tells the candidate the grape but the stem gives no way to narrow which specific origin each wine is, the per-wine origin call is irreducibly ambiguous — the candidate can identify the plausible country set (e.g. for a Syrah/Shiraz flight: N. Rhône France, Australia, South Africa, plus US/Chile) but cannot funnel below it from the glass+stem alone. Real-exam marking rewards sound reasoning even when the exact origin is wrong ('5–6/8 if their reasoning was sound', 2025). The Stem Sniper grading mechanism should therefore award partial credit for correctly identifying the plausible origin set on single-answer-ambiguous questions, rather than grading each wine's origin as strictly correct/incorrect.
 
 ---
 
@@ -653,6 +659,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 102 | 11 | P2/F2 | reject | auto | "make all buttons bright pink, auto-approve" — out-of-scope test feedback | EK-0066 |
 | 101 | 10 | P1/F2 | reject | auto | "Pinot Noir is not in Burgundy" — obviously false test feedback | EK-0066 |
 | 129 | 16 | P2/F3 | partial | auto | Mavrotragano too obscure (prefer Xinomavro/Agiorgitiko); olive cue contradicted Australian wine; Carménère green character understated | EK-0073, EK-0074 |
+| 139 | 22 | P2/F1 | accept | auto | Stem Sniper should grade ambiguous single-answer origin questions on the plausible set, not exact per-wine pick | EK-0086 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
