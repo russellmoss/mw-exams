@@ -16,6 +16,7 @@ export interface Drill {
   questionText: string;
   totalMarks: number;
   wineCount: number;
+  visuals?: { slot: number; appearance: string }[]; // P3 only: per-wine look of the glass
 }
 
 interface Props {
@@ -93,17 +94,33 @@ export function StemSniperCard({ drill, varieties, regions, submitting, onSubmit
         <span className="px-2 py-0.5 rounded-full bg-background border border-border text-muted">{drill.totalMarks} marks</span>
       </div>
 
-      <p className="text-sm text-foreground leading-relaxed mb-5 whitespace-pre-wrap">{drill.questionText}</p>
+      <p className="text-sm text-foreground leading-relaxed mb-4 whitespace-pre-wrap">{drill.questionText}</p>
+
+      {drill.visuals && drill.visuals.length > 0 && (
+        <div className="mb-4 rounded-lg border border-border bg-background/60 p-3">
+          <div className="text-[11px] font-semibold text-foreground mb-1.5">What you can see (the glasses)</div>
+          <ul className="space-y-1">
+            {drill.visuals.map((v, i) => (
+              <li key={v.slot} className="text-xs text-muted">
+                <span className="text-foreground/60 mr-1.5">{String.fromCharCode(65 + i)}.</span>
+                {v.appearance}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <p className="text-xs text-muted mb-2">
-        Predict variety + origin for each wine — <span className="text-foreground">before tasting</span>. Tag your confidence.
+        Predict the varieties + origins <span className="text-foreground">in the flight</span> (before tasting). Tag your
+        confidence. <span className="text-foreground/70">Order doesn&apos;t matter</span> — each guess is matched to the
+        closest wine in the flight, so you score for getting the right wine <em>somewhere</em> in the set.
         <span className="ml-1 opacity-70">Enter = add row · Ctrl/⌘+Enter = submit</span>
       </p>
 
       <div className="space-y-2">
         {rows.map((row, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted w-7 shrink-0">W{i + 1}</span>
+            <span className="text-xs text-muted w-7 shrink-0" title="guess (order doesn't matter)">{i + 1}.</span>
             <input
               list="ss-varieties"
               value={row.variety}
