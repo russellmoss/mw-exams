@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion } from "@/lib/db";
+import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
@@ -23,7 +24,8 @@ export async function POST(request: Request) {
     const client = new Anthropic({ apiKey: keyResult.apiKey });
     const { model, abGroup } = await selectModel("model_answer", keyResult.apiKey, "opus");
 
-    const prompt = buildModelAnswerPrompt(questionText, wines, paper);
+    const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
+    const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance);
 
     const t0 = Date.now();
     const message = await client.messages.create({

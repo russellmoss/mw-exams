@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
 
 function getDb() {
   const sql = neon(process.env.DATABASE_URL!);
@@ -598,6 +599,42 @@ export async function getEmpiricalKnowledgeForAnalysis(paper: number): Promise<s
   return [...bySection.entries()]
     .map(([sec, items]) => `### ${LABELS[sec] || `§${sec}`}\n${items.join("\n")}`)
     .join("\n\n");
+}
+
+// The tasting lexicon, read from the editable Neon `tasting_lexicon` table with the bundled copy as
+// fallback. Cached in-memory per server instance (the lexicon changes rarely) with a short TTL so
+// admin edits take effect without a redeploy. On any error / empty table it returns the bundled copy.
+let lexiconCache: { value: TastingLexicon; at: number } | null = null;
+const LEXICON_TTL_MS = 5 * 60 * 1000;
+
+export async function getTastingLexicon(): Promise<TastingLexicon> {
+  if (lexiconCache && Date.now() - lexiconCache.at < LEXICON_TTL_MS) {
+    return lexiconCache.value;
+  }
+  try {
+    const sql = getDb();
+    const rows = (await sql`
+      SELECT group_kind, category, term
+      FROM tasting_lexicon
+      WHERE active = TRUE
+      ORDER BY group_kind, category, sort_order, id
+    `) as { group_kind: string; category: string; term: string }[];
+    if (!rows.length) {
+      lexiconCache = { value: BUNDLED_TASTING_LEXICON, at: Date.now() };
+      return BUNDLED_TASTING_LEXICON;
+    }
+    const value: TastingLexicon = { dimensions: {}, rhetoric: {} };
+    for (const r of rows) {
+      const bucket = r.group_kind === "rhetoric" ? value.rhetoric : value.dimensions;
+      (bucket[r.category] ||= []).push(r.term);
+    }
+    lexiconCache = { value, at: Date.now() };
+    return value;
+  } catch {
+    // table absent / unreachable → bundled copy keeps generation working
+    lexiconCache = { value: BUNDLED_TASTING_LEXICON, at: Date.now() };
+    return BUNDLED_TASTING_LEXICON;
+  }
 }
 
 export async function getUserNotifications(userId: number): Promise<{

@@ -47,7 +47,8 @@ const TREE_KEYS: Record<number, { tree: string; diagram: string }> = {
 export function buildModelAnswerPrompt(
   questionText: string,
   wines: { slot: number; fullText: string }[],
-  paper: number
+  paper: number,
+  lexiconGuidance?: string
 ): { system: string; user: string } {
   const refs = loadReferenceData();
   const ctx = loadPipelineContext();
@@ -68,7 +69,7 @@ ${ctx.sharedRules}
 ${ctx.examinerReportSynthesis}
 
 ${FUNNELLING_PRINCIPLE}
-
+${lexiconGuidance ? `\n${lexiconGuidance}\n` : ""}
 ## DECISION TREE FOR PAPER ${paper}
 ${decisionTree}
 

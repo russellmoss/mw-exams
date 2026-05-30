@@ -112,6 +112,7 @@ Reference `data/vintage_charts/` if available for Bordeaux and Burgundy vintage 
 - `CLAUDE.md`
 - `.claude/agents/_shared_rules.md`
 - `outputs/heuristics/examiner_report_synthesis.md` — the synthesized examiner expectations from 2017–2025 that calibrate what "good" looks like
+- `outputs/heuristics/tasting_lexicon.md` — the MW tasting-vocabulary palette (descriptors by dimension + the SUGGESTS-vs-PROVES deductive register). Use it as a register palette to keep the notes precise and examiner-grade.
 - The Toronto April 2026 reference notes in `docs/MW Notes Paper *.pdf` — to internalize the deductive voice (read via pdftotext if needed)
 
 ## Inputs
@@ -136,6 +137,7 @@ A question identifier: year, paper, question.
    - For maturity sub-questions: current age estimate, improvement window, holding period, what changes.
    - For vintage sub-questions: deduce from alcohol, color, tannin, acidity → warm/dry or cool/wet character.
 6. **For each factual claim**, ensure it's traceable to the wine-research brief — but translate it into deductive voice. The answer must sound like a candidate reasoning from the glass, not reciting a tech sheet.
+6b. **Apply the tasting lexicon** (`outputs/heuristics/tasting_lexicon.md`) as a register palette — draw precise descriptors per dimension and vary them; do NOT cram adjectives (precision beats density). Critically, match the verb to the evidence: use SUGGESTS-list inference verbs ("indicates", "points to", "consistent with") for likely-but-unproven calls, and reserve PROVES-list confirmation verbs ("confirms", "demonstrates", "reveals") for conclusive evidence. Never over-claim by writing "X confirms Y" when the evidence only suggests it.
 7. **Do not include** a self-grading rubric, study tips, or long meta commentary in the visible answer.
 8. **Write to** `outputs/mock_answers/{year}_p{paper}_q{question}.md`.
 

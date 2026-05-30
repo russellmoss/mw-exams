@@ -1,0 +1,57 @@
+COLOUR,FRUIT,ACIDITY,TANNIN,ALCOHOL,TEXTURE,STRUCTURE,QUALITY,MATURITY,OAK,NOSE
+clarity,forward,low,soft,low 7-10,smooth,light,integrated,youthful,toasted,spicy
+brilliant,ripe,moderate,light,moderate,silky,delicate,balanced,young,buttery,closed
+bright,opulent,high,moderate,high 13+,opulent,supple,harmonious,immature,integrated,open
+deep,tropical,fresh,high,generous,velvety,restrained,elegant,fresh,cedar,oxidised
+dark,rich,crisp,ripe,burning,rich,generous,finesse,vibrant,coconut,reductive
+translucent,generous,pronounced,firm,hot,round,firm,refined,lively,vanillin,earthy
+flushed,honeyed,marked',rounded,spirity,succulent,forward,length,developed,moccha,gamey
+viscosity,supple,searing,silky,watery,supple,broad,prolonged,evolved,sweet,overt
+limpid,primary,racy,velvety,,persistent,depth,aftertaste,peaking,,sappy
+mid-depth,secondary,malic,fine,,viscous,elegant,voluptuous,closed,,grapey
+opaque,exotic,tartaric,grippy,,voluptuous,fine,silky,mature,,tropical
+light,concentrated,tart,broad,,soft,taut,racy,fading,,pungent
+dull,concentrated,pure,dry,,mineral,rigid,restrained,drying out,,
+cloudy,grassy,astringent,dusty,,herbaceous,hard,lean,dumb,,
+pale,vinous,flabby,aggressive,,lean,unbalanced,unbalanced,tired,,
+,leafy,soft,astringent,,dilute,steely,clumsy,past it,,
+,sinewy,,hard,,clean,low intensity,dull,aged,,
+,thin,,coarse,,dry,muscular,flat,potential,,
+,lean,,harsh,,sweet,neutral,austere,,,
+,stemmy,,green,,flat,subdued,dilute,,,
+,appley,,oaky,,full bodied,weighty,short,,,
+,citrus,,stalky,,flabby,fat,premium,,,
+,intensity,,,,mineral,over-extracted,mid-market,,,
+,floral,,,,,1-dimensional,mid-range,,,
+,clean,,,,,fractured,bulk,,,
+,steely,,,,,angular,,,,
+,,,,,,backward,,,,
+,,,,,,limp,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+POSITIVES,NEGATIVES,SUGGESTS,PROVES,ODDS&SODS,,,,,,
+striking,lack of,indicates,confirms,nuance,,,,,,
+lively,hollow,indicative of,supports,notes,,,,,,
+vivid,devoid of,points to,shows,block-busting,,,,,,
+prominent,subdued,suggests,highlights,over-tones,,,,,,
+defined,lacks,illustrates,underlines,characteristics,,,,,,
+distinctive,restrained,demonstrates,denotes,envelopes,,,,,,
+appealing,flabby,expresses,reveals,weight,,,,,,
+attractive,undefined,establishes,influenced by,structure,,,,,,
+rich,dull,shows,defines,texture,,,,,,
+silky,neutral,signifies,signifies,definition,,,,,,
+racy,low key,emphasises,,provenance,,,,,,
+positive,obtrusive,impression,,integral,,,,,,
+intense,shallow,potentially,,,,,,,,
+concentrated,,consistent with,,,,,,,,
+persistent,,composition,,,,,,,,
+pronounced,,typicity,,,,,,,,
+prolonged,,emphasis on,,,,,,,,
+integrated,,incisive use of,,,,,,,,
+harmonious,,evidence of,,,,,,,,
+balanced,,expansive,,,,,,,,
+deep,,,,,,,,,,
