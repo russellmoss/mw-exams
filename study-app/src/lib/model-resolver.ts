@@ -11,6 +11,9 @@ export async function getLatestOpus(apiKey: string): Promise<string> {
         "x-api-key": apiKey,
         "anthropic-version": "2023-06-01",
       },
+      // Bound this lookup — it runs on the question-generation hot path. On timeout the
+      // catch below falls back to a known-good model id rather than hanging.
+      signal: AbortSignal.timeout(8_000),
     });
     if (res.ok) {
       const data = await res.json();

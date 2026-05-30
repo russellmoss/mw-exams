@@ -322,28 +322,62 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     | null = null;
   let lastViolations: string[] = [];
 
+  // Wall-clock budget. A slow or throttled model (the Anthropic SDK retries 429/529/5xx with
+  // backoff, so one "call" can take a minute) must never push this request past Vercel's
+  // function limit and trigger a 504. When the budget is spent we stop generating and serve a
+  // banked fallback below — the user always gets a real question instead of a timeout error.
+  const startedAt = Date.now();
+  const BUDGET_MS = Number(process.env.GENERATION_BUDGET_MS) || 75_000;
+  const CALL_TIMEOUT_MS = Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 35_000;
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    // Stop before we risk a platform timeout; the banked fallback below serves instead.
+    if (Date.now() - startedAt > BUDGET_MS) {
+      console.warn(
+        `Generation budget ${BUDGET_MS}ms exhausted after ${attempt - 1} attempt(s); serving banked fallback`
+      );
+      break;
+    }
     const model = attempt === 1 ? await getLatestOpus(apiKey) : "claude-sonnet-4-6";
+    const callOpts = { timeout: CALL_TIMEOUT_MS, maxRetries: 1 } as const;
     let message;
     try {
-      message = await client.messages.create({
-        model,
-        max_tokens: 2000,
-        system: prompt.system,
-        messages: [{ role: "user", content: prompt.user }],
-      });
-    } catch (modelErr: unknown) {
-      if (model !== "claude-sonnet-4-6" && modelErr instanceof Error && modelErr.message?.includes("404")) {
-        console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
-        message = await client.messages.create({
-          model: "claude-sonnet-4-6",
+      message = await client.messages.create(
+        {
+          model,
           max_tokens: 2000,
           system: prompt.system,
           messages: [{ role: "user", content: prompt.user }],
-        });
+        },
+        callOpts
+      );
+    } catch (modelErr: unknown) {
+      const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
+      if (model !== "claude-sonnet-4-6" && msg.includes("404")) {
+        // Configured Opus id unavailable — retry this attempt on Sonnet.
+        console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
+        try {
+          message = await client.messages.create(
+            {
+              model: "claude-sonnet-4-6",
+              max_tokens: 2000,
+              system: prompt.system,
+              messages: [{ role: "user", content: prompt.user }],
+            },
+            callOpts
+          );
+        } catch (retryErr: unknown) {
+          lastViolations = [`Model call failed: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`];
+          console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} model error (sonnet fallback):`, lastViolations[0]);
+          continue;
+        }
       } else {
-        throw modelErr;
+        // Timeout / overload / transient API error: never fail the whole request — move to the
+        // next attempt, or to the banked fallback once the budget is spent.
+        lastViolations = [`Model call failed: ${msg}`];
+        console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} model error:`, msg);
+        continue;
       }
     }
 

@@ -88,21 +88,53 @@ export default function Home() {
       setStep("generating");
       setError(null);
 
-      try {
-        const res = await fetch("/api/get-question", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paper: selectedPaper, family: selectedFamily }),
-        });
+      // Bound each request and auto-retry once on a gateway/timeout response. The server now
+      // always returns within its generation budget (a fresh question or a fast banked
+      // fallback), so a retry reliably resolves transient 502/503/504s without the user
+      // ever seeing a timeout error.
+      const requestQuestion = async (): Promise<Response> => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 120_000);
+        try {
+          return await fetch("/api/get-question", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paper: selectedPaper, family: selectedFamily }),
+            signal: controller.signal,
+          });
+        } finally {
+          clearTimeout(timer);
+        }
+      };
 
-        if (!res.ok) {
-          let msg = `HTTP ${res.status}`;
+      try {
+        let res: Response | null = null;
+        const MAX_TRIES = 2;
+        for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
           try {
-            const errData = await res.json();
-            msg = errData.error || msg;
-            if (errData.violations?.length) msg += ` (${errData.violations.join("; ")})`;
+            res = await requestQuestion();
           } catch {
-            if (res.status === 504) msg = "Question generation timed out. This can happen when generating fresh questions. Please try again.";
+            // Network error or client-side timeout/abort.
+            if (attempt < MAX_TRIES) continue;
+            throw new Error("Question generation timed out. Please try again.");
+          }
+          // Retry once on transient gateway errors — the retry hits the fast banked fallback.
+          if (!res.ok && [502, 503, 504].includes(res.status) && attempt < MAX_TRIES) {
+            continue;
+          }
+          break;
+        }
+
+        if (!res || !res.ok) {
+          let msg = res ? `HTTP ${res.status}` : "Request failed";
+          if (res) {
+            try {
+              const errData = await res.json();
+              msg = errData.error || msg;
+              if (errData.violations?.length) msg += ` (${errData.violations.join("; ")})`;
+            } catch {
+              if (res.status === 504) msg = "Question generation timed out. This can happen when generating fresh questions. Please try again.";
+            }
           }
           throw new Error(msg);
         }
