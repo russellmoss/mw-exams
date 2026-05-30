@@ -320,7 +320,11 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     }
   }
 
-  const recentGenerated = await getRecentGeneratedQuestions(5);
+  // Pull a deeper window of recent questions so the novelty check can catch a STRUCTURAL repeat
+  // (same stem template + same pedagogical contrast) that happened several questions ago, not just
+  // an exact repeat of the immediately-previous one. (Feedback: a user was served the same sweet-wine
+  // "different countries / different single variety / sweetness mechanism" template they'd already seen.)
+  const recentGenerated = await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
   const prompt = await buildQuestionGenerationPrompt(
     paper,
@@ -468,9 +472,16 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     const flightSizeCheck = relaxNiceToHave
       ? { valid: true, violations: [] }
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
-    const noveltyCheck = relaxNiceToHave
-      ? { valid: true, violations: [] }
-      : validateNoveltyAgainstLatest(candidate, latestQuestion, recentGenerated.map(normalizeGeneratedQuestionWines));
+    // Novelty NEVER fully relaxes: serving a user a question they have already seen defeats the
+    // point of the practice system. On relaxed attempts we run it in "lenient" mode, which still
+    // blocks exact repeats AND structural/thematic repeats (same template + same contrast axis), but
+    // drops the fuzzier family/country/variety-pattern heuristic so generation can still converge.
+    const noveltyCheck = validateNoveltyAgainstLatest(
+      candidate,
+      latestQuestion,
+      recentGenerated.map(normalizeGeneratedQuestionWines),
+      { lenient: relaxNiceToHave }
+    );
 
     lastViolations = [
       ...paperScopeCheck.violations,
@@ -1066,11 +1077,57 @@ function normalizeGeneratedQuestionWines(
   };
 }
 
+// A structural/thematic "fingerprint" of a stem: the recurring MW phrase patterns and sub-question
+// topics, with all wine-specific content (producers, regions, varieties, vintages) ignored. Two
+// questions that share this fingerprint test the SAME skill in the SAME shape — e.g. "sweet wines
+// from different countries, each a different single variety, comment on the sweetness mechanism and
+// state the RS" — even when the specific wines differ. Catching that is the gap that let a user be
+// re-served the same template they'd already nailed without analysis.
+const STEM_CONCEPT_PATTERNS: { token: string; re: RegExp }[] = [
+  { token: "style:sweet", re: /\bsweet wines?\b/ },
+  { token: "style:sparkling", re: /\bsparkling\b/ },
+  { token: "style:fortified", re: /\bfortified\b/ },
+  { token: "style:rose", re: /\bros[eé]\b/ },
+  { token: "style:oxidative", re: /\boxidative\b|\bvin jaune\b|\borange wine\b/ },
+  { token: "origin:diff-country", re: /\bdifferent countr/ },
+  { token: "origin:same-country", re: /\bsame countr/ },
+  { token: "origin:diff-region", re: /\bdifferent region/ },
+  { token: "origin:same-region", re: /\bsame region\b/ },
+  { token: "variety:diff-single", re: /\bdifferent,?\s*(single|predominant)\b[^.]*\bvariet/ },
+  { token: "variety:same-single", re: /\bsame (single )?grape variet/ },
+  { token: "ask:identify-region", re: /\bidentif[a-z]+\b[^.]*\bregion\b|\b(country|region) of origin\b/ },
+  { token: "ask:identify-variety", re: /\bidentif[a-z]+\b[^.]*\bvariet/ },
+  { token: "ask:production", re: /\bmethod of production\b|\bwinemaking\b|\bhow [a-z ]+ (made|produced)\b/ },
+  { token: "ask:sweetness-mechanism", re: /\bmechanism\b[^.]*\bsweet|\bsweetness (was|is) achiev/ },
+  { token: "ask:residual-sugar", re: /\bresidual sugar\b|\brs level\b/ },
+  { token: "ask:quality", re: /\bquality\b/ },
+  { token: "ask:commercial", re: /\bcommercial (appeal|position|success)\b|\bconsumer appeal\b/ },
+  { token: "ask:style", re: /\bstyle\b/ },
+  { token: "ask:maturity", re: /\bmaturit|\bageing potential\b|\bage(?:ing)? worthiness\b/ },
+  { token: "ask:climate", re: /\bclimate\b/ },
+];
+
+function stemStructureSignature(text: string): Set<string> {
+  const t = (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\(\d+\s*[x×]?\s*\d*\s*marks?\)/g, " ")
+    .replace(/\s+/g, " ");
+  const sig = new Set<string>();
+  for (const { token, re } of STEM_CONCEPT_PATTERNS) {
+    if (re.test(t)) sig.add(token);
+  }
+  return sig;
+}
+
 function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
   latestQuestion: NormalizedGeneratedQuestion | null,
-  recentQuestions?: NormalizedGeneratedQuestion[]
+  recentQuestions?: NormalizedGeneratedQuestion[],
+  opts?: { lenient?: boolean }
 ): { valid: boolean; violations: string[] } {
+  const lenient = opts?.lenient ?? false;
   const violations: string[] = [];
   const questionsToCheck = recentQuestions?.length
     ? recentQuestions
@@ -1081,8 +1138,10 @@ function validateNoveltyAgainstLatest(
   const candidateWines = candidate.wines.map((w) => w.fullText).join("\n");
   const candidateVarieties = new Set(candidate.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
   const candidateCountries = new Set(candidate.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
+  const candidateSig = stemStructureSignature(candidate.questionText);
 
-  for (const recent of questionsToCheck) {
+  for (let i = 0; i < questionsToCheck.length; i++) {
+    const recent = questionsToCheck[i];
     const recentWines = recent.wines.map((w) => w.fullText).join("\n");
 
     if (candidate.questionText.trim() === recent.question_text.trim()) {
@@ -1094,15 +1153,33 @@ function validateNoveltyAgainstLatest(
       break;
     }
 
-    const recentVarieties = new Set(recent.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
-    const recentCountries = new Set(recent.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
-    const samePaperAndFamily = candidate.family === recent.family;
-    const sameCountryPattern = jaccard(candidateCountries, recentCountries) >= 0.8;
-    const similarVarietyPattern = jaccard(candidateVarieties, recentVarieties) >= 0.6;
-
-    if (samePaperAndFamily && sameCountryPattern && similarVarietyPattern) {
-      violations.push("Generated question is too similar to a recent question's family/country/variety pattern");
+    // Structural/thematic repeat: same family, same flight size, and a near-identical concept
+    // fingerprint (same stem template + same pedagogical contrast axis). This fires even when the
+    // specific wines, countries, and varieties all differ — the case the original heuristic missed.
+    const sameFamily = candidate.family === recent.family;
+    const sameFlightSize = candidate.wines.length === recent.wines.length;
+    const recentSig = stemStructureSignature(recent.question_text);
+    const sigOverlap = jaccard(candidateSig, recentSig);
+    if (sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7) {
+      violations.push(
+        "Generated question reuses the same structural template and pedagogical contrast as a recent question (same family, flight size, stem shape, and tested concepts). Change the contrast axis or the wine archetypes so this is a genuinely new exam problem."
+      );
       break;
+    }
+
+    // Fuzzier family/country/variety-pattern heuristic. Skipped in lenient mode, and only checked
+    // against the most-recent few questions (deeper history is only scanned for exact/structural
+    // repeats above) so generation can still converge without false positives.
+    if (!lenient && i < 5) {
+      const recentVarieties = new Set(recent.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
+      const recentCountries = new Set(recent.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
+      const sameCountryPattern = jaccard(candidateCountries, recentCountries) >= 0.8;
+      const similarVarietyPattern = jaccard(candidateVarieties, recentVarieties) >= 0.6;
+
+      if (sameFamily && sameCountryPattern && similarVarietyPattern) {
+        violations.push("Generated question is too similar to a recent question's family/country/variety pattern");
+        break;
+      }
     }
   }
 
