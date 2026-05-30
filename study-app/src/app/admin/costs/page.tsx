@@ -43,6 +43,15 @@ interface CostData {
   byDay: { day: string; cost_usd: number; calls: number }[];
   tavily: { byTask: TavilyByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
   elevenLabs: { byTask: ElevenLabsByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
+  mediaCache: {
+    rows: number;
+    totalUses: number;
+    callsSaved: number;
+    bytes: number;
+    costSaved: number;
+    missing: number;
+    top: { id: number; query: string; uses: number; bytes: number; lastUsedAt: string | null }[];
+  };
   recent: RecentRow[];
   filterOptions: { models: string[]; tasks: string[] };
 }
@@ -57,6 +66,12 @@ const usd = (n: number) => {
 };
 const num = (n: number) => (Number(n) || 0).toLocaleString();
 const ms = (n: number | null) => (n == null ? "—" : `${num(Math.round(n))} ms`);
+const bytes = (n: number) => {
+  const v = Number(n) || 0;
+  if (v < 1024) return `${v} B`;
+  if (v < 1024 * 1024) return `${(v / 1024).toFixed(0)} KB`;
+  return `${(v / (1024 * 1024)).toFixed(1)} MB`;
+};
 
 const RANGES: { label: string; days: number | null }[] = [
   { label: "All time", days: null },
@@ -331,6 +346,20 @@ export default function CostsPage() {
                 head={["Task", "Clips", "Characters", "Cost"]}
                 rows={(data?.elevenLabs.byTask || []).map((t) => [t.task_type, num(t.calls), num(t.characters), usd(t.cost_usd)])}
                 right={[false, true, true, true]}
+              />
+            </Panel>
+          )}
+
+          {/* Media cache (feedback illustration images) */}
+          {data?.mediaCache && (
+            <Panel
+              title="Feedback image cache"
+              subtitle={`${num(data.mediaCache.rows)} images cached · ${bytes(data.mediaCache.bytes)} in Neon · reused ${num(data.mediaCache.callsSaved)} times, saving ~${usd(data.mediaCache.costSaved)} in Tavily calls${data.mediaCache.missing ? ` · ${num(data.mediaCache.missing)} empty` : ""}`}
+            >
+              <SimpleTable
+                head={["Image query", "Reuses", "Size"]}
+                rows={data.mediaCache.top.map((m) => [m.query, num(m.uses), bytes(m.bytes)])}
+                right={[false, true, true]}
               />
             </Panel>
           )}

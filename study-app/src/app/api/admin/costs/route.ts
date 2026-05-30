@@ -49,6 +49,8 @@ export async function GET(request: Request) {
       elevenLabsTotals,
       elevenLabsByTask,
       elevenLabsByDay,
+      mediaTotals,
+      mediaTop,
     ] = await Promise.all([
       sql`
         SELECT
@@ -221,6 +223,26 @@ export async function GET(request: Request) {
         GROUP BY day
         ORDER BY day
       `,
+      // Media cache (feedback illustration images). This is a standing cache, not a per-period
+      // metric, so it's intentionally UNFILTERED by date/task. usage_count starts at 1 on creation
+      // and increments on every reuse, so (SUM(usage_count) - rows) = Tavily image calls SAVED.
+      sql`
+        SELECT
+          COUNT(*)::int AS rows,
+          COALESCE(SUM(usage_count), 0)::bigint AS total_uses,
+          (COALESCE(SUM(usage_count), 0) - COUNT(*))::bigint AS calls_saved,
+          COALESCE(SUM(length(image_base64)), 0)::bigint AS base64_chars,
+          COUNT(*) FILTER (WHERE image_base64 IS NULL)::int AS missing
+        FROM media_cache
+      `,
+      sql`
+        SELECT id, query, usage_count,
+          COALESCE(length(image_base64), 0)::bigint AS base64_chars,
+          source_url, created_at, last_used_at
+        FROM media_cache
+        ORDER BY usage_count DESC, last_used_at DESC NULLS LAST
+        LIMIT 10
+      `,
     ]);
 
     const claudeCost = Number(totals[0]?.cost_usd || 0);
@@ -257,6 +279,23 @@ export async function GET(request: Request) {
       byDay,
       tavily: { byTask: tavilyByTask, byDay: tavilyByDay },
       elevenLabs: { byTask: elevenLabsByTask, byDay: elevenLabsByDay },
+      mediaCache: {
+        rows: Number(mediaTotals[0]?.rows || 0),
+        totalUses: Number(mediaTotals[0]?.total_uses || 0),
+        callsSaved: Number(mediaTotals[0]?.calls_saved || 0),
+        // base64 is ~4/3 the size of the raw bytes; report the decoded estimate.
+        bytes: Math.round((Number(mediaTotals[0]?.base64_chars || 0) * 3) / 4),
+        // Each saved Tavily image call ≈ 1 credit = $0.008 (TAVILY_COST_PER_CREDIT).
+        costSaved: Number(mediaTotals[0]?.calls_saved || 0) * 0.008,
+        missing: Number(mediaTotals[0]?.missing || 0),
+        top: mediaTop.map((r) => ({
+          id: Number(r.id),
+          query: r.query as string,
+          uses: Number(r.usage_count),
+          bytes: Math.round((Number(r.base64_chars || 0) * 3) / 4),
+          lastUsedAt: r.last_used_at,
+        })),
+      },
       recent,
       filterOptions: {
         models: models.map((r) => r.model as string),
