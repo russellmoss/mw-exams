@@ -3,7 +3,7 @@ import { buildPreGlassSystemPrompt } from "@/lib/prompts/pre-glass-prompt";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
-import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
+import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve the hero + up to 3 illustration images.
@@ -58,12 +58,17 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
       async start(controller) {
         try {
           let fullText = "";
+          // Resolve image tokens AS THEY STREAM so the hero + inline images surface mid-generation.
+          const imageStreamer = createImageStreamer(keyResult.user.id, (token, markdown) =>
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ image: { token, markdown } })}\n\n`))
+          );
           for await (const event of stream) {
             if (
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
               fullText += event.delta.text;
+              imageStreamer.feed(fullText);
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
             }
@@ -74,9 +79,10 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
             final.usage,
             { latencyMs: Date.now() - t0 }
           );
-          // Resolve the hero + inline image tokens and send the enriched markdown as the
+          // Wait for in-flight incremental image fetches, then send the enriched markdown as the
           // authoritative final text. Best-effort — tokens are stripped on failure.
           try {
+            await imageStreamer.flush();
             const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
           } catch (enrichErr) {

@@ -197,6 +197,69 @@ async function getOrCreateMedia(query: string, userId: number | null): Promise<n
   return null;
 }
 
+// The markdown an image token resolves to. Hero alt is prefixed "HERO::" so the renderer styles it as
+// a banner. Kept here so the post-stream enrichment and the incremental streamer produce IDENTICAL
+// markup — the live view and the persisted/history text must match exactly.
+function imageMarkdown(id: number | null, caption: string, hero: boolean): string {
+  if (!id) return "";
+  return hero
+    ? `![HERO::${caption}](/api/media/${id})\n\n*${caption}*\n\n`
+    : `\n\n![${caption}](/api/media/${id})\n\n*${caption}*\n\n`;
+}
+
+// A FRESH global token regex per call — never share one instance, since `.exec`/`matchAll` carry
+// mutable lastIndex state that would race across concurrent requests.
+function imageTokenRe(): RegExp {
+  return /\[\[(IMG|HERO):\s*query="([^"]*)"\s*\|\s*caption="([^"]*)"\s*\]\]/g;
+}
+
+// Incrementally resolve [[HERO/IMG:...]] tokens AS THEY STREAM, so each image can surface the moment
+// it's ready instead of waiting for the whole response. Feed the growing fullText after every delta;
+// each newly-completed token (one with its closing "]]") kicks off a getOrCreateMedia fetch, and `emit`
+// is called with the exact token string + its replacement markdown the instant that fetch resolves.
+// Caps mirror enrichFeedbackWithImages (one hero, up to MAX_IMAGES_PER_FEEDBACK inline) so the live and
+// final texts agree. Best-effort: a failed fetch emits an empty replacement (token simply disappears).
+export function createImageStreamer(
+  userId: number | null,
+  emit: (token: string, markdown: string) => void
+): { feed: (fullText: string) => void; flush: () => Promise<void> } {
+  const seen = new Set<number>(); // start indices already dispatched (fullText is append-only)
+  const pending: Promise<void>[] = [];
+  let heroDone = false;
+  let inlineCount = 0;
+
+  function feed(fullText: string) {
+    const re = imageTokenRe();
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(fullText)) !== null) {
+      if (seen.has(m.index)) continue;
+      seen.add(m.index);
+      const isHero = m[1] === "HERO";
+      if (isHero) {
+        if (heroDone) continue;
+        heroDone = true;
+      } else {
+        if (inlineCount >= MAX_IMAGES_PER_FEEDBACK) continue;
+        inlineCount++;
+      }
+      const token = m[0];
+      const query = m[2];
+      const caption = cleanText(m[3]);
+      pending.push(
+        getOrCreateMedia(query, userId)
+          .then((id) => emit(token, imageMarkdown(id, caption, isHero)))
+          .catch(() => emit(token, ""))
+      );
+    }
+  }
+
+  async function flush() {
+    await Promise.allSettled(pending);
+  }
+
+  return { feed, flush };
+}
+
 // Remove any HERO/IMG tokens from text (used to clean stragglers / when enrichment is skipped).
 export function stripImageTokens(text: string): string {
   return (text || "").replace(/\[\[(?:IMG|HERO):[^\]]*\]\]/g, "").replace(/\n{3,}/g, "\n\n").trim();
@@ -209,8 +272,7 @@ export function stripImageTokens(text: string): string {
 export async function enrichFeedbackWithImages(text: string, userId: number | null): Promise<string> {
   if (!text || !/\[\[(?:IMG|HERO):/.test(text)) return stripImageTokens(text);
 
-  const re = /\[\[(IMG|HERO):\s*query="([^"]*)"\s*\|\s*caption="([^"]*)"\s*\]\]/g;
-  const all = [...text.matchAll(re)];
+  const all = [...text.matchAll(imageTokenRe())];
   const heroMatch = all.find((m) => m[1] === "HERO");
   const imgMatches = all.filter((m) => m[1] === "IMG").slice(0, MAX_IMAGES_PER_FEEDBACK);
 
@@ -229,15 +291,12 @@ export async function enrichFeedbackWithImages(text: string, userId: number | nu
 
   let out = text;
   for (const r of inline) {
-    const replacement = r.id
-      ? `\n\n![${r.caption}](/api/media/${r.id})\n\n*${r.caption}*\n\n`
-      : "";
-    out = out.replace(r.token, replacement);
+    out = out.replace(r.token, imageMarkdown(r.id, r.caption, false));
   }
   out = stripImageTokens(out); // drop the hero token + any leftover/extra/malformed tokens
   if (hero?.id) {
     // Prepend the resolved hero as a banner at the very top, regardless of where the model put it.
-    out = `![HERO::${hero.caption}](/api/media/${hero.id})\n\n*${hero.caption}*\n\n${out}`;
+    out = imageMarkdown(hero.id, hero.caption, true) + out;
   }
   return out.trim();
 }

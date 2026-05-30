@@ -4,7 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
-import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
+import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -152,12 +152,18 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
       async start(controller) {
         try {
           let fullText = "";
+          // Resolve image tokens AS THEY STREAM and push each one the moment it's ready, so the hero
+          // (line 1) and inline images surface mid-generation instead of all at the end.
+          const imageStreamer = createImageStreamer(keyResult.user.id, (token, markdown) =>
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ image: { token, markdown } })}\n\n`))
+          );
           for await (const event of stream) {
             if (
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
               fullText += event.delta.text;
+              imageStreamer.feed(fullText);
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(
                 encoder.encode(`data: ${jsonChunk}\n\n`)
@@ -170,9 +176,11 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
             final.usage,
             { latencyMs: Date.now() - t0 }
           );
-          // Resolve image tokens to cached, subtitled images; send the enriched markdown as the
-          // authoritative final text (the client saves this). Best-effort — tokens are stripped on failure.
+          // Wait for any in-flight incremental image fetches, then send the enriched markdown as the
+          // authoritative final text (the client saves this). Images resolved above are cache hits now,
+          // so this is cheap. Best-effort — tokens are stripped on failure.
           try {
+            await imageStreamer.flush();
             const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
           } catch (enrichErr) {

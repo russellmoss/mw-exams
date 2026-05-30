@@ -3,10 +3,20 @@
 import { useState, useCallback, useRef } from "react";
 
 // Hide raw [[IMG:...]] image tokens from the live view. During streaming the model emits these
-// markers; the server replaces them with real images and sends a final "enriched" payload. Until
-// that lands we just suppress the tokens so the user never sees the raw markup.
+// markers; the server resolves each to a real image and pushes an incremental "image" event the
+// moment it's ready (and a final "enriched" payload at the end). Tokens not yet resolved stay hidden.
 function hideImageTokens(text: string): string {
   return text.replace(/\[\[(?:IMG|HERO):[^\]]*\]\]/g, "");
+}
+
+// Apply the image replacements received so far (token -> markdown), then hide any tokens still pending.
+// Using split/join avoids $-substitution pitfalls of String.replace with arbitrary markdown.
+function applyImages(text: string, replacements: Map<string, string>): string {
+  let out = text;
+  for (const [token, markdown] of replacements) {
+    out = out.split(token).join(markdown);
+  }
+  return hideImageTokens(out);
 }
 
 interface UseStreamingResult {
@@ -42,6 +52,9 @@ export function useStreaming(): UseStreamingResult {
       abortRef.current = controller;
 
       let accumulated = "";
+      // token -> resolved image markdown, filled by incremental "image" events during the stream.
+      const imageReplacements = new Map<string, string>();
+      let enrichedArrived = false;
 
       try {
         const response = await fetch(url, {
@@ -78,6 +91,13 @@ export function useStreaming(): UseStreamingResult {
                   // Authoritative final text from the server: image tokens already replaced with
                   // real images. Use it verbatim (this is what gets persisted).
                   accumulated = parsed.enriched;
+                  enrichedArrived = true;
+                  imageReplacements.clear();
+                  setText(accumulated);
+                  continue;
+                } else if (parsed.image) {
+                  // An image resolved mid-stream — surface it immediately in place of its token.
+                  imageReplacements.set(parsed.image.token, parsed.image.markdown || "");
                 } else if (parsed.t) {
                   accumulated += parsed.t;
                 } else if (parsed.error) {
@@ -87,22 +107,23 @@ export function useStreaming(): UseStreamingResult {
                 // Fallback for non-JSON data
                 accumulated += data;
               }
-              setText(hideImageTokens(accumulated));
+              setText(applyImages(accumulated, imageReplacements));
             }
           }
         }
 
         setIsStreaming(false);
-        // If the enriched payload never arrived (e.g. error before it), make sure no raw tokens leak
-        // into the persisted text.
-        accumulated = hideImageTokens(accumulated);
-        setText(accumulated);
-        return accumulated;
+        // Final persisted text: the server's enriched payload if it arrived, otherwise the streamed
+        // text with whatever images resolved applied and any remaining raw tokens stripped.
+        const finalText = enrichedArrived ? accumulated : applyImages(accumulated, imageReplacements);
+        accumulated = finalText;
+        setText(finalText);
+        return finalText;
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") {
           // Intentional abort, don't treat as error
           setIsStreaming(false);
-          return accumulated;
+          return applyImages(accumulated, imageReplacements);
         }
         const message = err instanceof Error ? err.message : "Unknown error";
         setError(message);
