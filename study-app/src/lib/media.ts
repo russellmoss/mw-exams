@@ -119,6 +119,36 @@ function cleanText(s: string): string {
   return (s || "").replace(/[[\]()|]/g, "").replace(/\s+/g, " ").trim();
 }
 
+// Generic words that match almost any wine image — excluded from scoring so the discriminating tokens
+// (place/producer names) drive relevance instead of "vineyard"/"wine" matching everything.
+const SCORE_STOPWORDS = new Set([
+  "the", "and", "for", "with", "from", "wine", "wines", "vineyard", "vineyards",
+  "estate", "winery", "wineries", "region", "grape", "grapes", "bottle", "glass", "rolling", "hills",
+]);
+
+function scoreTokens(s: string): string[] {
+  return normalizeQueryKey(s)
+    .split(" ")
+    .filter((t) => t.length >= 3 && !SCORE_STOPWORDS.has(t));
+}
+
+// Relevance of a Tavily image (by its description) to the search query: weighted token overlap, with
+// longer tokens (place/producer names like "barossa", "sauternes") counting double. 0 when the image
+// has no description or shares no meaningful tokens — those fall back to Tavily's own ranking order.
+function scoreImageRelevance(query: string, description: string): number {
+  const q = scoreTokens(query);
+  const d = new Set(scoreTokens(description));
+  if (q.length === 0 || d.size === 0) return 0;
+  let matched = 0;
+  let weight = 0;
+  for (const t of q) {
+    const w = t.length >= 5 ? 2 : 1;
+    weight += w;
+    if (d.has(t)) matched += w;
+  }
+  return weight === 0 ? 0 : matched / weight;
+}
+
 async function downloadImage(url: string): Promise<{ base64: string; contentType: string } | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
@@ -140,12 +170,15 @@ async function downloadImage(url: string): Promise<{ base64: string; contentType
   }
 }
 
-// Tavily image search → candidate image URLs (best first).
-async function tavilyImageSearch(query: string, userId: number | null): Promise<string[]> {
+// Tavily image search → candidate {url, description} pairs in Tavily's own order.
+async function tavilyImageSearch(
+  query: string,
+  userId: number | null
+): Promise<{ url: string; description: string }[]> {
   const key = process.env.TAVILY_API_KEY;
   if (!key) return [];
   let ok = false;
-  const urls: string[] = [];
+  const candidates: { url: string; description: string }[] = [];
   try {
     const res = await fetch(TAVILY_API_URL, {
       method: "POST",
@@ -155,7 +188,7 @@ async function tavilyImageSearch(query: string, userId: number | null): Promise<
       },
       body: JSON.stringify({
         query,
-        max_results: 5,
+        max_results: 8,
         include_images: true,
         include_image_descriptions: true,
         search_depth: "basic",
@@ -166,14 +199,15 @@ async function tavilyImageSearch(query: string, userId: number | null): Promise<
       ok = true;
       for (const im of data.images || []) {
         const u = typeof im === "string" ? im : im?.url;
-        if (u && /^https?:\/\//i.test(u)) urls.push(u);
+        const desc = typeof im === "string" ? "" : String(im?.description || "");
+        if (u && /^https?:\/\//i.test(u)) candidates.push({ url: u, description: desc });
       }
     }
   } catch {
     /* best-effort */
   }
-  logTavilyUsage({ taskType: "feedback_images", query, resultsCount: urls.length, userId, success: ok });
-  return urls;
+  logTavilyUsage({ taskType: "feedback_images", query, resultsCount: candidates.length, userId, success: ok });
+  return candidates;
 }
 
 // Return the media_cache id for a query, fetching+caching on a miss. null on any failure.
@@ -190,14 +224,18 @@ async function getOrCreateMedia(query: string, userId: number | null): Promise<n
     return id;
   }
 
-  // Cache miss — search, then download the first usable candidate.
-  const urls = await tavilyImageSearch(query, userId);
-  for (const url of urls.slice(0, 4)) {
-    const img = await downloadImage(url);
+  // Cache miss — search, rank candidates by how well their description matches the query, then
+  // download the first usable one in that order. Ties keep Tavily's own ranking (stable by index).
+  const candidates = await tavilyImageSearch(query, userId);
+  const ranked = candidates
+    .map((c, i) => ({ ...c, i, score: scoreImageRelevance(query, c.description) }))
+    .sort((a, b) => b.score - a.score || a.i - b.i);
+  for (const c of ranked.slice(0, 5)) {
+    const img = await downloadImage(c.url);
     if (!img) continue;
     const rows = await sql`
       INSERT INTO media_cache (query_key, query, source_url, content_type, image_base64, usage_count, last_used_at)
-      VALUES (${key}, ${query}, ${url}, ${img.contentType}, ${img.base64}, 1, NOW())
+      VALUES (${key}, ${query}, ${c.url}, ${img.contentType}, ${img.base64}, 1, NOW())
       ON CONFLICT (query_key) DO UPDATE SET usage_count = media_cache.usage_count + 1, last_used_at = NOW()
       RETURNING id`;
     return rows[0].id as number;
