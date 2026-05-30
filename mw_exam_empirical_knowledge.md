@@ -38,6 +38,9 @@ features. Read the **relevant section on demand**; do not load the whole file ro
 
 **Changelog**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0086).**
+- **2026-05-30 — scoring truth: enriched EK-0001/EK-0041 — exactly-25-marks/wine is a *modern-exam*
+  convention (~2013 onward; pre-2013 papers differed), now hard-enforced (R6 soft→hard); recorded the
+  ledger item (#138/#21) where 55% of generated questions were found to violate it.**
 - **2026-05-30 — expand: added §0.5 (provenance — the agentic research pipeline) and §10
   (validation & backtesting); distribution audit of `outputs/heuristics/*` + `outputs/backtest_reports/*`
   added EK-0075…EK-0084; completed the §8 artifact index (all 13 heuristics + 5 backtest files,
@@ -102,11 +105,16 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0001 · Three papers, twelve wines each, ~25 marks per wine
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** CLAUDE.md; `outputs/heuristics/examiner_patterns.md` §2.5; ledger: attempt #96 (accept)
+- **evidence:** CLAUDE.md; `outputs/heuristics/examiner_patterns.md` §2.5; ledger: attempt #96 (accept),
+  attempt #138 (accept); user domain expertise (MW candidate, 2026-05-30) for the pre-2013 boundary
 - **claim:** The practical is three blind-tasting papers. **P1 = white still**, **P2 = red still**,
   **P3 = mixed** (sparkling, fortified, sweet, rosé, oxidative, occasionally orange/unusual). Each
   paper presents **12 wines**. Mark allocation is **exactly 25 marks per wine, universally** — a
-  2-wine question = 50, 3-wine = 75, 4-wine = 100, etc. (corpus: zero exceptions across 2014–2025).
+  2-wine question = 50, 3-wine = 75, 4-wine = 100, etc. This exact-25 scheme is a hallmark of the
+  **modern exam (~2013 onward)**: **zero exceptions across the verified 2014–2025 corpus**. Pre-2013
+  papers did **not** use a uniform 25-marks-per-wine allocation — so treat exactly-25/wine as a truth
+  of the *current* exam, not of all IMW history (cf. EK-0004, the exam evolves). It is now enforced as
+  a hard validator rule (see EK-0041), because it is easy for a generator to get wrong.
 
 ### EK-0002 · 3–4 questions per paper, trending to fewer/larger
 - **tier:** STRONG SIGNAL · **status:** live
@@ -512,9 +520,18 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0041 · 25-marks-per-wine is a hard generation constraint
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** ledger: attempt #96 (accept); see EK-0001
-- **claim:** Generation must allocate exactly 25 marks per wine. A 2-wine/70-mark question (35/wine)
-  is invalid and would never occur on the real exam.
+- **evidence:** ledger: attempt #96 (accept), attempt #138 / analysis #21 (accept; fix deployed `19bc026`);
+  `study-app/src/lib/question-validator.ts` (R6, hard); `study-app/src/app/api/get-question/route.ts`
+  (`validateMarkAllocation`, exact); see EK-0001
+- **claim:** Generation must allocate **exactly** 25 marks per wine. A 2-wine/70-mark question (35/wine)
+  is invalid and would never occur on the modern real exam. **Now enforced as a HARD rule in two
+  places:** the generation-time `validateMarkAllocation` (exact total, no tolerance) which gates the
+  retry loop, and the shared `question-validator.ts` R6 (promoted **soft → hard**, 2026-05-30) which the
+  corpus audit uses to quarantine offenders from every serve path. This matters because the rule is easy
+  for an LLM to break despite an explicit prompt instruction ("25 MARKS PER WINE (ABSOLUTE)"): a user
+  flagged a served 120-mark / 4-wine question (30/wine, `gen_p1_F4_1779993300191`), and the follow-up
+  audit found **36 of 66 generated questions (55%) had violated 25/wine** — a systemic generation gap,
+  since closed (30 quarantined). Confirms EK-0064: a prompt instruction is not an enforced gate.
 
 ### EK-0042 · MW country claims are 100% truthful — enforce country diversity
 - **tier:** STRONG SIGNAL · **status:** live
@@ -632,6 +649,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 
 | attempt | analysis | paper/family | verdict | decided | what it taught | EK refs |
 |---|---|---|---|---|---|---|
+| 138 | 21 | P1/F4 | accept (deployed `19bc026`) | manual | served Q had 120 marks/4 wines (30/wine); 25/wine is a hard modern-exam rule; audit found 55% of generated Qs violated it → R6 promoted soft→hard. (Analysis recommended accept but was erroneously auto-rejected — fix applied manually.) | EK-0001, EK-0041 |
 | 121 | 15 | P2/F1 | accept (deployed `8c93784`) | auto | "4 different countries" but 2 are US | EK-0042 |
 | 120 | 13 | P1/F6 | accept (deployed `0d85294`) | auto | stem said same-country same-grape; was same-country different-grape | EK-0043, EK-0040 |
 | 98 | 8 | P3/F3 | accept | manual | same-variety stem but Madeira≠Palomino; implausible pair+lone structure | EK-0043, EK-0054 |
