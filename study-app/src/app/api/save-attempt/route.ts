@@ -17,8 +17,16 @@ export async function POST(request: Request) {
       if (!questionId) {
         return Response.json({ error: "Missing questionId" }, { status: 400 });
       }
-      const attempt = userId
-        ? await createAttemptWithUser(questionId, userId)
+      // Prefer an explicit userId, but fall back to the session user so feedback
+      // created before a drill is submitted is still attributed (the analysis
+      // pipeline joins on user_id, so an orphan attempt would never be analyzed).
+      let uid: number | null = userId ?? null;
+      if (!uid) {
+        const sessionUser = await getUser(request);
+        uid = sessionUser?.id ?? null;
+      }
+      const attempt = uid
+        ? await createAttemptWithUser(questionId, uid)
         : await createAttempt(questionId);
       return Response.json({ attempt });
     }

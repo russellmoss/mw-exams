@@ -7,9 +7,14 @@ import { MicButton } from "./MicButton";
 interface FeedbackButtonProps {
   attemptId: number | null;
   step: string;
+  // When there's no attempt yet (e.g. the user wants to flag a problem with the
+  // question BEFORE submitting an answer), pass the current question so we can
+  // create an attempt on-demand to hang the feedback on.
+  questionId?: string | null;
+  userId?: number | null;
 }
 
-export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
+export function FeedbackButton({ attemptId, step, questionId = null, userId = null }: FeedbackButtonProps) {
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [sent, setSent] = useState(false);
@@ -37,12 +42,37 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
     setSent(false);
   }, [step]);
 
+  const canSubmit = Boolean(attemptId || questionId);
+
   const handleSubmit = async () => {
-    if (!feedback.trim() || !attemptId) return;
+    const text = feedback.trim();
+    if (!text || !canSubmit) return;
     setSaving(true);
 
     try {
-      // Saving the feedback now triggers analysis SERVER-SIDE (see /api/save-attempt),
+      // If the user is leaving feedback BEFORE submitting an answer there's no
+      // attempt yet — create one for the current question so the feedback has a
+      // home (and gets analyzed). This is exactly how a "this question is broken,
+      // please fix it" report flows in even when the drill was never attempted.
+      let id = attemptId;
+      if (!id && questionId) {
+        const createRes = await fetch("/api/save-attempt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "create",
+            questionId,
+            ...(userId ? { userId } : {}),
+          }),
+        });
+        if (createRes.ok) {
+          const created = await createRes.json();
+          id = created.attempt?.id ?? null;
+        }
+      }
+      if (!id) throw new Error("no attempt to attach feedback to");
+
+      // Saving the feedback triggers analysis SERVER-SIDE (see /api/save-attempt),
       // so we no longer fire a fragile client-side analysis request that a tab close
       // could cancel and strand. Just persist the feedback.
       await fetch("/api/save-attempt", {
@@ -50,8 +80,8 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "update",
-          attemptId,
-          user_feedback: `[${step}] ${feedback.trim()}`,
+          attemptId: id,
+          user_feedback: `[${step}] ${text}`,
         }),
       });
 
@@ -140,9 +170,9 @@ export function FeedbackButton({ attemptId, step }: FeedbackButtonProps) {
                   <div className="flex justify-end mt-3">
                     <button
                       onClick={() => { speech.stop(); handleSubmit(); }}
-                      disabled={!feedback.trim() || !attemptId || saving}
+                      disabled={!feedback.trim() || !canSubmit || saving}
                       className={`px-5 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
-                        feedback.trim() && attemptId && !saving
+                        feedback.trim() && canSubmit && !saving
                           ? "bg-accent hover:bg-accent-hover text-background"
                           : "bg-border text-muted cursor-not-allowed"
                       }`}

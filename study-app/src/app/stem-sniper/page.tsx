@@ -131,16 +131,24 @@ export default function StemSniperPage() {
         />
       )}
       {status === "result" && result && (
-        <>
-          <StemSniperResult
-            result={result.result}
-            revealed={result.revealed}
-            submitting={status !== "result"}
-            onNext={() => fetchNext(paper)}
-          />
-          {result.attemptId && <FeedbackButton attemptId={result.attemptId} step="stem-sniper" />}
-        </>
+        <StemSniperResult
+          result={result.result}
+          revealed={result.revealed}
+          submitting={status !== "result"}
+          onNext={() => fetchNext(paper)}
+        />
       )}
+
+      {/* Always available — bottom-left. Works before a question is submitted so a
+          broken/problematic drill can be reported (and auto-corrected) without
+          having to attempt it. Uses the live attempt once submitted, otherwise
+          creates one on-demand from the current drill's question. */}
+      <FeedbackButton
+        attemptId={result?.attemptId ?? null}
+        questionId={drill?.questionId ?? null}
+        userId={user.id}
+        step="stem-sniper"
+      />
     </div>
   );
 }
