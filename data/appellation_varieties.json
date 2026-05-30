@@ -2134,5 +2134,230 @@
     ],
     "dominance": "Cremant d'Alsace blend",
     "source": "Clement Klur producer records"
+  },
+  "montlouis-sur-loire": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Montlouis-sur-Loire (still + traditional-method sparkling)"
+  },
+  "quarts de chaume": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Quarts de Chaume Grand Cru (sweet Chenin Blanc)"
+  },
+  "coteaux du layon": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Coteaux du Layon (sweet Chenin Blanc)"
+  },
+  "toro": {
+    "country": "Spain",
+    "region": "Castilla y Leon",
+    "varieties": [
+      "Tempranillo"
+    ],
+    "dominance": "min 75% Tinta de Toro (Tempranillo)",
+    "source": "DO Toro"
+  },
+  "priorat": {
+    "country": "Spain",
+    "region": "Catalonia",
+    "varieties": [
+      "Grenache",
+      "Carignan"
+    ],
+    "dominance": "old-vine Garnacha + Carinena, often blended with Cabernet/Syrah",
+    "source": "DOQ Priorat"
+  },
+  "bierzo": {
+    "country": "Spain",
+    "region": "Castilla y Leon",
+    "varieties": [
+      "Mencia"
+    ],
+    "dominance": "red Mencia",
+    "notes": "Whites are Godello",
+    "source": "DO Bierzo"
+  },
+  "gattinara": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Nebbiolo"
+    ],
+    "dominance": "min 90% Nebbiolo (Spanna)",
+    "source": "DOCG Gattinara"
+  },
+  "vosne-romanee": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "notes": "Cote de Nuits, red only",
+    "source": "AOC Vosne-Romanee"
+  },
+  "valdobbiadene": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "min 85% Glera",
+    "source": "DOCG Conegliano Valdobbiadene Prosecco"
+  },
+  "cartizze": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "min 85% Glera",
+    "source": "DOCG Valdobbiadene Superiore di Cartizze"
+  },
+  "amyndeon": {
+    "country": "Greece",
+    "region": "Macedonia",
+    "varieties": [
+      "Xinomavro"
+    ],
+    "dominance": "100%",
+    "notes": "Red / rose / sparkling",
+    "source": "PDO Amyndeon"
+  },
+  "penedes": {
+    "country": "Spain",
+    "region": "Catalonia",
+    "varieties": [
+      "Xarel-lo",
+      "Macabeo",
+      "Parellada"
+    ],
+    "dominance": "traditional-method sparkling (Cava/Corpinnat) blend",
+    "notes": "For sparkling; still Penedes varieties vary",
+    "source": "DO Penedes / DO Cava"
+  },
+  "graves": {
+    "country": "France",
+    "region": "Bordeaux",
+    "byColor": {
+      "white": [
+        "Sauvignon Blanc",
+        "Semillon"
+      ],
+      "red": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc"
+      ]
+    },
+    "notes": "Graves Blanc = Sauvignon Blanc/Semillon; Graves Rouge = Bordeaux blend",
+    "source": "AOC Graves"
+  },
+  "anjou": {
+    "country": "France",
+    "region": "Loire",
+    "byColor": {
+      "white": [
+        "Chenin Blanc"
+      ],
+      "red": [
+        "Cabernet Franc",
+        "Cabernet Sauvignon"
+      ]
+    },
+    "notes": "Anjou Blanc = Chenin; Anjou Rouge = Cabernet Franc",
+    "source": "AOC Anjou"
+  },
+  "mercurey": {
+    "country": "France",
+    "region": "Burgundy",
+    "byColor": {
+      "red": [
+        "Pinot Noir"
+      ],
+      "white": [
+        "Chardonnay"
+      ]
+    },
+    "notes": "Cote Chalonnaise; predominantly red Pinot Noir",
+    "source": "AOC Mercurey"
+  },
+  "saint-joseph": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "byColor": {
+      "red": [
+        "Syrah"
+      ],
+      "white": [
+        "Marsanne",
+        "Roussanne"
+      ]
+    },
+    "notes": "Red Syrah; white Marsanne/Roussanne",
+    "source": "AOC Saint-Joseph"
+  },
+  "lirac": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "byColor": {
+      "red": [
+        "Grenache",
+        "Syrah",
+        "Mourvedre"
+      ],
+      "white": [
+        "Grenache Blanc",
+        "Clairette",
+        "Viognier"
+      ],
+      "rose": [
+        "Grenache"
+      ]
+    },
+    "notes": "GSM reds; white Rhone blends",
+    "source": "AOC Lirac"
+  },
+  "bourgogne cote chalonnaise": {
+    "country": "France",
+    "region": "Burgundy",
+    "byColor": {
+      "red": [
+        "Pinot Noir"
+      ],
+      "white": [
+        "Chardonnay"
+      ]
+    },
+    "notes": "Regional Burgundy from the Cote Chalonnaise",
+    "source": "AOC Bourgogne Cote Chalonnaise"
+  },
+  "etna": {
+    "country": "Italy",
+    "region": "Sicily",
+    "byColor": {
+      "red": [
+        "Nerello Mascalese"
+      ],
+      "white": [
+        "Carricante"
+      ]
+    },
+    "notes": "Etna Rosso = Nerello Mascalese; Etna Bianco = Carricante",
+    "source": "DOC Etna"
   }
 }
