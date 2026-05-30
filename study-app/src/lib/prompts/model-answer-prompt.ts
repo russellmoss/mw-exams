@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { FUNNELLING_PRINCIPLE } from "./funnelling";
 
 let cachedIndex: {
   decisionTrees: Record<string, string>;
@@ -66,6 +67,8 @@ ${ctx.sharedRules}
 ## EXAMINER REPORT SYNTHESIS
 ${ctx.examinerReportSynthesis}
 
+${FUNNELLING_PRINCIPLE}
+
 ## DECISION TREE FOR PAPER ${paper}
 ${decisionTree}
 
@@ -85,7 +88,7 @@ ${wineList}
 Generate ALL four sections:
 
 ### 1. Model Answer
-Full answer addressing every sub-question. MW-note style, 250-420 words. Lead with the call, justify from the glass. Follow the mock-answer-writer rules exactly.
+Full answer addressing every sub-question. MW-note style, 250-420 words. **Demonstrate funnelling** (see the Funnelling principle above): commit to the leading variety + broad-region call early, but visibly weigh the 1–2 plausible alternatives and rule them out from structural evidence ("what it might have been, but was not"), then narrow to the specific call and land it decisively. Do not simply assert one wine with no alternatives considered. Follow the mock-answer-writer rules exactly.
 
 ### 2. Proposed Annotation
 2-3 paragraphs: examiner intent, what the question tests, why these wines, what discriminates strong from weak candidates.

@@ -74,12 +74,16 @@ Explicitly defined (2023): "For maturity there needs to be an assessment of (1) 
 ## 3. What Examiners Reward (Positive Patterns)
 
 ### Funnelling technique
-Explicitly endorsed by name in every report from 2017 onward. Structure:
-1. Consider all evidence from the glass
-2. List 2-3 plausible options
-3. Argue for and against each
-4. Narrow to a conclusion with reasoning
-5. State conclusion clearly (ideally at the top of the answer)
+Endorsed **by name** in the 2017 practical report — "the funnelling technique is by far the best
+method to construct a compelling argument for geographical origin" — and the *principle* is
+reinforced in every report since (2024, 2025 endorse it heavily but do not use the word). The marks
+live in the argument, not the bare answer. Structure:
+1. Read the HARD STRUCTURAL EVIDENCE FIRST (alcohol, acidity, tannin, RS) and let it drive the deduction — these are "more reliable than the flavour profile" (2025).
+2. Put 2–3 genuinely plausible options on the table with evidence FOR and AGAINST each — "intelligent consideration to what it might have been, but was not" (2017); examiners "expect to see plausible options ... rather than an assumption that it is whatever the candidate has in mind" (2025).
+3. Commit to the broad anchor (variety + major region) clearly and EARLY, then narrow to the specific call — "went straight to Bordeaux ... then argued for a specific origin from there" (2017); "zoomed in on Sauternes" from Bordeaux (2024). Do NOT bury the conclusion to the end.
+4. Land a DECISIVE final call — "make a choice" (2021); a committed wrong-but-plausible call outscores a hedge or an unfinished answer.
+
+**Two anti-patterns** (both lose marks): the **snap-call** (naming one wine outright, no alternatives weighed — fragile, under-scores even when right) and **shoehorning** (the inverse of funnelling — deciding identity first, then forcing structure to fit; "led to the failure of many candidates", 2025). Evidence drives the call, never the reverse.
 
 ### Enthusiasm and conviction
 - "When candidates can convey the genuine pleasure they experience in tasting a 40-year-old Tawny, that enthusiasm is shared by those reading the paper." (2025)

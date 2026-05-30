@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
+import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -50,6 +51,10 @@ export async function POST(request: Request) {
 5. Maturity: current age, ready now?, improve how long?, hold how long?
 6. Commercial: channel, geography, price, competitive set
 7. Structural evidence is foundation
+
+${FUNNELLING_PRINCIPLE}
+
+In the "In the Glass" section, explicitly assess the candidate's funnelling on identity/origin: did they read structure first, weigh plausible alternatives, commit to a variety+region anchor early, and land a decisive call? Reward a well-reasoned funnel (even to a wrong-but-plausible call) over a snap-call that names one wine outright, and call out shoehorning or hedging by name with the funnel they should have run.
 
 ## Output structure — follow this EXACTLY
 

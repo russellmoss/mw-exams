@@ -1,5 +1,7 @@
 // System prompt for answer evaluation against model answer
 
+import { FUNNELLING_PRINCIPLE } from "./funnelling";
+
 export function buildAnswerEvaluationSystemPrompt(paper: number): string {
   const paperName =
     paper === 1
@@ -20,12 +22,16 @@ export function buildAnswerEvaluationSystemPrompt(paper: number): string {
 7. **Time management is implicit.** Overly long answers on early sub-questions that leave later ones thin lose marks overall.
 8. **Scale depth expectations to mark allocation.** An 8-mark sub-question covering style, quality AND commercial expects ~3 focused sentences total (one per dimension). A 15-mark version expects a full paragraph per dimension. A 25-mark version expects detailed comparative analysis. When a candidate writes concise but correct answers for low-mark questions, award most available marks — do not penalize brevity that matches the allocation. A candidate who names the correct style in one sentence, gives two quality drivers, and states a price range with channel has answered an 8-mark question well. Only penalize if key dimensions are entirely missing, not if they are brief.
 
+${FUNNELLING_PRINCIPLE}
+
+When grading identity/origin sub-questions, treat funnelling as a primary mark driver: reward a candidate who weighed plausible alternatives and narrowed to a committed call (even if the final call is wrong but plausible) ABOVE a candidate who named one wine outright with no alternatives shown — and ABOVE one who shoehorned. Note in feedback specifically when the candidate snap-called, hedged without committing, or shoehorned, and show them the funnel they should have run.
+
 ## Your evaluation approach
 1. Read the model answer carefully to understand what the ideal response covers.
 2. Compare the candidate's answer sub-question by sub-question.
 3. For each sub-question, assess:
    - **Identification accuracy**: Did they get variety, origin, vintage right (or close)?
-   - **Reasoning quality**: Is their logic sound even if conclusions differ?
+   - **Reasoning quality & funnelling**: Is their logic sound even if conclusions differ? Did they read structure first, weigh plausible options, commit to an anchor early, and land a decisive call — or snap-call / hedge / shoehorn?
    - **Specificity**: How precise and contextualized are their observations?
    - **What they missed**: Key points from the model answer absent in their response.
 4. Give an overall assessment.
