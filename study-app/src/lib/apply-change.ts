@@ -85,14 +85,19 @@ export async function applyFeedbackChange(opts: {
     "study-app/scripts/test-stem-scoring.mjs", "data/variety_lexicon.json",
     "data/appellation_varieties.json", "data/stem_proprietary_blends.json", "data/stem_style_lexicon.json",
   ];
+  // db.ts is the QUERY layer where selection / dedup / per-user-scoping logic lives. It's included
+  // so the agent can propose COMPLETE fixes for that class of bug (e.g. repetition) instead of
+  // route-only partials — but generation/validator changes are reviewOnly (PR-gated), so a db.ts
+  // change is never auto-merged; a human reviews it. (High blast radius: scrutinise these PRs.)
   const GEN = [
     "study-app/src/lib/prompts/question-generation-prompt.ts", "study-app/src/lib/wine-enrichment.ts",
     "study-app/src/lib/wine-bank-lookup.ts", "study-app/src/app/api/get-question/",
-    "study-app/src/app/api/generate-tasting/", "data/mock_wine_bank.json",
+    "study-app/src/app/api/generate-tasting/", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
   ];
   const VALIDATOR = [
     "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
     "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
+    "study-app/src/lib/db.ts",
   ];
 
   // Feature isolation by Kind. generation/validator are PR-gated (reviewOnly) for human review;
@@ -102,6 +107,31 @@ export async function applyFeedbackChange(opts: {
   if (kind === "answer-key" || (!kind && isStemSniper)) allowedPaths = STEM.join("\n");
   else if (kind === "generation") { allowedPaths = GEN.join("\n"); reviewOnly = true; }
   else if (kind === "validator") { allowedPaths = VALIDATOR.join("\n"); reviewOnly = true; }
+
+  // Duplicate-PR guard. Two unrelated feedback items previously opened overlapping auto-feedback PRs
+  // on the same file (PRs #4/#5, both editing get-question/route.ts) which then merge-conflicted.
+  // Serialize AUTO, PR-gated dispatches: at most one auto-feedback PR in flight at a time. The next
+  // accept defers (stays in the open queue) until a human reviews/merges the open one. A manual admin
+  // "Apply & ship" (appliedBy != 'auto') is exempt, and a 7-day window stops an abandoned PR blocking forever.
+  if (reviewOnly && appliedBy === "auto") {
+    const inflight = await sql`
+      SELECT id, pr_url FROM feedback_analyses
+      WHERE id <> ${analysisId}
+        AND apply_status IN ('dispatched', 'pr_opened')
+        AND updated_at > now() - interval '7 days'
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `;
+    if (inflight.length > 0) {
+      const ref = (inflight[0].pr_url as string) || `analysis #${inflight[0].id}`;
+      const note = `Deferred by Auto-Apply: another auto-fix PR is already in flight (${ref}). Review/merge it first, then re-apply this from the admin dashboard.`;
+      await recordApply(analysisId, { apply_status: "deferred", applied_by: appliedBy });
+      // Leave feedback_status untouched (stays in the open queue) — only annotate, so a human can
+      // pick it up via the (guard-exempt) manual "Apply & ship" once the in-flight PR clears.
+      await sql`UPDATE user_attempts SET feedback_admin_note = ${note} WHERE id = ${attemptId}`;
+      return { dispatched: false, workBranch, analysisId };
+    }
+  }
 
   await dispatchAutoFeedback({
     attemptId,

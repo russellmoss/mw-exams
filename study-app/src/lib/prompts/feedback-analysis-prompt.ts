@@ -88,6 +88,23 @@ issue — classify it with the Kind line below.
   in the question validator. (High-stakes — PR-gated.)
 Pick the NARROWEST Kind that fixes the root cause: a one-off bad question is \`question\`; a recurring
 pattern is \`generation\` or \`validator\`.
+
+## WHERE THE LOGIC LIVES (target the right layer in your Proposed Change)
+When you propose a code change, name the layer/file the fix actually belongs in — not just the
+nearest file. Mis-targeting (e.g. "add a rule to the generation prompt") produces a fix that cannot
+work when the real cause is elsewhere.
+- **Question SELECTION / dedup / per-user "already seen" / which banked question is served** lives in
+  the QUERY layer: \`study-app/src/lib/db.ts\` (e.g. \`getUnansweredQuestions\`, \`getRecentAttempts\`,
+  \`getQuestionsByFilter\`). The route \`study-app/src/app/api/get-question/route.ts\` only *orchestrates*
+  (priorities, fallback). A repetition / "I keep getting the same question" issue is almost always a
+  db.ts + route fix, NOT a generation-prompt fix — the prompt/LLM cannot query a user's history.
+- **NOVELTY of newly GENERATED questions** (don't generate a near-duplicate template) lives in
+  \`validateNoveltyAgainstLatest\` in the get-question route + guidance in the generation prompt.
+- **What a generated question CONTAINS** (wine choice, mark allocation, stem phrasing, style rules)
+  lives in \`study-app/src/lib/prompts/question-generation-prompt.ts\`.
+- **Hard validity gates** (stem contradicts wines/marks) live in \`study-app/src/lib/question-validator.ts\`.
+- A fix needing the query layer should say so explicitly (Kind: generation or validator, naming db.ts) —
+  do not down-scope it to a prompt tweak just because the prompt is easier to reach.
 `;
   const stemSniperBlock = stemSniperFraming + kindClassification;
 
