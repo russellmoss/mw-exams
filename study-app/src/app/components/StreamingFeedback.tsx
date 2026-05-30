@@ -24,7 +24,9 @@ export function StreamingFeedback({
         {isStreaming && (
           <div className="flex items-center gap-1.5">
             <div className="w-1.5 h-1.5 rounded-full bg-accent streaming-dot" />
-            <span className="text-xs text-accent">Thinking...</span>
+            <span className="text-xs text-accent">
+              Thinking… images and diagrams appear once the full answer finishes — please wait
+            </span>
           </div>
         )}
       </div>

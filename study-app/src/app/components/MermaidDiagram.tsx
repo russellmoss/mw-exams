@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DiagramModal } from "./DiagramModal";
 
 interface MermaidDiagramProps {
   chart: string;
@@ -11,6 +12,7 @@ export function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [zoomed, setZoomed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,17 +84,32 @@ export function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
   }
 
   return (
-    <div className="bg-card rounded-xl border border-border p-6 overflow-x-auto">
-      {title && (
-        <h4 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
-          {title}
-        </h4>
-      )}
+    <div className="bg-card rounded-xl border border-border p-6 overflow-x-auto relative group">
+      <div className="flex items-center mb-4">
+        {title && (
+          <h4 className="text-sm font-semibold text-muted uppercase tracking-wider">
+            {title}
+          </h4>
+        )}
+        <button
+          type="button"
+          onClick={() => setZoomed(true)}
+          className="ml-auto inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground rounded-lg border border-border hover:border-muted px-2.5 py-1"
+          aria-label="Expand diagram to fullscreen"
+        >
+          <span aria-hidden>⛶</span> Expand
+        </button>
+      </div>
       <div
         ref={containerRef}
-        className="flex justify-center [&_svg]:max-w-full"
+        onClick={() => setZoomed(true)}
+        title="Click to expand"
+        className="flex justify-center [&_svg]:max-w-full cursor-zoom-in"
         dangerouslySetInnerHTML={{ __html: svg }}
       />
+      {zoomed && (
+        <DiagramModal svg={svg} title={title} onClose={() => setZoomed(false)} />
+      )}
     </div>
   );
 }
