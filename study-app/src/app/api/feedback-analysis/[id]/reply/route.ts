@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { getFeedbackAnalysis, updateFeedbackAnalysis } from "@/lib/db";
+import { reconcileAttemptDecision } from "@/lib/feedback-analysis";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
 
@@ -103,6 +104,18 @@ export async function POST(
             status: "complete",
             recommendation,
           });
+
+          // A follow-up reply can change the verdict (e.g. reject → accept once the user argues
+          // their case). Reconcile the attempt's decision so the corrected verdict is applied
+          // instead of leaving the feedback buried at its first auto-decision. No-op when the
+          // decision is already consistent; never overrides a human decision.
+          try {
+            if (analysis.attempt_id != null) {
+              await reconcileAttemptDecision(analysis.attempt_id as number, recommendation);
+            }
+          } catch (reconErr) {
+            console.error("reply: reconcile attempt decision failed:", reconErr);
+          }
 
           const final = await stream.finalMessage();
           logClaudeUsage(

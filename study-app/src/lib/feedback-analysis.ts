@@ -39,6 +39,87 @@ export interface RunFeedbackAnalysisResult {
   error?: string;
 }
 
+// The attempt `feedback_status` each recommendation maps to once a decision is applied.
+// (accept → "accepted" is set inside applyFeedbackChange; reject/partial via reviewFeedback.)
+const STATUS_FOR_RECOMMENDATION: Record<string, string> = {
+  accept: "accepted",
+  reject: "rejected",
+  partial: "partial",
+};
+
+/**
+ * Execute the Auto-Apply decision for a resolved recommendation. Extracted so the initial
+ * analysis AND a follow-up reply that changes the verdict drive the exact same logic. Does NOT
+ * itself check the Auto-Apply master switch — callers gate on `isAutoApplyEnabled()`.
+ */
+export async function applyRecommendation(
+  attemptId: number,
+  recommendation: string,
+  opts?: { rejectNote?: string; partialNote?: string }
+): Promise<{ autoApplied: boolean; autoRejected: boolean; autoPartial: boolean }> {
+  const r = { autoApplied: false, autoRejected: false, autoPartial: false };
+  if (recommendation === "accept") {
+    try {
+      await applyFeedbackChange({ attemptId, appliedBy: "auto" });
+      r.autoApplied = true;
+    } catch (applyErr) {
+      console.error("auto-apply dispatch failed:", applyErr);
+    }
+  } else if (recommendation === "reject") {
+    try {
+      await reviewFeedback(
+        attemptId,
+        "rejected",
+        opts?.rejectNote ?? "Auto-rejected by Auto-Apply — analysis recommended reject.",
+        "auto"
+      );
+      r.autoRejected = true;
+    } catch (rejErr) {
+      console.error("auto-reject failed:", rejErr);
+    }
+  } else if (recommendation === "partial") {
+    try {
+      await reviewFeedback(
+        attemptId,
+        "partial",
+        opts?.partialNote ?? "Auto-marked partial by Auto-Apply — some points valid; review recommended (no code shipped).",
+        "auto"
+      );
+      r.autoPartial = true;
+    } catch (partErr) {
+      console.error("auto-partial failed:", partErr);
+    }
+  }
+  return r;
+}
+
+/**
+ * Reconcile an attempt's stored decision with a (possibly updated) recommendation. A follow-up
+ * reply on the analysis thread can flip the verdict (e.g. reject → accept once the user makes their
+ * case). Without this, the attempt stays frozen at its first auto-decision and the corrected verdict
+ * is silently buried (the exact bug behind attempt #138 / analysis #21). Safe to call on every reply:
+ * it's a no-op when the decision is already consistent, and it never overrides a decision a human made.
+ */
+export async function reconcileAttemptDecision(
+  attemptId: number,
+  recommendation: string
+): Promise<{ reconciled: boolean; from?: string | null; to?: string }> {
+  const expected = STATUS_FOR_RECOMMENDATION[recommendation];
+  if (!expected) return { reconciled: false }; // "pending"/unknown — nothing was decided
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = await sql`
+    SELECT feedback_status, feedback_decided_by FROM user_attempts WHERE id = ${attemptId}`;
+  const cur = rows[0] as { feedback_status: string | null; feedback_decided_by: string | null } | undefined;
+  if (!cur) return { reconciled: false };
+  if (cur.feedback_status === expected) return { reconciled: false }; // already consistent — don't re-dispatch
+  if (cur.feedback_decided_by === "manual") return { reconciled: false }; // respect a human decision
+  if (!(await isAutoApplyEnabled())) return { reconciled: false };
+  // The verdict changed under auto-decisioning — re-run the decision so the corrected verdict sticks.
+  const note = `Re-decided by Auto-Apply after follow-up discussion (was ${cur.feedback_status ?? "undecided"}).`;
+  await applyRecommendation(attemptId, recommendation, { rejectNote: note, partialNote: note });
+  return { reconciled: true, from: cur.feedback_status, to: expected };
+}
+
 async function tavilyFactCheck(
   wines: { slot: number; fullText: string }[],
   feedback: string,
@@ -296,38 +377,7 @@ export async function runFeedbackAnalysis(opts: {
     let autoRejected = false;
     let autoPartial = false;
     if (!opts.skipAutoApply && (await isAutoApplyEnabled())) {
-      if (recommendation === "accept") {
-        try {
-          await applyFeedbackChange({ attemptId, appliedBy: "auto" });
-          autoApplied = true;
-        } catch (applyErr) {
-          console.error("auto-apply dispatch failed:", applyErr);
-        }
-      } else if (recommendation === "reject") {
-        try {
-          await reviewFeedback(
-            attemptId,
-            "rejected",
-            "Auto-rejected by Auto-Apply — analysis recommended reject.",
-            "auto"
-          );
-          autoRejected = true;
-        } catch (rejErr) {
-          console.error("auto-reject failed:", rejErr);
-        }
-      } else if (recommendation === "partial") {
-        try {
-          await reviewFeedback(
-            attemptId,
-            "partial",
-            "Auto-marked partial by Auto-Apply — some points valid; review recommended (no code shipped).",
-            "auto"
-          );
-          autoPartial = true;
-        } catch (partErr) {
-          console.error("auto-partial failed:", partErr);
-        }
-      }
+      ({ autoApplied, autoRejected, autoPartial } = await applyRecommendation(attemptId, recommendation));
     }
 
     return { status: "complete", analysisId: analysis.id, recommendation, autoApplied, autoRejected, autoPartial };
