@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { StemSniperCard, type Drill, type Prediction } from "../components/StemSniperCard";
 import { StemSniperResult, type ScoreResult, type Revealed } from "../components/StemSniperResult";
+import { FeedbackButton } from "../components/FeedbackButton";
 
 type Status = "loading" | "drilling" | "result" | "empty";
 const PAPERS: { label: string; value: number | null }[] = [
@@ -19,7 +20,7 @@ export default function StemSniperPage() {
   const router = useRouter();
   const [status, setStatus] = useState<Status>("loading");
   const [drill, setDrill] = useState<Drill | null>(null);
-  const [result, setResult] = useState<{ result: ScoreResult; revealed: Revealed } | null>(null);
+  const [result, setResult] = useState<{ result: ScoreResult; revealed: Revealed; attemptId: number | null } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [paper, setPaper] = useState<number | null>(null);
   const [auto, setAuto] = useState<{ varieties: string[]; regions: string[]; styles: string[] }>({
@@ -73,7 +74,7 @@ export default function StemSniperPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setResult({ result: data.result, revealed: data.revealed });
+        setResult({ result: data.result, revealed: data.revealed, attemptId: data.attemptId ?? null });
         setStatus("result");
       }
     } finally {
@@ -130,12 +131,15 @@ export default function StemSniperPage() {
         />
       )}
       {status === "result" && result && (
-        <StemSniperResult
-          result={result.result}
-          revealed={result.revealed}
-          submitting={status !== "result"}
-          onNext={() => fetchNext(paper)}
-        />
+        <>
+          <StemSniperResult
+            result={result.result}
+            revealed={result.revealed}
+            submitting={status !== "result"}
+            onNext={() => fetchNext(paper)}
+          />
+          {result.attemptId && <FeedbackButton attemptId={result.attemptId} step="stem-sniper" />}
+        </>
       )}
     </div>
   );

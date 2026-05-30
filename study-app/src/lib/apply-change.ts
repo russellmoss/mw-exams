@@ -58,6 +58,26 @@ export async function applyFeedbackChange(opts: {
     (r.question_text as string) || "(none)",
   ].join("\n");
 
+  // Feature isolation: Stem Sniper feedback (data or logic) must stay within Stem Sniper-owned
+  // files. The Action diff-guards the change against these prefixes and opens a PR (instead of
+  // merging) if it strays. Empty allowedPaths = repo-wide (existing tasting/question feedback).
+  const isStemSniper = /\[stem-sniper\]/i.test((r.user_feedback as string) || "");
+  const allowedPaths = isStemSniper
+    ? [
+        "study-app/src/app/stem-sniper/",
+        "study-app/src/app/components/StemSniper",
+        "study-app/src/app/api/stem-sniper/",
+        "study-app/src/lib/stem-scoring.ts",
+        "study-app/public/data/stem-autocomplete.json",
+        "study-app/scripts/build-stem-",
+        "study-app/scripts/test-stem-scoring.mjs",
+        "data/variety_lexicon.json",
+        "data/appellation_varieties.json",
+        "data/stem_proprietary_blends.json",
+        "data/stem_style_lexicon.json",
+      ].join("\n")
+    : "";
+
   await dispatchAutoFeedback({
     attemptId,
     analysisId,
@@ -65,6 +85,7 @@ export async function applyFeedbackChange(opts: {
     workBranch,
     context,
     analysisText,
+    allowedPaths,
   });
 
   await recordApply(analysisId, {

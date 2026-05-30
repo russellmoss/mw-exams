@@ -33,6 +33,7 @@ jobs:
       ANALYSIS_ID: ${{ github.event.client_payload.analysisId }}
       WORK_BRANCH: ${{ github.event.client_payload.workBranch }}
       APPLIED_BY: ${{ github.event.client_payload.appliedBy }}
+      ALLOWED_PATHS: ${{ github.event.client_payload.allowedPaths }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -83,6 +84,14 @@ jobs:
             echo
             echo "## Analysis & proposed change (authoritative — implement this)"
             echo "$PROPOSED"
+            if [ -n "$ALLOWED_PATHS" ]; then
+              echo
+              echo "## SCOPE CONSTRAINT (hard)"
+              echo "This is feature-isolated feedback. Modify ONLY files under these path prefixes:"
+              echo "$ALLOWED_PATHS" | sed 's/^/  - /'
+              echo "Do NOT touch any file outside them. A change that strays will be REJECTED (PR-gated, not merged)."
+              echo "For an answer-key DATA fix: edit the relevant data/*.json then the change is picked up by the build."
+            fi
           } > /tmp/af/brief.md
           echo "----- brief.md -----"
           cat /tmp/af/brief.md
@@ -146,8 +155,34 @@ jobs:
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Merge to master (verified)
+      - name: Scope guard (feature isolation)
+        # When ALLOWED_PATHS is set (e.g. Stem Sniper feedback), every changed file must sit under
+        # one of those prefixes. If anything strays, we DO NOT merge — the change is PR-gated for
+        # human review, so feedback on one feature can never silently edit another.
         if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
+        id: scope
+        run: |
+          if [ -z "$ALLOWED_PATHS" ]; then
+            echo "out_of_scope=0" >> "$GITHUB_OUTPUT"
+            echo "No ALLOWED_PATHS set — repo-wide change permitted."
+            exit 0
+          fi
+          mapfile -t CHANGED < <(git diff --name-only master.."$WORK_BRANCH")
+          STRAY=0
+          for f in "${CHANGED[@]}"; do
+            [ -z "$f" ] && continue
+            ok=0
+            while IFS= read -r p; do
+              [ -z "$p" ] && continue
+              case "$f" in "$p"*) ok=1; break;; esac
+            done <<< "$ALLOWED_PATHS"
+            if [ "$ok" -eq 0 ]; then echo "OUT OF SCOPE: $f"; STRAY=1; fi
+          done
+          echo "out_of_scope=$STRAY" >> "$GITHUB_OUTPUT"
+          if [ "$STRAY" -eq 0 ]; then echo "All ${#CHANGED[@]} changed file(s) within allowed paths."; fi
+
+      - name: Merge to master (verified)
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1'
         id: merge
         run: |
           set -e
@@ -203,17 +238,22 @@ jobs:
             exit 1
           fi
 
-      - name: Open PR (could not verify)
+      - name: Open PR (could not verify or out of scope)
         if: >-
           always() &&
-          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1') &&
+          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1' || steps.scope.outputs.out_of_scope == '1') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
         run: |
           git push origin "$WORK_BRANCH" || true
+          if [ "${{ steps.scope.outputs.out_of_scope }}" = "1" ]; then
+            REASON="The change touched files OUTSIDE the allowed scope for this feedback (feature isolation). Review the diff — it must stay within the feature's own files. master/production were not touched."
+          else
+            REASON="Automated feedback change could not be verified+merged (CI failed after retries, or a merge conflict). Review the run logs, fix, and merge manually. master/production were not touched."
+          fi
           PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
             --title "[auto-feedback] attempt ${ATTEMPT_ID}: needs review" \
-            --body "Automated feedback change could not be verified+merged (CI failed after retries, or a merge conflict). Review the run logs, fix, and merge manually. master/production were not touched." 2>&1) || true
+            --body "$REASON" 2>&1) || true
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "$PR_URL"
 

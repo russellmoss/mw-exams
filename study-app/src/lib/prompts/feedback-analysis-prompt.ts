@@ -56,7 +56,39 @@ export function buildFeedbackAnalysisPrompt(params: {
     if (ctx.wineCompositionAnalysis) wineComposition = ctx.wineCompositionAnalysis.slice(0, 3000);
   } catch {}
 
+  // Stem Sniper feedback (tagged "[stem-sniper]") is about the ANSWER KEY for a stem, not the
+  // question design. Reframe the analysis and ask it to classify the fix as data vs code.
+  const isStemSniper = /\[stem-sniper\]/i.test(params.userFeedback || "");
+  const stemSniperBlock = isStemSniper
+    ? `
+
+## ⚠ STEM SNIPER MODE — answer-key feedback (overrides the framing below)
+
+This feedback comes from the **Stem Sniper** drill, where the candidate predicts variety+region
+(Papers 1–2) or **style/method**+region (Paper 3) for the flight from the stem alone. The
+feedback is about the **answer key** for this question — the ground-truth variety/style/region
+buckets and the plausible/confusable set — NOT the question design or the AI evaluation.
+
+Evaluate specifically:
+- Is each wine's ground-truth **variety / style / region** correct? (e.g. "this Sherry is
+  Manzanilla, not Amontillado"; "Vosne-Romanée is Pinot Noir"; "region should be Bordeaux, not
+  'Bordeaux Blanc'"). For Paper 3 the key axis is STYLE/METHOD, not variety.
+- Is the **plausible/confusable** set sensible (what a prepared candidate could narrow to)?
+- Are the **confidence tiers** reasonable?
+
+You MUST end your analysis with a Kind line classifying the fix:
+- **Kind: answer-key** — the fix is to answer-key DATA (a wrong/missing variety, style, region,
+  or plausible bucket). The common case; applied to the stem_answer_keys data, not app code.
+- **Kind: code** — the fix is to Stem Sniper logic (scoring, the style lexicon, the appellation
+  map, the UI). Only when the data is right but the behaviour is wrong.
+
+Stay strictly scoped to Stem Sniper data/logic. Do NOT propose changes to question generation,
+answer evaluation, or any other feature.
+`
+    : "";
+
   const system = `You are running feedback analysis for the MW Practical Exam Study System.
+${stemSniperBlock}
 
 ## Purpose
 

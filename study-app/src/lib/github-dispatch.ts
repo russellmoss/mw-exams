@@ -9,6 +9,7 @@ export interface AutoFeedbackPayload {
   workBranch: string;
   context: string; // paper / family / question / user feedback, preformatted
   analysisText: string; // full analysis text (contains the "Proposed Change" section)
+  allowedPaths?: string; // newline-separated path prefixes the change must stay within (feature isolation); empty = repo-wide
 }
 
 /**
