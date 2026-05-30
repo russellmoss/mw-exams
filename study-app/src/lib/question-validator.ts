@@ -25,6 +25,12 @@ export interface Violation {
   detail: string;
 }
 
+// How the Stem Sniper drill scores a flight's origin predictions.
+//   "per-wine" — score each wine's predicted origin individually (correct/incorrect per wine).
+//   "set"      — score the predicted *pool* of origins (did the candidate name the right set?),
+//                because the stem gives no clue which origin maps to which wine number.
+export type StemSniperScoringModel = "per-wine" | "set";
+
 const NUM: Record<string, number> = {
   one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
   seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
@@ -45,11 +51,36 @@ const canonVariety = (s?: string) => {
   return VARIETY_SYNONYMS[n] || n;
 };
 
-export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations: Violation[] } {
+// Normalise a stem the same way validateQuestion does (lower-case, accents stripped, punctuation
+// flattened so "same, single grape variety" reads as "same single grape variety").
+const normStem = (questionText?: string) =>
+  norm(questionText).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+
+// Stem Sniper scoring model for a flight.
+//
+// In a "same (single) grape variety" flight the variety is ONE shared answer, but the origins differ
+// per wine and the stem gives no clue which origin maps to which wine number. From the stem alone a
+// candidate can only identify the likely *pool* of origins (e.g. {Northern Rhône, Barossa,
+// Stellenbosch, …} for a Syrah/Shiraz flight) — the exact wine-number assignment is irreducibly
+// ambiguous without the wine in the glass. The MW exam rewards this pool/funnel reasoning, not the
+// per-wine mapping ("More marks can be given when the conclusion is wrong, as we can then see and
+// reward intelligent thinking" — 2019 Examiner Report). So such flights are scored as a SET (variety
+// + origin pool), not per-wine binary; every other flight keeps per-wine scoring.
+export function stemSniperScoringModel(questionText?: string, wineCount = 0): StemSniperScoringModel {
+  const stem = normStem(questionText);
+  const sameVariety = /\bsame (?:single )?grape variety\b|\bsame variety\b/.test(stem);
+  return sameVariety && wineCount >= 2 ? "set" : "per-wine";
+}
+
+export function validateQuestion(q: QuestionForAudit): {
+  ok: boolean;
+  violations: Violation[];
+  scoringModel: StemSniperScoringModel;
+} {
   const v: Violation[] = [];
   // Strip punctuation for phrase matching so "same, single grape variety" reads as "same single
   // grape variety" (a real comma-bug seen in the corpus).
-  const stem = norm(q.questionText).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+  const stem = normStem(q.questionText);
   const wines = q.wines || [];
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
@@ -120,5 +151,39 @@ export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations
   if (q.totalMarks && wines.length && q.totalMarks !== wines.length * 25)
     v.push({ rule: "marks", severity: "hard", detail: `total_marks ${q.totalMarks} != ${wines.length}×25` });
 
-  return { ok: !v.some((x) => x.severity === "hard"), violations: v };
+  // R7 — Paper 3 oxidative still-white scope (hard). P3's mandate is sparkling/fortified/sweet/rosé
+  // and oxidative/biologically-aged styles. The corpus (2011–2025) admits a STILL white into P3 only
+  // when (a) its oxidation is flor/sous voile-driven (Jura Vin Jaune / Savagnin sous voile), or
+  // (b) it is paired with a fortified or biologically-aged wine supplying a genuine P3 contrast.
+  // Conventionally cask-oxidized still whites (oxidative white Rioja, oxidative aged Hunter Semillon)
+  // are corpus-attested PAPER 1 wines (2018/2025 P1); no P3 question pairs two still, non-flor
+  // oxidative whites. Such a question is mis-papered and must be regenerated.
+  if (q.paper === 3 && wines.length > 0) {
+    const blob = (w: AuditWine) => norm(`${w.region || ""} ${w.style || ""} ${(w.varieties || []).join(" ")}`);
+    const FLOR_SOUS_VOILE = /vin\s*jaune|sous\s*voile|chateau[\s-]*chalon|l['`’ ]?\s*etoile|\betoile\b|savagnin|\bjura\b|\bflor\b/;
+    const FORTIFIED_OR_FLOR = /fortified|sherry|jerez|\bfino\b|manzanilla|amontillado|oloroso|palo\s*cortado|\bport\b|madeira|marsala|banyuls|rivesaltes|maury|rutherglen|vin\s*doux|\bvdn\b|vin\s*jaune|sous\s*voile|chateau[\s-]*chalon|\bflor\b/;
+    const WHITE_HINT = /viura|macabeo|malvasia|garnacha\s*blanca|grenache\s*blanc|albari|verdejo|hondarrabi|semillon|hunter|\bwhite\b|\bblanc/;
+    const isConvOxWhite = (w: AuditWine) => {
+      const b = blob(w);
+      if (FLOR_SOUS_VOILE.test(b) || FORTIFIED_OR_FLOR.test(b)) return false; // flor / fortified ⇒ legitimately P3
+      const namedWhiteRioja = /\brioja\b/.test(b) && WHITE_HINT.test(b);
+      const namedHunterSem = /hunter/.test(b) && /semillon/.test(b);
+      const oxidativeWhite = /oxidativ/.test(b) && WHITE_HINT.test(b);
+      return namedWhiteRioja || namedHunterSem || oxidativeWhite;
+    };
+    const hasAnchor = wines.some((w) => FORTIFIED_OR_FLOR.test(blob(w)));
+    const offenders = wines.filter(isConvOxWhite);
+    if (offenders.length > 0 && !hasAnchor)
+      v.push({
+        rule: "p3-oxidative-white",
+        severity: "hard",
+        detail: `Paper 3 conventionally-oxidative still white(s) with no fortified/flor anchor: ${offenders.map((w) => w.region || (w.varieties || []).join("/") || `wine ${w.slot}`).join("; ")}. Such wines (oxidative white Rioja, oxidative Hunter Semillon) are Paper 1 styles; P3 admits a still white only when flor/sous voile-driven or paired with a fortified/biologically-aged wine.`,
+      });
+  }
+
+  return {
+    ok: !v.some((x) => x.severity === "hard"),
+    violations: v,
+    scoringModel: stemSniperScoringModel(q.questionText, wines.length),
+  };
 }

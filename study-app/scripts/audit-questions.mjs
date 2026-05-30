@@ -25,7 +25,7 @@ const rows = await sql`
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
 
-let hardCount = 0, softCount = 0, quarantined = 0;
+let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0;
 const byRule = {};
 for (const r of rows) {
   const gt = typeof r.ground_truth === "string" ? JSON.parse(r.ground_truth) : r.ground_truth;
@@ -33,6 +33,8 @@ for (const r of rows) {
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines: gt,
   });
+  // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
+  if (res.scoringModel === "set") setScored++;
   const hard = res.violations.filter((x) => x.severity === "hard");
   for (const x of res.violations) byRule[x.rule] = (byRule[x.rule] || 0) + 1;
   if (res.violations.length) {
@@ -57,5 +59,6 @@ console.log(`\n──────── AUDIT SUMMARY ────────`)
 console.log(`questions audited:   ${rows.length}`);
 console.log(`HARD violations:     ${hardCount}  (${Math.round((hardCount / rows.length) * 100)}%)`);
 console.log(`soft-only:           ${softCount}`);
+console.log(`set-scored flights:  ${setScored}  (same-variety → origin-pool scoring, not per-wine)`);
 console.log(`by rule:             ${JSON.stringify(byRule)}`);
 console.log(apply ? `QUARANTINED (validated=false): ${quarantined}` : `(dry run — pass --apply to quarantine the HARD ones)`);
