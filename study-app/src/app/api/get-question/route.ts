@@ -654,6 +654,51 @@ function normalizeVariety(value: string): string {
     .trim();
 }
 
+// Words that appear in almost any wine label and so carry no power to TIE an image to a specific
+// keyed wine (region/producer/variety are what matter). Excluded from the served allow-list so a
+// generic "vineyard"/"estate" token can't make an unrelated region's image look "in-set".
+const IMAGE_SUBJECT_STOPWORDS = new Set([
+  "wine", "wines", "vineyard", "vineyards", "estate", "winery", "wineries", "region",
+  "grape", "grapes", "bottle", "glass", "blanc", "blanco", "bianco", "white", "rouge",
+  "red", "rose", "rosé", "dry", "sec", "brut", "cuvee", "cuvée", "vintage", "reserva",
+  "reserve", "domaine", "chateau", "château", "weingut", "tenuta", "the", "and", "from",
+]);
+
+// The set of image subjects that legitimately belong to a served question: the regions/appellations,
+// producers, grape varieties and countries named by the KEYED wines. The display/asset-selection
+// layer constrains question imagery to these subjects and DROPS any image whose region/wine tag is
+// not a member — so a candidate is never shown a region or bottle that is not part of the answer
+// (user feedback: attached pictures depicted regions/wines outside the keyed answer set). If nothing
+// matches, the layer shows no image rather than an unrelated one.
+function deriveImageAllowList(wines: { slot: number; fullText: string }[] | null | undefined): string[] {
+  if (!Array.isArray(wines)) return [];
+  const subjects = new Set<string>();
+  for (const wine of wines) {
+    if (!wine?.fullText) continue;
+    const variety = detectPrimaryVariety(wine.fullText);
+    if (variety && variety !== "unknown") subjects.add(variety);
+    const country = detectCountryName(wine.fullText);
+    if (country && country !== "unknown") subjects.add(country);
+    // Region/appellation/producer tokens from the wine's own text — the discriminating identity.
+    for (const token of wine.fullText.toLowerCase().split(/[^a-zà-ÿ0-9]+/)) {
+      if (token.length >= 4 && !IMAGE_SUBJECT_STOPWORDS.has(token)) subjects.add(token);
+    }
+  }
+  return [...subjects];
+}
+
+// Display-time guard: true when an image's subject (its search query or region/wine tag) maps to a
+// wine in the served set, i.e. shares at least one identifying token with the allow-list. The asset
+// layer uses this to keep matching images and drop/flag mismatches.
+export function imageSubjectInWineSet(subject: string, allowList: string[]): boolean {
+  if (!subject || allowList.length === 0) return false;
+  const allow = new Set(allowList.map((s) => s.toLowerCase()));
+  return subject
+    .toLowerCase()
+    .split(/[^a-zà-ÿ0-9]+/)
+    .some((token) => token.length >= 4 && allow.has(token));
+}
+
 function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   for (const wine of wines) {
@@ -1132,7 +1177,7 @@ function parseGeneratedQuestion(
 
 function sanitizeQuestionMetadata<
   T extends { family: string; family_label: string; subcategory: string | null; question_text?: string; wines?: unknown }
->(question: T): T & { stem_sniper_scoring: "per-wine" | "set" } {
+>(question: T): T & { stem_sniper_scoring: "per-wine" | "set"; image_allow_list: string[] } {
   // Tell the Stem Sniper drill how to score origin predictions for this flight. Same-variety flights
   // are scored as a SET (origin pool) rather than per-wine binary, because the stem gives no clue
   // which origin maps to which wine number — see stemSniperScoringModel.
@@ -1143,6 +1188,10 @@ function sanitizeQuestionMetadata<
     family_label: FAMILY_LABELS[question.family] || question.family_label || "Unknown",
     subcategory: sanitizeSubcategory(question.subcategory || ""),
     stem_sniper_scoring: stemSniperScoringModel(question.question_text, wineCount),
+    // Image subjects allowed for this served question — the regions/producers/varieties/countries of
+    // the KEYED wines. The display/asset layer must restrict question imagery to these (and drop any
+    // image that maps to none of them) so a candidate never sees a region or wine outside the answer.
+    image_allow_list: deriveImageAllowList(wines as { slot: number; fullText: string }[] | null),
   };
 }
 
