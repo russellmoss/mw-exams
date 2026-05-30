@@ -22,7 +22,11 @@ export default function StemSniperPage() {
   const [result, setResult] = useState<{ result: ScoreResult; revealed: Revealed } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [paper, setPaper] = useState<number | null>(null);
-  const [auto, setAuto] = useState<{ varieties: string[]; regions: string[] }>({ varieties: [], regions: [] });
+  const [auto, setAuto] = useState<{ varieties: string[]; regions: string[]; styles: string[] }>({
+    varieties: [],
+    regions: [],
+    styles: [],
+  });
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -31,7 +35,7 @@ export default function StemSniperPage() {
   useEffect(() => {
     fetch("/data/stem-autocomplete.json")
       .then((r) => r.json())
-      .then((d) => setAuto({ varieties: d.varieties || [], regions: d.regions || [] }))
+      .then((d) => setAuto({ varieties: d.varieties || [], regions: d.regions || [], styles: d.styles || [] }))
       .catch(() => {});
   }, []);
 
@@ -120,6 +124,7 @@ export default function StemSniperPage() {
           drill={drill}
           varieties={auto.varieties}
           regions={auto.regions}
+          styles={auto.styles}
           submitting={submitting}
           onSubmit={onSubmit}
         />

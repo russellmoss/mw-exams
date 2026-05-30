@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 
 export type Tier = "STRONG" | "PLAUSIBLE" | "CURVEBALL";
 export interface Prediction {
-  variety: string;
+  variety?: string; // P1/P2
+  style?: string; // P3 (style/method)
+  region: string;
+  tier: Tier;
+}
+interface Row {
+  primary: string; // variety (P1/P2) or style (P3)
   region: string;
   tier: Tier;
 }
@@ -23,6 +29,7 @@ interface Props {
   drill: Drill;
   varieties: string[];
   regions: string[];
+  styles: string[];
   submitting: boolean;
   onSubmit: (predictions: Prediction[]) => void;
 }
@@ -35,26 +42,34 @@ const TIER_STYLE: Record<Tier, string> = {
 };
 const paperLabel = (p: number) => (p === 1 ? "Whites" : p === 2 ? "Reds" : "Special");
 
-function blankRows(n: number): Prediction[] {
-  return Array.from({ length: Math.max(1, n) }, () => ({ variety: "", region: "", tier: "PLAUSIBLE" as Tier }));
+function blankRows(n: number): Row[] {
+  return Array.from({ length: Math.max(1, n) }, () => ({ primary: "", region: "", tier: "PLAUSIBLE" as Tier }));
 }
 
-export function StemSniperCard({ drill, varieties, regions, submitting, onSubmit }: Props) {
-  const [rows, setRows] = useState<Prediction[]>(() => blankRows(drill.wineCount));
+export function StemSniperCard({ drill, varieties, regions, styles, submitting, onSubmit }: Props) {
+  const isP3 = drill.paper === 3; // P3 predicts style/method, not variety
+  const [rows, setRows] = useState<Row[]>(() => blankRows(drill.wineCount));
 
   useEffect(() => {
     setRows(blankRows(drill.wineCount));
   }, [drill.questionId, drill.wineCount]);
 
-  const update = (i: number, patch: Partial<Prediction>) =>
+  const update = (i: number, patch: Partial<Row>) =>
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
-  const addRow = () => setRows((r) => [...r, { variety: "", region: "", tier: "PLAUSIBLE" }]);
+  const addRow = () => setRows((r) => [...r, { primary: "", region: "", tier: "PLAUSIBLE" }]);
   const removeRow = (i: number) => setRows((r) => (r.length > 1 ? r.filter((_, idx) => idx !== i) : r));
 
-  const filled = rows.filter((r) => r.variety.trim());
+  const filled = rows.filter((r) => r.primary.trim());
   const canSubmit = filled.length > 0 && !submitting;
   const submit = () => {
-    if (canSubmit) onSubmit(filled.map((r) => ({ variety: r.variety.trim(), region: r.region.trim(), tier: r.tier })));
+    if (!canSubmit) return;
+    onSubmit(
+      filled.map((r) =>
+        isP3
+          ? { style: r.primary.trim(), region: r.region.trim(), tier: r.tier }
+          : { variety: r.primary.trim(), region: r.region.trim(), tier: r.tier }
+      )
+    );
   };
 
   const onKeyDown = (e: React.KeyboardEvent, i: number) => {
@@ -78,6 +93,11 @@ export function StemSniperCard({ drill, varieties, regions, submitting, onSubmit
       <datalist id="ss-regions">
         {regions.map((r) => (
           <option key={r} value={r} />
+        ))}
+      </datalist>
+      <datalist id="ss-styles">
+        {styles.map((s) => (
+          <option key={s} value={s} />
         ))}
       </datalist>
 
@@ -111,9 +131,11 @@ export function StemSniperCard({ drill, varieties, regions, submitting, onSubmit
       )}
 
       <p className="text-xs text-muted mb-2">
-        Predict the varieties + origins <span className="text-foreground">in the flight</span> (before tasting). Tag your
-        confidence. <span className="text-foreground/70">Order doesn&apos;t matter</span> — each guess is matched to the
-        closest wine in the flight, so you score for getting the right wine <em>somewhere</em> in the set.
+        Predict the {isP3 ? "styles/methods" : "varieties"} + origins{" "}
+        <span className="text-foreground">in the flight</span>
+        {isP3 ? " (use the look of the glasses above)" : " (before tasting)"}. Tag your confidence.{" "}
+        <span className="text-foreground/70">Order doesn&apos;t matter</span> — each guess is matched to the closest wine
+        in the flight, so you score for getting the right wine <em>somewhere</em> in the set.
         <span className="ml-1 opacity-70">Enter = add row · Ctrl/⌘+Enter = submit</span>
       </p>
 
@@ -122,11 +144,11 @@ export function StemSniperCard({ drill, varieties, regions, submitting, onSubmit
           <div key={i} className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted w-7 shrink-0" title="guess (order doesn't matter)">{i + 1}.</span>
             <input
-              list="ss-varieties"
-              value={row.variety}
-              onChange={(e) => update(i, { variety: e.target.value })}
+              list={isP3 ? "ss-styles" : "ss-varieties"}
+              value={row.primary}
+              onChange={(e) => update(i, { primary: e.target.value })}
               onKeyDown={(e) => onKeyDown(e, i)}
-              placeholder="Variety"
+              placeholder={isP3 ? "Style / method" : "Variety"}
               className="flex-1 min-w-[120px] bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
             />
             <input

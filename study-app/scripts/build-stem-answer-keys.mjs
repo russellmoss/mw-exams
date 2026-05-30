@@ -48,6 +48,32 @@ for (const v of lex.varieties) lexList.push([pad(v), v]);
 for (const [t, c] of Object.entries(lex.synonyms)) lexList.push([pad(t), c]);
 lexList.sort((a, b) => b[0].length - a[0].length);
 
+// ---------- P3 style/method ----------
+const styleLex = dataFile("stem_style_lexicon.json").styles;
+const STYLE_CAT_FALLBACK = {
+  sparkling: "Sparkling",
+  fortified: "Fortified",
+  still_sweet: "Sweet",
+  still_off_dry: "Off-dry",
+  oxidative: "Oxidative",
+  rose: "Rosé",
+  orange: "Orange",
+  still_dry: "Dry (still)",
+};
+// Derive the P3 style/method from a wine's fullText (most-specific first), falling back to the
+// profile's broad style_category. Returns { style, style_category, style_tokens }.
+function deriveStyle(fullText, profileStyleCategory) {
+  const nf = pad(fullText);
+  for (const s of styleLex) {
+    if (s.tokens.some((t) => nf.includes(" " + norm(t) + " ") || norm(fullText).includes(norm(t)))) {
+      // include the label itself so predicting the canonical style name scores a full match
+      return { style: s.label, style_category: s.category, style_tokens: [...new Set([norm(s.label), ...s.tokens.map(norm)])] };
+    }
+  }
+  const fb = STYLE_CAT_FALLBACK[profileStyleCategory] || "Special";
+  return { style: fb, style_category: fb, style_tokens: [norm(fb)] };
+}
+
 const appList = Object.entries(appVar)
   .map(([k, v]) => [" " + norm(k) + " ", v])
   .sort((a, b) => b[0].length - a[0].length);
@@ -170,13 +196,22 @@ async function build() {
         const profSet = new Set(prof.grape_varieties.map(norm));
         if (!v.some((x) => profSet.has(norm(x)))) problems.push(`W${w.slot} variety/profile mismatch`);
       }
-      ground.push({
+      const bucket = {
         slot: w.slot,
         varieties: v,
         is_blend: v.length > 1,
         region: o.region,
         country: o.country,
-      });
+      };
+      // Paper 3: the discriminator is style/method, not variety. Attach it so the scorer can
+      // grade on style + region (variety becomes optional bonus).
+      if (r.paper === 3) {
+        const st = deriveStyle(w.fullText, prof.style_category);
+        bucket.style = st.style;
+        bucket.style_category = st.style_category;
+        bucket.style_tokens = st.style_tokens;
+      }
+      ground.push(bucket);
     }
     const plausible = plausibleFor(ground);
     const ok = problems.length === 0;

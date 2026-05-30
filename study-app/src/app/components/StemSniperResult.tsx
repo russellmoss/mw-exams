@@ -1,7 +1,7 @@
 "use client";
 
 export interface Grade {
-  prediction: { variety: string; region?: string; tier?: string | null };
+  prediction: { variety?: string; style?: string; region?: string; tier?: string | null };
   grade: string;
   points: number;
   matchedSlot: number | null;
@@ -16,7 +16,7 @@ export interface ScoreResult {
   summary: { hits: number; nears: number; varietyOnly: number; plausibleOk: number; misses: number };
 }
 export interface Revealed {
-  ground_truth: { slot: number; varieties: string[]; region: string; country?: string; is_blend?: boolean }[];
+  ground_truth: { slot: number; varieties: string[]; region: string; country?: string; is_blend?: boolean; style?: string }[];
   plausible: { variety: string; region: string; tier?: string }[];
 }
 
@@ -94,7 +94,7 @@ export function StemSniperResult({ result, revealed, submitting, onNext }: Props
               {GRADE_LABEL[g.grade] || g.grade}
             </span>
             <span className="text-foreground">
-              {g.prediction.variety}
+              {g.prediction.style || g.prediction.variety}
               {g.prediction.region ? <span className="text-muted"> — {g.prediction.region}</span> : null}
             </span>
             <span className="text-xs text-muted ml-auto shrink-0">{g.note}</span>
@@ -109,9 +109,10 @@ export function StemSniperResult({ result, revealed, submitting, onNext }: Props
           {revealed.ground_truth.map((b) => (
             <div key={b.slot} className="text-sm">
               <span className="text-muted text-xs mr-1">W{b.slot}</span>
-              <span className="text-foreground">{b.varieties.join(" / ")}</span>
+              <span className="text-foreground">{b.style || b.varieties.join(" / ")}</span>
               <span className="text-muted"> — {b.region}{b.country ? `, ${b.country}` : ""}</span>
-              {b.is_blend ? <span className="text-muted text-[10px] ml-1">[blend]</span> : null}
+              {b.style ? <span className="text-muted text-[10px] ml-1">({b.varieties.join("/")})</span> : null}
+              {!b.style && b.is_blend ? <span className="text-muted text-[10px] ml-1">[blend]</span> : null}
             </div>
           ))}
         </div>

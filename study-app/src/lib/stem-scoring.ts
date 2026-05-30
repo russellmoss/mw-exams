@@ -11,9 +11,10 @@ export type Tier = "STRONG" | "PLAUSIBLE" | "CURVEBALL";
 export type Grade = "HIT" | "NEAR" | "VARIETY" | "PLAUSIBLE_OK" | "MISS";
 
 export interface Prediction {
-  variety: string;
+  variety?: string;
   region?: string;
   country?: string;
+  style?: string; // Paper 3: predicted style/method (e.g. "Amontillado", "Tawny Port")
   tier?: Tier; // candidate's self-assigned confidence
 }
 export interface GroundTruthBucket {
@@ -23,6 +24,10 @@ export interface GroundTruthBucket {
   country?: string;
   is_blend?: boolean;
   difficulty?: Tier; // optional: how hard this bucket is (drives curveball bonus)
+  // Paper 3 only: style/method is the discriminator (variety is uniform, e.g. all Sherry = Palomino).
+  style?: string;
+  style_category?: string;
+  style_tokens?: string[];
 }
 export interface PlausibleBucket {
   variety: string;
@@ -122,8 +127,39 @@ const predRegionTokens = (p: Prediction): string[] => {
 };
 
 function varietyMatches(pred: Prediction, varieties: string[]): boolean {
-  const pv = canonVariety(pred.variety);
+  const pv = canonVariety(pred.variety || "");
+  if (!pv) return false;
   return varieties.some((v) => canonVariety(v) === pv);
+}
+
+// Paper-3 style scoring. The candidate may type the style in `style` (or `variety`).
+//  2 = full (matches a stored style token, e.g. "amontillado")
+//  1 = category (mentions the broad family, e.g. "sherry"/"sparkling"/"botrytis")
+//  0 = none
+function styleScore(pred: Prediction, bucket: GroundTruthBucket): 0 | 1 | 2 {
+  const txt = norm(`${pred.style || ""} ${pred.variety || ""}`);
+  if (!txt) return 0;
+  for (const t of bucket.style_tokens || []) {
+    const nt = norm(t);
+    if (!nt) continue;
+    if (txt.includes(nt) || (nt.length >= 4 && txt.length >= 4 && nt.includes(txt))) return 2;
+  }
+  const catWords = norm(bucket.style_category).split(" ").filter((w) => w.length > 3);
+  if (catWords.some((w) => txt.includes(w))) return 1;
+  return 0;
+}
+
+// Paper-3 grade from (style, region) — style-centric, region secondary.
+function p3Grade(s: 0 | 1 | 2, r: "region" | "country" | "none"): { grade: Grade; note: string } {
+  const rr = r === "region" ? 2 : r === "country" ? 1 : 0;
+  if (s === 2 && rr === 2) return { grade: "HIT", note: "style + region" };
+  if (s === 2 && rr >= 1) return { grade: "NEAR", note: "style + country" };
+  if (s === 2 && rr === 0) return { grade: "PLAUSIBLE_OK", note: "style nailed, region off" };
+  if (s === 1 && rr === 2) return { grade: "NEAR", note: "style category + region" };
+  if (s === 1 && rr === 1) return { grade: "PLAUSIBLE_OK", note: "style category + country" };
+  if (s === 1 && rr === 0) return { grade: "VARIETY", note: "style category only" };
+  if (s === 0 && rr === 2) return { grade: "VARIETY", note: "region only, style off" };
+  return { grade: "MISS", note: "style + region off" };
 }
 
 // Region relationship between a prediction and a bucket's chain.
@@ -141,6 +177,11 @@ function regionRelation(pred: Prediction, bucket: GroundTruthBucket): "region" |
 }
 
 function gradeAgainstBucket(pred: Prediction, bucket: GroundTruthBucket): { grade: Grade; note: string } {
+  // Paper-3 style buckets: grade on style + region (variety is optional bonus, added later).
+  if (bucket.style_tokens && bucket.style_tokens.length) {
+    return p3Grade(styleScore(pred, bucket), regionRelation(pred, bucket));
+  }
+  // Paper 1/2: grade on variety + region.
   if (!varietyMatches(pred, bucket.varieties)) return { grade: "MISS", note: "variety mismatch" };
   const rel = regionRelation(pred, bucket);
   if (rel === "region") return { grade: "HIT", note: "variety + region" };
@@ -149,7 +190,8 @@ function gradeAgainstBucket(pred: Prediction, bucket: GroundTruthBucket): { grad
 }
 
 function matchesPlausible(pred: Prediction, plausible: PlausibleBucket[]): boolean {
-  const pv = canonVariety(pred.variety);
+  const pv = canonVariety(pred.variety || "");
+  if (!pv) return false;
   const preds = predRegionTokens(pred);
   return plausible.some((pb) => {
     if (canonVariety(pb.variety) !== pv) return false;
@@ -195,11 +237,17 @@ export function scorePredictions(predictions: Prediction[], key: AnswerKey): Sco
       matchedSlot = bucket.slot;
       grade = opt.grade;
       note = opt.note;
-      if (grade === "VARIETY" && matchesPlausible(pred, key.plausible)) {
+      const isStyle = !!(bucket.style_tokens && bucket.style_tokens.length);
+      if (!isStyle && grade === "VARIETY" && matchesPlausible(pred, key.plausible)) {
         grade = "PLAUSIBLE_OK";
         note = "variety + listed confusable region";
       }
       if (grade === "HIT" && bucket.difficulty === "CURVEBALL") bonus = CURVEBALL_BONUS;
+      // P3: getting the variety right too (optional) is a small bonus.
+      if (isStyle && grade !== "MISS" && varietyMatches(pred, bucket.varieties)) {
+        bonus += 1;
+        note += " (+variety)";
+      }
     } else if (matchesPlausible(pred, key.plausible)) {
       grade = "PLAUSIBLE_OK";
       note = "sound confusable, not in glass";

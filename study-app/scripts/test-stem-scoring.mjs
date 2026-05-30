@@ -69,7 +69,35 @@ const ok = (name, cond) => { if (cond) { pass++; } else { fail++; console.log(" 
   ok("calibration records STRONG+correct", r.calibration[0].tier === "STRONG" && r.calibration[0].correct === true);
 }
 
-// 11. real key from DB: predict the actual buckets -> should be ~100%
+// --- Paper 3 style-mode ---
+const sherry = { slot: 1, varieties: ["Palomino"], region: "Jerez", country: "Spain", style: "Amontillado", style_category: "Sherry", style_tokens: ["amontillado"] };
+// 11. style + region -> HIT
+{
+  const r = scorePredictions([{ style: "Amontillado", region: "Jerez", tier: "STRONG" }], { ground_truth: [sherry], plausible: [] });
+  ok("P3 style+region = HIT", r.grades[0].grade === "HIT" && r.percent === 100);
+}
+// 12. style nailed, region off -> PLAUSIBLE_OK
+{
+  const r = scorePredictions([{ style: "Amontillado", region: "Douro" }], { ground_truth: [sherry], plausible: [] });
+  ok("P3 style nailed / region off = PLAUSIBLE_OK", r.grades[0].grade === "PLAUSIBLE_OK");
+}
+// 13. category + region -> NEAR
+{
+  const r = scorePredictions([{ style: "Sherry", region: "Jerez" }], { ground_truth: [sherry], plausible: [] });
+  ok("P3 category + region = NEAR", r.grades[0].grade === "NEAR");
+}
+// 14. variety bonus on top of HIT
+{
+  const r = scorePredictions([{ style: "Amontillado", region: "Jerez", variety: "Palomino" }], { ground_truth: [sherry], plausible: [] });
+  ok("P3 HIT + variety bonus", r.grades[0].grade === "HIT" && r.grades[0].points === 11);
+}
+// 15. wrong style, right region -> weak (VARIETY)
+{
+  const r = scorePredictions([{ style: "Tawny Port", region: "Jerez" }], { ground_truth: [sherry], plausible: [] });
+  ok("P3 wrong style / right region = VARIETY", r.grades[0].grade === "VARIETY");
+}
+
+// 16. real key from DB: predict the actual buckets -> should be ~100%
 try {
   const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const env = readFileSync(join(ROOT, "study-app", ".env.local"), "utf8");
@@ -86,6 +114,18 @@ try {
     console.log(`  real key: ${r.summary.hits}/${gt.length} HIT, ${r.percent}% (${r.points}/${r.maxPoints})`);
   } else {
     console.log("  (skipped real-key test: row not found)");
+  }
+  // 17. real P3 key: predict style + region -> should be ~100%
+  const p3 = (await sql`
+    SELECT k.ground_truth, k.plausible FROM stem_answer_keys k JOIN generated_questions q ON q.question_id = k.question_id
+    WHERE q.paper = 3 AND k.validated = true LIMIT 1`)[0];
+  if (p3) {
+    const gt = typeof p3.ground_truth === "string" ? JSON.parse(p3.ground_truth) : p3.ground_truth;
+    const pl = typeof p3.plausible === "string" ? JSON.parse(p3.plausible) : p3.plausible;
+    const preds = gt.map((g) => ({ style: g.style, region: g.region, tier: "STRONG" }));
+    const r = scorePredictions(preds, { ground_truth: gt, plausible: pl });
+    ok("real P3 key (style+region) = 100%", r.percent === 100);
+    console.log(`  real P3 key: ${r.summary.hits}/${gt.length} HIT, ${r.percent}% — styles: ${gt.map((g) => g.style).join(", ")}`);
   }
 } catch (e) {
   console.log("  (skipped real-key test:", e.message, ")");

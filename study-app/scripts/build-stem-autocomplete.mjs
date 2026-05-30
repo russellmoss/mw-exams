@@ -10,6 +10,7 @@ const read = (f) => JSON.parse(readFileSync(join(ROOT, "data", f), "utf8"));
 const lex = read("variety_lexicon.json");
 const appVar = read("appellation_varieties.json");
 const bank = read("mock_wine_bank.json");
+const styleLex = read("stem_style_lexicon.json").styles;
 
 const titleCase = (s) => s.replace(/\b\w/g, (c) => c.toUpperCase());
 const clean = (s) => (s || "").toString().trim();
@@ -31,7 +32,15 @@ for (const e of bank) {
 }
 const regions = [...regionSet].sort((a, b) => a.localeCompare(b));
 
-const out = { _generated: "build-stem-autocomplete.mjs", varieties, regions };
+// P3 style/method suggestions: the specific labels + the broad categories.
+const styleSet = new Set();
+for (const s of styleLex) {
+  if (s.label) styleSet.add(s.label);
+  if (s.category) styleSet.add(s.category);
+}
+const styles = [...styleSet].sort((a, b) => a.localeCompare(b));
+
+const out = { _generated: "build-stem-autocomplete.mjs", varieties, regions, styles };
 mkdirSync(join(ROOT, "study-app", "public", "data"), { recursive: true });
 writeFileSync(join(ROOT, "study-app", "public", "data", "stem-autocomplete.json"), JSON.stringify(out, null, 2) + "\n");
-console.log(`wrote stem-autocomplete.json: ${varieties.length} varieties, ${regions.length} regions/places.`);
+console.log(`wrote stem-autocomplete.json: ${varieties.length} varieties, ${regions.length} regions/places, ${styles.length} styles.`);
