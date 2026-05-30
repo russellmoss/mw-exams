@@ -195,7 +195,12 @@ jobs:
             echo "state=READY" >> "$GITHUB_OUTPUT"
             echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
           else
+            # Fail loudly: the change is already merged to master, but the live site did NOT
+            # update. A red step + annotation makes that visible (the old silent-green hid it).
+            # "Record result in Neon" still runs (always()) and records `merged`, not `deployed`.
             echo "state=ERROR" >> "$GITHUB_OUTPUT"
+            echo "::error title=Vercel deploy failed::vercel exited $RC. Change is on master but NOT deployed. Check VERCEL_TOKEN validity. Log above."
+            exit 1
           fi
 
       - name: Open PR (could not verify)
