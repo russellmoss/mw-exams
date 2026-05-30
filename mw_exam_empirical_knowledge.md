@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0095).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0088).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0087).**
@@ -762,6 +763,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 141 | 23 | P3/F7 | accept | auto | novelty check is not session-aware; same question+wines re-served to same user same day | EK-0087 |
 | 143 | 24 | P3/F4 | accept | auto | Another session-not-aware novelty failure (same question re-served); already covered by EK-0087 | EK-0087 |
 | 145 | 25 | P3/F7 | accept | auto | P3 still-white inclusions must be flor/sous-voile paired with a non-still anchor; two conventional still whites belong on P1 | EK-0088 |
+| 161 | 28 | P1/F2 | accept | auto | question images showed regions/wines outside the answer set; limit imagery to keyed wines | EK-0095 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
@@ -901,6 +903,11 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #141 / analysis #23 (accept)
 - **claim:** **Symptom:** a user received the exact same question with the exact same wines twice in one day (a P3 sparkling-pair, Crémant de Limoux + Nyetimber), despite the novelty check reporting `{"valid":true}`. **Root cause:** the novelty check (EK-0051) compares against the historical/static corpus and the last 3–5 served questions in a category, but is **not session-aware** — it does not dedupe against what was just served to this same user, and/or the question was retrieved/cached rather than regenerated. **Fix (pending):** make the novelty/dedup check session-aware so a recently-served question+wine set is not re-served to the same user. **Prevention:** track per-session served question signatures and exclude them at serve time.
+
+### EK-0095 · Question images must depict only the keyed wines/regions, not unrelated ones
+- **tier:** PROCESS · **status:** live
+- **evidence:** ledger: attempt #161 / analysis #28 (accept)
+- **claim:** **Symptom:** images shown alongside a question depicted regions and wines NOT in the keyed answer set (a P1 Vouvray + Saint-Joseph Blanc pair). **Root cause:** image/asset selection is not constrained to the question's actual keyed wines. **Fix (pending PR):** restrict any attached imagery to the wines genuinely in the question. **Prevention:** the real exam never presents imagery of a wine or region other than the one being assessed; visual cues must always map to the keyed wines or they mislead the candidate. Related principle in EK-0050 (P3 visual cues must match the keyed style).
 
 ---
 
