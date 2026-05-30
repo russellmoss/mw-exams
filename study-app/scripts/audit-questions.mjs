@@ -16,9 +16,13 @@ if (apply) {
   await sql`ALTER TABLE generated_questions ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
 }
 
+// Skip archived rows (Phase D: a quarantined question replaced by a regenerated one is marked
+// metadata.archived=true). They stay hidden from both study flows and out of the audit's tally,
+// so a remediated corpus can report 0 HARD violations on the live pool.
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, k.ground_truth, k.validated
   FROM generated_questions g JOIN stem_answer_keys k ON k.question_id = g.question_id
+  WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
 
 let hardCount = 0, softCount = 0, quarantined = 0;

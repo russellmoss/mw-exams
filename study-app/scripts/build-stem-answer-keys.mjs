@@ -19,7 +19,7 @@
 // data/stem_proprietary_blends.json, plus data/mock_wine_bank.json. DB creds from study-app/.env.local.
 
 import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { dirname, join } from "path";
 import { neon } from "@neondatabase/serverless";
 
@@ -110,10 +110,30 @@ function appResolve(entry, col) {
   if (entry.byColor) return col && entry.byColor[col] ? entry.byColor[col] : null;
   return null;
 }
+// Grape names explicitly written on the label (most reliable variety signal). Scans the lexicon
+// (varieties + synonyms) for tokens present in the wine text and returns canonical varieties.
+function explicitVarietiesFromText(ft) {
+  const nf = pad(ft);
+  const found = new Set();
+  for (const [t, c] of lexList) if (nf.includes(t)) found.add(c);
+  return [...found];
+}
+// True when the label explicitly names grape(s) and NONE of them appear in `candidate` — i.e. the
+// candidate variety (from a fuzzy bank match or profile) contradicts the labelled grape. A
+// producer+region bank match can wrongly attach e.g. that producer's Malbec to their Chardonnay;
+// the explicit label must win, so we reject the conflicting source and resolve from the text.
+function conflictsWithLabel(candidateVarieties, explicit) {
+  if (!explicit.length || !candidateVarieties?.length) return false;
+  const cand = new Set(candidateVarieties.map(norm));
+  return !explicit.some((v) => cand.has(norm(v)));
+}
 function resolveVariety(wp, ft, col) {
+  const explicit = explicitVarietiesFromText(ft);
   const e = wp.bank_match ? bankById[wp.bank_match] : null;
-  if (e && (e.grape_varieties || []).length) return { v: e.grape_varieties, src: "bank" };
-  if ((wp.grape_varieties || []).length) return { v: wp.grape_varieties, src: "profile" };
+  if (e && (e.grape_varieties || []).length && !conflictsWithLabel(e.grape_varieties, explicit))
+    return { v: e.grape_varieties, src: "bank" };
+  if ((wp.grape_varieties || []).length && !conflictsWithLabel(wp.grape_varieties, explicit))
+    return { v: wp.grape_varieties, src: "profile" };
   const nf = pad(ft);
   for (const [m, entry] of propList) if (norm(ft).includes(m)) return { v: entry.varieties, src: "proprietary" };
   for (const [t, entry] of appList) {
@@ -197,14 +217,11 @@ async function migrate() {
   console.log("migrations applied (user_attempts.mode/drill_payload, stem_answer_keys).");
 }
 
-// ---------- build ----------
-async function build() {
-  const rows = await sql`
-    SELECT question_id, paper, family, question_text, wines, wine_profiles
-    FROM generated_questions WHERE wine_profiles IS NOT NULL`;
-  let validated = 0;
-  const failures = [];
-  for (const r of rows) {
+// ---------- build (one row) ----------
+// Derive the answer key for a single generated_questions row. Pure (no DB writes) so it can be
+// reused by the remediation loop to validate a freshly generated question before committing it.
+// Returns { ground, plausible, source, ok, problems }.
+export function buildKeyForRow(r) {
     const wines = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
     const wp = typeof r.wine_profiles === "string" ? JSON.parse(r.wine_profiles) : r.wine_profiles;
     const ground = [];
@@ -226,10 +243,14 @@ async function build() {
           curatedConfusables.push({ variety: c.variety, region: c.region, country: c.country || null, tier: "PLAUSIBLE" });
         }
       }
-      // §2b consistency: variety present, origin present, consistent with profile grapes if any
+      // §2b consistency: variety present, origin present, consistent with profile grapes if any.
+      // BUT if the profile grapes themselves conflict with the explicit grape on the label, the
+      // profile is the unreliable source (a fuzzy producer/region bank mis-match — see
+      // resolveVariety's guard), so we trust the label and skip the mismatch penalty.
+      const explicit = explicitVarietiesFromText(w.fullText);
       if (!v.length) problems.push(`W${w.slot} no-variety`);
       if (!o.ok) problems.push(`W${w.slot} no-origin`);
-      if (v.length && (prof.grape_varieties || []).length) {
+      if (v.length && (prof.grape_varieties || []).length && !conflictsWithLabel(prof.grape_varieties, explicit)) {
         const profSet = new Set(prof.grape_varieties.map(norm));
         if (!v.some((x) => profSet.has(norm(x)))) problems.push(`W${w.slot} variety/profile mismatch`);
       }
@@ -273,15 +294,36 @@ async function build() {
       plausible.unshift(c);
     }
     const ok = problems.length === 0;
-    if (ok) validated++;
-    else failures.push(`${r.question_id} (P${r.paper} ${r.family}): ${problems.join("; ")}`);
-    await sql`
-      INSERT INTO stem_answer_keys (question_id, ground_truth, plausible, source, validated, generated_at)
-      VALUES (${r.question_id}, ${JSON.stringify(ground)}::jsonb, ${JSON.stringify(plausible)}::jsonb,
-              ${JSON.stringify(source)}::jsonb, ${ok}, now())
-      ON CONFLICT (question_id) DO UPDATE SET
-        ground_truth = EXCLUDED.ground_truth, plausible = EXCLUDED.plausible,
-        source = EXCLUDED.source, validated = EXCLUDED.validated, generated_at = now()`;
+    return { ground, plausible, source, ok, problems };
+}
+
+// ---------- upsert one key ----------
+export async function upsertKey(questionId, { ground, plausible, source, ok }) {
+  await sql`
+    INSERT INTO stem_answer_keys (question_id, ground_truth, plausible, source, validated, generated_at)
+    VALUES (${questionId}, ${JSON.stringify(ground)}::jsonb, ${JSON.stringify(plausible)}::jsonb,
+            ${JSON.stringify(source)}::jsonb, ${ok}, now())
+    ON CONFLICT (question_id) DO UPDATE SET
+      ground_truth = EXCLUDED.ground_truth, plausible = EXCLUDED.plausible,
+      source = EXCLUDED.source, validated = EXCLUDED.validated, generated_at = now()`;
+}
+
+// ---------- build (all live rows) ----------
+export async function build() {
+  // Skip archived rows (Phase D: a quarantined question replaced by a regenerated one is marked
+  // metadata.archived=true so it leaves the live pool and is never re-validated here).
+  const rows = await sql`
+    SELECT question_id, paper, family, question_text, wines, wine_profiles
+    FROM generated_questions
+    WHERE wine_profiles IS NOT NULL
+      AND (metadata->>'archived') IS DISTINCT FROM 'true'`;
+  let validated = 0;
+  const failures = [];
+  for (const r of rows) {
+    const key = buildKeyForRow(r);
+    if (key.ok) validated++;
+    else failures.push(`${r.question_id} (P${r.paper} ${r.family}): ${key.problems.join("; ")}`);
+    await upsertKey(r.question_id, key);
   }
   console.log(`\nstem_answer_keys built: ${validated}/${rows.length} validated:true (${Math.round((validated / rows.length) * 100)}%).`);
   if (failures.length) {
@@ -290,6 +332,10 @@ async function build() {
   }
 }
 
-await migrate();
-await build();
-console.log("done.");
+// Auto-run migrations + full build only when executed directly (not when imported as a lib,
+// and not under `node -e` where argv[1] is undefined).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await migrate();
+  await build();
+  console.log("done.");
+}
