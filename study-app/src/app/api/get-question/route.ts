@@ -255,9 +255,28 @@ export async function POST(request: Request) {
       return generateFreshQuestion(paper, family, userApiKey, meta);
     }
 
+    // Session-aware dedup. The banked pools below are keyed on whether a question has a *completed*
+    // attempt, so a question the user only opened/revealed (no submitted answer) stays "unanswered"
+    // and gets re-served — that's the exact "same question twice today" repeat users complained
+    // about. Treat every question the user has *recently started* as already served, and exclude it
+    // from the banked candidate pools so generation produces fresh wines instead of a repeat.
+    const recentAttempts = await getRecentAttempts(100);
+    const recentForUser =
+      meta.userId != null
+        ? recentAttempts.filter(
+            (a) => (a as { user_id?: number | null }).user_id === meta.userId
+          )
+        : recentAttempts;
+    const RECENT_SESSION_WINDOW = 40;
+    const recentlyServedIds = new Set(
+      recentForUser.slice(0, RECENT_SESSION_WINDOW).map((a) => a.question_id)
+    );
+
     // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
     // Filter through current validators — catches legacy questions that predate new rules
-    const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family));
+    const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family)).filter(
+      (q) => !recentlyServedIds.has(q.question_id)
+    );
     if (unanswered.length > 0) {
       let picked = pickFlightSizeAware(unanswered, family);
       picked = await ensureP3Appearances(picked, userApiKey, meta);
@@ -271,13 +290,14 @@ export async function POST(request: Request) {
 
     // PRIORITY 2: Previously answered but stale (seen 7+ others since last attempt)
     const available = await getQuestionsByFilter(paper, family);
-    const recentAttempts = await getRecentAttempts(100);
 
     const categoryAttempts = recentAttempts
       .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
       .map((a) => a.question_id);
 
-    const validAvailable = filterValidBanked(available);
+    const validAvailable = filterValidBanked(available).filter(
+      (q) => !recentlyServedIds.has(q.question_id)
+    );
     const staleWithAnswers = validAvailable.filter((q) => {
       if (!q.model_answer || q.model_answer.length < 100) return false;
       const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
