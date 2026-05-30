@@ -14,6 +14,7 @@ import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { requireApiKey } from "@/lib/api-key";
 import { logClaudeUsage } from "@/lib/usage-log";
+import { stemSniperScoringModel } from "@/lib/question-validator";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -1031,14 +1032,28 @@ function parseGeneratedQuestion(
   }
 }
 
-function sanitizeQuestionMetadata<T extends { family: string; family_label: string; subcategory: string | null }>(
-  question: T
-): T {
+function sanitizeQuestionMetadata<
+  T extends { family: string; family_label: string; subcategory: string | null; question_text?: string; wines?: unknown }
+>(question: T): T & { stem_sniper_scoring: "per-wine" | "set" } {
+  // Tell the Stem Sniper drill how to score origin predictions for this flight. Same-variety
+  // flights are scored as a SET (origin pool) rather than per-wine binary, because the stem gives
+  // no clue which origin maps to which wine number — see stemSniperScoringModel.
+  const wines = typeof question.wines === "string" ? safeParseWines(question.wines) : question.wines;
+  const wineCount = Array.isArray(wines) ? wines.length : 0;
   return {
     ...question,
     family_label: FAMILY_LABELS[question.family] || question.family_label || "Unknown",
     subcategory: sanitizeSubcategory(question.subcategory || ""),
+    stem_sniper_scoring: stemSniperScoringModel(question.question_text, wineCount),
   };
+}
+
+function safeParseWines(raw: string): unknown {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 function sanitizeSubcategory(value: string): string {

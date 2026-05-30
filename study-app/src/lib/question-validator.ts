@@ -25,6 +25,12 @@ export interface Violation {
   detail: string;
 }
 
+// How the Stem Sniper drill should score a flight's origin predictions.
+//   "per-wine" — score each wine's predicted origin individually (correct/incorrect per wine).
+//   "set"      — score the predicted *pool* of origins (did the candidate name the right set?),
+//                because the stem gives no clue which origin maps to which wine number.
+export type StemSniperScoringModel = "per-wine" | "set";
+
 const NUM: Record<string, number> = {
   one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
   seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
@@ -45,11 +51,37 @@ const canonVariety = (s?: string) => {
   return VARIETY_SYNONYMS[n] || n;
 };
 
-export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations: Violation[] } {
+// Normalise a stem the same way validateQuestion does (lower-case, accents stripped, punctuation
+// flattened so "same, single grape variety" reads as "same single grape variety").
+const normStem = (questionText?: string) =>
+  norm(questionText).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+
+// Stem Sniper scoring model for a flight.
+//
+// In a "same (single) grape variety" flight the variety is ONE shared answer, but the origins
+// differ per wine and the stem gives no clue which origin maps to which wine number. From the stem
+// alone a candidate can only identify the likely *pool* of origins (e.g. {Northern Rhône, Barossa,
+// Stellenbosch, …} for a Syrah/Shiraz flight) — the exact wine-number assignment is irreducibly
+// ambiguous without the wine in the glass. The MW exam rewards this pool/funnel reasoning, not the
+// per-wine mapping: "More marks can be given when the conclusion is wrong, as we can then see and
+// reward intelligent thinking" (2019 Examiner Report). So such flights must be scored as a SET
+// (variety + origin pool, with optional per-wine-assignment bonus), not per-wine binary. Every
+// other flight keeps the existing per-wine scoring.
+export function stemSniperScoringModel(questionText?: string, wineCount = 0): StemSniperScoringModel {
+  const stem = normStem(questionText);
+  const sameVariety = /\bsame (?:single )?grape variety\b|\bsame variety\b/.test(stem);
+  return sameVariety && wineCount >= 2 ? "set" : "per-wine";
+}
+
+export function validateQuestion(q: QuestionForAudit): {
+  ok: boolean;
+  violations: Violation[];
+  scoringModel: StemSniperScoringModel;
+} {
   const v: Violation[] = [];
   // Strip punctuation for phrase matching so "same, single grape variety" reads as "same single
   // grape variety" (a real comma-bug seen in the corpus).
-  const stem = norm(q.questionText).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+  const stem = normStem(q.questionText);
   const wines = q.wines || [];
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
@@ -119,5 +151,9 @@ export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations
   if (q.totalMarks && wines.length && q.totalMarks !== wines.length * 25)
     v.push({ rule: "marks", severity: "soft", detail: `total_marks ${q.totalMarks} != ${wines.length}×25` });
 
-  return { ok: !v.some((x) => x.severity === "hard"), violations: v };
+  return {
+    ok: !v.some((x) => x.severity === "hard"),
+    violations: v,
+    scoringModel: stemSniperScoringModel(q.questionText, wines.length),
+  };
 }
