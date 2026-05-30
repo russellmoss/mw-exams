@@ -2,6 +2,13 @@
 
 import { useState, useCallback, useRef } from "react";
 
+// Hide raw [[IMG:...]] image tokens from the live view. During streaming the model emits these
+// markers; the server replaces them with real images and sends a final "enriched" payload. Until
+// that lands we just suppress the tokens so the user never sees the raw markup.
+function hideImageTokens(text: string): string {
+  return text.replace(/\[\[IMG:[^\]]*\]\]/g, "");
+}
+
 interface UseStreamingResult {
   text: string;
   isStreaming: boolean;
@@ -67,7 +74,11 @@ export function useStreaming(): UseStreamingResult {
               if (data === "[DONE]") continue;
               try {
                 const parsed = JSON.parse(data);
-                if (parsed.t) {
+                if (parsed.enriched) {
+                  // Authoritative final text from the server: image tokens already replaced with
+                  // real images. Use it verbatim (this is what gets persisted).
+                  accumulated = parsed.enriched;
+                } else if (parsed.t) {
                   accumulated += parsed.t;
                 } else if (parsed.error) {
                   accumulated += `\n\n**Error:** ${parsed.error}`;
@@ -76,12 +87,16 @@ export function useStreaming(): UseStreamingResult {
                 // Fallback for non-JSON data
                 accumulated += data;
               }
-              setText(accumulated);
+              setText(hideImageTokens(accumulated));
             }
           }
         }
 
         setIsStreaming(false);
+        // If the enriched payload never arrived (e.g. error before it), make sure no raw tokens leak
+        // into the persisted text.
+        accumulated = hideImageTokens(accumulated);
+        setText(accumulated);
         return accumulated;
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") {

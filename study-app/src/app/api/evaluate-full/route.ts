@@ -4,6 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
+import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -140,7 +141,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
     const stream = await client.messages.stream({
       model,
       max_tokens: 3000,
-      system: systemPrompt,
+      system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
       messages: [{ role: "user", content: userMessage }],
     });
 
@@ -149,11 +150,13 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
     const readable = new ReadableStream({
       async start(controller) {
         try {
+          let fullText = "";
           for await (const event of stream) {
             if (
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
+              fullText += event.delta.text;
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(
                 encoder.encode(`data: ${jsonChunk}\n\n`)
@@ -166,6 +169,14 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
             final.usage,
             { latencyMs: Date.now() - t0 }
           );
+          // Resolve image tokens to cached, subtitled images; send the enriched markdown as the
+          // authoritative final text (the client saves this). Best-effort — tokens are stripped on failure.
+          try {
+            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
+          } catch (enrichErr) {
+            console.error("full-debrief image enrichment failed:", enrichErr);
+          }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {

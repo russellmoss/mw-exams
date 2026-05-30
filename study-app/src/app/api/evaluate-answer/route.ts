@@ -3,8 +3,11 @@ import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluati
 import { requireApiKey } from "@/lib/api-key";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
+import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
 
 export const runtime = "nodejs";
+// Generous budget: after the text streams we resolve up to 3 illustration images (Tavily + download).
+export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
@@ -46,7 +49,7 @@ Please evaluate this candidate's answer against the model answer. Assess identif
     const stream = await client.messages.stream({
       model,
       max_tokens: 2000,
-      system: systemPrompt,
+      system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
       messages: [{ role: "user", content: userMessage }],
     });
 
@@ -55,11 +58,13 @@ Please evaluate this candidate's answer against the model answer. Assess identif
     const readable = new ReadableStream({
       async start(controller) {
         try {
+          let fullText = "";
           for await (const event of stream) {
             if (
               event.type === "content_block_delta" &&
               event.delta.type === "text_delta"
             ) {
+              fullText += event.delta.text;
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
             }
@@ -70,6 +75,15 @@ Please evaluate this candidate's answer against the model answer. Assess identif
             final.usage,
             { latencyMs: Date.now() - t0 }
           );
+          // Resolve the model's image tokens to cached, subtitled images and send the enriched
+          // markdown as the authoritative final text (the client saves this version). Best-effort:
+          // on any failure the tokens are stripped so the user still gets clean feedback.
+          try {
+            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
+          } catch (enrichErr) {
+            console.error("answer-eval image enrichment failed:", enrichErr);
+          }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (err) {
