@@ -115,9 +115,10 @@ export function validateQuestion(q: QuestionForAudit): { ok: boolean; violations
       detail: `stem says single grape variety; a wine is a blend (${wines.filter((w) => w.is_blend).map((w) => w.varieties.join("/")).join("; ")})`,
     });
 
-  // R6 — marks: 25 per wine (universal in the MW corpus). Soft.
+  // R6 — marks: 25 per wine (universal in the MW corpus). HARD — a wrong total means the question
+  // can't match the real exam's mark scheme (EK-0001/EK-0041, zero corpus exceptions 2014–2025).
   if (q.totalMarks && wines.length && q.totalMarks !== wines.length * 25)
-    v.push({ rule: "marks", severity: "soft", detail: `total_marks ${q.totalMarks} != ${wines.length}×25` });
+    v.push({ rule: "marks", severity: "hard", detail: `total_marks ${q.totalMarks} != ${wines.length}×25` });
 
   return { ok: !v.some((x) => x.severity === "hard"), violations: v };
 }

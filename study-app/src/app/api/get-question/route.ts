@@ -830,7 +830,9 @@ function validateMarkAllocation(questionText: string, wineCount?: number): { val
 
     if (totalMarks > 0) {
       const expectedTotal = wineCount * 25;
-      if (Math.abs(totalMarks - expectedTotal) > 2) {
+      // Exactly 25/wine — no tolerance. Marks parse as clean integers, so any deviation is a real
+      // mis-allocation (e.g. 8+7+8+7 = 30/wine), not parse noise. (EK-0001/EK-0041.)
+      if (totalMarks !== expectedTotal) {
         violations.push(
           `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
         );
