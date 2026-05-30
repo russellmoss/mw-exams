@@ -25,27 +25,35 @@ const varieties = [...new Set(lex.varieties.map(clean).filter(Boolean))].sort((a
 //     while keeping place-names that double as categories (Champagne, Madeira, Jerez, Etna...)
 const STRIP = new Set([
   "aoc", "doc", "docg", "doca", "do", "igp", "gi", "ava", "premier", "1er", "cru", "grand", "gran",
-  "riserva", "reserva", "crianza", "superiore", "villages", "vors", "vos", "nv", "mv", "sec",
+  "riserva", "reserva", "crianza", "superiore", "classico", "villages", "vors", "vos", "nv", "mv", "sec",
   "blanc", "blancs", "rouge", "rosso", "bianco", "blanco", "rose", "rosato", "rosado", "demi", "moelleux",
 ]);
 const ALLOW = new Set([
   "champagne", "madeira", "jerez", "douro", "tokaj", "sauternes", "barsac", "banyuls", "maury",
   "rivesaltes", "rutherglen", "savennieres", "valdobbiadene", "cartizze", "penedes", "etna",
-  "chianti classico", "marsala", "montilla", "constantia", "tokaji",
+  "marsala", "montilla", "constantia", "tokaji",
 ]);
 const DROP = [
   "amontillado", "oloroso", "fino", "manzanilla", "palo cortado", "palo", "cortado", "cream",
   "east india", "solera", "tawny", "ruby", "port", "porto", "sherry", "sercial", "verdelho madeira",
   "bual", "boal", "malmsey", "aszu", "puttonyos", "beerenauslese", "trockenbeerenauslese", "auslese",
   "spatlese", "kabinett", "icewine", "eiswein", "paille", "santo", "recioto", "passito", "cava",
-  "brut", "prosecco", "quartet", "cuvee", "inopia", "para grand",
+  "brut", "prosecco", "quartet", "cuvee", "inopia", "para grand", "sekt", "amber", "cullen",
 ];
 const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+// Grape-variety words to strip out of region candidates (so "Arbois Savagnin" -> "Arbois",
+// "Alsace Riesling" -> "Alsace"). Only words >=5 chars to avoid clipping short place tokens.
+const VAR_WORDS = new Set();
+for (const v of lex.varieties) for (const w of norm(v).split(/\s+/)) if (w.length >= 5) VAR_WORDS.add(w);
+for (const k of Object.keys(lex.synonyms || {})) for (const w of norm(k).split(/\s+/)) if (w.length >= 5) VAR_WORDS.add(w);
 const cleanPlace = (raw) => {
   const v = clean(raw);
   if (!v || v.toLowerCase() === "unknown") return null;
   if (/[,/()]|—|–/.test(v)) return null; // compound/notes/producer field
-  const kept = v.split(/\s+/).filter((w) => !STRIP.has(norm(w).replace(/[^a-z0-9]/g, "")));
+  const kept = v.split(/\s+/).filter((w) => {
+    const nw = norm(w).replace(/[^a-z0-9]/g, "");
+    return !STRIP.has(nw) && !VAR_WORDS.has(nw);
+  });
   const out = kept.join(" ").trim();
   if (out.length < 3) return null;
   const n = norm(out);
