@@ -91,16 +91,17 @@ export async function getQuestionsByFilter(
   paper: number,
   family?: string
 ): Promise<GeneratedQuestion[]> {
+  // NOTE: badness is gated solely by `invalid_reasons IS NULL` (the quarantine flag set by the
+  // validator/audit and the "question" feedback kind). We intentionally do NOT exclude questions
+  // merely because some attempt has feedback_status='accepted': accepting a UX complaint (e.g.
+  // "you repeated this") or an answer-key fix must not silently delete an otherwise-valid question
+  // from everyone's bank. Per-user repetition is handled at the serve layer, not here.
   const sql = getDb();
   if (family && family !== "any") {
     return (await sql`
       SELECT * FROM generated_questions
       WHERE paper = ${paper} AND family = ${family}
         AND invalid_reasons IS NULL
-        AND question_id NOT IN (
-          SELECT DISTINCT ua.question_id FROM user_attempts ua
-          WHERE ua.feedback_status = 'accepted'
-        )
       ORDER BY created_at DESC
     `) as GeneratedQuestion[];
   }
@@ -108,10 +109,6 @@ export async function getQuestionsByFilter(
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
       AND invalid_reasons IS NULL
-      AND question_id NOT IN (
-        SELECT DISTINCT ua.question_id FROM user_attempts ua
-        WHERE ua.feedback_status = 'accepted'
-      )
     ORDER BY created_at DESC
   `) as GeneratedQuestion[];
 }
@@ -128,38 +125,40 @@ export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQ
 
 export async function getUnansweredQuestions(
   paper: number,
-  family?: string
+  family?: string,
+  userId?: number | null
 ): Promise<GeneratedQuestion[]> {
+  // "Unanswered" means not completed BY THIS USER. Previously the completed-attempt join was
+  // global, so a question any user finished disappeared from everyone's pool — and, conversely,
+  // one user's history could never protect a different user from repeats. Scoping the join to
+  // `userId` fixes both. `uid` null (server/no-user context) preserves the old global behaviour.
+  const uid = userId ?? null;
   const sql = getDb();
   if (family && family !== "any") {
     return (await sql`
       SELECT q.* FROM generated_questions q
-      LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
+      LEFT JOIN user_attempts a ON q.question_id = a.question_id
+        AND a.completed_at IS NOT NULL
+        AND (${uid}::int IS NULL OR a.user_id = ${uid})
       WHERE q.paper = ${paper}
         AND q.family = ${family}
         AND q.invalid_reasons IS NULL
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
-        AND q.question_id NOT IN (
-          SELECT DISTINCT ua.question_id FROM user_attempts ua
-          WHERE ua.feedback_status = 'accepted'
-        )
       ORDER BY q.created_at ASC
     `) as GeneratedQuestion[];
   }
   return (await sql`
     SELECT q.* FROM generated_questions q
-    LEFT JOIN user_attempts a ON q.question_id = a.question_id AND a.completed_at IS NOT NULL
+    LEFT JOIN user_attempts a ON q.question_id = a.question_id
+      AND a.completed_at IS NOT NULL
+      AND (${uid}::int IS NULL OR a.user_id = ${uid})
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
-      AND q.question_id NOT IN (
-        SELECT DISTINCT ua.question_id FROM user_attempts ua
-        WHERE ua.feedback_status = 'accepted'
-      )
     ORDER BY q.created_at ASC
   `) as GeneratedQuestion[];
 }
@@ -290,14 +289,19 @@ export async function reviewFeedback(
   return rows[0] as UserAttempt;
 }
 
-export async function getRecentAttempts(limit = 20): Promise<
+export async function getRecentAttempts(limit = 20, userId?: number | null): Promise<
   (UserAttempt & { paper: number; family: string; family_label: string })[]
 > {
+  // When `userId` is given, returns only that user's recent attempts — so the serve layer can build
+  // a per-user "recently served" set instead of one polluted by other users' activity. `uid` null
+  // preserves the prior global behaviour for any caller that wants a cross-user view.
+  const uid = userId ?? null;
   const sql = getDb();
   return (await sql`
     SELECT a.*, q.paper, q.family, q.family_label
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
+    WHERE (${uid}::int IS NULL OR a.user_id = ${uid})
     ORDER BY a.started_at DESC
     LIMIT ${limit}
   `) as (UserAttempt & { paper: number; family: string; family_label: string })[];

@@ -287,6 +287,13 @@ ${latestQuestion.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}
 
 Your new question must be materially different from this latest question. Do not reuse the same paper + family + country/region pattern with substantially the same grape/appellation set. If you choose the same broad country or family, change the question structure and the grape/region set enough that it is clearly a new exam problem.
 ` : ""}
+## QUESTION NOVELTY — DO NOT REUSE THE STRUCTURAL TEMPLATE OR PEDAGOGICAL CONTRAST
+Novelty is not just about picking different wines. A candidate must not be able to recognise and "nail" a question because they have already seen its shape. A new question is a NEAR-DUPLICATE — and will be rejected — if it shares BOTH of the following with a recent question:
+- the same structural template (same family, same flight size, same stem phrasing — e.g. "X wines from different countries, each made predominantly from a different, single grape variety"), AND
+- the same primary pedagogical contrast / core skill being tested (e.g. botrytis vs. passerillage sweetness mechanisms; same-variety different-country origin discrimination; arrested-fermentation low-alcohol vs. dried-grape high-alcohol).
+
+Swapping the specific wines while keeping the same stem template AND the same contrast axis is NOT enough — that is the exact repetition we are eliminating. When you reuse a familiar template, you MUST change the contrast axis (test a different mechanism, a different identification skill, or a different style category) or change the structure (different flight size, different sub-question mix). Aim for a question that feels like a fresh exam problem, not a re-skin of a previous one.
+
 ## SAME-ORIGIN DIVERSITY GUARDRAIL
 For F2 same-origin questions where the stem says the wines are from the same country/region and does NOT explicitly say "same single grape variety" or specify a smaller number of represented varieties, hidden variety repetition is invalid. The wines must be genuinely different identification targets, not just stylistic variants of the same grape.
 

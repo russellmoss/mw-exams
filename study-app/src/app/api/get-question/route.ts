@@ -255,9 +255,21 @@ export async function POST(request: Request) {
       return generateFreshQuestion(paper, family, userApiKey, meta);
     }
 
-    // PRIORITY 1: Unanswered banked questions with model answers ready (instant, best UX)
-    // Filter through current validators — catches legacy questions that predate new rules
-    const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family));
+    // Per-user "recently served" set. The banked pools key on COMPLETED attempts, so a question
+    // the user only opened/revealed (never submitted) still counts as "unanswered" and would be
+    // re-served — the exact "same question twice today" repeat users reported. Treat anything this
+    // user recently STARTED as already served and exclude it from every banked path below (incl. the
+    // generation-failure fallback). User-scoped so one user's history can't pollute another's.
+    const recentAttempts = await getRecentAttempts(100, meta.userId);
+    const RECENT_SERVED_WINDOW = 40;
+    const recentlyServedIds = new Set(
+      recentAttempts.slice(0, RECENT_SERVED_WINDOW).map((a) => a.question_id)
+    );
+
+    // PRIORITY 1: Unanswered (by THIS user) banked questions with model answers ready (instant UX).
+    // Filter through current validators — catches legacy questions that predate new rules.
+    const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family, meta.userId))
+      .filter((q) => !recentlyServedIds.has(q.question_id));
     if (unanswered.length > 0) {
       let picked = pickFlightSizeAware(unanswered, family);
       picked = await ensureP3Appearances(picked, userApiKey, meta);
@@ -269,15 +281,15 @@ export async function POST(request: Request) {
       });
     }
 
-    // PRIORITY 2: Previously answered but stale (seen 7+ others since last attempt)
+    // PRIORITY 2: Previously answered but stale (this user has seen 7+ others since last attempt)
     const available = await getQuestionsByFilter(paper, family);
-    const recentAttempts = await getRecentAttempts(100);
 
     const categoryAttempts = recentAttempts
       .filter((a) => a.paper === paper && (family === "any" || !family || a.family === family))
       .map((a) => a.question_id);
 
-    const validAvailable = filterValidBanked(available);
+    const validAvailable = filterValidBanked(available)
+      .filter((q) => !recentlyServedIds.has(q.question_id));
     const staleWithAnswers = validAvailable.filter((q) => {
       if (!q.model_answer || q.model_answer.length < 100) return false;
       const lastSeenIdx = categoryAttempts.indexOf(q.question_id);
@@ -296,8 +308,8 @@ export async function POST(request: Request) {
       });
     }
 
-    // PRIORITY 3: Generate fresh on the fly
-    return generateFreshQuestion(paper, family, userApiKey, meta);
+    // PRIORITY 3: Generate fresh on the fly (passes the per-user seen set so the fallback can't repeat)
+    return generateFreshQuestion(paper, family, userApiKey, meta, recentlyServedIds);
   } catch (err) {
     console.error("get-question error:", err);
     return Response.json(
@@ -307,7 +319,13 @@ export async function POST(request: Request) {
   }
 }
 
-async function generateFreshQuestion(paper: number, family: string | undefined, apiKey: string, meta?: UsageMeta) {
+async function generateFreshQuestion(
+  paper: number,
+  family: string | undefined,
+  apiKey: string,
+  meta?: UsageMeta,
+  recentlyServedIds?: Set<string>
+) {
   const client = new Anthropic({ apiKey });
 
   // Pull existing wines from the bank for deduplication
@@ -320,7 +338,11 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     }
   }
 
-  const recentGenerated = await getRecentGeneratedQuestions(5);
+  // Pull a deeper window of recent questions so the novelty check can catch a STRUCTURAL repeat
+  // (same stem template + same pedagogical contrast) that happened several questions ago, not just
+  // an exact repeat of the immediately-previous one. (Feedback: a user was served the same sweet-wine
+  // "different countries / different single variety / sweetness mechanism" template they'd already seen.)
+  const recentGenerated = await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
   const prompt = await buildQuestionGenerationPrompt(
     paper,
@@ -468,9 +490,16 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     const flightSizeCheck = relaxNiceToHave
       ? { valid: true, violations: [] }
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
-    const noveltyCheck = relaxNiceToHave
-      ? { valid: true, violations: [] }
-      : validateNoveltyAgainstLatest(candidate, latestQuestion, recentGenerated.map(normalizeGeneratedQuestionWines));
+    // Novelty NEVER fully relaxes: serving a user a question whose shape they've already seen defeats
+    // the practice system. On relaxed attempts it runs in "lenient" mode — still blocks exact AND
+    // structural/thematic repeats (same template + contrast axis), but drops the fuzzier
+    // family/country/variety heuristic so generation can still converge.
+    const noveltyCheck = validateNoveltyAgainstLatest(
+      candidate,
+      latestQuestion,
+      recentGenerated.map(normalizeGeneratedQuestionWines),
+      { lenient: relaxNiceToHave }
+    );
 
     lastViolations = [
       ...paperScopeCheck.violations,
@@ -495,10 +524,16 @@ async function generateFreshQuestion(paper: number, family: string | undefined, 
     console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed:`, JSON.stringify(lastViolations));
   }
 
-  // Fallback: if generation failed, serve ANY banked question rather than showing an error
+  // Fallback: if generation failed, serve a banked question rather than showing an error — but
+  // never one this user was just served (that was a silent repeat vector). Only drop the per-user
+  // filter as an absolute last resort below, when excluding seen questions would leave nothing.
   if (!parsed || !validation) {
-    console.error("All generation attempts failed, falling back to any banked question");
-    const fallback = filterValidBanked(await getQuestionsByFilter(paper));
+    console.error("All generation attempts failed, falling back to a banked question");
+    const allFallback = filterValidBanked(await getQuestionsByFilter(paper));
+    const unseen = recentlyServedIds
+      ? allFallback.filter((q) => !recentlyServedIds.has(q.question_id))
+      : allFallback;
+    const fallback = unseen.length > 0 ? unseen : allFallback;
     const withAnswers = fallback.filter((q) => q.model_answer && q.model_answer.length > 100);
     if (withAnswers.length > 0) {
       const picked = withAnswers[Math.floor(Math.random() * withAnswers.length)];
@@ -1066,11 +1101,57 @@ function normalizeGeneratedQuestionWines(
   };
 }
 
+// A structural/thematic "fingerprint" of a stem: the recurring MW phrase patterns and sub-question
+// topics, with all wine-specific content (producers, regions, varieties, vintages) ignored. Two
+// questions sharing this fingerprint test the SAME skill in the SAME shape — e.g. "sweet wines from
+// different countries, each a different single variety, comment on the sweetness mechanism and state
+// the RS" — even when the specific wines differ. Catching that is the gap that let a user be
+// re-served the same template they'd already nailed without analysis.
+const STEM_CONCEPT_PATTERNS: { token: string; re: RegExp }[] = [
+  { token: "style:sweet", re: /\bsweet wines?\b/ },
+  { token: "style:sparkling", re: /\bsparkling\b/ },
+  { token: "style:fortified", re: /\bfortified\b/ },
+  { token: "style:rose", re: /\bros[eé]\b/ },
+  { token: "style:oxidative", re: /\boxidative\b|\bvin jaune\b|\borange wine\b/ },
+  { token: "origin:diff-country", re: /\bdifferent countr/ },
+  { token: "origin:same-country", re: /\bsame countr/ },
+  { token: "origin:diff-region", re: /\bdifferent region/ },
+  { token: "origin:same-region", re: /\bsame region\b/ },
+  { token: "variety:diff-single", re: /\bdifferent,?\s*(single|predominant)\b[^.]*\bvariet/ },
+  { token: "variety:same-single", re: /\bsame (single )?grape variet/ },
+  { token: "ask:identify-region", re: /\bidentif[a-z]+\b[^.]*\bregion\b|\b(country|region) of origin\b/ },
+  { token: "ask:identify-variety", re: /\bidentif[a-z]+\b[^.]*\bvariet/ },
+  { token: "ask:production", re: /\bmethod of production\b|\bwinemaking\b|\bhow [a-z ]+ (made|produced)\b/ },
+  { token: "ask:sweetness-mechanism", re: /\bmechanism\b[^.]*\bsweet|\bsweetness (was|is) achiev/ },
+  { token: "ask:residual-sugar", re: /\bresidual sugar\b|\brs level\b/ },
+  { token: "ask:quality", re: /\bquality\b/ },
+  { token: "ask:commercial", re: /\bcommercial (appeal|position|success)\b|\bconsumer appeal\b/ },
+  { token: "ask:style", re: /\bstyle\b/ },
+  { token: "ask:maturity", re: /\bmaturit|\bageing potential\b|\bage(?:ing)? worthiness\b/ },
+  { token: "ask:climate", re: /\bclimate\b/ },
+];
+
+function stemStructureSignature(text: string): Set<string> {
+  const t = (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\(\d+\s*[x×]?\s*\d*\s*marks?\)/g, " ")
+    .replace(/\s+/g, " ");
+  const sig = new Set<string>();
+  for (const { token, re } of STEM_CONCEPT_PATTERNS) {
+    if (re.test(t)) sig.add(token);
+  }
+  return sig;
+}
+
 function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
   latestQuestion: NormalizedGeneratedQuestion | null,
-  recentQuestions?: NormalizedGeneratedQuestion[]
+  recentQuestions?: NormalizedGeneratedQuestion[],
+  opts?: { lenient?: boolean }
 ): { valid: boolean; violations: string[] } {
+  const lenient = opts?.lenient ?? false;
   const violations: string[] = [];
   const questionsToCheck = recentQuestions?.length
     ? recentQuestions
@@ -1081,8 +1162,10 @@ function validateNoveltyAgainstLatest(
   const candidateWines = candidate.wines.map((w) => w.fullText).join("\n");
   const candidateVarieties = new Set(candidate.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
   const candidateCountries = new Set(candidate.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
+  const candidateSig = stemStructureSignature(candidate.questionText);
 
-  for (const recent of questionsToCheck) {
+  for (let i = 0; i < questionsToCheck.length; i++) {
+    const recent = questionsToCheck[i];
     const recentWines = recent.wines.map((w) => w.fullText).join("\n");
 
     if (candidate.questionText.trim() === recent.question_text.trim()) {
@@ -1094,15 +1177,33 @@ function validateNoveltyAgainstLatest(
       break;
     }
 
-    const recentVarieties = new Set(recent.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
-    const recentCountries = new Set(recent.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
-    const samePaperAndFamily = candidate.family === recent.family;
-    const sameCountryPattern = jaccard(candidateCountries, recentCountries) >= 0.8;
-    const similarVarietyPattern = jaccard(candidateVarieties, recentVarieties) >= 0.6;
-
-    if (samePaperAndFamily && sameCountryPattern && similarVarietyPattern) {
-      violations.push("Generated question is too similar to a recent question's family/country/variety pattern");
+    // Structural/thematic repeat: same family, same flight size, and a near-identical concept
+    // fingerprint (same stem template + same pedagogical contrast axis). Fires even when the
+    // specific wines, countries, and varieties all differ — the case the original heuristic missed.
+    const sameFamily = candidate.family === recent.family;
+    const sameFlightSize = candidate.wines.length === recent.wines.length;
+    const recentSig = stemStructureSignature(recent.question_text);
+    const sigOverlap = jaccard(candidateSig, recentSig);
+    if (sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7) {
+      violations.push(
+        "Generated question reuses the same structural template and pedagogical contrast as a recent question (same family, flight size, stem shape, and tested concepts). Change the contrast axis or the wine archetypes so this is a genuinely new exam problem."
+      );
       break;
+    }
+
+    // Fuzzier family/country/variety-pattern heuristic. Skipped in lenient mode, and only checked
+    // against the most-recent few questions (deeper history is only scanned for exact/structural
+    // repeats above) so generation can still converge without false positives.
+    if (!lenient && i < 5) {
+      const recentVarieties = new Set(recent.wines.map((w) => detectPrimaryVariety(w.fullText)).filter((v) => v !== "unknown"));
+      const recentCountries = new Set(recent.wines.map((w) => detectCountryName(w.fullText)).filter((v) => v !== "unknown"));
+      const sameCountryPattern = jaccard(candidateCountries, recentCountries) >= 0.8;
+      const similarVarietyPattern = jaccard(candidateVarieties, recentVarieties) >= 0.6;
+
+      if (sameFamily && sameCountryPattern && similarVarietyPattern) {
+        violations.push("Generated question is too similar to a recent question's family/country/variety pattern");
+        break;
+      }
     }
   }
 
