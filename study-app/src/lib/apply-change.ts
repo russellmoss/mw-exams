@@ -62,7 +62,9 @@ export async function applyFeedbackChange(opts: {
   // (the most common root cause), but those high-stakes code changes are PR-gated (reviewOnly);
   // answer-key data fixes auto-apply (scoped); a one-off bad question is quarantined here directly.
   const kind = (analysisText.match(/Kind:\s*\**(answer-key|question|generation|validator)\**/i)?.[1] || "").toLowerCase();
-  const isStemSniper = /\[stem-sniper\]/i.test((r.user_feedback as string) || "");
+  // Prefix-match so the context-aware tags ([stem-sniper:stem|reverse-stem|reverse-tasting|result|
+  // reverse-result]) and the legacy [stem-sniper] all route to the STEM/answer-key file-set.
+  const isStemSniper = /\[stem-sniper/i.test((r.user_feedback as string) || "");
   const questionId = r.question_id as string;
 
   // Kind: question — quarantine THIS question directly (no Action). Hides it from BOTH flows

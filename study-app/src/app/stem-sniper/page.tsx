@@ -342,16 +342,30 @@ export default function StemSniperPage() {
         </>
       )}
 
-      {/* Always available — bottom-left. Works before a question is submitted so a
-          broken/problematic drill can be reported (and auto-corrected) without
-          having to attempt it. Uses the live attempt once submitted, otherwise
-          creates one on-demand from the current drill's question. */}
-      <FeedbackButton
-        attemptId={result?.attemptId ?? null}
-        questionId={drill?.questionId ?? null}
-        userId={user.id}
-        step="stem-sniper"
-      />
+      {/* Always available — bottom-left, on every question + answer page (both modes). Works before a
+          question is submitted so a broken/problematic drill can be reported (and auto-corrected)
+          without attempting it: uses the live attempt once submitted, else creates one on-demand from
+          the current drill's question. The step encodes mode + page so the analysis knows whether the
+          feedback is about the stem, the Layer-B tasting note, or the scoring — all prefixed
+          "stem-sniper" so feedback routing still recognises it. */}
+      {status !== "intro" && (
+        <FeedbackButton
+          attemptId={result?.attemptId ?? null}
+          questionId={drill?.questionId ?? null}
+          userId={user.id}
+          step={
+            status === "tasting"
+              ? "stem-sniper:reverse-tasting"
+              : status === "result"
+                ? movement
+                  ? "stem-sniper:reverse-result"
+                  : "stem-sniper:result"
+                : mode === "reverse"
+                  ? "stem-sniper:reverse-stem"
+                  : "stem-sniper:stem"
+          }
+        />
+      )}
     </div>
   );
 }

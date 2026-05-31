@@ -63,9 +63,16 @@ export function buildFeedbackAnalysisPrompt(params: {
     if (!empiricalKnowledge && ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
   } catch {}
 
-  // Stem Sniper feedback (tagged "[stem-sniper]") is about the ANSWER KEY for a stem, not the
-  // question design. Reframe the analysis and ask it to classify the fix as data vs code.
-  const isStemSniper = /\[stem-sniper\]/i.test(params.userFeedback || "");
+  // Stem Sniper feedback (tagged "[stem-sniper...]") is usually about the ANSWER KEY for a stem, not
+  // the question design. The tag also carries WHICH page it came from so we can frame it precisely.
+  const stemTag = (params.userFeedback || "").match(/\[stem-sniper(?::([a-z-]+))?\]/i);
+  const isStemSniper = Boolean(stemTag);
+  const stemContext = stemTag?.[1] || ""; // "" | stem | reverse-stem | reverse-tasting | result | reverse-result
+  const pageNote = stemContext.includes("tasting")
+    ? `\nIt was left on the **Layer-B tasting-note reveal** (Reverse Tasting), so it may concern the GENERATED TASTING NOTE for a wine — appearance/colour, aromas, or structure not matching the real wine (e.g. a white described as ruby) — which is a tasting generator/validator issue (tasting.ts / tasting-validators.ts), more likely Kind: generation or validator than answer-key.`
+    : stemContext.includes("result")
+      ? `\nIt was left on the **result/scoring page**, so it may concern how a guess was SCORED or CALIBRATED (grading, the Layer-A→Layer-B movement, the revealed key) as much as the answer key itself.`
+      : `\nIt was left on the **stem page** (at the guess, before tasting), so it most likely concerns the stem wording, the answer key, or the question design.`;
   const stemSniperFraming = isStemSniper
     ? `
 
@@ -75,7 +82,7 @@ for Paper 3, from the stem). It often concerns the **answer key** (ground-truth 
 buckets, the plausible/confusable set, tiers — e.g. "this Sherry is Manzanilla, not Amontillado";
 "Vosne-Romanée is Pinot Noir"; "region should be Bordeaux, not 'Bordeaux Blanc'"). BUT it may instead
 reveal a **bad question** or a **generation/validator gap**. Do not assume it is only an answer-key
-issue — classify it with the Kind line below.
+issue — classify it with the Kind line below.${pageNote}
 `
     : "";
   // Every analysis ends with a Kind line so apply-change can route the fix (and PR-gate the
