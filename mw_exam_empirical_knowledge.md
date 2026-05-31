@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-31 — implementation: shipped all 6 phases of `exam_improvement_plan.md`. Corrected EK-0099 (P3-only "never NW-majority"; P1/P2 each had a NW-majority paper — caught by the Phase 3 validator self-test). Added EK-0102 (single-country ceiling ~8/12 + blend frequency ~29%) and EK-0103 (the engine's new soft rules R8/R9/R10, per-paper prompt steer, blueprint-first whole-test validator, and detect-only grading telemetry).**
 - **2026-05-31 — gap analysis: superseded EK-0024/EK-0025 (curveball position + "1 in 4" were wrong/imprecise on last-10 data; corrections council-reviewed); refreshed EK-0023/EK-0028 to last-10; added EK-0096…EK-0101 (curveball position/budget, post-2014 mark redistribution, OW:NW band, age/price signatures) from `outputs/gap_analysis/findings/*` + `data/structured/*`. Hand-edited under the "fix a bad entry" carve-out; `data/empirical_sync_state.json` untouched.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0095).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0088).**
@@ -980,6 +981,32 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   10 years) — age is a composition/maturity axis, not an ID target. Price HIGH (super-premium+luxury)
   share per paper: P1 ~22%, **P2 ~38% (classed reds)**, **P3 ~30% (fortified/sweet icons)**; treat as a
   target band with tolerance (`price_band` is a coarse proxy; ~7% explicit).
+
+### EK-0102 · Single-country ceiling (~8/12) and blend frequency (~29%)
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/01_diversity.md`, `07_adversarial_corpus_review.md`; `data/structured/corpus_wines.json` (last-10); `data/structured/whole_test_targets.json`
+- **claim:** A whole paper spans **~6 countries** (P1 5.9 / P2 6.7 / P3 6.2). One country can **dominate up
+  to ~8/12 (67%)** in a France-heavy year (observed max: P1 8/12, P2 6/12, P3 8/12) but essentially never
+  more — a single-country share above ~⅔ of a paper is out of distribution. Separately, **~29% of corpus
+  wines are blends** (not a niche — blends recur across all three papers, not just F3), so a generated
+  paper with almost no blends is unrealistic. Both are enforced as soft whole-test guards (single-country
+  ceiling 0.67; blend floor ~0.08) in `scripts/validate_mock_paper.py`.
+
+### EK-0103 · Generation/validation now encodes the modern shape (soft rules + whole-test blueprint) [system]
+- **tier:** PROCESS · **status:** live
+- **evidence:** `study-app/src/lib/question-engine.ts`, `prompts/question-generation-prompt.ts`, `scripts/validate_mock_paper.py`, `data/structured/whole_test_targets.json`, `study-app/src/lib/grading-telemetry.ts`; plan: `exam_improvement_plan.md` (shipped 2026-05-31)
+- **claim:** Beyond the hard rules R1–R7 (EK-0040), the engine now runs three SOFT composition validators
+  in the "important" relax tier (relax at attempt 6): **R8** mark-type-mix (flags ID-composite >55% of
+  marks; EK-0098), **R9** price-spread (coarse proxy — flags an all-iconic quality flight with no
+  legal-ladder signal; EK-0028), **R10** OW/NW balance (flags a single-world non-same-origin 3+ flight;
+  EK-0099 — its curveball-count axis is telemetry-only because the benchmark proxy mislabels ~63% of
+  anchors). The generation prompt now carries per-paper **mark-emphasis** + family **curveball-density**
+  steers (EK-0098/EK-0100). Whole-test generation is **blueprint-first**: `/generate-mock-exam` allocates
+  a 12-slot composition blueprint (country/world/style/price/blend/curveball) to hit the per-paper bands
+  in `whole_test_targets.json`, fills it, then runs the advisory `validate_mock_paper.py`. Grading adds
+  **detect-only telemetry** (EK-0093 howler→FAIL / cascade→zero): graders emit a hidden `GRADING_META`
+  tag and the server logs `[grading-override]` when a HARD override should have fired but the verdict
+  disagreed — verdict/feedback unchanged; auto-enforcement is a deferred gated two-pass project.
 
 ---
 
