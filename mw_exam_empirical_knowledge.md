@@ -37,6 +37,38 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-31 — Project 8 (System Integrity & Correctness Refactor): applied the SUPPORTED / VERY-STRONG
+  edits gated by `outputs/research/evidence_audit.md`. (1) **Superseded EK-0093** (the "absolute 65% per
+  paper" constant is factually wrong) with **new EK-0116** (65% AVERAGE across the three papers + ~50%
+  per-paper floor, criterion-referenced; three IMW abilities not four; per-question thresholds are a
+  single-question PROXY — public IMW Student Guide). (2) **Qualified EK-0007** + added **EK-0112**:
+  reasoning>ID is CONDITIONAL on a plausible conclusion + correct structural read (do not hard-cascade a
+  structural miss — 2023 P3Q3). (3) **EK-0005** — dropped "P3 the usual decider"; added **EK-0111**
+  (no permanently weakest paper; "lowest-scoring" ≠ "average-dragger"). (4) **EK-0006** — reframed
+  mark-allocation as ROTATING, stripped the trend-as-fact decimals. (5) Stripped superlatives: **EK-0091**
+  ("most-penalized" → "heavily-penalised"), **EK-0105** ("strongest forward signal" → "the only verbatim
+  two-year stem repeat"). (6) **EK-0107** — added the "composition PARAMETERS, not assessment objectives"
+  scope sentence. (7) **EK-0035** — positional sparkling-opener prior flipped to a TENDENCY (broke 2025).
+  (8) New SUPPORTED entries **EK-0109** (wine-is-vehicle / competency-is-target), **EK-0110** (integrated
+  multi-factor synthesis family — anti-rote device, NOT "fastest-rising"), **EK-0113** (independent
+  thinking over rote — study-system caution), **EK-0114** (quality full-scale/origin-blind/volunteer-tier),
+  **EK-0115** (one-fact / bare macro-region origin penalised). (9) Refined **EK-0011** (maturity = quantified
+  window + both trajectories) and hedged **EK-0106** (the "wine globally" frame rests on n=1). (10) Routed
+  UNPROVEN items to §9 as open questions: **EK-0117** (climate-change adaptation), **EK-0118** (banker-zero
+  latitude), **EK-0119** (distinction=consistency), **EK-0120** (Era-1 uncharacterised — blocks the EK-0001
+  / EK-0078 flips). Code/prompt/UI fixes (e.g. `marking-principles.ts:15-16`, plausibility-map injection)
+  are NOT applied here — they are implementation-ready recommendations in
+  `outputs/research/system_correctness_refactor_plan.md`. **Markdown only; Neon `empirical_knowledge`
+  projection NOT yet synced (run `study-app/scripts/sync-empirical-knowledge.mjs`); `empirical_sync_state.json` untouched.**
+- **2026-05-31 — evolution analysis: added EK-0104…EK-0108 (markdown + Neon `empirical_knowledge`) from
+  `outputs/research/evolution_analysis.md` — a 3-era (2011–14 / 2015–19 / 2021–25) study of how the exam
+  changed: ID-suppression→ID-free arc, climate-as-driver, region→global quality + dual-pole commercial,
+  a last-10 scope label, and "orange wine peaked 2014–2019." The same analysis flagged TWO existing
+  entries as contradicted by the raw corpus — **EK-0001** (its pre-2013 "not 25/wine" boundary is false:
+  2011–2014 all sum to exactly 25/wine) and **EK-0035** (its "P3 always opens sparkling 2021–24" broke in
+  2025 P3 Q1, a Riesling flight) — plus refinements to EK-0078 (vintage *declined*, not statically rare)
+  and EK-0046 (Moscato d'Asti, 2019 P1, is the attested frizzante/sweet P1 edge case). Those four
+  revisions are drafted in the analysis doc but NOT yet applied here, pending user approval.**
 - **2026-05-31 — implementation: shipped all 6 phases of `exam_improvement_plan.md`. Corrected EK-0099 (P3-only "never NW-majority"; P1/P2 each had a NW-majority paper — caught by the Phase 3 validator self-test). Added EK-0102 (single-country ceiling ~8/12 + blend frequency ~29%) and EK-0103 (the engine's new soft rules R8/R9/R10, per-paper prompt steer, blueprint-first whole-test validator, and detect-only grading telemetry).**
 - **2026-05-31 — gap analysis: superseded EK-0024/EK-0025 (curveball position + "1 in 4" were wrong/imprecise on last-10 data; corrections council-reviewed); refreshed EK-0023/EK-0028 to last-10; added EK-0096…EK-0101 (curveball position/budget, post-2014 mark redistribution, OW:NW band, age/price signatures) from `outputs/gap_analysis/findings/*` + `data/structured/*`. Hand-edited under the "fix a bad entry" carve-out; `data/empirical_sync_state.json` untouched.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0095).**
@@ -146,7 +178,25 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** `outputs/heuristics/examiner_report_synthesis.md` §6 ("For every challenging
   question, there will be a correspondingly straightforward question."); P2 has the most classic
-  wines and the highest pass rate; P3 is the most stylistically diverse and the usual decider.
+  wines and the highest pass rate; P3 is the most stylistically diverse.
+- **note (revised):** the old "P3 is the usual decider" clause is removed — there is **no permanently
+  weakest paper**, and "lowest-scoring" vs "arithmetic average-dragger" are different senses. See
+  EK-0111.
+
+### EK-0111 · No permanently weakest paper; "lowest-scoring" ≠ "arithmetic average-dragger"
+- **tier:** STRONG SIGNAL · **status:** live · **supersedes:** the EK-0005 "usual decider" clause
+- **evidence:** hard pass counts 2017/2022/2023/2024/2025 (P3 is often the *strongest* paper);
+  `outputs/research/examiner_objectives.md` (P2 the lowest-scoring paper recently);
+  `outputs/research/examiner_confidence_model.md` §7 (P3 the arithmetic average-dragger);
+  `outputs/research/evidence_audit.md` Audit F / H8 + §0 Coda (STRONG)
+- **claim:** There is **no permanently weakest paper**, and "decider" hides two senses that must be kept
+  apart: **"lowest-scoring"** (recently **P2** — the modern decider in the objectives sense) vs
+  **"arithmetic average-dragger"** (often **P3**, the most stylistically diverse, in the confidence-model
+  sense). Both can be true at once — the lowest-scoring paper need not be the one dragging the average.
+  P2 carries the most classic wines and historically the highest pass rate; P3 is the most diverse.
+  Because the pass standard is a **65% average with a per-paper floor** (EK-0116), what passes is
+  **consistency across all three papers**, not surviving a single "decider." Do not tell candidates one
+  paper is "the" decider.
 
 ---
 
@@ -158,19 +208,28 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 ### EK-0006 · The exam is "a theory exam with a tasting"
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** examiner_report_synthesis §1 (2024 quote); §1 mark-allocation table
-- **claim:** Identification is being de-emphasized in favour of analytical competencies.
-  Mark allocation trend: ID **46%→39%** (2022→2023), Quality **22%→37%**. NB these are **paper-wide
-  averages, not a per-question rule** — any single question allocates whatever it prints, and the
-  spread is wide (e.g. 2023 P1 Q1: variety ID 20/100, winemaking 30, quality+ageing 50). Use the
-  paper-wide ~35–45% ID figure only to *distribute* marks across a generated paper; grade and answer
-  to the **printed per-question tariff**. See EK-0089.
+- **claim:** Identification is **de-emphasized** in favour of analytical competencies — but mark
+  allocation **ROTATES year-to-year within the modern era; do NOT extrapolate any single competency's
+  share linearly.** ID sits ~**39–46%** (the largest single category, necessary-but-not-sufficient); the
+  analytical pool (quality / winemaking / commercial / style) splits unpredictably — "you never know
+  where the weighting will be" (2023). The often-quoted ID 46%→39% / Quality 22%→37% figures are **two
+  adjacent years, not a slope** (false precision if read as a trend). These are **paper-wide averages,
+  not a per-question rule** — any single question allocates whatever it prints, and the spread is wide
+  (e.g. 2023 P1 Q1: variety ID 20/100, winemaking 30, quality+ageing 50). Use the paper-wide ~35–45% ID
+  figure only to *distribute* marks across a generated paper; grade and answer to the **printed
+  per-question tariff**. See EK-0089. (`outputs/research/evidence_audit.md` T2-2 / FP-3.)
 
-### EK-0007 · Cardinal Rule 1 — Reasoning > Identification
+### EK-0007 · Cardinal Rule 1 — Reasoning > Identification (CONDITIONAL on plausibility)
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §2.1 (every report 2017–2025)
-- **claim:** Sound reasoning earns marks even when the conclusion is wrong. "Over half did not get a
-  single origin exactly right, however many still managed 5–6/8 if their reasoning was sound" (2025).
-  "A wrong answer yields more marks than an answer that is unfinished — so make a choice" (2021).
+- **evidence:** examiner_report_synthesis §2.1 (every report 2017–2025); `outputs/research/evidence_audit.md`
+  T1-2a / Audit B (VERY STRONG — the conditional form is better-evidenced than the old unconditional one)
+- **claim:** Sound reasoning earns marks even when the conclusion is wrong — **but only when the
+  conclusion is PLAUSIBLE and the structural read (alcohol/acidity/tannin/RS) is correct** (see EK-0112,
+  EK-0090). The 2025 verbatim is conditional: "many still managed 5–6/8 **if their reasoning was sound
+  *and their conclusion plausible***." An **implausible** call earns little even with reasoning
+  ("USA→Australia still received some credit, however Italy… few marks", 2021), and a structural misread
+  undermines the downstream answers. Still: "a wrong answer yields more marks than an answer that is
+  unfinished — so make a choice" (2021).
 
 ### EK-0008 · Cardinal Rule 2 — Quality must be contextualized
 - **tier:** STRONG SIGNAL · **status:** live
@@ -193,12 +252,14 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   ("opportunities AND challenges"), waste time on un-asked aspects, and confuse "compare and contrast"
   with "describe each separately." Flagged in every report.
 
-### EK-0011 · Cardinal Rule 5 — Maturity has four required elements
+### EK-0011 · Cardinal Rule 5 — Maturity = a QUANTIFIED window with BOTH trajectories
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §2.5 (2023 definition)
-- **claim:** A maturity assessment must state (1) current age, (2) ready now or benefits from ageing,
-  (3) how long it will improve, (4) how long it will hold before declining. Vague "matured for many
-  years" earns minimal marks; specific timeframes expected.
+- **evidence:** examiner_report_synthesis §2.5 (2023 definition); `outputs/research/evidence_audit.md` (SUPPORTED)
+- **claim:** A maturity assessment must give a **quantified drinking window** covering **both
+  trajectories**: (1) current age, (2) ready now or benefits from ageing, (3) how long it will
+  **improve**, (4) how long it will **hold before declining**. The exact element-count is secondary to
+  the two requirements — *concrete timeframes* and *both directions*; vague "matured for many years"
+  earns minimal marks. A "drinking window" question IS a maturity question even when not labelled one.
 
 ### EK-0012 · Cardinal Rule 6 — Commercial must be specific and global
 - **tier:** STRONG SIGNAL · **status:** live
@@ -237,6 +298,72 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **claim:** "The questions were structured… to prevent misidentification of origin from affecting
   performance too adversely." On curveballs, ID marks are downweighted and redistributed to style /
   winemaking / quality / commercial — so a candidate can pass even while misidentifying.
+
+### EK-0109 · Wine is the vehicle; the assessed COMPETENCY is the target (P3 production-canon excepted)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/research/examiner_objectives.md` §0/§3; `outputs/research/evidence_audit.md`
+  (SUPPORTED — "wine-is-vehicle / competency-is-target, except the P3 production canon"); structural
+  proof in EK-0104 (the ID-suppression → ID-free arc)
+- **claim:** The examiners do not primarily test "can you name this wine"; the wine is a **vehicle** for
+  assessing transferable **competencies** — structural reading, reasoning, quality judgement, winemaking
+  inference, commercial sense, communication. A correct name with thin competency answers fails; sound
+  competency on a misidentified wine can pass (EK-0007/EK-0016/EK-0090/EK-0112). **Exception:** P3
+  fortified/sweet styles carry a real **production-method canon** (solera, VDN, botrytis, Port styles)
+  where the *facts* are themselves examinable ("a theory exam with a tasting", EK-0006) — there, getting
+  the method wrong is a howler (EK-0015), not a forgivable vehicle-miss.
+
+### EK-0113 · Independent thinking beats rote; a template-trained candidate fails (study-system caution)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** 2024 Chief (Tully MW: "an over-reliance on the… study programme is eroding students'
+  ability to think for themselves… those who simply assimilate information… will not pass"); 2017/2023/
+  2024 Practical anti-cut-and-paste ("no two answers should ever be completely the same"; "creates
+  considerable doubt in the mind of the reader"); `outputs/research/evidence_audit.md` T1-4 / Audit E
+  (STRONG / SUPPORTED)
+- **claim:** Examiners explicitly **reward independent, critical thinking over recited study-programme
+  content**, and engineer novel framings to defeat rote (EK-0004, EK-0110). Direct consequence for THIS
+  system: a study app that ships **templated** model answers trains the exact failure the Chief named —
+  so model-answer generation must reason **freshly per glass** and avoid cross-answer cut-and-paste (the
+  grader already penalises it, `marking-principles.ts` Rule 9). A *study-system design* caution, not just
+  a grading rule.
+
+### EK-0121 · Examiner confidence is the unifying construct — the "trust account" model
+- **tier:** STRONG SIGNAL · **status:** live · **synthesises:** EK-0007, EK-0013, EK-0014, EK-0015, EK-0090, EK-0091, EK-0094, EK-0112, EK-0114
+- **evidence:** Project 9 study — `outputs/research/examiner_confidence_construction_model.md` (capstone),
+  built on `outputs/research/confidence_language_corpus.md` (~161 cited quotes across 18 reports),
+  `confidence_building_behaviors.md`, `confidence_destroying_behaviors.md`, `plausibility_framework.md`,
+  `sophistication_framework.md`. "Convincing / conviction / authority" recurs as the **register of a
+  passing answer in ≥7 distinct reports**; "confidence/credibility" language appears in 13 distinct reports.
+- **claim:** The cardinal rules are facets of **one examiner cognitive process**. The examiner cannot
+  watch the candidate taste, so they infer competence **off the written trace alone** and keep a running
+  **trust account** on the candidate-as-would-be-MW. It opens **neutral**. It is **credited** by reasoning
+  that runs visibly from the glass to a plausible, committed conclusion (the funnel, EK-0014), an accurate
+  structural read (EK-0013), quality calibrated on the real global ladder (EK-0114), and — at the top band
+  — a second-order "under the skin" insight (EK-0094). It is **debited** by guessing, hedging, shoehorning
+  (EK-0009) and recycled answers (EK-0113), and **bankrupted** by a contamination error (EK-0122). The
+  final mark tracks the **trust balance, not the count of correct IDs** (EK-0007 / EK-0090 / EK-0112). The
+  operational consequence for this system: the grader, feedback and model-answer generators must reward the
+  *construction of confidence*, not bare correctness — audited in `outputs/research/confidence_prompt_audit.md`.
+
+### EK-0122 · The contamination law — one error undermines confidence in the WHOLE answer, across questions
+- **tier:** STRONG SIGNAL · **status:** live · **extends:** EK-0015, EK-0091
+- **evidence:** Project 9 — `outputs/research/confidence_destroying_behaviors.md` (the **best-attested
+  finding in the corpus, ≥10 distinct reports**). Near-verbatim examiner formula in two independent
+  reports: "factual errors undermine confidence in everything a candidate has written" (2023 Theory) /
+  "such mistakes undermine confidence in everything a candidate has written" (2024 Theory). Practical
+  cognates: "undermine credibility of the rest of the paper's discussion" (2018), "serious doubts in the
+  mind of the examiner" (2019), "considerable doubt in the mind of the reader" (2024). **Cross-question
+  propagation:** 2017 Practical — a Vosne-Romanée justified by "moderate alcohol of 15%" "totally
+  undermines the confidence… further shattered by reading from the same paper 'Douro, Spain' for Vintage
+  Port in the next question."
+- **claim:** A single factual impossibility or howler does **not** merely cost its own marks — it
+  **retroactively poisons the examiner's trust in everything else the candidate wrote, and propagates
+  forward across questions.** This is the mechanism behind the howler override (EK-0015) and the cascade
+  (EK-0091): confidence is a fragile, **globally-shared** balance, not a per-sub-question tally. The
+  verbatim formula is theory-sourced but the mechanism is attested across the practical reports too.
+  Asymmetry (see EK-0123): a wrong *ID* is survivable — the funnel rescues it (EK-0112) — but a wrong
+  *structural read* or a *theory howler* is trust-bankrupting. Grading consequence: the prompt audit found
+  `marking-principles.ts` localises a howler to "adjacent claims," **too weak** against this ≥10-report
+  finding (`outputs/research/confidence_prompt_audit.md`, gap 3).
 
 ---
 
@@ -327,9 +454,10 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   plausibility, not binary: an adjacent/stylistically-plausible miss earns real partial credit, an
   implausible one little ("USA → Australia still received some credit, however Italy… few marks", 2021).
 
-### EK-0091 · Internal-consistency / cascade error (the most-penalized 2021–2025 failure mode)
+### EK-0091 · Internal-consistency / cascade error (a heavily-penalised failure mode)
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** grading_gap_analysis §2 P1 (2021, 2022)
+- **evidence:** grading_gap_analysis §2 P1 (2021, 2022); `outputs/research/evidence_audit.md` (the
+  "most-penalized" ranking is UNPROVEN — an overfit superlative; the substance below stands)
 - **claim:** Cross-check the candidate's OWN stated structure (alcohol/acidity/tannin/RS) against the
   wine they named: a contradiction ("Champagne at 14%", "a VDN at 20%") is a logical impossibility →
   **no conclusion mark** for that sub-question, flagged as a theory error (2022). Watch the **cascade**:
@@ -348,7 +476,10 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   explicitly asked (2025).
 
 ### EK-0093 · Verdict mechanics — absolute bands, four-dimension mastery, howler override
-- **tier:** STRONG SIGNAL · **status:** live
+- **tier:** STRONG SIGNAL · **status:** superseded
+- **superseded by:** EK-0116 (the "absolute 65% **per paper**" constant is factually wrong — the IMW
+  pass standard is a 65% **average** across the three papers with a ~50% per-paper floor; and the IMW
+  names **three** abilities, not four. See EK-0116. Kept for history; ignored by downstream agents.)
 - **evidence:** grading_gap_analysis §4 (2018, 2021, 2024)
 - **claim:** Pass is an **absolute 65%** per paper, not a curve; anchor verdicts to marks (F<50,
   BORDERLINE ~55–64, PASS ≥65; sub-45% does not recover). A pass needs mastery across **four
@@ -357,6 +488,29 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   clear theory howler is present (EK-0015), resolve to FAIL and name it — examiners withhold the benefit
   of the doubt from a borderline candidate making obvious theory mistakes (2024).
 
+### EK-0116 · Verdict mechanics (corrected) — 65% AVERAGE across papers + ~50% floor (supersedes EK-0093)
+- **tier:** STRONG SIGNAL · **status:** live · **supersedes:** EK-0093
+- **evidence:** public **IMW Student Guide** (authoritative, overrides corpus): "average 65% or more
+  across all three papers, with a minimum of 50% in any one paper"; 2017 Practical (Tuck MW, "the
+  average of 65% to pass"); 2024 Practical (Marks MW, bands defined "across all three papers"); 2018
+  Chief (Hoskins MW, sub-45% *average* rarely recovers); `outputs/research/evidence_audit.md` Audit A /
+  T1-1 (VERY STRONG); `outputs/research/examiner_confidence_model.md` §7; memory
+  `ek-0093-pass-standard-correction`
+- **claim:** The IMW practical pass standard is a **65% AVERAGE across the three papers, with a ~50%
+  per-paper floor**, criterion-referenced (an absolute bar, not a curve) — **NOT 65% on every paper**.
+  A strong paper can carry a weaker one above the average provided the weak paper clears the floor.
+  Bands: **C+ = 60–64% is confirmed**; **A ≥70 / B 65–69 are plausible/indicative only** (sourced to the
+  unreadable 2021 Chief appendix — do **not** assert as verified). Below **~45% *average*** rarely
+  recovers (a tendency, softened by the SPR mechanism — not a per-paper rule). A pass requires breadth
+  across the IMW's **three named abilities** — accurately assess the wine; draw sound judgements
+  (quality/origin/variety/maturity/winemaking/commercial); communicate concisely under time pressure
+  (Student Guide). The earlier "four-dimension" phrasing (EK-0093) was an internal reconstruction; keep
+  theory accuracy as an internal fourth lens, not an IMW-stated dimension. **This app grades a single
+  question**, so its per-question PASS/BORDERLINE/FAIL thresholds are a single-question **PROXY** for the
+  band, not the official paper-level rule — a framing fact, not a scoring-logic change (no numeric 65%
+  threshold exists in code; grading-telemetry is detect-only, EK-0103). The howler-override temperament
+  (old EK-0093 / EK-0015) still holds.
+
 ### EK-0094 · Top-band differentiator — "under the skin of the wine"
 - **tier:** PLAUSIBLE · **status:** live
 - **evidence:** grading_gap_analysis §2 P3 (2022, 2025)
@@ -364,6 +518,62 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   an exceptional producer exceeds a classification's minimum sugar requirement (2025) — i.e. getting
   "under the skin of the wine" (2022). Genuine enthusiasm conveyed in the writing is rewarded; flat,
   formulaic prose on a great wine is not. Use this to separate a *good* answer from an *outstanding* one.
+
+### EK-0112 · Reasoning rescues a wrong call ONLY when it is plausible + structurally sound
+- **tier:** STRONG SIGNAL · **status:** live · **qualifies:** EK-0007 · **pairs with:** EK-0090
+- **evidence:** 2025 P1 (Mitchell MW, verbatim "5–6/8 if their reasoning was sound *and their conclusion
+  plausible*"); 2021 (USA→Australia "some credit", Italy "few marks"); 2025 (Marks MW — a correct
+  structural read can still pass; poor tasting cascades into wrong quality/style/commercial); 2023 P3Q3
+  (a structural misread that was *survived*); `outputs/research/evidence_audit.md` T1-2a / Audit B (VERY STRONG)
+- **claim:** "Reasoning > identification" (EK-0007) is **conditional**. A wrong call earns its reasoning
+  marks only when (a) the conclusion is **plausible/adjacent** to the truth and (b) the **structural read
+  (alcohol/acidity/tannin/RS) is correct**. An **implausible** call earns little even with fluent
+  reasoning; a **structural misread** is high-leverage and usually decisive — **but recoverable**:
+  2023 P3Q3 shows a candidate who misjudged alcohol/acidity still scored well on parts b/c by describing
+  the glass faithfully. So grade wrong calls on the **plausibility gradient** (EK-0090); do **NOT**
+  hard-cascade a structural miss to zero. (Latitude also *tends* to scale with wine difficulty —
+  esoterica generous, bankers strict — but the "bankers get zero latitude" form is **inferred**, not
+  graded policy; see §9.)
+
+### EK-0114 · Quality is judged FULL-SCALE and ORIGIN-BLIND; volunteer the official tier
+- **tier:** STRONG SIGNAL · **status:** live · **extends:** EK-0008, EK-0092, EK-0106
+- **evidence:** 2017 ("do not assume Old World will always be the superior examples"); 2018/2023/2024/
+  2025; `outputs/research/evidence_audit.md` T2-7 / Audit E (STRONG / SUPPORTED)
+- **claim:** Judge quality on the **full global ladder**, not merely "good for its region", and
+  **without letting the identified (or guessed) origin bias the call** — under-calling a great non-classic
+  wine and over-calling a lesser classic both dent examiner confidence (EK-0092). **Volunteer the
+  official/legal tier where one exists and is relevant, even if not explicitly asked** (Grand Cru Classé,
+  DOCG, Prädikat, VORS — 2025), and anchor to a global frame + classification (EK-0106).
+
+### EK-0115 · One-fact / bare macro-region origin calls are penalised, often to zero
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** 2024 Practical (stopping at "just Mosel", or a bare "Northern Rhône" with no sub-region,
+  "will often yield a zero mark"); `outputs/research/evidence_audit.md` T2-6 (SUPPORTED)
+- **claim:** When origin is asked, a **single-fact** answer or a **bare macro-region** drop (country-only,
+  or "Northern Rhône"/"Burgundy" with no sub-region) under-answers and is often scored **zero** for the
+  origin mark — the funnel must land on something **concrete** (sub-region/appellation) and be supported
+  by **≥2 evidence strands** from the glass. The origin-side complement to the plausibility gradient
+  (EK-0090/EK-0112) and the specificity rule (`marking-principles.ts` Rule 2).
+
+### EK-0123 · Confidence ≠ correctness is BIDIRECTIONAL — a correct ID can still destroy confidence
+- **tier:** STRONG SIGNAL · **status:** live · **pairs with:** EK-0007, EK-0090, EK-0112 · **under:** EK-0121
+- **evidence:** Project 9 — `outputs/research/confidence_destroying_behaviors.md`;
+  `outputs/research/examiner_confidence_construction_model.md` §4 (the confidence-vs-correctness 2×2).
+  Cleanest exemplar: **2024 Practical P1 — the *identical correct* call (Pinot Grigio) earned good marks
+  for some and lost many marks for others** "depending purely on the supporting argument" ("many went
+  straight for Pinot Grigio without proper arguments and lost many marks" vs those whose arguments "made
+  the choice more plausible"). Corroboration: 2018 Chilean Cabernet (correct origin, quality mis-calibrated
+  → still weak); 2021 Saint-Julien (correct Bordeaux, failed the paper by neglecting the quality half);
+  2023 Grenache W8 (correct variety, "little demonstration of knowledge"). The inverse (wrong-but-trusted)
+  is EK-0007 / EK-0090 / EK-0112.
+- **claim:** EK-0007/0090/0112 establish one direction — a **wrong** call keeps its marks when the
+  reasoning is sound (wrong-but-trusted). This is the **other direction**: a **correct** identification
+  still **loses** marks/confidence when the reasoning is invisible, the structural read is absent, or a
+  dependent judgement (quality / maturity / commercial) is mis-calibrated (right-but-doubted). **The label
+  is not the asset; the argument is.** Grading consequence: a grader that credits a correct ID *regardless
+  of argument* reverts to scoring the label — the prompt audit flags missing "correct-ID parity" handling
+  (`outputs/research/confidence_prompt_audit.md`, Crit 2). This is the §3-level expression of the
+  trust-account model (EK-0121).
 
 ---
 
@@ -469,12 +679,15 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   to oaked/full-malo California, village to Grand Cru). **Riesling** appears in P1 in ~8/10 years
   (Mosel Kabinett, Alsace dry, Clare Valley, GG). These are the two most reliable P1 varieties.
 
-### EK-0035 · P3 Q1 is usually sparkling; recent years specify "not Champagne"
+### EK-0035 · P3 Q1 TENDS to open sparkling — a tendency, not a rule (broke in 2025)
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** `outputs/heuristics/examiner_patterns.md` §4.1; `outputs/backtest_reports/loyo_postfix_audit.md`
-- **claim:** P3 opens with sparkling (or a category including sparkling) in 7/10 years; in the **last
-  4 years (2021–2024) P3 Q1 was explicitly sparkling every time**, increasingly "not Champagne."
-  Prepare Cava, Crémant, English sparkling, Franciacorta, California sparkling, Sekt, Prosecco Superiore.
+- **evidence:** `outputs/heuristics/examiner_patterns.md` §4.1; `outputs/backtest_reports/loyo_postfix_audit.md`;
+  `outputs/research/evolution_analysis.md` + `outputs/research/evidence_audit.md` T3-6 (the 2025 break is verified)
+- **claim:** P3 opens with sparkling (or a category including sparkling) in ~7/10 years, and in
+  2021–2024 P3 Q1 was explicitly sparkling every time, increasingly "not Champagne." **This is a
+  positional *tendency*, not a rule: it BROKE in 2025 (P3 Q1 was a Riesling flight).** Do not single-lock
+  a P3 opener on sparkling. Still prepare Cava, Crémant, English sparkling, Franciacorta, California
+  sparkling, Sekt, Prosecco Superiore — but treat the slot prior as soft (cf. EK-0096 positional priors).
 
 ### EK-0036 · P3 wines 10–12 trend fortified/sweet
 - **tier:** STRONG SIGNAL · **status:** live
@@ -728,6 +941,22 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** PLAUSIBLE · **status:** live
 - **evidence:** ledger: attempt #129 / analysis #16 (partial)
 - **claim:** Generated tasting/answer notes must be consistent with the wine's actual identity. Two demonstrated failures: an Australian Shiraz (Wine 2) was described with savoury 'olive' notes and the answer used olive as a distinction pushing toward the Northern Rhône over Australia — yet the wine was Australian; and Carménère (Wine 1) was given only a 'slight herbal character' when the variety's hallmark is a strong, overt green/pyrazine character. Match the intensity and direction of varietal markers to the keyed grape.
+
+### EK-0110 · Integrated multi-factor synthesis — a recurring novel-question family (the anti-rote device)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** corpus `data/exams.json` — 2022 P2 Q1 (blend / "reasons for NOT blending", "an
+  unconventional question"), 2024 P2 Q3c (climate→style→quality, "not a question format seen in previous
+  exams… the worst answered question on the paper"), 2025 P1 Q4 (human inputs vs nature, ~15% of marks,
+  "a form of question that had not been used before"); 2024 Chief anti-rote intent;
+  `outputs/research/evidence_audit.md` T1-3 / Audit C
+- **claim:** The examiners regularly set a **novel synthesis question** asking the candidate to
+  **apportion a wine's character among climate / winemaking / terroir**, argue **why/why-not blend**, or
+  weigh **human inputs vs nature** — their deliberate **anti-rote device** (EK-0004, EK-0113). Generation
+  should carry this as **one archetype among many** (prepare the *method*, not a script) and model answers
+  should be ready to reason it. **Guardrails (do NOT over-claim):** it is **not** "the fastest-rising /
+  dominant objective" (n=3, differently framed, partly double-counting climate EK-0105); it is
+  **additive, never a replacement for the ~40% ID core**; **falsification test:** two consecutive absent
+  years downgrades it.
 
 ---
 
@@ -1008,6 +1237,80 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   tag and the server logs `[grading-override]` when a HARD override should have fired but the verdict
   disagreed — verdict/feedback unchanged; auto-enforcement is a deferred gated two-pass project.
 
+### EK-0104 · The ID-suppression → ID-free arc (structural proof of "theory exam with a tasting")
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** corpus `data/exams.json` — 2017 P3 Q2 (single Amber, "consider … of unknown origin");
+  2019 P1 Q3 ("Do not spend time thinking about the wine's specific origin"); 2024 P3 Q1 & 2025 P3 Q3
+  (zero identification marks); `outputs/research/evolution_analysis.md`
+- **claim:** Identification's structural role has contracted over time. The exam moved from ID-bearing
+  questions (2011–2014, ID ≈ 50–60% of the per-question tariff — e.g. 2011 P2 Q1 country 15 / variety
+  30 / quality 30) through explicit **ID-suppression** (2017, 2019) to **fully ID-free questions**
+  (2024 P3 Q1, 2025 P3 Q3) that pay only for quality / winemaking / style / commercial. This is the
+  strongest *structural* evidence for EK-0006/EK-0007/EK-0016 (reasoning > identification), beyond the
+  examiner-report quotes. Practical consequence: a generator should be willing to emit questions with
+  **no variety/origin marks at all**, especially in P3 and in final questions, and a grader must not
+  expect ID credit where the printed tariff allocates none (cf. EK-0089).
+
+### EK-0105 · Climate is now an explicit, repeated examinable driver
+- **tier:** STRONG SIGNAL (repeated stem, n=2 consecutive years) · **status:** live
+- **evidence:** corpus `data/exams.json` — 2024 P2 Q3 and 2025 P2 Q1 carry the **verbatim** stem
+  "Discuss how climate and winemaking techniques have influenced the quality and style of the wine";
+  `outputs/research/evolution_analysis.md`; extends EK-0004
+- **claim:** From 2024 the IMW explicitly names **climate** as a quality/style driver, and reused the
+  identical stem two years running (2024 P2 Q3c, 2025 P2 Q1c) — **the only verbatim two-year stem repeat
+  in the corpus** (verified in `data/exams.json`). Generated P1/P2 same-variety and classic-origin
+  questions should be willing to frame quality/style as climate-driven, and model answers must reason
+  cool-vs-warm-climate expression and vintage conditions (not winemaking alone). **Falsification test:**
+  two consecutive absent years downgrades this. **Scope guard:** climate-as-*driver* is the SUPPORTED
+  claim; climate-change **adaptation** (picking dates / canopy / variety choice) as a graded competency
+  is **NOT attested** — keep it out of model-answer mandates (see §9). This is the concrete, citable
+  instance of the recency-weighting lean in EK-0004/EK-0069. (`outputs/research/evidence_audit.md` T1-6 / Audit D.)
+
+### EK-0106 · Quality calibration widened region → world; commercial widened to "opportunities and challenges"
+- **tier:** STRONG SIGNAL · **status:** live · extends EK-0008, EK-0012, EK-0098
+- **evidence:** corpus `data/exams.json` — "quality … in the context of wine globally" (2025 P2 Q3;
+  2024 framing per EK-0004); "with specific reference to its classification" (2025 P3 Q3); "commercial
+  opportunities and challenges" (2024 P3 Q1, P3 Q3); commercial verb evolving appeal (2012 P3 Q2, 2014
+  P1 Q3) → selling (2016 P2 Q5, 2017 P1 Q3) → opportunities-and-challenges (2024);
+  `outputs/research/evolution_analysis.md`
+- **claim:** Two assessment frames widened in 2021–2025. (1) **Quality** must be placed on a *global*
+  scale and **anchored to official classification**, not merely judged "within the region of origin"
+  (the older default). (2) **Commercial** must address both **opportunities AND challenges**
+  (dual-pole), with channel/market specificity (EK-0012). Graders and generators should default to the
+  global + classification quality frame and the dual-pole commercial verb for modern (2021+) questions;
+  "within the region" alone now under-answers a "globally"-framed quality sub-question. **Hedge:** the
+  explicit "wine globally" quality frame currently rests on **n=1 (2025 P2 Q3)** — treat it as an
+  emerging frame to recognise and reward, not a confirmed every-year target (re-confirm in a future
+  sitting; `outputs/research/evidence_audit.md` T2-1, PLAUSIBLE). The dual-pole commercial verb
+  (opportunities AND challenges) is the better-supported half (extends EK-0012).
+
+### EK-0107 · Scope label — distribution entries are "last-10"; 2011–2014 is quantitatively uncharacterised
+- **tier:** PROCESS · **status:** live
+- **evidence:** §0.5 (core analytical corpus = 2015–2025); EK-0096…EK-0102 all cite
+  `data/structured/corpus_*.json` (last-10); `outputs/research/evolution_analysis.md` §0
+- **claim:** Every per-paper *composition* entry — curveball position/budget (EK-0096/0097/0100),
+  post-2014 mark-redistribution baseline (EK-0098), OW:NW band (EK-0099), age/price signature
+  (EK-0101), single-country ceiling/blend frequency (EK-0102) — is computed on the **2015–2025
+  structured corpus only and is blind to 2011–2014**. (EK-0023 curveball and EK-0027 price *do* use the
+  wider 2011–2025 504-wine set; keep that distinction.) Do **not** read last-10 distributions as
+  timeless, and do not use them to reason about exam *evolution* — 2011–2014 needs separate structured
+  tagging before any 14-year trend line is asserted. Recommended follow-up: extend `data/structured/`
+  to 2011–2014. (Also: 2011 P3 has no question text in the corpus — wines only.) **These distribution
+  entries are generation/composition PARAMETERS (what a realistic paper looks like), NOT assessment
+  objectives (what the examiners are testing) — do not treat a distribution decimal as examiner intent.**
+  (`outputs/research/evidence_audit.md` T1-5, SUPPORTED.)
+
+### EK-0108 · "Orange"/skin-contact wine peaked 2014–2019 and is absent 2021–2025 — do not forecast a surge
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** corpus `data/exams.json` — Pheasant's Tears Rkatsiteli (2014 P3), Cullen 'Amber' (2017
+  P3 Q2), Chinuri/Iago (2019 P1), Vecchio Samperi (2019 P1); **no skin-contact/qvevri wine in
+  2021–2025**; `outputs/research/evolution_analysis.md`; cf. EK-0088
+- **claim:** Skin-contact / qvevri "orange" wine is an Era-1/Era-2 device (2014–2019), **not** a growing
+  one — it does not appear anywhere in the 2021–2025 corpus. Oxidative / flor styles (Jura Savagnin,
+  oxidative white Rioja, Sherry) persist (cf. EK-0088), but skin-contact does not. When generating
+  "boundary"/curveball P1 or P3 wines, prefer the persistent oxidative/flor family over orange wine,
+  and do **not** model orange wine as a rising or future-dominant theme.
+
 ---
 
 ## §8 · Cross-reference index (authoritative artifacts)
@@ -1036,6 +1339,14 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   `data/loyo_predictions.json`, `data/predicted_2026_exam_profile.json`.
 - **Study diagrams:** `outputs/study_diagrams/` (Mermaid flowcharts) → `study-app/public/diagrams/`.
 - **Answer-writing rules:** `docs/mw_write_pipeline_guidance.md`.
+- **Examiner-confidence study (Project 9 — `outputs/research/`, the cognition layer behind §2/§3):**
+  `examiner_confidence_construction_model.md` (capstone — the "trust account" model, the
+  confidence≠correctness 2×2, the contamination law; feeds EK-0121/0122/0123),
+  `confidence_language_corpus.md` (~161 cited quotes, 18 reports — the verbatim evidence base),
+  `confidence_building_behaviors.md`, `confidence_destroying_behaviors.md`, `plausibility_framework.md`,
+  `sophistication_framework.md`, and `confidence_prompt_audit.md` (grading/feedback/model-answer prompts
+  scored against the model — see §9 EK-0124). Source text: `docs/examiners reports/extracted_txt/`
+  (8 practical + chief + theory reports 2017–2025; 2021/2022 practical & chief OCR'd from scans).
 - **Validator + pipeline:** `study-app/src/lib/question-validator.ts`; remediation history in
   `question_quality_remediation_plan.md`.
 
@@ -1086,6 +1397,63 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
 - **claim:** P3 appearance cues are now generated and shown, but we have not yet confirmed (via fresh
   feedback) that they are *accurate and useful* — e.g. that a stated colour matches the keyed style.
   Watch for feedback that a visual cue misled the candidate.
+
+### EK-0117 · Is climate-change ADAPTATION a graded competency? (unattested — do NOT assert)
+- **tier:** CURVEBALL · **status:** live
+- **evidence:** `outputs/research/future_exam_prediction.md` M7 ("logically implied… but not yet directly
+  attested"); `outputs/research/evidence_audit.md` Audit D / "Top 10 NOT" #3 (UNPROVEN)
+- **claim:** Climate-as-*driver* is SUPPORTED (EK-0105). But whether the practical examines climate-change
+  **adaptation** — picking dates, canopy management, variety choice as a response to warming — as its own
+  graded stem is **NOT attested anywhere in the practical corpus**. Keep it OUT of EK-0105, model-answer
+  mandates, and generation until a future sitting actually examines it. Watch-item only.
+
+### EK-0118 · Do "bankers get zero latitude"? (inferred, not graded policy — needs an explicit statement)
+- **tier:** CURVEBALL · **status:** live
+- **evidence:** `outputs/research/evidence_audit.md` Audit B.4 / T1-2c (UNPROVEN); the "esoterica generous"
+  half is STRONG, the "bankers strict" half is inferred and conflated with the constrained-option mechanism
+- **claim:** "Latitude scales with wine difficulty" is directionally plausible — esoterica/curveballs get
+  generous credit for well-argued wrong answers (strongly attested: 2017 Lagrein, 2023 South Africa, 2025
+  Cornas). But the mirror claim that **bankers/classics earn ZERO latitude** is **inferred**, never stated
+  as graded policy, and the strongest "strict" quotes (2022 Tuscany "had to be", 2024 "really needed to be
+  correct") describe a **constrained given option set** — a *different* mechanism. Do NOT encode a hard
+  banker-zero rule; at most hedge EK-0090. Needs an explicit examiner-policy statement to promote.
+
+### EK-0119 · Distinction = consistency across three days, not a single peak (per-question-inexpressible)
+- **tier:** CURVEBALL · **status:** live
+- **evidence:** `outputs/research/distinction_candidate_analysis.md`; `outputs/research/evidence_audit.md`
+  (PLAUSIBLE — "distinction = consistency, strong claim, per-question-inexpressible")
+- **claim:** Distinction/high marks appear to reward **consistency across all three papers** rather than a
+  single brilliant script. This is directionally supported but **cannot be expressed in a single-question
+  app** (which never sees a candidate's three-day arc). Carry it in UI/methodology framing if anywhere;
+  do **not** make it a gradable EK rule. Open until there is a per-question-expressible form.
+
+### EK-0120 · Era-1 (2011–2014) mark allocation is quantitatively uncharacterised
+- **tier:** CURVEBALL · **status:** live
+- **evidence:** `outputs/research/evidence_audit.md` §0 Coda + T3-5 ("Era-1 structured tagging is the
+  precondition for any 14-year trend claim"); `outputs/research/evolution_analysis.md` §0
+- **claim:** The 2011–2014 papers are **not structured-tagged**, so any claim about that era rests on
+  **manual sums** and inherits a hidden caveat. This blocks two drafted revisions from being promoted to
+  fact: the EK-0001 pre-2013 "25-marks/wine" boundary (the evolution doc's manual read suggests 2011–2014
+  *may* also sum to 25/wine, contradicting EK-0001's current "pre-2013 differed" claim) and EK-0078's
+  "vintage ID *declined*" (rests on manually-summed Era-1 tariffs). **Do not flip EK-0001 or assert
+  EK-0078 "declined" until `data/structured/` is extended to 2011–2014.** Then resolve both. (T3-5.)
+
+### EK-0124 · Prompt gaps — the graders model confidence only PARTIALLY (Project 9 audit; fixes not yet applied)
+- **tier:** PROCESS · **status:** open (recommendations, not yet implemented)
+- **evidence:** `outputs/research/confidence_prompt_audit.md` (the three prompt families scored against the
+  EK-0121 trust-account criteria); cross-checks `study-app/src/lib/prompts/marking-principles.ts`,
+  `funnelling.ts`, `model-answer-prompt.ts`, `answer-evaluation-prompt.ts`, `evaluate-full/route.ts`.
+- **claim:** The live prompts reward a **mix that leans toward examiner confidence** (the wrong-but-trusted
+  cell, the terminated funnel, internal-contradiction detection and the survivable-miss/cascade asymmetry
+  are well-encoded), but three holes let technical correctness leak back in: **(1)** the per-wine
+  plausibility/adjacency map (`stem_answer_keys.plausible`, already computed by `stem-scoring.ts`) is
+  **never injected** into the prose graders, so EK-0090's gradient is judged "by vibes"; **(2)** the
+  contamination law (EK-0122, ≥10 reports) is **under-weighted** — `marking-principles.ts` localises a
+  howler to "adjacent claims" rather than the whole script; **(3)** there is **no correct-ID-parity rule**
+  (EK-0123) — a correct ID with absent argument can still over-score. Separately, the audit re-confirms the
+  stale `marking-principles.ts` "ABSOLUTE 65% per paper" line contradicts EK-0116 (a real defect, not just
+  a confidence gap). **These are recommendations; none are applied.** Promote to a §7 app-bug entry (or a
+  ledger row) only when a fix ships.
 
 ---
 
