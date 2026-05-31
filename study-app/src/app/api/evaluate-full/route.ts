@@ -223,7 +223,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
           // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
           // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
           const { meta, cleanedText } = extractGradingMeta(fullText);
-          recordGradingOverrideCheck(meta, { grader: "full_debrief", userId: keyResult.user.id });
+          await recordGradingOverrideCheck(meta, { grader: "full_debrief", userId: keyResult.user.id, paper });
           try {
             await imageStreamer.flush();
             const enriched = await enrichFeedbackWithImages(cleanedText, keyResult.user.id, imageAllowList);

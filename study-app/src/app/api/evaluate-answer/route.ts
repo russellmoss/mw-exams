@@ -81,7 +81,7 @@ Please evaluate this candidate's answer against the model answer. Assess identif
           // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
           // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
           const { meta, cleanedText } = extractGradingMeta(fullText);
-          recordGradingOverrideCheck(meta, { grader: "answer_grading", userId: keyResult.user.id });
+          await recordGradingOverrideCheck(meta, { grader: "answer_grading", userId: keyResult.user.id, paper });
           // Resolve the model's image tokens to cached, subtitled images and send the enriched
           // markdown as the authoritative final text (the client saves this version). Best-effort:
           // on any failure the tokens are stripped so the user still gets clean feedback.

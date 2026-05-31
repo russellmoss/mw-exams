@@ -1,3 +1,5 @@
+import { neon } from "@neondatabase/serverless";
+
 // Phase 4b — DETECT-ONLY grading-override telemetry.
 //
 // The two HARD marking rules (a clear HOWLER tips a BORDERLINE script to FAIL; a CASCADE /
@@ -52,17 +54,27 @@ export function extractGradingMeta(fullText: string): { meta: GradingMeta | null
   }
 }
 
-// Detect-only: warn to server logs when a HARD override should have fired but the model's verdict
-// disagrees, so we can measure how often the grader silently fails to apply its own hard rules (and the
-// false-positive rate of the howler flag) before deciding whether enforcement is safe. Never throws.
-export function recordGradingOverrideCheck(
+// Detect-only: persist every grading event's self-reported verdict tag to `grading_telemetry`
+// (migration 008) and warn to server logs when a HARD override should have fired but the model's
+// verdict disagrees. The persisted rows let us MEASURE how often the grader silently fails to apply its
+// own hard rules — and the false-positive rate of the howler flag — before deciding whether enforcement
+// (R8) is safe; they also gate R5 (difficulty calibration) and R7 (pre-glass hint). NEVER changes a
+// verdict, NEVER throws. Awaited by callers so the row lands before the serverless function unwinds; the
+// Neon write is best-effort (a logging failure must never break a candidate's grading).
+export async function recordGradingOverrideCheck(
   meta: GradingMeta | null,
-  ctx: { grader: string; userId?: number | null }
-): void {
+  ctx: { grader: string; userId?: number | null; paper?: number | null; questionId?: string | null }
+): Promise<void> {
   if (!meta) return;
+
+  // The same conditions warned on below, precomputed so DB base/false-positive rates are a trivial COUNT.
+  const howlerBorderlineMismatch = meta.howlerPresent === true && meta.verdict === "BORDERLINE";
+  const overcreditMismatch = meta.wrongCallPlausible === false && meta.creditGiven === "full";
+  const undercreditMismatch = meta.wrongCallPlausible === true && meta.creditGiven === "none";
+
   try {
     const tag = `[grading-override] grader=${ctx.grader} user=${ctx.userId ?? "?"} verdict=${meta.verdict ?? "?"}`;
-    if (meta.howlerPresent && meta.verdict === "BORDERLINE") {
+    if (howlerBorderlineMismatch) {
       console.warn(`${tag} MISMATCH: howler present + BORDERLINE → the IMW rule resolves this to FAIL, but the grader kept BORDERLINE. howler=${JSON.stringify(meta.howler ?? null)}`);
     }
     if (meta.cascadeFlag) {
@@ -70,13 +82,33 @@ export function recordGradingOverrideCheck(
     }
     // PG-2 plausibility-gradient mismatches (EK-0112): the gradient says a plausible wrong call earns
     // partial credit and an implausible one earns little. Flag both failure directions for measurement.
-    if (meta.wrongCallPlausible === false && meta.creditGiven === "full") {
+    if (overcreditMismatch) {
       console.warn(`${tag} MISMATCH: implausible wrong call awarded FULL conclusion credit → the plausibility gradient (EK-0112) says an implausible miss earns little; possible over-credit.`);
     }
-    if (meta.wrongCallPlausible === true && meta.creditGiven === "none") {
+    if (undercreditMismatch) {
       console.warn(`${tag} MISMATCH: plausible wrong call awarded NO conclusion credit → the plausibility gradient (EK-0112) says a stylistically-adjacent miss earns real partial credit; possible under-credit.`);
     }
   } catch {
-    /* telemetry must never break the response */
+    /* warns must never break the response */
+  }
+
+  // Persist the event (append-only). Fire-and-forget semantics — swallows its own errors so a logging
+  // failure can never break grading. Mirrors logClaudeUsage in usage-log.ts.
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    await sql`
+      INSERT INTO grading_telemetry (
+        grader, user_id, paper, question_id,
+        verdict, howler_present, howler, cascade_flag, wrong_call_plausible, credit_given,
+        howler_borderline_mismatch, overcredit_mismatch, undercredit_mismatch
+      ) VALUES (
+        ${ctx.grader}, ${ctx.userId ?? null}, ${ctx.paper ?? null}, ${ctx.questionId ?? null},
+        ${meta.verdict ?? null}, ${meta.howlerPresent ?? null}, ${meta.howler ?? null},
+        ${meta.cascadeFlag ?? null}, ${meta.wrongCallPlausible ?? null}, ${meta.creditGiven ?? null},
+        ${howlerBorderlineMismatch}, ${overcreditMismatch}, ${undercreditMismatch}
+      )
+    `;
+  } catch (err) {
+    console.error("[grading-telemetry] failed to persist grading event:", err);
   }
 }
