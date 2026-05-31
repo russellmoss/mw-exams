@@ -20,6 +20,11 @@ import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { stemSniperScoringModel } from "@/lib/question-validator";
+// Shared rule layer (single source of truth). The engine delegates the cleanly-separable
+// contradiction rules here and feeds them via the text adapter; its entangled text-only extras
+// (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
+// novelty, generation-consistency) stay inline below.
+import { applyQuestionRules, winesFromText } from "@/lib/question-rules.mjs";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -692,8 +697,11 @@ function validateVarietyConsistency(questionText: string, wines: { slot: number;
     const undetected = wineVarieties.filter((w) => w.variety === "unknown");
     const uniqueVarieties = [...new Set(detected.map((w) => w.variety))];
 
-    if (uniqueVarieties.length > 1) {
-      violations.push(`Stem says "same single grape variety" but wines contain multiple varieties: ${uniqueVarieties.join(", ")}`);
+    // Delegated to the shared rule layer (single source of truth) for the same-variety contradiction.
+    for (const det of applyQuestionRules({ paper: 0, questionText, wines: winesFromText(wines) }, {}).filter(
+      (v) => v.rule === "same-variety"
+    )) {
+      violations.push(det.detail);
     }
 
     // Flag wines where variety cannot be detected — suspicious in a same-variety flight
@@ -794,16 +802,6 @@ function validateOriginDiversity(
   }
 
   return { valid: violations.length === 0, violations };
-}
-
-function parseWordNumber(word: string): number | null {
-  const map: Record<string, number> = {
-    two: 2, three: 3, four: 4, five: 5, six: 6,
-    seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
-  };
-  const n = parseInt(word);
-  if (!isNaN(n)) return n;
-  return map[word.toLowerCase()] ?? null;
 }
 
 const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cru\s*class[eé]|pauillac|margaux|saint[- ]julien|saint[- ]estephe|saint[- ]emilion|pomerol|pessac[- ]leognan|sauternes|barsac|meursault|puligny[- ]montrachet|chassagne[- ]montrachet|chablis|corton|gevrey[- ]chambertin|chambolle[- ]musigny|vosne[- ]roman[eé]e|nuits[- ]saint|pommard|volnay|barolo|barbaresco|brunello|chianti\s*classico|vino\s*nobile|taurasi|hermitage|cote[- ]rotie|cornas|chateauneuf[- ]du[- ]pape|marlborough|sancerre|pouilly[- ]fum[eé]|vouvray|savennieres|clos\s*ste\s*hune|alsace\s*grand\s*cru|rioja\s*(gran\s*)?reserva|ribera\s*del\s*duero|priorat|vintage\s*port|lbv|tawny\s*\d+|fino|manzanilla|amontillado|oloroso|palo\s*cortado|madeira|tokaj|rutherford|oakville|stags\s*leap|napa\s*valley|sonoma\s*coast|willamette|stellenbosch|hawkes?\s*bay|waipara|clare\s*valley|eden\s*valley|barossa|margaret\s*river|yarra\s*valley|wachau|kamptal)\b/i;
@@ -929,35 +927,15 @@ function validateCountryDiversity(
   questionText: string,
   wines: { slot: number; fullText: string }[]
 ): { valid: boolean; violations: string[] } {
-  const violations: string[] = [];
-  const text = questionText.toLowerCase();
-
-  const numberedMatch = text.match(/\b(two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+) different countries\b/);
-  const bareMatch = /\bdifferent countries\b/.test(text) && !numberedMatch;
-
-  let expectedUniqueCountries: number | null = null;
-
-  if (bareMatch) {
-    expectedUniqueCountries = wines.length;
-  } else if (numberedMatch) {
-    expectedUniqueCountries = parseWordNumber(numberedMatch[1]);
-  }
-
-  if (expectedUniqueCountries !== null && expectedUniqueCountries >= wines.length) {
-    const countries = wines.map((w) => detectCountryName(w.fullText));
-    const knownCountries = countries.filter((c) => c !== "unknown");
-    const uniqueCountries = new Set(knownCountries);
-
-    if (knownCountries.length === wines.length && uniqueCountries.size < expectedUniqueCountries) {
-      const repeated = [...uniqueCountries].filter(
-        (c) => knownCountries.filter((k) => k === c).length > 1
-      );
-      violations.push(
-        `Stem says "different countries" implying ${expectedUniqueCountries} unique countries, but wines share country: ${repeated.join(", ")}. Each wine must be from a genuinely different country.`
-      );
-    }
-  }
-
+  // Delegated to the shared rule layer (question-rules.mjs) — the single source of truth for the
+  // "N different countries" contradiction (the EK 'four countries / two USA' complaint). Text stage,
+  // so countryRequireAllKnown skips when a country couldn't be detected (avoids false positives).
+  const violations = applyQuestionRules(
+    { paper: 0, questionText, wines: winesFromText(wines) },
+    { countryRequireAllKnown: true }
+  )
+    .filter((v) => v.rule === "country-diversity")
+    .map((v) => v.detail);
   return { valid: violations.length === 0, violations };
 }
 

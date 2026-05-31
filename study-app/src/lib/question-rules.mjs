@@ -69,7 +69,7 @@ function isSubsetSplit(stem) {
  * @returns {Array<{ rule: string, severity: "hard"|"soft", detail: string }>}
  * hard = stem contradicts its own wines/key (unanswerable as framed); soft = worth flagging.
  */
-export function applyQuestionRules(q) {
+export function applyQuestionRules(q, opts = {}) {
   const v = [];
   const stem = normStem(q.questionText);
   const wines = q.wines || [];
@@ -78,6 +78,12 @@ export function applyQuestionRules(q) {
   const distinctCountry = new Set(wines.map((w) => norm(w.country)).filter(Boolean));
   const predominantly = /\bpredominantly\b/.test(stem); // explicitly permits blends / dominant grape
   const subsetSplit = isSubsetSplit(stem);
+  // Detection-gap guard for the TEXT stage only (engine passes countryRequireAllKnown). When a wine's
+  // country couldn't be detected from its label, flagging "N countries" would be a false positive, so
+  // the engine skips the check unless every wine resolved a country. For the KEY stage (validator)
+  // countries are always resolved, so this defaults off and the validator is byte-identical.
+  const allCountriesKnown = wines.length > 0 && wines.every((w) => norm(w.country));
+  const countryGuardOk = !opts.countryRequireAllKnown || allCountriesKnown;
 
   if (!subsetSplit) {
     // R1 — country diversity. "N different countries" needs N distinct; bare "different countries"
@@ -86,7 +92,7 @@ export function applyQuestionRules(q) {
     const bareDiff = /\bdifferent\s+countries\b/.test(stem);
     if (cc || bareDiff) {
       const required = cc ? (/^\d+$/.test(cc[1]) ? Number(cc[1]) : NUM[cc[1]]) : wines.length;
-      if (required && distinctCountry.size < required)
+      if (required && countryGuardOk && distinctCountry.size < required)
         v.push({
           rule: "country-diversity",
           severity: "hard",
@@ -163,4 +169,101 @@ export function applyQuestionRules(q) {
   }
 
   return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// TEXT ADAPTER — turn raw generated wines ({slot, fullText}) into the normalized RuleWine shape the
+// rules consume, by detecting variety/country/blend from the label. This is the generation-stage
+// counterpart to the validator passing its already-resolved AuditWine. Ported verbatim from the
+// engine so the engine can delegate to applyQuestionRules and the whole text path is testable here
+// (no @/ aliases). The engine keeps its TEXT-ONLY extras (undetectable-variety, name-cross-check,
+// blend-hard, P3 fullText scope, banker, flight-size, novelty, generation-consistency).
+// ---------------------------------------------------------------------------------------------------
+
+const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling|pinot\s*gri[gs]|gewurz|muscat|moscato|viognier|chenin|semillon|albarino|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|bual|assyrtiko|welschriesling|vidal)\b/i;
+const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc|cinsault|monastrell|tinta\s*negra|tinta\s*roriz|touriga\s*nacional|touriga\s*franca|baga)\b/i;
+
+const APPELLATION_TO_PRIMARY_VARIETY = [
+  { pattern: /\b(barolo|barbaresco|gattinara|ghemme|carema|valtellina|sforzato)\b/i, variety: "nebbiolo" },
+  { pattern: /\b(chianti|brunello|vino\s+nobile|morellino|montepulciano)\b/i, variety: "sangiovese" },
+  { pattern: /\b(etna\s+rosso)\b/i, variety: "nerello mascalese" },
+  { pattern: /\b(taurasi)\b/i, variety: "aglianico" },
+  { pattern: /\b(valpolicella|amarone|ripasso|bardolino)\b/i, variety: "corvina blend" },
+  { pattern: /\b(barbera)\b/i, variety: "barbera" },
+  { pattern: /\b(dolcetto)\b/i, variety: "dolcetto" },
+  { pattern: /\b(beaujolais|fleurie|morgon|moulin-a-vent|brouilly)\b/i, variety: "gamay" },
+  { pattern: /\b(sherry|fino|manzanilla|amontillado|oloroso|palo\s*cortado)\b/i, variety: "palomino" },
+  { pattern: /\b(madeira|malmsey|rainwater)\b/i, variety: "tinta negra" },
+  { pattern: /\b(tokaj|tokaji|aszu|szamorodni)\b/i, variety: "furmint" },
+  { pattern: /\b(sauternes|barsac)\b/i, variety: "semillon blend" },
+  { pattern: /\b(port\b|vintage\s*port|lbv|tawny\s*\d+|ruby\s*port|vintage\s*port|colheita)\b/i, variety: "touriga nacional blend" },
+  { pattern: /\b(banyuls|maury|rivesaltes)\b/i, variety: "grenache" },
+  { pattern: /\b(rutherglen)\b/i, variety: "muscat" },
+  { pattern: /\b(muscadet)\b/i, variety: "melon de bourgogne" },
+  { pattern: /\b(burgundy|bourgogne|gevrey|chambolle|vosne|pommard|volnay)\b/i, variety: "pinot noir" },
+  { pattern: /\b(rioja|ribera\s+del\s+duero)\b/i, variety: "tempranillo" },
+  { pattern: /\b(cote-rotie|cornas|hermitage|crozes-hermitage|saint-joseph)\b/i, variety: "syrah" },
+  { pattern: /\b(chateauneuf-du-pape|gigalondas|vacqueyras)\b/i, variety: "grenache blend" },
+];
+
+function normalizeVariety(value) {
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace("shiraz", "syrah")
+    .replace("garnacha", "grenache")
+    .replace("pinot gris", "pinot grigio")
+    .replace("nerello", "nerello mascalese")
+    .trim();
+}
+
+export function detectPrimaryVariety(fullText) {
+  const text = fullText.toLowerCase();
+  const whiteMatch = text.match(WHITE_GRAPE_INDICATORS);
+  const redMatch = text.match(RED_GRAPE_INDICATORS);
+  const direct = (whiteMatch?.[0] || redMatch?.[0])?.toLowerCase().trim();
+  if (direct) return normalizeVariety(direct);
+  const appellationMatch = APPELLATION_TO_PRIMARY_VARIETY.find((entry) => entry.pattern.test(text));
+  return appellationMatch ? appellationMatch.variety : "unknown";
+}
+
+const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|champagne\s*(brut|nv|vintage|rose)|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
+
+export function isLikelyBlend(fullText) {
+  const text = fullText.toLowerCase();
+  if (KNOWN_BLEND_INDICATORS.test(text)) return true;
+  const variety = detectPrimaryVariety(fullText);
+  if (variety.includes("blend")) return true;
+  return false;
+}
+
+export function detectCountryName(fullText) {
+  const text = fullText.toLowerCase();
+  const countries = [
+    "south africa", "new zealand", "united states", "france", "italy", "spain", "portugal",
+    "germany", "austria", "greece", "hungary", "australia", "argentina", "chile", "canada",
+    "usa", "england", "georgia", "uruguay", "brazil", "lebanon", "japan", "switzerland",
+    "croatia", "slovenia", "israel", "mexico", "china",
+  ];
+  const match = countries.find((country) => text.includes(country));
+  return match?.replace("united states", "usa") || "unknown";
+}
+
+/**
+ * Build normalized RuleWine[] from raw generated wines by detecting variety/country/blend from the
+ * label. Undetectable variety -> varieties:[] and undetectable country -> "" so the rules' "known"
+ * filters behave exactly like the engine's detected/undetected split.
+ * @param {Array<{ slot: number, fullText: string }>} wines
+ */
+export function winesFromText(wines) {
+  return (wines || []).map((w) => {
+    const primary = detectPrimaryVariety(w.fullText);
+    const country = detectCountryName(w.fullText);
+    return {
+      slot: w.slot,
+      varieties: primary === "unknown" ? [] : [primary],
+      country: country === "unknown" ? "" : country,
+      is_blend: isLikelyBlend(w.fullText),
+    };
+  });
 }
