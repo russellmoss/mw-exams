@@ -81,6 +81,7 @@ export async function applyFeedbackChange(opts: {
   const STEM = [
     "study-app/src/app/stem-sniper/", "study-app/src/app/components/StemSniper",
     "study-app/src/app/api/stem-sniper/", "study-app/src/lib/stem-scoring.ts",
+    "study-app/src/lib/stem-answer-key.ts", "study-app/src/lib/stem-answer-key.mjs",
     "study-app/public/data/stem-autocomplete.json", "study-app/scripts/build-stem-",
     "study-app/scripts/test-stem-scoring.mjs", "data/variety_lexicon.json",
     "data/appellation_varieties.json", "data/stem_proprietary_blends.json", "data/stem_style_lexicon.json",
@@ -92,10 +93,13 @@ export async function applyFeedbackChange(opts: {
   const GEN = [
     "study-app/src/lib/prompts/question-generation-prompt.ts", "study-app/src/lib/wine-enrichment.ts",
     "study-app/src/lib/wine-bank-lookup.ts", "study-app/src/app/api/get-question/",
-    "study-app/src/app/api/generate-tasting/", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
+    "study-app/src/lib/question-engine.ts", "study-app/src/app/api/generate-tasting/",
+    "study-app/src/lib/tasting.ts", "study-app/src/lib/tasting-validators.ts",
+    "study-app/src/lib/prompts/tasting-prompt.ts", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
   ];
   const VALIDATOR = [
     "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
+    "study-app/src/lib/question-engine.ts", "study-app/src/lib/tasting-validators.ts",
     "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
     "study-app/src/lib/db.ts",
   ];

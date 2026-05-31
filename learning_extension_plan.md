@@ -80,7 +80,24 @@ The central engine and the learning loop **already exist** — Stem Sniper just 
 - **U4 — [DONE 2026-05-30] `/api/stem-sniper/drill` with env-tunable 90/10.** 90% shared engine + derived key, 10% banked
   pool. Replaces pool-only `next`. Same paper/family filters.
 
-## Reverse Tasting (after foundation)
+## Reverse Tasting — [DONE 2026-05-30, verified live]
+
+Built as a Stem Sniper mode. RT-1: extracted the tasting generator into `src/lib/tasting.ts`
+(shared by `/api/generate-tasting` and the new `/api/stem-sniper/notes`); notes endpoint loads wines
+server-side and returns sanitized per-slot Layer-B notes. RT-2: `/api/stem-sniper/submit-reverse`
+scores Stage-1 + Stage-2 against the same key, computes movement, calibrates on the Stage-2 tier,
+persists `mode:'reverse-tasting'`. RT-3: page mode toggle (Sniper | Reverse Tasting), `revealing`/
+`tasting` statuses, `StemSniperTastingCard` (notes exhibit + prefilled guesses + tier), movement
+banner + Layer-B calibration in the result. Live smoke PASSED (drill → notes → two-stage score +
+movement, attempt #163). NOT yet committed/pushed.
+
+CAVEAT found in test: the tasting generator produced a wrong-COLOUR note (red descriptors for a white
+Riesling) — a pre-existing `/api/generate-tasting` quality slip (same generator the study page uses),
+NOT a scope leak (flight was correctly 3 white Rieslings) and NOT a wiring bug. Candidate for the
+feedback→EK loop / a tasting-prompt colour-constraint fix. Possible enhancement: prefetch Layer-B
+notes during Stage 1 (currently fetched on Stage-1 submit with a "revealing" state).
+
+### Original plan notes
 
 Two-stage mode = add-on to Stem Sniper. Stage 1 Layer-A stem guess → Stage 2 reveal **sanitized**
 `fullText` tasting notes (reuse `sanitizeTastingNote`) → re-guess → score movement + calibration

@@ -50,7 +50,8 @@ export function buildTastingUserPrompt(
     grape_varieties?: string[];
     quality_tier?: string;
     confidence?: string;
-  }>
+  }>,
+  corrections?: string[]
 ): string {
   const wineList = wines
     .map((w) => {
@@ -80,9 +81,16 @@ export function buildTastingUserPrompt(
     })
     .join("\n");
 
+  const correctionBlock =
+    corrections && corrections.length
+      ? `CRITICAL CORRECTION — your previous attempt FAILED validation. Fix these EXACTLY; the appearance colour and structure MUST match each wine's real type:\n${corrections
+          .map((c) => `- ${c}`)
+          .join("\n")}\n\n`
+      : "";
+
   return `Generate blind tasting notes for the following wines. Remember: the notes should read as sensory observations only -- do not reveal any identifying information, country, region, origin adjective, or legs/tears language.
 
-${wineProfiles && Object.keys(wineProfiles).length > 0 ? `IMPORTANT: Some wines have reference profiles from authoritative sources. Use these to ensure your sensory descriptions are accurate for the SPECIFIC wine (not generic for the variety). A deep, opaque old-vine Syrah should not be described as "pale ruby." An oxidatively-aged Vin Santo should not be described as "pale gold." Match your descriptions to the real wine.\n\n` : ""}${wineList}
+${correctionBlock}${wineProfiles && Object.keys(wineProfiles).length > 0 ? `IMPORTANT: Some wines have reference profiles from authoritative sources. Use these to ensure your sensory descriptions are accurate for the SPECIFIC wine (not generic for the variety). A deep, opaque old-vine Syrah should not be described as "pale ruby." An oxidatively-aged Vin Santo should not be described as "pale gold." Match your descriptions to the real wine.\n\n` : ""}${wineList}
 
 Produce the tasting notes in the format specified. Return ONLY the tasting notes, one per wine, with clear separation between them.`;
 }

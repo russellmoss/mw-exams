@@ -1,97 +1,34 @@
-import Anthropic from "@anthropic-ai/sdk";
-import {
-  buildTastingSystemPrompt,
-  buildTastingUserPrompt,
-} from "@/lib/prompts/tasting-prompt";
-import { sanitizeTastingNotes } from "@/lib/tasting-sanitizer";
 import { requireApiKey } from "@/lib/api-key";
-import { lookupWines } from "@/lib/wine-bank-lookup";
-import { neon } from "@neondatabase/serverless";
-import { logClaudeUsage } from "@/lib/usage-log";
-import { selectModel } from "@/lib/model-selector";
+import { generateSanitizedTastingNotes } from "@/lib/tasting";
 
 export const runtime = "nodejs";
 
+// Thin route over the shared tasting generator (src/lib/tasting.ts). The study page calls this with
+// the revealed wines; Reverse Tasting uses the same generator server-side via /api/stem-sniper/notes.
 export async function POST(request: Request) {
   try {
     const keyResult = await requireApiKey(request);
     if (keyResult instanceof Response) return keyResult;
 
     const { wines, questionId } = await request.json();
-
     if (!wines || !Array.isArray(wines) || wines.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "Missing or empty wines array" }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ error: "Missing or empty wines array" }, { status: 400 });
     }
 
-    // Try to load stored wine profiles from DB first, fall back to bank lookup
-    let wineProfiles = await lookupWines(wines);
-    if (questionId) {
-      try {
-        const sql = neon(process.env.DATABASE_URL!);
-        const rows = await sql`
-          SELECT wine_profiles FROM generated_questions WHERE question_id = ${questionId}
-        `;
-        const stored = rows[0]?.wine_profiles;
-        if (stored && typeof stored === "object" && Object.keys(stored).length > 0) {
-          wineProfiles = stored as typeof wineProfiles;
-        }
-      } catch {}
-    }
-
-    const client = new Anthropic({ apiKey: keyResult.apiKey });
-
-    const systemPrompt = buildTastingSystemPrompt();
-    const userPrompt = buildTastingUserPrompt(wines, wineProfiles);
-
-    const { model, abGroup } = await selectModel("tasting_generation", keyResult.apiKey, "sonnet");
-    const t0 = Date.now();
-    const message = await client.messages.create({
-      model,
-      max_tokens: 3000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
+    const tastingNotes = await generateSanitizedTastingNotes({
+      wines,
+      questionId,
+      apiKey: keyResult.apiKey,
+      source: keyResult.source,
+      userId: keyResult.user.id,
     });
-    logClaudeUsage(
-      { taskType: "tasting_generation", model, source: keyResult.source, userId: keyResult.user.id, questionId: questionId ?? null, abGroup },
-      message.usage,
-      { latencyMs: Date.now() - t0 }
-    );
 
-    // Extract text from the response
-    const text = message.content
-      .filter((block) => block.type === "text")
-      .map((block) => block.text)
-      .join("\n");
-
-    // Split into per-wine notes by "**Wine" markers
-    const wineNotes: string[] = [];
-    const parts = text.split(/(?=\*\*Wine\s+\d+)/);
-    for (const part of parts) {
-      const trimmed = part.trim();
-      if (trimmed.length > 0 && /\*\*Wine\s+\d+/.test(trimmed)) {
-        wineNotes.push(trimmed);
-      }
-    }
-
-    // If parsing failed, return the whole text as a single note
-    if (wineNotes.length === 0) {
-      wineNotes.push(text);
-    }
-    const sanitizedNotes = sanitizeTastingNotes(wineNotes, wines);
-
-    return new Response(JSON.stringify({ tastingNotes: sanitizedNotes }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return Response.json({ tastingNotes });
   } catch (err) {
     console.error("generate-tasting error:", err);
-    return new Response(
-      JSON.stringify({
-        error: err instanceof Error ? err.message : "Internal server error",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      { error: err instanceof Error ? err.message : "Internal server error" },
+      { status: 500 }
     );
   }
 }
