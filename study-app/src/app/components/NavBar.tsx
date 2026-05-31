@@ -62,12 +62,16 @@ export function NavBar() {
           >
             Stem Sniper
           </Link>
-          <a
-            href="/diagrams/"
-            className="text-sm font-medium transition-colors text-muted hover:text-foreground"
+          <Link
+            href="/diagrams"
+            className={`text-sm font-medium transition-colors ${
+              pathname.startsWith("/diagrams")
+                ? "text-accent"
+                : "text-muted hover:text-foreground"
+            }`}
           >
             Diagrams
-          </a>
+          </Link>
           <Link
             href="/history"
             className={`text-sm font-medium transition-colors ${

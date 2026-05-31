@@ -1000,18 +1000,11 @@ p {
 """
 
 
-APP_NAV_HTML = """<nav class="app-nav no-print">
-  <div class="app-nav-inner">
-    <div class="app-nav-links">
-      <a href="/"><img src="/logo.png" alt="BWC" width="28" height="28" class="app-nav-logo"></a>
-      <a href="/" class="app-nav-link">Study</a>
-      <a href="/history" class="app-nav-link">History</a>
-      <a href="/diagrams/index.html" class="app-nav-link app-nav-active">Diagrams</a>
-      <a href="/methodology" class="app-nav-link">Methodology</a>
-      <a href="/settings" class="app-nav-link">Settings</a>
-    </div>
-  </div>
-</nav>"""
+# The diagrams app pages are embedded (via an iframe) inside the React route /diagrams, which already
+# renders the real app NavBar (logo, Study, Stem Sniper, Diagrams, History, Methodology, Settings,
+# Admin, the notification bell, the signed-in user's name, and Sign out). A second, static, partial nav
+# here would duplicate it and show stale/incomplete links, so the embedded pages carry NO app nav.
+APP_NAV_HTML = ""
 
 
 def app_page_template(title: str, content: str, print_filename: str) -> str:
