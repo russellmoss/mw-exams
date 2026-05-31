@@ -952,11 +952,14 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   numeric "state RS/ABV" only; commercial never <5; compare/contrast 20–36 marks; variety-ID size signals
   difficulty (10–15 mainstream, 16–25 harder). Structure stable: 3–4 questions/paper, ~3 sub-questions each.
 
-### EK-0099 · Per-paper Old-World : New-World band (never NW-majority)
+### EK-0099 · Per-paper Old-World : New-World band (P3 never NW-majority; P1/P2 rarely are)
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** `outputs/gap_analysis/findings/01_diversity.md` §1.3 + `07_adversarial_corpus_review.md`; `data/structured/corpus_wines.json` (last-10)
+- **evidence:** `outputs/gap_analysis/findings/01_diversity.md` §1.3 + `07_adversarial_corpus_review.md`; `data/structured/corpus_wines.json` (last-10); correction surfaced by the Phase 3 whole-test validator self-test (2026-05-31)
 - **claim:** Per 12-wine paper: **P1 ≈ 7.8 OW : 4.2 NW (65% OW), P2 ≈ 7.6 : 4.4 (63%), P3 ≈ 9.8 : 2.2
-  (82%)**; corpus-wide 70% OW. **No paper is ever majority New-World.** Within a flight, outside the
+  (82%)**; corpus-wide 70% OW. **Correction:** the original "no paper is ever majority New-World" was an
+  overclaim — **P1 and P2 each had a NW-majority paper** in 2015–2025 (observed minima P1 **4:8**,
+  P2 **5:7**, e.g. 2018 P2); only **P3 is never NW-majority** (min **6:6**). So enforce "never NW-majority"
+  on **P3 only**; for P1/P2 use a soft OW floor at the historical minimum (~33% / ~41% OW). Within a flight, outside the
   same-origin families (F2/F7, single-world by design), mixing OW+NW is the norm — F4 61%, F1 64%, F6 75%
   mixed; mixing scales with flight size (19% at size-2 → 71% at size-5). A whole paper spans ~6 countries
   (P1 5.9 / P2 6.7 / P3 6.2) and 7–10 varieties.

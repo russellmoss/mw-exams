@@ -43,6 +43,19 @@ An optional theme or constraint set for the suite (for example "lean Old World",
 
 ## What to do
 
+> **Blueprint-first (Phase 3 — do this BEFORE choosing any wine).** For each paper, first allocate a
+> 12-slot COMPOSITION BLUEPRINT: a table assigning every slot its intended `country`, `world` (old/new),
+> `macro_style`/colour, `price_band` (value / mainstream / premium / super_premium / luxury), `is_blend`,
+> and `curveball` (true/false) — so that the paper AS A WHOLE satisfies the per-paper bands in
+> `data/structured/whole_test_targets.json`: the OW:NW band (P1/P2 ~⅔ OW, P3 ~82%; P3 never NW-majority,
+> P1/P2 rarely), ≥~6 countries, 7–10 varieties, the curveball budget (P1≈2 / P2≈1 / P3≈6 harder per 12),
+> the price HIGH-share band, the modern mark-mix (commercial AND style present; ID ≤ ~46–55% of marks),
+> single-country ≤ ~67%, and some blends (~29% of real wines). THEN choose wines to fill each slot, then
+> write the questions. Generating 12 wines and hoping they balance does not work — deal the blueprint,
+> then fill it. Put the blueprint table in the rationale file, and carry each slot's
+> world/price_band/curveball/is_blend/macro_style onto its wine so the caller can run
+> `python scripts/validate_mock_paper.py` (target: 0 unexplained COMPOSITION WARNINGS).
+
 1. **Analyze historical patterns** across all three papers. Look at:
    - Typical question count (P1 usually 3-5, P2 usually 3-4, P3 usually 3-6)
    - Typical structures ("4 from same variety", "pairs by country", "single varietal across continents", etc.)

@@ -17,6 +17,7 @@ Spawn a single `mock-exam-writer` subagent (in foreground — you need the resul
   - Design rationale → `outputs/mock_exams/mock_full_{YYYY_MM_DD}_v{N}_rationale.md`
 - The agent STOPS after writing these two files — it does NOT write answers
 - When it returns, confirm BOTH files exist and note the exact base name (e.g. `mock_full_2026_05_27_v9`) — you need it for Stage 2
+- **Composition self-check (Phase 3 — blueprint-first).** The agent allocates a 12-slot BLUEPRINT per paper FIRST (see the mock-exam-writer agent) so the whole paper hits the targets in `data/structured/whole_test_targets.json`, then fills it. After the paper is written, for EACH of the three papers emit a paper JSON in the shape `{ "paper": N, "wines": [{ "slot", "full_text", "world", "price_band", "curveball", "is_blend", "macro_style" }], "questions": [{ "n", "wine_slots", "text" }] }` (carry the blueprint's world/price_band/curveball/is_blend/macro_style onto each wine) and run `python scripts/validate_mock_paper.py <paper.json>`. If it reports `COMPOSITION WARNINGS: > 0`, revise the offending wine(s) or sub-question(s) and re-run until clean — or, if a warning reflects a deliberate design choice, note the justification in the rationale file. (The validator is advisory; it never blocks, but an unexplained warning means the paper drifted from the real-exam distribution.)
 
 ## Stage 2 — Generate answers (three parallel agents)
 

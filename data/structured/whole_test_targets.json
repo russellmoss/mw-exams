@@ -1,0 +1,48 @@
+{
+  "_note": "Per-12-wine-paper composition targets for whole-test generation, derived from mw_exam_guide.md §8 + EK-0098/0099/0100/0101 (last-10 corpus). Bands are intentionally WIDE (Round-2 review: avoid warning fatigue). Used by scripts/validate_mock_paper.py and by the blueprint-first allocator in .claude/agents/mock-exam-writer.md. Source: outputs/gap_analysis/findings/ + data/structured/.",
+  "global": {
+    "single_country_max_frac": 0.67,
+    "blend_frac_min": 0.08,
+    "suite_curveball_total": [6, 13],
+    "comment": "single_country_max_frac: flag only pathological single-country skew (>~8/12) — real P3 papers reach 8/12 France. blend_frac_min: ~29% of real wines are blends; flag a paper with almost none. suite_curveball_total: ~9 medium+high wines across the 36-wine suite, P3-weighted. ow_frac_min floors are set to the OBSERVED historical minima (P1 4:8, P2 5:7, P3 6:6) — EK-0099's 'never NW-majority' holds ONLY for P3; P1 and P2 each had a NW-majority paper in 2015-2025, so never_nw_majority is enforced on P3 only."
+  },
+  "P1": {
+    "color": "white",
+    "ow_frac_min": 0.33,
+    "never_nw_majority": false,
+    "min_countries": 5,
+    "min_varieties": 7,
+    "curveball_budget": [1, 4],
+    "high_price_frac": [0.0, 0.42],
+    "age_profile": "young",
+    "id_composite_max": 0.55,
+    "commercial_present": true,
+    "style_present": true
+  },
+  "P2": {
+    "color": "red",
+    "ow_frac_min": 0.41,
+    "never_nw_majority": false,
+    "min_countries": 5,
+    "min_varieties": 7,
+    "curveball_budget": [0, 4],
+    "high_price_frac": [0.05, 0.55],
+    "age_profile": "mid",
+    "id_composite_max": 0.66,
+    "commercial_present": true,
+    "style_present": true
+  },
+  "P3": {
+    "color": "mixed",
+    "ow_frac_min": 0.5,
+    "never_nw_majority": true,
+    "min_countries": 4,
+    "min_varieties": 7,
+    "curveball_budget": [3, 10],
+    "high_price_frac": [0.12, 0.48],
+    "age_profile": "oldest_plus_nv",
+    "id_composite_max": 0.55,
+    "commercial_present": true,
+    "style_present": true
+  }
+}
