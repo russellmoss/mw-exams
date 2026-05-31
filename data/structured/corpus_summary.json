@@ -1,0 +1,178 @@
+{
+  "counts": {
+    "wines_total": 504,
+    "wines_last10": 360,
+    "questions_total": 153,
+    "questions_last10": 112,
+    "subquestions_total": 462,
+    "subquestions_last10": 337
+  },
+  "marks_ok_rate_all": 0.889,
+  "marks_ok_rate_last10": 1.0,
+  "marks_not_ok_questions": [
+    "2012_p1_q1",
+    "2012_p1_q2",
+    "2012_p1_q3",
+    "2012_p1_q4",
+    "2012_p2_q1",
+    "2012_p2_q2",
+    "2012_p2_q3",
+    "2013_p1_q1",
+    "2013_p1_q2",
+    "2013_p1_q5",
+    "2013_p2_q1",
+    "2013_p2_q2",
+    "2013_p2_q3",
+    "2013_p2_q4",
+    "2013_p3_q1",
+    "2013_p3_q2",
+    "2013_p3_q3"
+  ],
+  "world_dist_last10": {
+    "old_world": 252,
+    "new_world": 108
+  },
+  "variety_unknown_last10": 0,
+  "vintage_missing_last10": 32,
+  "price_band_dist_last10": {
+    "premium": 176,
+    "super_premium": 76,
+    "value": 66,
+    "luxury": 31,
+    "mainstream": 11
+  },
+  "curveball_dist_last10": {
+    "low": 272,
+    "medium": 61,
+    "high": 27
+  },
+  "flight_size_dist_last10": {
+    "2": 37,
+    "4": 31,
+    "3": 30,
+    "5": 7,
+    "6": 6,
+    "1": 1
+  },
+  "family_dist_last10": {
+    "F4": 33,
+    "F1": 25,
+    "F2": 24,
+    "F5": 12,
+    "F7": 8,
+    "F3": 6,
+    "F6": 4
+  },
+  "subq_type_dist_last10": {
+    "origin_id": 84,
+    "variety_id": 78,
+    "winemaking": 58,
+    "commercial": 42,
+    "maturity": 32,
+    "quality": 27,
+    "vintage_id": 7,
+    "sweetness_rs": 5,
+    "structure": 3,
+    "style": 1
+  },
+  "subq_type_other_examples": [],
+  "subq_multilabel_last10": {
+    "origin_id": 128,
+    "quality": 99,
+    "variety_id": 78,
+    "winemaking": 76,
+    "style": 54,
+    "commercial": 47,
+    "maturity": 35,
+    "comparative": 23,
+    "vintage_id": 7,
+    "structure": 7,
+    "sweetness_rs": 7
+  },
+  "id_share_by_year": {
+    "2011": {
+      "id_pct": 72.2,
+      "quality_pct": 39.2,
+      "commercial_pct": 3.3,
+      "total_marks": 600
+    },
+    "2012": {
+      "id_pct": 34.0,
+      "quality_pct": 26.0,
+      "commercial_pct": 0.0,
+      "total_marks": 300
+    },
+    "2013": {
+      "id_pct": 60.4,
+      "quality_pct": 33.6,
+      "commercial_pct": 5.1,
+      "total_marks": 396
+    },
+    "2014": {
+      "id_pct": 59.6,
+      "quality_pct": 30.2,
+      "commercial_pct": 9.6,
+      "total_marks": 900
+    },
+    "2015": {
+      "id_pct": 44.1,
+      "quality_pct": 37.2,
+      "commercial_pct": 1.7,
+      "total_marks": 900
+    },
+    "2016": {
+      "id_pct": 54.1,
+      "quality_pct": 26.0,
+      "commercial_pct": 12.2,
+      "total_marks": 900
+    },
+    "2017": {
+      "id_pct": 60.4,
+      "quality_pct": 22.9,
+      "commercial_pct": 16.9,
+      "total_marks": 900
+    },
+    "2018": {
+      "id_pct": 65.7,
+      "quality_pct": 42.8,
+      "commercial_pct": 4.0,
+      "total_marks": 900
+    },
+    "2019": {
+      "id_pct": 44.9,
+      "quality_pct": 40.1,
+      "commercial_pct": 23.4,
+      "total_marks": 900
+    },
+    "2021": {
+      "id_pct": 48.8,
+      "quality_pct": 32.3,
+      "commercial_pct": 20.6,
+      "total_marks": 900
+    },
+    "2022": {
+      "id_pct": 52.8,
+      "quality_pct": 35.0,
+      "commercial_pct": 16.7,
+      "total_marks": 900
+    },
+    "2023": {
+      "id_pct": 42.6,
+      "quality_pct": 39.1,
+      "commercial_pct": 16.0,
+      "total_marks": 900
+    },
+    "2024": {
+      "id_pct": 47.4,
+      "quality_pct": 34.8,
+      "commercial_pct": 18.4,
+      "total_marks": 900
+    },
+    "2025": {
+      "id_pct": 39.7,
+      "quality_pct": 40.1,
+      "commercial_pct": 17.8,
+      "total_marks": 900
+    }
+  }
+}

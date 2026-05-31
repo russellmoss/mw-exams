@@ -1,0 +1,7272 @@
+[
+  {
+    "qid": "2011_p1_q1",
+    "year": 2011,
+    "paper": 1,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2011_p1_w1",
+      "2011_p1_w2",
+      "2011_p1_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1 to 3 are from the same region of origin, but made from different single grape varieties.\nFor all three wines:\na) Identify the region of origin (15 marks)\nFor each wine:\nb) Identify the grape variety and comment on the level of quality within the context of the region of origin (3 x 15 marks)\nc) Comment on the age / vintage of each wine and its potential to develop and improve further (3 x 5 marks)"
+  },
+  {
+    "qid": "2011_p1_q2",
+    "year": 2011,
+    "paper": 1,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2011_p1_w4",
+      "2011_p1_w5",
+      "2011_p1_w6"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 4 to 6 are made from the same grape variety.\nFor all three wines:\na) Identify the grape variety (15 marks)\nFor each wine:\nb) Identify the origin as closely as possible and comment on the level of quality within the context of that origin (3 x 15 marks)\nc) Discuss how the wine has been made, with specific reference to the use of oak and malolactic fermentation (3 x 5 marks)"
+  },
+  {
+    "qid": "2011_p1_q3",
+    "year": 2011,
+    "paper": 1,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 6,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2011_p1_w7",
+      "2011_p1_w8",
+      "2011_p1_w9",
+      "2011_p1_w10",
+      "2011_p1_w11",
+      "2011_p1_w12"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 6,
+        "each": 7,
+        "sum": 42
+      },
+      {
+        "count": 6,
+        "each": 8,
+        "sum": 48
+      },
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 7 to 12 are a mixed bag. Each comes from a different country and a different (predominant) grape variety.\nFor each wine:\na) Identify the predominant grape variety (6 x 7 marks)\nb) Identify the country and region of origin as closely as possible (6 x 8 marks)\nc) Comment on the level of quality (6 x 10 marks)"
+  },
+  {
+    "qid": "2011_p2_q1",
+    "year": 2011,
+    "paper": 2,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2011_p2_w1",
+      "2011_p2_w2",
+      "2011_p2_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1 to 3 are from the same country of origin.\nFor all three wines:\na) Identify the country of origin (15 marks)\nFor each wine:\nb) Identify the grape variety/ies (3 x 10 marks)\nc) Comment on the level of quality (3 x 10 marks)"
+  },
+  {
+    "qid": "2011_p2_q2",
+    "year": 2011,
+    "paper": 2,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2011_p2_w4",
+      "2011_p2_w5"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 4 and 5 are made from the same single grape variety and are from the same region of origin.\nFor both wines:\nd) Identify the grape variety and region of origin as closely as possible (20 marks)\nFor each wine:\ne) Comment on the method of production (2 x 5 marks)\nf) Comment on quality and style, within the context of the region of origin (2 x 10 marks)"
+  },
+  {
+    "qid": "2011_p2_q3",
+    "year": 2011,
+    "paper": 2,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2011_p2_w6",
+      "2011_p2_w7",
+      "2011_p2_w8"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 24,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 4,
+        "sum": 12
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 6 to 8 are made from different single grape varieties and are from the same region of origin.\nFor all three wines:\na) Identify the region of origin as closely as possible (24 marks)\nFor each wine:\nb) Identify the grape variety (3 x 8 marks)\nc) Comment on the method of production (3 x 4 marks)\nd) Comment on quality, within the context of the region of origin (3 x 5 marks)"
+  },
+  {
+    "qid": "2011_p2_q4",
+    "year": 2011,
+    "paper": 2,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2011_p2_w9",
+      "2011_p2_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9 and 10 are from different countries.\nFor each wine:\na) Identify the grape variety/ies and region of origin as closely as possible (2 x 10 marks)\nb) Comment on the winemaking, with particular reference to the use of oak (2 x 10 marks)\nc) Identify the vintage and state of maturity (2 x 5 marks)"
+  },
+  {
+    "qid": "2011_p2_q5",
+    "year": 2011,
+    "paper": 2,
+    "n": 5,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2011_p2_w11",
+      "2011_p2_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 11 and 12 are both made from the same single grape variety, from different countries.\nFor both wines:\na) Identify the grape variety (20 marks)\nFor each wine:\nb) Identify the origin as closely as possible (2 x 5 marks)\nc) Comment on quality and style, with particular reference to commercial appeal (2 x 10 marks)"
+  },
+  {
+    "qid": "2012_p1_q1",
+    "year": 2012,
+    "paper": 1,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2012_p1_w1",
+      "2012_p1_w2",
+      "2012_p1_w3",
+      "2012_p1_w4"
+    ],
+    "total_marks": 0,
+    "expected_marks": 100,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-4 are all from the same region of origin.\nFor each wine:\na) Identify the specific origin as closely as possible (4 x 10\\)\nb) Identify the grape variety(ies) (4 x 6\\)\nc) Comment on the winemaking (4 x 3\\)\nd) Discuss the quality with reference to state of maturity (4 x 6\\)"
+  },
+  {
+    "qid": "2012_p1_q2",
+    "year": 2012,
+    "paper": 1,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2012_p1_w5",
+      "2012_p1_w6",
+      "2012_p1_w7"
+    ],
+    "total_marks": 0,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 5-7 are all made from the same single grape variety and come from different countries.\nWith reference to all three wines:\na) Identify the grape variety (15)\nThen for each wine:\nb) Identify the origin as closely as possible (3 x 10\\)\nc) Discuss the quality with particular reference to winemaking techniques employed (3 x 10\\)"
+  },
+  {
+    "qid": "2012_p1_q3",
+    "year": 2012,
+    "paper": 1,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      8,
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2012_p1_w8",
+      "2012_p1_w9",
+      "2012_p1_w10"
+    ],
+    "total_marks": 0,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 8-10 are all from the same region and are from the same vintage.\nFor each wine:\na) Identify the specific origin as closely as possible (3 x 10\\)\nWith reference to all three wines:\nb) Compare the quality of the wines, within the context of the region of origin (30)\nc) Identify the vintage (15)"
+  },
+  {
+    "qid": "2012_p1_q4",
+    "year": 2012,
+    "paper": 1,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2012_p1_w11",
+      "2012_p1_w12"
+    ],
+    "total_marks": 0,
+    "expected_marks": 50,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 11 and 12 are both made from the same predominant grape variety.\nWith reference to both wines:\na) Identify the predominant grape variety (18)\nThen for each wine:\nb) Identify the region of origin (2 x 8\\)\nc) Comment on the quality, style and potential for further ageing (2 x 8\\)"
+  },
+  {
+    "qid": "2012_p2_q1",
+    "year": 2012,
+    "paper": 2,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 6,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2012_p2_w1",
+      "2012_p2_w2",
+      "2012_p2_w3",
+      "2012_p2_w4",
+      "2012_p2_w5",
+      "2012_p2_w6"
+    ],
+    "total_marks": 0,
+    "expected_marks": 150,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-6 are from 6 different countries. All are made from one or more of the red varieties permitted in Bordeaux. The same variety may feature more than once.\nFor each wine:\na) Identify the region of origin and grape variety(ies) (6 x 12\\)\nb) Comment on the quality (within the context of the region of origin) and maturity (6 x 8\\)\nc) Comment on the winemaking (6 x 5\\)"
+  },
+  {
+    "qid": "2012_p2_q2",
+    "year": 2012,
+    "paper": 2,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2012_p2_w7",
+      "2012_p2_w8",
+      "2012_p2_w9"
+    ],
+    "total_marks": 0,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 7-9 are from 3 different European countries, excluding France, Italy and Spain.\nFor each wine:\na) Identify the region of origin and grape variety(ies) (3 x 12\\)\nb) Comment on the quality (within the context of the region of origin) and maturity (3 x 8\\)\nc) Comment on the winemaking (3 x 5\\)"
+  },
+  {
+    "qid": "2012_p2_q3",
+    "year": 2012,
+    "paper": 2,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2012_p2_w10",
+      "2012_p2_w11",
+      "2012_p2_w12"
+    ],
+    "total_marks": 0,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 10-12 are from 3 different countries. All are made from the same predominant grape variety.\nWith reference to all three wines:\na) Identify the grape variety (15)\nb) Comment on the quality (15)\nc) Comment on the winemaking (15)\nThen for each wine:\nd) Identify the origin (3 x 10\\)"
+  },
+  {
+    "qid": "2012_p3_q1",
+    "year": 2012,
+    "paper": 3,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2012_p3_w1",
+      "2012_p3_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1 and 2 are from the same region and same producer.\nWith reference to both wines:\na) Identify the region of origin as closely as possible (10 marks)\nb) Compare the most relevant winemaking techniques involved in the production of the wines (20 marks)\nc) Compare maturity and quality, stating which is the higher quality wine (20 marks)"
+  },
+  {
+    "qid": "2012_p3_q2",
+    "year": 2012,
+    "paper": 3,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2012_p3_w3",
+      "2012_p3_w4",
+      "2012_p3_w5",
+      "2012_p3_w6"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 15,
+        "sum": 60
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 3-6 are each from a different country. Each is made predominantly from a different, single grape variety.\nFor each wine:\na) Identify the region of origin and the grape variety (4 x 15 marks)\nb) To whom is this wine most likely to appeal, and why? (4 x 10 marks)"
+  },
+  {
+    "qid": "2012_p3_q3",
+    "year": 2012,
+    "paper": 3,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2012_p3_w7",
+      "2012_p3_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 7 and 8 are from different countries. Each is made from the same, single grape variety.\nWith reference to both wines:\na) Identify the grape variety (10 marks)\nb) Compare the quality and methods of production. Discuss the balance between acidity and sweetness in these wines (30 marks)\nThen for each wine:\nc) Identify the origin as closely as possible (2 x 5 marks)"
+  },
+  {
+    "qid": "2012_p3_q4",
+    "year": 2012,
+    "paper": 3,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2012_p3_w9",
+      "2012_p3_w10",
+      "2012_p3_w11",
+      "2012_p3_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 12,
+        "sum": 12
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      }
+    ],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9-12 are all made from the same, single grape variety.\nFor all four wines:\na) Identify the grape variety, with reference to each wine (12 marks)\nFor each wine:\nb) Identify the most relevant production techniques evident in the wine (4 x 10 marks)\nc) State the alcohol level (4 x 5 marks)\nd) Comment on quality and style (4 x 7 marks)"
+  },
+  {
+    "qid": "2013_p1_q1",
+    "year": 2013,
+    "paper": 1,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2013_p1_w1",
+      "2013_p1_w2"
+    ],
+    "total_marks": 35,
+    "expected_marks": 50,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1 and 2 are from the same country, but from different regions and different single grape varieties.\nFor each wine:\na) Identify the origin, as closely as possible, and grape variety. (15 marks)\nFor both wines:\nb) Compare and contrast quality and style, with reference to winemaking. (20 marks)"
+  },
+  {
+    "qid": "2013_p1_q2",
+    "year": 2013,
+    "paper": 1,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2013_p1_w3",
+      "2013_p1_w4"
+    ],
+    "total_marks": 35,
+    "expected_marks": 50,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 3 and 4 are from the same country, but from different regions and different single grape varieties.\nFor each wine:\na) Identify the origin, as closely as possible, and grape variety. (15 marks)\nFor both wines:\nb) Compare and contrast quality and style, with reference to winemaking. (20 marks)"
+  },
+  {
+    "qid": "2013_p1_q3",
+    "year": 2013,
+    "paper": 1,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2013_p1_w5",
+      "2013_p1_w6"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 5 and 6 are from the same country and region, but from different single grape varieties.\nFor both wines:\na) Identify the origin, as closely as possible, and grape varieties. (30 marks)\nb) Compare and contrast quality and style, with reference to winemaking. (20 marks)"
+  },
+  {
+    "qid": "2013_p1_q4",
+    "year": 2013,
+    "paper": 1,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2013_p1_w7",
+      "2013_p1_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 25,
+        "sum": 25
+      },
+      {
+        "count": 1,
+        "each": 25,
+        "sum": 25
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 7 and 8 are from the same country and are made from the same single grape variety.\nFor both wines:\na) Identify the country of origin and grape variety. (25 marks)\nb) Compare and contrast quality and style, with reference to winemaking. (25 marks)"
+  },
+  {
+    "qid": "2013_p1_q5",
+    "year": 2013,
+    "paper": 1,
+    "n": 5,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2013_p1_w9",
+      "2013_p1_w10",
+      "2013_p1_w11",
+      "2013_p1_w12"
+    ],
+    "total_marks": 0,
+    "expected_marks": 100,
+    "marks_ok": false,
+    "mark_tokens": [],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9-12 are from four different countries. Each wine is made from a different single grape variety.\nFor each wine:\na) Consider quality and style, with reference to winemaking. (15 marks per wine)\nb) Identify the origin, as closely as possible, and grape variety. (10 marks per wine)"
+  },
+  {
+    "qid": "2013_p2_q1",
+    "year": 2013,
+    "paper": 2,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2013_p2_w1",
+      "2013_p2_w2"
+    ],
+    "total_marks": 35,
+    "expected_marks": 50,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-2 are from the same region of origin.\nFor each wine:\na) Identify the specific origin as closely as possible. (15 marks)\nFor both wines:\nb) Compare the quality of the two wines, within the context of the region of origin. (10 marks)\nc) Compare the state of maturity, stating the vintage for each wine. (10 marks)"
+  },
+  {
+    "qid": "2013_p2_q2",
+    "year": 2013,
+    "paper": 2,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      3,
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2013_p2_w3",
+      "2013_p2_w4",
+      "2013_p2_w5"
+    ],
+    "total_marks": 35,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 3-5 are all from the same country of origin, but from different grape variety(ies).\nFor all three wines:\na) Identify the country of origin. (15 marks)\nFor each wine:\nb) Identify the region of origin and grape variety(ies). (10 marks)\nc) Comment on quality in an international context. (10 marks)"
+  },
+  {
+    "qid": "2013_p2_q3",
+    "year": 2013,
+    "paper": 2,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2013_p2_w6",
+      "2013_p2_w7",
+      "2013_p2_w8",
+      "2013_p2_w9"
+    ],
+    "total_marks": 40,
+    "expected_marks": 100,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 6-9 are all made from the same predominant grape variety, but from four different countries.\nFor all four wines:\na) Identify the predominant grape variety. (20 marks)\nFor each wine:\nb) Identify the region of origin as closely as possible. (10 marks)\nc) Comment on quality within the context of the region of origin, and commercial appeal. (10 marks)"
+  },
+  {
+    "qid": "2013_p2_q4",
+    "year": 2013,
+    "paper": 2,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2013_p2_w10",
+      "2013_p2_w11",
+      "2013_p2_w12"
+    ],
+    "total_marks": 25,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 2,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 10-12 are all from different countries.\nFor each wine:\na) Comment on the most relevant aspects of the method of production. (15 marks)\nb) Identify the grape variety(ies) and region of origin, as closely as possible. (10 marks)"
+  },
+  {
+    "qid": "2013_p3_q1",
+    "year": 2013,
+    "paper": 3,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2013_p3_w1",
+      "2013_p3_w2",
+      "2013_p3_w3"
+    ],
+    "total_marks": 41,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 24,
+        "sum": 24
+      },
+      {
+        "count": 1,
+        "each": 7,
+        "sum": 7
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-3 are all from the same country.\nFor all three wines\na) Identify the country and regions of origin. (24 marks)\nFor each wine\nc) Comment on the method of production. (7 marks)\nd) Discuss the quality with particular reference to commercial potential. (10 marks)"
+  },
+  {
+    "qid": "2013_p3_q2",
+    "year": 2013,
+    "paper": 3,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 3,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2013_p3_w4",
+      "2013_p3_w5",
+      "2013_p3_w6"
+    ],
+    "total_marks": 25,
+    "expected_marks": 75,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 7,
+        "sum": 7
+      },
+      {
+        "count": 1,
+        "each": 8,
+        "sum": 8
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 4-6 are from two different countries. One grape variety is common to all three wines, but in varying proportions.\nFor each wine\na) Identify the region of origin and grape variety(ies). (10 marks)\nb) Comment on the method of production. (7 marks)\nc) Comment on quality and maturity. (8 marks)"
+  },
+  {
+    "qid": "2013_p3_q3",
+    "year": 2013,
+    "paper": 3,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 6,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2013_p3_w7",
+      "2013_p3_w8",
+      "2013_p3_w9",
+      "2013_p3_w10",
+      "2013_p3_w11",
+      "2013_p3_w12"
+    ],
+    "total_marks": 25,
+    "expected_marks": 150,
+    "marks_ok": false,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 9,
+        "sum": 9
+      },
+      {
+        "count": 1,
+        "each": 3,
+        "sum": 3
+      },
+      {
+        "count": 1,
+        "each": 3,
+        "sum": 3
+      }
+    ],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 7-12 are from six different countries; none are fortified.\nFor each wine\na) Identify the origin as closely as possible, with reference to the grape variety(ies) used. (10 marks)\nb) Comment on the method of production. (9 marks)\nc) State the residual sugar level. (3 marks)\nd) State the alcohol level. (3 marks)"
+  },
+  {
+    "qid": "2014_p1_q1",
+    "year": 2014,
+    "paper": 1,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2014_p1_w1",
+      "2014_p1_w2",
+      "2014_p1_w3",
+      "2014_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      }
+    ],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-4 come from the same country.\nWith reference to all four wines\na) Identify the country of origin. (16 marks)\nFor each of the four wines\nb) Identify the region of origin as closely as possible. (4 x 5 marks).\nc) Discuss the key winemaking techniques used to produce this style. (4 x 8 marks)\nd) Discuss quality in relation to the region of origin. (4 x 8 marks)"
+  },
+  {
+    "qid": "2014_p1_q2",
+    "year": 2014,
+    "paper": 1,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2014_p1_w5",
+      "2014_p1_w6",
+      "2014_p1_w7",
+      "2014_p1_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 24,
+        "sum": 24
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 9,
+        "sum": 36
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 5-8 come from four different countries and are made from the same single grape variety.\nWith reference to all four wines\na) Identify the grape variety. (24 marks)\nFor each wine\nb) Identify the origin as closely as possible. (4 x 10 marks)\nc) Discuss quality and style. (4 x 9 marks)"
+  },
+  {
+    "qid": "2014_p1_q3",
+    "year": 2014,
+    "paper": 1,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2014_p1_w9",
+      "2014_p1_w10",
+      "2014_p1_w11",
+      "2014_p1_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 20,
+        "sum": 40
+      },
+      {
+        "count": 2,
+        "each": 20,
+        "sum": 40
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 4,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9-12 are all made from a single variety. Two varieties are represented.\na) Divide the wines into their respective varietal pairs using both wines to identify the variety. (2 x 20 marks)\nIn addition to being paired by variety, they are also paired by country.\nb) Divide the wines into their respective pairs by country and discuss their individual origins as closely as possible. (2 x 20 marks)\nc) Taking one of the geographical pairs you have identified above, compare and contrast their method of production. (10 marks)\nd) For the other geographical pair of wines you have selected which characteristics might you highlight to a potential customer? (10 marks)"
+  },
+  {
+    "qid": "2014_p2_q1",
+    "year": 2014,
+    "paper": 2,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2014_p2_w1",
+      "2014_p2_w2",
+      "2014_p2_w3",
+      "2014_p2_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 28,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-4 are all made from the same single variety, but come from four different countries.\nWith reference to all four wines\na) Identify the grape variety. (28 marks)\nFor each wine\nb) Identify the origin as closely as possible. (4 x 8 marks)\nc) Comment on the quality and commercial appeal. (4 x 10 marks)"
+  },
+  {
+    "qid": "2014_p2_q2",
+    "year": 2014,
+    "paper": 2,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2014_p2_w5",
+      "2014_p2_w6",
+      "2014_p2_w7",
+      "2014_p2_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 16,
+        "sum": 32
+      },
+      {
+        "count": 2,
+        "each": 18,
+        "sum": 36
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 5-8 come from two different estates. Two wines from estate \"A\", two wines from estate \"B\". All four wines are from the same region but from four different vintages.\na) Divide the wines into their respective pairs and identify their origin as closely as possible. (2 x 16 marks)\nb) Within each pair, compare and contrast relative quality. (2 x 18 marks)\nFor each wine\nc) Identify the vintage giving reasons for your conclusion. (4 x 8 marks)"
+  },
+  {
+    "qid": "2014_p2_q3",
+    "year": 2014,
+    "paper": 2,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2014_p2_w9",
+      "2014_p2_w10",
+      "2014_p2_w11",
+      "2014_p2_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 28,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 9,
+        "sum": 36
+      },
+      {
+        "count": 4,
+        "each": 9,
+        "sum": 36
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9-12 are all from the same country.\nWith reference to all four wines\na) Identify the country of origin. (28 marks)\nFor each wine\nb) Identify the specific origin with reference to the grape variety(ies) used. (4 x 9 marks)\nc) Comment on the quality and maturity. (4 x 9 marks)"
+  },
+  {
+    "qid": "2014_p3_q1",
+    "year": 2014,
+    "paper": 3,
+    "n": 1,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2014_p3_w1",
+      "2014_p3_w2",
+      "2014_p3_w3",
+      "2014_p3_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 1-4 are from four different countries. None of the wines are from Champagne.\nFor each wine\na) Identify the origin as closely as possible with reference to the grape variety(ies) used. (4 x 10 marks)\nb) Discuss the method of production. (4 x 7 marks)\nc) Comment on quality and commercial position. (4 x 8 marks)"
+  },
+  {
+    "qid": "2014_p3_q2",
+    "year": 2014,
+    "paper": 3,
+    "n": 2,
+    "is_last10": false,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2014_p3_w5",
+      "2014_p3_w6",
+      "2014_p3_w7",
+      "2014_p3_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 2,
+        "sum": 8
+      },
+      {
+        "count": 4,
+        "each": 2,
+        "sum": 8
+      }
+    ],
+    "n_subquestions": 5,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 5-8 are from three different countries.\nFor each wine\na) Identify the country and region of origin. (4 x 7 marks)\nb) With reference to grape varieties used, discuss the method of production. (4 x 7 marks)\nc) Comment on the quality and ability to improve in the bottle. (4 x 7 marks)\nd) State alcohol level (%). (4 x 2 marks)\ne) State residual sugar (g/l). (4 x 2 marks)"
+  },
+  {
+    "qid": "2014_p3_q3",
+    "year": 2014,
+    "paper": 3,
+    "n": 3,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2014_p3_w9",
+      "2014_p3_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 9-10 are produced from two different countries in Europe.\nFor each wine\na) Discuss the method of production. (2 x 10 marks)\nb) Comment on the quality. (2 x 8 marks)\nFor both wines\nc) Compare and contrast the commercial potential. (14 marks)"
+  },
+  {
+    "qid": "2014_p3_q4",
+    "year": 2014,
+    "paper": 3,
+    "n": 4,
+    "is_last10": false,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2014_p3_w11",
+      "2014_p3_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      }
+    ],
+    "n_subquestions": 3,
+    "family": null,
+    "subcategory": null,
+    "secondary_tags": [],
+    "text": "Wines 11-12 are produced in different countries.\nFor each wine\na) Identify the country and region of origin as closely as possible. (2 x 10 marks)\nb) Discuss the method of production. (2 x 7 marks)\nc) Comment on the quality and maturity. (2 x 8 marks)"
+  },
+  {
+    "qid": "2015_p1_q1",
+    "year": 2015,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2015_p1_w1",
+      "2015_p1_w2",
+      "2015_p1_w3",
+      "2015_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 12,
+        "sum": 48
+      },
+      {
+        "count": 1,
+        "each": 40,
+        "sum": 40
+      },
+      {
+        "count": 1,
+        "each": 12,
+        "sum": 12
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F7",
+    "subcategory": "F7d",
+    "secondary_tags": [
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-region",
+      "same-vintage"
+    ],
+    "text": "Wines 1-4 are all from the same region and the same vintage.\n\nFor each wine:\n\na) Identify the specific origin as closely as possible. (4 x 12 marks)\n\nWith reference to all four wines:\n\nb) Discuss quality, with specific reference to the region of production. (40 marks)\n\nc) Identify the vintage. (12 marks)"
+  },
+  {
+    "qid": "2015_p1_q2",
+    "year": 2015,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2015_p1_w5",
+      "2015_p1_w6"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "single-variety"
+    ],
+    "text": "Wines 5-6 are both made from the same single grape variety, but come from different countries.\n\nWith reference to both wines:\n\na) Identify the grape variety. (10 marks)\n\nThen for each wine:\n\nb) Identify the origin as closely as possible. (2 x 10 marks)\n\nc) Discuss quality, with particular reference to winemaking. (2 x 10 marks)"
+  },
+  {
+    "qid": "2015_p1_q3",
+    "year": 2015,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2015_p1_w7",
+      "2015_p1_w8",
+      "2015_p1_w9",
+      "2015_p1_w10",
+      "2015_p1_w11",
+      "2015_p1_w12"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      },
+      {
+        "count": 6,
+        "each": 5,
+        "sum": 30
+      },
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 7-12 are all made from single, different grape varieties.\n\nFor each wine:\n\na) Identify the grape variety. (6 x 10 marks)\n\nb) Identify the country and region of origin. (6 x 5 marks)\n\nc) Comment on quality, style and potential for further ageing. (6 x 10 marks)"
+  },
+  {
+    "qid": "2015_p2_q1",
+    "year": 2015,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2015_p2_w1",
+      "2015_p2_w2",
+      "2015_p2_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 4,
+        "sum": 12
+      },
+      {
+        "count": 3,
+        "each": 9,
+        "sum": 27
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led"
+    ],
+    "text": "Wines 1-3 are made from Pinot Noir.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 7 marks)\n\nb) Comment on winemaking. (3 x 4 marks)\n\nc) Discuss quality and maturity, with particular reference to the wine’s ability to improve. (3 x 9 marks)\n\nd) Comment on the commercial appeal. (3 x 5 marks)"
+  },
+  {
+    "qid": "2015_p2_q2",
+    "year": 2015,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2015_p2_w4",
+      "2015_p2_w5",
+      "2015_p2_w6"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 4-6 come from three different countries. Each wine is made from a different single, or predominant, grape variety.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 7 marks)\n\nb) Identify the predominant grape variety. (3 x 5 marks)\n\nc) Discuss the method of production. (3 x 5 marks)\n\nd) Comment on style, quality and potential to improve. (3 x 8 marks)"
+  },
+  {
+    "qid": "2015_p2_q3",
+    "year": 2015,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2015_p2_w7",
+      "2015_p2_w8",
+      "2015_p2_w9",
+      "2015_p2_w10"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 7-10 are from the same country, but from two different areas. Wines 7 and 8 come from one wine region, wines 9 and 10 from another.\n\nFor each wine:\n\na) Identify the origin and grape variety(ies) as closely as possible. (4 x 10 marks)\n\nb) Discuss the method of production. (4 x 5 marks)\n\nc) Comment on quality and maturity. (4 x 10 marks)"
+  },
+  {
+    "qid": "2015_p2_q4",
+    "year": 2015,
+    "paper": 2,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2015_p2_w11",
+      "2015_p2_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 11-12 are from the same country and region, but from different (predominant) grape varieties.\n\nFor both wines:\n\na) Identify the country, region and respective predominant grape varieties. (20 marks)\n\nFor each wine:\n\nb) Discuss the method of production. (2 x 5 marks)\n\nc) Comment on quality within the context of the region of origin. (2 x 10 marks)"
+  },
+  {
+    "qid": "2015_p3_q1",
+    "year": 2015,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2015_p3_w1",
+      "2015_p3_w2",
+      "2015_p3_w3",
+      "2015_p3_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 15,
+        "sum": 60
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F5",
+    "subcategory": "F5b",
+    "secondary_tags": [
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles"
+    ],
+    "text": "Wines 1-4 are all from Europe.\n\nFor each wine:\n\na) Discuss the major factors involved in the method of production, with particular reference to the role of yeast. (4 x 15 marks)\n\nb) Comment on quality and style. (4 x 10 marks)"
+  },
+  {
+    "qid": "2015_p3_q2",
+    "year": 2015,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2015_p3_w5",
+      "2015_p3_w6",
+      "2015_p3_w7",
+      "2015_p3_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 5-8 are from three different countries.\n\nFor each wine:\n\na) Identify the region of origin. (4 x 5 marks)\n\nb) Comment on quality and maturity. (4 x 10 marks)\n\nc) Discuss the method of production. (4 x 10 marks)"
+  },
+  {
+    "qid": "2015_p3_q3",
+    "year": 2015,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2015_p3_w9",
+      "2015_p3_w10",
+      "2015_p3_w11",
+      "2015_p3_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 2,
+        "sum": 8
+      },
+      {
+        "count": 4,
+        "each": 2,
+        "sum": 8
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 6,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 5,
+    "family": "F6",
+    "subcategory": "F6a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 9-12 are from four different countries.\n\nFor each wine:\n\na) State alcohol level (%). (4 x 2 marks)\n\nb) Place a tick in the appropriate box for the residual sugar. (4 x 2 marks)\n\nc) Identify the origin as closely as possible. (4 x 5 marks)\n\nd) From what you can detect in the glass, describe the method of production from vineyard to bottle. (4 x 10 marks)\n\ne) Comment on quality and maturity. (4 x 6 marks)"
+  },
+  {
+    "qid": "2016_p1_q1",
+    "year": 2016,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2016_p1_w1",
+      "2016_p1_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F3",
+    "subcategory": "F3b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-country",
+      "blend"
+    ],
+    "text": "Wines 1 and 2 are from the same country. They are both blends.\n\nFor each wine:\n\na) Identify the region of origin as closely as possible, comment with reference to the grape varieties used. (2 x 10 marks)\n\nb) Comment on quality within the context of the region of origin. (2 x 10 marks)\n\nc) Discuss the key winemaking techniques used to arrive at this style. (2 x 5 marks)"
+  },
+  {
+    "qid": "2016_p1_q2",
+    "year": 2016,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2016_p1_w3",
+      "2016_p1_w4"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-country",
+      "single-variety"
+    ],
+    "text": "Wines 3 and 4 are from the same country and the same grape variety.\n\nWith reference to both wines:\n\na) Identify the grape variety and origin(s) as closely as possible. (16 marks)\n\nb) Discuss winemaking with particular reference to maturation post fermentation. (14 marks)\n\nc) Comment on quality within the context of the region of origin. (20 marks)"
+  },
+  {
+    "qid": "2016_p1_q3",
+    "year": 2016,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2016_p1_w5",
+      "2016_p1_w6"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "single-variety"
+    ],
+    "text": "Wines 5 and 6 are made from the same grape variety.\n\nWith reference to both wines:\n\na) Identify the grape variety. (20 marks)\n\nFor each wine:\n\nb) Identify the region of origin as closely as possible. (2 x 8 marks)\n\nc) Discuss style and commercial appeal. (2 x 7 marks)"
+  },
+  {
+    "qid": "2016_p1_q4",
+    "year": 2016,
+    "paper": 1,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2016_p1_w7",
+      "2016_p1_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 7 and 8 come from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 10 marks)\n\nb) Comment on the winemaking. (2 x 8 marks)\n\nc) Discuss style and quality. (2 x 7 marks)"
+  },
+  {
+    "qid": "2016_p1_q5",
+    "year": 2016,
+    "paper": 1,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2016_p1_w9",
+      "2016_p1_w10",
+      "2016_p1_w11",
+      "2016_p1_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 9-12 are from four different countries and are made from four different grape varieties.\n\nFor each wine:\n\na) Identify the grape variety. (4 x 8 marks)\n\nb) Identify the origin as closely as possible. (4 x 7 marks)\n\nc) Comment on quality and state of maturity. (4 x 10 marks)"
+  },
+  {
+    "qid": "2016_p2_q1",
+    "year": 2016,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2016_p2_w1",
+      "2016_p2_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 18,
+        "sum": 18
+      },
+      {
+        "count": 1,
+        "each": 18,
+        "sum": 18
+      },
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "single-variety"
+    ],
+    "text": "Wines 1 and 2 come from the same region and are made from the same single grape variety.\n\nWith reference to both wines:\n\na) Identify the grape variety and origin as closely as possible. (18 marks)\n\nb) Compare the winemaking styles. (18 marks)\n\nc) Compare quality, with particular reference to both wines’ potential evolution. (14 marks)"
+  },
+  {
+    "qid": "2016_p2_q2",
+    "year": 2016,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      3,
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2016_p2_w3",
+      "2016_p2_w4",
+      "2016_p2_w5"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "single-variety",
+      "climate-comparison"
+    ],
+    "text": "Wines 3-5 are not from France and are all made from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety as closely as possible. (15 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible, with particular reference to the climate. (3 x 10 marks)\n\nc) Comment on quality and consider key selling points. (3 x 10 marks)"
+  },
+  {
+    "qid": "2016_p2_q3",
+    "year": 2016,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2016_p2_w6",
+      "2016_p2_w7"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 9,
+        "sum": 18
+      },
+      {
+        "count": 1,
+        "each": 18,
+        "sum": 18
+      },
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F7",
+    "subcategory": "F7d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-region",
+      "same-vintage"
+    ],
+    "text": "Wines 6 and 7 come from the same region and the same vintage.\n\nFor each wine:\n\na) Identify the specific origin as closely as possible, with particular reference to the dominant grape variety. (2 x 9 marks)\n\nWith reference to both wines:\n\nb) Discuss the relative quality of both wines within the context of their specific region. (18 marks)\n\nc) Identify the vintage. (14 marks)"
+  },
+  {
+    "qid": "2016_p2_q4",
+    "year": 2016,
+    "paper": 2,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2016_p2_w8",
+      "2016_p2_w9"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 9,
+        "sum": 18
+      },
+      {
+        "count": 2,
+        "each": 9,
+        "sum": 18
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region"
+    ],
+    "text": "Wines 8 and 9 come from the same region.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 9 marks)\n\nb) Discuss quality within the context of the specific region. (2 x 9 marks)\n\nc) Discuss the key winemaking techniques used to arrive at this style. (2 x 7 marks)"
+  },
+  {
+    "qid": "2016_p2_q5",
+    "year": 2016,
+    "paper": 2,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2016_p2_w10",
+      "2016_p2_w11",
+      "2016_p2_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 12,
+        "sum": 36
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      },
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "breadth-test"
+    ],
+    "text": "Wines 10-12 come from three different single grape varieties, each closely associated with their origin.\n\nFor each wine:\n\na) Identify the origin as closely as possible, with particular reference to the grape variety used. (3 x 12 marks)\n\nb) Discuss the key winemaking techniques used to arrive at this style. (3 x 6 marks)\n\nc) How would you sell this wine to a potential customer? (3 x 7 marks)"
+  },
+  {
+    "qid": "2016_p3_q1",
+    "year": 2016,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2016_p3_w1",
+      "2016_p3_w2",
+      "2016_p3_w3",
+      "2016_p3_w4",
+      "2016_p3_w5"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 8,
+        "sum": 40
+      },
+      {
+        "count": 5,
+        "each": 7,
+        "sum": 35
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "single-variety",
+      "mixed-styles",
+      "oak-driven",
+      "trap-on-paper-context"
+    ],
+    "text": "Wines 1-5 are all made from the same single grape variety.\n\nFor each wine:\n\na) Discuss winemaking, with particular reference to oak. (5 x 10 marks)\n\nb) Identify the origin as closely as possible. (5 x 8 marks)\n\nc) Comment on quality and commercial appeal. (5 x 7 marks)"
+  },
+  {
+    "qid": "2016_p3_q2",
+    "year": 2016,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2016_p3_w6",
+      "2016_p3_w7",
+      "2016_p3_w8"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5c",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "fortified"
+    ],
+    "text": "Wines 6-8 are all fortified.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 10 marks)\n\nb) Discuss the key winemaking techniques used to arrive at this style. (3 x 10 marks)\n\nc) Comment on quality and maturity. (3 x 5 marks)"
+  },
+  {
+    "qid": "2016_p3_q3",
+    "year": 2016,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2016_p3_w9",
+      "2016_p3_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 9 and 10 are from different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible, with particular reference to the grape varieties used. (2 x 10 marks)\n\nb) Discuss the key winemaking techniques used to arrive at this style. (2 x 10 marks)\n\nc) Comment on quality and maturity. (2 x 5 marks)"
+  },
+  {
+    "qid": "2016_p3_q4",
+    "year": 2016,
+    "paper": 3,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2016_p3_w11",
+      "2016_p3_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F7",
+    "subcategory": "F7b",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 11 and 12 come from the same region and producer.\n\nWith reference to both wines:\n\na) Identify the origin as closely as possible. (20 marks)\n\nb) Discuss the key winemaking techniques used to arrive at these styles. (20 marks)\n\nc) Discuss how the styles of these wines determine their commercial appeal. (10 marks)"
+  },
+  {
+    "qid": "2017_p1_q1",
+    "year": 2017,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2017_p1_w1",
+      "2017_p1_w2",
+      "2017_p1_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 11,
+        "sum": 33
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 1-3 are all from the same country and region.\n\nFor each wine:\n\na) Identify the origin as closely as possible, with reference to the grape variety(ies) used. (3 x 11 marks)\n\nb) Discuss the winemaking techniques used to arrive at this style. (3 x 8 marks)\n\nc) Discuss the commercial potential. (3 x 6 marks)"
+  },
+  {
+    "qid": "2017_p1_q2",
+    "year": 2017,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2017_p1_w4",
+      "2017_p1_w5"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 6,
+        "sum": 12
+      },
+      {
+        "count": 2,
+        "each": 6,
+        "sum": 12
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 4-5 are made from the same grape variety.\n\nWith reference to both wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (2 x 6 marks)\n\nc) Discuss the wine’s quality and maturity within the context of its origin. (2 x 6 marks)\n\nd) What are the key winemaking techniques used in the wine’s production? (2 x 5 marks)"
+  },
+  {
+    "qid": "2017_p1_q3",
+    "year": 2017,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2017_p1_w6",
+      "2017_p1_w7"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 12,
+        "sum": 24
+      },
+      {
+        "count": 2,
+        "each": 13,
+        "sum": 26
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 6-7 are from Italy and are made from different grape varieties.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to the grape variety used. (2 x 12 marks)\n\nb) Discuss the wine’s style and quality; in which area of the trade would this wine be most successful? (2 x 13 marks)"
+  },
+  {
+    "qid": "2017_p1_q4",
+    "year": 2017,
+    "paper": 1,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      8,
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2017_p1_w8",
+      "2017_p1_w9",
+      "2017_p1_w10"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 9,
+        "sum": 27
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "breadth-test"
+    ],
+    "text": "Wines 8-10 are all from Europe and each is made from a different grape variety.\n\nFor each wine:\n\na) Identify the grape variety. (3 x 8 marks)\n\nb) Identify the origin as closely as possible. (3 x 8 marks)\n\nc) Consider how the winemaker has sought to retain the wine’s sense of place. (3 x 9 marks)"
+  },
+  {
+    "qid": "2017_p1_q5",
+    "year": 2017,
+    "paper": 1,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2017_p1_w11",
+      "2017_p1_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "maturity-led",
+      "single-variety",
+      "oak-driven"
+    ],
+    "text": "Wines 11-12 are made from the same grape variety.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 10 marks)\n\nb) Identify the vintage and consider the capacity to improve in the bottle. (2 x 8 marks)\n\nc) Discuss the method of production with particular reference to the use of oak. (2 x 7 marks)"
+  },
+  {
+    "qid": "2017_p2_q1",
+    "year": 2017,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2017_p2_w1",
+      "2017_p2_w2",
+      "2017_p2_w3",
+      "2017_p2_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 6,
+        "sum": 24
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "oak-driven",
+      "breadth-test"
+    ],
+    "text": "Wines 1-4 are from different countries. They all share a common dominant grape variety.\n\nWith reference to all four wines:\n\na) Identify the common dominant grape variety. (16 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Identify the key winemaking techniques used, with reference to other grape varieties and any oak maturation. (4 x 6 marks)\n\nd) Comment on quality and maturity. (4 x 7 marks)"
+  },
+  {
+    "qid": "2017_p2_q2",
+    "year": 2017,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2017_p2_w5",
+      "2017_p2_w6",
+      "2017_p2_w7",
+      "2017_p2_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 12,
+        "sum": 48
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 6,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 5-8 are from the same country but from different regions.\n\nFor each wine:\n\na) Identify the origin and variety(ies) as closely as possible. (4 x 12 marks)\n\nb) Assess the quality within the context of the region of origin. (4 x 7 marks)\n\nc) Comment on the maturity. (4 x 6 marks)"
+  },
+  {
+    "qid": "2017_p2_q3",
+    "year": 2017,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2017_p2_w9",
+      "2017_p2_w10",
+      "2017_p2_w11",
+      "2017_p2_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 9,
+        "sum": 36
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 9-12 are made from different grape varieties.\n\nFor each wine:\n\na) Identify the grape variety. (4 x 8 marks)\n\nb) Identify the origin as closely as possible. (4 x 8 marks)\n\nc) Comment on quality and commercial potential, within the context of the region of origin. (4 x 9 marks)"
+  },
+  {
+    "qid": "2017_p3_q1",
+    "year": 2017,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2017_p3_w1",
+      "2017_p3_w2",
+      "2017_p3_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 1-3 are rosés from three different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to the style. (3 x 7 marks)\n\nb) Highlight the key winemaking techniques used. (3 x 8 marks)\n\nc) Discuss the commercial appeal and market positioning. (3 x 10 marks)"
+  },
+  {
+    "qid": "2017_p3_q2",
+    "year": 2017,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 1,
+    "wine_slots": [
+      4
+    ],
+    "wine_ids": [
+      "2017_p3_w4"
+    ],
+    "total_marks": 25,
+    "expected_marks": 25,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F5",
+    "subcategory": "F5f",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "curveball"
+    ],
+    "text": "Consider wine 4 to be of unknown origin.\n\nFor this wine:\n\na) Highlight the key winemaking techniques used. (15 marks)\n\nb) Discuss its style, quality and possible market positioning. (10 marks)"
+  },
+  {
+    "qid": "2017_p3_q3",
+    "year": 2017,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2017_p3_w5",
+      "2017_p3_w6"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 4,
+        "sum": 8
+      },
+      {
+        "count": 2,
+        "each": 13,
+        "sum": 26
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F6",
+    "subcategory": "F6a",
+    "secondary_tags": [
+      "variety-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 5-6 are labelled as different single grape varieties.\n\nFor each wine:\n\na) Identify the grape variety. (2 x 8 marks)\n\nb) State the level of residual sugar (g/l) and level of alcohol (%). (2 x 4 marks)\n\nc) Discuss the quality and commercial potential. (2 x 13 marks)"
+  },
+  {
+    "qid": "2017_p3_q4",
+    "year": 2017,
+    "paper": 3,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2017_p3_w7",
+      "2017_p3_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "mixed-styles",
+      "trap-on-paper-context"
+    ],
+    "text": "Wines 7-8 are made predominately from the same grape variety.\n\nConsidering both wines together:\n\na) Name the dominant grape variety. (10 marks)\n\nb) Identify the origin(s) as closely as possible. (20 marks)\n\nc) Compare and contrast the styles with reference to the likely market positioning of each wine. (20 marks)"
+  },
+  {
+    "qid": "2017_p3_q5",
+    "year": 2017,
+    "paper": 3,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2017_p3_w9",
+      "2017_p3_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-country",
+      "mixed-styles"
+    ],
+    "text": "Wines 9-10 are from the same country and region.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 8 marks)\n\nb) Consider the likely vintage. (2 x 7 marks)\n\nc) Comment on the quality and potential to improve further in the bottle. (2 x 10 marks)"
+  },
+  {
+    "qid": "2017_p3_q6",
+    "year": 2017,
+    "paper": 3,
+    "n": 6,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2017_p3_w11",
+      "2017_p3_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 9,
+        "sum": 18
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 6,
+        "sum": 12
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5c",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "mixed-styles",
+      "fortified"
+    ],
+    "text": "Wines 11-12 are both fortified.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 9 marks)\n\nb) Comment on the method of production with reference to the wine’s quality. (2 x 10 marks)\n\nc) Who would buy this wine? (2 x 6 marks)"
+  },
+  {
+    "qid": "2018_p1_q1",
+    "year": 2018,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2018_p1_w1",
+      "2018_p1_w2",
+      "2018_p1_w3",
+      "2018_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "single-variety"
+    ],
+    "text": "Wines 1-4 are all made from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (20 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 10 marks)\n\nc) Discuss quality with reference to winemaking techniques used. (4 x 10 marks)"
+  },
+  {
+    "qid": "2018_p1_q2",
+    "year": 2018,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2018_p1_w5",
+      "2018_p1_w6",
+      "2018_p1_w7",
+      "2018_p1_w8",
+      "2018_p1_w9",
+      "2018_p1_w10"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 6,
+        "each": 7,
+        "sum": 42
+      },
+      {
+        "count": 6,
+        "each": 8,
+        "sum": 48
+      },
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 5-10 are all made from different single varieties and are from different countries.\n\nFor each wine:\n\na) Identify the grape variety. (6 x 7 marks)\n\nb) Identify the origin as closely as possible. (6 x 8 marks)\n\nc) Discuss quality with reference to winemaking techniques used. (6 x 10 marks)"
+  },
+  {
+    "qid": "2018_p1_q3",
+    "year": 2018,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2018_p1_w11",
+      "2018_p1_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 12,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 11-12 are made from the same single grape variety.\n\nWith reference to both wines:\n\na) Identify the grape variety. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (2 x 8 marks)\n\nc) Comment on winemaking, quality and state of maturity. (2 x 12 marks)"
+  },
+  {
+    "qid": "2018_p2_q1",
+    "year": 2018,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2018_p2_w1",
+      "2018_p2_w2",
+      "2018_p2_w3",
+      "2018_p2_w4",
+      "2018_p2_w5"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 8,
+        "sum": 40
+      },
+      {
+        "count": 5,
+        "each": 7,
+        "sum": 35
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 1-5 all come from classic Western European origins.\n\nFor each wine:\n\na) Identify the origin as closely as possible making reference to the grape variety(ies) used. (5 x 10 marks)\n\nb) Discuss quality within the context of the region of origin. (5 x 8 marks)\n\nc) What has the winemaker done to maximise quality and regional typicity during the winemaking process? (5 x 7 marks)"
+  },
+  {
+    "qid": "2018_p2_q2",
+    "year": 2018,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2018_p2_w6",
+      "2018_p2_w7",
+      "2018_p2_w8"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "single-variety"
+    ],
+    "text": "Wines 6-8 are made from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (15 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 10 marks)\n\nc) Discuss quality with reference to winemaking techniques used. (3 x 10 marks)"
+  },
+  {
+    "qid": "2018_p2_q3",
+    "year": 2018,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2018_p2_w9",
+      "2018_p2_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-region",
+      "single-variety"
+    ],
+    "text": "Wines 9 and 10 are made from the same single grape variety and come from the same region.\n\nWith reference to both wines:\n\na) Identify the grape variety and origin, as closely as possible. (20 marks)\n\nFor each wine:\n\nb) Discuss the wine’s quality within the context of the region of origin. (2 x 8 marks)\n\nc) Comment on the winemaking techniques used. (2 x 7 marks)"
+  },
+  {
+    "qid": "2018_p2_q4",
+    "year": 2018,
+    "paper": 2,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2018_p2_w11",
+      "2018_p2_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 11 and 12 come from the Americas.\n\nFor each wine:\n\na) Identify the grape variety(ies) used. (2 x 5 marks)\n\nb) Identify the origin as closely as possible. (2 x 10 marks)\n\nc) Discuss quality in relation to the region of origin. (2 x 10 marks)"
+  },
+  {
+    "qid": "2018_p3_q1",
+    "year": 2018,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2018_p3_w1",
+      "2018_p3_w2",
+      "2018_p3_w3",
+      "2018_p3_w4",
+      "2018_p3_w5",
+      "2018_p3_w6"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 12,
+        "sum": 36
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 18,
+        "sum": 54
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F7",
+    "subcategory": "F7b",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles"
+    ],
+    "text": "Wines 1-6 are presented as pairs, 1 and 2, 3 and 4, and 5 and 6\\. Each pair is made by a different single producer.\n\nFor each pair:\n\na) Identify the origin, as closely as possible. (3 x 10 marks)\n\nb) Comment on the key winemaking techniques used. (3 x 12 marks)\n\nc) Identify the vintage(s) and consider its/their key characteristics. (3 x 10 marks)\n\nd) Discuss the quality and maturity of the wines. (3 x 18 marks)"
+  },
+  {
+    "qid": "2018_p3_q2",
+    "year": 2018,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2018_p3_w7",
+      "2018_p3_w8",
+      "2018_p3_w9"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-country",
+      "mixed-styles"
+    ],
+    "text": "Wines 7-9 all come from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible making reference to the grape variety(ies) used. (3 x 10 marks)\n\nb) Discuss the quality in the context of the region of origin. (3 x 10 marks)\n\nc) Comment on maturity. (3 x 5 marks)"
+  },
+  {
+    "qid": "2018_p3_q3",
+    "year": 2018,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2018_p3_w10",
+      "2018_p3_w11",
+      "2018_p3_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 12,
+        "sum": 36
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 10-12 come from different countries and different single grape varieties (minimum 90%) that are associated with the Rhône Valley.\n\nFor each wine:\n\na) Identify the predominant grape variety used. (3 x 5 marks)\n\nb) Identify the origin as closely as possible. (3 x 8 marks)\n\nc) Comment on the style, quality and commercial potential. (3 x 12 marks)"
+  },
+  {
+    "qid": "2019_p1_q1",
+    "year": 2019,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2019_p1_w1",
+      "2019_p1_w2",
+      "2019_p1_w3",
+      "2019_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F3",
+    "subcategory": "F3a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "blend"
+    ],
+    "text": "Wines 1-4 are from two different countries. They may be blends or single varieties, but one variety is common to all.\n\nWith reference to all four wines:\n\na) Identify the common grape variety. (20 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (4 x 10 marks)\n\nc) Comment on quality and style with reference to winemaking. (4 x 10 marks)"
+  },
+  {
+    "qid": "2019_p1_q2",
+    "year": 2019,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2019_p1_w5",
+      "2019_p1_w6",
+      "2019_p1_w7",
+      "2019_p1_w8",
+      "2019_p1_w9",
+      "2019_p1_w10"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 6,
+        "each": 12,
+        "sum": 72
+      },
+      {
+        "count": 6,
+        "each": 7,
+        "sum": 42
+      },
+      {
+        "count": 6,
+        "each": 6,
+        "sum": 36
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 5-6, 7-8 and 9-10 are paired by country. Each pair is from a different country.\n\nFor each wine:\n\na) Identify the origin and grape variety(ies) as closely as possible. (6 x 12 marks)\n\nb) What are the key winemaking techniques used in the wine’s production? (6 x 7 marks)\n\nc) Comment on the quality. (6 x 6 marks)"
+  },
+  {
+    "qid": "2019_p1_q3",
+    "year": 2019,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2019_p1_w11",
+      "2019_p1_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 15,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F5",
+    "subcategory": "F5f",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led"
+    ],
+    "text": "Wines 11-12 are from two different Old World countries.\n\nWith reference to each wine:\n\na) Comment on the winemaking. (2 x 10 marks)\n\nb) Discuss the wine’s style, quality and commercial potential. Do not spend time thinking about the wine’s specific origin. (2 x 15 marks)"
+  },
+  {
+    "qid": "2019_p2_q1",
+    "year": 2019,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2019_p2_w1",
+      "2019_p2_w2",
+      "2019_p2_w3",
+      "2019_p2_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F3",
+    "subcategory": "F3c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "blend"
+    ],
+    "text": "Wines 1-4 are made from Bordeaux varieties.\n\nFor each wine:\n\na) Identify the origin and grape variety(ies). (4 x 10 marks)\n\nb) Comment on the quality in context of the origin, with reference to maturity and the potential for development. (4 x 10 marks)\n\nc) Identify the key winemaking techniques used. (4 x 5 marks)"
+  },
+  {
+    "qid": "2019_p2_q2",
+    "year": 2019,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2019_p2_w5",
+      "2019_p2_w6",
+      "2019_p2_w7",
+      "2019_p2_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 15,
+        "sum": 60
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 5-8 come from four different countries in North and South America.\n\nFor each wine:\n\na) Identify the origin and variety as closely as possible. (4 x 15 marks)\n\nb) Comment on the quality and the likely market position. (4 x 10 marks)"
+  },
+  {
+    "qid": "2019_p2_q3",
+    "year": 2019,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2019_p2_w9",
+      "2019_p2_w10",
+      "2019_p2_w11",
+      "2019_p2_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 9-12 come from Europe, but not from France, Italy or Spain.\n\nFor each wine:\n\na) Comment on the quality and commercial potential. (4 x 10 marks)\n\nb) Assess the current state of maturity and the potential for development. (4 x 8 marks)\n\nc) Comment on the possible origin and grape variety(ies). (4 x 7 marks)"
+  },
+  {
+    "qid": "2019_p3_q1",
+    "year": 2019,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2019_p3_w1",
+      "2019_p3_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 25,
+        "sum": 25
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 1-2 are both from the same region.\n\nFor both wines:\n\na) Identify the region. (10 marks)\n\nb) Compare and contrast the method of production. (15 marks)\n\nc) Compare and contrast the style, quality and commercial appeal of the two wines. (25 marks)"
+  },
+  {
+    "qid": "2019_p3_q2",
+    "year": 2019,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2019_p3_w3",
+      "2019_p3_w4"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 3-4 are both from the same region.\n\nFor both wines:\n\na) Identify the region. (10 marks)\n\nb) Compare and contrast the style and quality of the two wines. (30 marks)\n\nc) Discuss the commercial appeal of the two wines. (10 marks)"
+  },
+  {
+    "qid": "2019_p3_q3",
+    "year": 2019,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2019_p3_w5",
+      "2019_p3_w6",
+      "2019_p3_w7",
+      "2019_p3_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 6,
+        "sum": 24
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 12,
+        "sum": 48
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 5-8 are from four different countries (two Old World and two New World), and are made from four different predominant varieties.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 6 marks)\n\nb) Comment on the method of production. (4 x 7 marks)\n\nc) Comment on the style, quality, and commercial positioning. (4 x 12 marks)"
+  },
+  {
+    "qid": "2019_p3_q4",
+    "year": 2019,
+    "paper": 3,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2019_p3_w9",
+      "2019_p3_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 9,
+        "sum": 18
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5c",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles"
+    ],
+    "text": "Wines 9-10 come from two different countries.\n\nFor each wine:\n\na) Comment on the method of production. (2 x 8 marks)\n\nb) Identify the origin as closely as possible. (2 x 8 marks)\n\nc) Comment on the style, quality, and commercial positioning. (2 x 9 marks)"
+  },
+  {
+    "qid": "2019_p3_q5",
+    "year": 2019,
+    "paper": 3,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2019_p3_w11",
+      "2019_p3_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      },
+      {
+        "count": 2,
+        "each": 7,
+        "sum": 14
+      },
+      {
+        "count": 2,
+        "each": 2,
+        "sum": 4
+      },
+      {
+        "count": 2,
+        "each": 2,
+        "sum": 4
+      }
+    ],
+    "n_subquestions": 5,
+    "family": "F6",
+    "subcategory": "F6a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 11-12 come from two different countries.\n\nFor both wines:\n\na) Compare and contrast the method of production. (14 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (2 x 7 marks)\n\nc) Comment on quality and maturity. (2 x 7 marks)\n\nd) State the level of residual sugar (g/l). (2 x 2 marks)\n\ne) State the level of alcohol (%). (2 x 2 marks)"
+  },
+  {
+    "qid": "2021_p1_q1",
+    "year": 2021,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2021_p1_w1",
+      "2021_p1_w2",
+      "2021_p1_w3",
+      "2021_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 1-4 all come from the same country.\n\nFor each wine:\n\na) Identify the origin and variety/ies used. (4 x 10 marks)\n\nb) Comment on quality and maturity. (4 x 10 marks)\n\nc) Comment on the method of production. (4 x 5 marks)"
+  },
+  {
+    "qid": "2021_p1_q2",
+    "year": 2021,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2021_p1_w5",
+      "2021_p1_w6",
+      "2021_p1_w7"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 36,
+        "sum": 36
+      },
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 5-7 are from the same single grape variety.\n\nWith reference to all three wines:\n\na) Compare and contrast quality and maturity. (36 marks)\n\nb) Identify the variety. (15 marks)\n\nFor each wine:\n\nc) Identify the origin as closely as possible. (3 x 8 marks)"
+  },
+  {
+    "qid": "2021_p1_q3",
+    "year": 2021,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2021_p1_w8",
+      "2021_p1_w9"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F7",
+    "subcategory": "F7b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-region",
+      "same-producer",
+      "single-variety"
+    ],
+    "text": "Wines 8 and 9 are from the same producer, the same grape variety and the same region of origin.\n\nWith reference to both wines:\n\na) Identify the grape variety and the region as closely as possible. (30 marks)\n\nb) Compare and contrast the two wines, discussing quality, maturity, winemaking and market position. (20 marks)"
+  },
+  {
+    "qid": "2021_p1_q4",
+    "year": 2021,
+    "paper": 1,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2021_p1_w10",
+      "2021_p1_w11",
+      "2021_p1_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 10-12 are from the same country.\n\nWith reference to all three wines:\n\na) Identify the country. (15 marks)\n\nFor each wine:\n\nb) Identify the origin and variety/ies as closely as possible. (3 x 10 marks)\n\nc) Discuss the key winemaking techniques used. (3 x 5 marks)\n\nd) Comment on the market position. (3 x 5 marks)"
+  },
+  {
+    "qid": "2021_p2_q1",
+    "year": 2021,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2021_p2_w1",
+      "2021_p2_w2",
+      "2021_p2_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 20,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F7",
+    "subcategory": "F7d",
+    "secondary_tags": [
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-region"
+    ],
+    "text": "Wines 1-3 are all from the same region and producer. Each wine is from a different vintage.\n\nFor all three wines:\n\na) Identify the region as closely as possible, referencing each wine. (15 marks)\n\nFor each wine:\n\nb) Identify the vintage. Discuss quality in the context of the region and the vintage. (3 x 20 marks)"
+  },
+  {
+    "qid": "2021_p2_q2",
+    "year": 2021,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2021_p2_w4",
+      "2021_p2_w5",
+      "2021_p2_w6"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "breadth-test"
+    ],
+    "text": "Wines 4-6 are each made from a different single grape variety. Each wine is from a different continent.\n\nFor each wine:\n\na) Identify the grape variety. (3 x 5 marks)\n\nb) Identify the country and region as closely as possible. (3 x 10 marks)\n\nc) Comment on the style and commercial appeal. (3 x 10 marks)"
+  },
+  {
+    "qid": "2021_p2_q3",
+    "year": 2021,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2021_p2_w7",
+      "2021_p2_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "breadth-test"
+    ],
+    "text": "Wines 7-8 are made from different single grape varieties. Each wine is from a different country in the Americas.\n\nFor both wines:\n\na) Compare and contrast the styles and consumer appeal. (30 marks)\n\nFor each wine:\n\nb) Identify the variety and origin as closely as possible. (2 x 10 marks)"
+  },
+  {
+    "qid": "2021_p2_q4",
+    "year": 2021,
+    "paper": 2,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2021_p2_w9",
+      "2021_p2_w10",
+      "2021_p2_w11",
+      "2021_p2_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 20,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 9-10 and wines 11-12 are two pairs. Each pair is from a different region of origin.\n\nFor each pair:\n\na) Identify the region as closely as possible, referencing each wine. (2 x 10 marks)\n\nb) Compare and contrast style, quality, and method of production. (2 x 20 marks)\n\nFor each wine:\n\nc) Comment on the commercial position. (4 x 5 marks)\n\nd) Suggest an ideal drinking window. (4 x 5 marks)"
+  },
+  {
+    "qid": "2021_p3_q1",
+    "year": 2021,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2021_p3_w1",
+      "2021_p3_w2",
+      "2021_p3_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "mixed-styles",
+      "sparkling",
+      "breadth-test"
+    ],
+    "text": "Wines 1-3 are all sparkling wines.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies used. (3 x 10 marks)\n\nb) Comment on the method of production. (3 x 5 marks)\n\nc) Comment on the quality and commercial position. (3 x 10 marks)"
+  },
+  {
+    "qid": "2021_p3_q2",
+    "year": 2021,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2021_p3_w4",
+      "2021_p3_w5",
+      "2021_p3_w6",
+      "2021_p3_w7",
+      "2021_p3_w8"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 5,
+        "sum": 25
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 4-8 are all made using different methods of production.\n\nFor each wine:\n\na) Comment on the method of production with reference to residual sugar and alcohol levels. (5 x 10 marks)\n\nb) Identify the origin and grape variety/ies used. (5 x 10 marks)\n\nc) Comment on the style and quality within the context of the origin. (5 x 5 marks)"
+  },
+  {
+    "qid": "2021_p3_q3",
+    "year": 2021,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2021_p3_w9",
+      "2021_p3_w10",
+      "2021_p3_w11",
+      "2021_p3_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 20,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 9-10 and 11-12 are two pairs. Each pair is from a different region of origin.\n\nFor each pair:\n\na) Identify the origin as closely as possible. (2 x 10 marks)\n\nb) Compare and contrast the style, quality and commercial position of the two wines. (2 x 20 marks)\n\nFor each wine:\n\nc) Comment on the method of production. (4 x 10 marks)"
+  },
+  {
+    "qid": "2022_p1_q1",
+    "year": 2022,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2022_p1_w1",
+      "2022_p1_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F7",
+    "subcategory": "F7d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-producer",
+      "same-vintage",
+      "oak-driven"
+    ],
+    "text": "Wines 1 and 2 are from the same producer and the same vintage.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (2 x 10 marks)\n\nWith reference to both wines:\n\nb) Compare the two wines discussing the quality, maturity, use of oak and market position. (30 marks)"
+  },
+  {
+    "qid": "2022_p1_q2",
+    "year": 2022,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      3,
+      4,
+      5
+    ],
+    "wine_ids": [
+      "2022_p1_w3",
+      "2022_p1_w4",
+      "2022_p1_w5"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 3-5 are from the same country.\n\nFor each wine:\n\na) Identify the origin and variety as closely as possible. (3 x 10 marks)\n\nb) Comment on the quality and maturity. (3 x 10 marks)\n\nc) Comment on the winemaking techniques used. (3 x 5 marks)"
+  },
+  {
+    "qid": "2022_p1_q3",
+    "year": 2022,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2022_p1_w6",
+      "2022_p1_w7",
+      "2022_p1_w8"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 6-8 come from the same country.\n\nFor each wine:\n\na) Identify the origin and variety/ies as closely as possible. (3 x 15 marks)\n\nb) Discuss the wine’s style and quality; consider which markets this wine would be successful in. (3 x 10 marks)"
+  },
+  {
+    "qid": "2022_p1_q4",
+    "year": 2022,
+    "paper": 1,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2022_p1_w9",
+      "2022_p1_w10",
+      "2022_p1_w11",
+      "2022_p1_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 15,
+        "sum": 60
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 9-12 are from different countries and are made from different, single grape varieties.\n\nFor each wine:\n\na) Identify the grape variety and origin as closely as possible. (4 x 15 marks)\n\nb) Comment on quality and market position. (4 x 10 marks)"
+  },
+  {
+    "qid": "2022_p2_q1",
+    "year": 2022,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2022_p2_w1",
+      "2022_p2_w2",
+      "2022_p2_w3",
+      "2022_p2_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F3",
+    "subcategory": "F3d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "blend"
+    ],
+    "text": "Wines 1-3 are from different countries and are each made from a different, single grape variety. Wine 4 is a blend of all three of these varieties.\n\nFor each wine 1-3:\n\na) Identify the grape variety and the origin as closely as possible. (3 x 15 marks)\n\nb) Comment on the style, considering possible reasons for not blending the variety used for this wine. (3 x 10 marks)\n\nFor wine 4:\n\nc) Comment on the purpose of blending these varieties with reference to balance and quality. (15 marks)\n\nd) Identify the origin as closely as possible. (10 marks)"
+  },
+  {
+    "qid": "2022_p2_q2",
+    "year": 2022,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2022_p2_w5",
+      "2022_p2_w6"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region"
+    ],
+    "text": "Wines 5 and 6 are from the same region but different sub-regions.\n\nFor each wine:\n\na) Identify the sub-region as closely as possible. (2 x 10 marks)\n\nb) Comment on the key winemaking techniques used. (2 x 5 marks)\n\nc) Comment on the style and quality. (2 x 10 marks)"
+  },
+  {
+    "qid": "2022_p2_q3",
+    "year": 2022,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2022_p2_w7",
+      "2022_p2_w8"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 5,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-region"
+    ],
+    "text": "Wines 7 and 8 are from the same region but different sub-regions.\n\nFor each wine:\n\na) Identify the sub-region as closely as possible. (2 x 10 marks)\n\nb) Comment on the key winemaking techniques used. (2 x 5 marks)\n\nc) Comment on the style and quality. (2 x 10 marks)"
+  },
+  {
+    "qid": "2022_p2_q4",
+    "year": 2022,
+    "paper": 2,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      9,
+      10
+    ],
+    "wine_ids": [
+      "2022_p2_w9",
+      "2022_p2_w10"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "single-variety"
+    ],
+    "text": "Wines 9 and 10 are made from the same single grape variety and come from the same region.\n\nWith reference to both wines:\n\na) Identify the grape variety and the region as closely as possible. (20 marks)\n\nb) Compare and contrast style and quality. (20 marks)\n\nc) Compare and contrast market potential. (10 marks)"
+  },
+  {
+    "qid": "2022_p2_q5",
+    "year": 2022,
+    "paper": 2,
+    "n": 5,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2022_p2_w11",
+      "2022_p2_w12"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      },
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "same-region",
+      "single-variety"
+    ],
+    "text": "Wines 11 and 12 are made from the same single grape variety or predominant grape variety and come from the same region.\n\nWith reference to both wines:\n\na) Identify the primary grape variety and the region as closely as possible. (20 marks)\n\nb) Compare and contrast style and quality. (20 marks)\n\nc) Compare and contrast market potential. (10 marks)"
+  },
+  {
+    "qid": "2022_p3_q1",
+    "year": 2022,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2022_p3_w1",
+      "2022_p3_w2",
+      "2022_p3_w3",
+      "2022_p3_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "mixed-styles",
+      "sparkling",
+      "breadth-test"
+    ],
+    "text": "Wines 1-4 are all sparkling rosé wines. Wines 1 and 2 are from one country, and wines 3 and 4 are from another country.\n\nFor each wine:\n\na) Identify the origin as closely as possible and the grape variety(ies) used. (4 x 10 marks)\n\nb) Comment on the key winemaking techniques. (4 x 10 marks)\n\nc) Comment on the quality within the context of the origin. (4 x 5 marks)"
+  },
+  {
+    "qid": "2022_p3_q2",
+    "year": 2022,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2022_p3_w5",
+      "2022_p3_w6",
+      "2022_p3_w7",
+      "2022_p3_w8",
+      "2022_p3_w9"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 7,
+        "sum": 35
+      },
+      {
+        "count": 5,
+        "each": 8,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 5-9 are all from different countries of origin and are all made from different predominant grape varieties.\n\nFor each wine:\n\na) Identify the grape variety/ies and origin as closely as possible. (5 x 10 marks)\n\nb) Comment on the key winemaking techniques, with specific reference to the level of residual sugar. (5 x 7 marks)\n\nc) Comment on the quality and state of maturity. (5 x 8 marks)"
+  },
+  {
+    "qid": "2022_p3_q3",
+    "year": 2022,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2022_p3_w10",
+      "2022_p3_w11",
+      "2022_p3_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 10-12 are from three different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 10 marks)\n\nb) Comment on the key winemaking techniques. (3 x 5 marks)\n\nc) Comment on the style, quality, and commercial position. (3 x 10 marks)"
+  },
+  {
+    "qid": "2023_p1_q1",
+    "year": 2023,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2023_p1_w1",
+      "2023_p1_w2",
+      "2023_p1_w3",
+      "2023_p1_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      },
+      {
+        "count": 2,
+        "each": 15,
+        "sum": 30
+      },
+      {
+        "count": 2,
+        "each": 25,
+        "sum": 50
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 1-4 are from four different countries and two different grape varieties. 1 & 2 are a pair and 3 & 4 are a pair. Each pair is from the same single grape variety.\n\nFor each pair:\n\na) Identify the grape variety. (2 x 10 marks)\n\nb) Compare and contrast the major winemaking influences. (2 x 15 marks)\n\nc) Comment on quality and ageing potential. (2 x 25 marks)"
+  },
+  {
+    "qid": "2023_p1_q2",
+    "year": 2023,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2023_p1_w5",
+      "2023_p1_w6",
+      "2023_p1_w7",
+      "2023_p1_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 5-8 are each from different single grape varieties.\n\nFor each wine:\n\na) Identify the grape variety. (4 x 5 marks)\n\nb) Describe the acidity and texture of the wine, commenting on how these components contribute to its quality level. (4 x 10 marks)\n\nc) Discuss the wine’s ageing potential, describing how it might evolve. (4 x 10 marks)"
+  },
+  {
+    "qid": "2023_p1_q3",
+    "year": 2023,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2023_p1_w9",
+      "2023_p1_w10",
+      "2023_p1_w11",
+      "2023_p1_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 40,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-country"
+    ],
+    "text": "Wines 9-12 are from the same country. There are three single grape varieties represented.\n\nFor all four wines:\n\na) Name the country and the three grape varieties, referencing all four wines. (40 marks)\n\nFor each wine:\n\nb) Comment on the winemaking. (4 x 5 marks)\n\nc) Comment on quality and market potential. (4 x 10 marks)"
+  },
+  {
+    "qid": "2023_p2_q1",
+    "year": 2023,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2023_p2_w1",
+      "2023_p2_w2",
+      "2023_p2_w3",
+      "2023_p2_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 1-4 are all from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 10 marks)\n\nb) Comment on quality, maturity and capacity to age. (4 x 10 marks)\n\nc) Comment on the method of production. (4 x 5 marks)"
+  },
+  {
+    "qid": "2023_p2_q2",
+    "year": 2023,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "wine_ids": [
+      "2023_p2_w5",
+      "2023_p2_w6",
+      "2023_p2_w7",
+      "2023_p2_w8"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "oak-driven",
+      "breadth-test"
+    ],
+    "text": "Wines 5-8 are a mixed bag.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 7 marks)\n\nb) Comment on the method of production with specific reference to the use of oak. (4 x 8 marks)\n\nc) Comment on quality and commercial position. (4 x 10 marks)"
+  },
+  {
+    "qid": "2023_p2_q3",
+    "year": 2023,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2023_p2_w9",
+      "2023_p2_w10",
+      "2023_p2_w11",
+      "2023_p2_w12"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "breadth-test"
+    ],
+    "text": "Wines 9-12 are each made from a single grape variety. Two different grape varieties are represented. Wines 9 and 10 are from one country; wines 11 and 12 are from another country.\n\nFor each wine:\n\na) Identify the grape variety. (4 x 8 marks)\n\nb) Identify the origin as closely as possible. (4 x 7 marks)\n\nc) Comment on style, quality, and commercial position. (4 x 10 marks)"
+  },
+  {
+    "qid": "2023_p3_q1",
+    "year": 2023,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2023_p3_w1",
+      "2023_p3_w2",
+      "2023_p3_w3",
+      "2023_p3_w4"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 13,
+        "sum": 52
+      },
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 2,
+        "sum": 8
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "sparkling",
+      "sweet"
+    ],
+    "text": "Wines 1-4 are traditional method sparkling wines from four different countries. None is from Champagne.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies as closely as possible. (4 x 13 marks)\n\nb) Comment on quality in the context of origin. (4 x 10 marks)\n\nc) State the residual sugar. (4 x 2 marks)"
+  },
+  {
+    "qid": "2023_p3_q2",
+    "year": 2023,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2023_p3_w5",
+      "2023_p3_w6",
+      "2023_p3_w7"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F5",
+    "subcategory": "F5d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles"
+    ],
+    "text": "Wines 5-7 are all made using different methods of production.\n\nFor each wine:\n\na) Identify the origin and grape variety/ies as closely as possible. (3 x 10 marks)\n\nb) Discuss quality and commercial potential. (3 x 8 marks)\n\nc) Identify the key production techniques that have influenced the style. (3 x 7 marks)"
+  },
+  {
+    "qid": "2023_p3_q3",
+    "year": 2023,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2023_p3_w8",
+      "2023_p3_w9"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 14,
+        "sum": 14
+      },
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 10,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 8 and 9 are from the same region.\n\nWith reference to both wines:\n\na) Identify the origin and grape variety/ies. (14 marks)\n\nb) Compare the production methods of the two wines, identifying the key factors that have influenced the style. (16 marks)\n\nThen for each wine:\n\nc) Comment on quality and maturity. (2 x 10 marks)"
+  },
+  {
+    "qid": "2023_p3_q4",
+    "year": 2023,
+    "paper": 3,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2023_p3_w10",
+      "2023_p3_w11",
+      "2023_p3_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 18,
+        "sum": 18
+      },
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F1",
+    "subcategory": "F1d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety",
+      "mixed-styles",
+      "trap-on-paper-context"
+    ],
+    "text": "Wines 10-12 are from three different countries. All are made from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (18 marks)\n\nThen for each wine:\n\nb) Identify the origin as closely as possible. (3 x 7 marks)\n\nc) Discuss the production methods. (3 x 6 marks)\n\nd) Comment on quality and maturity. (3 x 6 marks)"
+  },
+  {
+    "qid": "2024_p1_q1",
+    "year": 2024,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2024_p1_w1",
+      "2024_p1_w2",
+      "2024_p1_w3",
+      "2024_p1_w4",
+      "2024_p1_w5",
+      "2024_p1_w6"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 20,
+        "sum": 60
+      },
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 1-2, 3-4 and 5-6 are pairs. Each pair is made from the same single grape variety.\n\nFor each pair:\n\na) Identify the grape variety with reference to both wines. (3 x 10 marks)\n\nb) Compare and contrast the quality, maturity, and capacity to age. (3 x 20 marks)\n\nFor each wine:\n\nc) Identify the origin as closely as possible. (6 x 10 marks)"
+  },
+  {
+    "qid": "2024_p1_q2",
+    "year": 2024,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2024_p1_w7",
+      "2024_p1_w8",
+      "2024_p1_w9"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 12,
+        "sum": 36
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 7-9 are each from different single grape varieties.\n\nFor each wine:\n\na) Comment on the method of production. (3 x 7 marks)\n\nb) Comment on the style, quality, and commercial position. (3 x 12 marks)\n\nc) Identify the grape variety and origin as closely as possible. (3 x 6 marks)"
+  },
+  {
+    "qid": "2024_p1_q3",
+    "year": 2024,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2024_p1_w10",
+      "2024_p1_w11",
+      "2024_p1_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 8,
+        "sum": 24
+      },
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F3",
+    "subcategory": "F3b",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "same-country",
+      "blend",
+      "oak-driven"
+    ],
+    "text": "Wines 10-12 are from the same country and are all blends.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 8 marks)\n\nb) Comment on the method of production with reference to the use of oak. (3 x 7 marks)\n\nc) Comment on style, quality, and commercial position. (3 x 10 marks)"
+  },
+  {
+    "qid": "2024_p2_q1",
+    "year": 2024,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2024_p2_w1",
+      "2024_p2_w2",
+      "2024_p2_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "single-variety"
+    ],
+    "text": "Wines 1-3 are from the same single grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (15 marks)\n\nb) Compare and contrast the styles and consumer appeal of the wines. (30 marks)\n\nFor each wine:\n\nc) Identify the origin as closely as possible. (3 x 10 marks)"
+  },
+  {
+    "qid": "2024_p2_q2",
+    "year": 2024,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2024_p2_w4",
+      "2024_p2_w5",
+      "2024_p2_w6",
+      "2024_p2_w7"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 10,
+        "sum": 40
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "breadth-test"
+    ],
+    "text": "Wines 4-7 are from classic European origins.\n\nFor each wine:\n\na) Identify the origin referencing the grape variety/ies used. (4 x 10 marks)\n\nb) Comment on the quality in the context of the origin. (4 x 8 marks)\n\nc) Identify the vintage and suggest an ideal drinking window. (4 x 7 marks)"
+  },
+  {
+    "qid": "2024_p2_q3",
+    "year": 2024,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2024_p2_w8",
+      "2024_p2_w9",
+      "2024_p2_w10",
+      "2024_p2_w11",
+      "2024_p2_w12"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 25,
+        "sum": 25
+      },
+      {
+        "count": 5,
+        "each": 5,
+        "sum": 25
+      },
+      {
+        "count": 5,
+        "each": 15,
+        "sum": 75
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "climate-comparison"
+    ],
+    "text": "Wines 8-12 are from the same single variety and five different countries.\n\nWith reference to all five wines:\n\na) Identify the grape variety. (25 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (5 x 5 marks)\n\nc) Discuss how climate and winemaking techniques have influenced the quality and style of the wine. (5 x 15 marks)"
+  },
+  {
+    "qid": "2024_p3_q1",
+    "year": 2024,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2024_p3_w1",
+      "2024_p3_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 2,
+        "each": 15,
+        "sum": 30
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F5",
+    "subcategory": "F5a",
+    "secondary_tags": [
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "sparkling",
+      "curveball"
+    ],
+    "text": "Wines 1 and 2 are sparkling wines, neither of the wines are from Champagne.\n\nFor each wine:\n\na) Discuss the quality, winemaking, and style. (2 x 15 marks)\n\nFor both wines:\n\nb) Compare and contrast the commercial opportunities and challenges. (20 marks)"
+  },
+  {
+    "qid": "2024_p3_q2",
+    "year": 2024,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      3,
+      4
+    ],
+    "wine_ids": [
+      "2024_p3_w3",
+      "2024_p3_w4"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 15,
+        "sum": 15
+      },
+      {
+        "count": 1,
+        "each": 20,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2b",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 3 and 4 are from the same region.\n\nWith reference to both wines:\n\na) Identify the region as closely as possible. (15 marks)\n\nb) Compare and contrast the winemaking of the two wines. (15 marks)\n\nc) Comment on the quality and commercial potential of each wine. (20 marks)"
+  },
+  {
+    "qid": "2024_p3_q3",
+    "year": 2024,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2024_p3_w5",
+      "2024_p3_w6",
+      "2024_p3_w7"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 30,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2d",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "same-region",
+      "mixed-styles"
+    ],
+    "text": "Wines 5-7 are from the same region.\n\nWith reference to all three wines:\n\na) Identify the region as closely as possible, commenting on the commercial opportunities and challenges with reference to the styles. (30 marks)\n\nFor each wine:\n\nb) Discuss the winemaking and quality. (3 x 10 marks)\n\nc) Comment on the wine’s maturity. (3 x 5 marks)"
+  },
+  {
+    "qid": "2024_p3_q4",
+    "year": 2024,
+    "paper": 3,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2024_p3_w8",
+      "2024_p3_w9",
+      "2024_p3_w10",
+      "2024_p3_w11",
+      "2024_p3_w12"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 2,
+        "sum": 10
+      },
+      {
+        "count": 5,
+        "each": 2,
+        "sum": 10
+      },
+      {
+        "count": 5,
+        "each": 11,
+        "sum": 55
+      },
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F6",
+    "subcategory": "F6a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "mixed-styles",
+      "sweet"
+    ],
+    "text": "Wines 8-12 all have residual sugar.\n\nFor each wine:\n\na) State the level of residual sugar. (5 x 2 marks)\n\nb) State the alcohol level. (5 x 2 marks)\n\nc) Identify the region and grape variety/ies as closely as possible. (5 x 11 marks)\n\nd) Comment on the winemaking. (5 x 10 marks)"
+  },
+  {
+    "qid": "2025_p1_q1",
+    "year": 2025,
+    "paper": 1,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 2,
+    "wine_slots": [
+      1,
+      2
+    ],
+    "wine_ids": [
+      "2025_p1_w1",
+      "2025_p1_w2"
+    ],
+    "total_marks": 50,
+    "expected_marks": 50,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 10,
+        "sum": 10
+      },
+      {
+        "count": 2,
+        "each": 8,
+        "sum": 16
+      },
+      {
+        "count": 2,
+        "each": 12,
+        "sum": 24
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F3",
+    "subcategory": "F3a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "blend"
+    ],
+    "text": "Wines 1 and 2 are blends of the same two grape varieties.\n\nFor both wines:\n\na) Identify the grape varieties. (10 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (2 x 8 marks)\n\nc) Comment on the style, winemaking and quality. (2 x 12 marks)"
+  },
+  {
+    "qid": "2025_p1_q2",
+    "year": 2025,
+    "paper": 1,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      3,
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2025_p1_w3",
+      "2025_p1_w4",
+      "2025_p1_w5",
+      "2025_p1_w6"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 16,
+        "sum": 16
+      },
+      {
+        "count": 4,
+        "each": 13,
+        "sum": 52
+      },
+      {
+        "count": 4,
+        "each": 8,
+        "sum": 32
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "single-variety"
+    ],
+    "text": "Wines 3-6 are from the same single grape variety.\n\nWith reference to all four wines:\n\na) Identify the grape variety. (16 marks)\n\nFor each wine:\n\nb) Comment on the style, quality, and maturity. (4 x 13 marks)\n\nc) Identify the origin as closely as possible. (4 x 8 marks)"
+  },
+  {
+    "qid": "2025_p1_q3",
+    "year": 2025,
+    "paper": 1,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      7,
+      8,
+      9
+    ],
+    "wine_ids": [
+      "2025_p1_w7",
+      "2025_p1_w8",
+      "2025_p1_w9"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 7-9 are from the same country and different single grape varieties.\n\nFor each wine:\n\na) Identify the origin as closely as possible, making reference to the grape variety. (3 x 10 marks)\n\nb) Comment on the method of production. (3 x 5 marks)\n\nc) Comment on the style, quality, and maturity. (3 x 10 marks)"
+  },
+  {
+    "qid": "2025_p1_q4",
+    "year": 2025,
+    "paper": 1,
+    "n": 4,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2025_p1_w10",
+      "2025_p1_w11",
+      "2025_p1_w12"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F5",
+    "subcategory": "F5e",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "human-vs-natural"
+    ],
+    "text": "Wines 10-12 are from three different European countries.\n\nFor each wine:\n\na) Comment on the style of the wine with reference to the relative importance of human inputs versus natural factors. (3 x 15 marks)\n\nb) Identify the grape variety and origin as closely as possible. (3 x 10 marks)"
+  },
+  {
+    "qid": "2025_p2_q1",
+    "year": 2025,
+    "paper": 2,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2025_p2_w1",
+      "2025_p2_w2",
+      "2025_p2_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 12,
+        "sum": 12
+      },
+      {
+        "count": 3,
+        "each": 6,
+        "sum": 18
+      },
+      {
+        "count": 3,
+        "each": 15,
+        "sum": 45
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F1",
+    "subcategory": "F1b",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "climate-comparison"
+    ],
+    "text": "Wines 1-3 are from the same single grape variety or predominant grape variety.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 6 marks)\n\nc) Discuss how climate and winemaking techniques have influenced the quality and style of the wine. (3 x 15 marks)"
+  },
+  {
+    "qid": "2025_p2_q2",
+    "year": 2025,
+    "paper": 2,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 4,
+    "wine_slots": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "wine_ids": [
+      "2025_p2_w4",
+      "2025_p2_w5",
+      "2025_p2_w6",
+      "2025_p2_w7"
+    ],
+    "total_marks": 100,
+    "expected_marks": 100,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 4,
+        "each": 13,
+        "sum": 52
+      },
+      {
+        "count": 4,
+        "each": 7,
+        "sum": 28
+      },
+      {
+        "count": 4,
+        "each": 5,
+        "sum": 20
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "quality-led",
+      "maturity-led",
+      "same-country"
+    ],
+    "text": "Wines 4-7 are from the same country and region.\n\nFor each wine:\n\na) Identify the origin and the grape variety/ies as closely as possible. (4 x 13 marks)\n\nb) Comment on quality within the context of origin. (4 x 7 marks)\n\nc) Comment on the wine’s maturity. (4 x 5 marks)"
+  },
+  {
+    "qid": "2025_p2_q3",
+    "year": 2025,
+    "paper": 2,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 5,
+    "wine_slots": [
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2025_p2_w8",
+      "2025_p2_w9",
+      "2025_p2_w10",
+      "2025_p2_w11",
+      "2025_p2_w12"
+    ],
+    "total_marks": 125,
+    "expected_marks": 125,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 5,
+        "each": 10,
+        "sum": 50
+      },
+      {
+        "count": 5,
+        "each": 7,
+        "sum": 35
+      },
+      {
+        "count": 5,
+        "each": 8,
+        "sum": 40
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F4",
+    "subcategory": "F4c",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "breadth-test"
+    ],
+    "text": "Wines 8–12 are from Europe. They come from five different single or predominant grape varieties, each closely associated with their origin.\n\nFor each wine:\n\na) Identify the origin and the grape variety as closely as possible. (5 x 10 marks)\n\nb) Comment on the quality within the context of wine globally. (5 x 7 marks)\n\nc) Comment on the style and commercial appeal. (5 x 8 marks)"
+  },
+  {
+    "qid": "2025_p3_q1",
+    "year": 2025,
+    "paper": 3,
+    "n": 1,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      1,
+      2,
+      3
+    ],
+    "wine_ids": [
+      "2025_p3_w1",
+      "2025_p3_w2",
+      "2025_p3_w3"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 1,
+        "each": 12,
+        "sum": 12
+      },
+      {
+        "count": 3,
+        "each": 7,
+        "sum": 21
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 9,
+        "sum": 27
+      }
+    ],
+    "n_subquestions": 4,
+    "family": "F1",
+    "subcategory": "F1d",
+    "secondary_tags": [
+      "variety-led",
+      "origin-led",
+      "method-led",
+      "structure-led",
+      "quality-led",
+      "single-variety",
+      "mixed-styles",
+      "trap-on-paper-context"
+    ],
+    "text": "Wines 1 to 3 are made from the same single grape variety.\n\na) Identify the grape variety with reference to all three wines. (12 marks)\n\nFor each wine:\n\nb) Identify the origin as closely as possible. (3 x 7 marks)\n\nc) Comment on the winemaking techniques. (3 x 5 marks)\n\nd) Comment on the style and quality. (3 x 9 marks)"
+  },
+  {
+    "qid": "2025_p3_q2",
+    "year": 2025,
+    "paper": 3,
+    "n": 2,
+    "is_last10": true,
+    "flight_size": 3,
+    "wine_slots": [
+      4,
+      5,
+      6
+    ],
+    "wine_ids": [
+      "2025_p3_w4",
+      "2025_p3_w5",
+      "2025_p3_w6"
+    ],
+    "total_marks": 75,
+    "expected_marks": 75,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      },
+      {
+        "count": 3,
+        "each": 5,
+        "sum": 15
+      },
+      {
+        "count": 3,
+        "each": 10,
+        "sum": 30
+      }
+    ],
+    "n_subquestions": 3,
+    "family": "F2",
+    "subcategory": "F2a",
+    "secondary_tags": [
+      "origin-led",
+      "method-led",
+      "quality-led",
+      "same-country",
+      "mixed-styles"
+    ],
+    "text": "Wines 4 to 6 are from the same country.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (3 x 10 marks)\n\nb) Comment on the winemaking techniques. (3 x 5 marks)\n\nc) Comment on the quality and commercial position. (3 x 10 marks)"
+  },
+  {
+    "qid": "2025_p3_q3",
+    "year": 2025,
+    "paper": 3,
+    "n": 3,
+    "is_last10": true,
+    "flight_size": 6,
+    "wine_slots": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "wine_ids": [
+      "2025_p3_w7",
+      "2025_p3_w8",
+      "2025_p3_w9",
+      "2025_p3_w10",
+      "2025_p3_w11",
+      "2025_p3_w12"
+    ],
+    "total_marks": 150,
+    "expected_marks": 150,
+    "marks_ok": true,
+    "mark_tokens": [
+      {
+        "count": 6,
+        "each": 15,
+        "sum": 90
+      },
+      {
+        "count": 6,
+        "each": 10,
+        "sum": 60
+      }
+    ],
+    "n_subquestions": 2,
+    "family": "F7",
+    "subcategory": "F7a",
+    "secondary_tags": [
+      "method-led",
+      "quality-led",
+      "mixed-styles",
+      "breadth-test"
+    ],
+    "text": "Wines 7 to 12 are a mixed bag.\n\nFor each wine:\n\na) Comment on the quality and commercial position with specific reference to its classification. (6 x 15 marks)\n\nb) Comment on the winemaking techniques. (6 x 10 marks)"
+  }
+]
