@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { StemSniperCard, type Drill, type Prediction } from "../components/StemSniperCard";
@@ -42,26 +42,53 @@ export default function StemSniperPage() {
       .catch(() => {});
   }, []);
 
-  const fetchNext = useCallback(async (p: number | null) => {
-    setStatus("loading");
-    setResult(null);
+  // One fetch of a drill. /drill is the unified source: ~90% freshly generated through the shared
+  // engine (with a stem key derived on the spot), ~10% from the validated banked pool.
+  const fetchDrill = useCallback(async (p: number | null): Promise<Drill | null> => {
     try {
-      // /drill is the unified source: ~90% freshly generated through the shared engine (with a stem
-      // key derived on the spot), ~10% from the validated banked pool. Generation adds latency, so
-      // the "Loading drill…" state covers it.
       const res = await fetch(`/api/stem-sniper/drill${p ? `?paper=${p}` : ""}`);
-      if (res.ok) {
-        setDrill(await res.json());
+      return res.ok ? ((await res.json()) as Drill) : null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Client-side prefetch of one drill. Fresh generation takes time, so the moment a drill is shown we
+  // warm the NEXT one in the background; by the time the candidate finishes answering it's ready and
+  // "Next drill" is near-instant. Keyed by paper so a filter change discards a stale prefetch.
+  const prefetchRef = useRef<{ paper: number | null; promise: Promise<Drill | null> } | null>(null);
+  const startPrefetch = useCallback(
+    (p: number | null) => {
+      prefetchRef.current = { paper: p, promise: fetchDrill(p) };
+    },
+    [fetchDrill]
+  );
+
+  const fetchNext = useCallback(
+    async (p: number | null) => {
+      setStatus("loading");
+      setResult(null);
+      // Use a ready/in-flight prefetched drill for this paper if we have one; else fetch live.
+      let promise: Promise<Drill | null>;
+      if (prefetchRef.current && prefetchRef.current.paper === p) {
+        promise = prefetchRef.current.promise;
+        prefetchRef.current = null;
+      } else {
+        promise = fetchDrill(p);
+      }
+      let d = await promise;
+      if (!d) d = await fetchDrill(p); // prefetch missed (e.g. transient gen failure) — try once live
+      if (d && d.questionId) {
+        setDrill(d);
         setStatus("drilling");
+        startPrefetch(p); // warm the next drill while the candidate works on this one
       } else {
         setDrill(null);
         setStatus("empty");
       }
-    } catch {
-      setDrill(null);
-      setStatus("empty");
-    }
-  }, []);
+    },
+    [fetchDrill, startPrefetch]
+  );
 
   useEffect(() => {
     if (!user) return;
