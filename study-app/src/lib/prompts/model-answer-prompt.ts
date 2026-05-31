@@ -94,6 +94,8 @@ Generate ALL four sections:
 
 ### 1. Model Answer
 Full answer addressing every sub-question. MW-note style, 250-420 words. **Demonstrate funnelling** (see the Funnelling principle above): commit to the leading variety + broad-region call early, but visibly weigh the 1–2 plausible alternatives and rule them out from structural evidence ("what it might have been, but was not"), then narrow to the specific call and land it decisively. Do not simply assert one wine with no alternatives considered. Follow the mock-answer-writer rules exactly.
+**Differentiate the wines** (AT-1): when the question covers more than one wine, give each its own argument and shape — never apply the same winemaking technique, commercial framing, or sentence scaffold across wines. The grader marks down cut-and-paste even when each statement is individually defensible (Marking Principles Rule 9), so the exemplar must not model the failure it penalises.
+**Land the distinction move selectively** (AT-2): rather than cataloguing every descriptor, resolve a genuine tension in the glass with one higher-order inference on the strongest wine — e.g. why an exceptional producer would exceed a classification's minimum sugar, or why high ripeness held by firm acidity reads as altitude rather than heat. This is the "under the skin" second-order insight the grader reserves the top band for; selectivity beats completeness, so deploy it once well rather than everywhere.
 
 ### 2. Proposed Annotation
 2-3 paragraphs: examiner intent, what the question tests, why these wines, what discriminates strong from weak candidates.
