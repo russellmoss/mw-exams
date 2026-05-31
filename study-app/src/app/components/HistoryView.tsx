@@ -53,6 +53,21 @@ function CopyId({ id }: { id: string }) {
   );
 }
 
+// Stem Sniper / Reverse Tasting drill payload (persisted by submit / submit-reverse).
+interface DrillPrediction { variety?: string; style?: string; region?: string; tier?: string | null; }
+interface DrillGrade { prediction: DrillPrediction; grade: string; points: number; note?: string }
+interface DrillScore { percent: number; summary?: { hits: number; nears: number; varietyOnly: number; plausibleOk: number; misses: number } }
+interface DrillStage { predictions?: DrillPrediction[]; score?: DrillScore; grades?: DrillGrade[] }
+export interface DrillPayload {
+  predictions?: DrillPrediction[];
+  score?: DrillScore;
+  grades?: DrillGrade[];
+  reverse?: boolean;
+  stage1?: DrillStage;
+  stage2?: DrillStage;
+  movement?: { stage1Percent: number; stage2Percent: number; delta: number };
+}
+
 export interface AttemptDetail {
   id: number;
   question_id: string;
@@ -74,6 +89,8 @@ export interface AttemptDetail {
   total_marks: number;
   user_feedback: string | null;
   subcategory: string | null;
+  mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
+  drill_payload?: DrillPayload | string | null;
   feedback_status: string | null;
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
@@ -228,6 +245,65 @@ function DecisionBadge({ decision }: { decision: Decision }) {
   );
 }
 
+// ── Drill (Stem Sniper / Reverse Tasting) rendering ──
+const DRILL_GRADE: Record<string, { label: string; cls: string }> = {
+  HIT: { label: "HIT", cls: "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" },
+  NEAR: { label: "NEAR", cls: "text-amber-300 border-amber-400/40 bg-amber-400/10" },
+  PLAUSIBLE_OK: { label: "PLAUSIBLE", cls: "text-accent border-accent/40 bg-accent/10" },
+  VARIETY: { label: "VARIETY", cls: "text-muted border-border bg-background" },
+  MISS: { label: "MISS", cls: "text-fail border-fail/40 bg-fail/10" },
+};
+const parseDrill = (p: DrillPayload | string | null | undefined): DrillPayload | null =>
+  !p ? null : typeof p === "string" ? (() => { try { return JSON.parse(p) as DrillPayload; } catch { return null; } })() : p;
+const drillPct = (d: DrillPayload | null): number | null =>
+  !d ? null : (d.reverse ? d.movement?.stage2Percent : d.score?.percent) ?? null;
+const pctDot = (p: number | null): string => (p == null ? "bg-muted/40" : p >= 80 ? "bg-success" : p >= 50 ? "bg-borderline" : "bg-fail");
+const pctText = (p: number | null): string => (p == null ? "text-muted" : p >= 80 ? "text-success" : p >= 50 ? "text-borderline" : "text-fail");
+
+function DrillResultSection({ drill }: { drill: DrillPayload }) {
+  const isReverse = !!drill.reverse;
+  const grades = (isReverse ? drill.stage2?.grades : drill.grades) || [];
+  const score = isReverse ? drill.stage2?.score : drill.score;
+  const s = score?.summary;
+  return (
+    <ExpandedSection title={isReverse ? "Reverse Tasting — Layer A → Layer B" : "Stem Sniper — your shortlist"}>
+      {isReverse && drill.movement && (
+        <div className="text-sm mb-3 flex items-center gap-1.5">
+          <span className="text-muted">Layer A (stem)</span>
+          <span className="font-bold text-foreground">{drill.movement.stage1Percent}%</span>
+          <span className="text-muted">→</span>
+          <span className="text-muted">Layer B (glass)</span>
+          <span className="font-bold text-foreground">{drill.movement.stage2Percent}%</span>
+          <span className={`ml-1 text-xs font-semibold ${drill.movement.delta > 0 ? "text-emerald-300" : drill.movement.delta < 0 ? "text-fail" : "text-muted"}`}>
+            {drill.movement.delta > 0 ? `+${drill.movement.delta}` : drill.movement.delta}
+          </span>
+        </div>
+      )}
+      {score?.percent != null && <div className={`text-2xl font-bold ${pctText(score.percent)} mb-1`}>{score.percent}%</div>}
+      {s && (
+        <div className="text-xs text-muted mb-3">
+          {s.hits} HIT · {s.nears} NEAR · {s.plausibleOk} plausible · {s.varietyOnly} variety · {s.misses} miss
+        </div>
+      )}
+      <div className="space-y-1.5">
+        {grades.map((g, i) => {
+          const gc = DRILL_GRADE[g.grade] || DRILL_GRADE.MISS;
+          return (
+            <div key={i} className="flex items-center gap-2 text-sm">
+              <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border w-[78px] text-center shrink-0 ${gc.cls}`}>{gc.label}</span>
+              <span className="text-foreground">
+                {g.prediction.style || g.prediction.variety}
+                {g.prediction.region ? <span className="text-muted"> — {g.prediction.region}</span> : null}
+              </span>
+              {g.prediction.tier && <span className="text-[10px] text-muted ml-auto">{g.prediction.tier}</span>}
+            </div>
+          );
+        })}
+      </div>
+    </ExpandedSection>
+  );
+}
+
 function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; readOnly?: boolean; isAdmin?: boolean }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
@@ -244,6 +320,13 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const deployState = attempt.deploy_state || null;
   // Live decision reflects the current review state (so manual Accept/Reject updates instantly).
   const decision = getDecision(reviewStatus, attempt.feedback_decided_by);
+
+  // Drill attempts (Stem Sniper / Reverse Tasting) render their scored payload instead of a study
+  // answer/debrief, and Redo sends the candidate back to the drill, not the study flow.
+  const isDrill = attempt.mode === "stem-sniper" || attempt.mode === "reverse-tasting";
+  const drill = isDrill ? parseDrill(attempt.drill_payload) : null;
+  const drillPercent = drillPct(drill);
+  const modeLabel = attempt.mode === "reverse-tasting" ? "Reverse Tasting" : "Stem Sniper";
 
   const handleApplyShip = async () => {
     setApplying(true);
@@ -266,6 +349,10 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const tastingNotes = typeof attempt.tasting_notes === "string" ? JSON.parse(attempt.tasting_notes) : attempt.tasting_notes;
 
   const handleRedo = () => {
+    if (isDrill) {
+      router.push("/stem-sniper");
+      return;
+    }
     const questionData = {
       id: attempt.question_id,
       source: "history-redo",
@@ -325,13 +412,19 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
         className="w-full px-5 py-4 flex items-center gap-4 hover:bg-card-hover transition-colors cursor-pointer text-left"
       >
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-          attempt.pass_estimate === "pass" ? "bg-success"
+          isDrill ? pctDot(drillPercent)
+            : attempt.pass_estimate === "pass" ? "bg-success"
             : attempt.pass_estimate === "fail" ? "bg-fail"
               : attempt.pass_estimate === "borderline" ? "bg-borderline" : "bg-muted/40"
         }`} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">{paperLabel(attempt.paper)}</span>
+            {isDrill && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 font-medium">
+                {modeLabel}
+              </span>
+            )}
             <span className="text-xs text-muted">{attempt.family_label}</span>
             <CopyId id={attempt.question_id} />
             {decision && <DecisionBadge decision={decision} />}
@@ -341,7 +434,18 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <PassBadge estimate={attempt.pass_estimate} />
+          {isDrill ? (
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
+              drillPercent == null ? "bg-muted/20 text-muted border-border"
+                : drillPercent >= 80 ? "bg-success/15 text-success border-success/30"
+                : drillPercent >= 50 ? "bg-borderline/15 text-borderline border-borderline/30"
+                : "bg-fail/15 text-fail border-fail/30"
+            }`}>
+              {drillPercent == null ? "—" : `${drillPercent}%`}
+            </span>
+          ) : (
+            <PassBadge estimate={attempt.pass_estimate} />
+          )}
           {attempt.elapsed_seconds != null && <TimingBadge seconds={attempt.elapsed_seconds} wineCount={wineCount} />}
           {attempt.marks_estimate && <span className="text-xs text-muted font-mono">{attempt.marks_estimate}</span>}
           <div className="text-right">
@@ -359,7 +463,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           {!readOnly && (
             <div className="flex items-center gap-3 py-2">
               <button onClick={handleRedo} className="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer bg-accent hover:bg-accent-hover text-background">
-                Redo This Question
+                {isDrill ? "Practice in Stem Sniper" : "Redo This Question"}
               </button>
               <button
                 onClick={() => { document.getElementById(`feedback-${attempt.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }); document.getElementById(`feedback-${attempt.id}`)?.querySelector("textarea")?.focus(); }}
@@ -384,6 +488,8 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
               </div>
             )}
           </ExpandedSection>
+
+          {isDrill && drill && <DrillResultSection drill={drill} />}
 
           {attempt.pre_glass_reasoning && (
             <ExpandedSection title="Pre-Glass Reasoning">
@@ -540,7 +646,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           {!readOnly && (
             <div className="flex justify-end pt-2">
               <button onClick={handleRedo} className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer bg-card hover:bg-card-hover border border-border text-foreground">
-                Redo This Question
+                {isDrill ? "Practice in Stem Sniper" : "Redo This Question"}
               </button>
             </div>
           )}
@@ -555,7 +661,12 @@ interface Filters {
   papers: Set<number>;
   families: Set<string>;
   decisions: Set<string>; // DecisionGroup values: auto-accept | partial | auto-reject | manual
+  modes: Set<string>; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
 }
+
+const attemptMode = (a: AttemptDetail): string =>
+  a.mode === "stem-sniper" || a.mode === "reverse-tasting" ? a.mode : "full";
+const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting" };
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
@@ -572,6 +683,7 @@ function applyFilters(attempts: AttemptDetail[], filters: Filters): AttemptDetai
     }
     if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
     if (filters.families.size > 0 && !filters.families.has(a.family_label)) return false;
+    if (filters.modes.size > 0 && !filters.modes.has(attemptMode(a))) return false;
     if (filters.decisions.size > 0) {
       const d = getDecision(a.feedback_status, a.feedback_decided_by);
       if (!d || !filters.decisions.has(d.group)) return false;
@@ -608,7 +720,7 @@ export function HistoryView({
   isAdmin?: boolean;
   emptyAction?: React.ReactNode;
 }) {
-  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set() });
+  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set() });
 
   const passRate = stats && stats.completed_attempts > 0 ? Math.round((stats.pass_count / stats.completed_attempts) * 100) : 0;
   const passOrBorderlineRate = stats && stats.completed_attempts > 0 ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100) : 0;
@@ -749,8 +861,10 @@ export function HistoryView({
         ) : (
           <>
             {(() => {
-              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.decisions.size;
+              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.decisions.size + filters.modes.size;
               const hasDecisions = isAdmin && attempts.some((a) => a.feedback_status);
+              const presentModes = [...new Set(attempts.map(attemptMode))];
+              const hasDrills = presentModes.some((m) => m !== "full");
               const afterPaperAndResult = attempts.filter((a) => {
                 if (filters.results.size > 0) {
                   const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
@@ -782,10 +896,25 @@ export function HistoryView({
                       {activeFilterCount > 0 && (
                         <>
                           <div className="w-px h-5 bg-border" />
-                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
+                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
                         </>
                       )}
                     </div>
+                    {hasDrills && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
+                        <span className="text-[10px] uppercase tracking-wider text-muted mr-1">Type</span>
+                        {presentModes.map((m) => (
+                          <Chip
+                            key={m}
+                            active={filters.modes.has(m)}
+                            color={m === "full" ? undefined : "bg-emerald-400/15 text-emerald-300 font-semibold border border-emerald-400/40"}
+                            onClick={() => setFilters((f) => ({ ...f, modes: toggleInSet(f.modes, m) }))}
+                          >
+                            {MODE_LABEL[m] || m}
+                          </Chip>
+                        ))}
+                      </div>
+                    )}
                     {hasDecisions && (
                       <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
                         <span className="text-[10px] uppercase tracking-wider text-muted mr-1">Decision</span>

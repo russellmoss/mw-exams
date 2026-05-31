@@ -328,6 +328,10 @@ export interface AttemptWithDetails extends UserAttempt {
   model_answer: string | null;
   total_marks: number;
   subcategory: string | null;
+  // Drill attempts (Stem Sniper / Reverse Tasting): mode + the full scored payload. Returned by the
+  // a.* select in getUserAttempts; history renders these instead of the study answer/debrief fields.
+  mode: string | null;
+  drill_payload: unknown;
 }
 
 export async function getUserAttempts(userId: number, limit = 50): Promise<AttemptWithDetails[]> {
@@ -670,7 +674,8 @@ export async function getUserNotifications(userId: number): Promise<{
 export async function getUserStats(userId: number): Promise<UserStats> {
   const sql = getDb();
 
-  // Aggregate totals
+  // The exam-readiness scoreboard reflects full study reps only — Stem Sniper / Reverse Tasting
+  // drills have no pass/fail and would deflate the pass rate and inflate the totals, so exclude them.
   const totals = await sql`
     SELECT
       COUNT(*)::int as total_attempts,
@@ -679,7 +684,7 @@ export async function getUserStats(userId: number): Promise<UserStats> {
       COUNT(CASE WHEN pass_estimate = 'fail' THEN 1 END)::int as fail_count,
       COUNT(CASE WHEN pass_estimate = 'borderline' THEN 1 END)::int as borderline_count
     FROM user_attempts
-    WHERE user_id = ${userId}
+    WHERE user_id = ${userId} AND (mode IS NULL OR mode = 'full')
   `;
 
   // By paper
@@ -692,7 +697,7 @@ export async function getUserStats(userId: number): Promise<UserStats> {
       COUNT(CASE WHEN a.pass_estimate = 'borderline' THEN 1 END)::int as borderline
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
-    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL
+    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL AND (a.mode IS NULL OR a.mode = 'full')
     GROUP BY q.paper
     ORDER BY q.paper
   `;
@@ -708,7 +713,7 @@ export async function getUserStats(userId: number): Promise<UserStats> {
       COUNT(CASE WHEN a.pass_estimate = 'fail' THEN 1 END)::int as fail
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
-    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL
+    WHERE a.user_id = ${userId} AND a.completed_at IS NOT NULL AND (a.mode IS NULL OR a.mode = 'full')
     GROUP BY q.family, q.family_label
     ORDER BY total DESC
   `;
@@ -718,6 +723,7 @@ export async function getUserStats(userId: number): Promise<UserStats> {
     SELECT pass_estimate, started_at
     FROM user_attempts
     WHERE user_id = ${userId} AND completed_at IS NOT NULL AND pass_estimate IS NOT NULL
+      AND (mode IS NULL OR mode = 'full')
     ORDER BY completed_at DESC
     LIMIT 5
   `;
