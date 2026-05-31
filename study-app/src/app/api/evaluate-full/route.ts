@@ -6,6 +6,7 @@ import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
 import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
 import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
+import { deriveStemKey } from "@/lib/stem-answer-key";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 
 export const runtime = "nodejs";
@@ -138,6 +139,30 @@ ${userAnswer}`;
 
 ## Model Answer (reference — do not quote directly, use for comparison)
 ${modelAnswer}`;
+    }
+
+    // PG-1: give the grader a per-wine PLAUSIBILITY reference so partial credit on WRONG identification
+    // calls is anchored to stylistic adjacency (EK-0112 / marking-principles Cardinal Rule 1) rather than
+    // left to unaided judgement. Derived purely from the revealed wines' text via the same live key
+    // builder the Stem Sniper uses (empty wine_profiles → fullText fallback). Best-effort: any failure or
+    // an empty set silently skips, so grading behaviour is unchanged when it can't derive a useful set.
+    try {
+      if (Array.isArray(wines) && wines.length) {
+        const key = deriveStemKey({ paper, question_text: questionText, wines, wine_profiles: {} });
+        const pl = (key?.plausible ?? []).slice(0, 16);
+        if (pl.length) {
+          const lines = pl
+            .map((p) => `- ${p.variety}${p.region ? ` — ${p.region}${p.country ? `, ${p.country}` : ""}` : ""}`)
+            .join("\n");
+          userMessage += `
+
+## Plausibility reference (INTERNAL — for grading WRONG calls; do NOT reveal, do NOT treat as the answer)
+The model answer above is the ground truth. The keyed varieties also occur in these stylistically-adjacent origins. Use this ONLY to calibrate partial credit on wrong identification/origin calls: a wrong call matching one of these (or otherwise stylistically adjacent to the glass) is a PLAUSIBLE miss earning real partial credit; a call that is neither listed nor stylistically adjacent is an IMPLAUSIBLE miss earning little (EK-0112). Never penalise a correct call for not matching this list.
+${lines}`;
+        }
+      }
+    } catch {
+      /* plausibility reference is best-effort — never block grading */
     }
 
     userMessage += `

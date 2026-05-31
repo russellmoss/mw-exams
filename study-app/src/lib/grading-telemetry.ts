@@ -16,10 +16,12 @@
 // sets strict criteria for the two flags so they aren't vague.
 export const GRADING_META_INSTRUCTION = `## Machine-readable verdict tag (REQUIRED — emit LAST, exactly once, after all visible feedback)
 On the final line, append a single HTML comment — it is INVISIBLE to the candidate (internal QA only) and must NOT change anything you wrote above. Use EXACTLY this form:
-<!-- GRADING_META {"verdict":"PASS|BORDERLINE|FAIL","howlerPresent":true|false,"howler":"<short phrase or null>","cascadeFlag":true|false} -->
+<!-- GRADING_META {"verdict":"PASS|BORDERLINE|FAIL","howlerPresent":true|false,"howler":"<short phrase or null>","cascadeFlag":true|false,"wrongCallPlausible":true|false|null,"creditGiven":"none|partial|full|null"} -->
 Set the flags strictly, per the Howlers and Cardinal Rule 10 sections above:
 - howlerPresent = true ONLY for a factually IMPOSSIBLE claim in the CANDIDATE'S answer — a wrong country/region pairing ("Douro, Spain"), an impossible parameter (15% Burgundian Pinot Noir, 20% VDN), or a wrong production method for a classic style (Tawny in a solera, Amontillado at 14.5%). A merely wrong-but-plausible identification is NOT a howler. If none: howlerPresent=false, howler=null.
 - cascadeFlag = true ONLY when the candidate misidentified the wine and then answered downstream sub-questions for the GUESSED wine instead of the glass, OR gave self-contradictory structural figures. A wrong ID whose downstream answer still describes the glass faithfully is NOT a cascade.
+- wrongCallPlausible = for the PRIMARY identification/origin sub-question only: true if the candidate's call was WRONG but stylistically PLAUSIBLE/adjacent (the kind that earns real partial credit on the plausibility gradient); false if WRONG and IMPLAUSIBLE (neither the listed confusables nor otherwise stylistically adjacent — earns little); null if the call was CORRECT or there was no identification sub-question.
+- creditGiven = how much of the identification CONCLUSION credit you actually awarded on that primary sub-question: "none" | "partial" | "full" (null if N/A). This must be consistent with wrongCallPlausible — an implausible wrong call should not receive "full"; a plausible wrong call should not receive "none".
 - verdict = the SAME PASS/BORDERLINE/FAIL you stated in your visible feedback.`;
 
 export type GradingMeta = {
@@ -27,6 +29,11 @@ export type GradingMeta = {
   howlerPresent?: boolean;
   howler?: string | null;
   cascadeFlag?: boolean;
+  // PG-2 (detect-only): the grader's self-report on how it applied the plausibility gradient (EK-0112 /
+  // marking-principles Cardinal Rule 1) to the primary ID/origin sub-question, so we can MEASURE whether
+  // wrong-but-plausible calls are credited and implausible ones are not — before deciding any enforcement.
+  wrongCallPlausible?: boolean | null;
+  creditGiven?: "none" | "partial" | "full" | null;
 };
 
 const META_RE = /<!--\s*GRADING_META\s*(\{[\s\S]*?\})\s*-->/i;
@@ -60,6 +67,14 @@ export function recordGradingOverrideCheck(
     }
     if (meta.cascadeFlag) {
       console.warn(`${tag} NOTE: cascadeFlag=true → the affected conclusion mark should be zero; verify the grader applied it.`);
+    }
+    // PG-2 plausibility-gradient mismatches (EK-0112): the gradient says a plausible wrong call earns
+    // partial credit and an implausible one earns little. Flag both failure directions for measurement.
+    if (meta.wrongCallPlausible === false && meta.creditGiven === "full") {
+      console.warn(`${tag} MISMATCH: implausible wrong call awarded FULL conclusion credit → the plausibility gradient (EK-0112) says an implausible miss earns little; possible over-credit.`);
+    }
+    if (meta.wrongCallPlausible === true && meta.creditGiven === "none") {
+      console.warn(`${tag} MISMATCH: plausible wrong call awarded NO conclusion credit → the plausibility gradient (EK-0112) says a stylistically-adjacent miss earns real partial credit; possible under-credit.`);
     }
   } catch {
     /* telemetry must never break the response */
