@@ -4,6 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
+import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 
 export const runtime = "nodejs";
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
           ? "Paper 2 (Red Wines)"
           : "Paper 3 (Special)";
 
+    const dislikedFound = scanDislikedWording(userAnswer);
     const systemPrompt = `You are a Master of Wine exam coach providing a two-part debrief for ${paperName}. The debrief is split into BEFORE THE GLASS (stem analysis) and IN THE GLASS (tasting and answer writing).
 
 ## Your coaching approach
@@ -50,6 +52,8 @@ ${MARKING_PRINCIPLES}
 ${FUNNELLING_PRINCIPLE}
 
 In the "In the Glass" section, explicitly assess the candidate's funnelling on identity/origin: did they read structure first, weigh plausible alternatives, commit to a variety+region anchor early, and land a decisive call? Reward a well-reasoned funnel (even to a wrong-but-plausible call) over a snap-call that names one wine outright, and call out shoehorning or hedging by name with the funnel they should have run.
+
+${buildLexiconCritiqueGuidance(dislikedFound)}
 
 ## Output structure — follow this EXACTLY
 

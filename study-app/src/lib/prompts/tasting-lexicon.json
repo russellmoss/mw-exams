@@ -18,6 +18,8 @@
     "NEGATIVES": ["lack of", "hollow", "devoid of", "subdued", "lacks", "restrained", "flabby", "undefined", "dull", "neutral", "low key", "obtrusive", "shallow"],
     "SUGGESTS": ["indicates", "indicative of", "points to", "suggests", "illustrates", "demonstrates", "expresses", "establishes", "shows", "signifies", "emphasises", "impression", "potentially", "consistent with", "composition", "typicity", "emphasis on", "incisive use of", "evidence of", "expansive"],
     "PROVES": ["confirms", "supports", "shows", "highlights", "underlines", "denotes", "reveals", "influenced by", "defines", "signifies"],
-    "ODDS_AND_SODS": ["nuance", "notes", "block-busting", "over-tones", "characteristics", "envelopes", "weight", "structure", "texture", "definition", "provenance", "integral"]
+    "ODDS_AND_SODS": ["nuance", "notes", "block-busting", "over-tones", "characteristics", "envelopes", "weight", "structure", "texture", "definition", "provenance", "integral"],
+    "PREFERRED_ARGUMENT": ["what it might have been, but was not", "this rules out X because", "I would expect to see", "narrows to", "consistent with X, not Y", "unlike wine 2", "in contrast to the flight", "at the top of its appellation", "name the legal tier (Grand Cru Classe / DOCG / Pradikat / VORS)", "drink now to {year}", "will improve {n} years then hold {n}"],
+    "DISLIKED": ["stonking", "icon", "Goldilocks", "definitely", "obviously", "matured for many years", "aged well", "sell it in a steakhouse", "by-the-glass to affluent connoisseurs", "pairs well with red meat", "phantom oak", "bullet-point arguments", "good (no tier - name the official tier instead)", "very good (no context)", "PREMIUM (caps, no context)", "confirms (use only when evidence is conclusive)", "will age (give a concrete window)"]
   }
 }

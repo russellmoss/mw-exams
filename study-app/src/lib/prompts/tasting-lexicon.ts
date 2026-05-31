@@ -35,6 +35,8 @@ export function buildTastingLexiconGuidance(
   const positives = (lex.rhetoric.POSITIVES || []).join(", ");
   const negatives = (lex.rhetoric.NEGATIVES || []).join(", ");
   const odds = (lex.rhetoric.ODDS_AND_SODS || []).join(", ");
+  const preferredArg = (lex.rhetoric.PREFERRED_ARGUMENT || []).join(", ");
+  const disliked = (lex.rhetoric.DISLIKED || []).join(", ");
 
   return `## TASTING LEXICON (register palette — guidance, not a checklist)
 Use precise, examiner-grade vocabulary. Draw on this palette for variety and accuracy; do NOT string
@@ -50,6 +52,44 @@ Deductive register (mirror the funnelling principle — match the verb to the st
 - Quality, positive: ${positives}.
 - Quality, negative: ${negatives}.
 - Connective nouns: ${odds}.
-
+${preferredArg ? `- Preferred funnel connectives (use to structure the argument): ${preferredArg}.\n` : ""}${disliked ? `- AVOID these examiner-penalised registers: ${disliked}.\n` : ""}
 Rule: never write "X confirms Y" unless the evidence truly proves it — use "suggests/points to/indicative of" for a likely-but-unproven call. This is the difference between a disciplined funnel and an over-claim.`;
+}
+
+// Deterministic disliked-wording scan over a candidate's answer text. Returns the matched display
+// phrases. Only matches UNAMBIGUOUS literal entries — entries carrying a "(" qualifier are guidance-only
+// (context-dependent, e.g. the over-claim case) and are deliberately NOT literal-matched here; the
+// grader judges those via buildLexiconCritiqueGuidance. Word-boundary, case-insensitive.
+export function scanDislikedWording(
+  answerText: string,
+  lex: TastingLexicon = BUNDLED_TASTING_LEXICON
+): string[] {
+  const text = answerText || "";
+  const found: string[] = [];
+  for (const entry of lex.rhetoric.DISLIKED || []) {
+    if (entry.includes("(")) continue; // context-dependent → leave to LLM judgement
+    const phrase = entry.trim();
+    if (!phrase) continue;
+    const re = new RegExp(`\\b${phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+    if (re.test(text)) found.push(phrase);
+  }
+  return found;
+}
+
+// A wording-audit instruction for the GRADER. `dislikedFound` is the deterministic linter's output on
+// the candidate's text (from scanDislikedWording). The over-claim check stays an LLM judgement because
+// it is context-dependent (a confirmation verb is legitimate when the evidence is conclusive).
+export function buildLexiconCritiqueGuidance(dislikedFound: string[] = []): string {
+  const detected = dislikedFound.length
+    ? `A deterministic scan flagged these examiner-penalised phrases in the candidate's answer — comment on each briefly (cite the phrase, say why it is weak, give the stronger move): ${dislikedFound
+        .map((p) => `"${p}"`)
+        .join(", ")}.`
+    : `No banned phrases were flagged by the automated scan, but still watch for the patterns below.`;
+  return `## WORDING AUDIT (note in feedback; coaching voice; do not over-weight any single item)
+${detected}
+Also judge in context (these are NOT literal matches):
+- **Over-claim:** a confirmation verb ("confirms"/"definitely"/"obviously"/"clearly") on evidence that is only suggestive — show the inference verb that fits ("suggests / points to / indicative of").
+- **Bare quality:** "good"/"very good" with no official tier or benchmark — name the tier they should have used.
+- **Rote commercial / food-pairing boilerplate** and **vague maturity** ("matured for many years" with no window) — examiners "rarely reward" these.
+- **Cut-and-paste sameness** across wines in a flight, and **stem-restatement** that re-derives given information.`;
 }

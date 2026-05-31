@@ -12,12 +12,13 @@ import {
   type GeneratedQuestion,
 } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion } from "@/lib/db";
+import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { stemSniperScoringModel } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
@@ -68,7 +69,10 @@ function generateModelAnswerInBackground(
     try {
       const client = new Anthropic({ apiKey });
       const { model, abGroup } = await selectModel("model_answer", apiKey, "opus");
-      const prompt = buildModelAnswerPrompt(questionText, wines, paper);
+      // Steer register with the same tasting lexicon the standalone generate-model-answer route uses,
+      // so both model-answer paths share one voice (and the new prefer/avoid wording guidance).
+      const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
+      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance);
 
       const t0 = Date.now();
       const message = await client.messages.create({

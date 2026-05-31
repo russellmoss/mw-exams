@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { FUNNELLING_PRINCIPLE } from "./funnelling";
+import { MARKING_PRINCIPLES } from "./marking-principles";
 
 let cachedIndex: {
   decisionTrees: Record<string, string>;
@@ -67,6 +68,9 @@ ${ctx.sharedRules}
 
 ## EXAMINER REPORT SYNTHESIS
 ${ctx.examinerReportSynthesis}
+
+## MARKING PRINCIPLES (write to what actually earns marks — the grader scores against these exact rules)
+${MARKING_PRINCIPLES}
 
 ${FUNNELLING_PRINCIPLE}
 ${lexiconGuidance ? `\n${lexiconGuidance}\n` : ""}

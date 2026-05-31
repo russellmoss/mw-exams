@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluation-prompt";
+import { scanDislikedWording } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
@@ -25,7 +26,8 @@ export async function POST(request: Request) {
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
 
-    const systemPrompt = buildAnswerEvaluationSystemPrompt(paper);
+    const dislikedFound = scanDislikedWording(answer);
+    const systemPrompt = buildAnswerEvaluationSystemPrompt(paper, dislikedFound);
 
     let userMessage = `## Question
 ${questionText}

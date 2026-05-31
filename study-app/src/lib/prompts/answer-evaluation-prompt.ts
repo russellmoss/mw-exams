@@ -2,8 +2,12 @@
 
 import { FUNNELLING_PRINCIPLE } from "./funnelling";
 import { MARKING_PRINCIPLES } from "./marking-principles";
+import { buildLexiconCritiqueGuidance } from "./tasting-lexicon";
 
-export function buildAnswerEvaluationSystemPrompt(paper: number): string {
+export function buildAnswerEvaluationSystemPrompt(
+  paper: number,
+  dislikedFound: string[] = []
+): string {
   const paperName =
     paper === 1
       ? "Paper 1 (White Wines)"
@@ -18,6 +22,8 @@ ${MARKING_PRINCIPLES}
 ${FUNNELLING_PRINCIPLE}
 
 When grading identity/origin sub-questions, treat funnelling as a primary mark driver: reward a candidate who weighed plausible alternatives and narrowed to a committed call (even if the final call is wrong but plausible) ABOVE a candidate who named one wine outright with no alternatives shown — and ABOVE one who shoehorned. Note in feedback specifically when the candidate snap-called, hedged without committing, or shoehorned, and show them the funnel they should have run.
+
+${buildLexiconCritiqueGuidance(dislikedFound)}
 
 ## Your evaluation approach
 1. Read the model answer carefully to understand what the ideal response covers.

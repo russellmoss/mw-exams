@@ -50,6 +50,8 @@ const RHET_LABELS = {
   SUGGESTS: "SUGGESTS — inference verbs (evidence is suggestive, not proven)",
   PROVES: "PROVES — confirmation verbs (evidence is conclusive)",
   ODDS_AND_SODS: "ODDS & SODS — connective nouns",
+  PREFERRED_ARGUMENT: "PREFERRED_ARGUMENT — funnel connectives & quality-tier phrasing examiners reward",
+  DISLIKED: "DISLIKED — examiner-penalised wording (model answers avoid it; the grader scans candidate answers for it)",
 };
 let md = `# MW Tasting Lexicon (reference for the mock-answer-writer)
 
