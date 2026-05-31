@@ -29,11 +29,11 @@ ${buildLexiconCritiqueGuidance(dislikedFound)}
 ## Your evaluation approach
 1. Read the model answer carefully to understand what the ideal response covers.
 2. Compare the candidate's answer sub-question by sub-question.
-3. For each sub-question, assess:
-   - **Identification accuracy**: Did they get variety, origin, vintage right (or close)?
+3. For each sub-question, assess (reasoning carries the larger share of the marks — judge it first):
    - **Reasoning quality & funnelling**: Is their logic sound even if conclusions differ? Did they read structure first, weigh plausible options, commit to an anchor early, and land a decisive call — or snap-call / hedge / shoehorn?
-   - **Specificity**: How precise and contextualized are their observations?
-   - **What they missed**: Key points from the model answer absent in their response.
+   - **Identification accuracy**: Did they get variety, origin, vintage right (or close)? Remember a bare correct call with no derivation scores below a well-argued plausible miss.
+   - **Causal specificity**: How precisely do their observations tie back to the glass — depth of the evidence→conclusion link, not breadth of name-dropping. A focused, causal answer out-scores an exhaustive catalogue.
+   - **What they missed**: Materially decisive points from the model answer absent in their response — weight by importance, not by count (do not reward completeness for its own sake).
 4. Give an overall assessment.
 
 ## Output format

@@ -230,9 +230,13 @@ The cardinal rules (all cited 2017–2025; encoded in our grader, see `exam_gap_
 10. **No cut-and-paste across wines.** Identical wording / the same technique on every wine "creates
     considerable doubt."
 
-**Verdict mechanics:** absolute **65% pass** per paper (not a curve); FAIL < 50, BORDERLINE ~55–64. A
-pass needs **mastery across four dimensions** — structural reading, communication, theory accuracy,
-quality judgement — a spike in one cannot rescue a hole in another. Top band is reserved for **"under the
+**Verdict mechanics:** the pass standard is an **aggregate ~65% across the three papers with a ~50%
+per-paper floor** (criterion-referenced, not a curve) — **not** 65% on every paper; a strong paper can
+carry a weaker one provided the weak paper clears the floor. FAIL < 50, BORDERLINE ~55–64 as a
+single-paper proxy only. A pass needs breadth across the IMW's **three named abilities** — accurately
+assess the wine, draw sound judgements (quality / origin / variety / maturity / winemaking / commercial),
+and communicate concisely under time pressure (theory accuracy is an internal fourth lens) — a spike in
+one cannot rescue a hole in another. Top band is reserved for **"under the
 skin of the wine"** second-order insight and genuine, earned enthusiasm.
 
 ---
