@@ -158,6 +158,24 @@ The result is a flywheel: **more candidates → more expert feedback → more co
 
 ---
 
+## 🛠️ The roadmap the feedback loop *can't* write for itself
+
+The candidate feedback loop is powerful, but it only fixes **per-question** errors — the things a taster can *see*. It will never surface the **systemic, architectural** work (no candidate can observe a quarantine rate, an internal difficulty signal, or a verdict path that only *logs* a rule instead of *enforcing* it). Those need deliberate engineering, tracked here so we don't lose them behind the flywheel.
+
+The honest, evidence-graded baseline lives in **[`outputs/research/system_report_card.md`](outputs/research/system_report_card.md)** (dated, with EK + commit citations; re-grade against it after material changes). Current overall: **B+, trending A−** — strong *delivered* output, but quality still leans on the validator gate and the empirical grounding more than on first-pass generation.
+
+**Priorities beyond the feedback loop** (highest-leverage first):
+
+1. **Deterministic mark allocation** in question generation — ~half of raw drafts are currently quarantined on the 25-marks-per-wine arithmetic; computing it in code (not by the model) is the single biggest throughput win.
+2. **Enforce the hard grading rules** (howler→FAIL, cascade→zero) — today they are *detect-only* (logged, not applied); promote to a gated two-pass behind a flag once the telemetry confirms a safe false-positive rate.
+3. **Wire banker/curveball difficulty into the grader** so partial-credit latitude scales with how hard the wine really is (the signal exists but isn't fed to grading yet).
+4. **Let the new grading-telemetry sink accrue real data**, then tune the difficulty/enforcement decisions on evidence rather than assumption.
+5. **Refresh the historical model-answer artifacts** to the latest generation standard (differentiate-and-reconcile), via the offline pipeline.
+
+> Why this section exists: the feedback loop makes the system *self-correcting*, not *self-architecting*. These items are how it gets better **faster than candidates alone can push it.**
+
+---
+
 ## What it is — and what it isn't
 
 | ✅ It is | ❌ It isn't |
