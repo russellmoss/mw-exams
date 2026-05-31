@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-05-31 — gap analysis: superseded EK-0024/EK-0025 (curveball position + "1 in 4" were wrong/imprecise on last-10 data; corrections council-reviewed); refreshed EK-0023/EK-0028 to last-10; added EK-0096…EK-0101 (curveball position/budget, post-2014 mark redistribution, OW:NW band, age/price signatures) from `outputs/gap_analysis/findings/*` + `data/structured/*`. Hand-edited under the "fix a bad entry" carve-out; `data/empirical_sync_state.json` untouched.**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0095).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0088).**
 - **2026-05-30 — incremental: 1 feedback item(s) processed → 0 new entries.**
@@ -372,10 +373,13 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** `outputs/heuristics/curveball_analysis.md` (504 wines, 2011–2025)
 - **claim:** Of all exam wines, **6.2% are high curveball, 17.9% medium, 75.9% low** (standard/expected).
   Four curveball types: Rare Variety (~35%), Rare Style (~30%), Unexpected Origin (~20%), Hidden
-  Identity (~15%).
+  Identity (~15%). **[Last-10 refresh, 2026-05:** by flight size the per-wine harder (med+high) rate is
+  flat ~21–27% (2/3/4-wine; 5/6-wine directional, n=7/6); **F5 method (61%) is the densest curveball
+  family, F1 same-variety the safest (8%)** — denser than F4 breadth (24%); F6 (38%) is directional (n=4).
+  Source: `outputs/gap_analysis/findings/03`.]
 
 ### EK-0024 · The "1 in 4" rule — one curveball, the rest anchors
-- **tier:** STRONG SIGNAL · **status:** live
+- **tier:** STRONG SIGNAL · **status:** superseded (see EK-0097)
 - **evidence:** `outputs/heuristics/curveball_analysis.md` (Examiner Deployment Patterns)
 - **claim:** In a multi-wine question, typically **exactly one** wine is significantly harder; the
   rest are anchors. Ratios: 2-wine ≈ 1 curveball + 1 anchor (50%), 3-wine ~33%, 4-wine ~25% (modal
@@ -383,7 +387,7 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   downweighted in favour of style/winemaking/quality/commercial.
 
 ### EK-0025 · Curveballs concentrate in P3 and in the final question of P1/P2
-- **tier:** STRONG SIGNAL · **status:** live
+- **tier:** STRONG SIGNAL · **status:** superseded (see EK-0096)
 - **evidence:** `outputs/heuristics/curveball_analysis.md`; `examiner_patterns.md` §4.8
 - **claim:** Per-paper high-curveball averages: **P3 = 1.1, P1 = 0.8, P2 = 0.4**. Within P1/P2 they
   cluster in the **last question** (wines 10–12 / 9–12); in P3 they sit in the middle questions
@@ -413,7 +417,10 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   ideally one value/mainstream + one premium + one super-premium/luxury; or (b) **internal hierarchy**
   — all-premium-plus is fine *only if* the stem names/implies a classification, producer, appellation,
   or legal quality ladder. Avoid four high-priced wines with no clear tiering (answer then turns on
-  reputation, not observable evidence).
+  reputation, not observable evidence). **[Last-10 refresh, 2026-05:** the *majority* of quality questions
+  (51%) are compressed-high (<3 bands); only 20% ladder across ≥3 bands — so compression is the norm, and
+  is legitimate ONLY with a legal scaffold (14/18 historical ladders rest on AOC/DOCG/Prädikat/1855 tiers).
+  Directional — `price_band` is a coarse proxy (~7% explicit). Source: `outputs/gap_analysis/findings/02`.]
 
 ### EK-0029 · 4-wine flights need at least one "banker" classic
 - **tier:** STRONG SIGNAL · **status:** live
@@ -908,6 +915,68 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #161 / analysis #28 (accept)
 - **claim:** **Symptom:** images shown alongside a question depicted regions and wines NOT in the keyed answer set (a P1 Vouvray + Saint-Joseph Blanc pair). **Root cause:** image/asset selection is not constrained to the question's actual keyed wines. **Fix (pending PR):** restrict any attached imagery to the wines genuinely in the question. **Prevention:** the real exam never presents imagery of a wine or region other than the one being assessed; visual cues must always map to the keyed wines or they mislead the candidate. Related principle in EK-0050 (P3 visual cues must match the keyed style).
+
+### EK-0096 · Curveball position: the "last-question of P1/P2" prior is wrong; P3 end-loads (supersedes EK-0025)
+- **tier:** STRONG SIGNAL (P3 end-load + paper ordering) / PLAUSIBLE (the P1 q2 spike, small-n) · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/03_flight_curveball.md` §1.3 + `07_adversarial_corpus_review.md`; `data/structured/corpus_*.json` (last-10 sat years, 360 wines); supersedes EK-0025
+- **claim:** On the last-10 corpus the "curveballs cluster in the final question of P1/P2" claim is NOT
+  supported. **Robust:** per-paper med+high rate **P3 49.2% ≫ P1 15.0% > P2 9.2%** (the EK-0025 ordering
+  holds; magnitudes larger than the all-years high-only averages), and **P3 end-loads** (last question
+  58.8% med+high — the oxidative/orange/unusual-rosé slot). **Directional only (small-n):** P1's hardest
+  slot looks like the *middle* (q2 15.4% high) rather than the last (6.1%), and q2 is the single hardest
+  position overall — but that rests on ~4–5 wines across 10 sittings, so treat as tentative, NOT a rule to
+  build position logic on. Curveball ID marks remain downweighted toward style/winemaking/quality.
+
+### EK-0097 · The "1 in 4" rule holds PER WINE; difficulty is concentrated into a minority of flights (supersedes EK-0024)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/03_flight_curveball.md` §1.6 + `07_adversarial_corpus_review.md`; `data/structured/corpus_*.json` (last-10)
+- **claim:** Reframed by unit of analysis. **Per WINE**, the curveball (med+high) rate is **~21–27%
+  (≈ 1 in 4–5)**, roughly flat across 2/3/4-wine flights (5-wine 28.6% / 6-wine 33.3% directional,
+  n=7 / n=6) — so the classic "1 in 4" holds at the wine level. **Per FLIGHT**, difficulty is concentrated:
+  **54% of multi-wine flights are all-anchor (zero med+high)**, 28% have exactly one, 10% two, 9% three+.
+  So most individual flights are all-anchor and a minority carry the curveballs; the clean "one curveball +
+  rest anchors" shape is most common for **3-wine flights (43% have exactly one)**. Curveball ID marks are
+  downweighted in favour of style/winemaking/quality/commercial.
+
+### EK-0098 · Post-2014 mark redistribution: ID down, commercial/style/maturity up
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/04_marks.md` §1b–1d + `07_adversarial_corpus_review.md`; `data/structured/corpus_subquestions.json`
+- **claim:** After 2014 the per-paper denominator locked at 900 (exactly 25/wine). Mark-share shifted
+  (share of era marks, pre-2014 → 2020–2025): **ID composite 59.7% → 46.2%**; **commercial 5.7% → 17.9%**
+  full-credit (2.6% → 7.8% split-evenly — ~tripled under BOTH methods; verified NOT a verbose-stem
+  classifier artifact, stem length flat 69→67→67 chars across eras); **style 10.1% → 20.1%** (~doubled);
+  **maturity 4.6% → 13.1%** (~tripled); quality stable ~33–36%. Per-paper modern shape (2018–2025,
+  full-credit share): **P1** origin~38/quality~39/variety~30/winemaking~22/maturity~20/commercial~13;
+  **P2** origin~50/quality~38/style~23/winemaking~16/commercial~16/maturity~9; **P3** quality~37/origin~36/
+  winemaking~27/commercial~21/style~18 (sweetness/structure P3-only). Tariff rules confirmed: 2–3 marks =
+  numeric "state RS/ABV" only; commercial never <5; compare/contrast 20–36 marks; variety-ID size signals
+  difficulty (10–15 mainstream, 16–25 harder). Structure stable: 3–4 questions/paper, ~3 sub-questions each.
+
+### EK-0099 · Per-paper Old-World : New-World band (never NW-majority)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/01_diversity.md` §1.3 + `07_adversarial_corpus_review.md`; `data/structured/corpus_wines.json` (last-10)
+- **claim:** Per 12-wine paper: **P1 ≈ 7.8 OW : 4.2 NW (65% OW), P2 ≈ 7.6 : 4.4 (63%), P3 ≈ 9.8 : 2.2
+  (82%)**; corpus-wide 70% OW. **No paper is ever majority New-World.** Within a flight, outside the
+  same-origin families (F2/F7, single-world by design), mixing OW+NW is the norm — F4 61%, F1 64%, F6 75%
+  mixed; mixing scales with flight size (19% at size-2 → 71% at size-5). A whole paper spans ~6 countries
+  (P1 5.9 / P2 6.7 / P3 6.2) and 7–10 varieties.
+
+### EK-0100 · Per-paper curveball budget (P1≈2, P2≈1, P3≈6 per 12 wines)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/03_flight_curveball.md` §1.7; `data/structured/corpus_wines.json` (last-10, n=120 wines/paper)
+- **claim:** Harder (med+high) wines per 12-wine paper: **P1 ≈ 1.8, P2 ≈ 1.1 (the bankers' paper),
+  P3 ≈ 5.9 (half the flight is "unusual" — P3's identity)**. A 36-wine mock suite should carry ~9 harder
+  wines, heavily weighted to P3. Benchmark density is high and stable (~75–86%) at every flight size.
+
+### EK-0101 · Per-paper age signature; price ratio
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** `outputs/gap_analysis/findings/01_diversity.md` §1.4, `02_price.md` §1b; `data/structured/corpus_wines.json` (last-10)
+- **claim:** Age: **P1 young-skewed** (avg 3.4y, mostly ≤7y), **P2 mid-aged** (avg 4.7y), **P3 oldest +
+  ~26% non-vintage** (Champagne NV, Tawny, Sherry, Madeira). 85% of dated flights mix ages; ~20%
+  deliberately pair a young (≤3y) with an aged (≥8y) wine. Vintage is rarely *asked* (7 sub-questions in
+  10 years) — age is a composition/maturity axis, not an ID target. Price HIGH (super-premium+luxury)
+  share per paper: P1 ~22%, **P2 ~38% (classed reds)**, **P3 ~30% (fortified/sweet icons)**; treat as a
+  target band with tolerance (`price_band` is a coarse proxy; ~7% explicit).
 
 ---
 
