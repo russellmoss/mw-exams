@@ -140,14 +140,28 @@ function extractSection(
 
 // Split a generated package into its four stored fields. Single source of truth shared by the live
 // generate-model-answer route and the offline regen-model-answers script so the two can't drift.
+//
+// The Model Answer is bounded by the (reliably-headed) "Proposed Annotation" section rather than by a
+// "Model Answer" start label: the model titles section 1 inconsistently — sometimes "### 1. Model
+// Answer", sometimes "# Mock answer — …" — and keying off the label let the model-answer field swallow
+// sections 2-4 whenever the label was absent. Sections 2-4 are always headed, so slicing before the
+// Proposed Annotation header is robust to however section 1 was titled.
 export function parseModelAnswerSections(text: string): {
   modelAnswer: string;
   proposedAnnotation: string | null;
   reasoningTrace: string | null;
   studyDiagramAssist: string | null;
 } {
+  const annoStart = text.match(/\n#+\s*\d*\.?\s*Proposed Annotation/i);
+  let modelAnswer =
+    annoStart && annoStart.index !== undefined
+      ? text.slice(0, annoStart.index)
+      : extractSection(text, "Model Answer", "Proposed Annotation") || text;
+  // Drop a leading "### N. Model Answer" label line if present (keep any YAML frontmatter / "# Mock
+  // answer" title the established format uses).
+  modelAnswer = modelAnswer.replace(/^#+\s*\d*\.?\s*Model Answer\s*\n+/i, "").trim();
   return {
-    modelAnswer: extractSection(text, "Model Answer", "Proposed Annotation") || text,
+    modelAnswer,
     proposedAnnotation: extractSection(text, "Proposed Annotation", "Reasoning Trace"),
     reasoningTrace: extractSection(text, "Reasoning Trace", "Study Diagram"),
     studyDiagramAssist: extractSection(text, "Study Diagram", null),
