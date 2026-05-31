@@ -332,6 +332,11 @@ export interface AttemptWithDetails extends UserAttempt {
   // a.* select in getUserAttempts; history renders these instead of the study answer/debrief fields.
   mode: string | null;
   drill_payload: unknown;
+  // The AI's response to this attempt's feedback (latest feedback_analyses row): recommendation +
+  // the conversation thread (system = "Analysis", user = follow-ups). History shows it inline.
+  ai_recommendation: "accept" | "reject" | "pending" | null;
+  ai_thread: unknown;
+  ai_status: string | null;
 }
 
 export async function getUserAttempts(userId: number, limit = 50): Promise<AttemptWithDetails[]> {
@@ -346,9 +351,19 @@ export async function getUserAttempts(userId: number, limit = 50): Promise<Attem
       q.question_text,
       q.wines,
       q.model_answer,
-      q.total_marks
+      q.total_marks,
+      fa.recommendation AS ai_recommendation,
+      fa.thread AS ai_thread,
+      fa.status AS ai_status
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
+    LEFT JOIN LATERAL (
+      SELECT recommendation, thread, status
+      FROM feedback_analyses
+      WHERE attempt_id = a.id
+      ORDER BY updated_at DESC
+      LIMIT 1
+    ) fa ON true
     WHERE a.user_id = ${userId}
     ORDER BY a.started_at DESC
     LIMIT ${limit}

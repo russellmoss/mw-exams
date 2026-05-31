@@ -91,6 +91,10 @@ export interface AttemptDetail {
   subcategory: string | null;
   mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
   drill_payload?: DrillPayload | string | null;
+  // The AI's response to this attempt's feedback (latest analysis): shown inline in history.
+  ai_recommendation?: "accept" | "reject" | "pending" | null;
+  ai_thread?: AiThreadMessage[] | string | null;
+  ai_status?: string | null;
   feedback_status: string | null;
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
@@ -301,6 +305,44 @@ function DrillResultSection({ drill }: { drill: DrillPayload }) {
         })}
       </div>
     </ExpandedSection>
+  );
+}
+
+// ── AI feedback-response rendering (the analysis the system returned to the user's feedback) ──
+interface AiThreadMessage { role: "system" | "user"; content: string; timestamp?: string }
+// Analyses carry an engineering-only tail after [[INTERNAL]] (EK refs, file paths, the Kind routing
+// line). Candidates see only the part before it.
+const candidateFacing = (text: string) => (text.split("[[INTERNAL]]")[0] || text).trim();
+function recBadge(rec: string | null | undefined) {
+  if (rec === "accept") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-semibold">ACCEPT</span>;
+  if (rec === "reject") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-fail/15 text-fail font-semibold">REJECT</span>;
+  return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-borderline/15 text-borderline font-semibold">PENDING</span>;
+}
+function AiFeedbackResponse({ thread, recommendation, status }: { thread: AiThreadMessage[] | string | null | undefined; recommendation?: string | null; status?: string | null }) {
+  const msgs: AiThreadMessage[] =
+    (typeof thread === "string" ? (() => { try { return JSON.parse(thread) as AiThreadMessage[]; } catch { return []; } })() : thread) || [];
+  if (msgs.length === 0) {
+    if (status === "analyzing")
+      return <p className="text-xs text-muted italic mt-3">The AI is analyzing your feedback — its response will appear here (and in your notifications) shortly.</p>;
+    return null;
+  }
+  return (
+    <div className="mt-3 border-t border-border/50 pt-3 space-y-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold text-accent">AI response to your feedback</span>
+        {recBadge(recommendation)}
+      </div>
+      {msgs.map((m, i) => (
+        <div key={i} className={`rounded-lg p-3 border ${m.role === "system" ? "bg-card-hover border-border/50" : "bg-accent/5 border-accent/20"}`}>
+          <div className={`text-[10px] font-semibold mb-1 ${m.role === "system" ? "text-accent" : "text-foreground"}`}>
+            {m.role === "system" ? "Analysis" : "Your follow-up"}
+          </div>
+          <div className="markdown-content text-sm">
+            <ReactMarkdown>{m.role === "system" ? candidateFacing(m.content) : m.content}</ReactMarkdown>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -548,6 +590,8 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           {attempt.user_feedback && (
             <ExpandedSection title={`User Feedback${decision ? ` — ${decision.label}` : ""}`}>
               <div className="markdown-content text-sm mb-3"><ReactMarkdown>{attempt.user_feedback}</ReactMarkdown></div>
+              {/* The AI's response to this feedback — shown to everyone (it's the user's own thread). */}
+              <AiFeedbackResponse thread={attempt.ai_thread} recommendation={attempt.ai_recommendation} status={attempt.ai_status} />
               {isAdmin && (
                 <div className="border-t border-border/60 pt-3 space-y-2">
                   {attempt.auto_recommendation && (
