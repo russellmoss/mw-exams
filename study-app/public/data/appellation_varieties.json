@@ -1,0 +1,2363 @@
+{
+  "chablis": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Chablis regulations (all levels: Petit Chablis through Grand Cru)"
+  },
+  "meursault": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Meursault regulations (white)"
+  },
+  "puligny montrachet": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Puligny-Montrachet regulations"
+  },
+  "batard montrachet": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Batard-Montrachet Grand Cru regulations"
+  },
+  "corton charlemagne": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Corton-Charlemagne Grand Cru regulations"
+  },
+  "corton-charlemagne": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Corton-Charlemagne Grand Cru regulations"
+  },
+  "macon": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Macon/Macon-Villages regulations (white)"
+  },
+  "macon blanc": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Macon Blanc Villages regulations"
+  },
+  "macon blanc villages": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Macon Blanc Villages regulations"
+  },
+  "saint-romain": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Saint-Romain regulations (white)"
+  },
+  "saint romain": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Saint-Romain regulations (white)"
+  },
+  "bourgogne blanc": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Bourgogne regulations (white)"
+  },
+  "hautes cotes de beaune blanc": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Bourgogne Hautes Cotes de Beaune regulations (white)"
+  },
+  "gevrey chambertin": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Gevrey-Chambertin regulations"
+  },
+  "chambolle musigny": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Chambolle-Musigny regulations"
+  },
+  "nuits saint georges": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Nuits-Saint-Georges regulations"
+  },
+  "nuits-saint-georges": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Nuits-Saint-Georges regulations"
+  },
+  "cote de nuits villages": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Cote de Nuits-Villages regulations (red)"
+  },
+  "vougeot": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Vougeot regulations"
+  },
+  "clos vougeot": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Clos de Vougeot Grand Cru regulations"
+  },
+  "clos de vougeot": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Clos de Vougeot Grand Cru regulations"
+  },
+  "savigny les beaune": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Savigny-les-Beaune regulations (red)"
+  },
+  "savigny-les-beaune": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Savigny-les-Beaune regulations (red)"
+  },
+  "bourgogne rouge": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Bourgogne regulations (red)"
+  },
+  "bourgogne hautes cotes de beaune": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Bourgogne Hautes Cotes de Beaune regulations (red)"
+  },
+  "hautes cotes de beaune rouge": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Bourgogne Hautes Cotes de Beaune regulations (red)"
+  },
+  "monthelie": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC Monthelie regulations (red)"
+  },
+  "fleurie": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Fleurie (Beaujolais Cru) regulations"
+  },
+  "morgon": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Morgon (Beaujolais Cru) regulations"
+  },
+  "moulin a vent": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Moulin-a-Vent (Beaujolais Cru) regulations"
+  },
+  "moulin-a-vent": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Moulin-a-Vent (Beaujolais Cru) regulations"
+  },
+  "beaujolais": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Beaujolais regulations"
+  },
+  "beaujolais villages": {
+    "country": "France",
+    "region": "Beaujolais",
+    "varieties": [
+      "Gamay"
+    ],
+    "dominance": "100%",
+    "source": "AOC Beaujolais-Villages regulations"
+  },
+  "muscadet": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Melon de Bourgogne"
+    ],
+    "dominance": "100%",
+    "source": "AOC Muscadet regulations"
+  },
+  "muscadet sevre et maine": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Melon de Bourgogne"
+    ],
+    "dominance": "100%",
+    "source": "AOC Muscadet Sevre-et-Maine regulations"
+  },
+  "muscadet sevre-et-maine": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Melon de Bourgogne"
+    ],
+    "dominance": "100%",
+    "source": "AOC Muscadet Sevre-et-Maine regulations"
+  },
+  "vouvray": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Vouvray regulations"
+  },
+  "savennieres": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Savennieres regulations"
+  },
+  "sancerre": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Sauvignon Blanc"
+    ],
+    "dominance": "100%",
+    "notes": "White context. Red/Rose Sancerre uses Pinot Noir.",
+    "source": "AOC Sancerre regulations (white)"
+  },
+  "pouilly fume": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Sauvignon Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Pouilly-Fume regulations"
+  },
+  "pouilly-fume": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Sauvignon Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Pouilly-Fume regulations"
+  },
+  "chinon blanc": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Chinon regulations (white)"
+  },
+  "chinon": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "100%",
+    "notes": "Red Chinon. White Chinon is Chenin Blanc but rare.",
+    "source": "AOC Chinon regulations (red)"
+  },
+  "saumur champigny": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "100%",
+    "notes": "Minor Cabernet Sauvignon permitted up to 15%",
+    "source": "AOC Saumur-Champigny regulations"
+  },
+  "saumur-champigny": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "100%",
+    "notes": "Minor Cabernet Sauvignon permitted up to 15%",
+    "source": "AOC Saumur-Champigny regulations"
+  },
+  "bourgueil": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "100%",
+    "notes": "Minor Cabernet Sauvignon permitted up to 10%",
+    "source": "AOC Bourgueil regulations"
+  },
+  "st julien": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Julien regulations"
+  },
+  "saint julien": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Julien regulations"
+  },
+  "saint-julien": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Julien regulations"
+  },
+  "st estephe": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Estephe regulations"
+  },
+  "saint estephe": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Estephe regulations"
+  },
+  "saint-estephe": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Saint-Estephe regulations"
+  },
+  "pauillac": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Pauillac regulations"
+  },
+  "margaux": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Margaux regulations"
+  },
+  "haut medoc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Haut-Medoc regulations"
+  },
+  "haut-medoc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "source": "AOC Haut-Medoc regulations"
+  },
+  "pessac leognan": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "notes": "Red Pessac-Leognan. See pessac leognan blanc for white.",
+    "source": "AOC Pessac-Leognan regulations (red)"
+  },
+  "pessac-leognan": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Left Bank",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "notes": "Red Pessac-Leognan. See pessac leognan blanc for white.",
+    "source": "AOC Pessac-Leognan regulations (red)"
+  },
+  "st emilion": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Saint-Emilion regulations"
+  },
+  "saint emilion": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Saint-Emilion regulations"
+  },
+  "saint-emilion": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Saint-Emilion regulations"
+  },
+  "lussac saint emilion": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Lussac-Saint-Emilion regulations"
+  },
+  "lussac-saint-emilion": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Lussac-Saint-Emilion regulations"
+  },
+  "pomerol": {
+    "country": "France",
+    "region": "Bordeaux",
+    "sub_region": "Right Bank",
+    "varieties": [
+      "Merlot",
+      "Cabernet Franc",
+      "Cabernet Sauvignon"
+    ],
+    "dominance": "Merlot dominant",
+    "source": "AOC Pomerol regulations"
+  },
+  "pessac leognan blanc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "dominance": "varies (often Sauvignon Blanc dominant)",
+    "source": "AOC Pessac-Leognan regulations (white)"
+  },
+  "pessac-leognan blanc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "dominance": "varies (often Sauvignon Blanc dominant)",
+    "source": "AOC Pessac-Leognan regulations (white)"
+  },
+  "graves blanc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "dominance": "varies",
+    "source": "AOC Graves regulations (white)"
+  },
+  "bordeaux blanc": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "dominance": "varies",
+    "source": "AOC Bordeaux Blanc regulations"
+  },
+  "bordeaux blanc sec": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Sauvignon Blanc",
+      "Semillon"
+    ],
+    "dominance": "varies",
+    "source": "AOC Bordeaux Blanc Sec regulations"
+  },
+  "sauternes": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc",
+      "Muscadelle"
+    ],
+    "dominance": "Semillon dominant",
+    "notes": "Botrytis-affected sweet wine",
+    "source": "AOC Sauternes regulations"
+  },
+  "barsac": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc",
+      "Muscadelle"
+    ],
+    "dominance": "Semillon dominant",
+    "notes": "Botrytis-affected sweet wine. May also label as Sauternes.",
+    "source": "AOC Barsac regulations"
+  },
+  "sauternes-barsac": {
+    "country": "France",
+    "region": "Bordeaux",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc",
+      "Muscadelle"
+    ],
+    "dominance": "Semillon dominant",
+    "notes": "Botrytis-affected sweet wine",
+    "source": "AOC Sauternes/Barsac regulations"
+  },
+  "cote rotie": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah",
+      "Viognier"
+    ],
+    "dominance": "Syrah dominant (up to 20% Viognier allowed)",
+    "source": "AOC Cote-Rotie regulations"
+  },
+  "cote-rotie": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah",
+      "Viognier"
+    ],
+    "dominance": "Syrah dominant (up to 20% Viognier allowed)",
+    "source": "AOC Cote-Rotie regulations"
+  },
+  "cornas": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah"
+    ],
+    "dominance": "100%",
+    "source": "AOC Cornas regulations"
+  },
+  "crozes hermitage": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah"
+    ],
+    "dominance": "100%",
+    "notes": "Red. White Crozes-Hermitage uses Marsanne/Roussanne.",
+    "source": "AOC Crozes-Hermitage regulations (red)"
+  },
+  "crozes-hermitage": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah"
+    ],
+    "dominance": "100%",
+    "notes": "Red. White Crozes-Hermitage uses Marsanne/Roussanne.",
+    "source": "AOC Crozes-Hermitage regulations (red)"
+  },
+  "hermitage": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Syrah"
+    ],
+    "dominance": "100%",
+    "notes": "Red context. Up to 15% Marsanne/Roussanne permitted but rarely used. White Hermitage is Marsanne/Roussanne.",
+    "source": "AOC Hermitage regulations (red)"
+  },
+  "condrieu": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Viognier"
+    ],
+    "dominance": "100%",
+    "source": "AOC Condrieu regulations"
+  },
+  "saint peray": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Marsanne",
+      "Roussanne"
+    ],
+    "dominance": "varies",
+    "source": "AOC Saint-Peray regulations"
+  },
+  "saint-peray": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Marsanne",
+      "Roussanne"
+    ],
+    "dominance": "varies",
+    "source": "AOC Saint-Peray regulations"
+  },
+  "chateauneuf du pape": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre",
+      "Cinsault",
+      "Counoise",
+      "Vaccarese",
+      "Terret Noir",
+      "Muscardin"
+    ],
+    "dominance": "Grenache dominant",
+    "notes": "Red. 13 (now 18) permitted varieties but most blends led by Grenache.",
+    "source": "AOC Chateauneuf-du-Pape regulations (red)"
+  },
+  "chateauneuf-du-pape": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre",
+      "Cinsault",
+      "Counoise",
+      "Vaccarese",
+      "Terret Noir",
+      "Muscardin"
+    ],
+    "dominance": "Grenache dominant",
+    "notes": "Red. 13 (now 18) permitted varieties but most blends led by Grenache.",
+    "source": "AOC Chateauneuf-du-Pape regulations (red)"
+  },
+  "chateauneuf du pape blanc": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache Blanc",
+      "Clairette",
+      "Roussanne",
+      "Bourboulenc"
+    ],
+    "dominance": "varies",
+    "notes": "Also Picardan, Picpoul permitted",
+    "source": "AOC Chateauneuf-du-Pape regulations (white)"
+  },
+  "chateauneuf-du-pape blanc": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache Blanc",
+      "Clairette",
+      "Roussanne",
+      "Bourboulenc"
+    ],
+    "dominance": "varies",
+    "notes": "Also Picardan, Picpoul permitted",
+    "source": "AOC Chateauneuf-du-Pape regulations (white)"
+  },
+  "cotes du rhone": {
+    "country": "France",
+    "region": "Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre"
+    ],
+    "dominance": "varies (often Grenache dominant in Southern Rhone blends)",
+    "source": "AOC Cotes du Rhone regulations"
+  },
+  "cotes du rhone villages": {
+    "country": "France",
+    "region": "Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre"
+    ],
+    "dominance": "varies (Grenache dominant typical)",
+    "source": "AOC Cotes du Rhone-Villages regulations"
+  },
+  "cotes du rhone-villages": {
+    "country": "France",
+    "region": "Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre"
+    ],
+    "dominance": "varies (Grenache dominant typical)",
+    "source": "AOC Cotes du Rhone-Villages regulations"
+  },
+  "gigondas": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache",
+      "Syrah",
+      "Mourvedre"
+    ],
+    "dominance": "Grenache dominant (minimum 50%)",
+    "source": "AOC Gigondas regulations"
+  },
+  "barolo": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Nebbiolo"
+    ],
+    "dominance": "100%",
+    "source": "DOCG Barolo regulations"
+  },
+  "barbaresco": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Nebbiolo"
+    ],
+    "dominance": "100%",
+    "source": "DOCG Barbaresco regulations"
+  },
+  "brunello di montalcino": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Sangiovese"
+    ],
+    "dominance": "100%",
+    "notes": "Locally called Brunello, a clone of Sangiovese Grosso",
+    "source": "DOCG Brunello di Montalcino regulations"
+  },
+  "chianti classico": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Sangiovese"
+    ],
+    "dominance": "minimum 80%",
+    "notes": "Up to 20% other authorized red varieties (Canaiolo, Colorino, Cabernet Sauvignon, Merlot, Syrah)",
+    "source": "DOCG Chianti Classico regulations"
+  },
+  "valpolicella": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Corvina",
+      "Corvinone",
+      "Rondinella"
+    ],
+    "dominance": "Corvina/Corvinone dominant (45-95%)",
+    "source": "DOC Valpolicella regulations"
+  },
+  "amarone della valpolicella": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Corvina",
+      "Corvinone",
+      "Rondinella"
+    ],
+    "dominance": "Corvina/Corvinone dominant (45-95%)",
+    "notes": "Dried grape (appassimento) wine, typically 14-17% ABV",
+    "source": "DOCG Amarone della Valpolicella regulations"
+  },
+  "recioto della valpolicella": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Corvina",
+      "Corvinone",
+      "Rondinella"
+    ],
+    "dominance": "Corvina/Corvinone dominant (45-95%)",
+    "notes": "Sweet dried grape wine from Valpolicella",
+    "source": "DOCG Recioto della Valpolicella regulations"
+  },
+  "valpolicella ripasso": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Corvina",
+      "Corvinone",
+      "Rondinella"
+    ],
+    "dominance": "Corvina/Corvinone dominant (45-95%)",
+    "notes": "Refermented on Amarone/Recioto pomace",
+    "source": "DOC Valpolicella Ripasso Superiore regulations"
+  },
+  "soave": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Garganega"
+    ],
+    "dominance": "minimum 70%",
+    "notes": "Trebbiano di Soave and Chardonnay permitted up to 30%",
+    "source": "DOC Soave regulations"
+  },
+  "soave classico": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Garganega"
+    ],
+    "dominance": "minimum 70%",
+    "notes": "Trebbiano di Soave and Chardonnay permitted up to 30%",
+    "source": "DOC Soave Classico regulations"
+  },
+  "etna rosso": {
+    "country": "Italy",
+    "region": "Sicily",
+    "varieties": [
+      "Nerello Mascalese"
+    ],
+    "dominance": "minimum 80%",
+    "notes": "Up to 20% Nerello Cappuccio and other authorized varieties",
+    "source": "DOC Etna Rosso regulations"
+  },
+  "etna bianco": {
+    "country": "Italy",
+    "region": "Sicily",
+    "varieties": [
+      "Carricante"
+    ],
+    "dominance": "minimum 60%",
+    "notes": "Catarratto and other white varieties permitted up to 40%",
+    "source": "DOC Etna Bianco regulations"
+  },
+  "taurasi": {
+    "country": "Italy",
+    "region": "Campania",
+    "varieties": [
+      "Aglianico"
+    ],
+    "dominance": "minimum 85%",
+    "source": "DOCG Taurasi regulations"
+  },
+  "vin santo del chianti": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Trebbiano",
+      "Malvasia"
+    ],
+    "dominance": "varies (Trebbiano and/or Malvasia dominant)",
+    "notes": "Dried grape dessert wine. Some producers use Sangiovese for Occhio di Pernice style.",
+    "source": "DOC Vin Santo del Chianti regulations"
+  },
+  "vin santo del chianti classico": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Trebbiano",
+      "Malvasia"
+    ],
+    "dominance": "varies (Trebbiano and/or Malvasia dominant)",
+    "notes": "Dried grape dessert wine from Chianti Classico zone",
+    "source": "DOC Vin Santo del Chianti Classico regulations"
+  },
+  "vin santo del chianti rufina": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Trebbiano",
+      "Malvasia"
+    ],
+    "dominance": "varies (Trebbiano and/or Malvasia dominant)",
+    "notes": "Dried grape dessert wine from Chianti Rufina zone",
+    "source": "DOC Vin Santo del Chianti Rufina regulations"
+  },
+  "vin santo": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Trebbiano",
+      "Malvasia"
+    ],
+    "dominance": "varies",
+    "notes": "General Vin Santo. Specific sub-zones have own DOC.",
+    "source": "DOC Vin Santo regulations"
+  },
+  "prosecco": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "minimum 85%",
+    "source": "DOC Prosecco regulations"
+  },
+  "prosecco superiore": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "DOCG level from Conegliano-Valdobbiadene or Asolo",
+    "source": "DOCG Prosecco Superiore regulations"
+  },
+  "lambrusco": {
+    "country": "Italy",
+    "region": "Emilia-Romagna",
+    "varieties": [
+      "Lambrusco"
+    ],
+    "dominance": "100%",
+    "notes": "Multiple sub-varieties: Lambrusco di Sorbara, Grasparossa, Salamino, etc.",
+    "source": "DOC Lambrusco regulations (various sub-DOCs)"
+  },
+  "franciacorta": {
+    "country": "Italy",
+    "region": "Lombardy",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Blanc"
+    ],
+    "dominance": "varies (Chardonnay dominant typical)",
+    "notes": "Traditional method sparkling. Erbamat also now permitted.",
+    "source": "DOCG Franciacorta regulations"
+  },
+  "montepulciano d'abruzzo": {
+    "country": "Italy",
+    "region": "Abruzzo",
+    "varieties": [
+      "Montepulciano"
+    ],
+    "dominance": "minimum 85%",
+    "source": "DOC Montepulciano d'Abruzzo regulations"
+  },
+  "brachetto d'acqui": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Brachetto"
+    ],
+    "dominance": "100%",
+    "notes": "Sweet, low-alcohol, lightly sparkling red wine",
+    "source": "DOCG Brachetto d'Acqui regulations"
+  },
+  "moscato d'asti": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Moscato Bianco"
+    ],
+    "dominance": "100%",
+    "notes": "Sweet, low-alcohol (5-6.5% ABV), lightly sparkling (frizzante)",
+    "source": "DOCG Moscato d'Asti regulations"
+  },
+  "barbera d'alba": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Barbera"
+    ],
+    "dominance": "100%",
+    "source": "DOC Barbera d'Alba regulations"
+  },
+  "roero arneis": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Arneis"
+    ],
+    "dominance": "100%",
+    "source": "DOCG Roero Arneis regulations"
+  },
+  "nebbiolo delle langhe": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Nebbiolo"
+    ],
+    "dominance": "minimum 85%",
+    "source": "DOC Langhe Nebbiolo regulations"
+  },
+  "passito di pantelleria": {
+    "country": "Italy",
+    "region": "Sicily",
+    "varieties": [
+      "Muscat of Alexandria"
+    ],
+    "dominance": "100% (Zibibbo)",
+    "source": "Passito di Pantelleria DOC regulations"
+  },
+  "rioja": {
+    "country": "Spain",
+    "region": "Rioja",
+    "varieties": [
+      "Tempranillo",
+      "Garnacha",
+      "Mazuelo",
+      "Graciano"
+    ],
+    "dominance": "Tempranillo dominant",
+    "notes": "Red context. Some modern Riojas use international varieties.",
+    "source": "DOCa Rioja regulations (red)"
+  },
+  "rioja blanco": {
+    "country": "Spain",
+    "region": "Rioja",
+    "varieties": [
+      "Viura",
+      "Malvasia",
+      "Garnacha Blanca"
+    ],
+    "dominance": "traditionally Viura dominant",
+    "notes": "Modern styles may include Tempranillo Blanco, Maturana Blanca, Verdejo",
+    "source": "DOCa Rioja regulations (white)"
+  },
+  "cava": {
+    "country": "Spain",
+    "region": "Penedes",
+    "varieties": [
+      "Xarel-lo",
+      "Macabeo",
+      "Parellada"
+    ],
+    "dominance": "varies (traditional three-grape blend)",
+    "notes": "Chardonnay and Pinot Noir also now permitted. Traditional method sparkling.",
+    "source": "DO Cava regulations"
+  },
+  "sherry fino": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Biologically aged under flor",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "fino": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Biologically aged under flor",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "manzanilla": {
+    "country": "Spain",
+    "region": "Sanlucar de Barrameda",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Fino-style sherry from Sanlucar de Barrameda. Biologically aged under flor.",
+    "source": "DO Manzanilla-Sanlucar de Barrameda regulations"
+  },
+  "oloroso": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Oxidatively aged. Naturally dry, may be sweetened for commercial styles.",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "palo cortado": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Rare style combining fino nose with oloroso body",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "amontillado": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Initially biologically aged, then oxidatively aged",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "pedro ximenez": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Pedro Ximenez"
+    ],
+    "dominance": "100%",
+    "notes": "Extremely sweet dessert sherry from sun-dried grapes",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "jerez": {
+    "country": "Spain",
+    "region": "Jerez",
+    "varieties": [
+      "Palomino"
+    ],
+    "dominance": "100%",
+    "notes": "Generic sherry designation. Pedro Ximenez and Moscatel for sweet styles.",
+    "source": "DO Jerez-Xeres-Sherry regulations"
+  },
+  "montsant": {
+    "country": "Spain",
+    "region": "Catalonia",
+    "varieties": [
+      "Garnacha",
+      "Carinena"
+    ],
+    "dominance": "varies (often Garnacha dominant)",
+    "source": "DO Montsant regulations"
+  },
+  "port": {
+    "country": "Portugal",
+    "region": "Douro",
+    "varieties": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao"
+    ],
+    "dominance": "varies (field blends traditional; Touriga Nacional most prized)",
+    "notes": "All styles: Vintage/Vintage Port, Ruby, Tawny, LBV, Colheita, White",
+    "source": "DOC Porto/Port regulations"
+  },
+  "vintage port": {
+    "country": "Portugal",
+    "region": "Douro",
+    "varieties": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao"
+    ],
+    "dominance": "varies",
+    "notes": "Vintage-dated Port, bottle-aged",
+    "source": "DOC Porto/Port regulations"
+  },
+  "tawny port": {
+    "country": "Portugal",
+    "region": "Douro",
+    "varieties": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao"
+    ],
+    "dominance": "varies",
+    "notes": "Barrel-aged. Indicated age (10/20/30/40 year) or Colheita.",
+    "source": "DOC Porto/Port regulations"
+  },
+  "ruby port": {
+    "country": "Portugal",
+    "region": "Douro",
+    "varieties": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz",
+      "Tinta Barroca",
+      "Tinto Cao"
+    ],
+    "dominance": "varies",
+    "notes": "Fruit-forward, minimal barrel aging",
+    "source": "DOC Porto/Port regulations"
+  },
+  "madeira": {
+    "country": "Portugal",
+    "region": "Madeira",
+    "varieties": [
+      "Sercial",
+      "Verdelho",
+      "Boal",
+      "Malmsey",
+      "Tinta Negra"
+    ],
+    "dominance": "depends on style label",
+    "notes": "If labeled by noble variety (Sercial/Verdelho/Boal/Malmsey), must be minimum 85% that variety. Otherwise typically Tinta Negra.",
+    "source": "DOC Madeira regulations"
+  },
+  "madeira sercial": {
+    "country": "Portugal",
+    "region": "Madeira",
+    "varieties": [
+      "Sercial"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "Driest style of Madeira",
+    "source": "DOC Madeira regulations"
+  },
+  "madeira verdelho": {
+    "country": "Portugal",
+    "region": "Madeira",
+    "varieties": [
+      "Verdelho"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "Medium-dry style of Madeira",
+    "source": "DOC Madeira regulations"
+  },
+  "madeira boal": {
+    "country": "Portugal",
+    "region": "Madeira",
+    "varieties": [
+      "Boal"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "Medium-sweet style of Madeira. Also spelled Bual.",
+    "source": "DOC Madeira regulations"
+  },
+  "madeira malmsey": {
+    "country": "Portugal",
+    "region": "Madeira",
+    "varieties": [
+      "Malmsey"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "Sweetest style of Madeira. Also known as Malvasia.",
+    "source": "DOC Madeira regulations"
+  },
+  "douro": {
+    "country": "Portugal",
+    "region": "Douro",
+    "varieties": [
+      "Touriga Nacional",
+      "Touriga Franca",
+      "Tinta Roriz"
+    ],
+    "dominance": "varies",
+    "notes": "Unfortified table wine from the Douro Valley",
+    "source": "DOC Douro regulations"
+  },
+  "mateus": {
+    "country": "Portugal",
+    "region": "Portugal",
+    "varieties": [
+      "Baga",
+      "Rufete",
+      "Touriga Nacional",
+      "Tinta Barroca"
+    ],
+    "dominance": "varies",
+    "notes": "Commercial brand rose wine. Not an appellation but a brand name.",
+    "source": "Brand/producer specifications"
+  },
+  "champagne": {
+    "country": "France",
+    "region": "Champagne",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "dominance": "varies by house/style",
+    "notes": "Traditional method sparkling wine",
+    "source": "AOC Champagne regulations"
+  },
+  "blanc de blancs": {
+    "country": "France",
+    "region": "Champagne",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "notes": "Champagne context. Made exclusively from white grapes (Chardonnay).",
+    "source": "AOC Champagne regulations (Blanc de Blancs)"
+  },
+  "blanc de noirs": {
+    "country": "France",
+    "region": "Champagne",
+    "varieties": [
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "dominance": "varies",
+    "notes": "Champagne context. White wine made from black grapes only.",
+    "source": "AOC Champagne regulations (Blanc de Noirs)"
+  },
+  "cremant d'alsace": {
+    "country": "France",
+    "region": "Alsace",
+    "varieties": [
+      "Pinot Blanc",
+      "Auxerrois",
+      "Riesling",
+      "Pinot Gris",
+      "Chardonnay"
+    ],
+    "dominance": "varies (Pinot Blanc/Auxerrois most common)",
+    "notes": "Traditional method sparkling from Alsace",
+    "source": "AOC Cremant d'Alsace regulations"
+  },
+  "cremant de bourgogne": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Aligote"
+    ],
+    "dominance": "varies",
+    "notes": "Traditional method sparkling from Burgundy. Gamay also permitted.",
+    "source": "AOC Cremant de Bourgogne regulations"
+  },
+  "cremant de loire": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc",
+      "Cabernet Franc",
+      "Chardonnay"
+    ],
+    "dominance": "varies",
+    "notes": "Traditional method sparkling from the Loire Valley",
+    "source": "AOC Cremant de Loire regulations"
+  },
+  "bandol": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Mourvedre",
+      "Grenache",
+      "Cinsault"
+    ],
+    "dominance": "Mourvedre minimum 50%",
+    "notes": "Red context. Bandol rose uses same varieties but Mourvedre can be lower.",
+    "source": "AOC Bandol regulations (red)"
+  },
+  "provence rose": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Grenache",
+      "Cinsault",
+      "Mourvedre",
+      "Syrah"
+    ],
+    "dominance": "varies (often Grenache/Cinsault led)",
+    "notes": "Tibouren, Carignan, and Cabernet Sauvignon also permitted",
+    "source": "AOC Cotes de Provence regulations (rose)"
+  },
+  "cotes de provence": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Grenache",
+      "Cinsault",
+      "Mourvedre",
+      "Syrah"
+    ],
+    "dominance": "varies (often Grenache/Cinsault led for rose; Syrah/Mourvedre for red)",
+    "notes": "Predominantly rose production (~88% of output)",
+    "source": "AOC Cotes de Provence regulations"
+  },
+  "cote de provence": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Grenache",
+      "Cinsault",
+      "Mourvedre",
+      "Syrah"
+    ],
+    "dominance": "varies",
+    "source": "AOC Cotes de Provence regulations"
+  },
+  "maury": {
+    "country": "France",
+    "region": "Roussillon",
+    "varieties": [
+      "Grenache Noir"
+    ],
+    "dominance": "minimum 75%",
+    "notes": "Vin Doux Naturel (fortified sweet wine)",
+    "source": "AOC Maury regulations"
+  },
+  "banyuls": {
+    "country": "France",
+    "region": "Roussillon",
+    "varieties": [
+      "Grenache Noir"
+    ],
+    "dominance": "minimum 50% (Grand Cru: 75%)",
+    "notes": "Vin Doux Naturel (fortified sweet wine)",
+    "source": "AOC Banyuls regulations"
+  },
+  "cahors": {
+    "country": "France",
+    "region": "South West France",
+    "varieties": [
+      "Malbec"
+    ],
+    "dominance": "minimum 70%",
+    "notes": "Locally known as Cot or Auxerrois. Merlot and Tannat as blending partners.",
+    "source": "AOC Cahors regulations"
+  },
+  "jurancon": {
+    "country": "France",
+    "region": "South West France",
+    "varieties": [
+      "Gros Manseng",
+      "Petit Manseng"
+    ],
+    "dominance": "varies",
+    "notes": "Jurancon Sec is dry; Jurancon (without Sec) is sweet/late harvest. Courbu also permitted.",
+    "source": "AOC Jurancon regulations"
+  },
+  "jurancon sec": {
+    "country": "France",
+    "region": "South West France",
+    "varieties": [
+      "Gros Manseng",
+      "Petit Manseng"
+    ],
+    "dominance": "varies",
+    "notes": "Dry version. Courbu also permitted.",
+    "source": "AOC Jurancon Sec regulations"
+  },
+  "vin jaune": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Savagnin"
+    ],
+    "dominance": "100%",
+    "notes": "Aged under a veil of flor yeast for minimum 6 years and 3 months in barrel",
+    "source": "AOC Vin Jaune regulations (Arbois, Chateau-Chalon, L'Etoile, Cotes du Jura)"
+  },
+  "arbois savagnin": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Savagnin"
+    ],
+    "dominance": "100%",
+    "notes": "Can be made in oxidative (sous voile) or ouille (topped up) style",
+    "source": "AOC Arbois regulations"
+  },
+  "arbois": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Savagnin",
+      "Chardonnay"
+    ],
+    "dominance": "varies",
+    "notes": "White Arbois can be Savagnin, Chardonnay, or blend. Red Arbois uses Poulsard, Trousseau, Pinot Noir.",
+    "source": "AOC Arbois regulations"
+  },
+  "l'etoile": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Chardonnay",
+      "Savagnin"
+    ],
+    "dominance": "varies",
+    "notes": "White wines only. Can be still, sparkling, or Vin Jaune style.",
+    "source": "AOC L'Etoile regulations"
+  },
+  "muscat de beaumes de venise": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Muscat a Petits Grains"
+    ],
+    "dominance": "100%",
+    "notes": "Vin Doux Naturel. Both white and pink Muscat permitted.",
+    "source": "AOC Muscat de Beaumes-de-Venise regulations"
+  },
+  "sekt": {
+    "country": "Germany",
+    "region": "Germany",
+    "varieties": [
+      "Riesling"
+    ],
+    "dominance": "varies",
+    "notes": "If Rheingau/Mosel origin, typically Riesling. Generic Sekt may use various varieties. Winzersekt must be estate-grown.",
+    "source": "German wine law (Sekt b.A. and Winzersekt regulations)"
+  },
+  "tokaji aszu": {
+    "country": "Hungary",
+    "region": "Tokaj",
+    "varieties": [
+      "Furmint",
+      "Harslevelu",
+      "Muscat Lunel"
+    ],
+    "dominance": "Furmint dominant (typically 60-70%)",
+    "notes": "Botrytis-affected sweet wine. Puttonyos indicates sweetness level.",
+    "source": "Tokaji wine law (OEM regulations)"
+  },
+  "tokaji szamorodni": {
+    "country": "Hungary",
+    "region": "Tokaj",
+    "varieties": [
+      "Furmint",
+      "Harslevelu"
+    ],
+    "dominance": "Furmint dominant",
+    "notes": "Made from whole bunches including botrytised berries. Can be sweet (edes) or dry (szaraz).",
+    "source": "Tokaji wine law (OEM regulations)"
+  },
+  "tokaji": {
+    "country": "Hungary",
+    "region": "Tokaj",
+    "varieties": [
+      "Furmint",
+      "Harslevelu",
+      "Muscat Lunel"
+    ],
+    "dominance": "Furmint dominant",
+    "notes": "Generic Tokaji designation. Dry Furmint increasingly important.",
+    "source": "Tokaji wine law (OEM regulations)"
+  },
+  "english sparkling": {
+    "country": "England",
+    "region": "England",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Pinot Meunier"
+    ],
+    "dominance": "varies",
+    "notes": "Traditional method sparkling. Same three Champagne varieties dominant.",
+    "source": "PDO English Sparkling Wine / WineGB guidelines"
+  },
+  "rutherglen muscat": {
+    "country": "Australia",
+    "region": "Victoria",
+    "varieties": [
+      "Muscat a Petits Grains"
+    ],
+    "dominance": "100%",
+    "notes": "Also known as Brown Muscat. Fortified sweet wine classified as Rutherglen/Classic/Grand/Rare.",
+    "source": "Rutherglen Muscat classification system (AWBC)"
+  },
+  "magnificat, franciscan": {
+    "country": "USA",
+    "region": "Napa Valley",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Cabernet Sauvignon dominant (Napa Meritage)",
+    "source": "Franciscan Estate winery records"
+  },
+  "rubicon, meerlust": {
+    "country": "South Africa",
+    "region": "Stellenbosch",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Cabernet Sauvignon dominant",
+    "notes": "Stellenbosch Bordeaux-style blend. Flagship wine of Meerlust Estate.",
+    "source": "Producer specifications (Meerlust Estate)"
+  },
+  "v, vergelegen": {
+    "country": "South Africa",
+    "region": "Stellenbosch",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Bordeaux-style blend",
+    "source": "Vergelegen estate producer records"
+  },
+  "vigna d'alceo, castello dei rampolla": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant (Super Tuscan)",
+    "source": "Castello dei Rampolla producer records"
+  },
+  "lytton springs, ridge": {
+    "country": "USA",
+    "region": "Dry Creek Valley, Sonoma",
+    "varieties": [
+      "Zinfandel",
+      "Petite Sirah",
+      "Carignan"
+    ],
+    "dominance": "Zinfandel dominant",
+    "notes": "Historic field blend. Proportions vary by vintage.",
+    "source": "Producer specifications (Ridge Vineyards)"
+  },
+  "cullen amber": {
+    "country": "Australia",
+    "region": "Margaret River",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc"
+    ],
+    "dominance": "varies",
+    "notes": "Skin-contact orange wine. Extended maceration on skins.",
+    "source": "Producer specifications (Cullen Wines)"
+  },
+  "inopia blanc, rotem & mounir saouma": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "varieties": [
+      "Grenache Blanc",
+      "Clairette",
+      "Roussanne",
+      "Bourboulenc"
+    ],
+    "dominance": "varies",
+    "notes": "Cotes du Rhone-Villages white blend",
+    "source": "Producer specifications (Rotem & Mounir Saouma)"
+  },
+  "dom perignon": {
+    "country": "France",
+    "region": "Champagne",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir"
+    ],
+    "dominance": "varies (roughly equal proportions typical)",
+    "notes": "Vintage Champagne. Moet & Chandon prestige cuvee.",
+    "source": "Producer specifications (Moet & Chandon)"
+  },
+  "vecchio samperi, marco de bartoli": {
+    "country": "Italy",
+    "region": "Sicily",
+    "varieties": [
+      "Grillo"
+    ],
+    "dominance": "100%",
+    "notes": "Unfortified perpetual solera wine. Marsala-adjacent style without fortification.",
+    "source": "Producer specifications (Marco de Bartoli)"
+  },
+  "beerenauslese cuvee, kracher": {
+    "country": "Austria",
+    "region": "Burgenland",
+    "varieties": [
+      "Chardonnay",
+      "Welschriesling"
+    ],
+    "dominance": "varies by vintage",
+    "notes": "Botrytis-affected sweet wine from Neusiedlersee",
+    "source": "Producer specifications (Kracher)"
+  },
+  "knightor vineyard rose": {
+    "country": "England",
+    "region": "Cornwall",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "notes": "English sparkling rose",
+    "source": "Producer specifications (Knightor Vineyard)"
+  },
+  "la bruja, comando g": {
+    "country": "Spain",
+    "region": "Sierra de Gredos",
+    "varieties": [
+      "Garnacha"
+    ],
+    "dominance": "100%",
+    "notes": "Old-vine Garnacha from high-altitude granitic soils",
+    "source": "Producer specifications (Comando G)"
+  },
+  "aranum, tenuta di arceno": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Sangiovese",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Super Tuscan IGT blend",
+    "source": "Tenuta di Arceno producer records"
+  },
+  "nuits st georges": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "source": "AOC regulations (red Burgundy = Pinot Noir)"
+  },
+  "billette rose": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Grenache",
+      "Cinsault",
+      "Syrah"
+    ],
+    "dominance": "Grenache-led typical Provence blend",
+    "source": "Provence AOC regulations"
+  },
+  "pelorus": {
+    "country": "New Zealand",
+    "region": "Marlborough",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir"
+    ],
+    "dominance": "Traditional method sparkling",
+    "source": "Cloudy Bay producer records"
+  },
+  "amber, cullen": {
+    "country": "Australia",
+    "region": "Margaret River",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc"
+    ],
+    "dominance": "Semillon/Sauvignon Blanc skin-contact orange wine",
+    "source": "Cullen Wines producer records"
+  },
+  "villanyi franc": {
+    "country": "Hungary",
+    "region": "Villany",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "100%",
+    "source": "Villany PDO regulations; Franc = Cabernet Franc in Hungarian context"
+  },
+  "cuvee speciale, domaine de montbourgeau": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Chardonnay",
+      "Savagnin"
+    ],
+    "dominance": "Chardonnay/Savagnin (sous voile style)",
+    "source": "L'Etoile AOC regulations"
+  },
+  "ben rye passito": {
+    "country": "Italy",
+    "region": "Sicily",
+    "varieties": [
+      "Muscat of Alexandria"
+    ],
+    "dominance": "100% (Zibibbo)",
+    "source": "Passito di Pantelleria DOC regulations",
+    "notes": "Zibibbo = Muscat of Alexandria"
+  },
+  "kim crawford rose": {
+    "country": "New Zealand",
+    "region": "Marlborough",
+    "varieties": [
+      "Pinot Noir",
+      "Merlot"
+    ],
+    "dominance": "varies",
+    "source": "Kim Crawford producer records"
+  },
+  "brut quartet, roederer estate": {
+    "country": "USA",
+    "region": "Anderson Valley",
+    "varieties": [
+      "Chardonnay",
+      "Pinot Noir"
+    ],
+    "dominance": "Traditional method sparkling",
+    "source": "Roederer Estate producer records"
+  },
+  "para grand tawny": {
+    "country": "Australia",
+    "region": "Barossa Valley",
+    "varieties": [
+      "Shiraz",
+      "Grenache",
+      "Mourvedre"
+    ],
+    "dominance": "Australian fortified tawny blend",
+    "source": "Seppeltsfield producer records"
+  },
+  "j schram": {
+    "country": "USA",
+    "region": "California",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100% (Blanc de Blancs)",
+    "source": "Schramsberg producer records"
+  },
+  "cuvee juveniles, torbreck": {
+    "country": "Australia",
+    "region": "Barossa Valley",
+    "varieties": [
+      "Grenache",
+      "Shiraz",
+      "Mourvedre"
+    ],
+    "dominance": "Grenache-dominant GSM",
+    "source": "Torbreck Vintners producer records"
+  },
+  "toscana igt": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Sangiovese",
+      "Cabernet Sauvignon",
+      "Merlot"
+    ],
+    "dominance": "varies (Super Tuscan category)",
+    "source": "IGT Toscana regulations",
+    "notes": "Catch-all for Super Tuscan wines; actual blend varies by producer"
+  },
+  "magnificat": {
+    "country": "USA",
+    "region": "Napa Valley",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Cabernet Sauvignon dominant (Napa Meritage)",
+    "source": "Franciscan Estate winery records"
+  },
+  "amber": {
+    "country": "Australia",
+    "region": "Margaret River",
+    "varieties": [
+      "Semillon",
+      "Sauvignon Blanc"
+    ],
+    "dominance": "Semillon/Sauvignon Blanc skin-contact orange wine",
+    "source": "Cullen Wines producer records"
+  },
+  "vigna d'alceo": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant (Super Tuscan)",
+    "source": "Castello dei Rampolla producer records"
+  },
+  "vigna d alceo": {
+    "country": "Italy",
+    "region": "Tuscany",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Petit Verdot"
+    ],
+    "dominance": "Cabernet Sauvignon dominant (Super Tuscan)",
+    "source": "Castello dei Rampolla producer records"
+  },
+  "vergelegen": {
+    "country": "South Africa",
+    "region": "Stellenbosch",
+    "varieties": [
+      "Cabernet Sauvignon",
+      "Merlot",
+      "Cabernet Franc"
+    ],
+    "dominance": "Bordeaux-style blend",
+    "source": "Vergelegen estate producer records"
+  },
+  "kim crawford": {
+    "country": "New Zealand",
+    "region": "Marlborough",
+    "varieties": [
+      "Pinot Noir",
+      "Merlot"
+    ],
+    "dominance": "varies",
+    "source": "Kim Crawford producer"
+  },
+  "para": {
+    "country": "Australia",
+    "region": "Barossa Valley",
+    "varieties": [
+      "Shiraz",
+      "Grenache",
+      "Mourvedre"
+    ],
+    "dominance": "Australian fortified tawny",
+    "source": "Seppeltsfield records"
+  },
+  "seppeltsfield": {
+    "country": "Australia",
+    "region": "Barossa Valley",
+    "varieties": [
+      "Shiraz",
+      "Grenache",
+      "Mourvedre"
+    ],
+    "dominance": "Australian fortified tawny",
+    "source": "Seppeltsfield records"
+  },
+  "clement klur": {
+    "country": "France",
+    "region": "Alsace",
+    "varieties": [
+      "Pinot Blanc",
+      "Auxerrois",
+      "Riesling",
+      "Pinot Gris"
+    ],
+    "dominance": "Cremant d'Alsace blend",
+    "source": "Clement Klur producer records"
+  },
+  "montlouis-sur-loire": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Montlouis-sur-Loire (still + traditional-method sparkling)"
+  },
+  "quarts de chaume": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Quarts de Chaume Grand Cru (sweet Chenin Blanc)"
+  },
+  "coteaux du layon": {
+    "country": "France",
+    "region": "Loire",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Coteaux du Layon (sweet Chenin Blanc)"
+  },
+  "toro": {
+    "country": "Spain",
+    "region": "Castilla y Leon",
+    "varieties": [
+      "Tempranillo"
+    ],
+    "dominance": "min 75% Tinta de Toro (Tempranillo)",
+    "source": "DO Toro"
+  },
+  "priorat": {
+    "country": "Spain",
+    "region": "Catalonia",
+    "varieties": [
+      "Grenache",
+      "Carignan"
+    ],
+    "dominance": "old-vine Garnacha + Carinena, often blended with Cabernet/Syrah",
+    "source": "DOQ Priorat"
+  },
+  "bierzo": {
+    "country": "Spain",
+    "region": "Castilla y Leon",
+    "varieties": [
+      "Mencia"
+    ],
+    "dominance": "red Mencia",
+    "notes": "Whites are Godello",
+    "source": "DO Bierzo"
+  },
+  "gattinara": {
+    "country": "Italy",
+    "region": "Piedmont",
+    "varieties": [
+      "Nebbiolo"
+    ],
+    "dominance": "min 90% Nebbiolo (Spanna)",
+    "source": "DOCG Gattinara"
+  },
+  "vosne-romanee": {
+    "country": "France",
+    "region": "Burgundy",
+    "varieties": [
+      "Pinot Noir"
+    ],
+    "dominance": "100%",
+    "notes": "Cote de Nuits, red only",
+    "source": "AOC Vosne-Romanee"
+  },
+  "valdobbiadene": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "min 85% Glera",
+    "source": "DOCG Conegliano Valdobbiadene Prosecco"
+  },
+  "cartizze": {
+    "country": "Italy",
+    "region": "Veneto",
+    "varieties": [
+      "Glera"
+    ],
+    "dominance": "min 85% Glera",
+    "source": "DOCG Valdobbiadene Superiore di Cartizze"
+  },
+  "amyndeon": {
+    "country": "Greece",
+    "region": "Macedonia",
+    "varieties": [
+      "Xinomavro"
+    ],
+    "dominance": "100%",
+    "notes": "Red / rose / sparkling",
+    "source": "PDO Amyndeon"
+  },
+  "penedes": {
+    "country": "Spain",
+    "region": "Catalonia",
+    "varieties": [
+      "Xarel-lo",
+      "Macabeo",
+      "Parellada"
+    ],
+    "dominance": "traditional-method sparkling (Cava/Corpinnat) blend",
+    "notes": "For sparkling; still Penedes varieties vary",
+    "source": "DO Penedes / DO Cava"
+  },
+  "graves": {
+    "country": "France",
+    "region": "Bordeaux",
+    "byColor": {
+      "white": [
+        "Sauvignon Blanc",
+        "Semillon"
+      ],
+      "red": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc"
+      ]
+    },
+    "notes": "Graves Blanc = Sauvignon Blanc/Semillon; Graves Rouge = Bordeaux blend",
+    "source": "AOC Graves"
+  },
+  "anjou": {
+    "country": "France",
+    "region": "Loire",
+    "byColor": {
+      "white": [
+        "Chenin Blanc"
+      ],
+      "red": [
+        "Cabernet Franc",
+        "Cabernet Sauvignon"
+      ]
+    },
+    "notes": "Anjou Blanc = Chenin; Anjou Rouge = Cabernet Franc",
+    "source": "AOC Anjou"
+  },
+  "mercurey": {
+    "country": "France",
+    "region": "Burgundy",
+    "byColor": {
+      "red": [
+        "Pinot Noir"
+      ],
+      "white": [
+        "Chardonnay"
+      ]
+    },
+    "notes": "Cote Chalonnaise; predominantly red Pinot Noir",
+    "source": "AOC Mercurey"
+  },
+  "saint-joseph": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "byColor": {
+      "red": [
+        "Syrah"
+      ],
+      "white": [
+        "Marsanne",
+        "Roussanne"
+      ]
+    },
+    "notes": "Red Syrah; white Marsanne/Roussanne",
+    "source": "AOC Saint-Joseph"
+  },
+  "lirac": {
+    "country": "France",
+    "region": "Southern Rhone",
+    "byColor": {
+      "red": [
+        "Grenache",
+        "Syrah",
+        "Mourvedre"
+      ],
+      "white": [
+        "Grenache Blanc",
+        "Clairette",
+        "Viognier"
+      ],
+      "rose": [
+        "Grenache"
+      ]
+    },
+    "notes": "GSM reds; white Rhone blends",
+    "source": "AOC Lirac"
+  },
+  "bourgogne cote chalonnaise": {
+    "country": "France",
+    "region": "Burgundy",
+    "byColor": {
+      "red": [
+        "Pinot Noir"
+      ],
+      "white": [
+        "Chardonnay"
+      ]
+    },
+    "notes": "Regional Burgundy from the Cote Chalonnaise",
+    "source": "AOC Bourgogne Cote Chalonnaise"
+  },
+  "etna": {
+    "country": "Italy",
+    "region": "Sicily",
+    "byColor": {
+      "red": [
+        "Nerello Mascalese"
+      ],
+      "white": [
+        "Carricante"
+      ]
+    },
+    "notes": "Etna Rosso = Nerello Mascalese; Etna Bianco = Carricante",
+    "source": "DOC Etna"
+  }
+}

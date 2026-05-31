@@ -1,0 +1,246 @@
+{
+  "_comment": "Proprietary/icon blends with no variety-in-name and no single-variety appellation, for Stem Sniper answer-key derivation. Researched 2026-05-30 with sources. ground_truth variety for these = the blend; dominant is the lead grape (null where the producer does not disclose). Match = case/accent/hyphen-insensitive substring of the wine fullText.",
+  "entries": [
+    {
+      "match": "trevallon",
+      "wine": "Domaine de Trévallon",
+      "country": "France",
+      "region": "Provence (IGP Alpilles)",
+      "varieties": [
+        "Cabernet Sauvignon",
+        "Syrah"
+      ],
+      "dominant": "Cabernet Sauvignon",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.decanter.com/premium/domaine-de-trevallon-the-new-generation-takes-charge-537407"
+    },
+    {
+      "match": "arlay",
+      "wine": "Château d'Arlay Vin de Paille",
+      "country": "France",
+      "region": "Jura (Côtes du Jura)",
+      "varieties": [
+        "Savagnin",
+        "Chardonnay",
+        "Poulsard",
+        "Trousseau"
+      ],
+      "dominant": "Savagnin",
+      "is_blend": true,
+      "confidence": "medium",
+      "source": "https://www.deconinckwine.com/en/produit/cote-du-jura-vin-de-paille-2019"
+    },
+    {
+      "match": "altenberg de bergheim",
+      "wine": "Marcel Deiss Altenberg de Bergheim Grand Cru",
+      "country": "France",
+      "region": "Alsace",
+      "varieties": [
+        "Riesling",
+        "Gewurztraminer",
+        "Pinot Gris",
+        "Pinot Blanc",
+        "Muscat",
+        "Sylvaner",
+        "Pinot Noir",
+        "Chasselas"
+      ],
+      "dominant": "Riesling",
+      "is_blend": true,
+      "confidence": "medium",
+      "source": "https://marceldeiss.com/en/cms/2-complantation",
+      "notes": "Co-planted field blend (complantation); Riesling-structured per INAO multi-variety rules"
+    },
+    {
+      "match": "terre alte",
+      "wine": "Livio Felluga Terre Alte Bianco",
+      "country": "Italy",
+      "region": "Friuli Colli Orientali",
+      "varieties": [
+        "Friulano",
+        "Pinot Blanc",
+        "Sauvignon Blanc"
+      ],
+      "dominant": "Friulano",
+      "is_blend": true,
+      "confidence": "medium",
+      "source": "https://www.liviofelluga.it/en/wines/terre-alte/"
+    },
+    {
+      "match": "quincha corral",
+      "wine": "Mustiguillo Quincha Corral",
+      "country": "Spain",
+      "region": "Valencia (VdlT El Terrerazo)",
+      "varieties": [
+        "Bobal"
+      ],
+      "dominant": "Bobal",
+      "is_blend": false,
+      "confidence": "high",
+      "source": "https://mustiguillo.com/producto/quincha-corral"
+    },
+    {
+      "match": "runrig",
+      "wine": "Torbreck RunRig",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "varieties": [
+        "Syrah",
+        "Viognier"
+      ],
+      "dominant": "Syrah",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://torbreck.com/collections/current-vintage",
+      "notes": "Shiraz co-fermented with a little Viognier"
+    },
+    {
+      "match": "dry red wine no 2",
+      "wine": "Yarra Yering Dry Red Wine No. 2",
+      "country": "Australia",
+      "region": "Yarra Valley",
+      "varieties": [
+        "Syrah",
+        "Mourvedre",
+        "Marsanne",
+        "Viognier"
+      ],
+      "dominant": "Syrah",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://shop.yarrayering.com/2022-dry-red-wine-no-2",
+      "notes": "Rhône-style; distinct from No.1 (Bordeaux blend)"
+    },
+    {
+      "match": "sami odi",
+      "wine": "Sami-Odi Little Wine",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "varieties": [
+        "Syrah"
+      ],
+      "dominant": "Syrah",
+      "is_blend": false,
+      "confidence": "high",
+      "source": "https://sami-odi.com/wines",
+      "notes": "Multi-vintage assemblage, 100% Syrah"
+    },
+    {
+      "match": "paul sauer",
+      "wine": "Kanonkop Paul Sauer",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "varieties": [
+        "Cabernet Sauvignon",
+        "Cabernet Franc",
+        "Merlot"
+      ],
+      "dominant": "Cabernet Sauvignon",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://kanonkop.co.za/wp-content/uploads/2023/06/Paul-Sauer-2020.pdf"
+    },
+    {
+      "match": "almaviva",
+      "wine": "Viña Almaviva",
+      "country": "Chile",
+      "region": "Maipo Valley (Puente Alto)",
+      "varieties": [
+        "Cabernet Sauvignon",
+        "Carmenere",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "dominant": "Cabernet Sauvignon",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.almavivawinery.com/the-wine"
+    },
+    {
+      "match": "clos de los siete",
+      "wine": "Clos de los Siete",
+      "country": "Argentina",
+      "region": "Mendoza (Uco Valley)",
+      "varieties": [
+        "Malbec",
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Syrah",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "dominant": "Malbec",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.closdelossiete.com/wp-content/uploads/2023/01/CDL7_2019_EN.pdf"
+    },
+    {
+      "match": "quimera",
+      "wine": "Achával-Ferrer Quimera",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "varieties": [
+        "Malbec",
+        "Cabernet Sauvignon",
+        "Cabernet Franc",
+        "Merlot",
+        "Petit Verdot"
+      ],
+      "dominant": "Malbec",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://achaval-ferrer.com/fichas/Ficha_Quimera_2012.pdf"
+    },
+    {
+      "match": "hildegard",
+      "wine": "Au Bon Climat Hildegard",
+      "country": "USA",
+      "region": "Santa Maria Valley, California",
+      "varieties": [
+        "Pinot Gris",
+        "Pinot Blanc",
+        "Aligote"
+      ],
+      "dominant": "Pinot Gris",
+      "is_blend": true,
+      "confidence": "medium",
+      "source": "https://aubonclimat.com/news/hildegard-origin-story",
+      "notes": "Pinot Gris-led white field blend (Pinot Gris/Pinot Blanc/Aligoté) in the Burgundian tradition; named for Hildegard von Bingen. NOT Chardonnay. Producer does not disclose proportions.",
+      "confusables": [
+        { "variety": "Chardonnay", "region": "California", "country": "USA", "note": "deliberate trap: same country as the paired Stony Hill Chardonnay, but a different variety" },
+        { "variety": "Pinot Gris", "region": "Alsace", "country": "France" },
+        { "variety": "Pinot Gris", "region": "Willamette Valley, Oregon", "country": "USA" }
+      ]
+    },
+    {
+      "match": "l ermitage",
+      "wine": "Roederer Estate L'Ermitage",
+      "country": "USA",
+      "region": "Anderson Valley, California",
+      "varieties": [
+        "Chardonnay",
+        "Pinot Noir"
+      ],
+      "dominant": "Chardonnay",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://mmdusa.net/portfolio/roederer-estate/lermitage",
+      "notes": "Traditional-method sparkling"
+    },
+    {
+      "match": "kracher cuvee beerenauslese",
+      "wine": "Kracher Cuvée Beerenauslese",
+      "country": "Austria",
+      "region": "Burgenland (Seewinkel)",
+      "varieties": [
+        "Chardonnay",
+        "Welschriesling"
+      ],
+      "dominant": "Chardonnay",
+      "is_blend": true,
+      "confidence": "medium",
+      "source": "https://shop.kracher.at/en/2021-Beerenauslese-Cuvee"
+    }
+  ]
+}

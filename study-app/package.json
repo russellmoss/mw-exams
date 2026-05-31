@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node -e \"const fs=require('fs'); if(!fs.existsSync('public/data/pipeline-context.json')){console.log('Building data index...'); require('child_process').execSync('node ../scripts/build-question-index.js',{stdio:'inherit'})} else {console.log('Data index exists, skipping prebuild')}\"",
+    "prebuild": "node scripts/sync-stem-data.mjs && node -e \"const fs=require('fs'); if(!fs.existsSync('public/data/pipeline-context.json')){console.log('Building data index...'); require('child_process').execSync('node ../scripts/build-question-index.js',{stdio:'inherit'})} else {console.log('Data index exists, skipping prebuild')}\"",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

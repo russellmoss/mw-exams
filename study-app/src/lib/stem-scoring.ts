@@ -98,6 +98,45 @@ const canonVariety = (s: string): string => {
   return VARIETY_SYNONYMS[n] || n;
 };
 
+// Levenshtein edit distance (classic DP). Strings here are short, set sizes tiny.
+function levenshtein(a: string, b: string): number {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  let cur = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    cur[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+    }
+    [prev, cur] = [cur, prev];
+  }
+  return prev[n];
+}
+
+// Edits allowed for a token of the given length. Short tokens (countries like "usa",
+// or distinct short grapes) must match exactly so we don't collapse genuinely different
+// names; longer names tolerate 1–2 typos. Kept conservative on purpose: e.g. "douro" vs
+// "duero" (distance 2, len 5 → tol 1) still do NOT match.
+const maxEdits = (len: number): number => (len <= 4 ? 0 : len <= 7 ? 1 : 2);
+
+// Typo-tolerant equality. Exact after normalization always wins; otherwise allow an
+// edit distance scaled to the shorter token's length.
+function fuzzyEq(a: string, b: string): boolean {
+  if (a === b) return a.length > 0;
+  if (!a || !b) return false;
+  const tol = Math.min(maxEdits(a.length), maxEdits(b.length));
+  if (tol === 0) return false;
+  if (Math.abs(a.length - b.length) > tol) return false;
+  return levenshtein(a, b) <= tol;
+}
+
+// True if `token` fuzzy-matches any member of `list`.
+const fuzzyIncludes = (list: string[], token: string): boolean => list.some((t) => fuzzyEq(t, token));
+
 // Ordered region tokens, most-specific first, with the country last.
 // Region strings are stored comma-joined ("Côte de Nuits, Burgundy, France"), so split on commas.
 const regionChain = (bucket: { region?: string; country?: string }): string[] => {
@@ -129,7 +168,7 @@ const predRegionTokens = (p: Prediction): string[] => {
 function varietyMatches(pred: Prediction, varieties: string[]): boolean {
   const pv = canonVariety(pred.variety || "");
   if (!pv) return false;
-  return varieties.some((v) => canonVariety(v) === pv);
+  return varieties.some((v) => fuzzyEq(canonVariety(v), pv));
 }
 
 // Paper-3 style scoring. The candidate may type the style in `style` (or `variety`).
@@ -171,8 +210,8 @@ function regionRelation(pred: Prediction, bucket: GroundTruthBucket): "region" |
   const country = countryToken(bucket);
   const nonCountry = chain.filter((t) => t !== country);
   const preds = predRegionTokens(pred);
-  if (preds.some((t) => nonCountry.includes(t))) return "region";
-  if (country && preds.includes(country)) return "country";
+  if (preds.some((t) => fuzzyIncludes(nonCountry, t))) return "region";
+  if (country && preds.some((t) => fuzzyEq(t, country))) return "country";
   return "none";
 }
 
@@ -194,9 +233,9 @@ function matchesPlausible(pred: Prediction, plausible: PlausibleBucket[]): boole
   if (!pv) return false;
   const preds = predRegionTokens(pred);
   return plausible.some((pb) => {
-    if (canonVariety(pb.variety) !== pv) return false;
+    if (!fuzzyEq(canonVariety(pb.variety), pv)) return false;
     const chain = regionChain({ region: pb.region, country: pb.country || undefined });
-    return preds.length === 0 || preds.some((t) => chain.includes(t));
+    return preds.length === 0 || preds.some((t) => fuzzyIncludes(chain, t));
   });
 }
 

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { StemSniperCard, type Drill, type Prediction } from "../components/StemSniperCard";
 import { StemSniperResult, type ScoreResult, type Revealed } from "../components/StemSniperResult";
+import { StemSniperIntro } from "../components/StemSniperIntro";
 import { FeedbackButton } from "../components/FeedbackButton";
 
-type Status = "loading" | "drilling" | "result" | "empty";
+type Status = "intro" | "loading" | "drilling" | "result" | "empty";
+const INTRO_SEEN_KEY = "stem-sniper-intro-seen";
 const PAPERS: { label: string; value: number | null }[] = [
   { label: "Any", value: null },
   { label: "P1 Whites", value: 1 },
@@ -44,7 +46,10 @@ export default function StemSniperPage() {
     setStatus("loading");
     setResult(null);
     try {
-      const res = await fetch(`/api/stem-sniper/next${p ? `?paper=${p}` : ""}`);
+      // /drill is the unified source: ~90% freshly generated through the shared engine (with a stem
+      // key derived on the spot), ~10% from the validated banked pool. Generation adds latency, so
+      // the "Loading drill…" state covers it.
+      const res = await fetch(`/api/stem-sniper/drill${p ? `?paper=${p}` : ""}`);
       if (res.ok) {
         setDrill(await res.json());
         setStatus("drilling");
@@ -59,9 +64,22 @@ export default function StemSniperPage() {
   }, []);
 
   useEffect(() => {
-    if (user) fetchNext(paper);
+    if (!user) return;
+    // First-time visitors see the how-it-works intro; returning visitors go
+    // straight to a drill. The toggle in the header can reopen it anytime.
+    const seen = typeof window !== "undefined" && window.localStorage.getItem(INTRO_SEEN_KEY);
+    if (seen) {
+      fetchNext(paper);
+    } else {
+      setStatus("intro");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  const startDrilling = () => {
+    if (typeof window !== "undefined") window.localStorage.setItem(INTRO_SEEN_KEY, "1");
+    fetchNext(paper);
+  };
 
   const onSubmit = async (preds: Prediction[]) => {
     if (!drill) return;
@@ -91,13 +109,27 @@ export default function StemSniperPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Stem Sniper</h1>
-        <p className="text-sm text-muted mt-1">
-          Read the stem, predict variety + origin before tasting, and score your blind-deduction instincts.
-        </p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Stem Sniper</h1>
+          <p className="text-sm text-muted mt-1">
+            Read the stem, predict variety + origin before tasting, and score your blind-deduction instincts.
+          </p>
+        </div>
+        {status !== "intro" && (
+          <button
+            onClick={() => setStatus("intro")}
+            className="shrink-0 mt-1 text-xs text-muted hover:text-foreground border border-border hover:border-muted rounded-lg px-3 py-1.5 transition-colors cursor-pointer"
+          >
+            How it works
+          </button>
+        )}
       </div>
 
+      {status === "intro" && <StemSniperIntro onStart={startDrilling} />}
+
+      {status !== "intro" && (
+      <>
       <div className="flex flex-wrap gap-2 mb-6">
         {PAPERS.map((p) => (
           <button
@@ -137,6 +169,8 @@ export default function StemSniperPage() {
           submitting={status !== "result"}
           onNext={() => fetchNext(paper)}
         />
+      )}
+      </>
       )}
 
       {/* Always available — bottom-left. Works before a question is submitted so a

@@ -69,6 +69,38 @@ const ok = (name, cond) => { if (cond) { pass++; } else { fail++; console.log(" 
   ok("calibration records STRONG+correct", r.calibration[0].tier === "STRONG" && r.calibration[0].correct === true);
 }
 
+// --- Fuzzy / typo tolerance ---
+// F1. misspelled variety (missing letter) still matches
+{
+  const key = { ground_truth: [{ slot: 1, varieties: ["Sauvignon Blanc"], region: "Sancerre, Loire", country: "France" }], plausible: [] };
+  const r = scorePredictions([{ variety: "savignon blanc", region: "Loire" }], key);
+  ok("typo 'savignon blanc' = HIT", r.grades[0].grade === "HIT");
+}
+// F2. misspelled variety + transposed -> still matches grape
+{
+  const key = { ground_truth: [{ slot: 1, varieties: ["Riesling"], region: "Mosel", country: "Germany" }], plausible: [] };
+  const r = scorePredictions([{ variety: "Reisling", region: "Mosel" }], key);
+  ok("typo 'Reisling' = HIT", r.grades[0].grade === "HIT");
+}
+// F3. misspelled region still matches
+{
+  const key = { ground_truth: [{ slot: 1, varieties: ["Nebbiolo"], region: "Barolo, Piedmont", country: "Italy" }], plausible: [] };
+  const r = scorePredictions([{ variety: "Nebbiolo", region: "Piedmonte" }], key);
+  ok("typo region 'Piedmonte' = HIT", r.grades[0].grade === "HIT");
+}
+// F4. CONSERVATIVE: distinct close names must NOT collapse (Douro vs Duero)
+{
+  const key = { ground_truth: [{ slot: 1, varieties: ["Tempranillo"], region: "Ribera del Duero", country: "Spain" }], plausible: [] };
+  const r = scorePredictions([{ variety: "Tempranillo", region: "Douro" }], key);
+  ok("Douro != Duero (no false region match)", r.grades[0].grade === "VARIETY");
+}
+// F5. CONSERVATIVE: different short grapes must NOT collapse (Merlot vs Malbec)
+{
+  const key = { ground_truth: [{ slot: 1, varieties: ["Merlot"], region: "Pomerol", country: "France" }], plausible: [] };
+  const r = scorePredictions([{ variety: "Malbec", region: "Pomerol" }], key);
+  ok("Malbec != Merlot (no false variety match)", r.grades[0].grade === "MISS");
+}
+
 // --- Paper 3 style-mode ---
 const sherry = { slot: 1, varieties: ["Palomino"], region: "Jerez", country: "Spain", style: "Amontillado", style_category: "Sherry", style_tokens: ["amontillado"] };
 // 11. style + region -> HIT
