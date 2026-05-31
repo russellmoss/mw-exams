@@ -10,12 +10,13 @@ export const metadata: Metadata = { title: "Study Diagrams" };
 // automatically if the API-key banner is showing).
 export default function DiagramsPage() {
   return (
-    <div className="flex-1 min-h-0">
-      <iframe
-        src="/diagrams/index.html"
-        title="MW Study Diagrams"
-        className="block w-full h-full border-0"
-      />
-    </div>
+    <iframe
+      src="/diagrams/index.html"
+      title="MW Study Diagrams"
+      // Explicit height (viewport minus the ~49px NavBar) so the iframe always resolves to a definite
+      // size and scrolls its content. flex/h-full chains collapsed to the iframe's 150px default here.
+      className="block w-full border-0"
+      style={{ height: "calc(100dvh - 50px)" }}
+    />
   );
 }
