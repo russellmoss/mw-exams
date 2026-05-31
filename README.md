@@ -166,7 +166,7 @@ The honest, evidence-graded baseline lives in **[`outputs/research/system_report
 
 **Priorities beyond the feedback loop** (highest-leverage first):
 
-1. **Deterministic mark allocation** in question generation — ~half of raw drafts are currently quarantined on the 25-marks-per-wine arithmetic; computing it in code (not by the model) is the single biggest throughput win.
+1. ✅ **Deterministic mark allocation** *(shipped)* — the generator now receives a pre-computed mark budget, and the engine deterministically repairs "off-by-a-multiple" mark slips before validation, closing most of the ~50% arithmetic-quarantine rate (rare non-divisible cases still quarantine safely). *Next:* re-measure the quarantine rate to confirm the lift.
 2. **Enforce the hard grading rules** (howler→FAIL, cascade→zero) — today they are *detect-only* (logged, not applied); promote to a gated two-pass behind a flag once the telemetry confirms a safe false-positive rate.
 3. **Wire banker/curveball difficulty into the grader** so partial-credit latitude scales with how hard the wine really is (the signal exists but isn't fed to grading yet).
 4. **Let the new grading-telemetry sink accrue real data**, then tune the difficulty/enforcement decisions on evidence rather than assumption.

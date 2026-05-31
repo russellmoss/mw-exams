@@ -111,7 +111,7 @@ deliberate engineering:
 
 | # | Improvement | Why it's invisible to the feedback loop | Status |
 |---|---|---|---|
-| **1** | **Deterministic mark allocation** in generation (compute 25×N in code) | The ~51% quarantine rate is a pipeline metric; users only ever see *served* questions | Open — highest ROI |
+| **1** | **Deterministic mark allocation** in generation (compute 25×N in code) | The ~51% quarantine rate is a pipeline metric; users only ever see *served* questions | **Shipped 2026-05-31 (`ad793ff`)** — prompt budget + engine `normalizeMarkAllocation`; rescues "off-by-a-per-wine-multiple" slips before validation, leaves non-divisible deltas to quarantine (safe). Slashed, not eliminated. Re-measure quarantine rate to confirm. |
 | **2** | **Enforce howler→FAIL / cascade→zero** (R8; gated two-pass behind a flag) | Detect-only today; a wrong verdict that "feels right" draws no feedback | Open — gated on telemetry false-positive rate |
 | **3** | **Wire banker/curveball difficulty to the grader** (R5) | Latitude calibration is internal; users can't see the missing difficulty signal | Open — needs a structured difficulty data source + telemetry |
 | **4** | **Let `grading_telemetry` accrue, then tune** (R5/R7/R8 are data-gated) | The data sink is new (`478c97c`); decisions should be data-driven | In progress — collecting |
@@ -133,6 +133,9 @@ Full per-recommendation detail (R1–R9, ROI vs risk, file-level): `confidence_i
 
 ## Changelog
 
+- **2026-05-31 (later)** — Roadmap #1 shipped (`ad793ff`): deterministic mark allocation (prompt budget +
+  engine normalizer). Addresses the dominant (~50%) generation-quarantine cause. Re-run the DB quarantine-%
+  measurement at the next re-grade to quantify the lift; expect Question generation to move toward A−.
 - **2026-05-31** — Baseline established (B+ overall). Graded immediately after the confidence/grading
   hardening pass: R1/R2/R3/R9 rubric (`a654bbc`), PG-1/PG-2 (`9a9e147`), telemetry persistence
   (`478c97c`), R4 (`7c1e102`), model-answer regen path + 72-exemplar refresh (`3e64769`, `13b33af`),
