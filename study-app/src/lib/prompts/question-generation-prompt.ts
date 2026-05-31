@@ -225,6 +225,13 @@ export async function buildQuestionGenerationPrompt(
       ? "RED STILL WINES ONLY. Every wine in this question MUST be a red still wine. No whites, no rosés, no sparkling, no fortified. All wines must be made from red grape varieties."
       : "SPARKLING, FORTIFIED, SWEET, ROSÉ, AND OXIDATIVE WINES ONLY. Every wine in this question must be from one of these categories. No standard still dry whites or reds.";
 
+  // Per-paper mark emphasis — the modern (2018–2025) shape differs sharply by paper (EK-0098).
+  const markEmphasis = paper === 1
+    ? "P1 (whites): lean MATURITY (~20% of marks) and quality; commercial is the LOWEST (~13%). Include an ageing / drink-window ask."
+    : paper === 2
+      ? "P2 (reds): most ORIGIN-driven (~50% of marks) and STYLE-driven (~23%); maturity is low (~9%). Include a precise-origin ask (commune / cru / classification level)."
+      : "P3 (special): highest COMMERCIAL (~21%) and WINEMAKING (~27%); sweetness/RS and structure 'state' asks (2-3 marks) belong here.";
+
   // Pre-roll the flight size based on historical corpus distributions,
   // adjusted by what's already in the database to maintain correct ratios
   const targetFlightSize = await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
@@ -391,6 +398,15 @@ Typical per-wine mark ranges for written sub-questions:
 - Quality / maturity: 5-10 marks
 - Commercial position: 5-10 marks
 - Style: 5-10 marks (often combined with quality)
+
+## MARK EMPHASIS FOR THIS PAPER (match the modern 2018–2025 shape — EK-0098)
+${markEmphasis}
+Across any paper: keep IDENTIFICATION at most ~46–55% of total marks (modern papers run ~46% ID, down from ~60% pre-2014); commercial should appear in most questions (never 0% of marks); include a compare/contrast item (20–36 marks) where the flight invites it.
+
+## CURVEBALL DENSITY BY FAMILY (EK-0100)
+- F1 (same variety): keep it banker-clean — every wine should be a confidently identifiable benchmark of the stated variety; no curveballs.
+- F5 (method) / F6 (style) / any Paper 3 flight: expect at least one genuinely harder wine — the difficulty is the point.
+- ~54% of real flights are all-anchor, so do NOT force a curveball into F1/F2/F7; but do not make an F5/F6/P3 flight all-banker either.
 
 ## STYLE SUB-QUESTIONS (MANDATORY — include in most questions)
 "Style" is one of the most common sub-question types in the MW exam. It appears in 60+ questions across the corpus, and in nearly EVERY question in 2024-2025. The generation system must include style questions.

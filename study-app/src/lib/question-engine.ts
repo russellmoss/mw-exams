@@ -411,6 +411,17 @@ export async function generateFreshQuestion(
       ? { valid: true, violations: [] }
       : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
     const countryDiversityCheck = validateCountryDiversity(candidate.questionText, candidate.wines);
+    // Phase 2 soft composition rules (also "important" tier): modern mark-mix cap, OW/NW balance,
+    // coarse price proxy. All relax at attempt 6 alongside originDiversity.
+    const markMixCheck = relaxImportant
+      ? { valid: true, violations: [] }
+      : validateMarkTypeMix(candidate.questionText);
+    const compositionCheck = relaxImportant
+      ? { valid: true, violations: [] }
+      : validateCompositionBalance(candidate.family, paper, candidate.wines);
+    const priceCheck = relaxImportant
+      ? { valid: true, violations: [] }
+      : validatePriceSpread(candidate.questionText, candidate.family, candidate.wines);
 
     // Nice-to-have validators (relax on attempt 4+)
     const relaxNiceToHave = attempt >= 4;
@@ -438,6 +449,9 @@ export async function generateFreshQuestion(
       ...consistencyCheck.violations,
       ...originDiversityCheck.violations,
       ...countryDiversityCheck.violations,
+      ...markMixCheck.violations,
+      ...compositionCheck.violations,
+      ...priceCheck.violations,
       ...bankerCheck.violations,
       ...flightSizeCheck.violations,
       ...noveltyCheck.violations,
@@ -924,6 +938,143 @@ function validateFlightSize(
     violations.push("Paper 1 has never used a 5-wine flight in the corpus. Use 2, 3, 4, or 6.");
   }
 
+  return { valid: violations.length === 0, violations };
+}
+
+// ── Phase 2 soft composition rules (run in the "important" tier; relax at attempt 6) ─────────────
+// Goal: nudge generated single questions toward the modern (2018–2025) shape on the axes that ARE
+// derivable from question text + wine labels. Per the Round-2 review (findings/08): R8 keeps only the
+// robust ID-composite cap (per-question commercial/style PRESENCE false-warns on the majority of real
+// questions → enforced at whole-paper level in Phase 3); R10's curveball axis is telemetry-only (the
+// benchmark proxy mislabels ~63% of anchors); price (R9) is a coarse proxy only — real price lives in
+// Phase 3 where wines are sourced with known tiers.
+
+// Sub-question type classifier, ported verbatim from scripts/build_structured_corpus.py TYPE_RULES (the
+// validated classifier behind data/structured/corpus_subquestions.json). Word-START stems, no trailing
+// \b, so inflected forms (winemaking/maturity/acidity) still match. Multi-label.
+const SUBQ_TYPE_RULES: [string, RegExp][] = [
+  ["variety_id", /\bgrape\b|\bvariet(y|ies)|\bgrapes\b/i],
+  ["vintage_id", /\bvintage/i],
+  ["origin_id", /\borigin|\bregion|\bcountr|\bappellation|\bprovenance|\bgeograph/i],
+  ["maturity", /\bmaturit|\bageing|\baging|\bcellar|\bdrink|\bdevelopmen|\bevolv|\bhow (much )?longer|\bhold\b|\bready\b/i],
+  ["commercial", /\bcommercial|\bmarket|\bprice|\bsell|\bpositioning|\bconsumer|\bretail|\bwho would buy|\bbuy this|\bbuy these|\bsales\b/i],
+  ["quality", /\bquality|\bstandard|\bfinesse|\bmerit/i],
+  ["winemaking", /\bwinemak|\bvinif|\bproduction\b|\bproduced\b|\bmade\b|\bmethod|\boak\b|\bmaturation|\bfermentat|\belevage|\blees\b|\bmalolactic|\btechnique/i],
+  ["style", /\bstyle|\btypicity/i],
+  ["sweetness_rs", /\bresidual sugar|\bsweetness|\brs\b|\bsugar/i],
+  ["structure", /\bstructure|\btannin|\bacidit|\balcohol|\bbody\b|\bbalance/i],
+  ["comparative", /\bcompare|\bcontrast|\bdiffer|\bsimilar/i],
+];
+const MARK_TOKEN_RE = /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\s*\)/gi;
+const SUBQ_SPLIT_RE = /^\s*([a-h])\)\s*/gim;
+
+// Full-credit-per-hit mark mix + ID-composite (union, counted once so "identify variety and region"
+// isn't double-charged) over a question's sub-parts. Matches the corpus method.
+function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompositeShare: number } {
+  const labels = [...questionText.matchAll(SUBQ_SPLIT_RE)];
+  const parts: string[] = [];
+  if (labels.length === 0) {
+    parts.push(questionText);
+  } else {
+    for (let i = 0; i < labels.length; i++) {
+      const start = (labels[i].index ?? 0) + labels[i][0].length;
+      const end = i + 1 < labels.length ? (labels[i + 1].index ?? questionText.length) : questionText.length;
+      parts.push(questionText.slice(start, end));
+    }
+  }
+  let total = 0;
+  let idMarks = 0;
+  const ID_TYPES = new Set(["variety_id", "origin_id", "vintage_id"]);
+  for (const part of parts) {
+    let partMarks = 0;
+    for (const m of part.matchAll(MARK_TOKEN_RE)) {
+      partMarks += (m[1] ? parseInt(m[1], 10) : 1) * parseInt(m[2], 10);
+    }
+    if (partMarks === 0) continue;
+    total += partMarks;
+    const low = part.toLowerCase();
+    const hitsId = SUBQ_TYPE_RULES.some(([type, re]) => ID_TYPES.has(type) && re.test(low));
+    if (hitsId) idMarks += partMarks;
+  }
+  return { totalMarks: total, idCompositeShare: total > 0 ? idMarks / total : 0 };
+}
+
+// R8 (soft): modern papers cap identification at ~46% of marks; flag a question only when ID dominates
+// (>55%). Calibrated against the corpus — trips ~40% of even REAL last-10 questions (median 44%), so it
+// nudges rather than blocks. Commercial/style presence is a whole-paper concern (Phase 3), not here.
+function validateMarkTypeMix(questionText: string): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText);
+  if (totalMarks === 0) return { valid: true, violations };
+  if (idCompositeShare > 0.55) {
+    violations.push(
+      `Mark type-mix: identification is ${Math.round(idCompositeShare * 100)}% of marks (> 55% cap). Modern papers run ~46% ID (EK-0098) — shift marks toward quality/style/commercial/maturity/winemaking.`
+    );
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+const OLD_WORLD_COUNTRIES = new Set([
+  "france", "italy", "spain", "portugal", "germany", "austria", "greece",
+  "hungary", "england", "georgia", "switzerland", "croatia", "slovenia", "israel", "lebanon",
+]);
+const NEW_WORLD_COUNTRIES = new Set([
+  "south africa", "new zealand", "usa", "australia", "argentina", "chile",
+  "canada", "uruguay", "brazil", "japan", "mexico", "china",
+]);
+function worldOf(fullText: string): "old" | "new" | "unknown" {
+  const c = detectCountryName(fullText); // returns lowercased name or "unknown"
+  if (OLD_WORLD_COUNTRIES.has(c)) return "old";
+  if (NEW_WORLD_COUNTRIES.has(c)) return "new";
+  return "unknown";
+}
+
+// R10 (mixed): OW/NW balance is ROBUST and gated; the curveball-count axis is TELEMETRY ONLY.
+function validateCompositionBalance(
+  family: string,
+  paper: number,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  // Curveball density — telemetry only. The "non-benchmark ≈ harder" proxy mislabels ~63% of real
+  // anchors (findings/08), so we log it for monitoring and never gate generation on it.
+  const nonBenchmark = wines.filter((w) => !BENCHMARK_APPELLATIONS.test(w.fullText)).length;
+  console.log(`[composition] ${family} P${paper} ${wines.length}-wine: ${nonBenchmark} non-benchmark (curveball telemetry, not gated)`);
+  // OW/NW — robust. Non-same-origin families (exclude F2 same-country, F7 same-region) should not be
+  // single-world in a 3+ flight: real F1/F4/F6 mix Old+New World ~60%+ (EK-0099). Only act when worlds
+  // are detectable for most wines, to avoid false positives from undetected origins.
+  if (family !== "F2" && family !== "F7" && wines.length >= 3) {
+    const worlds = wines.map((w) => worldOf(w.fullText)).filter((x) => x !== "unknown");
+    if (worlds.length >= 3 && new Set(worlds).size === 1) {
+      violations.push(
+        `Composition: this non-same-origin ${family} flight is entirely ${worlds[0] === "old" ? "Old-World" : "New-World"}. Real ${family} flights mix Old + New World ~60%+ of the time (EK-0099) — reach for an inter-world contrast.`
+      );
+    }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+// R9 (soft, coarse proxy): a wine label carries no price, so this only catches the EK-0028 failure mode
+// — a quality flight that is ALL top-tier/iconic with no legal-ladder signal (ranking would then turn on
+// reputation, not the glass). Real price-spread enforcement lives in Phase 3 (whole-test, known tiers).
+const ICONIC_HIGH_TIER = /grand\s*cru|premier\s*cru|1er\s*cru|cru\s*class|classed\s*growth|vintage\s*port|sauternes|barsac|montrachet|romanee|chambertin|musigny|lafite|latour|margaux|p[eé]trus|haut[- ]brion|yquem|grange|vega\s*sicilia|brunello|barolo|barbaresco|hermitage|cote[- ]rotie/i;
+const LEGAL_LADDER_SIGNAL = /\bcru\b|class[eé]|classico|docg|pr[äa]dikat|kabinett|sp[äa]tlese|auslese|reserva|gran\s*reserva|1855|premier|grand|village|grosses?\s*gew/i;
+function validatePriceSpread(
+  questionText: string,
+  family: string,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const isQuality = family === "F7" || /\bquality\b/i.test(questionText);
+  if (!isQuality || wines.length < 2) return { valid: true, violations };
+  const allHigh = wines.every((w) => ICONIC_HIGH_TIER.test(w.fullText));
+  const hasLadder =
+    LEGAL_LADDER_SIGNAL.test(questionText) || wines.some((w) => LEGAL_LADDER_SIGNAL.test(w.fullText));
+  if (allHigh && !hasLadder) {
+    violations.push(
+      "Quality flight is all top-tier/iconic wines with no legal-ladder signal — ranking would turn on reputation, not observable evidence (EK-0028). Add a value/mid tier, or a stem/label that names a legal hierarchy. (Coarse price proxy; real price enforced in Phase 3.)"
+    );
+  }
   return { valid: violations.length === 0, violations };
 }
 
