@@ -115,3 +115,41 @@ Walk through the Paper ${paper} decision tree step by step:
 
   return { system, user };
 }
+
+// Pull one "### N. <Header>" block out of a generated model-answer package. Tolerant of the
+// numbering / "#"-level the model emits. `endHeader = null` means "to end of text".
+function extractSection(
+  text: string,
+  startHeader: string,
+  endHeader: string | null
+): string | null {
+  const startPattern = new RegExp(`#+\\s*\\d*\\.?\\s*${startHeader}[\\s\\S]*?\\n`, "i");
+  const startMatch = text.match(startPattern);
+  if (!startMatch) return null;
+  const startIdx = text.indexOf(startMatch[0]) + startMatch[0].length;
+  if (endHeader) {
+    const endPattern = new RegExp(`#+\\s*\\d*\\.?\\s*${endHeader}`, "i");
+    const remaining = text.slice(startIdx);
+    const endMatch = remaining.match(endPattern);
+    if (endMatch) {
+      return remaining.slice(0, remaining.indexOf(endMatch[0])).trim();
+    }
+  }
+  return text.slice(startIdx).trim();
+}
+
+// Split a generated package into its four stored fields. Single source of truth shared by the live
+// generate-model-answer route and the offline regen-model-answers script so the two can't drift.
+export function parseModelAnswerSections(text: string): {
+  modelAnswer: string;
+  proposedAnnotation: string | null;
+  reasoningTrace: string | null;
+  studyDiagramAssist: string | null;
+} {
+  return {
+    modelAnswer: extractSection(text, "Model Answer", "Proposed Annotation") || text,
+    proposedAnnotation: extractSection(text, "Proposed Annotation", "Reasoning Trace"),
+    reasoningTrace: extractSection(text, "Reasoning Trace", "Study Diagram"),
+    studyDiagramAssist: extractSection(text, "Study Diagram", null),
+  };
+}

@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
-import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
@@ -45,11 +45,9 @@ export async function POST(request: Request) {
       .map((b) => b.text)
       .join("");
 
-    // Parse sections
-    const modelAnswer = extractSection(text, "Model Answer", "Proposed Annotation") || text;
-    const proposedAnnotation = extractSection(text, "Proposed Annotation", "Reasoning Trace");
-    const reasoningTrace = extractSection(text, "Reasoning Trace", "Study Diagram");
-    const studyDiagramAssist = extractSection(text, "Study Diagram", null);
+    // Parse sections (shared with the offline regen-model-answers script — one source of truth)
+    const { modelAnswer, proposedAnnotation, reasoningTrace, studyDiagramAssist } =
+      parseModelAnswerSections(text);
 
     // Update the question in Neon
     const updated = await saveGeneratedQuestion({
@@ -74,30 +72,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-}
-
-function extractSection(
-  text: string,
-  startHeader: string,
-  endHeader: string | null
-): string | null {
-  const startPattern = new RegExp(
-    `#+\\s*\\d*\\.?\\s*${startHeader}[\\s\\S]*?\\n`,
-    "i"
-  );
-  const startMatch = text.match(startPattern);
-  if (!startMatch) return null;
-
-  const startIdx = text.indexOf(startMatch[0]) + startMatch[0].length;
-
-  if (endHeader) {
-    const endPattern = new RegExp(`#+\\s*\\d*\\.?\\s*${endHeader}`, "i");
-    const remaining = text.slice(startIdx);
-    const endMatch = remaining.match(endPattern);
-    if (endMatch) {
-      return remaining.slice(0, remaining.indexOf(endMatch[0])).trim();
-    }
-  }
-
-  return text.slice(startIdx).trim();
 }

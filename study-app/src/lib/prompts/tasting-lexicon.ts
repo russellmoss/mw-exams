@@ -8,7 +8,7 @@
 // reference markdown from the same JSON. At runtime the app prefers the Neon copy (editable from
 // admin) and falls back to this bundled copy — see getTastingLexicon() in db.ts.
 
-import lexiconJson from "./tasting-lexicon.json";
+import lexiconJson from "./tasting-lexicon.json" with { type: "json" };
 
 export interface TastingLexicon {
   dimensions: Record<string, string[]>;

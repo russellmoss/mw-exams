@@ -1,0 +1,147 @@
+// regen-model-answers.mjs — offline BATCH regeneration of the DB-stored model answers.
+//
+// Refreshes generated_questions.{model_answer, proposed_annotation, reasoning_trace,
+// study_diagram_assist} using the SAME live generator the API route uses
+// (buildModelAnswerPrompt + parseModelAnswerSections + saveGeneratedQuestion via the ts-loader),
+// so there is ONE source of truth and the offline path can never drift from production.
+//
+// Primary use: after a generator-prompt change (e.g. R4 AT-1/AT-2 differentiate+reconcile) the
+// already-stored exemplars are stale; this re-runs them in bulk. Also the prerequisite for R6
+// (the structural-scaffold grader clause) — regenerate before tightening so the app's own
+// exemplars don't model the failure the grader penalises.
+//
+// NOTE: only touches the DB exemplars for *generated* questions (the TS generator). The 112
+// historical outputs/mock_answers/*.md come from the separate Python pipeline
+// (scripts/generate_mock_answers.py) and are NOT in scope here.
+//
+// Run FROM study-app/ (buildModelAnswerPrompt resolves public/data via process.cwd()):
+//   node --import ./scripts/ts-loader.mjs scripts/regen-model-answers.mjs [flags]
+// Flags:
+//   --paper N            only paper N (1|2|3)
+//   --family F4          only this family
+//   --question-id ID     only this question id
+//   --all                every question that already has a model_answer (overrides --limit)
+//   --limit N            cap rows (default 5 unless --all/--question-id)
+//   --concurrency N      parallel API calls (default 3)
+//   --model opus|sonnet  generation tier (default opus — matches the route)
+//   --dry-run            generate but DO NOT write; print a preview + size delta
+// Requires DATABASE_URL + ANTHROPIC_API_KEY (env or study-app/.env.local).
+
+import { readFileSync } from "node:fs";
+import { neon } from "@neondatabase/serverless";
+
+// ---- env (prefer process.env; fall back to study-app/.env.local) ----
+function fromEnvLocal(key) {
+  try {
+    const m = readFileSync("./.env.local", "utf8").match(new RegExp(`^${key}\\s*=\\s*"?([^"\\n\\r]+)"?`, "m"));
+    return m?.[1]?.trim();
+  } catch { return undefined; }
+}
+process.env.DATABASE_URL ||= fromEnvLocal("DATABASE_URL");
+process.env.ANTHROPIC_API_KEY ||= fromEnvLocal("ANTHROPIC_API_KEY");
+if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
+if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set");
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+
+// ---- the LIVE generator + parser + writer (single source of truth; resolved by ts-loader) ----
+const { buildModelAnswerPrompt, parseModelAnswerSections } = await import("../src/lib/prompts/model-answer-prompt.ts");
+const { buildTastingLexiconGuidance } = await import("../src/lib/prompts/tasting-lexicon.ts");
+const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db.ts");
+
+// ---- args ----
+const args = process.argv.slice(2);
+const flag = (name) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : undefined; };
+const has = (name) => args.includes(name);
+const opt = {
+  paper: flag("--paper") ? Number(flag("--paper")) : undefined,
+  family: flag("--family"),
+  questionId: flag("--question-id"),
+  all: has("--all"),
+  limit: flag("--limit") ? Number(flag("--limit")) : undefined,
+  concurrency: flag("--concurrency") ? Number(flag("--concurrency")) : 3,
+  model: flag("--model") || "opus",
+  dryRun: has("--dry-run"),
+};
+if (!opt.all && !opt.paper && !opt.questionId) {
+  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all\nUse --dry-run to preview. See header for all flags.");
+  process.exit(1);
+}
+const limit = opt.questionId ? 1 : opt.all ? null : (opt.limit ?? 5);
+
+// ---- select rows to regen ----
+const sql = neon(process.env.DATABASE_URL);
+let rows;
+if (opt.questionId) {
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ${opt.questionId}`;
+} else if (opt.paper && opt.family) {
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} AND family = ${opt.family} ORDER BY created_at DESC`;
+} else if (opt.paper) {
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} ORDER BY created_at DESC`;
+} else {
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL ORDER BY created_at DESC`;
+}
+if (limit) rows = rows.slice(0, limit);
+console.log(`Selected ${rows.length} question(s) to regenerate${opt.dryRun ? " (DRY RUN — no writes)" : ""}.`);
+if (!rows.length) { console.log("Nothing to do."); process.exit(0); }
+
+// ---- model + lexicon ----
+async function resolveModel() {
+  if (opt.model === "sonnet") return "claude-sonnet-4-6";
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/models?limit=100", { headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01" } });
+    const d = await r.json();
+    return (d.data || []).filter((m) => m.id.includes("opus")).map((m) => m.id).sort().reverse()[0] || "claude-sonnet-4-6";
+  } catch { return "claude-sonnet-4-6"; }
+}
+const model = await resolveModel();
+const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
+console.log(`Model: ${model} | concurrency: ${opt.concurrency}\n${"=".repeat(70)}`);
+
+async function callClaude(system, user) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({ model, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }),
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(JSON.stringify(d.error));
+  return d.content?.filter((b) => b.type === "text").map((b) => b.text).join("") ?? "";
+}
+
+async function regenOne(row) {
+  const wines = row.wines; // JSONB → already parsed array of { slot, fullText, ... }
+  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance);
+  const text = await callClaude(prompt.system, prompt.user);
+  const s = parseModelAnswerSections(text);
+  const newLen = (s.modelAnswer || "").length;
+  if (opt.dryRun) {
+    return { id: row.question_id, oldLen: row.old_len, newLen, preview: (s.modelAnswer || "").slice(0, 240).replace(/\s+/g, " ") };
+  }
+  await saveGeneratedQuestion({
+    questionId: row.question_id, paper: row.paper, family: row.family || "F4",
+    familyLabel: row.family_label || "", subcategory: row.subcategory || undefined,
+    questionText: row.question_text, wines, totalMarks: row.total_marks || 100,
+    modelAnswer: s.modelAnswer, proposedAnnotation: s.proposedAnnotation || undefined,
+    reasoningTrace: s.reasoningTrace || undefined, studyDiagramAssist: s.studyDiagramAssist || undefined,
+  });
+  return { id: row.question_id, oldLen: row.old_len, newLen, wrote: true };
+}
+
+// ---- bounded-concurrency pool ----
+let i = 0, ok = 0, fail = 0;
+async function worker() {
+  while (i < rows.length) {
+    const row = rows[i++];
+    try {
+      const r = await regenOne(row);
+      ok++;
+      console.log(`  [${ok + fail}/${rows.length}] ${r.id}  p${row.paper}/${row.family}  ${r.oldLen}→${r.newLen} chars${r.wrote ? " (written)" : ""}`);
+      if (opt.dryRun) console.log(`        preview: ${r.preview}…`);
+    } catch (e) {
+      fail++;
+      console.error(`  [${ok + fail}/${rows.length}] ${row.question_id}  FAILED: ${e.message}`);
+    }
+  }
+}
+await Promise.all(Array.from({ length: Math.min(opt.concurrency, rows.length) }, worker));
+console.log(`${"=".repeat(70)}\nDONE. ${ok} ok, ${fail} failed${opt.dryRun ? " (DRY RUN — nothing written)" : ""}.`);
