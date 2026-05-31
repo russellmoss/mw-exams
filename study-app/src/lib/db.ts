@@ -594,7 +594,7 @@ export async function getEmpiricalKnowledgeForAnalysis(paper: number): Promise<s
       SELECT ek_id, section, tier, title, claim
       FROM empirical_knowledge
       WHERE status = 'live'
-        AND (section IN (5, 6, 7) OR (section IN (1, 4) AND (paper IS NULL OR paper = ${paper})))
+        AND (section IN (2, 3, 5, 6, 7) OR (section IN (1, 4) AND (paper IS NULL OR paper = ${paper})))
       ORDER BY section, ek_id
     `) as Record<string, unknown>[];
   } catch {
@@ -603,6 +603,11 @@ export async function getEmpiricalKnowledgeForAnalysis(paper: number): Promise<s
   if (!rows.length) return "";
   const LABELS: Record<number, string> = {
     1: "§1 · Exam structure",
+    // §2/§3 are the grading/examiner-cognition canon (trust account, plausibility gradient,
+    // confidence≠correctness, contamination law, under-the-skin). Paper-agnostic, so always included —
+    // they are the authoritative grounding when a candidate disputes the AI's EVALUATION/score.
+    2: "§2 · Examiner mindset & grading philosophy",
+    3: "§3 · Answer grading guidelines",
     4: "§4 · Wine selection & distribution (paper-relevant)",
     5: "§5 · Question-generation rules",
     6: "§6 · Prior feedback rulings (precedent)",

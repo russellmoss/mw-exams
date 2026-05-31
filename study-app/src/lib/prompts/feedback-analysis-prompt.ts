@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { MARKING_PRINCIPLES } from "./marking-principles";
 
 interface ThreadMessage {
   role: "system" | "user";
@@ -63,6 +64,12 @@ export function buildFeedbackAnalysisPrompt(params: {
     if (!empiricalKnowledge && ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
   } catch {}
 
+  // Does this feedback dispute the AI's EVALUATION / score (as opposed to question design)? If so we
+  // inject the exact marking rubric the grader followed so the analysis adjudicates the score against
+  // the same rules (plus §2/§3 of the EK above), instead of reasoning about it unaided. Broad on
+  // purpose — a false positive only adds the rubric; a miss leaves a scoring dispute ungrounded.
+  const isEvaluationDispute = /\b(scor(e|ed|ing)|marks?|marking|grade[ds]?|grading|credit(ed)?|points?|too harsh|too generous|unfair|i was (right|correct)|got it right|should (have|'?ve)|deserved|deduct|under-?(marked|scored|graded)|over-?(marked|scored|graded)|pass(ed)?|fail(ed)?|borderline|harsh|lenient)\b/i.test(params.userFeedback || "");
+
   // Stem Sniper feedback (tagged "[stem-sniper...]") is usually about the ANSWER KEY for a stem, not
   // the question design. The tag also carries WHICH page it came from so we can frame it precisely.
   const stemTag = (params.userFeedback || "").match(/\[stem-sniper(?::([a-z-]+))?\]/i);
@@ -117,6 +124,11 @@ work when the real cause is elsewhere.
 - **What a generated question CONTAINS** (wine choice, mark allocation, stem phrasing, style rules)
   lives in \`study-app/src/lib/prompts/question-generation-prompt.ts\`.
 - **Hard validity gates** (stem contradicts wines/marks) live in \`study-app/src/lib/question-validator.ts\`.
+- **Grading / scoring rules** — how an answer is MARKED (the plausibility gradient, howler/cascade,
+  quality calibration, the funnel, verdict bands) — live in \`study-app/src/lib/prompts/marking-principles.ts\`
+  (shared by both graders) and \`study-app/src/lib/prompts/funnelling.ts\`. A valid evaluation dispute that
+  warrants a rubric change is **Kind: generation** naming marking-principles.ts — it is NOT a question/
+  answer-key issue.
 - A fix needing the query layer should say so explicitly (Kind: generation or validator, naming db.ts) —
   do not down-scope it to a prompt tweak just because the prompt is easier to reach.
 `;
@@ -156,6 +168,13 @@ from this exact feedback loop. It is authoritative for what we have already deci
   or a documented exam fact, weigh that heavily toward REJECT and cite the EK-#### entry. If it exposes a
   genuine gap not yet covered, that supports ACCEPT.
 - **§7 bug catalog:** check whether this is a known, already-fixed issue (don't re-open it) or genuinely new.
+- **§2 examiner mindset · §3 grading:** if the feedback disputes the AI's EVALUATION/score (e.g. "I was
+  right", "you didn't credit my reasoning", "too harsh", "I should have passed"), THIS is the authoritative
+  grounding — the examiner trust-account model, the **plausibility gradient** (a sound, stylistically-adjacent
+  wrong call earns real partial credit; a bare correct call with no argument earns little), confidence ≠
+  correctness, the **contamination law** (a howler undermines confidence across the whole answer), and the
+  "under the skin" top-band differentiator. Judge the disputed score against these (and the Marking Rubric
+  below when present); side with the candidate only where the grader genuinely misapplied a rule.
 Use this knowledge to reason and to stay consistent with precedent. In the **candidate-facing** part of
 your answer, refer to precedent in PLAIN LANGUAGE ("past papers have shown…", "our review of the exams
 established…") — never print EK-#### ids, file paths, or the Kind line there. Reference EK-#### ids only
@@ -220,7 +239,7 @@ code change, and the Kind line belong.
 
 2. **Don't over-correct.** A single feedback item about an edge case doesn't warrant a sweeping prompt change. Scope the fix tightly to the actual issue.
 
-3. **Distinguish evaluation feedback from generation feedback.** If the user is saying "I was right and the AI scored me wrong," that's an evaluation quality issue, not a generation pipeline issue. Note this difference.
+3. **Distinguish evaluation feedback from generation feedback.** If the user is saying "I was right and the AI scored me wrong," that's an evaluation quality issue, not a generation pipeline issue. Note this difference. **For evaluation disputes, adjudicate the SCORE against §2/§3 and the Marking Rubric:** was the plausibility gradient applied (a well-reasoned, stylistically-adjacent wrong call should earn partial credit, not zero)? was a bare correct call over-rewarded relative to a well-argued wrong one? was a howler's contamination or a cascade handled correctly, not over-applied? Uphold the candidate only where the grader genuinely misapplied a rule; otherwise explain the rule in plain language. If a valid grading dispute reveals a real rubric gap, the fix targets the grader rubric — classify it **Kind: generation** and name marking-principles.ts.
 
 4. **Consider the candidate's level.** MW candidates are experts. Their feedback often contains genuine insight. Don't dismiss it reflexively — but do verify it against what the real exams have actually done.
 
@@ -234,6 +253,12 @@ the exams and prior feedback (decision-relevant sections: §1 structure, §4 dis
 rules, §6 feedback ledger, §7 bug catalog). Treat §6 as precedent and §5/§7 as current rules — see Step 2b.
 
 ${empiricalKnowledge}
+
+---
+` : ""}${isEvaluationDispute ? `### Marking Rubric — the EXACT rules the grader was instructed with (use to adjudicate this SCORING dispute)
+This feedback disputes the AI's evaluation/score. Judge the score against THESE rules (the same constant the grader followed) together with §2/§3 of the Empirical Knowledge above. Side with the candidate only if the grader misapplied a rule — e.g. failed to credit a stylistically-plausible wrong call on the plausibility gradient, over-credited a bare correct call, or mis-handled a howler's contamination. Otherwise, explain the rule that justifies the score in plain, educational language.
+
+${MARKING_PRINCIPLES}
 
 ---
 ` : ""}### Examiner Report Synthesis (2017–2025)
