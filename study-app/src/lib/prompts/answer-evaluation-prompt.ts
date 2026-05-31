@@ -3,6 +3,7 @@
 import { FUNNELLING_PRINCIPLE } from "./funnelling";
 import { MARKING_PRINCIPLES } from "./marking-principles";
 import { buildLexiconCritiqueGuidance } from "./tasting-lexicon";
+import { GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 
 export function buildAnswerEvaluationSystemPrompt(
   paper: number,
@@ -59,5 +60,7 @@ Use this structure:
 - **Faithful verdict, constructive voice.** The PASS/BORDERLINE/FAIL result and marks must reflect how the IMW would actually grade (per the Marking Principles above — including a howler tipping a borderline to fail, and zeroing fabricated/cascade sub-answers). Do NOT inflate the verdict because this is a study tool — an honest result is what makes it useful. Keep the *wording* encouraging and coaching, never harsh; lead with what worked and frame gaps as the route to the next band.
 - If the candidate's reasoning is sound but reaches a different conclusion than the model answer, give credit.
 - Be specific in feedback -- "consider Burgundy hierarchy" is better than "think about quality more."
-- Keep total feedback under 600 words.`;
+- Keep total feedback under 600 words.
+
+${GRADING_META_INSTRUCTION}`;
 }

@@ -5,6 +5,7 @@ import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
 import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
+import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 
 export const runtime = "nodejs";
@@ -116,7 +117,9 @@ Three priorities for next time, numbered:
 
 ---
 
-Keep total feedback under 1000 words. Be specific, not generic. Use the exact heading structure above so the UI can parse and display it cleanly.`;
+Keep total feedback under 1000 words. Be specific, not generic. Use the exact heading structure above so the UI can parse and display it cleanly.
+
+${GRADING_META_INSTRUCTION}`;
 
     let userMessage = `## Question
 ${questionText}
@@ -192,9 +195,13 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
           // Wait for any in-flight incremental image fetches, then send the enriched markdown as the
           // authoritative final text (the client saves this). Images resolved above are cache hits now,
           // so this is cheap. Best-effort — tokens are stripped on failure.
+          // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
+          // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
+          const { meta, cleanedText } = extractGradingMeta(fullText);
+          recordGradingOverrideCheck(meta, { grader: "full_debrief", userId: keyResult.user.id });
           try {
             await imageStreamer.flush();
-            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id, imageAllowList);
+            const enriched = await enrichFeedbackWithImages(cleanedText, keyResult.user.id, imageAllowList);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
           } catch (enrichErr) {
             console.error("full-debrief image enrichment failed:", enrichErr);
