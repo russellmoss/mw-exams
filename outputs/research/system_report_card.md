@@ -13,36 +13,42 @@
 
 | Surface | Grade | One-line |
 |---|---|---|
-| Question generation | **A−** *(was B+)* | Served output clean & realistic; the dominant raw-fidelity gap (mark arithmetic) is now fixed deterministically in code |
+| Question generation | **B+ ⚠️** *(A− retracted)* | Served output clean & realistic, BUT a live batch fell back to banked 8/8 (fresh-generation success-rate-in-budget is low) — the real bottleneck, not marks. Under review. |
 | Model-answer generation | **B+** *(was C)* | Now differentiates + reconciles; was leaking sections into the answer until this session |
 | Grading / evaluation | **A−** | Examiner-faithful trust-account modelling; key hard rules still detect-only |
 | Feedback analysis | **A−** *(was B)* | Now grounded in the full grading canon; was blind to scoring disputes until this session |
 | Empirical grounding & self-correction | **A** | Cited, tiered, gated canon + live projection + backtest + telemetry — the real edge |
-| **Overall** | **A−** *(was B+)* | Strong delivered output; the biggest first-pass-generation weakness (mark arithmetic) is now closed in code; remaining gaps are gated or minor |
+| **Overall** | **B+ ⚠️** *(A− retracted)* | Strong delivered output; a direct live measurement revealed fresh-question generation falls back to banked far more than assumed — the dominant generation issue, surfaced 2026-05-31. |
 
 ---
 
-## 1 · Question generation — A− *(was B+; mark allocation fixed 2026-05-31, `ad793ff`)*
+## 1 · Question generation — B+ ⚠️ *(A− retracted 2026-05-31 after a live measurement)*
 
 - **Evidence.** 489-line constraint-dense `question-generation-prompt.ts` + hard `question-validator.ts`;
-  LOYO identification **72.8% top-1 / 89.2% top-3 / 95.6% candidate-set** (EK-0082;
-  `outputs/backtest_reports/loyo_postfix_audit.md`). Live DB (2026-05-31, *pre-fix*): **83 generated, 42
-  quarantined (~51%), 38 served**; a 6/6 random sample of the **served** set was coherent and scope-valid.
-- **Strength.** What reaches users is examiner-plausible and well-composed (e.g. a single-variety Pinot
-  Gris tour across Alsace/Friuli/Oregon/Austria; a 4-country mixed bag; Syrah France-vs-South-Africa under
-  a correct "same single grape" stem). The validator reliably gates scope/variety/marks violations
-  (EK-0040/0042/0043/0044).
-- **What changed (the B+→A− driver).** The dominant quarantine cause — the LLM miscounting the
-  25-marks-per-wine total (EK-0041) — is now handled **deterministically**: the prompt hands the model a
-  pre-computed budget + guaranteed-summing split, and the engine's `normalizeMarkAllocation` repairs
-  off-by-a-per-wine-multiple slips before validation (re-verified; unfixable cases safely left to
-  quarantine). End-to-end test: served-correct **5/6** vs the ~50% raw baseline; normalizer unit tests 7/7.
-- **Remaining weakness.** Two smaller, **gated** issues: occasional variety/scope slips (a white blend in
-  a single-variety flight; cask-oxidative white Riojas mis-placed in Paper 3 — both caught by the
-  validator), and rare non-divisible mark deltas (e.g. 25 short over 7 wines) that the normalizer leaves to
-  quarantine rather than force. Blend→dominant-variety collapse remains a known failure mode (EK-0083).
-- **Pending confirmation.** Re-measure the live **quarantine rate** after new questions generate through
-  the fixed pipeline — expected to fall well below ~51%. That measurement is what locks in the A−.
+  LOYO identification **72.8% top-1 / 89.2% top-3 / 95.6% candidate-set** (EK-0082). Served-set quality
+  spot-check (6/6) coherent and scope-valid.
+- **Strength.** What reaches users is examiner-plausible and well-composed; the validator reliably gates
+  scope/variety/marks violations (EK-0040/0042/0043/0044), and the engine **degrades gracefully** — when
+  fresh generation fails it serves a validated banked question, so users always get a valid question.
+- **The live finding that retracted the A− (2026-05-31).** A controlled batch of **8 fresh generations
+  through the real engine fell back to banked 8/8** — every one hit `Generation budget 75000ms exhausted`
+  without producing a fully-valid candidate. **This is NOT a harness artifact:** this run's generation
+  latencies (avg 23s / p50 19s / max 68s) match production (avg 25s / p50 20s / max 69s), so prod
+  generation behaves the same. With ~20s/call and a 75s wall-clock budget (8 max attempts), only ~3
+  attempts fit, and the per-attempt validation pass-rate was low enough that none succeeded. **A marks
+  violation fired in only 4/8 — so marks was NOT the bottleneck.** The mark-allocation fix (`ad793ff`) is
+  still sound at the unit/parse level (7/7; isolated end-to-end 5/6), but it does not move the dominant
+  metric. **Net: fresh-generation success-rate-in-budget is the real weakness, and it is more impactful
+  than the earlier "~51% quarantine" framing implied.** Returned to B+ (the prior evidence-based grade);
+  could drop further pending a broader measurement.
+- **Open question (now the top generation priority).** Is the in-budget fresh-generation success rate
+  low *generally*, or concentrated in strict families (F1 same-variety, P3 oxidative)? The 8/8 batch
+  skewed to strict families; 83 questions HAVE been generated historically, so prod success isn't zero.
+  Needs a broader batch (incl. `family=any`) and/or a budget/parallelism/validation-relaxation fix —
+  see roadmap #1.
+- **Smaller gated issues.** Occasional variety/scope slips (white blend in a single-variety flight;
+  cask-oxidative white Riojas mis-placed in Paper 3) — caught by the validator. Blend→dominant-variety
+  collapse remains a known failure mode (EK-0083).
 
 ## 2 · Model-answer generation — B+ *(was C until this session)*
 
@@ -104,8 +110,12 @@
 
 **Delivered quality is high, but a large share of that quality is the validator gate, the EK grounding,
 and the feedback loop catching the raw generators' mistakes — not the generators being right first time.**
-The strongest layer is reasoning/grading/grounding; the weakest is **raw generation fidelity** (mark
-arithmetic, occasional variety/scope slips). The maturity is "rapidly hardening," not "finished."
+The strongest layer is reasoning/grading/grounding; the weakest is **raw generation fidelity**.
+A direct live measurement (2026-05-31) sharpened *which* part is weak: it isn't mainly mark arithmetic —
+it's that **fresh question generation frequently fails validation across all in-budget attempts and falls
+back to a banked question** (8/8 in a controlled batch, latency-confirmed representative of production).
+Users still get a valid question (graceful fallback), but often not a *fresh* one. The maturity is
+"rapidly hardening," not "finished."
 
 ## Roadmap — what the feedback loop *cannot* fix for itself
 
@@ -115,7 +125,8 @@ deliberate engineering:
 
 | # | Improvement | Why it's invisible to the feedback loop | Status |
 |---|---|---|---|
-| **1** | **Deterministic mark allocation** in generation (compute 25×N in code) | The ~51% quarantine rate is a pipeline metric; users only ever see *served* questions | **Shipped 2026-05-31 (`ad793ff`)** — prompt budget + engine `normalizeMarkAllocation`; rescues "off-by-a-per-wine-multiple" slips before validation, leaves non-divisible deltas to quarantine (safe). Slashed, not eliminated. Re-measure quarantine rate to confirm. |
+| **0 — NEW TOP** | **Raise fresh-generation in-budget success rate** (so it doesn't fall back to banked). Options: raise/parallelise the 75s budget & 8-attempt loop; lift first-attempt validity in the prompt; relax non-essential gates; use the faster model. | Users get a valid (banked) question either way, so the high fallback rate is invisible to them — only the silent re-serving of banked questions (repetition) leaks through | **Open — surfaced by the 2026-05-31 live batch (8/8 fell back).** Highest-leverage generation fix. First step: broader measurement (incl. `family=any`) to quantify the true rate. |
+| **1** | **Deterministic mark allocation** in generation (compute 25×N in code) | The ~51% quarantine metric; users only see *served* questions | **Shipped (`ad793ff`)** — prompt budget + engine `normalizeMarkAllocation`. Sound (unit 7/7), but the live batch showed **marks was NOT the bottleneck** (violation in only 4/8) — see #0. Keep, but it's no longer the headline. |
 | **2** | **Enforce howler→FAIL / cascade→zero** (R8; gated two-pass behind a flag) | Detect-only today; a wrong verdict that "feels right" draws no feedback | Open — gated on telemetry false-positive rate |
 | **3** | **Wire banker/curveball difficulty to the grader** (R5) | Latitude calibration is internal; users can't see the missing difficulty signal | Open — needs a structured difficulty data source + telemetry |
 | **4** | **Let `grading_telemetry` accrue, then tune** (R5/R7/R8 are data-gated) | The data sink is new (`478c97c`); decisions should be data-driven | In progress — collecting |
@@ -137,12 +148,16 @@ Full per-recommendation detail (R1–R9, ROI vs risk, file-level): `confidence_i
 
 ## Changelog
 
-- **2026-05-31 (re-grade)** — Roadmap #1 shipped (`ad793ff`): deterministic mark allocation (prompt budget
-  + engine normalizer), addressing the dominant (~50%) generation-quarantine cause (end-to-end 5/6,
-  normalizer unit 7/7). **Re-grade:** Question generation **B+ → A−**, Overall **B+ → A−**. The bump is
-  evidence-based on the mark-fix verification but **pending a live quarantine-rate re-measurement** to fully
-  confirm (run after new questions generate through the fixed pipeline). All other surfaces unchanged
-  (Model-answer B+, Grading A−, Feedback A−, Grounding A).
+- **2026-05-31 (correction)** — **A− RETRACTED → back to B+** (Question generation + Overall). A controlled
+  8-question live batch through the real engine fell back to banked **8/8**: fresh generation exhausts its
+  75s budget without landing a valid candidate. Latency-confirmed representative (this run avg 23s / p50
+  19s vs prod avg 25s / p50 20s — *not* a harness artifact). A marks violation fired in only 4/8, so the
+  mark-allocation fix (`ad793ff`) — though sound (unit 7/7) — was **not** the bottleneck. New top roadmap
+  item #0: raise the fresh-generation in-budget success rate. The earlier A− was premature; this is the
+  value of measuring directly. (No questions were saved — nothing to clean up.)
+- **2026-05-31 (re-grade, SUPERSEDED by the correction above)** — Roadmap #1 shipped (`ad793ff`):
+  deterministic mark allocation; re-graded Question gen + Overall **B+ → A−** on the mark-fix verification.
+  Retracted hours later when the live batch showed marks wasn't the bottleneck (see correction).
 - **2026-05-31** — Baseline established (B+ overall). Graded immediately after the confidence/grading
   hardening pass: R1/R2/R3/R9 rubric (`a654bbc`), PG-1/PG-2 (`9a9e147`), telemetry persistence
   (`478c97c`), R4 (`7c1e102`), model-answer regen path + 72-exemplar refresh (`3e64769`, `13b33af`),

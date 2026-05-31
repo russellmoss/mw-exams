@@ -162,15 +162,16 @@ The result is a flywheel: **more candidates → more expert feedback → more co
 
 The candidate feedback loop is powerful, but it only fixes **per-question** errors — the things a taster can *see*. It will never surface the **systemic, architectural** work (no candidate can observe a quarantine rate, an internal difficulty signal, or a verdict path that only *logs* a rule instead of *enforcing* it). Those need deliberate engineering, tracked here so we don't lose them behind the flywheel.
 
-The honest, evidence-graded baseline lives in **[`outputs/research/system_report_card.md`](outputs/research/system_report_card.md)** (dated, with EK + commit citations; re-grade against it after material changes). Current overall: **A−** (raised from B+ once deterministic mark allocation closed the biggest first-pass-generation weakness) — strong *delivered* output, with the remaining gaps either gated by validation or data-gated on telemetry.
+The honest, evidence-graded baseline lives in **[`outputs/research/system_report_card.md`](outputs/research/system_report_card.md)** (dated, with EK + commit citations; re-grade against it after material changes). Current overall: **B+** — strong *delivered* output. (An A− was briefly assigned then **retracted** when a direct live measurement revealed that fresh question generation often exhausts its time budget and falls back to a pre-validated banked question — a real bottleneck the feedback loop can't see. Users still get a valid question; just not always a fresh one.)
 
 **Priorities beyond the feedback loop** (highest-leverage first):
 
-1. ✅ **Deterministic mark allocation** *(shipped)* — the generator now receives a pre-computed mark budget, and the engine deterministically repairs "off-by-a-multiple" mark slips before validation, closing most of the ~50% arithmetic-quarantine rate (rare non-divisible cases still quarantine safely). *Next:* re-measure the quarantine rate to confirm the lift.
-2. **Enforce the hard grading rules** (howler→FAIL, cascade→zero) — today they are *detect-only* (logged, not applied); promote to a gated two-pass behind a flag once the telemetry confirms a safe false-positive rate.
-3. **Wire banker/curveball difficulty into the grader** so partial-credit latitude scales with how hard the wine really is (the signal exists but isn't fed to grading yet).
-4. **Let the new grading-telemetry sink accrue real data**, then tune the difficulty/enforcement decisions on evidence rather than assumption.
-5. **Refresh the historical model-answer artifacts** to the latest generation standard (differentiate-and-reconcile), via the offline pipeline.
+1. **Raise the fresh-generation success rate** — a live batch fell back to banked **8/8** because generation exhausts its 75s budget before producing a fully-valid question (latency-confirmed, not a test artifact). The fix space: a larger/parallelised attempt budget, higher first-attempt validity, relaxing non-essential gates, or a faster model. *This is the newly-identified top priority.*
+2. ✅ **Deterministic mark allocation** *(shipped)* — the generator gets a pre-computed budget and the engine repairs "off-by-a-multiple" mark slips before validation. Sound, but the live batch showed marks was **not** the dominant bottleneck (#1 is). Kept; no longer the headline.
+3. **Enforce the hard grading rules** (howler→FAIL, cascade→zero) — today they are *detect-only* (logged, not applied); promote to a gated two-pass behind a flag once the telemetry confirms a safe false-positive rate.
+4. **Wire banker/curveball difficulty into the grader** so partial-credit latitude scales with how hard the wine really is (the signal exists but isn't fed to grading yet).
+5. **Let the new grading-telemetry sink accrue real data**, then tune the difficulty/enforcement decisions on evidence rather than assumption.
+6. **Refresh the historical model-answer artifacts** to the latest generation standard (differentiate-and-reconcile), via the offline pipeline.
 
 > Why this section exists: the feedback loop makes the system *self-correcting*, not *self-architecting*. These items are how it gets better **faster than candidates alone can push it.**
 
