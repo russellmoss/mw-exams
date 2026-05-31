@@ -11,7 +11,9 @@
   --muted: #78716c;
   --success: #22c55e;
   --fail: #ef4444;
-  --borderline: #f59e0b;
+  /* Verdict yellow. Distinct from the amber accent (#d97706) and its hover (#f59e0b) so a BORDERLINE
+     badge never reads as an interactive control. See DESIGN.md (Color). */
+  --borderline: #eab308;
 }
 
 @theme inline {
@@ -28,6 +30,21 @@
   --color-borderline: var(--borderline);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
+}
+
+/* Display serif, used only at display sizes. Apply with the `font-display` utility (page titles,
+   verdict headlines) or via the .markdown-content heading rules below (the debrief). See DESIGN.md. */
+.font-display {
+  font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  letter-spacing: -0.01em;
+}
+
+/* Every <h1> in this app is a page/section title — give them the display serif globally. Only sets
+   the family + tracking; Tailwind's text-* / font-* classes still control size and weight. */
+h1 {
+  font-family: var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.01em;
 }
 
 body {
@@ -91,14 +108,18 @@ body {
   object-position: center;
 }
 .markdown-content h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.01em;
+  font-size: 1.6rem;
+  font-weight: 600;
   margin-bottom: 0.75rem;
   margin-top: 1.5rem;
   color: var(--foreground);
 }
 .markdown-content h2 {
-  font-size: 1.25rem;
+  font-family: var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.01em;
+  font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
   margin-top: 1.5rem;

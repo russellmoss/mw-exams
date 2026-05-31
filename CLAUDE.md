@@ -2,6 +2,14 @@
 
 This project builds study materials for the Institute of Masters of Wine (IMW) practical (blind tasting) examination using ten years of past papers as the training corpus.
 
+## Design system
+
+`DESIGN.md` (repo root) is the source of truth for all visual and UI decisions in `study-app/` — the
+"Cellar" system (warm-stone dark + amber accent, border-defined flat cards, Geist for UI/body/data,
+Fraunces display serif for titles/headings, three-state PASS/BORDERLINE/FAIL verdict colors). **Read
+`DESIGN.md` before making any visual or UI change**, and don't deviate from its colors, fonts, spacing,
+or aesthetic without explicit user approval. When reviewing UI code, flag anything that contradicts it.
+
 ## The exam, in one minute
 
 - The MW practical is three blind tasting papers. Each presents **12 wines** with structured questions worth marks.
