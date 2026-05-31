@@ -309,8 +309,19 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
       className={`border-b border-border last:border-b-0 ${decision ? decision.bg : ""}`}
       style={decision ? { borderLeft: `4px solid ${decision.color}` } : undefined}
     >
-      <button
+      {/* role=button (not <button>) so the nested CopyId/DecisionBadge buttons are valid HTML and
+          don't trip a hydration error. Keyboard-accessible via Enter/Space. */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
         onClick={() => setExpanded(!expanded)}
+        onKeyDown={(e) => {
+          if (e.target === e.currentTarget && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            setExpanded(!expanded);
+          }
+        }}
         className="w-full px-5 py-4 flex items-center gap-4 hover:bg-card-hover transition-colors cursor-pointer text-left"
       >
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${
@@ -341,7 +352,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </div>
-      </button>
+      </div>
 
       {expanded && (
         <div className="px-5 pb-5 space-y-4">
