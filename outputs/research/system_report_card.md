@@ -13,32 +13,36 @@
 
 | Surface | Grade | One-line |
 |---|---|---|
-| Question generation | **B+** | Served output is clean & realistic; the *raw* generator is leaky (caught by a strong validator) |
+| Question generation | **A−** *(was B+)* | Served output clean & realistic; the dominant raw-fidelity gap (mark arithmetic) is now fixed deterministically in code |
 | Model-answer generation | **B+** *(was C)* | Now differentiates + reconciles; was leaking sections into the answer until this session |
 | Grading / evaluation | **A−** | Examiner-faithful trust-account modelling; key hard rules still detect-only |
 | Feedback analysis | **A−** *(was B)* | Now grounded in the full grading canon; was blind to scoring disputes until this session |
 | Empirical grounding & self-correction | **A** | Cited, tiered, gated canon + live projection + backtest + telemetry — the real edge |
-| **Overall** | **B+ , trending A−** | Strong delivered output; quality leans on validation/grounding more than first-pass generation |
+| **Overall** | **A−** *(was B+)* | Strong delivered output; the biggest first-pass-generation weakness (mark arithmetic) is now closed in code; remaining gaps are gated or minor |
 
 ---
 
-## 1 · Question generation — B+
+## 1 · Question generation — A− *(was B+; mark allocation fixed 2026-05-31, `ad793ff`)*
 
 - **Evidence.** 489-line constraint-dense `question-generation-prompt.ts` + hard `question-validator.ts`;
   LOYO identification **72.8% top-1 / 89.2% top-3 / 95.6% candidate-set** (EK-0082;
-  `outputs/backtest_reports/loyo_postfix_audit.md`). Live DB (2026-05-31): **83 generated, 42 quarantined
-  (~51%), 38 served**; a 6/6 random sample of the **served** set was coherent and scope-valid.
+  `outputs/backtest_reports/loyo_postfix_audit.md`). Live DB (2026-05-31, *pre-fix*): **83 generated, 42
+  quarantined (~51%), 38 served**; a 6/6 random sample of the **served** set was coherent and scope-valid.
 - **Strength.** What reaches users is examiner-plausible and well-composed (e.g. a single-variety Pinot
   Gris tour across Alsace/Friuli/Oregon/Austria; a 4-country mixed bag; Syrah France-vs-South-Africa under
   a correct "same single grape" stem). The validator reliably gates scope/variety/marks violations
   (EK-0040/0042/0043/0044).
-- **Honest weakness.** The **raw generator is error-prone** — ~51% of drafts are quarantined,
-  **overwhelmingly on the 25-marks-per-wine arithmetic** (EK-0041), plus occasional variety/scope slips
-  (a white blend inside a single-variety flight; two cask-oxidative white Riojas placed in Paper 3 against
-  the prompt's own hard sub-rule). Delivered quality is carried by the **gate**, not by first-pass
-  generation. Blend→dominant-variety collapse remains a known failure mode (EK-0083).
-- **Highest-leverage fix.** Make mark allocation **deterministic** (compute 25×N in code, not by LLM
-  arithmetic) — this single change would cut the dominant quarantine cause and lift served throughput.
+- **What changed (the B+→A− driver).** The dominant quarantine cause — the LLM miscounting the
+  25-marks-per-wine total (EK-0041) — is now handled **deterministically**: the prompt hands the model a
+  pre-computed budget + guaranteed-summing split, and the engine's `normalizeMarkAllocation` repairs
+  off-by-a-per-wine-multiple slips before validation (re-verified; unfixable cases safely left to
+  quarantine). End-to-end test: served-correct **5/6** vs the ~50% raw baseline; normalizer unit tests 7/7.
+- **Remaining weakness.** Two smaller, **gated** issues: occasional variety/scope slips (a white blend in
+  a single-variety flight; cask-oxidative white Riojas mis-placed in Paper 3 — both caught by the
+  validator), and rare non-divisible mark deltas (e.g. 25 short over 7 wines) that the normalizer leaves to
+  quarantine rather than force. Blend→dominant-variety collapse remains a known failure mode (EK-0083).
+- **Pending confirmation.** Re-measure the live **quarantine rate** after new questions generate through
+  the fixed pipeline — expected to fall well below ~51%. That measurement is what locks in the A−.
 
 ## 2 · Model-answer generation — B+ *(was C until this session)*
 
@@ -133,9 +137,12 @@ Full per-recommendation detail (R1–R9, ROI vs risk, file-level): `confidence_i
 
 ## Changelog
 
-- **2026-05-31 (later)** — Roadmap #1 shipped (`ad793ff`): deterministic mark allocation (prompt budget +
-  engine normalizer). Addresses the dominant (~50%) generation-quarantine cause. Re-run the DB quarantine-%
-  measurement at the next re-grade to quantify the lift; expect Question generation to move toward A−.
+- **2026-05-31 (re-grade)** — Roadmap #1 shipped (`ad793ff`): deterministic mark allocation (prompt budget
+  + engine normalizer), addressing the dominant (~50%) generation-quarantine cause (end-to-end 5/6,
+  normalizer unit 7/7). **Re-grade:** Question generation **B+ → A−**, Overall **B+ → A−**. The bump is
+  evidence-based on the mark-fix verification but **pending a live quarantine-rate re-measurement** to fully
+  confirm (run after new questions generate through the fixed pipeline). All other surfaces unchanged
+  (Model-answer B+, Grading A−, Feedback A−, Grounding A).
 - **2026-05-31** — Baseline established (B+ overall). Graded immediately after the confidence/grading
   hardening pass: R1/R2/R3/R9 rubric (`a654bbc`), PG-1/PG-2 (`9a9e147`), telemetry persistence
   (`478c97c`), R4 (`7c1e102`), model-answer regen path + 72-exemplar refresh (`3e64769`, `13b33af`),

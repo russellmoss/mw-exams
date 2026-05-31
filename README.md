@@ -162,7 +162,7 @@ The result is a flywheel: **more candidates → more expert feedback → more co
 
 The candidate feedback loop is powerful, but it only fixes **per-question** errors — the things a taster can *see*. It will never surface the **systemic, architectural** work (no candidate can observe a quarantine rate, an internal difficulty signal, or a verdict path that only *logs* a rule instead of *enforcing* it). Those need deliberate engineering, tracked here so we don't lose them behind the flywheel.
 
-The honest, evidence-graded baseline lives in **[`outputs/research/system_report_card.md`](outputs/research/system_report_card.md)** (dated, with EK + commit citations; re-grade against it after material changes). Current overall: **B+, trending A−** — strong *delivered* output, but quality still leans on the validator gate and the empirical grounding more than on first-pass generation.
+The honest, evidence-graded baseline lives in **[`outputs/research/system_report_card.md`](outputs/research/system_report_card.md)** (dated, with EK + commit citations; re-grade against it after material changes). Current overall: **A−** (raised from B+ once deterministic mark allocation closed the biggest first-pass-generation weakness) — strong *delivered* output, with the remaining gaps either gated by validation or data-gated on telemetry.
 
 **Priorities beyond the feedback loop** (highest-leverage first):
 
