@@ -68,6 +68,88 @@ function parseWineIdentity(fullText: string): { producer: string; wineName: stri
   return { producer, wineName, vintage, region, country };
 }
 
+// Valid style_category values (must match data/mock_wine_bank.schema.json).
+const STYLE_CATEGORIES = "still_dry, still_off_dry, still_sweet, sparkling, fortified, oxidative, orange, rose";
+
+export type WineIdentity = {
+  producer: string;
+  wineName: string;
+  country: string;
+  region: string;
+  grapeVarieties: string[];
+  styleCategory: string;
+};
+
+// Derive a clean, structured identity (+ grape varieties + style classification) from a wine's
+// reference string. The old regex parser (parseWineIdentity) mangled anything that didn't fit the
+// exact "Producer, Name. Region, Country" shape — producing rows like producer="R", country="2012",
+// and every wine defaulting to still_dry. We're already calling Claude per non-bank wine, so we let
+// it do the parsing/classification too. parseWineIdentity remains the fallback if the call fails.
+async function classifyWine(fullText: string, apiKey: string, meta?: EnrichMeta): Promise<WineIdentity> {
+  const fallback = parseWineIdentity(fullText);
+  const fallbackIdentity: WineIdentity = {
+    producer: fallback.producer,
+    wineName: fallback.wineName,
+    country: fallback.country,
+    region: fallback.region,
+    grapeVarieties: [],
+    styleCategory: "still_dry",
+  };
+
+  try {
+    const client = new Anthropic({ apiKey });
+    const { model, abGroup } = await selectModel("wine_enrichment", apiKey, "haiku");
+    const t0 = Date.now();
+    const message = await client.messages.create({
+      model,
+      max_tokens: 300,
+      system: `You identify a wine from a single reference string. Output exactly one JSON object, no prose, no code fences:
+{"producer":"...","wine_name":"...","country":"...","region":"...","grape_varieties":["..."],"style_category":"..."}
+
+Rules:
+- producer: the estate/house only, e.g. "Domaine Leflaive", "Billecart-Salmon", "Nyetimber". Never a year or a region.
+- wine_name: the cuvée/bottling without the producer and without the vintage year, e.g. "Mâcon-Verzé", "Blanc de Blancs Grand Cru", "Tillington Single Vineyard". Empty string if there is none.
+- country: the country of origin, e.g. "France", "England". Never a year.
+- region: the wine region, e.g. "Burgundy", "Champagne", "Mosel", "West Sussex". Never a year.
+- grape_varieties: the grape(s). If not stated, infer the standard variety/blend for the appellation. Use standard names, e.g. ["Chardonnay"], ["Grenache","Syrah","Mourvèdre"].
+- style_category: exactly one of: ${STYLE_CATEGORIES}.
+  - sparkling: Champagne, Crémant, Cava, Prosecco, Sekt, traditional-method / any fizzy wine.
+  - fortified: Port, Sherry, Madeira, Rutherglen/liqueur Muscat, Vin Doux Naturel.
+  - still_sweet: Sauternes, Tokaji Aszú, Beerenauslese/Trockenbeerenauslese, Icewine/Eiswein, Vin Santo, passito, Quarts de Chaume, Vin de Constance, late-harvest dessert wines.
+  - still_off_dry: fruity Kabinett/Spätlese and other clearly off-dry (not fully sweet) styles.
+  - oxidative: Vin Jaune, oxidative/sous-voile Jura whites, biologically/deliberately oxidative styles.
+  - rose / orange: as appropriate.
+  - still_dry: everything else (the default for dry still whites and reds).`,
+      messages: [{ role: "user", content: `Wine: ${fullText}` }],
+    });
+    logClaudeUsage(
+      { taskType: "wine_enrichment", model, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup },
+      message.usage,
+      { latencyMs: Date.now() - t0 }
+    );
+
+    const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const o = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+      const str = (v: unknown, fb: string) => (typeof v === "string" && v.trim() ? v.trim() : fb);
+      return {
+        producer: str(o.producer, fallbackIdentity.producer),
+        wineName: str(o.wine_name, fallbackIdentity.wineName),
+        country: str(o.country, fallbackIdentity.country),
+        region: str(o.region, fallbackIdentity.region),
+        grapeVarieties: Array.isArray(o.grape_varieties)
+          ? (o.grape_varieties as unknown[]).filter((g): g is string => typeof g === "string" && g.trim().length > 0)
+          : [],
+        styleCategory: str(o.style_category, "still_dry"),
+      };
+    }
+  } catch (err) {
+    console.error("Wine classification failed, falling back to regex parse:", fullText, err);
+  }
+  return fallbackIdentity;
+}
+
 async function researchWineViaTavily(
   wine: { slot: number; fullText: string },
   apiKey: string,
@@ -230,20 +312,25 @@ Output exactly one JSON object (no markdown, no code fences):
   };
 }
 
-async function addToWineBank(wine: { slot: number; fullText: string }, profile: WineProfile): Promise<void> {
+async function addToWineBank(identity: WineIdentity, profile: WineProfile): Promise<void> {
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    const identity = parseWineIdentity(wine.fullText);
-    const id = `${identity.country.toLowerCase().replace(/\s+/g, "_")}_${identity.region.toLowerCase().replace(/[^a-z0-9]+/g, "_")}_${identity.producer.toLowerCase().replace(/[^a-z0-9]+/g, "_")}`.slice(0, 80);
+    // Include wine_name so different cuvées from the same producer/region get distinct ids
+    // (country_region_producer alone collapses e.g. Muga Reserva and Muga Rosado onto one row).
+    const slug = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    const id = [slug(identity.country), slug(identity.region), slug(identity.producer), slug(identity.wineName)]
+      .filter(Boolean).join("_").slice(0, 120);
 
     await sql`
-      INSERT INTO wine_bank (id, producer, wine_name, country, region, tasting_profile, source)
+      INSERT INTO wine_bank (id, producer, wine_name, country, region, grape_varieties, style_category, tasting_profile, source)
       VALUES (
         ${id},
         ${identity.producer},
         ${identity.wineName},
         ${identity.country},
         ${identity.region},
+        ${JSON.stringify(identity.grapeVarieties)},
+        ${identity.styleCategory || "still_dry"},
         ${profile.tasting_profile ? JSON.stringify({
           appearance: profile.tasting_profile.appearance,
           nose_summary: profile.tasting_profile.nose_summary,
@@ -254,10 +341,14 @@ async function addToWineBank(wine: { slot: number; fullText: string }, profile: 
         ${profile.source_method}
       )
       ON CONFLICT (id) DO UPDATE SET
+        grape_varieties = CASE
+          WHEN wine_bank.grape_varieties IS NULL OR wine_bank.grape_varieties = '[]'::jsonb
+          THEN EXCLUDED.grape_varieties ELSE wine_bank.grape_varieties END,
+        style_category = COALESCE(NULLIF(EXCLUDED.style_category, ''), wine_bank.style_category),
         tasting_profile = COALESCE(EXCLUDED.tasting_profile, wine_bank.tasting_profile),
         updated_at = now()
     `;
-    console.log(`Added wine to DB bank: ${id} (${identity.producer} ${identity.wineName})`);
+    console.log(`Added wine to DB bank: ${id} (${identity.producer} ${identity.wineName}) [${identity.styleCategory}]`);
   } catch (err) {
     console.error("Failed to add wine to DB bank:", err);
   }
@@ -276,13 +367,18 @@ export async function enrichWineProfiles(
     (w) => profiles[String(w.slot)]?.source_method === "none"
   );
 
-  // Research each non-bank wine via Tavily, then add to bank
+  // Research each non-bank wine via Tavily, classify it, then add to bank
   for (const wine of needsEnrichment) {
     const profile = await researchWineViaTavily(wine, apiKey, enrichMeta);
+    const identity = await classifyWine(wine.fullText, apiKey, enrichMeta);
+    // Carry the classification onto the profile so the current question's wine_profiles
+    // (and any downstream tasting context) reflect the real style/grapes, not still_dry/[].
+    profile.style_category = identity.styleCategory;
+    profile.grape_varieties = identity.grapeVarieties;
     profiles[String(wine.slot)] = profile;
 
     if (profile.tasting_profile) {
-      await addToWineBank(wine, profile);
+      await addToWineBank(identity, profile);
     }
   }
 
