@@ -1094,6 +1094,56 @@ function validateCountryDiversity(
   return { valid: violations.length === 0, violations };
 }
 
+// Deterministically repair a generated question's mark allocation so the printed sub-question marks sum
+// to exactly 25×N (the MW's hard rule, EK-0041). The LLM frequently miscounts — especially when it mixes
+// a shared part with per-wine parts — which was the single biggest cause of question quarantine (~half of
+// raw drafts). This nudges ONE token (a genuine per-wine multiplier whose count === N, else a single
+// written part) by the exact shortfall/surplus, keeps every value ≥ 5, then RE-VERIFIES the new sum. If
+// it cannot produce a verified-correct split it returns the text UNCHANGED, so a genuinely broken question
+// is still caught by the validator (validateMarkAllocation) — this can never ship a half-fixed question.
+function normalizeMarkAllocation(text: string, wineCount: number): string {
+  if (!wineCount || wineCount < 1) return text;
+  const expected = wineCount * 25;
+  const re = /\((\d+)\s*[x×]\s*(\d+)\s*marks?\)|\((\d+)\s*marks?\)/gi;
+  type Tok = { kind: "mult" | "single"; n?: number; mark: number; start: number; raw: string };
+  const tokens: Tok[] = [];
+  for (const m of text.matchAll(re)) {
+    if (m[1] !== undefined) tokens.push({ kind: "mult", n: +m[1], mark: +m[2], start: m.index ?? 0, raw: m[0] });
+    else tokens.push({ kind: "single", mark: +m[3], start: m.index ?? 0, raw: m[0] });
+  }
+  if (!tokens.length) return text; // no marks → engine defaults to 100; leave
+  const total = tokens.reduce((s, t) => s + (t.kind === "mult" ? (t.n as number) * t.mark : t.mark), 0);
+  if (total === expected) return text;
+  const delta = expected - total;
+
+  let target: Tok | null = null;
+  let newRaw: string | null = null;
+  // Preferred: nudge a genuine per-wine multiplier (count === N) by delta/N — preserves structure.
+  if (delta % wineCount === 0) {
+    const perWine = tokens.filter((t) => t.kind === "mult" && t.n === wineCount);
+    if (perWine.length) {
+      const t = perWine.reduce((a, b) => (b.mark > a.mark ? b : a)); // largest M = most headroom
+      const newM = t.mark + delta / wineCount;
+      if (newM >= 5) { target = t; newRaw = `(${t.n} x ${newM} marks)`; }
+    }
+  }
+  // Fallback: adjust a single written part (≥5) by the whole delta.
+  if (!target) {
+    const singles = tokens.filter((t) => t.kind === "single" && t.mark >= 5);
+    if (singles.length) {
+      const t = singles.reduce((a, b) => (b.mark > a.mark ? b : a));
+      const newX = t.mark + delta;
+      if (newX >= 5) { target = t; newRaw = `(${newX} marks)`; }
+    }
+  }
+  if (!target || !newRaw) return text; // can't fix cleanly → leave for the validator (no regression)
+
+  const out = text.slice(0, target.start) + newRaw + text.slice(target.start + target.raw.length);
+  let chk = 0; // re-verify; never ship a half-fixed text
+  for (const m of out.matchAll(re)) chk += m[1] !== undefined ? +m[1] * +m[2] : +m[3];
+  return chk === expected ? out : text;
+}
+
 function parseGeneratedQuestion(
   text: string,
   paper: number,
@@ -1148,11 +1198,16 @@ function parseGeneratedQuestion(
     const parsedFamily = familyMatch ? familyMatch[1] : family;
     const parsedLabel = FAMILY_LABELS[parsedFamily] || "Unknown";
 
-    // Extract marks
+    // Repair the mark allocation BEFORE extracting the total (EK-0041): the LLM often prints
+    // sub-question marks that don't sum to 25×N. This nudges them to sum exactly when it safely can;
+    // otherwise it returns the text unchanged for validateMarkAllocation to quarantine.
+    const repairedText = normalizeMarkAllocation(questionText, wines.length);
+
+    // Extract marks (from the repaired text, so totalMarks reflects the corrected allocation)
     let totalMarks = 0;
-    const mult = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
+    const mult = [...repairedText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
     for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    const single = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
+    const single = [...repairedText.matchAll(/\((\d+)\s*marks?\)/gi)];
     for (const m of single) totalMarks += parseInt(m[1]);
     if (!totalMarks) totalMarks = 100;
 
@@ -1172,7 +1227,7 @@ function parseGeneratedQuestion(
       family: parsedFamily,
       familyLabel: parsedLabel,
       subcategory: sanitizeSubcategory(subcatMatch ? subcatMatch[1].trim() : ""),
-      questionText,
+      questionText: repairedText,
       wines,
       totalMarks,
       generationReasoning,

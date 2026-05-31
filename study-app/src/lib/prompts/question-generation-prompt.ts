@@ -386,6 +386,9 @@ Every wine in the question MUST receive exactly 25 marks total across all sub-qu
 Some marks may be allocated to "all wines" sub-questions (e.g., "Identify the country of origin" worth 15 marks shared across the flight). Divide these equally across wines when calculating. The per-wine total must still equal 25.
 
 ## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
+**THE TOTAL IS FIXED: exactly 25 marks per wine.** This ${targetFlightSize}-wine question is worth EXACTLY **${targetFlightSize * 25} marks**. Before you output, ADD UP every printed sub-question mark value and confirm the sum is EXACTLY ${targetFlightSize * 25} — a question whose printed marks do not total ${targetFlightSize * 25} is automatically rejected. Do the arithmetic; do not estimate.
+Reliable allocation that always sums correctly (use it unless the question family needs another shape): (a) variety + origin = ${targetFlightSize} × 10 = ${targetFlightSize * 10}; (b) winemaking / production = ${targetFlightSize} × 8 = ${targetFlightSize * 8}; (c) quality, maturity & commercial = ${targetFlightSize} × 7 = ${targetFlightSize * 7}; → total ${targetFlightSize * 25}.${targetFlightSize === 1 ? " (For a single wine, write the marks as plain values, e.g. \"(10 marks)\".)" : ` (Per-wine sub-questions are written "${targetFlightSize} × M marks".)`} If you use a different shape — e.g. a single shared "identify the variety" part for a same-variety flight, or two parts instead of three — re-add the numbers: they must STILL total ${targetFlightSize * 25}, weighted per the mark emphasis below.
+
 Minimum marks per written sub-question: **5 marks**.
 The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:
 - 2 marks: "State the level of residual sugar" or "State the alcohol level" — one-number answers
