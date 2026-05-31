@@ -21,11 +21,6 @@ const PAPERS: { label: string; value: number | null }[] = [
   { label: "P2 Reds", value: 2 },
   { label: "P3 Special", value: 3 },
 ];
-const MODES: { label: string; value: Mode; hint: string }[] = [
-  { label: "Sniper", value: "sniper", hint: "Stem only — one Layer-A guess." },
-  { label: "Reverse Tasting", value: "reverse", hint: "Guess on the stem, then again with the tasting note." },
-];
-
 export default function StemSniperPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -126,14 +121,15 @@ export default function StemSniperPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const startDrilling = () => {
-    if (typeof window !== "undefined") window.localStorage.setItem(INTRO_SEEN_KEY, "1");
-    fetchNext(paper);
-  };
-
-  const selectMode = (m: Mode) => {
+  // Mode is chosen on the intro page (so the candidate commits to Sniper vs Reverse Tasting before
+  // starting, and the intro explains both). Reopening "How it works" lets them switch.
+  const startDrilling = (m: Mode) => {
     setMode(m);
-    if (typeof window !== "undefined") window.localStorage.setItem(MODE_KEY, m);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(INTRO_SEEN_KEY, "1");
+      window.localStorage.setItem(MODE_KEY, m);
+    }
+    fetchNext(paper);
   };
 
   // Sniper scoring (also the graceful fallback if the Layer-B reveal can't be produced).
@@ -237,23 +233,23 @@ export default function StemSniperPage() {
 
       {status !== "intro" && (
         <>
-          {/* Mode toggle */}
+          {/* Active-mode chip — mode is chosen on the intro; this just shows which is active. */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            {MODES.map((m) => (
-              <button
-                key={m.value}
-                onClick={() => selectMode(m.value)}
-                title={m.hint}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                  mode === m.value
-                    ? "bg-emerald-400/15 text-emerald-300 border-emerald-400/40"
-                    : "bg-card border-border text-muted hover:text-foreground"
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-            <span className="text-[11px] text-muted/70 ml-1">{MODES.find((m) => m.value === mode)?.hint}</span>
+            <span
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
+                mode === "reverse"
+                  ? "bg-emerald-400/15 text-emerald-300 border-emerald-400/40"
+                  : "bg-accent/15 text-accent border-accent/40"
+              }`}
+            >
+              {mode === "reverse" ? "Reverse Tasting" : "Sniper"} mode
+            </span>
+            <button
+              onClick={() => setStatus("intro")}
+              className="text-[11px] text-muted/70 hover:text-foreground transition-colors cursor-pointer underline-offset-2 hover:underline"
+            >
+              switch
+            </button>
           </div>
 
           {/* Paper filter */}
