@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-06-01 — consolidate: 7 feedback item(s) processed → 6 new entries (EK-0125, EK-0126, EK-0127, EK-0128, EK-0129, EK-0130).**
 - **2026-05-31 — Project 8 (System Integrity & Correctness Refactor): applied the SUPPORTED / VERY-STRONG
   edits gated by `outputs/research/evidence_audit.md`. (1) **Superseded EK-0093** (the "absolute 65% per
   paper" constant is factually wrong) with **new EK-0116** (65% AVERAGE across the three papers + ~50%
@@ -575,6 +576,16 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   (`outputs/research/confidence_prompt_audit.md`, Crit 2). This is the §3-level expression of the
   trust-account model (EK-0121).
 
+### EK-0126 · Cartizze is the apex of the Prosecco hierarchy — model answers must not undersell premium crus
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #133 / analysis #17 (reject)
+- **claim:** When a flight uses a 'premium example of a humble category' (e.g. Bisol Cartizze, the historic grand-cru hilltop and apex of the Valdobbiadene/Prosecco pyramid), the model answer must characterise it at that quality level — complex, age/lees-worthy, premium-priced — not as a generic off-dry, easy-drinking aperitif. Mischaracterising a top cru as a moderate-quality example is an answer-content/calibration error (cf. EK-0092 over/under-calling). The question design (premium example of a humble category) is corpus-realistic; the defect is the model-answer prose.
+
+### EK-0127 · Classification models differ in KIND — Burgundy=vineyard, Bordeaux=producer, Rioja=ageing, Tuscany=geographic+structural
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #135 / analysis #19 (partial)
+- **claim:** A quality-hierarchy answer must not flatten all 'legally defined ladders' into the same geographic delimiting. The classification models differ in kind: Burgundy is a vineyard/terroir ladder (Bourgogne→village→1er→Grand Cru); Bordeaux (1855) is a producer/château classification; Rioja's ladder is an AGEING-regime designation (Crianza/Reserva/Gran Reserva, plus varietal/DOCa rules) — NOT geographic; Tuscany/Sangiovese combines geographic (Chianti vs Chianti Classico) AND structural (Classico vs Gran Selezione). A model answer or grader that frames Rioja's tiers as a geographic appellation ladder is factually wrong; place each wine within the correct TYPE of hierarchy for its origin.
+
 ---
 
 ## §4 · Wine selection & distribution by paper
@@ -799,6 +810,21 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #145 / analysis #25 (accept); outputs/heuristics/examiner_patterns.md §4.1
 - **claim:** Paper 3 is built around non-still styles (sparkling, fortified, sweet, rosé) plus oxidative/biologically-aged styles. Still oxidative whites DO appear on P3, but always as a flor/sous-voile style (Jura Savagnin/Chardonnay, e.g. 2015 P3 Q1, 2019 P3 Q4, 2024 P3 Q2) paired against a fortified or sparkling anchor. The corpus has NO P3 question pairing two conventionally-oxidative, non-flor still white wines. Conventionally-oxidative white Rioja (López de Heredia, Murrieta) is corpus-attested as a Paper 1 wine (2018 P1 breadth, 2025 P1 three-countries), not P3. A two-still-white oxidative pairing belongs on P1; it is only P3-appropriate if at least one wine is non-still (e.g. a Sherry or sparkling anchor).
 
+### EK-0125 · Two-country sparkling pairs are often both traditional-method (no method fork required)
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #130 / analysis #18 (reject); corpus: 2024 P3 Q1 (Schramsberg vs Cava Avinyó); 2019 P3 Q1 (two Champagnes)
+- **claim:** A two-wine sparkling pair from different countries does NOT require a production-method contrast. The corpus repeatedly pairs two traditional-method sparklers (2024 P3 Q1 Schramsberg/Cava; 2019 P3 Q1 two Champagnes) and asks candidates to IDENTIFY the method of each and explain its style influence, plus discriminate quality/commercial — not to fork tank vs traditional. Crémant is almost exclusively traditional method (lower lees ageing than Champagne, ~9 vs ~18 months), so a Crémant + English-sparkling pair is a legitimate same-method, different-tier question. If a deliberate method fork is wanted, Prosecco or German Sekt provides it; but the absence of a fork is not a defect.
+
+### EK-0128 · Pure quality-ladder questions are 3–4 wines single-country; a 6-wine two-country mega-hierarchy is unattested
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #135 / analysis #19 (partial); corpus: 2015 P2 Q3 (two sub-region 4-wine split, closest precedent)
+- **claim:** Historical quality-ladder (F7) questions are 3–4-wine single-country ladders (a Rioja Crianza/Reserva/Gran Reserva trio; a Burgundy Bourgogne→village→1er/Grand Cru ladder). Each half is well attested individually, but a SINGLE 6-wine, two-country, pure-hierarchy question consuming half a paper is not attested in the corpus — the closest precedent (2015 P2 Q3) is a 4-wine two-sub-region split, not a 6-wine two-country quality ladder. Prefer splitting a two-country ladder into two separate single-country questions; treat the 6-wine fused hierarchy as out-of-distribution.
+
+### EK-0130 · Prosecco is the textbook tank-method contrast; Valdobbiadene/Cartizze are still Charmat, not traditional method
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #175 / analysis #29 (partial); corpus: Costadilà Col Fondo (sui lieviti, niche, undisgorged)
+- **claim:** Prosecco — including premium Valdobbiadene Superiore DOCG and Cartizze — is predominantly TANK (Charmat) method and is the standard contrast TO traditional method. The bottle-fermented exception is Col Fondo / 'sui lieviti' (ancestral, undisgorged), which is niche and is NOT the classic traditional (disgorged + dosage) method either. So a grader stating 'Prosecco is generally not traditional method' is correct; a candidate offering Prosecco as a traditional-method alternative is mistaken.
+
 ---
 
 ## §5 · Question generation rules
@@ -958,6 +984,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   **additive, never a replacement for the ~40% ID core**; **falsification test:** two consecutive absent
   years downgrades it.
 
+### EK-0129 · Three-tier blend stem phrasing signals how to treat the blend
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #151 / analysis #27 (reject); corpus: 2011 P2 Q4 ("variety/ies"); 2012 P2 Q3 ("predominant"); 2018 P2 Q2 ("single grape variety")
+- **claim:** The MW's choice of variety-words in a red stem is a deliberate diagnostic signal with three tiers: (1) 'grape variety' (singular) ⇒ all wines are single-varietal; (2) 'predominant grape variety' ⇒ a slight blend driven by varietal character (Rioja, Côte-Rôtie with ~5% Viognier) — minor addition addressing a niche aspect; (3) 'grape variety or varieties' / 'varieties' ⇒ at least one wine is DEFINED by its blend character (Bordeaux, GSM, Cab/Shiraz). Generation must match phrasing to the wines (a four-genuine-blend flight legitimately uses 'variety or varieties'), and graders/answers should read the phrasing as telling the candidate how to weigh blend vs varietal character. Refines EK-0053 and EK-0040 R5/EK-0071.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1001,6 +1032,13 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 143 | 24 | P3/F4 | accept | auto | Another session-not-aware novelty failure (same question re-served); already covered by EK-0087 | EK-0087 |
 | 145 | 25 | P3/F7 | accept | auto | P3 still-white inclusions must be flor/sous-voile paired with a non-still anchor; two conventional still whites belong on P1 | EK-0088 |
 | 161 | 28 | P1/F2 | accept | auto | question images showed regions/wines outside the answer set; limit imagery to keyed wines | EK-0095 |
+| 130 | 18 | P3/F7 | reject | auto | two-country sparkling pairs can both be traditional method; no method fork required | EK-0125 |
+| 133 | 17 | P3/F6 | reject | auto | model answer underselling Cartizze (apex Prosecco) — calibration; question design sound | EK-0126 |
+| 135 | 19 | P2/F7 | partial | auto | classification models differ in kind (Rioja=ageing not geographic); 6-wine two-country hierarchy unattested | EK-0127, EK-0128 |
+| 138 | 21 | P1/F4 | accept | auto | 25-marks/wine hard rule (already captured); ledger row already present | EK-0001, EK-0041 |
+| 150 | 26 | P3/F3 | reject | auto | curveball in a 3-wine flight (~33%) is a documented modal pattern; objection corpus-overruled — covered by EK-0024/EK-0097 | EK-0024, EK-0097, EK-0016 |
+| 151 | 27 | P2/F6 | reject | auto | three-tier blend stem phrasing (variety / predominant / variety-or-varieties) signals how to treat the blend | EK-0129 |
+| 175 | 29 | P3/F7 | partial | auto | Prosecco (incl. Cartizze) is Charmat not traditional method; dictation-truncation complaint relates to capture not grading (EK-0070) | EK-0130, EK-0070 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
