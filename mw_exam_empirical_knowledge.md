@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-06-02 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0131).**
 - **2026-06-01 — consolidate: 7 feedback item(s) processed → 6 new entries (EK-0125, EK-0126, EK-0127, EK-0128, EK-0129, EK-0130).**
 - **2026-05-31 — Project 8 (System Integrity & Correctness Refactor): applied the SUPPORTED / VERY-STRONG
   edits gated by `outputs/research/evidence_audit.md`. (1) **Superseded EK-0093** (the "absolute 65% per
@@ -825,6 +826,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #175 / analysis #29 (partial); corpus: Costadilà Col Fondo (sui lieviti, niche, undisgorged)
 - **claim:** Prosecco — including premium Valdobbiadene Superiore DOCG and Cartizze — is predominantly TANK (Charmat) method and is the standard contrast TO traditional method. The bottle-fermented exception is Col Fondo / 'sui lieviti' (ancestral, undisgorged), which is niche and is NOT the classic traditional (disgorged + dosage) method either. So a grader stating 'Prosecco is generally not traditional method' is correct; a candidate offering Prosecco as a traditional-method alternative is mistaken.
 
+### EK-0131 · Alsace Sylvaner is a curveball, not a banker; only Pinot Gris/Riesling/Gewürztraminer/Muscat are noble bankers
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #188 / analysis #32 (accept)
+- **claim:** In an Alsace same-region different-variety pair, Pinot Gris is a legitimate banker (one of the four noble grapes), but Sylvaner is NOT — it is not a noble Alsace variety and functions as the curveball, not the anchor. A valid banker-vs-curveball pairing must classify Sylvaner (and similar lesser Alsace grapes like Pinot Blanc/Auxerrois) as the harder wine; feedback/model-answer prose that labels Sylvaner a banker is a calibration error. The noble bankers of Alsace are Riesling, Pinot Gris, Gewürztraminer and Muscat (cf. EK-0029 — a banker must be a wine the candidate is expected to know cold).
+
 ---
 
 ## §5 · Question generation rules
@@ -1048,6 +1054,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 150 | 26 | P3/F3 | reject | auto | curveball in a 3-wine flight (~33%) is a documented modal pattern; objection corpus-overruled — covered by EK-0024/EK-0097 | EK-0024, EK-0097, EK-0016 |
 | 151 | 27 | P2/F6 | reject | auto | three-tier blend stem phrasing (variety / predominant / variety-or-varieties) signals how to treat the blend | EK-0129 |
 | 175 | 29 | P3/F7 | partial | auto | Prosecco (incl. Cartizze) is Charmat not traditional method; dictation-truncation complaint relates to capture not grading (EK-0070) | EK-0130, EK-0070 |
+| 188 | 32 | P1/F2 | accept | auto | Alsace Sylvaner is a curveball not a banker; only the four noble grapes anchor | EK-0131 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
