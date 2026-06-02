@@ -1,0 +1,261 @@
+{
+  "chapter": 1,
+  "slug": "grading",
+  "title": "What the Practical Measures, and How It Is Graded",
+  "anchorVisual": "GradeBands",
+  "sections": [
+    {
+      "id": "what-it-measures",
+      "title": "What the practical actually measures",
+      "intent": "Frame the exam as a test of three assessed abilities (assess the wine, reach a sound judgement, communicate it under time pressure) — competence is the target, ID is necessary but not sufficient."
+    },
+    {
+      "id": "pass-standard",
+      "title": "The pass standard: a 65% average, not 65% per paper",
+      "intent": "Install the core arithmetic — pass = 65% AVERAGE across the three practical papers, criterion-referenced (an absolute bar, not a curve), NOT 65% on every paper. A strong paper can carry a weaker one above the average."
+    },
+    {
+      "id": "per-paper-floor",
+      "title": "The per-paper floor",
+      "intent": "Install the floor — any single paper must clear ~50%; a paper below the floor is fatal regardless of how strong the average is, so banking strong papers only works while every paper stays above ~50%."
+    },
+    {
+      "id": "grade-bands",
+      "title": "The grade bands",
+      "intent": "Lay out the band ladder (A 70+, B 65–69, C+ 60–64 borderline, below) and make crystal clear which cut-points are CONFIRMED (C+ = 60–64) versus PLAUSIBLE (A/B edges, unreadable-appendix-sourced) — the chapter must never assert the A/B numbers as fact."
+    },
+    {
+      "id": "correction",
+      "title": "Why “65% per paper” was wrong",
+      "intent": "Surface the historical correction: '65% per paper' was a false internal invention (finding PS-1) with no primary support; EK-0093 carried it and was superseded by EK-0116. Teach the candidate to trust the average+floor model."
+    },
+    {
+      "id": "distinction",
+      "title": "Distinction is consistency, not one brilliant flight",
+      "intent": "Install the top-band lesson — high marks reward consistency across twelve wines and three days, not a single peak; in some passing years no candidate scored an A at all. Carry the hedge: directionally supported, not a hard gradable rule."
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "claim": "The IMW practical measures whether a candidate can perform three assessed abilities: accurately assess the wine, reach a sound judgement (quality / origin / variety / maturity / winemaking / commercial), and communicate it concisely under time pressure.",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L505–508); 'three named abilities'",
+      "strength": "STRONG",
+      "proposedSection": "what-it-measures",
+      "needsExample": false
+    },
+    {
+      "id": "c2",
+      "claim": "The earlier 'four-dimension mastery' framing was an internal reconstruction, not IMW doctrine; theory accuracy is kept only as an internal fourth lens.",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L508–509); supersedes EK-0093 'four dimensions' (L486–487)",
+      "strength": "PLAUSIBLE",
+      "note": "Audit tags the IMW-three-abilities correction as MODERATE/SUPPORTED-correction; the 'four-dimension' count was asserted as doctrine but is a corpus reconstruction (PS-2).",
+      "proposedSection": "what-it-measures",
+      "needsExample": false
+    },
+    {
+      "id": "c3",
+      "claim": "A pass requires a minimum across the assessed abilities, not an average of them — a spike in one cannot rescue a hole in another.",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "PS-2 (§1); min-not-mean logic (SUPPORTED)",
+      "strength": "STRONG",
+      "proposedSection": "what-it-measures",
+      "needsExample": false
+    },
+    {
+      "id": "c4",
+      "claim": "The pass standard is a 65% AVERAGE across the three practical papers, NOT 65% on every paper.",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "§0 governing evidence; FINDING PS-1",
+      "strength": "STRONG",
+      "proposedSection": "pass-standard",
+      "needsExample": false
+    },
+    {
+      "id": "c5",
+      "claim": "The pass standard is criterion-referenced — an absolute bar, not a curve.",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "Audit A row 'Criterion-referenced, not a curve' (L396) — CORRECT",
+      "strength": "STRONG",
+      "proposedSection": "pass-standard",
+      "needsExample": false
+    },
+    {
+      "id": "c6",
+      "claim": "Because the average governs, a strong paper can carry a weaker one above the 65% line (provided the weak paper clears the per-paper floor).",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L501–502); 'a strong paper can carry a weaker one above the average'",
+      "strength": "STRONG",
+      "proposedSection": "pass-standard",
+      "needsExample": false
+    },
+    {
+      "id": "c7",
+      "claim": "The public IMW Student Guide states the rule verbatim: 'average 65% or more across all three papers, with a minimum of 50% in any one paper' — a public source that overrides any corpus paraphrase.",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "T1-1 evidence (L56–57); Audit A; §0 provenance (public doc overrides corpus)",
+      "strength": "STRONG",
+      "proposedSection": "pass-standard",
+      "needsExample": false
+    },
+    {
+      "id": "c8",
+      "claim": "Any single paper must clear a per-paper minimum floor of ~50% (Student Guide: 'minimum of 50% in any one paper'; some candidate accounts cite 55%, so carry the '~' hedge).",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "Audit A row 'Per-paper floor' (L392) — CORRECT (~50%)",
+      "strength": "STRONG",
+      "note": "Adopt 50% with a '~' hedge; the 55% figure is a candidate-account variant, not the Guide.",
+      "proposedSection": "per-paper-floor",
+      "needsExample": false
+    },
+    {
+      "id": "c9",
+      "claim": "A paper that falls below the floor cannot be rescued by a high average — the floor is an independent gate, so banking strong papers only works while every paper stays above ~50%.",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "PS-1 replacement text (§1 L57–65); 'provided the weak paper clears the floor'",
+      "strength": "STRONG",
+      "proposedSection": "per-paper-floor",
+      "needsExample": false
+    },
+    {
+      "id": "c10",
+      "claim": "Below roughly 45% AVERAGE across the practical papers a candidate almost never recovers (2018 Chief: 'below an average of 45%... less than 5%') — this is an aggregate tendency softened by the SPR mechanism, NOT a per-paper rule.",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "T1-1 'Floor / recovery' (L64–65); Audit A row 'sub-45%' (L395) — Mis-stated as per-paper; correct to average",
+      "strength": "STRONG",
+      "note": "The corpus had previously mis-stated this as a per-paper '~45% does not recover' clause; the real source is an average across papers.",
+      "proposedSection": "per-paper-floor",
+      "needsExample": false
+    },
+    {
+      "id": "c11",
+      "claim": "The C+ band = 60–64% and is the borderline band; this cut-point is CONFIRMED (public IMW Student Guide + 2024 Practical, Peter Marks MW, who defines '60% – 64% range across all three papers').",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "Audit A row 'Grade bands' (L394); §0 (L28–29); T1-1 (L62–63)",
+      "strength": "STRONG",
+      "proposedSection": "grade-bands",
+      "needsExample": false
+    },
+    {
+      "id": "c12",
+      "claim": "The grade-band cut-points A ≥ 70 and B = 65–69 are PLAUSIBLE / indicative only — sourced solely to the unreadable, image-based 2021 Chief Examiner appendix and verified by no readable report; they must NOT be asserted as fact.",
+      "sourceFile": "outputs/research/evidence_audit.md",
+      "locator": "§0 provenance (L25–29); Audit A row 'Grade bands' (L394 'PARTIALLY correct'); blind-spots #6 (L581); T1-1 confidence 65% (L82, L95)",
+      "strength": "PLAUSIBLE",
+      "note": "MANDATORY HEDGE. Sourced only to the unreadable 2021 appendix; only C+ = 60–64 is report-verified. Record as PLAUSIBLE, never STRONG. The anchor visual must render the A/B edges as PLAUSIBLE (e.g. dashed) while C+ and the average/floor render as CONFIRMED.",
+      "proposedSection": "grade-bands",
+      "needsExample": false
+    },
+    {
+      "id": "c13",
+      "claim": "EK-0116 summarises the band structure as: C+ = 60–64% confirmed; A ≥ 70 / B 65–69 plausible/indicative only (do not assert as verified).",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L503–504)",
+      "strength": "PLAUSIBLE",
+      "note": "EK-0116 itself flags the A/B edges as plausible/indicative; preserve that hedge.",
+      "proposedSection": "grade-bands",
+      "needsExample": false
+    },
+    {
+      "id": "c14",
+      "claim": "'65% per paper' was a false internal invention with no primary support anywhere in any examiner report or public document — the single most-injected falsehood in the grading system (finding PS-1).",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "FINDING PS-1 (§1, L40–69, 'THE headline'); evidence_audit Audit A row 3 'No primary support anywhere. An internal invention.'",
+      "strength": "STRONG",
+      "proposedSection": "correction",
+      "needsExample": false
+    },
+    {
+      "id": "c15",
+      "claim": "The false '65% per paper' constant lived in EK-0093 (and the live grading prompt marking-principles.ts L15) and was corrected by superseding EK-0093 with EK-0116 (65% average + ~50% floor; three abilities not four).",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0093 (L479–490, status: superseded; 'superseded by: EK-0116', L481–483); EK-0116 (L492–513)",
+      "strength": "STRONG",
+      "proposedSection": "correction",
+      "needsExample": false
+    },
+    {
+      "id": "c16",
+      "claim": "Teaching candidates '65% per paper' teaches the wrong strategy — it implies every paper (and every answer) must independently clear 65, discouraging the correct play of banking strong papers to carry a weaker one while never breaching the ~50% floor.",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "§2 Q3 (L159–163, 'teaches the wrong lesson')",
+      "strength": "STRONG",
+      "proposedSection": "correction",
+      "needsExample": false
+    },
+    {
+      "id": "c17",
+      "claim": "Distinction (and high marks generally) appears to reward consistency across all three papers rather than a single brilliant script.",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0119 (L1468–1475, tier: CURVEBALL); 'distinction = consistency'",
+      "strength": "CURVEBALL",
+      "note": "EK-0119 is tier CURVEBALL and flagged per-question-inexpressible (the app never sees a candidate's three-day arc); evidence_audit tags it PLAUSIBLE. Carry as UI/methodology framing, not a gradable rule. NOTE: the chapter intent treats this as a headline; preserve the hedge regardless.",
+      "proposedSection": "distinction",
+      "needsExample": false
+    },
+    {
+      "id": "c18",
+      "claim": "In some passing years (e.g. 2022) no candidate scored an A at all — the A grade comes from no weak section across twelve wines and three days, not from one peak flight.",
+      "sourceFile": "outputs/research/pass_standard_impact_analysis.md",
+      "locator": "NOT in the three brief sources directly; the 'no-A-year (2022)' datum lives in outputs/research/distinction_candidate_analysis.md (L51, L465), examiner_confidence_construction_model.md (L79), future_exam_prediction.md (L216–217). EK-0119 carries the consistency frame.",
+      "strength": "PLAUSIBLE",
+      "needsExample": true,
+      "conflict": false,
+      "note": "OUT-OF-BRIEF SOURCING: the specific 'no candidate scored an A in 2022' fact is not stated in the three assigned source files (pass_standard_impact_analysis.md, EK §3/EK-0093/EK-0116, evidence_audit pass-standard rows). The chapter intent asks for it, and it IS supported elsewhere in the corpus. Flagged needsExample:true so the researcher confirms the year and the exact examiner-report wording before the writer uses it; record as PLAUSIBLE (the consistency model is PLAUSIBLE/CURVEBALL, and the underlying reports are member-gated and not web-verifiable)."
+    },
+    {
+      "id": "c19",
+      "claim": "This app grades a single question, so its per-question PASS / BORDERLINE / FAIL verdict is a single-question PROXY for where the answer would sit in the paper-level band — not the official paper-level pass test. There is no numeric 65% threshold in code; the verdict is produced entirely inside the grader prompt.",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L509–512, 'single-question PROXY'); pass_standard_impact_analysis.md §0 CRUCIAL NUANCE (L23–27) + PS-6 (L135–142)",
+      "strength": "STRONG",
+      "note": "Important framing so the reader does not mistake the app's per-question verdict for the exam's per-paper bar.",
+      "proposedSection": "pass-standard",
+      "needsExample": false
+    },
+    {
+      "id": "c20",
+      "claim": "The howler-override temperament still holds: if a script's aggregate lands at BORDERLINE and a clear theory howler is present, examiners resolve it to FAIL — withholding the benefit of the doubt from a borderline candidate making obvious theory mistakes.",
+      "sourceFile": "mw_exam_empirical_knowledge.md",
+      "locator": "EK-0116 (L512–513); EK-0093 howler-override (L488–490); EK-0015",
+      "strength": "STRONG",
+      "note": "Survives the EK-0093 → EK-0116 correction; only the '65% per paper' and 'four dimensions' parts of EK-0093 were wrong.",
+      "proposedSection": "correction",
+      "needsExample": false
+    }
+  ],
+  "conflicts": [
+    {
+      "claim": "The pass standard's per-paper requirement.",
+      "sourceA": "EK-0093 (mw_exam_empirical_knowledge.md L485) — 'Pass is an ABSOLUTE 65% per paper, not a curve' (status: superseded)",
+      "sourceB": "EK-0116 (mw_exam_empirical_knowledge.md L500–502) + evidence_audit Audit A (L391, L393) — '65% AVERAGE across the three papers + ~50% per-paper floor; the 65%-per-paper constant has no primary support, an internal invention'",
+      "note": "RESOLVED IN-CORPUS (do not re-litigate, but surface for the chapter's correction section): EK-0093 is superseded by EK-0116 and ignored by downstream agents. The chapter's 'why 65% per paper was wrong' section IS this conflict made into narrative. Headline finding PS-1. EK-0116 is authoritative (public Student Guide overrides the corpus invention)."
+    },
+    {
+      "claim": "The recovery / failure clause ('sub-45% does not recover').",
+      "sourceA": "EK-0093 (L485–486) — reads as a per-paper rule: 'sub-45% does not recover'",
+      "sourceB": "evidence_audit Audit A (L395) + T1-1 (L64–65) — the real 2018 source is an AVERAGE across the practical papers, softened by the SPR mechanism, not a per-paper floor",
+      "note": "Mis-statement, not a true disagreement: correct to 'below ~45% AVERAGE rarely recovers.' Surfaced so the writer states it as an aggregate tendency, not a per-paper cliff."
+    },
+    {
+      "claim": "The grade-band cut-points A ≥ 70 / B 65–69.",
+      "sourceA": "EK-0116 (L503–504) and distinction_candidate_analysis.md §0 — cite A≥70 / B 65–69 / C+ 60–64 (attributing the bands to '2021 Chief, p.3')",
+      "sourceB": "evidence_audit §0 (L25–29) + Audit A (L394) — the 2021 Chief PDF is image-based/unreadable; only the appendix HEADER extracts, so A≥70 / B 65–69 'cannot be read from that file' and are weakly sourced; only C+ = 60–64 is independently confirmed",
+      "note": "Not a numeric disagreement — a SOURCING-STRENGTH disagreement. EK-0116 already hedges the A/B edges as plausible/indicative. The anchor visual must mark A/B as PLAUSIBLE and C+ / average / floor as CONFIRMED. Do not promote A/B to fact."
+    }
+  ],
+  "anchorVisualNeeds": {
+    "component": "GradeBands",
+    "dataPoints": [
+      "Band labels + ranges: A = 70+, B = 65–69, C+ = 60–64 (borderline), and below (Fail / floor breach)",
+      "The average line at 65 (the pass line: 65% AVERAGE across the three papers)",
+      "The per-paper floor at ~50 (any single paper below this is fatal regardless of average)",
+      "Confidence marking per data point: C+ = 60–64, the 65 average, and the ~50 floor are CONFIRMED; the A ≥ 70 and B 65–69 cut-points are PLAUSIBLE (render hedged, e.g. dashed border / 'plausible' tag)",
+      "Criterion-referenced framing (an absolute bar, not a curve) — a label, not a number",
+      "Illustration of one weak paper dragging the three-paper average under the 65 line (the visual's core narrative), and separately a floor breach that fails regardless of average"
+    ],
+    "note": "Floor figure carries a '~' hedge (Guide says 50%; some candidate accounts say 55%). The visual must never render the A/B edges with the same solid/confirmed styling as C+ or the average/floor."
+  }
+}

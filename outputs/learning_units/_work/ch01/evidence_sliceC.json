@@ -1,0 +1,101 @@
+{
+  "slice": "C",
+  "chapter": 1,
+  "claimsAssigned": ["c14", "c15", "c16", "c17", "c18", "c20"],
+  "evidence": [
+    {
+      "claimId": "c14",
+      "supported": true,
+      "supportingQuote": "FINDING PS-1 — `marking-principles.ts` L15: the false \"65% per paper\" constant *(THE headline)* ... **Evidence:** VERY STRONG / **SUPPORTED** (evidence_audit Audit A row 3: \"No primary support anywhere. An internal invention. INCORRECT — must be replaced\").",
+      "corroboratingQuote": "| \"65% **per paper**\" (the live constant) | **No primary support anywhere.** An internal invention. | **INCORRECT — must be replaced** | (evidence_audit.md Audit A row 3, L393)",
+      "citation": {
+        "id": "PS-1",
+        "type": "research",
+        "claim": "'65% per paper' has no primary support anywhere in any examiner report or public document — an internal invention; the single most-injected falsehood in the grading system.",
+        "source": "outputs/research/pass_standard_impact_analysis.md §1 FINDING PS-1 (L40-69); corroborated by outputs/research/evidence_audit.md Audit A row 3 (L393)",
+        "strength": "STRONG"
+      },
+      "example": null,
+      "notes": "Verbatim 'No primary support anywhere. An internal invention.' present in BOTH the brief source (PS-1, citing the audit) and the audit itself. 'single most-injected falsehood' is supported by §1 Q4 (L165-167): 'the single most-injected falsehood (both graders, every evaluation)'. Strength STRONG confirmed (audit: VERY STRONG / SUPPORTED). No downgrade."
+    },
+    {
+      "claimId": "c15",
+      "supported": true,
+      "supportingQuote": "FINDING PS-1 — `marking-principles.ts` L15: the false \"65% per paper\" constant ... **Current behavior (verbatim):** > `- **The pass mark is an ABSOLUTE 65% per paper, not a curve.**`",
+      "corroboratingQuote": "EK-0093 · ... **status:** superseded · **superseded by:** EK-0116 (the \"absolute 65% **per paper**\" constant is factually wrong — the IMW pass standard is a 65% **average** across the three papers with a ~50% per-paper floor; and the IMW names **three** abilities, not four. See EK-0116.) (mw_exam_empirical_knowledge.md EK-0093 L479-483)",
+      "citation": {
+        "id": "EK-0093",
+        "type": "ek",
+        "claim": "The false '65% per paper' constant lived in EK-0093 and the grading prompt (marking-principles.ts L15); EK-0093 is superseded by EK-0116 (65% average + ~50% floor; three abilities not four).",
+        "source": "mw_exam_empirical_knowledge.md · EK-0093 (L479-490, status: superseded) → EK-0116 (L492-513); marking-principles.ts L15 named in pass_standard_impact_analysis.md §1 PS-1 (L44-48)",
+        "strength": "STRONG"
+      },
+      "example": null,
+      "notes": "Every element of the claim is verbatim-confirmed: (a) EK-0093 carried 'Pass is an absolute 65% per paper' (EK doc L485); (b) the live grading prompt marking-principles.ts L15 carried the identical constant (PS-1 L44-48, quoted verbatim); (c) corrected by superseding EK-0093 with EK-0116 (EK doc L481-483 'superseded by: EK-0116'); (d) EK-0116 states '65% average ... ~50% per-paper floor' (L500-502) and 'three named abilities' (L506) not four (L508). Strength STRONG. No downgrade."
+    },
+    {
+      "claimId": "c16",
+      "supported": true,
+      "supportingQuote": "**3. What teaches candidates the wrong lesson?** It teaches that every paper (and, by proxy, every answer) must independently hit 65% — discouraging the correct strategy (bank strong papers to carry a weaker one above the average, while never letting any paper breach the ~50% floor).",
+      "citation": {
+        "id": "PS-3",
+        "type": "research",
+        "claim": "Teaching '65% per paper' teaches the wrong strategy — it implies every paper/answer must independently clear 65, discouraging the correct play of banking strong papers to carry a weaker one while never breaching the ~50% floor.",
+        "source": "outputs/research/pass_standard_impact_analysis.md §2 Q3 (L159-163)",
+        "strength": "STRONG"
+      },
+      "example": null,
+      "notes": "Verbatim match to §2 mandatory-question 3 (L159-163). The 'banking strong papers / never breach the ~50% floor' play is also corroborated by EK-0116 L501-502 ('a strong paper can carry a weaker one above the average provided the weak paper clears the floor'). Strength STRONG. No downgrade. Citation id given as PS-3 to distinguish from the headline finding; the section locator (§2 Q3) is the load-bearing reference. (Note: the writer may prefer to cite this under the PS-1 finding umbrella — both resolve inside pass_standard_impact_analysis.md.)"
+    },
+    {
+      "claimId": "c17",
+      "supported": true,
+      "supportingQuote": "Distinction/high marks appear to reward **consistency across all three papers** rather than a single brilliant script. This is directionally supported but **cannot be expressed in a single-question app** (which never sees a candidate's three-day arc). Carry it in UI/methodology framing if anywhere; do **not** make it a gradable EK rule.",
+      "citation": {
+        "id": "EK-0119",
+        "type": "ek",
+        "claim": "Distinction/high marks appear to reward consistency across all three papers rather than a single brilliant script — directionally supported, per-question-inexpressible, NOT a gradable rule.",
+        "source": "mw_exam_empirical_knowledge.md · EK-0119 (L1468-1475, tier: CURVEBALL)",
+        "strength": "CURVEBALL"
+      },
+      "example": null,
+      "notes": "MANDATORY HEDGE PRESERVED. EK-0119 is tier CURVEBALL; its own evidence line notes evidence_audit tags it PLAUSIBLE ('distinction = consistency, strong claim, per-question-inexpressible'). Strength kept at CURVEBALL per stage-1 (the lower of CURVEBALL/PLAUSIBLE; never upgrade). The chapter intent treats this as a section headline, but the writer MUST present it as directionally-supported framing, not a hard gradable rule, and note it is per-question-inexpressible (the app never sees a candidate's three-day arc)."
+    },
+    {
+      "claimId": "c18",
+      "supported": true,
+      "verdict": "SUPPORTED — year 2022, traced to the 2022 Practical Chair report (p.1).",
+      "supportingQuote": "In a year with passes, **not a single candidate scored an A.** Distinction-level performance is the ability to taste consistently well across **12 wines × 3 days, free from theoretical inaccuracy** (2017 Conclusion) — never a single brilliant flight carrying a weak paper.",
+      "attributionQuote": "\"there were no high pass marks, which demonstrates that one off-day will not ruin one's chances, but consistency is essential.\" (2022 Practical, Chair, p.1)",
+      "corroboratingQuotes": [
+        "The A grade is rare — in some passing years (2022) **no candidate scored a high pass at all**. (distinction_candidate_analysis.md §3, L463-465)",
+        "the decisive practical correlate is that **distinction is consistency, not peak brilliance**: \"there were no high pass marks ... consistency is essential\" — in a year with passes, *not a single candidate scored an A* (`distinction_candidate_analysis.md` §0). (examiner_confidence_construction_model.md §1.3, L77-80)",
+        "In some passing years (2022) **no candidate scored an A**; the A grade comes from no weak section across 12 wines × 3 days, not one virtuoso flight (`distinction_candidate_analysis.md` §0, §3). (future_exam_prediction.md M6, L216-218)"
+      ],
+      "citation": {
+        "id": "research:distinction_candidate_analysis#no-A-2022",
+        "type": "research",
+        "claim": "In some passing years (e.g. 2022) no candidate scored an A; the A grade comes from no weak section across 12 wines × 3 days, not one peak flight. Traced to the 2022 Practical Chair report (p.1): 'there were no high pass marks ... consistency is essential.'",
+        "source": "outputs/research/distinction_candidate_analysis.md §0 (L47-54) + §3 (L463-465), attributing to 2022 Practical Chair report p.1; corroborated by examiner_confidence_construction_model.md §1.3 (L77-80) and future_exam_prediction.md M6 (L216-218)",
+        "strength": "PLAUSIBLE"
+      },
+      "example": null,
+      "notes": "OUT-OF-BRIEF CONFIRMATION COMPLETE. (a) YEAR: 2022 — confirmed in all three corpus files (distinction_candidate_analysis §0 'In a year with passes' + §3 '(2022)'; examiner_confidence_construction_model L79; future_exam_prediction L217 '(2022)'). (b) ATTRIBUTION: the underlying examiner-report quote is the 2022 Practical Chair report, p.1: 'there were no high pass marks, which demonstrates that one off-day will not ruin one's chances, but consistency is essential.' The 'no candidate scored an A / no high pass' gloss is the research authors' reading of that quote (note the wording VARIES across files: 'not a single candidate scored an A' vs 'no candidate scored a high pass at all' — the report itself says 'no high pass marks', so the safest verbatim is the report quote, and 'no A' is the research interpretation). STRENGTH: PLAUSIBLE — the source reports are member-gated (not web-verifiable) and the surrounding consistency model is PLAUSIBLE/CURVEBALL. The writer SHOULD anchor the consistency point on the verbatim 2022 Chair quote ('no high pass marks ... consistency is essential') rather than asserting the harder paraphrase 'no candidate scored an A' as a flat statistic; if the 'no A' phrasing is used it must carry the PLAUSIBLE hedge. needsExample satisfied by the 2022 Chair-report anchor; no data/exams.json example required (this is an examiner-report datum, not a question)."
+    },
+    {
+      "claimId": "c20",
+      "supported": true,
+      "supportingQuote": "The howler-override temperament (old EK-0093 / EK-0015) still holds.",
+      "corroboratingQuote": "**Howler override:** if the aggregate lands at BORDERLINE and a clear theory howler is present (EK-0015), resolve to FAIL and name it — examiners withhold the benefit of the doubt from a borderline candidate making obvious theory mistakes (2024). (mw_exam_empirical_knowledge.md EK-0093 L488-490)",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "Howler-override temperament holds: if a script's aggregate lands at BORDERLINE and a clear theory howler is present, examiners resolve to FAIL — withholding benefit of the doubt from a borderline candidate making obvious theory mistakes.",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116 (L512-513, 'howler-override temperament ... still holds') + EK-0093 howler-override (L488-490) + EK-0015",
+        "strength": "STRONG"
+      },
+      "example": null,
+      "notes": "Confirmed in both entries. EK-0116 L512-513 explicitly preserves it ('The howler-override temperament (old EK-0093 / EK-0015) still holds.') across the EK-0093→EK-0116 correction; the full mechanism (BORDERLINE + clear theory howler → resolve to FAIL and name it; examiners withhold benefit of the doubt) is verbatim in EK-0093 L488-490, attributed to 2024. Only the '65% per paper' and 'four dimensions' parts of EK-0093 were wrong — this part survives. Strength STRONG. No downgrade."
+    }
+  ]
+}

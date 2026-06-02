@@ -1,0 +1,148 @@
+{
+  "slice": "B",
+  "claims": ["c8", "c9", "c10", "c11", "c12", "c13"],
+  "sections": ["per-paper-floor", "grade-bands"],
+  "generatedBy": "learning-unit-researcher (slice B)",
+  "date": "2026-06-01",
+  "evidence": [
+    {
+      "claimId": "c8",
+      "supported": true,
+      "supportingQuote": "Per-paper **floor** | Student Guide: **\"minimum of 50% in any one paper.\"** (Some candidate accounts cite 55%; the Guide says 50%.) | **CORRECT (~50%)**",
+      "locatorVerified": "outputs/research/evidence_audit.md L392 (Audit A row 'Per-paper floor'); corroborated by T1-1 Supporting Evidence L56-57 (Student Guide verbatim) and EK-0116 L500-501.",
+      "citation": {
+        "id": "research:evidence_audit#audit-a-per-paper-floor",
+        "type": "research",
+        "claim": "Per-paper floor = Student Guide 'minimum of 50% in any one paper'; some candidate accounts cite 55%, so adopt 50% with a '~' hedge. Verdict CORRECT (~50%).",
+        "source": "outputs/research/evidence_audit.md · Audit A (row 'Per-paper floor', L392)",
+        "strength": "STRONG"
+      },
+      "supplementaryCitations": [
+        {
+          "id": "EK-0116",
+          "type": "ek",
+          "claim": "65% AVERAGE across the three papers, with a ~50% per-paper floor.",
+          "source": "mw_exam_empirical_knowledge.md · EK-0116 (L500-501)",
+          "strength": "STRONG"
+        }
+      ],
+      "example": null,
+      "note": "Floor is CONFIRMED at ~50% (public IMW Student Guide). The '~' hedge is warranted only because some candidate accounts cite 55% — the Guide itself says 50%, so the hedge is about candidate-folklore variance, not about whether a floor exists. Strength preserved at STRONG per stage 1."
+    },
+    {
+      "claimId": "c9",
+      "supported": true,
+      "supportingQuote": "a candidate must average 65% or more across the three practical papers, with a ~50% minimum floor in any single paper (public IMW Student Guide). It is NOT 65% on every paper — a strong paper can carry a weaker one above the average provided the weak paper clears the floor.",
+      "locatorVerified": "outputs/research/pass_standard_impact_analysis.md PS-1 replacement text §1 L57-65 ('a strong paper can carry a weaker one above the average provided the weak paper clears the floor', L59-61). Corroborated by EK-0116 L501-502 ('A strong paper can carry a weaker one above the average provided the weak paper clears the floor').",
+      "citation": {
+        "id": "research:pass_standard_impact_analysis#PS-1",
+        "type": "research",
+        "claim": "The floor is an independent gate: a strong average cannot rescue a paper below the ~50% floor; banking strong papers works only while every paper clears the floor.",
+        "source": "outputs/research/pass_standard_impact_analysis.md · FINDING PS-1, replacement text §1 (L57-65)",
+        "strength": "STRONG"
+      },
+      "supplementaryCitations": [
+        {
+          "id": "EK-0116",
+          "type": "ek",
+          "claim": "A strong paper can carry a weaker one above the average provided the weak paper clears the floor.",
+          "source": "mw_exam_empirical_knowledge.md · EK-0116 (L501-502)",
+          "strength": "STRONG"
+        }
+      ],
+      "example": null,
+      "note": "The 'independent gate' framing is supported: both PS-1 and EK-0116 condition the carry-the-weaker-paper move on 'provided the weak paper clears the floor', which is exactly an independent floor gate operating alongside the average. STRONG preserved."
+    },
+    {
+      "claimId": "c10",
+      "supported": true,
+      "supportingQuote": "Floor / recovery: 2018 Chief (Hoskins MW): \"below an average of 45% across their Practical Papers… almost never go on to pass… less than 5%.\"",
+      "locatorVerified": "outputs/research/evidence_audit.md T1-1 'Floor / recovery' L64-65 (2018 Chief verbatim). Audit A row 'sub-45%' L395 confirms it was mis-stated as a per-paper floor and corrects it to an AVERAGE across the practical papers, 'SPR mechanism softens it', verdict 'Mis-stated — correct it'.",
+      "citation": {
+        "id": "research:evidence_audit#T1-1-floor-recovery",
+        "type": "research",
+        "claim": "Below ~45% AVERAGE across the practical papers a candidate almost never recovers (2018 Chief: 'less than 5%') — an aggregate tendency softened by the SPR mechanism, NOT a per-paper rule.",
+        "source": "outputs/research/evidence_audit.md · T1-1 Supporting Evidence (L64-65) + Audit A (row 'sub-45%', L395)",
+        "strength": "STRONG"
+      },
+      "example": null,
+      "note": "The verbatim 2018 Chief quote (1 report) supports the ~45% figure; Audit A explicitly flags the corpus's prior PER-PAPER reading as 'Mis-stated' and corrects it to an average, softened by SPR. The claim is stated correctly as written (average + tendency, not per-paper rule). STRONG preserved — but note the supporting base is a single report (n=1), so the figure itself is precise-to-one-source even though the audit verdict on the average-vs-per-paper correction is strong."
+    },
+    {
+      "claimId": "c11",
+      "supported": true,
+      "supportingQuote": "C+ = 60–64% confirmed (Student Guide + 2024 Practical).  …  2024 Practical (Marks MW): \"the C+ or 60% – 64% range **across all three papers**\" — bands are defined on the aggregate.",
+      "locatorVerified": "outputs/research/evidence_audit.md Audit A row 'Grade bands' L394 ('C+ = 60–64% confirmed (Student Guide + 2024 Practical)'); §0 L28-29 ('C+ = 60–64% is independently confirmed (2024 Practical, Peter Marks MW; IMW Student Guide)'); T1-1 Supporting Evidence L62-63 (2024 Practical, Marks MW verbatim '60% – 64% range across all three papers').",
+      "citation": {
+        "id": "research:evidence_audit#audit-a-grade-bands-cplus",
+        "type": "research",
+        "claim": "C+ = 60–64% (the borderline band) is CONFIRMED — public IMW Student Guide + 2024 Practical (Peter Marks MW): '60% – 64% range across all three papers'.",
+        "source": "outputs/research/evidence_audit.md · Audit A (row 'Grade bands', L394), §0 (L28-29), T1-1 (L62-63)",
+        "strength": "STRONG"
+      },
+      "supplementaryCitations": [
+        {
+          "id": "EK-0116",
+          "type": "ek",
+          "claim": "C+ = 60–64% is confirmed.",
+          "source": "mw_exam_empirical_knowledge.md · EK-0116 (L503)",
+          "strength": "STRONG"
+        }
+      ],
+      "example": null,
+      "note": "VERDICT: CONFIRMED. C+ = 60–64 is the report-verified band — two independent sources (public Student Guide + 2024 Practical Marks MW), and EK-0116 itself flags it as the only confirmed band. This is the load-bearing CONFIRMED anchor against which the A/B edges must be rendered as the hedged contrast. STRONG preserved."
+    },
+    {
+      "claimId": "c12",
+      "supported": true,
+      "supportingQuote": "**The grade-band cut-points A≥70 / B 65–69 / C+ 60–64 that `distinction_candidate_analysis.md` §0 attributes to \"2021 Chief, p.3\" cannot be read from that file.** C+ = 60–64% is independently confirmed … but the A≥70 / B 65–69 cut-points are, on the available evidence, **weakly sourced.**",
+      "locatorVerified": "outputs/research/evidence_audit.md §0 provenance L25-29 (2021 Chief PDF 'image-based and unreadable'; only the appendix HEADER extracts; A/B 'cannot be read from that file'); Audit A row 'Grade bands' L394 ('A≥70 / B 65–69 sourced only to the unreadable 2021 appendix — not report-verified', verdict 'PARTIALLY correct'); 'WEAKENED substantially' #6 L581 ('Grade bands A≥70 / B 65–69 — sourced only to the unreadable 2021 appendix; only C+ = 60–64 is verified'); T1-1 confidence L94-95 ('95% (headline). 65% (specific A/B band cut-points)') and Strength Of Evidence L80-82 ('VERY STRONG for the headline … MODERATE for the specific A≥70 / B 65–69 band cut-points').",
+      "citation": {
+        "id": "research:evidence_audit#audit-a-grade-bands-AB",
+        "type": "research",
+        "claim": "A ≥ 70 and B = 65–69 are PLAUSIBLE / indicative only — sourced solely to the unreadable, image-based 2021 Chief Examiner appendix and verified by no readable report; confidence 65% (vs 95% for the averaging headline). Must NOT be asserted as fact.",
+        "source": "outputs/research/evidence_audit.md · §0 (L25-29), Audit A (row 'Grade bands', L394), 'WEAKENED substantially' #6 (L581), T1-1 confidence (L94-95) + Strength (L80-82)",
+        "strength": "PLAUSIBLE"
+      },
+      "supplementaryCitations": [
+        {
+          "id": "EK-0116",
+          "type": "ek",
+          "claim": "A ≥70 / B 65–69 are plausible/indicative only (sourced to the unreadable 2021 Chief appendix — do not assert as verified).",
+          "source": "mw_exam_empirical_knowledge.md · EK-0116 (L503-504)",
+          "strength": "PLAUSIBLE"
+        }
+      ],
+      "example": null,
+      "note": "VERDICT: PLAUSIBLE / HEDGED (MANDATORY). Every cited locator independently confirms the A/B edges are sourced ONLY to the unreadable image-based 2021 Chief appendix (whose appendix HEADER is all that extracts) and are verified by no readable report. The audit assigns them MODERATE strength / 65% confidence, explicitly contrasted against the 95%-confidence averaging headline and the report-confirmed C+ band. Strength held at PLAUSIBLE (NOT upgraded). The anchor visual MUST render A≥70 and B 65–69 with hedged styling (dashed / 'plausible' tag) distinct from C+, the 65 average, and the ~50 floor (all CONFIRMED). The chapter must never assert the A/B numbers as fact."
+    },
+    {
+      "claimId": "c13",
+      "supported": true,
+      "supportingQuote": "Bands: **C+ = 60–64% is confirmed**; **A ≥70 / B 65–69 are plausible/indicative only** (sourced to the unreadable 2021 Chief appendix — do **not** assert as verified).",
+      "locatorVerified": "mw_exam_empirical_knowledge.md EK-0116 L503-504 (verbatim band summary, inside the 'live'/STRONG-tier EK-0116 entry, L492-513).",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "EK-0116 band structure: C+ = 60–64% confirmed; A ≥70 / B 65–69 plausible/indicative only (sourced to the unreadable 2021 Chief appendix — do not assert as verified).",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116 (L503-504)",
+        "strength": "PLAUSIBLE"
+      },
+      "example": null,
+      "note": "VERDICT on the band-summary claim: the EK entry as a whole is STRONG SIGNAL / live, but the SPECIFIC band-structure sub-claim it carries is itself internally hedged — EK-0116 explicitly labels C+ = 60–64 'confirmed' and A ≥70 / B 65–69 'plausible/indicative only … do not assert as verified'. So strength is held at PLAUSIBLE for the A/B portion (the claim's hedge is the point), even though EK-0116's pass-standard headline is STRONG. The chapter preserves EK-0116's own hedge verbatim: confirmed C+, hedged A/B."
+    }
+  ],
+  "verdictSummary": {
+    "per-paper-floor": {
+      "floor-50pct": "CONFIRMED (~50%, public IMW Student Guide; '~' hedge only for 55% candidate-account variance)",
+      "floor-is-independent-gate": "CONFIRMED (PS-1 + EK-0116: carry-weaker-paper move conditioned on clearing the floor)",
+      "sub-45pct-average-no-recovery": "CONFIRMED as an AVERAGE tendency (2018 Chief verbatim; corpus's prior per-paper reading corrected); NOT a per-paper rule"
+    },
+    "grade-bands": {
+      "C+": "CONFIRMED (60–64% — Student Guide + 2024 Practical Marks MW; report-verified; the load-bearing solid anchor)",
+      "A": "PLAUSIBLE / unreadable-2021-appendix-sourced (≥70 — must render hedged, never asserted as fact)",
+      "B": "PLAUSIBLE / unreadable-2021-appendix-sourced (65–69 — must render hedged, never asserted as fact)",
+      "average-65-and-floor-50": "CONFIRMED (render solid alongside C+; contrast with hedged A/B)"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "round": 1,
+  "chapter": 1,
+  "summary": {
+    "blocks": 36,
+    "pass": 34,
+    "fix": 2,
+    "cut": 0,
+    "howlers": 0,
+    "fabricatedExamples": 0
+  },
+  "checks": {
+    "danglingCitations": "none — all sourceRefs resolve to a citations[] id; no unused citations",
+    "fabricatedExamples": "none — chapter contains no `example`/`model-answer` blocks (no data/exams.json resolution required); the only concrete past-exam datum is the 2022 Practical Chair report quote, which is an examiner-report datum, correctly handled as such",
+    "2022ChairQuote": "VERBATIM MATCH. distinction_candidate_analysis.md L48-49: 'there were no high pass marks, which demonstrates that one off-day will not ruin one's chances, but consistency is essential.' (2022 Practical, Chair, p.1). Chapter quotes it exactly AND explicitly tags 'no candidate scored an A' as interpretation/plausible — NOT inflated into a flat statistic. This is exactly the required handling.",
+    "plausibleVsFact": "CORRECT. A>=70 and B 65-69 are tagged plausible in prose (grade-bands warning callout, table 'PLAUSIBLE' rows, EK-0116 hedge block) AND in GradeBands props (confidence:'plausible' on A and B). C+ = 60-64, the 65 average, and the ~50 floor all read as confirmed (confidence:'confirmed' in props; 'CONFIRMED' in table; prose). No flat assertion of A/B numbers as fact.",
+    "perPaperLeakage": "none — '65% per paper' appears ONLY as the corrected falsehood being narrated in past tense (section title 'Why 65% per paper was wrong', correction blocks). It is never stated or implied as the current/correct rule.",
+    "corpusCrossChecks": "EK-0093 (L479-490 superseded), EK-0116 (L492-513 live), EK-0119 (L1468-1475 CURVEBALL) all verified verbatim. evidence_audit.md (50% floor L392/L57, C+ 60-64 L62/L394, A/B unreadable-2021 L25/L73/L394/L581, MODERATE/65% L82, sub-45% avg L64-65/L395) all verified. pass_standard_impact_analysis.md PS-1 (L40-49), no-numeric-constant (L23-24/L141), banking-strategy (L155-167) all verified."
+  },
+  "flags": [
+    {
+      "section": "correction",
+      "blockIndex": 2,
+      "verdict": "fix",
+      "category": "non-supporting-citation",
+      "detail": "Block states the false constant 'lived in EK-0093 and in the live grading prompt (marking-principles.ts, line 15: \"The pass mark is an ABSOLUTE 65% per paper, not a curve\")'. PROBLEM: line 15 of the CURRENT marking-principles.ts no longer contains that string — it has already been FIXED and now reads the corrected average-plus-floor rule ('The IMW pass standard is criterion-referenced ... an AVERAGE, not per-paper: a candidate must average 65% across the three practical papers, with a ~50% minimum floor'). Citing a live file:line for a quote that is no longer at that line is unverifiable for any reader who opens the file, and the present-tense pin ('line 15: ...') implies the bug is still resident. The historical wording is itself recorded in PS-1 (pass_standard_impact_analysis.md L47) as: '- **The pass mark is an ABSOLUTE 65% per paper, not a curve.** Anchor the verdict to marks, not vibes:' — note the chapter dropped the trailing clause but the core string matches the historical bug.",
+      "fix": "Reframe as historical and decouple from the current line number. E.g.: 'lived in EK-0093 and, until the fix, in the live grading prompt (marking-principles.ts) as the constant \"The pass mark is an ABSOLUTE 65% per paper, not a curve.\"' Cite PS-1 (which records the historical string and the file) rather than implying it is the current line 15. The sourceRef here is EK-0093; consider adding PS-1, which is the finding that actually documents the marking-principles.ts string verbatim. Severity: minor (the prose is past tense and the underlying historical fact is true); not a howler.",
+      "citation": "marking-principles.ts L15 (now corrected); pass_standard_impact_analysis.md PS-1 (L40-49); EK-0093 (L479-490)"
+    },
+    {
+      "section": "pass-standard",
+      "blockIndex": 6,
+      "verdict": "fix",
+      "category": "schema",
+      "detail": "GradeBands visual props use OBJECT forms for 'average' and 'floor' ({\"value\":65,\"label\":...,\"confidence\":\"confirmed\"} and {\"value\":50,...,\"hedge\":\"~\"}), whereas SCHEMA.md's GradeBands example specifies SCALARS ('average': 65, 'floor': 50). Props also add fields not in the schema example ('scale', 'narrative', 'confidenceLegend'). The component is not yet built (study-app/src/components/learn/ has no GradeBands), so there is no runtime contract to validate against — and the richer object form carries exactly the per-datum confidence the schema says visuals should 'show' (dashed border on plausible A/B). This is a soft divergence, not a hard violation, but the human who hand-builds GradeBands must reconcile the prop shape, OR the props should be brought back to the schema's scalar example with confidence carried on the bands only.",
+      "fix": "Either (a) update SCHEMA.md's GradeBands example to document the object form (value+label+confidence+hedge, plus scale/narrative/confidenceLegend) so the contract matches what is authored, or (b) flatten 'average'/'floor' to scalars and move the confidence/hedge metadata into a sibling field the component reads. Decision belongs to visual-spec/the component author; flag so it is not silently mismatched at build time. Severity: low — content is correct; this is a contract-shape note.",
+      "citation": "outputs/learning_units/SCHEMA.md GradeBands example (L87-99); study-app/src/components/learn/ (component not yet built)"
+    }
+  ],
+  "advisories": [
+    {
+      "section": "what-it-measures",
+      "note": "The 'three abilities, not four' correction (callout + prose, sourceRefs EK-0116/PS-2) is verified: EK-0116 L506-509 names three abilities and demotes the four-dimension model to an internal lens; PS-2 frames the four-count as a corpus reconstruction. Strength handling is correct (the four-dimension-was-doctrine framing is NOT asserted as fact). Pass."
+    },
+    {
+      "section": "correction / distinction",
+      "note": "Howler-override block (correction) and the consistency/CURVEBALL framing (distinction) both verified against EK-0116 L512-513, EK-0093 L488-490, and EK-0119 L1468-1475. The howler override is correctly preserved as the surviving part of EK-0093; consistency is correctly presented as directional/per-question-inexpressible, not a gradable rule. Pass."
+    },
+    {
+      "section": "all",
+      "note": "No template/empty prose found. The short opener prose in each section ('The examiner is not marking your library...', 'Learn the arithmetic exactly...', etc.) is connective framing with sourceRefs:[] — permitted by SCHEMA.md for pure connective prose, and each is specific rather than generic filler. No cut warranted."
+    }
+  ],
+  "verdict": "changes-required",
+  "topIssues": [
+    "correction block cites marking-principles.ts 'line 15' for the '65% per paper' quote, but that line is already fixed and no longer holds the string — reframe as historical and cite PS-1 (which records the string verbatim). Minor, non-howler.",
+    "GradeBands props use object-form average/floor + extra fields that diverge from SCHEMA.md's scalar example; reconcile the prop contract with the (not-yet-built) component or update the schema. Low severity, content correct.",
+    "No howlers, no fabricated examples, no dangling citations, no '65% per paper'-as-current leakage, and PLAUSIBLE A/B vs CONFIRMED C+/average/floor handling is correct throughout — the two flags above are the only required changes."
+  ]
+}

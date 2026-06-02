@@ -1,0 +1,127 @@
+{
+  "slice": "A",
+  "chapter": 1,
+  "sections": ["what-it-measures", "pass-standard"],
+  "evidence": [
+    {
+      "claimId": "c1",
+      "supported": true,
+      "supportingQuote": "A pass requires breadth across the IMW's three named abilities — accurately assess the wine; draw sound judgements (quality/origin/variety/maturity/winemaking/commercial); communicate concisely under time pressure (Student Guide).",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "The IMW practical pass standard is a 65% AVERAGE across the three papers with a ~50% per-paper floor, criterion-referenced; a pass requires breadth across the IMW's three named abilities (assess the wine; draw sound judgements; communicate concisely under time pressure).",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116",
+        "strength": "STRONG"
+      },
+      "confirmedNumbers": [
+        { "value": "three abilities", "status": "CONFIRMED", "note": "EK-0116 L505-508 names exactly three: assess; judge; communicate. Attributed to public IMW Student Guide." }
+      ],
+      "example": null
+    },
+    {
+      "claimId": "c2",
+      "supported": true,
+      "supportingQuote": "The earlier \"four-dimension\" phrasing (EK-0093) was an internal reconstruction; keep theory accuracy as an internal fourth lens, not an IMW-stated dimension.",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "The earlier four-dimension framing (EK-0093) was an internal reconstruction, not IMW doctrine; theory accuracy is retained only as an internal fourth lens.",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116 (L508-509), superseding EK-0093 'four dimensions' (L486-487)",
+        "strength": "PLAUSIBLE"
+      },
+      "note": "Strength held at PLAUSIBLE per stage 1. EK-0116 asserts the three-abilities correction as STRONG, but the framing that the four-dimension count was a 'corpus reconstruction' is a MODERATE/SUPPORTED-correction (PS-2 finding: 'a corpus reconstruction asserted as if it were IMW doctrine'). Do not assert the 'four dimensions' count as having been IMW doctrine.",
+      "supportingQuoteSecondary": "The IMW's own stated framework is three abilities (assess the wine → judge/conclude → communicate), not four co-equal dimensions. The \"four-dimension\" model is a corpus reconstruction asserted as if it were IMW doctrine, attributed to \"(2024).\"",
+      "secondarySource": "outputs/research/pass_standard_impact_analysis.md · FINDING PS-2 (L80-83)",
+      "example": null
+    },
+    {
+      "claimId": "c3",
+      "supported": true,
+      "supportingQuote": "Crucially this is a MINIMUM across faculties, not an average: a spike in one cannot rescue a hole in another.",
+      "citation": {
+        "id": "PS-2",
+        "type": "research",
+        "claim": "A pass is a minimum across the assessed abilities, not an average of them — a spike in one cannot rescue a hole in another (min-not-mean logic).",
+        "source": "outputs/research/pass_standard_impact_analysis.md · FINDING PS-2 (§1, L85-91)",
+        "strength": "STRONG"
+      },
+      "note": "Claim locator in stage 1 said 'PS-2 (§1); min-not-mean logic (SUPPORTED)'. Confirmed: the min-not-mean logic is the load-bearing SUPPORTED part of PS-2 ('The load-bearing, correct part is the minimum-not-average logic ... SUPPORTED'). The supporting quote appears in the PS-2 proposed replacement text at L90-91.",
+      "example": null
+    },
+    {
+      "claimId": "c4",
+      "supported": true,
+      "supportingQuote": "Pass = average 65% or more across the three practical papers, with a ~50% per-paper floor.",
+      "citation": {
+        "id": "PS-1",
+        "type": "research",
+        "claim": "The pass standard is a 65% AVERAGE across the three practical papers (with a ~50% per-paper floor), NOT 65% on every paper; the live 'absolute 65% per paper' constant is an internal invention with no primary support.",
+        "source": "outputs/research/pass_standard_impact_analysis.md · §0 governing evidence (L14-15) + FINDING PS-1 (L40-49)",
+        "strength": "STRONG"
+      },
+      "confirmedNumbers": [
+        { "value": 65, "label": "average across three papers", "status": "CONFIRMED", "note": "§0 L15 verbatim; VERY STRONG (public IMW Student Guide, overrides corpus)." }
+      ],
+      "supportingQuoteSecondary": "The real rule is a 65% average across three papers + ~50% floor, NOT \"per paper.\"",
+      "example": null
+    },
+    {
+      "claimId": "c5",
+      "supported": true,
+      "supportingQuote": "Criterion-referenced, not a curve | Confirmed (2021 Chief framing via synthesis; consistent with Student Guide). | CORRECT",
+      "citation": {
+        "id": "EA-CRIT",
+        "type": "research",
+        "claim": "The pass standard is criterion-referenced — an absolute bar, not a curve (verdict: CORRECT in Audit A).",
+        "source": "outputs/research/evidence_audit.md · Audit A row 'Criterion-referenced, not a curve' (L396)",
+        "strength": "STRONG"
+      },
+      "note": "Audit A row L396 verdict is 'CORRECT' — 'this part the corpus already had right' (cross-confirmed at PS §0 L16). EK-0116 (L500-501) also carries 'criterion-referenced (an absolute bar, not a curve)'.",
+      "example": null
+    },
+    {
+      "claimId": "c6",
+      "supported": true,
+      "supportingQuote": "A strong paper can carry a weaker one above the average provided the weak paper clears the floor.",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "Because the average governs, a strong paper can carry a weaker one above the 65% average — provided the weak paper clears the per-paper floor.",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116 (L501-502)",
+        "strength": "STRONG"
+      },
+      "example": null
+    },
+    {
+      "claimId": "c7",
+      "supported": true,
+      "supportingQuote": "Public IMW Student Guide (authoritative, overrides corpus): \"To pass the practical component you need to average 65% or more across all three papers, with a minimum of 50% in any one paper.\" — decisive, verbatim, public.",
+      "citation": {
+        "id": "EA-SG",
+        "type": "research",
+        "claim": "The public IMW Student Guide states the rule verbatim ('average 65% or more across all three papers, with a minimum of 50% in any one paper') — a public source that overrides any corpus paraphrase.",
+        "source": "outputs/research/evidence_audit.md · Supporting Evidence (L56-58); Audit A (L391-392); §0 provenance",
+        "strength": "STRONG"
+      },
+      "note": "Student Guide quote is reproduced verbatim at evidence_audit L56-58 and tagged 'decisive, verbatim, public'. Audit A row L391 confirms the 65% average and row L392 the 50% floor, both verdict CORRECT. The 'public doc overrides corpus' provenance principle is stated at evidence_audit L56 ('authoritative, overrides corpus') and echoed in EK-0116 evidence line (L494-495).",
+      "example": null
+    },
+    {
+      "claimId": "c19",
+      "supported": true,
+      "supportingQuote": "This app grades a single question, so its per-question PASS/BORDERLINE/FAIL thresholds are a single-question PROXY for the band, not the official paper-level rule — a framing fact, not a scoring-logic change (no numeric 65% threshold exists in code; grading-telemetry is detect-only, EK-0103).",
+      "citation": {
+        "id": "EK-0116",
+        "type": "ek",
+        "claim": "The app grades a single question, so its per-question PASS/BORDERLINE/FAIL verdict is a single-question PROXY for the paper-level band, not the official paper-level pass test; there is no numeric 65% threshold in code (the verdict is produced entirely inside the grader prompt).",
+        "source": "mw_exam_empirical_knowledge.md · EK-0116 (L509-512)",
+        "strength": "STRONG"
+      },
+      "note": "Cross-confirmed by pass_standard_impact_analysis.md §0 CRUCIAL NUANCE (L22-27: 'the app grades single questions, not whole papers ... the per-question verdict thresholds are a single-question PROXY ... There is no numeric threshold constant in code') and PS-6 (L135-142: 'there is no >= 65 / < 50 numeric constant in code. The pass standard lives ONLY in prose inside the grader prompt'). Note: the claim's stage-1 locator cited PS §0 'L23-27'; the verbatim block spans L22-27 — non-material.",
+      "supportingQuoteSecondary": "there is no >= 65 / < 50 numeric constant in code. The pass standard lives ONLY in prose inside the grader prompt (PS-1/PS-2).",
+      "secondarySource": "outputs/research/pass_standard_impact_analysis.md · §0 (L22-27) + FINDING PS-6 (L135-142)",
+      "example": null
+    }
+  ]
+}

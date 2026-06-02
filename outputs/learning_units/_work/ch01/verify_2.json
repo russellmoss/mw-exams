@@ -1,0 +1,38 @@
+{
+  "round": 2,
+  "chapter": 1,
+  "summary": {
+    "blocks": 33,
+    "pass": 33,
+    "fix": 0,
+    "cut": 0,
+    "howlers": 0,
+    "fabricatedExamples": 0,
+    "backstageLeakage": 0
+  },
+  "backstageScan": {
+    "result": "NONE",
+    "scope": "Scanned every reader-visible field: title, subtitle, summary, all 6 section titles, every block md/title/caption, the GradeBands props (band labels, average/floor labels, scale, narrative, confidenceLegend), table columns/rows/caption, and all 15 citation `source` fields.",
+    "findings": [],
+    "notes": [
+      "All internal ids (EK-0093, EK-0116, EK-0119, EK-0015, PS-1/2/3/6, T1-1), code references (marking-principles.ts L15), 'both graders', 'single-question proxy / per-question', 'app/system/prompt/validator/deploy', and supersession language appear ONLY in top-level sources[].note (not rendered), citation `claim` fields (not rendered), and citation `ref` fields (internal audit trail, not rendered). Confirmed zero leakage into any `source` or prose.",
+      "The '65% per paper' correction is framed throughout as exam-reality-vs-common-intuition ('When you hear 65%, the obvious inference is 65% on every paper... That inference is wrong'), never as 'our code/system had a bug'. The PS-1 'internal invention / single most-injected falsehood / marking-principles.ts' framing stays entirely in the evidence files and never surfaces to the reader.",
+      "The single-question-proxy fact (claim c19 / EK-0116 L509-512) was correctly NOT surfaced in any reader-visible field — it is the kind of app-internal framing the NO-BACKSTAGE rule forbids, and round 2 omits it cleanly."
+    ]
+  },
+  "standingChecks": {
+    "howlers": "NONE — chapter makes no wine/region/variety/production claims; it is grading arithmetic only.",
+    "fabricatedExamples": "NONE — no `example` or `model-answer` blocks exist in this chapter, so no data/exams.json resolution required.",
+    "chair2022Quote": "VERBATIM and NOT inflated. Callout 'chair-2022' reproduces the report exactly: 'there were no high pass marks, which demonstrates that one off-day will not ruin one's chances, but consistency is essential.' The harder 'no candidate scored an A' gloss is explicitly flagged as interpretation, not a flat published statistic ('the \"no A\" reading is a plausible interpretation of that, not a flat published statistic') — matches evidence sliceC c18 guidance exactly.",
+    "abBandsPlausible": "PASS in both places. GradeBands props tag A and B confidence:'plausible' (with confidenceLegend stating they are 'indicative only... Rendered hedged, never asserted as fact'); prose (callout, table Sourcing column 'PLAUSIBLE — unreadable examiner appendix only', and two keytakeaways) all hedge A≥70 / B 65–69. Never asserted as fact.",
+    "cPlusAverageFloorConfirmed": "PASS. C+ = 60–64 (confidence:'confirmed'), the 65 average (confidence:'confirmed'), and the ~50 floor (confidence:'confirmed') are all rendered solid in GradeBands props and read confirmed in prose/table ('CONFIRMED — Student Guide + 2024 MW Practical (Marks MW)').",
+    "no65PerPaperAsCurrentRule": "PASS. Every occurrence of '65% per paper' is the explicitly-corrected WRONG reading ('It is not 65% on every paper'; 'the natural reading is the dangerous one'; 'the opposite of three hurdles at 65'). The live rule is stated correctly as a 65% average + ~50% floor.",
+    "sourceRefsResolve": "PASS. All 15 distinct sourceRefs resolve to citation ids; every citation is referenced at least once; no dangling/unused refs.",
+    "citationsHaveReaderFacingSource": "PASS. All 15 citations carry a non-empty, reader-facing `source` (IMW Student Guide / named examiner reports by year+role / 'Our analysis of every MW practical paper, 2011–2025'). No `source` contains a file path, EK/PS id, or app reference.",
+    "anchorVisual": "PASS. anchorVisual 'GradeBands' is in the Visual Registry; the only visual block uses component 'GradeBands'.",
+    "templateProse": "PASS. The empty-sourceRefs lead-ins in each section are short, section-specific framing (not generic 'this chapter will explore' filler) — permitted connective prose under the schema.",
+    "plausibleAsFact": "PASS. The two CURVEBALL/PLAUSIBLE-tier claims (consistency-frame, chair-2022) are hedged in prose ('appear to reward', 'directionally supported, not a hard scored rule', 'a plausible interpretation... not a flat published statistic'). The PLAUSIBLE ab-bands claim is hedged everywhere. The recovery-2018 sub-45% datum is correctly framed as an aggregate tendency, not a per-paper rule, per evidence sliceB."
+  },
+  "flags": [],
+  "verdict": "clean"
+}
