@@ -9,7 +9,7 @@ import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
 
 type LandingStep = "select-paper" | "select-family" | "select-mode" | "generating";
-type StudyMode = "full" | "stem-only";
+type StudyMode = "full" | "stem-only" | "known-wine";
 
 export default function Home() {
   const router = useRouter();
@@ -328,6 +328,29 @@ export default function Home() {
                         Get coaching on your reasoning, then see the wines.
                       </p>
                       <p className="text-xs text-muted/70 mt-2">~5-10 minutes</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleModeSelect("known-wine")}
+                  className="w-full text-left bg-card rounded-xl border border-border hover:border-accent/50 p-5 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Known-Wine Write-Up</h3>
+                      <p className="text-sm text-muted mt-1">
+                        The wines are revealed up front — no identification gamble. Perfect your
+                        write-up for a known classic (single wine) or a known flight, graded on
+                        style, quality, maturity and commercial alone.
+                      </p>
+                      <p className="text-xs text-muted/70 mt-2">~15-25 minutes</p>
                     </div>
                   </div>
                 </button>

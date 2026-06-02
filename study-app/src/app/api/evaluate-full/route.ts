@@ -25,6 +25,10 @@ export async function POST(request: Request) {
       paper,
       wineAppearances,
       wines,
+      // Known-Wine Write-Up ("dry notes") mode: the wine identity was revealed to the candidate
+      // up front, so grade the write-up only — fold identification marks into the remaining
+      // sub-parts and skip the stem-analysis review.
+      identityRevealed,
     } = await request.json();
 
     if (!questionText || !userAnswer || !paper) {
@@ -119,7 +123,15 @@ Three priorities for next time, numbered:
 ---
 
 Keep total feedback under 1000 words. Be specific, not generic. Use the exact heading structure above so the UI can parse and display it cleanly.
-
+${identityRevealed ? `
+## MODE OVERRIDE — Known-Wine Write-Up ("dry notes") — READ AND APPLY (supersedes the output structure above)
+The candidate practised in **Known-Wine Write-Up** mode: the wine identity (and therefore region, variety and producer) was **revealed to them up front** before they wrote. They were NOT asked to identify anything — the drill isolates the *quality of the write-up* from the identification gamble. Adjust your grading and output accordingly:
+- **OMIT the entire "## Before the Glass" section.** There was no blind stem analysis. Begin your debrief directly at "## In the Glass".
+- **Do NOT award or deduct any identification, origin, variety or producer marks** — identity was given, so getting the name "right" is not an achievement and a name is never in doubt here. Take the identification tariff printed on the question and **fold it proportionally into the remaining write-up sub-parts** (style & method-of-production, quality, maturity/development, commercial). Grade purely on the quality of the write-up against the printed mark allocation for those parts. "Estimated marks … out of [total]" should still use the question's printed total, just re-weighted off identification.
+- **Keep every other Cardinal Rule in force**, especially: quality contextualised & calibrated to the named tier (Rule 3); four-part maturity with concrete timeframes (Rule 5); commercial with channel + geography (specific AND global) + realistic price + competitive set + drinking window (Rule 6); winemaking connected to the glass with specific parameters (Rule 4); answer every sub-question and the exact question asked (Rule 7); no cut-and-paste across wines (Rule 9).
+- **Howler/cascade rules still apply to the WRITE-UP** (e.g. an impossible structural figure, or a quality/maturity/commercial claim that contradicts the revealed wine) — but never penalise "wrong identification", since none was required. A cascade error here is a write-up disconnected from the revealed wine, not a misnamed one.
+- **Anti-template:** reward fresh reasoning tied to THIS specific wine; a generic, memorised template applied to a classic should NOT score top band even with the name handed over.
+` : ""}
 ${GRADING_META_INSTRUCTION}`;
 
     let userMessage = `## Question
@@ -165,7 +177,11 @@ ${lines}`;
       /* plausibility reference is best-effort — never block grading */
     }
 
-    userMessage += `
+    userMessage += identityRevealed
+      ? `
+
+The wine identity was revealed to the candidate up front (Known-Wine Write-Up mode). Please provide the debrief per the MODE OVERRIDE: skip "Before the Glass", grade the write-up only (no identification marks), and give the "In the Glass" evaluation with pass/fail and per-sub-question marks, plus key takeaways.`
+      : `
 
 Please provide the full debrief: pre-glass review, answer evaluation with pass/fail and per-sub-question marks, and key takeaways.`;
 

@@ -7,6 +7,8 @@ interface QuestionDisplayProps {
   onStartReasoning: () => void;
   onGenerateFresh?: () => void;
   isGenerating?: boolean;
+  /** Practice mode — "known-wine" reveals identities up front and skips stem analysis. */
+  mode?: "full" | "stem-only" | "known-wine";
 }
 
 function parseQuestionText(text: string): {
@@ -122,7 +124,9 @@ export function QuestionDisplay({
   onStartReasoning,
   onGenerateFresh,
   isGenerating,
+  mode = "full",
 }: QuestionDisplayProps) {
+  const knownWine = mode === "known-wine";
   const paperLabel =
     question.paper === 1
       ? "Paper 1 — Whites"
@@ -211,9 +215,29 @@ export function QuestionDisplay({
           <span className="text-sm text-muted">
             {question.wines.length}{" "}
             {question.wines.length === 1 ? "wine" : "wines"} in this flight —
-            identities hidden until after your stem analysis
+            {knownWine
+              ? " identities revealed below (Known-Wine Write-Up)"
+              : " identities hidden until after your stem analysis"}
           </span>
         </div>
+
+        {/* Known-Wine Write-Up: reveal the identities up front so the candidate writes to a
+            known target — no identification gamble (graded on write-up quality only). */}
+        {knownWine && (
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <p className="text-xs font-semibold text-accent mb-2 uppercase tracking-wide">
+              The Wines (revealed)
+            </p>
+            <div className="space-y-1.5">
+              {question.wines.map((w) => (
+                <div key={w.slot} className="flex gap-2 text-sm">
+                  <span className="text-muted font-mono shrink-0">{w.slot}.</span>
+                  <span className="text-foreground/90">{w.fullText}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Visual appearance cues for Paper 3 */}
         {question.paper === 3 && question.wines.some((w) => w.appearance) && (
@@ -243,7 +267,7 @@ export function QuestionDisplay({
           onClick={onStartReasoning}
           className="px-10 py-3.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-xl transition-colors duration-200 cursor-pointer text-[15px]"
         >
-          Begin Stem Analysis
+          {knownWine ? "Begin Write-Up" : "Begin Stem Analysis"}
         </button>
         {onGenerateFresh && (
           <button
