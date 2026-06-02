@@ -344,10 +344,10 @@ export default function Home() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Known-Wine Write-Up</h3>
+                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Dry Notes</h3>
                       <p className="text-sm text-muted mt-1">
                         The wines are revealed up front — no identification gamble. Perfect your
-                        write-up for a known classic (single wine) or a known flight, graded on
+                        dry notes for a known classic (single wine) or a known flight, graded on
                         style, quality, maturity and commercial alone.
                       </p>
                       <p className="text-xs text-muted/70 mt-2">~15-25 minutes</p>

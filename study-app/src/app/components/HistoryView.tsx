@@ -369,6 +369,9 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const drill = isDrill ? parseDrill(attempt.drill_payload) : null;
   const drillPercent = drillPct(drill);
   const modeLabel = attempt.mode === "reverse-tasting" ? "Reverse Tasting" : "Stem Sniper";
+  // Dry Notes (known-wine) is a study attempt (not a drill): it has a normal answer/debrief, so it
+  // renders like a study row but carries its own badge and is filterable by type.
+  const isDryNotes = attempt.mode === "known-wine";
 
   const handleApplyShip = async () => {
     setApplying(true);
@@ -413,6 +416,8 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
       modelAnswer: attempt.model_answer || undefined,
     };
     sessionStorage.setItem("mw-current-question", JSON.stringify(questionData));
+    // Preserve the practice mode on redo so a Dry Notes attempt re-opens in Dry Notes mode.
+    sessionStorage.setItem("mw-study-mode", isDryNotes ? "known-wine" : "full");
     router.push("/study");
   };
 
@@ -465,6 +470,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             {isDrill && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 font-medium">
                 {modeLabel}
+              </span>
+            )}
+            {isDryNotes && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 font-medium">
+                Dry Notes
               </span>
             )}
             <span className="text-xs text-muted">{attempt.family_label}</span>
@@ -709,8 +719,8 @@ interface Filters {
 }
 
 const attemptMode = (a: AttemptDetail): string =>
-  a.mode === "stem-sniper" || a.mode === "reverse-tasting" ? a.mode : "full";
-const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting" };
+  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" ? a.mode : "full";
+const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes" };
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
@@ -951,7 +961,13 @@ export function HistoryView({
                           <Chip
                             key={m}
                             active={filters.modes.has(m)}
-                            color={m === "full" ? undefined : "bg-emerald-400/15 text-emerald-300 font-semibold border border-emerald-400/40"}
+                            color={
+                              m === "full"
+                                ? undefined
+                                : m === "known-wine"
+                                  ? "bg-accent/15 text-accent font-semibold border border-accent/40"
+                                  : "bg-emerald-400/15 text-emerald-300 font-semibold border border-emerald-400/40"
+                            }
                             onClick={() => setFilters((f) => ({ ...f, modes: toggleInSet(f.modes, m) }))}
                           >
                             {MODE_LABEL[m] || m}

@@ -109,10 +109,13 @@ export default function StudyPage() {
     if (!stored) return;
     try {
       const question: Question = JSON.parse(stored);
+      // Tag Dry Notes (known-wine) attempts so /history can label and filter them. Read the mode
+      // from sessionStorage rather than the studyMode state, which may not be set yet on first run.
+      const persistMode = sessionStorage.getItem("mw-study-mode") === "known-wine" ? "known-wine" : null;
       fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", questionId: question.id, userId: user.id }),
+        body: JSON.stringify({ action: "create", questionId: question.id, userId: user.id, mode: persistMode }),
       })
         .then((r) => r.json())
         .then((d) => {
@@ -448,11 +451,16 @@ export default function StudyPage() {
       setModelAnswerReady(data.hasModelAnswer);
       dispatch({ type: "SELECT_QUESTION", question });
 
-      // Create attempt (with user_id if logged in)
+      // Create attempt (with user_id if logged in). Carry the Dry Notes (known-wine) tag.
       fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", questionId: question.id, userId: userIdRef.current || null }),
+        body: JSON.stringify({
+          action: "create",
+          questionId: question.id,
+          userId: userIdRef.current || null,
+          mode: studyMode === "known-wine" ? "known-wine" : null,
+        }),
       })
         .then((r) => r.json())
         .then((d) => { if (d.attempt?.id) setAttemptId(d.attempt.id); })

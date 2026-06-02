@@ -216,7 +216,7 @@ export function QuestionDisplay({
             {question.wines.length}{" "}
             {question.wines.length === 1 ? "wine" : "wines"} in this flight —
             {knownWine
-              ? " identities revealed below (Known-Wine Write-Up)"
+              ? " identities revealed below (Dry Notes)"
               : " identities hidden until after your stem analysis"}
           </span>
         </div>

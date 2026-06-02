@@ -11,12 +11,15 @@ export const maxDuration = 120;
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, attemptId, questionId, userId, ...data } = body;
+    const { action, attemptId, questionId, userId, mode, ...data } = body;
 
     if (action === "create") {
       if (!questionId) {
         return Response.json({ error: "Missing questionId" }, { status: 400 });
       }
+      // Persisted study mode: only non-default modes are stored (NULL means a normal "full"
+      // study attempt). "known-wine" tags a Dry Notes attempt so /history can label/filter it.
+      const attemptMode: string | null = mode ?? null;
       // Prefer an explicit userId, but fall back to the session user so feedback
       // created before a drill is submitted is still attributed (the analysis
       // pipeline joins on user_id, so an orphan attempt would never be analyzed).
@@ -26,8 +29,8 @@ export async function POST(request: Request) {
         uid = sessionUser?.id ?? null;
       }
       const attempt = uid
-        ? await createAttemptWithUser(questionId, uid)
-        : await createAttempt(questionId);
+        ? await createAttemptWithUser(questionId, uid, attemptMode)
+        : await createAttempt(questionId, attemptMode);
       return Response.json({ attempt });
     }
 

@@ -176,21 +176,21 @@ export async function getQuestionCounts(): Promise<
   `) as { paper: number; family: string; count: number }[];
 }
 
-export async function createAttempt(questionId: string): Promise<UserAttempt> {
+export async function createAttempt(questionId: string, mode: string | null = null): Promise<UserAttempt> {
   const sql = getDb();
   const rows = await sql`
-    INSERT INTO user_attempts (question_id)
-    VALUES (${questionId})
+    INSERT INTO user_attempts (question_id, mode)
+    VALUES (${questionId}, ${mode})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
 }
 
-export async function createAttemptWithUser(questionId: string, userId: number): Promise<UserAttempt> {
+export async function createAttemptWithUser(questionId: string, userId: number, mode: string | null = null): Promise<UserAttempt> {
   const sql = getDb();
   const rows = await sql`
-    INSERT INTO user_attempts (question_id, user_id)
-    VALUES (${questionId}, ${userId})
+    INSERT INTO user_attempts (question_id, user_id, mode)
+    VALUES (${questionId}, ${userId}, ${mode})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
