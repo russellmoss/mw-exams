@@ -9,7 +9,7 @@ import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
 
 type LandingStep = "select-paper" | "select-family" | "select-mode" | "generating";
-type StudyMode = "full" | "stem-only" | "known-wine" | "flash";
+type StudyMode = "full" | "stem-only" | "known-wine" | "flash" | "mikey";
 
 export default function Home() {
   const router = useRouter();
@@ -94,6 +94,13 @@ export default function Home() {
           JSON.stringify({ paper: selectedPaper, family: selectedFamily })
         );
         router.push("/flash-notes");
+        return;
+      }
+
+      // Lil' Mikey's Wine Adventure is a self-contained, client-side mini-game — a fun break, not a
+      // graded mode. No question fetch, no auth-gated data, no persistence. Just hand off to /mikey.
+      if (mode === "mikey") {
+        router.push("/mikey");
         return;
       }
 
@@ -383,6 +390,36 @@ export default function Home() {
                         Rapid single-prompt drills. Wines shown up front. Quick verdict + pace tracking.
                       </p>
                       <p className="text-xs text-muted/70 mt-2">~1-2 minutes per card</p>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Lil' Mikey's Wine Adventure — intentionally LOUD. This breaks the Cellar design
+                    language (bright gradient, playful cartoon styling) to signal it's a fun break,
+                    not a graded practice mode. A self-contained, client-side mini-game. */}
+                <button
+                  onClick={() => handleModeSelect("mikey")}
+                  className="w-full text-left rounded-2xl p-[3px] bg-gradient-to-r from-fuchsia-500 via-purple-500 to-amber-400 hover:from-fuchsia-400 hover:via-purple-400 hover:to-amber-300 transition-all cursor-pointer shadow-lg shadow-fuchsia-500/20 hover:shadow-fuchsia-400/40 hover:-translate-y-0.5"
+                >
+                  <div className="rounded-[13px] bg-gradient-to-br from-violet-950 via-purple-900 to-fuchsia-900 p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-300 to-fuchsia-500 flex items-center justify-center shrink-0 mt-0.5 text-2xl rotate-[-6deg] shadow-md">
+                        🍇
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-pink-200 to-fuchsia-200 drop-shadow">
+                          Lil&apos; Mikey&apos;s Wine Adventure
+                        </h3>
+                        <p className="text-sm text-fuchsia-100/90 mt-1 font-medium">
+                          Drop the books! An arcade endless-runner through the vineyard &amp; winery.
+                          Jump the tractors, duck the barrels, and chase{" "}
+                          <span className="font-bold text-amber-200">100 Parker Points</span> for
+                          ICON STATUS. 🏃‍♂️💨🍷
+                        </p>
+                        <p className="text-xs text-fuchsia-200/70 mt-2 font-semibold uppercase tracking-wider">
+                          Just for fun · not graded
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </button>
