@@ -9,7 +9,7 @@ import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
 
 type LandingStep = "select-paper" | "select-family" | "select-mode" | "generating";
-type StudyMode = "full" | "stem-only" | "known-wine";
+type StudyMode = "full" | "stem-only" | "known-wine" | "flash";
 
 export default function Home() {
   const router = useRouter();
@@ -85,6 +85,18 @@ export default function Home() {
 
   const handleModeSelect = useCallback(
     async (mode: StudyMode) => {
+      // Flash Notes runs its own mode-setup → deck flow on a dedicated screen (build a deck or go
+      // infinite), so it does NOT fetch a single question here. Hand off the paper + family and let
+      // /flash-notes drive question selection per card.
+      if (mode === "flash") {
+        sessionStorage.setItem(
+          "mw-flash-setup",
+          JSON.stringify({ paper: selectedPaper, family: selectedFamily })
+        );
+        router.push("/flash-notes");
+        return;
+      }
+
       setStep("generating");
       setError(null);
 
@@ -351,6 +363,26 @@ export default function Home() {
                         style, quality, maturity and commercial alone.
                       </p>
                       <p className="text-xs text-muted/70 mt-2">~15-25 minutes</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => handleModeSelect("flash")}
+                  className="w-full text-left bg-card rounded-xl border border-border hover:border-accent/50 p-5 transition-colors cursor-pointer group"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 rounded-full bg-accent/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground group-hover:text-accent transition-colors">Flash Notes</h3>
+                      <p className="text-sm text-muted mt-1">
+                        Rapid single-prompt drills. Wines shown up front. Quick verdict + pace tracking.
+                      </p>
+                      <p className="text-xs text-muted/70 mt-2">~1-2 minutes per card</p>
                     </div>
                   </div>
                 </button>

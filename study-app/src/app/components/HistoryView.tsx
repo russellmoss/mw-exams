@@ -89,8 +89,11 @@ export interface AttemptDetail {
   total_marks: number;
   user_feedback: string | null;
   subcategory: string | null;
-  mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
+  mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting' | 'known-wine' | 'flash'
   drill_payload?: DrillPayload | string | null;
+  // Flash Notes per-card metadata (mode = 'flash'); null otherwise.
+  prompt_type?: string | null;
+  flight_wine_count?: number | null;
   // The AI's response to this attempt's feedback (latest analysis): shown inline in history.
   ai_recommendation?: "accept" | "reject" | "pending" | null;
   ai_thread?: AiThreadMessage[] | string | null;
@@ -372,6 +375,9 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   // Dry Notes (known-wine) is a study attempt (not a drill): it has a normal answer/debrief, so it
   // renders like a study row but carries its own badge and is filterable by type.
   const isDryNotes = attempt.mode === "known-wine";
+  // Flash Notes (flash) is the rapid single-prompt cousin of Dry Notes — also a study-style row
+  // (short single-competency feedback), with its own badge and Redo back into the Flash flow.
+  const isFlash = attempt.mode === "flash";
 
   const handleApplyShip = async () => {
     setApplying(true);
@@ -396,6 +402,15 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const handleRedo = () => {
     if (isDrill) {
       router.push("/stem-sniper");
+      return;
+    }
+    if (isFlash) {
+      // Re-open the Flash Notes setup for the same paper/family.
+      sessionStorage.setItem(
+        "mw-flash-setup",
+        JSON.stringify({ paper: attempt.paper, family: attempt.family })
+      );
+      router.push("/flash-notes");
       return;
     }
     const questionData = {
@@ -475,6 +490,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             {isDryNotes && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 font-medium">
                 Dry Notes
+              </span>
+            )}
+            {isFlash && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 font-medium">
+                Flash Notes{attempt.prompt_type ? ` · ${attempt.prompt_type}` : ""}
               </span>
             )}
             <span className="text-xs text-muted">{attempt.family_label}</span>
@@ -719,8 +739,8 @@ interface Filters {
 }
 
 const attemptMode = (a: AttemptDetail): string =>
-  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" ? a.mode : "full";
-const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes" };
+  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" || a.mode === "flash" ? a.mode : "full";
+const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes", flash: "Flash Notes" };
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
@@ -964,7 +984,7 @@ export function HistoryView({
                             color={
                               m === "full"
                                 ? undefined
-                                : m === "known-wine"
+                                : m === "known-wine" || m === "flash"
                                   ? "bg-accent/15 text-accent font-semibold border border-accent/40"
                                   : "bg-emerald-400/15 text-emerald-300 font-semibold border border-emerald-400/40"
                             }
