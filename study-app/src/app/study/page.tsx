@@ -27,7 +27,7 @@ export default function StudyPage() {
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
-  const [studyMode, setStudyMode] = useState<"full" | "stem-only">("full");
+  const [studyMode, setStudyMode] = useState<"full" | "stem-only" | "known-wine">("full");
   const [modelAnswerReady, setModelAnswerReady] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -55,6 +55,7 @@ export default function StudyPage() {
   useEffect(() => {
     const mode = sessionStorage.getItem("mw-study-mode");
     if (mode === "stem-only") setStudyMode("stem-only");
+    else if (mode === "known-wine") setStudyMode("known-wine");
 
     const stored = sessionStorage.getItem("mw-current-question");
     if (stored) {
@@ -286,6 +287,9 @@ export default function StudyPage() {
         // Revealed wines — constrain debrief imagery to these (regions/producers/varieties only).
         wines: state.question.wines.map((w) => ({ slot: w.slot, fullText: w.fullText })),
         ...(wineAppearances.length > 0 && { wineAppearances }),
+        // Known-Wine Write-Up mode: identity was given up front, so grade the write-up only
+        // (ID marks folded into the remaining sub-parts; no stem-analysis review).
+        ...(studyMode === "known-wine" && { identityRevealed: true }),
       });
 
       if (attemptId) {
@@ -509,7 +513,13 @@ export default function StudyPage() {
         <div className="border-b border-border">
           <div className="max-w-4xl mx-auto px-6">
             <div className="flex">
-              {(studyMode === "stem-only" ? [
+              {(studyMode === "known-wine" ? [
+                { key: "question", label: "Known Wines" },
+                { key: "reveal", label: "Tasting" },
+                { key: "answer", label: "Write-Up" },
+                { key: "feedback", label: "Results" },
+                { key: "reveal-answer", label: "Review" },
+              ] : studyMode === "stem-only" ? [
                 { key: "question", label: "Question" },
                 { key: "pre-glass", label: "Stem Analysis" },
                 { key: "pre-glass-feedback", label: "Coaching" },
@@ -565,7 +575,12 @@ export default function StudyPage() {
           {state.step === "question" && (
             <QuestionDisplay
               question={state.question}
-              onStartReasoning={() => dispatch({ type: "START_PRE_GLASS" })}
+              mode={studyMode}
+              onStartReasoning={() =>
+                dispatch({
+                  type: studyMode === "known-wine" ? "START_KNOWN_WINE" : "START_PRE_GLASS",
+                })
+              }
               onGenerateFresh={handleGenerateFresh}
               isGenerating={isGeneratingFresh}
             />
@@ -651,18 +666,39 @@ export default function StudyPage() {
             </div>
           )}
 
-          {/* Full mode: skip pre-glass-feedback, go to tasting reveal */}
-          {studyMode === "full" && (state.step === "pre-glass-feedback" || state.step === "reveal") && (
+          {/* Full + known-wine modes: skip pre-glass-feedback, go to tasting reveal */}
+          {(studyMode === "full" || studyMode === "known-wine") && (state.step === "pre-glass-feedback" || state.step === "reveal") && (
             <div className="space-y-6">
-              <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
-                <p className="text-sm text-muted mb-2">
-                  Your stem analysis has been saved. Full feedback will be
-                  provided at the end.
-                </p>
-                <p className="text-foreground font-semibold">
-                  Now let&apos;s taste the wines.
-                </p>
-              </div>
+              {studyMode === "known-wine" ? (
+                <div className="bg-card rounded-xl border border-accent/30 p-6">
+                  <p className="text-xs font-semibold text-accent mb-3 uppercase tracking-wide text-center">
+                    Known-Wine Write-Up — identities revealed
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    {state.question.wines.map((w) => (
+                      <div key={w.slot} className="flex gap-3 bg-background rounded-lg p-3 border border-border/50">
+                        <span className="text-accent font-mono font-bold shrink-0">{w.slot}.</span>
+                        <span className="text-foreground text-sm">{w.fullText}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted text-center">
+                    You know what {state.question.wines.length === 1 ? "this wine is" : "these wines are"}.
+                    Generate the tasting notes, then write the perfect answer — you&apos;ll be graded
+                    on the quality of the write-up, not on identification.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
+                  <p className="text-sm text-muted mb-2">
+                    Your stem analysis has been saved. Full feedback will be
+                    provided at the end.
+                  </p>
+                  <p className="text-foreground font-semibold">
+                    Now let&apos;s taste the wines.
+                  </p>
+                </div>
+              )}
               <div className="flex justify-center">
                 <button
                   onClick={handleRevealWines}

@@ -65,6 +65,7 @@ export type StudyState =
 export type StudyAction =
   | { type: "SELECT_QUESTION"; question: Question }
   | { type: "START_PRE_GLASS" }
+  | { type: "START_KNOWN_WINE" }
   | { type: "SUBMIT_REASONING"; reasoning: string }
   | { type: "PRE_GLASS_FEEDBACK_DONE"; feedback: string }
   | { type: "REVEAL_WINES"; tastingNotes: string[] }
@@ -82,6 +83,20 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
     case "START_PRE_GLASS":
       if (state.step === "question") {
         return { step: "pre-glass", question: state.question };
+      }
+      return state;
+
+    // Known-Wine Write-Up ("dry notes") mode: identity is revealed up front, so there is
+    // no blind stem analysis. Jump straight from the question to the reveal/tasting step,
+    // carrying empty stem fields (not applicable in this mode).
+    case "START_KNOWN_WINE":
+      if (state.step === "question") {
+        return {
+          step: "reveal",
+          question: state.question,
+          reasoning: "",
+          preGlassFeedback: "(Not applicable — Known-Wine Write-Up mode)",
+        };
       }
       return state;
 
