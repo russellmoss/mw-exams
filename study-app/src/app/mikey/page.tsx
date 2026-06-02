@@ -42,6 +42,14 @@ const JUMP_BUFFER = 0.12; // s
 // Parker Points accrue with time survived (≈ distance). ~80s to reach the 100 cap.
 const SCORE_RATE = 1.25;
 
+// Lives. Start with three; a hit costs one (with brief invulnerability so a single
+// obstacle can't drain several). One — and only one — wine bottle floats in around
+// 50 Parker Points; "chugging" it (running into it) grants an extra life.
+const START_LIVES = 3;
+const HIT_INVULN = 1.2; // s of blink-and-can't-be-hit after losing a life
+const BOTTLE_SCORE = 50; // Parker Points at which the single bottle appears
+const BOTTLE_Y = GROUND_Y - 46; // float height (torso level — grab it by running through)
+
 type Env = "vineyard" | "winery";
 
 interface Obstacle {
@@ -66,7 +74,12 @@ interface Game {
   runPhase: number;
   obstacles: Obstacle[];
   nextSpawnX: number;
+  lives: number;
+  invuln: number; // i-frames after a hit (s) — Mikey can't be hit & blinks
+  bottle: { worldX: number } | null; // the single life-giving wine bottle in the world
+  bottleDone: boolean; // the one bottle has already spawned (it never respawns)
   lastInt: number;
+  lastLives: number;
   lastZone: Env;
   dead: boolean;
   won: boolean;
@@ -858,11 +871,48 @@ function drawMikey(ctx: CanvasRenderingContext2D, x: number, yOff: number, ducki
   }
 }
 
+// The single life-giving wine bottle — a glowing collectible, deliberately inviting.
+function drawBottle(ctx: CanvasRenderingContext2D, sx: number, phase: number) {
+  const y = BOTTLE_Y;
+  const bob = Math.sin(phase * 1.6) * 4;
+  const cy = y + bob;
+  // attract glow
+  const halo = ctx.createRadialGradient(sx, cy, 2, sx, cy, 34);
+  halo.addColorStop(0, "rgba(255,215,120,0.55)");
+  halo.addColorStop(1, "rgba(255,215,120,0)");
+  ctx.fillStyle = halo;
+  ctx.beginPath();
+  ctx.arc(sx, cy, 34, 0, Math.PI * 2);
+  ctx.fill();
+  // bottle body
+  ctx.save();
+  ctx.translate(sx, cy);
+  ctx.fillStyle = "#2f5d34";
+  rr(ctx, -9, -10, 18, 34, 6); // body
+  ctx.fill();
+  ctx.fillStyle = "#2a5230";
+  ctx.fillRect(-4, -26, 8, 18); // neck
+  ctx.fillStyle = "#7a1f2b";
+  ctx.fillRect(-4, -28, 8, 5); // capsule
+  // label
+  ctx.fillStyle = "#f4e9c9";
+  ctx.fillRect(-8, 2, 16, 13);
+  ctx.fillStyle = "#7a1f2b";
+  ctx.fillRect(-8, 6, 16, 2);
+  // highlight
+  ctx.fillStyle = "rgba(255,255,255,0.25)";
+  ctx.fillRect(-7, -8, 3, 28);
+  ctx.restore();
+}
+
 function drawScene(ctx: CanvasRenderingContext2D, g: Game) {
   ctx.clearRect(0, 0, W, H);
   drawBackground(ctx, g.worldX);
   for (const o of g.obstacles) drawObstacle(ctx, o, o.worldX - g.worldX, g.worldX);
-  drawMikey(ctx, g.mikeyX, g.yOff, g.ducking, g.runPhase);
+  if (g.bottle) drawBottle(ctx, g.bottle.worldX - g.worldX, g.runPhase);
+  // blink Mikey while invulnerable (after a hit): hide on alternating ~0.1s beats.
+  const blinking = g.invuln > 0 && Math.floor(g.invuln * 10) % 2 === 0;
+  if (!blinking) drawMikey(ctx, g.mikeyX, g.yOff, g.ducking, g.runPhase);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -874,7 +924,9 @@ function freshGame(): Game {
   return {
     score: 0, worldX: 0, mikeyX: 180, yOff: 0, vy: 0, onGround: true, buffer: 0,
     ducking: false, runPhase: 0, obstacles: [], nextSpawnX: W + 520,
-    lastInt: -1, lastZone: "vineyard", dead: false, won: false, last: 0, raf: 0,
+    lives: START_LIVES, invuln: 0, bottle: null, bottleDone: false,
+    lastInt: -1, lastLives: START_LIVES, lastZone: "vineyard",
+    dead: false, won: false, last: 0, raf: 0,
   };
 }
 
@@ -887,6 +939,7 @@ export default function MikeyPage() {
 
   const [phase, setPhase] = useState<Phase>("ready");
   const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(START_LIVES);
   const [zone, setZone] = useState<Env>("vineyard");
   const [won, setWon] = useState(false);
 
@@ -922,6 +975,7 @@ export default function MikeyPage() {
     gameRef.current = freshGame();
     keysRef.current = { up: false, down: false, left: false, right: false };
     setScore(0);
+    setLives(START_LIVES);
     setZone("vineyard");
     setWon(false);
     setPhase("playing");
@@ -968,6 +1022,7 @@ export default function MikeyPage() {
 
       // vertical movement
       g.buffer = Math.max(0, g.buffer - dt);
+      g.invuln = Math.max(0, g.invuln - dt);
       if (!g.onGround) {
         g.yOff += g.vy * dt;
         g.vy -= GRAV * dt;
@@ -1008,11 +1063,31 @@ export default function MikeyPage() {
       }
       g.obstacles = g.obstacles.filter((o) => o.worldX - g.worldX > -220);
 
+      // The one wine bottle: float it in once, around 50 Parker Points, in a clear
+      // spot just off the right edge. Run into it to chug it (+1 life).
+      if (!g.bottleDone && g.score >= BOTTLE_SCORE) {
+        g.bottle = { worldX: g.worldX + W + 220 };
+        g.bottleDone = true;
+      }
+      if (g.bottle) {
+        const bx = g.bottle.worldX - g.worldX;
+        if (Math.abs(bx - g.mikeyX) < 30) {
+          g.lives += 1; // chug! extra life
+          g.bottle = null;
+        } else if (bx < -80) {
+          g.bottle = null; // missed — it's gone for good (only one ever)
+        }
+      }
+
       // live HUD updates (only when something changes)
       const intScore = Math.floor(g.score);
       if (intScore !== g.lastInt) {
         g.lastInt = intScore;
         setScore(intScore);
+      }
+      if (g.lives !== g.lastLives) {
+        g.lastLives = g.lives;
+        setLives(g.lives);
       }
       const z = envAt(g.worldX + W / 2);
       if (z !== g.lastZone) {
@@ -1024,7 +1099,19 @@ export default function MikeyPage() {
         finish(true);
         return;
       }
-      if (collide(g)) finish(false);
+      // A hit costs a life (unless still invulnerable from the last one). Out of
+      // lives → game over; otherwise grant brief i-frames so the same obstacle
+      // doesn't drain several lives on consecutive frames.
+      if (g.invuln <= 0 && collide(g)) {
+        g.lives -= 1;
+        setLives(g.lives);
+        g.lastLives = g.lives;
+        if (g.lives <= 0) {
+          finish(false);
+          return;
+        }
+        g.invuln = HIT_INVULN;
+      }
     };
 
     const loop = (now: number) => {
@@ -1174,7 +1261,14 @@ export default function MikeyPage() {
                   />
                 </div>
               </div>
-              <div className="absolute top-3 right-3 select-none">
+              <div className="absolute top-3 right-3 flex flex-col items-end gap-2 select-none">
+                <div className="flex items-center gap-1" aria-label={`${lives} lives`}>
+                  {Array.from({ length: lives }).map((_, i) => (
+                    <span key={i} className="text-2xl leading-none drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">
+                      🍇
+                    </span>
+                  ))}
+                </div>
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-black/35 text-white border border-white/20">
                   {zone === "vineyard" ? "🍇 Vineyard" : "🏭 Winery"}
                 </span>
@@ -1190,8 +1284,10 @@ export default function MikeyPage() {
               <p className="text-fuchsia-100/90 text-sm max-w-sm mb-5">
                 <span className="font-bold text-amber-200">↑ Jump</span> over vines, tractors &amp;
                 barrels. <span className="font-bold text-amber-200">↓ Duck</span> under trellises &amp;
-                pipes. <span className="font-bold text-amber-200">← →</span> nudge. It gets
-                <span className="font-bold text-rose-200"> brutal</span> after 90 points!
+                pipes. <span className="font-bold text-amber-200">← →</span> nudge. You&apos;ve got
+                <span className="font-bold text-fuchsia-200"> 🍇🍇🍇 three lives</span> — grab the
+                <span className="font-bold text-amber-200"> 🍷 wine bottle</span> around 50 points to
+                chug an extra one. It gets <span className="font-bold text-rose-200">brutal</span> after 90!
               </p>
               <button
                 onClick={startGame}
