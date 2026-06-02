@@ -10,9 +10,12 @@ interface AnswerInputProps {
   question: Question;
   onSubmit: (answer: string) => void;
   tastingNotes?: string[];
+  /** Practice mode — "known-wine" writes from the revealed identity (no tasting notes yet). */
+  mode?: "full" | "stem-only" | "known-wine";
 }
 
-export function AnswerInput({ question, onSubmit, tastingNotes }: AnswerInputProps) {
+export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }: AnswerInputProps) {
+  const knownWine = mode === "known-wine";
   const [answer, setAnswer] = useState("");
   const [activeWine, setActiveWine] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -33,16 +36,16 @@ export function AnswerInput({ question, onSubmit, tastingNotes }: AnswerInputPro
       <div className="mb-4">
         <h3 className="text-lg font-semibold mb-2">Write Your Answer</h3>
         <p className="text-sm text-muted leading-relaxed">
-          Now that you have seen the tasting notes, write your full exam answer.
-          Address each sub-question. Remember: you have roughly 6-8 minutes per
-          wine in the real exam. Be structured, decisive, and specific.
+          {knownWine
+            ? "You know what these wines are — write the perfect assessment. The identities and question stay on screen; focus on style & winemaking, quality, state of maturity, and commercial position. You'll be graded on the write-up, not identification."
+            : "Now that you have seen the tasting notes, write your full exam answer. Address each sub-question. Remember: you have roughly 6-8 minutes per wine in the real exam. Be structured, decisive, and specific."}
         </p>
       </div>
 
-      {/* Collapsed question stem for reference */}
-      <details className="bg-card rounded-lg border border-border mb-4">
+      {/* Question stem for reference — kept open in Known-Wine mode so it stays visible while writing */}
+      <details open={knownWine} className="bg-card rounded-lg border border-border mb-4">
         <summary className="px-4 py-3 cursor-pointer text-sm text-muted hover:text-foreground transition-colors">
-          Show question stem
+          {knownWine ? "Question" : "Show question stem"}
         </summary>
         <div className="px-4 pb-4 text-sm text-foreground/80 whitespace-pre-line leading-relaxed">
           {question.text}
@@ -143,7 +146,7 @@ export function AnswerInput({ question, onSubmit, tastingNotes }: AnswerInputPro
               : "bg-border text-muted cursor-not-allowed"
           }`}
         >
-          Submit Answer
+          {knownWine ? "Submit Write-Up" : "Submit Answer"}
         </button>
       </div>
 

@@ -86,16 +86,18 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
       }
       return state;
 
-    // Known-Wine Write-Up ("dry notes") mode: identity is revealed up front, so there is
-    // no blind stem analysis. Jump straight from the question to the reveal/tasting step,
-    // carrying empty stem fields (not applicable in this mode).
+    // Known-Wine Write-Up ("dry notes") mode: identity is revealed up front, so there is no
+    // blind stem analysis AND no pre-write-up tasting reveal — the candidate writes from the
+    // known identity. Jump straight from the question to the write-up (answer) step, carrying
+    // empty stem fields and no tasting notes (the reference notes are revealed later, at Results).
     case "START_KNOWN_WINE":
       if (state.step === "question") {
         return {
-          step: "reveal",
+          step: "answer",
           question: state.question,
           reasoning: "",
           preGlassFeedback: "(Not applicable — Known-Wine Write-Up mode)",
+          tastingNotes: [],
         };
       }
       return state;

@@ -348,6 +348,34 @@ export default function StudyPage() {
         }).catch(() => {});
       }
 
+      // Known-Wine Write-Up: the candidate wrote from the revealed identity without seeing any
+      // tasting notes. Generate the reference notes now (in the background) so they can be revealed
+      // alongside the grade on the Results/Review steps — "submit reveals the actual notes". Grading
+      // (evaluate-full) does not depend on these, so we don't await them before evaluating.
+      if (studyMode === "known-wine" && tastingNotes.length === 0) {
+        setTastingLoading(true);
+        fetch("/api/generate-tasting", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ wines: state.question.wines, questionId: state.question.id }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            if (d?.tastingNotes) {
+              setTastingNotes(d.tastingNotes);
+              if (attemptId) {
+                fetch("/api/save-attempt", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ action: "update", attemptId, tasting_notes: d.tastingNotes }),
+                }).catch(() => {});
+              }
+            }
+          })
+          .catch(() => {})
+          .finally(() => setTastingLoading(false));
+      }
+
       if (!modelAnswerReady) {
         setWaitingForModel(true);
         const poll = setInterval(async () => {
@@ -515,7 +543,6 @@ export default function StudyPage() {
             <div className="flex">
               {(studyMode === "known-wine" ? [
                 { key: "question", label: "Known Wines" },
-                { key: "reveal", label: "Tasting" },
                 { key: "answer", label: "Write-Up" },
                 { key: "feedback", label: "Results" },
                 { key: "reveal-answer", label: "Review" },
@@ -666,39 +693,20 @@ export default function StudyPage() {
             </div>
           )}
 
-          {/* Full + known-wine modes: skip pre-glass-feedback, go to tasting reveal */}
-          {(studyMode === "full" || studyMode === "known-wine") && (state.step === "pre-glass-feedback" || state.step === "reveal") && (
+          {/* Full mode: skip pre-glass-feedback, go to tasting reveal. (Known-Wine Write-Up skips
+              this step entirely — it goes straight from the question to the write-up, and reveals
+              the reference tasting notes later, at Results.) */}
+          {studyMode === "full" && (state.step === "pre-glass-feedback" || state.step === "reveal") && (
             <div className="space-y-6">
-              {studyMode === "known-wine" ? (
-                <div className="bg-card rounded-xl border border-accent/30 p-6">
-                  <p className="text-xs font-semibold text-accent mb-3 uppercase tracking-wide text-center">
-                    Known-Wine Write-Up — identities revealed
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    {state.question.wines.map((w) => (
-                      <div key={w.slot} className="flex gap-3 bg-background rounded-lg p-3 border border-border/50">
-                        <span className="text-accent font-mono font-bold shrink-0">{w.slot}.</span>
-                        <span className="text-foreground text-sm">{w.fullText}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted text-center">
-                    You know what {state.question.wines.length === 1 ? "this wine is" : "these wines are"}.
-                    Generate the tasting notes, then write the perfect answer — you&apos;ll be graded
-                    on the quality of the write-up, not on identification.
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
-                  <p className="text-sm text-muted mb-2">
-                    Your stem analysis has been saved. Full feedback will be
-                    provided at the end.
-                  </p>
-                  <p className="text-foreground font-semibold">
-                    Now let&apos;s taste the wines.
-                  </p>
-                </div>
-              )}
+              <div className="bg-card rounded-xl border border-accent/30 p-6 text-center">
+                <p className="text-sm text-muted mb-2">
+                  Your stem analysis has been saved. Full feedback will be
+                  provided at the end.
+                </p>
+                <p className="text-foreground font-semibold">
+                  Now let&apos;s taste the wines.
+                </p>
+              </div>
               <div className="flex justify-center">
                 <button
                   onClick={handleRevealWines}
@@ -723,15 +731,35 @@ export default function StudyPage() {
           {/* Answer writing */}
           {state.step === "answer" && (
             <div className="space-y-6">
-              <WineReveal
-                tastingNotes={tastingNotes}
-                wineCount={state.question.wines.length}
-                isLoading={false}
-              />
+              {studyMode === "known-wine" ? (
+                /* Known-Wine Write-Up: the identities stay revealed the whole time, so the
+                   candidate writes to a known target without having to remember the wines. No
+                   tasting notes here — they are revealed at Results, after submitting. */
+                <div className="bg-card rounded-xl border border-accent/30 p-6">
+                  <p className="text-xs font-semibold text-accent mb-3 uppercase tracking-wide">
+                    The Wines (revealed)
+                  </p>
+                  <div className="space-y-2">
+                    {state.question.wines.map((w) => (
+                      <div key={w.slot} className="flex gap-3 bg-background rounded-lg p-3 border border-border/50">
+                        <span className="text-accent font-mono font-bold shrink-0">{w.slot}.</span>
+                        <span className="text-foreground text-sm">{w.fullText}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <WineReveal
+                  tastingNotes={tastingNotes}
+                  wineCount={state.question.wines.length}
+                  isLoading={false}
+                />
+              )}
               <AnswerInput
                 question={state.question}
                 onSubmit={handleAnswerSubmit}
-                tastingNotes={tastingNotes}
+                tastingNotes={studyMode === "known-wine" ? undefined : tastingNotes}
+                mode={studyMode}
               />
             </div>
           )}
@@ -768,6 +796,19 @@ export default function StudyPage() {
                   title="Full Debrief"
                 />
               )}
+
+              {/* Known-Wine Write-Up: submitting reveals the actual reference tasting notes for the
+                  wines (generated in the background at submit) alongside the grade. */}
+              {studyMode === "known-wine" && !waitingForModel && (tastingLoading || tastingNotes.length > 0) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">The actual tasting notes</h3>
+                  <WineReveal
+                    tastingNotes={tastingNotes}
+                    wineCount={state.question.wines.length}
+                    isLoading={tastingLoading && tastingNotes.length === 0}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -783,6 +824,17 @@ export default function StudyPage() {
                 error={null}
                 title="Full Debrief"
               />
+              {/* Known-Wine Write-Up: keep the reference tasting notes visible next to the model answer. */}
+              {studyMode === "known-wine" && (tastingLoading || tastingNotes.length > 0) && (
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground mb-3">The actual tasting notes</h3>
+                  <WineReveal
+                    tastingNotes={tastingNotes}
+                    wineCount={state.question.wines.length}
+                    isLoading={tastingLoading && tastingNotes.length === 0}
+                  />
+                </div>
+              )}
               <DecisionTreeWalkthrough
                 paper={state.question.paper}
                 family={state.question.family}
