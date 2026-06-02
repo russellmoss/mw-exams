@@ -4,11 +4,14 @@ name: ek-table-sync
 #
 # mw_exam_empirical_knowledge.md is the source of truth; the feedback-analysis agent reads a queryable
 # MIRROR of it from Neon at runtime (so a freshly-synced ruling is visible immediately — no
-# build-question-index rerun, no Vercel deploy). Whenever the doc changes on master — whether from the
-# empirical-sync bot (incremental in auto-feedback.yml or the weekly consolidate) or a human edit — this
-# rebuilds the table from the doc. GitHub Actions runs on push regardless of the [skip ci] convention,
-# so the bot's [skip ci] knowledge commits still trigger it. It only writes to Neon; it makes no commit
-# and no deploy.
+# build-question-index rerun, no Vercel deploy). It only writes to Neon; it makes no commit and no
+# deploy.
+#
+# IMPORTANT: this push trigger does NOT fire for the auto-feedback bot's knowledge commits — those are
+# pushed with GITHUB_TOKEN, and GitHub suppresses workflow triggers from GITHUB_TOKEN pushes (the
+# anti-recursion rule), so a bot doc commit would leave the mirror stale (this is how EK-0131 went
+# missing). auto-feedback.yml therefore rebuilds the table IN-JOB right after it updates the doc; this
+# standalone workflow covers HUMAN edits to the doc and on-demand `workflow_dispatch` refreshes.
 
 on:
   push:

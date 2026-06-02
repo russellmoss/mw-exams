@@ -291,3 +291,18 @@ jobs:
           node "$APP_DIR/scripts/sync-empirical-knowledge.mjs" \
             --mode incremental --analysis-id "$ANALYSIS_ID" --commit \
             || echo "::warning title=empirical sync::knowledge doc not updated for analysis $ANALYSIS_ID"
+
+      - name: Sync empirical_knowledge table (Neon) from the updated doc
+        # The feedback-analysis agent reads a Neon MIRROR of the doc at runtime. The standalone
+        # ek-table-sync.yml is supposed to rebuild it on every doc push — but the step above pushes
+        # with GITHUB_TOKEN, and GitHub SUPPRESSES workflow triggers from GITHUB_TOKEN pushes, so it
+        # never fires for bot knowledge commits and the mirror silently lags the doc (this is exactly
+        # how EK-0131 went missing). Rebuild the table in-job here instead of relying on that trigger.
+        # Non-fatal: the doc stays canonical and the next doc change / manual dispatch reconciles it.
+        if: always() && env.ANALYSIS_ID != ''
+        continue-on-error: true
+        run: |
+          set +e
+          node "$APP_DIR/scripts/sync-ek-table.mjs" \
+            || echo "::warning title=ek-table sync::empirical_knowledge table not rebuilt; mirror may be stale until the next run."
+          exit 0
