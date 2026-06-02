@@ -6,6 +6,7 @@
     "/admin/costs",
     "/admin/users/[id]",
     "/diagrams",
+    "/flash-notes",
     "/history",
     "/login",
     "/methodology",
@@ -38,6 +39,7 @@
     "/api/feedback-notifications",
     "/api/feedback-notifications/[id]/audio",
     "/api/feedback-notifications/mark-narration-played",
+    "/api/flash-notes/grade",
     "/api/generate-model-answer",
     "/api/generate-tasting",
     "/api/get-question",
@@ -86,6 +88,7 @@
   "modes": [
     "full",
     "stem-only",
-    "known-wine"
+    "known-wine",
+    "flash"
   ]
 }

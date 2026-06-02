@@ -47,6 +47,13 @@ export interface UserAttempt {
   // Set once feedback analysis has been kicked off (links to feedback_analyses.id). NULL means
   // the feedback was never analyzed — the "stranded" set the sweeper looks for.
   auto_analysis_id: number | null;
+  // Flash Notes (mode = 'flash') per-card / per-deck metadata (migration 011). NULL for every
+  // other mode.
+  prompt_type: string | null;
+  flight_wine_count: number | null;
+  deck_id: string | null;
+  card_index: number | null;
+  deck_settings: Record<string, unknown> | null;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -272,9 +279,32 @@ export async function updateAttempt(
     user_feedback: string;
     elapsed_seconds: number;
     current_step: string;
+    // Flash Notes per-card / per-deck metadata (migration 011). Written once, right after the
+    // attempt is created, in a single update before the card is graded.
+    prompt_type: string;
+    flight_wine_count: number;
+    deck_id: string | null;
+    card_index: number | null;
+    deck_settings: Record<string, unknown> | null;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
+
+  // Flash Notes metadata write — set the per-card/per-deck columns in one shot. Detected by
+  // prompt_type (always present for a Flash card) so it can't collide with the field-at-a-time
+  // study updates below.
+  if (data.prompt_type !== undefined) {
+    const rows = await sql`
+      UPDATE user_attempts SET
+        prompt_type = ${data.prompt_type},
+        flight_wine_count = ${data.flight_wine_count ?? null},
+        deck_id = ${data.deck_id ?? null},
+        card_index = ${data.card_index ?? null},
+        deck_settings = ${data.deck_settings ? JSON.stringify(data.deck_settings) : null}
+      WHERE id = ${attemptId} RETURNING *
+    `;
+    return rows[0] as UserAttempt;
+  }
 
   if (data.current_step !== undefined) {
     const rows = await sql`
