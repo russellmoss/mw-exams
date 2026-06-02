@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { MikeyMusicPlayer } from "./MikeyMusicPlayer";
 
 // ── World constants (logical canvas units; the element is scaled responsively) ──
 const W = 900;
@@ -938,6 +939,7 @@ export default function MikeyPage() {
   const dprRef = useRef(1);
 
   const [phase, setPhase] = useState<Phase>("ready");
+  const [musicOn, setMusicOn] = useState(false);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(START_LIVES);
   const [zone, setZone] = useState<Env>("vineyard");
@@ -978,6 +980,7 @@ export default function MikeyPage() {
     setLives(START_LIVES);
     setZone("vineyard");
     setWon(false);
+    setMusicOn(true); // kick off the soundtrack (unmuted) on this start gesture
     setPhase("playing");
   }, []);
 
@@ -1344,6 +1347,9 @@ export default function MikeyPage() {
           ↑ jump · ↓ duck/slide · ← → nudge · reach 100 Parker Points for ICON STATUS
         </p>
       </div>
+
+      {/* Soundtrack — mounts (and starts unmuted) once the run begins; persists across replays. */}
+      {musicOn && <MikeyMusicPlayer />}
     </div>
   );
 }
