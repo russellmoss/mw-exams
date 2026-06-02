@@ -23,10 +23,21 @@ const VINEYARD_LEN = 8200;
 const WINERY_LEN = 900;
 const PERIOD = VINEYARD_LEN + WINERY_LEN;
 
-// Jump physics (px, seconds). Tuned so a well-timed jump clears the tallest obstacle.
-const VJUMP = 760;
-const GRAV = 2600;
-const AIRTIME = (2 * VJUMP) / GRAV;
+// Jump physics (px, seconds). Sized from intent, not magic numbers: peak height
+// must clear the tallest obstacle (86px) with margin, AND hold Mikey above that
+// height longer than the widest obstacle (tractor, 120px of overlap) takes to pass
+// under him at the SLOWEST scroll speed (250px/s → 0.48s). The old 760/2600 arc
+// peaked at 111px and only held the clear-window for 0.31s, so the tall+wide
+// obstacles were literally unclearable at the easy early speed. 840/2100 peaks at
+// 168px with a 0.58s clear-window — every obstacle is now threadable at every speed.
+const VJUMP = 840;
+const GRAV = 2100;
+const AIRTIME = (2 * VJUMP) / GRAV; // 0.80 s
+// Forgiveness: release the jump key while rising to cut the arc short (tap = small
+// hop, hold = full arc); a jump pressed just before landing is remembered and fires
+// on touchdown so a slightly-early press isn't swallowed.
+const JUMP_CUT = 0.45;
+const JUMP_BUFFER = 0.12; // s
 
 // Parker Points accrue with time survived (≈ distance). ~80s to reach the 100 cap.
 const SCORE_RATE = 1.25;
@@ -50,6 +61,7 @@ interface Game {
   yOff: number;
   vy: number;
   onGround: boolean;
+  buffer: number; // remaining seconds a buffered (too-early) jump press stays live
   ducking: boolean;
   runPhase: number;
   obstacles: Obstacle[];
@@ -860,7 +872,7 @@ type Phase = "ready" | "playing" | "over";
 
 function freshGame(): Game {
   return {
-    score: 0, worldX: 0, mikeyX: 180, yOff: 0, vy: 0, onGround: true,
+    score: 0, worldX: 0, mikeyX: 180, yOff: 0, vy: 0, onGround: true, buffer: 0,
     ducking: false, runPhase: 0, obstacles: [], nextSpawnX: W + 520,
     lastInt: -1, lastZone: "vineyard", dead: false, won: false, last: 0, raf: 0,
   };
@@ -917,11 +929,14 @@ export default function MikeyPage() {
 
   const doJump = useCallback(() => {
     const g = gameRef.current;
-    if (!g || g.dead) return;
-    if (g.onGround && !g.ducking) {
+    if (!g || g.dead || g.ducking) return;
+    if (g.onGround) {
       g.vy = VJUMP;
       g.onGround = false;
       g.yOff = 0.01;
+      g.buffer = 0;
+    } else {
+      g.buffer = JUMP_BUFFER; // airborne — remember it and fire on landing
     }
   }, []);
 
@@ -952,6 +967,7 @@ export default function MikeyPage() {
       g.runPhase += dt * (6 + spd * 0.012);
 
       // vertical movement
+      g.buffer = Math.max(0, g.buffer - dt);
       if (!g.onGround) {
         g.yOff += g.vy * dt;
         g.vy -= GRAV * dt;
@@ -960,6 +976,14 @@ export default function MikeyPage() {
           g.yOff = 0;
           g.vy = 0;
           g.onGround = true;
+          // buffered jump: a press that landed just before touchdown still fires,
+          // as long as the player isn't holding down to duck.
+          if (g.buffer > 0 && !keys.down) {
+            g.vy = VJUMP;
+            g.onGround = false;
+            g.yOff = 0.01;
+            g.buffer = 0;
+          }
         }
       }
       g.ducking = g.onGround && keys.down;
@@ -1038,7 +1062,13 @@ export default function MikeyPage() {
     };
     const onKeyUp = (e: KeyboardEvent) => {
       switch (e.key) {
-        case "ArrowUp": case " ": case "Spacebar": keysRef.current.up = false; break;
+        case "ArrowUp": case " ": case "Spacebar": {
+          keysRef.current.up = false;
+          // variable jump height: releasing while still rising cuts the arc short.
+          const g = gameRef.current;
+          if (g && g.vy > 0) g.vy *= JUMP_CUT;
+          break;
+        }
         case "ArrowDown": keysRef.current.down = false; break;
         case "ArrowLeft": keysRef.current.left = false; break;
         case "ArrowRight": keysRef.current.right = false; break;
@@ -1066,6 +1096,11 @@ export default function MikeyPage() {
   const pressKey = useCallback((k: keyof Keys, v: boolean) => {
     keysRef.current[k] = v;
     if (k === "up" && v) doJump();
+    // release Jump while still rising → cut the arc short (variable jump height)
+    if (k === "up" && !v) {
+      const g = gameRef.current;
+      if (g && g.vy > 0) g.vy *= JUMP_CUT;
+    }
   }, [doJump]);
 
   const finalScore = score;
