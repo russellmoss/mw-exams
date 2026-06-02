@@ -687,6 +687,32 @@ export async function getEmpiricalKnowledgeForAnalysis(paper: number): Promise<s
     .join("\n\n");
 }
 
+// Compact, cross-paper digest of the live empirical knowledge for the Feature Request engine, so
+// proposals are grounded in how the exam actually works (id · title — short claim). Length-capped to
+// keep the prompt bounded; the build Action reads the full doc. Empty string if the table is absent.
+export async function getEmpiricalKnowledgeDigest(maxChars = 12000): Promise<string> {
+  const sql = getDb();
+  let rows: Record<string, unknown>[];
+  try {
+    rows = (await sql`
+      SELECT ek_id, title, claim FROM empirical_knowledge
+      WHERE status = 'live' ORDER BY ek_id
+    `) as Record<string, unknown>[];
+  } catch {
+    return "";
+  }
+  const lines: string[] = [];
+  let total = 0;
+  for (const r of rows) {
+    const claim = String(r.claim || "").replace(/\s+/g, " ").trim().slice(0, 240);
+    const line = `- ${r.ek_id} · ${r.title} — ${claim}`;
+    if (total + line.length > maxChars) break;
+    lines.push(line);
+    total += line.length + 1;
+  }
+  return lines.join("\n");
+}
+
 // The tasting lexicon, read from the editable Neon `tasting_lexicon` table with the bundled copy as
 // fallback. Cached in-memory per server instance (the lexicon changes rarely) with a short TTL so
 // admin edits take effect without a redeploy. On any error / empty table it returns the bundled copy.
@@ -834,7 +860,9 @@ export interface FeatureRequest {
   created_by: number | null;
   title: string | null;
   status: string; // drafting|clarifying|proposed|ready|building|built|pr_opened|failed
-  thread: { role: "user" | "assistant"; content: string; timestamp: string }[];
+  // mockups (optional) carry rendered UI samples on a proposing assistant turn — stored in the JSONB
+  // thread so re-opening a request re-renders them. No schema change needed.
+  thread: { role: "user" | "assistant"; content: string; timestamp: string; mockups?: { title: string; html: string }[] }[];
   user_facing_proposal: string | null;
   technical_spec: string | null;
   work_branch: string | null;

@@ -74,11 +74,20 @@ jobs:
             echo "## Technical specification (authoritative — build exactly this)"
             echo "$SPEC"
             echo
+            echo "## Knowledge base (READ BEFORE BUILDING — authoritative)"
+            echo "You have the FULL repository checked out. Before implementing anything that touches the exam (questions, grading, tasting, decision trees, wine/region/style logic, marking), CONSULT the canonical knowledge base and draw your conclusions from it — do not guess:"
+            echo "  - mw_exam_empirical_knowledge.md (repo root) — the definitive, evidence-cited summary of how the exam is structured/graded and what wines/styles appear by paper. It is large and numbered (§1 structure, §2 examiner mindset, §3 grading, §4 wine/price/style by paper, §5 question-generation rules, §6 feedback ledger, §7 app-bug catalog); GREP/READ the relevant section, do NOT load it whole."
+            echo "  - CLAUDE.md (repo root) — project rules, conventions, data sources, and how the system fits together."
+            echo "  - DESIGN.md (repo root) — the Cellar design system (colors, fonts, spacing, verdict colors). Read it before building ANY UI."
+            echo "  - outputs/master_trees/, outputs/heuristics/, outputs/decision_matrices_v2/ — the core study artifacts and examiner patterns, when the feature relates to them."
+            echo "  - data/exams.json (structured corpus) and the Neon empirical_knowledge table mirror, if relevant."
+            echo "Explore the existing code with Glob/Grep/Read to match real patterns before editing."
+            echo
             echo "## Constraints"
-            echo "- Follow the existing Cellar design system (DESIGN.md at the repo root) — colors, fonts, spacing, verdict colors. Read it before building UI."
-            echo "- Match existing patterns: study modes are wired via sessionStorage + the study-session reducer; admin routes gate on getUser + user.isAdmin; DB access goes through src/lib/db.ts; Claude calls use requireApiKey + selectModel."
+            echo "- Follow the existing Cellar design system (DESIGN.md) — colors, fonts, spacing, verdict colors."
+            echo "- Match existing patterns: study modes are wired via sessionStorage + the study-session reducer; admin routes gate on getUser + user.isAdmin; DB access goes through src/lib/db.ts; Claude calls use requireApiKey + selectModel; schema lives in study-app/migrations/NNN_*.sql."
             echo "- This is a MODIFIED Next.js — read node_modules/next/dist/docs/ before any framework-level code (see study-app/AGENTS.md)."
-            echo "- Make minimal, correct edits. Do NOT change unrelated behavior or reformat untouched code. Add a migration file under study-app/migrations/ if you need schema (idempotent, IF NOT EXISTS)."
+            echo "- Make minimal, correct edits. Do NOT change unrelated behavior or reformat untouched code. Add a migration file under study-app/migrations/ if you need schema (idempotent, IF NOT EXISTS) — note in your final summary that it must be applied to Neon."
           } > /tmp/fb/brief.md
           echo "----- brief.md -----"
           cat /tmp/fb/brief.md
