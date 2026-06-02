@@ -1,13 +1,62 @@
-// System prompt for the admin-only Feature Request engine. A non-technical admin describes a
-// feature; this prompt makes Opus (a) ask at least one round of clarifying questions about the
-// EXPERIENCE (look, name, workflow, what the user sees) — never technical/DB detail — then (b)
-// propose a plain-language solution WITH rendered UI mockups, while separately writing a technical
-// spec that is stored in Neon (never shown) and later handed to the build Action.
+// System prompt + mockup CSS for the admin-only Feature Request engine. To avoid hand-maintained
+// drift, the Cellar design tokens and the app's structural inventory are read from
+// public/data/app-surface.json — regenerated on every build by scripts/build-app-surface.mjs from
+// src/app/globals.css (tokens) and the filesystem (routes/components/modes). The curated PROSE below
+// is the human knowledge a scan can't infer (what each mode is *for*, the design language, naming);
+// the generated inventory is appended so newly-added screens/modes always surface even if the prose
+// lags. If the generated file is missing (e.g. `next dev` without a build), we fall back to bundled
+// constants whose token values mirror globals.css at time of writing.
 //
-// The dialog runs on a curated APP SURFACE digest + a live exam-knowledge digest (both deploy-safe);
-// the REAL codebase + full knowledge-base reading + implementation happen in the feature-build Action.
+// The dialog runs on this digest; the REAL codebase + full knowledge-base reading + implementation
+// happen later in the feature-build Action.
+import { readFileSync } from "fs";
+import { join } from "path";
 
-const APP_SURFACE = `## What the app is
+// Fallback tokens — kept in sync with src/app/globals.css :root. The generated tokensCss supersedes
+// this; this only applies when public/data/app-surface.json is absent.
+const FALLBACK_MOCKUP_CSS = `:root{
+  --background:#0c0a09; --foreground:#e7e5e4; --card:#1c1917; --card-hover:#292524;
+  --border:#44403c; --accent:#d97706; --accent-hover:#f59e0b; --muted:#78716c;
+  --success:#22c55e; --fail:#ef4444; --borderline:#eab308;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:24px;font-size:14px;line-height:1.5}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:600;letter-spacing:-.01em;margin:0 0 .5em}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.btn{background:var(--accent);color:var(--background);border:none;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px 18px}
+.muted{color:var(--muted)} .accent{color:var(--accent)}
+.badge{font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+input,textarea,select{background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--foreground);padding:10px;width:100%;font-family:inherit}`;
+
+interface AppSurface {
+  tokensCss: string;
+  routes: string[];
+  apiRoutes: string[];
+  components: string[];
+  modes: string[];
+}
+
+let cached: AppSurface | null | undefined;
+function loadAppSurface(): AppSurface | null {
+  if (cached !== undefined) return cached;
+  try {
+    cached = JSON.parse(readFileSync(join(process.cwd(), "public", "data", "app-surface.json"), "utf-8")) as AppSurface;
+  } catch {
+    cached = null;
+  }
+  return cached;
+}
+
+// The Cellar stylesheet injected into every mockup so it renders looking like the real app. Derived
+// from globals.css at build time; falls back to the bundled tokens.
+export function getMockupCss(): string {
+  return loadAppSurface()?.tokensCss || FALLBACK_MOCKUP_CSS;
+}
+
+// Human-curated semantic context (what a filesystem scan can't infer). The generated inventory is
+// appended at runtime so the model also sees the current routes/components/modes.
+const CURATED_PROSE = `## What the app is
 The "MW Practical Exam Study Tool" — a Next.js web app that helps a candidate prepare for the
 Institute of Masters of Wine blind-tasting exam. Users log in, pick a paper, and practise with
 AI-generated questions, tasting notes, and coaching/feedback. Built for a small set of users; some
@@ -37,41 +86,19 @@ New screens feel like existing ones: bordered cards, calm spacing, amber primary
 Short, plain, candidate-facing names ("Dry Notes", "Stem Sniper", "Full Question"). No jargon; no
 technical/internal names in anything a user sees.`;
 
-// Exact Cellar tokens so mockups render looking like the real app. Injected into every mockup's <head>.
-export const MOCKUP_CSS = `
-:root{
-  --background:#1c1a17; --foreground:#ece7df; --card:#252220; --card-hover:#2c2825;
-  --border:#3a352f; --muted:#9a9389; --accent:#d99a4e; --accent-hover:#e6a85c;
-  --success:#7fa86b; --borderline:#d99a4e; --fail:#c25b4e;
+function inventoryBlock(): string {
+  const s = loadAppSurface();
+  if (!s) return "";
+  return `
+
+## Current app surface (auto-generated from the codebase — what already exists; don't propose duplicates)
+- Pages: ${s.routes.join(", ")}
+- Practice modes: ${s.modes.join(", ")}
+- Components: ${s.components.join(", ")}
+- API routes: ${s.apiRoutes.join(", ")}`;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--background);color:var(--foreground);
-  font-family:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:24px;font-size:14px;line-height:1.5}
-h1,h2,h3{font-family:Georgia,'Fraunces',serif;font-weight:600;letter-spacing:-.01em;margin:0 0 .5em}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
-.btn{background:var(--accent);color:var(--background);border:none;border-radius:8px;padding:10px 18px;font-weight:600;cursor:pointer}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:10px 18px}
-.muted{color:var(--muted)} .accent{color:var(--accent)}
-.badge{font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:4px;background:rgba(217,154,78,.18);color:var(--accent)}
-input,textarea,select{background:var(--background);border:1px solid var(--border);border-radius:8px;color:var(--foreground);padding:10px;width:100%;font-family:inherit}
-`;
 
-export const FEATURE_REQUEST_SYSTEM = `You are a senior product partner for the MW Practical Exam Study Tool. An ADMIN (often non-technical) is asking you to add a new feature. Across this conversation you:
-1. Understand what they actually want.
-2. Ask clarifying questions — ONLY about the EXPERIENCE: what it's called, how it looks, where it lives, what the user does step by step, what they see, and edge cases that change the design. You MUST ask at least one round of clarifying questions before proposing (never propose on the first turn unless the request is already fully unambiguous, and even then confirm your understanding).
-3. Once you have enough, PROPOSE the feature in plain language WITH one or more rendered UI mockups, and write a separate technical spec.
-
-## Talk like a product person, not an engineer
-- Describe the feature in terms of look, name, workflow, and what the user experiences.
-- NEVER surface technical/internal detail to the admin: no table/column names, no file paths, no API/route names, no DB/migration jargon, no code. Translate technical decisions into experience questions ("its own page, or a button on Settings?").
-- Keep messages warm, concrete, and skimmable (short paragraphs, bold option names, plain bullets). You are speaking inside a chat that looks like Claude — write naturally in markdown.
-
-${APP_SURFACE}
-
-## EXAM KNOWLEDGE (ground your proposal in this; never quote the codes at the admin)
-{{EK_DIGEST}}
-
-## RESPONSE FORMAT — follow EXACTLY
+const FORMAT_RULES = `## RESPONSE FORMAT — follow EXACTLY
 First write your visible reply to the admin in plain markdown (questions while clarifying; the proposal write-up while proposing — name, where it lives, the step-by-step experience, options you settled, and a closing line inviting them to confirm or tweak and to click "Build it" when happy).
 
 THEN, on its own line, output the sentinel:
@@ -94,3 +121,24 @@ THEN, on its own line, output the sentinel:
 - Keep each mockup focused on ONE screen; 1–4 mockups is plenty.
 
 Return the visible markdown, then the sentinel, then the JSON. Nothing after the JSON.`;
+
+const PREAMBLE = `You are a senior product partner for the MW Practical Exam Study Tool. An ADMIN (often non-technical) is asking you to add a new feature. Across this conversation you:
+1. Understand what they actually want.
+2. Ask clarifying questions — ONLY about the EXPERIENCE: what it's called, how it looks, where it lives, what the user does step by step, what they see, and edge cases that change the design. You MUST ask at least one round of clarifying questions before proposing (never propose on the first turn unless the request is already fully unambiguous, and even then confirm your understanding).
+3. Once you have enough, PROPOSE the feature in plain language WITH one or more rendered UI mockups, and write a separate technical spec.
+
+## Talk like a product person, not an engineer
+- Describe the feature in terms of look, name, workflow, and what the user experiences.
+- NEVER surface technical/internal detail to the admin: no table/column names, no file paths, no API/route names, no DB/migration jargon, no code. Translate technical decisions into experience questions ("its own page, or a button on Settings?").
+- Keep messages warm, concrete, and skimmable (short paragraphs, bold option names, plain bullets). You are speaking inside a chat that looks like Claude — write naturally in markdown.`;
+
+// Build the full system prompt, weaving in the live exam-knowledge digest + the generated inventory.
+export function buildFeatureRequestSystem(ekDigest: string): string {
+  return [
+    PREAMBLE,
+    CURATED_PROSE,
+    inventoryBlock(),
+    `\n## EXAM KNOWLEDGE (ground your proposal in this; never quote the codes at the admin)\n${ekDigest || "(none available)"}`,
+    FORMAT_RULES,
+  ].join("\n\n");
+}

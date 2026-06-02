@@ -4,7 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { isAutoFeatureEnabled } from "@/lib/settings";
 import { dispatchFeatureBuild } from "@/lib/github-dispatch";
-import { FEATURE_REQUEST_SYSTEM, MOCKUP_CSS } from "@/lib/prompts/feature-request-prompt";
+import { buildFeatureRequestSystem, getMockupCss } from "@/lib/prompts/feature-request-prompt";
 import {
   createFeatureRequest,
   getFeatureRequest,
@@ -33,7 +33,7 @@ type Meta = {
 function dressMockup(m: Mockup): Mockup {
   let html = String(m.html || "");
   html = html.replace(/<script[\s\S]*?<\/script>/gi, "");
-  const styleTag = `<style>${MOCKUP_CSS}</style>`;
+  const styleTag = `<style>${getMockupCss()}</style>`;
   if (/<head[^>]*>/i.test(html)) {
     html = html.replace(/<head[^>]*>/i, (h) => `${h}\n${styleTag}`);
   } else if (/<html[^>]*>/i.test(html)) {
@@ -75,7 +75,7 @@ function streamTurn(
   userId: number,
   ekDigest: string
 ): Response {
-  const system = FEATURE_REQUEST_SYSTEM.replace("{{EK_DIGEST}}", ekDigest || "(none available)");
+  const system = buildFeatureRequestSystem(ekDigest);
   const messages = fr.thread.map((t) => ({
     role: t.role === "assistant" ? ("assistant" as const) : ("user" as const),
     content: t.content,
