@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
+import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 
 interface UserRow {
   id: number;
@@ -55,6 +56,31 @@ export default function AdminPage() {
   const [hardDisabled, setHardDisabled] = useState(false);
   const [savingToggle, setSavingToggle] = useState(false);
 
+  // Auto-feature pipeline toggle (feature-build)
+  const [autoFeature, setAutoFeature] = useState(false);
+  const [featureHardDisabled, setFeatureHardDisabled] = useState(false);
+
+  const toggleAutoFeature = async () => {
+    const next = !autoFeature;
+    if (next && !window.confirm("Turn ON Auto-Feature?\n\nWhen ON, clicking \"Build it\" on a Feature Request immediately builds the feature, verifies it in CI (typecheck + build), and — if green — merges to master and deploys to production. When OFF, \"Build it\" only saves the spec; you build it later with \"Build now\".")) {
+      return;
+    }
+    setSavingToggle(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ autoFeature: next }),
+      });
+      if (res.ok) setAutoFeature(next);
+      else setError("Failed to update Auto-Feature setting");
+    } catch {
+      setError("Network error");
+    } finally {
+      setSavingToggle(false);
+    }
+  };
+
   const toggleAutoApply = async () => {
     const next = !autoApply;
     if (next && !window.confirm("Turn ON Auto-Apply?\n\nEvery feedback item the analysis marks ACCEPT will automatically rewrite code, be verified (lint + typecheck + build) in CI, and — if green — merge to master and deploy to production with NO human review.")) {
@@ -95,6 +121,8 @@ export default function AdminPage() {
           if (settingsData) {
             setAutoApply(!!settingsData.autoApply);
             setHardDisabled(!!settingsData.hardDisabled);
+            setAutoFeature(!!settingsData.autoFeature);
+            setFeatureHardDisabled(!!settingsData.featureHardDisabled);
           }
         })
         .catch(() => setError("Failed to load data"))
@@ -288,6 +316,41 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
+
+          {/* Auto-Feature pipeline toggle */}
+          <div className={`rounded-xl border-2 p-5 mb-6 ${autoFeature ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-bold text-foreground">Auto-Feature</h2>
+                  <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${autoFeature ? "bg-accent/20 text-accent" : "bg-muted/20 text-muted"}`}>
+                    {autoFeature ? "ON" : "OFF"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted mt-1 max-w-xl">
+                  When ON, clicking <span className="font-semibold">Build it</span> on a Feature Request immediately
+                  builds the feature, verifies it in CI (typecheck + build, with self-heal), and — if green —
+                  merges to <code className="text-foreground">master</code> and deploys to production. When OFF,
+                  Build it just saves the spec; build it later with <span className="font-semibold">Build now</span>.
+                </p>
+                {featureHardDisabled && (
+                  <p className="text-xs text-fail mt-1">Overridden OFF by <code>AUTO_FEATURE_HARD_DISABLE</code> env — toggle has no effect.</p>
+                )}
+              </div>
+              <button
+                onClick={toggleAutoFeature}
+                disabled={savingToggle || featureHardDisabled}
+                role="switch"
+                aria-checked={autoFeature}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted/40"}`}
+              >
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Feature Request engine */}
+          <FeatureRequestPanel autoFeature={autoFeature} />
 
           {/* Feedback scorecards */}
           <div className="grid grid-cols-3 gap-4 mb-8">

@@ -32,3 +32,13 @@ export async function isAutoApplyEnabled(): Promise<boolean> {
   if (process.env.AUTO_APPLY_HARD_DISABLE === "1") return false;
   return (await getSetting<boolean>("auto_apply_enabled", false)) === true;
 }
+
+/**
+ * Whether confirming a Feature Request should auto-dispatch the feature-build pipeline.
+ * When OFF, "Build it" only LOGS the confirmed spec (status 'ready') for an admin to build
+ * manually via a per-item "Build now". Mirrors isAutoApplyEnabled — DB toggle + env kill switch.
+ */
+export async function isAutoFeatureEnabled(): Promise<boolean> {
+  if (process.env.AUTO_FEATURE_HARD_DISABLE === "1") return false;
+  return (await getSetting<boolean>("auto_feature_enabled", false)) === true;
+}

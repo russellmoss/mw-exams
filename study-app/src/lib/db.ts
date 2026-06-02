@@ -823,3 +823,105 @@ export async function getUserStats(userId: number): Promise<UserStats> {
     recent_results: recentResults as UserStats["recent_results"],
   };
 }
+
+// ── Feature Requests ──
+// Admin-only Feature Request engine: an admin describes a feature; Opus clarifies + proposes
+// (user-facing) and writes a technical spec; on confirm, the feature-build workflow implements it.
+// Feedback classified as a feature request is logged here too (never auto-built). See migration 010.
+
+export interface FeatureRequest {
+  id: number;
+  created_by: number | null;
+  title: string | null;
+  status: string; // drafting|clarifying|proposed|ready|building|built|pr_opened|failed
+  thread: { role: "user" | "assistant"; content: string; timestamp: string }[];
+  user_facing_proposal: string | null;
+  technical_spec: string | null;
+  work_branch: string | null;
+  commit_sha: string | null;
+  pr_url: string | null;
+  apply_status: string | null;
+  apply_error: string | null;
+  applied_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function createFeatureRequest(
+  createdBy: number | null,
+  title: string | null,
+  thread: FeatureRequest["thread"],
+  status = "drafting"
+): Promise<FeatureRequest> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO feature_requests (created_by, title, status, thread)
+    VALUES (${createdBy}, ${title}, ${status}, ${JSON.stringify(thread)}::jsonb)
+    RETURNING *
+  `;
+  return rows[0] as FeatureRequest;
+}
+
+// Seed a Feature Request from a piece of user feedback that was classified as a feature request
+// (not a fix). Stored as a 'drafting' row whose first turn is the raw feedback, so an admin can open
+// it in the engine and continue the clarify → propose → build flow. Returns the new id.
+export async function createFeatureRequestFromFeedback(opts: {
+  userId: number | null;
+  feedbackText: string;
+  analysisText: string;
+}): Promise<number> {
+  const sql = getDb();
+  const title = opts.feedbackText.replace(/^\[[^\]]*\]\s*/, "").trim().slice(0, 80);
+  const thread = [
+    { role: "user" as const, content: opts.feedbackText, timestamp: new Date().toISOString() },
+  ];
+  const rows = await sql`
+    INSERT INTO feature_requests (created_by, title, status, thread)
+    VALUES (${opts.userId}, ${title || "Feature request from feedback"}, 'drafting', ${JSON.stringify(thread)}::jsonb)
+    RETURNING id
+  `;
+  return rows[0].id as number;
+}
+
+export async function getFeatureRequest(id: number): Promise<FeatureRequest | null> {
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM feature_requests WHERE id = ${id}`;
+  return (rows[0] as FeatureRequest) ?? null;
+}
+
+export async function listFeatureRequests(limit = 50): Promise<FeatureRequest[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM feature_requests ORDER BY created_at DESC LIMIT ${limit}
+  `) as FeatureRequest[];
+}
+
+// Patch a subset of fields (thread / proposal / spec / status / audit). Only provided keys are written.
+export async function updateFeatureRequest(
+  id: number,
+  data: Partial<{
+    title: string;
+    status: string;
+    thread: FeatureRequest["thread"];
+    user_facing_proposal: string;
+    technical_spec: string;
+    work_branch: string;
+    applied_by: string;
+  }>
+): Promise<FeatureRequest> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE feature_requests SET
+      title = COALESCE(${data.title ?? null}, title),
+      status = COALESCE(${data.status ?? null}, status),
+      thread = COALESCE(${data.thread ? JSON.stringify(data.thread) : null}::jsonb, thread),
+      user_facing_proposal = COALESCE(${data.user_facing_proposal ?? null}, user_facing_proposal),
+      technical_spec = COALESCE(${data.technical_spec ?? null}, technical_spec),
+      work_branch = COALESCE(${data.work_branch ?? null}, work_branch),
+      applied_by = COALESCE(${data.applied_by ?? null}, applied_by),
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return rows[0] as FeatureRequest;
+}

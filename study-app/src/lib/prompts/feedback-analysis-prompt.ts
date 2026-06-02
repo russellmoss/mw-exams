@@ -107,8 +107,16 @@ issue — classify it with the Kind line below.${pageNote}
   to the generation prompt/logic. (High-stakes — will be PR-gated for human review.)
 - **Kind: validator** — a bad question PASSED validation and reached the user; propose a stronger check
   in the question validator. (High-stakes — PR-gated.)
+- **Kind: feature-request** — the user is asking for NEW functionality that does not exist yet (a new
+  mode, screen, button, workflow, drill, report, etc.), as opposed to fixing how an EXISTING thing
+  behaves. This is NOT a fix and must NEVER be auto-built from feedback — feature-building is a separate,
+  deliberate, admin-only flow. When you choose this Kind, set **recommendation: reject** (the pipeline
+  routes it to the Feature Request engine instead of dispatching any code change). Litmus test: if
+  satisfying the request means *adding a capability the app doesn't have*, it is \`feature-request\`; if
+  it means *correcting wrong content/scoring/selection of something that already exists*, it is one of
+  the fix Kinds above.
 Pick the NARROWEST Kind that fixes the root cause: a one-off bad question is \`question\`; a recurring
-pattern is \`generation\` or \`validator\`.
+pattern is \`generation\` or \`validator\`; a request for brand-new functionality is \`feature-request\`.
 
 ## WHERE THE LOGIC LIVES (target the right layer in your Proposed Change)
 When you propose a code change, name the layer/file the fix actually belongs in — not just the

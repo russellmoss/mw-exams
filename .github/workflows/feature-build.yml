@@ -1,0 +1,203 @@
+name: feature-build
+
+# Admin Feature Request → code → ship pipeline (sibling of auto-feedback.yml).
+# The study-app fires a repository_dispatch (event_type: feature-build) when an admin confirms a
+# Feature Request. This workflow implements the stored technical spec with headless Claude, verifies
+# it (lint advisory; typecheck + build blocking) with a self-heal retry loop, and:
+#   - GREEN → merges to master. Vercel git auto-deploy then ships it (single deploy path).
+#   - RED   → opens a PR for review; master is never touched by an unverified change.
+# Results are written back to feature_requests for the admin UI.
+#
+# Unlike auto-feedback, a feature touches arbitrary files — there is NO path isolation. CI (tsc +
+# build) is the safety gate, the admin's explicit "Build it" is the human gate, and revert is the
+# backstop. DEPLOY MODEL identical to auto-feedback: a study-app/ merge auto-deploys via Vercel.
+
+on:
+  repository_dispatch:
+    types: [feature-build]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: feature-build-${{ github.event.client_payload.featureRequestId }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FEATURE_REQUEST_ID: ${{ github.event.client_payload.featureRequestId }}
+      FEATURE_TITLE: ${{ github.event.client_payload.title }}
+      APPLIED_BY: ${{ github.event.client_payload.appliedBy }}
+      WORK_BRANCH: feature-request/${{ github.event.client_payload.featureRequestId }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      APP_DIR: study-app
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: master
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Configure git identity
+        run: |
+          git config user.name "mw-feature-build[bot]"
+          git config user.email "feature-build@users.noreply.github.com"
+
+      - name: Create work branch
+        run: git checkout -b "$WORK_BRANCH"
+
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_DIR }}
+        run: npm ci
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Write build brief
+        env:
+          SPEC: ${{ github.event.client_payload.technicalSpec }}
+        run: |
+          mkdir -p /tmp/fb
+          {
+            echo "# Feature request: ${FEATURE_TITLE}"
+            echo
+            echo "## Technical specification (authoritative — build exactly this)"
+            echo "$SPEC"
+            echo
+            echo "## Constraints"
+            echo "- Follow the existing Cellar design system (DESIGN.md at the repo root) — colors, fonts, spacing, verdict colors. Read it before building UI."
+            echo "- Match existing patterns: study modes are wired via sessionStorage + the study-session reducer; admin routes gate on getUser + user.isAdmin; DB access goes through src/lib/db.ts; Claude calls use requireApiKey + selectModel."
+            echo "- This is a MODIFIED Next.js — read node_modules/next/dist/docs/ before any framework-level code (see study-app/AGENTS.md)."
+            echo "- Make minimal, correct edits. Do NOT change unrelated behavior or reformat untouched code. Add a migration file under study-app/migrations/ if you need schema (idempotent, IF NOT EXISTS)."
+          } > /tmp/fb/brief.md
+          echo "----- brief.md -----"
+          cat /tmp/fb/brief.md
+
+      - name: Implement + verify + self-heal
+        id: heal
+        working-directory: ${{ env.APP_DIR }}
+        run: |
+          set +e
+          CHECKS=/tmp/fb/checks.log
+          MAX=3
+          ATTEMPT=0
+          SUCCESS=0
+          while [ $ATTEMPT -lt $MAX ]; do
+            ATTEMPT=$((ATTEMPT+1))
+            echo "::group::Claude iteration $ATTEMPT"
+            if [ "$ATTEMPT" -eq 1 ]; then
+              INSTRUCTION="You are implementing a NEW FEATURE in this repository. The Next.js study-app lives at $(pwd). Build the feature described below end-to-end (UI, API, data) with correct, idiomatic edits that match the existing codebase. Implement the whole spec, not a stub."
+            else
+              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
+            fi
+            {
+              printf '%s\n\n' "$INSTRUCTION"
+              cat /tmp/fb/brief.md
+              if [ "$ATTEMPT" -gt 1 ]; then printf '\n\n## Failing CI output\n'; cat "$CHECKS"; fi
+            } > /tmp/fb/prompt.txt
+            claude --bare -p "$(cat /tmp/fb/prompt.txt)" \
+              --allowedTools "Bash,Read,Edit,Write,Glob,Grep" \
+              --max-turns 60 \
+              --model claude-opus-4-8
+            echo "::endgroup::"
+
+            echo "::group::Authoritative checks (iteration $ATTEMPT)"
+            : > $CHECKS
+            echo "--- npm run lint (advisory) ---" | tee -a $CHECKS
+            npm run lint 2>&1 | tee -a $CHECKS; L=${PIPESTATUS[0]}
+            echo "--- npx tsc --noEmit (blocking) ---" | tee -a $CHECKS
+            npx tsc --noEmit 2>&1 | tee -a $CHECKS; T=${PIPESTATUS[0]}
+            echo "--- npm run build (blocking) ---" | tee -a $CHECKS
+            npm run build 2>&1 | tee -a $CHECKS; B=${PIPESTATUS[0]}
+            echo "::endgroup::"
+            echo "lint=$L (advisory) tsc=$T build=$B"
+            if [ $T -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
+          done
+          echo "success=$SUCCESS" >> "$GITHUB_OUTPUT"
+
+          # Stage changes (whole repo — a feature may add anything), excluding generated data.
+          cd "$GITHUB_WORKSPACE"
+          git add -A
+          git reset -- "$APP_DIR/public/data/pipeline-context.json" "$APP_DIR/public/data/question-index.json" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no_changes=1" >> "$GITHUB_OUTPUT"
+            echo "No code changes were produced."
+          else
+            git commit -m "[feature-build #${FEATURE_REQUEST_ID}] ${FEATURE_TITLE}" -m "Co-Authored-By: Claude <noreply@anthropic.com>"
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Merge to master (verified)
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
+        id: merge
+        run: |
+          set -e
+          git push origin "$WORK_BRANCH"
+          git checkout master
+          git pull --ff-only origin master
+          if ! git merge --no-ff -m "[feature-build #${FEATURE_REQUEST_ID}] merge ${FEATURE_TITLE}" "$WORK_BRANCH"; then
+            git merge --abort || true
+            git checkout "$WORK_BRANCH"
+            if ! git rebase master; then
+              git rebase --abort || true
+              echo "conflict=1" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git push --force-with-lease origin "$WORK_BRANCH"
+            git checkout master
+            git merge --no-ff -m "[feature-build #${FEATURE_REQUEST_ID}] merge ${FEATURE_TITLE}" "$WORK_BRANCH"
+          fi
+          git push origin master
+          echo "merged=1" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # NOTE: no explicit Vercel deploy step. A study-app/ merge to master auto-deploys via Vercel.
+
+      - name: Open PR (could not verify, or merge conflict)
+        if: >-
+          always() &&
+          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1') &&
+          steps.heal.outputs.no_changes != '1'
+        id: pr
+        run: |
+          git push origin "$WORK_BRANCH" || true
+          REASON="Feature build could not be verified+merged automatically (CI failed after retries, or a merge conflict). Review the run logs and the diff, fix, and merge manually. master/production were not touched."
+          PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
+            --title "[feature-build] #${FEATURE_REQUEST_ID}: ${FEATURE_TITLE} (needs review)" \
+            --body "$REASON" 2>&1) || true
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "$PR_URL"
+
+      - name: Record result in Neon
+        if: always()
+        working-directory: ${{ env.APP_DIR }}
+        env:
+          MERGED: ${{ steps.merge.outputs.merged }}
+          COMMIT_SHA: ${{ steps.merge.outputs.sha }}
+          PR_URL: ${{ steps.pr.outputs.pr_url }}
+          NO_CHANGES: ${{ steps.heal.outputs.no_changes }}
+        run: |
+          if [ "$MERGED" = "1" ]; then
+            STATUS=built; APPLY_STATUS=merged
+          elif printf '%s' "$PR_URL" | grep -q 'http'; then
+            STATUS=pr_opened; APPLY_STATUS=pr_opened
+          else
+            STATUS=failed; APPLY_STATUS=failed
+          fi
+          if [ "$NO_CHANGES" = "1" ]; then
+            STATUS=failed; APPLY_STATUS=failed
+            export APPLY_ERROR="No code changes were produced for this feature request."
+          fi
+          if ! printf '%s' "$PR_URL" | grep -q 'http'; then PR_URL=""; fi
+          export STATUS APPLY_STATUS COMMIT_SHA PR_URL
+          node scripts/record-feature-apply.mjs

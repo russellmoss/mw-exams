@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback } from "@/lib/db";
 import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
@@ -283,7 +283,7 @@ export async function runFeedbackAnalysis(opts: {
   const attempts = await sql`
     SELECT a.id, a.user_feedback, a.user_answer, a.user_id,
       q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer, q.metadata,
-      u.name as user_name
+      u.name as user_name, u.is_admin as user_is_admin
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
     JOIN users u ON a.user_id = u.id
@@ -388,6 +388,31 @@ export async function runFeedbackAnalysis(opts: {
     });
 
     await updateFeedbackAnalysis(analysis.id, { status: "complete", recommendation, thread });
+
+    // FEATURE-REQUEST GATE: feedback must NEVER build a feature (the attempt-188 incident).
+    // If the analysis classified this as a request for new functionality, do NOT run the code-apply
+    // pipeline. Log it as a Feature Request (so it surfaces in the admin Feature Request engine) and
+    // resolve the feedback with an author-aware note. Admins get a direct link to the engine.
+    const kind = (analysisText.match(/Kind:\s*\**(feature-request)\**/i)?.[1] || "").toLowerCase();
+    if (kind === "feature-request") {
+      const isAdminAuthor = attempt.user_is_admin === true;
+      let frId: number | null = null;
+      try {
+        frId = await createFeatureRequestFromFeedback({
+          userId: (attempt.user_id as number) ?? null,
+          feedbackText,
+          analysisText,
+        });
+      } catch (frErr) {
+        console.error("[feature-gate] failed to log feature request from feedback:", frErr);
+      }
+      const link = frId ? `/admin#feature-request` : "/admin#feature-request";
+      const note = isAdminAuthor
+        ? `Feature request (not a fix) — open the Feature Request engine to refine and build it: ${link}${frId ? ` (logged as feature_requests #${frId})` : ""}.`
+        : `Feature request from a non-admin — logged for admin review${frId ? ` (feature_requests #${frId})` : ""}; not auto-built.`;
+      await reviewFeedback(attemptId, "rejected", note, "auto");
+      return { status: "complete", analysisId: analysis.id, recommendation: "reject", autoApplied: false, autoRejected: true, autoPartial: false };
+    }
 
     // Auto-Apply: the AI's recommendation is authoritative and the item leaves the open queue.
     let autoApplied = false;
