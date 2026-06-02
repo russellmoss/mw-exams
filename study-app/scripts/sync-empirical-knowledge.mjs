@@ -178,7 +178,7 @@ async function fetchItems(sql, cursor) {
     ua.id AS attempt_id, ua.question_id, ua.feedback_status, ua.feedback_decided_by,
     ua.feedback_admin_note, ua.feedback_reviewed_at, ua.user_feedback,
     gq.paper, gq.family, gq.question_text, gq.wines,
-    fa.id AS analysis_id, fa.recommendation, fa.thread, fa.apply_status, fa.commit_sha`;
+    fa.id AS analysis_id, fa.recommendation, fa.thread, fa.apply_status, fa.commit_sha, fa.analyzed_feedback`;
   if (MODE === "incremental") {
     return await sql`
       SELECT ${sql.unsafe(cols)}
@@ -217,7 +217,11 @@ function shapeItem(r) {
     decidedBy: r.feedback_decided_by,
     adminNote: r.feedback_admin_note,
     reviewedAt: r.feedback_reviewed_at,
-    userFeedback: r.user_feedback,
+    // Prefer the snapshot the analysis actually ran on (migration 009) so the knowledge entry is
+    // generated from what was analyzed, never a later overwrite of the mutable column (the
+    // attempt-188 incident, where this column read Sylvaner at sync time but the analysis was about
+    // Dry Notes). Legacy rows (null snapshot) fall back to the live column.
+    userFeedback: r.analyzed_feedback ?? r.user_feedback,
     questionText: r.question_text,
     wines: Array.isArray(wines) ? wines.map((w) => w.fullText || w.full_text || "").filter(Boolean) : [],
     recommendation: r.recommendation || null,

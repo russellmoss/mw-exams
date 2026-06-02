@@ -307,6 +307,12 @@ export async function runFeedbackAnalysis(opts: {
   // item out of the "stranded / never analyzed" set the sweeper looks for.
   const analysis = await createFeedbackAnalysis(attemptId, attempt.user_id as number);
 
+  // Pin the EXACT feedback this analysis ran on. Apply (apply-change.ts) and the knowledge sync
+  // read THIS snapshot instead of re-reading the mutable user_attempts.user_feedback column at a
+  // later time, so the analyzed text can never silently diverge from what gets shipped/synced
+  // (the root cause of the attempt-188 incident). Stored up front so it survives a later error.
+  await sql`UPDATE feedback_analyses SET analyzed_feedback = ${feedbackText} WHERE id = ${analysis.id}`;
+
   try {
     const wines = typeof attempt.wines === "string" ? JSON.parse(attempt.wines) : attempt.wines;
     const metadata =

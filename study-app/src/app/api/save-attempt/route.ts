@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback } from "@/lib/db";
+import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback, recordUserFeedback, getAttemptById } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { runFeedbackAnalysis } from "@/lib/feedback-analysis";
 
@@ -38,27 +38,29 @@ export async function POST(request: Request) {
       if (!attemptId) {
         return Response.json({ error: "Missing attemptId" }, { status: 400 });
       }
-      const attempt = await updateAttempt(attemptId, data);
 
-      // If this update is what added the user's feedback, kick off analysis SERVER-SIDE
-      // (decoupled from the browser). `after()` keeps the function alive past the response,
-      // so closing the tab can no longer strand the feedback. We only fire the first time
-      // (attempt had no analysis yet); runFeedbackAnalysis also guards against concurrent runs.
-      if (
-        typeof data.user_feedback === "string" &&
-        data.user_feedback.trim() &&
-        !attempt.auto_analysis_id
-      ) {
-        const id = attempt.id;
-        after(async () => {
-          try {
-            await runFeedbackAnalysis({ attemptId: id, source: "server" });
-          } catch (err) {
-            console.error("[save-attempt] background feedback analysis failed:", err);
-          }
-        });
+      // User feedback takes the no-overwrite path: a second, different feedback on an attempt that
+      // already carries feedback is recorded on its OWN attempt row rather than clobbering the
+      // existing one (which would strand it from analysis and diverge the ledger). All other update
+      // fields (current_step, tasting_notes, answer_feedback, …) keep using updateAttempt.
+      if (typeof data.user_feedback === "string" && data.user_feedback.trim()) {
+        const { id, analyze } = await recordUserFeedback(attemptId, data.user_feedback);
+        // Analysis is decoupled from the browser via `after()` — closing the tab can't strand it.
+        // Each feedback record is analyzed exactly once against the text it holds.
+        if (analyze) {
+          after(async () => {
+            try {
+              await runFeedbackAnalysis({ attemptId: id, source: "server" });
+            } catch (err) {
+              console.error("[save-attempt] background feedback analysis failed:", err);
+            }
+          });
+        }
+        const rows = await getAttemptById(id);
+        return Response.json({ attempt: rows });
       }
 
+      const attempt = await updateAttempt(attemptId, data);
       return Response.json({ attempt });
     }
 

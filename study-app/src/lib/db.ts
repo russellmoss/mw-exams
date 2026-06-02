@@ -196,6 +196,68 @@ export async function createAttemptWithUser(questionId: string, userId: number, 
   return rows[0] as UserAttempt;
 }
 
+// Record user feedback WITHOUT ever overwriting an attempt that already carries different
+// feedback. Two distinct submissions used to clobber one row's `user_feedback` (the attempt-188
+// incident); the one-shot analysis guard then meant the second was never analyzed, and apply/sync
+// re-read the mutated column at different times → divergent ledger. Now each distinct feedback gets
+// its own attempt row (multiple attempts per question are already supported and rendered), so every
+// feedback has an immutable home that is analyzed exactly once against the text it contains.
+//
+// Returns the attempt id the feedback now lives on, and whether the caller should run analysis
+// (true for a fresh write or a forked row; false for an idempotent re-submit of identical text).
+export async function getAttemptById(attemptId: number): Promise<UserAttempt | null> {
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM user_attempts WHERE id = ${attemptId}`;
+  return (rows[0] as UserAttempt) ?? null;
+}
+
+export async function recordUserFeedback(
+  attemptId: number,
+  text: string
+): Promise<{ id: number; analyze: boolean }> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT id, question_id, user_id, mode, user_feedback
+    FROM user_attempts WHERE id = ${attemptId}
+  `;
+  const existing = rows[0] as
+    | { id: number; question_id: string; user_id: number | null; mode: string | null; user_feedback: string | null }
+    | undefined;
+  if (!existing) {
+    // No such attempt — fall back to a plain update so behaviour matches the legacy path.
+    await sql`
+      UPDATE user_attempts SET
+        user_feedback = ${text},
+        feedback_submitted_at = COALESCE(feedback_submitted_at, NOW())
+      WHERE id = ${attemptId}
+    `;
+    return { id: attemptId, analyze: true };
+  }
+
+  const current = (existing.user_feedback || "").trim();
+  // First feedback on this attempt → record it on the row.
+  if (!current) {
+    await sql`
+      UPDATE user_attempts SET
+        user_feedback = ${text},
+        feedback_submitted_at = COALESCE(feedback_submitted_at, NOW())
+      WHERE id = ${attemptId}
+    `;
+    return { id: attemptId, analyze: true };
+  }
+  // Identical re-submission → idempotent no-op (don't spawn a duplicate or re-analyze).
+  if (current === text.trim()) {
+    return { id: attemptId, analyze: false };
+  }
+  // A different second feedback → give it its own attempt row instead of overwriting.
+  const ins = await sql`
+    INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at)
+    VALUES (${existing.question_id}, ${existing.user_id}, ${existing.mode}, ${text}, NOW())
+    RETURNING id
+  `;
+  return { id: ins[0].id as number, analyze: true };
+}
+
 export async function updateAttempt(
   attemptId: number,
   data: Partial<{

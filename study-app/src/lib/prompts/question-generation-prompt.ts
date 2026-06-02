@@ -344,6 +344,7 @@ What does NOT count as a banker:
 - Obscure producers from well-known regions
 - Curveball wines that happen to be from famous countries
 - Wines where the variety or style is unusual for the region
+- A region's NON-NOBLE / minor variety, even from a famous region — it is the curveball, not the banker. In Alsace only the four noble grapes (Riesling, Pinot Gris, Gewürztraminer, Muscat) are bankers; Sylvaner, Pinot Blanc and Auxerrois are curveballs. So an Alsace pair must anchor on the noble grape (e.g. Pinot Gris) and treat Sylvaner as the harder wine — never the reverse (EK-0131).
 
 The banker is the anchor that establishes the baseline. The curveball(s) then differentiate candidates above that baseline. A flight with no banker is disproportionately difficult and prevents the examiners from evaluating mastery of the classics.
 

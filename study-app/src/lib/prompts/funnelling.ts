@@ -15,4 +15,6 @@ Examiners explicitly reward "funnelling": the 2017 practical report calls it "by
 
 Two anti-patterns — both lose marks:
 - **Snap-call / naming one wine outright** with no alternatives weighed: fragile, and under-scores even when correct, because no argument is shown.
-- **Shoehorning** (the inverse of funnelling): deciding identity first — often off a single aroma — then forcing the structure to fit. Examiners say this "led to the failure of many candidates" (2025). Evidence drives the call, never the reverse.`;
+- **Shoehorning** (the inverse of funnelling): deciding identity first — often off a single aroma — then forcing the structure to fit. Examiners say this "led to the failure of many candidates" (2025). Evidence drives the call, never the reverse.
+
+Banker vs curveball — get the tier right. A "banker" is a benchmark wine the candidate should know cold; the difficulty tier follows the grape's STATUS IN ITS REGION. A region's noble/flagship varieties are the bankers; its minor or lesser-known varieties are curveballs, never bankers. In Alsace the bankers are **Riesling, Pinot Gris, Gewürztraminer and Muscat** (the four noble grapes); **Sylvaner, Pinot Blanc and Auxerrois are curveballs** — calling Sylvaner the banker of an Alsace pair is a calibration error; Pinot Gris is the banker against it (EK-0131). Apply the same logic elsewhere (e.g. in a Loire pair, Sancerre Sauvignon is the banker, a Touraine minor grape the curveball).`;

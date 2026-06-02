@@ -25,7 +25,7 @@ export async function applyFeedbackChange(opts: {
   const rows = await sql`
     SELECT
       a.id AS attempt_id, a.user_feedback, a.question_id,
-      fa.id AS analysis_id, fa.thread, fa.recommendation,
+      fa.id AS analysis_id, fa.thread, fa.recommendation, fa.analyzed_feedback,
       q.paper, q.family, q.family_label, q.question_text
     FROM user_attempts a
     JOIN feedback_analyses fa ON fa.attempt_id = a.id
@@ -47,12 +47,30 @@ export async function applyFeedbackChange(opts: {
   const analysisId = r.analysis_id as number;
   const workBranch = `auto-feedback/attempt-${attemptId}`;
 
+  // Use the EXACT feedback the analysis ran on (snapshot), not a later re-read of the mutable
+  // column — so routing/context can't drift from what was analyzed. Legacy rows (pre-009) have a
+  // null snapshot; fall back to the live column for those.
+  const analyzedFeedback = (r.analyzed_feedback as string | null) ?? null;
+  const liveFeedback = (r.user_feedback as string) || "";
+  const feedbackText = analyzedFeedback ?? liveFeedback;
+
+  // A4 — fail loud on divergence. If the snapshot the analysis saw no longer matches the attempt's
+  // current feedback, the no-overwrite guard (recordUserFeedback) was bypassed somehow; do NOT
+  // auto-merge — force the change through human review (reviewOnly) and log it.
+  const feedbackMismatch = !!analyzedFeedback && analyzedFeedback.trim() !== liveFeedback.trim();
+  if (feedbackMismatch) {
+    console.error(
+      `[apply-change] feedback snapshot mismatch on attempt ${attemptId} / analysis ${analysisId}: ` +
+        `analysis ran on text that differs from the attempt's current user_feedback. Forcing reviewOnly.`
+    );
+  }
+
   const context = [
     `Paper ${r.paper} — ${r.family_label} (${r.family})`,
     `Question ID: ${r.question_id}`,
     ``,
     `## User feedback`,
-    (r.user_feedback as string) || "(none)",
+    feedbackText || "(none)",
     ``,
     `## Question text`,
     (r.question_text as string) || "(none)",
@@ -64,14 +82,14 @@ export async function applyFeedbackChange(opts: {
   const kind = (analysisText.match(/Kind:\s*\**(answer-key|question|generation|validator)\**/i)?.[1] || "").toLowerCase();
   // Prefix-match so the context-aware tags ([stem-sniper:stem|reverse-stem|reverse-tasting|result|
   // reverse-result]) and the legacy [stem-sniper] all route to the STEM/answer-key file-set.
-  const isStemSniper = /\[stem-sniper/i.test((r.user_feedback as string) || "");
+  const isStemSniper = /\[stem-sniper/i.test(feedbackText);
   const questionId = r.question_id as string;
 
   // Kind: question — quarantine THIS question directly (no Action). Hides it from BOTH flows
   // (Stem Sniper via stem_answer_keys.validated, main flow via generated_questions.invalid_reasons).
   // Phase D regenerates it later.
   if (kind === "question") {
-    const reason = [{ rule: "feedback-question", severity: "hard", detail: ((r.user_feedback as string) || "").slice(0, 300) }];
+    const reason = [{ rule: "feedback-question", severity: "hard", detail: feedbackText.slice(0, 300) }];
     await sql`ALTER TABLE generated_questions ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
     await sql`UPDATE generated_questions SET invalid_reasons = ${JSON.stringify(reason)}::jsonb WHERE question_id = ${questionId}`;
     await sql`UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${JSON.stringify(reason)}::jsonb WHERE question_id = ${questionId}`;
@@ -113,6 +131,8 @@ export async function applyFeedbackChange(opts: {
   if (kind === "answer-key" || (!kind && isStemSniper)) allowedPaths = STEM.join("\n");
   else if (kind === "generation") { allowedPaths = GEN.join("\n"); reviewOnly = true; }
   else if (kind === "validator") { allowedPaths = VALIDATOR.join("\n"); reviewOnly = true; }
+  // A4 — a divergent snapshot must never auto-merge: send it to PR review regardless of Kind.
+  if (feedbackMismatch) reviewOnly = true;
 
   // Duplicate-PR guard. Two unrelated feedback items previously opened overlapping auto-feedback PRs
   // on the same file (PRs #4/#5, both editing get-question/route.ts) which then merge-conflicted.
