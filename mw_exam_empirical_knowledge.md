@@ -915,11 +915,20 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0048 · Match the historical flight-size distribution; don't over-index on 4-wine flights
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** ledger: attempt #73 (accept) — flight-size distribution constraints
+- **evidence:** ledger: attempt #73 (accept) — flight-size distribution constraints; corpus scan of
+  `data/exams.json` (153 questions) for single-wine cases; attempt #185 (auto-accept) — a single-wine
+  P1 banker question (Meursault 1er Cru Perrières) that the corpus does not support
 - **claim:** Generation was over-producing 4-wine flights. The real exam uses pairs and 3-wine flights
-  frequently, occasionally a single wine, and sometimes a 4-wine flight presented as **two pairs**
-  (often to compare quality and/or winemaking, e.g. 1er Cru Burgundy vs Bourgogne, or Vin Jaune vs
-  Savagnin). Sample flight size from the historical distribution rather than defaulting to four.
+  frequently, and sometimes a 4-wine flight presented as **two pairs** (often to compare quality and/or
+  winemaking, e.g. 1er Cru Burgundy vs Bourgogne, or Vin Jaune vs Savagnin). Sample flight size from the
+  historical distribution rather than defaulting to four. **Single-wine questions are vanishingly rare
+  and NOT a general option:** there is exactly **one** in the 10-year corpus — **2017 Paper 3 Q2**
+  (Cullen "Amber" orange wine, stem "consider wine 4 to be of unknown origin", 15 marks winemaking /
+  10 marks style+quality+market). It is Paper 3 only, an off-piste **curveball with origin explicitly
+  suppressed** and ID downweighted. There is **no single-wine question on Paper 1 or Paper 2** anywhere
+  in the corpus, so a lone banker classic (e.g. a 1er Cru Meursault) on P1/P2 is unsupported — never
+  generate one. Enforced in `validateFlightSize` (`question-engine.ts`): `wineCount === 1` is a
+  violation unless `paper === 3`.
 
 ### EK-0049 · Style sub-questions must be generated (they're near-universal)
 - **tier:** STRONG SIGNAL · **status:** live

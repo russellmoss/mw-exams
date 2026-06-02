@@ -938,6 +938,16 @@ function validateFlightSize(
     violations.push("Paper 1 has never used a 5-wine flight in the corpus. Use 2, 3, 4, or 6.");
   }
 
+  // Single-wine flights only occur on Paper 3, and only as an origin-suppressed curveball — the
+  // sole corpus instance is 2017 P3 Q2 (Cullen "Amber" orange wine, "consider it of unknown origin").
+  // There is NO single-wine question on Paper 1 or Paper 2 anywhere in the 10-year corpus, so a lone
+  // banker (e.g. a 1er Cru Meursault) on P1 is unsupported — force a 2+ wine flight instead.
+  if (wineCount === 1 && paper !== 3) {
+    violations.push(
+      `Single-wine flights only appear on Paper 3 (one corpus instance: 2017 P3 Q2, an origin-suppressed curveball). Paper ${paper} has never used a single-wine question — use 2 or more wines.`
+    );
+  }
+
   return { valid: violations.length === 0, violations };
 }
 
