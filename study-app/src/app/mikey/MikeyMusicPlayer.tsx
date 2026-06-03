@@ -6,7 +6,13 @@
 // It mounts when the game starts and begins playing UNMUTED on that user gesture; play/pause is the
 // mute. Tracks alternate automatically (advance on `ended`) and loop round.
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
+
+export interface MikeyMusicHandle {
+  /** Begin playback. MUST be called synchronously from a user gesture (the START click) so Chrome's
+   *  autoplay policy allows audio with sound. */
+  start: () => void;
+}
 
 interface Song { id: string; file: string; artist: string; title: string }
 
@@ -27,8 +33,9 @@ function fmt(s: number): string {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export function MikeyMusicPlayer() {
+export const MikeyMusicPlayer = forwardRef<MikeyMusicHandle, object>(function MikeyMusicPlayer(_props, ref) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [started, setStarted] = useState(false);
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -39,17 +46,22 @@ export function MikeyMusicPlayer() {
 
   const song = PLAYLIST[index];
 
-  // Autostart unmuted on mount — the parent only mounts this on the START gesture, so the browser
-  // autoplay policy is satisfied. If a browser still blocks it, the play/pause button recovers.
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    a.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Imperative start — the page calls this SYNCHRONOUSLY inside the START button's onClick, so the
+  // play() is a direct response to the user gesture and Chrome allows audio with sound. (Autoplaying
+  // from a mount effect runs a tick later and Chrome treats it as programmatic → blocked.)
+  useImperativeHandle(ref, () => ({
+    start() {
+      setStarted(true);
+      const a = audioRef.current;
+      if (a) a.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+    },
+  }), []);
 
-  // Load + (re)play whenever the track changes; keep playing across track changes.
+  // Load + (re)play whenever the track changes; keep playing across track changes. (Skips the very
+  // first render so it never fires a blocked, gesture-less play before start() is called.)
+  const mountedRef = useRef(false);
   useEffect(() => {
+    if (!mountedRef.current) { mountedRef.current = true; return; }
     const a = audioRef.current;
     if (!a) return;
     a.load();
@@ -77,16 +89,21 @@ export function MikeyMusicPlayer() {
   const progress = duration > 0 ? (display / duration) * 100 : 0;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-72 max-w-[calc(100vw-2rem)] select-none">
+    <>
+      {/* Always mounted (even before the run starts) so start() can call play() inside the gesture,
+          and so the first track preloads and is ready to play the instant START is clicked. */}
       <audio
         ref={audioRef}
         src={song.file}
+        preload="auto"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={next}
         onTimeUpdate={(e) => !dragging && setCurrentTime(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
       />
+      {!started ? null : (
+      <div className="fixed bottom-4 right-4 z-50 w-72 max-w-[calc(100vw-2rem)] select-none">
       <div className="bg-fuchsia-950/90 backdrop-blur rounded-xl border border-fuchsia-500/40 shadow-2xl shadow-fuchsia-900/50 overflow-hidden">
         <div className="flex items-center gap-3 p-3">
           {/* Album-art tile (emoji — no asset needed) */}
@@ -160,6 +177,8 @@ export function MikeyMusicPlayer() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+      )}
+    </>
   );
-}
+});

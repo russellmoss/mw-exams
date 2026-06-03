@@ -12,7 +12,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MikeyMusicPlayer } from "./MikeyMusicPlayer";
+import { MikeyMusicPlayer, type MikeyMusicHandle } from "./MikeyMusicPlayer";
 
 // ── World constants (logical canvas units; the element is scaled responsively) ──
 const W = 900;
@@ -939,7 +939,7 @@ export default function MikeyPage() {
   const dprRef = useRef(1);
 
   const [phase, setPhase] = useState<Phase>("ready");
-  const [musicOn, setMusicOn] = useState(false);
+  const musicRef = useRef<MikeyMusicHandle | null>(null);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(START_LIVES);
   const [zone, setZone] = useState<Env>("vineyard");
@@ -980,7 +980,9 @@ export default function MikeyPage() {
     setLives(START_LIVES);
     setZone("vineyard");
     setWon(false);
-    setMusicOn(true); // kick off the soundtrack (unmuted) on this start gesture
+    // Start the soundtrack SYNCHRONOUSLY inside this click handler so Chrome's autoplay policy
+    // allows it (a play() deferred to an effect is treated as programmatic and blocked).
+    musicRef.current?.start();
     setPhase("playing");
   }, []);
 
@@ -1348,8 +1350,9 @@ export default function MikeyPage() {
         </p>
       </div>
 
-      {/* Soundtrack — mounts (and starts unmuted) once the run begins; persists across replays. */}
-      {musicOn && <MikeyMusicPlayer />}
+      {/* Soundtrack — always mounted (so its <audio> can play() inside the START gesture); the
+          widget appears and playback begins when startGame() calls musicRef.start(). */}
+      <MikeyMusicPlayer ref={musicRef} />
     </div>
   );
 }
