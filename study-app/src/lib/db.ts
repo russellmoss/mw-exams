@@ -185,9 +185,13 @@ export async function getQuestionCounts(): Promise<
 
 export async function createAttempt(questionId: string, mode: string | null = null): Promise<UserAttempt> {
   const sql = getDb();
+  // `mode` is NOT NULL DEFAULT 'full' in the DB. A column default only applies when the column is
+  // OMITTED from the INSERT — an explicit NULL violates the constraint and 500s. A "normal" study
+  // attempt is canonically 'full' (the query layer already treats NULL and 'full' as equivalent),
+  // so coalesce null → 'full' here rather than inserting NULL.
   const rows = await sql`
     INSERT INTO user_attempts (question_id, mode)
-    VALUES (${questionId}, ${mode})
+    VALUES (${questionId}, ${mode ?? "full"})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
@@ -195,9 +199,10 @@ export async function createAttempt(questionId: string, mode: string | null = nu
 
 export async function createAttemptWithUser(questionId: string, userId: number, mode: string | null = null): Promise<UserAttempt> {
   const sql = getDb();
+  // See createAttempt: coalesce null → 'full' so the explicit insert satisfies the NOT NULL mode column.
   const rows = await sql`
     INSERT INTO user_attempts (question_id, user_id, mode)
-    VALUES (${questionId}, ${userId}, ${mode})
+    VALUES (${questionId}, ${userId}, ${mode ?? "full"})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
@@ -259,7 +264,7 @@ export async function recordUserFeedback(
   // A different second feedback → give it its own attempt row instead of overwriting.
   const ins = await sql`
     INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at)
-    VALUES (${existing.question_id}, ${existing.user_id}, ${existing.mode}, ${text}, NOW())
+    VALUES (${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"}, ${text}, NOW())
     RETURNING id
   `;
   return { id: ins[0].id as number, analyze: true };
