@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-06-08 — consolidate: 5 feedback item(s) processed → 3 new entries (EK-0132, EK-0133, EK-0134).**
 - **2026-06-02 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0131).**
 - **2026-06-01 — consolidate: 7 feedback item(s) processed → 6 new entries (EK-0125, EK-0126, EK-0127, EK-0128, EK-0129, EK-0130).**
 - **2026-05-31 — Project 8 (System Integrity & Correctness Refactor): applied the SUPPORTED / VERY-STRONG
@@ -831,6 +832,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #188 / analysis #32 (accept)
 - **claim:** In an Alsace same-region different-variety pair, Pinot Gris is a legitimate banker (one of the four noble grapes), but Sylvaner is NOT — it is not a noble Alsace variety and functions as the curveball, not the anchor. A valid banker-vs-curveball pairing must classify Sylvaner (and similar lesser Alsace grapes like Pinot Blanc/Auxerrois) as the harder wine; feedback/model-answer prose that labels Sylvaner a banker is a calibration error. The noble bankers of Alsace are Riesling, Pinot Gris, Gewürztraminer and Muscat (cf. EK-0029 — a banker must be a wine the candidate is expected to know cold).
 
+### EK-0132 · Sous-voile/flor Jura whites can appear on P1 in a winemaking-diversity still-white flight
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #178 / analysis #30 (reject)
+- **claim:** A sous-voile / flor-aged Jura white (e.g. Montbourgeau L'Étoile Savagnin) is NOT exclusively a Paper 3 wine. Placement follows the question's organising logic: when the stem is built around production-METHOD comparison (flor vs non-flor, biological vs physical ageing) the wine goes to P3 (2015 P3 Q3 Pinte Savagnin sous voile + Manzanilla; 2019 P3 Q4 Montbourgeau L'Étoile + Manzanilla); but when it appears as one wine in a winemaking-diversity flight of dry STILL whites (alongside reductive Chablis, barrel/MLF Chardonnay, oxidatively-aged white Rioja), it is legitimately P1. Oxidatively-aged white Rioja is the analogous P1-attested case (2013/2018/2025 P1). Refines EK-0088, which only addressed P3 still-white inclusions.
+
 ---
 
 ## §5 · Question generation rules
@@ -1055,6 +1061,11 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 151 | 27 | P2/F6 | reject | auto | three-tier blend stem phrasing (variety / predominant / variety-or-varieties) signals how to treat the blend | EK-0129 |
 | 175 | 29 | P3/F7 | partial | auto | Prosecco (incl. Cartizze) is Charmat not traditional method; dictation-truncation complaint relates to capture not grading (EK-0070) | EK-0130, EK-0070 |
 | 188 | 32 | P1/F2 | accept | auto | Alsace Sylvaner is a curveball not a banker; only the four noble grapes anchor | EK-0131 |
+| 178 | 30 | P1/F6 | reject | auto | sous-voile Jura whites belong on P1 in a winemaking-diversity flight, not exclusively P3 | EK-0132 |
+| 185 | 31 | P1/F5 | accept | auto | single-wine P1 banker (Meursault 1er Cru) is unsupported and was quarantined — already covered | EK-0048 |
+| 189 | 33 | P1/F3 | reject | auto | UX: wine list not visible while writing answers; no tasting context | EK-0133 |
+| 190 | 34 | P1/F6 | reject | auto | UX: repeated feedback clicks overwrite instead of appending discrete records | EK-0134 |
+| 206 | 35 | P1/F5 | reject | auto | four-country/four-different-variety P1 breadth is the most common (F4) format — corpus-overruled; already covered | EK-0052, EK-0077, EK-0044 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
@@ -1364,6 +1375,16 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   oxidative white Rioja, Sherry) persist (cf. EK-0088), but skin-contact does not. When generating
   "boundary"/curveball P1 or P3 wines, prefer the persistent oxidative/flor family over orange wine,
   and do **not** model orange wine as a rising or future-dominant theme.
+
+### EK-0133 · Answer-writing view must keep the wine list (and ideally tasting context) visible
+- **tier:** PROCESS · **status:** live
+- **evidence:** ledger: attempt #189 / analysis #33 (reject)
+- **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
+
+### EK-0134 · Multiple feedback submissions on one question overwrite rather than append
+- **tier:** PROCESS · **status:** live
+- **evidence:** ledger: attempt #190 / analysis #34 (reject)
+- **claim:** Symptom: a user clicked the feedback button three times on one question expecting three discrete records, but only the third submission was retained — earlier submissions were overwritten. Root cause: the feedback-submit path replaces the prior entry instead of appending a new record per submission. Workaround: submit all observations in a single entry. Fix: persist sequential feedback submissions as distinct records. UI/UX bug, no content/pipeline change.
 
 ---
 
