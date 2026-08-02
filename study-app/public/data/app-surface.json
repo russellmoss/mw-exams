@@ -54,6 +54,7 @@
     "/api/media/[id]",
     "/api/question-counts",
     "/api/save-attempt",
+    "/api/stem-detail/ensure",
     "/api/stem-sniper/drill",
     "/api/stem-sniper/next",
     "/api/stem-sniper/notes",

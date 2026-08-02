@@ -198,6 +198,32 @@ export default function Home() {
         setPendingMode(mode);
         setStemDetail((user?.stemDetailDefault as StemDetailLevel) || "exam_real");
         setStep("stem-detail");
+
+        // Backfill the stem variants OUT OF BAND. The question is already on screen and every level
+        // renders from the canonical stem until this resolves, so it is deliberately not awaited —
+        // keeping the model call off the path the user waits on. Failures are silent by design.
+        if (!question.stemGuided || !question.stemExamReal || !question.stemBlind) {
+          fetch("/api/stem-detail/ensure", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questionId: question.id }),
+          })
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => {
+              if (!d?.variants) return;
+              setPendingQuestion((prev) =>
+                prev && prev.id === question.id
+                  ? {
+                      ...prev,
+                      stemGuided: d.variants.guided ?? prev.stemGuided,
+                      stemExamReal: d.variants.exam_real ?? prev.stemExamReal,
+                      stemBlind: d.variants.blind ?? prev.stemBlind,
+                    }
+                  : prev
+              );
+            })
+            .catch(() => {});
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to get question");
         setStep("select-family");
@@ -447,6 +473,44 @@ export default function Home() {
                   </div>
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Stem Detail setup. The question is already fetched at this point; this screen picks how
+              much organising information its stem reveals, previews the result, and starts the run.
+              Any level whose variant has not been backfilled yet previews the canonical stem (see
+              stemForLevel), so this screen is never blocked on the derivation request. */}
+          {step === "stem-detail" && pendingQuestion && (
+            <div className="max-w-2xl mx-auto">
+              <button
+                onClick={() => {
+                  setPendingQuestion(null);
+                  setStep("select-mode");
+                }}
+                className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1 cursor-pointer"
+              >
+                &larr; Back
+              </button>
+              <h2 className="text-xl font-semibold text-foreground mb-2">How much should the stem tell you?</h2>
+              <p className="text-sm text-muted mb-6">{STEM_DETAIL_HELPER_COPY}</p>
+
+              <StemDetailSegments value={stemDetail} onChange={setStemDetail} />
+
+              <div className="bg-card rounded-xl border border-border p-6 mt-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted mb-3">
+                  Preview
+                </p>
+                <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                  {stemForLevel(pendingQuestion, stemDetail)}
+                </p>
+              </div>
+
+              <button
+                onClick={handleStart}
+                className="w-full mt-6 bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-3 transition-colors cursor-pointer"
+              >
+                Start question
+              </button>
             </div>
           )}
 
