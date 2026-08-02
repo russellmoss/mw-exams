@@ -4,7 +4,7 @@
 // WHAT WAS REMOVED AND WHY. The source module also embeds DOCUMENTS in batches of 96, with patient
 // per-minute rate-limit handling, because it runs a crawler that indexes new pages continuously. This
 // app never embeds a document: the corpus is frozen and its vectors were copied verbatim from the
-// source system (see migration 015). Only queries get embedded here — one short call per retrieval.
+// source system (see migration 016). Only queries get embedded here — one short call per retrieval.
 //
 // THE MODEL NAME IS A CONTRACT, NOT A SETTING. The stored vectors are voyage-4 / 1024-dim. A query
 // embedded with any other model produces cosine distances against them that are meaningless but not

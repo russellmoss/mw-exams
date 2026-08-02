@@ -244,7 +244,7 @@ zero.
 
 ## 5b. Landed corpus (live, 2026-08-02)
 
-Migration 015 applied to MW-exam; full export run end to end.
+Migration 016 applied to MW-exam; full export run end to end.
 
 Export landed 4,739 chunks / 1,170 documents (stage 3 kept 61% of 7,730). The stage-1b deny list
 then removed 760 more — see F2.
@@ -370,7 +370,7 @@ this environment, so that file has not been run under the repo's own runner).
 - `VOYAGE_API_KEY` in the MW app's Vercel env (needed at query time as well as export time) — it
   exists in Wine-inventory today and is not yet in this app.
 - `KB_SOURCE_DATABASE_URL` (Wine-inventory) exported locally for the one-off export run.
-- Migration 015 applied to the target (`npm run migrate`, or any deploy).
+- Migration 016 applied to the target (`npm run migrate`, or any deploy).
 
 Suggested first run: `node scripts/kb-export.mjs --dry-run`, which writes nothing and prints
 chunks-by-source and chunks-by-language.

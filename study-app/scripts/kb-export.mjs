@@ -465,7 +465,7 @@ async function main() {
         if (!embedding) throw new Error(`chunk ${c.id} lost its embedding between fetch and write`);
         const lang = docLang.get(c.document_id) ?? "en";
         const cfg = TS_CONFIG_OF[lang] ?? "simple";
-        // search_vector is built HERE, with the document's own config — see the note in migration 015
+        // search_vector is built HERE, with the document's own config — see the note in migration 016
         // on why this is a plain column rather than a generated one.
         return dst`
           INSERT INTO kb_chunk (id, document_id, ordinal, section_path, text, token_count, embedding,

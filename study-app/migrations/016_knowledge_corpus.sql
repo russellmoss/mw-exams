@@ -1,4 +1,4 @@
--- Migration 015: production-knowledge corpus (RAG) for method-of-production answers and grading.
+-- Migration 016: production-knowledge corpus (RAG) for method-of-production answers and grading.
 --
 -- WHAT THIS IS. A FROZEN, filtered slice of the Wine-inventory knowledge corpus (Neon project
 -- muddy-shape-80817041), imported by scripts/kb-export.mjs. Tier-1 enology/viticulture publishers
