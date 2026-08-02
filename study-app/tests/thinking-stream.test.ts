@@ -122,4 +122,17 @@ describe("sseStream", () => {
     });
     expect(frames[1]).toBe("[DONE]");
   });
+
+  it("keeps every frame on its own line so the client's line parser can't merge them", async () => {
+    // The client splits on newlines and requires each frame to be exactly one `data: ` line.
+    // A status label containing a newline would otherwise split into two frames, the second of
+    // which isn't valid JSON — silently dropping progress.
+    const res = sseStream(async (emit) => {
+      emit({ type: "status", label: "line one\nline two" });
+      return null;
+    });
+    const frames = await readSse(res);
+    expect(JSON.parse(frames[0])).toEqual({ type: "status", label: "line one\nline two" });
+    expect(frames).toHaveLength(3); // status, result, [DONE]
+  });
 });
