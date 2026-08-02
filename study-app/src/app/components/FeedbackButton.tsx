@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSpeech } from "@/lib/use-speech";
+import { useDraft } from "@/lib/use-draft";
 import { MicButton } from "./MicButton";
 
 interface FeedbackButtonProps {
@@ -16,7 +17,12 @@ interface FeedbackButtonProps {
 
 export function FeedbackButton({ attemptId, step, questionId = null, userId = null }: FeedbackButtonProps) {
   const [open, setOpen] = useState(false);
-  const [feedback, setFeedback] = useState("");
+  // Unsent feedback survives closing the modal, moving through the question's
+  // steps, and reloading — scoped to the question (or the attempt, when that's
+  // all the caller gives us) so it never follows the candidate to the next wine.
+  const [feedback, setFeedback] = useDraft(
+    `feedback:${questionId ?? (attemptId ? `attempt:${attemptId}` : "pending")}`
+  );
   const [sent, setSent] = useState(false);
   const [saving, setSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -27,13 +33,17 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
       if (trimmed.length === 0) return text;
       return trimmed + " " + text;
     });
-  }, []);
+  }, [setFeedback]);
 
   const speech = useSpeech(handleTranscript);
 
   useEffect(() => {
     if (open && textareaRef.current) {
-      textareaRef.current.focus();
+      const el = textareaRef.current;
+      el.focus();
+      // Put the caret after any restored draft so typing carries on from where
+      // they stopped rather than in front of their own sentence.
+      el.setSelectionRange(el.value.length, el.value.length);
     }
   }, [open]);
 
