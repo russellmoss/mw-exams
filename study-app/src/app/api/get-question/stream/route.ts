@@ -21,14 +21,16 @@ export async function POST(request: Request) {
   const keyResult = await requireApiKey(request);
   if (keyResult instanceof Response) return keyResult;
 
-  const { paper, family, forceFresh } = await request.json();
+  // `focus` is the Paper 3 style bias from the landing page's Focus control; the producer ignores it
+  // for Papers 1/2.
+  const { paper, family, forceFresh, focus } = await request.json();
   if (!paper) return Response.json({ error: "Missing paper" }, { status: 400 });
 
   const meta: UsageMeta = { source: keyResult.source, userId: keyResult.user.id };
   const apiKey = keyResult.apiKey;
 
   return sseStream(async (emit) => {
-    const outcome = await produceQuestion({ paper, family, forceFresh, apiKey, meta, emit });
+    const outcome = await produceQuestion({ paper, family, forceFresh, focus, apiKey, meta, emit });
     // The engine signals "nothing available" as data; surface it as a stream error so the client's
     // single failure path handles it (and its retry gets a chance at the fast banked fallback).
     if ("error" in outcome) throw new Error(outcome.error);
