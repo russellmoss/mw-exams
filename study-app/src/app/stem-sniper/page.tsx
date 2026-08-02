@@ -8,6 +8,8 @@ import { StemSniperTastingCard, type TastingNote } from "../components/StemSnipe
 import { StemSniperResult, type ScoreResult, type Revealed } from "../components/StemSniperResult";
 import { StemSniperIntro } from "../components/StemSniperIntro";
 import { FeedbackButton } from "../components/FeedbackButton";
+import { ThinkingTrace } from "../components/ThinkingTrace";
+import { useProgressStream } from "@/lib/use-progress-stream";
 
 type Status = "intro" | "loading" | "drilling" | "revealing" | "tasting" | "result" | "empty";
 type Mode = "sniper" | "reverse";
@@ -57,8 +59,16 @@ export default function StemSniperPage() {
       .catch(() => {});
   }, []);
 
+  // Live progress for the drill the candidate is actually waiting on, and for the Layer-B reveal.
+  // Fresh generation runs a validate-and-retry loop that can take 20-60s; without this the page
+  // showed a single static "Loading drill…" line and a working request looked hung.
+  const drillTrace = useProgressStream();
+  const notesTrace = useProgressStream();
+
   // One fetch of a drill. /drill is the unified source: ~90% freshly generated through the shared
   // engine (with a stem key derived on the spot), ~10% from the validated banked pool.
+  // This is the SILENT variant — used for prefetching the next drill in the background, where
+  // there's no UI to report to. The visible fetch goes through /drill/stream (see fetchNext).
   const fetchDrill = useCallback(async (p: number | null): Promise<Drill | null> => {
     try {
       const res = await fetch(`/api/stem-sniper/drill${p ? `?paper=${p}` : ""}`);
@@ -67,6 +77,16 @@ export default function StemSniperPage() {
       return null;
     }
   }, []);
+
+  // Same drill, streamed: phase labels plus the generating model's own reasoning arrive as the
+  // engine works, and the final `result` event carries the identical stem-only payload.
+  const streamDrill = useCallback(
+    (p: number | null) => drillTrace.run<Drill>(`/api/stem-sniper/drill/stream${p ? `?paper=${p}` : ""}`),
+    // `run` is stable (useCallback with no deps) — depending on the whole trace object would
+    // re-create this on every streamed token.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   // Client-side prefetch of one drill. Fresh generation takes time, so the moment a drill is shown we
   // warm the NEXT one in the background; by the time the candidate finishes answering it's ready and
@@ -86,16 +106,18 @@ export default function StemSniperPage() {
       setMovement(null);
       setStage1Preds(null);
       setNotes(null);
-      // Use a ready/in-flight prefetched drill for this paper if we have one; else fetch live.
+      // Use a ready/in-flight prefetched drill for this paper if we have one (near-instant, nothing
+      // to narrate); otherwise generate live through the streaming endpoint so the wait is visible.
       let promise: Promise<Drill | null>;
       if (prefetchRef.current && prefetchRef.current.paper === p) {
         promise = prefetchRef.current.promise;
         prefetchRef.current = null;
+        drillTrace.reset();
       } else {
-        promise = fetchDrill(p);
+        promise = streamDrill(p);
       }
       let d = await promise;
-      if (!d) d = await fetchDrill(p); // prefetch missed (e.g. transient gen failure) — try once live
+      if (!d) d = await streamDrill(p); // prefetch missed (e.g. transient gen failure) — try once live
       if (d && d.questionId) {
         setDrill(d);
         setStatus("drilling");
@@ -105,7 +127,10 @@ export default function StemSniperPage() {
         setStatus("empty");
       }
     },
-    [fetchDrill, startPrefetch]
+    // `streamDrill` and the trace's `reset` are stable; listing the trace object would rebuild
+    // this callback on every streamed token.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [fetchDrill, startPrefetch, streamDrill]
   );
 
   useEffect(() => {
@@ -160,20 +185,23 @@ export default function StemSniperPage() {
     setStage1Preds(preds);
     setStatus("revealing");
     try {
-      const res = await fetch(`/api/stem-sniper/notes?questionId=${encodeURIComponent(drill.questionId)}`);
-      if (res.ok) {
-        const data = await res.json();
-        const ns: TastingNote[] = Array.isArray(data.notes) ? data.notes.filter((n: TastingNote) => n.note?.trim()) : [];
-        if (ns.length > 0) {
-          setNotes(ns);
-          setStatus("tasting");
-          return;
-        }
+      const data = await notesTrace.run<{ notes: TastingNote[] }>(
+        `/api/stem-sniper/notes/stream?questionId=${encodeURIComponent(drill.questionId)}`
+      );
+      const ns: TastingNote[] = Array.isArray(data?.notes)
+        ? data.notes.filter((n: TastingNote) => n.note?.trim())
+        : [];
+      if (ns.length > 0) {
+        setNotes(ns);
+        setStatus("tasting");
+        return;
       }
     } catch {
       /* fall through to fallback */
     }
     await scoreSniper(preds); // couldn't reveal the glass — score the stem guess
+    // `notesTrace.run` is stable; the trace object itself changes on every streamed token.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drill, scoreSniper]);
 
   // Stage 1 submit dispatch.
@@ -269,14 +297,32 @@ export default function StemSniperPage() {
             ))}
           </div>
 
-          {status === "loading" && <div className="text-sm text-muted">Loading drill…</div>}
+          {/* Both waits are spoiler-gated: the collapsed row shows only our own phase labels
+              (never a wine name), and the model's reasoning — which does name the wines — sits
+              behind an explicitly-labelled toggle so revealing it is the candidate's choice. */}
+          {status === "loading" && (
+            <ThinkingTrace
+              status={drillTrace.status}
+              statuses={drillTrace.statuses}
+              thinking={drillTrace.thinking}
+              // The panel only mounts while we're genuinely waiting, so keep the pulse alive even
+              // for a prefetched drill (no stream, therefore no trace) — dead dots read as hung.
+              active={!drillTrace.error}
+              error={drillTrace.error}
+              spoiler
+              idleLabel="Loading drill…"
+            />
+          )}
           {status === "revealing" && (
-            <div className="bg-card border border-border rounded-xl p-6 text-sm text-muted flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
-              <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
-              <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
-              <span className="ml-1">Revealing the glass — generating the tasting note…</span>
-            </div>
+            <ThinkingTrace
+              status={notesTrace.status}
+              statuses={notesTrace.statuses}
+              thinking={notesTrace.thinking}
+              active={!notesTrace.error}
+              error={notesTrace.error}
+              spoiler
+              idleLabel="Revealing the glass — generating the tasting note…"
+            />
           )}
           {status === "empty" && (
             <div className="bg-card border border-border rounded-xl p-6 text-sm text-muted">

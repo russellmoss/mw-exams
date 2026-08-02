@@ -26,10 +26,21 @@ import { stemSniperScoringModel } from "@/lib/question-validator";
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
 // novelty, generation-consistency) stay inline below.
 import { applyQuestionRules, winesFromText } from "@/lib/question-rules.mjs";
+import {
+  streamWithThinking,
+  supportsAdaptiveThinking,
+  thinkingParams,
+  type ProgressEmitter,
+} from "@/lib/thinking-stream";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
 export type UsageMeta = { source: "user" | "server"; userId: number | null };
+
+// Optional live-progress channel. When a caller (the Stem Sniper SSE route) supplies one, the
+// generation phases and the model's own reasoning are streamed to the browser. When it's absent
+// every call below takes the identical non-streaming path it always has.
+export type { ProgressEmitter } from "@/lib/thinking-stream";
 
 const FAMILY_LABELS: Record<string, string> = {
   F1: "Same Variety",
@@ -144,13 +155,19 @@ function extractSection(
   return text.slice(startIdx).trim();
 }
 
-async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string, meta?: UsageMeta): Promise<GeneratedQuestion> {
+async function ensureP3Appearances(
+  question: GeneratedQuestion,
+  apiKey: string,
+  meta?: UsageMeta,
+  emit?: ProgressEmitter
+): Promise<GeneratedQuestion> {
   if (question.paper !== 3) return question;
   const wines = typeof question.wines === "string" ? JSON.parse(question.wines) : question.wines;
   const hasAppearances = wines.some((w: { appearance?: string }) => w.appearance);
   if (hasAppearances) return question;
 
   try {
+    emit?.({ type: "status", label: "Describing what's in the glass (Paper 3)…" });
     const client = new Anthropic({ apiKey });
     const { model, abGroup } = await selectModel("question_appearance", apiKey, "sonnet");
     const wineList = wines.map((w: { slot: number; fullText: string }) => `${w.slot}. ${w.fullText}`).join("\n");
@@ -254,14 +271,53 @@ function pickFlightSizeAware(questions: GeneratedQuestion[], family?: string): G
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
+/**
+ * One generation call, with the model's reasoning surfaced when someone is watching.
+ *
+ * Without an emitter this is byte-for-byte the request the engine has always sent. With one, the
+ * call is made in streaming mode and adaptive thinking is turned on so the reasoning can be piped
+ * to the browser. Two knock-on details matter:
+ *   • `max_tokens` caps thinking + JSON together, so the 4000 sized for the JSON alone would now
+ *     truncate mid-object. Doubled when thinking is on (kept at low effort, so the headroom is
+ *     ample rather than speculative).
+ *   • the model may not support adaptive thinking (Haiku, older Opus). `thinkingParams` returns
+ *     `{}` there and the call still streams — status events alone keep the UI alive.
+ */
+async function callGenerationModel(
+  client: Anthropic,
+  model: string,
+  prompt: { system: string; user: string },
+  callOpts: { timeout: number; maxRetries: number },
+  emit?: ProgressEmitter
+) {
+  // 2000 was too tight for the reasoning-heavy arm: EVERY Opus generation in production
+  // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
+  // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
+  // ~950 tokens here, so 4000 is comfortably above both arms' real output.
+  const thinkingOn = Boolean(emit) && supportsAdaptiveThinking(model);
+  const params = {
+    model,
+    max_tokens: thinkingOn ? 8000 : 4000,
+    system: prompt.system,
+    messages: [{ role: "user" as const, content: prompt.user }],
+    ...(thinkingOn ? thinkingParams(model) : {}),
+  } as Parameters<typeof client.messages.create>[0] & { stream?: never };
+
+  if (!emit) return client.messages.create(params, callOpts);
+  return streamWithThinking(client, params, callOpts, emit);
+}
+
 export async function generateFreshQuestion(
   paper: number,
   family: string | undefined,
   apiKey: string,
   meta?: UsageMeta,
-  recentlyServedIds?: Set<string>
+  recentlyServedIds?: Set<string>,
+  emit?: ProgressEmitter
 ) {
   const client = new Anthropic({ apiKey });
+
+  emit?.({ type: "status", label: "Reading the wine bank for duplicates…" });
 
   // Pull existing wines from the bank for deduplication
   const allQuestions = await getQuestionsByFilter(paper);
@@ -277,6 +333,7 @@ export async function generateFreshQuestion(
   // (same stem template + same pedagogical contrast) that happened several questions ago, not just
   // an exact repeat of the immediately-previous one. (Feedback: a user was served the same sweet-wine
   // "different countries / different single variety / sweetness mechanism" template they'd already seen.)
+  emit?.({ type: "status", label: "Checking the last 30 questions for repeats…" });
   const recentGenerated = await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
   const prompt = await buildQuestionGenerationPrompt(
@@ -358,20 +415,12 @@ export async function generateFreshQuestion(
     let producedModel = model;
     let producedAb = attemptAb;
     const t0 = Date.now();
+    emit?.({
+      type: "status",
+      label: attempt === 1 ? "Drafting the flight…" : `Redrafting the flight (attempt ${attempt})…`,
+    });
     try {
-      message = await client.messages.create(
-        {
-          model,
-          // 2000 was too tight for the reasoning-heavy arm: EVERY Opus generation in production
-          // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
-          // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
-          // ~950 tokens here, so 4000 is comfortably above both arms' real output.
-          max_tokens: 4000,
-          system: prompt.system,
-          messages: [{ role: "user", content: prompt.user }],
-        },
-        callOpts
-      );
+      message = await callGenerationModel(client, model, prompt, callOpts, emit);
       logClaudeUsage(
         { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, abGroup: attemptAb },
         message.usage,
@@ -393,15 +442,7 @@ export async function generateFreshQuestion(
         const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
         const tRetry = Date.now();
         try {
-          message = await client.messages.create(
-            {
-              model: "claude-sonnet-4-6",
-              max_tokens: 4000,
-              system: prompt.system,
-              messages: [{ role: "user", content: prompt.user }],
-            },
-            fallbackOpts
-          );
+          message = await callGenerationModel(client, "claude-sonnet-4-6", prompt, fallbackOpts, emit);
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
           logClaudeUsage(
@@ -433,8 +474,11 @@ export async function generateFreshQuestion(
     if (!candidate) {
       lastViolations = ["Failed to parse generated question"];
       console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed: parse error`);
+      emit?.({ type: "status", label: "Draft came back malformed — retrying…" });
       continue;
     }
+
+    emit?.({ type: "status", label: "Running the examiner validators…" });
 
     // Critical validators (always run)
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
@@ -500,10 +544,17 @@ export async function generateFreshQuestion(
       genModelUsed = producedModel;
       genAbGroup = producedAb;
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded (relaxed=${relaxNiceToHave ? "nice-to-have" : relaxImportant ? "important" : "none"})`);
+      emit?.({ type: "status", label: "All validators passed." });
       break;
     }
 
     console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed:`, JSON.stringify(lastViolations));
+    // Only the COUNT, never the violation text: violations quote wine names and varieties, and
+    // status labels are shown un-gated (the spoiler gate covers thinking, not status).
+    emit?.({
+      type: "status",
+      label: `${lastViolations.length} validator issue${lastViolations.length === 1 ? "" : "s"} — redrafting…`,
+    });
   }
 
   // Fallback: if generation failed, serve a banked question rather than showing an error — but
@@ -511,6 +562,7 @@ export async function generateFreshQuestion(
   // filter as an absolute last resort below, when excluding seen questions would leave nothing.
   if (!parsed || !validation) {
     console.error("All generation attempts failed, falling back to a banked question");
+    emit?.({ type: "status", label: "Generation didn't converge — serving a validated banked question…" });
     const allFallback = filterValidBanked(await getQuestionsByFilter(paper));
     const unseen = recentlyServedIds
       ? allFallback.filter((q) => !recentlyServedIds.has(q.question_id))
@@ -537,6 +589,7 @@ export async function generateFreshQuestion(
     return { error: "No questions available. Please try again." };
   }
 
+  emit?.({ type: "status", label: "Saving the question…" });
   const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
   const saved = await saveGeneratedQuestion({
     questionId,

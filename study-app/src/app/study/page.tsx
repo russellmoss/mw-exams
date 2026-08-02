@@ -689,6 +689,7 @@ export default function StudyPage() {
               {evalStream.isStreaming || evalStream.text ? (
                 <StreamingFeedback
                   text={evalStream.text}
+                  thinking={evalStream.thinking}
                   isStreaming={evalStream.isStreaming}
                   title="Stem Analysis Coaching"
                   error={null}
@@ -853,6 +854,7 @@ export default function StudyPage() {
               ) : (
                 <StreamingFeedback
                   text={evalStream.text}
+                  thinking={evalStream.thinking}
                   isStreaming={evalStream.isStreaming}
                   error={evalStream.error}
                   title="Full Debrief"

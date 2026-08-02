@@ -4,6 +4,7 @@ import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
+import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve the hero + up to 3 illustration images.
@@ -34,10 +35,12 @@ export async function POST(request: Request) {
 
     const { model, abGroup } = await selectModel("reasoning_grading", keyResult.apiKey, "opus");
     const t0 = Date.now();
+    // Adaptive thinking so the stem-analysis grader's reasoning is visible while it works. The
+    // candidate has already committed their pre-glass answer, so nothing here is a spoiler.
     const stream = await client.messages.stream({
       model,
-      max_tokens: 1500,
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
+      ...withThinking(model, 1500),
       messages: [
         {
           role: "user",
@@ -50,7 +53,7 @@ ${reasoning}
 Please evaluate this stem analysis. What did the candidate identify well? What signals from the stem did they miss? What should they look for in the glass based on this stem?`,
         },
       ],
-    });
+    } as Parameters<typeof client.messages.stream>[0]);
 
     const encoder = new TextEncoder();
 
@@ -71,6 +74,11 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
               imageStreamer.feed(fullText);
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
+            } else if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "thinking_delta"
+            ) {
+              controller.enqueue(encoder.encode(thinkingFrame(event.delta.thinking)));
             }
           }
           const final = await stream.finalMessage();
