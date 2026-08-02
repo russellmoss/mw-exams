@@ -10,7 +10,13 @@
  * See docs/plans/stem-sniper-hedge-and-blend.md.
  */
 import { describe, it, expect } from "vitest";
-import { scoreStemSniper, MAX_HEDGE, type AnswerKey, type TwoAxisPrediction } from "../src/lib/stem-scoring";
+import {
+  scoreStemSniper,
+  overCapAxes,
+  MAX_HEDGE,
+  type AnswerKey,
+  type TwoAxisPrediction,
+} from "../src/lib/stem-scoring";
 
 // One-wine key: a Barossa Shiraz. `plausible` is unused by the two-axis scorer but the type wants it.
 const shiraz: AnswerKey = {
@@ -121,7 +127,9 @@ describe("Hedge & Blend — hedging costs precision", () => {
   });
 
   it("caps the hedge server-side so a shotgun answer cannot buy credit", () => {
-    // The right answer sits past the cap and must be dropped, not scored at ½.
+    // The right answer sits past the cap and must be dropped, not scored at ½. The submit route
+    // refuses this payload outright (see overCapAxes below); the truncation here is the backstop
+    // for any other caller that reaches the scorer directly.
     const shotgun = ["Nebbiolo", "Sangiovese", "Barbera", "Shiraz", "Grenache", "Merlot"];
     expect(shotgun.length).toBeGreaterThan(MAX_HEDGE);
     const g = only([{ grapes: shotgun, countries: ["Australia"] }], shiraz);
@@ -269,5 +277,31 @@ describe("Hedge & Blend — assignment and totals", () => {
     expect(wine2.verdict).toBe("MISS");
     expect(wine2.grapeGuesses).toEqual([]);
     expect(wine2.points).toBe(0);
+  });
+});
+
+describe("over-cap detection (the submit route's 400 gate)", () => {
+  it("flags an axis carrying more than MAX_HEDGE answers", () => {
+    expect(overCapAxes({ grapes: ["a", "b", "c", "d"], countries: ["France"] })).toEqual(["grape"]);
+    expect(overCapAxes({ grapes: ["a"], countries: ["a", "b", "c", "d"] })).toEqual(["country"]);
+    expect(
+      overCapAxes({ grapes: ["a", "b", "c", "d"], countries: ["a", "b", "c", "d"] })
+    ).toEqual(["grape", "country"]);
+  });
+
+  it("passes anything the card can actually produce", () => {
+    expect(overCapAxes({ grape: "Shiraz", country: "Australia" })).toEqual([]);
+    expect(overCapAxes({ grapes: ["a", "b", "c"], countries: ["x", "y", "z"] })).toEqual([]);
+    expect(overCapAxes({})).toEqual([]);
+  });
+
+  it("counts distinct answers, so duplicates and blanks never trip the gate", () => {
+    // Four entries, two real — the scorer would read this as a two-way hedge, so rejecting it
+    // would refuse a legitimate answer.
+    expect(overCapAxes({ grapes: ["Shiraz", "shiraz ", "  ", "Grenache"] })).toEqual([]);
+  });
+
+  it("leaves a legacy comma-containing scalar alone — it is one answer, not four", () => {
+    expect(overCapAxes({ country: "Barossa Valley, South Australia, Australia, Oz" })).toEqual([]);
   });
 });

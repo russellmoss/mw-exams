@@ -1,6 +1,12 @@
 import { neon } from "@neondatabase/serverless";
 import { getUser } from "@/lib/auth";
-import { scoreStemSniper, type TwoAxisPrediction, type AnswerKey } from "@/lib/stem-scoring";
+import {
+  scoreStemSniper,
+  overCapAxes,
+  MAX_HEDGE,
+  type TwoAxisPrediction,
+  type AnswerKey,
+} from "@/lib/stem-scoring";
 
 export const runtime = "nodejs";
 
@@ -11,7 +17,8 @@ const asJson = <T>(v: unknown): T => (typeof v === "string" ? (JSON.parse(v) as 
 // older clients still score.
 //
 // The arrays are passed through verbatim; the scorer owns trimming, de-duping and the MAX_HEDGE cap
-// (see stem-scoring.chips) so the limit binds here on the server and not just in the card UI.
+// (see stem-scoring.chips) so the limit binds here on the server and not just in the card UI. A
+// payload that exceeds the cap is REJECTED below rather than quietly truncated — see overCapAxes.
 type IncomingPrediction = TwoAxisPrediction & { variety?: string; style?: string; region?: string };
 const strList = (v: unknown): string[] | undefined =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : undefined;
@@ -45,6 +52,17 @@ export async function POST(request: Request) {
   const predictions = Array.isArray(body.predictions) ? body.predictions.map(toTwoAxis) : null;
   if (!questionId || !predictions) {
     return Response.json({ error: "questionId and predictions[] are required" }, { status: 400 });
+  }
+
+  // Over-cap payloads are refused, not truncated. The card cannot produce one (it stops accepting
+  // chips at MAX_HEDGE), so this only fires for a hand-rolled client — which deserves to be told
+  // rather than handed a silent zero on an axis whose right answer it listed fourth.
+  const over = predictions.flatMap((p, i) => overCapAxes(p).map((axis) => `row ${i + 1} ${axis}`));
+  if (over.length) {
+    return Response.json(
+      { error: `At most ${MAX_HEDGE} answers per axis (${over.join(", ")})` },
+      { status: 400 }
+    );
   }
 
   const sql = neon(process.env.DATABASE_URL!);
