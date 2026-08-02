@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback, recordUserFeedback, getAttemptById } from "@/lib/db";
 import { getUser } from "@/lib/auth";
+import { isStemDetailLevel } from "@/lib/prompts/stemDetail";
 import { runFeedbackAnalysis } from "@/lib/feedback-analysis";
 
 export const runtime = "nodejs";
@@ -11,12 +12,15 @@ export const maxDuration = 120;
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, attemptId, questionId, userId, mode, ...data } = body;
+    const { action, attemptId, questionId, userId, mode, stemDetail, ...data } = body;
 
     if (action === "create") {
       if (!questionId) {
         return Response.json({ error: "Missing questionId" }, { status: 400 });
       }
+      // Stem Detail level this attempt STARTED at. Validated here because the column carries a CHECK
+      // constraint — an unrecognised value would fail the insert rather than degrade.
+      const attemptStemDetail = isStemDetailLevel(stemDetail) ? stemDetail : "exam_real";
       // Persisted study mode: only non-default modes are stored (NULL means a normal "full"
       // study attempt). "known-wine" tags a Dry Notes attempt so /history can label/filter it.
       const attemptMode: string | null = mode ?? null;
@@ -29,14 +33,22 @@ export async function POST(request: Request) {
         uid = sessionUser?.id ?? null;
       }
       const attempt = uid
-        ? await createAttemptWithUser(questionId, uid, attemptMode)
-        : await createAttempt(questionId, attemptMode);
+        ? await createAttemptWithUser(questionId, uid, attemptMode, attemptStemDetail)
+        : await createAttempt(questionId, attemptMode, attemptStemDetail);
       return Response.json({ attempt });
     }
 
     if (action === "update") {
       if (!attemptId) {
         return Response.json({ error: "Missing attemptId" }, { status: 400 });
+      }
+
+      // Same CHECK-constraint guard as create, for the "Add detail" escalation write.
+      if (
+        data.stem_detail_escalated_to !== undefined &&
+        !isStemDetailLevel(data.stem_detail_escalated_to)
+      ) {
+        return Response.json({ error: "Invalid stem detail level" }, { status: 400 });
       }
 
       // User feedback takes the no-overwrite path: a second, different feedback on an attempt that

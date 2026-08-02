@@ -8,11 +8,18 @@ import { MicButton } from "./MicButton";
 interface PreGlassReasoningProps {
   question: Question;
   onSubmit: (reasoning: string) => void;
+  /**
+   * Stem Detail: the stem prose the candidate is actually working from. Must match what
+   * QuestionDisplay showed — reasoning about a stem they never saw is worse than no context.
+   * Defaults to the canonical text.
+   */
+  stemText?: string;
 }
 
 export function PreGlassReasoning({
   question,
   onSubmit,
+  stemText,
 }: PreGlassReasoningProps) {
   const [reasoning, setReasoning] = useState("");
 
@@ -51,7 +58,7 @@ export function PreGlassReasoning({
           Show question stem
         </summary>
         <div className="px-4 pb-4 text-sm text-foreground/80 whitespace-pre-line leading-relaxed">
-          {question.text}
+          {stemText ?? question.text}
         </div>
       </details>
 
