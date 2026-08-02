@@ -336,7 +336,11 @@ export default function AdminPage() {
                 aria-checked={autoApply}
                 className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted"}`}
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
+                {/* The knob keeps its white face (DESIGN.md sanctions it) but carries a --background
+                    ring so its edge is legible on every track. White alone only managed 2.3:1 on the
+                    green on-track in dark mode; the ring clears 3:1 against success, accent and muted
+                    in both themes. Same treatment on all three switches below. */}
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
               </button>
             </div>
           </div>
@@ -368,7 +372,7 @@ export default function AdminPage() {
                 aria-checked={autoFeature}
                 className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted"}`}
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
               </button>
             </div>
           </div>
@@ -404,7 +408,7 @@ export default function AdminPage() {
                 aria-checked={reasoning}
                 className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${reasoning ? "bg-accent" : "bg-muted"}`}
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${reasoning ? "translate-x-7" : "translate-x-1"}`} />
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${reasoning ? "translate-x-7" : "translate-x-1"}`} />
               </button>
             </div>
           </div>
