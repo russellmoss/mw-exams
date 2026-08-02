@@ -3,7 +3,7 @@ name: feature-build
 # Admin Feature Request → code → ship pipeline (sibling of auto-feedback.yml).
 # The study-app fires a repository_dispatch (event_type: feature-build) when an admin confirms a
 # Feature Request. This workflow implements the stored technical spec with headless Claude, verifies
-# it (lint advisory; typecheck + build blocking) with a self-heal retry loop, and:
+# it (lint advisory; typecheck + tests + build blocking) with a self-heal retry loop, and:
 #   - GREEN → merges to master. Vercel git auto-deploy then ships it (single deploy path).
 #   - RED   → opens a PR for review; master is never touched by an unverified change.
 # Results are written back to feature_requests for the admin UI.
@@ -107,7 +107,7 @@ jobs:
             if [ "$ATTEMPT" -eq 1 ]; then
               INSTRUCTION="You are implementing a NEW FEATURE in this repository. The Next.js study-app lives at $(pwd). Build the feature described below end-to-end (UI, API, data) with correct, idiomatic edits that match the existing codebase. Implement the whole spec, not a stub."
             else
-              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
+              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', 'npm test', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
             fi
             {
               printf '%s\n\n' "$INSTRUCTION"
@@ -126,11 +126,16 @@ jobs:
             npm run lint 2>&1 | tee -a $CHECKS; L=${PIPESTATUS[0]}
             echo "--- npx tsc --noEmit (blocking) ---" | tee -a $CHECKS
             npx tsc --noEmit 2>&1 | tee -a $CHECKS; T=${PIPESTATUS[0]}
+            # Unit tests run before build (seconds vs ~45s, and they cover logic build cannot see —
+            # e.g. the migration-runner SQL splitter). They gate on TEST_DATABASE_URL, not
+            # DATABASE_URL, so the DB-backed suites stay skipped here and never touch real data.
+            echo "--- npm test (blocking) ---" | tee -a $CHECKS
+            npm test 2>&1 | tee -a $CHECKS; V=${PIPESTATUS[0]}
             echo "--- npm run build (blocking) ---" | tee -a $CHECKS
             npm run build 2>&1 | tee -a $CHECKS; B=${PIPESTATUS[0]}
             echo "::endgroup::"
-            echo "lint=$L (advisory) tsc=$T build=$B"
-            if [ $T -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
+            echo "lint=$L (advisory) tsc=$T test=$V build=$B"
+            if [ $T -eq 0 ] && [ $V -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
           done
           echo "success=$SUCCESS" >> "$GITHUB_OUTPUT"
 

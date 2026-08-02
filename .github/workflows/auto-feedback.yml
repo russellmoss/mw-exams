@@ -3,7 +3,7 @@ name: auto-feedback
 # Verified feedback → code-change → ship pipeline.
 # The study-app fires a repository_dispatch (event_type: auto-feedback) when an accepted
 # feedback item should become a code change. This workflow makes the change with headless
-# Claude, verifies it (lint + typecheck + build) with a self-heal retry loop, and:
+# Claude, verifies it (lint + typecheck + tests + build) with a self-heal retry loop, and:
 #   - GREEN  → merges to master. Vercel git auto-deploy then ships it (single deploy path).
 #   - RED    → opens a PR for review; master is never touched by an unverified change.
 # Results are written back to feedback_analyses for the admin UI.
@@ -109,7 +109,7 @@ jobs:
             if [ "$ATTEMPT" -eq 1 ]; then
               INSTRUCTION="You are applying a user-feedback-driven change to this repository. The Next.js study-app lives at $(pwd). Implement the change described below with minimal, correct edits anywhere in the repository. Do NOT change unrelated behavior or reformat untouched code."
             else
-              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
+              INSTRUCTION="Your previous edit did NOT pass CI. Fix the code so that 'npm run lint', 'npx tsc --noEmit', 'npm test', and 'npm run build' all succeed in $(pwd). Change only what is needed to fix the errors. The failing CI output is appended at the end of this prompt."
             fi
             {
               printf '%s\n\n' "$INSTRUCTION"
@@ -128,15 +128,20 @@ jobs:
             # gate on it). We report new-vs-old lint for visibility but do not block on it.
             echo "--- npm run lint (advisory) ---" | tee -a $CHECKS
             npm run lint 2>&1 | tee -a $CHECKS; L=${PIPESTATUS[0]}
-            # tsc + build are the BLOCKING gate. next build runs the TS compiler and fails on
-            # type errors, so passing build == production-safe.
+            # tsc + tests + build are the BLOCKING gate. next build runs the TS compiler and fails
+            # on type errors, so passing build == production-safe.
             echo "--- npx tsc --noEmit (blocking) ---" | tee -a $CHECKS
             npx tsc --noEmit 2>&1 | tee -a $CHECKS; T=${PIPESTATUS[0]}
+            # Unit tests run before build (seconds vs ~45s, and they cover logic build cannot see —
+            # e.g. the migration-runner SQL splitter). They gate on TEST_DATABASE_URL, not
+            # DATABASE_URL, so the DB-backed suites stay skipped here and never touch real data.
+            echo "--- npm test (blocking) ---" | tee -a $CHECKS
+            npm test 2>&1 | tee -a $CHECKS; V=${PIPESTATUS[0]}
             echo "--- npm run build (blocking) ---" | tee -a $CHECKS
             npm run build 2>&1 | tee -a $CHECKS; B=${PIPESTATUS[0]}
             echo "::endgroup::"
-            echo "lint=$L (advisory) tsc=$T build=$B"
-            if [ $T -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
+            echo "lint=$L (advisory) tsc=$T test=$V build=$B"
+            if [ $T -eq 0 ] && [ $V -eq 0 ] && [ $B -eq 0 ]; then SUCCESS=1; break; fi
           done
           echo "success=$SUCCESS" >> "$GITHUB_OUTPUT"
 

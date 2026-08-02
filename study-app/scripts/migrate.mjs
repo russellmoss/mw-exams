@@ -1,6 +1,10 @@
-#!/usr/bin/env node
 /**
  * Migration runner.
+ *
+ * No shebang here on purpose. This module is imported by tests/migrate.test.mjs, and Vitest wraps a
+ * module body in a function before evaluating it — a `#!` line is only legal at byte 0 of a file, so
+ * it becomes "SyntaxError: Invalid or unexpected token" and the whole suite collects 0 tests. It is
+ * never executed directly anyway: package.json runs `node scripts/migrate.mjs`.
  *
  * Why this exists: migrations used to be applied to production by hand. Three times a migration
  * was merged to master and deployed while the SQL was never run — most recently 013_stem_detail,
