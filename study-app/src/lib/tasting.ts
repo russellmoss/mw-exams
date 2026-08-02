@@ -18,6 +18,12 @@ import { lookupWines } from "@/lib/wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
+import {
+  streamWithThinking,
+  supportsAdaptiveThinking,
+  thinkingParams,
+  type ProgressEmitter,
+} from "@/lib/thinking-stream";
 
 export interface TastingWine {
   slot: number;
@@ -48,8 +54,11 @@ export async function generateSanitizedTastingNotes(opts: {
   apiKey: string;
   source: "user" | "server";
   userId: number | null;
+  /** Optional live-progress channel (Reverse Tasting's Layer-B reveal). Omit for the silent path. */
+  emit?: ProgressEmitter;
 }): Promise<string[]> {
-  const { wines, questionId, apiKey, source, userId } = opts;
+  const { wines, questionId, apiKey, source, userId, emit } = opts;
+  emit?.({ type: "status", label: "Looking up the wines in the bank…" });
 
   // Prefer stored wine profiles (the engine's enrichment) for this question; else bank lookup.
   // Also pick up the paper (whites/reds/special) so the colour validator knows what to expect.
@@ -80,12 +89,26 @@ export async function generateSanitizedTastingNotes(opts: {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const userPrompt = buildTastingUserPrompt(wines, wineProfiles, corrections);
     const t0 = Date.now();
-    const message = await client.messages.create({
-      model,
-      max_tokens: 3000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
+    emit?.({
+      type: "status",
+      label:
+        attempt === 1
+          ? `Describing ${wines.length} glass${wines.length === 1 ? "" : "es"}…`
+          : `Correcting the notes (attempt ${attempt})…`,
     });
+    // Thinking config only when someone is watching, and only on models that accept it. max_tokens
+    // caps thinking + notes together, so it grows with the extra reasoning budget.
+    const thinkingOn = Boolean(emit) && supportsAdaptiveThinking(model);
+    const params = {
+      model,
+      max_tokens: thinkingOn ? 6000 : 3000,
+      system: systemPrompt,
+      messages: [{ role: "user" as const, content: userPrompt }],
+      ...(thinkingOn ? thinkingParams(model) : {}),
+    } as Parameters<typeof client.messages.create>[0] & { stream?: never };
+    const message = emit
+      ? await streamWithThinking(client, params, {}, emit)
+      : await client.messages.create(params);
     logClaudeUsage(
       { taskType: "tasting_generation", model, source, userId, questionId: questionId ?? null, abGroup },
       message.usage,
@@ -98,11 +121,18 @@ export async function generateSanitizedTastingNotes(opts: {
       .join("\n");
     wineNotes = parseWineNotes(text);
 
+    emit?.({ type: "status", label: "Checking the notes against the glass…" });
     const v = validateTastingNotes(wineNotes, wines, paper);
     if (v.valid) break;
     corrections = v.violations;
+    // Count only — violation text quotes wine colours and styles, and status labels are ungated.
+    emit?.({
+      type: "status",
+      label: `${v.violations.length} note issue${v.violations.length === 1 ? "" : "s"} — regenerating…`,
+    });
     console.warn(`tasting-note validation failed (attempt ${attempt}/${MAX_ATTEMPTS}): ${v.violations.join(" | ")}`);
   }
 
+  emit?.({ type: "status", label: "Stripping origin giveaways…" });
   return sanitizeTastingNotes(wineNotes, wines);
 }

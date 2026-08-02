@@ -8,6 +8,7 @@ import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts
 import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 import { deriveStemKey } from "@/lib/stem-answer-key";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
+import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -191,14 +192,16 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
 
     const { model, abGroup } = await selectModel("full_debrief", keyResult.apiKey, "opus");
     const t0 = Date.now();
+    // Adaptive thinking so the debrief's reasoning streams while the (long) markdown is composed.
+    // The wines are already revealed at debrief time, so this is not a spoiler surface.
     const stream = await client.messages.stream({
       model,
-      max_tokens: 4000,
       system:
         systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
         "\n" + answerImageConstraint(wines),
       messages: [{ role: "user", content: userMessage }],
-    });
+      ...withThinking(model, 4000),
+    } as Parameters<typeof client.messages.stream>[0]);
 
     const encoder = new TextEncoder();
 
@@ -225,6 +228,11 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
               controller.enqueue(
                 encoder.encode(`data: ${jsonChunk}\n\n`)
               );
+            } else if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "thinking_delta"
+            ) {
+              controller.enqueue(encoder.encode(thinkingFrame(event.delta.thinking)));
             }
           }
           const final = await stream.finalMessage();

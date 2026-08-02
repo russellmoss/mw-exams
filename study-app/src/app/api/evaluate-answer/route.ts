@@ -6,6 +6,7 @@ import { requireApiKey } from "@/lib/api-key";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
+import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve up to 3 illustration images (Tavily + download).
@@ -49,12 +50,14 @@ Please evaluate this candidate's answer against the model answer. Assess identif
 
     const { model, abGroup } = await selectModel("answer_grading", keyResult.apiKey, "sonnet");
     const t0 = Date.now();
+    // Adaptive thinking so the candidate can watch the grader reason instead of staring at a gap
+    // before the first token. Safe to show un-gated here: the answer is already submitted.
     const stream = await client.messages.stream({
       model,
-      max_tokens: 2000,
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
       messages: [{ role: "user", content: userMessage }],
-    });
+      ...withThinking(model, 2000),
+    } as Parameters<typeof client.messages.stream>[0]);
 
     const encoder = new TextEncoder();
 
@@ -63,13 +66,13 @@ Please evaluate this candidate's answer against the model answer. Assess identif
         try {
           let fullText = "";
           for await (const event of stream) {
-            if (
-              event.type === "content_block_delta" &&
-              event.delta.type === "text_delta"
-            ) {
+            if (event.type !== "content_block_delta") continue;
+            if (event.delta.type === "text_delta") {
               fullText += event.delta.text;
               const jsonChunk = JSON.stringify({ t: event.delta.text });
               controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
+            } else if (event.delta.type === "thinking_delta") {
+              controller.enqueue(encoder.encode(thinkingFrame(event.delta.thinking)));
             }
           }
           const final = await stream.finalMessage();

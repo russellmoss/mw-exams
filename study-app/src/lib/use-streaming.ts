@@ -21,6 +21,13 @@ function applyImages(text: string, replacements: Map<string, string>): string {
 
 interface UseStreamingResult {
   text: string;
+  /**
+   * The grader's own summarized reasoning, streamed as `{k: ...}` frames alongside the `{t: ...}`
+   * answer text. Arrives BEFORE the first answer token, which is the point: it fills the silent gap
+   * while the model reasons. Safe to show un-gated on these surfaces — the candidate has already
+   * submitted, so there is nothing left to spoil.
+   */
+  thinking: string;
   isStreaming: boolean;
   error: string | null;
   startStream: (url: string, body: Record<string, unknown>) => Promise<string>;
@@ -29,6 +36,7 @@ interface UseStreamingResult {
 
 export function useStreaming(): UseStreamingResult {
   const [text, setText] = useState("");
+  const [thinking, setThinking] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -39,6 +47,7 @@ export function useStreaming(): UseStreamingResult {
       abortRef.current = null;
     }
     setText("");
+    setThinking("");
     setIsStreaming(false);
     setError(null);
   }, []);
@@ -73,21 +82,30 @@ export function useStreaming(): UseStreamingResult {
         if (!reader) throw new Error("No response body");
 
         const decoder = new TextDecoder();
+        // SSE frames can straddle network chunks; hold the incomplete tail between reads so a
+        // split frame isn't silently dropped (previously a mid-frame split lost that delta).
+        let buffer = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
+          buffer += decoder.decode(value, { stream: true });
           // Parse SSE format: lines starting with "data: "
-          const lines = chunk.split("\n");
-          for (const line of lines) {
+          let nl: number;
+          while ((nl = buffer.indexOf("\n")) !== -1) {
+            const line = buffer.slice(0, nl);
+            buffer = buffer.slice(nl + 1);
             if (line.startsWith("data: ")) {
               const data = line.slice(6);
               if (data === "[DONE]") continue;
               try {
                 const parsed = JSON.parse(data);
-                if (parsed.enriched) {
+                if (parsed.k) {
+                  // Reasoning delta — its own channel, never mixed into the answer text.
+                  setThinking((prev) => prev + parsed.k);
+                  continue;
+                } else if (parsed.enriched) {
                   // Authoritative final text from the server: image tokens already replaced with
                   // real images. Use it verbatim (this is what gets persisted).
                   accumulated = parsed.enriched;
@@ -134,5 +152,5 @@ export function useStreaming(): UseStreamingResult {
     [reset]
   );
 
-  return { text, isStreaming, error, startStream, reset };
+  return { text, thinking, isStreaming, error, startStream, reset };
 }
