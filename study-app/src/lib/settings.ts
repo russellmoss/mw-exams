@@ -42,3 +42,21 @@ export async function isAutoFeatureEnabled(): Promise<boolean> {
   if (process.env.AUTO_FEATURE_HARD_DISABLE === "1") return false;
   return (await getSetting<boolean>("auto_feature_enabled", false)) === true;
 }
+
+export const REASONING_SETTING_KEY = "reasoning_enabled";
+
+/**
+ * Whether AI calls request the model's visible reasoning (adaptive thinking).
+ *
+ * The cost lever for streamed thinking: OFF stops paying thinking tokens on every generation and
+ * grading call. Phase/status progress is unaffected — that's our own code, costs nothing, and is
+ * what actually stops a long wait looking hung.
+ *
+ * Defaults to TRUE, unlike the auto_* toggles: this is a kill switch over shipped behaviour, so
+ * an absent row must mean "as built". Same two-switch shape otherwise — DB toggle plus the
+ * REASONING_HARD_DISABLE env override, which works even if the database is unreachable.
+ */
+export async function isReasoningEnabled(): Promise<boolean> {
+  if (process.env.REASONING_HARD_DISABLE === "1") return false;
+  return (await getSetting<boolean>(REASONING_SETTING_KEY, true)) !== false;
+}
