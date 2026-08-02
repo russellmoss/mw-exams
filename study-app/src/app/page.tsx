@@ -9,10 +9,37 @@ import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
 import { StemDetailSegments, stemForLevel } from "./components/StemDetailControl";
 import { STEM_DETAIL_HELPER_COPY, type StemDetailLevel } from "@/lib/prompts/stemDetail";
+import { ThinkingTrace } from "./components/ThinkingTrace";
+import { useProgressStream } from "@/lib/use-progress-stream";
 import type { Question } from "@/lib/study-session";
 
 type LandingStep = "select-paper" | "select-family" | "select-mode" | "stem-detail" | "generating";
 type StudyMode = "full" | "stem-only" | "known-wine" | "flash" | "mikey";
+
+// What the question endpoints resolve to — the engine's outcome shape, minus the error case
+// (which the stream surfaces as an `error` event instead).
+type QuestionPayload = {
+  source: string;
+  hasModelAnswer: boolean;
+  question: {
+    question_id: string;
+    paper: number;
+    question_text: string;
+    wines: unknown;
+    total_marks: number;
+    family: string;
+    family_label: string;
+    subcategory?: string | null;
+    // The three stem-detail variants. Absent until the out-of-band backfill fills them in, at
+    // which point the client falls back to question_text for that level.
+    stem_guided?: string | null;
+    stem_exam_real?: string | null;
+    stem_blind?: string | null;
+    model_answer?: string | null;
+    proposed_annotation?: string | null;
+    study_diagram_assist?: string | null;
+  };
+};
 
 export default function Home() {
   const router = useRouter();
@@ -30,6 +57,9 @@ export default function Home() {
   const [pendingQuestion, setPendingQuestion] = useState<Question | null>(null);
   const [pendingMode, setPendingMode] = useState<StudyMode>("full");
   const [stemDetail, setStemDetail] = useState<StemDetailLevel>("exam_real");
+  // Live progress for the question fetch. Serving from the bank is instant; writing a fresh one
+  // runs the engine's validate-and-retry loop for 30-60s, which used to be a static spinner.
+  const questionTrace = useProgressStream();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -115,58 +145,30 @@ export default function Home() {
       setStep("generating");
       setError(null);
 
-      // Bound each request and auto-retry once on a gateway/timeout response. The server now
-      // always returns within its generation budget (a fresh question or a fast banked
-      // fallback), so a retry reliably resolves transient 502/503/504s without the user
-      // ever seeing a timeout error.
-      const requestQuestion = async (): Promise<Response> => {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 120_000);
-        try {
-          return await fetch("/api/get-question", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paper: selectedPaper, family: selectedFamily }),
-            signal: controller.signal,
-          });
-        } finally {
-          clearTimeout(timer);
-        }
-      };
-
+      // Streamed so the wait is legible: which bank tier we're trying, then — when nothing
+      // suitable is banked — each generation attempt and the writing model's own reasoning.
+      // Still auto-retries once: the server always returns within its generation budget (a fresh
+      // question or a fast banked fallback), so a retry reliably resolves transient failures.
+      // The 180s cap is a wedged-connection backstop, not a working deadline — progress events
+      // make a slow-but-healthy generation obvious, so it no longer needs a tight one.
       try {
-        let res: Response | null = null;
+        let data: QuestionPayload | null = null;
         const MAX_TRIES = 2;
         for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
-          try {
-            res = await requestQuestion();
-          } catch {
-            // Network error or client-side timeout/abort.
-            if (attempt < MAX_TRIES) continue;
-            throw new Error("Question generation timed out. Please try again.");
-          }
-          // Retry once on transient gateway errors — the retry hits the fast banked fallback.
-          if (!res.ok && [502, 503, 504].includes(res.status) && attempt < MAX_TRIES) {
-            continue;
-          }
-          break;
+          data = await questionTrace.run<QuestionPayload>(
+            "/api/get-question/stream",
+            { paper: selectedPaper, family: selectedFamily },
+            { timeoutMs: 180_000 }
+          );
+          if (data?.question) break;
         }
 
-        if (!res || !res.ok) {
-          let msg = res ? `HTTP ${res.status}` : "Request failed";
-          if (res) {
-            try {
-              const errData = await res.json();
-              msg = errData.error || msg;
-              if (errData.violations?.length) msg += ` (${errData.violations.join("; ")})`;
-            } catch {
-              if (res.status === 504) msg = "Question generation timed out. This can happen when generating fresh questions. Please try again.";
-            }
-          }
-          throw new Error(msg);
+        if (!data?.question) {
+          // errorRef, not error: `error` here is the closure's value from before the stream ran.
+          throw new Error(
+            questionTrace.errorRef.current || "Question generation failed. Please try again."
+          );
         }
-
-        const data = await res.json();
 
         const q = data.question;
         const question: Question = {
@@ -515,26 +517,24 @@ export default function Home() {
           )}
 
           {step === "generating" && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="flex items-center gap-3 text-muted mb-4">
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
-                <div
-                  className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
-                  style={{ animationDelay: "0.3s" }}
-                />
-                <div
-                  className="w-2 h-2 rounded-full bg-accent/50 streaming-dot"
-                  style={{ animationDelay: "0.6s" }}
-                />
-              </div>
-              <p className="text-foreground font-semibold mb-2">
-                Preparing your question...
+            <div className="py-16 max-w-2xl mx-auto">
+              <p className="text-foreground font-semibold mb-1 text-center">
+                Preparing your question…
               </p>
-              <p className="text-sm text-muted text-center max-w-md">
-                {totalQuestions > 0
-                  ? "Selecting from the question bank."
-                  : "Generating a fresh question with AI. This takes about 30-60 seconds."}
+              <p className="text-sm text-muted text-center mb-5">
+                Banked questions are instant; a fresh one takes about 30-60 seconds.
               </p>
+              {/* Spoiler-gated: the phase labels never name a wine, but the model's reasoning
+                  does — and you're about to be asked to identify those wines blind. */}
+              <ThinkingTrace
+                status={questionTrace.status}
+                statuses={questionTrace.statuses}
+                thinking={questionTrace.thinking}
+                active={!questionTrace.error}
+                error={questionTrace.error}
+                spoiler
+                idleLabel="Starting up…"
+              />
             </div>
           )}
 
