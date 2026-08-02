@@ -70,6 +70,7 @@ const VARIETY_SYNONYMS: Record<string, string> = {
   spatburgunder: "pinot noir",
   "pinot nero": "pinot noir",
   grauburgunder: "pinot gris",
+  "pinot grigio": "pinot gris",
   weissburgunder: "pinot blanc",
   alvarinho: "albarino",
   garnacha: "grenache",
@@ -78,9 +79,15 @@ const VARIETY_SYNONYMS: Record<string, string> = {
   mazuelo: "carignan",
   "tinta de toro": "tempranillo",
   "tinto fino": "tempranillo",
+  "tinta roriz": "tempranillo",
+  aragonez: "tempranillo",
   spanna: "nebbiolo",
   mataro: "mourvedre",
+  monastrell: "mourvedre",
   primitivo: "zinfandel",
+  cot: "malbec",
+  "melon de bourgogne": "muscadet",
+  melon: "muscadet",
   "tocai friulano": "friulano",
 };
 
@@ -313,4 +320,260 @@ export function scorePredictions(predictions: Prediction[], key: AnswerKey): Sco
     misses: grades.filter((g) => g.grade === "MISS").length,
   };
   return { points, maxPoints, percent, grades, calibration, summary };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Two-axis Stem Sniper scorer ("Two Marks, Not Three").
+//
+// Marks EXACTLY two axes — GRAPE and COUNTRY — and NEVER marks region. Naming grape +
+// country is a full HIT; naming exactly one axis is a NEAR; neither is a MISS. Being MORE
+// specific than a country (typing the region/appellation) must never cost marks: a region is
+// resolved to its country before comparison, or matched against the wine's own region chain.
+// Pure and deterministic — no I/O. Reverse Tasting keeps the legacy scorePredictions above.
+// ────────────────────────────────────────────────────────────────────────────
+
+export type Verdict = "HIT" | "NEAR" | "MISS";
+
+// Conventional blend names that count as naming the grape for a blend (full recipe never required).
+const BLEND_NAMES = new Set(
+  ["bordeaux blend", "gsm", "rhone blend", "rhône blend", "field blend", "douro blend", "port blend"].map(norm)
+);
+
+// Country equivalences — normalised label → canonical country.
+const COUNTRY_ALIASES: Record<string, string> = {
+  uk: "united kingdom",
+  "u k": "united kingdom",
+  britain: "united kingdom",
+  "great britain": "united kingdom",
+  england: "united kingdom",
+  gb: "united kingdom",
+  usa: "united states",
+  "u s a": "united states",
+  us: "united states",
+  "u s": "united states",
+  america: "united states",
+  "united states of america": "united states",
+};
+
+// Region / appellation / sub-region → country. Being more specific must never cost marks, so a
+// region the candidate types is resolved to its country before the country axis is compared. The
+// wine's OWN region chain is also matched (below), which covers regions not listed here.
+const REGION_TO_COUNTRY: Record<string, string> = Object.fromEntries(
+  (
+    [
+      // France
+      ["burgundy", "france"], ["bourgogne", "france"], ["chablis", "france"], ["cote d or", "france"],
+      ["cote de nuits", "france"], ["cote de beaune", "france"], ["beaujolais", "france"], ["maconnais", "france"],
+      ["alsace", "france"], ["loire", "france"], ["sancerre", "france"], ["pouilly fume", "france"],
+      ["muscadet", "france"], ["vouvray", "france"], ["chinon", "france"], ["rhone", "france"],
+      ["cotes du rhone", "france"], ["chateauneuf du pape", "france"], ["hermitage", "france"], ["cote rotie", "france"],
+      ["condrieu", "france"], ["champagne", "france"], ["bordeaux", "france"], ["medoc", "france"], ["margaux", "france"],
+      ["pauillac", "france"], ["saint emilion", "france"], ["st emilion", "france"], ["pomerol", "france"],
+      ["graves", "france"], ["pessac leognan", "france"], ["sauternes", "france"], ["provence", "france"],
+      ["languedoc", "france"], ["roussillon", "france"], ["cahors", "france"], ["jura", "france"], ["savoie", "france"],
+      // Italy
+      ["tuscany", "italy"], ["toscana", "italy"], ["chianti", "italy"], ["brunello", "italy"], ["montalcino", "italy"],
+      ["piedmont", "italy"], ["piemonte", "italy"], ["barolo", "italy"], ["barbaresco", "italy"], ["langhe", "italy"],
+      ["veneto", "italy"], ["soave", "italy"], ["valpolicella", "italy"], ["amarone", "italy"], ["prosecco", "italy"],
+      ["alto adige", "italy"], ["friuli", "italy"], ["sicily", "italy"], ["sicilia", "italy"], ["etna", "italy"],
+      ["puglia", "italy"], ["apulia", "italy"], ["campania", "italy"],
+      // Spain
+      ["rioja", "spain"], ["ribera del duero", "spain"], ["priorat", "spain"], ["rias baixas", "spain"],
+      ["rueda", "spain"], ["jerez", "spain"], ["sherry", "spain"], ["toro", "spain"], ["penedes", "spain"], ["jumilla", "spain"],
+      // Portugal
+      ["douro", "portugal"], ["dao", "portugal"], ["vinho verde", "portugal"], ["alentejo", "portugal"],
+      ["bairrada", "portugal"], ["madeira", "portugal"],
+      // Germany
+      ["mosel", "germany"], ["rheingau", "germany"], ["rheinhessen", "germany"], ["pfalz", "germany"],
+      ["nahe", "germany"], ["baden", "germany"], ["franken", "germany"],
+      // Austria
+      ["wachau", "austria"], ["kamptal", "austria"], ["burgenland", "austria"], ["kremstal", "austria"],
+      // USA
+      ["napa", "united states"], ["napa valley", "united states"], ["sonoma", "united states"],
+      ["california", "united states"], ["oregon", "united states"], ["willamette", "united states"],
+      ["willamette valley", "united states"], ["washington", "united states"], ["columbia valley", "united states"],
+      ["finger lakes", "united states"], ["paso robles", "united states"], ["santa barbara", "united states"],
+      // Australia
+      ["barossa", "australia"], ["barossa valley", "australia"], ["mclaren vale", "australia"], ["coonawarra", "australia"],
+      ["yarra valley", "australia"], ["hunter valley", "australia"], ["margaret river", "australia"],
+      ["clare valley", "australia"], ["eden valley", "australia"], ["adelaide hills", "australia"],
+      // New Zealand
+      ["marlborough", "new zealand"], ["central otago", "new zealand"], ["hawkes bay", "new zealand"],
+      ["hawke s bay", "new zealand"], ["martinborough", "new zealand"],
+      // South Africa
+      ["stellenbosch", "south africa"], ["swartland", "south africa"], ["walker bay", "south africa"],
+      ["hemel en aarde", "south africa"], ["paarl", "south africa"], ["constantia", "south africa"],
+      // Argentina / Chile
+      ["mendoza", "argentina"], ["uco valley", "argentina"], ["salta", "argentina"], ["patagonia", "argentina"],
+      ["maipo", "chile"], ["colchagua", "chile"], ["casablanca", "chile"], ["aconcagua", "chile"],
+    ] as [string, string][]
+  ).map(([k, v]) => [norm(k), v])
+);
+
+const canonCountry = (s: string): string => {
+  const n = norm(s);
+  return COUNTRY_ALIASES[n] || n;
+};
+
+// Resolve any free-text place the candidate typed to a country: alias → static region map →
+// leave as-is (compared fuzzily against the expected country downstream).
+function resolveToCountry(raw: string): string {
+  const n = norm(raw);
+  if (!n) return "";
+  if (COUNTRY_ALIASES[n]) return COUNTRY_ALIASES[n];
+  if (REGION_TO_COUNTRY[n]) return REGION_TO_COUNTRY[n];
+  return n;
+}
+
+export interface TwoAxisPrediction {
+  grape?: string; // variety (P1/P2) or style/method (P3)
+  country?: string;
+  tier?: Tier;
+}
+
+export interface TwoAxisWineGrade {
+  slot: number;
+  grapeGuess: string;
+  countryGuess: string;
+  grapeCorrect: boolean;
+  countryCorrect: boolean;
+  verdict: Verdict;
+  points: number;
+  correctGrape: string; // expected grape/style (display)
+  correctCountry: string; // expected country (display)
+  region: string; // information only — NEVER scored
+  is_blend?: boolean;
+}
+
+export interface TwoAxisResult {
+  twoAxis: true;
+  points: number;
+  maxPoints: number;
+  percent: number;
+  roundPoints: number; // hits + 0.5·nears
+  roundMax: number; // one mark per wine
+  grades: TwoAxisWineGrade[];
+  calibration: CalibrationEntry[];
+  summary: { hits: number; nears: number; misses: number };
+}
+
+// GRAPE axis: dominant grape, any listed component, a conventional blend name (for blends), or —
+// on Paper 3 — the style/method. Synonyms and typos tolerated via canonVariety + fuzzyEq.
+function grapeCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
+  const raw = (pred.grape || "").trim();
+  if (!raw) return false;
+  if (bucket.style_tokens && bucket.style_tokens.length) {
+    return styleScore({ style: raw, variety: raw }, bucket) >= 1;
+  }
+  const n = norm(raw);
+  if (bucket.is_blend && BLEND_NAMES.has(n)) return true;
+  const cg = canonVariety(raw);
+  return bucket.varieties.some((v) => fuzzyEq(canonVariety(v), cg));
+}
+
+// COUNTRY axis: country match after alias/region resolution. Typing a region, appellation or
+// sub-region resolves to its country (never penalised); the wine's own region chain is matched
+// too, so a correct sub-region the static map doesn't know still counts.
+function countryCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
+  const raw = (pred.country || "").trim();
+  if (!raw) return false;
+  const expected = canonCountry(bucket.country || countryToken(bucket));
+  if (!expected) return false;
+  if (fuzzyEq(resolveToCountry(raw), expected)) return true;
+  // The candidate was MORE specific than the country — match against the wine's own region chain.
+  const chain = regionChain({ region: bucket.region, country: bucket.country });
+  const parts = norm(raw).split(" ").filter(Boolean);
+  for (const token of [norm(raw), ...parts]) {
+    if (!token) continue;
+    if (fuzzyIncludes(chain, token)) return true;
+    if (REGION_TO_COUNTRY[token] && fuzzyEq(norm(REGION_TO_COUNTRY[token]), expected)) return true;
+  }
+  return false;
+}
+
+const verdictOf = (grape: boolean, country: boolean): Verdict =>
+  grape && country ? "HIT" : grape || country ? "NEAR" : "MISS";
+
+// Re-based from the legacy 3-axis scheme to two axes while KEEPING the displayed maximum: full
+// credit per wine stays POINTS.HIT (10), a single-axis NEAR is half, a MISS is 0 — so historical
+// percentages remain comparable in magnitude.
+const TWO_AXIS_POINTS: Record<Verdict, number> = { HIT: POINTS.HIT, NEAR: POINTS.HIT / 2, MISS: 0 };
+
+/**
+ * Score a candidate's grape+country guesses for a flight. Assignment is order-independent and
+ * best-verdict-first: each prediction claims at most one wine, strongest matches claim first, so
+ * claim order never starves a HIT. Every wine (ground-truth bucket) is reported — a wine no guess
+ * claimed is a MISS with blank guesses. Region is never part of the score.
+ */
+export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey): TwoAxisResult {
+  const buckets = key.ground_truth;
+  // Every (prediction, bucket) candidate pairing, strongest verdict first.
+  const pairs: { p: number; b: number; g: boolean; c: boolean; rank: number }[] = [];
+  predictions.forEach((pred, p) => {
+    buckets.forEach((bucket, b) => {
+      const g = grapeCorrect(pred, bucket);
+      const c = countryCorrect(pred, bucket);
+      if (!g && !c) return; // no signal — leave the wine claimable by a better guess
+      pairs.push({ p, b, g, c, rank: (g ? 2 : 0) + (c ? 1 : 0) });
+    });
+  });
+  pairs.sort((x, y) => y.rank - x.rank || x.b - y.b || x.p - y.p);
+
+  const claimedBucket = new Set<number>();
+  const usedPred = new Set<number>();
+  const assigned = new Map<number, { p: number; g: boolean; c: boolean }>(); // bucket idx → claim
+  for (const pair of pairs) {
+    if (claimedBucket.has(pair.b) || usedPred.has(pair.p)) continue;
+    claimedBucket.add(pair.b);
+    usedPred.add(pair.p);
+    assigned.set(pair.b, { p: pair.p, g: pair.g, c: pair.c });
+  }
+
+  const grades: TwoAxisWineGrade[] = buckets.map((bucket, b) => {
+    const claim = assigned.get(b);
+    const pred = claim ? predictions[claim.p] : undefined;
+    const grape = claim?.g ?? false;
+    const country = claim?.c ?? false;
+    const verdict = verdictOf(grape, country);
+    return {
+      slot: bucket.slot,
+      grapeGuess: (pred?.grape || "").trim(),
+      countryGuess: (pred?.country || "").trim(),
+      grapeCorrect: grape,
+      countryCorrect: country,
+      verdict,
+      points: TWO_AXIS_POINTS[verdict],
+      correctGrape: bucket.style || bucket.varieties.join(" / "),
+      correctCountry: bucket.country || countryToken(bucket),
+      region: bucket.region || "",
+      is_blend: bucket.is_blend,
+    };
+  });
+
+  const hits = grades.filter((g) => g.verdict === "HIT").length;
+  const nears = grades.filter((g) => g.verdict === "NEAR").length;
+  const misses = grades.filter((g) => g.verdict === "MISS").length;
+  const points = grades.reduce((s, g) => s + g.points, 0);
+  const maxPoints = buckets.length * POINTS.HIT;
+  const percent = maxPoints > 0 ? Math.min(100, Math.round((points / maxPoints) * 100)) : 0;
+  // Calibration side-channel keyed on each claimed prediction's tier (correct = HIT or NEAR).
+  const calibration: CalibrationEntry[] = grades
+    .map((g, b) => {
+      const claim = assigned.get(b);
+      const tier = claim ? predictions[claim.p].tier ?? null : null;
+      return { tier, correct: g.verdict !== "MISS", grade: (g.verdict === "MISS" ? "MISS" : g.verdict) as Grade };
+    })
+    .filter((c) => c.tier !== null);
+
+  return {
+    twoAxis: true,
+    points,
+    maxPoints,
+    percent,
+    roundPoints: hits + nears * 0.5,
+    roundMax: buckets.length,
+    grades,
+    calibration,
+    summary: { hits, nears, misses },
+  };
 }

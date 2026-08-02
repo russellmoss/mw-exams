@@ -216,7 +216,7 @@ export default function StemSniperPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Stem Sniper</h1>
           <p className="text-sm text-muted mt-1">
-            Read the stem, predict variety + origin before tasting, and score your blind-deduction instincts.
+            Read the stem, predict grape + country before tasting, and score your blind-deduction instincts.
           </p>
         </div>
         {status !== "intro" && (
