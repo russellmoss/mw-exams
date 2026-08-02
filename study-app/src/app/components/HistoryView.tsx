@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import { useDraft } from "@/lib/use-draft";
 import { FeedbackMarkdown } from "./FeedbackMarkdown";
 import { TimingBadge } from "./StudyTimer";
 
@@ -352,10 +353,13 @@ function AiFeedbackResponse({ thread, recommendation, status }: { thread: AiThre
 function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; readOnly?: boolean; isAdmin?: boolean }) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
-  const [feedbackText, setFeedbackText] = useState(attempt.user_feedback || "");
+  // Both boxes edit something the server already holds, so the saved value is
+  // the seed and an unsaved edit is layered on top of it — collapsing the card
+  // (which unmounts this) no longer discards what was typed.
+  const [feedbackText, setFeedbackText] = useDraft(`history-feedback:${attempt.id}`, attempt.user_feedback || "");
   const [feedbackSaved, setFeedbackSaved] = useState(!!attempt.user_feedback);
   const [reviewStatus, setReviewStatus] = useState(attempt.feedback_status);
-  const [adminNote, setAdminNote] = useState(attempt.feedback_admin_note || "");
+  const [adminNote, setAdminNote, clearAdminNote] = useDraft(`history-admin-note:${attempt.id}`, attempt.feedback_admin_note || "");
   const [reviewSaving, setReviewSaving] = useState(false);
   const [savingFeedback, setSavingFeedback] = useState(false);
   const [applyState, setApplyState] = useState<string | null>(attempt.apply_status || null);
@@ -665,6 +669,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                           onClick={async () => {
                             setReviewSaving(true);
                             await fetch("/api/save-attempt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "review-feedback", attemptId: attempt.id, feedbackStatus: "accepted", adminNote }) });
+                            clearAdminNote(); // reviewed — the box is gone from here on
                             setReviewStatus("accepted");
                             setReviewSaving(false);
                           }}
@@ -678,6 +683,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                           onClick={async () => {
                             setReviewSaving(true);
                             await fetch("/api/save-attempt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "review-feedback", attemptId: attempt.id, feedbackStatus: "rejected", adminNote }) });
+                            clearAdminNote(); // reviewed — the box is gone from here on
                             setReviewStatus("rejected");
                             setReviewSaving(false);
                           }}

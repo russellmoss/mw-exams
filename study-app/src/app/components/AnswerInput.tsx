@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import type { Question } from "@/lib/study-session";
 import { useSpeech } from "@/lib/use-speech";
+import { useDraft } from "@/lib/use-draft";
 import { MicButton } from "./MicButton";
 import ReactMarkdown from "react-markdown";
 
@@ -16,7 +17,10 @@ interface AnswerInputProps {
 
 export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }: AnswerInputProps) {
   const knownWine = mode === "known-wine";
-  const [answer, setAnswer] = useState("");
+  // An answer in progress is the most expensive thing in the app to lose — a
+  // stray reload or a closed tab mid-write would otherwise take the lot. Held
+  // per question and mode, and forgotten once the answer is submitted.
+  const [answer, setAnswer, clearAnswer] = useDraft(`answer:${question.id}:${mode}`);
   const [activeWine, setActiveWine] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -26,7 +30,7 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
       if (trimmed.length === 0) return text;
       return trimmed + " " + text;
     });
-  }, []);
+  }, [setAnswer]);
 
   const speech = useSpeech(handleTranscript);
 
@@ -169,6 +173,7 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
               <button
                 onClick={() => {
                   setShowConfirm(false);
+                  clearAnswer();
                   onSubmit(answer);
                 }}
                 className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-background transition-colors cursor-pointer font-semibold"
