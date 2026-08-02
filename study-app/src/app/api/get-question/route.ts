@@ -14,48 +14,27 @@ import {
   type UsageMeta,
   type GenerationOutcome,
 } from "@/lib/question-engine";
-import { ensureStemVariants } from "@/lib/stem-detail";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-// Backfill (or read) the three Stem Detail variants for a served question and attach them to the
-// payload so the setup screen can preview any level and the study screen can escalate client-side.
-// Best-effort: if derivation fails the canonical stem is used for every level (grading is unchanged).
-async function attachStemVariants<
-  Q extends {
-    question_id: string;
-    question_text: string;
-    stem_guided?: string | null;
-    stem_exam_real?: string | null;
-    stem_blind?: string | null;
-  }
->(question: Q, apiKey: string, meta: UsageMeta): Promise<Q> {
-  try {
-    const variants = await ensureStemVariants(
-      {
-        question_id: question.question_id,
-        question_text: question.question_text,
-        stem_guided: question.stem_guided ?? null,
-        stem_exam_real: question.stem_exam_real ?? null,
-        stem_blind: question.stem_blind ?? null,
-      },
-      apiKey,
-      meta
-    );
-    return { ...question, stem_guided: variants.guided, stem_exam_real: variants.exam_real, stem_blind: variants.blind };
-  } catch (err) {
-    console.error("attachStemVariants failed:", err);
-    return question;
-  }
-}
+// NOTE ON STEM DETAIL: this route deliberately does NO LLM work for the three stem variants.
+//
+// It used to `await ensureStemVariants(...)` before responding, which added a 5-8s model call to
+// EVERY question served — and because the variants were never persisted (see lib/stem-detail.ts)
+// that cost was paid again on every single serve. Stacked on top of a slow generation chain it
+// pushed requests past the browser's 120s abort and users saw "Question generation timed out".
+//
+// Whatever variants are already stored ride along on the row; any that are missing are simply
+// absent, and the client falls back to the canonical `question_text` for that level (see
+// stemForLevel in components/StemDetailControl.tsx), so the question is always fully usable.
+// Backfill happens out-of-band via POST /api/stem-detail/ensure, which the setup screen fires
+// without blocking. The serving path must stay free of model calls it does not strictly need.
 
 // The engine returns DATA; this route maps it to HTTP (error → 500, otherwise the question payload).
-// Enriches the payload with the three Stem Detail variants before sending.
-async function asResponse(outcome: GenerationOutcome, apiKey: string, meta: UsageMeta): Promise<Response> {
+function asResponse(outcome: GenerationOutcome): Response {
   if ("error" in outcome) return Response.json({ error: outcome.error }, { status: 500 });
-  const question = await attachStemVariants(outcome.question, apiKey, meta);
-  return Response.json({ ...outcome, question });
+  return Response.json(outcome);
 }
 
 // Thin route handler over the shared question engine (src/lib/question-engine.ts). This route
@@ -77,7 +56,7 @@ export async function POST(request: Request) {
     // Skip bank and generate fresh if requested
     if (forceFresh) {
       console.log(`Force fresh question requested for P${paper} ${family || "any"}`);
-      return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta), userApiKey, meta);
+      return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta));
     }
 
     // Per-user "recently served" set. The banked pools key on COMPLETED attempts, so a question
@@ -101,7 +80,7 @@ export async function POST(request: Request) {
       console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
-        question: await attachStemVariants(sanitizeQuestionMetadata(picked), userApiKey, meta),
+        question: sanitizeQuestionMetadata(picked),
         hasModelAnswer: true,
       });
     }
@@ -128,13 +107,13 @@ export async function POST(request: Request) {
       console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
-        question: await attachStemVariants(sanitizeQuestionMetadata(picked), userApiKey, meta),
+        question: sanitizeQuestionMetadata(picked),
         hasModelAnswer: true,
       });
     }
 
     // PRIORITY 3: Generate fresh on the fly (passes the per-user seen set so the fallback can't repeat)
-    return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta, recentlyServedIds), userApiKey, meta);
+    return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta, recentlyServedIds));
   } catch (err) {
     console.error("get-question error:", err);
     return Response.json(

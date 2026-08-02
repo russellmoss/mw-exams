@@ -155,12 +155,18 @@ async function ensureP3Appearances(question: GeneratedQuestion, apiKey: string, 
     const { model, abGroup } = await selectModel("question_appearance", apiKey, "sonnet");
     const wineList = wines.map((w: { slot: number; fullText: string }) => `${w.slot}. ${w.fullText}`).join("\n");
     const t0 = Date.now();
-    const message = await client.messages.create({
-      model,
-      max_tokens: 500,
-      system: `For each wine, describe ONLY what a candidate would see in the glass — color, clarity, bubbles if present, viscosity. No aromas, no tastes, no wine-type labels. Be accurate for the specific wine. One line per wine, 10-20 words. Output as JSON array: [{"slot":1,"appearance":"..."},...]`,
-      messages: [{ role: "user", content: `Generate visual appearance notes:\n${wineList}` }],
-    });
+    // This runs on the otherwise-instant BANKED serve path, so it must be tightly bounded: without
+    // explicit opts the SDK would wait out its 10-minute default timeout and retry twice. On failure
+    // the catch below simply serves the question without appearance notes.
+    const message = await client.messages.create(
+      {
+        model,
+        max_tokens: 500,
+        system: `For each wine, describe ONLY what a candidate would see in the glass — color, clarity, bubbles if present, viscosity. No aromas, no tastes, no wine-type labels. Be accurate for the specific wine. One line per wine, 10-20 words. Output as JSON array: [{"slot":1,"appearance":"..."},...]`,
+        messages: [{ role: "user", content: `Generate visual appearance notes:\n${wineList}` }],
+      },
+      { timeout: Number(process.env.APPEARANCE_TIMEOUT_MS) || 20_000, maxRetries: 0 }
+    );
     logClaudeUsage(
       { taskType: "question_appearance", model, source: meta?.source, userId: meta?.userId, questionId: question.question_id, abGroup },
       message.usage,
@@ -310,18 +316,36 @@ export async function generateFreshQuestion(
   let genModelUsed: string | null = null;
   let genAbGroup: string | null = null;
 
-  // Wall-clock budget. A slow or throttled model (the Anthropic SDK retries 429/529/5xx with
-  // backoff, so one "call" can take a minute) must never push this request past Vercel's
-  // function limit and trigger a 504. When the budget is spent we stop generating and serve a
-  // banked fallback below — the user always gets a real question instead of a timeout error.
+  // Wall-clock budget — a HARD ceiling on the whole generation phase, not a soft hint.
+  //
+  // The browser aborts /api/get-question at 120s (see app/page.tsx), so everything here plus the
+  // banked-fallback query and JSON serialisation must land well inside that. The old code checked
+  // the budget only BEFORE starting an attempt, which let a call begin at 74.9s and then run for
+  // `timeout` x (1 + maxRetries) = 70s more — observed in production as a single 64s "call" that
+  // pushed a request to ~128s and tripped the browser abort. Two rules prevent that now:
+  //   1. never start an attempt we cannot finish inside the budget (MIN_CALL_MS), and
+  //   2. clamp each call's timeout to the time actually remaining, with the SDK's own silent
+  //      retry disabled (maxRetries: 0) so one attempt costs at most one timeout.
+  // The attempt loop below is itself the retry mechanism, and it is deadline-aware — so transient
+  // 429/529s are still retried, just never past the deadline.
+  //
+  // Sizing: production Sonnet generations average ~24s but the tail reaches 60s+, so a 35s per-call
+  // cap threw away otherwise-good slow calls and dropped the request to the banked fallback. 45s
+  // covers the observed tail; 95s of budget still fits ~4 typical attempts and leaves ~25s of
+  // headroom under the browser's 120s abort. MIN_CALL_MS sits above a typical call so the loop never
+  // burns the tail of the budget on an attempt that cannot finish.
   const startedAt = Date.now();
-  const BUDGET_MS = Number(process.env.GENERATION_BUDGET_MS) || 75_000;
-  const CALL_TIMEOUT_MS = Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 35_000;
+  const BUDGET_MS = Number(process.env.GENERATION_BUDGET_MS) || 95_000;
+  const CALL_TIMEOUT_MS = Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 45_000;
+  const MIN_CALL_MS = Number(process.env.GENERATION_MIN_CALL_MS) || 25_000;
+  const remainingMs = () => BUDGET_MS - (Date.now() - startedAt);
 
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    // Stop before we risk a platform timeout; the banked fallback below serves instead.
-    if (Date.now() - startedAt > BUDGET_MS) {
+    // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
+    // needs MIN_CALL_MS to have any chance of returning, so anything less is dead time.
+    const remaining = remainingMs();
+    if (remaining < MIN_CALL_MS) {
       console.warn(
         `Generation budget ${BUDGET_MS}ms exhausted after ${attempt - 1} attempt(s); serving banked fallback`
       );
@@ -329,7 +353,7 @@ export async function generateFreshQuestion(
     }
     const model = attempt === 1 ? gen.model : "claude-sonnet-4-6";
     const attemptAb = attempt === 1 ? gen.abGroup : null;
-    const callOpts = { timeout: CALL_TIMEOUT_MS, maxRetries: 1 } as const;
+    const callOpts = { timeout: Math.min(CALL_TIMEOUT_MS, remaining), maxRetries: 0 } as const;
     let message;
     let producedModel = model;
     let producedAb = attemptAb;
@@ -338,7 +362,11 @@ export async function generateFreshQuestion(
       message = await client.messages.create(
         {
           model,
-          max_tokens: 2000,
+          // 2000 was too tight for the reasoning-heavy arm: EVERY Opus generation in production
+          // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
+          // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
+          // ~950 tokens here, so 4000 is comfortably above both arms' real output.
+          max_tokens: 4000,
           system: prompt.system,
           messages: [{ role: "user", content: prompt.user }],
         },
@@ -352,18 +380,27 @@ export async function generateFreshQuestion(
     } catch (modelErr: unknown) {
       const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
       if (model !== "claude-sonnet-4-6" && msg.includes("404")) {
-        // Configured Opus id unavailable — retry this attempt on Sonnet.
+        // Configured Opus id unavailable — retry this attempt on Sonnet. This is a SECOND call
+        // inside the same attempt, so re-clamp against the deadline (reusing callOpts would let
+        // one attempt spend two full timeouts).
         console.warn(`${model} not available, falling back to claude-sonnet-4-6`);
+        const fallbackRemaining = remainingMs();
+        if (fallbackRemaining < MIN_CALL_MS) {
+          lastViolations = [`${model} unavailable and no budget left for a Sonnet retry`];
+          console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS}: ${lastViolations[0]}`);
+          break;
+        }
+        const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
         const tRetry = Date.now();
         try {
           message = await client.messages.create(
             {
               model: "claude-sonnet-4-6",
-              max_tokens: 2000,
+              max_tokens: 4000,
               system: prompt.system,
               messages: [{ role: "user", content: prompt.user }],
             },
-            callOpts
+            fallbackOpts
           );
           producedModel = "claude-sonnet-4-6";
           producedAb = null;

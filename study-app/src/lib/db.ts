@@ -81,6 +81,14 @@ export async function updateStemVariants(
   `;
 }
 
+// Fetch a single question by id. Used by the out-of-band Stem Detail backfill endpoint, which is
+// handed only a question_id by the client.
+export async function getQuestionById(questionId: string): Promise<GeneratedQuestion | null> {
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM generated_questions WHERE question_id = ${questionId} LIMIT 1`;
+  return (rows[0] as GeneratedQuestion) ?? null;
+}
+
 export async function getUserStemDetailDefault(userId: number): Promise<string> {
   const sql = getDb();
   const rows = await sql`SELECT stem_detail_default FROM users WHERE id = ${userId}`;

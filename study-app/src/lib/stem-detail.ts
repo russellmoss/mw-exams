@@ -47,12 +47,18 @@ async function callDeriveOnce(
   const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
   const prompt = buildStemVariantsPrompt(canonical);
   const t0 = Date.now();
-  const message = await client.messages.create({
-    model,
-    max_tokens: 2500,
-    system: prompt.system,
-    messages: [{ role: "user", content: prompt.user }],
-  });
+  const message = await client.messages.create(
+    {
+      model,
+      max_tokens: 2500,
+      system: prompt.system,
+      messages: [{ role: "user", content: prompt.user }],
+    },
+    // Bounded so the backfill endpoint can never hang: without opts the SDK defaults to a 10-minute
+    // timeout with two retries. Failing fast is fine here — the canonical stem is a valid fallback
+    // for every level and a later serve retries the derivation.
+    { timeout: Number(process.env.STEM_DETAIL_TIMEOUT_MS) || 30_000, maxRetries: 0 }
+  );
   logClaudeUsage(
     { taskType: "stem_detail_variants", model, source: meta?.source, userId: meta?.userId ?? null, questionId: meta?.questionId, abGroup },
     message.usage,
@@ -69,13 +75,21 @@ function pick(raw: RawVariants | null, level: StemDetailLevel, canonical: string
   return variantPreservesStructure(canonical, val) ? val.trim() : null;
 }
 
-// Derive all three variants from the canonical stem. Any level that fails validation twice falls
-// back to the canonical stem (so the level is always servable and grading stays comparable).
+// A derivation result. `null` for a level means derivation genuinely FAILED for it (bad JSON, or the
+// variant altered the sub-questions/marks). That is deliberately distinct from "derived a string that
+// happens to equal the canonical stem", which is a legitimate result — see ensureStemVariants.
+export interface DerivedVariants {
+  guided: string | null;
+  exam_real: string | null;
+  blind: string | null;
+}
+
+// Derive all three variants from the canonical stem, retrying once for any level that fails.
 export async function deriveStemVariants(
   canonical: string,
   apiKey: string,
   meta?: Meta
-): Promise<StemVariants> {
+): Promise<DerivedVariants> {
   let raw: RawVariants | null = null;
   try {
     raw = await callDeriveOnce(canonical, apiKey, meta);
@@ -99,11 +113,7 @@ export async function deriveStemVariants(
     }
   }
 
-  return {
-    guided: guided ?? canonical,
-    exam_real: exam_real ?? canonical,
-    blind: blind ?? canonical,
-  };
+  return { guided, exam_real, blind };
 }
 
 type QuestionLike = {
@@ -139,18 +149,26 @@ export async function ensureStemVariants(
   });
 
   const merged: StemVariants = {
-    guided: existing.guided || derived.guided,
-    exam_real: existing.exam_real || derived.exam_real,
-    blind: existing.blind || derived.blind,
+    guided: existing.guided || derived.guided || canonical,
+    exam_real: existing.exam_real || derived.exam_real || canonical,
+    blind: existing.blind || derived.blind || canonical,
   };
 
-  // Persist only genuinely-derived values (skip pure-canonical fallbacks, so a later retry can still
-  // fill a proper variant). COALESCE in the query protects any concurrently-written level.
+  // Persist every level that actually derived, INCLUDING one whose text equals the canonical stem.
+  //
+  // The previous guard (`derived.X !== canonical ? X : null`) treated "identical to canonical" as a
+  // failed derivation and refused to store it. But the canonical stem IS already exam-real prose —
+  // it's what the generator emits — so `exam_real` legitimately comes back unchanged most of the
+  // time. The column therefore stayed NULL forever, ensureStemVariants saw a missing level on every
+  // single serve, and re-derived the same question indefinitely (production: 1 of 98 questions
+  // backfilled after repeated calls; gen_p3_F2_1780176826047 was re-derived three times in 8
+  // minutes). Storing the value ends the loop. A level that genuinely failed stays null and is
+  // retried on a later pass. COALESCE in the query protects any concurrently-written level.
   try {
     await updateStemVariants(question.question_id, {
-      guided: !existing.guided && derived.guided !== canonical ? derived.guided : null,
-      exam_real: !existing.exam_real && derived.exam_real !== canonical ? derived.exam_real : null,
-      blind: !existing.blind && derived.blind !== canonical ? derived.blind : null,
+      guided: existing.guided ? null : derived.guided,
+      exam_real: existing.exam_real ? null : derived.exam_real,
+      blind: existing.blind ? null : derived.blind,
     });
   } catch (err) {
     console.error("[stem-detail] persist failed:", err);
