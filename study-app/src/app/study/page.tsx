@@ -10,6 +10,8 @@ import {
 
 } from "@/lib/study-session";
 import { useStreaming } from "@/lib/use-streaming";
+import { stemForLevel } from "../components/StemDetailControl";
+import { isStemDetailLevel, stepUpLevel, type StemDetailLevel } from "@/lib/prompts/stemDetail";
 import { QuestionDisplay } from "../components/QuestionDisplay";
 import { PreGlassReasoning } from "../components/PreGlassReasoning";
 import { StreamingFeedback } from "../components/StreamingFeedback";
@@ -44,6 +46,11 @@ export default function StudyPage() {
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [preGlassReasoning, setPreGlassReasoning] = useState("");
   const [isGeneratingFresh, setIsGeneratingFresh] = useState(false);
+  // Stem Detail: the level this attempt STARTED at (chosen on the setup screen), and the level it
+  // has been escalated to via "Add detail". Escalation is one-way and both are recorded on the
+  // attempt, so a run that needed extra framing is never scored as if it didn't.
+  const [stemDetailStart, setStemDetailStart] = useState<StemDetailLevel>("exam_real");
+  const [stemDetailEscalatedTo, setStemDetailEscalatedTo] = useState<StemDetailLevel | null>(null);
 
   const evalStream = useStreaming();
   const modelAnswerPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -56,6 +63,9 @@ export default function StudyPage() {
     const mode = sessionStorage.getItem("mw-study-mode");
     if (mode === "stem-only") setStudyMode("stem-only");
     else if (mode === "known-wine") setStudyMode("known-wine");
+
+    const level = sessionStorage.getItem("mw-stem-detail");
+    if (isStemDetailLevel(level)) setStemDetailStart(level);
 
     const stored = sessionStorage.getItem("mw-current-question");
     if (stored) {
@@ -70,6 +80,8 @@ export default function StudyPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               questionId: question.id,
+              // Canonical, NOT the level-resolved stem: the model answer is cached per question_id
+              // and shared by all three levels, so it must not vary with the candidate's dial.
               questionText: question.text,
               wines: question.wines,
               paper: question.paper,
@@ -112,10 +124,20 @@ export default function StudyPage() {
       // Tag Dry Notes (known-wine) attempts so /history can label and filter them. Read the mode
       // from sessionStorage rather than the studyMode state, which may not be set yet on first run.
       const persistMode = sessionStorage.getItem("mw-study-mode") === "known-wine" ? "known-wine" : null;
+      // Read the level from sessionStorage rather than stemDetailStart, for the same reason as mode:
+      // this effect can run before the state-setting effect above has committed.
+      const storedLevel = sessionStorage.getItem("mw-stem-detail");
+      const persistStemDetail = isStemDetailLevel(storedLevel) ? storedLevel : "exam_real";
       fetch("/api/save-attempt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "create", questionId: question.id, userId: user.id, mode: persistMode }),
+        body: JSON.stringify({
+          action: "create",
+          questionId: question.id,
+          userId: user.id,
+          mode: persistMode,
+          stemDetail: persistStemDetail,
+        }),
       })
         .then((r) => r.json())
         .then((d) => {
@@ -124,6 +146,31 @@ export default function StudyPage() {
         .catch(() => {});
     } catch {}
   }, [user?.id, attemptId]);
+
+  // Stem Detail: the level currently in force, the prose to render at it, and the next level up.
+  // stemForLevel falls back to the canonical stem for any level not yet backfilled, so this is
+  // always a real question even if the out-of-band derivation hasn't run.
+  const stemDetailLevel = stemDetailEscalatedTo ?? stemDetailStart;
+  // StudyState is a discriminated union — only the "select-paper" arm has no question. Declared
+  // here (rather than further down) because the submit callbacks below need the resolved stem.
+  const currentQuestion = state.step !== "select-paper" ? state.question : null;
+  const displayedStem = currentQuestion ? stemForLevel(currentQuestion, stemDetailLevel) : "";
+  const nextStemDetailLevel = stepUpLevel(stemDetailLevel);
+
+  // "Add detail" — one-way step up. Persist the level the candidate ENDED at so history and grading
+  // can tell an unaided run from an assisted one.
+  const handleAddDetail = useCallback(() => {
+    const next = stepUpLevel(stemDetailEscalatedTo ?? stemDetailStart);
+    if (!next) return;
+    setStemDetailEscalatedTo(next);
+    if (attemptId) {
+      fetch("/api/save-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update", attemptId, stem_detail_escalated_to: next }),
+      }).catch(() => {});
+    }
+  }, [attemptId, stemDetailEscalatedTo, stemDetailStart]);
 
   // Broadcast current step for live admin view
   useEffect(() => {
@@ -192,7 +239,9 @@ export default function StudyPage() {
           .map((w) => ({ slot: w.slot, appearance: w.appearance! }));
 
         const feedback = await evalStream.startStream("/api/evaluate-reasoning", {
-          questionText: state.question.text,
+          // The stem the candidate actually read. Coaching them on cues that were withheld at
+          // their level (or crediting them for cues they never saw) is worse than no feedback.
+          questionText: displayedStem,
           reasoning,
           paper: state.question.paper,
           ...(wineAppearances.length > 0 && { wineAppearances }),
@@ -215,7 +264,7 @@ export default function StudyPage() {
         });
       }
     },
-    [state, attemptId, studyMode, evalStream]
+    [state, attemptId, studyMode, evalStream, displayedStem]
   );
 
   // Handle wine reveal
@@ -282,7 +331,9 @@ export default function StudyPage() {
         .map((w) => ({ slot: w.slot, appearance: w.appearance! }));
 
       const feedback = await evalStream.startStream("/api/evaluate-full", {
-        questionText: state.question.text,
+        // The stem as answered. Marks and sub-questions are byte-identical across levels (enforced
+        // by variantPreservesStructure), so grading is unchanged — only the framing differs.
+        questionText: displayedStem,
         preGlassReasoning,
         userAnswer: answer,
         modelAnswer,
@@ -507,9 +558,6 @@ export default function StudyPage() {
     router.push("/");
   }, [router, evalStream, timer]);
 
-  const currentQuestion =
-    state.step !== "select-paper" ? state.question : null;
-
   return (
     <div className="flex flex-col flex-1">
       {/* Header */}
@@ -611,6 +659,11 @@ export default function StudyPage() {
             <QuestionDisplay
               question={state.question}
               mode={studyMode}
+              stemText={displayedStem}
+              stemDetailLevel={stemDetailLevel}
+              stemDetailStartedAt={stemDetailEscalatedTo ? stemDetailStart : null}
+              nextStemDetailLevel={studyMode === "known-wine" ? null : nextStemDetailLevel}
+              onAddDetail={handleAddDetail}
               onStartReasoning={() =>
                 dispatch({
                   type: studyMode === "known-wine" ? "START_KNOWN_WINE" : "START_PRE_GLASS",
@@ -625,6 +678,7 @@ export default function StudyPage() {
           {state.step === "pre-glass" && (
             <PreGlassReasoning
               question={state.question}
+              stemText={displayedStem}
               onSubmit={handleReasoningSubmit}
             />
           )}

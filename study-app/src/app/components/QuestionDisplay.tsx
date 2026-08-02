@@ -1,6 +1,8 @@
 "use client";
 
 import type { Question } from "@/lib/study-session";
+import { STEM_DETAIL_META, type StemDetailLevel } from "@/lib/prompts/stemDetail";
+import { StemDetailBadge } from "./StemDetailControl";
 
 interface QuestionDisplayProps {
   question: Question;
@@ -9,6 +11,19 @@ interface QuestionDisplayProps {
   isGenerating?: boolean;
   /** Practice mode — "known-wine" reveals identities up front and skips stem analysis. */
   mode?: "full" | "stem-only" | "known-wine";
+  /**
+   * Stem Detail: the stem prose to actually render, already resolved for the candidate's chosen
+   * level. Defaults to the canonical `question.text` so callers that don't use the dial are
+   * unaffected. Sub-questions and marks are identical across levels — only the preamble changes.
+   */
+  stemText?: string;
+  /** The level currently being shown (drives the badge). Omit to hide the badge entirely. */
+  stemDetailLevel?: StemDetailLevel;
+  /** The level the candidate started at, if they have since escalated (renders "Blind → Exam-Real"). */
+  stemDetailStartedAt?: StemDetailLevel | null;
+  /** The level "Add detail" would move to, or null when already at the most-detailed level. */
+  nextStemDetailLevel?: StemDetailLevel | null;
+  onAddDetail?: () => void;
 }
 
 function parseQuestionText(text: string): {
@@ -125,6 +140,11 @@ export function QuestionDisplay({
   onGenerateFresh,
   isGenerating,
   mode = "full",
+  stemText,
+  stemDetailLevel,
+  stemDetailStartedAt,
+  nextStemDetailLevel,
+  onAddDetail,
 }: QuestionDisplayProps) {
   const knownWine = mode === "known-wine";
   const paperLabel =
@@ -134,7 +154,8 @@ export function QuestionDisplay({
         ? "Paper 2 — Reds"
         : "Paper 3 — Special";
 
-  const parsed = parseQuestionText(question.text);
+  // Render the level-resolved stem when one is supplied, else the canonical text.
+  const parsed = parseQuestionText(stemText ?? question.text);
 
   return (
     <div>
@@ -149,6 +170,9 @@ export function QuestionDisplay({
         <span className="text-xs font-mono px-3 py-1.5 rounded-full bg-card text-muted border border-border">
           {question.totalMarks} marks
         </span>
+        {stemDetailLevel && (
+          <StemDetailBadge level={stemDetailLevel} escalatedFrom={stemDetailStartedAt} />
+        )}
       </div>
 
       {/* Question card */}
@@ -187,6 +211,22 @@ export function QuestionDisplay({
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Add detail — one-way escalation to a more-revealing stem. Recorded on the attempt so a
+            run that needed help is never confused with one that didn't. */}
+        {onAddDetail && nextStemDetailLevel && (
+          <div className="px-8 py-4 border-t border-border/50 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted">
+              Stuck? Reveal how the flight is organised — the wines, marks and grading don&apos;t change.
+            </p>
+            <button
+              onClick={onAddDetail}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-accent/40 text-accent hover:bg-accent/10 transition-colors cursor-pointer shrink-0"
+            >
+              Add detail → {STEM_DETAIL_META[nextStemDetailLevel].name}
+            </button>
           </div>
         )}
 
