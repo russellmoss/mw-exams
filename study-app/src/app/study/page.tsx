@@ -10,6 +10,8 @@ import {
 
 } from "@/lib/study-session";
 import { useStreaming } from "@/lib/use-streaming";
+import { useProgressStream } from "@/lib/use-progress-stream";
+import { ThinkingTrace } from "../components/ThinkingTrace";
 import { stemForLevel } from "../components/StemDetailControl";
 import { isStemDetailLevel, stepUpLevel, type StemDetailLevel } from "@/lib/prompts/stemDetail";
 import { QuestionDisplay } from "../components/QuestionDisplay";
@@ -29,6 +31,11 @@ export default function StudyPage() {
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
+  // Live progress for the tasting-note generation. The generator runs a
+  // generate-validate-regenerate loop (a red note on a white wine fixes itself), which is a real
+  // wait — this reports it instead of parking the button on "Generating tasting notes…".
+  // Used by both call sites; they belong to different study modes so never overlap.
+  const tastingTrace = useProgressStream();
   const [studyMode, setStudyMode] = useState<"full" | "stem-only" | "known-wine">("full");
   const [modelAnswerReady, setModelAnswerReady] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -274,14 +281,14 @@ export default function StudyPage() {
     timer.pause();
 
     try {
-      const res = await fetch("/api/generate-tasting", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wines: state.question.wines, questionId: state.question.id }),
-      });
-
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-      const data = await res.json();
+      const data = await tastingTrace.run<{ tastingNotes: string[] }>(
+        "/api/generate-tasting/stream",
+        { wines: state.question.wines, questionId: state.question.id }
+      );
+      if (!data?.tastingNotes) {
+        // errorRef, not error: the closure's `error` predates the stream (see use-progress-stream).
+        throw new Error(tastingTrace.errorRef.current || "Failed to generate tasting notes");
+      }
       setTastingNotes(data.tastingNotes);
 
       // Save tasting notes to Neon
@@ -408,12 +415,13 @@ export default function StudyPage() {
       // (evaluate-full) does not depend on these, so we don't await them before evaluating.
       if (studyMode === "known-wine" && tastingNotes.length === 0) {
         setTastingLoading(true);
-        fetch("/api/generate-tasting", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ wines: state.question.wines, questionId: state.question.id }),
-        })
-          .then((r) => (r.ok ? r.json() : null))
+        // Streamed like the reveal path, so the notes panel shows the generator working rather
+        // than a bare skeleton while the debrief grades alongside it. Deliberately not awaited.
+        tastingTrace
+          .run<{ tastingNotes: string[] }>("/api/generate-tasting/stream", {
+            wines: state.question.wines,
+            questionId: state.question.id,
+          })
           .then((d) => {
             if (d?.tastingNotes) {
               setTastingNotes(d.tastingNotes);
@@ -782,11 +790,24 @@ export default function StudyPage() {
                 </button>
               </div>
               {tastingLoading && (
-                <WineReveal
-                  tastingNotes={[]}
-                  wineCount={state.question.wines.length}
-                  isLoading={true}
-                />
+                <>
+                  {/* Spoiler-gated: the notes themselves are sanitized, but the generator reasons
+                      over the real wines and the candidate still has to identify them. */}
+                  <ThinkingTrace
+                    status={tastingTrace.status}
+                    statuses={tastingTrace.statuses}
+                    thinking={tastingTrace.thinking}
+                    active={!tastingTrace.error}
+                    error={tastingTrace.error}
+                    spoiler
+                    idleLabel="Generating tasting notes…"
+                  />
+                  <WineReveal
+                    tastingNotes={[]}
+                    wineCount={state.question.wines.length}
+                    isLoading={true}
+                  />
+                </>
               )}
             </div>
           )}
@@ -864,8 +885,20 @@ export default function StudyPage() {
               {/* Known-Wine Write-Up: submitting reveals the actual reference tasting notes for the
                   wines (generated in the background at submit) alongside the grade. */}
               {studyMode === "known-wine" && !waitingForModel && (tastingLoading || tastingNotes.length > 0) && (
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">The actual tasting notes</h3>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">The actual tasting notes</h3>
+                  {/* Ungated: in Known-Wine the identities were shown all along and the write-up is
+                      already submitted, so there is nothing left to give away. */}
+                  {tastingLoading && tastingNotes.length === 0 && (
+                    <ThinkingTrace
+                      status={tastingTrace.status}
+                      statuses={tastingTrace.statuses}
+                      thinking={tastingTrace.thinking}
+                      active={!tastingTrace.error}
+                      error={tastingTrace.error}
+                      idleLabel="Generating the reference notes…"
+                    />
+                  )}
                   <WineReveal
                     tastingNotes={tastingNotes}
                     wineCount={state.question.wines.length}
@@ -890,8 +923,20 @@ export default function StudyPage() {
               />
               {/* Known-Wine Write-Up: keep the reference tasting notes visible next to the model answer. */}
               {studyMode === "known-wine" && (tastingLoading || tastingNotes.length > 0) && (
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-3">The actual tasting notes</h3>
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">The actual tasting notes</h3>
+                  {/* Ungated: in Known-Wine the identities were shown all along and the write-up is
+                      already submitted, so there is nothing left to give away. */}
+                  {tastingLoading && tastingNotes.length === 0 && (
+                    <ThinkingTrace
+                      status={tastingTrace.status}
+                      statuses={tastingTrace.statuses}
+                      thinking={tastingTrace.thinking}
+                      active={!tastingTrace.error}
+                      error={tastingTrace.error}
+                      idleLabel="Generating the reference notes…"
+                    />
+                  )}
                   <WineReveal
                     tastingNotes={tastingNotes}
                     wineCount={state.question.wines.length}
