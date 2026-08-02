@@ -2,25 +2,21 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 
 export function NavBar() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
 
   // Don't show nav on login page
   if (pathname === "/login") return null;
 
   // Don't show while loading or if not logged in
   if (loading || !user) return null;
-
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
-  };
 
   return (
     <>
@@ -82,51 +78,14 @@ export function NavBar() {
           >
             History
           </Link>
-          <Link
-            href="/methodology"
-            className={`text-sm font-medium transition-colors ${
-              pathname === "/methodology"
-                ? "text-accent"
-                : "text-muted hover:text-foreground"
-            }`}
-          >
-            Methodology
-          </Link>
-          <Link
-            href="/settings"
-            className={`text-sm font-medium transition-colors ${
-              pathname === "/settings"
-                ? "text-accent"
-                : "text-muted hover:text-foreground"
-            }`}
-          >
-            Settings
-          </Link>
-          {user.isAdmin && (
-            <Link
-              href="/admin"
-              className={`text-sm font-medium transition-colors ${
-                pathname === "/admin"
-                  ? "text-accent"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              Admin
-            </Link>
-          )}
+          {/* Methodology, Settings and Admin now live in the user menu on the right — this row is
+              the study surfaces only. */}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <NotificationBell />
-          <span className="text-xs text-muted">
-            {user.name}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="text-xs text-muted hover:text-fail transition-colors cursor-pointer"
-          >
-            Sign out
-          </button>
+          <ThemeToggle />
+          <UserMenu />
         </div>
       </div>
     </nav>

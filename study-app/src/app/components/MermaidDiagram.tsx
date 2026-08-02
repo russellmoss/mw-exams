@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DiagramModal } from "./DiagramModal";
+import { useTheme } from "@/lib/theme-context";
 
 interface MermaidDiagramProps {
   chart: string;
@@ -13,29 +14,42 @@ export function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
   const [svg, setSvg] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [zoomed, setZoomed] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
     let cancelled = false;
 
+    // Pull the live palette off <html> rather than hardcoding hexes, so the diagram follows whichever
+    // theme is active. `theme` is in the dep array purely to force a re-render on toggle.
+    const token = (name: string, fallback: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+
     async function render() {
       try {
         const mermaid = (await import("mermaid")).default;
+        const background = token("--background", "#0c0a09");
+        const card = token("--card", "#1c1917");
+        const cardHover = token("--card-hover", "#292524");
+        const border = token("--border", "#44403c");
+        const muted = token("--muted", "#78716c");
+        const foreground = token("--foreground", "#e7e5e4");
+
         mermaid.initialize({
           startOnLoad: false,
-          theme: "dark",
+          theme: theme === "light" ? "default" : "dark",
           themeVariables: {
-            primaryColor: "#44403c",
-            primaryTextColor: "#e7e5e4",
-            primaryBorderColor: "#78716c",
-            lineColor: "#78716c",
-            secondaryColor: "#1c1917",
-            tertiaryColor: "#292524",
-            background: "#0c0a09",
-            mainBkg: "#1c1917",
-            nodeBorder: "#78716c",
-            clusterBkg: "#1c1917",
-            titleColor: "#e7e5e4",
-            edgeLabelBackground: "#1c1917",
+            primaryColor: theme === "light" ? cardHover : border,
+            primaryTextColor: foreground,
+            primaryBorderColor: muted,
+            lineColor: muted,
+            secondaryColor: card,
+            tertiaryColor: cardHover,
+            background,
+            mainBkg: card,
+            nodeBorder: muted,
+            clusterBkg: card,
+            titleColor: foreground,
+            edgeLabelBackground: card,
           },
           flowchart: {
             htmlLabels: true,
@@ -58,7 +72,7 @@ export function MermaidDiagram({ chart, title }: MermaidDiagramProps) {
 
     render();
     return () => { cancelled = true; };
-  }, [chart]);
+  }, [chart, theme]);
 
   if (error) {
     return (

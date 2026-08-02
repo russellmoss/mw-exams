@@ -310,7 +310,7 @@ export default function AdminPage() {
                 disabled={savingToggle || hardDisabled}
                 role="switch"
                 aria-checked={autoApply}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted/40"}`}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted"}`}
               >
                 <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
               </button>
@@ -342,7 +342,7 @@ export default function AdminPage() {
                 disabled={savingToggle || featureHardDisabled}
                 role="switch"
                 aria-checked={autoFeature}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted/40"}`}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted"}`}
               >
                 <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
               </button>
