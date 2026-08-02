@@ -11,6 +11,28 @@ name: feature-build
 # Unlike auto-feedback, a feature touches arbitrary files — there is NO path isolation. CI (tsc +
 # build) is the safety gate, the admin's explicit "Build it" is the human gate, and revert is the
 # backstop. DEPLOY MODEL identical to auto-feedback: a study-app/ merge auto-deploys via Vercel.
+#
+# CONCURRENCY / STALE-BASE SAFETY (added 2026-08-02 after four builds raced):
+# Feature builds take ~20 minutes. If two run at once, each branches from master at start and merges
+# at the end, so the one that finishes second was built against a master that no longer exists. On
+# 2026-08-02 feature #6 ("Two Marks, Not Three") merged mid-flight and features #5 and #7 both lost
+# the race; #5 had been built on the scoring model #6 deleted and had to be rewritten from scratch.
+# Two defences, because they fix different halves of the problem:
+#   1. FIFO MUTEX (first step) — an older in-flight feature-build run blocks this one, so Claude
+#      always *writes* code against a fresh master. This is what prevents #5-class staleness; no
+#      amount of merge-time cleverness can, because by then the wrong code is already written.
+#      NB: a plain repo-wide `concurrency: group:` cannot do this — GitHub keeps at most ONE pending
+#      run per group and silently cancels older pending ones, so the 3rd+ request would vanish
+#      before any step ran and feature_requests would sit at 'building' forever. Hence the manual
+#      poll against the runs API, which is FIFO by run id and never drops a request.
+#   2. REBASE + RE-VERIFY BEFORE LANDING — covers the residual window (a human push, an
+#      auto-feedback bot merge, or a mutex timeout). If master moved since we branched, we rebase
+#      and re-run tsc + build on the REBASED tree before merging. This matters because the green CI
+#      from the heal loop belongs to the pre-rebase tree: a rebase can succeed textually while the
+#      code references symbols the new master deleted. Without this, that merges clean and
+#      auto-deploys a broken build.
+# The per-feature concurrency group below is kept only to dedupe a double-dispatch of the SAME
+# feature request; cross-feature serialization is the mutex's job.
 
 on:
   repository_dispatch:
@@ -19,6 +41,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: read
 
 concurrency:
   group: feature-build-${{ github.event.client_payload.featureRequestId }}
@@ -37,11 +60,71 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       APP_DIR: study-app
     steps:
+      # Must be the FIRST step: the whole point is that the checkout below (and therefore every file
+      # Claude reads) sees a master with all earlier feature builds already merged into it.
+      - name: Wait for older feature builds (FIFO mutex)
+        timeout-minutes: 50
+        env:
+          MUTEX_TIMEOUT_SECONDS: '2700' # 45m — a build is ~20m, so this tolerates a two-deep queue
+        run: |
+          set -e
+          echo "This run: id=$GITHUB_RUN_ID number=$GITHUB_RUN_NUMBER"
+          deadline=$(( $(date +%s) + MUTEX_TIMEOUT_SECONDS ))
+          api_fails=0
+          while :; do
+            # Run ids increase monotonically, so "id < mine" == "dispatched before me" == FIFO.
+            # The age guard stops a hung run (stuck 'in_progress' until GitHub's 6h job timeout
+            # reaps it) from making every subsequent feature build sit out the full mutex timeout.
+            #
+            # The exit status MUST be checked explicitly: on an HTTP error gh prints the error body
+            # to stdout, which would otherwise be captured as a bogus "blocker" and stall this build
+            # for the whole timeout. `set -e` cannot catch it either — the pipe to `tr` masks it.
+            if raw=$(gh api --paginate \
+              "repos/$GITHUB_REPOSITORY/actions/workflows/feature-build.yml/runs?per_page=100" \
+              --jq ".workflow_runs[]
+                    | select(.status == \"queued\" or .status == \"in_progress\" or .status == \"waiting\")
+                    | select(.id < $GITHUB_RUN_ID)
+                    | select((.created_at | fromdateiso8601) > (now - 5400))
+                    | \"#\\(.run_number)(\\(.id))\"" 2>&1); then
+              api_fails=0
+              blockers=$(printf '%s' "$raw" | tr '\n' ' ')
+            else
+              # Fail OPEN, not closed: blocking for 45m on a transient API error is worse than
+              # racing, because the rebase + re-verify step still guards the merge.
+              api_fails=$((api_fails + 1))
+              echo "::warning title=mutex api error::Could not query the runs API (${api_fails}/5): ${raw}"
+              if [ "$api_fails" -ge 5 ]; then
+                echo "::warning title=mutex degraded::Runs API unreachable 5x — proceeding WITHOUT the lock. The rebase + re-verify step is the safety net."
+                break
+              fi
+              sleep 15
+              continue
+            fi
+            if [ -z "${blockers// /}" ]; then
+              echo "No older feature-build run in flight — acquiring the lock."
+              break
+            fi
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::warning title=mutex timeout::Waited $((MUTEX_TIMEOUT_SECONDS / 60))m on run(s) ${blockers}. Proceeding anyway — the rebase + re-verify step is the safety net."
+              break
+            fi
+            echo "Waiting on older feature-build run(s): ${blockers} — retrying in 30s"
+            sleep 30
+          done
+
       - name: Checkout master
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: master
+
+      # The commit this branch is cut from. Surfaced in the merge commit and the PR body so a build
+      # that landed against a stale master is obvious at review time.
+      - name: Record base commit
+        id: base
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Branching from master @ $(git rev-parse HEAD)"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -151,44 +234,149 @@ jobs:
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Merge to master (verified)
+      # Land on master, defending against master having moved while we built.
+      #
+      # The green CI from the heal loop was produced against BASE_SHA. If master has moved since,
+      # that signal is stale, so we rebase and RE-RUN tsc + build on the rebased tree before
+      # merging — a rebase can apply cleanly while the code still references symbols the new master
+      # deleted (exactly how feature #5 broke on 2026-08-02). Anything that fails here refuses to
+      # touch master and falls through to the PR step with a loud reason.
+      - name: Rebase onto latest master, re-verify, and land
         if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
         id: merge
         run: |
           set -e
+          BASE_SHA="${{ steps.base.outputs.sha }}"
           git push origin "$WORK_BRANCH"
-          git checkout master
-          git pull --ff-only origin master
-          if ! git merge --no-ff -m "[feature-build #${FEATURE_REQUEST_ID}] merge ${FEATURE_TITLE}" "$WORK_BRANCH"; then
-            git merge --abort || true
-            git checkout "$WORK_BRANCH"
-            if ! git rebase master; then
-              git rebase --abort || true
-              echo "conflict=1" >> "$GITHUB_OUTPUT"
-              exit 0
+
+          # `npm run build` regenerates tracked files (public/data/*.json, which the heal step
+          # deliberately leaves unstaged), so the worktree can be dirty here. The old `git checkout
+          # master` tolerated that; `git rebase` REFUSES to run with unstaged changes, which would
+          # turn every stale-base case into a false "conflict". Everything we mean to keep is
+          # already committed, so discard the build's leavings before touching branches.
+          git checkout -- . 2>/dev/null || true
+
+          # The master commit our current green CI signal is valid for.
+          VERIFIED_AGAINST="$BASE_SHA"
+          ATTEMPT=0
+          MERGED=0
+
+          while [ $ATTEMPT -lt 3 ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            git fetch origin master
+            REMOTE=$(git rev-parse origin/master)
+            echo "::group::Land attempt $ATTEMPT (base=$BASE_SHA verified_against=$VERIFIED_AGAINST origin/master=$REMOTE)"
+
+            if [ "$REMOTE" != "$VERIFIED_AGAINST" ]; then
+              echo "::warning title=stale base::master moved from ${VERIFIED_AGAINST} to ${REMOTE} while this feature was building. Rebasing and re-running CI before merge."
+              git checkout "$WORK_BRANCH"
+              if ! git rebase "$REMOTE"; then
+                git rebase --abort || true
+                echo "conflict=1" >> "$GITHUB_OUTPUT"
+                echo "Branch was cut from \`${BASE_SHA}\`, but master is now \`${REMOTE}\`. Rebasing onto it hit a **merge conflict**, so master was left untouched." > /tmp/fb/stale-note.md
+                echo "::endgroup::"
+                exit 0
+              fi
+
+              # Re-verify the REBASED tree. Blocking checks only (lint stays advisory, as above).
+              echo "--- re-verify after rebase onto $REMOTE ---"
+              RECHECK=/tmp/fb/rebase-checks.log
+              set +e
+              ( cd "$GITHUB_WORKSPACE/$APP_DIR" && npx tsc --noEmit ) 2>&1 | tee "$RECHECK"; T=${PIPESTATUS[0]}
+              ( cd "$GITHUB_WORKSPACE/$APP_DIR" && npm run build ) 2>&1 | tee -a "$RECHECK"; B=${PIPESTATUS[0]}
+              set -e
+              echo "post-rebase tsc=$T build=$B"
+              # The re-verify build dirties the generated files again — clean up before branching.
+              git checkout -- . 2>/dev/null || true
+              if [ $T -ne 0 ] || [ $B -ne 0 ]; then
+                echo "::error title=stale base broke the build::This feature passed CI against ${BASE_SHA} but FAILS against the current master (${REMOTE}). master was left untouched."
+                echo "stale_broken=1" >> "$GITHUB_OUTPUT"
+                echo "Branch was cut from \`${BASE_SHA}\`; master is now \`${REMOTE}\`. The rebase applied cleanly but the code **no longer compiles against current master** (tsc=${T} build=${B}) — it was almost certainly written against something master has since changed or deleted. Re-read the current master before fixing; a textual merge here would have shipped a broken build." > /tmp/fb/stale-note.md
+                echo "::endgroup::"
+                exit 0
+              fi
+              VERIFIED_AGAINST="$REMOTE"
+              git push --force-with-lease origin "$WORK_BRANCH"
             fi
-            git push --force-with-lease origin "$WORK_BRANCH"
-            git checkout master
-            git merge --no-ff -m "[feature-build #${FEATURE_REQUEST_ID}] merge ${FEATURE_TITLE}" "$WORK_BRANCH"
+
+            # Local master may carry a merge commit from a previous failed attempt — reset to remote.
+            git checkout -B master "$REMOTE"
+            git merge --no-ff \
+              -m "[feature-build #${FEATURE_REQUEST_ID}] merge ${FEATURE_TITLE}" \
+              -m "Branched from master: ${BASE_SHA}
+          Verified against master: ${VERIFIED_AGAINST}" \
+              "$WORK_BRANCH"
+
+            if git push origin master; then
+              MERGED=1
+              echo "::endgroup::"
+              break
+            fi
+            echo "::warning title=push rejected::master moved again during the merge window; retrying (attempt ${ATTEMPT}/3)."
+            echo "::endgroup::"
+          done
+
+          if [ "$MERGED" != "1" ]; then
+            echo "::error title=could not land::Lost the race to master 3 times; master was left untouched."
+            echo "conflict=1" >> "$GITHUB_OUTPUT"
+            echo "Branch was cut from \`${BASE_SHA}\`. master kept moving underneath this build and it lost the push race 3 times." > /tmp/fb/stale-note.md
+            exit 0
           fi
-          git push origin master
+
           echo "merged=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       # NOTE: no explicit Vercel deploy step. A study-app/ merge to master auto-deploys via Vercel.
 
-      - name: Open PR (could not verify, or merge conflict)
+      - name: Open PR (could not verify, or could not land)
         if: >-
           always() &&
-          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1') &&
+          (steps.heal.outputs.success != '1' ||
+           steps.merge.outputs.conflict == '1' ||
+           steps.merge.outputs.stale_broken == '1') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
+        env:
+          BASE_SHA: ${{ steps.base.outputs.sha }}
+          STALE_BROKEN: ${{ steps.merge.outputs.stale_broken }}
         run: |
           git push origin "$WORK_BRANCH" || true
-          REASON="Feature build could not be verified+merged automatically (CI failed after retries, or a merge conflict). Review the run logs and the diff, fix, and merge manually. master/production were not touched."
+          CURRENT_MASTER=$(git rev-parse origin/master 2>/dev/null || echo unknown)
+          # The landing step drops a note here when it refused to merge because master had moved.
+          # Kept on disk rather than in GITHUB_OUTPUT: this is free prose, and piping it through an
+          # env: block would let a stray ": " in the text break this file's YAML parse.
+          STALE_NOTE=""
+          [ -f /tmp/fb/stale-note.md ] && STALE_NOTE=$(cat /tmp/fb/stale-note.md)
+          {
+            if [ -n "$STALE_NOTE" ]; then
+              echo "### Why this needs review: **stale base**"
+              echo
+              echo "$STALE_NOTE"
+              if [ "$STALE_BROKEN" = "1" ]; then
+                echo
+                echo "This is the failure mode that broke feature request #5 on 2026-08-02 — do NOT just re-run CI or force the merge. The diff was written against an older master and needs re-reading against the current one."
+              fi
+            else
+              echo "### Why this needs review: **CI did not go green**"
+              echo
+              echo "The self-heal loop could not get \`tsc --noEmit\` and \`npm run build\` passing after 3 attempts. Review the run logs and the diff, fix, and merge manually."
+            fi
+            echo
+            echo "| | commit |"
+            echo "|---|---|"
+            echo "| Branched from master | \`${BASE_SHA}\` |"
+            echo "| master now | \`${CURRENT_MASTER}\` |"
+            echo
+            if [ "$BASE_SHA" != "$CURRENT_MASTER" ]; then
+              echo "> ⚠️ master moved while this was building — check the commits in between before trusting this diff."
+            fi
+            echo
+            echo "master and production were **not** touched."
+          } > /tmp/fb/pr-body.md
+          cat /tmp/fb/pr-body.md
           PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
             --title "[feature-build] #${FEATURE_REQUEST_ID}: ${FEATURE_TITLE} (needs review)" \
-            --body "$REASON" 2>&1) || true
+            --body-file /tmp/fb/pr-body.md 2>&1) || true
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "$PR_URL"
 
@@ -207,6 +395,10 @@ jobs:
             STATUS=pr_opened; APPLY_STATUS=pr_opened
           else
             STATUS=failed; APPLY_STATUS=failed
+          fi
+          # Surface a stale-base failure in the admin UI rather than the generic "needs review".
+          if [ -f /tmp/fb/stale-note.md ]; then
+            export APPLY_ERROR="Built against a master that changed mid-build. $(tr -d '`' < /tmp/fb/stale-note.md)"
           fi
           if [ "$NO_CHANGES" = "1" ]; then
             STATUS=failed; APPLY_STATUS=failed
