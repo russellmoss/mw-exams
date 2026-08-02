@@ -59,6 +59,9 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [liveText, setLiveText] = useState("");
+  // Server-sent progress line — the mockups are drawn after the write-up finishes streaming, so
+  // without this the panel sits there looking finished-but-frozen for the length of a render.
+  const [liveStatus, setLiveStatus] = useState("");
   const [activeMockups, setActiveMockups] = useState<Mockup[] | null>(null);
   const [mockupIndex, setMockupIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -100,7 +103,7 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
   const send = async () => {
     const text = input.trim();
     if (!text || busy) return;
-    setBusy(true); setError(null); clearInput(); setLiveText("");
+    setBusy(true); setError(null); clearInput(); setLiveText(""); setLiveStatus("");
 
     const baseThread = current?.thread ?? [];
     const userTurn: ThreadTurn = { role: "user", content: text };
@@ -151,6 +154,7 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
           try {
             const obj = JSON.parse(payload);
             if (typeof obj.t === "string") { acc += obj.t; setLiveText(acc); }
+            else if (typeof obj.status === "string") setLiveStatus(obj.status);
             else if (obj.meta) meta = obj.meta;
             else if (obj.error) setError(obj.error);
           } catch {}
@@ -168,12 +172,13 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
         thread: [...baseThread, userTurn, assistantTurn],
       }));
       if (meta?.mockups?.length) showMockups(meta.mockups);
-      setLiveText("");
+      setLiveText(""); setLiveStatus("");
       refresh();
     } catch {
       setError("Network error");
     } finally {
       setBusy(false);
+      setLiveStatus("");
     }
   };
 
@@ -284,7 +289,15 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
                     <div className="flex justify-start">
                       <div className="max-w-[90%] rounded-xl px-4 py-2.5 text-sm bg-background border border-border/60 text-foreground/90">
                         {liveText ? (
-                          <div className="markdown-content text-sm"><ReactMarkdown>{liveText}</ReactMarkdown></div>
+                          <>
+                            <div className="markdown-content text-sm"><ReactMarkdown>{liveText}</ReactMarkdown></div>
+                            {liveStatus && (
+                              <p className="mt-2 flex items-center gap-2 text-xs text-muted">
+                                <span className="w-1.5 h-1.5 rounded-full bg-accent/60 streaming-dot" />
+                                {liveStatus}
+                              </p>
+                            )}
+                          </>
                         ) : (
                           <span className="inline-flex items-center gap-2 text-muted">
                             <span className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
