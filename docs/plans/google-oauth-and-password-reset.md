@@ -53,7 +53,7 @@ Password reset
           →  auto sign-in  →  /
 ```
 
-### Schema changes (migration `013_oauth_and_reset.sql`)
+### Schema changes (migration `014_oauth_and_reset.sql`)
 
 ```sql
 ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;   -- Google-only users have no password
@@ -91,7 +91,7 @@ CREATE INDEX idx_prt_token ON password_reset_tokens(token_hash);
 
 **New**
 ```
-study-app/migrations/013_oauth_and_reset.sql
+study-app/migrations/014_oauth_and_reset.sql
 study-app/src/lib/email.ts                        Brevo client + send wrapper
 study-app/src/lib/email-templates/reset-password.ts   Cellar-styled HTML + plaintext
 study-app/src/lib/reset-tokens.ts                 create / verify / burn
@@ -119,7 +119,7 @@ Each phase ends green before the next starts.
 
 **Phase 0 — Setup.** `npm install` in this worktree (it has no `node_modules` yet), add vitest, write `.env.local` from your three secrets, push all env vars to Vercel via `vercel env add` with your token (production + preview + development).
 
-**Phase 1 — Migration.** Write `013`, apply to a **Neon test branch first**, verify, then apply to prod via Neon MCP and re-read `information_schema` to confirm. Zero downtime — all changes are additive except the `DROP NOT NULL`, which cannot break existing rows.
+**Phase 1 — Migration.** Write `014` (`013` was taken by the auto-feature bot's Stem Detail on 2026-08-02 — and shipped to prod *unapplied*, 500ing `/api/auth/me` for every signed-in user until it was applied by hand), apply to a **Neon test branch first**, verify, then apply to prod via Neon MCP and re-read `information_schema` to confirm. Zero downtime — all changes are additive except the `DROP NOT NULL`, which cannot break existing rows.
 
 **Phase 2 — Email.** Brevo client + template. Verify by sending one real email to you and eyeballing it in Gmail.
 
