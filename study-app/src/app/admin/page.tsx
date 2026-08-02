@@ -395,12 +395,14 @@ export default function AdminPage() {
                   <p className="text-xs text-fail mt-1">Overridden OFF by <code>REASONING_HARD_DISABLE</code> env — toggle has no effect.</p>
                 )}
               </div>
+              {/* Off-track is full-strength --muted, matching the other two toggles: at /40 it washed
+                  out to near-white on the light theme and the knob all but vanished (1.7:1). */}
               <button
                 onClick={toggleReasoning}
                 disabled={savingToggle || reasoningHardDisabled}
                 role="switch"
                 aria-checked={reasoning}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${reasoning ? "bg-accent" : "bg-muted/40"}`}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${reasoning ? "bg-accent" : "bg-muted"}`}
               >
                 <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${reasoning ? "translate-x-7" : "translate-x-1"}`} />
               </button>
