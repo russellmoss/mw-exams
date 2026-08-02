@@ -337,6 +337,7 @@ export default function StemSniperPage() {
               styles={auto.styles}
               submitting={submitting}
               onSubmit={onSubmit}
+              multi={mode === "sniper"}
             />
           )}
           {status === "tasting" && drill && notes && stage1Preds && (

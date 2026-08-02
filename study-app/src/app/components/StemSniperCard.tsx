@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MultiPickField } from "./MultiPickField";
 
 export type Tier = "STRONG" | "PLAUSIBLE" | "CURVEBALL";
 export interface Prediction {
-  variety?: string; // P1/P2
-  style?: string; // P3 (style/method)
-  region: string; // carries the Country guess (legacy field name; Reverse Tasting still reads it)
-  country?: string; // the Country axis guess
+  variety?: string; // P1/P2 — first grape (legacy single value; Reverse Tasting still reads it)
+  style?: string; // P3 (style/method) — first style
+  region: string; // carries the first Country guess (legacy field name; Reverse Tasting reads it)
+  country?: string; // first Country guess (legacy single value)
+  grapes?: string[]; // Multi-Pick: all guessed grapes/styles (any-match scores)
+  countries?: string[]; // Multi-Pick: all guessed countries
   tier: Tier;
 }
 interface Row {
-  primary: string; // grape (P1/P2) or style/method (P3)
-  region: string; // country guess
+  grapes: string[]; // grapes (P1/P2) or styles/methods (P3)
+  countries: string[]; // country guesses
   tier: Tier;
 }
 export interface Drill {
@@ -33,6 +36,9 @@ interface Props {
   styles: string[];
   submitting: boolean;
   onSubmit: (predictions: Prediction[]) => void;
+  // Multi-Pick is on for the Sniper flow; Reverse Tasting keeps a single value per axis (its
+  // Stage-2 card and scorer are single-value), so the page passes multi=false there.
+  multi?: boolean;
 }
 
 const TIERS: Tier[] = ["STRONG", "PLAUSIBLE", "CURVEBALL"];
@@ -44,10 +50,10 @@ const TIER_STYLE: Record<Tier, string> = {
 const paperLabel = (p: number) => (p === 1 ? "Whites" : p === 2 ? "Reds" : "Special");
 
 function blankRows(n: number): Row[] {
-  return Array.from({ length: Math.max(1, n) }, () => ({ primary: "", region: "", tier: "PLAUSIBLE" as Tier }));
+  return Array.from({ length: Math.max(1, n) }, () => ({ grapes: [], countries: [], tier: "PLAUSIBLE" as Tier }));
 }
 
-export function StemSniperCard({ drill, varieties, regions, styles, submitting, onSubmit }: Props) {
+export function StemSniperCard({ drill, varieties, regions, styles, submitting, onSubmit, multi = true }: Props) {
   const isP3 = drill.paper === 3; // P3 predicts style/method, not variety
   const [rows, setRows] = useState<Row[]>(() => blankRows(drill.wineCount));
 
@@ -57,19 +63,26 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
 
   const update = (i: number, patch: Partial<Row>) =>
     setRows((r) => r.map((row, idx) => (idx === i ? { ...row, ...patch } : row)));
-  const addRow = () => setRows((r) => [...r, { primary: "", region: "", tier: "PLAUSIBLE" }]);
+  const addRow = () => setRows((r) => [...r, { grapes: [], countries: [], tier: "PLAUSIBLE" }]);
   const removeRow = (i: number) => setRows((r) => (r.length > 1 ? r.filter((_, idx) => idx !== i) : r));
 
-  const filled = rows.filter((r) => r.primary.trim());
+  // Multi-Pick: a row is answered if it has ≥1 grape OR ≥1 country (no penalty for breadth).
+  // Reverse Tasting (single-value) keeps its original rule — the grape/style is required.
+  const filled = rows.filter((r) => (multi ? r.grapes.length > 0 || r.countries.length > 0 : r.grapes.length > 0));
   const canSubmit = filled.length > 0 && !submitting;
   const submit = () => {
     if (!canSubmit) return;
     onSubmit(
       filled.map((r) => {
-        const country = r.region.trim();
-        return isP3
-          ? { style: r.primary.trim(), region: country, country, tier: r.tier }
-          : { variety: r.primary.trim(), region: country, country, tier: r.tier };
+        const grapes = r.grapes.map((s) => s.trim()).filter(Boolean);
+        const countries = r.countries.map((s) => s.trim()).filter(Boolean);
+        const primary = grapes[0] || ""; // first value keeps single-value readers working
+        const country = countries[0] || "";
+        const legacy = isP3 ? { style: primary } : { variety: primary };
+        // Multi-Pick submits the arrays too; single-value mode (Reverse Tasting) stays legacy-only.
+        return multi
+          ? { ...legacy, region: country, country, grapes, countries, tier: r.tier }
+          : { ...legacy, region: country, country, tier: r.tier };
       })
     );
   };
@@ -135,9 +148,12 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
       <p className="text-xs text-muted mb-2">
         For each wine in the flight, name the {isP3 ? "style/method" : "grape"} and the country{" "}
         {isP3 ? "(use the look of the glasses above)" : "(before tasting)"}. Tag your confidence.{" "}
+        {multi ? (
+          <span className="text-foreground/70">Pick as many as you like — any match counts.</span>
+        ) : null}{" "}
         <span className="text-foreground/70">Order doesn&apos;t matter</span> — each guess is matched to the closest wine
         in the flight.
-        <span className="ml-1 opacity-70">Enter = add wine · Ctrl/⌘+Enter = submit</span>
+        {!multi && <span className="ml-1 opacity-70">Enter = add wine · Ctrl/⌘+Enter = submit</span>}
       </p>
 
       <div className="space-y-2">
@@ -155,28 +171,46 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
               </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1">
                 <span className="text-[11px] font-medium text-muted">{isP3 ? "Style / method" : "Grape"}</span>
-                <input
-                  list={isP3 ? "ss-styles" : "ss-varieties"}
-                  value={row.primary}
-                  onChange={(e) => update(i, { primary: e.target.value })}
-                  onKeyDown={(e) => onKeyDown(e, i)}
-                  placeholder={isP3 ? "e.g. Vintage Port" : "e.g. Chardonnay"}
-                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
+                {multi ? (
+                  <MultiPickField
+                    placeholder={isP3 ? "Select style" : "Select grape"}
+                    options={isP3 ? styles : varieties}
+                    value={row.grapes}
+                    onChange={(v) => update(i, { grapes: v })}
+                  />
+                ) : (
+                  <input
+                    list={isP3 ? "ss-styles" : "ss-varieties"}
+                    value={row.grapes[0] || ""}
+                    onChange={(e) => update(i, { grapes: e.target.value ? [e.target.value] : [] })}
+                    onKeyDown={(e) => onKeyDown(e, i)}
+                    placeholder={isP3 ? "e.g. Vintage Port" : "e.g. Chardonnay"}
+                    className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                  />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
                 <span className="text-[11px] font-medium text-muted">Country</span>
-                <input
-                  list="ss-regions"
-                  value={row.region}
-                  onChange={(e) => update(i, { region: e.target.value })}
-                  onKeyDown={(e) => onKeyDown(e, i)}
-                  placeholder="e.g. France"
-                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-                />
-              </label>
+                {multi ? (
+                  <MultiPickField
+                    placeholder="Select country"
+                    options={regions}
+                    value={row.countries}
+                    onChange={(v) => update(i, { countries: v })}
+                  />
+                ) : (
+                  <input
+                    list="ss-regions"
+                    value={row.countries[0] || ""}
+                    onChange={(e) => update(i, { countries: e.target.value ? [e.target.value] : [] })}
+                    onKeyDown={(e) => onKeyDown(e, i)}
+                    placeholder="e.g. France"
+                    className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                  />
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-1 mt-2">
               <span className="text-[10px] text-muted mr-1">Confidence</span>

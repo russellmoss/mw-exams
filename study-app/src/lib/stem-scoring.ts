@@ -425,16 +425,41 @@ function resolveToCountry(raw: string): string {
   return n;
 }
 
+// Multi-Pick Predictions: a row carries LISTS of guessed grapes and countries; any single entry
+// that matches the wine scores that axis (no penalty for breadth). `grapes`/`countries` are the
+// canonical fields; the singular `grape`/`country` are kept so legacy single-value payloads still
+// score (coerced to one-item lists via `coerceStringList`).
 export interface TwoAxisPrediction {
-  grape?: string; // variety (P1/P2) or style/method (P3)
-  country?: string;
+  grapes?: string[]; // guessed varieties (P1/P2) or styles/methods (P3)
+  countries?: string[]; // guessed countries
+  grape?: string; // legacy single value — coerced to [grape]
+  country?: string; // legacy single value — coerced to [country]
   tier?: Tier;
 }
 
+// Back-compat read coercion: array → trimmed non-empty entries; string → [string] (or []);
+// null/empty → []. Used everywhere a persisted prediction is read so old single-value attempts
+// render as one-item lists and new ones round-trip as arrays.
+export const coerceStringList = (v: unknown): string[] => {
+  if (Array.isArray(v)) return v.map((x) => String(x ?? "").trim()).filter(Boolean);
+  if (typeof v === "string") {
+    const t = v.trim();
+    return t ? [t] : [];
+  }
+  return [];
+};
+
+const grapesOf = (p: TwoAxisPrediction): string[] => coerceStringList(p.grapes ?? p.grape);
+const countriesOf = (p: TwoAxisPrediction): string[] => coerceStringList(p.countries ?? p.country);
+
 export interface TwoAxisWineGrade {
   slot: number;
-  grapeGuess: string;
-  countryGuess: string;
+  grapeGuess: string; // first predicted grape (back-compat with single-value readers)
+  countryGuess: string; // first predicted country (back-compat)
+  grapeGuesses: string[]; // ALL predicted grapes claimed against this wine
+  countryGuesses: string[]; // ALL predicted countries
+  matchedGrapes: string[]; // which predicted grapes actually matched
+  matchedCountries: string[]; // which predicted countries actually matched
   grapeCorrect: boolean;
   countryCorrect: boolean;
   verdict: Verdict;
@@ -457,10 +482,11 @@ export interface TwoAxisResult {
   summary: { hits: number; nears: number; misses: number };
 }
 
-// GRAPE axis: dominant grape, any listed component, a conventional blend name (for blends), or —
-// on Paper 3 — the style/method. Synonyms and typos tolerated via canonVariety + fuzzyEq.
-function grapeCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
-  const raw = (pred.grape || "").trim();
+// GRAPE axis (single entry): dominant grape, any listed component, a conventional blend name (for
+// blends), or — on Paper 3 — the style/method. Synonyms and typos tolerated via canonVariety +
+// fuzzyEq. Multi-pick applies this per entry and scores the axis if ANY entry matches.
+function grapeMatchesOne(rawIn: string, bucket: GroundTruthBucket): boolean {
+  const raw = (rawIn || "").trim();
   if (!raw) return false;
   if (bucket.style_tokens && bucket.style_tokens.length) {
     return styleScore({ style: raw, variety: raw }, bucket) >= 1;
@@ -471,11 +497,12 @@ function grapeCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boole
   return bucket.varieties.some((v) => fuzzyEq(canonVariety(v), cg));
 }
 
-// COUNTRY axis: country match after alias/region resolution. Typing a region, appellation or
-// sub-region resolves to its country (never penalised); the wine's own region chain is matched
-// too, so a correct sub-region the static map doesn't know still counts.
-function countryCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
-  const raw = (pred.country || "").trim();
+// COUNTRY axis (single entry): country match after alias/region resolution. Typing a region,
+// appellation or sub-region resolves to its country (never penalised); the wine's own region chain
+// is matched too, so a correct sub-region the static map doesn't know still counts. Multi-pick
+// applies this per entry and scores the axis if ANY entry matches.
+function countryMatchesOne(rawIn: string, bucket: GroundTruthBucket): boolean {
+  const raw = (rawIn || "").trim();
   if (!raw) return false;
   const expected = canonCountry(bucket.country || countryToken(bucket));
   if (!expected) return false;
@@ -490,6 +517,12 @@ function countryCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boo
   }
   return false;
 }
+
+// Multi-pick: the subset of guessed grapes/countries that actually match this wine.
+const matchingGrapes = (grapes: string[], bucket: GroundTruthBucket): string[] =>
+  grapes.filter((g) => grapeMatchesOne(g, bucket));
+const matchingCountries = (countries: string[], bucket: GroundTruthBucket): string[] =>
+  countries.filter((c) => countryMatchesOne(c, bucket));
 
 const verdictOf = (grape: boolean, country: boolean): Verdict =>
   grape && country ? "HIT" : grape || country ? "NEAR" : "MISS";
@@ -510,9 +543,11 @@ export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey
   // Every (prediction, bucket) candidate pairing, strongest verdict first.
   const pairs: { p: number; b: number; g: boolean; c: boolean; rank: number }[] = [];
   predictions.forEach((pred, p) => {
+    const grapes = grapesOf(pred);
+    const countries = countriesOf(pred);
     buckets.forEach((bucket, b) => {
-      const g = grapeCorrect(pred, bucket);
-      const c = countryCorrect(pred, bucket);
+      const g = grapes.some((x) => grapeMatchesOne(x, bucket)); // ANY guessed grape matches
+      const c = countries.some((x) => countryMatchesOne(x, bucket)); // ANY guessed country matches
       if (!g && !c) return; // no signal — leave the wine claimable by a better guess
       pairs.push({ p, b, g, c, rank: (g ? 2 : 0) + (c ? 1 : 0) });
     });
@@ -532,13 +567,21 @@ export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey
   const grades: TwoAxisWineGrade[] = buckets.map((bucket, b) => {
     const claim = assigned.get(b);
     const pred = claim ? predictions[claim.p] : undefined;
-    const grape = claim?.g ?? false;
-    const country = claim?.c ?? false;
+    const grapeGuesses = pred ? grapesOf(pred) : [];
+    const countryGuesses = pred ? countriesOf(pred) : [];
+    const matchedGrapes = matchingGrapes(grapeGuesses, bucket);
+    const matchedCountries = matchingCountries(countryGuesses, bucket);
+    const grape = matchedGrapes.length > 0;
+    const country = matchedCountries.length > 0;
     const verdict = verdictOf(grape, country);
     return {
       slot: bucket.slot,
-      grapeGuess: (pred?.grape || "").trim(),
-      countryGuess: (pred?.country || "").trim(),
+      grapeGuess: grapeGuesses[0] || "",
+      countryGuess: countryGuesses[0] || "",
+      grapeGuesses,
+      countryGuesses,
+      matchedGrapes,
+      matchedCountries,
       grapeCorrect: grape,
       countryCorrect: country,
       verdict,

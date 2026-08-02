@@ -10,8 +10,12 @@ export interface Grade {
 // Two-axis (grape + country) per-wine grade — the "Two Marks, Not Three" scheme.
 export interface WineGrade {
   slot: number;
-  grapeGuess: string;
-  countryGuess: string;
+  grapeGuess: string; // first predicted grape (back-compat)
+  countryGuess: string; // first predicted country (back-compat)
+  grapeGuesses?: string[]; // Multi-Pick: all predicted grapes for this wine
+  countryGuesses?: string[]; // Multi-Pick: all predicted countries
+  matchedGrapes?: string[]; // which predicted grapes matched (highlight green)
+  matchedCountries?: string[]; // which predicted countries matched
   grapeCorrect: boolean;
   countryCorrect: boolean;
   verdict: "HIT" | "NEAR" | "MISS";
@@ -62,26 +66,17 @@ const GRADE_LABEL: Record<string, string> = {
 // Round score is 1 mark per wine (HIT = 1, NEAR = ½, MISS = 0) — show a clean integer or one decimal.
 const fmtRound = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
 
-function AxisChip({ label, correct, guess, correct_value }: { label: string; correct: boolean; guess: string; correct_value: string }) {
+// One predicted grape/country under "Your call". Matched = green border/text + check; unmatched =
+// muted, struck-through, dimmed border (Multi-Pick Predictions — any-match highlighting).
+function CallTag({ label, matched }: { label: string; matched: boolean }) {
   return (
     <span
       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs border ${
-        correct ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" : "text-fail border-fail/40 bg-fail/10"
+        matched ? "text-emerald-300 border-emerald-400/50" : "text-muted/70 border-border/60 line-through"
       }`}
     >
-      <span className="font-semibold">{label}</span>
-      {correct ? (
-        <>
-          <span aria-hidden>✓</span>
-          <span className="text-foreground">{correct_value}</span>
-        </>
-      ) : (
-        <>
-          <span aria-hidden>✗</span>
-          {guess ? <span className="line-through text-muted">{guess}</span> : <span className="text-muted italic">blank</span>}
-          <span className="text-foreground">{correct_value}</span>
-        </>
-      )}
+      {matched ? <span aria-hidden>✓</span> : null}
+      {label}
     </span>
   );
 }
@@ -113,22 +108,40 @@ function TwoAxisResultBody({ result, onNext, submitting }: { result: ScoreResult
 
       <div className="space-y-2.5">
         {grades.map((g, i) => {
-          const badge = g.verdict === "HIT" ? GRADE_STYLE.HIT : g.verdict === "NEAR" ? GRADE_STYLE.NEAR : GRADE_STYLE.MISS;
+          const vColor = g.verdict === "HIT" ? "text-emerald-300" : g.verdict === "NEAR" ? "text-amber-300" : "text-fail";
+          const vLabel = g.verdict === "HIT" ? "Hit" : g.verdict === "NEAR" ? "Near" : "Miss";
           const identity = [g.correctGrape, [g.region, g.correctCountry].filter(Boolean).join(", ")]
             .filter(Boolean)
             .join(" — ");
+          // Fall back to the single-value fields for legacy attempts (they render as one-item lists).
+          const grapeGuesses = g.grapeGuesses ?? (g.grapeGuess ? [g.grapeGuess] : []);
+          const countryGuesses = g.countryGuesses ?? (g.countryGuess ? [g.countryGuess] : []);
+          const matchedG = new Set((g.matchedGrapes ?? (g.grapeCorrect ? grapeGuesses : [])).map((x) => x.toLowerCase()));
+          const matchedC = new Set((g.matchedCountries ?? (g.countryCorrect ? countryGuesses : [])).map((x) => x.toLowerCase()));
+          const hasCall = grapeGuesses.length > 0 || countryGuesses.length > 0;
           return (
             <div key={i} className="rounded-lg border border-border bg-background/40 p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-foreground">Wine {g.slot ?? i + 1}</span>
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${badge}`}>{g.verdict}</span>
+              <div className="mb-2 text-sm font-medium">
+                <span className="text-foreground">Wine {g.slot ?? i + 1}</span>
+                <span className={vColor}> · {vLabel}</span>
               </div>
-              <div className="flex flex-wrap gap-2">
-                <AxisChip label="Grape" correct={g.grapeCorrect} guess={g.grapeGuess} correct_value={g.correctGrape} />
-                <AxisChip label="Country" correct={g.countryCorrect} guess={g.countryGuess} correct_value={g.correctCountry} />
+              <div className="text-[10px] uppercase tracking-wide text-muted mb-1">Your call</div>
+              <div className="flex flex-wrap gap-1.5">
+                {hasCall ? (
+                  <>
+                    {grapeGuesses.map((x) => (
+                      <CallTag key={`g-${x}`} label={x} matched={matchedG.has(x.toLowerCase())} />
+                    ))}
+                    {countryGuesses.map((x) => (
+                      <CallTag key={`c-${x}`} label={x} matched={matchedC.has(x.toLowerCase())} />
+                    ))}
+                  </>
+                ) : (
+                  <span className="text-xs text-muted italic">no call</span>
+                )}
               </div>
               <div className="mt-3">
-                <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">The wine</div>
+                <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">Actual</div>
                 <div className="text-sm text-foreground">
                   {identity}
                   {g.region ? (

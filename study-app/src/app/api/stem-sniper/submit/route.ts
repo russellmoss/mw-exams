@@ -1,17 +1,18 @@
 import { neon } from "@neondatabase/serverless";
 import { getUser } from "@/lib/auth";
-import { scoreStemSniper, type TwoAxisPrediction, type AnswerKey } from "@/lib/stem-scoring";
+import { scoreStemSniper, coerceStringList, type TwoAxisPrediction, type AnswerKey } from "@/lib/stem-scoring";
 
 export const runtime = "nodejs";
 
 const asJson = <T>(v: unknown): T => (typeof v === "string" ? (JSON.parse(v) as T) : (v as T));
 
-// Accept the new {grape, country, tier} shape, and tolerate legacy {variety|style, region, country}
-// payloads (grape ← variety|style, country ← country|region) so older clients still score.
+// Multi-Pick Predictions: accept the new {grapes[], countries[], tier} shape, and tolerate every
+// legacy single-value payload — {grape, country}, {variety|style, region} — coercing each to a
+// list. Persisted shape is ALWAYS arrays (see coerceStringList).
 type IncomingPrediction = TwoAxisPrediction & { variety?: string; style?: string; region?: string };
 const toTwoAxis = (p: IncomingPrediction): TwoAxisPrediction => ({
-  grape: (p.grape ?? p.variety ?? p.style ?? "").trim(),
-  country: (p.country ?? p.region ?? "").trim(),
+  grapes: coerceStringList(p.grapes ?? p.grape ?? p.variety ?? p.style),
+  countries: coerceStringList(p.countries ?? p.country ?? p.region),
   tier: p.tier,
 });
 
