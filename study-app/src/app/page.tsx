@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
+import { FocusSelector, type FocusValue } from "./components/FocusSelector";
 import { SessionHistory } from "./components/SessionHistory";
 import { StemDetailSegments, stemForLevel } from "./components/StemDetailControl";
 import { STEM_DETAIL_HELPER_COPY, type StemDetailLevel } from "@/lib/prompts/stemDetail";
@@ -52,6 +53,10 @@ export default function Home() {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [, setRecentAttempts] = useState<unknown[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<string>("");
+  // Paper 3 'Focus' override — session-only, never rehydrated from storage, so it resets to
+  // 'balanced' on every page load. Sent with the question fetch so the P3 sampler can bias the
+  // session; ignored server-side for Papers 1/2.
+  const [focus, setFocus] = useState<FocusValue>("balanced");
   // Stem Detail setup: the fetched-but-not-yet-started question, the mode it was fetched for, and the
   // chosen level (defaults to the user's stem_detail_default).
   const [pendingQuestion, setPendingQuestion] = useState<Question | null>(null);
@@ -157,7 +162,12 @@ export default function Home() {
         for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
           data = await questionTrace.run<QuestionPayload>(
             "/api/get-question/stream",
-            { paper: selectedPaper, family: selectedFamily },
+            {
+              paper: selectedPaper,
+              family: selectedFamily,
+              // Focus only steers Paper 3; harmless (ignored) for Papers 1/2.
+              focus: selectedPaper === 3 ? focus : "balanced",
+            },
             { timeoutMs: 180_000 }
           );
           if (data?.question) break;
@@ -231,7 +241,7 @@ export default function Home() {
         setStep("select-family");
       }
     },
-    [selectedPaper, selectedFamily, user]
+    [selectedPaper, selectedFamily, focus, user]
   );
 
   // Start the question from the Stem Detail setup screen. Persist the chosen level so /study can
@@ -359,6 +369,9 @@ export default function Home() {
               </button>
               <h2 className="text-xl font-semibold text-foreground mb-2">Choose your practice mode</h2>
               <p className="text-sm text-muted mb-6">How do you want to work this question?</p>
+              {/* Paper 3 only: optional Focus override. It sits above the mode list because it
+                  changes WHICH question gets fetched, and every mode below fetches one. */}
+              {selectedPaper === 3 && <FocusSelector value={focus} onChange={setFocus} />}
               <div className="space-y-3">
                 <button
                   onClick={() => handleModeSelect("full")}

@@ -2,12 +2,14 @@ import {
   getRecentAttempts,
   getUnansweredQuestions,
   getQuestionsByFilter,
+  type GeneratedQuestion,
 } from "@/lib/db";
 import {
   generateFreshQuestion,
   sanitizeQuestionMetadata,
   filterValidBanked,
   pickFlightSizeAware,
+  narrowToWeightedP3Category,
   getWineCount,
   ensureP3Appearances,
   type UsageMeta,
@@ -35,16 +37,23 @@ import {
  * stemForLevel in components/StemDetailControl.tsx), so the question is always fully usable.
  * Backfill happens out-of-band via POST /api/stem-detail/ensure, which the setup screen fires
  * without blocking. The serving path must stay free of model calls it does not strictly need.
+ *
+ * NOTE ON PAPER 3 WEIGHTING: `focus` and the invisible target-mix steering only ever narrow the
+ * pool INSIDE a priority tier — they never reorder the tiers themselves. Unseen still beats stale,
+ * and the fall-through to fresh generation is untouched, so the P3 bank grows at exactly the rate it
+ * did before. Papers 1 and 2 never touch that code path.
  */
 export async function produceQuestion(opts: {
   paper: number;
   family: string | undefined;
   forceFresh?: boolean;
+  /** Paper 3 only: candidate-chosen style bias ('balanced' | sparkling | sweet | …). Ignored elsewhere. */
+  focus?: string;
   apiKey: string;
   meta: UsageMeta;
   emit?: ProgressEmitter;
 }): Promise<GenerationOutcome> {
-  const { paper, family, forceFresh, apiKey, meta, emit } = opts;
+  const { paper, family, forceFresh, focus, apiKey, meta, emit } = opts;
 
   // Skip bank and generate fresh if requested
   if (forceFresh) {
@@ -65,13 +74,21 @@ export async function produceQuestion(opts: {
     recentAttempts.slice(0, RECENT_SERVED_WINDOW).map((a) => a.question_id)
   );
 
+  // Paper 3 only: the style families this user was most recently served (most-recent-first), which
+  // drive the deficit weighting and streak suppression. Free — it rides along on recentAttempts.
+  const recentP3Categories =
+    paper === 3 ? recentAttempts.filter((a) => a.paper === 3).map((a) => a.p3_category) : [];
+  // Narrow a tier's pool to the weighted style family. Identity for Papers 1/2.
+  const steerP3 = (pool: GeneratedQuestion[]): GeneratedQuestion[] =>
+    paper === 3 ? narrowToWeightedP3Category(pool, recentP3Categories, focus) : pool;
+
   // PRIORITY 1: Unanswered (by THIS user) banked questions with model answers ready (instant UX).
   // Filter through current validators — catches legacy questions that predate new rules.
   emit?.({ type: "status", label: "Looking for an unseen question in the bank…" });
   const unanswered = filterValidBanked(await getUnansweredQuestions(paper, family, meta.userId))
     .filter((q) => !recentlyServedIds.has(q.question_id));
   if (unanswered.length > 0) {
-    let picked = pickFlightSizeAware(unanswered, family);
+    let picked = pickFlightSizeAware(steerP3(unanswered), family);
     picked = await ensureP3Appearances(picked, apiKey, meta, emit);
     console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
     emit?.({ type: "status", label: "Found one — serving from the bank." });
@@ -100,7 +117,7 @@ export async function produceQuestion(opts: {
   });
 
   if (staleWithAnswers.length > 0) {
-    let picked = pickFlightSizeAware(staleWithAnswers, family);
+    let picked = pickFlightSizeAware(steerP3(staleWithAnswers), family);
     picked = await ensureP3Appearances(picked, apiKey, meta, emit);
     console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
     emit?.({ type: "status", label: "Serving one you last saw a while ago." });

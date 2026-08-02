@@ -23,11 +23,12 @@ export async function POST(request: Request) {
     if (keyResult instanceof Response) return keyResult;
     const meta: UsageMeta = { source: keyResult.source, userId: keyResult.user.id };
 
-    const { paper, family, forceFresh } = await request.json();
+    // `focus` is the Paper 3 style bias; the producer ignores it for Papers 1/2.
+    const { paper, family, forceFresh, focus } = await request.json();
     if (!paper) return Response.json({ error: "Missing paper" }, { status: 400 });
 
     return asResponse(
-      await produceQuestion({ paper, family, forceFresh, apiKey: keyResult.apiKey, meta })
+      await produceQuestion({ paper, family, forceFresh, focus, apiKey: keyResult.apiKey, meta })
     );
   } catch (err) {
     console.error("get-question error:", err);

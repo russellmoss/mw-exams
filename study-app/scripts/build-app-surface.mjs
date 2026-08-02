@@ -73,11 +73,19 @@ try {
   if (m) modes = [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]);
 } catch {}
 
-// Cellar tokens from globals.css :root.
+// Cellar tokens from globals.css :root — the DARK block, which is the default and native theme.
+//
+// The light theme (2026-08-02) turned the bare `:root {` selector into the list
+// `:root, :root[data-theme="dark"] {`, which a `/:root\s*{/` match no longer sees — so this
+// silently produced an empty token set and every consumer of the digest (notably the Feature
+// Request builder's prompt) lost the palette. Match the dark block explicitly, and keep the bare
+// `:root` fallback for any globals.css that predates the light theme.
 let tokensCss = "";
 try {
   const css = readFileSync(join(SRC, "globals.css"), "utf8");
-  const root = css.match(/:root\s*{([\s\S]*?)}/);
+  const root =
+    css.match(/:root[^{]*\[data-theme="dark"\][^{]*{([\s\S]*?)}/) ||
+    css.match(/:root\s*{([\s\S]*?)}/);
   const decls = [];
   if (root) {
     for (const mm of root[1].matchAll(/--([\w-]+)\s*:\s*([^;]+);/g)) {
