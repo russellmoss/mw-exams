@@ -18,9 +18,32 @@ const GOOGLE_ERRORS: Record<string, string> = {
   account_disabled: "That account is disabled.",
 };
 
-function LoginPageInner() {
-  const router = useRouter();
+/**
+ * The Google callback reports failures via ?error=. Reading that needs useSearchParams, which
+ * forces its component out of the prerender — so it lives in this leaf, wrapped in its own
+ * Suspense boundary. Putting it in the page component made the entire login form client-only.
+ */
+function OAuthErrorBanner() {
   const searchParams = useSearchParams();
+  const code = searchParams.get("error");
+  const message = code ? (GOOGLE_ERRORS[code] ?? null) : null;
+
+  // Strip ?error= so a refresh doesn't resurface a stale message. Touches history only — no
+  // state, so no cascading render.
+  useEffect(() => {
+    if (code) window.history.replaceState({}, "", "/login");
+  }, [code]);
+
+  if (!message) return null;
+  return (
+    <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+      <p className="text-sm text-fail">{message}</p>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  const router = useRouter();
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
@@ -44,18 +67,6 @@ function LoginPageInner() {
   useEffect(() => {
     if (!loading && user) router.push("/");
   }, [user, loading, router]);
-
-  // Derived during render rather than pushed into state from an effect, which would cause a
-  // cascading re-render. The form's own `error` takes precedence once the user submits.
-  const oauthErrorCode = searchParams.get("error");
-  const oauthError = oauthErrorCode ? (GOOGLE_ERRORS[oauthErrorCode] ?? null) : null;
-  const displayError = error ?? oauthError;
-
-  // Strip ?error= from the address bar so a refresh doesn't resurface a stale message. This only
-  // touches history (an external system) and sets no state, so it does not re-render.
-  useEffect(() => {
-    if (oauthErrorCode) window.history.replaceState({}, "", "/login");
-  }, [oauthErrorCode]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,10 +160,14 @@ function LoginPageInner() {
           </button>
         </div>
 
-        {displayError && (
+        {error ? (
           <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
-            <p className="text-sm text-fail">{displayError}</p>
+            <p className="text-sm text-fail">{error}</p>
           </div>
+        ) : (
+          <Suspense fallback={null}>
+            <OAuthErrorBanner />
+          </Suspense>
         )}
 
         {mode === "login" && (
@@ -437,12 +452,3 @@ function LoginPageInner() {
   );
 }
 
-export default function LoginPage() {
-  // useSearchParams requires a Suspense boundary; without one the whole route opts into
-  // client-side rendering.
-  return (
-    <Suspense fallback={null}>
-      <LoginPageInner />
-    </Suspense>
-  );
-}

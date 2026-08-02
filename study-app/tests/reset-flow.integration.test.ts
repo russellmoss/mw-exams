@@ -21,7 +21,10 @@ const { createResetToken, verifyResetToken, consumeResetToken, checkRateLimit, h
 const TEST_EMAIL = "vitest-reset-flow@example.invalid";
 
 describeIf("password reset flow (real database)", () => {
-  const sql = neon(TEST_DB!);
+  // describe.skip still evaluates this body to collect test names, so the client must not be
+  // constructed eagerly — neon() throws on an undefined connection string, which would turn a
+  // clean skip into a suite failure whenever TEST_DATABASE_URL is unset.
+  const sql = TEST_DB ? neon(TEST_DB) : (undefined as unknown as ReturnType<typeof neon>);
   let userId: number;
 
   beforeAll(async () => {
