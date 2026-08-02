@@ -46,7 +46,37 @@ Warm-stone neutrals + one amber accent + a three-state verdict system. All defin
 - **Approach:** restrained. Color is rare and meaningful. Most of the UI is stone neutrals; amber is the single point of energy; green/yellow/red appear only as grading verdicts and status.
 - **Emphasis text:** bold body text uses amber-400 (`#fbbf24`); italic/secondary uses stone-400 (`#a8a29e`). Amber is the brand/accent/emphasis color — used intentionally for warmth, not decoration.
 - **Verdict system (first-class):** PASS = `--success`, BORDERLINE = `--borderline`, FAIL = `--fail`. These three drive grading badges and the pass-estimate UI.
-- **Dark mode:** the app is dark-native; this *is* the palette. No separate light theme is shipped.
+- **Dark mode:** the app is dark-native; the table above *is* the palette and the default for every
+  new visitor.
+- **Light mode (added 2026-08-02):** an opt-in second theme, toggled from the icon next to the
+  notification bell and persisted in `localStorage` under `mw-theme`. It is an **override, not a
+  redesign** — the same warm-stone family inverted, the same single amber accent, the same
+  border-defined flat cards. Implemented as `:root[data-theme="light"]` overrides of the identical
+  token set in `globals.css`, so any component built on the tokens themes itself for free.
+
+| Token | Dark | Light | Note |
+|---|---|---|---|
+| `--background` | `#0c0a09` | `#fafaf9` | warm off-white (stone-50), never pure white |
+| `--foreground` | `#e7e5e4` | `#1c1917` | stone-900 |
+| `--card` | `#1c1917` | `#ffffff` | cards lift off the page in both themes |
+| `--card-hover` | `#292524` | `#f5f5f4` | |
+| `--border` | `#44403c` | `#d6d3d1` | still the primary separation device |
+| `--muted` | `#78716c` | `#78716c` | unchanged — clears 4.5:1 on both |
+| `--accent` | `#d97706` | `#b45309` | amber-700 on light for ~4.9:1 |
+| `--accent-hover` | `#f59e0b` | `#92400e` | |
+| `--success` | `#22c55e` | `#15803d` | |
+| `--borderline` | `#eab308` | `#a16207` | |
+| `--fail` | `#ef4444` | `#dc2626` | |
+| `--emphasis` | `#fbbf24` | `#b45309` | `.markdown-content strong` |
+| `--prose-secondary` | `#a8a29e` | `#57534e` | `.markdown-content em` / blockquote |
+| `--code-bg` | `#292524` | `#f5f5f4` | inline code |
+
+- **Light-mode rules:** every verdict/accent color steps to a darker shade so it clears ~4.5:1 against
+  a near-white surface; nothing may use pure `#fff` as a page background. **Build with the tokens** —
+  hardcoded hexes and raw Tailwind `stone-*`/`white`/`black` classes break the light theme.
+  Deliberate exceptions: modal scrims (`bg-black/…`), toggle knobs, and `/mikey`, which is a
+  self-contained neon page with its own background and stays dark in both themes. The `/diagrams`
+  iframe is a separately built static site and also stays dark.
 - **Resolved issue (2026-05-30):** `--borderline` was `#f59e0b`, identical to `--accent-hover`, so a BORDERLINE badge could read as an interactive amber control. Moved to `#eab308` (yellow) so verdict colors are unambiguous and never look clickable.
 
 ## Spacing
@@ -81,3 +111,5 @@ Warm-stone neutrals + one amber accent + a three-state verdict system. All defin
 | 2026-05-30 | Added Fraunces display serif (display sizes only) | Wine-literate, editorial character for titles/headings/wine names; Geist stays the functional face. |
 | 2026-05-30 | `--borderline` `#f59e0b` → `#eab308` | Removed collision with `--accent-hover`; BORDERLINE badge no longer reads as an interactive control. |
 | 2026-05-30 | Kept amber as accent + emphasis (considered reserving it) | The warm amber-everywhere is a deliberate identity for a wine tool, not slop; codified as intentional. |
+| 2026-08-02 | Shipped an opt-in light theme (`[data-theme="light"]`) | Studying in daylight. Built as token overrides rather than a second design, so "Cellar" stays one system; dark remains the default and the native look. |
+| 2026-08-02 | Methodology / Settings / Admin moved into a user menu | The nav row had grown to seven links. Study surfaces (Study, Stem Sniper, Diagrams, History) stay on the left; account-level destinations sit under the user's name on the right. |
