@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import { useDraft } from "@/lib/use-draft";
 
 interface Mockup { title: string; html: string }
 interface ThreadTurn {
@@ -50,7 +51,11 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
   const [list, setList] = useState<FeatureRequestView[]>([]);
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState<FeatureRequestView | null>(null);
-  const [input, setInput] = useState("");
+  // Unsent text survives closing the modal / reloading, per conversation. A
+  // brand-new request (no id yet) keeps its own "new" draft.
+  const [input, setInput] = useDraft(
+    `feature-request:${current?.id && current.id > 0 ? current.id : "new"}`
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [liveText, setLiveText] = useState("");
@@ -82,9 +87,11 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
     return turn?.mockups ?? null;
   };
 
-  const startNew = () => { setCurrent(null); setInput(""); setError(null); setActiveMockups(null); setMockupIndex(0); setOpen(true); };
+  // Drafts are keyed off `current`, so switching threads swaps the box contents
+  // in for us — don't clear the input here or we'd bin what the user typed.
+  const startNew = () => { setCurrent(null); setError(null); setActiveMockups(null); setMockupIndex(0); setOpen(true); };
   const openExisting = (fr: FeatureRequestView) => {
-    setCurrent(fr); setInput(""); setError(null);
+    setCurrent(fr); setError(null);
     const mk = latestMockups(fr); setActiveMockups(mk); setMockupIndex(0);
     setOpen(true);
   };
@@ -98,6 +105,7 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
     const baseThread = current?.thread ?? [];
     const userTurn: ThreadTurn = { role: "user", content: text };
     const baseId = current?.id && current.id > 0 ? current.id : null;
+    const rollback = current;
     setCurrent((c) =>
       c
         ? { ...c, thread: [...baseThread, userTurn] }
@@ -112,8 +120,15 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
         body: JSON.stringify(body),
       });
       if (!res.ok || !res.body) {
+        // The route saves the user turn before it starts streaming, so a
+        // non-streaming failure means nothing was persisted — undo the
+        // optimistic turn and hand the text back so it isn't lost.
         const e = await res.json().catch(() => ({}));
-        setError(e.error || "Failed"); setBusy(false); return;
+        setError(e.error || "Failed");
+        setCurrent(rollback);
+        setInput(text);
+        setBusy(false);
+        return;
       }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
