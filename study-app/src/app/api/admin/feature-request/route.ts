@@ -4,7 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { isAutoFeatureEnabled } from "@/lib/settings";
 import { dispatchFeatureBuild } from "@/lib/github-dispatch";
-import { buildFeatureRequestSystem, getMockupCss } from "@/lib/prompts/feature-request-prompt";
+import { buildFeatureRequestSystem, buildMockupSystem, getMockupCss } from "@/lib/prompts/feature-request-prompt";
 import {
   createFeatureRequest,
   getFeatureRequest,
@@ -15,17 +15,20 @@ import {
 } from "@/lib/db";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// The dialog turn and the mockup renders run back to back in this one request.
+export const maxDuration = 300;
 
 const SENTINEL = "<<<META>>>";
 
 type Mockup = { title: string; html: string };
+type Screen = { title: string; brief: string };
 type Meta = {
   phase: "clarifying" | "proposing";
   readyToBuild: boolean;
   title: string;
   technicalSpec: string;
-  mockups: Mockup[];
+  screens: Screen[];
+  mockups: Mockup[]; // only ever populated by a legacy reply that inlined the HTML itself
 };
 
 // Inject the Cellar stylesheet into each mockup so it renders looking like the real app, and harden
@@ -44,7 +47,10 @@ function dressMockup(m: Mockup): Mockup {
   return { title: String(m.title || "Mockup").slice(0, 80), html };
 }
 
-function parseMeta(raw: string): Meta {
+// Returns null when the META JSON is missing or unparseable (almost always because the reply was cut
+// off at max_tokens). Null means "we learned nothing this turn" — the caller must NOT treat that as a
+// clarifying turn with no mockups, which is how proposals used to silently lose their spec.
+function parseMeta(raw: string): Meta | null {
   try {
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
@@ -55,6 +61,12 @@ function parseMeta(raw: string): Meta {
         readyToBuild: o.readyToBuild === true,
         title: typeof o.title === "string" ? o.title : "",
         technicalSpec: typeof o.technicalSpec === "string" ? o.technicalSpec : "",
+        screens: Array.isArray(o.screens)
+          ? o.screens
+              .filter((s: unknown) => s && typeof (s as Screen).brief === "string")
+              .map((s: Screen) => ({ title: String(s.title || "Screen").slice(0, 80), brief: String(s.brief) }))
+              .slice(0, 4)
+          : [],
         mockups: Array.isArray(o.mockups)
           ? o.mockups.filter((m: unknown) => m && typeof (m as Mockup).html === "string").map((m: Mockup) => dressMockup(m)).slice(0, 6)
           : [],
@@ -63,7 +75,58 @@ function parseMeta(raw: string): Meta {
   } catch {
     /* fall through */
   }
-  return { phase: "clarifying", readyToBuild: false, title: "", technicalSpec: "", mockups: [] };
+  return null;
+}
+
+// Draw the screens the dialog turn asked for — one small call each, all in flight at once, so no
+// single response has to carry several HTML documents. A screen that fails is dropped, not fatal:
+// the proposal and its build spec still stand.
+async function renderMockups(
+  client: Anthropic,
+  model: string,
+  screens: Screen[],
+  context: { title: string; proposal: string },
+  usageCtx: { source: "user" | "server"; userId: number; abGroup: string | null }
+): Promise<Mockup[]> {
+  const system = buildMockupSystem();
+
+  const drawn = await Promise.all(
+    screens.map(async (screen) => {
+      const t0 = Date.now();
+      try {
+        const msg = await client.messages.create({
+          model,
+          max_tokens: 4000,
+          system,
+          messages: [
+            {
+              role: "user",
+              content: `FEATURE: ${context.title || "(untitled)"}\n\nTHE PROPOSAL THIS SCREEN BELONGS TO (context only — draw just the screen below):\n${context.proposal}\n\nSCREEN TO DRAW — "${screen.title}":\n${screen.brief}`,
+            },
+          ],
+        });
+        logClaudeUsage(
+          { taskType: "feature_mockup", model, source: usageCtx.source, userId: usageCtx.userId, abGroup: usageCtx.abGroup },
+          msg.usage,
+          { latencyMs: Date.now() - t0 }
+        );
+        // Asked for bare HTML, but tolerate a stray fence or a line of preamble in front of it.
+        const text = msg.content
+          .filter((b): b is Anthropic.TextBlock => b.type === "text")
+          .map((b) => b.text)
+          .join("")
+          .replace(/```[a-z]*\n?/gi, "")
+          .trim();
+        const docAt = text.search(/<!doctype html|<html[\s>]/i);
+        return dressMockup({ title: screen.title, html: docAt > 0 ? text.slice(docAt) : text });
+      } catch (err) {
+        console.error("feature-request mockup render failed:", err);
+        return null;
+      }
+    })
+  );
+
+  return drawn.filter((m): m is Mockup => m !== null);
 }
 
 // Stream one Opus turn over the running thread: forward the visible markdown as it streams, then parse
@@ -89,6 +152,8 @@ function streamTurn(
         const client = new Anthropic({ apiKey });
         const { model, abGroup } = await selectModel("feature_request", apiKey, "opus");
         const t0 = Date.now();
+        // No HTML in this response any more (mockups are drawn separately), so 8k is ample for the
+        // write-up + spec + screen briefs — but the truncation guard below still has to hold.
         const stream = await client.messages.stream({ model, max_tokens: 8000, system, messages });
 
         let full = "";
@@ -117,19 +182,47 @@ function streamTurn(
         const metaRaw = sentinelAt === -1 ? "" : full.slice(sentinelAt + SENTINEL.length);
         const meta = parseMeta(metaRaw);
 
+        // Draw the proposed screens now, in parallel, from their briefs.
+        let mockups: Mockup[] = meta?.mockups ?? [];
+        if (meta?.phase === "proposing" && meta.screens.length && !mockups.length) {
+          send({ status: `Drawing ${meta.screens.length === 1 ? "the screen" : `${meta.screens.length} screens`}…` });
+          mockups = await renderMockups(
+            client,
+            model,
+            meta.screens,
+            { title: meta.title || fr.title || "", proposal: visible },
+            { source, userId, abGroup }
+          );
+        }
+
+        // A missing/unparseable META means the turn was cut off. Keep whatever the request already
+        // had (a previously-earned "proposed" + spec must survive) and tell the admin, rather than
+        // quietly demoting it to a mockup-less clarifying turn.
+        const truncated = !meta;
+        const status = truncated ? fr.status : meta.phase === "proposing" ? "proposed" : "clarifying";
         const thread = [
           ...fr.thread,
-          { role: "assistant" as const, content: visible, timestamp: new Date().toISOString(), ...(meta.mockups.length ? { mockups: meta.mockups } : {}) },
+          { role: "assistant" as const, content: visible, timestamp: new Date().toISOString(), ...(mockups.length ? { mockups } : {}) },
         ];
-        const status = meta.phase === "proposing" ? "proposed" : "clarifying";
         await updateFeatureRequest(fr.id, {
           thread,
           status,
-          title: meta.title || fr.title || undefined,
-          ...(meta.phase === "proposing" ? { user_facing_proposal: visible, technical_spec: meta.technicalSpec } : {}),
+          title: meta?.title || fr.title || undefined,
+          ...(meta?.phase === "proposing" ? { user_facing_proposal: visible, technical_spec: meta.technicalSpec } : {}),
         });
 
-        send({ meta: { id: fr.id, status, readyToBuild: meta.phase === "proposing" && !!meta.technicalSpec, title: meta.title || fr.title, mockups: meta.mockups } });
+        if (truncated) {
+          send({ error: "That reply was cut off before Claude finished the proposal — ask it to try again (or to keep it shorter) and the mockups will come with it." });
+        }
+        send({
+          meta: {
+            id: fr.id,
+            status,
+            readyToBuild: truncated ? fr.status === "proposed" && !!fr.technical_spec : meta.phase === "proposing" && !!meta.technicalSpec,
+            title: meta?.title || fr.title,
+            mockups,
+          },
+        });
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
         controller.close();
       } catch (err) {
