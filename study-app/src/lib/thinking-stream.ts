@@ -122,6 +122,9 @@ export async function withThinking(
 ): Promise<Record<string, unknown>> {
   const params = await resolveThinking(model);
   if (!Object.keys(params).length) return { max_tokens: maxTokens };
+  // Doubling is right for the prose graders, whose budgets (1500-4000) leave ample room either
+  // way. A route with a *small* budget should NOT use this helper — see flash-notes/grade, where
+  // 400 tokens of headroom could truncate the JSON and turn a slow answer into a parse failure.
   return { max_tokens: maxTokens * 2, ...params };
 }
 

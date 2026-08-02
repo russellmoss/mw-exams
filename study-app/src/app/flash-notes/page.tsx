@@ -4,12 +4,17 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useDraft } from "@/lib/use-draft";
+import { useProgressStream } from "@/lib/use-progress-stream";
+import { ThinkingTrace } from "../components/ThinkingTrace";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flash Notes — a rapid, single-prompt variant of Dry Notes.
 // Flow: setup (build a deck / infinite) → card → verdict → summary.
 // Each card persists to user_attempts as mode = 'flash' so it appears in History.
 // ─────────────────────────────────────────────────────────────────────────────
+
+// The slice of the question payload Flash Notes uses — it trims the flight and ignores the rest.
+type FlashQuestion = { question_id: string; paper: number; wines: unknown };
 
 type PromptType = "style" | "quality" | "maturity" | "commercial";
 type Verdict = "pass" | "borderline" | "fail";
@@ -120,6 +125,12 @@ export default function FlashNotesPage() {
   const [screen, setScreen] = useState<Screen>("setup");
   const [error, setError] = useState<string | null>(null);
 
+  // Live progress for the two AI waits in the drill. Both are ungated: Flash Notes reveals the
+  // wine identities up front (it awards no identification marks), so the model's reasoning gives
+  // nothing away that the card itself doesn't. Separate traces because they're separate screens.
+  const cardTrace = useProgressStream();
+  const gradeTrace = useProgressStream();
+
   // Setup form state
   const [count, setCount] = useState<number>(10);
   const [selectedPrompts, setSelectedPrompts] = useState<PromptType[]>(["style", "quality"]);
@@ -183,13 +194,15 @@ export default function FlashNotesPage() {
       // No need to blank the box: the draft is keyed to the card, so the new
       // card brings its own (empty) draft with it.
       try {
-        const res = await fetch("/api/get-question", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paper: setup.paper, family: setup.family }),
-        });
-        if (!res.ok) throw new Error(`Could not load a card (HTTP ${res.status}).`);
-        const data = await res.json();
+        const data = await cardTrace.run<{ question: FlashQuestion }>(
+          "/api/get-question/stream",
+          { paper: setup.paper, family: setup.family },
+          { timeoutMs: 180_000 }
+        );
+        if (!data?.question) {
+          // errorRef, not error: the closure's `error` predates the stream.
+          throw new Error(cardTrace.errorRef.current || "Could not load a card.");
+        }
         const q = data.question;
         const rawWines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
         // Enforce a 2–3 wine flight for Flash Notes: surface at most 3 wines from whatever the
@@ -273,18 +286,19 @@ export default function FlashNotesPage() {
     }
 
     try {
-      const res = await fetch("/api/flash-notes/grade", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const data = await gradeTrace.run<{ verdict: Verdict; score: number; feedback: string }>(
+        "/api/flash-notes/grade/stream",
+        {
           paper: card.paper,
           promptType: card.promptType,
           wines: card.wines,
           answer: answer.trim(),
-        }),
-      });
-      if (!res.ok) throw new Error(`Grading failed (HTTP ${res.status}).`);
-      const data = await res.json();
+        }
+      );
+      if (!data?.verdict) {
+        // errorRef, not error: the closure's `error` predates the stream.
+        throw new Error(gradeTrace.errorRef.current || "Grading failed.");
+      }
       const verdict: Verdict = data.verdict;
       const score: number = data.score;
       const feedback: string = data.feedback || "";
@@ -480,13 +494,16 @@ export default function FlashNotesPage() {
 
           {/* ── Loading a card ── */}
           {screen === "loading" && (
-            <div className="flex flex-col items-center justify-center py-24">
-              <div className="flex items-center gap-3 text-muted mb-3">
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
-              </div>
-              <p className="text-sm text-muted">Dealing your next card…</p>
+            <div className="py-16">
+              <p className="text-sm text-muted text-center mb-4">Dealing your next card…</p>
+              <ThinkingTrace
+                status={cardTrace.status}
+                statuses={cardTrace.statuses}
+                thinking={cardTrace.thinking}
+                active={!cardTrace.error}
+                error={cardTrace.error}
+                idleLabel="Dealing your next card…"
+              />
             </div>
           )}
 
@@ -569,13 +586,16 @@ export default function FlashNotesPage() {
 
           {/* ── Grading ── */}
           {screen === "grading" && (
-            <div className="flex flex-col items-center justify-center py-24">
-              <div className="flex items-center gap-3 text-muted mb-3">
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
-                <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
-              </div>
-              <p className="text-sm text-muted">Marking your note…</p>
+            <div className="py-16">
+              <p className="text-sm text-muted text-center mb-4">Marking your note…</p>
+              <ThinkingTrace
+                status={gradeTrace.status}
+                statuses={gradeTrace.statuses}
+                thinking={gradeTrace.thinking}
+                active={!gradeTrace.error}
+                error={gradeTrace.error}
+                idleLabel="Marking your note…"
+              />
             </div>
           )}
 
