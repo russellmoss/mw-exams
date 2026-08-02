@@ -18,12 +18,7 @@ import { lookupWines } from "@/lib/wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
-import {
-  streamWithThinking,
-  supportsAdaptiveThinking,
-  thinkingParams,
-  type ProgressEmitter,
-} from "@/lib/thinking-stream";
+import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
 
 export interface TastingWine {
   slot: number;
@@ -96,15 +91,17 @@ export async function generateSanitizedTastingNotes(opts: {
           ? `Describing ${wines.length} glass${wines.length === 1 ? "" : "es"}…`
           : `Correcting the notes (attempt ${attempt})…`,
     });
-    // Thinking config only when someone is watching, and only on models that accept it. max_tokens
-    // caps thinking + notes together, so it grows with the extra reasoning budget.
-    const thinkingOn = Boolean(emit) && supportsAdaptiveThinking(model);
+    // Thinking config only when someone is watching, only on models that accept it, and only while
+    // the admin reasoning toggle is on. max_tokens caps thinking + notes together, so it grows with
+    // the extra reasoning budget.
+    const extra = emit ? await resolveThinking(model) : {};
+    const thinkingOn = Object.keys(extra).length > 0;
     const params = {
       model,
       max_tokens: thinkingOn ? 6000 : 3000,
       system: systemPrompt,
       messages: [{ role: "user" as const, content: userPrompt }],
-      ...(thinkingOn ? thinkingParams(model) : {}),
+      ...extra,
     } as Parameters<typeof client.messages.create>[0] & { stream?: never };
     const message = emit
       ? await streamWithThinking(client, params, {}, emit)

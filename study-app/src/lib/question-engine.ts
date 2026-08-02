@@ -26,12 +26,7 @@ import { stemSniperScoringModel } from "@/lib/question-validator";
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
 // novelty, generation-consistency) stay inline below.
 import { applyQuestionRules, winesFromText } from "@/lib/question-rules.mjs";
-import {
-  streamWithThinking,
-  supportsAdaptiveThinking,
-  thinkingParams,
-  type ProgressEmitter,
-} from "@/lib/thinking-stream";
+import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -294,13 +289,15 @@ async function callGenerationModel(
   // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
   // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
   // ~950 tokens here, so 4000 is comfortably above both arms' real output.
-  const thinkingOn = Boolean(emit) && supportsAdaptiveThinking(model);
+  // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
+  const extra = emit ? await resolveThinking(model) : {};
+  const thinkingOn = Object.keys(extra).length > 0;
   const params = {
     model,
     max_tokens: thinkingOn ? 8000 : 4000,
     system: prompt.system,
     messages: [{ role: "user" as const, content: prompt.user }],
-    ...(thinkingOn ? thinkingParams(model) : {}),
+    ...extra,
   } as Parameters<typeof client.messages.create>[0] & { stream?: never };
 
   if (!emit) return client.messages.create(params, callOpts);

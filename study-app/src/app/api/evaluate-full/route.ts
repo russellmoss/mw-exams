@@ -200,7 +200,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
         systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
         "\n" + answerImageConstraint(wines),
       messages: [{ role: "user", content: userMessage }],
-      ...withThinking(model, 4000),
+      ...(await withThinking(model, 4000)),
     } as Parameters<typeof client.messages.stream>[0]);
 
     const encoder = new TextEncoder();
