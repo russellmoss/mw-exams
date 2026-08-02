@@ -1,14 +1,14 @@
 "use client";
 
+// Each paper is identified by its icon and subtitle, not by a card colour — the same way papers are
+// labelled everywhere else in the app (history badges, filter chips). The cards themselves are plain
+// Cellar cards so they theme from the tokens. See DESIGN.md (Color, Layout).
 const papers = [
   {
     paper: 1,
     title: "Paper 1",
     subtitle: "White Wines",
     description: "Still white wines from around the world",
-    color: "from-amber-900/40 to-yellow-900/20",
-    borderColor: "border-amber-700/50",
-    hoverBorder: "hover:border-amber-500/70",
     icon: "\u{1F7E1}",
   },
   {
@@ -16,9 +16,6 @@ const papers = [
     title: "Paper 2",
     subtitle: "Red Wines",
     description: "Still red wines from around the world",
-    color: "from-red-900/40 to-rose-900/20",
-    borderColor: "border-red-800/50",
-    hoverBorder: "hover:border-red-500/70",
     icon: "\u{1F534}",
   },
   {
@@ -26,9 +23,6 @@ const papers = [
     title: "Paper 3",
     subtitle: "Special",
     description: "Sparkling, fortified, sweet, rose, oxidative",
-    color: "from-purple-900/40 to-indigo-900/20",
-    borderColor: "border-purple-700/50",
-    hoverBorder: "hover:border-purple-500/70",
     icon: "\u{1F7E3}",
   },
 ];
@@ -44,7 +38,7 @@ export function PaperSelector({ onSelect }: PaperSelectorProps) {
         <button
           key={p.paper}
           onClick={() => onSelect(p.paper)}
-          className={`group relative overflow-hidden rounded-xl border ${p.borderColor} ${p.hoverBorder} bg-gradient-to-br ${p.color} p-8 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/30 cursor-pointer`}
+          className="rounded-xl border border-border bg-card hover:border-muted hover:bg-card-hover p-8 text-left transition-colors duration-200 cursor-pointer"
         >
           <div className="text-3xl mb-4">{p.icon}</div>
           <h3 className="text-xl font-semibold text-foreground mb-1">
@@ -52,7 +46,6 @@ export function PaperSelector({ onSelect }: PaperSelectorProps) {
           </h3>
           <p className="text-accent font-medium mb-2">{p.subtitle}</p>
           <p className="text-sm text-muted">{p.description}</p>
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-white/[0.02] rounded-tl-full" />
         </button>
       ))}
     </div>

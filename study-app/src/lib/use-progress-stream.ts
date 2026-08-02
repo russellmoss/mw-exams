@@ -21,8 +21,20 @@ export interface ProgressStream {
   /** The model's summarized reasoning so far. MAY name the wines — gate it behind a spoiler. */
   thinking: string;
   active: boolean;
+  /** For rendering. Re-read every render, so always current in JSX. */
   error: string | null;
-  run: <T>(url: string) => Promise<T | null>;
+  /**
+   * The same value, in a ref — read this from inside a `useCallback`.
+   * `error` is captured by the closure when the callback is created, so a callback that awaits
+   * `run()` and then inspects `error` sees the value from BEFORE the stream ran (i.e. null) and
+   * would silently swallow the server's message. The ref object is stable, so `.current` is live.
+   */
+  errorRef: React.RefObject<string | null>;
+  /**
+   * Open the stream and resolve with its `result` payload (null on failure/abort).
+   * Pass `body` to POST it as JSON; omit for a GET.
+   */
+  run: <T>(url: string, body?: unknown, opts?: { timeoutMs?: number }) => Promise<T | null>;
   reset: () => void;
 }
 
@@ -30,8 +42,14 @@ export function useProgressStream(): ProgressStream {
   const [statuses, setStatuses] = useState<string[]>([]);
   const [thinking, setThinking] = useState("");
   const [active, setActive] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setErrorState] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Mirrors `error` so callbacks can read it after awaiting `run()` (see errorRef above).
+  const errorRef = useRef<string | null>(null);
+  const setError = useCallback((e: string | null) => {
+    errorRef.current = e;
+    setErrorState(e);
+  }, []);
 
   const reset = useCallback(() => {
     abortRef.current?.abort();
@@ -40,12 +58,20 @@ export function useProgressStream(): ProgressStream {
     setThinking("");
     setActive(false);
     setError(null);
-  }, []);
+  }, [setError]);
 
-  const run = useCallback(async <T,>(url: string): Promise<T | null> => {
+  const run = useCallback(async <T,>(
+    url: string,
+    body?: unknown,
+    opts?: { timeoutMs?: number }
+  ): Promise<T | null> => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    // Safety net only. Progress events flow continuously, so a slow generation no longer needs a
+    // tight client deadline to stay believable — this exists to stop a genuinely wedged connection
+    // hanging forever, not to bound normal work.
+    const timer = opts?.timeoutMs ? setTimeout(() => controller.abort(), opts.timeoutMs) : null;
     setStatuses([]);
     setThinking("");
     setError(null);
@@ -63,7 +89,12 @@ export function useProgressStream(): ProgressStream {
 
     try {
       const res = await fetch(url, {
-        headers: { Accept: "text/event-stream" },
+        method: body === undefined ? "GET" : "POST",
+        headers:
+          body === undefined
+            ? { Accept: "text/event-stream" }
+            : { Accept: "text/event-stream", "Content-Type": "application/json" },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) throw new Error(`Request failed (${res.status})`);
@@ -111,13 +142,14 @@ export function useProgressStream(): ProgressStream {
         setError(err instanceof Error ? err.message : "Generation failed");
       }
     } finally {
+      if (timer) clearTimeout(timer);
       flush();
       setActive(false);
       if (abortRef.current === controller) abortRef.current = null;
     }
 
     return result;
-  }, []);
+  }, [setError]);
 
   return {
     status: statuses.length ? statuses[statuses.length - 1] : null,
@@ -125,6 +157,7 @@ export function useProgressStream(): ProgressStream {
     thinking,
     active,
     error,
+    errorRef,
     run,
     reset,
   };

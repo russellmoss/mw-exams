@@ -117,8 +117,9 @@ Rules:
   - fortified: Port, Sherry, Madeira, Rutherglen/liqueur Muscat, Vin Doux Naturel.
   - still_sweet: Sauternes, Tokaji Aszú, Beerenauslese/Trockenbeerenauslese, Icewine/Eiswein, Vin Santo, passito, Quarts de Chaume, Vin de Constance, late-harvest dessert wines.
   - still_off_dry: fruity Kabinett/Spätlese and other clearly off-dry (not fully sweet) styles.
-  - oxidative: Vin Jaune, oxidative/sous-voile Jura whites, biologically/deliberately oxidative styles.
-  - rose / orange: as appropriate.
+  - oxidative: Vin Jaune, oxidative/sous-voile Jura whites, biologically/deliberately oxidative styles. This includes wines where the style is implied by the house rather than stated on the label — traditional white Rioja aged for years in old oak (López de Heredia Viña Tondonia Blanco and Viña Gravonia, Marqués de Murrieta Castillo Ygay Blanco, CVNE Monopole Clásico) and the voile-by-default Jura domaines (Macle, Montbourgeau, Berthet-Bondet, Bourdy). A "Blanco Reserva/Gran Reserva" from Rioja is oxidative, not still_dry.
+  - NOT oxidative: anything labelled "ouillé" (topped up) is the deliberate opposite — no flor forms — so an Arbois Savagnin Ouillé is still_dry however Jura it looks. A grape or appellation never settles this on its own: Arbois and L'Étoile both cover topped-up and voile-aged wines, and the reds from those same houses (Viña Tondonia Tinto, Castillo Ygay Gran Reserva, Berthet-Bondet Trousseau) are still_dry.
+  - rose / orange: as appropriate. Blush wines count as rose even when unlabelled (White Zinfandel).
   - still_dry: everything else (the default for dry still whites and reds).`,
       messages: [{ role: "user", content: `Wine: ${fullText}` }],
     });

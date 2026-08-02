@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     const stream = await client.messages.stream({
       model,
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
-      ...withThinking(model, 1500),
+      ...(await withThinking(model, 1500)),
       messages: [
         {
           role: "user",

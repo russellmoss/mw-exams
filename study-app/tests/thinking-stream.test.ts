@@ -15,6 +15,9 @@ import {
   withThinking,
   thinkingFrame,
   sseStream,
+  reasoningEnabled,
+  resolveThinking,
+  invalidateReasoningCache,
 } from "../src/lib/thinking-stream";
 
 async function readSse(res: Response): Promise<string[]> {
@@ -71,10 +74,25 @@ describe("thinking request params", () => {
     expect(thinkingParams("claude-haiku-4-5-20251001")).toEqual({});
   });
 
-  it("grows max_tokens when thinking is on, because it caps thinking + response together", () => {
-    expect(withThinking("claude-sonnet-4-6", 2000).max_tokens).toBe(4000);
+  it("grows max_tokens when thinking is on, because it caps thinking + response together", async () => {
+    expect((await withThinking("claude-sonnet-4-6", 2000)).max_tokens).toBe(4000);
     // Unsupported model: max_tokens passes through untouched and no thinking fields are added.
-    expect(withThinking("claude-haiku-4-5-20251001", 2000)).toEqual({ max_tokens: 2000 });
+    expect(await withThinking("claude-haiku-4-5-20251001", 2000)).toEqual({ max_tokens: 2000 });
+  });
+
+  it("the admin kill switch strips thinking entirely and restores the original max_tokens", async () => {
+    // REASONING_HARD_DISABLE short-circuits before any database read, which is what makes it the
+    // switch to reach for in an emergency — it works even if Neon is unreachable.
+    process.env.REASONING_HARD_DISABLE = "1";
+    invalidateReasoningCache();
+    try {
+      expect(await reasoningEnabled()).toBe(false);
+      expect(await resolveThinking("claude-sonnet-4-6")).toEqual({});
+      expect(await withThinking("claude-sonnet-4-6", 2000)).toEqual({ max_tokens: 2000 });
+    } finally {
+      delete process.env.REASONING_HARD_DISABLE;
+      invalidateReasoningCache();
+    }
   });
 
   it("emits a single-line SSE frame per thinking delta", () => {
@@ -121,5 +139,18 @@ describe("sseStream", () => {
       message: "No drills available for that filter",
     });
     expect(frames[1]).toBe("[DONE]");
+  });
+
+  it("keeps every frame on its own line so the client's line parser can't merge them", async () => {
+    // The client splits on newlines and requires each frame to be exactly one `data: ` line.
+    // A status label containing a newline would otherwise split into two frames, the second of
+    // which isn't valid JSON — silently dropping progress.
+    const res = sseStream(async (emit) => {
+      emit({ type: "status", label: "line one\nline two" });
+      return null;
+    });
+    const frames = await readSse(res);
+    expect(JSON.parse(frames[0])).toEqual({ type: "status", label: "line one\nline two" });
+    expect(frames).toHaveLength(3); // status, result, [DONE]
   });
 });

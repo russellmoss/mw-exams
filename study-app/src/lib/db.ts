@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
+import { classifyP3Category } from "./p3-category.mjs";
 
 function getDb() {
   const sql = neon(process.env.DATABASE_URL!);
@@ -21,6 +22,10 @@ export interface GeneratedQuestion {
   stem_blind: string | null;
   wines: { slot: number; fullText: string; appearance?: string }[];
   total_marks: number;
+  // Paper 3 style family (migration 015): sparkling|sweet|fortified|oxidative|rose|other. NULL for
+  // Papers 1/2 and for any P3 row not yet backfilled. Server-only — the serve layer strips it from
+  // every payload (see sanitizeQuestionMetadata) so the candidate never sees it.
+  p3_category: string | null;
   model_answer: string | null;
   proposed_annotation: string | null;
   reasoning_trace: string | null;
@@ -117,20 +122,26 @@ export async function saveGeneratedQuestion(q: {
   metadata?: Record<string, unknown>;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
+  // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
+  // sampler can serve them on-mix from the moment they land in the bank. Papers 1/2 stay NULL.
+  const p3Category = q.paper === 3 ? classifyP3Category(q.wines) : null;
   const rows = await sql`
     INSERT INTO generated_questions (
       question_id, paper, family, family_label, subcategory,
-      question_text, wines, total_marks,
+      question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
       metadata
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
-      ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks},
+      ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
       ${q.modelAnswer || null}, ${q.proposedAnnotation || null},
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
       ${JSON.stringify(q.metadata || {})}
     )
     ON CONFLICT (question_id) DO UPDATE SET
+      -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
+      -- stored value when EXCLUDED is NULL, e.g. the background model-answer re-save).
+      p3_category = COALESCE(generated_questions.p3_category, EXCLUDED.p3_category),
       model_answer = COALESCE(EXCLUDED.model_answer, generated_questions.model_answer),
       proposed_annotation = COALESCE(EXCLUDED.proposed_annotation, generated_questions.proposed_annotation),
       reasoning_trace = COALESCE(EXCLUDED.reasoning_trace, generated_questions.reasoning_trace),
@@ -461,22 +472,33 @@ export async function getMediaById(
   return rows.length ? (rows[0] as { content_type: string; image_base64: string }) : null;
 }
 
-export async function getRecentAttempts(limit = 20, userId?: number | null): Promise<
-  (UserAttempt & { paper: number; family: string; family_label: string })[]
-> {
+export type RecentAttempt = UserAttempt & {
+  paper: number;
+  family: string;
+  family_label: string;
+  p3_category: string | null;
+};
+
+export async function getRecentAttempts(
+  limit = 20,
+  userId?: number | null
+): Promise<RecentAttempt[]> {
   // When `userId` is given, returns only that user's recent attempts — so the serve layer can build
   // a per-user "recently served" set instead of one polluted by other users' activity. `uid` null
   // preserves the prior global behaviour for any caller that wants a cross-user view.
+  //
+  // p3_category rides along so the Paper 3 weighted sampler can count recently-served style families
+  // without a second query.
   const uid = userId ?? null;
   const sql = getDb();
   return (await sql`
-    SELECT a.*, q.paper, q.family, q.family_label
+    SELECT a.*, q.paper, q.family, q.family_label, q.p3_category
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
     WHERE (${uid}::int IS NULL OR a.user_id = ${uid})
     ORDER BY a.started_at DESC
     LIMIT ${limit}
-  `) as (UserAttempt & { paper: number; family: string; family_label: string })[];
+  `) as RecentAttempt[];
 }
 
 export interface AttemptWithDetails extends UserAttempt {

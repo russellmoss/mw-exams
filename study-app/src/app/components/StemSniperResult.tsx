@@ -14,6 +14,16 @@ export interface WineGrade {
   countryGuess: string;
   grapeCorrect: boolean;
   countryCorrect: boolean;
+  // Hedge & Blend. All optional: attempts recorded before that shipped have none of these, and
+  // every reader below falls back to the booleans above.
+  grapeCredit?: number;
+  countryCredit?: number;
+  grapeGuesses?: string[];
+  countryGuesses?: string[];
+  grapeMode?: "any" | "blend";
+  leadGrapeIndex?: number;
+  matchedGrape?: string | null;
+  matchedCountry?: string | null;
   verdict: "HIT" | "NEAR" | "MISS";
   points: number;
   correctGrape: string;
@@ -45,8 +55,8 @@ interface Props {
 }
 
 const GRADE_STYLE: Record<string, string> = {
-  HIT: "text-emerald-300 border-emerald-400/40 bg-emerald-400/10",
-  NEAR: "text-amber-300 border-amber-400/40 bg-amber-400/10",
+  HIT: "text-success border-success/40 bg-success/10",
+  NEAR: "text-borderline border-borderline/40 bg-borderline/10",
   PLAUSIBLE_OK: "text-accent border-accent/40 bg-accent/10",
   VARIETY: "text-muted border-border bg-background",
   MISS: "text-fail border-fail/40 bg-fail/10",
@@ -59,29 +69,78 @@ const GRADE_LABEL: Record<string, string> = {
   MISS: "MISS",
 };
 
-// Round score is 1 mark per wine (HIT = 1, NEAR = ½, MISS = 0) — show a clean integer or one decimal.
-const fmtRound = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+// Round score is 1 mark per wine (HIT = 1, NEAR = ½, MISS = 0), and hedged answers land on quarters
+// — show a clean integer, or up to two decimals with no trailing zeros.
+const fmtRound = (n: number) =>
+  Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100);
 
-function AxisChip({ label, correct, guess, correct_value }: { label: string; correct: boolean; guess: string; correct_value: string }) {
+// Credit < 1 means the candidate hedged (or got a blend's rank wrong) and kept only part of the mark.
+const CREDIT_LABEL: Record<string, string> = { "0.75": "¾", "0.5": "½", "0.25": "¼" };
+const creditLabel = (credit: number | undefined): string =>
+  credit === undefined || credit === 1 || credit === 0 ? "" : CREDIT_LABEL[String(credit)] ?? `${credit}×`;
+
+/**
+ * One graded axis. Renders every answer the candidate tagged — the one that earned the credit in
+ * green, the rest dimmed — plus the correct value and, when partial, the fraction kept.
+ *
+ * Falls back to the single-guess shape for attempts recorded before Hedge & Blend shipped.
+ */
+function AxisChip({
+  label,
+  correct,
+  guess,
+  guesses,
+  matched,
+  credit,
+  lead,
+  correct_value,
+}: {
+  label: string;
+  correct: boolean;
+  guess: string;
+  guesses?: string[];
+  matched?: string | null;
+  credit?: number;
+  lead?: number | null;
+  correct_value: string;
+}) {
+  const tagged = guesses && guesses.length ? guesses : guess ? [guess] : [];
+  const fraction = creditLabel(credit);
+  const matchedKey = (matched || "").toLowerCase();
+
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs border ${
-        correct ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" : "text-fail border-fail/40 bg-fail/10"
+      className={`inline-flex flex-wrap items-center gap-1 px-2 py-0.5 rounded-md text-xs border ${
+        correct ? "text-success border-success/40 bg-success/10" : "text-fail border-fail/40 bg-fail/10"
       }`}
     >
       <span className="font-semibold">{label}</span>
-      {correct ? (
-        <>
-          <span aria-hidden>✓</span>
-          <span className="text-foreground">{correct_value}</span>
-        </>
+      <span aria-hidden>{correct ? "✓" : "✗"}</span>
+      {tagged.length > 0 ? (
+        tagged.map((t, i) => {
+          const hit = correct && (matchedKey ? t.toLowerCase() === matchedKey : i === 0);
+          return (
+            <span
+              key={`${t}-${i}`}
+              className={
+                hit ? "text-success" : correct ? "text-muted opacity-70" : "line-through text-muted"
+              }
+            >
+              {lead === i && <span className="text-accent text-[9px] uppercase mr-0.5">lead</span>}
+              {t}
+              {i < tagged.length - 1 && <span className="text-muted">,</span>}
+            </span>
+          );
+        })
       ) : (
-        <>
-          <span aria-hidden>✗</span>
-          {guess ? <span className="line-through text-muted">{guess}</span> : <span className="text-muted italic">blank</span>}
-          <span className="text-foreground">{correct_value}</span>
-        </>
+        <span className="text-muted italic">blank</span>
       )}
+      {/* Partial credit is a borderline outcome, so it uses the verdict token rather than a raw
+          amber class — it has to stay legible in the light theme too (DESIGN.md, Color). */}
+      {fraction && <span className="text-borderline font-semibold">{fraction}</span>}
+      {/* Always show the truth: a synonym or fuzzy match means the tagged chip and the expected
+          label can legitimately differ ("Spätburgunder" vs "Pinot Noir"). */}
+      <span className="text-foreground">{correct_value}</span>
     </span>
   );
 }
@@ -117,15 +176,42 @@ function TwoAxisResultBody({ result, onNext, submitting }: { result: ScoreResult
           const identity = [g.correctGrape, [g.region, g.correctCountry].filter(Boolean).join(", ")]
             .filter(Boolean)
             .join(" — ");
+          // Per-wine mark, shown only when the grade carries credit data (i.e. was scored after
+          // Hedge & Blend shipped) — a hedged HIT is worth less than a committed one and the
+          // headline verdict alone would hide that.
+          const hasCredits = g.grapeCredit !== undefined && g.countryCredit !== undefined;
+          const mark = hasCredits ? (g.grapeCredit! + g.countryCredit!) / 2 : null;
           return (
             <div key={i} className="rounded-lg border border-border bg-background/40 p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-foreground">Wine {g.slot ?? i + 1}</span>
-                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${badge}`}>{g.verdict}</span>
+                <div className="flex items-center gap-2">
+                  {mark !== null && (
+                    <span className="text-[11px] text-muted tabular-nums">{fmtRound(mark)} / 1</span>
+                  )}
+                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${badge}`}>{g.verdict}</span>
+                </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <AxisChip label="Grape" correct={g.grapeCorrect} guess={g.grapeGuess} correct_value={g.correctGrape} />
-                <AxisChip label="Country" correct={g.countryCorrect} guess={g.countryGuess} correct_value={g.correctCountry} />
+                <AxisChip
+                  label="Grape"
+                  correct={g.grapeCorrect}
+                  guess={g.grapeGuess}
+                  guesses={g.grapeGuesses}
+                  matched={g.matchedGrape}
+                  credit={g.grapeCredit}
+                  lead={g.grapeMode === "blend" ? g.leadGrapeIndex ?? 0 : null}
+                  correct_value={g.correctGrape}
+                />
+                <AxisChip
+                  label="Country"
+                  correct={g.countryCorrect}
+                  guess={g.countryGuess}
+                  guesses={g.countryGuesses}
+                  matched={g.matchedCountry}
+                  credit={g.countryCredit}
+                  correct_value={g.correctCountry}
+                />
               </div>
               <div className="mt-3">
                 <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">The wine</div>
@@ -148,7 +234,7 @@ function TwoAxisResultBody({ result, onNext, submitting }: { result: ScoreResult
 
 export function StemSniperResult({ result, revealed, submitting, onNext }: Props) {
   if (result.twoAxis) return <TwoAxisResultBody result={result} onNext={onNext} submitting={submitting} />;
-  const scoreColor = result.percent >= 80 ? "text-emerald-300" : result.percent >= 50 ? "text-amber-300" : "text-fail";
+  const scoreColor = result.percent >= 80 ? "text-success" : result.percent >= 50 ? "text-borderline" : "text-fail";
 
   // calibration grouped by tier
   const byTier: Record<string, { correct: number; total: number }> = {};

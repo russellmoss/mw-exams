@@ -27,12 +27,9 @@ import { stemSniperScoringModel } from "@/lib/question-validator";
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
 // novelty, generation-consistency) stay inline below.
 import { applyQuestionRules, winesFromText } from "@/lib/question-rules.mjs";
-import {
-  streamWithThinking,
-  supportsAdaptiveThinking,
-  thinkingParams,
-  type ProgressEmitter,
-} from "@/lib/thinking-stream";
+// Paper 3 style-family classifier + the invisible weighted-sampling math (see narrowToWeightedP3Category).
+import { classifyP3Category, chooseP3Category } from "@/lib/p3-category.mjs";
+import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -259,6 +256,46 @@ function filterValidBanked(questions: GeneratedQuestion[]): GeneratedQuestion[] 
   return questions.filter(validateBankedQuestion);
 }
 
+/**
+ * PAPER 3 ONLY — narrow a candidate pool to one weighted style family.
+ *
+ * Pure and synchronous: it takes a pool the producer has ALREADY fetched and filtered, and returns
+ * the subset belonging to the style family the weighted sampler chose. The producer then applies its
+ * usual `pickFlightSizeAware` to that subset, so flight-size preference, the recently-served filter
+ * and the unseen-before-stale tier order all behave exactly as they do for Papers 1 and 2 — this
+ * only changes WHICH question within a tier gets served.
+ *
+ * The steering rule itself lives in lib/p3-category.mjs (chooseP3Category): count the user's last 8
+ * P3 attempts by style family, deficit-weight every family toward P3_TARGET_MIX (a Focus override
+ * reshapes the target; streak suppression still applies), weighted-random draw a family, then walk
+ * the remaining families in descending weight as a fallback chain. Nothing is candidate-facing.
+ *
+ * Returns the original pool untouched if it is empty or nothing classifies — never starves a tier.
+ */
+function narrowToWeightedP3Category(
+  pool: GeneratedQuestion[],
+  recentCategories: (string | null | undefined)[],
+  focus?: string
+): GeneratedQuestion[] {
+  if (pool.length <= 1) return pool;
+
+  // Prefer the stored tag; classify on the fly for any legacy row not yet backfilled.
+  const byCategory = new Map<string, GeneratedQuestion[]>();
+  for (const q of pool) {
+    let cat = q.p3_category;
+    if (!cat) {
+      const wines = typeof q.wines === "string" ? safeParseWines(q.wines) : q.wines;
+      cat = classifyP3Category(Array.isArray(wines) ? wines : []);
+    }
+    const bucket = byCategory.get(cat);
+    if (bucket) bucket.push(q);
+    else byCategory.set(cat, [q]);
+  }
+
+  const chosen = chooseP3Category(byCategory.keys(), recentCategories, focus);
+  return (chosen && byCategory.get(chosen)) || pool;
+}
+
 function pickFlightSizeAware(questions: GeneratedQuestion[], family?: string): GeneratedQuestion {
   if (questions.length <= 1) return questions[0];
 
@@ -298,13 +335,15 @@ async function callGenerationModel(
   // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
   // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
   // ~950 tokens here, so 4000 is comfortably above both arms' real output.
-  const thinkingOn = Boolean(emit) && supportsAdaptiveThinking(model);
+  // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
+  const extra = emit ? await resolveThinking(model) : {};
+  const thinkingOn = Object.keys(extra).length > 0;
   const params = {
     model,
     max_tokens: thinkingOn ? 8000 : 4000,
     system: prompt.system,
     messages: [{ role: "user" as const, content: prompt.user }],
-    ...(thinkingOn ? thinkingParams(model) : {}),
+    ...extra,
   } as Parameters<typeof client.messages.create>[0] & { stream?: never };
 
   if (!emit) return client.messages.create(params, callOpts);
@@ -1349,12 +1388,17 @@ function sanitizeQuestionMetadata<
   // which origin maps to which wine number — see stemSniperScoringModel.
   const wines = typeof question.wines === "string" ? safeParseWines(question.wines) : question.wines;
   const wineCount = Array.isArray(wines) ? wines.length : 0;
-  return {
+  const sanitized = {
     ...question,
     family_label: FAMILY_LABELS[question.family] || question.family_label || "Unknown",
     subcategory: sanitizeSubcategory(question.subcategory || ""),
     stem_sniper_scoring: stemSniperScoringModel(question.question_text, wineCount),
   };
+  // The P3 style tag is a server-side sampling concept. Never expose it to the candidate — knowing
+  // a flight is tagged "fortified" before tasting would hand them the answer. Strip it from every
+  // served payload (`delete` is a no-op on the Papers 1/2 rows that never carry one).
+  delete (sanitized as { p3_category?: unknown }).p3_category;
+  return sanitized;
 }
 
 function safeParseWines(raw: string): unknown {
@@ -1546,6 +1590,7 @@ export {
   sanitizeQuestionMetadata,
   filterValidBanked,
   pickFlightSizeAware,
+  narrowToWeightedP3Category,
   getWineCount,
   ensureP3Appearances,
 };

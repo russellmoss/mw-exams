@@ -13,6 +13,7 @@
 // Callers that don't pass an emitter keep the exact non-streaming behaviour they had before.
 
 import type Anthropic from "@anthropic-ai/sdk";
+import { isReasoningEnabled } from "@/lib/settings";
 
 export type ProgressEvent =
   | { type: "status"; label: string }
@@ -70,6 +71,43 @@ export async function streamWithThinking(
   return stream.finalMessage();
 }
 
+// Short in-memory cache so the hot generation path doesn't read app_settings on every model call.
+// Mirrors the A/B model-selector cache; an admin save invalidates the instance that handled it
+// immediately, and other serverless instances pick the change up within the TTL.
+let reasoningCache: { enabled: boolean; at: number } | null = null;
+const REASONING_TTL_MS = 30_000;
+
+export function invalidateReasoningCache(): void {
+  reasoningCache = null;
+}
+
+/**
+ * The admin kill switch for visible reasoning (see settings.isReasoningEnabled).
+ *
+ * Fails OPEN — to the last known value, else to enabled. A database blip must not silently change
+ * how questions are generated; the REASONING_HARD_DISABLE env override is the switch that works
+ * without the database, and is the one to reach for in an emergency.
+ */
+export async function reasoningEnabled(): Promise<boolean> {
+  if (process.env.REASONING_HARD_DISABLE === "1") return false;
+  if (reasoningCache && Date.now() - reasoningCache.at < REASONING_TTL_MS) {
+    return reasoningCache.enabled;
+  }
+  try {
+    const enabled = await isReasoningEnabled();
+    reasoningCache = { enabled, at: Date.now() };
+    return enabled;
+  } catch {
+    return reasoningCache?.enabled ?? true;
+  }
+}
+
+/** `thinkingParams`, gated by the admin toggle. Returns `{}` when reasoning is switched off. */
+export async function resolveThinking(model: string): Promise<Record<string, unknown>> {
+  if (!(await reasoningEnabled())) return {};
+  return thinkingParams(model);
+}
+
 /**
  * Thinking config for a route that ALREADY streams its answer text over SSE (the graders).
  *
@@ -78,9 +116,15 @@ export async function streamWithThinking(
  * truncate the feedback the candidate reads. On a model without adaptive thinking it returns just
  * the untouched `max_tokens`, so the call is unchanged.
  */
-export function withThinking(model: string, maxTokens: number): Record<string, unknown> {
-  const params = thinkingParams(model);
+export async function withThinking(
+  model: string,
+  maxTokens: number
+): Promise<Record<string, unknown>> {
+  const params = await resolveThinking(model);
   if (!Object.keys(params).length) return { max_tokens: maxTokens };
+  // Doubling is right for the prose graders, whose budgets (1500-4000) leave ample room either
+  // way. A route with a *small* budget should NOT use this helper — see flash-notes/grade, where
+  // 400 tokens of headroom could truncate the JSON and turn a slow answer into a parse failure.
   return { max_tokens: maxTokens * 2, ...params };
 }
 

@@ -60,6 +60,28 @@ export default function AdminPage() {
   const [autoFeature, setAutoFeature] = useState(false);
   const [featureHardDisabled, setFeatureHardDisabled] = useState(false);
 
+  // Visible-reasoning toggle. Defaults ON — it's a kill switch over shipped behaviour.
+  const [reasoning, setReasoning] = useState(true);
+  const [reasoningHardDisabled, setReasoningHardDisabled] = useState(false);
+
+  const toggleReasoning = async () => {
+    const next = !reasoning;
+    setSavingToggle(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reasoning: next }),
+      });
+      if (res.ok) setReasoning(next);
+      else setError("Failed to update Model Reasoning setting");
+    } catch {
+      setError("Network error");
+    } finally {
+      setSavingToggle(false);
+    }
+  };
+
   const toggleAutoFeature = async () => {
     const next = !autoFeature;
     if (next && !window.confirm("Turn ON Auto-Feature?\n\nWhen ON, clicking \"Build it\" on a Feature Request immediately builds the feature, verifies it in CI (typecheck + build), and — if green — merges to master and deploys to production. When OFF, \"Build it\" only saves the spec; you build it later with \"Build now\".")) {
@@ -123,6 +145,8 @@ export default function AdminPage() {
             setHardDisabled(!!settingsData.hardDisabled);
             setAutoFeature(!!settingsData.autoFeature);
             setFeatureHardDisabled(!!settingsData.featureHardDisabled);
+            setReasoning(settingsData.reasoning !== false);
+            setReasoningHardDisabled(!!settingsData.reasoningHardDisabled);
           }
         })
         .catch(() => setError("Failed to load data"))
@@ -310,9 +334,13 @@ export default function AdminPage() {
                 disabled={savingToggle || hardDisabled}
                 role="switch"
                 aria-checked={autoApply}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted/40"}`}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoApply ? "bg-success" : "bg-muted"}`}
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
+                {/* The knob keeps its white face (DESIGN.md sanctions it) but carries a --background
+                    ring so its edge is legible on every track. White alone only managed 2.3:1 on the
+                    green on-track in dark mode; the ring clears 3:1 against success, accent and muted
+                    in both themes. Same treatment on all three switches below. */}
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
               </button>
             </div>
           </div>
@@ -342,9 +370,45 @@ export default function AdminPage() {
                 disabled={savingToggle || featureHardDisabled}
                 role="switch"
                 aria-checked={autoFeature}
-                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted/40"}`}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${autoFeature ? "bg-accent" : "bg-muted"}`}
               >
-                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${autoFeature ? "translate-x-7" : "translate-x-1"}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Model Reasoning toggle — the cost lever for streamed thinking */}
+          <div className={`rounded-xl border-2 p-5 mb-6 ${reasoning ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="font-bold text-foreground">Model Reasoning</h2>
+                  <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${reasoning ? "bg-accent/20 text-accent" : "bg-muted/20 text-muted"}`}>
+                    {reasoning ? "ON" : "OFF"}
+                  </span>
+                </div>
+                <p className="text-xs text-muted mt-1 max-w-xl">
+                  When ON, question generation, tasting notes, and all three graders request the
+                  model&apos;s visible reasoning, which streams into the &ldquo;Show reasoning&rdquo; panel.
+                  Turning it OFF stops paying thinking tokens on every one of those calls.
+                  <span className="text-foreground/80"> Progress labels are unaffected either way</span> —
+                  they&apos;re our own code, cost nothing, and are what stop a long wait looking hung.
+                  Takes effect within 30s.
+                </p>
+                {reasoningHardDisabled && (
+                  <p className="text-xs text-fail mt-1">Overridden OFF by <code>REASONING_HARD_DISABLE</code> env — toggle has no effect.</p>
+                )}
+              </div>
+              {/* Off-track is full-strength --muted, matching the other two toggles: at /40 it washed
+                  out to near-white on the light theme and the knob all but vanished (1.7:1). */}
+              <button
+                onClick={toggleReasoning}
+                disabled={savingToggle || reasoningHardDisabled}
+                role="switch"
+                aria-checked={reasoning}
+                className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${reasoning ? "bg-accent" : "bg-muted"}`}
+              >
+                <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${reasoning ? "translate-x-7" : "translate-x-1"}`} />
               </button>
             </div>
           </div>
