@@ -14,6 +14,20 @@ name: auto-feedback
 # `vercel --prod`. The vercel.json ignoreCommand skips builds for [skip ci] commits (e.g. the
 # knowledge-doc sync) and for commits that don't touch study-app/. (Requires the Vercel↔GitHub
 # integration to be connected; if it ever disconnects, fall back to a manual `npx vercel --prod`.)
+#
+# STALE-BASE SAFETY (added 2026-08-02; ported from feature-build.yml):
+# This job branches from master at checkout and merges at the end, with a Claude heal loop in
+# between — so master can move underneath it (a human push, a feature-build merge, another
+# auto-feedback run). The green CI from the heal loop belongs to the PRE-rebase tree, so blindly
+# rebasing and merging can ship a build that never compiled: the rebase applies cleanly while the
+# code still references symbols the new master deleted. The landing step therefore records the base
+# commit, and if master has moved it rebases and RE-RUNS the blocking gate (tsc + tests + build) on
+# the rebased tree before merging. Anything that fails refuses to touch master and falls through to
+# the PR step, with the reason surfaced in the PR body and in feedback_analyses.apply_error.
+#
+# Deliberately NO FIFO mutex here (unlike feature-build.yml). Feedback changes are small, usually
+# path-isolated by the scope guard, and run often — serializing them would queue the pipeline for
+# little gain. auto-feedback runs concurrently and relies on rebase + re-verify alone.
 
 on:
   repository_dispatch:
@@ -47,6 +61,15 @@ jobs:
         with:
           fetch-depth: 0
           ref: master
+
+      # The commit this branch is cut from — i.e. the master the heal loop's green CI is valid for.
+      # Surfaced in the merge commit and the PR body so a change that landed against a stale master
+      # is obvious at review time.
+      - name: Record base commit
+        id: base
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Branching from master @ $(git rev-parse HEAD)"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -183,28 +206,98 @@ jobs:
           echo "out_of_scope=$STRAY" >> "$GITHUB_OUTPUT"
           if [ "$STRAY" -eq 0 ]; then echo "All ${#CHANGED[@]} changed file(s) within allowed paths."; fi
 
-      - name: Merge to master (verified)
-        # reviewOnly (generation/validator changes) are PR-gated for human review — never auto-merged.
+      # Land on master, defending against master having moved while we built.
+      #
+      # The green CI from the heal loop was produced against BASE_SHA. If master has moved since,
+      # that signal is stale, so we rebase and RE-RUN the blocking gate (tsc + tests + build) on the
+      # rebased tree before merging — a rebase can apply cleanly while the code still references
+      # symbols the new master deleted, which would merge clean and auto-deploy a broken build.
+      # Anything that fails here refuses to touch master and falls through to the PR step.
+      #
+      # reviewOnly (generation/validator changes) are PR-gated for human review — never auto-merged.
+      - name: Rebase onto latest master, re-verify, and land
         if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1' && env.REVIEW_ONLY != 'true'
         id: merge
         run: |
           set -e
+          BASE_SHA="${{ steps.base.outputs.sha }}"
           git push origin "$WORK_BRANCH"
-          git checkout master
-          git pull --ff-only origin master
-          if ! git merge --no-ff -m "[auto-feedback attempt:${ATTEMPT_ID}] merge verified change" "$WORK_BRANCH"; then
-            git merge --abort || true
-            git checkout "$WORK_BRANCH"
-            if ! git rebase master; then
-              git rebase --abort || true
-              echo "conflict=1" >> "$GITHUB_OUTPUT"
-              exit 0
+
+          # `npm run build` regenerates tracked files (public/data/*.json, which the heal step
+          # deliberately leaves unstaged), so the worktree can be dirty here. `git checkout master`
+          # tolerated that; `git rebase` REFUSES to run with unstaged changes. Everything we mean to
+          # keep is already committed, so discard the build's leavings before touching branches.
+          git checkout -- . 2>/dev/null || true
+
+          # The master commit our current green CI signal is valid for.
+          VERIFIED_AGAINST="$BASE_SHA"
+          ATTEMPT=0
+          MERGED=0
+
+          while [ $ATTEMPT -lt 3 ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            git fetch origin master
+            REMOTE=$(git rev-parse origin/master)
+            echo "::group::Land attempt $ATTEMPT (base=$BASE_SHA verified_against=$VERIFIED_AGAINST origin/master=$REMOTE)"
+
+            if [ "$REMOTE" != "$VERIFIED_AGAINST" ]; then
+              echo "::warning title=stale base::master moved from ${VERIFIED_AGAINST} to ${REMOTE} while this change was being built. Rebasing and re-running CI before merge."
+              git checkout "$WORK_BRANCH"
+              if ! git rebase "$REMOTE"; then
+                git rebase --abort || true
+                echo "conflict=1" >> "$GITHUB_OUTPUT"
+                echo "Branch was cut from \`${BASE_SHA}\`, but master is now \`${REMOTE}\`. Rebasing onto it hit a **merge conflict**, so master was left untouched." > /tmp/af/stale-note.md
+                echo "::endgroup::"
+                exit 0
+              fi
+
+              # Re-verify the REBASED tree with the same blocking gate as the heal loop
+              # (lint stays advisory; tests are cheap and cover logic the build cannot see).
+              echo "--- re-verify after rebase onto $REMOTE ---"
+              RECHECK=/tmp/af/rebase-checks.log
+              set +e
+              ( cd "$GITHUB_WORKSPACE/$APP_DIR" && npx tsc --noEmit ) 2>&1 | tee "$RECHECK"; T=${PIPESTATUS[0]}
+              ( cd "$GITHUB_WORKSPACE/$APP_DIR" && npm test ) 2>&1 | tee -a "$RECHECK"; V=${PIPESTATUS[0]}
+              ( cd "$GITHUB_WORKSPACE/$APP_DIR" && npm run build ) 2>&1 | tee -a "$RECHECK"; B=${PIPESTATUS[0]}
+              set -e
+              echo "post-rebase tsc=$T test=$V build=$B"
+              # The re-verify build dirties the generated files again — clean up before branching.
+              git checkout -- . 2>/dev/null || true
+              if [ $T -ne 0 ] || [ $V -ne 0 ] || [ $B -ne 0 ]; then
+                echo "::error title=stale base broke the build::This change passed CI against ${BASE_SHA} but FAILS against the current master (${REMOTE}). master was left untouched."
+                echo "stale_broken=1" >> "$GITHUB_OUTPUT"
+                echo "Branch was cut from \`${BASE_SHA}\`; master is now \`${REMOTE}\`. The rebase applied cleanly but the code **no longer passes CI against current master** (tsc=${T} test=${V} build=${B}) — it was almost certainly written against something master has since changed or deleted. Re-read the current master before fixing; a textual merge here would have shipped a broken build." > /tmp/af/stale-note.md
+                echo "::endgroup::"
+                exit 0
+              fi
+              VERIFIED_AGAINST="$REMOTE"
+              git push --force-with-lease origin "$WORK_BRANCH"
             fi
-            git push --force-with-lease origin "$WORK_BRANCH"
-            git checkout master
-            git merge --no-ff -m "[auto-feedback attempt:${ATTEMPT_ID}] merge verified change" "$WORK_BRANCH"
+
+            # Local master may carry a merge commit from a previous failed attempt — reset to remote.
+            git checkout -B master "$REMOTE"
+            git merge --no-ff \
+              -m "[auto-feedback attempt:${ATTEMPT_ID}] merge verified change" \
+              -m "Branched from master: ${BASE_SHA}
+          Verified against master: ${VERIFIED_AGAINST}" \
+              "$WORK_BRANCH"
+
+            if git push origin master; then
+              MERGED=1
+              echo "::endgroup::"
+              break
+            fi
+            echo "::warning title=push rejected::master moved again during the merge window; retrying (attempt ${ATTEMPT}/3)."
+            echo "::endgroup::"
+          done
+
+          if [ "$MERGED" != "1" ]; then
+            echo "::error title=could not land::Lost the race to master 3 times; master was left untouched."
+            echo "conflict=1" >> "$GITHUB_OUTPUT"
+            echo "Branch was cut from \`${BASE_SHA}\`. master kept moving underneath this change and it lost the push race 3 times." > /tmp/af/stale-note.md
+            exit 0
           fi
-          git push origin master
+
           echo "merged=1" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
@@ -227,24 +320,66 @@ jobs:
       # NOTE: no explicit Vercel deploy step. Once "Merge to master" pushes a study-app/ change,
       # Vercel git auto-deploy builds + ships it automatically (single deploy path; see header).
 
-      - name: Open PR (review required, could not verify, or out of scope)
+      - name: Open PR (review required, could not verify, out of scope, or could not land)
         if: >-
           always() &&
-          (steps.heal.outputs.success != '1' || steps.merge.outputs.conflict == '1' || steps.scope.outputs.out_of_scope == '1' || env.REVIEW_ONLY == 'true') &&
+          (steps.heal.outputs.success != '1' ||
+           steps.merge.outputs.conflict == '1' ||
+           steps.merge.outputs.stale_broken == '1' ||
+           steps.scope.outputs.out_of_scope == '1' ||
+           env.REVIEW_ONLY == 'true') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
+        env:
+          BASE_SHA: ${{ steps.base.outputs.sha }}
+          STALE_BROKEN: ${{ steps.merge.outputs.stale_broken }}
+          OUT_OF_SCOPE: ${{ steps.scope.outputs.out_of_scope }}
         run: |
           git push origin "$WORK_BRANCH" || true
-          if [ "$REVIEW_ONLY" = "true" ]; then
-            REASON="High-stakes change (Kind: generation/validator) — PR-gated for human review by policy. The change is verified (CI green) and scoped, but generation/validator edits must be reviewed before merging. master/production were not touched."
-          elif [ "${{ steps.scope.outputs.out_of_scope }}" = "1" ]; then
-            REASON="The change touched files OUTSIDE the allowed scope for this feedback (feature isolation). Review the diff — it must stay within the feature's own files. master/production were not touched."
-          else
-            REASON="Automated feedback change could not be verified+merged (CI failed after retries, or a merge conflict). Review the run logs, fix, and merge manually. master/production were not touched."
-          fi
+          CURRENT_MASTER=$(git rev-parse origin/master 2>/dev/null || echo unknown)
+          # The landing step drops a note here when it refused to merge because master had moved.
+          # Kept on disk rather than in GITHUB_OUTPUT: this is free prose, and piping it through an
+          # env: block would let a stray ": " in the text break this file's YAML parse.
+          STALE_NOTE=""
+          [ -f /tmp/af/stale-note.md ] && STALE_NOTE=$(cat /tmp/af/stale-note.md)
+          {
+            if [ -n "$STALE_NOTE" ]; then
+              echo "### Why this needs review: **stale base**"
+              echo
+              echo "$STALE_NOTE"
+              if [ "$STALE_BROKEN" = "1" ]; then
+                echo
+                echo "Do NOT just re-run CI or force the merge — the diff was written against an older master and needs re-reading against the current one."
+              fi
+            elif [ "$REVIEW_ONLY" = "true" ]; then
+              echo "### Why this needs review: **policy (generation/validator)**"
+              echo
+              echo "High-stakes change (Kind: generation/validator) — PR-gated for human review by policy. The change is verified (CI green) and scoped, but generation/validator edits must be reviewed before merging."
+            elif [ "$OUT_OF_SCOPE" = "1" ]; then
+              echo "### Why this needs review: **out of scope**"
+              echo
+              echo "The change touched files OUTSIDE the allowed scope for this feedback (feature isolation). Review the diff — it must stay within the feature's own files."
+            else
+              echo "### Why this needs review: **CI did not go green**"
+              echo
+              echo "The self-heal loop could not get \`tsc --noEmit\`, \`npm test\` and \`npm run build\` passing after 3 attempts. Review the run logs and the diff, fix, and merge manually."
+            fi
+            echo
+            echo "| | commit |"
+            echo "|---|---|"
+            echo "| Branched from master | \`${BASE_SHA}\` |"
+            echo "| master now | \`${CURRENT_MASTER}\` |"
+            echo
+            if [ "$BASE_SHA" != "$CURRENT_MASTER" ]; then
+              echo "> ⚠️ master moved while this was building — check the commits in between before trusting this diff."
+            fi
+            echo
+            echo "master and production were **not** touched."
+          } > /tmp/af/pr-body.md
+          cat /tmp/af/pr-body.md
           PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
             --title "[auto-feedback] attempt ${ATTEMPT_ID}: needs review" \
-            --body "$REASON" 2>&1) || true
+            --body-file /tmp/af/pr-body.md 2>&1) || true
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "$PR_URL"
 
@@ -265,6 +400,10 @@ jobs:
             APPLY_STATUS=pr_opened
           else
             APPLY_STATUS=failed
+          fi
+          # Surface a stale-base failure in the admin UI rather than the generic "needs review".
+          if [ -f /tmp/af/stale-note.md ]; then
+            export APPLY_ERROR="Built against a master that changed mid-run. $(tr -d '`' < /tmp/af/stale-note.md)"
           fi
           if [ "$NO_CHANGES" = "1" ]; then
             APPLY_STATUS=failed
