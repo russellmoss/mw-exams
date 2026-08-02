@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
 
-const JWT_SECRET = process.env.JWT_SECRET || "mw-study-secret-key-change-me";
 const COOKIE_NAME = "mw-session";
 const TOKEN_EXPIRY = "7d";
 
@@ -18,19 +17,34 @@ interface JwtPayload {
   name: string;
 }
 
+// Resolved lazily, never at module load: a missing secret must fail the request,
+// not the build. Deliberately has no fallback value — signing sessions with a
+// default that is committed to the repo would let anyone forge a session.
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      "JWT_SECRET is not set. Refusing to sign or verify sessions with a default secret."
+    );
+  }
+  return secret;
+}
+
 export function signToken(user: AuthUser): string {
   return jwt.sign(
     { userId: user.id, email: user.email, name: user.name },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: TOKEN_EXPIRY }
   );
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as JwtPayload;
     return decoded;
   } catch {
+    // Covers both an invalid/expired token and a missing secret. Either way we
+    // fail closed — no session is treated as valid.
     return null;
   }
 }
