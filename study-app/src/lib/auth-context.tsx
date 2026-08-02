@@ -15,6 +15,7 @@ interface AuthUser {
   name: string;
   isAdmin: boolean;
   hasApiKey: boolean;
+  stemDetailDefault?: "guided" | "exam_real" | "blind";
 }
 
 interface AuthContextValue {

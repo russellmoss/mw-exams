@@ -14,6 +14,11 @@ export interface GeneratedQuestion {
   family_label: string;
   subcategory: string | null;
   question_text: string;
+  // Stem Detail variants (migration 013). NULL until backfilled lazily by /api/get-question;
+  // question_text is the canonical fallback for any that is null.
+  stem_guided: string | null;
+  stem_exam_real: string | null;
+  stem_blind: string | null;
   wines: { slot: number; fullText: string; appearance?: string }[];
   total_marks: number;
   model_answer: string | null;
@@ -54,6 +59,38 @@ export interface UserAttempt {
   deck_id: string | null;
   card_index: number | null;
   deck_settings: Record<string, unknown> | null;
+  // Stem Detail (migration 013): the level the attempt was STARTED at, and the level it ENDED at if
+  // "Add detail" was used (NULL if never escalated).
+  stem_detail: string;
+  stem_detail_escalated_to: string | null;
+}
+
+// Persist derived Stem Detail variants for a question. COALESCE keeps any level that already has a
+// stored value, so a concurrent/partial backfill can only ever fill blanks (never overwrite).
+export async function updateStemVariants(
+  questionId: string,
+  variants: { guided?: string | null; exam_real?: string | null; blind?: string | null }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE generated_questions SET
+      stem_guided    = COALESCE(stem_guided,    ${variants.guided ?? null}),
+      stem_exam_real = COALESCE(stem_exam_real, ${variants.exam_real ?? null}),
+      stem_blind     = COALESCE(stem_blind,     ${variants.blind ?? null})
+    WHERE question_id = ${questionId}
+  `;
+}
+
+export async function getUserStemDetailDefault(userId: number): Promise<string> {
+  const sql = getDb();
+  const rows = await sql`SELECT stem_detail_default FROM users WHERE id = ${userId}`;
+  const v = rows[0]?.stem_detail_default;
+  return v === "guided" || v === "exam_real" || v === "blind" ? v : "exam_real";
+}
+
+export async function setUserStemDetailDefault(userId: number, level: string): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE users SET stem_detail_default = ${level} WHERE id = ${userId}`;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -183,26 +220,35 @@ export async function getQuestionCounts(): Promise<
   `) as { paper: number; family: string; count: number }[];
 }
 
-export async function createAttempt(questionId: string, mode: string | null = null): Promise<UserAttempt> {
+export async function createAttempt(
+  questionId: string,
+  mode: string | null = null,
+  stemDetail: string = "exam_real"
+): Promise<UserAttempt> {
   const sql = getDb();
   // `mode` is NOT NULL DEFAULT 'full' in the DB. A column default only applies when the column is
   // OMITTED from the INSERT — an explicit NULL violates the constraint and 500s. A "normal" study
   // attempt is canonically 'full' (the query layer already treats NULL and 'full' as equivalent),
-  // so coalesce null → 'full' here rather than inserting NULL.
+  // so coalesce null → 'full' here rather than inserting NULL. stem_detail is likewise NOT NULL.
   const rows = await sql`
-    INSERT INTO user_attempts (question_id, mode)
-    VALUES (${questionId}, ${mode ?? "full"})
+    INSERT INTO user_attempts (question_id, mode, stem_detail)
+    VALUES (${questionId}, ${mode ?? "full"}, ${stemDetail || "exam_real"})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
 }
 
-export async function createAttemptWithUser(questionId: string, userId: number, mode: string | null = null): Promise<UserAttempt> {
+export async function createAttemptWithUser(
+  questionId: string,
+  userId: number,
+  mode: string | null = null,
+  stemDetail: string = "exam_real"
+): Promise<UserAttempt> {
   const sql = getDb();
   // See createAttempt: coalesce null → 'full' so the explicit insert satisfies the NOT NULL mode column.
   const rows = await sql`
-    INSERT INTO user_attempts (question_id, user_id, mode)
-    VALUES (${questionId}, ${userId}, ${mode ?? "full"})
+    INSERT INTO user_attempts (question_id, user_id, mode, stem_detail)
+    VALUES (${questionId}, ${userId}, ${mode ?? "full"}, ${stemDetail || "exam_real"})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
@@ -291,9 +337,18 @@ export async function updateAttempt(
     deck_id: string | null;
     card_index: number | null;
     deck_settings: Record<string, unknown> | null;
+    // Stem Detail escalation ("Add detail"): the level the candidate ended at. One-way.
+    stem_detail_escalated_to: string;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
+
+  if (data.stem_detail_escalated_to !== undefined) {
+    const rows = await sql`
+      UPDATE user_attempts SET stem_detail_escalated_to = ${data.stem_detail_escalated_to} WHERE id = ${attemptId} RETURNING *
+    `;
+    return rows[0] as UserAttempt;
+  }
 
   // Flash Notes metadata write — set the per-card/per-deck columns in one shot. Detected by
   // prompt_type (always present for a Flash card) so it can't collide with the field-at-a-time
@@ -429,6 +484,9 @@ export interface AttemptWithDetails extends UserAttempt {
   // a.* select in getUserAttempts; history renders these instead of the study answer/debrief fields.
   mode: string | null;
   drill_payload: unknown;
+  // Stem Detail (migration 013): start level + escalation target (via a.* in getUserAttempts).
+  stem_detail: string;
+  stem_detail_escalated_to: string | null;
   // The AI's response to this attempt's feedback (latest feedback_analyses row): recommendation +
   // the conversation thread (system = "Analysis", user = follow-ups). History shows it inline.
   ai_recommendation: "accept" | "reject" | "pending" | null;

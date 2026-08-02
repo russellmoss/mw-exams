@@ -7,8 +7,11 @@ import { useAuth } from "@/lib/auth-context";
 import { PaperSelector } from "./components/PaperSelector";
 import { FamilyFilter } from "./components/FamilyFilter";
 import { SessionHistory } from "./components/SessionHistory";
+import { StemDetailSegments, stemForLevel } from "./components/StemDetailControl";
+import { STEM_DETAIL_HELPER_COPY, type StemDetailLevel } from "@/lib/prompts/stemDetail";
+import type { Question } from "@/lib/study-session";
 
-type LandingStep = "select-paper" | "select-family" | "select-mode" | "generating";
+type LandingStep = "select-paper" | "select-family" | "select-mode" | "stem-detail" | "generating";
 type StudyMode = "full" | "stem-only" | "known-wine" | "flash" | "mikey";
 
 export default function Home() {
@@ -22,6 +25,11 @@ export default function Home() {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [, setRecentAttempts] = useState<unknown[]>([]);
   const [selectedFamily, setSelectedFamily] = useState<string>("");
+  // Stem Detail setup: the fetched-but-not-yet-started question, the mode it was fetched for, and the
+  // chosen level (defaults to the user's stem_detail_default).
+  const [pendingQuestion, setPendingQuestion] = useState<Question | null>(null);
+  const [pendingMode, setPendingMode] = useState<StudyMode>("full");
+  const [stemDetail, setStemDetail] = useState<StemDetailLevel>("exam_real");
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -161,12 +169,15 @@ export default function Home() {
         const data = await res.json();
 
         const q = data.question;
-        const question = {
+        const question: Question = {
           id: q.question_id,
           source: data.source,
           paper: q.paper,
           questionNumber: 1,
           text: q.question_text,
+          stemGuided: q.stem_guided ?? null,
+          stemExamReal: q.stem_exam_real ?? null,
+          stemBlind: q.stem_blind ?? null,
           wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
           totalMarks: q.total_marks,
           family: q.family,
@@ -177,21 +188,33 @@ export default function Home() {
           hasWineResearch: false,
           modelAnswer: q.model_answer || "",
           proposedAnnotation: q.proposed_annotation || "",
-          reasoningTrace: q.reasoning_trace || "",
           studyDiagramAssist: q.study_diagram_assist || "",
           year: null,
         };
 
-        sessionStorage.setItem("mw-current-question", JSON.stringify(question));
-        sessionStorage.setItem("mw-study-mode", mode);
-        router.push("/study");
+        // Stem Detail applies to full / stem-only / known-wine. Show the setup screen (dial + live
+        // preview + Start) before starting the question, preselecting the user's saved default.
+        setPendingQuestion(question);
+        setPendingMode(mode);
+        setStemDetail((user?.stemDetailDefault as StemDetailLevel) || "exam_real");
+        setStep("stem-detail");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to get question");
         setStep("select-family");
       }
     },
-    [selectedPaper, selectedFamily, router]
+    [selectedPaper, selectedFamily, user]
   );
+
+  // Start the question from the Stem Detail setup screen. Persist the chosen level so /study can
+  // render/save it, then hand off to the study flow.
+  const handleStart = useCallback(() => {
+    if (!pendingQuestion) return;
+    sessionStorage.setItem("mw-current-question", JSON.stringify(pendingQuestion));
+    sessionStorage.setItem("mw-study-mode", pendingMode);
+    sessionStorage.setItem("mw-stem-detail", stemDetail);
+    router.push("/study");
+  }, [pendingQuestion, pendingMode, stemDetail, router]);
 
   return (
     <div className="flex flex-col flex-1">

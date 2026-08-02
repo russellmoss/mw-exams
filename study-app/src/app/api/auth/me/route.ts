@@ -16,6 +16,12 @@ export async function GET(request: Request) {
     `;
     const hasApiKey = keyRows.length > 0 || (user.isAdmin && !!process.env.ANTHROPIC_API_KEY);
 
+    // Stem Detail default (migration 013) — used to preselect the dial on the setup screen.
+    const prefRows = await sql`SELECT stem_detail_default FROM users WHERE id = ${user.id}`;
+    const raw = prefRows[0]?.stem_detail_default;
+    const stemDetailDefault =
+      raw === "guided" || raw === "exam_real" || raw === "blind" ? raw : "exam_real";
+
     return Response.json({
       user: {
         id: user.id,
@@ -23,6 +29,7 @@ export async function GET(request: Request) {
         name: user.name,
         isAdmin: user.isAdmin,
         hasApiKey,
+        stemDetailDefault,
       },
     });
   } catch (err) {
