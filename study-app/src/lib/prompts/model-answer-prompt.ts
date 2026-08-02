@@ -49,7 +49,13 @@ export function buildModelAnswerPrompt(
   questionText: string,
   wines: { slot: number; fullText: string }[],
   paper: number,
-  lexiconGuidance?: string
+  lexiconGuidance?: string,
+  // Retrieved tier-1 production references, already gated and formatted by
+  // lib/knowledge/context.ts. Optional and usually absent: it is populated only for
+  // production-shaped questions, and never for fortified/oxidative ones (the corpus has no
+  // coverage there). Passed in rather than fetched here because retrieval is async and this
+  // builder is sync and used by two call sites.
+  knowledgeBlock?: string | null
 ): { system: string; user: string } {
   const refs = loadReferenceData();
   const ctx = loadPipelineContext();
@@ -78,7 +84,7 @@ ${lexiconGuidance ? `\n${lexiconGuidance}\n` : ""}
 ${decisionTree}
 
 ## STUDY DIAGRAM FOR PAPER ${paper}
-${studyDiagram}`;
+${studyDiagram}${knowledgeBlock ? `\n\n${knowledgeBlock}` : ""}`;
 
   const wineList = wines
     .map((w) => `Wine ${w.slot}: ${w.fullText}`)

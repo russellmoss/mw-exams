@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
 import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
+import { getKnowledgeContext } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
@@ -25,7 +26,10 @@ export async function POST(request: Request) {
     const { model, abGroup } = await selectModel("model_answer", keyResult.apiKey, "opus");
 
     const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
-    const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance);
+    // Tier-1 production references, gated to production-shaped questions (and never fortified —
+    // the corpus has no sherry/port coverage). Fails soft: null block => previous behaviour.
+    const { block: knowledgeBlock } = await getKnowledgeContext({ questionText, family });
+    const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock);
 
     const t0 = Date.now();
     const message = await client.messages.create({

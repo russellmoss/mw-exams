@@ -18,6 +18,7 @@ import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { getKnowledgeContext } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { stemSniperScoringModel } from "@/lib/question-validator";
@@ -83,7 +84,10 @@ function generateModelAnswerInBackground(
       // Steer register with the same tasting lexicon the standalone generate-model-answer route uses,
       // so both model-answer paths share one voice (and the new prefer/avoid wording guidance).
       const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
-      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance);
+      // Same gated production references as the standalone generate-model-answer route, so the two
+      // model-answer paths stay in step (they already share the lexicon for the same reason).
+      const { block: knowledgeBlock } = await getKnowledgeContext({ questionText, family });
+      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock);
 
       const t0 = Date.now();
       const message = await client.messages.create({
