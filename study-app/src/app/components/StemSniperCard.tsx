@@ -6,12 +6,13 @@ export type Tier = "STRONG" | "PLAUSIBLE" | "CURVEBALL";
 export interface Prediction {
   variety?: string; // P1/P2
   style?: string; // P3 (style/method)
-  region: string;
+  region: string; // carries the Country guess (legacy field name; Reverse Tasting still reads it)
+  country?: string; // the Country axis guess
   tier: Tier;
 }
 interface Row {
-  primary: string; // variety (P1/P2) or style (P3)
-  region: string;
+  primary: string; // grape (P1/P2) or style/method (P3)
+  region: string; // country guess
   tier: Tier;
 }
 export interface Drill {
@@ -64,11 +65,12 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
   const submit = () => {
     if (!canSubmit) return;
     onSubmit(
-      filled.map((r) =>
-        isP3
-          ? { style: r.primary.trim(), region: r.region.trim(), tier: r.tier }
-          : { variety: r.primary.trim(), region: r.region.trim(), tier: r.tier }
-      )
+      filled.map((r) => {
+        const country = r.region.trim();
+        return isP3
+          ? { style: r.primary.trim(), region: country, country, tier: r.tier }
+          : { variety: r.primary.trim(), region: country, country, tier: r.tier };
+      })
     );
   };
 
@@ -131,35 +133,53 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
       )}
 
       <p className="text-xs text-muted mb-2">
-        Predict the {isP3 ? "styles/methods" : "varieties"} + origins{" "}
-        <span className="text-foreground">in the flight</span>
-        {isP3 ? " (use the look of the glasses above)" : " (before tasting)"}. Tag your confidence.{" "}
+        For each wine in the flight, name the {isP3 ? "style/method" : "grape"} and the country{" "}
+        {isP3 ? "(use the look of the glasses above)" : "(before tasting)"}. Tag your confidence.{" "}
         <span className="text-foreground/70">Order doesn&apos;t matter</span> — each guess is matched to the closest wine
-        in the flight, so you score for getting the right wine <em>somewhere</em> in the set.
-        <span className="ml-1 opacity-70">Enter = add row · Ctrl/⌘+Enter = submit</span>
+        in the flight.
+        <span className="ml-1 opacity-70">Enter = add wine · Ctrl/⌘+Enter = submit</span>
       </p>
 
       <div className="space-y-2">
         {rows.map((row, i) => (
-          <div key={i} className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted w-7 shrink-0" title="guess (order doesn't matter)">{i + 1}.</span>
-            <input
-              list={isP3 ? "ss-styles" : "ss-varieties"}
-              value={row.primary}
-              onChange={(e) => update(i, { primary: e.target.value })}
-              onKeyDown={(e) => onKeyDown(e, i)}
-              placeholder={isP3 ? "Style / method" : "Variety"}
-              className="flex-1 min-w-[120px] bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-            />
-            <input
-              list="ss-regions"
-              value={row.region}
-              onChange={(e) => update(i, { region: e.target.value })}
-              onKeyDown={(e) => onKeyDown(e, i)}
-              placeholder="Region / country"
-              className="flex-1 min-w-[120px] bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-            />
-            <div className="flex gap-1">
+          <div key={i} className="rounded-lg border border-border bg-background/40 p-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-muted" title="guess (order doesn't matter)">Wine {i + 1}</span>
+              <button
+                type="button"
+                onClick={() => removeRow(i)}
+                className="text-muted hover:text-fail transition-colors cursor-pointer px-1 text-xs"
+                title="Remove"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-muted">{isP3 ? "Style / method" : "Grape"}</span>
+                <input
+                  list={isP3 ? "ss-styles" : "ss-varieties"}
+                  value={row.primary}
+                  onChange={(e) => update(i, { primary: e.target.value })}
+                  onKeyDown={(e) => onKeyDown(e, i)}
+                  placeholder={isP3 ? "e.g. Vintage Port" : "e.g. Chardonnay"}
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-muted">Country</span>
+                <input
+                  list="ss-regions"
+                  value={row.region}
+                  onChange={(e) => update(i, { region: e.target.value })}
+                  onKeyDown={(e) => onKeyDown(e, i)}
+                  placeholder="e.g. France"
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                />
+              </label>
+            </div>
+            <div className="flex items-center gap-1 mt-2">
+              <span className="text-[10px] text-muted mr-1">Confidence</span>
               {TIERS.map((t) => (
                 <button
                   key={t}
@@ -174,21 +194,15 @@ export function StemSniperCard({ drill, varieties, regions, styles, submitting, 
                 </button>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => removeRow(i)}
-              className="text-muted hover:text-fail transition-colors cursor-pointer px-1"
-              title="Remove"
-            >
-              ✕
-            </button>
           </div>
         ))}
       </div>
 
+      <p className="text-[13px] text-muted mt-2">Region isn&apos;t marked — country is enough.</p>
+
       <div className="flex items-center justify-between mt-4">
         <button onClick={addRow} className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer">
-          + Add bucket
+          + Add wine
         </button>
         <button
           onClick={submit}

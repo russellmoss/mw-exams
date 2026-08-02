@@ -55,11 +55,29 @@ function CopyId({ id }: { id: string }) {
 }
 
 // Stem Sniper / Reverse Tasting drill payload (persisted by submit / submit-reverse).
-interface DrillPrediction { variety?: string; style?: string; region?: string; tier?: string | null; }
-interface DrillGrade { prediction: DrillPrediction; grade: string; points: number; note?: string }
-interface DrillScore { percent: number; summary?: { hits: number; nears: number; varietyOnly: number; plausibleOk: number; misses: number } }
+interface DrillPrediction { variety?: string; style?: string; region?: string; grape?: string; country?: string; tier?: string | null; }
+// A grade is either the legacy shape (prediction + grade) or the two-axis per-wine shape
+// (grape/country guesses + booleans + verdict). Both are tolerated when rendering history.
+interface DrillGrade {
+  prediction?: DrillPrediction;
+  grade?: string;
+  points?: number;
+  note?: string;
+  // Two-axis ("Two Marks, Not Three") fields — present on newer Stem Sniper rows only.
+  slot?: number;
+  grapeGuess?: string;
+  countryGuess?: string;
+  grapeCorrect?: boolean;
+  countryCorrect?: boolean;
+  verdict?: string;
+  correctGrape?: string;
+  correctCountry?: string;
+  region?: string;
+}
+interface DrillScore { percent: number; summary?: { hits: number; nears: number; varietyOnly?: number; plausibleOk?: number; misses: number } }
 interface DrillStage { predictions?: DrillPrediction[]; score?: DrillScore; grades?: DrillGrade[] }
 export interface DrillPayload {
+  twoAxis?: boolean;
   predictions?: DrillPrediction[];
   score?: DrillScore;
   grades?: DrillGrade[];
@@ -268,13 +286,17 @@ const drillPct = (d: DrillPayload | null): number | null =>
 const pctDot = (p: number | null): string => (p == null ? "bg-muted/40" : p >= 80 ? "bg-success" : p >= 50 ? "bg-borderline" : "bg-fail");
 const pctText = (p: number | null): string => (p == null ? "text-muted" : p >= 80 ? "text-success" : p >= 50 ? "text-borderline" : "text-fail");
 
+// A grade carries the two-axis fields when it was scored under the grape+country scheme.
+const isTwoAxisGrade = (g: DrillGrade): boolean => g.grapeCorrect !== undefined || g.countryCorrect !== undefined || g.verdict !== undefined;
+
 function DrillResultSection({ drill }: { drill: DrillPayload }) {
   const isReverse = !!drill.reverse;
   const grades = (isReverse ? drill.stage2?.grades : drill.grades) || [];
   const score = isReverse ? drill.stage2?.score : drill.score;
   const s = score?.summary;
+  const twoAxis = !isReverse && (drill.twoAxis || grades.some(isTwoAxisGrade));
   return (
-    <ExpandedSection title={isReverse ? "Reverse Tasting — Layer A → Layer B" : "Stem Sniper — your shortlist"}>
+    <ExpandedSection title={isReverse ? "Reverse Tasting — Layer A → Layer B" : "Stem Sniper — grape + country"}>
       {isReverse && drill.movement && (
         <div className="text-sm mb-3 flex items-center gap-1.5">
           <span className="text-muted">Layer A (stem)</span>
@@ -290,20 +312,45 @@ function DrillResultSection({ drill }: { drill: DrillPayload }) {
       {score?.percent != null && <div className={`text-2xl font-bold ${pctText(score.percent)} mb-1`}>{score.percent}%</div>}
       {s && (
         <div className="text-xs text-muted mb-3">
-          {s.hits} HIT · {s.nears} NEAR · {s.plausibleOk} plausible · {s.varietyOnly} variety · {s.misses} miss
+          {s.hits} HIT · {s.nears} NEAR{twoAxis ? "" : ` · ${s.plausibleOk ?? 0} plausible · ${s.varietyOnly ?? 0} variety`} · {s.misses} miss
         </div>
       )}
       <div className="space-y-1.5">
         {grades.map((g, i) => {
-          const gc = DRILL_GRADE[g.grade] || DRILL_GRADE.MISS;
+          // Two-axis (grape + country) row.
+          if (twoAxis && isTwoAxisGrade(g)) {
+            const verdict = g.verdict || "MISS";
+            const vc = DRILL_GRADE[verdict] || DRILL_GRADE.MISS;
+            const axis = (label: string, ok: boolean | undefined, guess?: string, correct?: string) => (
+              <span className={`inline-flex items-center gap-1 ${ok ? "text-emerald-300" : "text-fail"}`}>
+                <span className="font-medium">{label}</span>
+                <span aria-hidden>{ok ? "✓" : "✗"}</span>
+                {ok ? <span className="text-foreground">{correct}</span> : (
+                  <>
+                    {guess ? <span className="line-through text-muted">{guess}</span> : null}
+                    <span className="text-foreground">{correct}</span>
+                  </>
+                )}
+              </span>
+            );
+            return (
+              <div key={i} className="flex items-center flex-wrap gap-2 text-xs">
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border w-[64px] text-center shrink-0 ${vc.cls}`}>{vc.label}</span>
+                {axis("Grape", g.grapeCorrect, g.grapeGuess, g.correctGrape)}
+                {axis("Country", g.countryCorrect, g.countryGuess, g.correctCountry)}
+              </div>
+            );
+          }
+          // Legacy shortlist row.
+          const gc = DRILL_GRADE[g.grade || "MISS"] || DRILL_GRADE.MISS;
           return (
             <div key={i} className="flex items-center gap-2 text-sm">
               <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border w-[78px] text-center shrink-0 ${gc.cls}`}>{gc.label}</span>
               <span className="text-foreground">
-                {g.prediction.style || g.prediction.variety}
-                {g.prediction.region ? <span className="text-muted"> — {g.prediction.region}</span> : null}
+                {g.prediction?.style || g.prediction?.variety}
+                {g.prediction?.region ? <span className="text-muted"> — {g.prediction.region}</span> : null}
               </span>
-              {g.prediction.tier && <span className="text-[10px] text-muted ml-auto">{g.prediction.tier}</span>}
+              {g.prediction?.tier && <span className="text-[10px] text-muted ml-auto">{g.prediction.tier}</span>}
             </div>
           );
         })}

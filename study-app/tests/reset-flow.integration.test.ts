@@ -24,7 +24,7 @@ describeIf("password reset flow (real database)", () => {
   // describe.skip still evaluates this body to collect test names, so the client must not be
   // constructed eagerly — neon() throws on an undefined connection string, which would turn a
   // clean skip into a suite failure whenever TEST_DATABASE_URL is unset.
-  const sql = TEST_DB ? neon(TEST_DB) : (undefined as unknown as ReturnType<typeof neon>);
+  const sql = TEST_DB ? neon(TEST_DB) : (undefined as unknown as ReturnType<typeof neon<false, false>>);
   let userId: number;
 
   beforeAll(async () => {

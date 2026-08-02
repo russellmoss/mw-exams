@@ -7,13 +7,30 @@ export interface Grade {
   matchedSlot: number | null;
   note: string;
 }
+// Two-axis (grape + country) per-wine grade — the "Two Marks, Not Three" scheme.
+export interface WineGrade {
+  slot: number;
+  grapeGuess: string;
+  countryGuess: string;
+  grapeCorrect: boolean;
+  countryCorrect: boolean;
+  verdict: "HIT" | "NEAR" | "MISS";
+  points: number;
+  correctGrape: string;
+  correctCountry: string;
+  region: string; // information only — never scored
+  is_blend?: boolean;
+}
 export interface ScoreResult {
+  twoAxis?: boolean;
   points: number;
   maxPoints: number;
   percent: number;
-  grades: Grade[];
+  roundPoints?: number;
+  roundMax?: number;
+  grades: (Grade | WineGrade)[];
   calibration: { tier: string | null; correct: boolean; grade: string }[];
-  summary: { hits: number; nears: number; varietyOnly: number; plausibleOk: number; misses: number };
+  summary: { hits: number; nears: number; misses: number; varietyOnly?: number; plausibleOk?: number };
 }
 export interface Revealed {
   ground_truth: { slot: number; varieties: string[]; region: string; country?: string; is_blend?: boolean; style?: string }[];
@@ -42,7 +59,95 @@ const GRADE_LABEL: Record<string, string> = {
   MISS: "MISS",
 };
 
+// Round score is 1 mark per wine (HIT = 1, NEAR = ½, MISS = 0) — show a clean integer or one decimal.
+const fmtRound = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1));
+
+function AxisChip({ label, correct, guess, correct_value }: { label: string; correct: boolean; guess: string; correct_value: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs border ${
+        correct ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" : "text-fail border-fail/40 bg-fail/10"
+      }`}
+    >
+      <span className="font-semibold">{label}</span>
+      {correct ? (
+        <>
+          <span aria-hidden>✓</span>
+          <span className="text-foreground">{correct_value}</span>
+        </>
+      ) : (
+        <>
+          <span aria-hidden>✗</span>
+          {guess ? <span className="line-through text-muted">{guess}</span> : <span className="text-muted italic">blank</span>}
+          <span className="text-foreground">{correct_value}</span>
+        </>
+      )}
+    </span>
+  );
+}
+
+function TwoAxisResultBody({ result, onNext, submitting }: { result: ScoreResult; onNext: () => void; submitting: boolean }) {
+  const grades = result.grades as WineGrade[];
+  const { hits, nears, misses } = result.summary;
+  const roundPoints = result.roundPoints ?? hits + nears * 0.5;
+  const roundMax = result.roundMax ?? grades.length;
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-5">
+      {/* Round summary strip */}
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="text-sm text-foreground">
+          <span className="font-semibold">Round score {fmtRound(roundPoints)} / {roundMax}</span>
+          <span className="text-muted">
+            {" "}· {hits} {hits === 1 ? "Hit" : "Hits"} · {nears} Near · {misses} Miss
+          </span>
+        </div>
+        <button
+          onClick={onNext}
+          disabled={submitting}
+          className="shrink-0 px-5 py-2 text-sm font-semibold rounded-lg bg-accent hover:bg-accent-hover text-background transition-colors cursor-pointer disabled:opacity-50"
+        >
+          Next drill →
+        </button>
+      </div>
+
+      <div className="space-y-2.5">
+        {grades.map((g, i) => {
+          const badge = g.verdict === "HIT" ? GRADE_STYLE.HIT : g.verdict === "NEAR" ? GRADE_STYLE.NEAR : GRADE_STYLE.MISS;
+          const identity = [g.correctGrape, [g.region, g.correctCountry].filter(Boolean).join(", ")]
+            .filter(Boolean)
+            .join(" — ");
+          return (
+            <div key={i} className="rounded-lg border border-border bg-background/40 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-foreground">Wine {g.slot ?? i + 1}</span>
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${badge}`}>{g.verdict}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <AxisChip label="Grape" correct={g.grapeCorrect} guess={g.grapeGuess} correct_value={g.correctGrape} />
+                <AxisChip label="Country" correct={g.countryCorrect} guess={g.countryGuess} correct_value={g.correctCountry} />
+              </div>
+              <div className="mt-3">
+                <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">The wine</div>
+                <div className="text-sm text-foreground">
+                  {identity}
+                  {g.region ? (
+                    <span className="ml-2 align-middle text-[10px] text-muted border border-border rounded px-1.5 py-0.5">
+                      region not marked
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function StemSniperResult({ result, revealed, submitting, onNext }: Props) {
+  if (result.twoAxis) return <TwoAxisResultBody result={result} onNext={onNext} submitting={submitting} />;
   const scoreColor = result.percent >= 80 ? "text-emerald-300" : result.percent >= 50 ? "text-amber-300" : "text-fail";
 
   // calibration grouped by tier
@@ -63,8 +168,8 @@ export function StemSniperResult({ result, revealed, submitting, onNext }: Props
         <div>
           <div className={`text-4xl font-bold ${scoreColor}`}>{result.percent}%</div>
           <div className="text-xs text-muted mt-1">
-            {result.summary.hits} HIT · {result.summary.nears} NEAR · {result.summary.plausibleOk} plausible ·{" "}
-            {result.summary.varietyOnly} variety · {result.summary.misses} miss
+            {result.summary.hits} HIT · {result.summary.nears} NEAR · {result.summary.plausibleOk ?? 0} plausible ·{" "}
+            {result.summary.varietyOnly ?? 0} variety · {result.summary.misses} miss
           </div>
         </div>
         <button
@@ -84,7 +189,7 @@ export function StemSniperResult({ result, revealed, submitting, onNext }: Props
 
       {/* graded predictions */}
       <div className="space-y-1.5 mb-5">
-        {result.grades.map((g, i) => (
+        {(result.grades as Grade[]).map((g, i) => (
           <div key={i} className="flex items-center gap-2 text-sm">
             <span
               className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border w-[78px] text-center shrink-0 ${

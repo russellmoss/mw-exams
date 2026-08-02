@@ -56,11 +56,12 @@ export function StemSniperTastingCard({ questionText, isP3, notes, initial, vari
   const submit = () => {
     if (!canSubmit) return;
     onSubmit(
-      filled.map((r) =>
-        isP3
-          ? { style: r.primary.trim(), region: r.region.trim(), tier: r.tier }
-          : { variety: r.primary.trim(), region: r.region.trim(), tier: r.tier }
-      )
+      filled.map((r) => {
+        const country = r.region.trim();
+        return isP3
+          ? { style: r.primary.trim(), region: country, country, tier: r.tier }
+          : { variety: r.primary.trim(), region: country, country, tier: r.tier };
+      })
     );
   };
   const onKeyDown = (e: React.KeyboardEvent, i: number) => {
@@ -109,25 +110,39 @@ export function StemSniperTastingCard({ questionText, isP3, notes, initial, vari
 
       <div className="space-y-2">
         {rows.map((row, i) => (
-          <div key={i} className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted w-7 shrink-0">{i + 1}.</span>
-            <input
-              list={isP3 ? "rt-styles" : "rt-varieties"}
-              value={row.primary}
-              onChange={(e) => update(i, { primary: e.target.value })}
-              onKeyDown={(e) => onKeyDown(e, i)}
-              placeholder={isP3 ? "Style / method" : "Variety"}
-              className="flex-1 min-w-[120px] bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-            />
-            <input
-              list="rt-regions"
-              value={row.region}
-              onChange={(e) => update(i, { region: e.target.value })}
-              onKeyDown={(e) => onKeyDown(e, i)}
-              placeholder="Region / country"
-              className="flex-1 min-w-[120px] bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
-            />
-            <div className="flex gap-1">
+          <div key={i} className="rounded-lg border border-border bg-background/40 p-3">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-muted">Wine {i + 1}</span>
+              <button type="button" onClick={() => removeRow(i)} className="text-muted hover:text-fail transition-colors cursor-pointer px-1 text-xs" title="Remove">
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-muted">{isP3 ? "Style / method" : "Grape"}</span>
+                <input
+                  list={isP3 ? "rt-styles" : "rt-varieties"}
+                  value={row.primary}
+                  onChange={(e) => update(i, { primary: e.target.value })}
+                  onKeyDown={(e) => onKeyDown(e, i)}
+                  placeholder={isP3 ? "e.g. Vintage Port" : "e.g. Chardonnay"}
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-[11px] font-medium text-muted">Country</span>
+                <input
+                  list="rt-regions"
+                  value={row.region}
+                  onChange={(e) => update(i, { region: e.target.value })}
+                  onKeyDown={(e) => onKeyDown(e, i)}
+                  placeholder="e.g. France"
+                  className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
+                />
+              </label>
+            </div>
+            <div className="flex items-center gap-1 mt-2">
+              <span className="text-[10px] text-muted mr-1">Confidence</span>
               {TIERS.map((t) => (
                 <button
                   key={t}
@@ -142,16 +157,15 @@ export function StemSniperTastingCard({ questionText, isP3, notes, initial, vari
                 </button>
               ))}
             </div>
-            <button type="button" onClick={() => removeRow(i)} className="text-muted hover:text-fail transition-colors cursor-pointer px-1" title="Remove">
-              ✕
-            </button>
           </div>
         ))}
       </div>
 
+      <p className="text-[13px] text-muted mt-2">Region isn&apos;t marked — country is enough.</p>
+
       <div className="flex items-center justify-between mt-4">
         <button onClick={addRow} className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer">
-          + Add bucket
+          + Add wine
         </button>
         <button
           onClick={submit}

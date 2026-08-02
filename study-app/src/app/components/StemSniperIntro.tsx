@@ -20,13 +20,15 @@ const STEPS: { n: string; title: string; body: React.ReactNode }[] = [
   },
   {
     n: "2",
-    title: "Enter a variety + a region/country for each candidate",
+    title: "Name the grape + the country for each candidate",
     body: (
       <>
-        For each wine it might be, type the <span className="text-foreground">variety</span> (on
-        Paper 3, the <span className="text-foreground">style or method</span>) and its{" "}
-        <span className="text-foreground">region or country</span>. Add as many as you like — that&apos;s
-        what the <span className="text-accent font-medium">+ Add bucket</span> button is for.
+        For each wine it might be, type the <span className="text-foreground">grape</span> (on
+        Paper 3, the <span className="text-foreground">style or method</span>) and the{" "}
+        <span className="text-foreground">country</span>.{" "}
+        <span className="text-foreground">You&apos;re marked on grape and country. Region isn&apos;t marked</span>{" "}
+        — naming the country is enough, and being more specific never costs marks. Add as many as you
+        like with the <span className="text-accent font-medium">+ Add wine</span> button.
       </>
     ),
   },
