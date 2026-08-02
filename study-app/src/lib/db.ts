@@ -580,7 +580,7 @@ export interface FeedbackAnalysis {
   created_at: string;
   updated_at: string;
   // Auto-apply pipeline audit (set by the dispatch path and the GitHub Action)
-  apply_status: string | null; // dispatched|verifying|merged|deployed|pr_opened|failed
+  apply_status: string | null; // dispatched|verifying|merged|deployed|pr_opened|pr_closed|failed
   work_branch: string | null;
   commit_sha: string | null;
   pr_url: string | null;
@@ -982,7 +982,9 @@ export interface FeatureRequest {
   id: number;
   created_by: number | null;
   title: string | null;
-  status: string; // drafting|clarifying|proposed|ready|building|built|pr_opened|failed
+  // drafting|clarifying|proposed|ready|building|built|pr_opened|pr_merged|pr_closed|failed
+  // pr_merged / pr_closed are written by the PR reconciler (src/lib/pr-status.ts), not the pipeline.
+  status: string;
   // mockups (optional) carry rendered UI samples on a proposing assistant turn — stored in the JSONB
   // thread so re-opening a request re-renders them. No schema change needed.
   thread: { role: "user" | "assistant"; content: string; timestamp: string; mockups?: { title: string; html: string }[] }[];
@@ -1058,6 +1060,7 @@ export async function updateFeatureRequest(
     technical_spec: string;
     work_branch: string;
     applied_by: string;
+    apply_status: string;
   }>
 ): Promise<FeatureRequest> {
   const sql = getDb();
@@ -1070,6 +1073,7 @@ export async function updateFeatureRequest(
       technical_spec = COALESCE(${data.technical_spec ?? null}, technical_spec),
       work_branch = COALESCE(${data.work_branch ?? null}, work_branch),
       applied_by = COALESCE(${data.applied_by ?? null}, applied_by),
+      apply_status = COALESCE(${data.apply_status ?? null}::text, apply_status),
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

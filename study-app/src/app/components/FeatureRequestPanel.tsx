@@ -36,13 +36,23 @@ const STATUS_STYLE: Record<string, string> = {
   building: "bg-accent/20 text-accent",
   built: "bg-success/20 text-success",
   pr_opened: "bg-borderline/20 text-borderline",
+  pr_merged: "bg-success/20 text-success",
+  pr_closed: "bg-muted/20 text-muted",
   failed: "bg-fail/20 text-fail",
+};
+
+// pr_merged / pr_closed come from the GitHub reconciler in the GET route — the build Action only
+// ever writes pr_opened, so without those labels a shipped feature reads "PR OPEN" forever.
+const STATUS_LABEL: Record<string, string> = {
+  pr_opened: "PR open",
+  pr_merged: "merged",
+  pr_closed: "PR closed",
 };
 
 function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded ${STATUS_STYLE[status] || "bg-muted/20 text-muted"}`}>
-      {status.replace(/_/g, " ")}
+      {STATUS_LABEL[status] || status.replace(/_/g, " ")}
     </span>
   );
 }
@@ -75,9 +85,16 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
 
   useEffect(() => { refresh(); }, [refresh]);
 
+  // Poll hard while a build is in flight; poll gently while a PR is open, since the merge is
+  // reconciled against GitHub on refresh and would otherwise need a manual reload to show up.
   useEffect(() => {
-    if (!list.some((f) => f.status === "building")) return;
-    const t = setInterval(refresh, 10000);
+    const ms = list.some((f) => f.status === "building")
+      ? 10000
+      : list.some((f) => f.status === "pr_opened")
+        ? 60000
+        : 0;
+    if (!ms) return;
+    const t = setInterval(refresh, ms);
     return () => clearInterval(t);
   }, [list, refresh]);
 
