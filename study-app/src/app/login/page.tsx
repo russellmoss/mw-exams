@@ -1,12 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import Image from "next/image";
+import Link from "next/link";
 
-export default function LoginPage() {
+/** Failure codes the Google callback redirects back with. */
+const GOOGLE_ERRORS: Record<string, string> = {
+  google_cancelled: "Google sign-in was cancelled.",
+  google_state: "Google sign-in expired or was tampered with. Please try again.",
+  google_no_code: "Google sign-in did not complete. Please try again.",
+  google_unverified:
+    "That Google account's email address isn't verified by Google, so we can't sign you in with it. Verify it with Google, or sign in with a password.",
+  google_unavailable: "Google sign-in isn't configured. Please sign in with a password.",
+  google_failed: "Google sign-in failed. Please try again.",
+  account_disabled: "That account is disabled.",
+};
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +44,18 @@ export default function LoginPage() {
   useEffect(() => {
     if (!loading && user) router.push("/");
   }, [user, loading, router]);
+
+  // Derived during render rather than pushed into state from an effect, which would cause a
+  // cascading re-render. The form's own `error` takes precedence once the user submits.
+  const oauthErrorCode = searchParams.get("error");
+  const oauthError = oauthErrorCode ? (GOOGLE_ERRORS[oauthErrorCode] ?? null) : null;
+  const displayError = error ?? oauthError;
+
+  // Strip ?error= from the address bar so a refresh doesn't resurface a stale message. This only
+  // touches history (an external system) and sets no state, so it does not re-render.
+  useEffect(() => {
+    if (oauthErrorCode) window.history.replaceState({}, "", "/login");
+  }, [oauthErrorCode]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,9 +149,9 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {error && (
+        {displayError && (
           <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
-            <p className="text-sm text-fail">{error}</p>
+            <p className="text-sm text-fail">{displayError}</p>
           </div>
         )}
 
@@ -156,8 +182,34 @@ export default function LoginPage() {
               className="w-full py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
               {submitting ? "Signing in..." : "Sign in"}
             </button>
+            <div className="text-center">
+              <Link href="/forgot-password" className="text-sm text-muted hover:text-accent transition-colors">
+                Forgot your password?
+              </Link>
+            </div>
           </form>
         )}
+
+        {/* Google sign-in is offered for both modes: it signs in an existing account or creates one. */}
+        <div className="mt-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted">or</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <a
+            href="/api/auth/google"
+            className="w-full flex items-center justify-center gap-3 py-2.5 bg-card border border-border rounded-lg text-foreground hover:border-muted transition-colors font-medium text-sm"
+          >
+            <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M23.06 12.25c0-.85-.08-1.67-.22-2.45H12v4.63h6.2a5.3 5.3 0 01-2.3 3.48v2.89h3.72c2.18-2 3.44-4.96 3.44-8.55z" />
+              <path fill="#34A853" d="M12 24c3.1 0 5.7-1.03 7.6-2.79l-3.72-2.89c-1.03.69-2.35 1.1-3.88 1.1-2.98 0-5.5-2.01-6.4-4.72H1.75v2.98A11.5 11.5 0 0012 24z" />
+              <path fill="#FBBC05" d="M5.6 14.7a6.9 6.9 0 010-4.4V7.32H1.75a11.5 11.5 0 000 10.36l3.85-2.98z" />
+              <path fill="#EA4335" d="M12 4.77c1.68 0 3.19.58 4.38 1.72l3.29-3.29C17.7 1.24 15.1 0 12 0A11.5 11.5 0 001.75 7.32L5.6 10.3c.9-2.71 3.42-4.72 6.4-4.72z" />
+            </svg>
+            Continue with Google
+          </a>
+        </div>
 
         {mode === "register" && (
           <form onSubmit={handleRegister} className="space-y-4">
@@ -382,5 +434,15 @@ export default function LoginPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams requires a Suspense boundary; without one the whole route opts into
+  // client-side rendering.
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
   );
 }

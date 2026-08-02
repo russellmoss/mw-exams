@@ -29,6 +29,16 @@ export async function POST(request: Request) {
 
     const user = rows[0];
 
+    // A Google-only account has no password_hash. bcrypt.compare throws on null, which would
+    // surface as a 500 instead of a login failure, so answer with the same generic message used
+    // for a wrong password — it also avoids revealing which accounts are Google-backed.
+    if (!user.password_hash) {
+      return Response.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
+      );
+    }
+
     const passwordValid = await bcrypt.compare(password, user.password_hash);
     if (!passwordValid) {
       return Response.json(
