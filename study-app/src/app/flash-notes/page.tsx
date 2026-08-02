@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useDraft } from "@/lib/use-draft";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flash Notes — a rapid, single-prompt variant of Dry Notes.
@@ -132,7 +133,9 @@ export default function FlashNotesPage() {
   const [cardIndex, setCardIndex] = useState(0);
   const [results, setResults] = useState<CardResult[]>([]);
   const [card, setCard] = useState<ActiveCard | null>(null);
-  const [answer, setAnswer] = useState("");
+  // Per card, so a reload during a flash note doesn't cost the note; the key
+  // changes with the card, so the next one always starts blank.
+  const [answer, setAnswer, clearAnswer] = useDraft(`flash-note:${card?.attemptId ?? card?.questionId ?? "pending"}`);
   const [lastGrade, setLastGrade] = useState<{ verdict: Verdict; score: number; feedback: string; elapsedSeconds: number; wineCount: number } | null>(null);
 
   // Stopwatch
@@ -177,7 +180,8 @@ export default function FlashNotesPage() {
       if (!setup || !s) return;
       setScreen("loading");
       setError(null);
-      setAnswer("");
+      // No need to blank the box: the draft is keyed to the card, so the new
+      // card brings its own (empty) draft with it.
       try {
         const res = await fetch("/api/get-question", {
           method: "POST",
@@ -303,12 +307,14 @@ export default function FlashNotesPage() {
       setResults((r) => [...r, { verdict, score, elapsedSeconds, wineCount: card.wines.length, promptType: card.promptType }]);
       setLastGrade({ verdict, score, feedback, elapsedSeconds, wineCount: card.wines.length });
       setScreen("verdict");
+      clearAnswer(); // graded and stored — the draft has done its job
     } catch (err) {
+      // Keep the draft: grading failed, so they're sent back to the card to resubmit.
       setError(err instanceof Error ? err.message : "Grading failed");
       setScreen("card");
       stopwatchStart(); // let them resubmit
     }
-  }, [card, answer, stopwatchStop, stopwatchStart]);
+  }, [card, answer, stopwatchStop, stopwatchStart, clearAnswer]);
 
   const nextCard = useCallback(() => {
     const s = settingsRef.current;

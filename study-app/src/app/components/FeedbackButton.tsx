@@ -20,7 +20,7 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
   // Unsent feedback survives closing the modal, moving through the question's
   // steps, and reloading — scoped to the question (or the attempt, when that's
   // all the caller gives us) so it never follows the candidate to the next wine.
-  const [feedback, setFeedback] = useDraft(
+  const [feedback, setFeedback, clearFeedback] = useDraft(
     `feedback:${questionId ?? (attemptId ? `attempt:${attemptId}` : "pending")}`
   );
   const [sent, setSent] = useState(false);
@@ -96,7 +96,7 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
       });
 
       setSent(true);
-      setFeedback("");
+      clearFeedback();
       setTimeout(() => {
         setOpen(false);
         setSent(false);

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import type { Question } from "@/lib/study-session";
 import { useSpeech } from "@/lib/use-speech";
+import { useDraft } from "@/lib/use-draft";
 import { MicButton } from "./MicButton";
 
 interface PreGlassReasoningProps {
@@ -21,7 +22,9 @@ export function PreGlassReasoning({
   onSubmit,
   stemText,
 }: PreGlassReasoningProps) {
-  const [reasoning, setReasoning] = useState("");
+  // Kept per question so a reload mid-analysis doesn't cost the candidate their
+  // pre-glass thinking; forgotten once it's submitted.
+  const [reasoning, setReasoning, clearReasoning] = useDraft(`pre-glass:${question.id}`);
 
   const handleTranscript = useCallback((text: string) => {
     setReasoning((prev) => {
@@ -29,7 +32,7 @@ export function PreGlassReasoning({
       if (trimmed.length === 0) return text;
       return trimmed + " " + text;
     });
-  }, []);
+  }, [setReasoning]);
 
   const speech = useSpeech(handleTranscript);
 
@@ -134,6 +137,7 @@ export function PreGlassReasoning({
         <button
           onClick={() => {
             speech.stop();
+            clearReasoning();
             onSubmit(reasoning);
           }}
           disabled={reasoning.trim().length < 20}

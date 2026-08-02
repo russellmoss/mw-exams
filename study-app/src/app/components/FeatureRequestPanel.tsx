@@ -53,7 +53,7 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
   const [current, setCurrent] = useState<FeatureRequestView | null>(null);
   // Unsent text survives closing the modal / reloading, per conversation. A
   // brand-new request (no id yet) keeps its own "new" draft.
-  const [input, setInput] = useDraft(
+  const [input, setInput, clearInput] = useDraft(
     `feature-request:${current?.id && current.id > 0 ? current.id : "new"}`
   );
   const [busy, setBusy] = useState(false);
@@ -100,7 +100,7 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
   const send = async () => {
     const text = input.trim();
     if (!text || busy) return;
-    setBusy(true); setError(null); setInput(""); setLiveText("");
+    setBusy(true); setError(null); clearInput(); setLiveText("");
 
     const baseThread = current?.thread ?? [];
     const userTurn: ThreadTurn = { role: "user", content: text };
