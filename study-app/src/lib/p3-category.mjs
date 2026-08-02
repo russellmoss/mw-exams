@@ -51,13 +51,91 @@ function norm(s) {
 // only match "port" and unambiguous fortified names.
 const FORTIFIED = /\b(fortified|port\b|tawny|colheita|lbv|sherry|jerez|fino|manzanilla|amontillado|oloroso|palo cortado|pedro ximenez|\bpx\b|montilla|madeira|malmsey|sercial|verdelho madeira|bual|boal|marsala|vin doux naturel|\bvdn\b|banyuls|maury|rivesaltes|rasteau|rutherglen|beaumes[- ]de[- ]venise|muscat de|commandaria|mavrodaphne|moscatel de setubal|vermouth|solera|vino generoso|vins de liqueur)\b/;
 
-const SWEET = /\b(sauternes|barsac|monbazillac|loupiac|sainte[- ]croix[- ]du[- ]mont|jurancon|coteaux du layon|quarts de chaume|bonnezeaux|moelleux|beerenauslese|trockenbeerenauslese|\btba\b|auslese|spatlese|eiswein|ice ?wine|tokaj|tokaji|aszu|eszencia|essencia|szamorodni|passito|recioto|vin santo|vinsanto|vendange tardive|selection de grains nobles|\bsgn\b|late harvest|noble rot|botrytis|moscato|\basti\b|brachetto|clairette de die|dolce|moscatel|straw wine|passerillage|late[- ]picked|dulce|sweet)\b/;
+// Backstop for fortified wines whose label names neither the style nor a giveaway region —
+// "Taylor's Vintage, 1985. Douro, Portugal. (20.5%)", "JMK Shiraz VP, Kalleske. (18.5%)". We
+// deliberately don't token-match bare "vintage"/"ruby", so ABV is what's left. Calibrated against
+// the 504-wine corpus: ALL 30 wines at >=17% are Port/Sherry/Madeira/Rutherglen/VP, while the
+// 16–16.5% band still holds dry Amarone and Mollydooker Shiraz. Move this threshold only with
+// fresh corpus evidence.
+const FORTIFIED_ABV = 17;
+function statedAbv(t) {
+  const m = t.match(/(\d{1,2}(?:[.,]\d)?)\s*%/);
+  return m ? parseFloat(m[1].replace(",", ".")) : null;
+}
 
-const SPARKLING = /\b(sparkling|champagne|cremant|cava|prosecco|franciacorta|trentodoc|sekt|espumante|spumante|cap classique|blanc de blancs|blanc de noirs|mousseux|petillant|metodo classico|methode traditionnelle|traditional method|pet[- ]?nat|petillant naturel|col fondo|sui lieviti|nyetimber|schramsberg|\bbrut\b|extra brut|dosage|lambrusco)\b/;
+// `tokaj`/`tokaji` is NOT here: Tokaj makes dry Furmint (a recurring Paper 3 curveball) as well as
+// Aszú, so the region alone proves nothing. The sweetness has to be named — aszú, puttonyos,
+// eszencia, szamorodni.
+const SWEET = /\b(sauternes|barsac|monbazillac|loupiac|sainte[- ]croix[- ]du[- ]mont|jurancon|coteaux du layon|quarts de chaume|bonnezeaux|moelleux|beerenauslese|trockenbeerenauslese|\btba\b|auslese|spatlese|eiswein|ice ?wine|aszu|puttonyos|eszencia|essencia|szamorodni|passito|recioto|vin santo|vinsanto|vendange tardive|vendemmia tardiva|selection de grains nobles|\bsgn\b|late harvest|noble rot|botrytis|moscato|moscadello|\basti\b|brachetto|clairette de die|dolce|moscatel|straw wine|vin de paille|strohwein|vin de constance|passerillage|late[- ]picked|dulce|sweet)\b/;
 
-const OXIDATIVE = /\b(oxidative|oxidised|oxidized|sous voile|vin jaune|chateau[- ]chalon|l ?etoile|etoile|savagnin|arbois|rancio|orange wine|amber wine|qvevri|kvevri|skin[- ]contact|skin contact)\b/;
+// `sekt\w*` because German sparkling houses bury the term in a compound — "Sektmanufaktur",
+// "Sekthaus", "Sektkellerei" — and a bare \bsekt\b misses every one of them.
+const SPARKLING = /\b(sparkling|champagne|cremant|cava|prosecco|valdobbiadene|cartizze|conegliano|franciacorta|trentodoc|sekt\w*|espumante|spumante|cap classique|blanc de blancs|blanc de noirs|mousseux|petillant|metodo classico|methode traditionnelle|traditional method|pet[- ]?nat|petillant naturel|col fondo|sui lieviti|nyetimber|schramsberg|\bbrut\b|extra brut|dosage|lambrusco)\b/;
 
-const ROSE = /\b(rose|rosado|rosato|rosat|vin gris|clairet|tavel|oeil de perdrix|cerasuolo|blush|pink)\b/;
+// Explicitly-stated oxidative handling — the style is named on the label.
+// Note what is NOT here any more: the bare Jura appellation names (`arbois`, `l'étoile`). An
+// appellation is not a winemaking style — Arbois covers ouillé Chardonnay and Trousseau reds as
+// readily as it covers vin jaune — so the Jura signal has to come from the grape (`savagnin`, which
+// in Jura is the flor grape by default) or from the style itself (`vin jaune`, `sous voile`,
+// `voile`), all of which are listed here. `chateau-chalon` stays: that AOC is vin jaune and nothing
+// else.
+const OXIDATIVE = /\b(oxidative|oxidatively|oxidised|oxidized|sous voile|sous le voile|vin de voile|voile|vin jaune|chateau[- ]chalon|savagnin|rancio|velo de flor|flor[- ]aged|aged under flor|under flor|biologically aged|vernaccia di oristano|orange wine|amber|qvevri|kvevri|skin[- ]contact|skin contact)\b/;
+
+// "Ouillé" (topped up) is the EXPLICIT opposite of sous voile: the barrel is kept full so no flor
+// ever forms, giving a fresh, reductive white. It has to beat every cue above, because an "Arbois
+// Savagnin Ouillé" trips both `savagnin` and its Jura context while being the exact wine the
+// oxidative bucket must not serve.
+const NON_OXIDATIVE = /\b(ouille|ouillee|ouilles|ouillage|topped[- ]up|non[- ]oxidative|non oxidative|no flor|without flor)\b/;
+
+// Oxidatively-aged whites are usually NAMED, not described: the label says neither "oxidative" nor
+// "sous voile", and the candidate is expected to know the house. Two cues:
+//   1. White-only traditional cuvées, which ARE the style — no white qualifier needed (Viña Gravonia
+//      appears in the corpus as "Viña Gravonia, Lopez de Heredia Viña Tondonia" with no "Blanco").
+//   2. The traditional Rioja houses on a WHITE bottling. The white cue is required because their
+//      reds carry the same cuvée names — "Castillo Ygay Gran Reserva" is a red, "Castillo Ygay
+//      Blanco Gran Reserva Especial" is the oxidative white.
+const OXIDATIVE_WHITE_CUVEE = /\b(gravonia|capellania|monopole clasico)\b/;
+const TRAD_WHITE_HOUSE = /\b(lopez de heredia|tondonia|castillo ygay|marques de murrieta)\b/;
+const WHITE_CUE = /\b(blanco|blanc|bianco|white|viura|malvasia|garnacha blanca)\b/;
+
+// Jura houses whose white production is voile-aged BY DEFAULT, so the label needs to say nothing:
+// Macle, Montbourgeau, Berthet-Bondet, Bourdy. This list is deliberately short and excludes the
+// domaines that bottle both styles (Tissot, Rolet, Ganevat, Puffeney) — for those the label does
+// the talking, via `savagnin`/`vin jaune` on one side and the `ouillé` veto on the other. This is
+// the knowledge an appellation token can't carry: Arbois and L'Étoile each cover both styles, the
+// house is what decides.
+const OXIDATIVE_HOUSE = /\b(macle|montbourgeau|berthet[- ]bondet|bourdy)\b/;
+
+// ...but those houses bottle reds too, and a red cue vetoes the house route — "Berthet-Bondet
+// Trousseau Tradition" is a Jura RED. Same trap as "Castillo Ygay Gran Reserva" (red) vs "Castillo
+// Ygay Blanco" (oxidative white): the cuvée/house name alone never settles the colour.
+const RED_CUE = /\b(trousseau|poulsard|ploussard|pinot noir|tinto|tinta|rouge|\bred\b|noir)\b/;
+
+// Georgian qvevri whites are almost never labelled "qvevri" or "amber" — the corpus has
+// "Pheasant's Tears, Rkatsiteli. 2011. Kakheti, Georgia". Country/region + a traditional white
+// grape is the reliable cue; the amber treatment is the regional default for these varieties.
+const GEORGIA = /\b(georgia|kakheti|kartli|imereti)\b/;
+const GEORGIAN_WHITE_GRAPE = /\b(rkatsiteli|mtsvane|kisi|khikhvi|tsolikouri|tsitska)\b/;
+
+/**
+ * Whites whose long aerobic ageing (voile, qvevri, old-oak ullage) is implied by house, grape or
+ * region rather than stated on the label — the knowledge a candidate is expected to bring.
+ * @param {string} t normalised text
+ */
+function isOxidativeAgedWhite(t) {
+  if (OXIDATIVE_WHITE_CUVEE.test(t)) return true;
+  if (RED_CUE.test(t)) return false;
+  if (OXIDATIVE_HOUSE.test(t)) return true;
+  if (GEORGIA.test(t) && GEORGIAN_WHITE_GRAPE.test(t)) return true;
+  if (!WHITE_CUE.test(t)) return false;
+  if (TRAD_WHITE_HOUSE.test(t)) return true;
+  // A white Rioja carrying a barrel-age designation is the traditional style by definition: Blanco
+  // Reserva demands years in old oak, and essentially only the traditionalist houses still bottle it.
+  return /\brioja\b/.test(t) && /\breserva\b/.test(t);
+}
+
+// "White Zinfandel" is the archetypal blush wine and says none of the words below on the label.
+const ROSE = /\b(rose|rosado|rosato|rosat|vin gris|clairet|tavel|oeil de perdrix|cerasuolo|blush|pink|white zinfandel|weissherbst)\b/;
 
 /**
  * Classify ONE wine's fullText.
@@ -69,11 +147,14 @@ const ROSE = /\b(rose|rosado|rosato|rosat|vin gris|clairet|tavel|oeil de perdrix
 export function classifyWineStyle(fullText) {
   const t = norm(fullText);
   const isRose = ROSE.test(t);
+  // A stated "ouillé" vetoes both oxidative routes — stated cue and implied house alike.
+  const oxidative = !NON_OXIDATIVE.test(t) && (OXIDATIVE.test(t) || isOxidativeAgedWhite(t));
+  const abv = statedAbv(t);
   let style;
-  if (FORTIFIED.test(t)) style = "fortified";
+  if (FORTIFIED.test(t) || (abv !== null && abv >= FORTIFIED_ABV)) style = "fortified";
   else if (SWEET.test(t)) style = "sweet";
   else if (SPARKLING.test(t)) style = "sparkling";
-  else if (OXIDATIVE.test(t)) style = "oxidative";
+  else if (oxidative) style = "oxidative";
   else style = "other";
   return { style, isRose };
 }
