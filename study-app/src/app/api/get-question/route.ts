@@ -14,15 +14,48 @@ import {
   type UsageMeta,
   type GenerationOutcome,
 } from "@/lib/question-engine";
+import { ensureStemVariants } from "@/lib/stem-detail";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
+// Backfill (or read) the three Stem Detail variants for a served question and attach them to the
+// payload so the setup screen can preview any level and the study screen can escalate client-side.
+// Best-effort: if derivation fails the canonical stem is used for every level (grading is unchanged).
+async function attachStemVariants<
+  Q extends {
+    question_id: string;
+    question_text: string;
+    stem_guided?: string | null;
+    stem_exam_real?: string | null;
+    stem_blind?: string | null;
+  }
+>(question: Q, apiKey: string, meta: UsageMeta): Promise<Q> {
+  try {
+    const variants = await ensureStemVariants(
+      {
+        question_id: question.question_id,
+        question_text: question.question_text,
+        stem_guided: question.stem_guided ?? null,
+        stem_exam_real: question.stem_exam_real ?? null,
+        stem_blind: question.stem_blind ?? null,
+      },
+      apiKey,
+      meta
+    );
+    return { ...question, stem_guided: variants.guided, stem_exam_real: variants.exam_real, stem_blind: variants.blind };
+  } catch (err) {
+    console.error("attachStemVariants failed:", err);
+    return question;
+  }
+}
+
 // The engine returns DATA; this route maps it to HTTP (error → 500, otherwise the question payload).
-// Byte-identical to the responses get-question has always sent.
-function asResponse(outcome: GenerationOutcome): Response {
+// Enriches the payload with the three Stem Detail variants before sending.
+async function asResponse(outcome: GenerationOutcome, apiKey: string, meta: UsageMeta): Promise<Response> {
   if ("error" in outcome) return Response.json({ error: outcome.error }, { status: 500 });
-  return Response.json(outcome);
+  const question = await attachStemVariants(outcome.question, apiKey, meta);
+  return Response.json({ ...outcome, question });
 }
 
 // Thin route handler over the shared question engine (src/lib/question-engine.ts). This route
@@ -44,7 +77,7 @@ export async function POST(request: Request) {
     // Skip bank and generate fresh if requested
     if (forceFresh) {
       console.log(`Force fresh question requested for P${paper} ${family || "any"}`);
-      return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta));
+      return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta), userApiKey, meta);
     }
 
     // Per-user "recently served" set. The banked pools key on COMPLETED attempts, so a question
@@ -68,7 +101,7 @@ export async function POST(request: Request) {
       console.log(`Serving unanswered banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
-        question: sanitizeQuestionMetadata(picked),
+        question: await attachStemVariants(sanitizeQuestionMetadata(picked), userApiKey, meta),
         hasModelAnswer: true,
       });
     }
@@ -95,13 +128,13 @@ export async function POST(request: Request) {
       console.log(`Serving stale banked question: ${picked.question_id} (${getWineCount(picked)} wines)`);
       return Response.json({
         source: "pre-populated",
-        question: sanitizeQuestionMetadata(picked),
+        question: await attachStemVariants(sanitizeQuestionMetadata(picked), userApiKey, meta),
         hasModelAnswer: true,
       });
     }
 
     // PRIORITY 3: Generate fresh on the fly (passes the per-user seen set so the fallback can't repeat)
-    return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta, recentlyServedIds));
+    return asResponse(await generateFreshQuestion(paper, family, userApiKey, meta, recentlyServedIds), userApiKey, meta);
   } catch (err) {
     console.error("get-question error:", err);
     return Response.json(

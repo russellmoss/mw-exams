@@ -55,7 +55,8 @@
     "/api/stem-sniper/submit-reverse",
     "/api/user/api-key",
     "/api/user/change-password",
-    "/api/user/sound-preference"
+    "/api/user/sound-preference",
+    "/api/user/stem-detail"
   ],
   "components": [
     "AnswerInput",
@@ -78,6 +79,7 @@
     "PreGlassReasoning",
     "QuestionDisplay",
     "SessionHistory",
+    "StemDetailControl",
     "StemSniperCard",
     "StemSniperIntro",
     "StemSniperResult",
