@@ -55,8 +55,8 @@ interface Props {
 }
 
 const GRADE_STYLE: Record<string, string> = {
-  HIT: "text-emerald-300 border-emerald-400/40 bg-emerald-400/10",
-  NEAR: "text-amber-300 border-amber-400/40 bg-amber-400/10",
+  HIT: "text-success border-success/40 bg-success/10",
+  NEAR: "text-borderline border-borderline/40 bg-borderline/10",
   PLAUSIBLE_OK: "text-accent border-accent/40 bg-accent/10",
   VARIETY: "text-muted border-border bg-background",
   MISS: "text-fail border-fail/40 bg-fail/10",
@@ -111,7 +111,7 @@ function AxisChip({
   return (
     <span
       className={`inline-flex flex-wrap items-center gap-1 px-2 py-0.5 rounded-md text-xs border ${
-        correct ? "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" : "text-fail border-fail/40 bg-fail/10"
+        correct ? "text-success border-success/40 bg-success/10" : "text-fail border-fail/40 bg-fail/10"
       }`}
     >
       <span className="font-semibold">{label}</span>
@@ -123,7 +123,7 @@ function AxisChip({
             <span
               key={`${t}-${i}`}
               className={
-                hit ? "text-emerald-300" : correct ? "text-muted opacity-70" : "line-through text-muted"
+                hit ? "text-success" : correct ? "text-muted opacity-70" : "line-through text-muted"
               }
             >
               {lead === i && <span className="text-accent text-[9px] uppercase mr-0.5">lead</span>}
@@ -234,7 +234,7 @@ function TwoAxisResultBody({ result, onNext, submitting }: { result: ScoreResult
 
 export function StemSniperResult({ result, revealed, submitting, onNext }: Props) {
   if (result.twoAxis) return <TwoAxisResultBody result={result} onNext={onNext} submitting={submitting} />;
-  const scoreColor = result.percent >= 80 ? "text-emerald-300" : result.percent >= 50 ? "text-amber-300" : "text-fail";
+  const scoreColor = result.percent >= 80 ? "text-success" : result.percent >= 50 ? "text-borderline" : "text-fail";
 
   // calibration grouped by tier
   const byTier: Record<string, { correct: number; total: number }> = {};

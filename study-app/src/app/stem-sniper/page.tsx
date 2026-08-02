@@ -266,7 +266,7 @@ export default function StemSniperPage() {
             <span
               className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
                 mode === "reverse"
-                  ? "bg-emerald-400/15 text-emerald-300 border-emerald-400/40"
+                  ? "bg-success/15 text-success border-success/40"
                   : "bg-accent/15 text-accent border-accent/40"
               }`}
             >
@@ -368,7 +368,7 @@ export default function StemSniperPage() {
                     <span className="font-bold text-foreground">{movement.stage2Percent}%</span>
                     <span
                       className={`ml-1 text-xs font-semibold ${
-                        movement.delta > 0 ? "text-emerald-300" : movement.delta < 0 ? "text-fail" : "text-muted"
+                        movement.delta > 0 ? "text-success" : movement.delta < 0 ? "text-fail" : "text-muted"
                       }`}
                     >
                       {movement.delta > 0 ? `+${movement.delta}` : movement.delta}

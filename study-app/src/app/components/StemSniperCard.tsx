@@ -59,7 +59,7 @@ interface Props {
 
 const TIERS: Tier[] = ["STRONG", "PLAUSIBLE", "CURVEBALL"];
 const TIER_STYLE: Record<Tier, string> = {
-  STRONG: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
+  STRONG: "bg-success/15 text-success border-success/40",
   PLAUSIBLE: "bg-accent/15 text-accent border-accent/40",
   CURVEBALL: "bg-fail/15 text-fail border-fail/40",
 };

@@ -273,8 +273,8 @@ function DecisionBadge({ decision }: { decision: Decision }) {
 
 // ── Drill (Stem Sniper / Reverse Tasting) rendering ──
 const DRILL_GRADE: Record<string, { label: string; cls: string }> = {
-  HIT: { label: "HIT", cls: "text-emerald-300 border-emerald-400/40 bg-emerald-400/10" },
-  NEAR: { label: "NEAR", cls: "text-amber-300 border-amber-400/40 bg-amber-400/10" },
+  HIT: { label: "HIT", cls: "text-success border-success/40 bg-success/10" },
+  NEAR: { label: "NEAR", cls: "text-borderline border-borderline/40 bg-borderline/10" },
   PLAUSIBLE_OK: { label: "PLAUSIBLE", cls: "text-accent border-accent/40 bg-accent/10" },
   VARIETY: { label: "VARIETY", cls: "text-muted border-border bg-background" },
   MISS: { label: "MISS", cls: "text-fail border-fail/40 bg-fail/10" },
@@ -304,7 +304,7 @@ function DrillResultSection({ drill }: { drill: DrillPayload }) {
           <span className="text-muted">→</span>
           <span className="text-muted">Layer B (glass)</span>
           <span className="font-bold text-foreground">{drill.movement.stage2Percent}%</span>
-          <span className={`ml-1 text-xs font-semibold ${drill.movement.delta > 0 ? "text-emerald-300" : drill.movement.delta < 0 ? "text-fail" : "text-muted"}`}>
+          <span className={`ml-1 text-xs font-semibold ${drill.movement.delta > 0 ? "text-success" : drill.movement.delta < 0 ? "text-fail" : "text-muted"}`}>
             {drill.movement.delta > 0 ? `+${drill.movement.delta}` : drill.movement.delta}
           </span>
         </div>
@@ -322,7 +322,7 @@ function DrillResultSection({ drill }: { drill: DrillPayload }) {
             const verdict = g.verdict || "MISS";
             const vc = DRILL_GRADE[verdict] || DRILL_GRADE.MISS;
             const axis = (label: string, ok: boolean | undefined, guess?: string, correct?: string) => (
-              <span className={`inline-flex items-center gap-1 ${ok ? "text-emerald-300" : "text-fail"}`}>
+              <span className={`inline-flex items-center gap-1 ${ok ? "text-success" : "text-fail"}`}>
                 <span className="font-medium">{label}</span>
                 <span aria-hidden>{ok ? "✓" : "✗"}</span>
                 {ok ? <span className="text-foreground">{correct}</span> : (
@@ -534,7 +534,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">{paperLabel(attempt.paper)}</span>
             {isDrill && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 font-medium">
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/15 text-success border border-success/30 font-medium">
                 {modeLabel}
               </span>
             )}
@@ -1039,7 +1039,7 @@ export function HistoryView({
                                 ? undefined
                                 : m === "known-wine" || m === "flash"
                                   ? "bg-accent/15 text-accent font-semibold border border-accent/40"
-                                  : "bg-emerald-400/15 text-emerald-300 font-semibold border border-emerald-400/40"
+                                  : "bg-success/15 text-success font-semibold border border-success/40"
                             }
                             onClick={() => setFilters((f) => ({ ...f, modes: toggleInSet(f.modes, m) }))}
                           >

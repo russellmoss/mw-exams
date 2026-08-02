@@ -26,7 +26,7 @@ interface Props {
 
 const TIERS: Tier[] = ["STRONG", "PLAUSIBLE", "CURVEBALL"];
 const TIER_STYLE: Record<Tier, string> = {
-  STRONG: "bg-emerald-400/15 text-emerald-300 border-emerald-400/40",
+  STRONG: "bg-success/15 text-success border-success/40",
   PLAUSIBLE: "bg-accent/15 text-accent border-accent/40",
   CURVEBALL: "bg-fail/15 text-fail border-fail/40",
 };
@@ -81,7 +81,7 @@ export function StemSniperTastingCard({ questionText, isP3, notes, initial, vari
       <datalist id="rt-styles">{styles.map((s) => <option key={s} value={s} />)}</datalist>
 
       <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
-        <span className="px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-300 border border-emerald-400/30 font-medium">
+        <span className="px-2 py-0.5 rounded-full bg-success/15 text-success border border-success/30 font-medium">
           Stage 2 · In the glass
         </span>
         <span className="px-2 py-0.5 rounded-full bg-background border border-border text-muted">Layer B — sensory evidence</span>
