@@ -336,6 +336,9 @@ export default function StemSniperPage() {
               regions={auto.regions}
               styles={auto.styles}
               submitting={submitting}
+              // Hedge & Blend is scored by scoreStemSniper (two-axis credits). Reverse Tasting posts
+              // to submit-reverse, which still uses the legacy scorer and would grant hedges free.
+              allowHedge={mode !== "reverse"}
               onSubmit={onSubmit}
             />
           )}

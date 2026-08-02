@@ -6,12 +6,22 @@ export const runtime = "nodejs";
 
 const asJson = <T>(v: unknown): T => (typeof v === "string" ? (JSON.parse(v) as T) : (v as T));
 
-// Accept the new {grape, country, tier} shape, and tolerate legacy {variety|style, region, country}
-// payloads (grape ← variety|style, country ← country|region) so older clients still score.
+// Accept the {grape, country, tier} shape plus Hedge & Blend's multi-tag arrays, and tolerate legacy
+// {variety|style, region, country} payloads (grape ← variety|style, country ← country|region) so
+// older clients still score.
+//
+// The arrays are passed through verbatim; the scorer owns trimming, de-duping and the MAX_HEDGE cap
+// (see stem-scoring.chips) so the limit binds here on the server and not just in the card UI.
 type IncomingPrediction = TwoAxisPrediction & { variety?: string; style?: string; region?: string };
+const strList = (v: unknown): string[] | undefined =>
+  Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : undefined;
 const toTwoAxis = (p: IncomingPrediction): TwoAxisPrediction => ({
   grape: (p.grape ?? p.variety ?? p.style ?? "").trim(),
+  grapes: strList(p.grapes),
+  grapeMode: p.grapeMode === "blend" ? "blend" : "any",
+  leadGrapeIndex: typeof p.leadGrapeIndex === "number" ? p.leadGrapeIndex : 0,
   country: (p.country ?? p.region ?? "").trim(),
+  countries: strList(p.countries),
   tier: p.tier,
 });
 

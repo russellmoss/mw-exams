@@ -426,17 +426,30 @@ function resolveToCountry(raw: string): string {
 }
 
 export interface TwoAxisPrediction {
-  grape?: string; // variety (P1/P2) or style/method (P3)
-  country?: string;
+  grape?: string; // back-compat scalar: the lead / first grape (kept populated alongside `grapes`)
+  grapes?: string[]; // Hedge & Blend: 1..MAX_HEDGE grapes, order preserved
+  grapeMode?: "any" | "blend"; // 'any' = OR hedge; 'blend' = lead-ranked declaration
+  leadGrapeIndex?: number; // only meaningful when grapeMode === 'blend'
+  country?: string; // back-compat scalar: countries comma-joined (kept populated alongside `countries`)
+  countries?: string[]; // Hedge & Blend: 1..MAX_HEDGE origins, always OR
   tier?: Tier;
 }
 
 export interface TwoAxisWineGrade {
   slot: number;
-  grapeGuess: string;
+  grapeGuess: string; // comma-joined chips — kept for HistoryView and legacy readers
   countryGuess: string;
-  grapeCorrect: boolean;
+  grapeCorrect: boolean; // credit > 0 — kept for HistoryView and legacy readers
   countryCorrect: boolean;
+  // Hedge & Blend detail (see docs/plans/stem-sniper-hedge-and-blend.md).
+  grapeCredit: number; // 0..1
+  countryCredit: number; // 0..1
+  grapeGuesses: string[];
+  countryGuesses: string[];
+  grapeMode: "any" | "blend";
+  leadGrapeIndex: number;
+  matchedGrape: string | null; // which chip carried the grape credit
+  matchedCountry: string | null;
   verdict: Verdict;
   points: number;
   correctGrape: string; // expected grape/style (display)
@@ -457,33 +470,75 @@ export interface TwoAxisResult {
   summary: { hits: number; nears: number; misses: number };
 }
 
-// GRAPE axis: dominant grape, any listed component, a conventional blend name (for blends), or —
-// on Paper 3 — the style/method. Synonyms and typos tolerated via canonVariety + fuzzyEq.
-function grapeCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
-  const raw = (pred.grape || "").trim();
-  if (!raw) return false;
-  if (bucket.style_tokens && bucket.style_tokens.length) {
-    return styleScore({ style: raw, variety: raw }, bucket) >= 1;
+// ── Hedge & Blend ────────────────────────────────────────────────────────────
+// An axis yields a CREDIT in [0,1] rather than a boolean. Tagging one answer and being right is
+// full credit; hedging across two or three costs precision. See
+// docs/plans/stem-sniper-hedge-and-blend.md for the rationale.
+
+/** Hard cap on how many answers may be tagged per axis. Enforced HERE, so it binds server-side. */
+export const MAX_HEDGE = 3;
+/** Credit for a correct tag, indexed by how many were tagged: 1 → 1, 2 → ¾, 3 → ½. */
+const HEDGE_CREDIT = [1, 0.75, 0.5];
+/** A blend whose lead is a real-but-not-dominant component (or whose dominant grape was tagged
+ *  below the lead) is a close call: right grapes, wrong rank. */
+const BLEND_CLOSE_CALL = 0.75;
+
+/** Keep fractional credit off float noise (0.1+0.2 territory) before it reaches the UI or the DB. */
+const round2 = (n: number): number => Math.round(n * 100) / 100;
+
+/**
+ * Normalise an axis to its tagged chips.
+ *
+ * The scalar fallback is deliberately NOT split on commas: a legacy payload's
+ * `country: "Santa Barbara County, California"` is ONE answer, and splitting it would
+ * retroactively re-read a committed guess as a two-way hedge and dock it a quarter of its credit.
+ * Only the explicit array carries hedge intent.
+ */
+function chips(multi: string[] | undefined, scalar: string | undefined): string[] {
+  const raw = Array.isArray(multi) && multi.length ? multi : scalar ? [scalar] : [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const chip of raw) {
+    const t = (chip || "").trim();
+    if (!t) continue;
+    const n = norm(t);
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    out.push(t);
+    if (out.length >= MAX_HEDGE) break; // shotgun defence — extras are dropped, not scored
   }
-  const n = norm(raw);
-  if (bucket.is_blend && BLEND_NAMES.has(n)) return true;
-  const cg = canonVariety(raw);
+  return out;
+}
+
+export const grapeChips = (pred: TwoAxisPrediction): string[] => chips(pred.grapes, pred.grape);
+export const countryChips = (pred: TwoAxisPrediction): string[] => chips(pred.countries, pred.country);
+
+// GRAPE axis, single tag: dominant grape, any listed component, a conventional blend name (for
+// blends), or — on Paper 3 — the style/method. Synonyms and typos tolerated via canonVariety.
+function oneGrapeCorrect(raw: string, bucket: GroundTruthBucket): boolean {
+  const t = (raw || "").trim();
+  if (!t) return false;
+  if (bucket.style_tokens && bucket.style_tokens.length) {
+    return styleScore({ style: t, variety: t }, bucket) >= 1;
+  }
+  if (bucket.is_blend && BLEND_NAMES.has(norm(t))) return true;
+  const cg = canonVariety(t);
   return bucket.varieties.some((v) => fuzzyEq(canonVariety(v), cg));
 }
 
-// COUNTRY axis: country match after alias/region resolution. Typing a region, appellation or
-// sub-region resolves to its country (never penalised); the wine's own region chain is matched
-// too, so a correct sub-region the static map doesn't know still counts.
-function countryCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boolean {
-  const raw = (pred.country || "").trim();
-  if (!raw) return false;
+// COUNTRY axis, single tag: country match after alias/region resolution. Typing a region,
+// appellation or sub-region resolves to its country (never penalised); the wine's own region chain
+// is matched too, so a correct sub-region the static map doesn't know still counts.
+function oneCountryCorrect(raw: string, bucket: GroundTruthBucket): boolean {
+  const t = (raw || "").trim();
+  if (!t) return false;
   const expected = canonCountry(bucket.country || countryToken(bucket));
   if (!expected) return false;
-  if (fuzzyEq(resolveToCountry(raw), expected)) return true;
+  if (fuzzyEq(resolveToCountry(t), expected)) return true;
   // The candidate was MORE specific than the country — match against the wine's own region chain.
   const chain = regionChain({ region: bucket.region, country: bucket.country });
-  const parts = norm(raw).split(" ").filter(Boolean);
-  for (const token of [norm(raw), ...parts]) {
+  const parts = norm(t).split(" ").filter(Boolean);
+  for (const token of [norm(t), ...parts]) {
     if (!token) continue;
     if (fuzzyIncludes(chain, token)) return true;
     if (REGION_TO_COUNTRY[token] && fuzzyEq(norm(REGION_TO_COUNTRY[token]), expected)) return true;
@@ -491,8 +546,61 @@ function countryCorrect(pred: TwoAxisPrediction, bucket: GroundTruthBucket): boo
   return false;
 }
 
-const verdictOf = (grape: boolean, country: boolean): Verdict =>
-  grape && country ? "HIT" : grape || country ? "NEAR" : "MISS";
+type AxisScore = { credit: number; matched: string | null };
+const NO_CREDIT: AxisScore = { credit: 0, matched: null };
+
+/** OR across the tagged chips, discounted by how many were tagged. */
+function hedgeScore(list: string[], isCorrect: (chip: string) => boolean): AxisScore {
+  if (!list.length) return NO_CREDIT;
+  const i = list.findIndex(isCorrect);
+  if (i < 0) return NO_CREDIT;
+  return { credit: HEDGE_CREDIT[list.length - 1] ?? HEDGE_CREDIT[HEDGE_CREDIT.length - 1], matched: list[i] };
+}
+
+/**
+ * GRAPE axis credit.
+ *
+ * 'any' mode hedges: one right out of n, discounted by n. 'blend' mode is a COMMITMENT — the
+ * candidate declares which tagged grape is dominant — so it is not hedge-discounted: getting the
+ * lead right is full credit, getting the grapes right but the rank wrong is a close call.
+ *
+ * Blend mode can never score below the hedge it replaces, so opting in is never a trap. Style
+ * (Paper 3) buckets have no varietal ranking, so they always take the hedge path.
+ */
+function grapeAxis(pred: TwoAxisPrediction, bucket: GroundTruthBucket): AxisScore {
+  const list = grapeChips(pred);
+  if (!list.length) return NO_CREDIT;
+  const isCorrect = (chip: string) => oneGrapeCorrect(chip, bucket);
+  const hedged = hedgeScore(list, isCorrect);
+
+  const isStyle = !!(bucket.style_tokens && bucket.style_tokens.length);
+  if (isStyle || pred.grapeMode !== "blend" || list.length < 2) return hedged;
+
+  const lead = Math.min(Math.max(pred.leadGrapeIndex ?? 0, 0), list.length - 1);
+  const canon = list.map(canonVariety);
+  const composition = (bucket.varieties || []).map(canonVariety);
+  const dominant = composition[0];
+
+  let blend: AxisScore;
+  if (dominant && fuzzyEq(canon[lead], dominant)) {
+    blend = { credit: 1, matched: list[lead] };
+  } else if (composition.some((c) => fuzzyEq(c, canon[lead]))) {
+    blend = { credit: BLEND_CLOSE_CALL, matched: list[lead] }; // real component, just not dominant
+  } else {
+    // Right grape somewhere in the hedge, wrong rank.
+    const i = canon.findIndex((c, idx) => idx !== lead && dominant && fuzzyEq(c, dominant));
+    blend = i >= 0 ? { credit: BLEND_CLOSE_CALL, matched: list[i] } : NO_CREDIT;
+  }
+  return blend.credit >= hedged.credit ? blend : hedged;
+}
+
+/** COUNTRY axis credit — always an OR hedge; there is no blend concept for origin. */
+function countryAxis(pred: TwoAxisPrediction, bucket: GroundTruthBucket): AxisScore {
+  return hedgeScore(countryChips(pred), (chip) => oneCountryCorrect(chip, bucket));
+}
+
+const verdictOf = (grape: number, country: number): Verdict =>
+  grape > 0 && country > 0 ? "HIT" : grape > 0 || country > 0 ? "NEAR" : "MISS";
 
 // Re-based from the legacy 3-axis scheme to two axes while KEEPING the displayed maximum: full
 // credit per wine stays POINTS.HIT (10), a single-axis NEAR is half, a MISS is 0 — so historical
@@ -507,21 +615,22 @@ const TWO_AXIS_POINTS: Record<Verdict, number> = { HIT: POINTS.HIT, NEAR: POINTS
  */
 export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey): TwoAxisResult {
   const buckets = key.ground_truth;
-  // Every (prediction, bucket) candidate pairing, strongest verdict first.
-  const pairs: { p: number; b: number; g: boolean; c: boolean; rank: number }[] = [];
+  // Every (prediction, bucket) candidate pairing, strongest first. Rank generalises the old
+  // (g?2:0)+(c?1:0) to credits, so an unhedged answer sorts identically to before.
+  const pairs: { p: number; b: number; g: AxisScore; c: AxisScore; rank: number }[] = [];
   predictions.forEach((pred, p) => {
     buckets.forEach((bucket, b) => {
-      const g = grapeCorrect(pred, bucket);
-      const c = countryCorrect(pred, bucket);
-      if (!g && !c) return; // no signal — leave the wine claimable by a better guess
-      pairs.push({ p, b, g, c, rank: (g ? 2 : 0) + (c ? 1 : 0) });
+      const g = grapeAxis(pred, bucket);
+      const c = countryAxis(pred, bucket);
+      if (g.credit === 0 && c.credit === 0) return; // no signal — leave the wine to a better guess
+      pairs.push({ p, b, g, c, rank: g.credit * 2 + c.credit });
     });
   });
   pairs.sort((x, y) => y.rank - x.rank || x.b - y.b || x.p - y.p);
 
   const claimedBucket = new Set<number>();
   const usedPred = new Set<number>();
-  const assigned = new Map<number, { p: number; g: boolean; c: boolean }>(); // bucket idx → claim
+  const assigned = new Map<number, { p: number; g: AxisScore; c: AxisScore }>(); // bucket idx → claim
   for (const pair of pairs) {
     if (claimedBucket.has(pair.b) || usedPred.has(pair.p)) continue;
     claimedBucket.add(pair.b);
@@ -532,17 +641,32 @@ export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey
   const grades: TwoAxisWineGrade[] = buckets.map((bucket, b) => {
     const claim = assigned.get(b);
     const pred = claim ? predictions[claim.p] : undefined;
-    const grape = claim?.g ?? false;
-    const country = claim?.c ?? false;
-    const verdict = verdictOf(grape, country);
+    const grape = claim?.g ?? NO_CREDIT;
+    const country = claim?.c ?? NO_CREDIT;
+    const verdict = verdictOf(grape.credit, country.credit);
+    const grapeGuesses = pred ? grapeChips(pred) : [];
+    const countryGuesses = pred ? countryChips(pred) : [];
+    const blend = pred?.grapeMode === "blend" && grapeGuesses.length >= 2;
     return {
       slot: bucket.slot,
-      grapeGuess: (pred?.grape || "").trim(),
-      countryGuess: (pred?.country || "").trim(),
-      grapeCorrect: grape,
-      countryCorrect: country,
+      grapeGuess: grapeGuesses.join(", "),
+      countryGuess: countryGuesses.join(", "),
+      grapeCorrect: grape.credit > 0,
+      countryCorrect: country.credit > 0,
+      grapeCredit: grape.credit,
+      countryCredit: country.credit,
+      grapeGuesses,
+      countryGuesses,
+      grapeMode: blend ? "blend" : "any",
+      leadGrapeIndex: blend
+        ? Math.min(Math.max(pred?.leadGrapeIndex ?? 0, 0), grapeGuesses.length - 1)
+        : 0,
+      matchedGrape: grape.matched,
+      matchedCountry: country.matched,
       verdict,
-      points: TWO_AXIS_POINTS[verdict],
+      // Credit-weighted rather than verdict-flat: a hedged HIT is worth less than a committed one.
+      // Unhedged credits are exactly 1/0, so this reduces to TWO_AXIS_POINTS as before.
+      points: round2((TWO_AXIS_POINTS.HIT * (grape.credit + country.credit)) / 2),
       correctGrape: bucket.style || bucket.varieties.join(" / "),
       correctCountry: bucket.country || countryToken(bucket),
       region: bucket.region || "",
@@ -553,9 +677,14 @@ export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey
   const hits = grades.filter((g) => g.verdict === "HIT").length;
   const nears = grades.filter((g) => g.verdict === "NEAR").length;
   const misses = grades.filter((g) => g.verdict === "MISS").length;
-  const points = grades.reduce((s, g) => s + g.points, 0);
+  const points = round2(grades.reduce((s, g) => s + g.points, 0));
   const maxPoints = buckets.length * POINTS.HIT;
   const percent = maxPoints > 0 ? Math.min(100, Math.round((points / maxPoints) * 100)) : 0;
+  // Round marks are credit-weighted too, so a hedge shows up in the headline score and not just in
+  // the percentage. Unhedged this is exactly the old `hits + nears × 0.5`.
+  const roundPoints = round2(
+    grades.reduce((s, g) => s + (g.grapeCredit + g.countryCredit) / 2, 0)
+  );
   // Calibration side-channel keyed on each claimed prediction's tier (correct = HIT or NEAR).
   const calibration: CalibrationEntry[] = grades
     .map((g, b) => {
@@ -570,7 +699,7 @@ export function scoreStemSniper(predictions: TwoAxisPrediction[], key: AnswerKey
     points,
     maxPoints,
     percent,
-    roundPoints: hits + nears * 0.5,
+    roundPoints,
     roundMax: buckets.length,
     grades,
     calibration,
