@@ -50,7 +50,7 @@ const STEPS: { n: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         Tag every candidate with how strongly the evidence points to it:{" "}
-        <span className="text-emerald-300 font-medium">STRONG</span> (really points here),{" "}
+        <span className="text-success font-medium">STRONG</span> (really points here),{" "}
         <span className="text-accent font-medium">PLAUSIBLE</span> (worth considering), or{" "}
         <span className="text-fail font-medium">CURVEBALL</span> (low odds — taste carefully).
       </>
@@ -104,9 +104,9 @@ export function StemSniperIntro({ onStart }: Props) {
           </div>
 
           {/* Reverse Tasting */}
-          <div className="flex flex-col rounded-lg border border-emerald-400/30 bg-emerald-400/5 p-4">
+          <div className="flex flex-col rounded-lg border border-success/30 bg-success/5 p-4">
             <div className="text-sm font-semibold text-foreground">
-              Reverse Tasting <span className="text-emerald-300 text-[10px] font-medium align-middle ml-1">two-stage</span>
+              Reverse Tasting <span className="text-success text-[10px] font-medium align-middle ml-1">two-stage</span>
             </div>
             <p className="text-xs text-muted leading-relaxed mt-1 flex-1">
               Guess from the stem first (Layer A). Then the glass is revealed as a blind tasting note —
@@ -115,9 +115,11 @@ export function StemSniperIntro({ onStart }: Props) {
               <span className="text-foreground">post-tasting</span> confidence — the skill that actually
               decides the exam.
             </p>
+            {/* There is no --success-hover token (only --accent-hover), so the hover state is a
+                uniform opacity step — it reads in both themes and preserves the label's contrast. */}
             <button
               onClick={() => onStart("reverse")}
-              className="mt-3 px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-500 hover:bg-emerald-400 text-background transition-colors cursor-pointer"
+              className="mt-3 px-4 py-2 text-sm font-semibold rounded-lg bg-success hover:opacity-90 text-background transition-opacity cursor-pointer"
             >
               Start Reverse Tasting
             </button>
