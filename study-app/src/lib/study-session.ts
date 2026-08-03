@@ -13,11 +13,10 @@ export interface Question {
   paper: number;
   questionNumber: number;
   text: string;
-  // Stem Detail variants (guided | exam_real | blind). Canonical `text` is the fallback for any that
-  // is null. All three are returned by /api/get-question so the level can be previewed/escalated client-side.
+  // Stem Detail variants (guided | exam_real). Canonical `text` is the fallback for any that
+  // is null. Both are returned by /api/get-question so the level can be previewed/escalated client-side.
   stemGuided?: string | null;
   stemExamReal?: string | null;
-  stemBlind?: string | null;
   wines: Wine[];
   totalMarks: number;
   family: string;

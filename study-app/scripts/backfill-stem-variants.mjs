@@ -1,11 +1,11 @@
-// One-off / repeatable backfill of the three Stem Detail variants for banked questions.
+// One-off / repeatable backfill of the two Stem Detail variants for banked questions.
 //
 // Why this exists: variants used to be derived on the /api/get-question critical path, which added a
 // model call to every serve and contributed to "Question generation timed out". Derivation now
 // happens out of band, and this script warms the existing bank so the runtime backfill endpoint is a
 // no-op for questions users are already being served.
 //
-// Mirrors lib/stem-detail.ts exactly: one call derives all three levels, each level is accepted only
+// Mirrors lib/stem-detail.ts exactly: one call derives both levels, each level is accepted only
 // if it preserves the sub-question labels + mark tokens + mark total, and a level that fails is left
 // NULL for a later pass (never overwritten with a placeholder).
 //
@@ -80,7 +80,7 @@ function variantPreservesStructure(canonical, variant) {
 }
 
 // ── prompt (mirrors buildStemVariantsPrompt) ──────────────────────────────────────────────────
-const SYSTEM = `You rewrite the FRAMING PROSE of a Master of Wine practical tasting question stem at three levels of "stem detail". The three levels serve the SAME wines, the SAME sub-questions, the SAME marks and are graded identically — ONLY the amount of organising information in the preamble changes.
+const SYSTEM = `You rewrite the FRAMING PROSE of a Master of Wine practical tasting question stem at two levels of "stem detail". The two levels serve the SAME wines, the SAME sub-questions, the SAME marks and are graded identically — ONLY the amount of organising information in the preamble changes.
 
 ABSOLUTE RULES (apply to every level):
 - NEVER alter the sub-question wording. Reproduce each lettered sub-question and its instruction verbatim.
@@ -88,16 +88,14 @@ ABSOLUTE RULES (apply to every level):
 - NEVER change the number of wines or the wine numbering.
 - Output candidate-facing exam prose only. Do NOT mention these instructions, "levels", "variants", or any meta commentary.
 
-THE THREE LEVELS:
+THE TWO LEVELS:
 
 EXAM-REAL — reduce the preamble to ONLY what the IMW would actually print on the paper: the wine numbers, the sub-questions, the mark allocation, and any constraint the real exam genuinely states (e.g. "Wines 1–6 are from two countries"). STRIP any sentence that names the organising principle, the hierarchy, the mechanism, or that otherwise coaches the candidate on how to think. Keep genuine printed constraints; remove teaching.
 
 GUIDED — the richer, organising-principle-explicit version. It MAY state the flight's organising logic in plain terms (e.g. "these form a quality hierarchy ascending from regional through village to top cru"). If the source stem is already lean, ADD exactly ONE clarifying sentence naming the flight's organising logic. Guided explains the STRUCTURE, never the answers: do NOT reveal specific grape varieties, the country of any individual wine, producers or vintages that the exam-real level withholds.
 
-BLIND — wine numbers, sub-questions and marks ONLY. No origin, no count of countries, no style hints, no linking/organising cue of any kind. Just the bare instruction to assess the wines and answer the sub-questions.
-
 Output STRICT JSON, no markdown fence, exactly:
-{"exam_real": "<full stem text>", "guided": "<full stem text>", "blind": "<full stem text>"}
+{"exam_real": "<full stem text>", "guided": "<full stem text>"}
 Each value is the COMPLETE stem (preamble + every sub-question with its marks + the Total line), ready to print.`;
 
 async function deriveOnce(canonical) {
@@ -109,7 +107,7 @@ async function deriveOnce(canonical) {
       messages: [
         {
           role: "user",
-          content: `CANONICAL STEM (source of truth for sub-questions and marks — reproduce these verbatim in every level):\n\n${canonical}\n\nReturn the JSON with the three rewritten stems.`,
+          content: `CANONICAL STEM (source of truth for sub-questions and marks — reproduce these verbatim in every level):\n\n${canonical}\n\nReturn the JSON with the two rewritten stems.`,
         },
       ],
     },
@@ -133,9 +131,9 @@ const pick = (raw, level, canonical) => {
 
 // ── run ───────────────────────────────────────────────────────────────────────────────────────
 const rows = await sql`
-  SELECT question_id, paper, question_text, stem_guided, stem_exam_real, stem_blind
+  SELECT question_id, paper, question_text, stem_guided, stem_exam_real
   FROM generated_questions
-  WHERE stem_guided IS NULL OR stem_exam_real IS NULL OR stem_blind IS NULL
+  WHERE stem_guided IS NULL OR stem_exam_real IS NULL
   ORDER BY paper, question_id
 `;
 
@@ -157,46 +155,43 @@ for (const [i, q] of todo.entries()) {
 
   let guided = pick(raw, "guided", canonical);
   let exam_real = pick(raw, "exam_real", canonical);
-  let blind = pick(raw, "blind", canonical);
 
-  if (!guided || !exam_real || !blind) {
+  if (!guided || !exam_real) {
     try {
       const retry = await deriveOnce(canonical);
       guided ??= pick(retry, "guided", canonical);
       exam_real ??= pick(retry, "exam_real", canonical);
-      blind ??= pick(retry, "blind", canonical);
     } catch { /* keep whatever we have */ }
   }
 
   // The bug this backfill also verifies: a level identical to the canonical stem is a VALID result
   // (the canonical stem is already exam-real prose) and must be persisted, not discarded.
-  const identical = [guided, exam_real, blind].filter((v) => v && v === canonical).length;
+  const identical = [guided, exam_real].filter((v) => v && v === canonical).length;
   stats.eqCanonical += identical;
 
   if (!DRY_RUN) {
     await sql`
       UPDATE generated_questions SET
         stem_guided    = COALESCE(stem_guided,    ${q.stem_guided ? null : guided}),
-        stem_exam_real = COALESCE(stem_exam_real, ${q.stem_exam_real ? null : exam_real}),
-        stem_blind     = COALESCE(stem_blind,     ${q.stem_blind ? null : blind})
+        stem_exam_real = COALESCE(stem_exam_real, ${q.stem_exam_real ? null : exam_real})
       WHERE question_id = ${q.question_id}
     `;
   }
 
-  const got = [guided && "G", exam_real && "E", blind && "B"].filter(Boolean).join("");
-  if (got.length === 3) stats.complete++;
+  const got = [guided && "G", exam_real && "E"].filter(Boolean).join("");
+  if (got.length === 2) stats.complete++;
   else if (got.length > 0) stats.partial++;
   else stats.failed++;
   stats.done++;
   console.log(`  [${i + 1}/${todo.length}] p${q.paper} ${q.question_id}  ${got || "none"}${identical ? `  (${identical} == canonical)` : ""}`);
 }
 
-console.log(`\nprocessed=${stats.done} allThree=${stats.complete} partial=${stats.partial} failed=${stats.failed}`);
+console.log(`\nprocessed=${stats.done} allBoth=${stats.complete} partial=${stats.partial} failed=${stats.failed}`);
 console.log(`levels identical to canonical (previously DISCARDED, now stored): ${stats.eqCanonical}`);
 
 const [after] = await sql`
   SELECT count(*)::int AS total,
-         count(*) FILTER (WHERE stem_guided IS NOT NULL AND stem_exam_real IS NOT NULL AND stem_blind IS NOT NULL)::int AS complete
+         count(*) FILTER (WHERE stem_guided IS NOT NULL AND stem_exam_real IS NOT NULL)::int AS complete
   FROM generated_questions
 `;
 console.log(`bank now: ${after.complete}/${after.total} fully backfilled`);

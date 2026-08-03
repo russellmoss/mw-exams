@@ -21,7 +21,6 @@ export interface GeneratedQuestion {
   // question_text is the canonical fallback for any that is null.
   stem_guided: string | null;
   stem_exam_real: string | null;
-  stem_blind: string | null;
   wines: { slot: number; fullText: string; appearance?: string }[];
   total_marks: number;
   // Paper 3 style family (migration 015): sparkling|sweet|fortified|oxidative|rose|other. NULL for
@@ -89,14 +88,13 @@ export interface UserAttempt {
 // stored value, so a concurrent/partial backfill can only ever fill blanks (never overwrite).
 export async function updateStemVariants(
   questionId: string,
-  variants: { guided?: string | null; exam_real?: string | null; blind?: string | null }
+  variants: { guided?: string | null; exam_real?: string | null }
 ): Promise<void> {
   const sql = getDb();
   await sql`
     UPDATE generated_questions SET
       stem_guided    = COALESCE(stem_guided,    ${variants.guided ?? null}),
-      stem_exam_real = COALESCE(stem_exam_real, ${variants.exam_real ?? null}),
-      stem_blind     = COALESCE(stem_blind,     ${variants.blind ?? null})
+      stem_exam_real = COALESCE(stem_exam_real, ${variants.exam_real ?? null})
     WHERE question_id = ${questionId}
   `;
 }
@@ -113,7 +111,8 @@ export async function getUserStemDetailDefault(userId: number): Promise<string> 
   const sql = getDb();
   const rows = await sql`SELECT stem_detail_default FROM users WHERE id = ${userId}`;
   const v = rows[0]?.stem_detail_default;
-  return v === "guided" || v === "exam_real" || v === "blind" ? v : "exam_real";
+  // Coerce any legacy/unknown value (including the retired 'blind') to the exam-real default.
+  return v === "guided" || v === "exam_real" ? v : "exam_real";
 }
 
 export async function setUserStemDetailDefault(userId: number, level: string): Promise<void> {

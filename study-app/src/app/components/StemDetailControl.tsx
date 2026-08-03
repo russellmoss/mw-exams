@@ -8,11 +8,10 @@ import {
 
 // Resolve the stem prose for a level from a served question, falling back to the canonical text.
 export function stemForLevel(
-  q: { text: string; stemGuided?: string | null; stemExamReal?: string | null; stemBlind?: string | null },
+  q: { text: string; stemGuided?: string | null; stemExamReal?: string | null },
   level: StemDetailLevel
 ): string {
   if (level === "guided") return q.stemGuided || q.text;
-  if (level === "blind") return q.stemBlind || q.text;
   return q.stemExamReal || q.text;
 }
 
@@ -34,7 +33,7 @@ export function StemDetailBadge({
   );
 }
 
-// Three-segment control: single row, flat bordered, amber fill on the active segment, transparent on
+// Two-segment control: single row, flat bordered, amber fill on the active segment, transparent on
 // inactive. Each segment shows the name plus a one-line muted descriptor.
 export function StemDetailSegments({
   value,

@@ -1,41 +1,39 @@
-// Shared Stem Detail module — the three-level dial controlling how much organising information a
+// Shared Stem Detail module — the two-level dial controlling how much organising information a
 // practice question's stem reveals. Pure (no server deps) so both the client (labels/descriptors)
 // and the server derivation path (prompt + immutability validation) import from one place.
 //
-// IMPORTANT: sub-question wording and mark numbers are IMMUTABLE across all three levels. Only the
+// IMPORTANT: sub-question wording and mark numbers are IMMUTABLE across both levels. Only the
 // organising/framing prose changes. Grading, wines, marks and the model answer are identical.
 
-export type StemDetailLevel = "guided" | "exam_real" | "blind";
+export type StemDetailLevel = "guided" | "exam_real";
 
-export const STEM_DETAIL_LEVELS: StemDetailLevel[] = ["guided", "exam_real", "blind"];
+export const STEM_DETAIL_LEVELS: StemDetailLevel[] = ["guided", "exam_real"];
 
 // Candidate-facing copy. NEVER surface 'variant', 'level id' or internal naming in the UI.
+// `exam_real` is presented as "IMW Only" — the stem exactly as the exam prints it.
 export const STEM_DETAIL_META: Record<
   StemDetailLevel,
   { name: string; descriptor: string }
 > = {
-  guided: { name: "Guided", descriptor: "Explains how the flight is organised" },
-  exam_real: { name: "Exam-Real", descriptor: "What the IMW would actually print" },
-  blind: { name: "Blind", descriptor: "Numbers and marks only" },
+  guided: { name: "Guided", descriptor: "Adds framing hints to the stem" },
+  exam_real: { name: "IMW Only", descriptor: "Shown exactly as the exam presents it" },
 };
 
 export const STEM_DETAIL_HELPER_COPY =
-  "How much the question tells you before you start. The wines, marks and grading are the same either way.";
+  "Guided adds framing hints to the stem. IMW Only shows the stem exactly as the exam presents it.";
 
 // The database column that stores each level's stem prose on generated_questions.
-export const STEM_DETAIL_COLUMN: Record<StemDetailLevel, "stem_guided" | "stem_exam_real" | "stem_blind"> = {
+export const STEM_DETAIL_COLUMN: Record<StemDetailLevel, "stem_guided" | "stem_exam_real"> = {
   guided: "stem_guided",
   exam_real: "stem_exam_real",
-  blind: "stem_blind",
 };
 
 export function isStemDetailLevel(v: unknown): v is StemDetailLevel {
-  return v === "guided" || v === "exam_real" || v === "blind";
+  return v === "guided" || v === "exam_real";
 }
 
-// One level UP (blind → exam_real → guided). Guided is the top; returns null there.
+// One level UP (IMW Only → Guided). Guided is the top; returns null there.
 export function stepUpLevel(level: StemDetailLevel): StemDetailLevel | null {
-  if (level === "blind") return "exam_real";
   if (level === "exam_real") return "guided";
   return null;
 }
@@ -90,11 +88,11 @@ export function variantPreservesStructure(canonical: string, variant: string): b
 }
 
 // ── Derivation prompt ─────────────────────────────────────────────────────────────────────────
-// One call derives all three variants from the canonical stem. Returns strict JSON so the caller
+// One call derives both variants from the canonical stem. Returns strict JSON so the caller
 // can parse + validate each level independently.
 
 export function buildStemVariantsPrompt(canonicalStem: string): { system: string; user: string } {
-  const system = `You rewrite the FRAMING PROSE of a Master of Wine practical tasting question stem at three levels of "stem detail". The three levels serve the SAME wines, the SAME sub-questions, the SAME marks and are graded identically — ONLY the amount of organising information in the preamble changes.
+  const system = `You rewrite the FRAMING PROSE of a Master of Wine practical tasting question stem at two levels of "stem detail". The two levels serve the SAME wines, the SAME sub-questions, the SAME marks and are graded identically — ONLY the amount of organising information in the preamble changes.
 
 ABSOLUTE RULES (apply to every level):
 - NEVER alter the sub-question wording. Reproduce each lettered sub-question and its instruction verbatim.
@@ -102,16 +100,14 @@ ABSOLUTE RULES (apply to every level):
 - NEVER change the number of wines or the wine numbering.
 - Output candidate-facing exam prose only. Do NOT mention these instructions, "levels", "variants", or any meta commentary.
 
-THE THREE LEVELS:
+THE TWO LEVELS:
 
 EXAM-REAL — reduce the preamble to ONLY what the IMW would actually print on the paper: the wine numbers, the sub-questions, the mark allocation, and any constraint the real exam genuinely states (e.g. "Wines 1–6 are from two countries"). STRIP any sentence that names the organising principle, the hierarchy, the mechanism, or that otherwise coaches the candidate on how to think. Keep genuine printed constraints; remove teaching.
 
 GUIDED — the richer, organising-principle-explicit version. It MAY state the flight's organising logic in plain terms (e.g. "these form a quality hierarchy ascending from regional through village to top cru"). If the source stem is already lean, ADD exactly ONE clarifying sentence naming the flight's organising logic. Guided explains the STRUCTURE, never the answers: do NOT reveal specific grape varieties, the country of any individual wine, producers or vintages that the exam-real level withholds.
 
-BLIND — wine numbers, sub-questions and marks ONLY. No origin, no count of countries, no style hints, no linking/organising cue of any kind. Just the bare instruction to assess the wines and answer the sub-questions.
-
 Output STRICT JSON, no markdown fence, exactly:
-{"exam_real": "<full stem text>", "guided": "<full stem text>", "blind": "<full stem text>"}
+{"exam_real": "<full stem text>", "guided": "<full stem text>"}
 Each value is the COMPLETE stem (preamble + every sub-question with its marks + the Total line), ready to print.`;
 
   const user = `CANONICAL STEM (source of truth for sub-questions and marks — reproduce these verbatim in every level):

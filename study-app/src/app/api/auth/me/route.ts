@@ -19,8 +19,9 @@ export async function GET(request: Request) {
     // Stem Detail default (migration 013) — used to preselect the dial on the setup screen.
     const prefRows = await sql`SELECT stem_detail_default FROM users WHERE id = ${user.id}`;
     const raw = prefRows[0]?.stem_detail_default;
+    // Coerce any legacy/unknown value (including the retired 'blind') to the exam-real default.
     const stemDetailDefault =
-      raw === "guided" || raw === "exam_real" || raw === "blind" ? raw : "exam_real";
+      raw === "guided" || raw === "exam_real" ? raw : "exam_real";
 
     return Response.json({
       user: {

@@ -46,11 +46,10 @@ type QuestionPayload = {
     family: string;
     family_label: string;
     subcategory?: string | null;
-    // The three stem-detail variants. Absent until the out-of-band backfill fills them in, at
+    // The two stem-detail variants. Absent until the out-of-band backfill fills them in, at
     // which point the client falls back to question_text for that level.
     stem_guided?: string | null;
     stem_exam_real?: string | null;
-    stem_blind?: string | null;
     model_answer?: string | null;
     proposed_annotation?: string | null;
     study_diagram_assist?: string | null;
@@ -160,7 +159,6 @@ export default function Home() {
       text: q.question_text,
       stemGuided: q.stem_guided ?? null,
       stemExamReal: q.stem_exam_real ?? null,
-      stemBlind: q.stem_blind ?? null,
       wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
       totalMarks: q.total_marks,
       family: q.family,
@@ -185,7 +183,7 @@ export default function Home() {
       setStemDetail((user?.stemDetailDefault as StemDetailLevel) || "exam_real");
       setStep("stem-detail");
 
-      if (!question.stemGuided || !question.stemExamReal || !question.stemBlind) {
+      if (!question.stemGuided || !question.stemExamReal) {
         fetch("/api/stem-detail/ensure", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -200,7 +198,6 @@ export default function Home() {
                     ...prev,
                     stemGuided: d.variants.guided ?? prev.stemGuided,
                     stemExamReal: d.variants.exam_real ?? prev.stemExamReal,
-                    stemBlind: d.variants.blind ?? prev.stemBlind,
                   }
                 : prev
             );
