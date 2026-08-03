@@ -89,7 +89,10 @@ function generateModelAnswerInBackground(
       const t0 = Date.now();
       const message = await client.messages.create({
         model,
-        max_tokens: 4000,
+        // 8000 — see the note on the same call in generate-model-answer/route.ts. Four sections in
+        // one response; 4000 cut the tail often enough to leave a fifth of the banked corpus with a
+        // missing annotation, reasoning trace or diagram assist.
+        max_tokens: 8000,
         system: prompt.system,
         messages: [{ role: "user", content: prompt.user }],
       });

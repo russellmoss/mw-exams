@@ -24,6 +24,8 @@
 //   --limit N            cap rows (default 5 unless --all/--question-id)
 //   --concurrency N      parallel API calls (default 3)
 //   --model opus|sonnet  generation tier (default opus — matches the route)
+//   --repair             ONLY the broken rows: missing/short model answer, or a NULL
+//                        annotation / reasoning trace / diagram assist
 //   --dry-run            generate but DO NOT write; print a preview + size delta
 // Requires DATABASE_URL + ANTHROPIC_API_KEY (env or study-app/.env.local).
 
@@ -67,17 +69,37 @@ const opt = {
   concurrency: flag("--concurrency") ? Number(flag("--concurrency")) : 3,
   model: flag("--model") || "opus",
   dryRun: has("--dry-run"),
+  repair: has("--repair"),
 };
-if (!opt.all && !opt.paper && !opt.questionId) {
-  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all\nUse --dry-run to preview. See header for all flags.");
+if (!opt.all && !opt.paper && !opt.questionId && !opt.repair) {
+  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair\nUse --dry-run to preview. See header for all flags.");
   process.exit(1);
 }
-const limit = opt.questionId ? 1 : opt.all ? null : (opt.limit ?? 5);
+const limit = opt.questionId ? 1 : (opt.all || opt.repair) ? null : (opt.limit ?? 5);
 
 // ---- select rows to regen ----
 const sql = neon(process.env.DATABASE_URL);
 let rows;
-if (opt.questionId) {
+if (opt.repair) {
+  // REPAIR selector — the rows that are actually broken, rather than every row.
+  //
+  // Deliberately NOT `--all`: that selects `model_answer IS NOT NULL`, which skips the 15 questions
+  // whose answer is missing entirely — precisely the ones most in need of repair — while burning an
+  // Opus call on ~85 healthy ones and replacing good answers with different ones.
+  //
+  // "Short" is < 2000 chars: a complete package runs ~2,900-3,300, and the truncated examples
+  // measured 1,221 and 1,618. A NULL tail section is the other truncation signature.
+  rows = await sql`
+    SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks,
+           length(model_answer) AS old_len
+    FROM generated_questions
+    WHERE model_answer IS NULL
+       OR length(model_answer) < 2000
+       OR proposed_annotation IS NULL
+       OR reasoning_trace IS NULL
+       OR study_diagram_assist IS NULL
+    ORDER BY created_at DESC`;
+} else if (opt.questionId) {
   rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ${opt.questionId}`;
 } else if (opt.paper && opt.family) {
   rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} AND family = ${opt.family} ORDER BY created_at DESC`;
@@ -107,7 +129,13 @@ async function callClaude(system, user) {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: 4000, system, messages: [{ role: "user", content: user }] }),
+    // 8000, not 4000. One call produces FOUR sections (model answer ~420 words, proposed annotation,
+    // reasoning trace, study-diagram walkthrough) and 4000 was marginal for that, so the response was
+    // being cut intermittently — same input, three runs, 1,618 / 3,294 / 3,170 chars, the short one
+    // stopping mid-word at "Wine 4 — Chardonnay; Côte de". Truncation lands on the TAIL sections, which
+    // is why 17-21 of 104 banked questions have a NULL annotation / reasoning_trace /
+    // study_diagram_assist. Matches the 8000 already used for the thinking-on path in question-engine.
+    body: JSON.stringify({ model, max_tokens: 8000, system, messages: [{ role: "user", content: user }] }),
   });
   const d = await r.json();
   if (d.error) throw new Error(JSON.stringify(d.error));

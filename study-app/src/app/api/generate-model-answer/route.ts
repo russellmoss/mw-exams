@@ -34,7 +34,10 @@ export async function POST(request: Request) {
     const t0 = Date.now();
     const message = await client.messages.create({
       model,
-      max_tokens: 4000,
+      // 8000: this one call emits four sections, and 4000 truncated the tail intermittently —
+      // measured across the banked corpus as 15/104 questions with no model answer at all and
+      // 17-21 missing annotation / reasoning trace / diagram assist. See regen-model-answers.mjs.
+      max_tokens: 8000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });
