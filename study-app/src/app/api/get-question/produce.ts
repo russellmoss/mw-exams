@@ -2,6 +2,7 @@ import {
   getRecentAttempts,
   getUnansweredQuestions,
   getQuestionsByFilter,
+  recordQuestionView,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -43,7 +44,7 @@ import {
  * and the fall-through to fresh generation is untouched, so the P3 bank grows at exactly the rate it
  * did before. Papers 1 and 2 never touch that code path.
  */
-export async function produceQuestion(opts: {
+type ProduceOpts = {
   paper: number;
   family: string | undefined;
   forceFresh?: boolean;
@@ -52,7 +53,26 @@ export async function produceQuestion(opts: {
   apiKey: string;
   meta: UsageMeta;
   emit?: ProgressEmitter;
-}): Promise<GenerationOutcome> {
+};
+
+/**
+ * Serve a study question and burn it for this user. Whichever tier resolves — unseen banked, stale
+ * banked, fresh generation, or the generation-failure fallback — the served question is recorded in
+ * question_views (migration 020) so the "Banked Question" path never offers it again. Per the
+ * feature spec, being SERVED is the "seen" event: abandoning the attempt still burns it. Recording
+ * is best-effort — a view-log failure must never sink an otherwise-good serve.
+ */
+export async function produceQuestion(opts: ProduceOpts): Promise<GenerationOutcome> {
+  const outcome = await selectOrGenerate(opts);
+  if (!("error" in outcome) && opts.meta.userId != null) {
+    await recordQuestionView(opts.meta.userId, outcome.question.question_id).catch((err) =>
+      console.error("recordQuestionView failed:", err)
+    );
+  }
+  return outcome;
+}
+
+async function selectOrGenerate(opts: ProduceOpts): Promise<GenerationOutcome> {
   const { paper, family, forceFresh, focus, apiKey, meta, emit } = opts;
 
   // Skip bank and generate fresh if requested
