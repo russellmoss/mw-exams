@@ -21,11 +21,16 @@ import { assessPassageAge, summarizeCorpusAge } from "./passage-age";
  * cahiers des charges and disciplinari, but only 16 documents — roughly a dozen appellations against
  * the 183 that appear in the exam corpus. Measured after the build:
  *
- *   covered      Champagne 586 · Bordeaux/Graves 156 · Alsace 98 · Languedoc 93 · Savoie 80 ·
- *                Piemonte 68 · Rioja 68 · Chianti Classico 63 · Meursault 28 · Chablis 24 ·
- *                Vouvray 22 · Barolo 20
- *   NOT covered  Sancerre 0 · Brunello 0 · Prosecco 0 · Châteauneuf 2 · Saint-Émilion 2 ·
- *                Pessac-Léognan 3
+ *   TRANCHE 1 covered 12 appellations and left Sancerre 0, Brunello 0, Prosecco 0, Châteauneuf 2,
+ *   Saint-Émilion 2, Pessac-Léognan 3 — hence the whitelist. TRANCHE 2 closed those. Measured now:
+ *
+ *   Champagne 586 · Bordeaux/Graves 180 · Languedoc 99 · Alsace 98 · Amarone/Valpolicella 90 ·
+ *   Muscadet 84 · Prosecco 70 · Rioja 68 · Chianti 63 · Savoie 55 · Priorat 48 · Brunello 46 ·
+ *   Saint-Émilion 46 · Beaujolais 45 · Pessac-Léognan 42 · Soave 35 · Meursault 29 · Chablis 26 ·
+ *   Pouilly-Fumé 24 · Vouvray 22 · Barolo 21 · Ribera del Duero 21 · Barbaresco 19 ·
+ *   Châteauneuf 19 · Sancerre 8
+ *
+ *   Sancerre is the weakest at 8 and worth watching. Everything else clears the bar comfortably.
  *
  * Opening this on "is it an origin question?" would therefore send a Sancerre question to Barolo's
  * disciplinare — real, tier-1, legally binding, and about the wrong wine. That is precisely the
@@ -38,7 +43,7 @@ import { assessPassageAge, summarizeCorpusAge } from "./passage-age";
  * directions.
  */
 const APPELLATION_COVERED =
-  /\bchampagne\b|\bchablis\b|\bmeursault\b|\bvouvray\b|\bbordeaux\b|\bgraves\b|\balsace\b|\blanguedoc\b|\bsavoie\b|\bsaint[- ]p[ée]ray\b|\bbarolo\b|\bchianti\b|\bpiemonte\b|\bpiedmont\b|\brioja\b/i;
+  /\bchampagne\b|\bchablis\b|\bmeursault\b|\bsancerre\b|\bvouvray\b|\bmuscadet\b|\bbeaujolais\b|\bbordeaux\b|\bgraves\b|\balsace\b|\blanguedoc\b|\bsavoie\b|\bbarolo\b|\bbarbaresco\b|\bbrunello\b|\bchianti\b|\bamarone\b|\bvalpolicella\b|\brecioto\b|\bripasso\b|\bprosecco\b|\bconegliano\b|\bvaldobbiadene\b|\bsoave\b|\bpiemonte\b|\bpiedmont\b|\brioja\b|\bpriorat\b|\bpouilly[- ](?:fum|fuiss)[ée]|\bs[èe]vre et maine|\bpessac[- ]l[ée]ognan|\bs(?:ain)?t[- ][ée]milion|\bch[âa]teauneuf[- ]du[- ]pape|\bsaint[- ]p[ée]ray|\brosso di montalcino|\bribera del duero/i;
 
 /** Families whose whole point is production. F5 = Method / Production, F6 = Style Mechanism. */
 const PRODUCTION_FAMILIES = new Set(["F5", "F6"]);
@@ -216,7 +221,11 @@ export async function getKnowledgeContext(opts: {
   if (!gate.retrieve) return { block: null, passages: [], reason: gate.reason };
 
   try {
-    const passages = await retrieveKnowledge({ query: opts.questionText, topK: opts.topK ?? 6 });
+    // A question that did NOT name a covered appellation is not helped by appellation specifications,
+    // and they are broad enough to crowd out the passages it does need. See the note on
+    // `excludeTopics` in retrieve.ts.
+    const excludeTopics = gate.reason.startsWith("named appellation") ? [] : ["appellation-law"];
+    const passages = await retrieveKnowledge({ query: opts.questionText, topK: opts.topK ?? 6, excludeTopics });
     console.log(`[kb] ${gate.reason} → ${passages.length} passages`);
     return { block: buildKnowledgeBlock(passages), passages, reason: gate.reason };
   } catch (e) {

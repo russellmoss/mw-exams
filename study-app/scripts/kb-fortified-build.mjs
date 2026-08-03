@@ -302,6 +302,25 @@ const SOURCES = [
       "https://extranet.inao.gouv.fr/fichier/CDC-Bordeaux.pdf",
       "https://extranet.inao.gouv.fr/fichier/PNOCDC-Languedoc.pdf",
       "https://extranet.inao.gouv.fr/fichier/pno-cdc-Alsace-cn240911.pdf",
+      // --- tranche 2 (2026-08-03): the appellations the whitelist gate was refusing ---
+      "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-c5b06e73-5c8e-40fc-81cb-26d1b8a0135a/telechargement", // Sancerre
+      "https://extranet.inao.gouv.fr/fichier/CPAOV-2018-108-ChateauneufDuPape.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDCSaint-Emilion-PNO2023.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDCSaint-Emilion-Grand-cru-PNO2023.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC---Pessac-L%C3%A9ognan---PNO-2024.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNO-cdcBeaujolais-cn220210.pdf",
+      "https://extranet.inao.gouv.fr/fichier/3-CDC-Pouilly-Fum%C3%A9-PNO.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNOCDC-Pouilly-Fuisse.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC-Muscadet-PNO.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC-Muscadet-S%C3%A8vre-et-Maine-PNO.pdf",
+      // Retries for the five that failed extraction on the first tranche-2 run. The documents exist
+      // (a plain web search reads them); Tavily's extractor choked, so alternates are listed. Keeping
+      // BOTH forms is deliberate — whichever resolves wins, and a duplicate is deduped by URL hash.
+      "https://extranet.inao.gouv.fr/fichier/3-CDC-Pessac-L%C3%A9ognan-v170619.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNO-CDC-Modif-AOC-Pessac-Leognan.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNOCDCAOC-St-Emilion-Grand-Cru.pdf",
+      "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-dc972687-14a5-4be7-96fd-a01742f70956/telechargement",
+      "https://info.agriculture.gouv.fr/gedei/site/bo-agri/document_administratif-3a0da993-586b-4570-b26a-03b392acb095/telechargement",
     ],
   },
   {
@@ -320,6 +339,18 @@ const SOURCES = [
       "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1011",
       "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1023",
       "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2231",
+      // tranche 2 — ids looked up individually; the catalogue is keyed by opaque number.
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1013", // Brunello di Montalcino
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2250", // Rosso di Montalcino
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1004", // Amarone della Valpolicella
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2313", // Valpolicella
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2314", // Valpolicella Ripasso
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1054", // Recioto della Valpolicella
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2237", // Prosecco DOC
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1029", // Conegliano Valdobbiadene Prosecco DOCG
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1024", // Asolo Prosecco
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1007", // Barbaresco
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2277", // Soave
       "https://www.chianticlassico.com/wp-content/uploads/2024/01/DOCG_Chianti_Classico_disciplinare_consolidato_con_modifiche_DM_22_giugno_2023.pdf",
     ],
   },
@@ -338,6 +369,8 @@ const SOURCES = [
     urls: [
       "https://riojawine.com/wp-content/uploads/2018/08/Estatutos.pdf",
       "https://www.cava.wine/documents/335/Requisitos_minimos_etiquetado_DOP_CAVA_-_2021.pdf",
+      "https://www.mapa.gob.es/dam/mapa/contenido/alimentacion/temas/calidad-agroalimentaria/2017-calidad-diferenciada/nuevo_denominaciones/pliegos-de-condiciones/pliego-condiciones-vinos/dops/ribera_del_duero_2023_07_31.pdf",
+      "https://www.doqpriorat.org/wp-content/uploads/2019/02/Texto-consolidado-PC-Priorat-Julio-2013.pdf",
     ],
   },
 ];

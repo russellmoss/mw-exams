@@ -108,6 +108,19 @@ const SELECT_COLS = `
 export async function retrieveKnowledge(opts: {
   query: string;
   topK?: number;
+  /**
+   * Topics to keep OUT of the candidate pool.
+   *
+   * Added after the appellation corpus grew to ~17% of all chunks and started winning top-6 slots on
+   * pure production queries — measured: "fermentation temperature and yeast choice" returned two
+   * cahier-des-charges passages ahead of fermentation ones. Appellation specifications are broad
+   * documents that mention fermentation, yields and varieties in passing, so they compete
+   * semantically almost everywhere while rarely being what a winemaking question needs.
+   *
+   * The gate already knows which domain a question is in, so it passes that knowledge down rather
+   * than letting MMR arbitrate between corpora that answer different questions.
+   */
+  excludeTopics?: string[];
 }): Promise<RetrievedPassage[]> {
   const sql = neon(process.env.DATABASE_URL!);
   const topK = opts.topK ?? 6;
@@ -121,6 +134,9 @@ export async function retrieveKnowledge(opts: {
 
   const qvec = await embedQuery(opts.query);
   const qlit = `[${qvec.join(",")}]`;
+  // Empty array => no exclusion (`<> ALL('{}')` is true for every row, including NULL topics via the
+  // IS NULL branch), so the common path needs no separate SQL.
+  const exclude = opts.excludeTopics ?? [];
 
   // Dense arm. The `c.id` tiebreaker is load-bearing, not cosmetic: without a total order, rows tied
   // on distance straddle the LIMIT differently between executions, which propagates through RRF and
@@ -135,6 +151,7 @@ export async function retrieveKnowledge(opts: {
       AND c.embedding IS NOT NULL
       AND c.embedding_model = ${KB_EMBEDDING_MODEL}
       AND c.embedding_dim = ${KB_EMBEDDING_DIM}
+      AND (c.topic IS NULL OR c.topic <> ALL(${exclude}))
     ORDER BY c.embedding <=> ${qlit}::vector, c.id
     LIMIT ${candidateK}`) as Row[];
 
@@ -151,6 +168,7 @@ export async function retrieveKnowledge(opts: {
           JOIN kb_source s ON s.key = d.source_key
           WHERE s.active
             AND c.ts_config = ${tsConfig}
+            AND (c.topic IS NULL OR c.topic <> ALL(${exclude}))
             AND c.search_vector @@ websearch_to_tsquery(${tsConfig}::regconfig, ${query})
           ORDER BY ts_rank(c.search_vector, websearch_to_tsquery(${tsConfig}::regconfig, ${query})) DESC, c.id
           LIMIT ${candidateK}`) as Row[],

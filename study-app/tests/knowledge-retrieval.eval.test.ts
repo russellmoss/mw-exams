@@ -46,6 +46,13 @@ interface Golden {
   requirePublisher?: string;
   /** At least one passage must be in this language. */
   requireLanguage?: string;
+  /**
+   * True for queries that name a covered appellation. Mirrors what context.ts does in production:
+   * appellation specifications are admitted only for appellation questions, and excluded elsewhere
+   * because they are broad documents that otherwise crowd the top-6 on ordinary production queries.
+   * The eval must apply the same rule or it tests a retrieval configuration that never ships.
+   */
+  appellation?: boolean;
 }
 
 // Chosen to sit inside the corpus's demonstrated coverage. Fortified/oxidative is deliberately absent
@@ -212,6 +219,7 @@ const GOLDEN: Golden[] = [
   // specification, uncovered names must not retrieve someone else's.
   {
     name: "Barolo ageing requirements",
+    appellation: true,
     // 2, not 3. The Barolo disciplinare is 20 chunks in a 5,967-chunk corpus; demanding half the
     // top-6 from a 0.3% slice is a bar about corpus share, not about retrieval quality.
     query: "What ageing does Barolo DOCG require before release, and what grape must it be made from?",
@@ -220,13 +228,29 @@ const GOLDEN: Golden[] = [
   },
   {
     name: "Rioja crianza reserva gran reserva",
+    appellation: true,
     query: "Explain the crianza, reserva and gran reserva ageing categories for Rioja.",
     topics: ["appellation-law"],
     minOnTopic: 2,
   },
   {
     name: "Chablis appellation rules",
+    appellation: true,
     query: "What does the Chablis appellation permit — grape variety, yields and the premier cru hierarchy?",
+    topics: ["appellation-law"],
+    minOnTopic: 2,
+  },
+  {
+    name: "Brunello classification",
+    appellation: true,
+    query: "What does Brunello di Montalcino DOCG require — grape variety, ageing and release date?",
+    topics: ["appellation-law"],
+    minOnTopic: 2,
+  },
+  {
+    name: "Amarone appassimento rules",
+    appellation: true,
+    query: "What do the rules for Amarone della Valpolicella say about drying the grapes and minimum alcohol?",
     topics: ["appellation-law"],
     minOnTopic: 2,
   },
@@ -249,7 +273,11 @@ describe.skipIf(!HAVE_ENV)("knowledge retrieval eval", () => {
     // Sequential on purpose: each query is a Voyage call plus several DB round trips, and a burst of
     // 14 buys nothing but rate-limit risk in a suite that runs rarely.
     for (const g of GOLDEN) {
-      results.set(g.name, await retrieveKnowledge({ query: g.query, topK: 6 }));
+      results.set(g.name, await retrieveKnowledge({
+        query: g.query,
+        topK: 6,
+        excludeTopics: g.appellation ? [] : ["appellation-law"],
+      }));
     }
   }, 180_000);
 
@@ -366,9 +394,18 @@ describe("retrieval gate", () => {
     [null, "What ageing does Barolo DOCG require before release?", true],
     [null, "Explain the crianza and reserva categories in Rioja.", true],
     [null, "What are the yield limits for Chablis premier cru?", true],
-    ["F2", "Identify the region: this is a Sancerre.", false],
-    ["F2", "This wine is a Brunello di Montalcino — discuss its classification.", false],
-    ["F2", "Comment on the Prosecco DOCG hierarchy.", false],
+    // FLIPPED by tranche 2, which added the specifications these three names had no document for.
+    // They asserted `false` when the corpus held Sancerre 0, Brunello 0, Prosecco 0; it now holds
+    // 8 / 46 / 70. Kept rather than deleted — they are the guard on the whitelist actually widening.
+    ["F2", "Identify the region: this is a Sancerre.", true],
+    ["F2", "This wine is a Brunello di Montalcino — discuss its classification.", true],
+    ["F2", "Comment on the Prosecco DOCG hierarchy.", true],
+    [null, "Discuss the Amarone della Valpolicella appassimento rules.", true],
+    [null, "What does the Pessac-Léognan cahier des charges require?", true],
+    // Still-uncovered regions must NOT retrieve — this is the half of the whitelist that matters.
+    ["F2", "Identify this Barossa Valley Shiraz.", false],
+    ["F2", "This is a Mosel Riesling — comment on the region.", false],
+    ["F2", "Identify this Marlborough Sauvignon Blanc.", false],
     // ...but sweetness WITHOUT botrytis is covered and must still retrieve.
     ["F6", "Explain the mechanism by which residual sugar was retained in this Riesling.", true],
   ];
