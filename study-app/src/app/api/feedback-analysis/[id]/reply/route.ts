@@ -62,6 +62,21 @@ export async function POST(
       userFeedback: analysis.user_feedback,
       empiricalKnowledge,
       previousThread: thread,
+      // Same attempt evidence the first-pass analysis saw — a follow-up must not re-argue the
+      // tasting note or the grading from a thinner picture than the verdict it is revisiting.
+      reasoningTrace: analysis.reasoning_trace,
+      attempt: {
+        tastingNotes: analysis.tasting_notes,
+        preGlassReasoning: analysis.pre_glass_reasoning,
+        preGlassFeedback: analysis.pre_glass_feedback,
+        answerFeedback: analysis.answer_feedback,
+        passEstimate: analysis.pass_estimate,
+        marksEstimate: analysis.marks_estimate,
+        mode: analysis.mode,
+        stemDetail: analysis.stem_detail,
+        stemDetailEscalatedTo: analysis.stem_detail_escalated_to,
+        appVersion: analysis.app_version,
+      },
     });
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
