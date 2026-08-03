@@ -255,6 +255,20 @@ export async function GET(request: Request) {
       sql`SELECT DISTINCT task_type FROM model_usage ORDER BY task_type`,
     ]);
 
+    // Fill-the-Bank spend as its own line: every model_usage row whose question_id belongs to a
+    // bank batch, so bulk generation is legible separately from ad-hoc study generation. Same
+    // date filter as the Claude rows; each batch also carries its reconciled actual_cost_usd.
+    const bankSpend = await sql`
+      SELECT COUNT(DISTINCT b.id)::int AS batches,
+        COUNT(m.id)::int AS calls,
+        COALESCE(SUM(m.cost_usd), 0) AS cost_usd
+      FROM bank_batches b
+      JOIN generated_questions q ON q.batch_id = b.id
+      JOIN model_usage m ON m.question_id = q.question_id
+      WHERE (${from}::timestamptz IS NULL OR m.created_at >= ${from}::timestamptz)
+        AND (${to}::timestamptz IS NULL OR m.created_at < ${to}::timestamptz)
+    `;
+
     return Response.json({
       summary: {
         claudeCost,
@@ -277,6 +291,11 @@ export async function GET(request: Request) {
       bySource,
       byModelTask,
       byDay,
+      bank: {
+        batches: Number(bankSpend[0]?.batches || 0),
+        calls: Number(bankSpend[0]?.calls || 0),
+        cost: Number(bankSpend[0]?.cost_usd || 0),
+      },
       tavily: { byTask: tavilyByTask, byDay: tavilyByDay },
       elevenLabs: { byTask: elevenLabsByTask, byDay: elevenLabsByDay },
       mediaCache: {

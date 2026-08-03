@@ -586,6 +586,27 @@ export async function getBankStatusCounts(): Promise<
   return rows;
 }
 
+// Kept-bank composition per (paper, family) — how many APPROVED, servable questions of each
+// question-family currently sit in the bank. The Admin card reads this to derive the "gap hint"
+// (the least-represented family for a paper) and the diversity worker could reuse it to steer
+// round-robin generation toward thin families.
+export async function getBankFamilyHistogram(): Promise<
+  { paper: number; family: string; count: number }[]
+> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT paper, family, COUNT(*)::int AS count
+    FROM generated_questions
+    WHERE paper IN (1, 2, 3)
+      AND status = 'approved'
+      AND invalid_reasons IS NULL
+      AND is_retired IS NOT TRUE
+      AND family IS NOT NULL
+    GROUP BY paper, family
+  `) as { paper: number; family: string; count: number }[];
+  return rows;
+}
+
 // Sum the real Claude spend attributed to a batch's questions (question_generation +
 // model_answer + enrichment all stamp question_id), so bank_batches.actual_cost_usd reflects money
 // actually spent rather than the up-front estimate.

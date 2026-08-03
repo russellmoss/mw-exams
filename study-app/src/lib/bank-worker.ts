@@ -26,7 +26,7 @@ import { generateFreshQuestion, type UsageMeta } from "@/lib/question-engine";
 // are distributed round-robin across these so a bulk run ladders the whole family spread rather than
 // stacking one shape. Within each generation the engine's corpus-calibrated prompt + validators
 // steer the curveball mix (~75% low / 18% medium / 6% high, EK-0023) and the price-band spread.
-const PAPER_FAMILIES: Record<number, string[]> = {
+export const PAPER_FAMILIES: Record<number, string[]> = {
   1: ["F1", "F2", "F3", "F4", "F5", "F7"],
   2: ["F1", "F2", "F3", "F4", "F7"],
   3: ["F1", "F2", "F4", "F5", "F6", "F7"],

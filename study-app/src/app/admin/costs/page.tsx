@@ -41,6 +41,7 @@ interface CostData {
   bySource: BySource[];
   byModelTask: ByModelTask[];
   byDay: { day: string; cost_usd: number; calls: number }[];
+  bank?: { batches: number; calls: number; cost: number };
   tavily: { byTask: TavilyByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
   elevenLabs: { byTask: ElevenLabsByTask[]; byDay: { day: string; cost_usd: number; calls: number }[] };
   mediaCache: {
@@ -261,6 +262,13 @@ export default function CostsPage() {
               <SummaryCard label="Tavily" value={usd(s.tavilyCost)} sub={`${num(s.tavilyCalls)} searches · ${num(s.tavilyCredits)} credits`} />
               <SummaryCard label="ElevenLabs (TTS)" value={usd(s.elevenLabsCost)} sub={`${num(s.elevenLabsCalls)} clips · ${num(s.elevenLabsChars)} chars`} />
               <SummaryCard label="Tokens (in / out)" value={`${num(s.inputTokens)} / ${num(s.outputTokens)}`} sub={`cache read ${num(s.cacheReadTokens)}`} />
+              {data?.bank && (
+                <SummaryCard
+                  label="Fill the Bank"
+                  value={usd(data.bank.cost)}
+                  sub={`${num(data.bank.batches)} batch${data.bank.batches === 1 ? "" : "es"} · ${num(data.bank.calls)} calls`}
+                />
+              )}
             </div>
           )}
 

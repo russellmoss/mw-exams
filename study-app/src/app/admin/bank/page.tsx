@@ -233,7 +233,9 @@ function BankReview() {
                 Generating <span className="tabular-nums">{done} of {batch.requested}</span>…
               </span>
             ) : (
-              <span className="text-sm text-success font-medium">Ready to review</span>
+              <span className="text-sm text-muted tabular-nums">
+                {questions.length} written · {kept.length + binned.length} reviewed
+              </span>
             )}
           </div>
         </div>

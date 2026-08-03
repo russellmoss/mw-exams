@@ -5,12 +5,16 @@ import Link from "next/link";
 
 interface PaperStatus {
   paper: number;
+  descriptor?: string;
   approved: number;
   pending: number;
+  target?: number;
+  gapHint?: string | null;
   running: { batchId: string; requested: number; generated: number; failed: number } | null;
 }
 
 const PAPER_LABEL: Record<number, string> = { 1: "Paper 1", 2: "Paper 2", 3: "Paper 3" };
+const DEFAULT_TARGET = 50;
 
 /**
  * "Fill the Bank" — admin-only card for bulk question generation. Per-paper bank counts, a paper
@@ -25,6 +29,7 @@ export function FillTheBankCard() {
   const [count, setCount] = useState(10);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const anyRunning = useRef(false);
 
@@ -68,6 +73,7 @@ export function FillTheBankCard() {
       if (!res.ok) {
         setError(data.error || "Couldn't start generation");
       } else {
+        setConfirming(false);
         await fetchStatus();
       }
     } catch {
@@ -89,20 +95,33 @@ export function FillTheBankCard() {
         </div>
       </div>
 
-      {/* Per-paper bank counts */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      {/* Per-paper bank health — one row each: label · count · fill bar toward target · gap hint */}
+      <div className="flex flex-col divide-y divide-border/60 border-y border-border/60 mb-5">
         {[1, 2, 3].map((p) => {
           const s = papers.find((x) => x.paper === p);
+          const approved = s?.approved ?? 0;
+          const target = s?.target ?? DEFAULT_TARGET;
+          const pct = Math.min(100, Math.round((approved / Math.max(1, target)) * 100));
           return (
-            <div key={p} className="rounded-lg border border-border bg-background/40 px-3 py-2.5">
-              <p className="text-[11px] text-muted uppercase tracking-wider">{PAPER_LABEL[p]}</p>
-              <p className="text-2xl font-bold text-foreground tabular-nums leading-tight">
-                {loading ? "—" : s?.approved ?? 0}
-              </p>
-              <p className="text-[11px] text-muted">in bank</p>
-              {s && s.pending > 0 && (
-                <p className="text-[11px] text-accent mt-0.5 tabular-nums">{s.pending} to review</p>
-              )}
+            <div key={p} className="flex items-center gap-4 py-3">
+              <div className="w-40 shrink-0">
+                <p className="text-sm text-foreground">
+                  {PAPER_LABEL[p]}
+                  {s?.descriptor && <span className="text-muted"> · {s.descriptor}</span>}
+                </p>
+                <p className="text-[11px] text-muted tabular-nums">
+                  {loading ? "—" : `${approved} in bank`}
+                  {s && s.pending > 0 && <span className="text-accent"> · {s.pending} to review</span>}
+                </p>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="h-1.5 rounded-full bg-border overflow-hidden" title={`${approved} / ${target}`}>
+                  <div className="h-full bg-accent transition-all" style={{ width: `${pct}%` }} />
+                </div>
+                {s?.gapHint && approved < target && (
+                  <p className="text-[11px] text-muted mt-1">{s.gapHint}</p>
+                )}
+              </div>
             </div>
           );
         })}
@@ -202,16 +221,44 @@ export function FillTheBankCard() {
               </button>
             </div>
           </div>
-          <p className="text-sm text-muted">
-            Estimated cost <span className="text-foreground tabular-nums">${estCost}</span>
-          </p>
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="text-sm px-5 py-2.5 bg-accent hover:bg-accent-hover text-background rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50"
-          >
-            {generating ? "Starting…" : `Generate ${count}`}
-          </button>
+          {confirming ? (
+            /* Inline confirm strip — estimated cost + Cancel / Confirm */
+            <div className="flex items-center gap-3 rounded-lg border border-accent/30 bg-accent/5 px-4 py-2">
+              <span className="text-sm text-foreground">
+                Generate {count} for {PAPER_LABEL[selectedPaper]} · est.{" "}
+                <span className="tabular-nums">${estCost}</span>?
+              </span>
+              <button
+                onClick={() => setConfirming(false)}
+                disabled={generating}
+                className="text-sm px-3 py-1.5 rounded-md border border-border text-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="text-sm px-4 py-1.5 rounded-md bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {generating ? "Starting…" : "Confirm"}
+              </button>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-muted">
+                Estimated cost <span className="text-foreground tabular-nums">${estCost}</span>
+              </p>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setConfirming(true);
+                }}
+                className="text-sm px-5 py-2.5 bg-accent hover:bg-accent-hover text-background rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50"
+              >
+                Generate {count}
+              </button>
+            </>
+          )}
         </div>
       )}
 
