@@ -311,6 +311,55 @@ async function embedTexts(texts) {
   return out;
 }
 
+/**
+ * Drop chunks that are not content.
+ *
+ * WHY. Retrieval returns six passages. Every slot spent on a journal's "Disclosure" section, a
+ * reference list, or the sherry.wine navigation menu is a slot NOT spent on production detail, and the
+ * cost is invisible — the answer is merely a little worse. Measured on the first web-built corpus:
+ * 57 chunks of journal front/back matter, 79 carrying the site nav, 3 age-gate/legal footers. Small in
+ * percentage terms, large in top-6 terms, because boilerplate repeats across a document and so
+ * competes many times.
+ *
+ * STRUCTURAL FIRST, patterns second. Site-specific strings rot the moment a site is redesigned, so the
+ * heavy lifting is done by shape — link density, short-line ratio, citation ratio — with a small
+ * pattern list only for things shape cannot catch (an age gate is prose).
+ *
+ * THE ONE THING THIS MUST NOT DO is eat the INAO cahiers des charges. Legal text is terse, clause
+ * numbered and list-shaped: exactly what a naive "looks like navigation" heuristic deletes. That is
+ * why the nav test additionally requires high LINK density — regulations have clauses, not hyperlinks
+ * — and why there is no minimum-sentence rule. Verified by the drop-rate report in --dry-run.
+ */
+function isBoilerplate(text) {
+  // The chunker prepends a breadcrumb line; judge the body.
+  const body = text.replace(/^[^\n]*\n/, "").trim();
+  const lines = body.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return true;
+
+  // 1. Journal front/back matter, by leading heading.
+  if (/^(#+\s*|\*\*)?(Disclosure|Acknowledge?ments?|Conflicts? of Interest|Author Contributions|Data Availability|Funding|ORCID|Publisher's Note|Abbreviations|Supplementary Material)\b/im.test(body)) {
+    return true;
+  }
+  // 2. Reference lists — majority of lines are citations.
+  const refLines = lines.filter((l) => /^\d+\.\s|doi:|doi\.org|\[PubMed\]|Google Scholar|CrossRef/i.test(l)).length;
+  if (lines.length >= 4 && refLines / lines.length > 0.5) return true;
+
+  // 3. Navigation. Requires BOTH many short lines AND many links — the second condition is what keeps
+  //    clause-numbered legal text (short lines, no links) out of this branch.
+  const shortLines = lines.filter((l) => l.length < 45).length;
+  const links = (body.match(/\]\(|https?:\/\//g) ?? []).length;
+  if (lines.length >= 6 && shortLines / lines.length > 0.75 && links >= lines.length * 0.3) return true;
+
+  // 4. Age gate / cookie / legal footer — prose, so shape cannot catch it.
+  if (/âge légal|l'âge légal|consommer de l'alcool|abus d'alcool est dangereux|politique de confidentialité|cookie policy/i.test(body)) {
+    return true;
+  }
+  // 5. Almost nothing there.
+  if (body.replace(/[^\p{L}]/gu, "").length < 120) return true;
+
+  return false;
+}
+
 function titleOf(markdown, url) {
   const h1 = markdown.match(/^#\s+(.+)$/m);
   if (h1) return h1[1].trim().slice(0, 200);
@@ -333,17 +382,20 @@ async function main() {
     console.log(`  fetched ${docs.length}/${src.urls.length} url(s)`);
 
     const prepared = [];
+    let dropped = 0;
     for (const d of docs) {
       if (!d.markdown || d.markdown.length < 400) {
         console.warn(`  thin/empty, skipped: ${d.url} (${d.markdown?.length ?? 0} chars)`);
         continue;
       }
       const title = titleOf(d.markdown, d.url);
-      const chunks = chunkMarkdown(d.markdown, title);
+      const all = chunkMarkdown(d.markdown, title);
+      const chunks = all.filter((c) => !isBoilerplate(c.text));
+      dropped += all.length - chunks.length;
       if (chunks.length) prepared.push({ url: d.url, title, chunks });
     }
     const nChunks = prepared.reduce((n, p) => n + p.chunks.length, 0);
-    console.log(`  ${prepared.length} document(s) -> ${nChunks} chunk(s)`);
+    console.log(`  ${prepared.length} document(s) -> ${nChunks} chunk(s)  (dropped ${dropped} boilerplate)`);
     grandChunks += nChunks;
     report.push({ key: src.key, docs: prepared.length, chunks: nChunks });
 
