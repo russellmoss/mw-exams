@@ -31,6 +31,23 @@ import { neon } from "@neondatabase/serverless";
 const MIGRATIONS_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "migrations");
 
 /**
+ * Checksum a migration file's contents.
+ *
+ * Normalise line endings first. Git is checked out with core.autocrlf=true on Windows, so the same
+ * committed blob is CRLF in a Windows working tree and LF on Vercel's Linux builders. Hashing the
+ * bytes as-read therefore produced a different checksum per platform: 001-013 were first applied
+ * from a Windows machine and stored CRLF hashes, and every Vercel build since has recomputed the LF
+ * hash and warned that thirteen unchanged files had "changed". Normalising makes the checksum a
+ * property of the migration rather than of the machine that read it.
+ *
+ * The normalised value equals the old LF hash, so 014+ — first applied by a Linux build — keep
+ * matching. The CRLF-era rows for 001-013 were re-baselined in 017_rebaseline_checksums.sql.
+ */
+export function checksum(body) {
+  return createHash("sha256").update(body.replace(/\r\n/g, "\n")).digest("hex").slice(0, 16);
+}
+
+/**
  * Split a SQL file into individual statements.
  *
  * The neon HTTP driver rejects multi-statement queries, so we cannot hand it a whole file. A naive
@@ -147,14 +164,14 @@ async function main() {
 
   for (const file of files) {
     const body = readFileSync(join(MIGRATIONS_DIR, file), "utf8");
-    const checksum = createHash("sha256").update(body).digest("hex").slice(0, 16);
+    const sum = checksum(body);
 
     if (applied.has(file)) {
-      if (applied.get(file) !== checksum) {
+      if (applied.get(file) !== sum) {
         // Editing an applied migration means environments silently disagree. Warn loudly rather
         // than fail: blocking every future deploy over a fixed typo would be worse.
         console.warn(
-          `[migrate] ${file} changed since it was applied (${applied.get(file)} -> ${checksum}). ` +
+          `[migrate] ${file} changed since it was applied (${applied.get(file)} -> ${sum}). ` +
             `Applied databases will NOT have the new statements. Add a new migration instead.`
         );
       }
@@ -177,7 +194,7 @@ async function main() {
     await sql.query(
       "INSERT INTO schema_migrations (version, checksum) VALUES ($1, $2) " +
         "ON CONFLICT (version) DO UPDATE SET checksum = EXCLUDED.checksum",
-      [file, checksum]
+      [file, sum]
     );
     ran++;
   }

@@ -124,7 +124,7 @@ export interface AttemptDetail {
   elapsed_seconds: number | null;
   // Auto-apply pipeline (admin views only)
   auto_recommendation?: string | null;
-  apply_status?: string | null; // dispatched|verifying|merged|deployed|pr_opened|failed
+  apply_status?: string | null; // dispatched|verifying|merged|deployed|pr_opened|pr_closed|failed
   work_branch?: string | null;
   commit_sha?: string | null;
   pr_url?: string | null;
@@ -184,6 +184,7 @@ function ApplyStatusBadge({ status, commitSha, prUrl, deployState, error }: {
     merged: { label: "Merged to master", cls: "bg-success/15 text-success" },
     deployed: { label: "Deployed to production", cls: "bg-success/15 text-success" },
     pr_opened: { label: "Couldn’t verify — PR opened for review", cls: "bg-borderline/15 text-borderline" },
+    pr_closed: { label: "PR closed without merging", cls: "bg-muted/20 text-muted" },
     failed: { label: "Pipeline failed", cls: "bg-fail/15 text-fail" },
   };
   const s = map[status] || { label: status, cls: "bg-muted/20 text-muted" };

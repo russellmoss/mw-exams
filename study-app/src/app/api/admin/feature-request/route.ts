@@ -4,6 +4,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { isAutoFeatureEnabled } from "@/lib/settings";
 import { dispatchFeatureBuild } from "@/lib/github-dispatch";
+import { reconcileOpenPrs } from "@/lib/pr-status";
 import { buildFeatureRequestSystem, buildMockupSystem, getMockupCss } from "@/lib/prompts/feature-request-prompt";
 import {
   createFeatureRequest,
@@ -326,5 +327,28 @@ export async function GET(request: Request) {
   if (keyResult instanceof Response) return keyResult;
   if (!keyResult.user.isAdmin) return Response.json({ error: "Forbidden" }, { status: 403 });
   const list = await listFeatureRequests(50);
-  return Response.json({ featureRequests: list.map(publicView) });
+
+  // The build Action tells us a PR was opened and then goes quiet — a PR merged (or closed) by hand
+  // afterwards would read "PR OPENED" here forever. Ask GitHub about the ones we still think are
+  // open and write the answer back before serialising.
+  const resolved = await reconcileOpenPrs(
+    list,
+    (fr) => fr.status === "pr_opened" || fr.apply_status === "pr_opened",
+    async (fr, state) =>
+      void (await updateFeatureRequest(fr.id, {
+        status: state === "merged" ? "pr_merged" : "pr_closed",
+        apply_status: state === "merged" ? "merged" : "pr_closed",
+      }))
+  );
+
+  return Response.json({
+    featureRequests: list.map((fr) => {
+      const state = resolved.get(fr.id);
+      return publicView(
+        state
+          ? { ...fr, status: state === "merged" ? "pr_merged" : "pr_closed", apply_status: state === "merged" ? "merged" : "pr_closed" }
+          : fr
+      );
+    }),
+  });
 }

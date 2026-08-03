@@ -2,6 +2,8 @@ import { after } from "next/server";
 import { getUser } from "@/lib/auth";
 import { neon } from "@neondatabase/serverless";
 import { sweepStrandedFeedback } from "@/lib/feedback-analysis";
+import { reconcileOpenPrs } from "@/lib/pr-status";
+import { recordApply } from "@/lib/db";
 
 export const runtime = "nodejs";
 // Opportunistic stranded-feedback sweep runs in `after()`, which can keep this
@@ -38,7 +40,7 @@ export async function GET(request: Request) {
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
           q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
-          fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
+          fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
@@ -56,7 +58,7 @@ export async function GET(request: Request) {
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
           q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
-          fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
+          fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
@@ -71,7 +73,7 @@ export async function GET(request: Request) {
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
           q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
-          fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
+          fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
@@ -82,6 +84,21 @@ export async function GET(request: Request) {
         WHERE a.user_feedback IS NOT NULL
         ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
+    }
+
+    // Same staleness as the Feature Request panel: the auto-feedback Action writes `pr_opened` and
+    // never learns that the PR was merged. Stale `pr_opened` rows also block the in-flight guard in
+    // apply-change.ts, so reconcile them against GitHub here and patch the rows we're about to send.
+    const reconciled = await reconcileOpenPrs(
+      attempts as unknown as { id: number; pr_url?: string | null; apply_status?: string | null; analysis_id?: number | null }[],
+      (row) => row.apply_status === "pr_opened",
+      async (row, state) => {
+        if (row.analysis_id) await recordApply(row.analysis_id, { apply_status: state === "merged" ? "merged" : "pr_closed" });
+      }
+    );
+    for (const row of attempts as unknown as { id: number; apply_status?: string | null }[]) {
+      const state = reconciled.get(row.id);
+      if (state) row.apply_status = state === "merged" ? "merged" : "pr_closed";
     }
 
     const counts = await sql`

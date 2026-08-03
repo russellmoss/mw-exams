@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
 import { classifyP3Category } from "./p3-category.mjs";
+import { getAppVersion } from "./app-version";
 
 function getDb() {
   const sql = neon(process.env.DATABASE_URL!);
@@ -68,6 +69,9 @@ export interface UserAttempt {
   // "Add detail" was used (NULL if never escalated).
   stem_detail: string;
   stem_detail_escalated_to: string | null;
+  // Short git sha of the build that served this attempt (migration 019). NULL for local dev and for
+  // attempts predating the column. Lets a bug report be pinned to the exact code that produced it.
+  app_version: string | null;
 }
 
 // Persist derived Stem Detail variants for a question. COALESCE keeps any level that already has a
@@ -250,8 +254,8 @@ export async function createAttempt(
   // attempt is canonically 'full' (the query layer already treats NULL and 'full' as equivalent),
   // so coalesce null → 'full' here rather than inserting NULL. stem_detail is likewise NOT NULL.
   const rows = await sql`
-    INSERT INTO user_attempts (question_id, mode, stem_detail)
-    VALUES (${questionId}, ${mode ?? "full"}, ${stemDetail || "exam_real"})
+    INSERT INTO user_attempts (question_id, mode, stem_detail, app_version)
+    VALUES (${questionId}, ${mode ?? "full"}, ${stemDetail || "exam_real"}, ${getAppVersion()})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
@@ -266,8 +270,8 @@ export async function createAttemptWithUser(
   const sql = getDb();
   // See createAttempt: coalesce null → 'full' so the explicit insert satisfies the NOT NULL mode column.
   const rows = await sql`
-    INSERT INTO user_attempts (question_id, user_id, mode, stem_detail)
-    VALUES (${questionId}, ${userId}, ${mode ?? "full"}, ${stemDetail || "exam_real"})
+    INSERT INTO user_attempts (question_id, user_id, mode, stem_detail, app_version)
+    VALUES (${questionId}, ${userId}, ${mode ?? "full"}, ${stemDetail || "exam_real"}, ${getAppVersion()})
     RETURNING *
   `;
   return rows[0] as UserAttempt;
@@ -294,11 +298,18 @@ export async function recordUserFeedback(
 ): Promise<{ id: number; analyze: boolean }> {
   const sql = getDb();
   const rows = await sql`
-    SELECT id, question_id, user_id, mode, user_feedback
+    SELECT id, question_id, user_id, mode, user_feedback, app_version
     FROM user_attempts WHERE id = ${attemptId}
   `;
   const existing = rows[0] as
-    | { id: number; question_id: string; user_id: number | null; mode: string | null; user_feedback: string | null }
+    | {
+        id: number;
+        question_id: string;
+        user_id: number | null;
+        mode: string | null;
+        user_feedback: string | null;
+        app_version: string | null;
+      }
     | undefined;
   if (!existing) {
     // No such attempt — fall back to a plain update so behaviour matches the legacy path.
@@ -326,10 +337,15 @@ export async function recordUserFeedback(
   if (current === text.trim()) {
     return { id: attemptId, analyze: false };
   }
-  // A different second feedback → give it its own attempt row instead of overwriting.
+  // A different second feedback → give it its own attempt row instead of overwriting. The fork
+  // inherits the parent's build stamp (it describes the same study episode); only a parent from
+  // before migration 019 falls back to the build recording the feedback.
   const ins = await sql`
-    INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at)
-    VALUES (${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"}, ${text}, NOW())
+    INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at, app_version)
+    VALUES (
+      ${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"}, ${text}, NOW(),
+      ${existing.app_version ?? getAppVersion()}
+    )
     RETURNING id
   `;
   return { id: ins[0].id as number, analyze: true };
@@ -580,7 +596,7 @@ export interface FeedbackAnalysis {
   created_at: string;
   updated_at: string;
   // Auto-apply pipeline audit (set by the dispatch path and the GitHub Action)
-  apply_status: string | null; // dispatched|verifying|merged|deployed|pr_opened|failed
+  apply_status: string | null; // dispatched|verifying|merged|deployed|pr_opened|pr_closed|failed
   work_branch: string | null;
   commit_sha: string | null;
   pr_url: string | null;
@@ -750,11 +766,27 @@ export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis
   user_feedback: string;
   user_answer: string | null;
   model_answer: string | null;
+  // The attempt's generated artifacts, so a follow-up reply is grounded in the same evidence the
+  // first-pass analysis saw (runFeedbackAnalysis selects the identical set).
+  tasting_notes: unknown;
+  pre_glass_reasoning: string | null;
+  pre_glass_feedback: string | null;
+  answer_feedback: string | null;
+  pass_estimate: string | null;
+  marks_estimate: string | null;
+  mode: string | null;
+  stem_detail: string | null;
+  stem_detail_escalated_to: string | null;
+  app_version: string | null;
+  reasoning_trace: string | null;
 }) | null> {
   const sql = getDb();
   const rows = await sql`
     SELECT fa.*, a.user_feedback, a.user_answer,
-      q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer
+      a.tasting_notes, a.pre_glass_reasoning, a.pre_glass_feedback, a.answer_feedback,
+      a.pass_estimate, a.marks_estimate, a.mode, a.stem_detail, a.stem_detail_escalated_to,
+      a.app_version,
+      q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer, q.reasoning_trace
     FROM feedback_analyses fa
     JOIN user_attempts a ON fa.attempt_id = a.id
     JOIN generated_questions q ON a.question_id = q.question_id
@@ -982,7 +1014,9 @@ export interface FeatureRequest {
   id: number;
   created_by: number | null;
   title: string | null;
-  status: string; // drafting|clarifying|proposed|ready|building|built|pr_opened|failed
+  // drafting|clarifying|proposed|ready|building|built|pr_opened|pr_merged|pr_closed|failed
+  // pr_merged / pr_closed are written by the PR reconciler (src/lib/pr-status.ts), not the pipeline.
+  status: string;
   // mockups (optional) carry rendered UI samples on a proposing assistant turn — stored in the JSONB
   // thread so re-opening a request re-renders them. No schema change needed.
   thread: { role: "user" | "assistant"; content: string; timestamp: string; mockups?: { title: string; html: string }[] }[];
@@ -1058,6 +1092,7 @@ export async function updateFeatureRequest(
     technical_spec: string;
     work_branch: string;
     applied_by: string;
+    apply_status: string;
   }>
 ): Promise<FeatureRequest> {
   const sql = getDb();
@@ -1070,6 +1105,7 @@ export async function updateFeatureRequest(
       technical_spec = COALESCE(${data.technical_spec ?? null}, technical_spec),
       work_branch = COALESCE(${data.work_branch ?? null}, work_branch),
       applied_by = COALESCE(${data.applied_by ?? null}, applied_by),
+      apply_status = COALESCE(${data.apply_status ?? null}::text, apply_status),
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

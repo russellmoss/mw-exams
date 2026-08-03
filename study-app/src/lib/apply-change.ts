@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { dispatchAutoFeedback } from "./github-dispatch";
 import { recordApply, reviewFeedback } from "./db";
+import { reconcileOpenPrs } from "./pr-status";
 
 export interface ApplyResult {
   dispatched: boolean;
@@ -116,6 +117,11 @@ export async function applyFeedbackChange(opts: {
     "study-app/src/lib/question-engine.ts", "study-app/src/app/api/generate-tasting/",
     "study-app/src/lib/tasting.ts", "study-app/src/lib/tasting-validators.ts",
     "study-app/src/lib/prompts/tasting-prompt.ts", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
+    // The grader rubric. The analysis prompt already routes a valid scoring dispute here
+    // ("Kind: generation naming marking-principles.ts"), but the path was missing from this
+    // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
+    // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
+    "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
   ];
   const VALIDATOR = [
     "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
@@ -140,14 +146,23 @@ export async function applyFeedbackChange(opts: {
   // accept defers (stays in the open queue) until a human reviews/merges the open one. A manual admin
   // "Apply & ship" (appliedBy != 'auto') is exempt, and a 7-day window stops an abandoned PR blocking forever.
   if (reviewOnly && appliedBy === "auto") {
-    const inflight = await sql`
-      SELECT id, pr_url FROM feedback_analyses
+    const candidates = await sql`
+      SELECT id, pr_url, apply_status FROM feedback_analyses
       WHERE id <> ${analysisId}
         AND apply_status IN ('dispatched', 'pr_opened')
         AND updated_at > now() - interval '7 days'
       ORDER BY updated_at DESC
-      LIMIT 1
+      LIMIT 10
     `;
+    // A PR merged by hand leaves apply_status stuck at 'pr_opened' (nothing pushes the merge back to
+    // us), and that stale row would block every later auto-fix for the full 7 days. Ask GitHub what
+    // actually happened first, then only defer for a PR that is genuinely still open.
+    const settled = await reconcileOpenPrs(
+      candidates as { id: number; pr_url: string | null; apply_status: string }[],
+      (row) => row.apply_status === "pr_opened",
+      async (row, state) => recordApply(row.id, { apply_status: state === "merged" ? "merged" : "pr_closed" })
+    );
+    const inflight = candidates.filter((row) => !settled.has(row.id as number));
     if (inflight.length > 0) {
       const ref = (inflight[0].pr_url as string) || `analysis #${inflight[0].id}`;
       const note = `Deferred by Auto-Apply: another auto-fix PR is already in flight (${ref}). Review/merge it first, then re-apply this from the admin dashboard.`;
