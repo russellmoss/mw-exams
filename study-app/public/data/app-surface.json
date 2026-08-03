@@ -88,6 +88,7 @@
     "/api/user/stem-detail"
   ],
   "components": [
+    "AdminBuildStripe",
     "AnswerInput",
     "DecisionTreeWalkthrough",
     "DiagramModal",

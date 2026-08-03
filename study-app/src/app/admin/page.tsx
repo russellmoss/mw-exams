@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 import { FillTheBankCard } from "../components/FillTheBankCard";
+import { AdminBuildStripe } from "../components/AdminBuildStripe";
 
 interface UserRow {
   id: number;
@@ -126,7 +127,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (!authLoading && (!user || !user.isAdmin)) {
+    // Only bounce users who aren't signed in at all. An authenticated NON-admin is deliberately kept
+    // on the page so the diagnostic stripe (which reports their live admin status from the DB) can
+    // surface a silent admin-gating failure instead of a gating bug silently hiding it.
+    if (!authLoading && !user) {
       router.push("/");
     }
   }, [authLoading, user, router]);
@@ -271,14 +275,37 @@ export default function AdminPage() {
     }
   };
 
-  if (authLoading || loading) {
+  // Still resolving auth, or (for a confirmed admin) still loading the admin data. The diagnostic
+  // stripe renders above the spinner so a stale bundle is caught even before the console paints.
+  if (authLoading || (user?.isAdmin && loading)) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="flex items-center gap-3 text-muted">
-          <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
-          <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
-          <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
-          <span className="ml-2 text-sm">Loading...</span>
+      <div className="flex flex-col flex-1">
+        <AdminBuildStripe />
+        <div className="flex items-center justify-center py-20">
+          <div className="flex items-center gap-3 text-muted">
+            <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
+            <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
+            <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
+            <span className="ml-2 text-sm">Loading...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated but the DB no longer marks this account admin: show the diagnostic (whose second
+  // line reports the live `admin: …` value) rather than the console, so a silent gating failure is
+  // visible instead of an empty redirect. Unauthenticated visitors are redirected by the effect above.
+  if (!user?.isAdmin) {
+    return (
+      <div className="flex flex-col flex-1">
+        <AdminBuildStripe />
+        <div className="max-w-4xl mx-auto px-6 py-16 text-center">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight font-display">Admin</h1>
+          <p className="text-sm text-muted mt-3 max-w-md mx-auto">
+            This account doesn&apos;t currently have admin access. The line above shows what the
+            server believes about your session — check the <code>admin:</code> value.
+          </p>
         </div>
       </div>
     );
@@ -286,6 +313,9 @@ export default function AdminPage() {
 
   return (
     <div className="flex flex-col flex-1">
+      {/* Diagnostic build stripe — the FIRST element in the admin container, above the <h1>, and
+          rendered unconditionally (never gated on isAdmin). See AdminBuildStripe. */}
+      <AdminBuildStripe />
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-6 flex items-start justify-between gap-4">
           <div>
@@ -634,7 +664,7 @@ export default function AdminPage() {
 
           {/* Build stamp — hardcoded, unconditional. If this line is missing from a deployed /admin,
               the browser is serving a stale bundle (the whole point of the v3 verifiability gate). */}
-          <p className="text-xs text-muted/60 text-center mt-10">Admin v3 · Fill the Bank: on</p>
+          <p className="text-xs text-muted/60 text-center mt-10">Admin build 5 · Fill the Bank: on</p>
         </div>
       </main>
     </div>
