@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
@@ -11,6 +12,31 @@ import { UserMenu } from "./UserMenu";
 export function NavBar() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
+
+  // Admin-only "Bank" link carries an amber dot when there are generated questions waiting for
+  // review. Poll on mount + every 60s (spec cadence); only admins ever hit the endpoint.
+  const [bankPending, setBankPending] = useState(0);
+  const isAdmin = !!user?.isAdmin;
+  useEffect(() => {
+    if (!isAdmin) return;
+    let alive = true;
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/admin/bank/counts");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (alive) setBankPending(Number(data.pending) || 0);
+      } catch {
+        /* transient — next poll retries */
+      }
+    };
+    poll();
+    const interval = setInterval(poll, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(interval);
+    };
+  }, [isAdmin]);
 
   // Don't show nav on login page
   if (pathname === "/login") return null;
@@ -78,6 +104,24 @@ export function NavBar() {
           >
             History
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin/bank"
+              className={`relative text-sm font-medium transition-colors ${
+                pathname.startsWith("/admin/bank")
+                  ? "text-accent"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Bank
+              {bankPending > 0 && (
+                <span
+                  className="absolute -top-1 -right-2.5 w-2 h-2 rounded-full bg-accent"
+                  aria-label={`${bankPending} waiting to review`}
+                />
+              )}
+            </Link>
+          )}
           {/* Methodology, Settings and Admin now live in the user menu on the right — this row is
               the study surfaces only. */}
         </div>
