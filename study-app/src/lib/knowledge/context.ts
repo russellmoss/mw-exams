@@ -56,25 +56,37 @@ const FORTIFIED_INTENT =
   /\bfortified\b|\bsherry\b|\bjerez\b|\bmanzanilla\b|\bfino\b|\bamontillado\b|\boloroso\b|\bpalo cortado\b|\bsolera\b|\bcriadera\b|\bflor\b|\bport\b|\btawny\b|\bcolheita\b|\bmadeira\b|\bestufagem\b|\bcanteiro\b|\bmarsala\b|\bvin jaune\b|\boxidative\b|\brancio\b|\bvin doux naturel\b|\bmutage\b|\bbanyuls\b|\brivesaltes\b|\bmaury\b|\bmistelle\b/i;
 
 /**
- * BOTRYTIS SUPPRESSION — the same failure mode as fortified, found by the Unit 5 eval, and more
- * insidious because the corpus is not silent here. It is LOUD AND OFF-TOPIC.
+ * BOTRYTIS / NOBLE ROT — SUPPRESSION LIFTED (was the F4 finding).
  *
- * The corpus holds 191 chunks mentioning botrytis. Only 9 frame it as noble rot; 56 frame it as bunch
- * rot, grey rot or a fungicide target. Sauternes, Tokaji and Beerenauslese appear twice in 3,979
- * chunks. These are viticulture research institutes: to them botrytis is a disease to prevent, not a
- * technique to court.
+ * The original guard was the more insidious of the two, because the corpus was not silent here — it
+ * was LOUD AND BACKWARDS. 56 chunks framed botrytis as bunch rot, grey rot or a fungicide target
+ * against 9 as noble rot, and Sauternes/Tokaji/Beerenauslese appeared twice in 3,979 chunks. A
+ * Sauternes question retrieved six passages about controlling rot, five tagged `faults`. Viticulture
+ * institutes exist to help growers PREVENT botrytis; the sweet-wine world exists to court it.
  *
- * So a Sauternes production question retrieves six confident tier-1 passages about controlling rot —
- * measured: the eval's botrytis query returned six passages, five tagged `faults`. Handing those to a
- * model answer is worse than handing it nothing, because the material is real, cited, and exactly
- * backwards.
+ * scripts/kb-fortified-build.mjs --group botrytis added 462 chunks: the INAO cahiers des charges for
+ * Sauternes, Coteaux du Layon and Alsace VT/SGN (the legal texts — "récoltés manuellement par tries
+ * successives", 221 g/L minimum, anti-botrytis sprays FORBIDDEN), plus the peer-reviewed noble-rot
+ * literature. Re-measured on the live corpus:
  *
- * Scoped to botrytis/dried-grape sweetness ONLY, not to sweetness generally: sweetness by arrested
- * fermentation, Süssreserve and residual-sugar management ARE covered (the German institutes write
- * about them), so `ask:sweetness-mechanism` questions still retrieve.
+ *   noble rot framing        19 -> 272 chunks
+ *   botrytis-as-disease      56 ->  72   (barely moved — the new material is additive, not corrective)
+ *   Sauternes / Barsac        2 ->  44
+ *   Loire + Alsace sweet     ~0 ->  93
+ *   Tokaj / aszú / puttonyos ~0 ->  20
+ *
+ * The ratio inverted from roughly 1:3 against noble rot to 4:1 in favour, which is the number that
+ * matters: the old failure was not thin coverage, it was CONTRADICTORY coverage winning the top slots.
+ *
+ * WHAT IS STILL THIN, and why it is not suppressed. Dried-grape styles remain sparse — appassimento /
+ * recioto / vin santo 24 chunks, eiswein / cryoextraction 10, vin de paille 0. These are left OPEN
+ * deliberately: thin is a different failure from backwards. Retrieval on them returns adjacent
+ * sweet-wine material rather than material that contradicts the answer, and the prompt already tells
+ * the model the passages may be silent and that the answer must stand without them. Suppression is
+ * reserved for where the corpus would actively mislead.
  */
-const BOTRYTIS_SWEET =
-  /\bbotrytis\b|\bbotrytised\b|\bbotrytized\b|\bnoble rot\b|\bsauternes\b|\btokaji\b|\baszú\b|\bbeerenauslese\b|\btrockenbeeren\w*\b|\beiswein\b|\bice wine\b|\bpasserillage\b|\bappassimento\b|\brecioto\b|\bvin santo\b/i;
+const SWEET_INTENT =
+  /\bbotrytis\b|\bbotrytised\b|\bbotrytized\b|\bnoble rot\b|\bpourriture noble\b|\bsauternes\b|\bbarsac\b|\btokaji?\b|\basz[uú]\b|\bputtonyos\b|\beszencia\b|\bbeerenauslese\b|\btrockenbeeren\w*\b|\bgrains nobles\b|\bvendanges tardives\b|\bcoteaux du layon\b|\bquarts de chaume\b|\bbonnezeaux\b|\beiswein\b|\bice ?wine\b|\bpasserillage\b|\bappassimento\b|\brecioto\b|\bvin santo\b|\btries successives\b|\bsurmaturit[ée]\b|\bselective picking\b/i;
 
 export interface GateDecision {
   retrieve: boolean;
@@ -85,14 +97,14 @@ export interface GateDecision {
 export function shouldRetrieve(opts: { questionText: string; family?: string | null }): GateDecision {
   const text = opts.questionText ?? "";
 
-  if (BOTRYTIS_SWEET.test(text)) {
-    return { retrieve: false, reason: "suppressed: botrytis/dried-grape — corpus frames rot as disease (F4)" };
-  }
-  // Fortified/oxidative is now a POSITIVE signal rather than a suppression: a question naming sherry,
-  // port, madeira or a VDN is a production question even when the stem never says "winemaking", and
-  // the corpus now answers it.
+  // Both former suppressions are now POSITIVE signals. A question naming sherry, Sauternes or Tokaji
+  // is a production question even when the stem never says "winemaking", and the corpus now answers
+  // it — so these fire before the generic intent test rather than blocking it.
   if (FORTIFIED_INTENT.test(text)) {
     return { retrieve: true, reason: "fortified/oxidative — covered by the fortified corpus" };
+  }
+  if (SWEET_INTENT.test(text)) {
+    return { retrieve: true, reason: "botrytis/sweet — covered by the noble-rot corpus" };
   }
   if (opts.family && PRODUCTION_FAMILIES.has(opts.family)) {
     return { retrieve: true, reason: `family ${opts.family}` };

@@ -169,6 +169,35 @@ const GOLDEN: Golden[] = [
     topics: ["fortified"],
     minOnTopic: 2,
   },
+  // --- botrytis / noble rot (added by --group botrytis) -----------------------------------------
+  // The hardest regression to guard in the whole suite. Before the noble-rot corpus these queries
+  // returned bunch-rot disease control from viticulture institutes — real, tier-1 and exactly
+  // backwards. requirePublisher on the INAO entry is the check that legal text, not agronomy, wins.
+  {
+    name: "sauternes noble rot harvest",
+    query: "Explain how this Sauternes was made: the role of Botrytis cinerea, tries successives and the concentration of the must.",
+    topics: ["sweet-wine"],
+    minOnTopic: 4,
+    requirePublisher: "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
+  },
+  {
+    name: "noble rot berry chemistry",
+    query: "What does noble rot do to the berry — glycerol, gluconic acid, and how does it differ from grey rot?",
+    topics: ["sweet-wine"],
+    minOnTopic: 3,
+  },
+  {
+    name: "tokaji aszu production",
+    query: "Describe the production of Tokaji Aszú, including the aszú berries, the base wine and residual sugar.",
+    topics: ["sweet-wine"],
+    minOnTopic: 2,
+  },
+  {
+    name: "Alsace SGN and vendanges tardives",
+    query: "Explain the difference between vendanges tardives and sélection de grains nobles in Alsace.",
+    topics: ["sweet-wine"],
+    minOnTopic: 2,
+  },
   {
     name: "German white production (language reach)",
     query: "How was this German Riesling produced — must handling, fermentation and residual sugar?",
@@ -292,11 +321,14 @@ describe("retrieval gate", () => {
     [null, "Explain the solera and criaderas system used for this wine.", true],
     [null, "How was this Tawny Port aged?", true],
     [null, "Discuss estufagem in the production of this Madeira.", true],
-    // F4: the corpus is loud and backwards on botrytis — 56 chunks frame it as rot to control, 9 as
-    // noble rot. Measured: this query returned six passages, five tagged `faults`.
-    ["F5", "Explain how the sweetness of this botrytis-affected wine was achieved.", false],
-    [null, "Describe the production of this Sauternes.", false],
-    [null, "How was this Trockenbeerenauslese made?", false],
+    // FLIPPED once the noble-rot corpus landed (462 chunks). These asserted `false` while the corpus
+    // framed botrytis as a disease 3:1; it now favours noble rot 4:1. Kept rather than deleted — they
+    // are the regression guard proving the gate reopened.
+    ["F5", "Explain how the sweetness of this botrytis-affected wine was achieved.", true],
+    [null, "Describe the production of this Sauternes.", true],
+    [null, "How was this Trockenbeerenauslese made?", true],
+    [null, "Discuss the tries successives used to harvest this wine.", true],
+    [null, "Explain the aszú berries used for this Tokaji.", true],
     // ...but sweetness WITHOUT botrytis is covered and must still retrieve.
     ["F6", "Explain the mechanism by which residual sugar was retained in this Riesling.", true],
   ];

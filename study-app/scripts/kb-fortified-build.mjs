@@ -29,6 +29,7 @@
  *   node scripts/kb-fortified-build.mjs --dry-run   # fetch + chunk + report, embed nothing, write nothing
  *   node scripts/kb-fortified-build.mjs             # do it
  *   node scripts/kb-fortified-build.mjs --source sherry-consejo
+ *   node scripts/kb-fortified-build.mjs --group botrytis    # only the noble-rot set
  *
  * Env: DATABASE_URL, TAVILY_API_KEY, VOYAGE_API_KEY
  */
@@ -39,6 +40,7 @@ import { chunkMarkdown } from "../src/lib/knowledge/chunk.ts";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const ONLY = (() => { const i = process.argv.indexOf("--source"); return i >= 0 ? process.argv[i + 1] : null; })();
+const GROUP = (() => { const i = process.argv.indexOf("--group"); return i >= 0 ? process.argv[i + 1] : null; })();
 
 const VOYAGE_MODEL = "voyage-4";
 const VOYAGE_DIM = 1024;
@@ -58,6 +60,8 @@ const INSERT_BATCH = 20;
 
 const SOURCES = [
   {
+    group: "fortified",
+    topic: "fortified",
     key: "sherry-consejo",
     publisher: "Consejo Regulador DO Jerez-Xérès-Sherry",
     homeDomain: "sherry.wine",
@@ -91,6 +95,8 @@ const SOURCES = [
     ],
   },
   {
+    group: "fortified",
+    topic: "fortified",
     key: "ivdp-port",
     publisher: "IVDP — Instituto dos Vinhos do Douro e do Porto",
     homeDomain: "ivdp.pt",
@@ -109,6 +115,8 @@ const SOURCES = [
     ],
   },
   {
+    group: "fortified",
+    topic: "fortified",
     key: "jerez-dop-spec",
     publisher: "DOP Jerez-Xérès-Sherry / Manzanilla — product specification",
     homeDomain: "assets.publishing.service.gov.uk",
@@ -122,6 +130,8 @@ const SOURCES = [
     urls: ["https://assets.publishing.service.gov.uk/media/6682cadcaec8650b10090217/Jerez-Xerez-Sherry_DOP_20.docx"],
   },
   {
+    group: "fortified",
+    topic: "fortified",
     key: "fortified-reviews",
     publisher: "Peer-reviewed open-access reviews (PMC)",
     homeDomain: "pmc.ncbi.nlm.nih.gov",
@@ -148,6 +158,8 @@ const SOURCES = [
     ],
   },
   {
+    group: "fortified",
+    topic: "fortified",
     key: "madeira-ivbam",
     publisher: "IVBAM / Madeira wine institutional sources",
     homeDomain: "vinhomadeira.pt",
@@ -170,6 +182,8 @@ const SOURCES = [
     ],
   },
   {
+    group: "fortified",
+    topic: "fortified",
     key: "civr-vdn",
     publisher: "CIVR — Conseil Interprofessionnel des Vins du Roussillon",
     homeDomain: "roussillon.wine",
@@ -184,6 +198,63 @@ const SOURCES = [
       "https://www.roussillon.wine/vins-et-terroirs/nos-aoc-et-igp",
       "https://www.roussillon.wine/vins-et-terroirs/nos-singularites",
       "https://www.roussillon.wine/le-civr",
+    ],
+  },
+  // ===========================================================================================
+  // BOTRYTIS / NOBLE ROT — the F4 hole.
+  //
+  // The first corpus does not merely lack noble rot, it CONTRADICTS it: 56 chunks frame botrytis as
+  // bunch rot to be sprayed against, 19 as noble rot, and Sauternes/Tokaji/Beerenauslese appear
+  // twice in 3,979 chunks. Viticulture institutes exist to help growers PREVENT botrytis; the sweet-
+  // wine world exists to court it. Feeding a Sauternes question rot-control passages is worse than
+  // feeding it nothing, which is why the gate suppressed these questions.
+  //
+  // Deliberately NOT included: papers on bunch rot / grey rot aroma damage. They are good science and
+  // they are the exact material that drowned noble rot in the first place. Adding more of it to fix a
+  // problem caused by it would be self-defeating.
+  // ===========================================================================================
+  {
+    group: "botrytis",
+    topic: "sweet-wine",
+    key: "inao-sweet-cdc",
+    publisher: "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
+    homeDomain: "inao.gouv.fr",
+    tier: 1,
+    license: "official appellation specification",
+    language: "fr",
+    tsConfig: "french",
+    // The legal texts, and the counterpart of the Jerez DOP spec in the fortified set. These state
+    // what the others only describe: harvest "par tries successives", minimum 221 g/L of sugar, and —
+    // the detail that makes the point — anti-botrytis sprays are FORBIDDEN in Sauternes.
+    urls: [
+      "https://info.agriculture.gouv.fr/boagri/document_administratif-1d1c41fa-d838-4b2e-9d53-6392daff9d87/telechargement",
+      "https://www.origin-gi.com/wp-content/uploads/2014/08/france_sauternes.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNOCDCCoteauxDuLayon.pdf",
+      "https://extranet.inao.gouv.fr/fichier/2.9-PNO-CDC-Coteaux-du-Layon-modifi%C3%A9.pdf",
+      "https://info.agriculture.gouv.fr/boagri/document_administratif-cd02193e-eda4-4b68-88c8-2055632ec873/telechargement",
+      "https://extranet.inao.gouv.fr/fichier/PNOCDCAlsace.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNODUAlsace.pdf",
+    ],
+  },
+  {
+    group: "botrytis",
+    topic: "sweet-wine",
+    key: "noble-rot-research",
+    publisher: "Peer-reviewed noble-rot literature",
+    homeDomain: "various",
+    tier: 1,
+    license: "open access",
+    language: "en",
+    tsConfig: "english",
+    urls: [
+      // Botrytized wines review — explicitly covers Tokaji Aszú, Sauternes and TBA together, and is
+      // the main Tokaj-bearing entry: no official Hungarian specification was reachable.
+      "https://www.dovepress.com/botrytized-wines-ndash-current-perspectives-peer-reviewed-fulltext-article-IJWR",
+      // Blanco-Ulate 2015 — the landmark paper on how noble rot reprograms berry metabolism, and the
+      // clearest statement anywhere of why noble rot is not grey rot.
+      "https://academic.oup.com/plphys/article/169/4/2422/6114124",
+      // Induction of noble rot infection under controlled withering conditions.
+      "https://www.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2017.01002/full",
     ],
   },
 ];
@@ -248,7 +319,9 @@ function titleOf(markdown, url) {
 
 async function main() {
   const sql = neon(process.env.DATABASE_URL);
-  const sources = ONLY ? SOURCES.filter((s) => s.key === ONLY) : SOURCES;
+  const sources = ONLY ? SOURCES.filter((s) => s.key === ONLY)
+    : GROUP ? SOURCES.filter((s) => s.group === GROUP)
+    : SOURCES;
   console.log(`\n=== kb-fortified-build ${DRY_RUN ? "(DRY RUN — no embedding, no writes)" : ""} ===\n`);
 
   let grandChunks = 0;
@@ -317,7 +390,7 @@ async function main() {
                     ${c.tokenCount}, ${`[${vec.join(",")}]`}::vector, ${VOYAGE_MODEL}, ${VOYAGE_DIM},
                     ${src.language}, ${src.tsConfig},
                     to_tsvector(${src.tsConfig}::regconfig, ${c.text}),
-                    'fortified', TRUE)
+                    ${src.topic}, TRUE)
             ON CONFLICT (id) DO NOTHING`;
         }));
       }
