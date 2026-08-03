@@ -1,7 +1,48 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { splitStatements } from "../scripts/migrate.mjs";
+import { splitStatements, checksum } from "../scripts/migrate.mjs";
+
+describe("checksum", () => {
+  // The bug this guards: hashing bytes as-read made the checksum depend on the checkout platform
+  // (core.autocrlf=true gives CRLF on Windows, LF on Vercel's Linux builders), so thirteen unchanged
+  // migrations warned "changed since it was applied" on every production build.
+  it("is identical for CRLF and LF versions of the same file", () => {
+    const lf = "CREATE TABLE t (\n  id INT\n);\n";
+    expect(checksum(lf.replace(/\n/g, "\r\n"))).toBe(checksum(lf));
+  });
+
+  it("still changes when the SQL itself changes", () => {
+    expect(checksum("SELECT 1;\n")).not.toBe(checksum("SELECT 2;\n"));
+  });
+
+  it("matches the LF hashes already stored for migrations applied on Linux", () => {
+    // 014-016 were first applied by a Vercel build, so their ledger rows are the LF hashes. The
+    // normalised checksum must keep agreeing with them or it would re-drift what is already correct.
+    const dir = join(import.meta.dirname, "..", "migrations");
+    expect(checksum(readFileSync(join(dir, "014_oauth_and_reset.sql"), "utf8"))).toBe(
+      "7e5ff4a29afb8ca3"
+    );
+    expect(checksum(readFileSync(join(dir, "015_p3_category.sql"), "utf8"))).toBe(
+      "e1d4c2a770851096"
+    );
+    expect(checksum(readFileSync(join(dir, "016_knowledge_corpus.sql"), "utf8"))).toBe(
+      "5f387a124f27c89c"
+    );
+  });
+
+  it("matches the values 017 re-baselines 001-013 to", () => {
+    // If a 001-013 file is ever edited, this fails and points at 017 rather than letting the
+    // re-baseline quietly encode a stale hash.
+    const dir = join(import.meta.dirname, "..", "migrations");
+    const rebaseline = readFileSync(join(dir, "017_rebaseline_checksums.sql"), "utf8");
+    const rows = [...rebaseline.matchAll(/\('(\d{3}_[\w.]+\.sql)', '\w+', '(\w+)'\)/g)];
+    expect(rows).toHaveLength(13);
+    for (const [, file, expected] of rows) {
+      expect(checksum(readFileSync(join(dir, file), "utf8")), file).toBe(expected);
+    }
+  });
+});
 
 describe("splitStatements", () => {
   it("splits plain statements on semicolons", () => {
