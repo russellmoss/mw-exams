@@ -47,6 +47,12 @@ const API_KEY = process.env.ANTHROPIC_API_KEY;
 const { buildModelAnswerPrompt, parseModelAnswerSections } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { buildTastingLexiconGuidance } = await import("../src/lib/prompts/tasting-lexicon.ts");
 const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db.ts");
+// Gated tier-1 production references — the same call both live model-answer paths make. Imported
+// here for the reason stated at the top of this file: the offline path must not drift from
+// production. Without it this script would quietly regenerate exemplars WITHOUT the references the
+// live routes use, which is the exact drift the "ONE source of truth" note warns about.
+// Needs VOYAGE_API_KEY; getKnowledgeContext fails soft to null if it is missing.
+const { getKnowledgeContext } = await import("../src/lib/knowledge/context.ts");
 
 // ---- args ----
 const args = process.argv.slice(2);
@@ -110,12 +116,17 @@ async function callClaude(system, user) {
 
 async function regenOne(row) {
   const wines = row.wines; // JSONB → already parsed array of { slot, fullText, ... }
-  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance);
+  const { block: knowledgeBlock, passages, reason } = await getKnowledgeContext({
+    questionText: row.question_text,
+    family: row.family,
+  });
+  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock);
   const text = await callClaude(prompt.system, prompt.user);
   const s = parseModelAnswerSections(text);
   const newLen = (s.modelAnswer || "").length;
+  const kb = `${passages.length} passage(s) [${reason}]`;
   if (opt.dryRun) {
-    return { id: row.question_id, oldLen: row.old_len, newLen, preview: (s.modelAnswer || "").slice(0, 240).replace(/\s+/g, " ") };
+    return { id: row.question_id, oldLen: row.old_len, newLen, kb, preview: (s.modelAnswer || "").slice(0, 240).replace(/\s+/g, " ") };
   }
   await saveGeneratedQuestion({
     questionId: row.question_id, paper: row.paper, family: row.family || "F4",
@@ -124,7 +135,7 @@ async function regenOne(row) {
     modelAnswer: s.modelAnswer, proposedAnnotation: s.proposedAnnotation || undefined,
     reasoningTrace: s.reasoningTrace || undefined, studyDiagramAssist: s.studyDiagramAssist || undefined,
   });
-  return { id: row.question_id, oldLen: row.old_len, newLen, wrote: true };
+  return { id: row.question_id, oldLen: row.old_len, newLen, kb, wrote: true };
 }
 
 // ---- bounded-concurrency pool ----
@@ -135,7 +146,7 @@ async function worker() {
     try {
       const r = await regenOne(row);
       ok++;
-      console.log(`  [${ok + fail}/${rows.length}] ${r.id}  p${row.paper}/${row.family}  ${r.oldLen}→${r.newLen} chars${r.wrote ? " (written)" : ""}`);
+      console.log(`  [${ok + fail}/${rows.length}] ${r.id}  p${row.paper}/${row.family}  ${r.oldLen}→${r.newLen} chars  kb: ${r.kb}${r.wrote ? " (written)" : ""}`);
       if (opt.dryRun) console.log(`        preview: ${r.preview}…`);
     } catch (e) {
       fail++;
