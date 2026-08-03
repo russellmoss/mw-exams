@@ -124,6 +124,8 @@ export async function saveGeneratedQuestion(q: {
   reasoningTrace?: string;
   studyDiagramAssist?: string;
   metadata?: Record<string, unknown>;
+  // Who generated it (migration 020). Global pool — this is provenance only, never a serve filter.
+  createdByUserId?: number | null;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
@@ -134,13 +136,13 @@ export async function saveGeneratedQuestion(q: {
       question_id, paper, family, family_label, subcategory,
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
-      metadata
+      metadata, created_by_user_id
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
       ${q.modelAnswer || null}, ${q.proposedAnnotation || null},
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
-      ${JSON.stringify(q.metadata || {})}
+      ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -241,6 +243,87 @@ export async function getQuestionCounts(): Promise<
     GROUP BY paper, family
     ORDER BY paper, family
   `) as { paper: number; family: string; count: number }[];
+}
+
+// ── Question bank + per-user exposure (migration 020) ───────────────────────────────────────────
+//
+// The bank IS `generated_questions` (a validated question is written there on every successful
+// generation, independent of attempts). "Seen" is `question_views`: one row per (user, question)
+// written the moment a question is served — from the bank OR freshly generated, finished or not.
+//
+// NOTE ON MODE: a generated question is mode-agnostic in this codebase — the same row is graded as
+// full / stem-only / known-wine / flash without change (generation never reads mode), and
+// question_views is keyed on (user, question) with no mode. So eligibility is by paper + family +
+// unseen; `mode` is the practice mode the served question is then run in, not a pool partition.
+
+// Record that a question has been served to a user. Idempotent: the unique(user_id, question_id)
+// constraint means a re-serve keeps the original first_seen_at rather than resetting it.
+export async function recordQuestionView(userId: number, questionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    INSERT INTO question_views (user_id, question_id)
+    VALUES (${userId}, ${questionId})
+    ON CONFLICT (user_id, question_id) DO NOTHING
+  `;
+}
+
+export async function incrementTimesServed(questionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE generated_questions SET times_served = COALESCE(times_served, 0) + 1
+    WHERE question_id = ${questionId}
+  `;
+}
+
+// How many banked questions this user has NEVER seen, for a paper (+ optional family). Gated on
+// both retirement flags: is_retired (soft switch) and invalid_reasons (validator/feedback
+// quarantine). family 'any'/empty means "any family in this paper".
+export async function getBankCount(
+  userId: number,
+  paper: number,
+  family?: string
+): Promise<number> {
+  const sql = getDb();
+  const fam = family && family !== "any" ? family : null;
+  const rows = (await sql`
+    SELECT COUNT(*)::int AS count
+    FROM generated_questions q
+    WHERE q.paper = ${paper}
+      AND (${fam}::text IS NULL OR q.family = ${fam})
+      AND q.invalid_reasons IS NULL
+      AND q.is_retired IS NOT TRUE
+      AND NOT EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${userId}
+      )
+  `) as { count: number }[];
+  return rows[0]?.count ?? 0;
+}
+
+// The newest eligible (unseen, not retired) banked questions for a user, most-recent-first. The
+// caller picks one at random from this window — recency weighting, per the feature spec: pick from
+// the 20 newest eligible, or from all eligible when fewer than 20 exist.
+export async function getEligibleBankedQuestions(
+  userId: number,
+  paper: number,
+  family?: string,
+  limit = 20
+): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  const fam = family && family !== "any" ? family : null;
+  return (await sql`
+    SELECT q.* FROM generated_questions q
+    WHERE q.paper = ${paper}
+      AND (${fam}::text IS NULL OR q.family = ${fam})
+      AND q.invalid_reasons IS NULL
+      AND q.is_retired IS NOT TRUE
+      AND NOT EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${userId}
+      )
+    ORDER BY q.created_at DESC
+    LIMIT ${limit}
+  `) as GeneratedQuestion[];
 }
 
 export async function createAttempt(

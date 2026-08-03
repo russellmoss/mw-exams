@@ -10,12 +10,27 @@ import { FocusSelector, type FocusValue } from "./components/FocusSelector";
 import { SessionHistory } from "./components/SessionHistory";
 import { StemDetailSegments, stemForLevel } from "./components/StemDetailControl";
 import { STEM_DETAIL_HELPER_COPY, type StemDetailLevel } from "@/lib/prompts/stemDetail";
+import { FAMILY_LABELS } from "@/lib/question-loader";
 import { ThinkingTrace } from "./components/ThinkingTrace";
 import { useProgressStream } from "@/lib/use-progress-stream";
 import type { Question } from "@/lib/study-session";
 
-type LandingStep = "select-paper" | "select-family" | "select-mode" | "stem-detail" | "generating";
+type LandingStep =
+  | "select-paper"
+  | "select-family"
+  | "select-mode"
+  | "acquire"
+  | "stem-detail"
+  | "generating";
 type StudyMode = "full" | "stem-only" | "known-wine" | "flash" | "mikey";
+
+const MODE_LABELS: Record<StudyMode, string> = {
+  full: "Full Question",
+  "stem-only": "Stem Analysis Only",
+  "known-wine": "Dry Notes",
+  flash: "Flash Notes",
+  mikey: "Lil' Mikey's Wine Adventure",
+};
 
 // What the question endpoints resolve to — the engine's outcome shape, minus the error case
 // (which the stream surfaces as an `error` event instead).
@@ -62,6 +77,12 @@ export default function Home() {
   const [pendingQuestion, setPendingQuestion] = useState<Question | null>(null);
   const [pendingMode, setPendingMode] = useState<StudyMode>("full");
   const [stemDetail, setStemDetail] = useState<StemDetailLevel>("exam_real");
+  // "New or Banked" setup card. bankCount is how many banked questions this user has never seen for
+  // the current paper+family+mode (null = still loading). bankLoading covers the sub-second banked
+  // fetch; bankTaken is the race flag when the last eligible question was consumed under us (409).
+  const [bankCount, setBankCount] = useState<number | null>(null);
+  const [bankLoading, setBankLoading] = useState(false);
+  const [bankTaken, setBankTaken] = useState(false);
   // Live progress for the question fetch. Serving from the bank is instant; writing a fresh one
   // runs the engine's validate-and-retry loop for 30-60s, which used to be a static spinner.
   const questionTrace = useProgressStream();
@@ -126,8 +147,72 @@ export default function Home() {
     []
   );
 
+  // Map an /api/get-question(-/banked) payload to the study-session Question shape. New and Banked
+  // return the identical shape, so both paths funnel through here — a banked question is built no
+  // differently from a fresh one (no "banked" marker ever reaches the candidate).
+  const toQuestion = useCallback((data: QuestionPayload): Question => {
+    const q = data.question;
+    return {
+      id: q.question_id,
+      source: data.source,
+      paper: q.paper,
+      questionNumber: 1,
+      text: q.question_text,
+      stemGuided: q.stem_guided ?? null,
+      stemExamReal: q.stem_exam_real ?? null,
+      stemBlind: q.stem_blind ?? null,
+      wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
+      totalMarks: q.total_marks,
+      family: q.family,
+      familyLabel: q.family_label,
+      subcategory: q.subcategory || "",
+      hasModelAnswer: data.hasModelAnswer,
+      hasDecisionMatrix: false,
+      hasWineResearch: false,
+      modelAnswer: q.model_answer || "",
+      proposedAnnotation: q.proposed_annotation || "",
+      studyDiagramAssist: q.study_diagram_assist || "",
+      year: null,
+    };
+  }, []);
+
+  // Hand a freshly-acquired question (New or Banked) to the Stem Detail setup screen — the shared
+  // tail of both acquisition paths. Preselects the user's saved default level and backfills the
+  // stem variants out of band (the question renders from its canonical stem until they land).
+  const beginStemDetail = useCallback(
+    (question: Question) => {
+      setPendingQuestion(question);
+      setStemDetail((user?.stemDetailDefault as StemDetailLevel) || "exam_real");
+      setStep("stem-detail");
+
+      if (!question.stemGuided || !question.stemExamReal || !question.stemBlind) {
+        fetch("/api/stem-detail/ensure", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId: question.id }),
+        })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((d) => {
+            if (!d?.variants) return;
+            setPendingQuestion((prev) =>
+              prev && prev.id === question.id
+                ? {
+                    ...prev,
+                    stemGuided: d.variants.guided ?? prev.stemGuided,
+                    stemExamReal: d.variants.exam_real ?? prev.stemExamReal,
+                    stemBlind: d.variants.blind ?? prev.stemBlind,
+                  }
+                : prev
+            );
+          })
+          .catch(() => {});
+      }
+    },
+    [user]
+  );
+
   const handleModeSelect = useCallback(
-    async (mode: StudyMode) => {
+    (mode: StudyMode) => {
       // Flash Notes runs its own mode-setup → deck flow on a dedicated screen (build a deck or go
       // infinite), so it does NOT fetch a single question here. Hand off the paper + family and let
       // /flash-notes drive question selection per card.
@@ -147,102 +232,114 @@ export default function Home() {
         return;
       }
 
-      setStep("generating");
+      // The three question modes now pick HOW to acquire the question (New vs Banked) on the setup
+      // card rather than always generating. Record the mode and show that card; the bank count for
+      // this paper+family+mode loads there.
+      setPendingMode(mode);
       setError(null);
-
-      // Streamed so the wait is legible: which bank tier we're trying, then — when nothing
-      // suitable is banked — each generation attempt and the writing model's own reasoning.
-      // Still auto-retries once: the server always returns within its generation budget (a fresh
-      // question or a fast banked fallback), so a retry reliably resolves transient failures.
-      // The 180s cap is a wedged-connection backstop, not a working deadline — progress events
-      // make a slow-but-healthy generation obvious, so it no longer needs a tight one.
-      try {
-        let data: QuestionPayload | null = null;
-        const MAX_TRIES = 2;
-        for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
-          data = await questionTrace.run<QuestionPayload>(
-            "/api/get-question/stream",
-            {
-              paper: selectedPaper,
-              family: selectedFamily,
-              // Focus only steers Paper 3; harmless (ignored) for Papers 1/2.
-              focus: selectedPaper === 3 ? focus : "balanced",
-            },
-            { timeoutMs: 180_000 }
-          );
-          if (data?.question) break;
-        }
-
-        if (!data?.question) {
-          // errorRef, not error: `error` here is the closure's value from before the stream ran.
-          throw new Error(
-            questionTrace.errorRef.current || "Question generation failed. Please try again."
-          );
-        }
-
-        const q = data.question;
-        const question: Question = {
-          id: q.question_id,
-          source: data.source,
-          paper: q.paper,
-          questionNumber: 1,
-          text: q.question_text,
-          stemGuided: q.stem_guided ?? null,
-          stemExamReal: q.stem_exam_real ?? null,
-          stemBlind: q.stem_blind ?? null,
-          wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
-          totalMarks: q.total_marks,
-          family: q.family,
-          familyLabel: q.family_label,
-          subcategory: q.subcategory || "",
-          hasModelAnswer: data.hasModelAnswer,
-          hasDecisionMatrix: false,
-          hasWineResearch: false,
-          modelAnswer: q.model_answer || "",
-          proposedAnnotation: q.proposed_annotation || "",
-          studyDiagramAssist: q.study_diagram_assist || "",
-          year: null,
-        };
-
-        // Stem Detail applies to full / stem-only / known-wine. Show the setup screen (dial + live
-        // preview + Start) before starting the question, preselecting the user's saved default.
-        setPendingQuestion(question);
-        setPendingMode(mode);
-        setStemDetail((user?.stemDetailDefault as StemDetailLevel) || "exam_real");
-        setStep("stem-detail");
-
-        // Backfill the stem variants OUT OF BAND. The question is already on screen and every level
-        // renders from the canonical stem until this resolves, so it is deliberately not awaited —
-        // keeping the model call off the path the user waits on. Failures are silent by design.
-        if (!question.stemGuided || !question.stemExamReal || !question.stemBlind) {
-          fetch("/api/stem-detail/ensure", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ questionId: question.id }),
-          })
-            .then((r) => (r.ok ? r.json() : null))
-            .then((d) => {
-              if (!d?.variants) return;
-              setPendingQuestion((prev) =>
-                prev && prev.id === question.id
-                  ? {
-                      ...prev,
-                      stemGuided: d.variants.guided ?? prev.stemGuided,
-                      stemExamReal: d.variants.exam_real ?? prev.stemExamReal,
-                      stemBlind: d.variants.blind ?? prev.stemBlind,
-                    }
-                  : prev
-              );
-            })
-            .catch(() => {});
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to get question");
-        setStep("select-family");
-      }
+      setBankTaken(false);
+      setBankCount(null); // show "Checking…" until the effect below loads the live count
+      setStep("acquire");
     },
-    [selectedPaper, selectedFamily, focus, user]
+    [selectedPaper, selectedFamily, router]
   );
+
+  // "New Question" — generate a fresh one, the full existing behaviour. Streamed so the 30-60s wait
+  // is legible; auto-retries once. The 180s cap is a wedged-connection backstop, not a deadline.
+  const handleNewQuestion = useCallback(async () => {
+    setStep("generating");
+    setError(null);
+    try {
+      let data: QuestionPayload | null = null;
+      const MAX_TRIES = 2;
+      for (let attempt = 1; attempt <= MAX_TRIES; attempt++) {
+        data = await questionTrace.run<QuestionPayload>(
+          "/api/get-question/stream",
+          {
+            paper: selectedPaper,
+            family: selectedFamily,
+            // Focus only steers Paper 3; harmless (ignored) for Papers 1/2.
+            focus: selectedPaper === 3 ? focus : "balanced",
+          },
+          { timeoutMs: 180_000 }
+        );
+        if (data?.question) break;
+      }
+
+      if (!data?.question) {
+        // errorRef, not error: `error` here is the closure's value from before the stream ran.
+        throw new Error(
+          questionTrace.errorRef.current || "Question generation failed. Please try again."
+        );
+      }
+
+      beginStemDetail(toQuestion(data));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to get question");
+      setStep("acquire");
+    }
+  }, [selectedPaper, selectedFamily, focus, questionTrace, toQuestion, beginStemDetail]);
+
+  // "Banked Question" — serve one this user has never seen. Instant (a pool read, no model call). A
+  // 409 means the last eligible one was just taken from under us: flag it inline and disable the
+  // button, leaving New Question as the way forward.
+  const handleBankedQuestion = useCallback(async () => {
+    setBankLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/get-question/banked", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          paper: selectedPaper,
+          family: selectedFamily,
+          mode: pendingMode,
+        }),
+      });
+
+      if (res.status === 409) {
+        setBankTaken(true);
+        setBankCount(0);
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data: QuestionPayload = await res.json();
+      if (!data?.question) throw new Error("Banked question was empty. Try New Question.");
+      beginStemDetail(toQuestion(data));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load a banked question");
+    } finally {
+      setBankLoading(false);
+    }
+  }, [selectedPaper, selectedFamily, pendingMode, toQuestion, beginStemDetail]);
+
+  // Keep the banked count live: refetch whenever the acquire card is showing and the
+  // paper / family / mode selection changes. Clears the race flag on every fresh selection.
+  useEffect(() => {
+    if (step !== "acquire" || !selectedPaper || !user) return;
+    let cancelled = false;
+    const params = new URLSearchParams({
+      paper: String(selectedPaper),
+      family: selectedFamily || "any",
+      mode: pendingMode,
+    });
+    fetch(`/api/question-counts?${params.toString()}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        const n = typeof d.bankCount === "number" ? d.bankCount : 0;
+        setBankCount(n);
+        // A fresh count supersedes an earlier race flag: if questions are available again, re-enable.
+        if (n > 0) setBankTaken(false);
+      })
+      .catch(() => {
+        if (!cancelled) setBankCount(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [step, selectedPaper, selectedFamily, pendingMode, user]);
 
   // Start the question from the Stem Detail setup screen. Persist the chosen level so /study can
   // render/save it, then hand off to the study flow.
@@ -491,6 +588,72 @@ export default function Home() {
             </div>
           )}
 
+          {/* Acquire step — the study setup card. Choose HOW to start this paper·family·mode:
+              generate a fresh question, or serve a banked one this user has never seen. */}
+          {step === "acquire" && (
+            <div className="max-w-lg mx-auto">
+              <button
+                onClick={() => setStep("select-mode")}
+                className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1 cursor-pointer"
+              >
+                &larr; Back
+              </button>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Start your question</h2>
+              <p className="text-sm text-muted mb-6">
+                {`Paper ${selectedPaper}`}
+                {" · "}
+                {selectedFamily && selectedFamily !== "any"
+                  ? FAMILY_LABELS[selectedFamily] || selectedFamily
+                  : "Any family"}
+                {" · "}
+                {MODE_LABELS[pendingMode]}
+              </p>
+
+              {/* 2-up on ≥480px, stacked below it. New = amber primary; Banked = stone outline. */}
+              <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
+                <button
+                  onClick={handleNewQuestion}
+                  className="bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
+                >
+                  New Question
+                  <span className="block text-xs font-normal text-background/70 mt-0.5">
+                    Written fresh for you
+                  </span>
+                </button>
+
+                <button
+                  onClick={handleBankedQuestion}
+                  disabled={bankLoading || bankCount === 0 || bankTaken}
+                  className={
+                    bankCount === 0 || bankTaken
+                      ? "border border-border/60 text-muted/50 rounded-lg px-4 py-4 text-center cursor-not-allowed"
+                      : "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
+                  }
+                >
+                  Banked Question
+                  <span className="block text-xs font-normal text-muted mt-0.5">
+                    {bankLoading
+                      ? "Loading…"
+                      : bankTaken
+                        ? "No banked questions yet"
+                        : bankCount === null
+                          ? "Checking…"
+                          : bankCount === 0
+                            ? "No banked questions yet"
+                            : `${bankCount} available`}
+                  </span>
+                </button>
+              </div>
+
+              {/* Race: the last eligible banked question was consumed under us (409). */}
+              {bankTaken && (
+                <p className="text-xs text-muted mt-3">
+                  That one just got taken — try New Question.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Stem Detail setup. The question is already fetched at this point; this screen picks how
               much organising information its stem reveals, previews the result, and starts the run.
               Any level whose variant has not been backfilled yet previews the canonical stem (see
@@ -500,7 +663,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   setPendingQuestion(null);
-                  setStep("select-mode");
+                  setStep("acquire");
                 }}
                 className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1 cursor-pointer"
               >
