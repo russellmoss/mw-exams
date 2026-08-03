@@ -1,4 +1,4 @@
--- Migration 022: Input method — how the candidate produced an answer, so spelling can be graded
+-- Migration 023: Input method — how the candidate produced an answer, so spelling can be graded
 -- fairly.
 --
 -- MW examiners deduct for blatant or repeated misspellings, and the grader is right to flag them.

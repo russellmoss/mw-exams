@@ -72,6 +72,9 @@ async function pickBankedDrill(paper: number | null, family: string | null, vari
     FROM generated_questions q
     JOIN stem_answer_keys k ON k.question_id = q.question_id
     WHERE k.validated = true
+      -- Bank review gate (migration 022): this is a serve path, so pending/rejected bank rows
+      -- must never reach a candidate — same rule as every read in src/lib/db.ts.
+      AND q.status = 'approved'
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
       AND (
@@ -103,7 +106,18 @@ async function tryFreshDrill(
   emit?: ProgressEmitter,
   variety?: string | null
 ) {
-  const outcome = await generateFreshQuestion(paper, family || undefined, apiKey, meta, undefined, emit, variety);
+  // `undefined` saveOpts — Stem Sniper drills save as normal approved questions; only the
+  // Fill-the-Bank worker holds rows as pending.
+  const outcome = await generateFreshQuestion(
+    paper,
+    family || undefined,
+    apiKey,
+    meta,
+    undefined,
+    emit,
+    undefined,
+    variety
+  );
   if ("error" in outcome) return null;
   // generateFreshQuestion can fall back to a banked question after repeated validator failures; only
   // the genuinely-generated case is keyed here (a banked fallback already has its own validated key).

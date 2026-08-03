@@ -35,6 +35,13 @@ export interface GeneratedQuestion {
   metadata: Record<string, unknown>;
   wine_profiles: Record<string, unknown>;
   created_at: string;
+  // Bank review gate (migration 022). 'approved' is the default and the only status ever served to a
+  // candidate; 'pending' awaits admin review; 'rejected' was binned. batch_id links a bulk-generated
+  // row to its bank_batches run.
+  status: string;
+  batch_id: string | null;
+  reviewed_at: string | null;
+  reviewed_by: number | null;
 }
 
 export interface UserAttempt {
@@ -151,6 +158,13 @@ export async function saveGeneratedQuestion(q: {
   metadata?: Record<string, unknown>;
   // Who generated it (migration 020). Global pool — this is provenance only, never a serve filter.
   createdByUserId?: number | null;
+  // Bank review gate (migration 022). Omitted → DB default 'approved' (the on-the-fly study path is
+  // pre-validated and served immediately). The Fill-the-Bank worker passes 'pending' + a batchId so
+  // the row is held out of every candidate-facing read until an admin approves it. The ON CONFLICT
+  // path deliberately never touches status/batch_id, so a background model-answer re-save can't flip
+  // a pending question live.
+  status?: string;
+  batchId?: string | null;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
@@ -161,13 +175,14 @@ export async function saveGeneratedQuestion(q: {
       question_id, paper, family, family_label, subcategory,
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
-      metadata, created_by_user_id
+      metadata, created_by_user_id, status, batch_id
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
       ${q.modelAnswer || null}, ${q.proposedAnnotation || null},
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
-      ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null}
+      ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null},
+      ${q.status ?? "approved"}, ${q.batchId ?? null}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -191,12 +206,15 @@ export async function getQuestionsByFilter(
   // merely because some attempt has feedback_status='accepted': accepting a UX complaint (e.g.
   // "you repeated this") or an answer-key fix must not silently delete an otherwise-valid question
   // from everyone's bank. Per-user repetition is handled at the serve layer, not here.
+  // status = 'approved' (migration 022): pending/rejected bank questions must never reach a
+  // candidate, and this is a serve path (the study producer's stale tier + generation fallback).
   const sql = getDb();
   if (family && family !== "any") {
     return (await sql`
       SELECT * FROM generated_questions
       WHERE paper = ${paper} AND family = ${family}
         AND invalid_reasons IS NULL
+        AND status = 'approved'
       ORDER BY created_at DESC
     `) as GeneratedQuestion[];
   }
@@ -204,6 +222,7 @@ export async function getQuestionsByFilter(
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
       AND invalid_reasons IS NULL
+      AND status = 'approved'
     ORDER BY created_at DESC
   `) as GeneratedQuestion[];
 }
@@ -238,6 +257,7 @@ export async function getUnansweredQuestions(
       WHERE q.paper = ${paper}
         AND q.family = ${family}
         AND q.invalid_reasons IS NULL
+        AND q.status = 'approved'
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
@@ -251,6 +271,7 @@ export async function getUnansweredQuestions(
       AND (${uid}::int IS NULL OR a.user_id = ${uid})
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
+      AND q.status = 'approved'
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
@@ -316,6 +337,7 @@ export async function getBankCount(
     WHERE q.paper = ${paper}
       AND (${fam}::text IS NULL OR q.family = ${fam})
       AND q.invalid_reasons IS NULL
+      AND q.status = 'approved'
       AND q.is_retired IS NOT TRUE
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
@@ -341,6 +363,7 @@ export async function getEligibleBankedQuestions(
     WHERE q.paper = ${paper}
       AND (${fam}::text IS NULL OR q.family = ${fam})
       AND q.invalid_reasons IS NULL
+      AND q.status = 'approved'
       AND q.is_retired IS NOT TRUE
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
@@ -349,6 +372,231 @@ export async function getEligibleBankedQuestions(
     ORDER BY q.created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
+}
+
+// ── Fill the Bank: bulk generation + review gate (migration 022) ─────────────────────────────────
+//
+// A bank_batch is one bulk run. The worker (src/lib/bank-worker.ts) writes generated_count after
+// every persisted item so progress survives a tab close; the Admin card + /admin/bank poll the
+// helpers below. Every question the worker creates lands as status='pending' with the batch_id set,
+// and is invisible to candidates until an admin approves it (see the status='approved' filters above).
+
+export interface BankBatch {
+  id: string;
+  paper: number;
+  requested_count: number;
+  generated_count: number;
+  failed_count: number;
+  status: "running" | "ready" | "cancelled" | "error";
+  replace_rejected: boolean;
+  created_by: number | null;
+  created_at: string;
+  completed_at: string | null;
+  est_cost_usd: string | null;
+  actual_cost_usd: string | null;
+}
+
+export async function createBankBatch(input: {
+  paper: number;
+  requestedCount: number;
+  replaceRejected: boolean;
+  createdBy: number | null;
+  estCostUsd: number;
+}): Promise<BankBatch> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO bank_batches (paper, requested_count, replace_rejected, created_by, est_cost_usd)
+    VALUES (${input.paper}, ${input.requestedCount}, ${input.replaceRejected},
+            ${input.createdBy}, ${input.estCostUsd})
+    RETURNING *
+  `;
+  return rows[0] as BankBatch;
+}
+
+export async function getBankBatch(id: string): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`SELECT * FROM bank_batches WHERE id = ${id} LIMIT 1`;
+  return (rows[0] as BankBatch) ?? null;
+}
+
+// A paper may only have ONE live run at a time (the generate guard). 'running' is live.
+export async function getRunningBatchForPaper(paper: number): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM bank_batches WHERE paper = ${paper} AND status = 'running'
+    ORDER BY created_at DESC LIMIT 1
+  `;
+  return (rows[0] as BankBatch) ?? null;
+}
+
+// Every batch currently generating, newest first — the Admin card badges these per paper.
+export async function getRunningBatches(): Promise<BankBatch[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM bank_batches WHERE status = 'running' ORDER BY created_at DESC
+  `) as BankBatch[];
+}
+
+// Ready batches that still hold unreviewed (pending) questions — the "Review N questions" surface
+// and the NotificationBell feed.
+export async function getReviewableBatches(): Promise<(BankBatch & { pending_count: number })[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT b.*, COUNT(q.id) FILTER (WHERE q.status = 'pending')::int AS pending_count
+    FROM bank_batches b
+    LEFT JOIN generated_questions q ON q.batch_id = b.id
+    WHERE b.status = 'ready'
+    GROUP BY b.id
+    HAVING COUNT(q.id) FILTER (WHERE q.status = 'pending') > 0
+    ORDER BY b.completed_at DESC NULLS LAST, b.created_at DESC
+  `) as (BankBatch & { pending_count: number })[];
+}
+
+// Atomically bump generated/failed counters. Returns the fresh row so the worker can decide whether
+// the run is complete (generated + failed >= requested).
+export async function incrementBatchCounts(
+  id: string,
+  delta: { generated?: number; failed?: number }
+): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_batches SET
+      generated_count = generated_count + ${delta.generated ?? 0},
+      failed_count    = failed_count + ${delta.failed ?? 0}
+    WHERE id = ${id}
+    RETURNING *
+  `;
+  return (rows[0] as BankBatch) ?? null;
+}
+
+// Add one more unit of work to a batch (used when an admin bins a question and replace_rejected is
+// on). Re-opens the run to 'running' so the completion check fires again after the replacement lands.
+export async function extendBatchForReplacement(id: string): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_batches SET requested_count = requested_count + 1, status = 'running', completed_at = NULL
+    WHERE id = ${id} AND status IN ('running', 'ready')
+    RETURNING *
+  `;
+  return (rows[0] as BankBatch) ?? null;
+}
+
+// The /admin/bank "Replace anything I bin" toggle writes here. Never re-opens a run; it only sets
+// the flag the review endpoint reads when an admin bins a question.
+export async function setBatchReplaceRejected(id: string, replaceRejected: boolean): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE bank_batches SET replace_rejected = ${replaceRejected} WHERE id = ${id}`;
+}
+
+export async function setBankBatchStatus(
+  id: string,
+  status: BankBatch["status"],
+  opts?: { completed?: boolean; actualCostUsd?: number }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE bank_batches SET
+      status = ${status},
+      completed_at = ${opts?.completed ? new Date().toISOString() : null}::timestamptz,
+      actual_cost_usd = COALESCE(${opts?.actualCostUsd ?? null}::numeric, actual_cost_usd)
+    WHERE id = ${id}
+  `;
+}
+
+// The pending items an admin reviews for a batch, oldest-first (review in generation order).
+export async function getBatchPendingQuestions(batchId: string): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM generated_questions
+    WHERE batch_id = ${batchId} AND status = 'pending'
+    ORDER BY created_at ASC
+  `) as GeneratedQuestion[];
+}
+
+// All rows for a batch (any status) — lets the review page show kept/binned outcomes and the
+// "N reviewed · X kept, Y binned" summary without a second round-trip.
+export async function getBatchQuestions(batchId: string): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM generated_questions
+    WHERE batch_id = ${batchId}
+    ORDER BY created_at ASC
+  `) as GeneratedQuestion[];
+}
+
+// Approve / reject one pending bank question. Scoped to status='pending' so a double-click or a
+// replayed request can't flip a decision that was already made. Returns the row's batch_id + old
+// status so the caller can trigger a replacement only on a genuine first-time bin.
+export async function reviewBankQuestion(
+  questionId: string,
+  decision: "keep" | "bin",
+  reviewerId: number
+): Promise<{ batchId: string | null; changed: boolean } | null> {
+  const sql = getDb();
+  const status = decision === "keep" ? "approved" : "rejected";
+  const rows = await sql`
+    UPDATE generated_questions SET
+      status = ${status}, reviewed_at = NOW(), reviewed_by = ${reviewerId}
+    WHERE question_id = ${questionId} AND status = 'pending'
+    RETURNING batch_id
+  `;
+  if (rows.length === 0) return { batchId: null, changed: false };
+  return { batchId: (rows[0].batch_id as string) ?? null, changed: true };
+}
+
+// Undo a review decision back to pending — powers the "Undo" link on kept/binned rows. Only touches
+// rows still owned by this batch that were approved/rejected (never re-opens something un-reviewed).
+export async function undoBankReview(questionId: string, batchId: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE generated_questions SET status = 'pending', reviewed_at = NULL, reviewed_by = NULL
+    WHERE question_id = ${questionId} AND batch_id = ${batchId} AND status IN ('approved', 'rejected')
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+// Approve every pending question in a batch in one shot ("Keep all").
+export async function keepAllPending(batchId: string, reviewerId: number): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE generated_questions SET
+      status = 'approved', reviewed_at = NOW(), reviewed_by = ${reviewerId}
+    WHERE batch_id = ${batchId} AND status = 'pending'
+    RETURNING id
+  `;
+  return rows.length;
+}
+
+// Per-paper bank health for the Admin card: how many APPROVED (servable) and PENDING (awaiting
+// review) questions exist per paper.
+export async function getBankStatusCounts(): Promise<
+  { paper: number; approved: number; pending: number }[]
+> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT paper,
+      COUNT(*) FILTER (WHERE status = 'approved' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE)::int AS approved,
+      COUNT(*) FILTER (WHERE status = 'pending')::int AS pending
+    FROM generated_questions
+    WHERE paper IN (1, 2, 3)
+    GROUP BY paper
+    ORDER BY paper
+  `) as { paper: number; approved: number; pending: number }[];
+  return rows;
+}
+
+// Sum the real Claude spend attributed to a batch's questions (question_generation +
+// model_answer + enrichment all stamp question_id), so bank_batches.actual_cost_usd reflects money
+// actually spent rather than the up-front estimate.
+export async function getBatchActualCost(batchId: string): Promise<number> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COALESCE(SUM(m.cost_usd), 0) AS cost
+    FROM model_usage m
+    WHERE m.question_id IN (SELECT question_id FROM generated_questions WHERE batch_id = ${batchId})
+  `) as { cost: string }[];
+  return Number(rows[0]?.cost ?? 0);
 }
 
 export async function createAttempt(
@@ -466,7 +714,7 @@ export async function updateAttempt(
     pre_glass_feedback: string;
     tasting_notes: string[];
     user_answer: string;
-    // How the answer was produced (migration 022). Written alongside user_answer.
+    // How the answer was produced (migration 023). Written alongside user_answer.
     input_method: "typed" | "voice";
     answer_feedback: string;
     pass_estimate: string;
@@ -545,7 +793,7 @@ export async function updateAttempt(
     return rows[0] as UserAttempt;
   }
   if (data.user_answer !== undefined) {
-    // input_method rides along with the answer it describes (migration 022) — 'voice' means the
+    // input_method rides along with the answer it describes (migration 023) — 'voice' means the
     // grader reported spelling without deducting for it. Guarded to the two legal values because
     // the column carries a CHECK constraint; anything else keeps the 'typed' default.
     const inputMethod = data.input_method === "voice" ? "voice" : "typed";
