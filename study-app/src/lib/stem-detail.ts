@@ -1,5 +1,5 @@
 // Server-side Stem Detail derivation + backfill. Given a question's canonical stem, derive the
-// three framing variants (guided | exam_real | blind) in ONE LLM call, validate that each preserves
+// two framing variants (guided | exam_real) in ONE LLM call, validate that each preserves
 // the immutable sub-question/mark structure (retry once, then fall back to the canonical stem for any
 // level that still fails), and persist them to generated_questions so subsequent serves are instant.
 
@@ -18,13 +18,11 @@ type Meta = { source?: "user" | "server"; userId?: number | null; questionId?: s
 export interface StemVariants {
   guided: string;
   exam_real: string;
-  blind: string;
 }
 
 interface RawVariants {
   guided?: unknown;
   exam_real?: unknown;
-  blind?: unknown;
 }
 
 function parseVariantsJson(text: string): RawVariants | null {
@@ -81,10 +79,9 @@ function pick(raw: RawVariants | null, level: StemDetailLevel, canonical: string
 export interface DerivedVariants {
   guided: string | null;
   exam_real: string | null;
-  blind: string | null;
 }
 
-// Derive all three variants from the canonical stem, retrying once for any level that fails.
+// Derive both variants from the canonical stem, retrying once for any level that fails.
 export async function deriveStemVariants(
   canonical: string,
   apiKey: string,
@@ -99,21 +96,19 @@ export async function deriveStemVariants(
 
   let guided = pick(raw, "guided", canonical);
   let exam_real = pick(raw, "exam_real", canonical);
-  let blind = pick(raw, "blind", canonical);
 
   // Retry once if any level failed validation / parsing.
-  if (!guided || !exam_real || !blind) {
+  if (!guided || !exam_real) {
     try {
       const retry = await callDeriveOnce(canonical, apiKey, meta);
       guided = guided ?? pick(retry, "guided", canonical);
       exam_real = exam_real ?? pick(retry, "exam_real", canonical);
-      blind = blind ?? pick(retry, "blind", canonical);
     } catch (err) {
       console.error("[stem-detail] derive retry failed:", err);
     }
   }
 
-  return { guided, exam_real, blind };
+  return { guided, exam_real };
 }
 
 type QuestionLike = {
@@ -121,10 +116,9 @@ type QuestionLike = {
   question_text: string;
   stem_guided?: string | null;
   stem_exam_real?: string | null;
-  stem_blind?: string | null;
 };
 
-// Ensure a served question has all three stem variants. Returns them (using the canonical stem as
+// Ensure a served question has both stem variants. Returns them (using the canonical stem as
 // the fallback for any level). Derives + persists only when at least one level is missing, so this
 // is a cheap no-op on the common (already-backfilled) path.
 export async function ensureStemVariants(
@@ -136,10 +130,9 @@ export async function ensureStemVariants(
   const existing: StemVariants = {
     guided: question.stem_guided || "",
     exam_real: question.stem_exam_real || "",
-    blind: question.stem_blind || "",
   };
 
-  if (existing.guided && existing.exam_real && existing.blind) {
+  if (existing.guided && existing.exam_real) {
     return existing;
   }
 
@@ -151,7 +144,6 @@ export async function ensureStemVariants(
   const merged: StemVariants = {
     guided: existing.guided || derived.guided || canonical,
     exam_real: existing.exam_real || derived.exam_real || canonical,
-    blind: existing.blind || derived.blind || canonical,
   };
 
   // Persist every level that actually derived, INCLUDING one whose text equals the canonical stem.
@@ -168,7 +160,6 @@ export async function ensureStemVariants(
     await updateStemVariants(question.question_id, {
       guided: existing.guided ? null : derived.guided,
       exam_real: existing.exam_real ? null : derived.exam_real,
-      blind: existing.blind ? null : derived.blind,
     });
   } catch (err) {
     console.error("[stem-detail] persist failed:", err);

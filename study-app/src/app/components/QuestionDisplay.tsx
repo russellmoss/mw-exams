@@ -19,7 +19,7 @@ interface QuestionDisplayProps {
   stemText?: string;
   /** The level currently being shown (drives the badge). Omit to hide the badge entirely. */
   stemDetailLevel?: StemDetailLevel;
-  /** The level the candidate started at, if they have since escalated (renders "Blind → Exam-Real"). */
+  /** The level the candidate started at, if they have since escalated (renders "IMW Only → Guided"). */
   stemDetailStartedAt?: StemDetailLevel | null;
   /** The level "Add detail" would move to, or null when already at the most-detailed level. */
   nextStemDetailLevel?: StemDetailLevel | null;

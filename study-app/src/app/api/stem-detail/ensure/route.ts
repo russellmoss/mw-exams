@@ -7,7 +7,7 @@ export const maxDuration = 120;
 
 // Out-of-band Stem Detail backfill.
 //
-// Deriving the three stem variants costs a model call, so it must NEVER sit on /api/get-question's
+// Deriving the two stem variants costs a model call, so it must NEVER sit on /api/get-question's
 // critical path — that is exactly what caused the "Question generation timed out" reports (a 5-8s
 // call stacked on an already-slow generation chain, pushing past the browser's 120s abort).
 //
@@ -15,7 +15,7 @@ export const maxDuration = 120;
 // block on it. The question is fully usable the whole time: any level without a stored variant falls
 // back to the canonical stem. When this resolves, the client patches the previews in place.
 //
-// Idempotent and self-limiting: ensureStemVariants no-ops once all three levels are stored, so each
+// Idempotent and self-limiting: ensureStemVariants no-ops once both levels are stored, so each
 // question is derived once, ever. A failure here is invisible to the candidate.
 export async function POST(request: Request) {
   try {
@@ -31,12 +31,11 @@ export async function POST(request: Request) {
     if (!question) return Response.json({ error: "Unknown question" }, { status: 404 });
 
     // Already complete — return what's stored without touching the model.
-    if (question.stem_guided && question.stem_exam_real && question.stem_blind) {
+    if (question.stem_guided && question.stem_exam_real) {
       return Response.json({
         variants: {
           guided: question.stem_guided,
           exam_real: question.stem_exam_real,
-          blind: question.stem_blind,
         },
         derived: false,
       });
@@ -48,7 +47,6 @@ export async function POST(request: Request) {
         question_text: question.question_text,
         stem_guided: question.stem_guided ?? null,
         stem_exam_real: question.stem_exam_real ?? null,
-        stem_blind: question.stem_blind ?? null,
       },
       keyResult.apiKey,
       { source: keyResult.source, userId: keyResult.user.id, questionId: question.question_id }
