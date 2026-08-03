@@ -51,10 +51,11 @@ export function buildModelAnswerPrompt(
   paper: number,
   lexiconGuidance?: string,
   // Retrieved tier-1 production references, already gated and formatted by
-  // lib/knowledge/context.ts. Optional and usually absent: it is populated only for
-  // production-shaped questions, and never for fortified/oxidative ones (the corpus has no
-  // coverage there). Passed in rather than fetched here because retrieval is async and this
-  // builder is sync and used by two call sites.
+  // lib/knowledge/context.ts. Optional: populated for production-shaped questions, fortified,
+  // botrytis/sweet, or a named appellation whose specification is in the corpus. (An earlier version
+  // of this comment said fortified was never populated because the corpus had no sherry/port
+  // coverage — that hole has since been filled and the gate reopened.) Passed in rather than fetched
+  // here because retrieval is async and this builder is sync and used by two call sites.
   knowledgeBlock?: string | null
 ): { system: string; user: string } {
   const refs = loadReferenceData();
