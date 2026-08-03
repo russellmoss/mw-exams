@@ -310,6 +310,10 @@ export default function AdminPage() {
             </div>
           )}
 
+          {/* Fill the Bank — pinned to the top of the admin surface (v2 placement): bulk question
+              generation + review gate, above every toggle and scorecard. */}
+          <FillTheBankCard />
+
           {/* Auto-Apply pipeline toggle */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoApply ? "border-success bg-success/5" : "border-border bg-card"}`}>
             <div className="flex items-center justify-between gap-4">
@@ -413,9 +417,6 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
-
-          {/* Fill the Bank — bulk question generation + review gate */}
-          <FillTheBankCard />
 
           {/* Feature Request engine */}
           <FeatureRequestPanel autoFeature={autoFeature} />

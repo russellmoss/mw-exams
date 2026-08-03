@@ -22,6 +22,7 @@
     "/api/admin/apply-change",
     "/api/admin/bank/batch/[id]",
     "/api/admin/bank/cancel",
+    "/api/admin/bank/counts",
     "/api/admin/bank/generate",
     "/api/admin/bank/keep-all",
     "/api/admin/bank/notifications",
