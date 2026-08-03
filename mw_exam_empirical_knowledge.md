@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-03 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0135).**
 - **2026-06-08 — consolidate: 5 feedback item(s) processed → 3 new entries (EK-0132, EK-0133, EK-0134).**
 - **2026-06-02 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0131).**
 - **2026-06-01 — consolidate: 7 feedback item(s) processed → 6 new entries (EK-0125, EK-0126, EK-0127, EK-0128, EK-0129, EK-0130).**
@@ -1010,6 +1011,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #151 / analysis #27 (reject); corpus: 2011 P2 Q4 ("variety/ies"); 2012 P2 Q3 ("predominant"); 2018 P2 Q2 ("single grape variety")
 - **claim:** The MW's choice of variety-words in a red stem is a deliberate diagnostic signal with three tiers: (1) 'grape variety' (singular) ⇒ all wines are single-varietal; (2) 'predominant grape variety' ⇒ a slight blend driven by varietal character (Rioja, Côte-Rôtie with ~5% Viognier) — minor addition addressing a niche aspect; (3) 'grape variety or varieties' / 'varieties' ⇒ at least one wine is DEFINED by its blend character (Bordeaux, GSM, Cab/Shiraz). Generation must match phrasing to the wines (a four-genuine-blend flight legitimately uses 'variety or varieties'), and graders/answers should read the phrasing as telling the candidate how to weigh blend vs varietal character. Refines EK-0053 and EK-0040 R5/EK-0071.
 
+### EK-0135 · Tasting notes must carry alcohol/structural cues, not just aroma and flavour
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #246 / analysis #42 (accept); examiner_report_synthesis §2.7 (2025: "hard evidence like alcohol and sugar are often more reliable than the flavour profile"); see EK-0013
+- **claim:** In the real room the candidate perceives alcohol (warmth, weight, glycerol) directly and is expected to lead with it — alcohol read against acidity is a primary climate/origin marker, and examiners model it explicitly (2017: "where in the northern Rhône is going to produce a wine with the high alcohol and breadth of wine 8?"). On paper that evidence can only reach the candidate through the written note, so every generated tasting note must convey a perceptible alcohol/warmth/body signal alongside acidity, tannin and RS. A note that describes only aroma and flavour removes the most diagnostic axis and makes the model answer argue from evidence the candidate was never given (this flight's model answer reasoned from "13% alcohol" / "14% alcohol" cues absent from the study notes).
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1066,6 +1072,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 189 | 33 | P1/F3 | reject | auto | UX: wine list not visible while writing answers; no tasting context | EK-0133 |
 | 190 | 34 | P1/F6 | reject | auto | UX: repeated feedback clicks overwrite instead of appending discrete records | EK-0134 |
 | 206 | 35 | P1/F5 | reject | auto | four-country/four-different-variety P1 breadth is the most common (F4) format — corpus-overruled; already covered | EK-0052, EK-0077, EK-0044 |
+| 246 | 42 | P2/F4 | accept | auto | generated tasting notes omitted alcohol/structural cues that the model answer then reasoned from; notes must carry perceptible alcohol/body alongside acidity/tannin/RS | EK-0135, EK-0013 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
