@@ -8,6 +8,28 @@ interface ThreadMessage {
   timestamp: string;
 }
 
+/**
+ * Coerce user_attempts.tasting_notes into a clean string[].
+ *
+ * The column is TEXT[] and the neon driver returns an array, but rows written by older paths can
+ * hold a JSON-encoded string. Rendering that unparsed would put one quoted blob in the prompt where
+ * the per-wine notes belong, so normalise here rather than at each call site.
+ */
+function normalizeTastingNotes(raw: unknown): string[] {
+  let list: unknown[] = [];
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (typeof raw === "string" && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw);
+      list = Array.isArray(parsed) ? parsed : [raw];
+    } catch {
+      list = [raw];
+    }
+  }
+  return list.filter((n): n is string => typeof n === "string" && n.trim().length > 0);
+}
+
 export function buildFeedbackAnalysisPrompt(params: {
   questionText: string;
   wines: { slot: number; fullText: string }[];
@@ -20,6 +42,25 @@ export function buildFeedbackAnalysisPrompt(params: {
   userName?: string;
   questionMetadata?: Record<string, unknown> | null;
   previousThread?: ThreadMessage[];
+  /** The attempt record — what the system ACTUALLY generated and showed this candidate. Without it
+   *  the analysis reasons about the artifact being complained about (the tasting note, the grading)
+   *  purely by inference from the model answer. All optional: a feedback left before the candidate
+   *  reached a given step simply has nothing there. */
+  attempt?: {
+    /** TEXT[] from the driver, but a legacy row can hold a JSON string — normalised below. */
+    tastingNotes?: unknown;
+    preGlassReasoning?: string | null;
+    preGlassFeedback?: string | null;
+    answerFeedback?: string | null;
+    passEstimate?: string | null;
+    marksEstimate?: string | null;
+    mode?: string | null;
+    stemDetail?: string | null;
+    stemDetailEscalatedTo?: string | null;
+    appVersion?: string | null;
+  } | null;
+  /** The generator's own reasoning for the MODEL ANSWER (generated_questions.reasoning_trace). */
+  reasoningTrace?: string | null;
   /** Live empirical knowledge from the Neon projection (paper-filtered). Falls back to the
    *  build-time digest in pipeline-context.json when not supplied. */
   empiricalKnowledge?: string;
@@ -131,6 +172,12 @@ work when the real cause is elsewhere.
   \`validateNoveltyAgainstLatest\` in the get-question route + guidance in the generation prompt.
 - **What a generated question CONTAINS** (wine choice, mark allocation, stem phrasing, style rules)
   lives in \`study-app/src/lib/prompts/question-generation-prompt.ts\`.
+- **The GENERATED TASTING NOTE** (a wine's appearance/aroma/palate/structure not matching the real
+  wine — e.g. a white described as ruby, a Sherry with no oxidative markers) lives in
+  \`study-app/src/lib/prompts/tasting-prompt.ts\` (what the note says) and
+  \`study-app/src/lib/tasting-validators.ts\` (what should have been caught). A note that is merely
+  *implausible* is Kind: generation; a note that CONTRADICTS its own wine and shipped anyway is
+  Kind: validator.
 - **Hard validity gates** (stem contradicts wines/marks) live in \`study-app/src/lib/question-validator.ts\`.
 - **Grading / scoring rules** — how an answer is MARKED (the plausibility gradient, howler/cascade,
   quality calibration, the funnel, verdict bands) — live in \`study-app/src/lib/prompts/marking-principles.ts\`
@@ -253,6 +300,15 @@ code change, and the Kind line belong.
 
 5. **Be specific about changes.** Don't say "update the prompt." Say exactly what constraint should be added or modified.
 
+6. **Judge the artifact, not a reconstruction of it.** When present, THE ATTEMPT RECORD below contains
+   what the system actually generated for this attempt — the tasting notes the candidate tasted from,
+   the pre-glass critique, and the verbatim grading with its verdict and marks. If the feedback concerns
+   any of those, quote and adjudicate the ACTUAL text. Never infer what the tasting note or the grader
+   "would have" said from the model answer when the real thing is in front of you, and never dismiss a
+   complaint as unsupported because you did not look for the artifact it names. If the record is absent
+   for the step being complained about (the candidate left feedback before reaching it), say so plainly
+   rather than assuming the system behaved correctly.
+
 ## Reference Data
 
 ${empiricalKnowledge ? `### Accumulated Empirical Knowledge — our own rulings & rules (cite EK-#### ids)
@@ -291,6 +347,60 @@ ${samePaperQuestions}`;
 
   const userName = params.userName || "User";
 
+  // THE ATTEMPT RECORD. Feedback most often concerns something the system GENERATED for this
+  // specific attempt — the tasting note, the pre-glass critique, the grading — none of which used to
+  // reach this prompt, so complaints about them were adjudicated by inference from the model answer.
+  // Include whatever the attempt actually reached; omit sections with nothing in them rather than
+  // printing empty headers the model would have to interpret.
+  const a = params.attempt;
+  const tastingNotes = normalizeTastingNotes(a?.tastingNotes);
+  const attemptParts: string[] = [];
+  if (tastingNotes.length > 0) {
+    attemptParts.push(
+      `#### Generated Tasting Notes (what the candidate was given to taste "blind" — one per wine, in slot order)
+These were produced by the tasting generator for THIS attempt. If the feedback concerns a wine's
+appearance, aroma, palate or structure, judge it against THESE, not against the model answer.
+
+${tastingNotes.map((n, i) => `**Wine ${i + 1}:** ${n.slice(0, 2500)}`).join("\n\n")}`
+    );
+  }
+  if (a?.preGlassReasoning?.trim()) {
+    attemptParts.push(`#### Candidate's Pre-Glass Reasoning (before tasting)\n${a.preGlassReasoning.slice(0, 2500)}`);
+  }
+  if (a?.preGlassFeedback?.trim()) {
+    attemptParts.push(`#### System's Pre-Glass Critique (what the system told them before tasting)\n${a.preGlassFeedback.slice(0, 3000)}`);
+  }
+  if (a?.answerFeedback?.trim()) {
+    const verdict = [
+      a.passEstimate ? `verdict **${a.passEstimate.toUpperCase()}**` : null,
+      a.marksEstimate ? `marks **${a.marksEstimate}**` : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
+    attemptParts.push(
+      `#### System's Grading of This Answer${verdict ? ` (${verdict})` : ""}
+This is the VERBATIM evaluation the candidate received. If the feedback disputes the score or the
+critique, adjudicate THIS text against the Marking Rubric — do not reconstruct what the grader
+"probably" said.
+
+${a.answerFeedback.slice(0, 6000)}`
+    );
+  }
+  const conditions = [
+    a?.mode ? `mode: ${a.mode}` : null,
+    a?.stemDetail
+      ? `stem detail: ${a.stemDetail}${a.stemDetailEscalatedTo ? ` → escalated to ${a.stemDetailEscalatedTo}` : ""}`
+      : null,
+    a?.appVersion ? `build: ${a.appVersion}` : null,
+  ].filter(Boolean);
+  if (conditions.length > 0) {
+    attemptParts.push(`#### Attempt Conditions\n${conditions.join(" · ")}`);
+  }
+  const attemptBlock =
+    attemptParts.length > 0
+      ? `\n### THE ATTEMPT RECORD — what the system actually generated and showed this candidate\n\n${attemptParts.join("\n\n")}\n`
+      : "";
+
   const user = `## Feedback Analysis Request
 
 **User:** ${userName}
@@ -306,9 +416,10 @@ ${params.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}
 "${params.userFeedback}"
 
 ${params.userAnswer ? `### User's Answer\n${params.userAnswer}` : ""}
-
+${attemptBlock}
 ${params.modelAnswer ? `### Model Answer (reference — for context on what the system told the user)\n${params.modelAnswer.slice(0, 4000)}` : ""}
 
+${params.reasoningTrace?.trim() ? `### Model-Answer Reasoning Trace (internal — how the system reached the model answer above)\n${params.reasoningTrace.slice(0, 3000)}\n` : ""}
 ${params.questionMetadata ? `### Question Generation Metadata (internal — shows WHY the system made its choices)
 This is the system's internal reasoning when it generated this question. Use it to understand what the system already considered and whether the user's feedback points to something the system missed vs something it deliberately chose.
 

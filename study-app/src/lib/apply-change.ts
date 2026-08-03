@@ -117,6 +117,11 @@ export async function applyFeedbackChange(opts: {
     "study-app/src/lib/question-engine.ts", "study-app/src/app/api/generate-tasting/",
     "study-app/src/lib/tasting.ts", "study-app/src/lib/tasting-validators.ts",
     "study-app/src/lib/prompts/tasting-prompt.ts", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
+    // The grader rubric. The analysis prompt already routes a valid scoring dispute here
+    // ("Kind: generation naming marking-principles.ts"), but the path was missing from this
+    // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
+    // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
+    "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
   ];
   const VALIDATOR = [
     "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",

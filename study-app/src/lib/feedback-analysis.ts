@@ -280,9 +280,16 @@ export async function runFeedbackAnalysis(opts: {
   if (!apiKey) return { status: "no_api_key" };
 
   const sql = neon(process.env.DATABASE_URL!);
+  // The attempt's GENERATED artifacts (tasting notes, pre-glass critique, grading) ride along: the
+  // feedback is usually about one of them, and analyzing it without them meant adjudicating a
+  // complaint about the tasting note by guessing from the model answer.
   const attempts = await sql`
     SELECT a.id, a.user_feedback, a.user_answer, a.user_id,
+      a.tasting_notes, a.pre_glass_reasoning, a.pre_glass_feedback, a.answer_feedback,
+      a.pass_estimate, a.marks_estimate, a.mode, a.stem_detail, a.stem_detail_escalated_to,
+      a.app_version,
       q.question_text, q.wines, q.paper, q.family, q.family_label, q.model_answer, q.metadata,
+      q.reasoning_trace,
       u.name as user_name, u.is_admin as user_is_admin
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
@@ -339,6 +346,19 @@ export async function runFeedbackAnalysis(opts: {
       userName: attempt.user_name as string,
       empiricalKnowledge,
       questionMetadata: metadata as Record<string, unknown> | null,
+      reasoningTrace: attempt.reasoning_trace as string | null,
+      attempt: {
+        tastingNotes: attempt.tasting_notes,
+        preGlassReasoning: attempt.pre_glass_reasoning as string | null,
+        preGlassFeedback: attempt.pre_glass_feedback as string | null,
+        answerFeedback: attempt.answer_feedback as string | null,
+        passEstimate: attempt.pass_estimate as string | null,
+        marksEstimate: attempt.marks_estimate as string | null,
+        mode: attempt.mode as string | null,
+        stemDetail: attempt.stem_detail as string | null,
+        stemDetailEscalatedTo: attempt.stem_detail_escalated_to as string | null,
+        appVersion: attempt.app_version as string | null,
+      },
     });
 
     const client = new Anthropic({ apiKey });
