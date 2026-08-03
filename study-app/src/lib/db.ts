@@ -1388,7 +1388,9 @@ export interface FeatureRequest {
   id: number;
   created_by: number | null;
   title: string | null;
-  // drafting|clarifying|proposed|ready|building|built|pr_opened|pr_merged|pr_closed|failed
+  // drafting|clarifying|proposed|ready|building|built|pr_opened|pr_merged|pr_closed|answered|failed
+  // `answered` is terminal and set by hand: the report was a question, and answering it was the
+  // whole resolution. No automated writer ever produces it.
   // pr_merged / pr_closed are written by the PR reconciler (src/lib/pr-status.ts), not the pipeline.
   status: string;
   // mockups (optional) carry rendered UI samples on a proposing assistant turn — stored in the JSONB

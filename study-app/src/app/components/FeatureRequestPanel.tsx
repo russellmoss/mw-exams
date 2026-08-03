@@ -38,15 +38,21 @@ const STATUS_STYLE: Record<string, string> = {
   pr_opened: "bg-borderline/20 text-borderline",
   pr_merged: "bg-success/20 text-success",
   pr_closed: "bg-muted/20 text-muted",
+  // Resolved without code: the report turned out to be a question, and answering it WAS the
+  // outcome. Accent rather than muted — it's a real resolution, not an abandoned request.
+  answered: "bg-accent/10 text-accent/80",
   failed: "bg-fail/20 text-fail",
 };
 
 // pr_merged / pr_closed come from the GitHub reconciler in the GET route — the build Action only
 // ever writes pr_opened, so without those labels a shipped feature reads "PR OPEN" forever.
+// `answered` is set by hand when a report needed an explanation rather than a build; nothing
+// automated ever writes it, and it is terminal (no Build button — see the action gate below).
 const STATUS_LABEL: Record<string, string> = {
   pr_opened: "PR open",
   pr_merged: "merged",
   pr_closed: "PR closed",
+  answered: "answered",
 };
 
 function StatusBadge({ status }: { status: string }) {
