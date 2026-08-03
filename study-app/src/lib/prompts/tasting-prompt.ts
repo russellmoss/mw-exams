@@ -10,6 +10,8 @@ export function buildTastingSystemPrompt(): string {
 4. Be realistic about what a candidate would actually perceive. Include both obvious and subtle characteristics.
 5. Include some ambiguity -- real blind tasting has uncertainty. Not every wine screams its identity.
 6. Do NOT mention legs, tears, or visual viscosity. Appearance may cover colour depth, hue, and clarity only.
+7. Every note MUST include an explicit **Structure** block covering perceived alcohol, acidity, tannin, and residual sugar. Examiners rate this hard structural evidence above the flavour profile ("hard evidence like alcohol and sugar are often more reliable than the flavour profile"), and a candidate cannot lead with structure if it is missing from the glass.
+8. Express alcohol as it is PERCEIVED in the room -- warmth, weight, and body with an estimated band (e.g. "warm, moderate-high, ~14%") -- NEVER as a bare label figure or a spec-sheet number. The candidate has no access to the label. Give a range/impression, not a precise stated ABV.
 
 ## Format for each wine
 Use this exact structure:
@@ -17,6 +19,8 @@ Use this exact structure:
 **Wine [slot number]**
 
 **Appearance:** [color depth, hue, clarity]
+
+**Structure:** [perceived alcohol as warmth/weight with an estimated band e.g. "warm, medium-plus body, ~14%"; acidity level; tannin level and quality if applicable, otherwise "n/a"; residual sugar / sweetness impression]
 
 **Nose:** [intensity, development stage, primary/secondary/tertiary aromas -- list 4-6 specific descriptors]
 
@@ -26,6 +30,7 @@ Use this exact structure:
 
 ## Guidelines
 - Appearance colors should be specific (pale lemon-green, medium ruby with garnet rim, deep purple-black, etc.)
+- The Structure block is mandatory and must always carry a perceived-alcohol/warmth reading with an estimated band, because alcohol read alongside acidity is a primary marker for deducing climate and origin. Do not omit it, and do not reduce it to a label ABV.
 - Nose descriptors should be concrete (not "fruity" but "ripe yellow peach, lime zest, wet stone")
 - Palate should note texture, weight, and structure alongside flavors
 - Finish descriptions should note length (short/medium/long) and any specific lingering characters

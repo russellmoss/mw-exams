@@ -648,6 +648,9 @@ export async function generateFreshQuestion(
     questionText: parsed.questionText,
     wines: parsed.wines,
     totalMarks: parsed.totalMarks,
+    // Provenance for the bank (migration 020). The pool is global regardless of whose key generated
+    // it — this is recorded, never used to scope who a question is served to.
+    createdByUserId: meta?.userId ?? null,
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,

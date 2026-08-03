@@ -29,6 +29,18 @@ function appearanceOf(note: string): string {
   return (m ? m[1] : note.slice(0, 140)).toLowerCase();
 }
 
+// The dedicated **Structure:** line, when present (lowercased). Empty string if absent.
+function structureOf(note: string): string {
+  const m = note.match(/\*\*\s*Structure\s*:?\s*\*\*\s*([^\n]+)/i);
+  return (m ? m[1] : "").toLowerCase();
+}
+
+// A perceived-alcohol/warmth signal a candidate would lead with when deducing climate/origin:
+// either a warmth/weight/body descriptor or an estimated ABV band. Examiners rate this hard
+// structural evidence above the flavour profile, so a note that omits it strips out the axis the
+// exam expects the candidate to lead with — a completeness gap, not a contradiction.
+const ALCOHOL_SIGNAL = /\b(alcohol|abv|warm(?:th|ing)?|hot|heat|spirit(?:y|ous)?|glycerol|glyceri[nc]e?|body|weight|full[-\s]?bodied|light[-\s]?bodied|medium[-\s]?bodied|\d{1,2}(?:\.\d)?\s*%)\b/i;
+
 // "white" | "red" | null (skip — rosé/orange/ambiguous P3). Paper 1/2 are decisive; P3 best-effort.
 function expectedColour(wine: TastingValidationWine, paper?: number): "white" | "red" | null {
   if (paper === 1) return "white";
@@ -41,9 +53,11 @@ function expectedColour(wine: TastingValidationWine, paper?: number): "white" | 
 }
 
 /**
- * Validate generated tasting notes against the wines. Currently checks appearance↔colour consistency
- * (a white wine must not be described ruby/garnet/purple; a red must not be pale lemon/straw). Notes
- * are matched to wines by flight order; if the counts don't line up we skip (can't map reliably).
+ * Validate generated tasting notes against the wines. Checks (1) appearance↔colour consistency
+ * (a white wine must not be described ruby/garnet/purple; a red must not be pale lemon/straw) and
+ * (2) completeness — each note must carry a perceived-alcohol/warmth reading so the candidate can
+ * lead with structure (alcohol+acidity) when deducing climate/origin. Notes are matched to wines by
+ * flight order; if the counts don't line up we skip (can't map reliably).
  */
 export function validateTastingNotes(
   wineNotes: string[],
@@ -54,9 +68,24 @@ export function validateTastingNotes(
   if (wineNotes.length !== wines.length) return { valid: true, violations };
 
   wines.forEach((w, i) => {
+    const note = wineNotes[i];
+
+    // Completeness: the note must carry a perceived-alcohol/warmth reading (ideally in a Structure
+    // block) so the candidate can lead with structure when deducing climate/origin. Prefer the
+    // dedicated Structure line; fall back to the whole note so a warmth cue anywhere still passes.
+    const structure = structureOf(note);
+    if (!ALCOHOL_SIGNAL.test(structure) && !ALCOHOL_SIGNAL.test(note)) {
+      violations.push(
+        `Wine ${w.slot} has no perceived-alcohol/warmth reading. Add a **Structure:** line giving ` +
+          `alcohol as warmth/weight with an estimated band (e.g. "warm, medium-plus body, ~14%"), ` +
+          `alongside acidity, tannin, and residual sugar — never a bare label ABV. Examiners rate ` +
+          `this hard structural evidence above the flavour profile.`
+      );
+    }
+
     const exp = expectedColour(w, paper);
     if (!exp) return;
-    const app = appearanceOf(wineNotes[i]);
+    const app = appearanceOf(note);
     if (exp === "white" && RED_APPEARANCE.test(app)) {
       violations.push(
         `Wine ${w.slot} is a WHITE wine but the note's appearance reads RED ("${app.slice(0, 60).trim()}"). ` +
