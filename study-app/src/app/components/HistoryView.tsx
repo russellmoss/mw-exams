@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { useDraft } from "@/lib/use-draft";
 import { FeedbackMarkdown } from "./FeedbackMarkdown";
 import { TimingBadge } from "./StudyTimer";
+import { normalizePaceData, paceBadge, type PaceData } from "@/lib/pace";
 
 function parseModelAnswer(text: string): {
   answer: string;
@@ -113,6 +114,9 @@ export interface AttemptDetail {
   // Flash Notes per-card metadata (mode = 'flash'); null otherwise.
   prompt_type?: string | null;
   flight_wine_count?: number | null;
+  // Pace report (migration 021): per-attempt benchmark comparison for 'full' / 'known-wine'
+  // attempts. Object (JSONB) or string; null/absent for attempts without pace data.
+  pace?: PaceData | string | null;
   // The AI's response to this attempt's feedback (latest analysis): shown inline in history.
   ai_recommendation?: "accept" | "reject" | "pending" | null;
   ai_thread?: AiThreadMessage[] | string | null;
@@ -167,6 +171,28 @@ function PassBadge({ estimate }: { estimate: string | null }) {
   };
   const color = colors[estimate as keyof typeof colors] || colors.fail;
   return <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${color}`}>{estimate.charAt(0).toUpperCase() + estimate.slice(1)}</span>;
+}
+
+// Pace report may arrive as a JSONB object or a JSON string; normalise both into PaceData.
+const parsePace = (p: PaceData | string | null | undefined): PaceData | null => {
+  if (!p) return null;
+  if (typeof p === "string") {
+    try { return normalizePaceData(JSON.parse(p)); } catch { return null; }
+  }
+  return normalizePaceData(p);
+};
+
+function PaceBadge({ pace }: { pace: PaceData }) {
+  const { label, over } = paceBadge(pace);
+  return (
+    <span
+      className={`text-[10px] px-1.5 py-0.5 rounded border font-medium ${
+        over ? "text-fail border-fail/30 bg-fail/10" : "text-muted border-border bg-background"
+      }`}
+    >
+      {label}
+    </span>
+  );
 }
 
 const GITHUB_REPO_URL = "https://github.com/russellmoss/mw-exams";
@@ -550,6 +576,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
               </span>
             )}
             <span className="text-xs text-muted">{attempt.family_label}</span>
+            {(() => { const p = parsePace(attempt.pace); return p ? <PaceBadge pace={p} /> : null; })()}
             <CopyId id={attempt.question_id} />
             {decision && <DecisionBadge decision={decision} />}
           </div>
@@ -790,6 +817,7 @@ interface Filters {
   families: Set<string>;
   decisions: Set<string>; // DecisionGroup values: auto-accept | partial | auto-reject | manual
   modes: Set<string>; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
+  paces: Set<string>; // 'exam' | 'speed'
 }
 
 const attemptMode = (a: AttemptDetail): string =>
@@ -812,6 +840,10 @@ function applyFilters(attempts: AttemptDetail[], filters: Filters): AttemptDetai
     if (filters.papers.size > 0 && !filters.papers.has(a.paper)) return false;
     if (filters.families.size > 0 && !filters.families.has(a.family_label)) return false;
     if (filters.modes.size > 0 && !filters.modes.has(attemptMode(a))) return false;
+    if (filters.paces.size > 0) {
+      const p = parsePace(a.pace);
+      if (!p || !filters.paces.has(p.mode)) return false;
+    }
     if (filters.decisions.size > 0) {
       const d = getDecision(a.feedback_status, a.feedback_decided_by);
       if (!d || !filters.decisions.has(d.group)) return false;
@@ -848,7 +880,7 @@ export function HistoryView({
   isAdmin?: boolean;
   emptyAction?: React.ReactNode;
 }) {
-  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set() });
+  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() });
 
   const passRate = stats && stats.completed_attempts > 0 ? Math.round((stats.pass_count / stats.completed_attempts) * 100) : 0;
   const passOrBorderlineRate = stats && stats.completed_attempts > 0 ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100) : 0;
@@ -989,10 +1021,11 @@ export function HistoryView({
         ) : (
           <>
             {(() => {
-              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.decisions.size + filters.modes.size;
+              const activeFilterCount = filters.results.size + filters.papers.size + filters.families.size + filters.decisions.size + filters.modes.size + filters.paces.size;
               const hasDecisions = isAdmin && attempts.some((a) => a.feedback_status);
               const presentModes = [...new Set(attempts.map(attemptMode))];
               const hasDrills = presentModes.some((m) => m !== "full");
+              const hasPaces = attempts.some((a) => !!parsePace(a.pace));
               const afterPaperAndResult = attempts.filter((a) => {
                 if (filters.results.size > 0) {
                   const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
@@ -1024,7 +1057,7 @@ export function HistoryView({
                       {activeFilterCount > 0 && (
                         <>
                           <div className="w-px h-5 bg-border" />
-                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
+                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
                         </>
                       )}
                     </div>
@@ -1047,6 +1080,14 @@ export function HistoryView({
                             {MODE_LABEL[m] || m}
                           </Chip>
                         ))}
+                      </div>
+                    )}
+                    {hasPaces && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-border/40">
+                        <span className="text-[10px] uppercase tracking-wider text-muted mr-1">Pace</span>
+                        <Chip active={filters.paces.size === 0} onClick={() => setFilters((f) => ({ ...f, paces: new Set() }))}>All paces</Chip>
+                        <Chip active={filters.paces.has("exam")} color="bg-accent/15 text-accent font-semibold border border-accent/40" onClick={() => setFilters((f) => ({ ...f, paces: toggleInSet(f.paces, "exam") }))}>Exam Pace</Chip>
+                        <Chip active={filters.paces.has("speed")} color="bg-accent/15 text-accent font-semibold border border-accent/40" onClick={() => setFilters((f) => ({ ...f, paces: toggleInSet(f.paces, "speed") }))}>Speed Notes</Chip>
                       </div>
                     )}
                     {hasDecisions && (

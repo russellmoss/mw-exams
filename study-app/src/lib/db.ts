@@ -2,6 +2,7 @@ import { neon } from "@neondatabase/serverless";
 import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
 import { classifyP3Category } from "./p3-category.mjs";
 import { getAppVersion } from "./app-version";
+import { DEFAULT_PACE_PREFERENCE, isPaceMode, isSpeedSeconds, type PaceData, type PacePreference } from "./pace";
 
 function getDb() {
   const sql = neon(process.env.DATABASE_URL!);
@@ -69,6 +70,9 @@ export interface UserAttempt {
   // "Add detail" was used (NULL if never escalated).
   stem_detail: string;
   stem_detail_escalated_to: string | null;
+  // Pace (migration 021): per-attempt pace report for 'full' / 'known-wine' attempts. NULL for
+  // every other mode and for attempts predating the column.
+  pace: PaceData | null;
   // Short git sha of the build that served this attempt (migration 019). NULL for local dev and for
   // attempts predating the column. Lets a bug report be pinned to the exact code that produced it.
   app_version: string | null;
@@ -108,6 +112,27 @@ export async function getUserStemDetailDefault(userId: number): Promise<string> 
 export async function setUserStemDetailDefault(userId: number, level: string): Promise<void> {
   const sql = getDb();
   await sql`UPDATE users SET stem_detail_default = ${level} WHERE id = ${userId}`;
+}
+
+// Pace (migration 021): per-user default pace + Speed Notes length. Falls back to the system
+// default (Exam Pace / 8 min) for legacy rows or unrecognised values.
+export async function getUserPacePreference(userId: number): Promise<PacePreference> {
+  const sql = getDb();
+  const rows = await sql`SELECT pace_default, pace_speed_seconds FROM users WHERE id = ${userId}`;
+  const pace = rows[0]?.pace_default;
+  const speed = Number(rows[0]?.pace_speed_seconds);
+  return {
+    pace: isPaceMode(pace) ? pace : DEFAULT_PACE_PREFERENCE.pace,
+    speedSeconds: isSpeedSeconds(speed) ? speed : DEFAULT_PACE_PREFERENCE.speedSeconds,
+  };
+}
+
+export async function setUserPacePreference(userId: number, pref: PacePreference): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users SET pace_default = ${pref.pace}, pace_speed_seconds = ${pref.speedSeconds}
+    WHERE id = ${userId}
+  `;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -457,9 +482,18 @@ export async function updateAttempt(
     deck_settings: Record<string, unknown> | null;
     // Stem Detail escalation ("Add detail"): the level the candidate ended at. One-way.
     stem_detail_escalated_to: string;
+    // Pace (migration 021): the per-attempt pace report, written once at submit.
+    pace: PaceData;
   }>
 ): Promise<UserAttempt> {
   const sql = getDb();
+
+  if (data.pace !== undefined) {
+    const rows = await sql`
+      UPDATE user_attempts SET pace = ${JSON.stringify(data.pace)} WHERE id = ${attemptId} RETURNING *
+    `;
+    return rows[0] as UserAttempt;
+  }
 
   if (data.stem_detail_escalated_to !== undefined) {
     const rows = await sql`
@@ -616,6 +650,8 @@ export interface AttemptWithDetails extends UserAttempt {
   // Stem Detail (migration 013): start level + escalation target (via a.* in getUserAttempts).
   stem_detail: string;
   stem_detail_escalated_to: string | null;
+  // Pace (migration 021): per-attempt pace report (via a.* in getUserAttempts). NULL when absent.
+  pace: PaceData | null;
   // The AI's response to this attempt's feedback (latest feedback_analyses row): recommendation +
   // the conversation thread (system = "Analysis", user = follow-ups). History shows it inline.
   ai_recommendation: "accept" | "reject" | "pending" | null;

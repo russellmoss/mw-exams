@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { createAttempt, createAttemptWithUser, updateAttempt, reviewFeedback, recordUserFeedback, getAttemptById } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { isStemDetailLevel } from "@/lib/prompts/stemDetail";
+import { normalizePaceData } from "@/lib/pace";
 import { runFeedbackAnalysis } from "@/lib/feedback-analysis";
 
 export const runtime = "nodejs";
@@ -49,6 +50,14 @@ export async function POST(request: Request) {
         !isStemDetailLevel(data.stem_detail_escalated_to)
       ) {
         return Response.json({ error: "Invalid stem detail level" }, { status: 400 });
+      }
+
+      // Pace report (migration 021): normalise the client payload into a trusted shape before it is
+      // written to the JSONB column. A malformed object is dropped rather than persisted raw.
+      if (data.pace !== undefined) {
+        const normalized = normalizePaceData(data.pace);
+        if (normalized) data.pace = normalized;
+        else delete data.pace;
       }
 
       // User feedback takes the no-overwrite path: a second, different feedback on an attempt that

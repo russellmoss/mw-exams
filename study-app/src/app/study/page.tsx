@@ -23,6 +23,15 @@ import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
 import { StudyTimerDisplay, FloatingTimer, TimingFeedback, useStudyTimer } from "../components/StudyTimer";
 import { FeedbackButton } from "../components/FeedbackButton";
+import { PaceStrip } from "../components/PaceStrip";
+import { PaceReport } from "../components/PaceReport";
+import {
+  computePaceData,
+  DEFAULT_PACE_PREFERENCE,
+  type PaceData,
+  type PaceMode,
+  type SpeedSeconds,
+} from "@/lib/pace";
 
 export default function StudyPage() {
   const router = useRouter();
@@ -63,7 +72,55 @@ export default function StudyPage() {
   const modelAnswerPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timer = useStudyTimer();
 
+  // ── Pace (Full Question + Dry Notes only) ──
+  // Session benchmark (seeded from the user's default; switchable for THIS session only until the
+  // first wine is banked), the per-wine banked times, and the total-elapsed mark at which the active
+  // wine's clock started. The computed report is set at submit and rendered on the debrief.
+  const paceEnabled = studyMode === "full" || studyMode === "known-wine";
+  const [sessionPaceMode, setSessionPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
+  const [sessionSpeedSeconds, setSessionSpeedSeconds] = useState<SpeedSeconds>(DEFAULT_PACE_PREFERENCE.speedSeconds);
+  const [bankedWineTimes, setBankedWineTimes] = useState<number[]>([]);
+  const [activeWineStart, setActiveWineStart] = useState(0);
+  const [paceResult, setPaceResult] = useState<PaceData | null>(null);
+  // Refs mirror the pace session so the submit handler (whose useCallback deps intentionally omit
+  // these fast-changing values) always reads the live figures.
+  const bankedWineTimesRef = useRef<number[]>([]);
+  const activeWineStartRef = useRef(0);
+  const sessionPaceModeRef = useRef<PaceMode>(sessionPaceMode);
+  const sessionSpeedSecondsRef = useRef<SpeedSeconds>(sessionSpeedSeconds);
+  useEffect(() => { bankedWineTimesRef.current = bankedWineTimes; }, [bankedWineTimes]);
+  useEffect(() => { activeWineStartRef.current = activeWineStart; }, [activeWineStart]);
+  useEffect(() => { sessionPaceModeRef.current = sessionPaceMode; }, [sessionPaceMode]);
+  useEffect(() => { sessionSpeedSecondsRef.current = sessionSpeedSeconds; }, [sessionSpeedSeconds]);
+
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
+
+  // Seed the session pace from the user's saved default (does not touch a flight already underway).
+  useEffect(() => {
+    if (!user?.id) return;
+    fetch("/api/user/pace-preference")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) return;
+        if (bankedWineTimesRef.current.length > 0) return; // flight underway — don't re-seed
+        if (d.pace === "exam" || d.pace === "speed") setSessionPaceMode(d.pace);
+        if (d.speedSeconds === 480 || d.speedSeconds === 540) setSessionSpeedSeconds(d.speedSeconds);
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
+  // Switch the benchmark for THIS session (ignored once the flight is underway).
+  const handleSelectPace = useCallback((mode: PaceMode) => {
+    if (bankedWineTimesRef.current.length > 0) return;
+    setSessionPaceMode(mode);
+  }, []);
+
+  // Bank the active wine's elapsed seconds and start the next chip at 0.
+  const handleNextWine = useCallback(() => {
+    const now = timer.getElapsed();
+    setBankedWineTimes((prev) => [...prev, Math.max(0, now - activeWineStartRef.current)]);
+    setActiveWineStart(now);
+  }, [timer]);
 
   // Load question and mode from sessionStorage on mount
   useEffect(() => {
@@ -397,6 +454,30 @@ export default function StudyPage() {
       timer.stop();
       dispatch({ type: "SUBMIT_ANSWER", answer });
 
+      // Pace (Full Question + Dry Notes): bank the active wine, build the per-wine report, and
+      // persist it. The clock never blocked — this only records the benchmark comparison.
+      if (studyMode === "full" || studyMode === "known-wine") {
+        const wineCount = state.question.wines.length;
+        const now = timer.getElapsed();
+        const times = [...bankedWineTimesRef.current];
+        if (times.length < wineCount) times.push(Math.max(0, now - activeWineStartRef.current));
+        while (times.length < wineCount) times.push(0);
+        const pd = computePaceData({
+          mode: sessionPaceModeRef.current,
+          speedSeconds: sessionSpeedSecondsRef.current,
+          wineTimes: times.slice(0, wineCount),
+          wineCount,
+        });
+        setPaceResult(pd);
+        if (attemptId) {
+          fetch("/api/save-attempt", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "update", attemptId, pace: pd }),
+          }).catch(() => {});
+        }
+      }
+
       if (attemptId) {
         fetch("/api/save-attempt", {
           method: "POST",
@@ -561,6 +642,9 @@ export default function StudyPage() {
     setWaitingForModel(false);
     setAttemptId(null);
     setPreGlassReasoning("");
+    setBankedWineTimes([]);
+    setActiveWineStart(0);
+    setPaceResult(null);
     if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
     dispatch({ type: "RESET" });
     router.push("/");
@@ -657,6 +741,22 @@ export default function StudyPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Pace strip — Full Question & Dry Notes only; persists in the header region across the
+          reveal/answer steps while the clock is running (hidden on the results/review screens). */}
+      {currentQuestion && paceEnabled && state.step !== "feedback" && state.step !== "reveal-answer" && (
+        <PaceStrip
+          wineCount={currentQuestion.wines.length}
+          totalElapsed={timer.elapsed}
+          bankedWineTimes={bankedWineTimes}
+          activeWineStart={activeWineStart}
+          paceMode={sessionPaceMode}
+          speedSeconds={sessionSpeedSeconds}
+          locked={bankedWineTimes.length > 0}
+          onSelectPace={handleSelectPace}
+          onNextWine={handleNextWine}
+        />
       )}
 
       {/* Main content */}
@@ -851,6 +951,9 @@ export default function StudyPage() {
           {/* Waiting for model answer / Evaluation streaming */}
           {state.step === "feedback" && (
             <div className="space-y-6">
+              {paceEnabled && paceResult && (
+                <PaceReport pace={paceResult} wines={state.question.wines} />
+              )}
               {waitingForModel ? (
                 <div className="bg-card rounded-xl border border-border p-8 text-center">
                   <div className="flex items-center justify-center gap-3 mb-4">
@@ -912,6 +1015,9 @@ export default function StudyPage() {
           {/* Model answer reveal + decision tree walkthrough */}
           {state.step === "reveal-answer" && (
             <div className="space-y-6">
+              {paceEnabled && paceResult && (
+                <PaceReport pace={paceResult} wines={state.question.wines} />
+              )}
               {timer.elapsed > 0 && (
                 <TimingFeedback seconds={timer.elapsed} wineCount={state.question.wines.length} />
               )}

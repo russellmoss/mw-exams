@@ -3,6 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import {
+  DEFAULT_PACE_PREFERENCE,
+  formatMMSS,
+  type PaceMode,
+  type SpeedSeconds,
+} from "@/lib/pace";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -20,6 +26,9 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
+  const [paceMode, setPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
+  const [paceSpeedSeconds, setPaceSpeedSeconds] = useState<SpeedSeconds>(DEFAULT_PACE_PREFERENCE.speedSeconds);
+  const [paceSaving, setPaceSaving] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState<string | null>(null);
@@ -48,6 +57,14 @@ export default function SettingsPage() {
       fetch("/api/user/sound-preference")
         .then((r) => r.ok ? r.json() : null)
         .then((d) => { if (d) setSoundEnabled(d.soundEnabled !== false); })
+        .catch(() => {});
+      fetch("/api/user/pace-preference")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          if (d.pace === "exam" || d.pace === "speed") setPaceMode(d.pace);
+          if (d.speedSeconds === 480 || d.speedSeconds === 540) setPaceSpeedSeconds(d.speedSeconds);
+        })
         .catch(() => {});
       fetch("/api/user/api-key")
         .then((r) => r.ok ? r.json() : null)
@@ -103,6 +120,24 @@ export default function SettingsPage() {
       setDeleting(false);
     }
   };
+
+  const savePace = useCallback(async (pace: PaceMode, speedSeconds: SpeedSeconds) => {
+    setPaceSaving(true);
+    // Optimistic — reflect the choice immediately; the PATCH persists the default.
+    setPaceMode(pace);
+    setPaceSpeedSeconds(speedSeconds);
+    try {
+      await fetch("/api/user/pace-preference", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pace, speedSeconds }),
+      });
+    } catch {
+      // ignore — the optimistic state stays; a reload re-reads the server value
+    } finally {
+      setPaceSaving(false);
+    }
+  }, []);
 
   if (authLoading || loading) {
     return (
@@ -371,6 +406,71 @@ export default function SettingsPage() {
               >
                 Preview sound
               </button>
+            </div>
+          </section>
+
+          {/* Pace — per-wine benchmark for Full Question & Dry Notes */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Pace</h2>
+            <p className="text-sm text-muted mb-5">
+              Your default pace. You can switch it for a single session on the practice screen.
+            </p>
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => savePace("exam", paceSpeedSeconds)}
+                disabled={paceSaving}
+                className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                  paceMode === "exam"
+                    ? "border-accent bg-accent/10"
+                    : "border-border hover:border-muted"
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${paceMode === "exam" ? "border-accent" : "border-muted"}`}>
+                  {paceMode === "exam" && <span className="w-2 h-2 rounded-full bg-accent" />}
+                </span>
+                <span className={`text-sm font-medium ${paceMode === "exam" ? "text-accent" : "text-foreground"}`}>
+                  Exam Pace — 11:00 per wine
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => savePace("speed", paceSpeedSeconds)}
+                disabled={paceSaving}
+                className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                  paceMode === "speed"
+                    ? "border-accent bg-accent/10"
+                    : "border-border hover:border-muted"
+                }`}
+              >
+                <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${paceMode === "speed" ? "border-accent" : "border-muted"}`}>
+                  {paceMode === "speed" && <span className="w-2 h-2 rounded-full bg-accent" />}
+                </span>
+                <span className={`text-sm font-medium ${paceMode === "speed" ? "text-accent" : "text-foreground"}`}>
+                  Speed Notes
+                </span>
+              </button>
+
+              {paceMode === "speed" && (
+                <div className="flex items-center gap-2 pl-7">
+                  {([480, 540] as SpeedSeconds[]).map((secs) => (
+                    <button
+                      key={secs}
+                      type="button"
+                      onClick={() => savePace("speed", secs)}
+                      disabled={paceSaving}
+                      className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors cursor-pointer disabled:opacity-60 ${
+                        paceSpeedSeconds === secs
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      {secs === 480 ? "8 min" : "9 min"} · {formatMMSS(secs)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         </div>
