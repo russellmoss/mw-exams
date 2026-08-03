@@ -3,8 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useBankPending } from "@/lib/use-bank-pending";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
@@ -14,29 +14,10 @@ export function NavBar() {
   const pathname = usePathname();
 
   // Admin-only "Bank" link carries an amber dot when there are generated questions waiting for
-  // review. Poll on mount + every 60s (spec cadence); only admins ever hit the endpoint.
-  const [bankPending, setBankPending] = useState(0);
+  // review. The count is polled (mount + every 60s, no-store) by the shared useBankPending hook, so
+  // the NavBar and the UserMenu item stay in lock-step.
   const isAdmin = !!user?.isAdmin;
-  useEffect(() => {
-    if (!isAdmin) return;
-    let alive = true;
-    const poll = async () => {
-      try {
-        const res = await fetch("/api/admin/bank/counts");
-        if (!res.ok) return;
-        const data = await res.json();
-        if (alive) setBankPending(Number(data.pending) || 0);
-      } catch {
-        /* transient — next poll retries */
-      }
-    };
-    poll();
-    const interval = setInterval(poll, 60_000);
-    return () => {
-      alive = false;
-      clearInterval(interval);
-    };
-  }, [isAdmin]);
+  const bankPending = useBankPending();
 
   // Don't show nav on login page
   if (pathname === "/login") return null;

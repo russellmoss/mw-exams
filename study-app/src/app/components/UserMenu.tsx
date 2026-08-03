@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { useBankPending } from "@/lib/use-bank-pending";
 
 /**
  * The user's name in the top right, opening a menu of the account-level destinations — Admin (admin
@@ -14,6 +15,8 @@ export function UserMenu() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  // Amber dot mirrors the NavBar "Bank" link when questions are waiting for review.
+  const bankPending = useBankPending();
   // Stores the route the menu was opened on rather than a plain boolean, so navigating via one of
   // its links closes it as a derived consequence — no effect, no cascading render.
   const [openedOn, setOpenedOn] = useState<string | null>(null);
@@ -86,6 +89,22 @@ export function UserMenu() {
           {user.isAdmin && (
             <Link href="/admin" role="menuitem" className={itemClass("/admin")} onClick={() => setOpenedOn(null)}>
               Admin
+            </Link>
+          )}
+          {user.isAdmin && (
+            <Link
+              href="/admin/bank"
+              role="menuitem"
+              className={`${itemClass("/admin/bank")} flex items-center justify-between`}
+              onClick={() => setOpenedOn(null)}
+            >
+              <span>Bank</span>
+              {bankPending > 0 && (
+                <span
+                  className="w-2 h-2 rounded-full bg-accent shrink-0"
+                  aria-label={`${bankPending} waiting to review`}
+                />
+              )}
             </Link>
           )}
           <Link href="/settings" role="menuitem" className={itemClass("/settings")} onClick={() => setOpenedOn(null)}>
