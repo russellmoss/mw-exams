@@ -30,15 +30,29 @@
 // than guess. Entries here are deliberately conservative for that reason.
 
 /** Postgres text-search configurations present in the corpus. `simple` is the fallback (no stemming). */
-export const TS_CONFIGS = ["english", "french", "german", "spanish"] as const;
+export const TS_CONFIGS = ["english", "french", "german", "spanish", "italian"] as const;
 export type TsConfig = (typeof TS_CONFIGS)[number] | "simple";
 
-/** One production concept, expressed in each language we can express it in. */
+/**
+ * One production concept, expressed in each language we can express it in.
+ *
+ * ITALIAN WAS ADDED LATE, and the reason is worth recording because it is the same mistake twice.
+ * The original map covered en/fr/de/es because that was the corpus. Then the appellation build added
+ * 451 chunks of MASAF disciplinari in Italian — and nobody extended this file, so the Italian lexical
+ * arm never existed and Italian appellations were reachable by dense retrieval alone. Measured before
+ * the fix: an English lexical query scored 0 of 451 Italian chunks; an Italian one scored 155. That
+ * is the H1 failure from the French corpus, recurring exactly.
+ *
+ * THE RULE THIS ESTABLISHES: adding content in a new language means adding it HERE and to TS_CONFIGS
+ * in the same change. The failure is silent — retrieval keeps working, just worse, on the content you
+ * just paid to add.
+ */
 interface Concept {
   english: string[];
   french?: string[];
   german?: string[];
   spanish?: string[];
+  italian?: string[];
 }
 
 const CONCEPTS: Concept[] = [
@@ -48,24 +62,28 @@ const CONCEPTS: Concept[] = [
     french: ["fermentation malolactique", "malolactique"],
     german: ["malolaktische Gärung", "biologischer Säureabbau"],
     spanish: ["fermentación maloláctica", "maloláctica"],
+    italian: ["fermentazione malolattica", "malolattica"],
   },
   {
     english: ["fermentation temperature", "cool fermentation", "warm fermentation"],
     french: ["température de fermentation"],
     german: ["Gärtemperatur"],
     spanish: ["temperatura de fermentación"],
+    italian: ["temperatura di fermentazione"],
   },
   {
     english: ["wild yeast", "indigenous yeast", "ambient yeast", "spontaneous fermentation"],
     french: ["levures indigènes", "fermentation spontanée"],
     german: ["Spontangärung", "Naturhefe"],
     spanish: ["levaduras autóctonas", "fermentación espontánea"],
+    italian: ["lieviti indigeni", "fermentazione spontanea"],
   },
   {
     english: ["cultured yeast", "selected yeast", "inoculated"],
     french: ["levures sélectionnées", "levurage"],
     german: ["Reinzuchthefe"],
     spanish: ["levaduras seleccionadas"],
+    italian: ["lieviti selezionati"],
   },
   {
     english: ["stuck fermentation"],
@@ -86,42 +104,49 @@ const CONCEPTS: Concept[] = [
     french: ["lies", "sur lie", "élevage sur lies"],
     german: ["Hefelager", "Feinhefe", "auf der Hefe"],
     spanish: ["lías", "sobre lías", "crianza sobre lías"],
+    italian: ["fecce", "sui lieviti", "fecce fini"],
   },
   {
     english: ["lees stirring", "batonnage", "bâtonnage"],
     french: ["bâtonnage"],
     german: ["Aufrühren der Hefe"],
     spanish: ["bâtonnage", "removido de lías"],
+    italian: ["bâtonnage", "rimescolamento delle fecce"],
   },
   {
     english: ["barrel", "oak", "barrique", "new oak", "oak ageing"],
     french: ["barrique", "fût de chêne", "chêne", "bois neuf"],
     german: ["Barrique", "Holzfass", "Eichenholz"],
     spanish: ["barrica", "roble", "roble nuevo"],
+    italian: ["barrique", "botte", "rovere", "legno"],
   },
   {
     english: ["large format cask", "foudre", "botti"],
     french: ["foudre", "demi-muid"],
     german: ["Stückfass", "Halbstückfass", "Holzfuder"],
     spanish: ["tino", "fudre"],
+    italian: ["botte grande", "botti di rovere"],
   },
   {
     english: ["ageing", "maturation", "elevage", "élevage"],
     french: ["élevage", "vieillissement"],
     german: ["Ausbau", "Reifung"],
     spanish: ["crianza", "envejecimiento"],
+    italian: ["affinamento", "invecchiamento", "maturazione"],
   },
   {
     english: ["oxidative ageing", "oxidative"],
     french: ["élevage oxydatif", "oxydatif"],
     german: ["oxidativer Ausbau"],
     spanish: ["crianza oxidativa"],
+    italian: ["affinamento ossidativo", "ossidativo"],
   },
   {
     english: ["reductive", "protective winemaking", "anaerobic handling"],
     french: ["élevage réducteur", "vinification réductrice"],
     german: ["reduktiver Ausbau"],
     spanish: ["crianza reductiva"],
+    italian: ["riduttivo"],
   },
   {
     english: ["micro-oxygenation", "microoxygenation"],
@@ -134,12 +159,14 @@ const CONCEPTS: Concept[] = [
     french: ["amphore", "cuve béton", "béton"],
     german: ["Amphore", "Betonei", "Beton"],
     spanish: ["ánfora", "hormigón", "tinaja"],
+    italian: ["anfora", "cemento"],
   },
   {
     english: ["stainless steel", "inert vessel"],
     french: ["inox", "acier inoxydable"],
     german: ["Edelstahl", "Edelstahltank"],
     spanish: ["acero inoxidable"],
+    italian: ["acciaio inox", "acciaio inossidabile"],
   },
 
   // --- must handling and extraction ---
@@ -148,12 +175,14 @@ const CONCEPTS: Concept[] = [
     french: ["macération pelliculaire", "macération"],
     german: ["Maischestandzeit", "Maischegärung"],
     spanish: ["maceración", "contacto con hollejos"],
+    italian: ["macerazione", "contatto con le bucce"],
   },
   {
     english: ["carbonic maceration", "semi-carbonic"],
     french: ["macération carbonique", "semi-carbonique"],
     german: ["Kohlensäuremaischung"],
     spanish: ["maceración carbónica"],
+    italian: ["macerazione carbonica"],
   },
   {
     english: ["cold soak", "pre-fermentation maceration"],
@@ -166,54 +195,63 @@ const CONCEPTS: Concept[] = [
     french: ["grappe entière", "vendange entière"],
     german: ["Ganztraubenpressung", "ganze Trauben"],
     spanish: ["racimo entero"],
+    italian: ["grappolo intero", "raspi"],
   },
   {
     english: ["destemming", "destemmed"],
     french: ["éraflage", "égrappage"],
     german: ["Entrappen", "Abbeeren"],
     spanish: ["despalillado"],
+    italian: ["diraspatura"],
   },
   {
     english: ["pressing", "press", "whole bunch pressing"],
     french: ["pressurage", "pressage"],
     german: ["Kelterung", "Pressen", "Ganztraubenpressung"],
     spanish: ["prensado"],
+    italian: ["pressatura", "torchiatura"],
   },
   {
     english: ["free run juice", "free-run"],
     french: ["jus de goutte", "moût de goutte"],
     german: ["Vorlaufmost", "Seihmost"],
     spanish: ["mosto flor", "lágrima"],
+    italian: ["mosto fiore"],
   },
   {
     english: ["press wine", "press fraction"],
     french: ["vin de presse", "taille"],
     german: ["Presswein"],
     spanish: ["vino de prensa"],
+    italian: ["vino di torchio"],
   },
   {
     english: ["settling", "juice clarification", "debourbage"],
     french: ["débourbage"],
     german: ["Mostvorklärung", "Vorklärung"],
     spanish: ["desfangado"],
+    italian: ["sfecciatura", "decantazione"],
   },
   {
     english: ["punch down", "pigeage"],
     french: ["pigeage"],
     german: ["Unterstoßen"],
     spanish: ["bazuqueo"],
+    italian: ["follatura"],
   },
   {
     english: ["pump over", "remontage"],
     french: ["remontage"],
     german: ["Umpumpen", "Überpumpen"],
     spanish: ["remontado"],
+    italian: ["rimontaggio"],
   },
   {
     english: ["cap management", "cap"],
     french: ["chapeau de marc", "gestion du chapeau"],
     german: ["Tresterhut"],
     spanish: ["sombrero"],
+    italian: ["cappello"],
   },
   {
     english: ["thermovinification", "flash detente", "flash détente"],
@@ -226,6 +264,7 @@ const CONCEPTS: Concept[] = [
     french: ["moût"],
     german: ["Most"],
     spanish: ["mosto"],
+    italian: ["mosto"],
   },
 
   // --- sparkling ---
@@ -290,12 +329,14 @@ const CONCEPTS: Concept[] = [
     french: ["pourriture noble", "botrytis"],
     german: ["Edelfäule", "Botrytis"],
     spanish: ["podredumbre noble", "botritis"],
+    italian: ["muffa nobile", "botrite"],
   },
   {
     english: ["dried grapes", "raisined", "passerillage", "appassimento"],
     french: ["passerillage", "raisins passerillés"],
     german: ["Trockenbeeren"],
     spanish: ["pasificación", "uvas pasificadas"],
+    italian: ["appassimento", "uve appassite", "ripasso", "governo"],
   },
   {
     english: ["ice wine", "eiswein", "cryoextraction", "freeze concentration"],
@@ -326,6 +367,7 @@ const CONCEPTS: Concept[] = [
     french: ["sucre résiduel"],
     german: ["Restzucker"],
     spanish: ["azúcar residual"],
+    italian: ["zucchero residuo"],
   },
   {
     english: ["sussreserve", "süssreserve", "unfermented must sweetening"],
@@ -338,18 +380,21 @@ const CONCEPTS: Concept[] = [
     french: ["dioxyde de soufre", "anhydride sulfureux", "sulfites"],
     german: ["Schwefeldioxid", "schweflige Säure", "Sulfite"],
     spanish: ["dióxido de azufre", "anhídrido sulfuroso", "sulfitos"],
+    italian: ["anidride solforosa", "solfiti"],
   },
   {
     english: ["chaptalisation", "chaptalization", "enrichment"],
     french: ["chaptalisation", "enrichissement"],
     german: ["Anreicherung", "Chaptalisierung"],
     spanish: ["chaptalización"],
+    italian: ["arricchimento"],
   },
   {
     english: ["acidification"],
     french: ["acidification"],
     german: ["Säuerung"],
     spanish: ["acidificación"],
+    italian: ["acidificazione"],
   },
   {
     english: ["deacidification"],
@@ -362,12 +407,14 @@ const CONCEPTS: Concept[] = [
     french: ["collage"],
     german: ["Schönung"],
     spanish: ["clarificación", "encolado"],
+    italian: ["chiarifica"],
   },
   {
     english: ["filtration", "filtered", "unfiltered"],
     french: ["filtration", "non filtré"],
     german: ["Filtration", "unfiltriert"],
     spanish: ["filtración", "sin filtrar"],
+    italian: ["filtrazione"],
   },
   {
     english: ["cold stabilisation", "tartrate stability"],
@@ -386,12 +433,14 @@ const CONCEPTS: Concept[] = [
     french: ["assemblage"],
     german: ["Verschnitt", "Cuvée"],
     spanish: ["mezcla", "coupage", "ensamblaje"],
+    italian: ["taglio", "assemblaggio"],
   },
   {
     english: ["bottling", "bottled"],
     french: ["mise en bouteille"],
     german: ["Abfüllung", "Flaschenfüllung"],
     spanish: ["embotellado"],
+    italian: ["imbottigliamento"],
   },
 
   // --- faults and analysis ---
@@ -406,12 +455,14 @@ const CONCEPTS: Concept[] = [
     french: ["acidité volatile"],
     german: ["flüchtige Säure"],
     spanish: ["acidez volátil"],
+    italian: ["acidità volatile"],
   },
   {
     english: ["titratable acidity", "total acidity", "ta"],
     french: ["acidité totale"],
     german: ["Gesamtsäure", "titrierbare Säure"],
     spanish: ["acidez total"],
+    italian: ["acidità totale"],
   },
   {
     english: ["reduction", "reductive fault", "hydrogen sulfide"],
@@ -424,12 +475,14 @@ const CONCEPTS: Concept[] = [
     french: ["oxydation", "oxydé"],
     german: ["Oxidation", "oxidiert"],
     spanish: ["oxidación", "oxidado"],
+    italian: ["ossidazione"],
   },
   {
     english: ["ripeness", "harvest date", "picking decision"],
     french: ["maturité", "date de vendange"],
     german: ["Reife", "Lesezeitpunkt"],
     spanish: ["madurez", "fecha de vendimia"],
+    italian: ["maturazione delle uve", "vendemmia"],
   },
 ];
 
@@ -439,6 +492,7 @@ const CONFIG_OF: Record<keyof Concept, TsConfig> = {
   french: "french",
   german: "german",
   spanish: "spanish",
+  italian: "italian",
 };
 
 /**
@@ -463,6 +517,7 @@ export function buildLexicalQueries(query: string): { tsConfig: TsConfig; query:
       ...(concept.french ?? []),
       ...(concept.german ?? []),
       ...(concept.spanish ?? []),
+      ...(concept.italian ?? []),
     ];
     if (allTerms.some((t) => lower.includes(t.toLowerCase()))) hits.push(concept);
   }
@@ -488,7 +543,7 @@ export function buildLexicalQueries(query: string): { tsConfig: TsConfig; query:
     query: englishTerms.size ? [...englishTerms].join(" OR ") : query,
   });
 
-  for (const lang of ["french", "german", "spanish"] as const) {
+  for (const lang of ["french", "german", "spanish", "italian"] as const) {
     const terms = new Set<string>();
     for (const c of hits) for (const t of c[lang] ?? []) terms.add(t);
     if (terms.size === 0) continue;

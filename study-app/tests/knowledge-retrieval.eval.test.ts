@@ -255,6 +255,19 @@ const GOLDEN: Golden[] = [
     minOnTopic: 2,
   },
   {
+    // ITALIAN LANGUAGE REACH — the counterpart of the French and German cases, added after Italian
+    // content shipped without a lexical arm. Measured before the fix: an English lexical query scored
+    // 0 of 451 Italian chunks, and a Barolo question returned 1 relevant passage in 6 (the rest were
+    // sherry, Muscadet and a German rot paper). Asserting the language, not just the topic, is what
+    // catches the arm silently disappearing again.
+    name: "Barolo ageing (Italian language reach)",
+    appellation: true,
+    query: "Comment on the ageing of this Barolo — required time in oak and total maturation.",
+    topics: ["appellation-law"],
+    minOnTopic: 2,
+    requireLanguage: "it",
+  },
+  {
     name: "German white production (language reach)",
     query: "How was this German Riesling produced — must handling, fermentation and residual sugar?",
     requireLanguage: "de",

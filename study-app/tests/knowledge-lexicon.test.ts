@@ -50,6 +50,16 @@ describe("buildLexicalQueries", () => {
     expect(french.query).toContain("lies");
   });
 
+  it("builds an Italian arm for disciplinare vocabulary", () => {
+    // Italian shipped 451 chunks before this file knew the language existed. The arm must exist and
+    // must carry real terms of art, not just be present and empty.
+    const arms = buildLexicalQueries("ageing in oak and maceration");
+    const italian = arms.find((a) => a.tsConfig === "italian");
+    expect(italian, "no italian arm").toBeTruthy();
+    expect(italian!.query).toContain("affinamento");
+    expect(italian!.query).toContain("rovere");
+  });
+
   it("does not leak region or variety vocabulary into the map", () => {
     // Retrieval is gated to production questions; terms that pull regional passages defeat the gate.
     const terms = allTerms("english").join(" ").toLowerCase();

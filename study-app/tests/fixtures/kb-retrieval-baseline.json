@@ -2,8 +2,8 @@
   "traditional-method sparkling": [
     "IVES Technical Reviews",
     "Union des Maisons de Champagne",
-    "IVES Technical Reviews",
     "Union des Maisons de Champagne",
+    "IVES Technical Reviews",
     "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
     "Virginia Tech Enology"
   ],
@@ -20,8 +20,8 @@
     "AWRI",
     "WSU Viticulture & Enology",
     "Oregon Wine Research Institute (OSU)",
-    "Oregon Wine Research Institute (OSU)",
-    "Union des Maisons de Champagne"
+    "Union des Maisons de Champagne",
+    "Oregon Wine Research Institute (OSU)"
   ],
   "lees ageing and texture": [
     "Virginia Tech Enology",
@@ -34,10 +34,10 @@
   "oak maturation": [
     "ETS Laboratories",
     "IVES Technical Reviews",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "Chambre d'Agriculture de la Gironde (Bordeaux)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "Wine Australia",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)"
+    "Wine Australia"
   ],
   "red extraction": [
     "AWRI",
@@ -144,8 +144,8 @@
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)"
   ],
   "noble rot berry chemistry": [
-    "Peer-reviewed noble-rot literature",
     "Virginia Tech Enology",
+    "Peer-reviewed noble-rot literature",
     "Virginia Tech Enology",
     "Peer-reviewed noble-rot literature",
     "Peer-reviewed noble-rot literature",
@@ -169,11 +169,11 @@
   ],
   "Barolo ageing requirements": [
     "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "DOP Jerez-Xérès-Sherry / Manzanilla — product specification",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "Consejo Regulador DOCa Rioja / DO Cava"
+    "Wine Australia",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
   ],
   "Rioja crianza reserva gran reserva": [
     "Consejo Regulador DOCa Rioja / DO Cava",
@@ -194,10 +194,10 @@
   "Brunello classification": [
     "MASAF / Catalogo nazionale — disciplinari di produzione",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "Virginia Tech Enology",
     "Consejo Regulador DOCa Rioja / DO Cava",
     "Oregon Wine Research Institute (OSU)",
-    "INAO — cahiers des charges (AOC)",
-    "Virginia Tech Enology"
+    "INAO — cahiers des charges (AOC)"
   ],
   "Amarone appassimento rules": [
     "MASAF / Catalogo nazionale — disciplinari di produzione",
@@ -206,6 +206,14 @@
     "Consejo Regulador DOCa Rioja / DO Cava",
     "INAO — cahiers des charges (AOC)",
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)"
+  ],
+  "Barolo ageing (Italian language reach)": [
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "MASAF / Catalogo nazionale — disciplinari di produzione"
   ],
   "German white production (language reach)": [
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
