@@ -197,7 +197,8 @@ How to use them:
   passage and adjust the claim.
 - DO NOT cite sources, publishers or dates in the answer prose. This is an eight-minute handwritten
   exam answer; the examiner marks reasoning, and inline citations model the wrong behaviour for a
-  candidate. The citations are displayed to the student separately.
+  candidate. A source list is appended below the answer for the student, so nothing is lost by
+  leaving them out of the prose.
 - This corpus covers HOW WINE IS MADE. It is silent on region, variety identification, appellation law
   and commercial positioning. Its silence on those is not evidence — keep using your own knowledge there.
 ${corpusNote ? `- ${corpusNote}\n` : ""}
@@ -232,4 +233,89 @@ export async function getKnowledgeContext(opts: {
     console.error(`[kb] retrieval failed (${(e as Error).message}) — generating without references`);
     return { block: null, passages: [], reason: `error: ${(e as Error).message}` };
   }
+}
+
+/**
+ * Format passages for GRADING, which is a different job from writing an exemplar.
+ *
+ * The exemplar block says "here is background for the answer you are about to write". This one says
+ * "here is a reference against which to check what the candidate already wrote". Verification is the
+ * thing retrieval is actually best at — the model can write a good answer unaided, but it cannot
+ * reliably notice that its own confident production claim is wrong.
+ *
+ * THE RULE THAT MATTERS MOST IS THE NEGATIVE ONE. Without it, a grader handed six tier-1 passages
+ * starts treating them as a mark scheme and penalises the candidate for not mentioning bâtonnage or
+ * the criaderas system. That would be badly wrong twice over: the passages are whatever retrieval
+ * happened to surface, not the examiner's expectations, and the MW rubric rewards causal reasoning
+ * over coverage (Marking Principles). So: contradiction is reportable, omission is not.
+ */
+export function buildVerificationBlock(passages: RetrievedPassage[]): string | null {
+  if (passages.length === 0) return null;
+
+  const body = passages
+    .map((p, i) => {
+      const date = p.publishedAt ? p.publishedAt.toISOString().slice(0, 10) : "date unknown";
+      return `[${i + 1}] ${p.publisher} · tier ${p.tier} · ${date}\n${p.text.trim()}`;
+    })
+    .join("\n\n");
+
+  return `## REFERENCE PASSAGES FOR FACT-CHECKING
+
+Retrieved from a curated corpus of tier-1 publishers — regulators (INAO cahiers des charges, Consejo
+Regulador, IVDP, MASAF disciplinari) and peer-reviewed enology. Some are in French, German, Spanish
+or Italian.
+
+Use them for ONE purpose: checking production and appellation claims the candidate ACTUALLY MADE.
+
+- If the candidate asserts something a passage contradicts — an ageing minimum, a permitted variety, a
+  fortification level, how a technique works — say so plainly in the relevant sub-question feedback
+  and give the correct fact. Be specific: "Barolo requires 38 months, not 24", not "check your facts".
+- DO NOT treat these passages as a mark scheme. They are whatever retrieval surfaced, not the
+  examiner's expectations. NEVER penalise the candidate, or list under "what could improve", something
+  merely because it appears here and not in their answer. Omission is not an error; contradiction is.
+- Equally, do not award credit just because the candidate echoed a passage. Marks follow reasoning.
+- If the passages are silent on what the candidate claimed, say nothing about them at all.
+
+${body}`;
+}
+
+/**
+ * A short, human-facing source list appended to what the student reads.
+ *
+ * This exists because the model-answer prompt tells the model not to cite inline, on the grounds that
+ * the citations are shown separately — and for a while that sentence was simply untrue: nothing
+ * rendered them anywhere. Either the claim goes or the surface does; this is the surface.
+ *
+ * Deliberately markdown appended to the stored text rather than a new column plus a component. The
+ * app already stores and renders markdown for exactly this kind of enrichment (see the image
+ * enrichment in evaluate-answer), so this persists with the attempt, survives reload, and needs no
+ * migration. Deduplicated by document: six chunks frequently come from two documents, and a list that
+ * repeats the same source six times reads as noise.
+ *
+ * CAPPED AT THREE DOCUMENTS, and that cap is a judgement about what a citation list is FOR. Passages
+ * are ranked; the tail contributes least, and listing all six turns a useful "here is where this came
+ * from" into a wall the student will not follow. Three is enough to check the claim and short enough
+ * to read. This does NOT hide a retrieval problem — the model still receives all six — but it does
+ * keep the weakest matches out of the student's face.
+ */
+export function buildCitationBlock(passages: RetrievedPassage[], maxDocs = 3): string {
+  if (passages.length === 0) return "";
+  const seen = new Map<string, { publisher: string; title: string | null; url: string }>();
+  for (const p of passages) {
+    if (!seen.has(p.documentId)) {
+      seen.set(p.documentId, { publisher: p.publisher, title: p.canonicalTitle, url: p.canonicalUrl });
+    }
+  }
+  const items = [...seen.values()].slice(0, maxDocs).map((d) => {
+    const label = d.title && d.title.length > 3 && !/\.(pdf|docx?)$/i.test(d.title)
+      ? `${d.publisher} — ${d.title}`
+      : d.publisher;
+    return `- [${label}](${d.url})`;
+  });
+  return (
+    "\n\n---\n\n" +
+    "**Sources consulted** — tier-1 references behind the production and appellation points above.\n\n" +
+    items.join("\n") +
+    "\n"
+  );
 }

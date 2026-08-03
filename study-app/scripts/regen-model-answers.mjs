@@ -54,7 +54,7 @@ const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db
 // production. Without it this script would quietly regenerate exemplars WITHOUT the references the
 // live routes use, which is the exact drift the "ONE source of truth" note warns about.
 // Needs VOYAGE_API_KEY; getKnowledgeContext fails soft to null if it is missing.
-const { getKnowledgeContext } = await import("../src/lib/knowledge/context.ts");
+const { getKnowledgeContext, buildCitationBlock } = await import("../src/lib/knowledge/context.ts");
 
 // ---- args ----
 const args = process.argv.slice(2);
@@ -151,6 +151,10 @@ async function regenOne(row) {
   const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock);
   const text = await callClaude(prompt.system, prompt.user);
   const s = parseModelAnswerSections(text);
+  // Append the source list exactly as the live routes do. Without this a bulk regeneration would
+  // silently strip citations from every exemplar it touched — the same offline/production drift the
+  // header of this file warns about, and the second time it has bitten in this feature.
+  s.modelAnswer = (s.modelAnswer || "") + buildCitationBlock(passages);
   const newLen = (s.modelAnswer || "").length;
   const kb = `${passages.length} passage(s) [${reason}]`;
   if (opt.dryRun) {

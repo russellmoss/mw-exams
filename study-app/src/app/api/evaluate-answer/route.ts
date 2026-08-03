@@ -7,6 +7,7 @@ import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
+import { getKnowledgeContext, buildVerificationBlock, buildCitationBlock } from "@/lib/knowledge/context";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve up to 3 illustration images (Tavily + download).
@@ -29,7 +30,18 @@ export async function POST(request: Request) {
     const client = new Anthropic({ apiKey: keyResult.apiKey });
 
     const dislikedFound = scanDislikedWording(answer);
-    const systemPrompt = buildAnswerEvaluationSystemPrompt(paper, dislikedFound);
+
+    // Tier-1 references for FACT-CHECKING the candidate's production and appellation claims. Gated by
+    // the same rules as model-answer generation, so a question the corpus cannot speak to retrieves
+    // nothing. Verification is the higher-value use of the corpus: the grader writes fine prose
+    // unaided, but cannot reliably notice that a confident claim about ageing minima is wrong.
+    // Fails soft — a retrieval error grades exactly as before.
+    const { passages: kbPassages } = await getKnowledgeContext({ questionText, family: null });
+    const verification = buildVerificationBlock(kbPassages);
+    const systemPrompt =
+      buildAnswerEvaluationSystemPrompt(paper, dislikedFound) + (verification ? `
+
+${verification}` : "");
 
     let userMessage = `## Question
 ${questionText}
@@ -90,7 +102,11 @@ Please evaluate this candidate's answer against the model answer. Assess identif
           // on any failure the tokens are stripped so the user still gets clean feedback.
           try {
             const enriched = await enrichFeedbackWithImages(cleanedText, keyResult.user.id);
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
+            // Append the source list to the text the client SAVES, so citations persist with the
+            // attempt and survive a reload. The grader is instructed not to cite inline — this is
+            // where that promise is kept. Empty string when nothing was retrieved.
+            const withSources = enriched + buildCitationBlock(kbPassages);
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: withSources })}\n\n`));
           } catch (enrichErr) {
             console.error("answer-eval image enrichment failed:", enrichErr);
           }

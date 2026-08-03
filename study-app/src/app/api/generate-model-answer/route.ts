@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
 import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
-import { getKnowledgeContext } from "@/lib/knowledge/context";
+import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
@@ -26,9 +26,11 @@ export async function POST(request: Request) {
     const { model, abGroup } = await selectModel("model_answer", keyResult.apiKey, "opus");
 
     const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
-    // Tier-1 production references, gated to production-shaped questions (and never fortified —
-    // the corpus has no sherry/port coverage). Fails soft: null block => previous behaviour.
-    const { block: knowledgeBlock } = await getKnowledgeContext({ questionText, family });
+    // Tier-1 production references. The gate decides: production-shaped questions, fortified,
+    // botrytis/sweet, or a named appellation whose specification is in the corpus. (The "never
+    // fortified" caveat that used to sit here is obsolete — that hole was filled and the gate
+    // reopened.) Fails soft: null block => previous behaviour.
+    const { block: knowledgeBlock, passages: kbPassages } = await getKnowledgeContext({ questionText, family });
     const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock);
 
     const t0 = Date.now();
@@ -53,8 +55,11 @@ export async function POST(request: Request) {
       .join("");
 
     // Parse sections (shared with the offline regen-model-answers script — one source of truth)
-    const { modelAnswer, proposedAnnotation, reasoningTrace, studyDiagramAssist } =
+    const { modelAnswer: rawModelAnswer, proposedAnnotation, reasoningTrace, studyDiagramAssist } =
       parseModelAnswerSections(text);
+    // Citations go on AFTER parsing, never before: parseModelAnswerSections slices on headers, and a
+    // source list inserted earlier would be swallowed into whichever section preceded it.
+    const modelAnswer = rawModelAnswer + buildCitationBlock(kbPassages);
 
     // Update the question in Neon
     const updated = await saveGeneratedQuestion({
