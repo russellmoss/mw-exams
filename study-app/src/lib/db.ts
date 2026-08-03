@@ -69,7 +69,7 @@ export interface UserAttempt {
   // "Add detail" was used (NULL if never escalated).
   stem_detail: string;
   stem_detail_escalated_to: string | null;
-  // Short git sha of the build that served this attempt (migration 018). NULL for local dev and for
+  // Short git sha of the build that served this attempt (migration 019). NULL for local dev and for
   // attempts predating the column. Lets a bug report be pinned to the exact code that produced it.
   app_version: string | null;
 }
@@ -339,7 +339,7 @@ export async function recordUserFeedback(
   }
   // A different second feedback → give it its own attempt row instead of overwriting. The fork
   // inherits the parent's build stamp (it describes the same study episode); only a parent from
-  // before migration 018 falls back to the build recording the feedback.
+  // before migration 019 falls back to the build recording the feedback.
   const ins = await sql`
     INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at, app_version)
     VALUES (
