@@ -13,6 +13,33 @@
 import { retrieveKnowledge, type RetrievedPassage } from "./retrieve";
 import { assessPassageAge, summarizeCorpusAge } from "./passage-age";
 
+/**
+ * APPELLATION LAW — gated to the appellations whose SPECIFICATION IS ACTUALLY IN THE CORPUS.
+ *
+ * This is the one gate that is a whitelist rather than a topic test, and the reason is the same
+ * failure that produced F3 and F4. `kb-fortified-build.mjs --group appellation` added 645 chunks of
+ * cahiers des charges and disciplinari, but only 16 documents — roughly a dozen appellations against
+ * the 183 that appear in the exam corpus. Measured after the build:
+ *
+ *   covered      Champagne 586 · Bordeaux/Graves 156 · Alsace 98 · Languedoc 93 · Savoie 80 ·
+ *                Piemonte 68 · Rioja 68 · Chianti Classico 63 · Meursault 28 · Chablis 24 ·
+ *                Vouvray 22 · Barolo 20
+ *   NOT covered  Sancerre 0 · Brunello 0 · Prosecco 0 · Châteauneuf 2 · Saint-Émilion 2 ·
+ *                Pessac-Léognan 3
+ *
+ * Opening this on "is it an origin question?" would therefore send a Sancerre question to Barolo's
+ * disciplinare — real, tier-1, legally binding, and about the wrong wine. That is precisely the
+ * confidently-wrong failure the fortified and botrytis gates existed to prevent, so the test is the
+ * NAME, not the topic.
+ *
+ * CONSEQUENCE FOR MAINTENANCE: this list and the source registry must move together. Adding a cahier
+ * des charges without adding its name here leaves the corpus unreachable; adding a name here without
+ * the document is worse, because it promises coverage that does not exist. The eval asserts both
+ * directions.
+ */
+const APPELLATION_COVERED =
+  /\bchampagne\b|\bchablis\b|\bmeursault\b|\bvouvray\b|\bbordeaux\b|\bgraves\b|\balsace\b|\blanguedoc\b|\bsavoie\b|\bsaint[- ]p[ée]ray\b|\bbarolo\b|\bchianti\b|\bpiemonte\b|\bpiedmont\b|\brioja\b/i;
+
 /** Families whose whole point is production. F5 = Method / Production, F6 = Style Mechanism. */
 const PRODUCTION_FAMILIES = new Set(["F5", "F6"]);
 
@@ -105,6 +132,9 @@ export function shouldRetrieve(opts: { questionText: string; family?: string | n
   }
   if (SWEET_INTENT.test(text)) {
     return { retrieve: true, reason: "botrytis/sweet — covered by the noble-rot corpus" };
+  }
+  if (APPELLATION_COVERED.test(text)) {
+    return { retrieve: true, reason: "named appellation with a specification in the corpus" };
   }
   if (opts.family && PRODUCTION_FAMILIES.has(opts.family)) {
     return { retrieve: true, reason: `family ${opts.family}` };

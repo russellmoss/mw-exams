@@ -4,7 +4,7 @@
     "Union des Maisons de Champagne",
     "IVES Technical Reviews",
     "Union des Maisons de Champagne",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
+    "Consejo Regulador DOCa Rioja / DO Cava",
     "Virginia Tech Enology"
   ],
   "dosage and sweetness in sparkling": [
@@ -16,8 +16,8 @@
     "Union des Maisons de Champagne"
   ],
   "malolactic fermentation": [
-    "Union des Maisons de Champagne",
     "AWRI",
+    "Union des Maisons de Champagne",
     "WSU Viticulture & Enology",
     "Oregon Wine Research Institute (OSU)",
     "Oregon Wine Research Institute (OSU)",
@@ -36,16 +36,16 @@
     "IVES Technical Reviews",
     "Chambre d'Agriculture de la Gironde (Bordeaux)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "Wine Australia",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)"
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "Wine Australia"
   ],
   "red extraction": [
     "AWRI",
     "Virginia Tech Enology",
     "Virginia Tech Enology",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)"
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)"
   ],
   "whole bunch and carbonic": [
     "AWRI",
@@ -58,10 +58,10 @@
   "fermentation temperature in aromatic whites": [
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "Consejo Regulador DOCa Rioja / DO Cava",
     "Oregon Wine Research Institute (OSU)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "Union des Maisons de Champagne",
-    "WSU Viticulture & Enology"
+    "WSU Viticulture & Enology",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
   ],
   "sweetness by arrested fermentation": [
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
@@ -85,12 +85,12 @@
     "Virginia Tech Enology",
     "AWRI",
     "Oregon Wine Research Institute (OSU)",
-    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
+    "Consejo Regulador DOCa Rioja / DO Cava"
   ],
   "fining filtration stabilisation": [
     "Wine Australia",
     "Union des Maisons de Champagne",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
+    "Consejo Regulador DOCa Rioja / DO Cava",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "Oregon Wine Research Institute (OSU)",
     "Wine Australia"
@@ -117,30 +117,30 @@
     "Consejo Regulador DO Jerez-Xérès-Sherry",
     "Peer-reviewed open-access reviews (PMC)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)"
+    "Consejo Regulador DOCa Rioja / DO Cava"
   ],
   "madeira estufagem and canteiro": [
     "Peer-reviewed open-access reviews (PMC)",
     "Peer-reviewed open-access reviews (PMC)",
     "Peer-reviewed open-access reviews (PMC)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)"
+    "Virginia Tech Enology",
+    "Consejo Regulador DOCa Rioja / DO Cava"
   ],
   "vin doux naturel mutage": [
     "CIVR — Conseil Interprofessionnel des Vins du Roussillon",
-    "CIVR — Conseil Interprofessionnel des Vins du Roussillon",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "Consejo Regulador DOCa Rioja / DO Cava",
     "AWRI",
     "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)"
+    "Virginia Tech Enology"
   ],
   "sauternes noble rot harvest": [
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "Peer-reviewed noble-rot literature",
+    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)"
   ],
   "noble rot berry chemistry": [
@@ -155,32 +155,56 @@
     "Peer-reviewed noble-rot literature",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "WSU Viticulture & Enology",
-    "Union des Maisons de Champagne",
+    "INAO — cahiers des charges (AOC)",
     "Consejo Regulador DO Jerez-Xérès-Sherry",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
   ],
   "Alsace SGN and vendanges tardives": [
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "AWRI",
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "INAO — cahiers des charges (AOC)"
+  ],
+  "Barolo ageing requirements": [
+    "MASAF / Catalogo nazionale — disciplinari di produzione",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "DOP Jerez-Xérès-Sherry / Manzanilla — product specification",
     "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
-    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "Consejo Regulador DOCa Rioja / DO Cava"
+  ],
+  "Rioja crianza reserva gran reserva": [
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "Consejo Regulador DO Jerez-Xérès-Sherry",
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "Consejo Regulador DOCa Rioja / DO Cava",
+    "Consejo Regulador DOCa Rioja / DO Cava"
+  ],
+  "Chablis appellation rules": [
+    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
+    "AWRI",
+    "ICVV — Instituto de Ciencias de la Vid y del Vino (Spain)",
+    "INAO — cahiers des charges (AOC)",
+    "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "Consejo Regulador DOCa Rioja / DO Cava"
   ],
   "German white production (language reach)": [
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
-    "INAO — cahiers des charges (Sauternes, Coteaux du Layon, Alsace VT/SGN)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
+    "INAO — cahiers des charges (AOC)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)",
     "WBI Freiburg — Staatliches Weinbauinstitut (Germany)"
   ],
   "Champagne pressing and taille (language reach)": [
+    "INAO — cahiers des charges (AOC)",
     "Union des Maisons de Champagne",
     "Union des Maisons de Champagne",
-    "Union des Maisons de Champagne",
-    "Union des Maisons de Champagne",
-    "Union des Maisons de Champagne",
+    "INAO — cahiers des charges (AOC)",
+    "INAO — cahiers des charges (AOC)",
     "Union des Maisons de Champagne"
   ]
 }

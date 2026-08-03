@@ -257,6 +257,89 @@ const SOURCES = [
       "https://www.frontiersin.org/journals/plant-science/articles/10.3389/fpls.2017.01002/full",
     ],
   },
+  // ===========================================================================================
+  // APPELLATION LAW — what a designation PERMITS, as opposed to how wine is made.
+  //
+  // The third and largest hole. The first corpus knows fermentation chemistry; it does not know that
+  // Barolo requires 38 months' ageing with 18 in wood, that Chianti Classico is min 80% Sangiovese, or
+  // that Chablis is Chardonnay only. Those are marks: the MW rubric is variety + region, and origin
+  // arguments are won or lost on exactly this material.
+  //
+  // SCOPED BY THE EXAM, NOT BY THE EU REGISTER. There are 1,200+ EU wine PDOs and crawling them all
+  // would be waste. The target list is derived from frequency in the 504-wine exam corpus cross-
+  // referenced against data/appellation_varieties.json: 183 appellations actually appear, and the
+  // distribution is heavily French (232 mentions), then Italian (71), Portuguese (54), Spanish (46).
+  // Port, Jerez, Madeira, Sauternes and Tokaji are already covered by the fortified and botrytis
+  // groups, so this group targets what remains.
+  //
+  // TRANCHE 1. Only URLs confirmed to resolve are listed. INAO filenames are inconsistent
+  // (PNOCDC-X.pdf, CDC-X.pdf, PNOCDCX.pdf) so they cannot be generated, and the Italian ministry
+  // indexes disciplinari by opaque numeric id. Both make this a curation job rather than a crawl;
+  // extending it means adding confirmed URLs here, not loosening a pattern.
+  // ===========================================================================================
+  {
+    group: "appellation",
+    topic: "appellation-law",
+    key: "inao-aoc-cdc",
+    publisher: "INAO — cahiers des charges (AOC)",
+    homeDomain: "inao.gouv.fr",
+    tier: 1,
+    license: "official appellation specification",
+    language: "fr",
+    tsConfig: "french",
+    urls: [
+      // Confirmed to resolve. Note the filenames: PNOCDCAOC-Champagne-20190619.pdf,
+      // CDC-Chablis-250623-PNO.pdf, 4-CDCPNOvouvray.pdf, pno-cdc-AOC-Meursault-cn250612.pdf. There is
+      // no pattern — a first attempt at generating 15 URLs from the observed shapes resolved ZERO of
+      // them. Each of these was looked up individually, which is why this grows by curation.
+      "https://extranet.inao.gouv.fr/fichier/PNOCDCAOC-Champagne-20190619.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC-Chablis-250623-PNO.pdf",
+      "https://extranet.inao.gouv.fr/fichier/pno-cdc-AOC-Meursault-cn250612.pdf",
+      "https://extranet.inao.gouv.fr/fichier/4-CDCPNOvouvray.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC---Graves-et-Graves-sup%C3%A9rieures---PNO-2023.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC-Savoie-PNOcn210211.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNO2025AOPSaintPeray.pdf",
+      "https://extranet.inao.gouv.fr/fichier/CDC-Bordeaux.pdf",
+      "https://extranet.inao.gouv.fr/fichier/PNOCDC-Languedoc.pdf",
+      "https://extranet.inao.gouv.fr/fichier/pno-cdc-Alsace-cn240911.pdf",
+    ],
+  },
+  {
+    group: "appellation",
+    topic: "appellation-law",
+    key: "italy-disciplinari",
+    publisher: "MASAF / Catalogo nazionale — disciplinari di produzione",
+    homeDomain: "politicheagricole.it",
+    tier: 1,
+    license: "official production specification (disciplinare)",
+    language: "it",
+    tsConfig: "italian",
+    // The ministry catalogue keys each denomination by numeric id — Barolo 1011, Chianti Classico
+    // 1023, Piemonte 2231 — so these were looked up rather than guessed.
+    urls: [
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1011",
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=1023",
+      "http://catalogoviti.politicheagricole.it/scheda_denom.php?t=dsc&q=2231",
+      "https://www.chianticlassico.com/wp-content/uploads/2024/01/DOCG_Chianti_Classico_disciplinare_consolidato_con_modifiche_DM_22_giugno_2023.pdf",
+    ],
+  },
+  {
+    group: "appellation",
+    topic: "appellation-law",
+    key: "spain-do-reglamento",
+    publisher: "Consejo Regulador DOCa Rioja / DO Cava",
+    homeDomain: "riojawine.com",
+    tier: 1,
+    license: "official regulation / pliego de condiciones",
+    language: "es",
+    tsConfig: "spanish",
+    // Rioja's reglamento carries the crianza / reserva / gran reserva ageing minima — the single most
+    // exam-relevant fact about the region, and absent from every other corpus here.
+    urls: [
+      "https://riojawine.com/wp-content/uploads/2018/08/Estatutos.pdf",
+      "https://www.cava.wine/documents/335/Requisitos_minimos_etiquetado_DOP_CAVA_-_2021.pdf",
+    ],
+  },
 ];
 
 // ---------------------------------------------------------------------------------------------
