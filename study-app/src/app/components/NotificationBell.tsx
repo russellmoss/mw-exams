@@ -1,7 +1,33 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { FeedbackAnalysisPanel } from "./FeedbackAnalysisPanel";
+
+// Fill-the-Bank ready notifications (admin only). Dismissal is tracked client-side so a batch the
+// admin has already opened stops nagging; a genuinely new ready batch still lights the bell.
+interface BankReady {
+  batchId: string;
+  paper: number;
+  pending: number;
+}
+const BANK_SEEN_KEY = "mw-bank-seen";
+function getBankSeen(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(BANK_SEEN_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+function markBankSeen(batchId: string) {
+  try {
+    const seen = getBankSeen();
+    seen.add(batchId);
+    localStorage.setItem(BANK_SEEN_KEY, JSON.stringify([...seen]));
+  } catch {
+    /* localStorage unavailable — non-fatal */
+  }
+}
 
 interface AnalysisSummary {
   id: number;
@@ -22,6 +48,7 @@ interface AnalysisSummary {
 export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [analyses, setAnalyses] = useState<AnalysisSummary[]>([]);
+  const [bankReady, setBankReady] = useState<BankReady[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -79,6 +106,17 @@ export function NotificationBell() {
 
       setUnreadCount(data.unreadCount || 0);
       setAnalyses(list);
+    } catch {}
+
+    // Fill-the-Bank ready batches (admin only; non-admins get an empty list). Surface only the ones
+    // this admin hasn't already opened.
+    try {
+      const res = await fetch("/api/admin/bank/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        const seen = getBankSeen();
+        setBankReady(((data.batches as BankReady[]) || []).filter((b) => !seen.has(b.batchId)));
+      }
     } catch {}
   }, [speakNarration]);
 
@@ -144,9 +182,9 @@ export function NotificationBell() {
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
           </svg>
-          {unreadCount > 0 && (
+          {unreadCount + bankReady.length > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-[10px] font-bold text-background flex items-center justify-center">
-              {unreadCount > 9 ? "9+" : unreadCount}
+              {unreadCount + bankReady.length > 9 ? "9+" : unreadCount + bankReady.length}
             </span>
           )}
         </button>
@@ -159,8 +197,32 @@ export function NotificationBell() {
                 <p className="text-xs text-muted mt-0.5">{unreadCount} new</p>
               )}
             </div>
+            {bankReady.length > 0 && (
+              <div className="border-b border-border">
+                {bankReady.map((b) => (
+                  <Link
+                    key={b.batchId}
+                    href={`/admin/bank?batch=${b.batchId}`}
+                    onClick={() => {
+                      markBankSeen(b.batchId);
+                      setBankReady((prev) => prev.filter((x) => x.batchId !== b.batchId));
+                      setDropdownOpen(false);
+                    }}
+                    className="block px-4 py-3 bg-accent/5 hover:bg-card-hover transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Fill the Bank</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">P{b.paper}</span>
+                    </div>
+                    <p className="text-xs text-muted mt-0.5">
+                      {b.pending} question{b.pending === 1 ? "" : "s"} ready to review →
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
             <div className="max-h-80 overflow-y-auto">
-              {analyses.length === 0 ? (
+              {analyses.length === 0 && bankReady.length === 0 ? (
                 <div className="px-4 py-6 text-center text-xs text-muted">
                   No feedback analyses yet. Submit feedback on a question to get started.
                 </div>
