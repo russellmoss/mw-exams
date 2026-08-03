@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
+import { FillTheBankCard } from "../components/FillTheBankCard";
 
 interface UserRow {
   id: number;
@@ -412,6 +413,9 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
+
+          {/* Fill the Bank — bulk question generation + review gate */}
+          <FillTheBankCard />
 
           {/* Feature Request engine */}
           <FeatureRequestPanel autoFeature={autoFeature} />

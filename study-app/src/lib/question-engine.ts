@@ -361,7 +361,11 @@ export async function generateFreshQuestion(
   apiKey: string,
   meta?: UsageMeta,
   recentlyServedIds?: Set<string>,
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  // Fill-the-Bank hook: when the bulk worker calls, it persists the validated question as
+  // status='pending' under a batch_id so it is held out of every candidate-facing read until an
+  // admin approves it. Absent (the normal study path) → the row saves 'approved' and is servable.
+  saveOpts?: { status?: string; batchId?: string | null }
 ) {
   const client = new Anthropic({ apiKey });
 
@@ -651,6 +655,10 @@ export async function generateFreshQuestion(
     // Provenance for the bank (migration 020). The pool is global regardless of whose key generated
     // it — this is recorded, never used to scope who a question is served to.
     createdByUserId: meta?.userId ?? null,
+    // Fill-the-Bank review gate (migration 022): 'pending' + batchId when the bulk worker calls,
+    // otherwise the DB default 'approved' via saveGeneratedQuestion.
+    status: saveOpts?.status,
+    batchId: saveOpts?.batchId ?? null,
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,
