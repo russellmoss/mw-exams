@@ -133,10 +133,12 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (user?.isAdmin) {
+      // no-store on every admin data fetch: the admin surface must reflect live state (and a live
+      // bundle), never a CDN/browser-cached snapshot that could mask a shipped change.
       Promise.all([
-        fetch("/api/admin/users").then((r) => r.ok ? r.json() : null),
-        fetch("/api/admin/feedback").then((r) => r.ok ? r.json() : null),
-        fetch("/api/admin/settings").then((r) => r.ok ? r.json() : null),
+        fetch("/api/admin/users", { cache: "no-store" }).then((r) => r.ok ? r.json() : null),
+        fetch("/api/admin/feedback", { cache: "no-store" }).then((r) => r.ok ? r.json() : null),
+        fetch("/api/admin/settings", { cache: "no-store" }).then((r) => r.ok ? r.json() : null),
       ])
         .then(([userData, feedbackData, settingsData]) => {
           if (userData?.users) setUsers(userData.users);
@@ -155,7 +157,7 @@ export default function AdminPage() {
 
       // Poll live sessions
       const pollLive = () => {
-        fetch("/api/admin/live-sessions")
+        fetch("/api/admin/live-sessions", { cache: "no-store" })
           .then((r) => r.ok ? r.json() : null)
           .then((data) => {
             if (data?.sessions) {
@@ -629,6 +631,10 @@ export default function AdminPage() {
               ))}
             </div>
           </div>
+
+          {/* Build stamp — hardcoded, unconditional. If this line is missing from a deployed /admin,
+              the browser is serving a stale bundle (the whole point of the v3 verifiability gate). */}
+          <p className="text-xs text-muted/60 text-center mt-10">Admin v3 · Fill the Bank: on</p>
         </div>
       </main>
     </div>
