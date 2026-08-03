@@ -1,6 +1,11 @@
 import { getUser } from "@/lib/auth";
-import { getBankStatusCounts, getRunningBatches, getBankFamilyHistogram } from "@/lib/db";
-import { estimateBatchCost, EST_COST_PER_QUESTION, PAPER_FAMILIES } from "@/lib/bank-worker";
+import {
+  getBankStatusCounts,
+  getRunningBatches,
+  getBankFamilyHistogram,
+  getBankPerQuestionAvgCost,
+} from "@/lib/db";
+import { EST_COST_PER_QUESTION, PAPER_FAMILIES } from "@/lib/bank-worker";
 
 export const runtime = "nodejs";
 
@@ -33,11 +38,16 @@ export async function GET(request: Request) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const [counts, running, histogram] = await Promise.all([
+  const [counts, running, histogram, avgCost] = await Promise.all([
     getBankStatusCounts(),
     getRunningBatches(),
     getBankFamilyHistogram(),
+    getBankPerQuestionAvgCost(),
   ]);
+
+  // Ground the Admin card's "estimated cost" line in the real per-question spend the /admin/costs
+  // dashboard reports (avgCost), falling back to the static estimate until a batch has run.
+  const costPerQuestion = avgCost > 0 ? avgCost : EST_COST_PER_QUESTION;
 
   const papers = [1, 2, 3].map((paper) => {
     const c = counts.find((x) => x.paper === paper);
@@ -79,8 +89,8 @@ export async function GET(request: Request) {
 
   return Response.json({
     papers,
-    costPerQuestion: EST_COST_PER_QUESTION,
-    estimateBatchCost: estimateBatchCost(10),
+    costPerQuestion,
+    estimateBatchCost: Math.round(10 * costPerQuestion * 100) / 100,
     target: TARGET_PER_PAPER,
   });
 }

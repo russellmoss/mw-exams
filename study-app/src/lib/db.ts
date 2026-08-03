@@ -620,6 +620,25 @@ export async function getBatchActualCost(batchId: string): Promise<number> {
   return Number(rows[0]?.cost ?? 0);
 }
 
+// Real average Claude spend per banked question, derived from the SAME model_usage rows the
+// /admin/costs dashboard reads: total spend attributed to bank-batch questions ÷ number of those
+// questions. Every banked question pays for a generation + a model answer + an enrichment pass, so
+// this rolls all three into one honest per-question figure. Returns 0 when no bank spend exists yet
+// (the Admin card then falls back to the static EST_COST_PER_QUESTION estimate).
+export async function getBankPerQuestionAvgCost(): Promise<number> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COALESCE(SUM(m.cost_usd), 0) AS cost,
+           COUNT(DISTINCT q.question_id)::int AS questions
+    FROM generated_questions q
+    JOIN model_usage m ON m.question_id = q.question_id
+    WHERE q.batch_id IS NOT NULL
+  `) as { cost: string; questions: number }[];
+  const cost = Number(rows[0]?.cost ?? 0);
+  const questions = Number(rows[0]?.questions ?? 0);
+  return questions > 0 ? cost / questions : 0;
+}
+
 export async function createAttempt(
   questionId: string,
   mode: string | null = null,
