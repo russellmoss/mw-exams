@@ -60,7 +60,12 @@ function toDrillStem(r: DrillStemSource) {
 export type DrillStem = ReturnType<typeof toDrillStem>;
 
 // Banked path: a random question that already has a validated stem key.
-async function pickBankedDrill(paper: number | null, family: string | null) {
+//
+// `variety` filters on the stem key's own ground truth, which stores the resolved variety per wine —
+// the wine text often names an appellation rather than a grape, so matching on `q.wines` would miss
+// (Chablis would never match Chardonnay). Requires EVERY wine to be the requested grape, matching
+// what the fresh path enforces.
+async function pickBankedDrill(paper: number | null, family: string | null, variety: string | null) {
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
     SELECT q.question_id, q.paper, q.family, q.family_label, q.question_text, q.total_marks, q.wines
@@ -69,6 +74,18 @@ async function pickBankedDrill(paper: number | null, family: string | null) {
     WHERE k.validated = true
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
+      AND (
+        ${variety}::text IS NULL
+        OR (
+          jsonb_typeof(k.ground_truth) = 'array'
+          AND jsonb_array_length(k.ground_truth) > 0
+          -- every wine's DOMINANT grape (varieties[0]) must be the requested one
+          AND NOT EXISTS (
+            SELECT 1 FROM jsonb_array_elements(k.ground_truth) AS g
+            WHERE lower(COALESCE(g->'varieties'->>0, '')) <> lower(${variety}::text)
+          )
+        )
+      )
     ORDER BY random()
     LIMIT 1
   `;
@@ -83,9 +100,10 @@ async function tryFreshDrill(
   family: string | null,
   apiKey: string,
   meta: UsageMeta,
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  variety?: string | null
 ) {
-  const outcome = await generateFreshQuestion(paper, family || undefined, apiKey, meta, undefined, emit);
+  const outcome = await generateFreshQuestion(paper, family || undefined, apiKey, meta, undefined, emit, variety);
   if ("error" in outcome) return null;
   // generateFreshQuestion can fall back to a banked question after repeated validator failures; only
   // the genuinely-generated case is keyed here (a banked fallback already has its own validated key).
@@ -124,28 +142,37 @@ const randomPaper = (): 1 | 2 | 3 => (Math.floor(Math.random() * 3) + 1) as 1 | 
 export async function produceDrill(opts: {
   paper: number | null;
   family: string | null;
+  variety?: string | null;
   apiKey: string;
   meta: UsageMeta;
   emit?: ProgressEmitter;
 }): Promise<DrillStem | { error: string }> {
   const { paper, family, apiKey, meta, emit } = opts;
-  const goFresh = Math.random() < FRESH_RATIO;
+  const variety = opts.variety?.trim() || null;
+  // A variety filter always generates. The validated bank is small and single-variety flights are a
+  // narrow slice of it, so honouring the dice here would mostly mean "no drills available" — and a
+  // near-empty pool would serve the same one or two questions on repeat.
+  const goFresh = variety ? true : Math.random() < FRESH_RATIO;
 
   if (goFresh) {
-    const fresh = await tryFreshDrill(paper ?? randomPaper(), family, apiKey, meta, emit);
+    const fresh = await tryFreshDrill(paper ?? randomPaper(), family, apiKey, meta, emit, variety);
     if (fresh) return fresh;
     // fall through to banked on any generation/keying miss
   }
 
   emit?.({ type: "status", label: "Pulling a validated drill from the bank…" });
-  const banked = await pickBankedDrill(paper, family);
+  const banked = await pickBankedDrill(paper, family, variety);
   if (banked) return banked;
 
   // Banked pool empty for this filter — last resort: generate even if the dice said banked.
   if (!goFresh) {
-    const fresh = await tryFreshDrill(paper ?? randomPaper(), family, apiKey, meta, emit);
+    const fresh = await tryFreshDrill(paper ?? randomPaper(), family, apiKey, meta, emit, variety);
     if (fresh) return fresh;
   }
 
-  return { error: "No drills available for that filter" };
+  return {
+    error: variety
+      ? `Couldn't build a Paper ${paper ?? "?"} flight from ${variety}. Try another grape or clear the filter.`
+      : "No drills available for that filter",
+  };
 }

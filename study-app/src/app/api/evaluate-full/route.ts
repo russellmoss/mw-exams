@@ -3,7 +3,9 @@ import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { FUNNELLING_PRINCIPLE } from "@/lib/prompts/funnelling";
-import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
+import { MARKING_PRINCIPLES, VOICE_INPUT_SPELLING } from "@/lib/prompts/marking-principles";
+import { normalizeDictatedTerms } from "@/lib/dictation-normalizer";
+import { loadWineTerms } from "@/lib/wine-terms";
 import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
 import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 import { deriveStemKey } from "@/lib/stem-answer-key";
@@ -21,7 +23,6 @@ export async function POST(request: Request) {
     const {
       questionText,
       preGlassReasoning,
-      userAnswer,
       modelAnswer,
       paper,
       wineAppearances,
@@ -30,10 +31,27 @@ export async function POST(request: Request) {
       // up front, so grade the write-up only — fold identification marks into the remaining
       // sub-parts and skip the stem-analysis review.
       identityRevealed,
+      // 'voice' when the candidate dictated. Spelling is then reported but not deducted — see below.
+      inputMethod: inputMethodRaw,
+      userAnswer: submittedAnswer,
     } = await request.json();
 
-    if (!questionText || !userAnswer || !paper) {
+    if (!questionText || !submittedAnswer || !paper) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    const inputMethod: "typed" | "voice" = inputMethodRaw === "voice" ? "voice" : "typed";
+
+    // Repair wine terms the speech-to-text engine mangled BEFORE anything reads the answer, so the
+    // grader sees what the candidate meant rather than what their transcriber heard. Conservative:
+    // only unambiguous matches are rewritten, and every change is disclosed to the candidate rather
+    // than applied silently — they need to know a term came out wrong.
+    let userAnswer: string = submittedAnswer;
+    let transcriptionFixes: { from: string; to: string }[] = [];
+    if (inputMethod === "voice") {
+      const normalized = normalizeDictatedTerms(userAnswer, loadWineTerms());
+      userAnswer = normalized.text;
+      transcriptionFixes = normalized.substitutions;
     }
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
@@ -61,6 +79,14 @@ ${FUNNELLING_PRINCIPLE}
 In the "In the Glass" section, explicitly assess the candidate's funnelling on identity/origin: did they read structure first, weigh plausible alternatives, commit to a variety+region anchor early, and land a decisive call? Reward a well-reasoned funnel (even to a wrong-but-plausible call) over a snap-call that names one wine outright, and call out shoehorning or hedging by name with the funnel they should have run.
 
 ${buildLexiconCritiqueGuidance(dislikedFound)}
+${inputMethod === "voice" ? VOICE_INPUT_SPELLING : ""}
+${
+  transcriptionFixes.length
+    ? `## Transcription repairs already applied
+Before you saw it, these dictated terms were auto-corrected to the nearest known wine term. Name them under "Transcription check" so the candidate knows, and do not treat them as the candidate's own spelling errors:
+${transcriptionFixes.map((s) => `- "${s.from}" → ${s.to}`).join("\n")}`
+    : ""
+}
 
 ## Output structure — follow this EXACTLY
 

@@ -378,7 +378,7 @@ export default function StudyPage() {
 
   // Run the combined final evaluation
   const runFinalEvaluation = useCallback(
-    async (answer: string) => {
+    async (answer: string, inputMethod: "typed" | "voice" = "typed") => {
       if (state.step !== "feedback" && state.step !== "answer") return;
 
       const stored = sessionStorage.getItem("mw-current-question");
@@ -402,6 +402,8 @@ export default function StudyPage() {
         userAnswer: answer,
         modelAnswer,
         paper: state.question.paper,
+        // Dictated answers get their spelling reported but not deducted (marking-principles).
+        inputMethod,
         // Revealed wines — constrain debrief imagery to these (regions/producers/varieties only).
         wines: state.question.wines.map((w) => ({ slot: w.slot, fullText: w.fullText })),
         ...(wineAppearances.length > 0 && { wineAppearances }),
@@ -449,7 +451,7 @@ export default function StudyPage() {
 
   // Handle answer submission — get the full evaluation
   const handleAnswerSubmit = useCallback(
-    async (answer: string) => {
+    async (answer: string, inputMethod: "typed" | "voice" = "typed") => {
       if (state.step !== "answer") return;
       timer.stop();
       dispatch({ type: "SUBMIT_ANSWER", answer });
@@ -486,6 +488,7 @@ export default function StudyPage() {
             action: "update",
             attemptId,
             user_answer: answer,
+            input_method: inputMethod,
           }),
         }).catch(() => {});
       }
@@ -533,14 +536,14 @@ export default function StudyPage() {
               clearInterval(poll);
               setWaitingForModel(false);
               setModelAnswerReady(true);
-              runFinalEvaluationRef.current(answer);
+              runFinalEvaluationRef.current(answer, inputMethod);
             }
           } catch {}
         }, 3000);
         return;
       }
 
-      runFinalEvaluationRef.current(answer);
+      runFinalEvaluationRef.current(answer, inputMethod);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state, attemptId, modelAnswerReady, timer.stop]

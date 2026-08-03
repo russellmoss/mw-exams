@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import { useDraft } from "@/lib/use-draft";
 import { FeedbackMarkdown } from "./FeedbackMarkdown";
 import { TimingBadge } from "./StudyTimer";
+import { OriginalStem } from "./OriginalStem";
 import { normalizePaceData, paceBadge, type PaceData } from "@/lib/pace";
 
 function parseModelAnswer(text: string): {
@@ -641,6 +642,20 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           </ExpandedSection>
 
           {isDrill && drill && <DrillResultSection drill={drill} />}
+
+          {/* The stem this drill was scored against. Comes from the generated_questions join the
+              history query already does, so no extra fetch and it works for historic attempts. */}
+          {isDrill && attempt.question_text && (
+            <OriginalStem
+              className="mt-3"
+              stem={{
+                questionText: attempt.question_text,
+                totalMarks: attempt.total_marks,
+                paper: attempt.paper,
+                familyLabel: attempt.family_label,
+              }}
+            />
+          )}
 
           {attempt.pre_glass_reasoning && (
             <ExpandedSection title="Pre-Glass Reasoning">

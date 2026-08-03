@@ -7,6 +7,7 @@ import { StemSniperCard, type Drill, type Prediction } from "../components/StemS
 import { StemSniperTastingCard, type TastingNote } from "../components/StemSniperTastingCard";
 import { StemSniperResult, type ScoreResult, type Revealed } from "../components/StemSniperResult";
 import { StemSniperIntro } from "../components/StemSniperIntro";
+import { OriginalStem } from "../components/OriginalStem";
 import { FeedbackButton } from "../components/FeedbackButton";
 import { ThinkingTrace } from "../components/ThinkingTrace";
 import { useProgressStream } from "@/lib/use-progress-stream";
@@ -14,9 +15,12 @@ import { useProgressStream } from "@/lib/use-progress-stream";
 type Status = "intro" | "loading" | "drilling" | "revealing" | "tasting" | "result" | "empty";
 type Mode = "sniper" | "reverse";
 type Movement = { stage1Percent: number; stage2Percent: number; delta: number };
+// What the candidate has narrowed the drill pool to. `variety` is null for "any grape".
+type DrillFilter = { paper: number | null; variety: string | null };
 
 const INTRO_SEEN_KEY = "stem-sniper-intro-seen";
 const MODE_KEY = "stem-sniper-mode";
+const VARIETY_KEY = "stem-sniper-variety";
 const PAPERS: { label: string; value: number | null }[] = [
   { label: "Any", value: null },
   { label: "P1 Whites", value: 1 },
@@ -32,6 +36,7 @@ export default function StemSniperPage() {
   const [movement, setMovement] = useState<Movement | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [paper, setPaper] = useState<number | null>(null);
+  const [variety, setVariety] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("sniper");
   const [stage1Preds, setStage1Preds] = useState<Prediction[] | null>(null);
   const [notes, setNotes] = useState<TastingNote[] | null>(null);
@@ -53,6 +58,8 @@ export default function StemSniperPage() {
   useEffect(() => {
     const m = typeof window !== "undefined" ? window.localStorage.getItem(MODE_KEY) : null;
     if (m === "reverse" || m === "sniper") setMode(m);
+    const v = typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null;
+    if (v) setVariety(v);
     fetch("/data/stem-autocomplete.json")
       .then((r) => r.json())
       .then((d) => setAuto({ varieties: d.varieties || [], regions: d.regions || [], styles: d.styles || [] }))
@@ -65,13 +72,25 @@ export default function StemSniperPage() {
   const drillTrace = useProgressStream();
   const notesTrace = useProgressStream();
 
+  // Everything that selects WHICH drill to serve. The prefetch is keyed on the whole object, so
+  // adding a filter here is enough to stop a stale warm drill being served for the previous one.
+  const filterKey = (f: DrillFilter) => `${f.paper ?? "any"}|${f.variety ?? "any"}`;
+  const filterQuery = (f: DrillFilter) => {
+    const p = new URLSearchParams();
+    if (f.paper) p.set("paper", String(f.paper));
+    if (f.variety) p.set("variety", f.variety);
+    const q = p.toString();
+    return q ? `?${q}` : "";
+  };
+
   // One fetch of a drill. /drill is the unified source: ~90% freshly generated through the shared
-  // engine (with a stem key derived on the spot), ~10% from the validated banked pool.
+  // engine (with a stem key derived on the spot), ~10% from the validated banked pool — though a
+  // variety filter always generates fresh, since the bank rarely holds a matching single-grape flight.
   // This is the SILENT variant — used for prefetching the next drill in the background, where
   // there's no UI to report to. The visible fetch goes through /drill/stream (see fetchNext).
-  const fetchDrill = useCallback(async (p: number | null): Promise<Drill | null> => {
+  const fetchDrill = useCallback(async (f: DrillFilter): Promise<Drill | null> => {
     try {
-      const res = await fetch(`/api/stem-sniper/drill${p ? `?paper=${p}` : ""}`);
+      const res = await fetch(`/api/stem-sniper/drill${filterQuery(f)}`);
       return res.ok ? ((await res.json()) as Drill) : null;
     } catch {
       return null;
@@ -81,7 +100,7 @@ export default function StemSniperPage() {
   // Same drill, streamed: phase labels plus the generating model's own reasoning arrive as the
   // engine works, and the final `result` event carries the identical stem-only payload.
   const streamDrill = useCallback(
-    (p: number | null) => drillTrace.run<Drill>(`/api/stem-sniper/drill/stream${p ? `?paper=${p}` : ""}`),
+    (f: DrillFilter) => drillTrace.run<Drill>(`/api/stem-sniper/drill/stream${filterQuery(f)}`),
     // `run` is stable (useCallback with no deps) — depending on the whole trace object would
     // re-create this on every streamed token.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,38 +109,40 @@ export default function StemSniperPage() {
 
   // Client-side prefetch of one drill. Fresh generation takes time, so the moment a drill is shown we
   // warm the NEXT one in the background; by the time the candidate finishes answering it's ready and
-  // "Next drill" is near-instant. Keyed by paper so a filter change discards a stale prefetch.
-  const prefetchRef = useRef<{ paper: number | null; promise: Promise<Drill | null> } | null>(null);
+  // "Next drill" is near-instant. Keyed by the full filter so changing paper OR variety discards it.
+  const prefetchRef = useRef<{ key: string; promise: Promise<Drill | null> } | null>(null);
   const startPrefetch = useCallback(
-    (p: number | null) => {
-      prefetchRef.current = { paper: p, promise: fetchDrill(p) };
+    (f: DrillFilter) => {
+      prefetchRef.current = { key: filterKey(f), promise: fetchDrill(f) };
     },
     [fetchDrill]
   );
 
   const fetchNext = useCallback(
-    async (p: number | null) => {
+    async (f: DrillFilter) => {
       setStatus("loading");
       setResult(null);
       setMovement(null);
       setStage1Preds(null);
       setNotes(null);
-      // Use a ready/in-flight prefetched drill for this paper if we have one (near-instant, nothing
-      // to narrate); otherwise generate live through the streaming endpoint so the wait is visible.
+      // Use a ready/in-flight prefetched drill for this exact filter if we have one (near-instant,
+      // nothing to narrate); otherwise generate live through the streaming endpoint so the wait is
+      // visible. A variety filter never has a usable prefetch on the first drill after the change,
+      // which is the right trade: better a visible 30s wait than the wrong grape instantly.
       let promise: Promise<Drill | null>;
-      if (prefetchRef.current && prefetchRef.current.paper === p) {
+      if (prefetchRef.current && prefetchRef.current.key === filterKey(f)) {
         promise = prefetchRef.current.promise;
         prefetchRef.current = null;
         drillTrace.reset();
       } else {
-        promise = streamDrill(p);
+        promise = streamDrill(f);
       }
       let d = await promise;
-      if (!d) d = await streamDrill(p); // prefetch missed (e.g. transient gen failure) — try once live
+      if (!d) d = await streamDrill(f); // prefetch missed (e.g. transient gen failure) — try once live
       if (d && d.questionId) {
         setDrill(d);
         setStatus("drilling");
-        startPrefetch(p); // warm the next drill while the candidate works on this one
+        startPrefetch(f); // warm the next drill while the candidate works on this one
       } else {
         setDrill(null);
         setStatus("empty");
@@ -139,7 +160,9 @@ export default function StemSniperPage() {
     // straight to a drill. The toggle in the header can reopen it anytime.
     const seen = typeof window !== "undefined" && window.localStorage.getItem(INTRO_SEEN_KEY);
     if (seen) {
-      fetchNext(paper);
+      // Read the saved variety straight from storage rather than from state: the effect that
+      // restores it into state runs on this same pass, so `variety` would still be null here.
+      fetchNext({ paper, variety: typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null });
     } else {
       setStatus("intro");
     }
@@ -154,7 +177,7 @@ export default function StemSniperPage() {
       window.localStorage.setItem(INTRO_SEEN_KEY, "1");
       window.localStorage.setItem(MODE_KEY, m);
     }
-    fetchNext(paper);
+    fetchNext({ paper, variety });
   };
 
   // Sniper scoring (also the graceful fallback if the Layer-B reveal can't be produced).
@@ -233,7 +256,19 @@ export default function StemSniperPage() {
 
   const selectPaper = (p: number | null) => {
     setPaper(p);
-    fetchNext(p);
+    fetchNext({ paper: p, variety });
+  };
+
+  // Choosing a grape restricts every subsequent drill to it. Persisted, so the candidate can drill
+  // one variety across a session without re-picking after each reload.
+  const selectVariety = (v: string | null) => {
+    const next = v && v.trim() ? v.trim() : null;
+    setVariety(next);
+    if (typeof window !== "undefined") {
+      if (next) window.localStorage.setItem(VARIETY_KEY, next);
+      else window.localStorage.removeItem(VARIETY_KEY);
+    }
+    fetchNext({ paper, variety: next });
   };
 
   if (loading || !user) return null;
@@ -281,7 +316,7 @@ export default function StemSniperPage() {
           </div>
 
           {/* Paper filter */}
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-3">
             {PAPERS.map((p) => (
               <button
                 key={p.label}
@@ -295,6 +330,48 @@ export default function StemSniperPage() {
                 {p.label}
               </button>
             ))}
+          </div>
+
+          {/* Variety filter. Free text against the same autocomplete the answer fields use, so a
+              grape that isn't in the list can still be drilled. Applies on change/Enter/blur. */}
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <span className="text-[11px] font-medium text-muted">Grape</span>
+            <datalist id="ss-filter-varieties">
+              {auto.varieties.map((v) => (
+                <option key={v} value={v} />
+              ))}
+            </datalist>
+            <input
+              list="ss-filter-varieties"
+              defaultValue={variety ?? ""}
+              key={variety ?? ""}
+              placeholder="Any grape"
+              aria-label="Filter drills by grape variety"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  selectVariety((e.target as HTMLInputElement).value);
+                }
+              }}
+              onBlur={(e) => {
+                if ((e.target.value.trim() || null) !== variety) selectVariety(e.target.value);
+              }}
+              className="bg-background border border-border rounded-full px-3 py-1.5 text-xs w-44 focus:outline-none focus:border-accent/60"
+            />
+            {variety && (
+              <>
+                <button
+                  onClick={() => selectVariety(null)}
+                  className="px-2.5 py-1 rounded-full text-[11px] border border-accent/40 bg-accent/15 text-accent hover:bg-accent/25 transition-colors cursor-pointer"
+                  title="Clear the grape filter"
+                >
+                  {variety} ✕
+                </button>
+                <span className="text-[10px] text-muted/80">
+                  filtered drills are generated live — expect a longer wait
+                </span>
+              </>
+            )}
           </div>
 
           {/* Both waits are spoiler-gated: the collapsed row shows only our own phase labels
@@ -384,7 +461,23 @@ export default function StemSniperPage() {
                 result={result.result}
                 revealed={result.revealed}
                 submitting={status !== "result"}
-                onNext={() => fetchNext(paper)}
+                onNext={() => fetchNext({ paper, variety })}
+              />
+              {/* The stem the feedback above is grading. `drill` survives scoring — it's only
+                  cleared when the next drill is fetched — so no extra request is needed. */}
+              <OriginalStem
+                className="mt-4"
+                stem={
+                  drill
+                    ? {
+                        questionText: drill.questionText,
+                        totalMarks: drill.totalMarks,
+                        paper: drill.paper,
+                        familyLabel: drill.familyLabel,
+                        visuals: drill.visuals,
+                      }
+                    : null
+                }
               />
             </>
           )}

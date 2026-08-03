@@ -205,7 +205,10 @@ export async function buildQuestionGenerationPrompt(
     wines: { slot: number; fullText: string }[];
     paper: number;
     family: string;
-  } | null
+  } | null,
+  // Stem Sniper's variety drill filter. When set, every wine must be this grape and the contrast has
+  // to come from somewhere else. Undefined for every other caller — normal generation is unchanged.
+  variety?: string | null
 ): Promise<{ system: string; user: string }> {
   const ctx = loadPipelineContext();
 
@@ -444,7 +447,23 @@ Weight recent exam years (2021-2025) more heavily when designing sub-questions. 
 - Marks MUST total 25 per wine.
 A question that fails any of these is INVALID and will be rejected by the validator — do not output it.`;
 
-  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.
+  // The candidate has chosen to drill one grape. Hold the variety fixed and move the contrast onto
+  // origin/style/maturity — a stem that asks for "different varieties" is simply the wrong stem here.
+  const varietyConstraint = variety
+    ? `
+
+## MANDATORY VARIETY CONSTRAINT — overrides any conflicting instruction below
+
+The candidate is drilling ${variety}. EVERY wine in this flight MUST have ${variety} as its dominant grape (>50% of the blend, or the grape the appellation mandates — e.g. Chablis for Chardonnay).
+
+- Build the pedagogical contrast from ORIGIN, climate, style, oak, maturity, quality tier or price. NOT from the grape.
+- Do NOT write a stem that implies differing varieties ("each from a different grape variety", "different varieties from the same country"). Choose a stem whose logic holds for a single-variety flight.
+- Do NOT satisfy this by naming ${variety} in the stem — the stem must stay blind. The constraint governs the WINES.
+- If ${variety} cannot plausibly fill a Paper ${paper} flight, output exactly CONSTRAINT_IMPOSSIBLE and nothing else.
+`
+    : "";
+
+  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.${varietyConstraint}
 
 Output in this EXACT format:
 

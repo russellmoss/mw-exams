@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluation-prompt";
 import { scanDislikedWording } from "@/lib/prompts/tasting-lexicon";
+import { normalizeDictatedTerms } from "@/lib/dictation-normalizer";
+import { loadWineTerms } from "@/lib/wine-terms";
 import { extractGradingMeta, recordGradingOverrideCheck } from "@/lib/grading-telemetry";
 import { requireApiKey } from "@/lib/api-key";
 import { logClaudeUsage } from "@/lib/usage-log";
@@ -18,7 +20,10 @@ export async function POST(request: Request) {
     const keyResult = await requireApiKey(request);
     if (keyResult instanceof Response) return keyResult;
 
-    const { questionText, answer, modelAnswer, paper } = await request.json();
+    const body = await request.json();
+    const { questionText, modelAnswer, paper } = body;
+    let answer: string = body.answer;
+    const inputMethod: "typed" | "voice" = body.inputMethod === "voice" ? "voice" : "typed";
 
     if (!questionText || !answer || !paper) {
       return new Response(
@@ -28,6 +33,17 @@ export async function POST(request: Request) {
     }
 
     const client = new Anthropic({ apiKey: keyResult.apiKey });
+
+    // Repair wine terms the speech-to-text engine mangled BEFORE anything reads the answer, so the
+    // grader (and the disliked-wording scan) sees what the candidate meant. Conservative by design:
+    // only unambiguous matches are rewritten. Every change is disclosed to the candidate below
+    // rather than applied silently — they need to know a term came out wrong.
+    let transcriptionFixes: { from: string; to: string }[] = [];
+    if (inputMethod === "voice") {
+      const normalized = normalizeDictatedTerms(answer, loadWineTerms());
+      answer = normalized.text;
+      transcriptionFixes = normalized.substitutions;
+    }
 
     const dislikedFound = scanDislikedWording(answer);
 
@@ -39,9 +55,17 @@ export async function POST(request: Request) {
     const { passages: kbPassages } = await getKnowledgeContext({ questionText, family: null });
     const verification = buildVerificationBlock(kbPassages);
     const systemPrompt =
-      buildAnswerEvaluationSystemPrompt(paper, dislikedFound) + (verification ? `
+      buildAnswerEvaluationSystemPrompt(paper, dislikedFound, inputMethod) +
+      (verification ? `
 
-${verification}` : "");
+${verification}` : "") +
+      (transcriptionFixes.length
+        ? `
+
+## Transcription repairs already applied
+Before you saw it, these dictated terms were auto-corrected to the nearest known wine term. List them under "Transcription check" so the candidate knows, and do not treat them as the candidate's own spelling errors:
+${transcriptionFixes.map((s) => `- "${s.from}" → ${s.to}`).join("\n")}`
+        : "");
 
     let userMessage = `## Question
 ${questionText}

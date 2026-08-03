@@ -466,6 +466,8 @@ export async function updateAttempt(
     pre_glass_feedback: string;
     tasting_notes: string[];
     user_answer: string;
+    // How the answer was produced (migration 022). Written alongside user_answer.
+    input_method: "typed" | "voice";
     answer_feedback: string;
     pass_estimate: string;
     marks_estimate: string;
@@ -543,8 +545,13 @@ export async function updateAttempt(
     return rows[0] as UserAttempt;
   }
   if (data.user_answer !== undefined) {
+    // input_method rides along with the answer it describes (migration 022) — 'voice' means the
+    // grader reported spelling without deducting for it. Guarded to the two legal values because
+    // the column carries a CHECK constraint; anything else keeps the 'typed' default.
+    const inputMethod = data.input_method === "voice" ? "voice" : "typed";
     const rows = await sql`
-      UPDATE user_attempts SET user_answer = ${data.user_answer} WHERE id = ${attemptId} RETURNING *
+      UPDATE user_attempts SET user_answer = ${data.user_answer}, input_method = ${inputMethod}
+      WHERE id = ${attemptId} RETURNING *
     `;
     return rows[0] as UserAttempt;
   }

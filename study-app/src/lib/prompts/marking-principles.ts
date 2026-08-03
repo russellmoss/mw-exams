@@ -43,3 +43,22 @@ Reserve the highest marks for answers that get "under the skin of the wine" (202
 
 ## Tone — faithful verdict, constructive voice
 Grade to the examiner-faithful standard above — INCLUDING tipping a borderline to FAIL on a clear howler and zeroing fabricated/cascade answers — but keep the WRITTEN feedback constructive and coaching: lead with what worked, be specific and actionable, and frame each gap as the path to the next band. The verdict is honest; the voice is encouraging.`;
+
+/**
+ * Spelling guidance for a DICTATED answer. Appended to a grader prompt only when the candidate
+ * marked themselves as dictating.
+ *
+ * The Professionalism rule above deducts for misspelled appellation, variety and producer names,
+ * which is faithful to the IMW. It stops measuring the CANDIDATE when the words came out of a
+ * speech-to-text engine — the deduction lands on the transcriber instead. So: still report the
+ * errors, because the candidate needs to know a term came out wrong, but take them out of the mark,
+ * and say plainly that the real exam is handwritten and spelling will count there.
+ */
+export const VOICE_INPUT_SPELLING = `
+## Input method: DICTATED (overrides the Professionalism rule above, for spelling ONLY)
+This answer was spoken into a voice-to-text tool, not typed. Therefore:
+- Do NOT deduct marks for misspellings of appellations, varieties, producers or regions, and do not let them influence the PASS/BORDERLINE/FAIL verdict or the estimated marks.
+- DO still list them, in a short "Transcription check" section at the end of the feedback, so the candidate knows which terms came out wrong.
+- Add one sentence there noting that the real MW practical is HANDWRITTEN, so these spellings will be marked in the exam and are worth learning by hand.
+- This applies to spelling only. Everything else — wrong facts, howlers, self-contradiction, vague jargon, weak reasoning — is graded exactly as normal.
+- A misspelling that changes the CLAIM (naming a different grape or region than the candidate evidently meant) is a factual error, not a transcription artefact, and is graded as one.`;

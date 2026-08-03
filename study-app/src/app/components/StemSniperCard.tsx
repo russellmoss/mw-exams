@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { isDatalistCommit, shouldCommitOnEnter } from "@/lib/chip-input";
 
 export type Tier = "STRONG" | "PLAUSIBLE" | "CURVEBALL";
 export interface Prediction {
@@ -100,10 +101,13 @@ function commit(chips: string[], pending: string): string[] {
  * `max === 1` (hedging off — Reverse Tasting) renders exactly the input this card has always had:
  * no chips, no comma handling, no committing. Nothing about that surface changes.
  *
- * With hedging on, comma commits a chip ("Chenin, Riesling" is how a hedge already gets written)
- * and Backspace on an empty input removes the last one. Enter and Ctrl/⌘+Enter are passed through
- * untouched so the card's "Enter = add wine, Ctrl+Enter = submit" shortcuts keep working — Stem
- * Sniper is a speed drill and the entry rhythm must not change.
+ * With hedging on, a chip is committed by comma ("Chenin, Riesling" is how a hedge already gets
+ * written), by picking from the dropdown, by Enter while text is pending, or by leaving the field.
+ * Backspace on an empty input removes the last chip.
+ *
+ * Ctrl/⌘+Enter (submit) and Enter on an EMPTY input (add wine) are still passed straight through —
+ * Stem Sniper is a speed drill and that entry rhythm must not change. See src/lib/chip-input.ts for
+ * the two commit predicates and their tests.
  */
 function ChipField({
   label,
@@ -111,6 +115,7 @@ function ChipField({
   chips,
   pending,
   listId,
+  options,
   placeholder,
   max,
   lead,
@@ -125,6 +130,7 @@ function ChipField({
   chips: string[];
   pending: string;
   listId: string;
+  options: readonly string[]; // the datalist's own options, for exact-match commit-on-pick
   placeholder: string;
   max: number; // 1 = plain field, no chips
   lead: number | null; // index of the lead chip, or null when not in blend mode
@@ -143,12 +149,30 @@ function ChipField({
       onCommit(pending);
       return;
     }
+    // Enter with text pending commits it rather than adding a wine. Ctrl/⌘+Enter and Enter on an
+    // empty field are excluded inside the predicate and fall through to the card's shortcuts.
+    if (shouldCommitOnEnter({ multi, key: e.key, pending, metaKey: e.metaKey, ctrlKey: e.ctrlKey })) {
+      e.preventDefault();
+      onCommit(pending);
+      return;
+    }
     if (multi && e.key === "Backspace" && !pending && chips.length > 0) {
       e.preventDefault();
       onRemove(chips.length - 1);
       return;
     }
     onKeyDown(e);
+  };
+
+  // Picking from the dropdown commits straight away; typing just updates the pending text.
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const inputType = (e.nativeEvent as Partial<InputEvent>)?.inputType;
+    if (isDatalistCommit({ multi, value, inputType, options })) {
+      onCommit(value);
+      return;
+    }
+    onPending(value);
   };
 
   if (!multi) {
@@ -158,7 +182,7 @@ function ChipField({
         <input
           list={listId}
           value={pending}
-          onChange={(e) => onPending(e.target.value)}
+          onChange={handleChange}
           onKeyDown={handleKey}
           placeholder={placeholder}
           className="bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent/60"
@@ -218,7 +242,7 @@ function ChipField({
             list={listId}
             value={pending}
             disabled={full}
-            onChange={(e) => onPending(e.target.value)}
+            onChange={handleChange}
             onKeyDown={handleKey}
             onBlur={() => onCommit(pending)}
             placeholder={full ? "" : chips.length ? "or…" : placeholder}
@@ -395,6 +419,7 @@ export function StemSniperCard({
                   chips={row.grapes}
                   pending={row.grapePending}
                   listId={isP3 ? "ss-styles" : "ss-varieties"}
+                  options={isP3 ? styles : varieties}
                   placeholder={isP3 ? "e.g. Vintage Port" : "e.g. Chardonnay"}
                   max={allowHedge ? MAX_HEDGE : 1}
                   lead={blend ? Math.min(row.leadGrapeIndex, row.grapes.length - 1) : null}
@@ -410,6 +435,7 @@ export function StemSniperCard({
                   chips={row.countries}
                   pending={row.countryPending}
                   listId="ss-regions"
+                  options={regions}
                   placeholder="e.g. France"
                   max={allowHedge ? MAX_HEDGE : 1}
                   lead={null}

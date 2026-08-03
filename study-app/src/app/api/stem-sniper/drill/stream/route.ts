@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 /**
- * GET /api/stem-sniper/drill/stream?paper=&family=  →  text/event-stream
+ * GET /api/stem-sniper/drill/stream?paper=&family=&variety=  →  text/event-stream
  *
  * Same producer as the sibling JSON route, but reports as it works: phase labels from our own
  * pipeline plus the generating model's summarized reasoning, ending in a `result` event carrying
@@ -25,6 +25,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const paperRaw = searchParams.get("paper");
   const family = searchParams.get("family");
+  const variety = searchParams.get("variety");
   const meta: UsageMeta = { source: keyResult.source, userId: keyResult.user.id };
   const apiKey = keyResult.apiKey;
 
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
     const drill = await produceDrill({
       paper: paperRaw ? Number(paperRaw) : null,
       family,
+      variety,
       apiKey,
       meta,
       emit,

@@ -361,7 +361,9 @@ export async function generateFreshQuestion(
   apiKey: string,
   meta?: UsageMeta,
   recentlyServedIds?: Set<string>,
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
+  variety?: string | null
 ) {
   const client = new Anthropic({ apiKey });
 
@@ -395,7 +397,8 @@ export async function generateFreshQuestion(
           paper: latestQuestion.paper,
           family: latestQuestion.family,
         }
-      : null
+      : null,
+    variety
   );
 
   let parsed: ReturnType<typeof parseGeneratedQuestion> = null;
@@ -533,6 +536,9 @@ export async function generateFreshQuestion(
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
     const markCheck = validateMarkAllocation(candidate.questionText, candidate.wines.length);
     const consistencyCheck = validateGenerationConsistency(candidate.generationReasoning, candidate.wines);
+    // Critical and never relaxed: the candidate explicitly asked for this grape. It only fires on a
+    // positively-identified wrong variety, so it cannot stall generation on undetectable wines.
+    const varietyFilterCheck = validateVarietyFilter(variety, candidate.wines);
 
     // Important validators (relax on attempt 6+)
     const relaxImportant = attempt >= 6;
@@ -574,6 +580,7 @@ export async function generateFreshQuestion(
     lastViolations = [
       ...paperScopeCheck.violations,
       ...varietyCheck.violations,
+      ...varietyFilterCheck.violations,
       ...markCheck.violations,
       ...consistencyCheck.violations,
       ...originDiversityCheck.violations,
@@ -735,6 +742,42 @@ function normalizeVariety(value: string): string {
     .replace("pinot gris", "pinot grigio")
     .replace("nerello", "nerello mascalese")
     .trim();
+}
+
+// Fold accents so a requested "Sémillon" matches the unaccented token the grape regexes detect.
+function foldVariety(value: string): string {
+  return normalizeVariety(value)
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
+}
+
+/**
+ * Enforce Stem Sniper's variety drill filter: if the candidate asked to drill one grape, every wine
+ * has to be that grape.
+ *
+ * Deliberately one-sided. `detectPrimaryVariety` reads the grape out of the wine name or its
+ * appellation, and plenty of legitimate wines defeat it (an estate name with no grape token and no
+ * appellation entry returns "unknown"). Failing those would make the filter unusable, so only a
+ * CONFIDENT mismatch — a variety we positively identified as something else — is a violation.
+ * A blend entry ("semillon blend") counts as a match for its base grape, since the flight is still
+ * centred on the requested variety.
+ */
+export function validateVarietyFilter(
+  variety: string | null | undefined,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  if (!variety || !variety.trim()) return { valid: true, violations: [] };
+  const want = foldVariety(variety);
+  const violations: string[] = [];
+  for (const wine of wines) {
+    const got = foldVariety(detectPrimaryVariety(wine.fullText));
+    if (got === "unknown") continue; // undetectable — trust the generator rather than block
+    if (got === want || got.startsWith(`${want} `) || want.startsWith(`${got} `)) continue;
+    violations.push(
+      `Wine ${wine.slot}: "${wine.fullText}" reads as ${got}, but this flight was filtered to ${variety}`
+    );
+  }
+  return { valid: violations.length === 0, violations };
 }
 
 function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
