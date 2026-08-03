@@ -134,6 +134,41 @@ const GOLDEN: Golden[] = [
     topics: ["stabilisation"],
     minOnTopic: 2,
   },
+  // --- fortified corpus (added by scripts/kb-fortified-build.mjs) -------------------------------
+  // These are the queries that used to be SUPPRESSED outright, and before that returned Champagne
+  // mousse studies. requirePublisher is the point of each: it is not enough that something comes
+  // back, it must come back from the body that regulates the wine.
+  {
+    name: "sherry solera and biological ageing",
+    query: "Explain the criaderas and solera system and how biological ageing under flor differs from oxidative ageing.",
+    topics: ["fortified"],
+    minOnTopic: 4,
+    requirePublisher: "Consejo Regulador DO Jerez-Xérès-Sherry",
+  },
+  {
+    name: "sherry fortification levels",
+    query: "To what alcohol is a fino fortified compared with an oloroso, and why does that decide the ageing style?",
+    topics: ["fortified"],
+    minOnTopic: 4,
+  },
+  {
+    name: "port fortification and benefício",
+    query: "How is Port fortified? Discuss the timing of the aguardente addition and how it sets residual sugar.",
+    topics: ["fortified"],
+    minOnTopic: 3,
+  },
+  {
+    name: "madeira estufagem and canteiro",
+    query: "Explain estufagem and canteiro ageing in Madeira and their effect on the finished wine.",
+    topics: ["fortified"],
+    minOnTopic: 3,
+  },
+  {
+    name: "vin doux naturel mutage",
+    query: "Describe mutage in the production of a vin doux naturel such as Banyuls or Rivesaltes.",
+    topics: ["fortified"],
+    minOnTopic: 2,
+  },
   {
     name: "German white production (language reach)",
     query: "How was this German Riesling produced — must handling, fermentation and residual sugar?",
@@ -246,11 +281,17 @@ describe("retrieval gate", () => {
     ["F1", "Identify the variety and country of origin.", false],
     ["F2", "Identify the region of origin as precisely as possible.", false],
     [null, "Assess the commercial appeal and likely retail price.", false],
-    // Fortified suppression must beat a production family — the corpus has 5 chunks on sherry.
-    ["F5", "Comment on the method of production of these fortified wines.", false],
-    ["F5", "Explain the oxidative character of Wine 9 and how it was achieved.", false],
-    [null, "Wine 11 is a Sherry. Describe how it was made.", false],
-    [null, "Discuss the production of this vin jaune.", false],
+    // FLIPPED once the fortified corpus landed. These asserted `false` while the corpus held 5 sherry
+    // chunks; it now holds 267, so suppressing them would be withholding real coverage. The
+    // assertions are kept rather than deleted — they are the regression guard proving the gate
+    // actually reopened.
+    ["F5", "Comment on the method of production of these fortified wines.", true],
+    ["F5", "Explain the oxidative character of Wine 9 and how it was achieved.", true],
+    [null, "Wine 11 is a Sherry. Describe how it was made.", true],
+    [null, "Discuss the production of this vin jaune.", true],
+    [null, "Explain the solera and criaderas system used for this wine.", true],
+    [null, "How was this Tawny Port aged?", true],
+    [null, "Discuss estufagem in the production of this Madeira.", true],
     // F4: the corpus is loud and backwards on botrytis — 56 chunks frame it as rot to control, 9 as
     // noble rot. Measured: this query returned six passages, five tagged `faults`.
     ["F5", "Explain how the sweetness of this botrytis-affected wine was achieved.", false],

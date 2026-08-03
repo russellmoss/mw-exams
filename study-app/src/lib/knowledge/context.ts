@@ -25,22 +25,35 @@ const PRODUCTION_INTENT =
   /\bwinemak|\bvinif|\bproduction\b|\bproduced\b|\bmethod of production\b|\bmaturation|\bfermentat|\belevage|\bélevage|\blees\b|\bmalolactic|\boak\b|\bhow [a-z ]+ (made|produced)\b/i;
 
 /**
- * FORTIFIED / OXIDATIVE SUPPRESSION — the F3 finding, enforced in code rather than trusted to the prompt.
+ * FORTIFIED / OXIDATIVE — SUPPRESSION LIFTED (was the F3 finding).
  *
- * Measured on the live corpus: 11 chunks classified `fortified`, and FIVE chunks in total mentioning
- * solera, criadera, flor, fino, amontillado, oloroso, madeira or estufagem. Viticulture and enology
- * research institutes do not publish on sherry and port. A smoke query about oxidative fortified wine
- * returned Champagne mousse studies and a German institute's annual report — not a near-miss, just
- * confidently wrong material presented with tier-1 publishers attached.
+ * The original guard existed because the corpus had FIVE chunks in 3,979 mentioning solera, criadera,
+ * flor, fino, amontillado, oloroso, madeira or estufagem, and an oxidative-fortified query returned
+ * Champagne mousse studies. Suppressing was right: confidently wrong tier-1 material is worse than
+ * nothing.
  *
- * This is a code guard and not a prompt line for the same reason the age warnings are computed rather
- * than described: a prose instruction is advisory, and the failure it prevents is one where every
- * retrieved passage looks authoritative. Fortified is a Paper 3 staple, so this will fire often.
+ * That condition no longer holds. scripts/kb-fortified-build.mjs added 1,196 chunks from the bodies
+ * that actually regulate these wines — Consejo Regulador DO Jerez (including the DOP product
+ * specification), IVDP, CIVR — plus peer-reviewed open-access reviews. Re-measured on the live corpus:
  *
- * Remove this ONLY when a fortified corpus exists (Consejo Regulador de Jerez, IVDP, IVBAM).
+ *   solera / criadera / flor / fino / amontillado / oloroso / manzanilla   5 -> 267 chunks
+ *   estufagem / canteiro / frasqueira / sercial / verdelho / bual          ~0 -> 62
+ *   mutage / vin doux naturel / banyuls / rivesaltes / maury / rancio      ~0 -> 25
+ *   benefício / aguardente / tawny / colheita / LBV / vintage port         ~0 -> 22
+ *
+ * So the gate lets these through now. Two honest caveats, recorded because they bound what the
+ * passages can be trusted for:
+ *   - MADEIRA rests on the peer-reviewed literature, not the regulator. IVBAM blocks automated
+ *     fetching, so estufagem/canteiro coverage is research chemistry rather than an official
+ *     specification.
+ *   - VDN is the thinnest at 25 chunks; the CIVR site is promotional rather than technical.
+ *
+ * BOTRYTIS IS A SEPARATE QUESTION and stays suppressed — see below. The fortified build did not
+ * touch it (it added exactly one noble-rot chunk), which is the point: these are different holes and
+ * filling one says nothing about the other.
  */
-const FORTIFIED_OR_OXIDATIVE =
-  /\bfortified\b|\bsherry\b|\bport\b|\bmadeira\b|\bmarsala\b|\bvin jaune\b|\boxidative\b|\bsolera\b|\bflor\b|\brancio\b|\bvin doux naturel\b|\bmistelle\b/i;
+const FORTIFIED_INTENT =
+  /\bfortified\b|\bsherry\b|\bjerez\b|\bmanzanilla\b|\bfino\b|\bamontillado\b|\boloroso\b|\bpalo cortado\b|\bsolera\b|\bcriadera\b|\bflor\b|\bport\b|\btawny\b|\bcolheita\b|\bmadeira\b|\bestufagem\b|\bcanteiro\b|\bmarsala\b|\bvin jaune\b|\boxidative\b|\brancio\b|\bvin doux naturel\b|\bmutage\b|\bbanyuls\b|\brivesaltes\b|\bmaury\b|\bmistelle\b/i;
 
 /**
  * BOTRYTIS SUPPRESSION — the same failure mode as fortified, found by the Unit 5 eval, and more
@@ -72,11 +85,14 @@ export interface GateDecision {
 export function shouldRetrieve(opts: { questionText: string; family?: string | null }): GateDecision {
   const text = opts.questionText ?? "";
 
-  if (FORTIFIED_OR_OXIDATIVE.test(text)) {
-    return { retrieve: false, reason: "suppressed: fortified/oxidative — corpus has no coverage (F3)" };
-  }
   if (BOTRYTIS_SWEET.test(text)) {
     return { retrieve: false, reason: "suppressed: botrytis/dried-grape — corpus frames rot as disease (F4)" };
+  }
+  // Fortified/oxidative is now a POSITIVE signal rather than a suppression: a question naming sherry,
+  // port, madeira or a VDN is a production question even when the stem never says "winemaking", and
+  // the corpus now answers it.
+  if (FORTIFIED_INTENT.test(text)) {
+    return { retrieve: true, reason: "fortified/oxidative — covered by the fortified corpus" };
   }
   if (opts.family && PRODUCTION_FAMILIES.has(opts.family)) {
     return { retrieve: true, reason: `family ${opts.family}` };
