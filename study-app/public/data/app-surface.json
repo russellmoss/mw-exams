@@ -68,6 +68,7 @@
     "/api/stem-sniper/submit-reverse",
     "/api/user/api-key",
     "/api/user/change-password",
+    "/api/user/pace-preference",
     "/api/user/sound-preference",
     "/api/user/stem-detail"
   ],
@@ -89,6 +90,8 @@
     "ModelAnswerReveal",
     "NavBar",
     "NotificationBell",
+    "PaceReport",
+    "PaceStrip",
     "PaperSelector",
     "PreGlassReasoning",
     "QuestionDisplay",
