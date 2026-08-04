@@ -376,7 +376,7 @@ export async function getEligibleBankedQuestions(
 // ── Fill the Bank: bulk generation + review gate (migration 022) ─────────────────────────────────
 //
 // A bank_batch is one bulk run. The worker (src/lib/bank-worker.ts) writes generated_count after
-// every persisted item so progress survives a tab close; the Admin card + /admin/bank poll the
+// every persisted item so progress survives a tab close; the Fill-the-Bank section of the Admin card polls the
 // helpers below. Every question the worker creates lands as status='pending' with the batch_id set,
 // and is invisible to candidates until an admin approves it (see the status='approved' filters above).
 
@@ -480,7 +480,7 @@ export async function extendBatchForReplacement(id: string): Promise<BankBatch |
   return (rows[0] as BankBatch) ?? null;
 }
 
-// The /admin/bank "Replace anything I bin" toggle writes here. Never re-opens a run; it only sets
+// The Fill-the-Bank reviewer's "Replace anything I bin" toggle writes here. Never re-opens a run; it only sets
 // the flag the review endpoint reads when an admin bins a question.
 export async function setBatchReplaceRejected(id: string, replaceRejected: boolean): Promise<void> {
   const sql = getDb();

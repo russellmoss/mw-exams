@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { useBankPending } from "@/lib/use-bank-pending";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserMenu } from "./UserMenu";
@@ -12,12 +11,6 @@ import { UserMenu } from "./UserMenu";
 export function NavBar() {
   const { user, loading } = useAuth();
   const pathname = usePathname();
-
-  // Admin-only "Bank" link carries an amber dot when there are generated questions waiting for
-  // review. The count is polled (mount + every 60s, no-store) by the shared useBankPending hook, so
-  // the NavBar and the UserMenu item stay in lock-step.
-  const isAdmin = !!user?.isAdmin;
-  const bankPending = useBankPending();
 
   // Don't show nav on login page
   if (pathname === "/login") return null;
@@ -85,26 +78,10 @@ export function NavBar() {
           >
             History
           </Link>
-          {isAdmin && (
-            <Link
-              href="/admin/bank"
-              className={`relative text-sm font-medium transition-colors ${
-                pathname.startsWith("/admin/bank")
-                  ? "text-accent"
-                  : "text-muted hover:text-foreground"
-              }`}
-            >
-              Bank
-              {bankPending > 0 && (
-                <span
-                  className="absolute -top-1 -right-2.5 w-2 h-2 rounded-full bg-accent"
-                  aria-label={`${bankPending} waiting to review`}
-                />
-              )}
-            </Link>
-          )}
-          {/* Methodology, Settings and Admin now live in the user menu on the right — this row is
-              the study surfaces only. */}
+          {/* "Fill the Bank" lives INSIDE the Admin settings card (per spec), reached via the
+              user-menu Admin link and the NotificationBell "ready to review" entry — never as its
+              own top-level nav tab or page. Methodology, Settings and Admin sit in the user menu on
+              the right, so this row is the study surfaces only. */}
         </div>
 
         <div className="flex items-center gap-2">
