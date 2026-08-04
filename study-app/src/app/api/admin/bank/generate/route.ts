@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
-import { getRunningBatchForPaper } from "@/lib/db";
+import { getRunningBatchForPaper, type BankTargeting } from "@/lib/db";
 import {
   startBankBatch,
   runBankBatch,
@@ -9,6 +9,23 @@ import {
   MIN_COUNT,
   MAX_COUNT,
 } from "@/lib/bank-worker";
+
+// Normalise a raw targeting body into the whitelisted soft-constraint shape, dropping anything
+// unrecognised. Returns null when no usable targeting was supplied (an untargeted run).
+function parseTargeting(raw: unknown): BankTargeting | null {
+  if (!raw || typeof raw !== "object") return null;
+  const t = raw as Record<string, unknown>;
+  const out: BankTargeting = {};
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+  if (isValidPaper(Number(t.paper))) out.paper = Number(t.paper);
+  if (str(t.questionType)) out.questionType = str(t.questionType);
+  if (str(t.curveball)) out.curveball = str(t.curveball);
+  if (str(t.flightSize)) out.flightSize = str(t.flightSize);
+  if (str(t.grape)) out.grape = str(t.grape);
+  if (str(t.region)) out.region = str(t.region);
+  if (str(t.priceBand)) out.priceBand = str(t.priceBand);
+  return Object.keys(out).length > 0 ? out : null;
+}
 
 export const runtime = "nodejs";
 // The bulk run is driven in after() (post-response), so this invocation stays alive for the worker's
@@ -29,7 +46,10 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const paper = Number(body.paper);
+  // Bank Health "Generate more like this" sends an optional targeting object. Its paper (when set)
+  // is the batch's paper, so a slice can generate for its own paper without a separate field.
+  const targeting = parseTargeting(body.targeting);
+  const paper = Number(body.paper ?? targeting?.paper);
   const count = Math.round(Number(body.count));
   const replaceRejected = !!body.replaceRejected;
 
@@ -53,6 +73,7 @@ export async function POST(request: Request) {
     count,
     replaceBinned: replaceRejected,
     createdBy: keyResult.user.id,
+    targeting,
   });
 
   const baseUrl = new URL(request.url).origin;

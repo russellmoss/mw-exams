@@ -21,8 +21,9 @@ import {
   getBatchActualCost,
   getBankFamilyHistogram,
   type BankBatch,
+  type BankTargeting,
 } from "@/lib/db";
-import { generateFreshQuestion, type UsageMeta } from "@/lib/question-engine";
+import { generateFreshQuestion, familyForQuestionType, type UsageMeta } from "@/lib/question-engine";
 
 // Families valid for each paper, from the corpus paper×family grid (EK-0077). Requested questions
 // are distributed round-robin across these so a bulk run ladders the whole family spread rather than
@@ -101,6 +102,8 @@ export async function startBankBatch(input: {
   count: number;
   replaceBinned: boolean;
   createdBy: number | null;
+  // Optional Bank Health targeting, persisted on the batch so a resumed invocation keeps the aim.
+  targeting?: BankTargeting | null;
 }): Promise<BankBatch> {
   const range = estimateBatchCostRange(input.count);
   return createBankBatch({
@@ -111,6 +114,7 @@ export async function startBankBatch(input: {
     estCostUsd: estimateBatchCost(input.count),
     estCostMinCents: range.minCents,
     estCostMaxCents: range.maxCents,
+    targeting: input.targeting ?? null,
   });
 }
 
@@ -122,7 +126,8 @@ async function generateOneIntoBatch(
   family: string,
   apiKey: string,
   meta: UsageMeta,
-  deadline: number
+  deadline: number,
+  targeting?: BankTargeting | null
 ): Promise<"generated" | "failed" | "timeout"> {
   for (let attempt = 0; attempt < 3; attempt++) {
     // Deadline-aware, like the generation loop's own attempt guard: only start a retry we can
@@ -142,7 +147,10 @@ async function generateOneIntoBatch(
         // and the platform freezes both mid-flight. It costs ~30s per question, so a batch fits
         // fewer items per invocation and leans harder on the resume path — which is correct: the
         // work is real either way, and resume is exercised by the hourly safety net.
-        { status: "pending", batchId: batch.id, awaitBackgroundWork: true }
+        { status: "pending", batchId: batch.id, awaitBackgroundWork: true },
+        undefined,
+        // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
+        targeting ?? undefined
       );
       // Only a freshly GENERATED result is a new pending question. A 'pre-populated' outcome means
       // generation didn't converge and the engine served an existing (approved) question instead —
@@ -201,7 +209,13 @@ export async function runBankBatch(opts: {
   for (const h of histogram) {
     if (h.paper === batch.paper) familyCounts.set(h.family, h.count);
   }
-  const familyOrder = orderFamiliesByDeficit(batch.paper, familyCounts);
+  // A targeted run whose question-type maps to a specific family pins every item to that family so
+  // the whole batch stays on-aim; otherwise fall back to the thinnest-first diversity rotation.
+  const targeting = (batch.targeting ?? null) as BankTargeting | null;
+  const pinnedFamily = targeting?.questionType ? familyForQuestionType(targeting.questionType) : null;
+  const familyOrder = pinnedFamily
+    ? [pinnedFamily]
+    : orderFamiliesByDeficit(batch.paper, familyCounts);
 
   const remaining = () => {
     const b = batch!;
@@ -224,7 +238,7 @@ export async function runBankBatch(opts: {
     const slots = Array.from({ length: slotCount }, () => familyOrder[issued++ % familyOrder.length]);
 
     const results = await Promise.all(
-      slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta, deadline))
+      slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta, deadline, targeting))
     );
 
     const generated = results.filter((r) => r === "generated").length;

@@ -1,6 +1,12 @@
 import { neon } from "@neondatabase/serverless";
 import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
 import { classifyP3Category } from "./p3-category.mjs";
+import {
+  deriveQuestionType,
+  deriveCurveball,
+  deriveFlightPriceBand,
+  deriveFlightSize,
+} from "./bank-health/derive";
 import { getAppVersion } from "./app-version";
 import { DEFAULT_PACE_PREFERENCE, isPaceMode, isSpeedSeconds, type PaceData, type PacePreference } from "./pace";
 
@@ -169,12 +175,20 @@ export async function saveGeneratedQuestion(q: {
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
   // sampler can serve them on-mix from the moment they land in the bank. Papers 1/2 stay NULL.
   const p3Category = q.paper === 3 ? classifyP3Category(q.wines) : null;
+  // Bank Health slicing dimensions (migration 026), stamped at write time so the SQL GROUP BY slices
+  // stay accurate for every new row. Re-derived here from the exact stem/wines/metadata being stored,
+  // using the same logic migration 026 used to backfill the historical rows.
+  const questionType = deriveQuestionType(q.questionText);
+  const curveball = deriveCurveball(q.metadata);
+  const priceBand = deriveFlightPriceBand(q.wines);
+  const flightSize = deriveFlightSize(q.wines);
   const rows = await sql`
     INSERT INTO generated_questions (
       question_id, paper, family, family_label, subcategory,
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
-      metadata, created_by_user_id, status, batch_id, review_state
+      metadata, created_by_user_id, status, batch_id, review_state,
+      question_type, curveball, price_band, flight_size
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
@@ -182,7 +196,8 @@ export async function saveGeneratedQuestion(q: {
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
       ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null},
       ${q.status ?? "approved"}, ${q.batchId ?? null},
-      ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"}
+      ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
+      ${questionType}, ${curveball}, ${priceBand}, ${flightSize}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -399,6 +414,21 @@ export interface BankBatch {
   est_cost_min_cents: number | null;
   est_cost_max_cents: number | null;
   actual_cost_cents: number | null;
+  // Bank Health targeted generation (migration 026). The soft-constraint aim for this batch, or NULL
+  // for an untargeted Fill-the-Bank run. Persisted so a resumed invocation keeps the same aim.
+  targeting: BankTargeting | null;
+}
+
+// The soft-constraint aim threaded into generation by a Bank Health "Generate more like this" run.
+// Every field is optional — the panel only sends the ones a slice pins down.
+export interface BankTargeting {
+  paper?: number;
+  questionType?: string;
+  curveball?: string;
+  flightSize?: string;
+  grape?: string;
+  region?: string;
+  priceBand?: string;
 }
 
 export async function createBankBatch(input: {
@@ -409,6 +439,7 @@ export async function createBankBatch(input: {
   estCostUsd: number;
   estCostMinCents?: number | null;
   estCostMaxCents?: number | null;
+  targeting?: BankTargeting | null;
 }): Promise<BankBatch> {
   const sql = getDb();
   // replace_rejected (migration 022) and replace_binned (migration 025) are the same flag under two
@@ -416,12 +447,13 @@ export async function createBankBatch(input: {
   const rows = await sql`
     INSERT INTO bank_batches (
       paper, requested_count, replace_rejected, replace_binned, created_by,
-      est_cost_usd, est_cost_min_cents, est_cost_max_cents
+      est_cost_usd, est_cost_min_cents, est_cost_max_cents, targeting
     )
     VALUES (
       ${input.paper}, ${input.requestedCount}, ${input.replaceBinned}, ${input.replaceBinned},
       ${input.createdBy}, ${input.estCostUsd},
-      ${input.estCostMinCents ?? null}, ${input.estCostMaxCents ?? null}
+      ${input.estCostMinCents ?? null}, ${input.estCostMaxCents ?? null},
+      ${input.targeting ? JSON.stringify(input.targeting) : null}
     )
     RETURNING *
   `;
@@ -667,6 +699,183 @@ export async function getBankPerQuestionAvgCost(): Promise<number> {
   const cost = Number(rows[0]?.cost ?? 0);
   const questions = Number(rows[0]?.questions ?? 0);
   return questions > 0 ? cost / questions : 0;
+}
+
+// ── Bank Health analytics (migration 026) ────────────────────────────────────────────────────────
+//
+// The Bank Health page aggregates the servable ("kept") pool. The scalar slices are computed as SQL
+// GROUP BY over the indexed columns migration 026 added, so they stay fast at 10k+ rows; the
+// free-text-dependent slices (grape/region coverage, mark focus, over-representation) read a lite
+// projection and derive in TypeScript. The whole payload is cached for 60s by the route.
+
+// A servable banked question is kept, not quarantined, not retired. This is the SAME gate the
+// candidate-facing bank reads use, so Bank Health counts exactly what could be served.
+const KEPT_BANK_SQL_WHERE = "review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE";
+
+export interface BankHealthLiteRow {
+  question_id: string;
+  paper: number;
+  question_text: string;
+  wines: unknown;
+  total_marks: number;
+  times_served: number;
+  created_at: string;
+}
+
+// Total servable questions + how many have never been served.
+export async function getBankHealthTotals(): Promise<{ total: number; unserved: number }> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COUNT(*)::int AS total,
+           COUNT(*) FILTER (WHERE COALESCE(times_served, 0) = 0)::int AS unserved
+    FROM generated_questions
+    WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+  `) as { total: number; unserved: number }[];
+  return { total: rows[0]?.total ?? 0, unserved: rows[0]?.unserved ?? 0 };
+}
+
+// GROUP BY count over one of the four scalar slice columns. `column` is a fixed whitelist member —
+// never user input — so interpolating it into the query text is safe. NULLs are coalesced to a
+// slice-appropriate default (curveball → 'low'; question_type → 'other') except price_band, whose
+// NULLs (no price signal) are excluded so the slice's percentages are over rows that actually carry
+// a band.
+export async function getBankSliceCounts(
+  column: "paper" | "question_type" | "curveball" | "price_band"
+): Promise<{ key: string; count: number }[]> {
+  const sql = getDb();
+  const keyExpr =
+    column === "curveball"
+      ? "COALESCE(curveball, 'low')"
+      : column === "question_type"
+        ? "COALESCE(question_type, 'other')"
+        : column;
+  const extraWhere = column === "price_band" ? " AND price_band IS NOT NULL" : "";
+  const rows = (await sql.query(
+    `SELECT ${keyExpr}::text AS key, COUNT(*)::int AS count
+       FROM generated_questions
+      WHERE ${KEPT_BANK_SQL_WHERE}${extraWhere}
+      GROUP BY ${keyExpr}`
+  )) as { key: string; count: number }[];
+  return rows;
+}
+
+// Flight-size slice, bucketed to the 2 / 3 / 4+ benchmark keys in SQL.
+export async function getFlightSizeCounts(): Promise<{ key: string; count: number }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT CASE
+             WHEN flight_size = 2 THEN '2'
+             WHEN flight_size = 3 THEN '3'
+             WHEN flight_size >= 4 THEN '4plus'
+           END AS key,
+           COUNT(*)::int AS count
+    FROM generated_questions
+    WHERE ${sql.unsafe(KEPT_BANK_SQL_WHERE)}
+      AND flight_size >= 2
+    GROUP BY key
+  `) as { key: string; count: number }[];
+  return rows;
+}
+
+// Keep/bin funnel across completed bulk runs: how many drafts were generated vs kept. Binned rows
+// are hard-deleted, so the bin count is (generated − kept). Feeds the overview keep/binned rates.
+export async function getBankBatchKeepStats(): Promise<{ generated: number; kept: number }> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COALESCE(SUM(generated_count), 0)::int AS generated,
+           COALESCE(SUM(kept_count), 0)::int AS kept
+    FROM bank_batches
+    WHERE status IN ('ready', 'complete')
+  `) as { generated: number; kept: number }[];
+  return { generated: rows[0]?.generated ?? 0, kept: rows[0]?.kept ?? 0 };
+}
+
+// The rule names that most often caused a draft to be rejected, from the generation attempt log.
+// Powers the "top bin reason" caption. Rule names are internal; the UI maps them to plain copy.
+export async function getTopRejectionReasons(
+  limit = 5
+): Promise<{ reason: string; count: number }[]> {
+  const sql = getDb();
+  try {
+    const rows = (await sql`
+      SELECT rule AS reason, COUNT(*)::int AS count
+      FROM generation_attempts, LATERAL unnest(rules_fired) AS rule
+      WHERE passed = false
+      GROUP BY rule
+      ORDER BY count DESC
+      LIMIT ${limit}
+    `) as { reason: string; count: number }[];
+    return rows;
+  } catch {
+    // generation_attempts may not be migrated in every environment — degrade to no reasons.
+    return [];
+  }
+}
+
+// Lite projection of the servable pool for the TypeScript-derived slices. Only the columns those
+// derivations need, so even a 10k-row scan stays a few MB and is cached for 60s upstream.
+export async function getKeptBankLite(): Promise<BankHealthLiteRow[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT question_id, paper, question_text, wines, total_marks,
+           COALESCE(times_served, 0)::int AS times_served, created_at
+    FROM generated_questions
+    WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+  `) as BankHealthLiteRow[];
+  return rows;
+}
+
+export interface BankSliceItemRow {
+  question_id: string;
+  paper: number;
+  question_text: string;
+  wines: unknown;
+  total_marks: number;
+  times_served: number;
+  created_at: string;
+}
+
+// Items for a column-backed slice (paper / questionType / curveball / flightSize / priceBand),
+// paginated by created_at + id. Free-text slices (grape/region/markFocus/overRepetition) are
+// filtered in TypeScript by the route from getKeptBankLite instead.
+export async function getBankSliceItemsByColumn(
+  column: "paper" | "question_type" | "curveball" | "price_band" | "flight_size",
+  key: string,
+  limit: number,
+  offset: number
+): Promise<BankSliceItemRow[]> {
+  const sql = getDb();
+  let predicate: string;
+  const params: unknown[] = [];
+  if (column === "flight_size") {
+    predicate = key === "4plus" ? "flight_size >= 4" : "flight_size = $1";
+    if (key !== "4plus") params.push(Number(key));
+  } else if (column === "curveball") {
+    predicate = "COALESCE(curveball, 'low') = $1";
+    params.push(key);
+  } else if (column === "question_type") {
+    predicate = "COALESCE(question_type, 'other') = $1";
+    params.push(key);
+  } else if (column === "paper") {
+    predicate = "paper = $1";
+    params.push(Number(key));
+  } else {
+    predicate = "price_band = $1";
+    params.push(key);
+  }
+  const limitIdx = params.length + 1;
+  const offsetIdx = params.length + 2;
+  params.push(limit, offset);
+  const rows = (await sql.query(
+    `SELECT question_id, paper, question_text, wines, total_marks,
+            COALESCE(times_served, 0)::int AS times_served, created_at
+       FROM generated_questions
+      WHERE ${KEPT_BANK_SQL_WHERE} AND ${predicate}
+      ORDER BY created_at DESC, question_id DESC
+      LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+    params
+  )) as BankSliceItemRow[];
+  return rows;
 }
 
 export async function createAttempt(
