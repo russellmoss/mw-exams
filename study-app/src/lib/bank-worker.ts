@@ -169,6 +169,7 @@ export async function startBankBatch(input: {
 async function generateOneIntoBatch(
   batch: BankBatch,
   family: string,
+  pinned: boolean,
   apiKey: string,
   meta: UsageMeta,
   deadline: number,
@@ -193,7 +194,15 @@ async function generateOneIntoBatch(
           // and the platform freezes both mid-flight. It costs ~30s per question, so a batch fits
           // fewer items per invocation and leans harder on the resume path — which is correct: the
           // work is real either way, and resume is exercised by the hourly safety net.
-          { status: "pending", batchId: batch.id, awaitBackgroundWork: true },
+          {
+            status: "pending",
+            batchId: batch.id,
+            awaitBackgroundWork: true,
+            // A pinned run generates the same family every time, which makes the novelty check's
+            // family-gated stem-template rules fire on every candidate. See the note in
+            // validateNoveltyAgainstLatest — targeted runs police the WINES and the framing sentence.
+            familyTargeted: pinned,
+          },
           undefined,
           // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
           targeting ?? undefined
@@ -313,7 +322,9 @@ export async function runBankBatch(opts: {
     const slots = Array.from({ length: slotCount }, () => familyOrder[issued++ % familyOrder.length]);
 
     const results = await Promise.all(
-      slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta, deadline, targeting))
+      slots.map((family) =>
+        generateOneIntoBatch(batch!, family, !!pinnedFamily, apiKey, meta, deadline, targeting)
+      )
     );
 
     const generated = results.filter((r) => r === "generated").length;

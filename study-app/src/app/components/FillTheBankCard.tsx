@@ -78,6 +78,18 @@ interface ReviewQuestion {
   total: number;
   wines: ReviewWine[];
 }
+interface Violation {
+  rule: string;
+  severity: "hard" | "soft";
+  detail: string;
+}
+// The hard-validator verdict for the question on screen. null = no answer key yet, so no verdict can
+// be computed — shown as "not available" rather than passed off as a clean bill of health.
+interface Verdict {
+  ok: boolean;
+  hard: Violation[];
+  soft: Violation[];
+}
 interface ReviewData {
   batchId: string;
   paper: number;
@@ -87,6 +99,9 @@ interface ReviewData {
   remaining: number;
   position: { n: number; total: number };
   question: ReviewQuestion | null;
+  verdict: Verdict | null;
+  // How many of the still-pending questions fail hard validation — "Keep all" accepts them too.
+  failingRemaining: number;
 }
 
 // Live cost range: per-question average × count, widened ±35%, rounded to whole dollars.
@@ -473,6 +488,44 @@ export function FillTheBankRows() {
                 </div>
               </div>
 
+              {/* Validator verdict — sits ABOVE the stem because it should be read before the
+                  question is, and it is the one thing here a reviewer cannot derive by eye. A hard
+                  violation means the stem contradicts its own wines and the question is unanswerable
+                  as framed; bin it. */}
+              {review!.verdict === null ? (
+                <p className="text-xs text-muted mb-3">
+                  Validator: no answer key yet — verdict unavailable for this question.
+                </p>
+              ) : review!.verdict.hard.length > 0 ? (
+                <div className="rounded-lg border border-fail bg-fail/10 p-3 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-fail">
+                    Fails validation · bin this
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {review!.verdict.hard.map((v, i) => (
+                      <li key={i} className="text-xs text-foreground leading-relaxed">
+                        <span className="text-fail">{v.rule}</span> — {v.detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : review!.verdict.soft.length > 0 ? (
+                <div className="rounded-lg border border-borderline/60 p-3 mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-borderline">
+                    Worth a look
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {review!.verdict.soft.map((v, i) => (
+                      <li key={i} className="text-xs text-foreground leading-relaxed">
+                        <span className="text-borderline">{v.rule}</span> — {v.detail}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-xs text-success mb-3">Passes all hard validators.</p>
+              )}
+
               {/* Stem — verbatim candidate-facing text in a bordered inset block */}
               <div className="rounded-lg border border-border bg-background/40 p-4">
                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{q.stem}</p>
@@ -564,6 +617,15 @@ export function FillTheBankRows() {
                   Keep all
                 </button>
               </div>
+              {/* "Keep all" accepts every remaining question, not just the one on screen — say how
+                  many of those would fail validation so it isn't a blind bulk approve. */}
+              {review!.failingRemaining > 0 && (
+                <p className="text-xs text-fail mt-2 text-right">
+                  {review!.failingRemaining} of the {review!.remaining} remaining{" "}
+                  {review!.failingRemaining === 1 ? "fails" : "fail"} validation — “Keep all” would
+                  accept {review!.failingRemaining === 1 ? "it" : "them"} too.
+                </p>
+              )}
             </div>
           ) : review?.status === "running" ? (
             <p className="text-sm text-muted">Writing your first questions…</p>

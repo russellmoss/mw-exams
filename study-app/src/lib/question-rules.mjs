@@ -19,13 +19,99 @@ const NUM = {
   seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
 };
 
-// Canonicalise so synonyms don't read as different grapes (the "same variety" check).
-const VARIETY_SYNONYMS = {
-  shiraz: "syrah", spatburgunder: "pinot noir", "pinot nero": "pinot noir",
-  grauburgunder: "pinot gris", weissburgunder: "pinot blanc", alvarinho: "albarino",
-  garnacha: "grenache", carinena: "carignan", mazuelo: "carignan", mataro: "mourvedre",
-  "tinta de toro": "tempranillo", "tinto fino": "tempranillo", spanna: "nebbiolo", primitivo: "zinfandel",
+// Canonicalise so synonyms don't read as different grapes (the "same variety" / "different
+// varieties" checks). THE single synonym table for the whole app — question-engine.ts and
+// stem-scoring.ts import this one rather than keeping their own.
+//
+// They used to keep three separate copies, which drifted: stem-scoring knew monastrell=mourvedre and
+// pinot grigio=pinot gris, this file didn't; question-engine had only a four-entry .replace() chain
+// that canonicalised toward "pinot grigio" while this file canonicalised toward "pinot gris". The
+// Fill-the-Bank pilot banked a question whose stem promised three DIFFERENT varieties over an Alsace
+// Pinot Noir, a Cannonau di Sardegna and a Campo de Borja Garnacha — Cannonau and Garnacha are both
+// Grenache. The generation-stage check read them as distinct because no table knew "cannonau"; the
+// answer-key resolver (richer lexicon) caught it only afterwards. Keys are pre-normalized ASCII —
+// lowercase, accents stripped — so they match under every caller's `norm`.
+//
+// Keep in sync with data/variety_lexicon.json's `synonyms` (the answer-key resolver's copy); the two
+// disagreeing is exactly the failure above.
+/** @type {Record<string, string>} */
+export const VARIETY_SYNONYMS = {
+  // ── Pinot family ──
+  spatburgunder: "pinot noir",
+  blauburgunder: "pinot noir",
+  "pinot nero": "pinot noir",
+  grauburgunder: "pinot gris",
+  rulander: "pinot gris",
+  "pinot grigio": "pinot gris",
+  weissburgunder: "pinot blanc",
+  "pinot bianco": "pinot blanc",
+
+  // ── Syrah ──
+  shiraz: "syrah",
+
+  // ── Grenache ──
+  garnacha: "grenache",
+  "garnacha tinta": "grenache",
+  cannonau: "grenache",
+  "garnacha blanca": "grenache blanc",
+
+  // ── Tempranillo ──
+  "tinta de toro": "tempranillo",
+  "tinto fino": "tempranillo",
+  "tinta roriz": "tempranillo",
+  aragonez: "tempranillo",
+  "ull de llebre": "tempranillo",
+  cencibel: "tempranillo",
+
+  // ── Mourvedre ──
+  mataro: "mourvedre",
+  monastrell: "mourvedre",
+
+  // ── Carignan ──
+  carinena: "carignan",
+  mazuelo: "carignan",
+  samso: "carignan",
+
+  // ── Nebbiolo ──
+  spanna: "nebbiolo",
+  chiavennasca: "nebbiolo",
+
+  // ── Sangiovese ──
+  brunello: "sangiovese",
+  morellino: "sangiovese",
+  "prugnolo gentile": "sangiovese",
+  nielluccio: "sangiovese",
+
+  // ── Blaufrankisch ──
+  lemberger: "blaufrankisch",
+  kekfrankos: "blaufrankisch",
+
+  // ── Zinfandel ──
+  primitivo: "zinfandel",
+  tribidrag: "zinfandel",
+
+  // ── Other reds ──
+  cot: "malbec",
+  durif: "petite sirah",
+  "touriga francesa": "touriga franca",
+  "tinta negra mole": "tinta negra",
+  nerello: "nerello mascalese",
+
+  // ── Whites ──
+  alvarinho: "albarino",
   "tocai friulano": "friulano",
+  viura: "macabeo",
+  steen: "chenin blanc",
+  "listan blanco": "palomino",
+  "ugni blanc": "trebbiano",
+  "riesling italico": "welschriesling",
+  grasevina: "welschriesling",
+  // Muscadet is the appellation, Melon de Bourgogne the grape — canonicalise to the grape so the
+  // appellation table (which already emits "melon de bourgogne") and this table agree.
+  muscadet: "melon de bourgogne",
+  melon: "melon de bourgogne",
+  malmsey: "malvasia",
+  boal: "bual",
 };
 
 export const norm = (s) =>
@@ -180,12 +266,22 @@ export function applyQuestionRules(q, opts = {}) {
 // blend-hard, P3 fullText scope, banker, flight-size, novelty, generation-consistency).
 // ---------------------------------------------------------------------------------------------------
 
-const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling|pinot\s*gri[gs]|gewurz|muscat|moscato|viognier|chenin|semillon|albarino|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|bual|assyrtiko|welschriesling|vidal)\b/i;
-const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc|cinsault|monastrell|tinta\s*negra|tinta\s*roriz|touriga\s*nacional|touriga\s*franca|baga)\b/i;
+// A synonym in VARIETY_SYNONYMS only helps if the label is DETECTED here first — an undetected label
+// resolves to "unknown" and the diversity rules skip it. Every synonym key above that can appear on a
+// real label therefore has a token here. Longer alternatives must precede the shorter ones they
+// contain ("garnacha blanca" before "garnacha") because the regex alternation is first-match.
+export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|muscat|moscato|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano)\b/i;
+export const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|cabernet\s*franc|merlot|pinot\s*noir|pinot\s*nero|spatburgunder|sp[aä]tburgunder|blauburgunder|syrah|shiraz|garnacha\s*tinta|grenache|garnacha|cannonau|tempranillo|tinta\s*de\s*toro|tinto\s*fino|tinta\s*roriz|aragonez|ull\s*de\s*llebre|cencibel|sangiovese|prugnolo\s*gentile|nielluccio|morellino|nebbiolo|spanna|chiavennasca|malbec|zinfandel|primitivo|tribidrag|mourvedre|monastrell|mataro|carignan|carinena|cari[nñ]ena|mazuelo|samso|barbera|dolcetto|touriga\s*nacional|touriga\s*franca|touriga\s*francesa|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|kekfrankos|k[ée]kfrankos|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|xinomavro|cinsault|tinta\s*negra\s*mole|tinta\s*negra|petite\s*sirah|durif|cot|baga)\b/i;
 
 const APPELLATION_TO_PRIMARY_VARIETY = [
   { pattern: /\b(barolo|barbaresco|gattinara|ghemme|carema|valtellina|sforzato)\b/i, variety: "nebbiolo" },
-  { pattern: /\b(chianti|brunello|vino\s+nobile|morellino|montepulciano)\b/i, variety: "sangiovese" },
+  // "Montepulciano" is two different things and this entry used to conflate them: Vino Nobile di
+  // MONTEPULCIANO (a Tuscan town) is Sangiovese, while Montepulciano d'Abruzzo is the Montepulciano
+  // GRAPE. Matching the bare town name sent every Abruzzese red to sangiovese — which, now that the
+  // distinct-variety rule runs at generation, would falsely flag a Chianti + Montepulciano d'Abruzzo
+  // flight as a duplicate grape. "vino nobile" still covers the Tuscan case and is matched first.
+  { pattern: /\b(chianti|brunello|vino\s+nobile|morellino)\b/i, variety: "sangiovese" },
+  { pattern: /\bmontepulciano\b/i, variety: "montepulciano" },
   { pattern: /\b(etna\s+rosso)\b/i, variety: "nerello mascalese" },
   { pattern: /\b(taurasi)\b/i, variety: "aglianico" },
   { pattern: /\b(valpolicella|amarone|ripasso|bardolino)\b/i, variety: "corvina blend" },
@@ -206,15 +302,11 @@ const APPELLATION_TO_PRIMARY_VARIETY = [
   { pattern: /\b(chateauneuf-du-pape|gigalondas|vacqueyras)\b/i, variety: "grenache blend" },
 ];
 
+// Canonicalise a detected label through the one shared table. This used to be a hand-rolled chain of
+// four .replace() calls that mapped toward "pinot grigio" while canonVariety mapped toward
+// "pinot gris" — so the same grape could canonicalise two ways depending on which function ran.
 function normalizeVariety(value) {
-  return value
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .replace("shiraz", "syrah")
-    .replace("garnacha", "grenache")
-    .replace("pinot gris", "pinot grigio")
-    .replace("nerello", "nerello mascalese")
-    .trim();
+  return canonVariety(value);
 }
 
 export function detectPrimaryVariety(fullText) {

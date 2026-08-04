@@ -617,6 +617,40 @@ export async function setBankBatchStatus(
 }
 
 // The pending items an admin reviews for a batch, oldest-first (review in generation order).
+// The resolved answer key's ground truth for one question, or null if it hasn't been derived yet.
+// The Fill-the-Bank review pane runs the hard validator against this so a reviewer sees the same
+// verdict the corpus audit would give — a stem<->wine contradiction is often invisible in the raw
+// wine list (Cannonau and Garnacha are both Grenache, and neither label says so).
+export async function getAnswerKeyGroundTruth(questionId: string): Promise<unknown[] | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT ground_truth FROM stem_answer_keys WHERE question_id = ${questionId} LIMIT 1
+  `;
+  if (!rows[0]) return null;
+  const gt = (rows[0] as { ground_truth: unknown }).ground_truth;
+  const parsed = typeof gt === "string" ? JSON.parse(gt) : gt;
+  return Array.isArray(parsed) ? parsed : null;
+}
+
+// Bulk form of getAnswerKeyGroundTruth — one round-trip for a whole batch, so the review pane can
+// tell the reviewer how many of the REMAINING questions fail validation before they press "Keep all".
+export async function getAnswerKeyGroundTruths(
+  questionIds: string[]
+): Promise<Map<string, unknown[]>> {
+  const out = new Map<string, unknown[]>();
+  if (questionIds.length === 0) return out;
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT question_id, ground_truth FROM stem_answer_keys
+    WHERE question_id = ANY(${questionIds})
+  `) as { question_id: string; ground_truth: unknown }[];
+  for (const r of rows) {
+    const parsed = typeof r.ground_truth === "string" ? JSON.parse(r.ground_truth) : r.ground_truth;
+    if (Array.isArray(parsed) && parsed.length > 0) out.set(r.question_id, parsed);
+  }
+  return out;
+}
+
 export async function getBatchPendingQuestions(batchId: string): Promise<GeneratedQuestion[]> {
   const sql = getDb();
   return (await sql`

@@ -16,6 +16,7 @@ import { saveGeneratedQuestion, getTastingLexicon, type BankTargeting } from "@/
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
+import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
@@ -27,7 +28,14 @@ import { stemSniperScoringModel } from "@/lib/question-validator";
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
 // novelty, generation-consistency) stay inline below.
-import { applyQuestionRules, winesFromText } from "@/lib/question-rules.mjs";
+import {
+  applyQuestionRules,
+  winesFromText,
+  detectPrimaryVariety,
+  canonVariety,
+  WHITE_GRAPE_INDICATORS,
+  RED_GRAPE_INDICATORS,
+} from "@/lib/question-rules.mjs";
 // Paper 3 style-family classifier + the invisible weighted-sampling math (see narrowToWeightedP3Category).
 import { classifyP3Category, chooseP3Category } from "@/lib/p3-category.mjs";
 import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
@@ -427,7 +435,15 @@ export async function generateFreshQuestion(
   // while something else keeps the invocation alive. The worker persists the question and returns
   // within ~50ms, so on serverless the invocation froze mid-call and the question was banked with
   // model_answer NULL — unusable for study, and invisible because the batch still read 'complete'.
-  saveOpts?: { status?: string; batchId?: string | null; awaitBackgroundWork?: boolean },
+  // familyTargeted: this run pins EVERY question to one family, so the novelty check must swap its
+  // family-gated stem-template rules for the wine-overlap + framing-sentence pair (see
+  // validateNoveltyAgainstLatest).
+  saveOpts?: {
+    status?: string;
+    batchId?: string | null;
+    awaitBackgroundWork?: boolean;
+    familyTargeted?: boolean;
+  },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
   // Bank Health "Generate more like this" soft-constraint aim. Threaded into the prompt as
@@ -737,7 +753,7 @@ export async function generateFreshQuestion(
       candidate,
       latestQuestion,
       recentGenerated.map(normalizeGeneratedQuestionWines),
-      { lenient: relaxNiceToHave }
+      { lenient: relaxNiceToHave, targeted: saveOpts?.familyTargeted ?? false }
     );
 
     // Declared in the order the violations used to be concatenated, so `lastViolations` below is
@@ -858,9 +874,22 @@ export async function generateFreshQuestion(
   });
 
   // Detached by default (the study path never waits); awaited below when the caller requires it.
-  const enrichment = enrichWineProfiles(questionId, parsed.wines, apiKey, meta).catch((err) =>
-    console.error("Wine enrichment background error:", err)
-  );
+  //
+  // The stem answer key is derived as soon as enrichment lands. The key is what the hard validator
+  // audits against (scripts/audit-questions.mjs joins stem_answer_keys), so a question without one is
+  // unverifiable — it can never be checked for the stem<->wine contradictions in question-rules.mjs.
+  // The only writer used to be the Stem Sniper drill path, so questions from the study flow and the
+  // bulk worker landed unkeyed and silently escaped the audit: coverage was 31 of 66 usable questions.
+  // Chaining it here makes every generated question auditable by construction, and puts it inside the
+  // promise awaitBackgroundWork already waits on. Ordering is load-bearing — buildStemKeyForQuestion
+  // reads back the wine_profiles that enrichWineProfiles writes.
+  const enrichment = enrichWineProfiles(questionId, parsed.wines, apiKey, meta)
+    .then(() => buildStemKeyForQuestion(questionId))
+    .then((res) => {
+      if ("error" in res) console.error(`Stem key for ${questionId} not built: ${res.error}`);
+      else if (!res.ok) console.warn(`Stem key for ${questionId} validated=false: ${res.problems.join("; ")}`);
+    })
+    .catch((err) => console.error("Wine enrichment / stem key background error:", err));
 
   const modelAnswer = generateModelAnswerInBackground(
     questionId,
@@ -888,59 +917,18 @@ export async function generateFreshQuestion(
   };
 }
 
-const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling|pinot\s*gri[gs]|gewurz|muscat|moscato|viognier|chenin|semillon|albarino|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|bual|assyrtiko|welschriesling|vidal)\b/i;
-const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|merlot|pinot\s*noir|syrah|shiraz|grenache|garnacha|tempranillo|sangiovese|nebbiolo|malbec|zinfandel|primitivo|mourvedre|carignan|barbera|dolcetto|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|cannonau|xinomavro|cabernet\s*franc|cinsault|monastrell|tinta\s*negra|tinta\s*roriz|touriga\s*nacional|touriga\s*franca|baga)\b/i;
 
-const APPELLATION_TO_PRIMARY_VARIETY: { pattern: RegExp; variety: string }[] = [
-  { pattern: /\b(barolo|barbaresco|gattinara|ghemme|carema|valtellina|sforzato)\b/i, variety: "nebbiolo" },
-  { pattern: /\b(chianti|brunello|vino\s+nobile|morellino|montepulciano)\b/i, variety: "sangiovese" },
-  { pattern: /\b(etna\s+rosso)\b/i, variety: "nerello mascalese" },
-  { pattern: /\b(taurasi)\b/i, variety: "aglianico" },
-  { pattern: /\b(valpolicella|amarone|ripasso|bardolino)\b/i, variety: "corvina blend" },
-  { pattern: /\b(barbera)\b/i, variety: "barbera" },
-  { pattern: /\b(dolcetto)\b/i, variety: "dolcetto" },
-  { pattern: /\b(beaujolais|fleurie|morgon|moulin-a-vent|brouilly)\b/i, variety: "gamay" },
-  { pattern: /\b(sherry|fino|manzanilla|amontillado|oloroso|palo\s*cortado)\b/i, variety: "palomino" },
-  { pattern: /\b(madeira|malmsey|rainwater)\b/i, variety: "tinta negra" },
-  { pattern: /\b(tokaj|tokaji|aszu|szamorodni)\b/i, variety: "furmint" },
-  { pattern: /\b(sauternes|barsac)\b/i, variety: "semillon blend" },
-  { pattern: /\b(port\b|vintage\s*port|lbv|tawny\s*\d+|ruby\s*port|vintage\s*port|colheita)\b/i, variety: "touriga nacional blend" },
-  { pattern: /\b(banyuls|maury|rivesaltes)\b/i, variety: "grenache" },
-  { pattern: /\b(rutherglen)\b/i, variety: "muscat" },
-  { pattern: /\b(muscadet)\b/i, variety: "melon de bourgogne" },
-  { pattern: /\b(burgundy|bourgogne|gevrey|chambolle|vosne|pommard|volnay)\b/i, variety: "pinot noir" },
-  { pattern: /\b(rioja|ribera\s+del\s+duero)\b/i, variety: "tempranillo" },
-  { pattern: /\b(cote-rotie|cornas|hermitage|crozes-hermitage|saint-joseph)\b/i, variety: "syrah" },
-  { pattern: /\b(chateauneuf-du-pape|gigalondas|vacqueyras)\b/i, variety: "grenache blend" },
-];
 
-function detectPrimaryVariety(fullText: string): string {
-  const text = fullText.toLowerCase();
-  const whiteMatch = text.match(WHITE_GRAPE_INDICATORS);
-  const redMatch = text.match(RED_GRAPE_INDICATORS);
-  const direct = (whiteMatch?.[0] || redMatch?.[0])?.toLowerCase().trim();
-  if (direct) return normalizeVariety(direct);
-
-  const appellationMatch = APPELLATION_TO_PRIMARY_VARIETY.find((entry) => entry.pattern.test(text));
-  return appellationMatch ? appellationMatch.variety : "unknown";
-}
-
-function normalizeVariety(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .replace("shiraz", "syrah")
-    .replace("garnacha", "grenache")
-    .replace("pinot gris", "pinot grigio")
-    .replace("nerello", "nerello mascalese")
-    .trim();
-}
+// detectPrimaryVariety / normalizeVariety used to be duplicated here, byte-identical to the copies in
+// question-rules.mjs apart from a divergent synonym list — which is how the generation stage came to
+// disagree with the answer-key stage about Cannonau vs Garnacha (both Grenache). They now come from
+// question-rules.mjs, the declared single source of truth for the stem<->wine rules.
+const normalizeVariety = canonVariety;
 
 // Fold accents so a requested "Sémillon" matches the unaccented token the grape regexes detect.
+// canonVariety already strips diacritics, so this is now just the shared canonicalisation.
 function foldVariety(value: string): string {
-  return normalizeVariety(value)
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+  return canonVariety(value);
 }
 
 /**
@@ -1077,7 +1065,7 @@ function isLikelyBlend(fullText: string): boolean {
   return false;
 }
 
-function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
+export function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const stemSaysOneVariety = /same single grape variety/i.test(questionText);
 
@@ -1155,6 +1143,21 @@ function validateVarietyConsistency(questionText: string, wines: { slot: number;
         `Stem says each wine is a different variety, but detected duplicates: ${dupes.join(", ")}. Each wine must be a distinct variety.`
       );
     }
+  }
+
+  // Same contradiction, delegated to the shared rule layer, and deliberately OUTSIDE every gate above
+  // because applyQuestionRules self-gates on the stem wording — that gate is the whole point. The
+  // local `stemSaysEachSingleVariety` regex requires "different[,] single|predominant ... variety", so
+  // a stem reading "made predominantly from a different grape variety" — where "predominantly" sits
+  // BEFORE "different" rather than between it and "variety" — matched neither branch and the whole
+  // block was skipped. Three banked defects came through that gap (a Cannonau/Garnacha pair, a
+  // triple-Syrah flight, a doubled Cabernet), each caught only afterwards by the key-stage audit.
+  // Union with the check above rather than a replacement: strictly more catching, no regression.
+  for (const det of applyQuestionRules(
+    { paper: 0, questionText, wines: winesFromText(wines) },
+    {}
+  ).filter((v) => v.rule === "distinct-variety")) {
+    if (!violations.includes(det.detail)) violations.push(det.detail);
   }
 
   return { valid: violations.length === 0, violations };
@@ -1719,13 +1722,77 @@ function stemStructureSignature(text: string): Set<string> {
   return sig;
 }
 
-function validateNoveltyAgainstLatest(
+// Reduce a wine descriptor to a comparable identity: drop the vintage, the ABV parenthetical and all
+// punctuation, so "Torbreck RunRig, 2018. Barossa Valley, Australia. (15.5%)" and the 2019 of the
+// same wine read as the same wine. Used by the targeted-mode overlap rule below.
+function normalizeWineIdentity(fullText: string): string {
+  return (fullText || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\(\s*\d+(?:\.\d+)?\s*%\s*\)/g, " ") // ABV
+    .replace(/\b(?:19|20)\d{2}\b/g, " ") // vintage
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Share of the candidate's wines that also appear in `recent`. 1.0 = the same flight rebuilt.
+function wineOverlapRatio(
+  candidate: { fullText: string }[],
+  recent: { fullText: string }[]
+): number {
+  if (!candidate.length) return 0;
+  const recentIds = new Set(recent.map((w) => normalizeWineIdentity(w.fullText)));
+  const shared = candidate.filter((w) => recentIds.has(normalizeWineIdentity(w.fullText))).length;
+  return shared / candidate.length;
+}
+
+// In a TARGETED run (every question pinned to one family — the Fill-the-Bank per-family top-up), at
+// most this share of a flight may be wines a recent question already used.
+const TARGETED_MAX_WINE_OVERLAP = 0.5;
+
+const NUMBER_WORDS = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve";
+
+// The FRAMING SENTENCE — the opening line that states what the flight has in common ("Wines 1 to 4
+// are from four different countries and are each made from a different, single grape variety"). Wine
+// counts are folded to '#' so changing only the flight size does not read as a reworded stem.
+export function stemOpenerTokens(text: string): Set<string> {
+  const opener = (text || "")
+    .split("\n")[0]
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(new RegExp(`\\b(${NUMBER_WORDS}|\\d+)\\b`, "g"), "#")
+    .replace(/[^a-z# ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return new Set(opener.split(" ").filter(Boolean));
+}
+
+// Reject a targeted candidate whose framing sentence is this similar (token Jaccard) to a recent
+// one's. CALIBRATED against the 153 real questions in data/exams.json: comparing openers of real
+// questions that share a framing CONCEPT gives median 0.50, p90 0.80, p95 0.89 — and 2.8% of those
+// real pairs are verbatim identical after normalisation. So the IMW reuses its concepts constantly
+// while rewriting the sentence almost every time, and a threshold much below this would reject
+// authentic examiner behaviour. 0.90 blocks only near-verbatim reuse (3.6% of real same-concept
+// pairs), which is what the pilot was doing — two of its six shared an opening sentence exactly.
+//
+// Deliberately NOT a constraint on the framing CONCEPT. That vocabulary is small and closed (same /
+// different variety, country, region); forcing variation there would invent question shapes the IMW
+// does not set, which is the opposite of what this system is for.
+export const TARGETED_MAX_OPENER_SIMILARITY = 0.9;
+
+export function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
   latestQuestion: NormalizedGeneratedQuestion | null,
   recentQuestions?: NormalizedGeneratedQuestion[],
-  opts?: { lenient?: boolean }
+  opts?: { lenient?: boolean; targeted?: boolean }
 ): { valid: boolean; violations: string[] } {
   const lenient = opts?.lenient ?? false;
+  // Targeted mode: the caller has DELIBERATELY pinned the family, so "same family" carries no
+  // information and the two rules that depend on it degenerate to always-true. See the loop below.
+  const targeted = opts?.targeted ?? false;
   const violations: string[] = [];
   const questionsToCheck = recentQuestions?.length
     ? recentQuestions
@@ -1749,6 +1816,40 @@ function validateNoveltyAgainstLatest(
     if (candidateWines === recentWines) {
       violations.push("Generated question repeats a recent wine set");
       break;
+    }
+
+    // ── TARGETED MODE ────────────────────────────────────────────────────────────────────────────
+    // Both rules below gate on `sameFamily`. When the caller has pinned the family for the whole run,
+    // that is true by construction for every candidate, so the structural rule reduces to "does this
+    // stem look like a recent stem in the same family?" — which, within one family, is nearly always
+    // yes. The 6-question P2/F4 pilot generated 0 of 6 for exactly this reason: 46 Opus calls, every
+    // one rejected as a structural repeat.
+    //
+    // Reusing a stem template is not actually the defect. The real papers reuse stem shapes across
+    // years — what must be new is the WINES. So in targeted mode the stem-template and the fuzzy
+    // family/country/variety rules are replaced by a direct overlap rule on the flight itself. The
+    // exact-stem and exact-wine-set repeats above stay hard in every mode.
+    if (targeted) {
+      const overlap = wineOverlapRatio(candidate.wines, recent.wines);
+      if (overlap > TARGETED_MAX_WINE_OVERLAP) {
+        violations.push(
+          `Generated flight reuses ${Math.round(overlap * 100)}% of a recent question's wines (max ${Math.round(
+            TARGETED_MAX_WINE_OVERLAP * 100
+          )}% in a targeted run). Build the flight from different wines.`
+        );
+        break;
+      }
+      // The wines may be new while the framing sentence is word-for-word one we just used. Real
+      // papers reuse the CONCEPT and rewrite the SENTENCE (see the calibration note above), so this
+      // blocks only near-verbatim reuse — rephrase the framing, don't change what is being asked.
+      const openerSim = jaccard(stemOpenerTokens(candidate.questionText), stemOpenerTokens(recent.question_text));
+      if (openerSim >= TARGETED_MAX_OPENER_SIMILARITY) {
+        violations.push(
+          "Generated question opens with essentially the same framing sentence as a recent question in this family. Keep the same kind of comparison, but word the opening differently — the real papers restate a familiar premise in fresh language rather than repeating it verbatim."
+        );
+        break;
+      }
+      continue;
     }
 
     // Structural/thematic repeat: same family, same flight size, and a near-identical concept

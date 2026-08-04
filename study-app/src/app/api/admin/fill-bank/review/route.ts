@@ -4,6 +4,8 @@ import { requireApiKey } from "@/lib/api-key";
 import {
   getBankBatch,
   getBatchPendingQuestions,
+  getAnswerKeyGroundTruth,
+  getAnswerKeyGroundTruths,
   getQuestionById,
   reviewBankQuestion,
   keepAllPending,
@@ -11,6 +13,7 @@ import {
   type GeneratedQuestion,
 } from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
+import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -79,6 +82,56 @@ function serialize(q: GeneratedQuestion) {
   };
 }
 
+function violationsFor(q: GeneratedQuestion, groundTruth: unknown[]): Violation[] {
+  return validateQuestion({
+    questionId: q.question_id,
+    paper: q.paper,
+    family: q.family,
+    questionText: q.question_text,
+    totalMarks: q.total_marks,
+    wines: groundTruth as AuditWine[],
+  }).violations;
+}
+
+/**
+ * Run the hard validator over a pending question so the reviewer sees the same verdict the corpus
+ * audit would give, BEFORE deciding keep/bin.
+ *
+ * This exists because a reviewer kept a question whose stem promised three different grape varieties
+ * over a Pinot Noir, a Cannonau di Sardegna and a Campo de Borja Garnacha — Cannonau and Garnacha are
+ * both Grenache, so it was unanswerable, and nothing in the rendered stem or wine list said so. The
+ * pane showed everything a candidate sees and nothing a validator knows.
+ *
+ * Returns null when the answer key hasn't been derived yet — the validator needs resolved varieties,
+ * so with no key there is no verdict to show (better a stated "not available" than a false all-clear).
+ */
+async function verdictFor(q: GeneratedQuestion): Promise<{
+  ok: boolean;
+  hard: Violation[];
+  soft: Violation[];
+} | null> {
+  const groundTruth = await getAnswerKeyGroundTruth(q.question_id);
+  if (!groundTruth || groundTruth.length === 0) return null;
+
+  const violations = violationsFor(q, groundTruth);
+  const hard = violations.filter((v) => v.severity === "hard");
+  return { ok: hard.length === 0, hard, soft: violations.filter((v) => v.severity === "soft") };
+}
+
+// How many of the still-pending questions fail hard validation. "Keep all" approves every one of them
+// in a single click, so without this the reviewer is told about the question on screen and nothing
+// about the other N they are also about to accept.
+async function failingPendingCount(pending: GeneratedQuestion[]): Promise<number> {
+  const keys = await getAnswerKeyGroundTruths(pending.map((q) => q.question_id));
+  let failing = 0;
+  for (const q of pending) {
+    const gt = keys.get(q.question_id);
+    if (!gt) continue; // no key → no verdict; counted as unknown, not as failing
+    if (violationsFor(q, gt).some((v) => v.severity === "hard")) failing++;
+  }
+  return failing;
+}
+
 /**
  * GET /api/admin/fill-bank/review?batch=… — admin-only.
  *
@@ -101,6 +154,8 @@ export async function GET(request: Request) {
   const pending = await getBatchPendingQuestions(batchId);
   const total = batch.kept_count + pending.length;
   const question = pending[0] ? serialize(pending[0]) : null;
+  const verdict = pending[0] ? await verdictFor(pending[0]) : null;
+  const failingRemaining = await failingPendingCount(pending);
 
   return Response.json({
     batchId: batch.id,
@@ -111,6 +166,8 @@ export async function GET(request: Request) {
     remaining: pending.length,
     position: { n: question ? batch.kept_count + 1 : total, total },
     question,
+    verdict,
+    failingRemaining,
   });
 }
 
