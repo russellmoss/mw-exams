@@ -1,70 +1,85 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
-// Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the Review row
-// auto-expands without a synchronous setState inside an effect.
+// Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
+// auto-expands at the batch's first pending question without a synchronous setState inside an effect.
 function initialReviewBatch(): string | null {
   if (typeof window === "undefined") return null;
   return new URLSearchParams(window.location.search).get("review");
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
-// "Fill the Bank" — rendered as ROWS INSIDE the Auto-Apply settings card on /admin (never as a
-// standalone sibling card or its own page). Five prior builds shipped it as a top-level card / route
-// that the admin never saw; the fix, per spec, is to nest this markup in the SAME JSX block as the
-// Auto-Apply toggle so it cannot sit on a separately-gated or unrendered branch.
+// "Fill the Bank" — rendered as a SECTION INSIDE the Auto-Apply settings card on /admin (never a
+// standalone card or its own page). Admin-only bulk question generation with a human review gate.
 //
-// Row A — Fill the Bank: per-paper banked readout, paper <select>, count input (default 10, 1–50),
-//         amber Generate, a muted est-cost + build stamp line, and a live progress bar while a batch
-//         runs. Row B — Review: appears only when unreviewed drafts exist and expands IN PLACE (no
-//         navigation) into a one-card-at-a-time keep/bin stack. All data comes from the existing
-//         admin-guarded /api/admin/bank/* endpoints; kept drafts are promoted into the banked store,
-//         pending/binned are never served to candidates.
+//   RESTING  — per-paper banked stat pairs, a paper <select>, a count input, a live muted cost range,
+//              and the amber Generate button. A quiet amber link "N waiting for review" sits at the
+//              row end when a batch is waiting.
+//   RUNNING  — controls collapse to "Writing N of M… you can close this tab." + a thin amber bar.
+//   REVIEW   — the section expands into a review pane: one question at a time, Keep / Bin / Keep all.
+//              Bin is immediate and permanent (the row is hard-deleted server-side). When the queue
+//              empties the pane collapses back to the resting row with a brief "Batch reviewed · N
+//              kept" line.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Self-evident staleness stamp (spec): if this line is old, the admin is on a stale bundle. Prefer a
-// deploy-injected build time; fall back to the stamp updated in the shipping change.
-const BUILD_STAMP = process.env.NEXT_PUBLIC_BUILD_TIME || "2026-08-04 12:00";
 
 const PAPER_LABEL: Record<number, string> = { 1: "Paper 1", 2: "Paper 2", 3: "Paper 3" };
 const PAPER_OPTION: Record<number, string> = {
-  1: "Paper 1 whites",
-  2: "Paper 2 reds",
-  3: "Paper 3 special",
+  1: "Paper 1 · Whites",
+  2: "Paper 2 · Reds",
+  3: "Paper 3 · Special",
 };
 
+interface Running {
+  batchId: string;
+  generatedCount: number;
+  requestedCount: number;
+}
 interface PaperStatus {
   paper: number;
-  descriptor?: string;
-  approved: number;
-  pending: number;
-  running: { batchId: string; requested: number; generated: number; failed: number } | null;
+  descriptor: string;
+  keptCount: number;
+  pendingCount: number;
+  running: Running | null;
+  reviewBatchId: string | null;
 }
-
-interface Wine {
+interface ReviewWine {
   slot: number;
-  fullText: string;
-  appearance: string | null;
+  text: string;
+  variety: string | null;
+  region: string | null;
+  country: string | null;
+  vintage: string | null;
+  priceBand: string | null;
 }
-interface Draft {
-  questionId: string;
+interface ReviewQuestion {
+  id: string;
   paper: number;
   family: string;
   familyLabel: string;
-  questionText: string;
-  totalMarks: number;
-  wines: Wine[];
-  status: "pending" | "approved" | "rejected";
+  difficulty: string | null;
+  stem: string;
+  markBreakdown: { label: string; marks: number }[];
+  total: number;
+  wines: ReviewWine[];
 }
-interface Batch {
-  id: string;
+interface ReviewData {
+  batchId: string;
   paper: number;
-  status: "running" | "ready" | "cancelled" | "error";
-  requested: number;
-  generated: number;
-  failed: number;
-  replaceRejected: boolean;
+  replaceBinned: boolean;
+  status: string;
+  keptCount: number;
+  remaining: number;
+  position: { n: number; total: number };
+  question: ReviewQuestion | null;
+}
+
+// Live cost range: per-question average × count, widened ±35%, rounded to whole dollars.
+function costRange(count: number, perQuestion: number): string {
+  const mid = count * perQuestion;
+  const min = Math.max(0, Math.floor(mid * 0.65));
+  const max = Math.max(min, Math.ceil(mid * 1.35));
+  return min === max ? `roughly $${max}` : `roughly $${min}–${max}`;
 }
 
 export function FillTheBankRows() {
@@ -75,18 +90,16 @@ export function FillTheBankRows() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Row B (in-place review) state. Seeded from the ?review=<batchId> deep-link so a click in the
-  // NotificationBell lands on /admin with the Review row already open.
-  const [reviewOpen, setReviewOpen] = useState(() => !!initialReviewBatch());
   const [reviewBatchId, setReviewBatchId] = useState<string | null>(() => initialReviewBatch());
-  const [batch, setBatch] = useState<Batch | null>(null);
-  const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [replaceBinned, setReplaceBinned] = useState(true); // default ON (spec)
+  const [reviewOpen, setReviewOpen] = useState(() => !!initialReviewBatch());
+  const [review, setReview] = useState<ReviewData | null>(null);
   const [busy, setBusy] = useState(false);
+  // Brief "Batch reviewed · N kept" line shown after the queue empties.
+  const [summary, setSummary] = useState<{ kept: number } | null>(null);
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/bank/status", { cache: "no-store" });
+      const res = await fetch("/api/admin/fill-bank/status", { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
       setPapers(data.papers || []);
@@ -109,85 +122,73 @@ export function FillTheBankRows() {
     };
   }, [fetchStatus]);
 
-  const totalPending = papers.reduce((sum, p) => sum + p.pending, 0);
-  const current = papers.find((p) => p.paper === selectedPaper);
-  const running = current?.running || null;
-  const estCost = (count * costPerQuestion).toFixed(2);
-
-  // ── Row B: load the drafts for the newest reviewable batch (or a deep-linked one) ───────────────
-  const loadReviewBatch = useCallback(async (batchId: string) => {
+  const loadReview = useCallback(async (batchId: string) => {
     try {
-      const res = await fetch(`/api/admin/bank/batch/${batchId}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data = await res.json();
-      setBatch(data.batch);
-      setDrafts(data.questions || []);
-      setReplaceBinned(!!data.batch?.replaceRejected);
+      const res = await fetch(`/api/admin/fill-bank/review?batch=${encodeURIComponent(batchId)}`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      const data: ReviewData = await res.json();
+      setReview(data);
+      return data;
     } catch {
-      /* transient */
+      return null;
     }
   }, []);
 
-  const openReview = useCallback(async () => {
-    setReviewOpen(true);
-    let batchId = reviewBatchId;
-    if (!batchId) {
-      try {
-        const res = await fetch("/api/admin/bank/notifications", { cache: "no-store" });
-        const data = await res.json();
-        batchId = (data.batches || [])[0]?.batchId ?? null;
-      } catch {
-        /* ignore */
-      }
-      if (batchId) setReviewBatchId(batchId);
-    }
-    if (batchId) await loadReviewBatch(batchId);
-  }, [reviewBatchId, loadReviewBatch]);
-
-  // Load drafts for a deep-linked batch on mount (the Review row is already open from initial state).
+  // Load the deep-linked batch on mount (the pane is already open from initial state).
+  const mounted = useRef(false);
   useEffect(() => {
-    let alive = true;
+    if (mounted.current) return;
+    mounted.current = true;
     const deep = initialReviewBatch();
-    if (deep) {
-      (async () => {
-        if (alive) await loadReviewBatch(deep);
-      })();
-    }
-    return () => {
-      alive = false;
-    };
-  }, [loadReviewBatch]);
-
-  // Keep the open review batch fresh while it's still generating.
-  useEffect(() => {
-    if (!reviewOpen || !reviewBatchId || batch?.status !== "running") return;
+    if (!deep) return;
     let alive = true;
-    const id = reviewBatchId;
-    const interval = setInterval(() => {
-      if (alive) loadReviewBatch(id);
-    }, 3000);
+    (async () => {
+      if (alive) await loadReview(deep);
+    })();
     return () => {
       alive = false;
-      clearInterval(interval);
     };
-  }, [reviewOpen, reviewBatchId, batch?.status, loadReviewBatch]);
+  }, [loadReview]);
+
+  // Keep the open review pane fresh while its batch is still generating.
+  useEffect(() => {
+    if (!reviewOpen || !reviewBatchId || review?.status !== "running") return;
+    const id = reviewBatchId;
+    const interval = setInterval(() => loadReview(id), 3000);
+    return () => clearInterval(interval);
+  }, [reviewOpen, reviewBatchId, review?.status, loadReview]);
+
+  const totalPending = papers.reduce((s, p) => s + p.pendingCount, 0);
+  const current = papers.find((p) => p.paper === selectedPaper);
+  const running = current?.running || null;
+  // Batch to review = the selected paper's, else any paper with pending work.
+  const pendingPaper = current?.pendingCount ? current : papers.find((p) => p.pendingCount > 0);
+  const nextReviewBatchId = reviewBatchId || pendingPaper?.reviewBatchId || null;
+
+  const openReview = useCallback(async () => {
+    setSummary(null);
+    setReviewOpen(true);
+    const id = nextReviewBatchId;
+    if (id) {
+      setReviewBatchId(id);
+      await loadReview(id);
+    }
+  }, [nextReviewBatchId, loadReview]);
 
   const handleGenerate = async () => {
     setGenerating(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/bank/generate", {
+      const res = await fetch("/api/admin/fill-bank", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Row B's "Replace anything I bin" defaults ON, so the batch is created with it on.
-        body: JSON.stringify({ paper: selectedPaper, count, replaceRejected: replaceBinned }),
+        body: JSON.stringify({ paper: selectedPaper, count, replaceBinned: true }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Couldn't start generation");
-      } else {
-        await fetchStatus();
-      }
+      if (!res.ok) setError(data.error || "Couldn't start generation");
+      else await fetchStatus();
     } catch {
       setError("Network error");
     } finally {
@@ -195,295 +196,267 @@ export function FillTheBankRows() {
     }
   };
 
-  const review = async (questionId: string, decision: "keep" | "bin") => {
+  const act = async (action: "keep" | "bin" | "keepAll") => {
+    if (!review) return;
+    const id = action === "keepAll" ? review.batchId : review.question?.id;
+    if (!id) return;
     setBusy(true);
-    setDrafts((prev) =>
-      prev.map((q) =>
-        q.questionId === questionId
-          ? { ...q, status: decision === "keep" ? "approved" : "rejected" }
-          : q
-      )
-    );
     try {
-      await fetch("/api/admin/bank/review", {
+      await fetch("/api/admin/fill-bank/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId, decision, batchId: reviewBatchId }),
+        body: JSON.stringify({ id, action }),
       });
-      if (reviewBatchId) await loadReviewBatch(reviewBatchId);
+      const next = await loadReview(review.batchId);
       await fetchStatus();
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const keepAll = async () => {
-    if (!reviewBatchId) return;
-    setBusy(true);
-    setDrafts((prev) => prev.map((q) => (q.status === "pending" ? { ...q, status: "approved" } : q)));
-    try {
-      await fetch("/api/admin/bank/keep-all", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ batchId: reviewBatchId }),
-      });
-      await loadReviewBatch(reviewBatchId);
-      await fetchStatus();
+      // Queue emptied and nothing left generating → collapse with a brief summary.
+      if (next && !next.question && next.remaining === 0 && next.status !== "running") {
+        setSummary({ kept: next.keptCount });
+        setReviewOpen(false);
+        setReviewBatchId(null);
+      }
     } finally {
       setBusy(false);
     }
   };
 
   const toggleReplace = async () => {
-    if (!reviewBatchId) return;
-    const next = !replaceBinned;
-    setReplaceBinned(next);
+    if (!review) return;
+    const nextVal = !review.replaceBinned;
+    setReview({ ...review, replaceBinned: nextVal });
     await fetch("/api/admin/bank/set-replace", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ batchId: reviewBatchId, replaceRejected: next }),
+      body: JSON.stringify({ batchId: review.batchId, replaceRejected: nextVal }),
     });
   };
 
-  const pending = drafts.filter((q) => q.status === "pending");
-  const kept = drafts.filter((q) => q.status === "approved");
-  const binned = drafts.filter((q) => q.status === "rejected");
-  const reviewedCount = kept.length + binned.length;
-  const total = drafts.length;
-  const card = pending[0] || null;
-  const reviewedAll =
-    batch != null && batch.status !== "running" && pending.length === 0 && total > 0;
+  const q = review?.question || null;
 
   return (
     <div>
-      {/* Row header — Fraunces title + build stamp, so staleness is self-evident. */}
-      <div className="flex items-baseline justify-between gap-3 mb-2">
-        <h3 className="font-display text-lg text-foreground">Fill the Bank</h3>
-        <span className="text-[11px] text-muted tabular-nums">build {BUILD_STAMP}</span>
-      </div>
-      <p className="text-xs text-muted mb-3 max-w-xl">
-        Generate a fresh batch of practice questions, then keep or bin each one before it reaches
-        candidates.
-      </p>
+      {/* Section label — Geist, small-caps label weight (NOT a serif heading; the card title stays). */}
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground mb-3">
+        Fill the Bank
+      </h3>
 
-      {/* Per-paper banked readout: "Paper 1 · 38 banked · Paper 2 · 24 · Paper 3 · 11" */}
-      <p className="text-xs text-foreground/80 tabular-nums mb-4">
-        {[1, 2, 3].map((p, i) => {
-          const s = papers.find((x) => x.paper === p);
-          return (
-            <span key={p}>
-              {i > 0 && <span className="text-muted"> · </span>}
-              <span className="text-muted">{PAPER_LABEL[p]} · </span>
-              {s?.approved ?? 0}
-              {i === 0 ? <span className="text-muted"> banked</span> : null}
-            </span>
-          );
-        })}
-      </p>
-
-      {/* ── Row A: configure + generate ─────────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Segmented P1/P2/P3 paper selector (spec) — one amber-active pill per paper. */}
-        <div className="inline-flex rounded-lg border border-border overflow-hidden" role="group" aria-label="Paper">
+      {/* ── RESTING ROW ─────────────────────────────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        {/* Compact per-paper stat pairs */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs tabular-nums">
           {[1, 2, 3].map((p) => {
-            const active = selectedPaper === p;
+            const s = papers.find((x) => x.paper === p);
             return (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setSelectedPaper(p)}
-                disabled={!!running}
-                aria-pressed={active}
-                title={PAPER_OPTION[p]}
-                className={`text-sm px-3.5 py-2 font-medium transition-colors cursor-pointer disabled:cursor-default disabled:opacity-50 border-l border-border first:border-l-0 ${
-                  active
-                    ? "bg-accent text-background"
-                    : "bg-card text-muted hover:text-foreground hover:bg-card-hover"
-                }`}
-              >
-                P{p}
-              </button>
+              <span key={p} className="text-foreground/80">
+                <span className="text-muted">{PAPER_LABEL[p]} · </span>
+                {s?.keptCount ?? 0}
+                <span className="text-muted"> banked</span>
+              </span>
             );
           })}
         </div>
 
-        <input
-          type="number"
-          min={1}
-          max={50}
-          value={count}
-          onChange={(e) => {
-            const n = Math.round(Number(e.target.value));
-            if (Number.isFinite(n)) setCount(Math.max(1, Math.min(50, n)));
-          }}
-          disabled={!!running}
-          className="text-sm w-20 px-3 py-2 bg-card border border-border rounded-lg text-foreground tabular-nums focus:outline-none focus:border-accent disabled:opacity-50"
-          aria-label="How many"
-        />
+        <div className="flex-1" />
 
         {running ? (
-          <button
-            disabled
-            className="text-sm px-5 py-2 rounded-lg bg-accent/60 text-background font-medium cursor-default"
-          >
-            Writing {running.requested} for {PAPER_LABEL[selectedPaper]} ·{" "}
-            <span className="tabular-nums">{running.generated + running.failed} done</span>
-          </button>
+          /* ── RUNNING STATE ── controls replaced by a single line + progress bar, no stop control */
+          <div className="w-full">
+            <p className="text-sm text-foreground">
+              Writing{" "}
+              <span className="tabular-nums">{Math.min(running.generatedCount + 1, running.requestedCount)}</span>{" "}
+              of <span className="tabular-nums">{running.requestedCount}</span>…{" "}
+              <span className="text-muted">you can close this tab.</span>
+            </p>
+            <div className="mt-2 h-1 rounded-full bg-border overflow-hidden max-w-md">
+              <div
+                className="h-full bg-accent transition-all"
+                style={{
+                  width: `${Math.min(
+                    100,
+                    Math.round((running.generatedCount / Math.max(1, running.requestedCount)) * 100)
+                  )}%`,
+                }}
+              />
+            </div>
+          </div>
         ) : (
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
-          >
-            {generating ? "Starting…" : "Generate"}
-          </button>
+          /* ── RESTING CONTROLS ── */
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={selectedPaper}
+              onChange={(e) => setSelectedPaper(Number(e.target.value))}
+              className="text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:border-accent cursor-pointer"
+              aria-label="Paper"
+            >
+              {[1, 2, 3].map((p) => (
+                <option key={p} value={p}>
+                  {PAPER_OPTION[p]}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="number"
+              min={1}
+              value={count}
+              onChange={(e) => {
+                const n = Math.round(Number(e.target.value));
+                if (Number.isFinite(n)) setCount(Math.max(1, n));
+              }}
+              className="text-sm w-20 px-3 py-2 bg-card border border-border rounded-lg text-foreground tabular-nums focus:outline-none focus:border-accent"
+              aria-label="How many questions"
+            />
+
+            <span className="text-xs text-muted tabular-nums">{costRange(count, costPerQuestion)}</span>
+
+            <button
+              onClick={handleGenerate}
+              disabled={generating}
+              className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {generating ? "Starting…" : "Generate"}
+            </button>
+
+            {totalPending > 0 && !reviewOpen && (
+              <button
+                onClick={openReview}
+                className="text-sm text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
+              >
+                {totalPending} waiting for review
+              </button>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Thin amber progress bar while a batch runs for the selected paper */}
-      {running && (
-        <div className="mt-3 h-1 rounded-full bg-border overflow-hidden max-w-md">
-          <div
-            className="h-full bg-accent transition-all"
-            style={{
-              width: `${Math.min(
-                100,
-                Math.round(
-                  ((running.generated + running.failed) / Math.max(1, running.requested)) * 100
-                )
-              )}%`,
-            }}
-          />
-        </div>
+      {error && <p className="text-xs text-fail mt-2">{error}</p>}
+      {summary && !reviewOpen && (
+        <p className="text-xs text-muted mt-3">
+          Batch reviewed · <span className="text-foreground tabular-nums">{summary.kept} kept</span>
+        </p>
       )}
 
-      {/* Muted est-cost + build stamp line */}
-      <p className="text-xs text-muted mt-3">
-        Estimated cost <span className="text-foreground tabular-nums">${estCost}</span> ({count} ×{" "}
-        <span className="tabular-nums">${costPerQuestion.toFixed(2)}</span>/question) · build{" "}
-        <span className="tabular-nums">{BUILD_STAMP}</span>
-      </p>
-
-      {error && <p className="text-xs text-fail mt-2">{error}</p>}
-
-      {/* ── Row B: Review — only when unreviewed drafts exist ───────────────────────────────────── */}
-      {(totalPending > 0 || (reviewOpen && total > 0)) && (
+      {/* ── REVIEW PANE ─────────────────────────────────────────────────────────────────────────── */}
+      {reviewOpen && (
         <div className="mt-5 pt-5 border-t border-border">
-          <button
-            onClick={() => (reviewOpen ? setReviewOpen(false) : openReview())}
-            className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors cursor-pointer"
-          >
-            <svg
-              className={`w-4 h-4 text-accent transition-transform ${reviewOpen ? "rotate-90" : ""}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-            {totalPending > 0 && (
-              <span className="w-2 h-2 rounded-full bg-accent shrink-0" aria-hidden />
-            )}
-            <span className="font-medium">Review</span>
-            <span className="text-muted">
-              {totalPending > 0 ? `${totalPending} waiting for review` : "review batch"}
-            </span>
-          </button>
-
-          {reviewOpen && (
-            <div className="mt-4">
-              {reviewedAll ? (
-                /* Empty state after review */
-                <div className="rounded-xl border border-success/30 bg-success/5 p-5 text-center">
-                  <p className="text-sm text-foreground">
-                    All reviewed ·{" "}
-                    <span className="text-success font-medium">{kept.length} added to the bank</span>
-                    {binned.length > 0 && (
-                      <span className="text-muted"> · {binned.length} binned</span>
-                    )}
-                  </p>
-                </div>
-              ) : card ? (
-                <div className="rounded-xl border border-border bg-card p-5">
-                  {/* Progress + paper + family label */}
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-semibold uppercase px-2 py-0.5 rounded bg-accent/15 text-accent">
-                        {PAPER_LABEL[card.paper]}
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
-                        {card.familyLabel}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted tabular-nums">
-                      Question {Math.min(reviewedCount + 1, total)} of {total}
+          {q ? (
+            <div>
+              {/* Header: "Question n of total" + paper / family / difficulty chips */}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <span className="text-sm font-medium text-foreground tabular-nums">
+                  Question {review!.position.n} of {review!.position.total}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
+                    {PAPER_LABEL[q.paper]}
+                  </span>
+                  <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
+                    {q.familyLabel}
+                  </span>
+                  {q.difficulty && (
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
+                      {q.difficulty}
                     </span>
-                  </div>
-
-                  {/* Stem verbatim, exactly as a candidate sees it */}
-                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-                    {card.questionText}
-                  </p>
-
-                  {/* Mark breakdown */}
-                  <p className="text-xs text-muted mt-3 tabular-nums">
-                    {card.wines.length} wine{card.wines.length === 1 ? "" : "s"} · {card.totalMarks}{" "}
-                    marks · 25 per wine
-                  </p>
-
-                  {/* Bordered wine list — variety / region / country / vintage / price band per wine
-                      as served to the candidate (the wine's full text + appearance) */}
-                  <ul className="mt-3 rounded-lg border border-border divide-y divide-border/60 overflow-hidden">
-                    {card.wines.map((w) => (
-                      <li key={w.slot} className="px-3 py-2 text-sm text-foreground/90 leading-relaxed">
-                        <span className="text-muted tabular-nums mr-2">{w.slot}.</span>
-                        {w.fullText}
-                        {w.appearance && (
-                          <span className="block text-xs text-muted ml-6 mt-0.5">{w.appearance}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Footer: Keep / Bin / Keep all / Replace anything I bin */}
-                  <div className="flex flex-wrap items-center gap-3 mt-5">
-                    <button
-                      onClick={() => review(card.questionId, "keep")}
-                      disabled={busy}
-                      className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      Keep
-                    </button>
-                    <button
-                      onClick={() => review(card.questionId, "bin")}
-                      disabled={busy}
-                      className="text-sm px-4 py-2 rounded-lg border border-border text-muted hover:text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      Bin
-                    </button>
-                    <button
-                      onClick={keepAll}
-                      disabled={busy || pending.length === 0}
-                      className="text-sm text-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-40"
-                    >
-                      Keep all ({pending.length})
-                    </button>
-                    <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer ml-auto">
-                      <input
-                        type="checkbox"
-                        checked={replaceBinned}
-                        onChange={toggleReplace}
-                        className="rounded accent-accent"
-                      />
-                      Replace anything I bin
-                    </label>
-                  </div>
+                  )}
                 </div>
-              ) : (
-                <p className="text-sm text-muted">Writing your first questions…</p>
-              )}
+              </div>
+
+              {/* Stem — verbatim candidate-facing text in a bordered inset block */}
+              <div className="rounded-lg border border-border bg-background/40 p-4">
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{q.stem}</p>
+              </div>
+
+              {/* Mark breakdown — two-column list with a total row */}
+              <div className="mt-4 max-w-sm">
+                <ul className="text-sm">
+                  {q.markBreakdown.map((m, i) => (
+                    <li key={i} className="flex justify-between py-1 border-b border-border/50">
+                      <span className="text-muted">{m.label}</span>
+                      <span className="text-foreground tabular-nums">{m.marks}</span>
+                    </li>
+                  ))}
+                  <li className="flex justify-between py-1 font-medium">
+                    <span className="text-foreground">Total</span>
+                    <span className="text-foreground tabular-nums">{q.total}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Wines — compact bordered table */}
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full text-xs border border-border rounded-lg overflow-hidden">
+                  <thead>
+                    <tr className="bg-card-hover text-muted text-left">
+                      <th className="px-3 py-2 font-medium">Wine</th>
+                      <th className="px-3 py-2 font-medium">Variety</th>
+                      <th className="px-3 py-2 font-medium">Region</th>
+                      <th className="px-3 py-2 font-medium">Country</th>
+                      <th className="px-3 py-2 font-medium">Vintage</th>
+                      <th className="px-3 py-2 font-medium">Price band</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {q.wines.map((w) => (
+                      <tr key={w.slot} className="border-t border-border/60 text-foreground/90 align-top">
+                        <td className="px-3 py-2 tabular-nums">{w.slot}</td>
+                        <td className="px-3 py-2">{w.variety || <span className="text-muted">—</span>}</td>
+                        <td className="px-3 py-2">{w.region || <span className="text-muted">—</span>}</td>
+                        <td className="px-3 py-2">{w.country || <span className="text-muted">—</span>}</td>
+                        <td className="px-3 py-2 tabular-nums">{w.vintage || <span className="text-muted">—</span>}</td>
+                        <td className="px-3 py-2">{w.priceBand || <span className="text-muted">—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {/* The verbatim wine descriptor, exactly as a candidate reads it. */}
+                <ul className="mt-2 space-y-0.5">
+                  {q.wines.map((w) => (
+                    <li key={w.slot} className="text-xs text-muted leading-relaxed">
+                      <span className="tabular-nums mr-1">{w.slot}.</span>
+                      {w.text}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Footer: replace toggle left · Bin / Keep / Keep all right */}
+              <div className="flex flex-wrap items-center gap-3 mt-5">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer mr-auto">
+                  <input
+                    type="checkbox"
+                    checked={review!.replaceBinned}
+                    onChange={toggleReplace}
+                    className="rounded accent-accent"
+                  />
+                  Replace anything I bin
+                </label>
+                <button
+                  onClick={() => act("bin")}
+                  disabled={busy}
+                  className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Bin
+                </button>
+                <button
+                  onClick={() => act("keep")}
+                  disabled={busy}
+                  className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Keep
+                </button>
+                <button
+                  onClick={() => act("keepAll")}
+                  disabled={busy || review!.remaining === 0}
+                  className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Keep all
+                </button>
+              </div>
             </div>
+          ) : review?.status === "running" ? (
+            <p className="text-sm text-muted">Writing your first questions…</p>
+          ) : (
+            <p className="text-sm text-muted">Nothing waiting for review.</p>
           )}
         </div>
       )}

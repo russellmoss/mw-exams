@@ -58,6 +58,21 @@ export function estimateBatchCost(count: number): number {
   return Math.round(count * EST_COST_PER_QUESTION * 100) / 100;
 }
 
+// Muted "roughly $2–3" range for the Admin card: per-question average × count, widened ±35%, rounded
+// to whole dollars (spec). `perQuestion` defaults to the static estimate; the card passes the real
+// observed per-question spend when it has one.
+export function estimateBatchCostRange(
+  count: number,
+  perQuestion: number = EST_COST_PER_QUESTION
+): { minCents: number; maxCents: number; minDollars: number; maxDollars: number } {
+  const mid = count * perQuestion;
+  const minCents = Math.round(mid * 0.65 * 100);
+  const maxCents = Math.round(mid * 1.35 * 100);
+  const minDollars = Math.max(0, Math.floor(minCents / 100));
+  const maxDollars = Math.max(minDollars + (maxCents > minCents ? 1 : 0), Math.ceil(maxCents / 100));
+  return { minCents, maxCents, minDollars, maxDollars };
+}
+
 const CONCURRENCY = 2;
 // Leave headroom under the route's maxDuration (300s) for the final flush + a resume hop.
 const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 240_000;
@@ -75,15 +90,18 @@ export function isValidPaper(p: unknown): p is 1 | 2 | 3 {
 export async function startBankBatch(input: {
   paper: 1 | 2 | 3;
   count: number;
-  replaceRejected: boolean;
+  replaceBinned: boolean;
   createdBy: number | null;
 }): Promise<BankBatch> {
+  const range = estimateBatchCostRange(input.count);
   return createBankBatch({
     paper: input.paper,
     requestedCount: input.count,
-    replaceRejected: input.replaceRejected,
+    replaceBinned: input.replaceBinned,
     createdBy: input.createdBy,
     estCostUsd: estimateBatchCost(input.count),
+    estCostMinCents: range.minCents,
+    estCostMaxCents: range.maxCents,
   });
 }
 
@@ -203,6 +221,6 @@ export async function runBankBatch(opts: {
   // All planned work done → flip to ready and reconcile actual spend. The NotificationBell surfaces
   // ready batches on its next poll (getReviewableBatches), so this is the "notify when ready" signal.
   const actualCost = await getBatchActualCost(batchId).catch(() => 0);
-  await setBankBatchStatus(batchId, "ready", { completed: true, actualCostUsd: actualCost });
-  console.log(`[bank-worker] batch ${batchId} ready — ${batch.generated_count} generated, ${batch.failed_count} failed`);
+  await setBankBatchStatus(batchId, "complete", { completed: true, actualCostUsd: actualCost });
+  console.log(`[bank-worker] batch ${batchId} complete — ${batch.generated_count} generated, ${batch.failed_count} failed`);
 }

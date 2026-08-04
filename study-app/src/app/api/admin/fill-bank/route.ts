@@ -4,22 +4,23 @@ import { getRunningBatchForPaper } from "@/lib/db";
 import {
   startBankBatch,
   runBankBatch,
-  estimateBatchCost,
+  estimateBatchCostRange,
   isValidPaper,
   MIN_COUNT,
-  MAX_COUNT,
 } from "@/lib/bank-worker";
 
 export const runtime = "nodejs";
-// The bulk run is driven in after() (post-response), so this invocation stays alive for the worker's
-// wall-clock budget even though the response — just the batchId — is instant.
+// The bulk run is driven in after() (post-response) so this invocation stays alive for the worker's
+// wall-clock budget even though the response — just the batch id — is instant.
 export const maxDuration = 300;
 
 /**
- * POST /api/admin/bank/generate  { paper, count, replaceRejected }
+ * POST /api/admin/fill-bank  { paper, count, replaceBinned }
  *
- * Admin-only. Creates a bank_batches row, kicks off the durable worker, and returns { batchId }
- * immediately. Refuses if a run is already live for that paper (one batch per paper at a time).
+ * Admin-only. Creates a bank_batches row, kicks off the durable background worker, and returns the
+ * batch id immediately (a closed tab never kills the run). No cap on count. One running batch per
+ * paper is fine — a second request for a paper already running is a harmless no-op that returns the
+ * live batch id rather than blocking.
  */
 export async function POST(request: Request) {
   const keyResult = await requireApiKey(request);
@@ -31,27 +32,26 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   const paper = Number(body.paper);
   const count = Math.round(Number(body.count));
-  const replaceRejected = !!body.replaceRejected;
+  // "Replace anything I bin" — on by default.
+  const replaceBinned = body.replaceBinned === undefined ? true : !!body.replaceBinned;
 
   if (!isValidPaper(paper)) {
     return Response.json({ error: "Paper must be 1, 2, or 3" }, { status: 400 });
   }
-  if (!Number.isFinite(count) || count < MIN_COUNT || count > MAX_COUNT) {
-    return Response.json({ error: `Count must be between ${MIN_COUNT} and ${MAX_COUNT}` }, { status: 400 });
+  if (!Number.isFinite(count) || count < MIN_COUNT) {
+    return Response.json({ error: `Count must be at least ${MIN_COUNT}` }, { status: 400 });
   }
 
+  // One running batch per paper — don't block, just return the live one.
   const running = await getRunningBatchForPaper(paper);
   if (running) {
-    return Response.json(
-      { error: "A run is already in progress for this paper.", batchId: running.id },
-      { status: 409 }
-    );
+    return Response.json({ batchId: running.id, alreadyRunning: true });
   }
 
   const batch = await startBankBatch({
     paper,
     count,
-    replaceBinned: replaceRejected,
+    replaceBinned,
     createdBy: keyResult.user.id,
   });
 
@@ -62,9 +62,9 @@ export async function POST(request: Request) {
     try {
       await runBankBatch({ batchId: batch.id, apiKey, userId, baseUrl });
     } catch (err) {
-      console.error(`[bank/generate] worker failed for batch ${batch.id}:`, err);
+      console.error(`[fill-bank] worker failed for batch ${batch.id}:`, err);
     }
   });
 
-  return Response.json({ batchId: batch.id, estCostUsd: estimateBatchCost(count) });
+  return Response.json({ batchId: batch.id, estCost: estimateBatchCostRange(count) });
 }
