@@ -449,11 +449,20 @@ export async function generateFreshQuestion(
   // familyTargeted: this run pins EVERY question to one family, so the novelty check must swap its
   // family-gated stem-template rules for the wine-overlap + framing-sentence pair (see
   // validateNoveltyAgainstLatest).
+  // budgetMs / callTimeoutMs: per-caller overrides for the generation deadline. The defaults below
+  // are sized for the INTERACTIVE route — 45s per call and 95s of budget, chosen to sit under the
+  // browser's 120s abort with a user watching a spinner. A background bulk run has no browser and no
+  // one waiting, so inheriting the interactive ceiling just discards near-complete work: measured
+  // p90 latency sat at exactly 45,00Xms in every hour sampled (i.e. censored at the cap) and 33% of
+  // attempts died there. See bank-worker.ts, which raises both and moves its own ITEM_WORST_CASE_MS
+  // in lockstep so "never start work you cannot finish" still holds.
   saveOpts?: {
     status?: string;
     batchId?: string | null;
     awaitBackgroundWork?: boolean;
     familyTargeted?: boolean;
+    budgetMs?: number;
+    callTimeoutMs?: number;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -553,8 +562,10 @@ export async function generateFreshQuestion(
   // headroom under the browser's 120s abort. MIN_CALL_MS sits above a typical call so the loop never
   // burns the tail of the budget on an attempt that cannot finish.
   const startedAt = Date.now();
-  const BUDGET_MS = Number(process.env.GENERATION_BUDGET_MS) || 95_000;
-  const CALL_TIMEOUT_MS = Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 45_000;
+  const BUDGET_MS =
+    saveOpts?.budgetMs || Number(process.env.GENERATION_BUDGET_MS) || 95_000;
+  const CALL_TIMEOUT_MS =
+    saveOpts?.callTimeoutMs || Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 45_000;
   const MIN_CALL_MS = Number(process.env.GENERATION_MIN_CALL_MS) || 25_000;
   const remainingMs = () => BUDGET_MS - (Date.now() - startedAt);
 

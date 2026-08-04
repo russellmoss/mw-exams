@@ -77,13 +77,34 @@ export function estimateBatchCostRange(
 
 // Chunked execution (spec §4): generate in small groups rather than one long request so a serverless
 // timeout can't kill the whole run — the resume hop / cron picks up the next chunk. Three at a time.
-const CONCURRENCY = 3;
+export const CONCURRENCY = 3;
+
+// Generation limits for THIS worker, overriding the interactive defaults in question-engine.ts.
+//
+// Those defaults (45s per call, 95s of budget) are sized to sit under the browser's 120s abort with a
+// user watching a spinner. A background bulk run has neither, and inheriting that ceiling threw away
+// near-complete work: measured p90 latency sat at exactly 45,00Xms in every hour sampled — the
+// distribution was censored at the cap, so we could not even see how long those calls needed — and
+// 33% of attempts died there rather than at a validator.
+//
+// 70s per call inside 110s of budget guarantees one full attempt and affords a second whenever the
+// first returns quickly (the loop needs MIN_CALL_MS=25s remaining to start one).
+export const WORKER_CALL_TIMEOUT_MS = Number(process.env.BANK_WORKER_CALL_TIMEOUT_MS) || 70_000;
+export const WORKER_GENERATION_BUDGET_MS = Number(process.env.BANK_WORKER_GENERATION_BUDGET_MS) || 110_000;
+
+// The awaited model answer + wine enrichment that run after generation, before the item is done.
+export const POST_GENERATION_MS = 55_000;
 
 // Hard per-item timeout (spec §3). generateFreshQuestion has its own internal generation budget, but
 // this is a belt-and-braces ceiling around the whole item (generation + awaited model answer +
 // enrichment) so a single wedged call can never hang the chunk. A timed-out attempt is treated like
 // any other failed attempt: it is retried, and only a genuine final failure increments items_skipped.
-const ITEM_TIMEOUT_MS = Number(process.env.BANK_WORKER_ITEM_TIMEOUT_MS) || 120_000;
+//
+// It MUST leave room for the generation budget plus the post-generation work, or it becomes the
+// binding constraint and kills items that were about to succeed — silently converting a raised
+// generation budget into a no-op.
+export const ITEM_TIMEOUT_MS =
+  Number(process.env.BANK_WORKER_ITEM_TIMEOUT_MS) || WORKER_GENERATION_BUDGET_MS + POST_GENERATION_MS;
 
 class ItemTimeoutError extends Error {}
 
@@ -97,16 +118,22 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   });
 }
 // Leave headroom under the route's maxDuration (300s) for the final flush + a resume hop.
-const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 285_000;
+export const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 285_000;
 
-// What ONE question can cost in the worst case: a generateFreshQuestion call may burn its full
-// GENERATION_BUDGET_MS (95s) before falling back, and the awaited model answer + enrichment add
-// ~50s. The old code checked only "have I used 240s yet?", which asks the wrong question: an item
-// started at 239s could still run for minutes. Worse, generateOneIntoBatch retried up to 3 times —
-// 3 x 95s = 285s for a single item — so one hard question could overrun maxDuration from a standing
-// start. It did: a Paper 2 batch returned HTTP 504 to the hourly workflow. The rule now is the one
-// the generation loop already documents for itself — never start work you cannot finish.
-const ITEM_WORST_CASE_MS = 145_000;
+// Worst case for ONE item. withTimeout() caps every item at ITEM_TIMEOUT_MS, so that IS the bound —
+// deriving it from anything else invites the two to drift apart, and the old hard-coded 145_000 was
+// already 25s adrift of the 120_000 ceiling actually being enforced.
+//
+// Getting this wrong is not cosmetic: it backs the "never start work you cannot finish" rule. The
+// original code asked only "have I used 240s yet?", which is the wrong question — an item begun at
+// 239s could still run for minutes, and generateOneIntoBatch retried up to 3 times on top. One hard
+// question could overrun maxDuration from a standing start, and did: a Paper 2 batch returned HTTP
+// 504 to the hourly workflow.
+//
+// Throughput is unchanged by the raise. At 145s a 285s invocation fitted one round of CONCURRENCY
+// items (285-145=140 < 145); at 165s it still fits exactly one (285-165=120 < 165). Each item simply
+// gets a fair shot at finishing.
+export const ITEM_WORST_CASE_MS = ITEM_TIMEOUT_MS;
 
 // Circuit breaker. A failed question is not free — it burns a full generation budget (up to eight
 // model calls) and bills for every one, and the /api/admin/fill-bank route caps count at nothing at
@@ -202,6 +229,10 @@ async function generateOneIntoBatch(
             // family-gated stem-template rules fire on every candidate. See the note in
             // validateNoveltyAgainstLatest — targeted runs police the WINES and the framing sentence.
             familyTargeted: pinned,
+            // No browser, no one waiting — see the constants for why the interactive ceiling was
+            // costing us a third of all attempts.
+            budgetMs: WORKER_GENERATION_BUDGET_MS,
+            callTimeoutMs: WORKER_CALL_TIMEOUT_MS,
           },
           undefined,
           // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
