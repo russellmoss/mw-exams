@@ -12,7 +12,7 @@ import {
   type GeneratedQuestion,
 } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
+import { saveGeneratedQuestion, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
@@ -49,6 +49,56 @@ const FAMILY_LABELS: Record<string, string> = {
   F5: "Method / Production",
   F6: "Style Mechanism",
   F7: "Quality Hierarchy",
+};
+
+// Bank Health targeting → question family. A "Generate more like this" run whose slice pins a
+// question TYPE (from bank-health/derive.ts) maps onto the corpus family whose shape matches, so the
+// whole batch stays on-aim. Types that span several families (compare & contrast, mixed grab-bag,
+// "other") return null and fall back to the worker's thinnest-first diversity rotation.
+const QUESTION_TYPE_TO_FAMILY: Record<string, string> = {
+  same_variety: "F1",
+  same_country: "F2",
+  different_countries: "F4",
+  focus_style_quality_commercial: "F6",
+};
+
+export function familyForQuestionType(questionType: string | null | undefined): string | null {
+  if (!questionType) return null;
+  return QUESTION_TYPE_TO_FAMILY[questionType] ?? null;
+}
+
+// Turn a Bank Health targeting aim into a SOFT-preference prompt block. Every line is phrased as a
+// preference, never a hard rule: it nudges wine / style / framing choices toward the under-served
+// slice without ever overriding the paper's scope or the flight-size validators. Returns null when
+// there is nothing to steer, so the normal generation path is untouched.
+function buildTargetingConstraints(targeting: BankTargeting | null | undefined): string | null {
+  if (!targeting) return null;
+  const prefs: string[] = [];
+  if (targeting.questionType) {
+    const label = QUESTION_TYPE_LABELS_FOR_PROMPT[targeting.questionType];
+    if (label) prefs.push(`Frame the question as a "${label}" style flight where the wine choices allow it.`);
+  }
+  if (targeting.curveball) prefs.push(`Aim for a ${targeting.curveball} curveball / difficulty level.`);
+  if (targeting.flightSize) prefs.push(`Prefer a flight of ${targeting.flightSize} wines if it fits the paper's scope.`);
+  if (targeting.grape) prefs.push(`Feature the ${targeting.grape} grape variety where it is credible for this paper.`);
+  if (targeting.region) prefs.push(`Draw on the ${targeting.region} region where it is credible for this paper.`);
+  if (targeting.priceBand) prefs.push(`Lean toward the ${targeting.priceBand.replace(/_/g, " ")} price band where appropriate.`);
+  if (prefs.length === 0) return null;
+  return (
+    "\n\nSOFT PREFERENCES (nudge only — never break the paper scope, flight-size or mark rules above):\n" +
+    prefs.map((p) => `- ${p}`).join("\n")
+  );
+}
+
+// Human labels for the targeting question types, used only inside the soft-preference prompt block.
+const QUESTION_TYPE_LABELS_FOR_PROMPT: Record<string, string> = {
+  same_variety: "same variety",
+  same_country: "same country / region",
+  different_countries: "different countries",
+  compare_contrast: "compare and contrast",
+  mixed_grab_bag: "mixed grab-bag",
+  focus_style_quality_commercial: "style / quality / commercial focus",
+  other: "other framing",
 };
 
 type QuestionCandidate = {
@@ -379,7 +429,10 @@ export async function generateFreshQuestion(
   // model_answer NULL — unusable for study, and invisible because the batch still read 'complete'.
   saveOpts?: { status?: string; batchId?: string | null; awaitBackgroundWork?: boolean },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
-  variety?: string | null
+  variety?: string | null,
+  // Bank Health "Generate more like this" soft-constraint aim. Threaded into the prompt as
+  // preferences (never as scope-breaking rules); undefined on every normal generation path.
+  targeting?: BankTargeting | null
 ) {
   const client = new Anthropic({ apiKey });
 
@@ -416,6 +469,11 @@ export async function generateFreshQuestion(
       : null,
     variety
   );
+
+  // Bank Health targeting: append the aim as SOFT preferences. Deliberately after the hard scope /
+  // flight-size rules so it can nudge wine/style/framing choices without ever overriding paper scope.
+  const targetingBlock = buildTargetingConstraints(targeting);
+  if (targetingBlock) prompt.system += targetingBlock;
 
   let parsed: ReturnType<typeof parseGeneratedQuestion> = null;
   let validation:
