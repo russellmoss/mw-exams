@@ -3,6 +3,7 @@
   "routes": [
     "/",
     "/admin",
+    "/admin/bank-health",
     "/admin/costs",
     "/admin/users/[id]",
     "/diagrams",
