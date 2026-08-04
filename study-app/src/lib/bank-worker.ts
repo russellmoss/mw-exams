@@ -123,7 +123,12 @@ async function generateOneIntoBatch(
         meta,
         undefined,
         undefined,
-        { status: "pending", batchId: batch.id }
+        // awaitBackgroundWork: a banked question is only worth banking once its model answer and
+        // wine enrichment exist. Without it this invocation returns the moment the row is written
+        // and the platform freezes both mid-flight. It costs ~30s per question, so a batch fits
+        // fewer items per invocation and leans harder on the resume path — which is correct: the
+        // work is real either way, and resume is exercised by the hourly safety net.
+        { status: "pending", batchId: batch.id, awaitBackgroundWork: true }
       );
       // Only a freshly GENERATED result is a new pending question. A 'pre-populated' outcome means
       // generation didn't converge and the engine served an existing (approved) question instead —

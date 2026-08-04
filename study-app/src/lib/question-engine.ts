@@ -64,7 +64,11 @@ type NormalizedGeneratedQuestion = Omit<GeneratedQuestion, "wines"> & {
   wines: { slot: number; fullText: string; appearance?: string }[];
 };
 
-// Fire-and-forget background model answer generation
+// Background model answer generation. Returns the in-flight promise — resolving true once the answer
+// is persisted, false if the call failed; it never rejects — so a caller that CANNOT let the work
+// outlive it, i.e. the Fill-the-Bank worker, can await completion and know whether it landed. The
+// interactive study path ignores the return value and stays fire-and-forget, because the candidate
+// should get the question without waiting ~30s for its answer.
 function generateModelAnswerInBackground(
   questionId: string,
   questionText: string,
@@ -73,8 +77,8 @@ function generateModelAnswerInBackground(
   family: string,
   apiKey: string,
   meta?: UsageMeta
-) {
-  (async () => {
+): Promise<boolean> {
+  return (async () => {
     try {
       const client = new Anthropic({ apiKey });
       const { model, abGroup } = await selectModel("model_answer", apiKey, "opus");
@@ -129,8 +133,10 @@ function generateModelAnswerInBackground(
       });
 
       console.log(`Background model answer generated for ${questionId}`);
+      return true;
     } catch (err) {
       console.error(`Background model answer failed for ${questionId}:`, err);
+      return false;
     }
   })();
 }
@@ -365,7 +371,12 @@ export async function generateFreshQuestion(
   // Fill-the-Bank hook: when the bulk worker calls, it persists the validated question as
   // status='pending' under a batch_id so it is held out of every candidate-facing read until an
   // admin approves it. Absent (the normal study path) → the row saves 'approved' and is servable.
-  saveOpts?: { status?: string; batchId?: string | null },
+  // `awaitBackgroundWork` is the bulk worker's other requirement: block until the model answer and
+  // wine enrichment have actually landed. Both are normally detached promises, which is safe only
+  // while something else keeps the invocation alive. The worker persists the question and returns
+  // within ~50ms, so on serverless the invocation froze mid-call and the question was banked with
+  // model_answer NULL — unusable for study, and invisible because the batch still read 'complete'.
+  saveOpts?: { status?: string; batchId?: string | null; awaitBackgroundWork?: boolean },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null
 ) {
@@ -452,6 +463,19 @@ export async function generateFreshQuestion(
   const MIN_CALL_MS = Number(process.env.GENERATION_MIN_CALL_MS) || 25_000;
   const remainingMs = () => BUDGET_MS - (Date.now() - startedAt);
 
+  // Minted BEFORE the first model call so every question_generation usage row can carry it. The id
+  // depends only on the requested paper/family, never on what comes back, so hoisting it changes
+  // nothing but the timestamp. It matters because the generation call is the DOMINANT spend: logged
+  // with question_id NULL it was unattributable to any question or batch, which is why
+  // getBatchActualCost reported $0.00 for a batch that really cost $0.14, and why ~$152 of
+  // historical generation spend can never be tied to what it produced.
+  //
+  // If generation never converges the row is never saved and these usage rows point at an id that
+  // does not exist. That is deliberate: model_usage.question_id carries no FK, and the money was
+  // genuinely spent. Only the converged attempt's id reaches generated_questions, so the cost of
+  // discarded attempts stays outside a batch's reconciled total.
+  const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -477,7 +501,7 @@ export async function generateFreshQuestion(
     try {
       message = await callGenerationModel(client, model, prompt, callOpts, emit);
       logClaudeUsage(
-        { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, abGroup: attemptAb },
+        { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, questionId, abGroup: attemptAb },
         message.usage,
         { latencyMs: Date.now() - t0 }
       );
@@ -501,7 +525,7 @@ export async function generateFreshQuestion(
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
           logClaudeUsage(
-            { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId, abGroup: null },
+            { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId, questionId, abGroup: null },
             message.usage,
             { latencyMs: Date.now() - tRetry }
           );
@@ -649,7 +673,6 @@ export async function generateFreshQuestion(
   }
 
   emit?.({ type: "status", label: "Saving the question…" });
-  const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
   const saved = await saveGeneratedQuestion({
     questionId,
     paper,
@@ -682,12 +705,12 @@ export async function generateFreshQuestion(
     },
   });
 
-  // Fire-and-forget: enrich wine profiles in background
-  enrichWineProfiles(questionId, parsed.wines, apiKey, meta).catch((err) =>
+  // Detached by default (the study path never waits); awaited below when the caller requires it.
+  const enrichment = enrichWineProfiles(questionId, parsed.wines, apiKey, meta).catch((err) =>
     console.error("Wine enrichment background error:", err)
   );
 
-  generateModelAnswerInBackground(
+  const modelAnswer = generateModelAnswerInBackground(
     questionId,
     parsed.questionText,
     parsed.wines,
@@ -697,10 +720,19 @@ export async function generateFreshQuestion(
     meta
   );
 
+  // The bulk worker asks for these to be finished, not merely started (see awaitBackgroundWork).
+  // Neither promise rejects, so this cannot turn a banked question into a thrown error.
+  let modelAnswerSaved = false;
+  if (saveOpts?.awaitBackgroundWork) {
+    [, modelAnswerSaved] = await Promise.all([enrichment, modelAnswer]);
+  }
+
   return {
     source: "generated" as const,
+    // `saved` was read before the answer existed, so this reports the awaited outcome rather than
+    // the row — false on the study path, where the answer is still in flight by design.
     question: sanitizeQuestionMetadata(saved),
-    hasModelAnswer: false,
+    hasModelAnswer: modelAnswerSaved,
   };
 }
 
