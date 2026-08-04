@@ -278,17 +278,11 @@ export function FillTheBankRows() {
   return (
     <div>
       {/* Section label — Geist, small-caps label weight (NOT a serif heading; the card title stays).
-          A quiet secondary link to Bank Health sits at the row end (the bank's benchmark view). */}
+          Bank Health now renders as its own inline section below this card, so no cross-link here. */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground">
           Fill the Bank
         </h3>
-        <a
-          href="/admin/bank-health"
-          className="text-xs text-accent hover:text-accent-hover underline underline-offset-2 transition-colors"
-        >
-          Bank Health →
-        </a>
       </div>
 
       {/* ── RESTING ROW ─────────────────────────────────────────────────────────────────────────── */}

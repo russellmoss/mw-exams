@@ -120,13 +120,13 @@ export const BENCHMARKS: Record<string, Record<string, number>> = {
 
 export type Flag = "on" | "over" | "thin";
 
-// |bank − benchmark| ≤ 3pp → on target; bank − benchmark > 3pp → over-weighted; benchmark − bank >
-// 3pp → thin. A zero-count row that the exams DO carry is always thin.
+// |bank − benchmark| ≤ 5pp → on target; bank − benchmark > 5pp → over-weighted; benchmark − bank >
+// 5pp → thin. A zero-count row that the exams DO carry is always thin.
 export function computeFlag(bankPct: number, benchmarkPct: number, count: number): Flag {
   if (count === 0 && benchmarkPct > 0) return "thin";
   const delta = bankPct - benchmarkPct;
-  if (Math.abs(delta) <= 3) return "on";
-  return delta > 3 ? "over" : "thin";
+  if (Math.abs(delta) <= 5) return "on";
+  return delta > 5 ? "over" : "thin";
 }
 
 export function benchmarkFor(slice: SliceId, key: string): number {

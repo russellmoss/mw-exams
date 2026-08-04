@@ -95,6 +95,7 @@
   ],
   "components": [
     "AnswerInput",
+    "BankHealthSection",
     "DecisionTreeWalkthrough",
     "DiagramModal",
     "DictationBanner",
