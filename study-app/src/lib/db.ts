@@ -716,13 +716,17 @@ export async function reviewBankQuestion(
     return { batchId: row.batch_id ?? null, changed: true };
   }
 
+  // Also accepts a 'binned' row — this is the "Reinstate" path from The Bin page, which reverses a bin
+  // by keeping the item (approved / servable). A kept item carries no fault, so its bin-ledger row is
+  // dropped; for a normal pending→kept there is no ledger row, so the DELETE is a harmless no-op.
   const rows = await sql`
     UPDATE generated_questions SET
       status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId}
-    WHERE question_id = ${questionId} AND review_state = 'pending'
+    WHERE question_id = ${questionId} AND review_state IN ('pending', 'binned')
     RETURNING batch_id
   `;
   if (rows.length === 0) return { batchId: null, changed: false };
+  await sql`DELETE FROM bank_bin_reasons WHERE item_id = ${questionId}`;
   const batchId = (rows[0].batch_id as string) ?? null;
   if (batchId) {
     await sql`UPDATE bank_batches SET kept_count = kept_count + 1 WHERE id = ${batchId}`;
@@ -850,6 +854,110 @@ export async function getTopBinReasons(
     }
   }
   return best;
+}
+
+// ── The Bin page (/admin/bin) ───────────────────────────────────────────────────────────────────
+
+export interface BinnedItem {
+  itemId: string;
+  paper: number;
+  familyLabel: string | null;
+  stem: string;
+  marks: number | null;
+  reasons: string[];
+  note: string | null;
+  binnedByName: string | null;
+  binnedAt: string;
+}
+
+// The binned-item list for The Bin, newest first, optionally filtered by a single reason tag and/or a
+// paper. Joins the reason ledger to the (soft-deleted) generated_questions row for the stem/marks/family
+// and to users for the "binned by" name. A ledger row whose question was hard-deleted by an older path
+// still shows (LEFT JOIN) with a null stem, so counts never silently drop.
+export async function getBinnedItems(
+  opts: { reason?: string | null; paper?: number | null; limit?: number } = {}
+): Promise<BinnedItem[]> {
+  const sql = getDb();
+  const reason = opts.reason ?? null;
+  const paper = opts.paper ?? null;
+  const limit = opts.limit ?? 200;
+  const rows = (await sql`
+    SELECT b.item_id, b.paper, b.reason_tags, b.reason_note, b.binned_at,
+           g.family_label, g.question_text, g.total_marks,
+           u.name AS binned_by_name
+    FROM bank_bin_reasons b
+    LEFT JOIN generated_questions g ON g.question_id = b.item_id
+    LEFT JOIN users u ON u.id = b.binned_by
+    WHERE (${paper}::int IS NULL OR b.paper = ${paper})
+      AND (${reason}::text IS NULL OR ${reason} = ANY(b.reason_tags))
+    ORDER BY b.binned_at DESC
+    LIMIT ${limit}
+  `) as {
+    item_id: string;
+    paper: number;
+    reason_tags: string[] | null;
+    reason_note: string | null;
+    binned_at: string;
+    family_label: string | null;
+    question_text: string | null;
+    total_marks: number | null;
+    binned_by_name: string | null;
+  }[];
+  return rows.map((r) => ({
+    itemId: r.item_id,
+    paper: r.paper,
+    familyLabel: r.family_label ?? null,
+    stem: r.question_text ?? "",
+    marks: r.total_marks ?? null,
+    reasons: Array.isArray(r.reason_tags) ? r.reason_tags : [],
+    note: r.reason_note ?? null,
+    binnedByName: r.binned_by_name ?? null,
+    binnedAt: r.binned_at,
+  }));
+}
+
+// Reason tally across the whole ledger — the "reason label + count" row on The Bin. Only tagged rows
+// contribute; a bare (reasonless) bin adds to no tally bucket.
+export async function getBinReasonTally(): Promise<{ reason: string; count: number }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT tag AS reason, COUNT(*)::int AS count
+    FROM bank_bin_reasons, UNNEST(reason_tags) AS tag
+    WHERE reason_tags IS NOT NULL
+    GROUP BY tag
+    ORDER BY count DESC, tag ASC
+  `) as { reason: string; count: number }[];
+  return rows;
+}
+
+// Distinct papers present in the ledger — drives The Bin's paper filter dropdown.
+export async function getBinPapers(): Promise<number[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT DISTINCT paper FROM bank_bin_reasons ORDER BY paper ASC
+  `) as { paper: number }[];
+  return rows.map((r) => r.paper);
+}
+
+// The most recent bins ACROSS ALL PAPERS (tags + note + paper), newest first — the raw material the
+// LLM distils into the "Lessons for new questions" summary. Rows carrying neither a tag nor a note hold
+// no signal and are skipped.
+export async function getRecentBinReasonRows(
+  limit = 50
+): Promise<{ tags: string[]; note: string | null; paper: number }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT reason_tags, reason_note, paper
+    FROM bank_bin_reasons
+    WHERE reason_tags IS NOT NULL OR reason_note IS NOT NULL
+    ORDER BY binned_at DESC
+    LIMIT ${limit}
+  `) as { reason_tags: string[] | null; reason_note: string | null; paper: number }[];
+  return rows.map((r) => ({
+    tags: Array.isArray(r.reason_tags) ? r.reason_tags : [],
+    note: r.reason_note ?? null,
+    paper: r.paper,
+  }));
 }
 
 // Per-paper bank health for the Admin card: how many APPROVED (servable) and PENDING (awaiting

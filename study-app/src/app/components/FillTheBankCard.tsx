@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { BinUndoBar } from "./BinUndoBar";
+import { BinReasonPanel } from "./BinReasonPanel";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -161,19 +162,13 @@ export function FillTheBankRows() {
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
 
-  // ── UNDO STACK (spec §2/§3) ── binned items awaiting the 10s window, each with its original index.
+  // ── UNDO STACK (spec §2) ── binned items awaiting the 5s window, each with its original index.
   const [undoStack, setUndoStack] = useState<{ card: ReviewCard; index: number }[]>([]);
-  const undoIdsRef = useRef<string[]>([]);
-  useEffect(() => {
-    undoIdsRef.current = undoStack.map((u) => u.card.id);
-  }, [undoStack]);
   // Bumped on every new bin — restarts the countdown + drain animation inside BinUndoBar.
   const [resetToken, setResetToken] = useState(0);
-  // OPTIONAL, non-blocking reasons that apply to every id currently on the undo stack.
-  const [reasons, setReasons] = useState<string[]>([]);
-  const [note, setNote] = useState("");
-  const [otherOpen, setOtherOpen] = useState(false);
-  const reasonTimer = useRef<number | undefined>(undefined);
+  // "Bin with reason" modal target (spec §3) — the card whose fault is being captured before it's
+  // binned. null = panel closed. Reason capture happens up-front here rather than in the undo bar.
+  const [reasonPanel, setReasonPanel] = useState<{ card: ReviewCard; index: number } | null>(null);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -262,13 +257,9 @@ export function FillTheBankRows() {
   const pendingPaper = current?.pendingCount ? current : papers.find((p) => p.pendingCount > 0);
   const nextReviewBatchId = reviewBatchId || pendingPaper?.reviewBatchId || null;
 
-  // Dismiss the undo cluster and clear its reason state (on undo, on expiry, or when the pane closes).
+  // Dismiss the undo cluster (on undo, on expiry, or when the pane closes).
   const clearUndo = useCallback(() => {
-    window.clearTimeout(reasonTimer.current);
     setUndoStack([]);
-    setReasons([]);
-    setNote("");
-    setOtherOpen(false);
   }, []);
 
   // Plain function (not useCallback): it is only ever an onClick target, so it needs no stable
@@ -331,38 +322,6 @@ export function FillTheBankRows() {
     [fetchStatus]
   );
 
-  // ── FIRE-AND-FORGET REASON SYNC (spec §3) ── debounced ~300ms, batched, applied to every id on the
-  // undo stack. Failure is silent — it must never affect bin state.
-  const scheduleReasonSync = useCallback((tags: string[], noteVal: string) => {
-    window.clearTimeout(reasonTimer.current);
-    reasonTimer.current = window.setTimeout(() => {
-      const ids = undoIdsRef.current;
-      if (ids.length === 0) return;
-      fetch("/api/admin/fill-bank/review", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemIds: ids, reasons: tags, note: noteVal.trim() || null }),
-      }).catch(() => {
-        /* silent — reasons are optional and never roll back a bin */
-      });
-    }, 300);
-  }, []);
-
-  const toggleReason = (value: string) =>
-    setReasons((prev) => {
-      const next = prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value];
-      scheduleReasonSync(next, note);
-      return next;
-    });
-
-  // A late bin inherits any reasons already selected for the window.
-  useEffect(() => {
-    if (undoStack.length > 0 && (reasons.length > 0 || note.trim())) {
-      scheduleReasonSync(reasons, note);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [undoStack.length]);
-
   // Reverse a bin server-side (best-effort — the local restore already happened).
   const fireUnbin = useCallback(
     async (card: ReviewCard) => {
@@ -415,14 +374,17 @@ export function FillTheBankRows() {
   }, []);
 
   // Fire the bin request in the background. The visible copy on failure stays "Couldn't bin — retry";
-  // the real server message/status is logged for diagnosis.
+  // the real server message/status is logged for diagnosis. An optional reason (captured up-front in
+  // the BinReasonPanel) rides in the POST body so it's attached to the bin the moment it lands.
   const fireBin = useCallback(
-    async (card: ReviewCard, index: number) => {
+    async (card: ReviewCard, index: number, reason?: { tags: string[]; note: string | null }) => {
       try {
         const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(card.id)}/bin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify(
+            reason ? { reasonTags: reason.tags, reasonNote: reason.note } : {}
+          ),
         });
         if (!res.ok) {
           const detail = await res.text().catch(() => "");
@@ -437,21 +399,33 @@ export function FillTheBankRows() {
     [fetchStatus, revertBin]
   );
 
-  // BIN — single, unconditional, optimistic. Splice the card out, advance, push it onto the undo stack,
-  // reset the 10s timer, and fire in the background. No reason gating whatsoever.
-  const binCard = (card: ReviewCard, index: number) => {
+  // BIN — optimistic. Splice the card out, advance, push it onto the undo stack, reset the 5s timer,
+  // and fire in the background. An optional reason (from "Bin with reason") is attached to the bin.
+  const binCard = (card: ReviewCard, index: number, reason?: { tags: string[]; note: string | null }) => {
     decidedAny.current = true;
     setBinError(null);
     setQueue((q) => q.filter((_, i) => i !== index));
     setCursor((c) => (index < c ? c - 1 : c));
     setUndoStack((s) => [...s, { card, index }]);
     setResetToken((t) => t + 1);
-    void fireBin(card, index);
+    void fireBin(card, index, reason);
   };
   const binCurrent = () => {
     const idx = Math.min(cursor, queue.length - 1);
     const card = queue[idx];
     if (card) binCard(card, idx);
+  };
+
+  // "Bin with reason" — open the modal for the current card; confirming bins it WITH the reason.
+  const openReasonPanel = () => {
+    const idx = Math.min(cursor, queue.length - 1);
+    const card = queue[idx];
+    if (card) setReasonPanel({ card, index: idx });
+  };
+  const confirmReasonBin = (tags: string[], note: string | null) => {
+    const target = reasonPanel;
+    setReasonPanel(null);
+    if (target) binCard(target.card, target.index, { tags, note });
   };
 
   // KEEP — optimistic single-card. On failure the card is restored with an inline message.
@@ -878,13 +852,21 @@ export function FillTheBankRows() {
                   </div>
                 ) : (
                   <>
-                    {/* Bin is now a SINGLE, unconditional, optimistic action — no reason gating. */}
+                    {/* Bin is a single, unconditional, optimistic action — no reason gating. */}
                     <button
                       onClick={binCurrent}
                       disabled={busy}
                       className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
                     >
                       Bin
+                    </button>
+                    {/* "Bin with reason" — opens the modal that captures the fault before binning. */}
+                    <button
+                      onClick={openReasonPanel}
+                      disabled={busy}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Bin with reason
                     </button>
                     <button
                       onClick={keepCurrent}
@@ -929,23 +911,31 @@ export function FillTheBankRows() {
         </div>
       )}
 
-      {/* ── UNDO CLUSTER (spec §2/§3) ── fixed at the viewport bottom while binned items sit inside the
-          10s window. Reason chips ride directly above the bar; both are DECOUPLED from the bin. */}
+      {/* ── UNDO BAR (spec §2) ── fixed at the viewport bottom while binned items sit inside the 5s
+          window. Reason capture happens up-front in the BinReasonPanel, so this bar is purely undo. */}
       {reviewOpen && undoStack.length > 0 && (
         <BinUndoBar
           count={undoStack.length}
           resetToken={resetToken}
           onUndo={handleUndo}
           onExpire={handleExpire}
-          selected={reasons}
-          onToggle={toggleReason}
-          otherOpen={otherOpen}
-          onToggleOther={() => setOtherOpen((o) => !o)}
-          note={note}
-          onNoteChange={setNote}
-          onNoteSubmit={() => scheduleReasonSync(reasons, note)}
+        />
+      )}
+
+      {/* ── BIN WITH REASON (spec §3) ── modal over the card; confirm bins WITH the captured reason. */}
+      {reasonPanel && (
+        <BinReasonPanel
+          summary={reasonSummary(reasonPanel.card)}
+          onCancel={() => setReasonPanel(null)}
+          onConfirm={confirmReasonBin}
         />
       )}
     </div>
   );
+}
+
+// One-line item summary for the BinReasonPanel subline: paper · wines · sub-question · marks.
+function reasonSummary(card: ReviewCard): string {
+  const wines = `${card.wines.length} ${card.wines.length === 1 ? "wine" : "wines"}`;
+  return `Paper ${card.paper} · ${wines} · ${card.familyLabel} · ${card.total} marks`;
 }

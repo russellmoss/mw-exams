@@ -1,22 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BIN_REASON_OPTIONS } from "@/lib/bin-reasons";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
-// BinUndoBar — the fixed cluster shown while binned items sit inside the 10s Undo window (spec §2/§3).
+// BinUndoBar — the fixed bar shown while binned items sit inside the Undo window (spec §2).
 //
-// It is DECOUPLED from the bin itself: binning is optimistic and unconditional; this bar only offers a
-// reversal and OPTIONAL, non-blocking reason capture. Two stacked pieces, one fixed cluster at the
-// viewport bottom, spanning the review column:
-//   • a wrapped row of reason chips (multi-select, "Other…" opens one free-text input), and
-//   • the amber "N binned · Undo" bar with a 2px amber progress line draining left→right over 10s.
-//
-// The parent owns the undo stack and the reason payload; this component owns the countdown. Each new
-// bin bumps `resetToken`, which restarts both the timer and the drain animation.
+// Reason capture now happens up-front in the BinReasonPanel modal (spec §3), so this bar is purely the
+// reversal affordance: a warm-stone bar with the binned count and an "Undo" action, plus a 2px amber
+// progress line that drains left→right over the window. The parent owns the undo stack; this component
+// owns the countdown. Each new bin bumps `resetToken`, restarting both the timer and the drain.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const UNDO_WINDOW_MS = 10000;
+// Undo window: 5s (reduced from 10s — spec §2).
+export const UNDO_WINDOW_MS = 5000;
 
 // A 2px amber line that drains left→right over the window. Keyed by resetToken in the parent so a new
 // bin remounts it from 0%. Uses a mount→100% width transition rather than a keyframe so it needs no
@@ -41,29 +37,9 @@ interface BinUndoBarProps {
   resetToken: number;
   onUndo: () => void;
   onExpire: () => void;
-  // Reason state (lifted to the parent so it can attach to every id on the undo stack).
-  selected: string[];
-  onToggle: (value: string) => void;
-  otherOpen: boolean;
-  onToggleOther: () => void;
-  note: string;
-  onNoteChange: (v: string) => void;
-  onNoteSubmit: () => void;
 }
 
-export function BinUndoBar({
-  count,
-  resetToken,
-  onUndo,
-  onExpire,
-  selected,
-  onToggle,
-  otherOpen,
-  onToggleOther,
-  note,
-  onNoteChange,
-  onNoteSubmit,
-}: BinUndoBarProps) {
+export function BinUndoBar({ count, resetToken, onUndo, onExpire }: BinUndoBarProps) {
   // Keep the latest onExpire without re-arming the timer on every parent render.
   const expireRef = useRef(onExpire);
   useEffect(() => {
@@ -81,61 +57,7 @@ export function BinUndoBar({
   return (
     // Fixed at the viewport bottom, constrained to the review column width and above the cards.
     <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 pointer-events-none">
-      <div className="mx-auto max-w-3xl flex flex-col gap-2 pointer-events-auto">
-        {/* ── REASON CHIPS ── optional, non-blocking; directly above the bar (spec §3). */}
-        <div>
-          <div className="flex flex-wrap gap-2">
-            {BIN_REASON_OPTIONS.map((opt) => {
-              const on = selected.includes(opt.value);
-              return (
-                <button
-                  key={opt.value}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => onToggle(opt.value)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                    on
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-border bg-transparent text-muted hover:border-muted"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              );
-            })}
-            {/* "Other…" is the ONLY chip that opens text entry. */}
-            <button
-              type="button"
-              aria-pressed={otherOpen}
-              onClick={onToggleOther}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                otherOpen
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-border bg-transparent text-muted hover:border-muted"
-              }`}
-            >
-              Other…
-            </button>
-          </div>
-          {otherOpen && (
-            <input
-              type="text"
-              autoFocus
-              value={note}
-              placeholder="What was wrong?"
-              onChange={(e) => onNoteChange(e.target.value)}
-              onBlur={onNoteSubmit}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  onNoteSubmit();
-                }
-              }}
-              className="mt-2 w-full text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
-            />
-          )}
-        </div>
-
+      <div className="mx-auto max-w-3xl pointer-events-auto">
         {/* ── UNDO BAR ── warm-stone surface, 1px border, no shadow, Geist. aria-live for the count. */}
         <div
           role="status"

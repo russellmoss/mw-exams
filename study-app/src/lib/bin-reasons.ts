@@ -10,13 +10,13 @@ export interface BinReasonOption {
 }
 
 export const BIN_REASON_OPTIONS: readonly BinReasonOption[] = [
-  { value: "wines_dont_match_stem", label: "Wines don't match the stem" },
-  { value: "too_samey", label: "Flight too samey" },
-  { value: "marks_wrong", label: "Marks look wrong" },
-  { value: "quality_spread", label: "Quality spread too narrow" },
-  { value: "factual_error", label: "Factual error" },
+  { value: "wrong_marks", label: "Wrong marks" },
+  { value: "stem_mismatch", label: "Stem mismatch" },
+  { value: "factual_howler", label: "Factual howler" },
+  { value: "too_obscure", label: "Too obscure" },
   { value: "too_easy", label: "Too easy" },
-  { value: "too_hard", label: "Too hard" },
+  { value: "repetitive", label: "Repetitive" },
+  { value: "badly_written", label: "Badly written" },
 ] as const;
 
 export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(
@@ -26,7 +26,7 @@ export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(
 // Tags that name a CONTRADICTION-class fault the hard validator is meant to catch mechanically. When a
 // bin carries one of these, we log it against the validator so a gap (a fault the validator missed) is
 // visible in the logs. Mirrors §4 HARD of the spec.
-export const VALIDATOR_LINKED_TAGS = ["wines_dont_match_stem", "marks_wrong"] as const;
+export const VALIDATOR_LINKED_TAGS = ["stem_mismatch", "wrong_marks"] as const;
 
 export const MAX_BIN_NOTE_CHARS = 500;
 
