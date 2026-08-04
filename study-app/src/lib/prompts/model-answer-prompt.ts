@@ -27,14 +27,30 @@ function loadReferenceData() {
   return cachedIndex;
 }
 
+// These fields hold whole .claude/agents/*.md files, and those begin with YAML frontmatter written
+// for the agent RUNNER, not for the model: name, description, model — and `tools: Read, Write, Edit,
+// Bash, Grep`.
+//
+// Pasted verbatim into a system prompt, that last line reads as a tool grant. The model duly
+// role-played using them: answers opened "I'll load the necessary files and wine research data
+// before writing the answer" followed by fabricated <function_calls> blocks, and ran to 29,000
+// characters instead of the ~430 words the prompt asks for. 15 of 62 pending questions and 3
+// already-approved ones were in that state.
+//
+// Stripped at load so every consumer of the context is fixed at once, and so it stays fixed however
+// the JSON is regenerated.
+function stripFrontmatter(md: string): string {
+  return md.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, "").trimStart();
+}
+
 function loadPipelineContext() {
   if (cachedPipeline) return cachedPipeline;
   const filePath = join(process.cwd(), "public", "data", "pipeline-context.json");
   const raw = JSON.parse(readFileSync(filePath, "utf-8"));
   cachedPipeline = {
-    mockAnswerWriterAgent: raw.mockAnswerWriterAgent || "",
-    sharedRules: raw.sharedRules || "",
-    examinerReportSynthesis: raw.examinerReportSynthesis || "",
+    mockAnswerWriterAgent: stripFrontmatter(raw.mockAnswerWriterAgent || ""),
+    sharedRules: stripFrontmatter(raw.sharedRules || ""),
+    examinerReportSynthesis: stripFrontmatter(raw.examinerReportSynthesis || ""),
   };
   return cachedPipeline;
 }

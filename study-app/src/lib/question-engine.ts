@@ -24,7 +24,7 @@ import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import "@/lib/appellation-resolver";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
-import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";
+import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
 import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
@@ -183,12 +183,23 @@ function generateModelAnswerInBackground(
         .map((b) => b.text)
         .join("");
 
+      // Use the SHARED parser rather than hand-rolled extraction. The old code here was
+      // `extractSection(text, "Model Answer", "Proposed Annotation") || text`, and that `|| text`
+      // silently stored the ENTIRE raw response — every section, plus any preamble — whenever the
+      // heading did not match. That is how answers reached 11,000-29,000 characters against a ~430
+      // word target: 51 of 62 pending questions were over 8,000 chars.
+      //
+      // parseModelAnswerSections recovers the answer by slicing at the Proposed Annotation heading
+      // first, so a missing or differently-formatted "Model Answer" label no longer dumps the blob.
+      // scripts/regen-model-answers.mjs already used it — the offline path was the correct one and
+      // production had drifted from it, which is the drift that script's header says it exists to
+      // prevent.
+      const sections = parseModelAnswerSections(text);
       // Same as the standalone route: append the source list after section extraction.
-      const modelAnswer =
-        (extractSection(text, "Model Answer", "Proposed Annotation") || text) + buildCitationBlock(kbPassages);
-      const proposedAnnotation = extractSection(text, "Proposed Annotation", "Reasoning Trace");
-      const reasoningTrace = extractSection(text, "Reasoning Trace", "Study Diagram");
-      const studyDiagramAssist = extractSection(text, "Study Diagram", null);
+      const modelAnswer = sections.modelAnswer + buildCitationBlock(kbPassages);
+      const proposedAnnotation = sections.proposedAnnotation;
+      const reasoningTrace = sections.reasoningTrace;
+      const studyDiagramAssist = sections.studyDiagramAssist;
 
       await saveGeneratedQuestion({
         questionId,

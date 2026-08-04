@@ -95,15 +95,29 @@ if (opt.repair) {
   //
   // "Short" is < 2000 chars: a complete package runs ~2,900-3,300, and the truncated examples
   // measured 1,221 and 1,618. A NULL tail section is the other truncation signature.
+  //
+  // TOO LONG is a failure too, and the original selector missed it entirely. The answer targets ~430
+  // words (the prompt sets target_word_count) because the exam allows ~8 minutes of writing; a
+  // 15,000-character answer does not model the discipline the whole system teaches. 8000 chars is
+  // roughly double a healthy package, so it flags bloat without catching a merely thorough answer.
+  //
+  // TOOL-CALL TRANSCRIPTS are the worst of the failures and look like a long answer, so they hid
+  // behind the missing length check. The model narrates reading the repo — "I'll load the necessary
+  // files and wine research data before writing the answer" — then emits fabricated <function_calls>
+  // blocks instead of an answer. 15 of 62 pending questions and 3 already-approved ones are in this
+  // state, running to 29,000 characters.
   rows = await sql`
     SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks,
            length(model_answer) AS old_len
     FROM generated_questions
-    WHERE model_answer IS NULL
-       OR length(model_answer) < 2000
-       OR proposed_annotation IS NULL
-       OR reasoning_trace IS NULL
-       OR study_diagram_assist IS NULL
+    WHERE (metadata->>'archived') IS DISTINCT FROM 'true'
+      AND (model_answer IS NULL
+        OR length(model_answer) < 2000
+        OR length(model_answer) > 8000
+        OR model_answer ~ '<function_calls>|<tool_call>|<invoke name='
+        OR proposed_annotation IS NULL
+        OR reasoning_trace IS NULL
+        OR study_diagram_assist IS NULL)
     ORDER BY created_at DESC`;
 } else if (opt.questionId) {
   rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ${opt.questionId}`;
