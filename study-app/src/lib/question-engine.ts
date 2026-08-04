@@ -644,8 +644,16 @@ export async function generateFreshQuestion(
       : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
     const countryDiversityCheck = validateCountryDiversity(candidate.questionText, candidate.wines);
     // Phase 2 soft composition rules (also "important" tier): modern mark-mix cap, OW/NW balance,
-    // coarse price proxy. All relax at attempt 6 alongside originDiversity.
-    const markMixCheck = relaxImportant
+    // coarse price proxy. Composition and price relax at attempt 6 alongside originDiversity.
+    //
+    // markMix relaxes EARLIER, at attempt 3. It is documented below as a nudge that "trips ~40% of
+    // even REAL last-10 questions" — a rule that rejects two in five genuine MW questions cannot be
+    // a hard gate. Telemetry showed it firing on 4 of 5 consecutive drafts as the ONLY violation,
+    // and since the 95s budget fits ~2-5 attempts, its attempt-6 relaxation was effectively
+    // unreachable: slow calls meant generation fell back to a banked question having never once
+    // been allowed to skip it. Two drafts of pressure toward the corpus mix, then let it through.
+    const relaxMarkMix = attempt >= 3;
+    const markMixCheck = relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText);
     const compositionCheck = relaxImportant
@@ -1322,7 +1330,7 @@ function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompo
 // R8 (soft): modern papers cap identification at ~46% of marks; flag a question only when ID dominates
 // (>55%). Calibrated against the corpus — trips ~40% of even REAL last-10 questions (median 44%), so it
 // nudges rather than blocks. Commercial/style presence is a whole-paper concern (Phase 3), not here.
-function validateMarkTypeMix(questionText: string): { valid: boolean; violations: string[] } {
+export function validateMarkTypeMix(questionText: string): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText);
   if (totalMarks === 0) return { valid: true, violations };

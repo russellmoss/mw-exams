@@ -410,6 +410,18 @@ Typical per-wine mark ranges for written sub-questions:
 ${markEmphasis}
 Across any paper: keep IDENTIFICATION at most ~46–55% of total marks (modern papers run ~46% ID, down from ~60% pre-2014); commercial should appear in most questions (never 0% of marks); include a compare/contrast item (20–36 marks) where the flight invites it.
 
+HOW THAT PERCENTAGE IS COUNTED — read this before allocating marks. A sub-question is scored as
+identification if it mentions identification AT ALL, and then ALL of its marks count as ID. There is
+no partial credit for a sub-question that asks for other things too. So this fails at 100% ID:
+  a) Identify the variety and region, and assess the quality and commercial appeal. (2 x 25 marks)
+even though it looks half-and-half. Put identification in its OWN sub-question and give the other
+assessments their own, so the split is visible in the mark allocation:
+  a) Identify the grape variety and region of origin as closely as possible. (2 x 12 marks)
+  b) Comment on the style and the key winemaking decisions behind each wine. (2 x 8 marks)
+  c) Assess quality, maturity and commercial position. (2 x 5 marks)
+That is 48% ID and passes. Merging identification into every sub-question is the single most common
+reason a draft is rejected.
+
 ## CURVEBALL DENSITY BY FAMILY (EK-0100)
 - F1 (same variety): keep it banker-clean — every wine should be a confidently identifiable benchmark of the stated variety; no curveballs.
 - F5 (method) / F6 (style) / any Paper 3 flight: expect at least one genuinely harder wine — the difficulty is the point.
