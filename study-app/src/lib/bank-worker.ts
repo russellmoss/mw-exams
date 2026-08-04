@@ -18,6 +18,7 @@ import {
   getBankBatch,
   incrementBatchCounts,
   setBankBatchStatus,
+  touchBankBatch,
   getBatchActualCost,
   getBankFamilyHistogram,
   type BankBatch,
@@ -74,7 +75,27 @@ export function estimateBatchCostRange(
   return { minCents, maxCents, minDollars, maxDollars };
 }
 
-const CONCURRENCY = 2;
+// Chunked execution (spec §4): generate in small groups rather than one long request so a serverless
+// timeout can't kill the whole run — the resume hop / cron picks up the next chunk. Three at a time.
+const CONCURRENCY = 3;
+
+// Hard per-item timeout (spec §3). generateFreshQuestion has its own internal generation budget, but
+// this is a belt-and-braces ceiling around the whole item (generation + awaited model answer +
+// enrichment) so a single wedged call can never hang the chunk. A timed-out attempt is treated like
+// any other failed attempt: it is retried, and only a genuine final failure increments items_skipped.
+const ITEM_TIMEOUT_MS = Number(process.env.BANK_WORKER_ITEM_TIMEOUT_MS) || 120_000;
+
+class ItemTimeoutError extends Error {}
+
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new ItemTimeoutError(`item exceeded ${ms}ms`)), ms);
+    p.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
 // Leave headroom under the route's maxDuration (300s) for the final flush + a resume hop.
 const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 285_000;
 
@@ -159,22 +180,25 @@ async function generateOneIntoBatch(
     // invocation will take it, so it must not increment failed_count.
     if (attempt > 0 && deadline - Date.now() < ITEM_WORST_CASE_MS) return "timeout";
     try {
-      const outcome = await generateFreshQuestion(
-        batch.paper,
-        family,
-        apiKey,
-        meta,
-        undefined,
-        undefined,
-        // awaitBackgroundWork: a banked question is only worth banking once its model answer and
-        // wine enrichment exist. Without it this invocation returns the moment the row is written
-        // and the platform freezes both mid-flight. It costs ~30s per question, so a batch fits
-        // fewer items per invocation and leans harder on the resume path — which is correct: the
-        // work is real either way, and resume is exercised by the hourly safety net.
-        { status: "pending", batchId: batch.id, awaitBackgroundWork: true },
-        undefined,
-        // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
-        targeting ?? undefined
+      const outcome = await withTimeout(
+        generateFreshQuestion(
+          batch.paper,
+          family,
+          apiKey,
+          meta,
+          undefined,
+          undefined,
+          // awaitBackgroundWork: a banked question is only worth banking once its model answer and
+          // wine enrichment exist. Without it this invocation returns the moment the row is written
+          // and the platform freezes both mid-flight. It costs ~30s per question, so a batch fits
+          // fewer items per invocation and leans harder on the resume path — which is correct: the
+          // work is real either way, and resume is exercised by the hourly safety net.
+          { status: "pending", batchId: batch.id, awaitBackgroundWork: true },
+          undefined,
+          // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
+          targeting ?? undefined
+        ),
+        ITEM_TIMEOUT_MS
       );
       // Only a freshly GENERATED result is a new pending question. A 'pre-populated' outcome means
       // generation didn't converge and the engine served an existing (approved) question instead —
@@ -219,8 +243,12 @@ export async function runBankBatch(opts: {
 
   let batch = await getBankBatch(batchId);
   if (!batch) return;
-  // A cancelled batch stops immediately; a ready one has no work left.
+  // A cancelled/stalled batch stops immediately; a ready one has no work left.
   if (batch.status !== "running") return;
+
+  // Heartbeat immediately: this invocation is alive and working the batch, so the stall sweep must
+  // not release it out from under us while the first chunk runs.
+  await touchBankBatch(batchId);
 
   // Global item counter: which round-robin family slot this item takes. Seeded from work already
   // done so a resume continues the rotation rather than restarting it.
@@ -250,6 +278,15 @@ export async function runBankBatch(opts: {
   const deadline = startedAt + BUDGET_MS;
 
   while (remaining() > 0) {
+    // Cancel (spec §2): re-read status before starting each chunk and exit if the admin cancelled
+    // (or the stall sweep released) the run. Every question generated so far is kept.
+    const live = await getBankBatch(batchId);
+    if (!live || live.status !== "running") {
+      console.log(`[bank-worker] batch ${batchId} no longer running (${live?.status ?? "gone"}); stopping`);
+      return;
+    }
+    batch = live;
+
     // Checked BEFORE any work, so a resumed batch that was already failing wholesale stops here
     // rather than paying for one more round first.
     if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {

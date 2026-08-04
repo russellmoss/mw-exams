@@ -39,6 +39,7 @@
     "/api/admin/feature-request",
     "/api/admin/feedback",
     "/api/admin/fill-bank",
+    "/api/admin/fill-bank/cancel",
     "/api/admin/fill-bank/review",
     "/api/admin/fill-bank/status",
     "/api/admin/live-sessions",
