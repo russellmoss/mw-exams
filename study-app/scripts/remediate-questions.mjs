@@ -122,19 +122,38 @@ const client = new Anthropic({ apiKey: APIKEY });
 let OPUS = "claude-sonnet-4-6";
 try { OPUS = await getLatestOpus(APIKEY); } catch { /* fall back to sonnet */ }
 
+// 8000 to match the live engine (question-engine.ts) and regen-model-answers.mjs. It was 2000, which
+// is half of a budget question-engine.ts already documents as too small ("4000 cut the tail often
+// enough to leave a fifth of the banked corpus" truncated). The model-answer package runs ~2,900-3,300
+// chars, so 2000 tokens silently produced empty or truncated answers: 12 of 17 remediated questions
+// landed in the live pool with NO model answer at all, and genModelAnswer's `catch` never fired
+// because nothing threw — the response simply came back short.
+const MAX_TOKENS = 8000;
+
 async function callModel(model, system, user) {
   const msg = await client.messages.create(
-    { model, max_tokens: 2000, system, messages: [{ role: "user", content: user }] },
+    { model, max_tokens: MAX_TOKENS, system, messages: [{ role: "user", content: user }] },
     { timeout: 90_000, maxRetries: 2 }
   );
-  return msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  const text = msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  if (msg.stop_reason === "max_tokens") {
+    console.warn(`    ⚠ response hit max_tokens (${MAX_TOKENS}) — output may be truncated`);
+  }
+  return text;
 }
 
 async function genModelAnswer(questionText, wines, paper) {
   try {
     const p = buildModelAnswerPrompt(questionText, wines, paper);
     const text = await callModel(OPUS, p.system, p.user);
-    return extractSection(text, "Model Answer", "Proposed Annotation") || text;
+    const answer = extractSection(text, "Model Answer", "Proposed Annotation") || text;
+    // An empty answer is a silent failure: the caller skips the save and the replacement lands in
+    // the live pool with no model answer, having archived the question it replaced. Say so loudly.
+    if (!answer || !answer.trim()) {
+      console.warn("    ⚠ model-answer came back EMPTY — replacement will have no model answer");
+      return null;
+    }
+    return answer;
   } catch (e) {
     console.warn("    model-answer generation failed:", e.message);
     return null;

@@ -41,6 +41,12 @@ function fromEnvLocal(key) {
 }
 process.env.DATABASE_URL ||= fromEnvLocal("DATABASE_URL");
 process.env.ANTHROPIC_API_KEY ||= fromEnvLocal("ANTHROPIC_API_KEY");
+// The KB retriever reads VOYAGE_API_KEY straight off process.env. It was never bootstrapped from
+// .env.local, so every local run silently logged "knowledge retrieval is unavailable" and wrote
+// answers grounded in 0 passages — the offline path drifting from production, which this script
+// exists to prevent. TAVILY_API_KEY likewise, for the wine-enrichment path.
+process.env.VOYAGE_API_KEY ||= fromEnvLocal("VOYAGE_API_KEY");
+process.env.TAVILY_API_KEY ||= fromEnvLocal("TAVILY_API_KEY");
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
 if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set");
 const API_KEY = process.env.ANTHROPIC_API_KEY;

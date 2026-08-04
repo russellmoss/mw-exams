@@ -318,8 +318,10 @@ ${exampleText}
 
 ${(() => {
   const avoid = compressAvoidList(existingWines);
-  return avoid.length > 0 ? `## WINE DEDUPLICATION — DO NOT REUSE THESE PRODUCERS
-The following ${avoid.length} producers already appear in the question bank for this paper. Do NOT select any of them. Choose different producers from the same variety/region instead.
+  return avoid.length > 0 ? `## WINE DEDUPLICATION — PREFER PRODUCERS NOT ON THIS LIST
+The following ${avoid.length} producers already appear in the question bank for this paper. Choose different producers from the same variety/region wherever you can.
+
+This is a STRONG PREFERENCE, not an absolute ban. The benchmark/iconic producers a flight of 3+ needs to satisfy the banker requirement are a small, finite set, and most of them are already listed below — so if every suitable banker for this flight appears here, reuse one rather than dropping the banker. When you do, pick a DIFFERENT cuvée from that producer. What is never acceptable is repeating the same producer + cuvée combination.
 
 ${avoid.join(" · ")}
 ` : "";
