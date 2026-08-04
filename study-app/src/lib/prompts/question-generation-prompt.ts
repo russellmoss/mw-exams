@@ -196,6 +196,38 @@ function loadPipelineContext(): PipelineContext {
   return cachedContext!;
 }
 
+// The dedup avoid-list used to inject every banked wine's full `fullText` verbatim. That is fine at
+// ~120 wines/paper but does not scale: at a few hundred banked questions the block runs to thousands
+// of lines, the instruction gets diluted, and repeats start appearing precisely as the bank grows.
+//
+// The rule we actually enforce is "don't reuse a PRODUCER", so we send the distinct producer list
+// instead of whole wine strings — ~4x fewer characters, and it grows far more slowly than the wine
+// count (a producer with five cuvées costs one entry, not five). fullText is authored as
+// `Producer, Cuvée, Vintage. Region, Country. (ABV)`, so the producer is the head segment.
+//
+// MAX_AVOID_PRODUCERS bounds the worst case. The list is built most-recent-first by every caller, so
+// truncation drops the OLDEST producers — the ones a repeat is least likely to be noticed on.
+const MAX_AVOID_PRODUCERS = 400;
+
+export function compressAvoidList(existingWines?: string[]): string[] {
+  if (!existingWines || existingWines.length === 0) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const full of existingWines) {
+    if (!full) continue;
+    const producer = full.split(",")[0].trim();
+    // Guard against a malformed fullText with no comma: a whole wine string as a "producer" would
+    // be noise, so skip anything implausibly long rather than poisoning the list.
+    if (!producer || producer.length > 60) continue;
+    const key = producer.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(producer);
+    if (out.length >= MAX_AVOID_PRODUCERS) break;
+  }
+  return out;
+}
+
 export async function buildQuestionGenerationPrompt(
   paper: number,
   family: string,
@@ -284,11 +316,14 @@ ${ctx.wineCompositionAnalysis}
 ## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper} — match this voice exactly)
 ${exampleText}
 
-${existingWines && existingWines.length > 0 ? `## WINE DEDUPLICATION — DO NOT REUSE THESE PRODUCERS/WINES
-The following wines already exist in the question bank. Do NOT select the same producer+cuvée combination for your new question. Choose different producers from the same variety/region instead.
+${(() => {
+  const avoid = compressAvoidList(existingWines);
+  return avoid.length > 0 ? `## WINE DEDUPLICATION — DO NOT REUSE THESE PRODUCERS
+The following ${avoid.length} producers already appear in the question bank for this paper. Do NOT select any of them. Choose different producers from the same variety/region instead.
 
-${existingWines.join("\n")}
-` : ""}
+${avoid.join(" · ")}
+` : "";
+})()}
 ${latestQuestion ? `## LATEST GENERATED QUESTION - DO NOT REPEAT ITS SHAPE
 The most recent generated question in the live system was:
 Paper: ${latestQuestion.paper}

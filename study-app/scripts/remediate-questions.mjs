@@ -191,10 +191,18 @@ async function rejectCandidate(id, reasons) {
 }
 
 async function main() {
+  // Two independent quarantine signals, both of which keep a question out of the live pool:
+  //   - stem_answer_keys.validated = false  (the answer key itself could not be resolved)
+  //   - generated_questions.invalid_reasons (validator/feedback flag; gates getEligibleBankedQuestions)
+  // The second was previously not remediated at all, which stranded 44 admin-approved questions —
+  // 30 of them on the `marks` rule alone (total_marks != flight_size x 25, always an OVER-allocation;
+  // the historical corpus never overshoots). Those are real defects, not cosmetic, so they are
+  // regenerated through the same hardened path rather than patched in place.
   const bad = await sql`
     SELECT g.question_id, g.paper, g.family
-    FROM generated_questions g JOIN stem_answer_keys k USING (question_id)
-    WHERE k.validated = false AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
+    FROM generated_questions g LEFT JOIN stem_answer_keys k USING (question_id)
+    WHERE (k.validated = false OR g.invalid_reasons IS NOT NULL)
+      AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
     ORDER BY g.paper, g.family`;
   const targets = Number.isFinite(LIMIT) ? bad.slice(0, LIMIT) : bad;
   console.log(`Remediating ${targets.length}/${bad.length} quarantined question(s). apply=${APPLY}\n`);
