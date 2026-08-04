@@ -792,9 +792,10 @@ export async function generateFreshQuestion(
       { lenient: relaxNiceToHave, targeted: saveOpts?.familyTargeted ?? false }
     );
 
-    // Declared in the order the violations used to be concatenated, so `lastViolations` below is
-    // byte-identical to the old flat list while the telemetry gets the rule NAME behind each one —
-    // the whole point of the table: "which validator is costing us the redrafts?"
+    // Declared in the order the violations used to be concatenated, so the flat list below preserves
+    // the original ordering while the telemetry gets the rule NAME behind each one — the whole point
+    // of the table: "which validator is costing us the redrafts?" Every rule here is recorded;
+    // ADVISORY_RULES below controls which of them can actually fail an attempt.
     const checks: Record<string, { violations: string[] }> = {
       paperScope: paperScopeCheck,
       variety: varietyCheck,
@@ -814,7 +815,7 @@ export async function generateFreshQuestion(
     for (const [name, check] of Object.entries(checks)) {
       if (check.violations.length > 0) violationsByRule[name] = check.violations;
     }
-    lastViolations = Object.values(violationsByRule).flat();
+    lastViolations = blockingViolations(violationsByRule);
 
     recordAttempt(attempt, {
       model: producedModel,
@@ -1249,6 +1250,36 @@ export const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cr
 // Worth 16 of the 204 corpus-tagged benchmarks the rule failed to recognise. The remaining 188 are
 // genuine omissions from the list (Champagne, Mosel, Rioja, Alsace, California AVAs…), which is a
 // wine-domain question, not a bug.
+// Rules that are RECORDED in telemetry but must not fail a generation attempt.
+//
+// banker is advisory because its detector is not good enough to hard-reject on. It regex-matches
+// BENCHMARK_APPELLATIONS against the wine text, and measured against the corpus's own
+// benchmark_status tags on held-out years (2021+) it recognises just 44.3% of real benchmarks while
+// also accepting 22.4% of non-benchmarks. It misses more real bankers than it catches.
+//
+// Widening it does not help, because benchmark-ness is not a property of the appellation: a cheap
+// Rioja Joven and a López de Heredia Gran Reserva share the word "Rioja". Every widening trades
+// false negatives for false positives roughly one for one — adding the major missing regions
+// (Champagne, Mosel, Rioja, Alsace, Napa…) took recall to 63.4% but false positives to 40.8%, and a
+// list derived from the corpus's own tags scored WORSE than the current one out of sample (29.8%).
+//
+// Rejecting a good question on a coin-flip signal is the wrong trade, and this was the top blocker
+// in production: 16 rejections, 19.5% of attempts, in a measured Paper 1 batch. The pedagogy is not
+// lost — the prompt still teaches the banker rule in far richer terms than a regex can express
+// (classification level, noble varieties, EK-0131 on Alsace). It stays in generation_attempts.
+// rules_fired, so if a better detector ever earns it a hard gate, the evidence is already accruing.
+export const ADVISORY_RULES = new Set(["banker"]);
+
+/**
+ * The violations that actually fail an attempt. Advisory rules are filtered out here and nowhere
+ * else, so telemetry keeps seeing every rule that fired.
+ */
+export function blockingViolations(violationsByRule: Record<string, string[]>): string[] {
+  return Object.entries(violationsByRule)
+    .filter(([name]) => !ADVISORY_RULES.has(name))
+    .flatMap(([, v]) => v);
+}
+
 export function matchesBenchmarkAppellation(fullText: string): boolean {
   const normalized = (fullText || "")
     .normalize("NFD")
