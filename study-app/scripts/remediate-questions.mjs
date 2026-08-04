@@ -38,6 +38,7 @@ const { buildModelAnswerPrompt } = await import("../src/lib/prompts/model-answer
 const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
 const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions } = await import("../src/lib/db.ts");
 const { validateQuestion } = await import("../src/lib/question-validator.ts");
+const { normalizeMarkAllocation } = await import("../src/lib/question-engine.ts");
 const { getLatestOpus } = await import("../src/lib/model-resolver.ts");
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
 
@@ -63,7 +64,7 @@ function sanitizeSubcategory(value) {
 function parseGenerated(text, paper, family) {
   try {
     const questionMatch = text.match(/## Question\s*\n([\s\S]*?)(?=\n## Wines|\n## Metadata)/i);
-    const questionText = questionMatch ? questionMatch[1].trim() : "";
+    let questionText = questionMatch ? questionMatch[1].trim() : "";
     const winesMatch = text.match(/## Wines\s*\n([\s\S]*?)(?=\n## Wine Appearance|\n## Metadata|\n## |$)/i);
     const wines = [];
     if (winesMatch) {
@@ -82,9 +83,16 @@ function parseGenerated(text, paper, family) {
     const familyMatch = text.match(/Family:\s*(F\d)/i);
     const subcatMatch = text.match(/Subcategory:\s*(.*)/i);
     const parsedFamily = familyMatch ? familyMatch[1] : family;
+    // Repair the mark allocation before totalling, exactly as the live engine does (EK-0041). This
+    // parser is a mirror of the get-question route's, and it had drifted: without the repair the
+    // model's mark arithmetic is rejected on nearly every attempt (an observed run burned all 6
+    // retries emitting 40,40,40,40,40,90 against a target of 50), so remediation could never
+    // converge for a reason that has nothing to do with the question's content.
+    const repairedText = normalizeMarkAllocation(questionText, wines.length);
+    questionText = repairedText;
     let totalMarks = 0;
-    for (const m of questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    for (const m of questionText.matchAll(/\((\d+)\s*marks?\)/gi)) totalMarks += parseInt(m[1]);
+    for (const m of repairedText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)) totalMarks += parseInt(m[1]) * parseInt(m[2]);
+    for (const m of repairedText.matchAll(/\((\d+)\s*marks?\)/gi)) totalMarks += parseInt(m[1]);
     if (!totalMarks) totalMarks = wines.length * 25;
     if (!questionText || wines.length === 0) return null;
     const stemCountMatch = questionText.match(/wines\s+1\s+(?:to|–|-)\s+(\d+)/i);

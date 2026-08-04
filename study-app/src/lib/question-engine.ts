@@ -1487,7 +1487,7 @@ function validateCountryDiversity(
 // written part) by the exact shortfall/surplus, keeps every value ≥ 5, then RE-VERIFIES the new sum. If
 // it cannot produce a verified-correct split it returns the text UNCHANGED, so a genuinely broken question
 // is still caught by the validator (validateMarkAllocation) — this can never ship a half-fixed question.
-function normalizeMarkAllocation(text: string, wineCount: number): string {
+export function normalizeMarkAllocation(text: string, wineCount: number): string {
   if (!wineCount || wineCount < 1) return text;
   const expected = wineCount * 25;
   const re = /\((\d+)\s*[x×]\s*(\d+)\s*marks?\)|\((\d+)\s*marks?\)/gi;
