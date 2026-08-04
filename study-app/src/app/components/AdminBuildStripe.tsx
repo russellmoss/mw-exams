@@ -17,8 +17,8 @@ import { useEffect, useState } from "react";
 
 // Bump on every build so a stale bundle is obvious at a glance. Prefer an injected build time when
 // the deploy provides one; otherwise this hardcoded stamp is updated in the shipping change.
-const BUILD_NUMBER = 5;
-const BUILD_STAMP = process.env.NEXT_PUBLIC_BUILD_TIME || "2026-08-03T23:35Z";
+const BUILD_NUMBER = 6;
+const BUILD_STAMP = process.env.NEXT_PUBLIC_BUILD_TIME || "2026-08-04T12:00Z";
 
 export function AdminBuildStripe() {
   const [me, setMe] = useState<{ email: string; isAdmin: boolean } | null>(null);

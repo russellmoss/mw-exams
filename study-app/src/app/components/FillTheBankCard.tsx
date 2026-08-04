@@ -283,19 +283,29 @@ export function FillTheBankRows() {
 
       {/* ── Row A: configure + generate ─────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
-        <select
-          value={selectedPaper}
-          onChange={(e) => setSelectedPaper(Number(e.target.value))}
-          disabled={!!running}
-          className="text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:border-accent cursor-pointer disabled:opacity-50"
-          aria-label="Paper"
-        >
-          {[1, 2, 3].map((p) => (
-            <option key={p} value={p}>
-              {PAPER_OPTION[p]}
-            </option>
-          ))}
-        </select>
+        {/* Segmented P1/P2/P3 paper selector (spec) — one amber-active pill per paper. */}
+        <div className="inline-flex rounded-lg border border-border overflow-hidden" role="group" aria-label="Paper">
+          {[1, 2, 3].map((p) => {
+            const active = selectedPaper === p;
+            return (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setSelectedPaper(p)}
+                disabled={!!running}
+                aria-pressed={active}
+                title={PAPER_OPTION[p]}
+                className={`text-sm px-3.5 py-2 font-medium transition-colors cursor-pointer disabled:cursor-default disabled:opacity-50 border-l border-border first:border-l-0 ${
+                  active
+                    ? "bg-accent text-background"
+                    : "bg-card text-muted hover:text-foreground hover:bg-card-hover"
+                }`}
+              >
+                P{p}
+              </button>
+            );
+          })}
+        </div>
 
         <input
           type="number"
@@ -372,6 +382,9 @@ export function FillTheBankRows() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
+            {totalPending > 0 && (
+              <span className="w-2 h-2 rounded-full bg-accent shrink-0" aria-hidden />
+            )}
             <span className="font-medium">Review</span>
             <span className="text-muted">
               {totalPending > 0 ? `${totalPending} waiting for review` : "review batch"}
