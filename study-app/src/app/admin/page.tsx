@@ -313,12 +313,20 @@ export default function AdminPage() {
             <h1 className="text-2xl font-bold text-foreground tracking-tight">Admin</h1>
             <p className="text-sm text-muted mt-1">Manage users and monitor usage</p>
           </div>
-          <Link
-            href="/admin/costs"
-            className="shrink-0 text-sm px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg transition-colors font-medium"
-          >
-            Cost &amp; usage →
-          </Link>
+          <div className="shrink-0 flex items-center gap-3">
+            <Link
+              href="/admin/bank-health"
+              className="text-sm px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg transition-colors font-medium"
+            >
+              Bank Health →
+            </Link>
+            <Link
+              href="/admin/costs"
+              className="text-sm px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg transition-colors font-medium"
+            >
+              Cost &amp; usage →
+            </Link>
+          </div>
         </div>
       </header>
 
