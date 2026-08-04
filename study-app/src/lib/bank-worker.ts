@@ -75,7 +75,16 @@ export function estimateBatchCostRange(
 
 const CONCURRENCY = 2;
 // Leave headroom under the route's maxDuration (300s) for the final flush + a resume hop.
-const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 240_000;
+const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 285_000;
+
+// What ONE question can cost in the worst case: a generateFreshQuestion call may burn its full
+// GENERATION_BUDGET_MS (95s) before falling back, and the awaited model answer + enrichment add
+// ~50s. The old code checked only "have I used 240s yet?", which asks the wrong question: an item
+// started at 239s could still run for minutes. Worse, generateOneIntoBatch retried up to 3 times —
+// 3 x 95s = 285s for a single item — so one hard question could overrun maxDuration from a standing
+// start. It did: a Paper 2 batch returned HTTP 504 to the hourly workflow. The rule now is the one
+// the generation loop already documents for itself — never start work you cannot finish.
+const ITEM_WORST_CASE_MS = 145_000;
 
 export const VALID_PAPERS = [1, 2, 3] as const;
 export const MIN_COUNT = 1;
@@ -112,9 +121,14 @@ async function generateOneIntoBatch(
   batch: BankBatch,
   family: string,
   apiKey: string,
-  meta: UsageMeta
-): Promise<boolean> {
+  meta: UsageMeta,
+  deadline: number
+): Promise<"generated" | "failed" | "timeout"> {
   for (let attempt = 0; attempt < 3; attempt++) {
+    // Deadline-aware, like the generation loop's own attempt guard: only start a retry we can
+    // finish. Running out of time is NOT a failure — the item is untouched and a resumed
+    // invocation will take it, so it must not increment failed_count.
+    if (attempt > 0 && deadline - Date.now() < ITEM_WORST_CASE_MS) return "timeout";
     try {
       const outcome = await generateFreshQuestion(
         batch.paper,
@@ -133,12 +147,12 @@ async function generateOneIntoBatch(
       // Only a freshly GENERATED result is a new pending question. A 'pre-populated' outcome means
       // generation didn't converge and the engine served an existing (approved) question instead —
       // discard it silently and retry, exactly as the spec requires.
-      if (!("error" in outcome) && outcome.source === "generated") return true;
+      if (!("error" in outcome) && outcome.source === "generated") return "generated";
     } catch (err) {
       console.error(`[bank-worker] batch ${batch.id} generation error (attempt ${attempt + 1}):`, err);
     }
   }
-  return false;
+  return "failed";
 }
 
 async function scheduleResume(baseUrl: string | null, batchId: string): Promise<void> {
@@ -194,8 +208,11 @@ export async function runBankBatch(opts: {
     return b.requested_count - (b.generated_count + b.failed_count);
   };
 
+  const deadline = startedAt + BUDGET_MS;
+
   while (remaining() > 0) {
-    if (Date.now() - startedAt > BUDGET_MS) {
+    // Don't begin a round unless a worst-case item still fits before the deadline.
+    if (deadline - Date.now() < ITEM_WORST_CASE_MS) {
       // Out of time for this invocation but work remains — hand off and let the fresh invocation (or
       // the cron) continue. Status stays 'running'.
       console.log(`[bank-worker] batch ${batchId} hit budget with ${remaining()} left; scheduling resume`);
@@ -207,11 +224,12 @@ export async function runBankBatch(opts: {
     const slots = Array.from({ length: slotCount }, () => familyOrder[issued++ % familyOrder.length]);
 
     const results = await Promise.all(
-      slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta))
+      slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta, deadline))
     );
 
-    const generated = results.filter(Boolean).length;
-    const failed = results.length - generated;
+    const generated = results.filter((r) => r === "generated").length;
+    const failed = results.filter((r) => r === "failed").length;
+    const timedOut = results.some((r) => r === "timeout");
     const updated = await incrementBatchCounts(batchId, { generated, failed });
     if (!updated) return;
     batch = updated;
@@ -219,6 +237,13 @@ export async function runBankBatch(opts: {
     // Re-check for cancellation between slots so Cancel takes effect promptly.
     if (batch.status !== "running") {
       console.log(`[bank-worker] batch ${batchId} no longer running (${batch.status}); stopping`);
+      return;
+    }
+
+    // An item abandoned mid-way for time (not for failure) means this invocation is done.
+    if (timedOut) {
+      console.log(`[bank-worker] batch ${batchId} ran out of time mid-item; scheduling resume`);
+      await scheduleResume(baseUrl ?? null, batchId);
       return;
     }
   }
