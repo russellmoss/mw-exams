@@ -676,23 +676,39 @@ export async function getBatchQuestions(batchId: string): Promise<GeneratedQuest
 // trigger a replacement only on a genuine first-time bin.
 //
 // keep → review_state='kept' (servable) and the batch's kept_count is bumped.
-// bin  → the row is HARD-DELETED (spec: binned rows are hard-deleted, no resurrect path, no reason
-//        field). We RETURN the batch_id first so the caller can enqueue a replacement.
+// bin  → the row is HARD-DELETED (binned rows have no resurrect path). Before it goes, an optional
+//        reason (tags + free text) is captured into the bank_bin_reasons ledger keyed by item_id +
+//        paper + family, so the reason survives the delete and feeds forward. We RETURN the batch_id
+//        so the caller can enqueue a replacement.
+export interface BinReason {
+  tags: string[] | null;
+  note: string | null;
+}
 export async function reviewBankQuestion(
   questionId: string,
   decision: "keep" | "bin",
-  reviewerId: number
+  reviewerId: number,
+  reason?: BinReason
 ): Promise<{ batchId: string | null; changed: boolean } | null> {
   const sql = getDb();
 
   if (decision === "bin") {
+    // Delete and return the context we need to log the bin (paper/family) — it's gone after this.
     const rows = await sql`
       DELETE FROM generated_questions
       WHERE question_id = ${questionId} AND review_state = 'pending'
-      RETURNING batch_id
+      RETURNING batch_id, paper, family
     `;
     if (rows.length === 0) return { batchId: null, changed: false };
-    return { batchId: (rows[0].batch_id as string) ?? null, changed: true };
+    const row = rows[0] as { batch_id: string | null; paper: number; family: string | null };
+    // Always log the bin (even a bare, reasonless one — a reason is never required). reason_tags is a
+    // Postgres text[]; an empty/absent tag list stores NULL.
+    const tags = reason?.tags && reason.tags.length > 0 ? reason.tags : null;
+    await sql`
+      INSERT INTO bank_bin_reasons (item_id, paper, family_id, reason_tags, reason_note, binned_by)
+      VALUES (${questionId}, ${row.paper}, ${row.family}, ${tags}, ${reason?.note ?? null}, ${reviewerId})
+    `;
+    return { batchId: row.batch_id ?? null, changed: true };
   }
 
   const rows = await sql`
@@ -722,6 +738,73 @@ export async function keepAllPending(batchId: string, reviewerId: number): Promi
     await sql`UPDATE bank_batches SET kept_count = kept_count + ${rows.length} WHERE id = ${batchId}`;
   }
   return rows.length;
+}
+
+// ── Bin reasons (migration 028) ───────────────────────────────────────────────────────────────────
+
+// The most recent bin reasons for a paper — SOFT feed-forward. Deduped tag+note rows, newest first,
+// so the generation prompt can list "previously rejected — avoid these faults" for that paper. Rows
+// with neither a tag nor a note carry no signal and are excluded.
+export async function getRecentBinReasons(
+  paper: number,
+  limit = 20
+): Promise<{ tags: string[]; note: string | null; binnedAt: string }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT reason_tags, reason_note, binned_at
+    FROM bank_bin_reasons
+    WHERE paper = ${paper}
+      AND (reason_tags IS NOT NULL OR reason_note IS NOT NULL)
+    ORDER BY binned_at DESC
+    LIMIT ${limit}
+  `) as { reason_tags: string[] | null; reason_note: string | null; binned_at: string }[];
+  return rows.map((r) => ({
+    tags: Array.isArray(r.reason_tags) ? r.reason_tags : [],
+    note: r.reason_note ?? null,
+    binnedAt: r.binned_at,
+  }));
+}
+
+// Top bin-reason TAG for a paper over the last 30 days — the "Learned from your bins · Most common
+// reason: … (N)" line. Returns null when there have been no tagged bins in the window.
+export async function getTopBinReason(
+  paper: number,
+  days = 30
+): Promise<{ tag: string; count: number } | null> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT tag, COUNT(*)::int AS count
+    FROM bank_bin_reasons, UNNEST(reason_tags) AS tag
+    WHERE paper = ${paper}
+      AND reason_tags IS NOT NULL
+      AND binned_at >= NOW() - (${days} * INTERVAL '1 day')
+    GROUP BY tag
+    ORDER BY count DESC, tag ASC
+    LIMIT 1
+  `) as { tag: string; count: number }[];
+  return rows[0] ? { tag: rows[0].tag, count: rows[0].count } : null;
+}
+
+// Top bin-reason tag for every paper in one round-trip (the Fill-the-Bank status poll reads this).
+export async function getTopBinReasons(
+  days = 30
+): Promise<Map<number, { tag: string; count: number }>> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT paper, tag, COUNT(*)::int AS count
+    FROM bank_bin_reasons, UNNEST(reason_tags) AS tag
+    WHERE reason_tags IS NOT NULL
+      AND binned_at >= NOW() - (${days} * INTERVAL '1 day')
+    GROUP BY paper, tag
+  `) as { paper: number; tag: string; count: number }[];
+  const best = new Map<number, { tag: string; count: number }>();
+  for (const r of rows) {
+    const cur = best.get(r.paper);
+    if (!cur || r.count > cur.count || (r.count === cur.count && r.tag < cur.tag)) {
+      best.set(r.paper, { tag: r.tag, count: r.count });
+    }
+  }
+  return best;
 }
 
 // Per-paper bank health for the Admin card: how many APPROVED (servable) and PENDING (awaiting

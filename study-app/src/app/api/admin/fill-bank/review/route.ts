@@ -14,6 +14,7 @@ import {
 } from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
 import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
+import { sanitizeBinTags, sanitizeBinNote, VALIDATOR_LINKED_TAGS } from "@/lib/bin-reasons";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -187,7 +188,12 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { id, action } = body as { id?: string; action?: string };
+  const { id, action, reasonTags, reasonNote } = body as {
+    id?: string;
+    action?: string;
+    reasonTags?: unknown;
+    reasonNote?: unknown;
+  };
   if (!id || !action || !["keep", "bin", "keepAll"].includes(action)) {
     return Response.json({ error: "Missing id or invalid action" }, { status: 400 });
   }
@@ -200,10 +206,37 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, kept });
   }
 
-  const result = await reviewBankQuestion(id, action as "keep" | "bin", keyResult.user.id);
+  // OPTIONAL bin reason — never required. Sanitised to known tags / a trimmed <=500-char note.
+  const tags = action === "bin" ? sanitizeBinTags(reasonTags) : null;
+  const note = action === "bin" ? sanitizeBinNote(reasonNote) : null;
+
+  // HARD-validator gap logging (spec §4): when a bin is tagged with a contradiction-class fault the
+  // mechanical validator is meant to catch, record whether the validator actually flagged it. The row
+  // is hard-deleted by the bin, so the verdict is taken BEFORE deciding. A "caught" line is expected;
+  // "MISSED" is a genuine validator gap worth surfacing.
+  if (action === "bin" && tags && tags.some((t) => VALIDATOR_LINKED_TAGS.includes(t as never))) {
+    const pre = await getQuestionById(id);
+    const verdict = pre ? await verdictFor(pre) : null;
+    const caught = !!verdict && verdict.hard.length > 0;
+    console.warn(
+      `[validator-gap] item=${id} tags=${tags.join(",")} validator=${
+        verdict === null ? "no-key" : caught ? "caught" : "MISSED"
+      }`
+    );
+  }
+
+  const result = await reviewBankQuestion(id, action as "keep" | "bin", keyResult.user.id, {
+    tags,
+    note,
+  });
   if (!result || !result.changed) {
     return Response.json({ ok: true, changed: false });
   }
+
+  // Remaining pending count for the batch, so the client can reconcile its optimistic removal.
+  const remaining = result.batchId
+    ? (await getBatchPendingQuestions(result.batchId)).length
+    : 0;
 
   let replacementQueued = false;
   if (action === "bin" && result.batchId) {
@@ -226,5 +259,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return Response.json({ ok: true, changed: true, replacementQueued });
+  return Response.json({ ok: true, changed: true, replacementQueued, remaining });
 }

@@ -194,7 +194,10 @@ export function applyQuestionRules(q, opts = {}) {
         detail: `stem says same variety; key has ${distinctPrimary.size}: ${[...distinctPrimary].join(", ")}`,
       });
 
-    // R3 — "different grape varieties" => every dominant variety distinct.
+    // R3 — "different grape varieties" => every dominant variety distinct. And, mirroring R1's
+    // country-diversity count, a stem that names N different grape varieties must key N DISTINCT
+    // dominant varieties ("three different grape varieties" over two Grenaches + a Syrah is
+    // unanswerable as framed even if no two labels look alike).
     if (/different (?:single )?grape variet(?:y|ies)/.test(stem)) {
       const present = primaries.filter(Boolean);
       if (present.length !== distinctPrimary.size)
@@ -203,6 +206,17 @@ export function applyQuestionRules(q, opts = {}) {
           severity: "hard",
           detail: `stem says different varieties; duplicates present (${primaries.join(", ")})`,
         });
+
+      const vc = stem.match(/\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b\s+different\s+(?:single\s+)?grape\s+variet(?:y|ies)\b/);
+      if (vc) {
+        const requiredV = /^\d+$/.test(vc[1]) ? Number(vc[1]) : NUM[vc[1]];
+        if (requiredV && distinctPrimary.size < requiredV)
+          v.push({
+            rule: "variety-diversity",
+            severity: "hard",
+            detail: `stem implies ${requiredV} different grape varieties; key has only ${distinctPrimary.size} distinct (${[...distinctPrimary].join(", ") || "none"})`,
+          });
+      }
     }
 
     // R4 — "same country" => one country.

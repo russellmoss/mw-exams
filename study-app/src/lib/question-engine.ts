@@ -9,8 +9,10 @@
 import {
   getQuestionsByFilter,
   getRecentGeneratedQuestions,
+  getRecentBinReasons,
   type GeneratedQuestion,
 } from "@/lib/db";
+import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
@@ -490,6 +492,15 @@ export async function generateFreshQuestion(
   // flight-size rules so it can nudge wine/style/framing choices without ever overriding paper scope.
   const targetingBlock = buildTargetingConstraints(targeting);
   if (targetingBlock) prompt.system += targetingBlock;
+
+  // SOFT feed-forward (spec §4): fold the most recent bin reasons for this paper into the prompt so
+  // the model stops re-making faults a reviewer already rejected. Guidance only, appended after scope.
+  try {
+    const digest = buildBinReasonDigest(paper, await getRecentBinReasons(paper, 20));
+    if (digest) prompt.system += digest;
+  } catch (err) {
+    console.error("[generateFreshQuestion] bin-reason digest failed (non-fatal):", err);
+  }
 
   let parsed: ReturnType<typeof parseGeneratedQuestion> = null;
   let validation:
