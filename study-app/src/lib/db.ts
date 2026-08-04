@@ -693,16 +693,21 @@ export async function reviewBankQuestion(
   const sql = getDb();
 
   if (decision === "bin") {
-    // Delete and return the context we need to log the bin (paper/family) — it's gone after this.
+    // SOFT-delete (review_state='pending' → 'binned') rather than a hard DELETE, so the 10s "Undo"
+    // window can reverse it (see unbinBankQuestion). Binned rows are excluded from every servable and
+    // pending read exactly as before; they simply retain their row instead of vanishing. RETURNING
+    // paper/family lets us log the bin ledger with context.
     const rows = await sql`
-      DELETE FROM generated_questions
+      UPDATE generated_questions SET
+        status = 'rejected', review_state = 'binned', reviewed_at = NOW(), reviewed_by = ${reviewerId}
       WHERE question_id = ${questionId} AND review_state = 'pending'
       RETURNING batch_id, paper, family
     `;
     if (rows.length === 0) return { batchId: null, changed: false };
     const row = rows[0] as { batch_id: string | null; paper: number; family: string | null };
-    // Always log the bin (even a bare, reasonless one — a reason is never required). reason_tags is a
-    // Postgres text[]; an empty/absent tag list stores NULL.
+    // Always log the bin (even a bare, reasonless one — a reason is never required). Reasons now arrive
+    // separately via a fire-and-forget PATCH (applyBinReasons) while the Undo bar is up, so this row
+    // usually starts with NULL tags/note. reason_tags is a Postgres text[]; an empty list stores NULL.
     const tags = reason?.tags && reason.tags.length > 0 ? reason.tags : null;
     await sql`
       INSERT INTO bank_bin_reasons (item_id, paper, family_id, reason_tags, reason_note, binned_by)
@@ -737,6 +742,46 @@ export async function keepAllPending(batchId: string, reviewerId: number): Promi
   if (rows.length > 0) {
     await sql`UPDATE bank_batches SET kept_count = kept_count + ${rows.length} WHERE id = ${batchId}`;
   }
+  return rows.length;
+}
+
+// Reverse a bin within the Undo window (review_state='binned' → 'pending'). Scoped to 'binned' so a
+// replayed/late undo can't resurrect a row that was already kept or re-binned. The bin ledger row is
+// removed too — an undone bin carries no reason and must not feed the "learned from your bins" digest.
+// Returns the batch_id so the caller can reconcile counts.
+export async function unbinBankQuestion(
+  questionId: string,
+  reviewerId: number
+): Promise<{ batchId: string | null; changed: boolean }> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE generated_questions SET
+      status = 'pending', review_state = 'pending', reviewed_at = NULL, reviewed_by = ${reviewerId}
+    WHERE question_id = ${questionId} AND review_state = 'binned'
+    RETURNING batch_id
+  `;
+  if (rows.length === 0) return { batchId: null, changed: false };
+  await sql`DELETE FROM bank_bin_reasons WHERE item_id = ${questionId}`;
+  return { batchId: (rows[0].batch_id as string) ?? null, changed: true };
+}
+
+// Attach reasons to already-binned items, applied to EVERY id currently on the Undo stack. Reasons are
+// optional and non-blocking; each chip tap overwrites the whole (tags, note) pair for these items, so
+// the client sends the current full selection every time. A no-op (0 rows) is fine — the item may have
+// been undone, or expired out of the ledger. Returns how many ledger rows were updated.
+export async function applyBinReasons(
+  itemIds: string[],
+  tags: string[] | null,
+  note: string | null
+): Promise<number> {
+  if (itemIds.length === 0) return 0;
+  const sql = getDb();
+  const tagsVal = tags && tags.length > 0 ? tags : null;
+  const rows = await sql`
+    UPDATE bank_bin_reasons SET reason_tags = ${tagsVal}, reason_note = ${note}
+    WHERE item_id = ANY(${itemIds})
+    RETURNING item_id
+  `;
   return rows.length;
 }
 

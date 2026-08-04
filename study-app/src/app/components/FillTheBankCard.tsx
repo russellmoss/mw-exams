@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { BIN_REASON_OPTIONS, MAX_BIN_NOTE_CHARS } from "@/lib/bin-reasons";
+import { BinUndoBar } from "./BinUndoBar";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -93,6 +93,11 @@ interface Verdict {
   hard: Violation[];
   soft: Violation[];
 }
+// A pending question plus its own hard-validator verdict — the review card renders one at a time from
+// a LOCAL queue so Bin/Keep advance optimistically without a per-card server round-trip.
+interface ReviewCard extends ReviewQuestion {
+  verdict: Verdict | null;
+}
 interface ReviewData {
   batchId: string;
   paper: number;
@@ -105,6 +110,8 @@ interface ReviewData {
   verdict: Verdict | null;
   // How many of the still-pending questions fail hard validation — "Keep all" accepts them too.
   failingRemaining: number;
+  // Full pending queue (each with verdict) — drives optimistic local navigation.
+  questions: ReviewCard[];
 }
 
 // Live cost range: per-question average × count, widened ±35%, rounded to whole dollars.
@@ -135,20 +142,38 @@ export function FillTheBankRows() {
 
   const [reviewBatchId, setReviewBatchId] = useState<string | null>(() => initialReviewBatch());
   const [reviewOpen, setReviewOpen] = useState(() => !!initialReviewBatch());
+  // Batch-level metadata (status, kept count, replace flag, failing-remaining). The per-card queue is
+  // held separately so a bin/keep can advance instantly and locally.
   const [review, setReview] = useState<ReviewData | null>(null);
-  // Which review action is in flight (null = idle). Drives per-button spinners and the shared disable.
-  const [inFlight, setInFlight] = useState<null | "keep" | "bin" | "keepAll">(null);
+  // LOCAL review queue + cursor. Binning splices the current card out and pushes it onto undoStack.
+  const [queue, setQueue] = useState<ReviewCard[]>([]);
+  const [cursor, setCursor] = useState(0);
+  const seenIds = useRef<Set<string>>(new Set());
+  const decidedAny = useRef(false);
+  // Keep-all is the only remaining blocking action, so it keeps a spinner + shared disable.
+  const [inFlight, setInFlight] = useState<null | "keepAll">(null);
   const busy = inFlight !== null;
-  // Inline error beneath the card when an action fails (network / non-2xx). Cleared on the next action.
+  // Inline error beneath the card when Keep / Keep-all fails. Cleared on the next action.
   const [actionError, setActionError] = useState<string | null>(null);
-  // Optimistic removal: hide the current card the instant an action fires, restore it on failure.
-  const [optimisticHidden, setOptimisticHidden] = useState(false);
-  // OPTIONAL bin-reason panel (spec §2) — expands inside the card; Esc / Bin again collapses it.
-  const [binPanelOpen, setBinPanelOpen] = useState(false);
-  const [binTags, setBinTags] = useState<string[]>([]);
-  const [binNote, setBinNote] = useState("");
+  // Bin failed → the card is restored and this renders an inline "Couldn't bin — retry" row in place
+  // of the Keep/Bin buttons, with a Retry that re-fires the same request.
+  const [binError, setBinError] = useState<{ card: ReviewCard; index: number } | null>(null);
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
+
+  // ── UNDO STACK (spec §2/§3) ── binned items awaiting the 10s window, each with its original index.
+  const [undoStack, setUndoStack] = useState<{ card: ReviewCard; index: number }[]>([]);
+  const undoIdsRef = useRef<string[]>([]);
+  useEffect(() => {
+    undoIdsRef.current = undoStack.map((u) => u.card.id);
+  }, [undoStack]);
+  // Bumped on every new bin — restarts the countdown + drain animation inside BinUndoBar.
+  const [resetToken, setResetToken] = useState(0);
+  // OPTIONAL, non-blocking reasons that apply to every id currently on the undo stack.
+  const [reasons, setReasons] = useState<string[]>([]);
+  const [note, setNote] = useState("");
+  const [otherOpen, setOtherOpen] = useState(false);
+  const reasonTimer = useRef<number | undefined>(undefined);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -175,7 +200,10 @@ export function FillTheBankRows() {
     };
   }, [fetchStatus]);
 
-  const loadReview = useCallback(async (batchId: string) => {
+  // Load a batch's review payload. On a fresh open (merge=false) the local queue is (re)seeded from the
+  // server; while the batch is still generating we MERGE — appending only questions we haven't seen —
+  // so a background poll can't reset the cursor or drop items sitting on the undo stack.
+  const loadReview = useCallback(async (batchId: string, merge = false) => {
     try {
       const res = await fetch(`/api/admin/fill-bank/review?batch=${encodeURIComponent(batchId)}`, {
         cache: "no-store",
@@ -183,6 +211,18 @@ export function FillTheBankRows() {
       if (!res.ok) return null;
       const data: ReviewData = await res.json();
       setReview(data);
+      const incoming = data.questions || [];
+      if (merge) {
+        setQueue((prev) => {
+          const add = incoming.filter((c) => !seenIds.current.has(c.id));
+          add.forEach((c) => seenIds.current.add(c.id));
+          return add.length ? [...prev, ...add] : prev;
+        });
+      } else {
+        seenIds.current = new Set(incoming.map((c) => c.id));
+        setQueue(incoming);
+        setCursor(0);
+      }
       return data;
     } catch {
       return null;
@@ -209,7 +249,7 @@ export function FillTheBankRows() {
   useEffect(() => {
     if (!reviewOpen || !reviewBatchId || review?.status !== "running") return;
     const id = reviewBatchId;
-    const interval = setInterval(() => loadReview(id), 3000);
+    const interval = setInterval(() => loadReview(id, true), 3000);
     return () => clearInterval(interval);
   }, [reviewOpen, reviewBatchId, review?.status, loadReview]);
 
@@ -222,15 +262,30 @@ export function FillTheBankRows() {
   const pendingPaper = current?.pendingCount ? current : papers.find((p) => p.pendingCount > 0);
   const nextReviewBatchId = reviewBatchId || pendingPaper?.reviewBatchId || null;
 
-  const openReview = useCallback(async () => {
+  // Dismiss the undo cluster and clear its reason state (on undo, on expiry, or when the pane closes).
+  const clearUndo = useCallback(() => {
+    window.clearTimeout(reasonTimer.current);
+    setUndoStack([]);
+    setReasons([]);
+    setNote("");
+    setOtherOpen(false);
+  }, []);
+
+  // Plain function (not useCallback): it is only ever an onClick target, so it needs no stable
+  // identity, and the React Compiler memoizes it automatically.
+  const openReview = async () => {
     setSummary(null);
+    setActionError(null);
+    setBinError(null);
+    clearUndo();
+    decidedAny.current = false;
     setReviewOpen(true);
     const id = nextReviewBatchId;
     if (id) {
       setReviewBatchId(id);
       await loadReview(id);
     }
-  }, [nextReviewBatchId, loadReview]);
+  };
 
   const startGeneration = useCallback(
     async (paper: number, howMany: number) => {
@@ -276,72 +331,204 @@ export function FillTheBankRows() {
     [fetchStatus]
   );
 
-  // A single review decision. Optimistically removes the card, then reconciles with the server; on any
-  // non-2xx / network error it restores the card and surfaces an inline FAIL-red message. Keep and Bin
-  // (and Keep all) all run through here so none can silently die.
-  const submit = async (
-    action: "keep" | "bin" | "keepAll",
-    reason?: { tags: string[] | null; note: string | null }
-  ) => {
-    if (!review) return;
-    const id = action === "keepAll" ? review.batchId : review.question?.id;
-    if (!id) return;
-    setInFlight(action);
+  // ── FIRE-AND-FORGET REASON SYNC (spec §3) ── debounced ~300ms, batched, applied to every id on the
+  // undo stack. Failure is silent — it must never affect bin state.
+  const scheduleReasonSync = useCallback((tags: string[], noteVal: string) => {
+    window.clearTimeout(reasonTimer.current);
+    reasonTimer.current = window.setTimeout(() => {
+      const ids = undoIdsRef.current;
+      if (ids.length === 0) return;
+      fetch("/api/admin/fill-bank/review", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemIds: ids, reasons: tags, note: noteVal.trim() || null }),
+      }).catch(() => {
+        /* silent — reasons are optional and never roll back a bin */
+      });
+    }, 300);
+  }, []);
+
+  const toggleReason = (value: string) =>
+    setReasons((prev) => {
+      const next = prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value];
+      scheduleReasonSync(next, note);
+      return next;
+    });
+
+  // A late bin inherits any reasons already selected for the window.
+  useEffect(() => {
+    if (undoStack.length > 0 && (reasons.length > 0 || note.trim())) {
+      scheduleReasonSync(reasons, note);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [undoStack.length]);
+
+  // Reverse a bin server-side (best-effort — the local restore already happened).
+  const fireUnbin = useCallback(
+    async (card: ReviewCard) => {
+      try {
+        const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(card.id)}/bin`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        await fetchStatus();
+      } catch (err) {
+        console.error(`[fill-bank] undo (unbin) failed for ${card.id}:`, err);
+      }
+    },
+    [fetchStatus]
+  );
+
+  // Undo EVERY item on the stack, in original queue order; restore the queue, navigate to the first
+  // restored item, reverse each bin server-side, and dismiss the bar.
+  const handleUndo = useCallback(() => {
+    const items = [...undoStack].sort((a, b) => a.index - b.index);
+    if (items.length === 0) {
+      clearUndo();
+      return;
+    }
+    setQueue((q) => {
+      const copy = q.slice();
+      for (const it of items) copy.splice(Math.min(it.index, copy.length), 0, it.card);
+      return copy;
+    });
+    setCursor(Math.max(0, items[0].index));
+    items.forEach((it) => void fireUnbin(it.card));
+    clearUndo();
+  }, [undoStack, clearUndo, fireUnbin]);
+
+  // Window expired: the bins stand (already persisted). Flush the stack and fade the bar away.
+  const handleExpire = useCallback(() => {
+    clearUndo();
+  }, [clearUndo]);
+
+  // Reinsert a card the server refused to bin, back at its original index, and surface the retry row.
+  const revertBin = useCallback((card: ReviewCard, index: number) => {
+    setUndoStack((s) => s.filter((x) => x.card.id !== card.id));
+    setQueue((q) => {
+      const copy = q.slice();
+      copy.splice(Math.min(index, copy.length), 0, card);
+      return copy;
+    });
+    setCursor(index);
+    setBinError({ card, index });
+  }, []);
+
+  // Fire the bin request in the background. The visible copy on failure stays "Couldn't bin — retry";
+  // the real server message/status is logged for diagnosis.
+  const fireBin = useCallback(
+    async (card: ReviewCard, index: number) => {
+      try {
+        const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(card.id)}/bin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (!res.ok) {
+          const detail = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status} ${detail}`.trim());
+        }
+        await fetchStatus();
+      } catch (err) {
+        console.error(`[fill-bank] bin failed for ${card.id}:`, err);
+        revertBin(card, index);
+      }
+    },
+    [fetchStatus, revertBin]
+  );
+
+  // BIN — single, unconditional, optimistic. Splice the card out, advance, push it onto the undo stack,
+  // reset the 10s timer, and fire in the background. No reason gating whatsoever.
+  const binCard = (card: ReviewCard, index: number) => {
+    decidedAny.current = true;
+    setBinError(null);
+    setQueue((q) => q.filter((_, i) => i !== index));
+    setCursor((c) => (index < c ? c - 1 : c));
+    setUndoStack((s) => [...s, { card, index }]);
+    setResetToken((t) => t + 1);
+    void fireBin(card, index);
+  };
+  const binCurrent = () => {
+    const idx = Math.min(cursor, queue.length - 1);
+    const card = queue[idx];
+    if (card) binCard(card, idx);
+  };
+
+  // KEEP — optimistic single-card. On failure the card is restored with an inline message.
+  const keepCurrent = () => {
+    const index = Math.min(cursor, queue.length - 1);
+    const card = queue[index];
+    if (!card || !review) return;
+    decidedAny.current = true;
     setActionError(null);
-    // Optimistic removal of the single card (Keep all collapses via its own summary path below).
-    if (action !== "keepAll") setOptimisticHidden(true);
+    setQueue((q) => q.filter((_, i) => i !== index));
+    setReview((r) => (r ? { ...r, keptCount: r.keptCount + 1 } : r));
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/fill-bank/review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: card.id, action: "keep" }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        await fetchStatus();
+      } catch (err) {
+        console.error(`[fill-bank] keep failed for ${card.id}:`, err);
+        setReview((r) => (r ? { ...r, keptCount: Math.max(0, r.keptCount - 1) } : r));
+        setQueue((q) => {
+          const copy = q.slice();
+          copy.splice(Math.min(index, copy.length), 0, card);
+          return copy;
+        });
+        setCursor(index);
+        setActionError("Couldn't keep this one — try again.");
+      }
+    })();
+  };
+
+  // KEEP ALL — bulk, blocking; reconciles by reloading the batch.
+  const keepAll = async () => {
+    if (!review) return;
+    decidedAny.current = true;
+    setInFlight("keepAll");
+    setActionError(null);
     try {
       const res = await fetch("/api/admin/fill-bank/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id,
-          action,
-          reasonTags: reason?.tags ?? null,
-          reasonNote: reason?.note ?? null,
-        }),
+        body: JSON.stringify({ id: review.batchId, action: "keepAll" }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      // Reconcile with the server (advances to the next pending question).
+      clearUndo();
       const next = await loadReview(review.batchId);
       await fetchStatus();
-      setBinPanelOpen(false);
-      setBinTags([]);
-      setBinNote("");
-      setOptimisticHidden(false);
-      // Queue emptied and nothing left generating → collapse with a brief summary.
-      if (next && !next.question && next.remaining === 0 && next.status !== "running") {
+      if (next && (next.questions || []).length === 0 && next.status !== "running") {
         setSummary({ kept: next.keptCount });
         setReviewOpen(false);
         setReviewBatchId(null);
       }
     } catch {
-      // Restore the card and render inline error text; never leave a button in a dead state.
-      setOptimisticHidden(false);
-      setActionError(
-        action === "bin"
-          ? "Couldn't bin this one — try again."
-          : action === "keep"
-            ? "Couldn't keep this one — try again."
-            : "Couldn't keep these — try again."
-      );
+      setActionError("Couldn't keep these — try again.");
     } finally {
       setInFlight(null);
     }
   };
 
-  const toggleBinTag = (tag: string) =>
-    setBinTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
-
-  // Esc collapses the bin-reason panel.
+  // Queue emptied, nothing left on the undo stack, nothing still generating → collapse with a summary.
   useEffect(() => {
-    if (!binPanelOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setBinPanelOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [binPanelOpen]);
+    if (!reviewOpen || !review) return;
+    if (
+      queue.length === 0 &&
+      undoStack.length === 0 &&
+      review.status !== "running" &&
+      decidedAny.current
+    ) {
+      setSummary({ kept: review.keptCount });
+      setReviewOpen(false);
+      setReviewBatchId(null);
+      decidedAny.current = false;
+    }
+  }, [queue.length, undoStack.length, review, reviewOpen]);
 
   const toggleReplace = async () => {
     if (!review) return;
@@ -354,7 +541,10 @@ export function FillTheBankRows() {
     });
   };
 
-  const q = review?.question || null;
+  const safeCursor = queue.length === 0 ? 0 : Math.min(cursor, queue.length - 1);
+  const q = queue[safeCursor] || null;
+  const total = review ? review.keptCount + queue.length : queue.length;
+  const positionN = review ? review.keptCount + safeCursor + 1 : safeCursor + 1;
 
   return (
     <div>
@@ -543,18 +733,11 @@ export function FillTheBankRows() {
       {reviewOpen && (
         <div className="mt-5 pt-5 border-t border-border">
           {q ? (
-            optimisticHidden ? (
-              /* Card optimistically removed while the decision is in flight. */
-              <div className="py-8 flex items-center gap-2 text-sm text-muted">
-                <Spinner />
-                {inFlight === "bin" ? "Binning…" : "Saving…"}
-              </div>
-            ) : (
             <div>
               {/* Header: "Question n of total" + paper / family / difficulty chips */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <span className="text-sm font-medium text-foreground tabular-nums">
-                  Question {review!.position.n} of {review!.position.total}
+                  Question {positionN} of {total}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
@@ -575,30 +758,30 @@ export function FillTheBankRows() {
                   question is, and it is the one thing here a reviewer cannot derive by eye. A hard
                   violation means the stem contradicts its own wines and the question is unanswerable
                   as framed; bin it. */}
-              {review!.verdict === null ? (
+              {q.verdict === null ? (
                 <p className="text-xs text-muted mb-3">
                   Validator: no answer key yet — verdict unavailable for this question.
                 </p>
-              ) : review!.verdict.hard.length > 0 ? (
+              ) : q.verdict.hard.length > 0 ? (
                 <div className="rounded-lg border border-fail bg-fail/10 p-3 mb-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-fail">
                     Fails validation · bin this
                   </p>
                   <ul className="mt-2 space-y-1">
-                    {review!.verdict.hard.map((v, i) => (
+                    {q.verdict.hard.map((v, i) => (
                       <li key={i} className="text-xs text-foreground leading-relaxed">
                         <span className="text-fail">{v.rule}</span> — {v.detail}
                       </li>
                     ))}
                   </ul>
                 </div>
-              ) : review!.verdict.soft.length > 0 ? (
+              ) : q.verdict.soft.length > 0 ? (
                 <div className="rounded-lg border border-borderline/60 p-3 mb-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-borderline">
                     Worth a look
                   </p>
                   <ul className="mt-2 space-y-1">
-                    {review!.verdict.soft.map((v, i) => (
+                    {q.verdict.soft.map((v, i) => (
                       <li key={i} className="text-xs text-foreground leading-relaxed">
                         <span className="text-borderline">{v.rule}</span> — {v.detail}
                       </li>
@@ -678,29 +861,43 @@ export function FillTheBankRows() {
                   />
                   Replace anything I bin
                 </label>
-                {/* Bin toggles the reason panel (it doesn't bin on its own click); pressing it again
-                    collapses. The actual bin fires from inside the panel. */}
+                {binError ? (
+                  /* Bin failed → the card was restored; the retry row takes the Keep/Bin slot. The
+                     visible copy is fixed at "Couldn't bin — retry"; the real error is in the console. */
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-fail">Couldn&apos;t bin — retry</span>
+                    <button
+                      onClick={() => {
+                        setBinError(null);
+                        binCurrent();
+                      }}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Bin is now a SINGLE, unconditional, optimistic action — no reason gating. */}
+                    <button
+                      onClick={binCurrent}
+                      disabled={busy}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Bin
+                    </button>
+                    <button
+                      onClick={keepCurrent}
+                      disabled={busy}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Keep
+                    </button>
+                  </>
+                )}
                 <button
-                  onClick={() => setBinPanelOpen((o) => !o)}
-                  disabled={busy}
-                  aria-expanded={binPanelOpen}
-                  className={`text-sm px-4 py-2 rounded-lg border transition-colors cursor-pointer disabled:opacity-50 ${
-                    binPanelOpen ? "border-fail text-fail" : "border-border text-fail hover:border-fail"
-                  }`}
-                >
-                  Bin
-                </button>
-                <button
-                  onClick={() => submit("keep")}
-                  disabled={busy}
-                  className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
-                >
-                  {inFlight === "keep" && <Spinner />}
-                  Keep
-                </button>
-                <button
-                  onClick={() => submit("keepAll")}
-                  disabled={busy || review!.remaining === 0}
+                  onClick={keepAll}
+                  disabled={busy || queue.length === 0}
                   className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
                 >
                   {inFlight === "keepAll" && <Spinner />}
@@ -708,70 +905,7 @@ export function FillTheBankRows() {
                 </button>
               </div>
 
-              {/* ── OPTIONAL BIN-REASON PANEL (spec §2) ── inline, no modal. A reason is NEVER
-                  required: "Bin without a reason" submits a null reason. */}
-              {binPanelOpen && (
-                <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
-                  <p className="text-xs font-medium text-foreground mb-2">Why? (optional)</p>
-                  <div className="flex flex-wrap gap-2">
-                    {BIN_REASON_OPTIONS.map((opt) => {
-                      const on = binTags.includes(opt.value);
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => toggleBinTag(opt.value)}
-                          aria-pressed={on}
-                          className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
-                            on
-                              ? "border-accent bg-accent/15 text-foreground"
-                              : "border-border text-muted hover:border-muted"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <textarea
-                    value={binNote}
-                    onChange={(e) => setBinNote(e.target.value.slice(0, MAX_BIN_NOTE_CHARS))}
-                    maxLength={MAX_BIN_NOTE_CHARS}
-                    rows={3}
-                    placeholder="e.g. stem asks for two different grape varieties but both wines are Sauvignon Blanc"
-                    className="mt-3 w-full text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder:text-muted focus:outline-none focus:border-accent resize-y"
-                  />
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-[11px] text-muted tabular-nums">
-                      {binNote.length}/{MAX_BIN_NOTE_CHARS}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 mt-2">
-                    <button
-                      onClick={() =>
-                        submit("bin", {
-                          tags: binTags.length > 0 ? binTags : null,
-                          note: binNote.trim() ? binNote.trim() : null,
-                        })
-                      }
-                      disabled={busy}
-                      className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
-                    >
-                      {inFlight === "bin" && <Spinner />}
-                      Bin it
-                    </button>
-                    <button
-                      onClick={() => submit("bin", { tags: null, note: null })}
-                      disabled={busy}
-                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      Bin without a reason
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Inline failure text — verdict-FAIL red, beneath the card. */}
+              {/* Inline failure text for Keep / Keep-all — verdict-FAIL red, beneath the card. */}
               {actionError && <p className="text-xs text-fail mt-3">{actionError}</p>}
 
               {/* "Keep all" accepts every remaining question, not just the one on screen — say how
@@ -784,13 +918,33 @@ export function FillTheBankRows() {
                 </p>
               )}
             </div>
-            )
+          ) : undoStack.length > 0 ? (
+            /* Last card binned but the Undo window is still open — hold the pane until it resolves. */
+            <p className="text-sm text-muted">Reviewing…</p>
           ) : review?.status === "running" ? (
             <p className="text-sm text-muted">Writing your first questions…</p>
           ) : (
             <p className="text-sm text-muted">Nothing waiting for review.</p>
           )}
         </div>
+      )}
+
+      {/* ── UNDO CLUSTER (spec §2/§3) ── fixed at the viewport bottom while binned items sit inside the
+          10s window. Reason chips ride directly above the bar; both are DECOUPLED from the bin. */}
+      {reviewOpen && undoStack.length > 0 && (
+        <BinUndoBar
+          count={undoStack.length}
+          resetToken={resetToken}
+          onUndo={handleUndo}
+          onExpire={handleExpire}
+          selected={reasons}
+          onToggle={toggleReason}
+          otherOpen={otherOpen}
+          onToggleOther={() => setOtherOpen((o) => !o)}
+          note={note}
+          onNoteChange={setNote}
+          onNoteSubmit={() => scheduleReasonSync(reasons, note)}
+        />
       )}
     </div>
   );

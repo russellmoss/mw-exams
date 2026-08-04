@@ -9,6 +9,7 @@ import {
   getQuestionById,
   reviewBankQuestion,
   keepAllPending,
+  applyBinReasons,
   extendBatchForReplacement,
   type GeneratedQuestion,
 } from "@/lib/db";
@@ -158,6 +159,21 @@ export async function GET(request: Request) {
   const verdict = pending[0] ? await verdictFor(pending[0]) : null;
   const failingRemaining = await failingPendingCount(pending);
 
+  // Full pending queue (each with its own verdict) so the review card can drive optimistic, local
+  // navigation — Bin/Keep advance instantly without a server round-trip per card. Verdicts reuse the
+  // batched ground-truth read so the whole list costs one key fetch, not one per question.
+  const keys = await getAnswerKeyGroundTruths(pending.map((q) => q.question_id));
+  const questions = pending.map((q) => {
+    const gt = keys.get(q.question_id);
+    let cardVerdict: { ok: boolean; hard: Violation[]; soft: Violation[] } | null = null;
+    if (gt && gt.length > 0) {
+      const violations = violationsFor(q, gt);
+      const hard = violations.filter((v) => v.severity === "hard");
+      cardVerdict = { ok: hard.length === 0, hard, soft: violations.filter((v) => v.severity === "soft") };
+    }
+    return { ...serialize(q), verdict: cardVerdict };
+  });
+
   return Response.json({
     batchId: batch.id,
     paper: batch.paper,
@@ -169,6 +185,7 @@ export async function GET(request: Request) {
     question,
     verdict,
     failingRemaining,
+    questions,
   });
 }
 
@@ -260,4 +277,53 @@ export async function POST(request: Request) {
   }
 
   return Response.json({ ok: true, changed: true, replacementQueued, remaining });
+}
+
+/**
+ * PATCH /api/admin/fill-bank/review  { itemIds: string[], reasons: string[], note?: string }
+ *
+ * Optional, non-blocking reason capture for items still on the Undo stack (spec §3). Fire-and-forget:
+ * the client never rolls back on failure, so this must never touch bin state. Reasons apply to EVERY
+ * id passed. Unknown tags are dropped; a missing/expired ledger row is a silent no-op.
+ *
+ * Gates on getUser (no Claude key needed — nothing is generated). Validator-gap logging (spec §5): a
+ * contradiction-class tag the hard validator is meant to catch is logged as caught/MISSED, using the
+ * still-present (soft-deleted) row.
+ */
+export async function PATCH(request: Request) {
+  const user = await getUser(request);
+  if (!user || !user.isAdmin) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const { itemIds, reasons, note } = body as {
+    itemIds?: unknown;
+    reasons?: unknown;
+    note?: unknown;
+  };
+  const ids = Array.isArray(itemIds)
+    ? itemIds.filter((x): x is string => typeof x === "string")
+    : [];
+  if (ids.length === 0) return Response.json({ ok: true, updated: 0 });
+
+  const tags = sanitizeBinTags(reasons);
+  const cleanNote = sanitizeBinNote(note);
+
+  const updated = await applyBinReasons(ids, tags, cleanNote);
+
+  if (tags && tags.some((t) => VALIDATOR_LINKED_TAGS.includes(t as never))) {
+    for (const id of ids) {
+      const pre = await getQuestionById(id);
+      const verdict = pre ? await verdictFor(pre) : null;
+      const caught = !!verdict && verdict.hard.length > 0;
+      console.warn(
+        `[validator-gap] item=${id} tags=${tags.join(",")} validator=${
+          verdict === null ? "no-key" : caught ? "caught" : "MISSED"
+        }`
+      );
+    }
+  }
+
+  return Response.json({ ok: true, updated });
 }
