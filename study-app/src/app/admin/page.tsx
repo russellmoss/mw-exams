@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 import { FillTheBankRows } from "../components/FillTheBankCard";
+import { BankHealthSection } from "../components/BankHealthSection";
 
 interface UserRow {
   id: number;
@@ -315,12 +316,6 @@ export default function AdminPage() {
           </div>
           <div className="shrink-0 flex items-center gap-3">
             <Link
-              href="/admin/bank-health"
-              className="text-sm px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg transition-colors font-medium"
-            >
-              Bank Health →
-            </Link>
-            <Link
               href="/admin/costs"
               className="text-sm px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg transition-colors font-medium"
             >
@@ -386,6 +381,11 @@ export default function AdminPage() {
               <FillTheBankRows />
             </div>
           </div>
+
+          {/* Bank Health — rendered inline immediately below the bank counts card (full width). A
+              prior standalone /admin/bank-health page 404'd in production, so it lives here, in the
+              same JSX block that always renders, guaranteeing it ships wherever this page does. */}
+          <BankHealthSection />
 
           {/* Auto-Feature pipeline toggle */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoFeature ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
