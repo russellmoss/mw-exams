@@ -1741,7 +1741,7 @@ const STEM_CONCEPT_PATTERNS: { token: string; re: RegExp }[] = [
   { token: "ask:climate", re: /\bclimate\b/ },
 ];
 
-function stemStructureSignature(text: string): Set<string> {
+export function stemStructureSignature(text: string): Set<string> {
   const t = (text || "")
     .toLowerCase()
     .normalize("NFD")
@@ -1837,6 +1837,29 @@ export const TARGETED_MAX_OPENER_SIMILARITY = 0.9;
 // have a short memory.
 export const TARGETED_OPENER_WINDOW = 5;
 
+// How many of the most recent questions the STRUCTURAL-REPEAT rule looks back over.
+//
+// Same failure as the opener rule, one layer down. That rule fires on same family + same flight size
+// + a stem-shape overlap of 0.7, and it ran against the full 30-question window. Measured against the
+// 112 family-tagged real questions in the corpus, "does this structure match ANY of the previous N?"
+// rejects:
+//
+//     N=1 → 2.7%   N=5 → 4.5%   N=10 → 5.4%   N=30 → 10.7%
+//
+// The collisions at N=30 are authentic examiner behaviour, not defects: 2018_p1_q3 vs 2017_p1_q2
+// (F1, 2 wines) score a Jaccard of 1.00 — an IDENTICAL structural signature in consecutive years.
+// The IMW reuses question architecture constantly.
+//
+// 10 rather than the opener's 5: structure is a coarser signal than a framing sentence, so a longer
+// memory is defensible, and 5.4% is close enough to the 2.7% pairwise floor. This is deliberately NOT
+// the bigger hammer of disabling the rule for bulk runs — the measurement says it is over-windowed,
+// not wrong.
+//
+// It only explains part of the gap. In a measured Paper 1 batch this rule fired on 39% of attempts
+// against 10.7% for real questions, so the generator also repeats itself more than real examiners do.
+// That residual is a prompt problem, not a validator one.
+export const STRUCTURAL_REPEAT_WINDOW = 10;
+
 export function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
   latestQuestion: NormalizedGeneratedQuestion | null,
@@ -1927,7 +1950,10 @@ export function validateNoveltyAgainstLatest(
     const sameFlightSize = candidate.wines.length === recent.wines.length;
     const recentSig = stemStructureSignature(recent.question_text);
     const sigOverlap = jaccard(candidateSig, recentSig);
-    if (sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7) {
+    if (
+      i < STRUCTURAL_REPEAT_WINDOW &&
+      sameFamily && sameFlightSize && candidateSig.size >= 4 && recentSig.size >= 4 && sigOverlap >= 0.7
+    ) {
       violations.push(
         "Generated question reuses the same structural template and pedagogical contrast as a recent question (same family, flight size, stem shape, and tested concepts). Change the contrast axis or the wine archetypes so this is a genuinely new exam problem."
       );
