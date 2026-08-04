@@ -13,6 +13,7 @@ import {
 } from "@/lib/db";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
+import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { neon } from "@neondatabase/serverless";
@@ -476,6 +477,42 @@ export async function generateFreshQuestion(
   // discarded attempts stays outside a batch's reconciled total.
   const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
 
+  // Every attempt is recorded, passed or failed. questionId is stamped on ALL of them, including
+  // ones that never produce a question: it is the same id the model_usage rows carry, so the cost
+  // of a redraft loop joins straight to the violations that caused it.
+  const recordAttempt = (
+    attempt: number,
+    f: {
+      model?: string | null;
+      abGroup?: string | null;
+      passed: boolean;
+      rulesFired?: string[];
+      violations?: Record<string, string[]> | null;
+      latencyMs?: number | null;
+      parseFailed?: boolean;
+      modelError?: string | null;
+    }
+  ) =>
+    logGenerationAttempt({
+      paper,
+      family,
+      source: meta?.source ?? null,
+      userId: meta?.userId ?? null,
+      questionId,
+      attempt,
+      isRepair: false,
+      callTimeoutMs: CALL_TIMEOUT_MS,
+      budgetMs: BUDGET_MS,
+      model: f.model ?? null,
+      abGroup: f.abGroup ?? null,
+      passed: f.passed,
+      rulesFired: f.rulesFired ?? [],
+      violations: f.violations ?? null,
+      latencyMs: f.latencyMs ?? null,
+      parseFailed: f.parseFailed ?? false,
+      modelError: f.modelError ?? null,
+    });
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -494,16 +531,20 @@ export async function generateFreshQuestion(
     let producedModel = model;
     let producedAb = attemptAb;
     const t0 = Date.now();
+    // Latency of the call that actually produced `message`, so a parse/validator record reports the
+    // draft's own cost rather than the whole attempt including a failed Opus call.
+    let callMs = 0;
     emit?.({
       type: "status",
       label: attempt === 1 ? "Drafting the flight…" : `Redrafting the flight (attempt ${attempt})…`,
     });
     try {
       message = await callGenerationModel(client, model, prompt, callOpts, emit);
+      callMs = Date.now() - t0;
       logClaudeUsage(
         { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, questionId, abGroup: attemptAb },
         message.usage,
-        { latencyMs: Date.now() - t0 }
+        { latencyMs: callMs }
       );
     } catch (modelErr: unknown) {
       const msg = modelErr instanceof Error ? modelErr.message : String(modelErr);
@@ -516,6 +557,13 @@ export async function generateFreshQuestion(
         if (fallbackRemaining < MIN_CALL_MS) {
           lastViolations = [`${model} unavailable and no budget left for a Sonnet retry`];
           console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS}: ${lastViolations[0]}`);
+          recordAttempt(attempt, {
+            model,
+            abGroup: attemptAb,
+            passed: false,
+            modelError: lastViolations[0],
+            latencyMs: Date.now() - t0,
+          });
           break;
         }
         const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
@@ -524,14 +572,21 @@ export async function generateFreshQuestion(
           message = await callGenerationModel(client, "claude-sonnet-4-6", prompt, fallbackOpts, emit);
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
+          callMs = Date.now() - tRetry;
           logClaudeUsage(
             { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId, questionId, abGroup: null },
             message.usage,
-            { latencyMs: Date.now() - tRetry }
+            { latencyMs: callMs }
           );
         } catch (retryErr: unknown) {
           lastViolations = [`Model call failed: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`];
           console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} model error (sonnet fallback):`, lastViolations[0]);
+          recordAttempt(attempt, {
+            model: "claude-sonnet-4-6",
+            passed: false,
+            modelError: lastViolations[0],
+            latencyMs: Date.now() - tRetry,
+          });
           continue;
         }
       } else {
@@ -539,6 +594,13 @@ export async function generateFreshQuestion(
         // next attempt, or to the banked fallback once the budget is spent.
         lastViolations = [`Model call failed: ${msg}`];
         console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} model error:`, msg);
+        recordAttempt(attempt, {
+          model,
+          abGroup: attemptAb,
+          passed: false,
+          modelError: msg,
+          latencyMs: Date.now() - t0,
+        });
         continue;
       }
     }
@@ -554,6 +616,13 @@ export async function generateFreshQuestion(
       lastViolations = ["Failed to parse generated question"];
       console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed: parse error`);
       emit?.({ type: "status", label: "Draft came back malformed — retrying…" });
+      recordAttempt(attempt, {
+        model: producedModel,
+        abGroup: producedAb,
+        passed: false,
+        parseFailed: true,
+        latencyMs: callMs,
+      });
       continue;
     }
 
@@ -605,21 +674,38 @@ export async function generateFreshQuestion(
       { lenient: relaxNiceToHave }
     );
 
-    lastViolations = [
-      ...paperScopeCheck.violations,
-      ...varietyCheck.violations,
-      ...varietyFilterCheck.violations,
-      ...markCheck.violations,
-      ...consistencyCheck.violations,
-      ...originDiversityCheck.violations,
-      ...countryDiversityCheck.violations,
-      ...markMixCheck.violations,
-      ...compositionCheck.violations,
-      ...priceCheck.violations,
-      ...bankerCheck.violations,
-      ...flightSizeCheck.violations,
-      ...noveltyCheck.violations,
-    ];
+    // Declared in the order the violations used to be concatenated, so `lastViolations` below is
+    // byte-identical to the old flat list while the telemetry gets the rule NAME behind each one —
+    // the whole point of the table: "which validator is costing us the redrafts?"
+    const checks: Record<string, { violations: string[] }> = {
+      paperScope: paperScopeCheck,
+      variety: varietyCheck,
+      varietyFilter: varietyFilterCheck,
+      marks: markCheck,
+      consistency: consistencyCheck,
+      originDiversity: originDiversityCheck,
+      countryDiversity: countryDiversityCheck,
+      markMix: markMixCheck,
+      composition: compositionCheck,
+      price: priceCheck,
+      banker: bankerCheck,
+      flightSize: flightSizeCheck,
+      novelty: noveltyCheck,
+    };
+    const violationsByRule: Record<string, string[]> = {};
+    for (const [name, check] of Object.entries(checks)) {
+      if (check.violations.length > 0) violationsByRule[name] = check.violations;
+    }
+    lastViolations = Object.values(violationsByRule).flat();
+
+    recordAttempt(attempt, {
+      model: producedModel,
+      abGroup: producedAb,
+      passed: lastViolations.length === 0,
+      rulesFired: Object.keys(violationsByRule),
+      violations: violationsByRule,
+      latencyMs: callMs,
+    });
 
     if (lastViolations.length === 0) {
       parsed = candidate;
