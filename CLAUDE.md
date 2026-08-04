@@ -138,9 +138,18 @@ minute or hour field) makes Vercel reject the deployment *at creation time* with
 `cron_jobs_limits_reached` — so there is no failed build to look at, nothing appears in the
 deployments list, and **git auto-deploy silently stops for every subsequent commit**. That is what
 took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`).
-`study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule. If a job truly
-needs to run more often than daily, either upgrade to Pro or drive it from a GitHub Actions
-`schedule:` workflow that curls the route with `CRON_SECRET` — do not raise the Vercel cron rate.
+`study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule. **Never raise a
+Vercel cron above daily.** Anything that needs to run more often belongs in a GitHub Actions
+`schedule:` workflow that curls the route — `.github/workflows/bank-worker-hourly.yml` is the
+pattern to copy (hourly `/api/cron/bank-worker`, with the daily Vercel cron kept as a backstop
+because GitHub schedules are best-effort).
+
+**Cron routes authenticate on `CRON_SECRET`** (`/api/cron/*` and `/api/admin/bank/resume`): they
+compare `Authorization: Bearer $CRON_SECRET` and otherwise fall back to an admin session. It must be
+set with the **same value** in the Vercel project env (Production) *and* in the repo's Actions
+secrets. If Vercel has none, `isCron` is false for every caller and the routes 401 the GitHub
+workflow, Vercel Cron, and the bank worker's own self-resume hop alike — all silently, since a cron
+401 surfaces nowhere in the app.
 
 History (why it was the other way): the Vercel GitHub App once lost repo access, so we moved to an
 explicit `vercel --prod` in `auto-feedback.yml`; when the App came back, pushes AND the explicit

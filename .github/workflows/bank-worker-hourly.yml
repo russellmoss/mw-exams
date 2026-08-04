@@ -1,0 +1,84 @@
+name: bank-worker-hourly
+
+# Hourly safety net for Fill-the-Bank, run from GitHub Actions rather than Vercel Cron.
+#
+# WHY NOT A VERCEL CRON: the Vercel account is on the Hobby plan, which caps crons at 2 jobs each
+# firing at most once per day. A sub-daily schedule in study-app/vercel.json is not a build failure
+# — Vercel rejects the deployment at CREATION time (`cron_jobs_limits_reached`), so no build runs,
+# nothing lands in the deployments list, and git auto-deploy silently stops for every later commit.
+# That took production down for four hours on 2026-08-03. study-app/tests/vercel-crons.test.ts now
+# fails the build gate on any such schedule. Frequent jobs belong here instead.
+#
+# WHAT IT DOES: GETs /api/cron/bank-worker, which resumes one batch left 'running' (an invocation
+# killed before it could self-schedule a resume via /api/admin/bank/resume). The route is a no-op
+# when nothing is stalled — it returns {ok: true, resumed: null} — so an idle hour is a green run.
+#
+# The daily Vercel cron on the same route is kept deliberately as a backstop: GitHub's scheduled
+# runs are best-effort (they can be delayed under load, and GitHub disables schedules in repos with
+# 60 days of no activity). Both paths hitting the route is harmless — it processes one batch per
+# call and derives remaining work from persisted counters.
+#
+# SETUP: CRON_SECRET must exist in BOTH places with the SAME value —
+#   - the Vercel project env (Production), which is what the route compares against; and
+#   - this repository's Actions secrets, which is what the curl below sends.
+# Without it in Vercel, `isCron` is false for every caller and the route answers 401 to this
+# workflow, to Vercel Cron, and to the app's own self-resume hop.
+
+on:
+  schedule:
+    # Top of every hour. GitHub schedules are best-effort; a late or skipped run is fine here
+    # because the route is idempotent and the daily Vercel cron backstops it.
+    - cron: "0 * * * *"
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+# Nothing in this workflow touches the repo.
+permissions: {}
+
+concurrency:
+  group: bank-worker-hourly
+  cancel-in-progress: false
+
+jobs:
+  resume:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Resume any stalled Fill-the-Bank batch
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL || 'https://study-app-blond-nine.vercel.app' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET is not set in this repository's Actions secrets. Add it there AND in the Vercel project env (Production) with the same value, then re-run."
+            exit 1
+          fi
+
+          BODY="$(mktemp)"
+          # The route declares maxDuration = 300s; allow a little headroom past that.
+          CODE="$(curl -sS -o "$BODY" -w '%{http_code}' --max-time 330 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/bank-worker")" || CODE="000"
+
+          echo "HTTP $CODE"
+          # Response is {ok, resumed} or {error} — no secrets, safe to log.
+          cat "$BODY"; echo
+
+          case "$CODE" in
+            2*)
+              exit 0
+              ;;
+            401)
+              echo "::error::401 from /api/cron/bank-worker. The CRON_SECRET in this repo's Actions secrets does not match the one in the Vercel project env (or Vercel has none set at all)."
+              exit 1
+              ;;
+            000)
+              echo "::error::No response from $APP_URL within 330s — the app is down, or a batch resume exceeded the route's 300s budget."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected HTTP $CODE from /api/cron/bank-worker."
+              exit 1
+              ;;
+          esac
