@@ -9,14 +9,17 @@ export interface BinReasonOption {
   label: string;
 }
 
+// The one-tap fault chips shown BELOW the Undo bar after a bin (spec §3). Order is the render order.
+// "Other…" is NOT in this list — it is a UI affordance that reveals the free-text note, stored as
+// reason_note rather than a tag. Values are stable short-codes; labels are candidate-neutral English.
 export const BIN_REASON_OPTIONS: readonly BinReasonOption[] = [
-  { value: "wrong_marks", label: "Wrong marks" },
-  { value: "stem_mismatch", label: "Stem mismatch" },
-  { value: "factual_howler", label: "Factual howler" },
-  { value: "too_obscure", label: "Too obscure" },
+  { value: "stem_mismatch", label: "Wines don't match the stem" },
+  { value: "flight_samey", label: "Flight too samey" },
+  { value: "wrong_marks", label: "Marks look wrong" },
+  { value: "quality_narrow", label: "Quality spread too narrow" },
+  { value: "factual_error", label: "Factual error" },
   { value: "too_easy", label: "Too easy" },
-  { value: "repetitive", label: "Repetitive" },
-  { value: "badly_written", label: "Badly written" },
+  { value: "too_hard", label: "Too hard" },
 ] as const;
 
 export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(
