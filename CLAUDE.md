@@ -132,6 +132,16 @@ A versioned **`ignoreCommand`** in `study-app/vercel.json` decides what builds:
 - Otherwise build **only if** something under `study-app/` changed (`./` = the Vercel Root Directory,
   which is `study-app`). So root-only commits (docs, `data/`, `outputs/`) never trigger a build.
 
+**The Vercel account is on the Hobby plan, which caps `crons` in `study-app/vercel.json` at 2 jobs,
+each firing at most once per day.** A sub-daily schedule (anything with `*`, `,`, `-` or `/` in the
+minute or hour field) makes Vercel reject the deployment *at creation time* with
+`cron_jobs_limits_reached` — so there is no failed build to look at, nothing appears in the
+deployments list, and **git auto-deploy silently stops for every subsequent commit**. That is what
+took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`).
+`study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule. If a job truly
+needs to run more often than daily, either upgrade to Pro or drive it from a GitHub Actions
+`schedule:` workflow that curls the route with `CRON_SECRET` — do not raise the Vercel cron rate.
+
 History (why it was the other way): the Vercel GitHub App once lost repo access, so we moved to an
 explicit `vercel --prod` in `auto-feedback.yml`; when the App came back, pushes AND the explicit
 deploy both fired → duplicate racing builds, so git auto-deploy was disabled. We've now consolidated
