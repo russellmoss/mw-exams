@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { BinUndoBar } from "./BinUndoBar";
 import { BinReasonPanel } from "./BinReasonPanel";
+import { RecentBatchesStrip } from "./RecentBatchesStrip";
+import { BankReviewBadge } from "./BankReviewBadge";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -549,6 +551,18 @@ export function FillTheBankRows() {
         </h3>
       </div>
 
+      {/* ── RECENT BATCHES (Batch Undo) ── bordered strip at the top of the review area. Lets an admin
+          reverse a bulk auto-keep, returning never-reviewed items to the queue. On reopen we refetch
+          per-paper status and (if open) the current review queue. */}
+      <div className="mb-5">
+        <RecentBatchesStrip
+          onReopened={() => {
+            void fetchStatus();
+            if (reviewBatchId) void loadReview(reviewBatchId);
+          }}
+        />
+      </div>
+
       {/* ── RESTING ROW ─────────────────────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         {/* Compact per-paper stat pairs */}
@@ -733,6 +747,8 @@ export function FillTheBankRows() {
                   Question {positionN} of {total}
                 </span>
                 <div className="flex items-center gap-2">
+                  {/* Every item in the review queue is by definition never-reviewed until decided. */}
+                  <BankReviewBadge reviewed={false} />
                   <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
                     {PAPER_LABEL[q.paper]}
                   </span>

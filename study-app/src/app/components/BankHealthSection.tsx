@@ -13,6 +13,7 @@
 // /api/admin/bank/generate. No new generation pipeline; no new route.
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { BankReviewBadge } from "./BankReviewBadge";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -54,8 +55,18 @@ interface SliceItem {
   wines: string[];
   marks: number;
   served: boolean;
+  // Batch Undo: reviewed by an admin vs a never-reviewed auto-keep — drives the review badge + filter.
+  reviewed: boolean;
   createdAt: string;
 }
+
+// Batch Undo — the "Never reviewed" filter chip row over a slice's item list.
+type ReviewFilter = "all" | "never" | "reviewed";
+const REVIEW_FILTERS: { id: ReviewFilter; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "never", label: "Never reviewed" },
+  { id: "reviewed", label: "Reviewed" },
+];
 
 // ── Flag → user-facing label + verdict colour (green / amber / red per DESIGN.md) ─────────────────
 const FLAG_LABEL: Record<Flag, string> = { on: "On target", over: "Over-weighted", thin: "Thin" };
@@ -479,23 +490,27 @@ function SlicePanel({
   const [loadingMore, setLoadingMore] = useState(false);
   const [cursor, setCursor] = useState<string | null>(null);
   const [initialised, setInitialised] = useState(false);
+  // Batch Undo — the "Never reviewed" filter over this slice's items.
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
 
   const fetchPage = useCallback(
     async (next: string | null) => {
       const params = new URLSearchParams({ slice: slice.id, key: row.key, limit: "50" });
+      if (reviewFilter !== "all") params.set("reviewStateFilter", reviewFilter);
       if (next) params.set("cursor", next);
       const res = await fetch(`/api/admin/bank-health/slice?${params.toString()}`, { cache: "no-store" });
       if (!res.ok) return { items: [] as SliceItem[], nextCursor: null as string | null };
       const d = await res.json();
       return { items: (d.items || []) as SliceItem[], nextCursor: (d.nextCursor ?? null) as string | null };
     },
-    [slice.id, row.key]
+    [slice.id, row.key, reviewFilter]
   );
 
   // Keyed by (slice, row) at the call site, so this component remounts per selection.
   useEffect(() => {
     let alive = true;
     (async () => {
+      setLoading(true);
       const page = await fetchPage(null);
       if (!alive) return;
       setItems(page.items);
@@ -552,13 +567,29 @@ function SlicePanel({
           </button>
         </div>
 
-        <div className="p-5 border-b border-border">
+        <div className="p-5 border-b border-border space-y-4">
           <button
             onClick={() => onGenerate(paper)}
             className="w-full text-sm px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer"
           >
             Generate more like this
           </button>
+          {/* Batch Undo — review-state filter chips. */}
+          <div className="flex flex-wrap items-center gap-2">
+            {REVIEW_FILTERS.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setReviewFilter(f.id)}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors cursor-pointer ${
+                  reviewFilter === f.id
+                    ? "border-accent bg-accent/10 text-foreground"
+                    : "border-border text-muted hover:text-foreground hover:border-muted"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
@@ -578,13 +609,16 @@ function SlicePanel({
                 <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
                   Paper {it.paper}
                 </span>
-                <span
-                  className={`text-[11px] px-2 py-0.5 rounded-full ${
-                    it.served ? "bg-success/15 text-success" : "bg-muted/20 text-muted"
-                  }`}
-                >
-                  {it.served ? "Served" : "Never served"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <BankReviewBadge reviewed={it.reviewed} />
+                  <span
+                    className={`text-[11px] px-2 py-0.5 rounded-full ${
+                      it.served ? "bg-success/15 text-success" : "bg-muted/20 text-muted"
+                    }`}
+                  >
+                    {it.served ? "Served" : "Never served"}
+                  </span>
+                </div>
               </div>
               <p className="text-sm text-foreground leading-snug line-clamp-2">{it.stemSnippet}</p>
               {it.wines.length > 0 && (
