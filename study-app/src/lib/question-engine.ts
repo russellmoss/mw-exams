@@ -1794,6 +1794,27 @@ export function stemOpenerTokens(text: string): Set<string> {
 // does not set, which is the opposite of what this system is for.
 export const TARGETED_MAX_OPENER_SIMILARITY = 0.9;
 
+// How many of the most recent questions the OPENER rule looks back over.
+//
+// The 0.9 threshold above is calibrated PAIRWISE — 3.6% of real same-concept pairs exceed it. But the
+// rule was being applied against the full getRecentGeneratedQuestions(30) window, and a per-pair
+// rejection rate compounds once you run it 30 times per candidate. Measured against the 153 real
+// questions in data/exams.json, "does this opener match ANY of the previous N?" rejects:
+//
+//     N=1 → 3.3%   N=5 → 5.9%   N=10 → 9.8%   N=30 → 17.0%
+//
+// So as shipped the rule threw out roughly one in six AUTHENTIC IMW questions, and it was the single
+// biggest generation blocker in production (98 rejections in 8 hours vs 40 for the next novelty rule).
+// A window of 5 puts real-corpus rejection back near the 3.6% the threshold was designed for, and it
+// matches the exam's own structure: a paper is ~6 questions, so "don't reuse framing within a paper's
+// worth of questions" is the standard a candidate would actually notice.
+//
+// Deliberately scoped to the OPENER only. Exact-stem repeat, exact-wine-set repeat and wine-overlap
+// keep the full window — those police genuine content repetition, which matters over a long horizon.
+// Framing reuse is the one thing the real papers do constantly, so it is the one rule that should
+// have a short memory.
+export const TARGETED_OPENER_WINDOW = 5;
+
 export function validateNoveltyAgainstLatest(
   candidate: QuestionCandidate,
   latestQuestion: NormalizedGeneratedQuestion | null,
@@ -1853,7 +1874,13 @@ export function validateNoveltyAgainstLatest(
       // The wines may be new while the framing sentence is word-for-word one we just used. Real
       // papers reuse the CONCEPT and rewrite the SENTENCE (see the calibration note above), so this
       // blocks only near-verbatim reuse — rephrase the framing, don't change what is being asked.
-      const openerSim = jaccard(stemOpenerTokens(candidate.questionText), stemOpenerTokens(recent.question_text));
+      //
+      // Only against the most recent TARGETED_OPENER_WINDOW. questionsToCheck is ordered
+      // most-recent-first (getRecentGeneratedQuestions orders by created_at DESC), so this is the
+      // newest slice. See the constant for why the full window over-rejects.
+      const openerSim = i < TARGETED_OPENER_WINDOW
+        ? jaccard(stemOpenerTokens(candidate.questionText), stemOpenerTokens(recent.question_text))
+        : 0;
       if (openerSim >= TARGETED_MAX_OPENER_SIMILARITY) {
         violations.push(
           "Generated question opens with essentially the same framing sentence as a recent question in this family. Keep the same kind of comparison, but word the opening differently — the real papers restate a familiar premise in fresh language rather than repeating it verbatim."
