@@ -1200,8 +1200,12 @@ export interface RecentBatchRow {
 // Recent batches for the Recent-batches strip: real bank_batches rows plus, for historic items that
 // predate batch bookkeeping (batch_id NULL, auto-kept), pseudo-rows synthesised from a created_at
 // day-cluster. canReopen = there are auto-kept-and-still-kept items AND it has not been reopened.
-export async function getRecentBatches(limit = 10): Promise<RecentBatchRow[]> {
+export async function getRecentBatches(
+  limit = 10,
+  paper?: number | null
+): Promise<RecentBatchRow[]> {
   const sql = getDb();
+  const paperArg = paper ?? null;
 
   const real = (await sql`
     SELECT b.id, b.paper, b.created_at, b.reopened_at,
@@ -1216,6 +1220,7 @@ export async function getRecentBatches(limit = 10): Promise<RecentBatchRow[]> {
     FROM bank_batches b
     LEFT JOIN generated_questions q ON q.batch_id = b.id
     LEFT JOIN users u ON u.id = b.resolved_by
+    WHERE (${paperArg}::int IS NULL OR b.paper = ${paperArg})
     GROUP BY b.id, u.name
     ORDER BY b.created_at DESC
     LIMIT ${limit}
@@ -1256,6 +1261,7 @@ export async function getRecentBatches(limit = 10): Promise<RecentBatchRow[]> {
            COUNT(*) FILTER (WHERE COALESCE(served_count, 0) > 0)::int AS served_in_batch
     FROM generated_questions
     WHERE batch_id IS NULL AND auto_kept = true
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
     GROUP BY day
     ORDER BY from_ts DESC
     LIMIT ${limit}
@@ -1623,14 +1629,19 @@ export interface BankHealthLiteRow {
   reviewed: boolean;
 }
 
-// Total servable questions + how many have never been served.
-export async function getBankHealthTotals(): Promise<{ total: number; unserved: number }> {
+// Total servable questions + how many have never been served. `paper` (1|2|3) scopes the counts to a
+// single paper for the Bank Health paper filter; null/undefined keeps the all-papers behaviour.
+export async function getBankHealthTotals(
+  paper?: number | null
+): Promise<{ total: number; unserved: number }> {
   const sql = getDb();
+  const paperArg = paper ?? null;
   const rows = (await sql`
     SELECT COUNT(*)::int AS total,
            COUNT(*) FILTER (WHERE COALESCE(times_served, 0) = 0)::int AS unserved
     FROM generated_questions
     WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
   `) as { total: number; unserved: number }[];
   return { total: rows[0]?.total ?? 0, unserved: rows[0]?.unserved ?? 0 };
 }
@@ -1641,7 +1652,8 @@ export async function getBankHealthTotals(): Promise<{ total: number; unserved: 
 // NULLs (no price signal) are excluded so the slice's percentages are over rows that actually carry
 // a band.
 export async function getBankSliceCounts(
-  column: "paper" | "question_type" | "curveball" | "price_band"
+  column: "paper" | "question_type" | "curveball" | "price_band",
+  paper?: number | null
 ): Promise<{ key: string; count: number }[]> {
   const sql = getDb();
   const keyExpr =
@@ -1651,18 +1663,26 @@ export async function getBankSliceCounts(
         ? "COALESCE(question_type, 'other')"
         : column;
   const extraWhere = column === "price_band" ? " AND price_band IS NOT NULL" : "";
+  // paper is a validated 1|2|3 (or null) — never raw user text — so parameterising it keeps the
+  // all-papers behaviour untouched while scoping the GROUP BY when a paper is selected.
+  const paperArg = paper ?? null;
   const rows = (await sql.query(
     `SELECT ${keyExpr}::text AS key, COUNT(*)::int AS count
        FROM generated_questions
       WHERE ${KEPT_BANK_SQL_WHERE}${extraWhere}
-      GROUP BY ${keyExpr}`
+        AND ($1::int IS NULL OR paper = $1)
+      GROUP BY ${keyExpr}`,
+    [paperArg]
   )) as { key: string; count: number }[];
   return rows;
 }
 
 // Flight-size slice, bucketed to the 2 / 3 / 4+ benchmark keys in SQL.
-export async function getFlightSizeCounts(): Promise<{ key: string; count: number }[]> {
+export async function getFlightSizeCounts(
+  paper?: number | null
+): Promise<{ key: string; count: number }[]> {
   const sql = getDb();
+  const paperArg = paper ?? null;
   const rows = (await sql`
     SELECT CASE
              WHEN flight_size = 2 THEN '2'
@@ -1673,6 +1693,7 @@ export async function getFlightSizeCounts(): Promise<{ key: string; count: numbe
     FROM generated_questions
     WHERE ${sql.unsafe(KEPT_BANK_SQL_WHERE)}
       AND flight_size >= 2
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
     GROUP BY key
   `) as { key: string; count: number }[];
   return rows;
@@ -1680,13 +1701,17 @@ export async function getFlightSizeCounts(): Promise<{ key: string; count: numbe
 
 // Keep/bin funnel across completed bulk runs: how many drafts were generated vs kept. Binned rows
 // are hard-deleted, so the bin count is (generated − kept). Feeds the overview keep/binned rates.
-export async function getBankBatchKeepStats(): Promise<{ generated: number; kept: number }> {
+export async function getBankBatchKeepStats(
+  paper?: number | null
+): Promise<{ generated: number; kept: number }> {
   const sql = getDb();
+  const paperArg = paper ?? null;
   const rows = (await sql`
     SELECT COALESCE(SUM(generated_count), 0)::int AS generated,
            COALESCE(SUM(kept_count), 0)::int AS kept
     FROM bank_batches
     WHERE status IN ('ready', 'complete')
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
   `) as { generated: number; kept: number }[];
   return { generated: rows[0]?.generated ?? 0, kept: rows[0]?.kept ?? 0 };
 }
@@ -1715,14 +1740,16 @@ export async function getTopRejectionReasons(
 
 // Lite projection of the servable pool for the TypeScript-derived slices. Only the columns those
 // derivations need, so even a 10k-row scan stays a few MB and is cached for 60s upstream.
-export async function getKeptBankLite(): Promise<BankHealthLiteRow[]> {
+export async function getKeptBankLite(paper?: number | null): Promise<BankHealthLiteRow[]> {
   const sql = getDb();
+  const paperArg = paper ?? null;
   const rows = (await sql`
     SELECT question_id, paper, question_text, wines, total_marks,
            COALESCE(times_served, 0)::int AS times_served, created_at,
            (reviewed_by IS NOT NULL) AS reviewed
     FROM generated_questions
     WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
   `) as BankHealthLiteRow[];
   return rows;
 }
@@ -1756,7 +1783,8 @@ export async function getBankSliceItemsByColumn(
   key: string,
   limit: number,
   offset: number,
-  reviewStateFilter: ReviewStateFilter = "all"
+  reviewStateFilter: ReviewStateFilter = "all",
+  paper?: number | null
 ): Promise<BankSliceItemRow[]> {
   const sql = getDb();
   let predicate: string;
@@ -1777,6 +1805,13 @@ export async function getBankSliceItemsByColumn(
     predicate = "price_band = $1";
     params.push(key);
   }
+  // Bank Health paper filter: scope the drill-down list to a single paper when selected. `paper` is a
+  // validated 1|2|3 from the route; null keeps the unscoped behaviour.
+  let paperScope = "";
+  if (paper != null) {
+    params.push(Number(paper));
+    paperScope = ` AND paper = $${params.length}`;
+  }
   const limitIdx = params.length + 1;
   const offsetIdx = params.length + 2;
   params.push(limit, offset);
@@ -1785,7 +1820,7 @@ export async function getBankSliceItemsByColumn(
             COALESCE(times_served, 0)::int AS times_served, created_at,
             (reviewed_by IS NOT NULL) AS reviewed
        FROM generated_questions
-      WHERE ${KEPT_BANK_SQL_WHERE} AND ${predicate}${reviewStatePredicate(reviewStateFilter)}
+      WHERE ${KEPT_BANK_SQL_WHERE} AND ${predicate}${paperScope}${reviewStatePredicate(reviewStateFilter)}
       ORDER BY created_at DESC, question_id DESC
       LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
     params

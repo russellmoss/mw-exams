@@ -7,10 +7,11 @@
 // per-slice slide-over of the actual banked questions (Screen 2), and a small confirm modal that
 // queues targeted generation into the normal review queue (Screen 3).
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { PaperFilterPills, type PaperValue } from "@/app/components/PaperFilterPills";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -63,6 +64,13 @@ const FLAG_CLASS: Record<Flag, string> = {
   thin: "bg-fail/15 text-fail",
 };
 
+// User-facing paper names for the caption line under the filter pills (mirrors PaperFilterPills).
+const PAPER_CAPTION_LABEL: Record<number, string> = {
+  1: "Paper 1 · Whites",
+  2: "Paper 2 · Reds",
+  3: "Paper 3 · Special",
+};
+
 function FlagPill({ flag }: { flag: Flag }) {
   return (
     <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${FLAG_CLASS[flag]}`}>
@@ -96,7 +104,26 @@ export default function BankHealthPage() {
 
   const [data, setData] = useState<BankHealthPayload | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refetching, setRefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Paper scope for every region on the page. Default is All papers on a fresh visit; a shared
+  // `?paper=N` link opens on that paper (spec: shareable, not persisted). Reflected back into the URL
+  // via router.replace so the address stays copy-able without a reload.
+  const [selectedPaper, setSelectedPaper] = useState<PaperValue>(() => {
+    if (typeof window === "undefined") return null;
+    const p = new URLSearchParams(window.location.search).get("paper");
+    return p === "1" || p === "2" || p === "3" ? (Number(p) as PaperValue) : null;
+  });
+  const firstLoadRef = useRef(true);
+
+  const handlePaperChange = useCallback(
+    (p: PaperValue) => {
+      setSelectedPaper(p);
+      router.replace(p ? `/admin/bank-health?paper=${p}` : "/admin/bank-health", { scroll: false });
+    },
+    [router]
+  );
 
   // Screen 2 (slide-over) and Screen 3 (confirm modal) selections.
   const [panel, setPanel] = useState<Selection | null>(null);
@@ -108,25 +135,39 @@ export default function BankHealthPage() {
     if (!authLoading && (!user || !user.isAdmin)) router.push("/");
   }, [authLoading, user, router]);
 
+  // Refetch on mount and on every paper switch. The first load shows the skeleton; later switches keep
+  // the current stats mounted and fade them (refetching) instead of unmounting, so there's no layout
+  // shift. A slow response for an old selection can't overwrite a newer one — AbortController cancels
+  // the in-flight request the moment the paper changes again.
   useEffect(() => {
     if (!user?.isAdmin) return;
-    let alive = true;
+    const controller = new AbortController();
+    if (firstLoadRef.current) setLoading(true);
+    else setRefetching(true);
     (async () => {
       try {
-        const res = await fetch("/api/admin/bank-health", { cache: "no-store" });
+        const qs = selectedPaper ? `?paper=${selectedPaper}` : "";
+        const res = await fetch(`/api/admin/bank-health${qs}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error(String(res.status));
         const payload: BankHealthPayload = await res.json();
-        if (alive) setData(payload);
-      } catch {
-        if (alive) setError("Couldn't read bank health right now.");
+        setData(payload);
+        setError(null);
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setError("Couldn't read bank health right now.");
       } finally {
-        if (alive) setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setRefetching(false);
+          firstLoadRef.current = false;
+        }
       }
     })();
-    return () => {
-      alive = false;
-    };
-  }, [user?.isAdmin]);
+    return () => controller.abort();
+  }, [user?.isAdmin, selectedPaper]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -168,6 +209,18 @@ export default function BankHealthPage() {
 
       <main className="flex-1">
         <div className="max-w-4xl mx-auto px-6 py-8">
+          {/* ── Paper filter — re-scopes every region below to one paper or the aggregate ── */}
+          <div className="mb-6">
+            <PaperFilterPills value={selectedPaper} onChange={handlePaperChange} />
+            {data && (
+              <p className="text-sm text-muted mt-2">
+                {selectedPaper == null
+                  ? `Showing all three papers — ${data.totals.total.toLocaleString()} questions banked.`
+                  : `Showing ${PAPER_CAPTION_LABEL[selectedPaper]} — ${data.totals.total.toLocaleString()} questions banked.`}
+              </p>
+            )}
+          </div>
+
           {error && (
             <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-6">
               <p className="text-sm text-fail">{error}</p>
@@ -190,7 +243,10 @@ export default function BankHealthPage() {
           )}
 
           {!loading && !error && data && data.totals.total > 0 && (
-            <div className="space-y-6">
+            <div
+              className={`space-y-6 transition-opacity duration-150 ${refetching ? "opacity-50" : "opacity-100"}`}
+              aria-busy={refetching}
+            >
               {/* ── Headline stat row (one bordered card, 3-up) ── */}
               <div className="rounded-xl border border-border bg-card p-6">
                 <div className="grid grid-cols-3 gap-4">
@@ -224,8 +280,9 @@ export default function BankHealthPage() {
 
       {panel && (
         <SlicePanel
-          key={`${panel.slice.id}:${panel.row.key}`}
+          key={`${panel.slice.id}:${panel.row.key}:${selectedPaper ?? "all"}`}
           selection={panel}
+          scopePaper={selectedPaper}
           onClose={() => setPanel(null)}
           onGenerate={(paper) => setConfirm({ selection: panel, paper })}
         />
@@ -409,10 +466,12 @@ function OverviewSkeleton() {
 // ── Screen 2: right-hand slide-over listing the banked questions in one slice bucket ──────────────
 function SlicePanel({
   selection,
+  scopePaper,
   onClose,
   onGenerate,
 }: {
   selection: Selection;
+  scopePaper: PaperValue;
   onClose: () => void;
   onGenerate: (paper: number) => void;
 }) {
@@ -420,11 +479,13 @@ function SlicePanel({
   const [items, setItems] = useState<SliceItem[] | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Keyed by (slice, row) at the call site, so this component remounts per selection — `loading`
-  // starts true from initial state and this effect runs once, no synchronous setState needed.
+  // Keyed by (slice, row, paper) at the call site, so this component remounts per selection — `loading`
+  // starts true from initial state and this effect runs once, no synchronous setState needed. The
+  // drill-down list stays scoped to the page's selected paper.
   useEffect(() => {
     let alive = true;
     const params = new URLSearchParams({ slice: slice.id, key: row.key, limit: "50" });
+    if (scopePaper) params.set("paper", String(scopePaper));
     fetch(`/api/admin/bank-health/slice?${params.toString()}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : { items: [] }))
       .then((d) => {
@@ -435,7 +496,7 @@ function SlicePanel({
     return () => {
       alive = false;
     };
-  }, [slice.id, row.key]);
+  }, [slice.id, row.key, scopePaper]);
 
   // Paper for targeted generation: the modal question set's most common paper, else the row's guess.
   const paper = useMemo(() => {
