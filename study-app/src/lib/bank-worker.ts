@@ -159,6 +159,33 @@ export function seedConsecutiveFailures(batch: Pick<BankBatch, "generated_count"
   return batch.generated_count === 0 ? batch.failed_count : 0;
 }
 
+// Second, resume-safe guard on the batch's overall YIELD.
+//
+// The consecutive-failure breaker above has a hole it cannot close on its own. It resets to 0 on
+// every resume hop once anything has been generated, and its stated justification — "a batch that is
+// still broken re-trips within this invocation anyway" — only holds if an invocation runs several
+// rounds. It does not when items are SLOW: one round contributes at most CONCURRENCY (3) to the
+// counter, the threshold is 5, and an invocation whose items run near ITEM_WORST_CASE_MS starts
+// exactly one round before handing off. So the counter never reaches 5, and the next invocation
+// re-seeds it to 0. A batch that generated one question and then broke completely can therefore burn
+// its entire requested count — precisely the expensive case the breaker exists to stop, since slow
+// failures are the ones that cost the most.
+//
+// This guard reads only the PERSISTED totals, so it survives resumes by construction and needs no
+// schema change. It is deliberately a poor-yield test rather than a failure count: a batch that is
+// producing, however slowly, is doing its job and should not be killed.
+const MIN_FAILURES_BEFORE_YIELD_CHECK =
+  Number(process.env.BANK_WORKER_MIN_FAILURES_BEFORE_YIELD_CHECK) || 10;
+// Abort when generated * this <= failed, i.e. a yield at or below 1-in-4.
+const MIN_YIELD_RATIO = Number(process.env.BANK_WORKER_MIN_YIELD_RATIO) || 3;
+
+export function shouldAbortForPoorYield(
+  batch: Pick<BankBatch, "generated_count" | "failed_count">
+): boolean {
+  if (batch.failed_count < MIN_FAILURES_BEFORE_YIELD_CHECK) return false;
+  return batch.generated_count * MIN_YIELD_RATIO <= batch.failed_count;
+}
+
 export const VALID_PAPERS = [1, 2, 3] as const;
 export const MIN_COUNT = 1;
 export const MAX_COUNT = 50;
@@ -332,10 +359,14 @@ export async function runBankBatch(opts: {
 
     // Checked BEFORE any work, so a resumed batch that was already failing wholesale stops here
     // rather than paying for one more round first.
-    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+    const poorYield = shouldAbortForPoorYield(batch);
+    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES || poorYield) {
       const spend = await getBatchActualCost(batchId).catch(() => 0);
+      const why = poorYield
+        ? `poor yield (${batch.generated_count} generated vs ${batch.failed_count} failed)`
+        : `${consecutiveFailures} consecutive failures`;
       console.error(
-        `[bank-worker] batch ${batchId} ABORTED after ${consecutiveFailures} consecutive failures ` +
+        `[bank-worker] batch ${batchId} ABORTED on ${why} ` +
           `(${batch.generated_count} generated, ${batch.failed_count} failed, $${spend.toFixed(2)} spent). ` +
           `Generation is failing systematically — query generation_attempts for the rules firing.`
       );
