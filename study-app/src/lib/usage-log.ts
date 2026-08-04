@@ -78,6 +78,9 @@ export interface ClaudeUsageContext {
   attemptId?: number | null;
   questionId?: string | null;
   abGroup?: string | null;
+  // Fill-the-Bank batch this call belongs to (migration 029). Set for EVERY call in a bulk run,
+  // including attempts that never produce a question — those have no questionId to attribute by.
+  batchId?: string | null;
 }
 
 /**
@@ -96,12 +99,13 @@ export async function logClaudeUsage(
     const sql = neon(process.env.DATABASE_URL!);
     await sql`
       INSERT INTO model_usage (
-        task_type, model, source, user_id, attempt_id, question_id, ab_group,
+        task_type, model, source, user_id, attempt_id, question_id, ab_group, batch_id,
         input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens,
         cost_usd, latency_ms, success, error
       ) VALUES (
         ${ctx.taskType}, ${ctx.model}, ${ctx.source ?? "server"},
         ${ctx.userId ?? null}, ${ctx.attemptId ?? null}, ${ctx.questionId ?? null}, ${ctx.abGroup ?? null},
+        ${ctx.batchId ?? null},
         ${u.input_tokens ?? 0}, ${u.output_tokens ?? 0},
         ${u.cache_read_input_tokens ?? 0}, ${u.cache_creation_input_tokens ?? 0},
         ${cost}, ${opts?.latencyMs ?? null}, ${opts?.success ?? true}, ${opts?.error ?? null}
@@ -119,6 +123,7 @@ export interface TavilyUsageContext {
   credits?: number;
   userId?: number | null;
   questionId?: string | null;
+  batchId?: string | null; // migration 029 — same attribution gap as Claude usage
   success?: boolean;
 }
 
@@ -130,10 +135,10 @@ export async function logTavilyUsage(ctx: TavilyUsageContext): Promise<void> {
     const sql = neon(process.env.DATABASE_URL!);
     await sql`
       INSERT INTO tavily_usage (
-        task_type, query, results_count, credits, cost_usd, user_id, question_id, success
+        task_type, query, results_count, credits, cost_usd, user_id, question_id, batch_id, success
       ) VALUES (
         ${ctx.taskType}, ${ctx.query ?? null}, ${ctx.resultsCount ?? 0}, ${credits}, ${cost},
-        ${ctx.userId ?? null}, ${ctx.questionId ?? null}, ${ctx.success ?? true}
+        ${ctx.userId ?? null}, ${ctx.questionId ?? null}, ${ctx.batchId ?? null}, ${ctx.success ?? true}
       )
     `;
   } catch (err) {

@@ -247,7 +247,10 @@ export async function runBankBatch(opts: {
   baseUrl?: string | null;
 }): Promise<void> {
   const { batchId, apiKey, userId, baseUrl } = opts;
-  const meta: UsageMeta = { source: "server", userId };
+  // batchId (migration 029): every call this run makes is stamped with the batch, so a run that
+  // banks nothing still reports what it cost. Attributing by question_id alone loses failed attempts
+  // entirely — they save no question — and a wholly failed batch reconciled to $0.00.
+  const meta: UsageMeta = { source: "server", userId, batchId };
   const startedAt = Date.now();
 
   let batch = await getBankBatch(batchId);

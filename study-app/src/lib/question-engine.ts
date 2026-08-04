@@ -44,7 +44,14 @@ import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
-export type UsageMeta = { source: "user" | "server"; userId: number | null };
+export type UsageMeta = {
+  source: "user" | "server";
+  userId: number | null;
+  // Set by the Fill-the-Bank worker so every call in a bulk run is attributable to its batch —
+  // including failed attempts, which save no question and were otherwise invisible to cost
+  // accounting (migration 029).
+  batchId?: string | null;
+};
 
 // Optional live-progress channel. When a caller (the Stem Sniper SSE route) supplies one, the
 // generation phases and the model's own reasoning are streamed to the browser. When it's absent
@@ -162,7 +169,8 @@ function generateModelAnswerInBackground(
         messages: [{ role: "user", content: prompt.user }],
       });
       logClaudeUsage(
-        { taskType: "model_answer", model, source: meta?.source, userId: meta?.userId, questionId, abGroup },
+        { taskType: "model_answer", model, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId, abGroup },
         message.usage,
         { latencyMs: Date.now() - t0 }
       );
@@ -258,7 +266,8 @@ async function ensureP3Appearances(
       { timeout: Number(process.env.APPEARANCE_TIMEOUT_MS) || 20_000, maxRetries: 0 }
     );
     logClaudeUsage(
-      { taskType: "question_appearance", model, source: meta?.source, userId: meta?.userId, questionId: question.question_id, abGroup },
+      { taskType: "question_appearance", model, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: question.question_id, abGroup },
       message.usage,
       { latencyMs: Date.now() - t0 }
     );
@@ -627,7 +636,8 @@ export async function generateFreshQuestion(
       message = await callGenerationModel(client, model, prompt, callOpts, emit);
       callMs = Date.now() - t0;
       logClaudeUsage(
-        { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId, questionId, abGroup: attemptAb },
+        { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId, abGroup: attemptAb },
         message.usage,
         { latencyMs: callMs }
       );
@@ -659,7 +669,8 @@ export async function generateFreshQuestion(
           producedAb = null;
           callMs = Date.now() - tRetry;
           logClaudeUsage(
-            { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId, questionId, abGroup: null },
+            { taskType: "question_generation", model: "claude-sonnet-4-6", source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId, abGroup: null },
             message.usage,
             { latencyMs: callMs }
           );
@@ -1875,12 +1886,20 @@ export function validateNoveltyAgainstLatest(
       // papers reuse the CONCEPT and rewrite the SENTENCE (see the calibration note above), so this
       // blocks only near-verbatim reuse — rephrase the framing, don't change what is being asked.
       //
-      // Only against the most recent TARGETED_OPENER_WINDOW. questionsToCheck is ordered
-      // most-recent-first (getRecentGeneratedQuestions orders by created_at DESC), so this is the
-      // newest slice. See the constant for why the full window over-rejects.
-      const openerSim = i < TARGETED_OPENER_WINDOW
-        ? jaccard(stemOpenerTokens(candidate.questionText), stemOpenerTokens(recent.question_text))
-        : 0;
+      // Only against the most recent TARGETED_OPENER_WINDOW, and only within the SAME FAMILY.
+      //
+      // Two separate over-rejections, fixed together. The window: questionsToCheck is ordered
+      // most-recent-first, and applying a PAIRWISE-calibrated threshold across all 30 compounds — on
+      // the real corpus "matches ANY of the previous 30" rejects 17% of authentic questions, against
+      // the 3.6% the threshold was designed for. The family scope: a fill walks family to family, and
+      // F4/F5/F7 all legitimately open "Wines 1 to 4 are from four different countries", so a Paper 1
+      // F5 draft was being rejected for resembling a Paper 1 F4 opener. Within a family the rule does
+      // real work; across families it was only friction, and it was the largest single source of
+      // redrafts in the on-grid fill.
+      const openerSim =
+        i < TARGETED_OPENER_WINDOW && candidate.family === recent.family
+          ? jaccard(stemOpenerTokens(candidate.questionText), stemOpenerTokens(recent.question_text))
+          : 0;
       if (openerSim >= TARGETED_MAX_OPENER_SIMILARITY) {
         violations.push(
           "Generated question opens with essentially the same framing sentence as a recent question in this family. Keep the same kind of comparison, but word the opening differently — the real papers restate a familiar premise in fresh language rather than repeating it verbatim."

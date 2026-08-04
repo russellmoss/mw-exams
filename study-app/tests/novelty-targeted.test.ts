@@ -109,6 +109,35 @@ describe("framing-sentence reuse", () => {
     expect(r.valid).toBe(true);
   });
 
+  // Scoping added after the on-grid fill: unscoped, this rule was 26 of the validator rejections,
+  // because a fill walks family to family and F4/F5/F7 all legitimately open "Wines 1 to 4 are from
+  // four different countries". Within a family it does real work; across families it was friction.
+  it("does not fire across DIFFERENT families", () => {
+    const otherFamily = { family: "F5", question_text: STEM_A, wines: FLIGHT_1 } as Parameters<
+      typeof validateNoveltyAgainstLatest
+    >[1];
+    const r = validateNoveltyAgainstLatest(
+      candidate(STEM_A.replace("(4 x 5 marks)", "(4 x 6 marks)"), FLIGHT_2), // family F4
+      otherFamily,
+      [otherFamily!],
+      { targeted: true }
+    );
+    expect(r.valid).toBe(true);
+  });
+
+  // NOTE: no relaxation valve. An earlier draft of this fix let the rule stand down on relaxed
+  // attempts, but TARGETED_OPENER_WINDOW already brings real-corpus rejection back to ~5.9% — close
+  // to the 3.6% the threshold was designed for — so a third loosening would under-enforce it.
+  it("still blocks the WINES regardless — that guarantee has no window and no valve", () => {
+    const r = validateNoveltyAgainstLatest(
+      candidate("A completely different opening sentence entirely.", FLIGHT_1),
+      recent(STEM_A, FLIGHT_1),
+      [recent(STEM_A, FLIGHT_1)!],
+      { targeted: true, lenient: true }
+    );
+    expect(r.valid).toBe(false);
+  });
+
   it("does not apply the opener rule outside targeted mode", () => {
     // Untargeted generation is governed by the structural rule; this must not change its verdicts.
     const r = validateNoveltyAgainstLatest(

@@ -851,10 +851,15 @@ export async function getBankFamilyHistogram(): Promise<
 // actually spent rather than the up-front estimate.
 export async function getBatchActualCost(batchId: string): Promise<number> {
   const sql = getDb();
+  // Attribute by batch_id OR question_id, never double-counting a row that carries both. batch_id
+  // (migration 029) is the one that survives a FAILED attempt: it saves no question, so the
+  // question_id join alone silently dropped its spend and a batch that banked nothing reconciled to
+  // $0.00. The question_id arm stays so rows written before 028 still reconcile.
   const rows = (await sql`
     SELECT COALESCE(SUM(m.cost_usd), 0) AS cost
     FROM model_usage m
-    WHERE m.question_id IN (SELECT question_id FROM generated_questions WHERE batch_id = ${batchId})
+    WHERE m.batch_id = ${batchId}
+       OR m.question_id IN (SELECT question_id FROM generated_questions WHERE batch_id = ${batchId})
   `) as { cost: string }[];
   return Number(rows[0]?.cost ?? 0);
 }

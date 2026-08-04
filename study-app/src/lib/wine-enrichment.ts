@@ -8,7 +8,12 @@ const TAVILY_API_URL = "https://api.tavily.com/search";
 
 // Usage-tracking context threaded from the request so each enrichment call (Tavily + Claude)
 // is attributed to the right source/user/question.
-type EnrichMeta = { source?: "user" | "server"; userId?: number | null; questionId?: string | null };
+type EnrichMeta = {
+  source?: "user" | "server";
+  userId?: number | null;
+  questionId?: string | null;
+  batchId?: string | null; // migration 029 — attribute bulk-run enrichment spend to its batch
+};
 
 async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippets: string[]; sources: string[] }> {
   const tavilyKey = process.env.TAVILY_API_KEY;
@@ -33,7 +38,8 @@ async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippet
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.error(`Tavily API error ${res.status}: ${body.slice(0, 200)}`);
-      logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId, questionId: meta?.questionId, success: false });
+      logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, success: false });
       return { snippets: [], sources: [] };
     }
     const data = await res.json();
@@ -44,11 +50,13 @@ async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippet
       if (r.url) sources.push(r.url);
     }
     console.log(`Tavily returned ${snippets.length} snippets for: ${query.slice(0, 80)}`);
-    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: (data.results || []).length, userId: meta?.userId, questionId: meta?.questionId, success: true });
+    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: (data.results || []).length, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, success: true });
     return { snippets, sources };
   } catch (err) {
     console.error("Tavily search failed:", err);
-    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId, questionId: meta?.questionId, success: false });
+    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, success: false });
     return { snippets: [], sources: [] };
   }
 }
@@ -124,7 +132,8 @@ Rules:
       messages: [{ role: "user", content: `Wine: ${fullText}` }],
     });
     logClaudeUsage(
-      { taskType: "wine_enrichment", model, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup },
+      { taskType: "wine_enrichment", model, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, abGroup },
       message.usage,
       { latencyMs: Date.now() - t0 }
     );
@@ -202,7 +211,8 @@ Output exactly one JSON object (no markdown, no code fences):
         }],
       });
       logClaudeUsage(
-        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup: enrichAb },
+        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, abGroup: enrichAb },
         message.usage,
         { latencyMs: Date.now() - t0 }
       );
@@ -253,7 +263,8 @@ Output exactly one JSON object (no markdown, no code fences):
         }],
       });
       logClaudeUsage(
-        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId, questionId: meta?.questionId, abGroup: enrichAb },
+        { taskType: "wine_enrichment", model: enrichModel, source: meta?.source, userId: meta?.userId,
+          batchId: meta?.batchId, questionId: meta?.questionId, abGroup: enrichAb },
         message.usage,
         { latencyMs: Date.now() - t0 }
       );
@@ -359,10 +370,15 @@ export async function enrichWineProfiles(
   questionId: string,
   wines: { slot: number; fullText: string }[],
   apiKey: string,
-  meta?: { source?: "user" | "server"; userId?: number | null }
+  meta?: { source?: "user" | "server"; userId?: number | null; batchId?: string | null }
 ): Promise<Record<string, WineProfile>> {
   const profiles = await lookupWines(wines);
-  const enrichMeta: EnrichMeta = { source: meta?.source, userId: meta?.userId, questionId };
+  const enrichMeta: EnrichMeta = {
+    source: meta?.source,
+    userId: meta?.userId,
+    batchId: meta?.batchId,
+    questionId,
+  };
 
   const needsEnrichment = wines.filter(
     (w) => profiles[String(w.slot)]?.source_method === "none"
