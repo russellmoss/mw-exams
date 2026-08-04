@@ -3,7 +3,8 @@
 // One bank_batch = one bulk run. This worker reuses the EXACT study-question pipeline
 // (generateFreshQuestion in question-engine.ts) — same generation call, same hard validators, same
 // background model-answer + wine-enrichment — but persists each result as status='pending' under the
-// batch_id so nothing reaches a candidate until an admin approves it on /admin/bank. Claude spend is
+// batch_id so nothing reaches a candidate until an admin approves it in the Fill-the-Bank section of
+// the Admin settings card. Claude spend is
 // logged by the engine's own logClaudeUsage calls, so a bulk run shows up on /admin/costs for free.
 //
 // DURABILITY: the run is driven from `after()` (post-response) and, if it can't finish inside one

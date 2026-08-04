@@ -670,7 +670,7 @@ export default function AdminPage() {
 
           {/* Build stamp — hardcoded, unconditional. If this line is missing from a deployed /admin,
               the browser is serving a stale bundle (the whole point of the v3 verifiability gate). */}
-          <p className="text-xs text-muted/60 text-center mt-10">Admin build 5 · Fill the Bank: on</p>
+          <p className="text-xs text-muted/60 text-center mt-10">Admin build 6 · Fill the Bank: inline</p>
         </div>
       </main>
     </div>
