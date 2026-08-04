@@ -49,6 +49,13 @@ import {
 } from "@/lib/question-rules.mjs";
 // Paper 3 style-family classifier + the invisible weighted-sampling math (see narrowToWeightedP3Category).
 import { classifyP3Category, chooseP3Category } from "@/lib/p3-category.mjs";
+import {
+  validateP3Composition,
+  validateCurveballMix,
+  classifyFlightCategory,
+  type WineCategory,
+  type CurveballLevel,
+} from "@/lib/bank/examMix";
 import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
 
 // Usage-tracking context threaded from the request through the background helpers so
@@ -163,6 +170,11 @@ type QuestionCandidate = {
   wines: { slot: number; fullText: string; appearance?: string }[];
   totalMarks: number;
   generationReasoning: string | null;
+  // Exam Mix (migration 034): the generator-emitted category + curveball tags and the cross-category
+  // flag validateP3Composition keys on. Null when the model omitted them (a non-bank generation).
+  wineCategory: string | null;
+  curveballLevel: string | null;
+  crossCategoryIntentional: boolean;
 };
 
 type NormalizedGeneratedQuestion = Omit<GeneratedQuestion, "wines"> & {
@@ -511,6 +523,17 @@ export async function generateFreshQuestion(
     familyTargeted?: boolean;
     budgetMs?: number;
     callTimeoutMs?: number;
+    // Exam Mix (migration 034): the composition-balancing target for this generation, set by the bank
+    // worker. flightCategory pins a required, coherent Paper 3 category; curveball pins the difficulty
+    // level; curveballCounts is the batch's running tally so validateCurveballMix can project shares.
+    // excludeFromCounters (the accept-anyway fallback) saves the item with NULL mix tags so it never
+    // enters the counts. Absent on the interactive study path — that path is untouched.
+    examMix?: {
+      flightCategory?: string | null;
+      curveball?: "low" | "medium" | "high" | null;
+      curveballCounts?: Record<string, number>;
+      excludeFromCounters?: boolean;
+    } | null;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -551,7 +574,12 @@ export async function generateFreshQuestion(
           family: latestQuestion.family,
         }
       : null,
-    variety
+    variety,
+    // Exam Mix (migration 034): the required category / curveball target for this flight, or undefined
+    // on any non-bank generation.
+    saveOpts?.examMix
+      ? { flightCategory: saveOpts.examMix.flightCategory, curveball: saveOpts.examMix.curveball }
+      : undefined
   );
 
   // Bank Health targeting: append the aim as SOFT preferences. Deliberately after the hard scope /
@@ -1732,6 +1760,18 @@ function parseGeneratedQuestion(
     );
     const generationReasoning = reasoningMatch ? reasoningMatch[1].trim() : null;
 
+    // Exam Mix (migration 034): generator-emitted category + curveball tags and the cross-category flag.
+    const wineCategoryMatch = text.match(/WineCategory:\s*([a-z_]+)/i);
+    const curveballLevelMatch = text.match(/CurveballLevel:\s*(low|medium|high)/i);
+    const crossCategoryMatch = text.match(/CrossCategoryIntentional:\s*(true|false)/i);
+    const VALID_WINE_CATEGORIES = new Set([
+      "sparkling", "rose", "fortified", "sweet", "oxidative", "orange", "still_white", "still_red",
+    ]);
+    const rawWineCategory = wineCategoryMatch ? wineCategoryMatch[1].toLowerCase() : null;
+    const wineCategory = rawWineCategory && VALID_WINE_CATEGORIES.has(rawWineCategory) ? rawWineCategory : null;
+    const curveballLevel = curveballLevelMatch ? curveballLevelMatch[1].toLowerCase() : null;
+    const crossCategoryIntentional = crossCategoryMatch ? crossCategoryMatch[1].toLowerCase() === "true" : false;
+
     const parsedFamily = familyMatch ? familyMatch[1] : family;
     const parsedLabel = FAMILY_LABELS[parsedFamily] || "Unknown";
 
@@ -1768,6 +1808,9 @@ function parseGeneratedQuestion(
       wines,
       totalMarks,
       generationReasoning,
+      wineCategory,
+      curveballLevel,
+      crossCategoryIntentional,
     };
   } catch {
     return null;
