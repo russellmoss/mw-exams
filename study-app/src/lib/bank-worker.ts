@@ -87,6 +87,30 @@ const BUDGET_MS = Number(process.env.BANK_WORKER_BUDGET_MS) || 285_000;
 // the generation loop already documents for itself — never start work you cannot finish.
 const ITEM_WORST_CASE_MS = 145_000;
 
+// Circuit breaker. A failed question is not free — it burns a full generation budget (up to eight
+// model calls) and bills for every one, and the /api/admin/fill-bank route caps count at nothing at
+// all. When generation is genuinely broken the loop used to grind through the entire request paying
+// for each failure: on 2026-08-04 two batches went 0-for-6 and 0-for-3, and $16.55 went out the door
+// in fourteen minutes for zero questions. At that rate a 50-question batch is roughly $118 of
+// nothing. Five consecutive failures is not a run of bad luck, it is a broken generator, and the
+// telemetry now records exactly which rule is responsible — so stop and let someone read it.
+const MAX_CONSECUTIVE_FAILURES = Number(process.env.BANK_WORKER_MAX_CONSECUTIVE_FAILURES) || 5;
+
+/**
+ * Consecutive-failure count to resume with, since the run spans several invocations and only the
+ * totals are persisted.
+ *
+ * If nothing has EVER been generated, every recorded failure was consecutive by definition, so the
+ * count carries across invocations and a wholesale-broken batch still trips the breaker after a
+ * resume. Once anything has succeeded the ordering is unknowable from totals alone — a batch could
+ * have failed ten then generated one — so it restarts at zero. That errs toward doing the work,
+ * which is the right way to be wrong: the cost of an extra round is bounded, and a batch that is
+ * still failing will trip the breaker within this invocation anyway.
+ */
+export function seedConsecutiveFailures(batch: Pick<BankBatch, "generated_count" | "failed_count">): number {
+  return batch.generated_count === 0 ? batch.failed_count : 0;
+}
+
 export const VALID_PAPERS = [1, 2, 3] as const;
 export const MIN_COUNT = 1;
 export const MAX_COUNT = 50;
@@ -201,6 +225,7 @@ export async function runBankBatch(opts: {
   // Global item counter: which round-robin family slot this item takes. Seeded from work already
   // done so a resume continues the rotation rather than restarting it.
   let issued = batch.generated_count + batch.failed_count;
+  let consecutiveFailures = seedConsecutiveFailures(batch);
 
   // Read the live banked distribution ONCE per invocation and lead with the thinnest families (spec's
   // diversity step). Recomputed on each resume so a long run keeps chasing the current gaps.
@@ -225,6 +250,19 @@ export async function runBankBatch(opts: {
   const deadline = startedAt + BUDGET_MS;
 
   while (remaining() > 0) {
+    // Checked BEFORE any work, so a resumed batch that was already failing wholesale stops here
+    // rather than paying for one more round first.
+    if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+      const spend = await getBatchActualCost(batchId).catch(() => 0);
+      console.error(
+        `[bank-worker] batch ${batchId} ABORTED after ${consecutiveFailures} consecutive failures ` +
+          `(${batch.generated_count} generated, ${batch.failed_count} failed, $${spend.toFixed(2)} spent). ` +
+          `Generation is failing systematically — query generation_attempts for the rules firing.`
+      );
+      await setBankBatchStatus(batchId, "failed", { completed: true, actualCostUsd: spend });
+      return;
+    }
+
     // Don't begin a round unless a worst-case item still fits before the deadline.
     if (deadline - Date.now() < ITEM_WORST_CASE_MS) {
       // Out of time for this invocation but work remains — hand off and let the fresh invocation (or
@@ -253,6 +291,10 @@ export async function runBankBatch(opts: {
       console.log(`[bank-worker] batch ${batchId} no longer running (${batch.status}); stopping`);
       return;
     }
+
+    // Timeouts are excluded by construction — `failed` counts only genuine rejections, so running
+    // out of clock never moves the breaker. Tested at the top of the next iteration.
+    consecutiveFailures = generated > 0 ? 0 : consecutiveFailures + failed;
 
     // An item abandoned mid-way for time (not for failure) means this invocation is done.
     if (timedOut) {
