@@ -1,5 +1,10 @@
 import { getUser } from "@/lib/auth";
-import { getBankSliceItemsByColumn, getKeptBankLite, type BankSliceItemRow } from "@/lib/db";
+import {
+  getBankSliceItemsByColumn,
+  getKeptBankLite,
+  type BankSliceItemRow,
+  type ReviewStateFilter,
+} from "@/lib/db";
 import { parseWines, deriveGrapes, deriveRegions, deriveMarkFocus } from "@/lib/bank-health/derive";
 
 export const runtime = "nodejs";
@@ -28,6 +33,7 @@ interface SliceItem {
   wines: string[];
   marks: number;
   served: boolean;
+  reviewed: boolean;
   createdAt: string;
 }
 
@@ -43,6 +49,7 @@ function toItem(row: BankSliceItemRow): SliceItem {
     wines,
     marks: row.total_marks,
     served: (row.times_served ?? 0) > 0,
+    reviewed: !!row.reviewed,
     createdAt: row.created_at,
   };
 }
@@ -80,6 +87,10 @@ export async function GET(request: Request) {
   const key = url.searchParams.get("key") || "";
   const limit = Math.min(MAX_LIMIT, Math.max(1, Number(url.searchParams.get("limit")) || DEFAULT_LIMIT));
   const cursor = Math.max(0, Number(url.searchParams.get("cursor")) || 0);
+  // Batch Undo: "Never reviewed" filter chip. Unknown values fall back to 'all'.
+  const rawFilter = url.searchParams.get("reviewStateFilter");
+  const reviewStateFilter: ReviewStateFilter =
+    rawFilter === "reviewed" || rawFilter === "never" ? rawFilter : "all";
 
   if (!(slice in COLUMN_FOR_SLICE) || !key) {
     return Response.json({ error: "Missing or unknown slice/key" }, { status: 400 });
@@ -89,7 +100,7 @@ export async function GET(request: Request) {
 
   if (column) {
     // Fetch one extra to know whether another page exists.
-    const rows = await getBankSliceItemsByColumn(column, key, limit + 1, cursor);
+    const rows = await getBankSliceItemsByColumn(column, key, limit + 1, cursor, reviewStateFilter);
     const hasMore = rows.length > limit;
     const items = rows.slice(0, limit).map(toItem);
     return Response.json({ items, nextCursor: hasMore ? String(cursor + limit) : null });
@@ -99,6 +110,11 @@ export async function GET(request: Request) {
   const lite = await getKeptBankLite();
   const matched = lite
     .filter((r) => derivedMatch(slice, key, r))
+    .filter((r) =>
+      reviewStateFilter === "reviewed" ? r.reviewed
+        : reviewStateFilter === "never" ? !r.reviewed
+        : true
+    )
     .sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0));
   const page = matched.slice(cursor, cursor + limit);
   const hasMore = cursor + limit < matched.length;

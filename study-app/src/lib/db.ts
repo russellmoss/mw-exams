@@ -52,6 +52,12 @@ export interface GeneratedQuestion {
   batch_id: string | null;
   reviewed_at: string | null;
   reviewed_by: number | null;
+  // Batch Undo (migration 033). auto_kept = reached 'kept' without an admin ever reviewing it (the
+  // "Never reviewed" state); an explicit admin keep sets reviewed_by and auto_kept=false. served_count
+  // / first_served_at track candidate serves so the reopen path can leave already-served items kept.
+  auto_kept: boolean;
+  served_count: number;
+  first_served_at: string | null;
   // Producer Spread (migration 032). The over-used-producer flags computed when the item landed in the
   // pending-review queue: [{producer_display, appearance_number, paper}]. NULL for servable rows and for
   // any pending item whose producers were all within their normal share.
@@ -537,8 +543,14 @@ export async function recordQuestionView(userId: number, questionId: string): Pr
 
 export async function incrementTimesServed(questionId: string): Promise<void> {
   const sql = getDb();
+  // Batch Undo (migration 033): served_count mirrors the times_served soft counter and first_served_at
+  // is stamped once, on the first serve. Both feed the reopen safety rail — an item that has already
+  // reached a candidate is left kept rather than yanked back to the review queue.
   await sql`
-    UPDATE generated_questions SET times_served = COALESCE(times_served, 0) + 1
+    UPDATE generated_questions SET
+      times_served = COALESCE(times_served, 0) + 1,
+      served_count = COALESCE(served_count, 0) + 1,
+      first_served_at = COALESCE(first_served_at, NOW())
     WHERE question_id = ${questionId}
   `;
 }
@@ -616,6 +628,12 @@ export interface BankBatch {
   created_by: number | null;
   created_at: string;
   completed_at: string | null;
+  // Batch Undo (migration 033). resolved_by / resolved_at record who explicitly kept the batch (via
+  // keep-all); reopened_at is stamped when an admin reverses that auto-keep and is what makes "Reopen
+  // all" one-shot (a batch already reopened cannot be reopened again).
+  resolved_by: number | null;
+  resolved_at: string | null;
+  reopened_at: string | null;
   // Stall recovery (migration 027). started_at is set once; updated_at is a heartbeat stamped on
   // every counter increment / status change, so a dead 'running' run can be told from a live one.
   started_at: string | null;
@@ -928,7 +946,8 @@ export async function reviewBankQuestion(
   // dropped; for a normal pending→kept there is no ledger row, so the DELETE is a harmless no-op.
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId}
+      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId},
+      auto_kept = false
     WHERE question_id = ${questionId} AND review_state IN ('pending', 'binned')
     RETURNING batch_id
   `;
@@ -946,14 +965,264 @@ export async function keepAllPending(batchId: string, reviewerId: number): Promi
   const sql = getDb();
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId}
+      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId},
+      auto_kept = false
     WHERE batch_id = ${batchId} AND review_state = 'pending'
     RETURNING id
   `;
   if (rows.length > 0) {
     await sql`UPDATE bank_batches SET kept_count = kept_count + ${rows.length} WHERE id = ${batchId}`;
   }
+  // Batch Undo (migration 033): keep-all is an explicit admin resolution — record who resolved it so
+  // the Recent-batches strip can show "Reviewed by <name>". Always stamp (even a 0-row keep-all still
+  // marks the batch as reviewed by this admin).
+  await sql`
+    UPDATE bank_batches SET resolved_by = ${reviewerId}, resolved_at = NOW()
+    WHERE id = ${batchId}
+  `;
   return rows.length;
+}
+
+// ── Batch Undo (migration 033) ──────────────────────────────────────────────────────────────────
+//
+// Reverse a bulk auto-keep: items kept without ever being reviewed go back to the review queue. An
+// item that has ALREADY been served to a candidate is left kept (skipped) — pulling a question a
+// candidate has seen back into "pending" would make it un-servable and orphan their attempt.
+
+// One short, human wine label for a bank item, for the skipped-list ("these stayed kept"). Derived
+// from the flight's first wine descriptor — the producer/cuvée head before the first comma — never a
+// question id or internal state name.
+function bankItemLabel(wines: unknown, paper: number): string {
+  try {
+    const arr = typeof wines === "string" ? JSON.parse(wines) : wines;
+    if (Array.isArray(arr) && arr.length > 0) {
+      const first = arr[0] as { fullText?: string };
+      const full = (first?.fullText || "").trim();
+      if (full) {
+        const head = full.split(",")[0]?.trim();
+        if (head) return head.length > 60 ? `${head.slice(0, 60)}…` : head;
+      }
+    }
+  } catch {
+    /* fall through to the generic label */
+  }
+  return `Paper ${paper} question`;
+}
+
+export interface ReopenResult {
+  reopened: number;
+  skipped: number;
+  skippedItems: { id: string; label: string }[];
+}
+
+// Reopen every auto-kept item in a batch that hasn't yet been served. Served items are left kept and
+// returned as `skippedItems`. Reopened items go review_state='pending', reviewed_by/reviewed_at NULL,
+// auto_kept=false. Stamps batch.reopened_at (one-shot: a batch already reopened returns nulls upstream).
+export async function reopenBatch(batchId: string, adminId: number): Promise<ReopenResult> {
+  const sql = getDb();
+  // Only auto-kept items are candidates — an explicit admin keep is a real decision and stays kept.
+  const rows = (await sql`
+    SELECT question_id, wines, paper, served_count
+    FROM generated_questions
+    WHERE batch_id = ${batchId} AND review_state = 'kept' AND auto_kept = true
+  `) as { question_id: string; wines: unknown; paper: number; served_count: number }[];
+
+  const toReopen = rows.filter((r) => (r.served_count ?? 0) === 0);
+  const skipped = rows.filter((r) => (r.served_count ?? 0) > 0);
+
+  if (toReopen.length > 0) {
+    const ids = toReopen.map((r) => r.question_id);
+    await sql`
+      UPDATE generated_questions SET
+        review_state = 'pending', status = 'pending',
+        reviewed_by = NULL, reviewed_at = NULL, auto_kept = false
+      WHERE question_id = ANY(${ids})
+    `;
+    await sql`
+      UPDATE bank_batches SET kept_count = GREATEST(0, kept_count - ${toReopen.length})
+      WHERE id = ${batchId}
+    `;
+  }
+  // Stamp the reopen even when nothing moved (all served) — the action was taken and must not repeat.
+  await sql`
+    UPDATE bank_batches SET reopened_at = NOW(), resolved_by = ${adminId}
+    WHERE id = ${batchId}
+  `;
+
+  return {
+    reopened: toReopen.length,
+    skipped: skipped.length,
+    skippedItems: skipped.map((r) => ({ id: r.question_id, label: bankItemLabel(r.wines, r.paper) })),
+  };
+}
+
+// FALLBACK for historic items with no batch_id: reopen auto-kept items in a created_at window. Same
+// served-item safety rail. There is no batch row to stamp, so reopened_at lives only on real batches.
+export async function reopenWindow(from: string, to: string): Promise<ReopenResult> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT question_id, wines, paper, served_count
+    FROM generated_questions
+    WHERE batch_id IS NULL AND review_state = 'kept' AND auto_kept = true
+      AND created_at >= ${from}::timestamptz AND created_at <= ${to}::timestamptz
+  `) as { question_id: string; wines: unknown; paper: number; served_count: number }[];
+
+  const toReopen = rows.filter((r) => (r.served_count ?? 0) === 0);
+  const skipped = rows.filter((r) => (r.served_count ?? 0) > 0);
+
+  if (toReopen.length > 0) {
+    const ids = toReopen.map((r) => r.question_id);
+    await sql`
+      UPDATE generated_questions SET
+        review_state = 'pending', status = 'pending',
+        reviewed_by = NULL, reviewed_at = NULL, auto_kept = false
+      WHERE question_id = ANY(${ids})
+    `;
+  }
+
+  return {
+    reopened: toReopen.length,
+    skipped: skipped.length,
+    skippedItems: skipped.map((r) => ({ id: r.question_id, label: bankItemLabel(r.wines, r.paper) })),
+  };
+}
+
+export interface RecentBatchRow {
+  kind: "batch" | "window";
+  id: string;
+  paper: number | null;
+  createdAt: string;
+  generated: number;
+  kept: number;
+  binned: number;
+  pending: number;
+  autoKept: number;
+  servedInBatch: number;
+  // Batch Undo confirm split: how many auto-kept items would actually reopen (never served) vs stay
+  // kept because they've already been served, and the wine labels of those skipped items.
+  reopenable: number;
+  skipped: number;
+  skippedItems: { id: string; label: string }[];
+  resolverName: string | null;
+  reopenedAt: string | null;
+  canReopen: boolean;
+  // Only present on 'window' rows — the historic-item fallback carries the timestamp range to reopen.
+  window?: { from: string; to: string };
+}
+
+// Recent batches for the Recent-batches strip: real bank_batches rows plus, for historic items that
+// predate batch bookkeeping (batch_id NULL, auto-kept), pseudo-rows synthesised from a created_at
+// day-cluster. canReopen = there are auto-kept-and-still-kept items AND it has not been reopened.
+export async function getRecentBatches(limit = 10): Promise<RecentBatchRow[]> {
+  const sql = getDb();
+
+  const real = (await sql`
+    SELECT b.id, b.paper, b.created_at, b.reopened_at,
+           u.name AS resolver_name,
+           COUNT(q.id)::int AS generated,
+           COUNT(q.id) FILTER (WHERE q.review_state = 'kept')::int AS kept,
+           COUNT(q.id) FILTER (WHERE q.review_state = 'binned')::int AS binned,
+           COUNT(q.id) FILTER (WHERE q.review_state = 'pending')::int AS pending,
+           COUNT(q.id) FILTER (WHERE q.auto_kept AND q.review_state = 'kept')::int AS auto_kept,
+           COUNT(q.id) FILTER (WHERE q.auto_kept AND q.review_state = 'kept' AND COALESCE(q.served_count, 0) > 0)::int AS served_auto_kept,
+           COUNT(q.id) FILTER (WHERE COALESCE(q.served_count, 0) > 0)::int AS served_in_batch
+    FROM bank_batches b
+    LEFT JOIN generated_questions q ON q.batch_id = b.id
+    LEFT JOIN users u ON u.id = b.resolved_by
+    GROUP BY b.id, u.name
+    ORDER BY b.created_at DESC
+    LIMIT ${limit}
+  `) as {
+    id: string; paper: number | null; created_at: string; reopened_at: string | null;
+    resolver_name: string | null; generated: number; kept: number; binned: number;
+    pending: number; auto_kept: number; served_auto_kept: number; served_in_batch: number;
+  }[];
+
+  const realRows: RecentBatchRow[] = real.map((r) => ({
+    kind: "batch",
+    id: r.id,
+    paper: r.paper,
+    createdAt: r.created_at,
+    generated: r.generated,
+    kept: r.kept,
+    binned: r.binned,
+    pending: r.pending,
+    autoKept: r.auto_kept,
+    servedInBatch: r.served_in_batch,
+    reopenable: Math.max(0, r.auto_kept - r.served_auto_kept),
+    skipped: r.served_auto_kept,
+    skippedItems: [],
+    resolverName: r.resolver_name,
+    reopenedAt: r.reopened_at,
+    canReopen: r.auto_kept > 0 && r.reopened_at == null,
+  }));
+
+  // Historic fallback: auto-kept items with no batch, clustered by calendar day.
+  const clusters = (await sql`
+    SELECT to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day,
+           MIN(created_at) AS from_ts, MAX(created_at) AS to_ts,
+           MIN(paper)::int AS paper,
+           COUNT(*)::int AS generated,
+           COUNT(*) FILTER (WHERE review_state = 'kept')::int AS kept,
+           COUNT(*) FILTER (WHERE auto_kept AND review_state = 'kept')::int AS auto_kept,
+           COUNT(*) FILTER (WHERE auto_kept AND review_state = 'kept' AND COALESCE(served_count, 0) > 0)::int AS served_auto_kept,
+           COUNT(*) FILTER (WHERE COALESCE(served_count, 0) > 0)::int AS served_in_batch
+    FROM generated_questions
+    WHERE batch_id IS NULL AND auto_kept = true
+    GROUP BY day
+    ORDER BY from_ts DESC
+    LIMIT ${limit}
+  `) as {
+    day: string; from_ts: string; to_ts: string; paper: number;
+    generated: number; kept: number; auto_kept: number; served_auto_kept: number; served_in_batch: number;
+  }[];
+
+  const windowRows: RecentBatchRow[] = clusters.map((c) => ({
+    kind: "window",
+    id: `window:${c.day}`,
+    paper: c.paper,
+    createdAt: c.to_ts,
+    generated: c.generated,
+    kept: c.kept,
+    binned: 0,
+    pending: 0,
+    autoKept: c.auto_kept,
+    servedInBatch: c.served_in_batch,
+    reopenable: Math.max(0, c.auto_kept - c.served_auto_kept),
+    skipped: c.served_auto_kept,
+    skippedItems: [],
+    resolverName: null,
+    reopenedAt: null,
+    canReopen: c.auto_kept > 0,
+    window: { from: c.from_ts, to: c.to_ts },
+  }));
+
+  const merged = [...realRows, ...windowRows]
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
+    .slice(0, limit);
+
+  // Attach the wine labels of the skipped (served, auto-kept) items so the confirm panel can list
+  // exactly which questions will stay kept. One narrow scan (served + auto-kept is a small set),
+  // bucketed by batch_id for real batches and by calendar day for the historic-window pseudo-rows.
+  const needLabels = merged.some((m) => m.skipped > 0);
+  if (needLabels) {
+    const skippedRows = (await sql`
+      SELECT question_id, wines, paper, batch_id,
+             to_char(date_trunc('day', created_at), 'YYYY-MM-DD') AS day
+      FROM generated_questions
+      WHERE review_state = 'kept' AND auto_kept = true AND COALESCE(served_count, 0) > 0
+    `) as { question_id: string; wines: unknown; paper: number; batch_id: string | null; day: string }[];
+    for (const m of merged) {
+      if (m.skipped === 0) continue;
+      const matches =
+        m.kind === "batch"
+          ? skippedRows.filter((s) => s.batch_id === m.id)
+          : skippedRows.filter((s) => s.batch_id === null && `window:${s.day}` === m.id);
+      m.skippedItems = matches.map((s) => ({ id: s.question_id, label: bankItemLabel(s.wines, s.paper) }));
+    }
+  }
+
+  return merged;
 }
 
 // Reverse a bin within the Undo window (review_state='binned' → 'pending'). Scoped to 'binned' so a
@@ -1262,6 +1531,9 @@ export interface BankHealthLiteRow {
   total_marks: number;
   times_served: number;
   created_at: string;
+  // Batch Undo (migration 033): true when an admin explicitly reviewed this item (reviewed_by set),
+  // false for a never-reviewed auto-keep. Drives the "Reviewed" / "Never reviewed" badge + filter.
+  reviewed: boolean;
 }
 
 // Total servable questions + how many have never been served.
@@ -1360,7 +1632,8 @@ export async function getKeptBankLite(): Promise<BankHealthLiteRow[]> {
   const sql = getDb();
   const rows = (await sql`
     SELECT question_id, paper, question_text, wines, total_marks,
-           COALESCE(times_served, 0)::int AS times_served, created_at
+           COALESCE(times_served, 0)::int AS times_served, created_at,
+           (reviewed_by IS NOT NULL) AS reviewed
     FROM generated_questions
     WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
   `) as BankHealthLiteRow[];
@@ -1375,6 +1648,17 @@ export interface BankSliceItemRow {
   total_marks: number;
   times_served: number;
   created_at: string;
+  reviewed: boolean;
+}
+
+// Batch Undo (migration 033): the "Never reviewed" filter chip on Bank Health. 'never' = auto-kept
+// items an admin has not reviewed; 'reviewed' = explicitly reviewed. Maps to a SQL predicate over the
+// column-backed slices and is applied in TypeScript for the derived slices.
+export type ReviewStateFilter = "all" | "reviewed" | "never";
+function reviewStatePredicate(filter: ReviewStateFilter): string {
+  if (filter === "reviewed") return " AND reviewed_by IS NOT NULL";
+  if (filter === "never") return " AND reviewed_by IS NULL";
+  return "";
 }
 
 // Items for a column-backed slice (paper / questionType / curveball / flightSize / priceBand),
@@ -1384,7 +1668,8 @@ export async function getBankSliceItemsByColumn(
   column: "paper" | "question_type" | "curveball" | "price_band" | "flight_size",
   key: string,
   limit: number,
-  offset: number
+  offset: number,
+  reviewStateFilter: ReviewStateFilter = "all"
 ): Promise<BankSliceItemRow[]> {
   const sql = getDb();
   let predicate: string;
@@ -1410,9 +1695,10 @@ export async function getBankSliceItemsByColumn(
   params.push(limit, offset);
   const rows = (await sql.query(
     `SELECT question_id, paper, question_text, wines, total_marks,
-            COALESCE(times_served, 0)::int AS times_served, created_at
+            COALESCE(times_served, 0)::int AS times_served, created_at,
+            (reviewed_by IS NOT NULL) AS reviewed
        FROM generated_questions
-      WHERE ${KEPT_BANK_SQL_WHERE} AND ${predicate}
+      WHERE ${KEPT_BANK_SQL_WHERE} AND ${predicate}${reviewStatePredicate(reviewStateFilter)}
       ORDER BY created_at DESC, question_id DESC
       LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
     params
