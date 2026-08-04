@@ -202,7 +202,7 @@ export function NotificationBell() {
                 {bankReady.map((b) => (
                   <Link
                     key={b.batchId}
-                    href={`/admin/bank?batch=${b.batchId}`}
+                    href={`/admin?review=${b.batchId}`}
                     onClick={() => {
                       markBankSeen(b.batchId);
                       setBankReady((prev) => prev.filter((x) => x.batchId !== b.batchId));

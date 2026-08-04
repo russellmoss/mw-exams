@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
-import { FillTheBankCard } from "../components/FillTheBankCard";
+import { FillTheBankRows } from "../components/FillTheBankCard";
 import { AdminBuildStripe } from "../components/AdminBuildStripe";
 
 interface UserRow {
@@ -342,11 +342,11 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Fill the Bank — pinned to the top of the admin surface (v2 placement): bulk question
-              generation + review gate, above every toggle and scorecard. */}
-          <FillTheBankCard />
-
-          {/* Auto-Apply pipeline toggle */}
+          {/* Auto-Apply pipeline toggle. Fill the Bank is rendered as additional rows INSIDE this
+              same settings card (below, after a border-t divider) — deliberately nested in the same
+              JSX block as the Auto-Apply toggle so it can never sit on a separately-gated or
+              unrendered branch. Five prior builds shipped it as a standalone card/page the admin
+              never saw; keeping it here guarantees it renders wherever this toggle does. */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoApply ? "border-success bg-success/5" : "border-border bg-card"}`}>
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
@@ -379,6 +379,12 @@ export default function AdminPage() {
                     in both themes. Same treatment on all three switches below. */}
                 <span className={`inline-block h-6 w-6 transform rounded-full bg-white ring-2 ring-background transition-transform ${autoApply ? "translate-x-7" : "translate-x-1"}`} />
               </button>
+            </div>
+
+            {/* Fill the Bank — additional rows inside the Auto-Apply card, below the toggle, split by
+                a 1px border-t divider (spec). Same JSX block as the toggle above. */}
+            <div className="mt-5 pt-5 border-t border-border">
+              <FillTheBankRows />
             </div>
           </div>
 
