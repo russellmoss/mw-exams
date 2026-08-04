@@ -1,7 +1,9 @@
 import { after } from "next/server";
+import { getUser } from "@/lib/auth";
 import { requireApiKey } from "@/lib/api-key";
 import {
   reviewBankQuestion,
+  unbinBankQuestion,
   getBankBatch,
   extendBatchForReplacement,
   getBatchPendingQuestions,
@@ -67,4 +69,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   return Response.json({ ok: true, changed: true, replacementQueued, remaining });
+}
+
+/**
+ * DELETE /api/admin/bank/item/[id]/bin — admin-only. Reverse a bin (the "Undo" path).
+ *
+ * Restores review_state 'binned' → 'pending' so the question re-enters the review queue, and drops its
+ * bin-ledger row (an undone bin has no reason and must not feed the digest). No Claude key is needed —
+ * nothing is generated — so this gates on getUser rather than requireApiKey. Idempotent: a row that is
+ * no longer 'binned' returns changed:false without erroring.
+ */
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getUser(request);
+  if (!user || !user.isAdmin) {
+    return Response.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+  const result = await unbinBankQuestion(id, user.id);
+  if (!result.changed) return Response.json({ ok: true, changed: false });
+
+  const remaining = result.batchId
+    ? (await getBatchPendingQuestions(result.batchId)).length
+    : 0;
+  return Response.json({ ok: true, changed: true, remaining });
 }
