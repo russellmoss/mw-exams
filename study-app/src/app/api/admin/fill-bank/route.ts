@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
-import { getRunningBatchForPaper } from "@/lib/db";
+import { getRunningBatchForPaper, releaseStalledBatches } from "@/lib/db";
 import {
   startBankBatch,
   runBankBatch,
@@ -41,6 +41,11 @@ export async function POST(request: Request) {
   if (!Number.isFinite(count) || count < MIN_COUNT) {
     return Response.json({ error: `Count must be at least ${MIN_COUNT}` }, { status: 400 });
   }
+
+  // STALL RECOVERY (spec §1): before checking whether the paper is busy, release any batch whose
+  // heartbeat has gone stale (>5 min). A dead 'running' row would otherwise block this Generate
+  // forever — the "stuck on 3" bug. Its already-generated questions stay reviewable.
+  await releaseStalledBatches();
 
   // One running batch per paper — don't block, just return the live one.
   const running = await getRunningBatchForPaper(paper);

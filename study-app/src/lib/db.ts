@@ -402,13 +402,17 @@ export interface BankBatch {
   requested_count: number;
   generated_count: number;
   failed_count: number;
-  status: "running" | "ready" | "complete" | "cancelled" | "error" | "failed";
+  status: "running" | "ready" | "complete" | "done" | "cancelled" | "error" | "failed" | "stalled";
   replace_rejected: boolean;
   replace_binned: boolean;
   kept_count: number;
   created_by: number | null;
   created_at: string;
   completed_at: string | null;
+  // Stall recovery (migration 027). started_at is set once; updated_at is a heartbeat stamped on
+  // every counter increment / status change, so a dead 'running' run can be told from a live one.
+  started_at: string | null;
+  updated_at: string | null;
   est_cost_usd: string | null;
   actual_cost_usd: string | null;
   est_cost_min_cents: number | null;
@@ -492,7 +496,7 @@ export async function getReviewableBatches(): Promise<(BankBatch & { pending_cou
     SELECT b.*, COUNT(q.id) FILTER (WHERE q.review_state = 'pending')::int AS pending_count
     FROM bank_batches b
     LEFT JOIN generated_questions q ON q.batch_id = b.id
-    WHERE b.status IN ('ready', 'complete')
+    WHERE b.status IN ('ready', 'complete', 'done', 'stalled', 'cancelled')
     GROUP BY b.id
     HAVING COUNT(q.id) FILTER (WHERE q.review_state = 'pending') > 0
     ORDER BY b.completed_at DESC NULLS LAST, b.created_at DESC
@@ -509,11 +513,66 @@ export async function incrementBatchCounts(
   const rows = await sql`
     UPDATE bank_batches SET
       generated_count = generated_count + ${delta.generated ?? 0},
-      failed_count    = failed_count + ${delta.failed ?? 0}
+      failed_count    = failed_count + ${delta.failed ?? 0},
+      updated_at      = NOW()
     WHERE id = ${id}
     RETURNING *
   `;
   return (rows[0] as BankBatch) ?? null;
+}
+
+// Heartbeat: bump updated_at without touching any counter. Called at the start of an invocation (and
+// on resume) so a batch that is genuinely alive but between chunks is never mistaken for stalled.
+export async function touchBankBatch(id: string): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE bank_batches SET updated_at = NOW() WHERE id = ${id}`;
+}
+
+// STALL RECOVERY (spec §1). Mark any batch left 'running' with a heartbeat older than the threshold
+// (5 minutes) as 'stalled' and release it, so a new run can start for that paper. Already-persisted
+// questions for the batch are untouched and remain reviewable (getReviewableBatches includes
+// 'stalled'). Idempotent — safe to call on every status poll and at the start of any new run.
+// Returns the released rows so callers can report "previous run stalled and was released".
+export async function releaseStalledBatches(thresholdMinutes = 5): Promise<BankBatch[]> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_batches SET status = 'stalled'
+    WHERE status = 'running'
+      AND updated_at < NOW() - (${thresholdMinutes} * INTERVAL '1 minute')
+    RETURNING *
+  `;
+  return rows as BankBatch[];
+}
+
+// CANCEL (spec §2). Flip a running batch to 'cancelled'. The worker re-reads status before each chunk
+// and exits, keeping every question generated so far. Scoped to 'running' so a completed/stalled run
+// isn't retro-cancelled.
+export async function cancelBankBatch(id: string): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_batches SET status = 'cancelled', completed_at = NOW(), updated_at = NOW()
+    WHERE id = ${id} AND status = 'running'
+    RETURNING *
+  `;
+  return (rows[0] as BankBatch) ?? null;
+}
+
+// The most recent batch per paper (any status), with its live pending-review count. The Fill-the-Bank
+// status endpoint reads this to drive the resting / running / stalled / done states without a
+// round-trip per paper.
+export async function getLatestBatchPerPaper(): Promise<(BankBatch & { pending_count: number })[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT DISTINCT ON (b.paper) b.*,
+      COALESCE(p.pending, 0)::int AS pending_count
+    FROM bank_batches b
+    LEFT JOIN (
+      SELECT batch_id, COUNT(*)::int AS pending
+      FROM generated_questions WHERE review_state = 'pending' GROUP BY batch_id
+    ) p ON p.batch_id = b.id
+    WHERE b.paper IN (1, 2, 3)
+    ORDER BY b.paper, b.created_at DESC
+  `) as (BankBatch & { pending_count: number })[];
 }
 
 // Add one more unit of work to a batch (used when an admin bins a question and replace_rejected is
@@ -551,7 +610,8 @@ export async function setBankBatchStatus(
       status = ${status},
       completed_at = ${opts?.completed ? new Date().toISOString() : null}::timestamptz,
       actual_cost_usd = COALESCE(${opts?.actualCostUsd ?? null}::numeric, actual_cost_usd),
-      actual_cost_cents = COALESCE(${actualCents}::int, actual_cost_cents)
+      actual_cost_cents = COALESCE(${actualCents}::int, actual_cost_cents),
+      updated_at = NOW()
     WHERE id = ${id}
   `;
 }

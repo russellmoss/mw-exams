@@ -1,8 +1,9 @@
 import { getUser } from "@/lib/auth";
 import {
   getBankStatusCounts,
-  getRunningBatches,
   getReviewableBatches,
+  getLatestBatchPerPaper,
+  releaseStalledBatches,
   getBankPerQuestionAvgCost,
 } from "@/lib/db";
 import { EST_COST_PER_QUESTION } from "@/lib/bank-worker";
@@ -25,9 +26,13 @@ export async function GET(request: Request) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const [counts, running, reviewable, avgCost] = await Promise.all([
+  // STALL RECOVERY (spec §1): every poll first releases any batch whose heartbeat has gone stale, so
+  // the card reflects a 'stalled' state promptly and a new Generate is unblocked.
+  await releaseStalledBatches();
+
+  const [counts, latest, reviewable, avgCost] = await Promise.all([
     getBankStatusCounts(),
-    getRunningBatches(),
+    getLatestBatchPerPaper(),
     getReviewableBatches(),
     getBankPerQuestionAvgCost(),
   ]);
@@ -36,18 +41,44 @@ export async function GET(request: Request) {
 
   const papers = [1, 2, 3].map((paper) => {
     const c = counts.find((x) => x.paper === paper);
-    const run = running.find((b) => b.paper === paper) || null;
+    const last = latest.find((b) => b.paper === paper) || null;
     // Newest reviewable batch for this paper — the review pane opens on it.
     const rev = reviewable.find((b) => b.paper === paper) || null;
+
+    const isRunning = last?.status === "running";
+    const isStalled = last?.status === "stalled";
+    const isDone = last?.status === "complete" || last?.status === "done" || last?.status === "cancelled";
+
     return {
       paper,
       descriptor: PAPER_DESCRIPTOR[paper],
       keptCount: c?.approved ?? 0,
       pendingCount: c?.pending ?? 0,
-      running: run
-        ? { batchId: run.id, generatedCount: run.generated_count + run.failed_count, requestedCount: run.requested_count }
+      running: isRunning
+        ? {
+            batchId: last!.id,
+            // items_done + items_skipped = items attempted so far (the "3 of 10").
+            generatedCount: last!.generated_count + last!.failed_count,
+            requestedCount: last!.requested_count,
+            skipped: last!.failed_count,
+          }
         : null,
-      reviewBatchId: rev?.id ?? run?.id ?? null,
+      // Auto-released dead run — grey note + Generate re-enabled. keptForReview = questions already
+      // persisted and awaiting review.
+      stalled: isStalled ? { batchId: last!.id, keptForReview: last!.pending_count } : null,
+      // Terminal run — "9 of 10 written · 1 skipped", with "Write N more" when any were skipped.
+      done:
+        isDone && (last!.failed_count > 0 || last!.pending_count > 0)
+          ? {
+              batchId: last!.id,
+              written: last!.generated_count,
+              requested: last!.requested_count,
+              skipped: last!.failed_count,
+              pending: last!.pending_count,
+              cancelled: last!.status === "cancelled",
+            }
+          : null,
+      reviewBatchId: rev?.id ?? (isRunning ? last!.id : null),
     };
   });
 

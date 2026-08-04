@@ -34,6 +34,19 @@ interface Running {
   batchId: string;
   generatedCount: number;
   requestedCount: number;
+  skipped: number;
+}
+interface Stalled {
+  batchId: string;
+  keptForReview: number;
+}
+interface Done {
+  batchId: string;
+  written: number;
+  requested: number;
+  skipped: number;
+  pending: number;
+  cancelled: boolean;
 }
 interface PaperStatus {
   paper: number;
@@ -41,6 +54,8 @@ interface PaperStatus {
   keptCount: number;
   pendingCount: number;
   running: Running | null;
+  stalled: Stalled | null;
+  done: Done | null;
   reviewBatchId: string | null;
 }
 interface ReviewWine {
@@ -163,6 +178,8 @@ export function FillTheBankRows() {
   const totalPending = papers.reduce((s, p) => s + p.pendingCount, 0);
   const current = papers.find((p) => p.paper === selectedPaper);
   const running = current?.running || null;
+  const stalled = current?.stalled || null;
+  const done = current?.done || null;
   // Batch to review = the selected paper's, else any paper with pending work.
   const pendingPaper = current?.pendingCount ? current : papers.find((p) => p.pendingCount > 0);
   const nextReviewBatchId = reviewBatchId || pendingPaper?.reviewBatchId || null;
@@ -177,24 +194,49 @@ export function FillTheBankRows() {
     }
   }, [nextReviewBatchId, loadReview]);
 
-  const handleGenerate = async () => {
-    setGenerating(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/fill-bank", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paper: selectedPaper, count, replaceBinned: true }),
-      });
-      const data = await res.json();
-      if (!res.ok) setError(data.error || "Couldn't start generation");
-      else await fetchStatus();
-    } catch {
-      setError("Network error");
-    } finally {
-      setGenerating(false);
-    }
-  };
+  const startGeneration = useCallback(
+    async (paper: number, howMany: number) => {
+      setGenerating(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/admin/fill-bank", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paper, count: howMany, replaceBinned: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) setError(data.error || "Couldn't start generation");
+        else await fetchStatus();
+      } catch {
+        setError("Network error");
+      } finally {
+        setGenerating(false);
+      }
+    },
+    [fetchStatus]
+  );
+
+  const handleGenerate = () => startGeneration(selectedPaper, count);
+
+  // "Write N more" — top up a done batch's skipped items for that paper.
+  const writeMore = (paper: number, n: number) => startGeneration(paper, Math.max(1, n));
+
+  // Cancel the running batch. Keeps everything generated so far.
+  const handleCancel = useCallback(
+    async (batchId: string) => {
+      try {
+        await fetch("/api/admin/fill-bank/cancel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ batchId }),
+        });
+        await fetchStatus();
+      } catch {
+        /* transient — the next poll reflects the cancel */
+      }
+    },
+    [fetchStatus]
+  );
 
   const act = async (action: "keep" | "bin" | "keepAll") => {
     if (!review) return;
@@ -268,14 +310,34 @@ export function FillTheBankRows() {
         <div className="flex-1" />
 
         {running ? (
-          /* ── RUNNING STATE ── controls replaced by a single line + progress bar, no stop control */
+          /* ── RUNNING STATE ── controls collapse to a progress line + thin amber bar + Cancel */
           <div className="w-full">
-            <p className="text-sm text-foreground">
-              Writing{" "}
-              <span className="tabular-nums">{Math.min(running.generatedCount + 1, running.requestedCount)}</span>{" "}
-              of <span className="tabular-nums">{running.requestedCount}</span>…{" "}
-              <span className="text-muted">you can close this tab.</span>
-            </p>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="text-sm text-foreground">
+                Writing {running.requestedCount} for {PAPER_LABEL[selectedPaper]} ·{" "}
+                <span className="tabular-nums">
+                  {Math.min(running.generatedCount + 1, running.requestedCount)}
+                </span>{" "}
+                of <span className="tabular-nums">{running.requestedCount}</span>
+              </p>
+              <div className="flex items-center gap-4">
+                {current!.pendingCount > 0 && !reviewOpen && (
+                  <button
+                    onClick={openReview}
+                    className="text-sm text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
+                  >
+                    {current!.pendingCount} ready to review
+                  </button>
+                )}
+                {/* Cancel is always visible on the running row (plain text, spec §2). */}
+                <button
+                  onClick={() => handleCancel(running.batchId)}
+                  className="text-sm text-muted hover:text-foreground underline underline-offset-2 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
             <div className="mt-2 h-1 rounded-full bg-border overflow-hidden max-w-md">
               <div
                 className="h-full bg-accent transition-all"
@@ -337,6 +399,53 @@ export function FillTheBankRows() {
           </div>
         )}
       </div>
+
+      {/* ── STALLED / AUTO-RELEASED NOTE ── grey note; Generate above is re-enabled by the else branch */}
+      {!running && stalled && (
+        <p className="text-xs text-muted mt-3">
+          Previous run stalled and was released
+          {stalled.keptForReview > 0 && (
+            <>
+              {" · "}
+              <span className="text-foreground tabular-nums">{stalled.keptForReview}</span> kept for review
+            </>
+          )}
+        </p>
+      )}
+
+      {/* ── DONE STATE ── "9 of 10 written · 1 skipped", with Write N more + Review N */}
+      {!running && !stalled && done && (
+        <div className="flex flex-wrap items-center gap-3 mt-3">
+          <p className="text-xs text-muted">
+            <span className="text-foreground tabular-nums">{done.written}</span> of{" "}
+            <span className="tabular-nums">{done.requested}</span> written
+            {done.skipped > 0 && (
+              <>
+                {" · "}
+                <span className="text-foreground tabular-nums">{done.skipped}</span> skipped
+              </>
+            )}
+            {done.cancelled && " · cancelled"}
+          </p>
+          {done.skipped > 0 && (
+            <button
+              onClick={() => writeMore(selectedPaper, done.skipped)}
+              disabled={generating}
+              className="text-xs px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+            >
+              {done.skipped === 1 ? "Write 1 more" : `Write ${done.skipped} more`}
+            </button>
+          )}
+          {done.pending > 0 && !reviewOpen && (
+            <button
+              onClick={openReview}
+              className="text-xs text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
+            >
+              Review {done.pending}
+            </button>
+          )}
+        </div>
+      )}
 
       {error && <p className="text-xs text-fail mt-2">{error}</p>}
       {summary && !reviewOpen && (
