@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/auth";
+import { isCronAuthorized } from "@/lib/cron-auth";
 import { sweepStrandedFeedback } from "@/lib/feedback-analysis";
 
 export const runtime = "nodejs";
@@ -15,16 +15,7 @@ export const maxDuration = 120;
  * repeated runs drain any backlog.
  */
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const isCron = !!cronSecret && authHeader === `Bearer ${cronSecret}`;
-
-  let authorized = isCron;
-  if (!authorized) {
-    const user = await getUser(request);
-    authorized = !!user?.isAdmin;
-  }
-  if (!authorized) {
+  if (!(await isCronAuthorized(request))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

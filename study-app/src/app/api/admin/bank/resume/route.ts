@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/auth";
+import { isCronAuthorized } from "@/lib/cron-auth";
 import { getBankBatch } from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
 
@@ -13,16 +13,9 @@ export const maxDuration = 300;
  * worker inline (this invocation IS the fresh one), so it awaits rather than using after().
  */
 export async function POST(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
-  const authHeader = request.headers.get("authorization");
-  const isCron = !!cronSecret && authHeader === `Bearer ${cronSecret}`;
-
-  let authorized = isCron;
-  if (!authorized) {
-    const user = await getUser(request);
-    authorized = !!user?.isAdmin;
+  if (!(await isCronAuthorized(request))) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (!authorized) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const { batchId } = await request.json().catch(() => ({}));
   if (!batchId) return Response.json({ error: "Missing batchId" }, { status: 400 });
