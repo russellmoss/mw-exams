@@ -10,6 +10,7 @@ import {
 } from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
 import { sanitizeBinTags, sanitizeBinNote } from "@/lib/bin-reasons";
+import { regenerateBinLessons } from "@/lib/bin-lessons";
 
 export const runtime = "nodejs";
 // A binned item can enqueue one replacement generation, driven in after() past the response.
@@ -34,12 +35,25 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // OPTIONAL bin reason (never required) — sanitised to known tags / a trimmed <=500-char note.
   const body = await request.json().catch(() => ({}));
   const { reasonTags, reasonNote } = body as { reasonTags?: unknown; reasonNote?: unknown };
-  const result = await reviewBankQuestion(id, "bin", keyResult.user.id, {
-    tags: sanitizeBinTags(reasonTags),
-    note: sanitizeBinNote(reasonNote),
-  });
+  const tags = sanitizeBinTags(reasonTags);
+  const note = sanitizeBinNote(reasonNote);
+  const result = await reviewBankQuestion(id, "bin", keyResult.user.id, { tags, note });
   if (!result || !result.changed) {
     return Response.json({ ok: true, changed: false });
+  }
+
+  // Bin with Reason (spec §4): a reasoned bin refreshes the distilled "Lessons for new questions"
+  // summary. Debounced-by-write and best-effort — run past the response so it never delays the bin.
+  if (tags || note) {
+    const apiKey = keyResult.apiKey;
+    const userId = keyResult.user.id;
+    after(async () => {
+      try {
+        await regenerateBinLessons(apiKey, userId);
+      } catch (err) {
+        console.error("[bank/item/bin] bin-lessons regenerate failed (non-fatal):", err);
+      }
+    });
   }
 
   // Servable pool already excludes this row (it's hard-deleted); report the batch's remaining pending.

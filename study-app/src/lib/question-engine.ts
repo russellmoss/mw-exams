@@ -13,6 +13,7 @@ import {
   type GeneratedQuestion,
 } from "@/lib/db";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
+import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
@@ -532,6 +533,15 @@ export async function generateFreshQuestion(
     if (digest) prompt.system += digest;
   } catch (err) {
     console.error("[generateFreshQuestion] bin-reason digest failed (non-fatal):", err);
+  }
+
+  // Bin with Reason (spec §5): the distilled cross-paper "Lessons for new questions" summary, injected
+  // as a short "Avoid these known failure patterns" block when admin_settings.use_bin_lessons is on.
+  // Appended after the exam-knowledge context above so it nudges without ever overriding paper scope.
+  try {
+    prompt.system += await getBinLessonsBlock();
+  } catch (err) {
+    console.error("[generateFreshQuestion] bin-lessons block failed (non-fatal):", err);
   }
 
   let parsed: ReturnType<typeof parseGeneratedQuestion> = null;

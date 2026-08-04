@@ -35,6 +35,8 @@
     "/api/admin/bank/review",
     "/api/admin/bank/set-replace",
     "/api/admin/bank/status",
+    "/api/admin/bin",
+    "/api/admin/bin/lessons",
     "/api/admin/costs",
     "/api/admin/feature-request",
     "/api/admin/feedback",
@@ -96,6 +98,7 @@
   "components": [
     "AnswerInput",
     "BankHealthSection",
+    "BinReasonPanel",
     "BinUndoBar",
     "DecisionTreeWalkthrough",
     "DiagramModal",
