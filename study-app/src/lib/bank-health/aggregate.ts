@@ -140,7 +140,10 @@ function buildScalarSlice(
   return { id, label, rows, layout: "table" };
 }
 
-export async function computeBankHealth(): Promise<BankHealthPayload> {
+// `paper` (1|2|3) scopes the whole payload to a single paper for the Bank Health paper filter; null
+// keeps today's all-papers behaviour exactly. Every count/derivation runs within that scope, so a
+// slice row's healthy/thin/over classification is recomputed against the selected paper's totals.
+export async function computeBankHealth(paper: number | null = null): Promise<BankHealthPayload> {
   const [
     totals,
     paperCounts,
@@ -152,20 +155,24 @@ export async function computeBankHealth(): Promise<BankHealthPayload> {
     rejectionReasons,
     lite,
   ] = await Promise.all([
-    getBankHealthTotals(),
-    getBankSliceCounts("paper"),
-    getBankSliceCounts("question_type"),
-    getBankSliceCounts("curveball"),
-    getBankSliceCounts("price_band"),
-    getFlightSizeCounts(),
-    getBankBatchKeepStats(),
+    getBankHealthTotals(paper),
+    getBankSliceCounts("paper", paper),
+    getBankSliceCounts("question_type", paper),
+    getBankSliceCounts("curveball", paper),
+    getBankSliceCounts("price_band", paper),
+    getFlightSizeCounts(paper),
+    getBankBatchKeepStats(paper),
     getTopRejectionReasons(5),
-    getKeptBankLite(),
+    getKeptBankLite(paper),
   ]);
 
   const slices: HealthSlice[] = [];
 
-  slices.push(buildScalarSlice("paper", "Papers", paperCounts, PAPER_LABELS, ["1", "2", "3"]));
+  // The paper breakdown is only meaningful in the aggregate view; under a single-paper scope it would
+  // read a trivial 100%, so it's dropped and the remaining slices carry the paper's own distribution.
+  if (paper == null) {
+    slices.push(buildScalarSlice("paper", "Papers", paperCounts, PAPER_LABELS, ["1", "2", "3"]));
+  }
   slices.push(
     buildScalarSlice("questionType", "Question types", typeCounts, QUESTION_TYPE_LABELS, Object.keys(BENCHMARKS.questionType))
   );
@@ -286,14 +293,16 @@ function buildCoverageSlice(
   return { id, label, rows, layout: "coverage" };
 }
 
-// ── 60s payload cache ──
-let cached: { at: number; payload: BankHealthPayload } | null = null;
+// ── 60s payload cache, keyed by paper scope (all + one entry per paper) ──
+const cached = new Map<string, { at: number; payload: BankHealthPayload }>();
 const CACHE_MS = 60_000;
 
-export async function getBankHealthCached(): Promise<BankHealthPayload> {
+export async function getBankHealthCached(paper: number | null = null): Promise<BankHealthPayload> {
   const now = Date.now();
-  if (cached && now - cached.at < CACHE_MS) return cached.payload;
-  const payload = await computeBankHealth();
-  cached = { at: now, payload };
+  const key = paper == null ? "all" : String(paper);
+  const hit = cached.get(key);
+  if (hit && now - hit.at < CACHE_MS) return hit.payload;
+  const payload = await computeBankHealth(paper);
+  cached.set(key, { at: now, payload });
   return payload;
 }

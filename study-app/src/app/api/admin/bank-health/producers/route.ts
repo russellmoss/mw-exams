@@ -20,8 +20,15 @@ export async function GET(request: Request) {
 
   const params = new URL(request.url).searchParams;
   const rawPaper = params.get("paper");
-  const paper: number | "all" =
-    rawPaper === "1" || rawPaper === "2" || rawPaper === "3" ? Number(rawPaper) : "all";
+  // Whitelist server-side: absent / 'all' → aggregate; 1|2|3 → that paper; anything else → 400.
+  let paper: number | "all";
+  if (rawPaper == null || rawPaper === "" || rawPaper === "all") {
+    paper = "all";
+  } else if (rawPaper === "1" || rawPaper === "2" || rawPaper === "3") {
+    paper = Number(rawPaper);
+  } else {
+    return Response.json({ error: "Invalid paper" }, { status: 400 });
+  }
   const expandAll = params.get("all") === "1";
 
   try {

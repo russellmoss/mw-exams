@@ -6,6 +6,7 @@ import {
   type ReviewStateFilter,
 } from "@/lib/db";
 import { parseWines, deriveGrapes, deriveRegions, deriveMarkFocus } from "@/lib/bank-health/derive";
+import { parsePaperParam } from "@/lib/bank-health/paper-param";
 
 export const runtime = "nodejs";
 
@@ -91,6 +92,11 @@ export async function GET(request: Request) {
   const rawFilter = url.searchParams.get("reviewStateFilter");
   const reviewStateFilter: ReviewStateFilter =
     rawFilter === "reviewed" || rawFilter === "never" ? rawFilter : "all";
+  // Bank Health paper filter: scope the drill-down to a single paper (absent = all).
+  const paper = parsePaperParam(url.searchParams.get("paper"));
+  if (paper === "invalid") {
+    return Response.json({ error: "Invalid paper" }, { status: 400 });
+  }
 
   if (!(slice in COLUMN_FOR_SLICE) || !key) {
     return Response.json({ error: "Missing or unknown slice/key" }, { status: 400 });
@@ -100,14 +106,14 @@ export async function GET(request: Request) {
 
   if (column) {
     // Fetch one extra to know whether another page exists.
-    const rows = await getBankSliceItemsByColumn(column, key, limit + 1, cursor, reviewStateFilter);
+    const rows = await getBankSliceItemsByColumn(column, key, limit + 1, cursor, reviewStateFilter, paper);
     const hasMore = rows.length > limit;
     const items = rows.slice(0, limit).map(toItem);
     return Response.json({ items, nextCursor: hasMore ? String(cursor + limit) : null });
   }
 
   // Derived slice: filter the lite scan, sort newest-first, page by offset.
-  const lite = await getKeptBankLite();
+  const lite = await getKeptBankLite(paper);
   const matched = lite
     .filter((r) => derivedMatch(slice, key, r))
     .filter((r) =>
