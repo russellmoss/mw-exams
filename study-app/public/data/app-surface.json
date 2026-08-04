@@ -21,6 +21,7 @@
   "apiRoutes": [
     "/api/admin/apply-change",
     "/api/admin/bank-health",
+    "/api/admin/bank-health/producers",
     "/api/admin/bank-health/slice",
     "/api/admin/bank/batch/[id]",
     "/api/admin/bank/cancel",
@@ -122,6 +123,7 @@
     "PaceStrip",
     "PaperSelector",
     "PreGlassReasoning",
+    "ProducerSpreadSection",
     "QuestionDisplay",
     "SessionHistory",
     "StemDetailControl",

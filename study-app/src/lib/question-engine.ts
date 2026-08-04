@@ -10,8 +10,13 @@ import {
   getQuestionsByFilter,
   getRecentGeneratedQuestions,
   getRecentBinReasons,
+  getProducerNudge,
   type GeneratedQuestion,
 } from "@/lib/db";
+import {
+  PRODUCER_NUDGE_MIN_WINES,
+  PRODUCER_NUDGE_TOP,
+} from "@/lib/bank-health/producer";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
@@ -108,6 +113,34 @@ function buildTargetingConstraints(targeting: BankTargeting | null | undefined):
   return (
     "\n\nSOFT PREFERENCES (nudge only — never break the paper scope, flight-size or mark rules above):\n" +
     prefs.map((p) => `- ${p}`).join("\n")
+  );
+}
+
+// PRODUCER SPREAD nudge (spec §2) — the quiet fix. Reads the paper's live producer tally and, when the
+// bank is deep enough to judge, injects a short SOFT block naming the already-heavily-used producers
+// with counts and asking the model to prefer other credible producers from the same region and price
+// band. It is a steer, never a gate: classic houses may recur, they just should not dominate. Returns
+// null (no injection) below PRODUCER_NUDGE_MIN_WINES wines for the paper, or when nothing is banked.
+async function buildProducerSpreadBlock(paper: number): Promise<string | null> {
+  let nudge: { totalWines: number; top: { display: string; count: number }[] };
+  try {
+    nudge = await getProducerNudge(paper, PRODUCER_NUDGE_TOP);
+  } catch (err) {
+    console.error("[producer-spread] nudge fetch failed (non-fatal):", err);
+    return null;
+  }
+  if (nudge.totalWines < PRODUCER_NUDGE_MIN_WINES || nudge.top.length === 0) return null;
+  // Kept compact (<~150 tokens): the heaviest producers only, one short list line.
+  const list = nudge.top
+    .filter((p) => p.count > 1)
+    .map((p) => `${p.display} (${p.count})`)
+    .join(", ");
+  if (!list) return null;
+  return (
+    "\n\nPRODUCER SPREAD (soft steer — never a hard rule): these producers are already well represented" +
+    ` in this paper's bank: ${list}. Prefer OTHER credible producers from the same region and price band` +
+    " so the bank stays varied. Classic, benchmark houses may recur occasionally, but should not dominate" +
+    " — reach for a different estate where an equally representative one exists."
   );
 }
 
@@ -525,6 +558,14 @@ export async function generateFreshQuestion(
   // flight-size rules so it can nudge wine/style/framing choices without ever overriding paper scope.
   const targetingBlock = buildTargetingConstraints(targeting);
   if (targetingBlock) prompt.system += targetingBlock;
+
+  // Producer Spread nudge (spec §2): scoped to the bank-generation path (Fill-the-Bank / generate /
+  // cron worker), identified by a batchId on saveOpts — the interactive study path has none and is
+  // untouched. A soft steer away from producer over-concentration; appended after scope like the rest.
+  if (saveOpts?.batchId) {
+    const producerBlock = await buildProducerSpreadBlock(paper);
+    if (producerBlock) prompt.system += producerBlock;
+  }
 
   // SOFT feed-forward (spec §4): fold the most recent bin reasons for this paper into the prompt so
   // the model stops re-making faults a reviewer already rejected. Guidance only, appended after scope.

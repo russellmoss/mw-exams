@@ -71,6 +71,12 @@ interface ReviewWine {
   vintage: string | null;
   priceBand: string | null;
 }
+// Producer Spread review flag — one per over-used producer in the flight (spec §3).
+interface ProducerFlag {
+  producer_display: string;
+  appearance_number: number;
+  paper: number;
+}
 interface ReviewQuestion {
   id: string;
   paper: number;
@@ -81,6 +87,7 @@ interface ReviewQuestion {
   markBreakdown: { label: string; marks: number }[];
   total: number;
   wines: ReviewWine[];
+  producerFlags: ProducerFlag[];
 }
 interface Violation {
   rule: string;
@@ -121,6 +128,13 @@ function costRange(count: number, perQuestion: number): string {
   const min = Math.max(0, Math.floor(mid * 0.65));
   const max = Math.max(min, Math.ceil(mid * 1.35));
   return min === max ? `roughly $${max}` : `roughly $${min}–${max}`;
+}
+
+// "1st / 2nd / 3rd / 4th …" for the producer-flag chip's appearance number.
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }
 
 // Small inline spinner for an in-flight review button — amber ring on a transparent track.
@@ -200,7 +214,12 @@ export function FillTheBankRows() {
   // so a background poll can't reset the cursor or drop items sitting on the undo stack.
   const loadReview = useCallback(async (batchId: string, merge = false) => {
     try {
-      const res = await fetch(`/api/admin/fill-bank/review?batch=${encodeURIComponent(batchId)}`, {
+      // Producer-flag deep-link (?review=flagged:producer) opens the cross-batch flagged queue instead
+      // of a single batch. Keep/Bin still act per-item, so the rest of the flow is unchanged.
+      const query = batchId.startsWith("flagged:")
+        ? "flagged=producer"
+        : `batch=${encodeURIComponent(batchId)}`;
+      const res = await fetch(`/api/admin/fill-bank/review?${query}`, {
         cache: "no-store",
       });
       if (!res.ok) return null;
@@ -823,6 +842,26 @@ export function FillTheBankRows() {
                   ))}
                 </ul>
               </div>
+
+              {/* Producer Spread flags (spec §3) — one amber bordered chip per over-used producer,
+                  stacked, sitting directly above the Keep/Bin controls. Admin-only heads-up; it never
+                  blocks a keep. */}
+              {q.producerFlags && q.producerFlags.length > 0 && (
+                <div className="mt-4 space-y-1.5">
+                  {q.producerFlags.map((f, i) => (
+                    <div
+                      key={`${f.producer_display}-${i}`}
+                      className="flex items-center gap-2 rounded-md border border-accent/60 bg-accent/10 px-3 py-1.5 text-xs text-accent"
+                    >
+                      <span className="font-medium">Over-used producer</span>
+                      <span className="text-muted">·</span>
+                      <span className="text-foreground">
+                        {f.producer_display}, {ordinal(f.appearance_number)} appearance
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Footer: replace toggle left · Bin / Keep / Keep all right */}
               <div className="flex flex-wrap items-center gap-3 mt-5">
