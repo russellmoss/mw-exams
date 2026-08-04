@@ -228,6 +228,51 @@ export function compressAvoidList(existingWines?: string[]): string[] {
   return out;
 }
 
+// Exam Mix (migration 034): per-flight category + curveball guidance. Human-readable "how to build
+// this category" cues so the model can actually deliver the required, coherent flight the validators
+// then check. Returns "" (no injection) when Exam Mix is inactive.
+const EXAM_MIX_CATEGORY_GUIDANCE: Record<string, string> = {
+  sparkling: "Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Trentodoc, Sekt, Cap Classique, traditional-method or pét-nat.",
+  rose: "Provence, Tavel, Bandol, Clairet, sparkling rosé, or a serious New World rosé — every wine in the flight must be a rosé.",
+  fortified: "Port, Sherry, Madeira, Marsala, Rutherglen Muscat, VDN (Banyuls/Maury/Rivesaltes), Moscatel de Setúbal, Commandaria.",
+  sweet: "Sauternes/Barsac, Tokaji Aszú, German/Austrian BA/TBA/Eiswein, Loire moelleux, Vin Santo, Icewine, late-harvest or noble-rot sweet wines with meaningful RS.",
+  oxidative: "Vin Jaune / Château-Chalon, sous voile Jura Savagnin, biologically- or oxidatively-aged whites — flor/voile driven, not conventional cask oxidation.",
+  orange: "Skin-contact / amber / qvevri whites — Georgian Rkatsiteli, Friulian ramato, extended skin-contact styles.",
+  still_white: "A still dry white that belongs in a Paper 3 context — an unusual variety or a wine that crosses paper boundaries (e.g. dry Furmint alongside Tokaji).",
+  still_red: "A still dry red used as a Paper 3 curveball or cross-boundary contrast (e.g. Grenache spanning dry and fortified).",
+};
+
+function buildExamMixBlock(
+  paper: number,
+  examMix?: { flightCategory?: string | null; curveball?: "low" | "medium" | "high" | null } | null
+): string {
+  if (!examMix || (!examMix.flightCategory && !examMix.curveball)) return "";
+  const lines: string[] = ["## EXAM MIX — REQUIRED COMPOSITION FOR THIS QUESTION (HARD)"];
+
+  if (paper === 3 && examMix.flightCategory) {
+    const cat = examMix.flightCategory;
+    const guidance = EXAM_MIX_CATEGORY_GUIDANCE[cat] || "";
+    lines.push(
+      `This must be a ${cat.replace(/_/g, " ").toUpperCase()} flight. EVERY wine in it must belong to the '${cat}' category — ${guidance}`,
+      `The flight must be category-COHERENT: do NOT mix categories (e.g. one sparkling + two fortified is INVALID). The only exception is a deliberate cross-category comparison that the stem itself explicitly frames and justifies — and if you do that, you MUST set CrossCategoryIntentional: true in the Metadata and explain the contrast in the stem.`,
+      `Set WineCategory: ${cat} in the Metadata.`
+    );
+  }
+
+  if (examMix.curveball) {
+    const c = examMix.curveball;
+    const howMany =
+      c === "low"
+        ? "All wines in this flight should be LOW curveball — standard, expected, benchmark examples with no hidden trap."
+        : c === "medium"
+          ? "This flight should carry exactly ONE medium-curveball wine (a rare style or unexpected origin); the rest stay low/anchor."
+          : "This flight should carry ONE genuinely HIGH-curveball wine (rare variety, rare style, hidden identity or unexpected origin); the rest stay low/anchor.";
+    lines.push(`Curveball target: ${c}. ${howMany} Set CurveballLevel: ${c} in the Metadata.`);
+  }
+
+  return lines.join("\n") + "\n\n";
+}
+
 export async function buildQuestionGenerationPrompt(
   paper: number,
   family: string,
@@ -240,7 +285,14 @@ export async function buildQuestionGenerationPrompt(
   } | null,
   // Stem Sniper's variety drill filter. When set, every wine must be this grape and the contrast has
   // to come from somewhere else. Undefined for every other caller — normal generation is unchanged.
-  variety?: string | null
+  variety?: string | null,
+  // Exam Mix (migration 034) — the invisible composition-balancing target for this generation. Set
+  // only on the bank-generation path. flightCategory pins a REQUIRED, coherent Paper 3 category;
+  // curveball pins the difficulty level for this flight's wines. Undefined → the prompt is unchanged.
+  examMix?: {
+    flightCategory?: string | null;
+    curveball?: "low" | "medium" | "high" | null;
+  } | null
 ): Promise<{ system: string; user: string }> {
   const ctx = loadPipelineContext();
 
@@ -270,7 +322,14 @@ export async function buildQuestionGenerationPrompt(
   // Pre-roll the flight size based on historical corpus distributions,
   // adjusted by what's already in the database to maintain correct ratios
   const targetFlightSize = await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
-  const targetP3Style = paper === 3 ? await pickP3StyleCategory() : null;
+  // Exam Mix supplies its own authoritative P3 category when active; fall back to the legacy corpus
+  // draw otherwise so a non-bank generation is unchanged.
+  const targetP3Style = paper === 3 && !examMix?.flightCategory ? await pickP3StyleCategory() : null;
+
+  // Exam Mix (migration 034): a required, coherent P3 flight category + a per-flight curveball level.
+  // Phrased as hard requirements the post-generation validators (validateP3Composition /
+  // validateCurveballMix) then enforce.
+  const examMixBlock = buildExamMixBlock(paper, examMix);
 
   const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
 
@@ -292,7 +351,7 @@ Corpus distribution: sparkling=31%, sweet=22%, still_dry=20%, fortified=18%, ros
 ${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Sekt, Cap Classique." : ""}${targetP3Style === "fortified" ? "Select fortified wines — Port, Sherry, Madeira, Banyuls, Rutherglen, VDN, Marsala." : ""}${targetP3Style === "sweet" ? "Select sweet wines with meaningful RS — Sauternes, Tokaji, BA/TBA, Icewine, Quarts de Chaume, Vin Santo, late harvest." : ""}${targetP3Style === "rose" ? "Select rosé wines — Provence, Tavel, Bandol, sparkling rosé, New World rosé." : ""}${targetP3Style === "oxidative" ? "Select oxidative wines — Vin Jaune, orange/amber wines, oxidative Jura, sous voile styles." : ""}${targetP3Style === "still_dry" ? "Select still dry wines that belong in Paper 3 context — often unusual varieties, rare styles, or wines that cross paper boundaries (e.g., Grenache across dry/fortified, Furmint dry alongside Tokaji sweet)." : ""}
 
 P3 OXIDATIVE STILL-WHITE SUB-RULE (HARD): A still (non-sparkling, non-fortified) white wine is in-scope for Paper 3 ONLY if its oxidative character is flor/sous voile-driven (e.g., Jura Savagnin sous voile, Vin Jaune). Conventionally cask-oxidized still whites — oxidative white Rioja (e.g., López de Heredia Tondonia/Gravonia Blanco, Marqués de Murrieta Castillo Ygay Blanco), oxidative aged Hunter Semillon — are PAPER 1 wines and must NOT be the basis of a Paper 3 question. Two such still whites contrasted by production method is a Paper 1 question. A P3 question may feature a conventionally-oxidative still white ONLY when it is paired with a fortified or biologically-aged (flor) wine (e.g., a Fino/Manzanilla Sherry) that supplies a genuine P3 contrast (oxidative-vs-biological, or still-vs-fortified). If you reason about including a Fino, Sherry, or other fortified/flor wine, you MUST actually place that wine in the wine list — do not let the selection collapse into all still wines.
-` : ""}## YOUR TASK
+` : ""}${examMixBlock}## YOUR TASK
 Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
 
 ## MOCK EXAM WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
@@ -563,6 +622,9 @@ RULES for appearance notes:
 - Variety: [the key variety/varieties]
 - Countries: [list]
 - Curveball: [which wine and why, or "None"]
+- CurveballLevel: [low | medium | high — the overall difficulty of this flight]
+- WineCategory: [sparkling | rose | fortified | sweet | oxidative | orange | still_white | still_red — the single category ALL wines in this flight belong to]
+- CrossCategoryIntentional: [true ONLY if the stem explicitly and deliberately frames a comparison ACROSS two wine categories; otherwise false. If true, the stem must itself justify the cross-category contrast.]
 
 ## Generation Reasoning
 

@@ -62,6 +62,11 @@ export interface GeneratedQuestion {
   // pending-review queue: [{producer_display, appearance_number, paper}]. NULL for servable rows and for
   // any pending item whose producers were all within their normal share.
   producer_flags: ProducerFlag[] | null;
+  // Exam Mix (migration 034). The generator-emitted category + curveball tags used by the invisible
+  // composition-balancing layer. NULL for every pre-feature row and for any item the accept-anyway
+  // fallback deliberately excludes from the mix counters. Server-only — stripped from served payloads.
+  wine_category: string | null;
+  curveball_level: string | null;
 }
 
 export interface UserAttempt {
@@ -185,6 +190,11 @@ export async function saveGeneratedQuestion(q: {
   // a pending question live.
   status?: string;
   batchId?: string | null;
+  // Exam Mix (migration 034). The generator-emitted category + curveball tags, written verbatim at
+  // insert. Passed only by the bank-generation path; omitted (→ NULL) everywhere else and on the
+  // accept-anyway fallback that deliberately excludes an item from the mix counters.
+  wineCategory?: string | null;
+  curveballLevel?: string | null;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
@@ -207,7 +217,8 @@ export async function saveGeneratedQuestion(q: {
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
       metadata, created_by_user_id, status, batch_id, review_state,
-      question_type, curveball, price_band, flight_size, producer_flags
+      question_type, curveball, price_band, flight_size, producer_flags,
+      wine_category, curveball_level
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
@@ -217,12 +228,17 @@ export async function saveGeneratedQuestion(q: {
       ${q.status ?? "approved"}, ${q.batchId ?? null},
       ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
       ${questionType}, ${curveball}, ${priceBand}, ${flightSize},
-      ${producerFlags && producerFlags.length > 0 ? JSON.stringify(producerFlags) : null}::jsonb
+      ${producerFlags && producerFlags.length > 0 ? JSON.stringify(producerFlags) : null}::jsonb,
+      ${q.wineCategory ?? null}, ${q.curveballLevel ?? null}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
       -- stored value when EXCLUDED is NULL, e.g. the background model-answer re-save).
       p3_category = COALESCE(generated_questions.p3_category, EXCLUDED.p3_category),
+      -- Exam Mix tags (migration 034): keep the value from first insert; only fill from EXCLUDED when
+      -- the row predates it, so a background model-answer re-save never clears them.
+      wine_category = COALESCE(generated_questions.wine_category, EXCLUDED.wine_category),
+      curveball_level = COALESCE(generated_questions.curveball_level, EXCLUDED.curveball_level),
       model_answer = COALESCE(EXCLUDED.model_answer, generated_questions.model_answer),
       proposed_annotation = COALESCE(EXCLUDED.proposed_annotation, generated_questions.proposed_annotation),
       reasoning_trace = COALESCE(EXCLUDED.reasoning_trace, generated_questions.reasoning_trace),
@@ -646,6 +662,25 @@ export interface BankBatch {
   // Bank Health targeted generation (migration 026). The soft-constraint aim for this batch, or NULL
   // for an untargeted Fill-the-Bank run. Persisted so a resumed invocation keeps the same aim.
   targeting: BankTargeting | null;
+  // Exam Mix (migration 034). mix_summary is the per-batch category/curveball tally rendered in the
+  // review header (NULL until the run completes); retry_log is an internal-only debugging array of
+  // {attempt, reason, targetedGap} — never surfaced in any UI.
+  mix_summary: BankMixSummary | null;
+  retry_log: BankRetryLogEntry[];
+}
+
+// The per-batch tally rendered in the review header (Exam Mix, migration 034).
+export interface BankMixSummary {
+  paper: number;
+  categories: Record<string, number>;
+  curveball: Record<string, number>;
+}
+
+// One internal retry-log entry (Exam Mix, migration 034). Never surfaced.
+export interface BankRetryLogEntry {
+  attempt: number;
+  reason: string;
+  targetedGap: string | null;
 }
 
 // The soft-constraint aim threaded into generation by a Bank Health "Generate more like this" run.
@@ -837,6 +872,58 @@ export async function setBankBatchStatus(
       actual_cost_usd = COALESCE(${opts?.actualCostUsd ?? null}::numeric, actual_cost_usd),
       actual_cost_cents = COALESCE(${actualCents}::int, actual_cost_cents),
       updated_at = NOW()
+    WHERE id = ${id}
+  `;
+}
+
+// ── Exam Mix (migration 034) ─────────────────────────────────────────────────────────────────────
+//
+// The running-count math is BATCH-SCOPED and reads only rows Exam Mix itself tagged: a row carries a
+// non-NULL wine_category / curveball_level ONLY when the generator emitted one for this batch, so
+// legacy pre-feature rows and the accept-anyway fallback's excluded rows never enter the counts.
+
+// Running category (Paper 3) + curveball (all papers) tallies for a batch, over the kept + pending
+// tagged rows only (a binned row is out — it will not reach the bank).
+export async function getBatchMixCounts(
+  batchId: string
+): Promise<{ categories: Record<string, number>; curveball: Record<string, number> }> {
+  const sql = getDb();
+  const catRows = (await sql`
+    SELECT wine_category AS k, COUNT(*)::int AS n
+    FROM generated_questions
+    WHERE batch_id = ${batchId} AND wine_category IS NOT NULL AND review_state <> 'binned'
+    GROUP BY wine_category
+  `) as { k: string; n: number }[];
+  const cbRows = (await sql`
+    SELECT curveball_level AS k, COUNT(*)::int AS n
+    FROM generated_questions
+    WHERE batch_id = ${batchId} AND curveball_level IS NOT NULL AND review_state <> 'binned'
+    GROUP BY curveball_level
+  `) as { k: string; n: number }[];
+  const categories: Record<string, number> = {};
+  for (const r of catRows) categories[r.k] = r.n;
+  const curveball: Record<string, number> = {};
+  for (const r of cbRows) curveball[r.k] = r.n;
+  return { categories, curveball };
+}
+
+// Append one internal retry-log entry (never surfaced). jsonb || so concurrent appends don't clobber.
+export async function appendBatchRetryLog(id: string, entry: BankRetryLogEntry): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE bank_batches
+    SET retry_log = COALESCE(retry_log, '[]'::jsonb) || ${JSON.stringify([entry])}::jsonb,
+        updated_at = NOW()
+    WHERE id = ${id}
+  `;
+}
+
+// Persist the per-batch mix tally rendered in the review header. Recomputed from the tagged rows at
+// completion, so it is correct even after a resume.
+export async function setBatchMixSummary(id: string, summary: BankMixSummary): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE bank_batches SET mix_summary = ${JSON.stringify(summary)}::jsonb, updated_at = NOW()
     WHERE id = ${id}
   `;
 }
