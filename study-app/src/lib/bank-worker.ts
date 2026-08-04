@@ -386,16 +386,39 @@ export async function runBankBatch(opts: {
     const slotCount = Math.min(CONCURRENCY, remaining());
     const slots = Array.from({ length: slotCount }, () => familyOrder[issued++ % familyOrder.length]);
 
+    // Count each item the moment it resolves, NOT after the whole round.
+    //
+    // generateOneIntoBatch persists its question before returning, so the row exists whether or not
+    // the round ever finishes. Incrementing once per round meant an invocation frozen mid-round left
+    // real questions uncounted: an observed Paper 2 batch had 5 questions saved against
+    // generated_count = 3. The batch then works from `remaining()`, so every uncounted question is
+    // one it generates again — paying twice and overshooting the request.
+    //
+    // Per-item, a frozen invocation loses at most the in-flight items rather than the whole round,
+    // and the counters track what is actually in the bank. This matters more since items got a
+    // longer ceiling (ITEM_TIMEOUT_MS): longer rounds mean a wider window to be frozen inside.
     const results = await Promise.all(
-      slots.map((family) =>
-        generateOneIntoBatch(batch!, family, !!pinnedFamily, apiKey, meta, deadline, targeting)
-      )
+      slots.map(async (family) => {
+        const outcome = await generateOneIntoBatch(
+          batch!, family, !!pinnedFamily, apiKey, meta, deadline, targeting
+        );
+        if (outcome === "generated" || outcome === "failed") {
+          await incrementBatchCounts(batchId, {
+            generated: outcome === "generated" ? 1 : 0,
+            failed: outcome === "failed" ? 1 : 0,
+          });
+        }
+        return outcome;
+      })
     );
 
     const generated = results.filter((r) => r === "generated").length;
     const failed = results.filter((r) => r === "failed").length;
     const timedOut = results.some((r) => r === "timeout");
-    const updated = await incrementBatchCounts(batchId, { generated, failed });
+    // Re-read rather than trusting a single increment's return: the counts now come from several
+    // concurrent writes, so only a fresh read reflects the whole round. A null means the batch row
+    // is gone, which is the same stop condition incrementBatchCounts used to signal.
+    const updated = await getBankBatch(batchId);
     if (!updated) return;
     batch = updated;
 
