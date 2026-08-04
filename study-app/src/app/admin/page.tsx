@@ -7,7 +7,6 @@ import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 import { FillTheBankRows } from "../components/FillTheBankCard";
-import { AdminBuildStripe } from "../components/AdminBuildStripe";
 
 interface UserRow {
   id: number;
@@ -275,12 +274,10 @@ export default function AdminPage() {
     }
   };
 
-  // Still resolving auth, or (for a confirmed admin) still loading the admin data. The diagnostic
-  // stripe renders above the spinner so a stale bundle is caught even before the console paints.
+  // Still resolving auth, or (for a confirmed admin) still loading the admin data.
   if (authLoading || (user?.isAdmin && loading)) {
     return (
       <div className="flex flex-col flex-1">
-        <AdminBuildStripe />
         <div className="flex items-center justify-center py-20">
           <div className="flex items-center gap-3 text-muted">
             <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
@@ -293,18 +290,15 @@ export default function AdminPage() {
     );
   }
 
-  // Authenticated but the DB no longer marks this account admin: show the diagnostic (whose second
-  // line reports the live `admin: …` value) rather than the console, so a silent gating failure is
-  // visible instead of an empty redirect. Unauthenticated visitors are redirected by the effect above.
+  // Authenticated but the DB no longer marks this account admin. Unauthenticated visitors are
+  // redirected by the effect above.
   if (!user?.isAdmin) {
     return (
       <div className="flex flex-col flex-1">
-        <AdminBuildStripe />
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
           <h1 className="text-2xl font-bold text-foreground tracking-tight font-display">Admin</h1>
           <p className="text-sm text-muted mt-3 max-w-md mx-auto">
-            This account doesn&apos;t currently have admin access. The line above shows what the
-            server believes about your session — check the <code>admin:</code> value.
+            This account doesn&apos;t currently have admin access.
           </p>
         </div>
       </div>
@@ -313,9 +307,6 @@ export default function AdminPage() {
 
   return (
     <div className="flex flex-col flex-1">
-      {/* Diagnostic build stripe — the FIRST element in the admin container, above the <h1>, and
-          rendered unconditionally (never gated on isAdmin). See AdminBuildStripe. */}
-      <AdminBuildStripe />
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-6 flex items-start justify-between gap-4">
           <div>
