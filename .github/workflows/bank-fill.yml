@@ -68,11 +68,6 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # The 95s default is sized for the interactive path, where the browser aborts at 120s.
-          # Nothing here is waiting on a browser, and the clean pilot had questions converging on
-          # attempt 7 — at 95s the loop gets three or four and falls back to a banked question,
-          # which the batch counts as a failure.
-          GENERATION_BUDGET_MS: "180000"
         run: |
           set -euo pipefail
           node --import ./scripts/ts-loader.mjs scripts/fill-bank.mjs \

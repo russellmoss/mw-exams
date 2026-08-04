@@ -26,6 +26,7 @@
 
 import { neon } from "@neondatabase/serverless";
 import { generateFreshQuestion } from "@/lib/question-engine";
+import { WORKER_CALL_TIMEOUT_MS } from "@/lib/bank-worker";
 import {
   getRunningBatchForPaper,
   releaseStalledBatches,
@@ -56,6 +57,13 @@ const CONCURRENCY = Number(process.env.FILL_CONCURRENCY) || 2;
 // a failed question still bills for every model call it made, so grinding on is real money for
 // nothing — two batches once went 0-for-6 and 0-for-3 and $16.55 went out the door in 14 minutes.
 const MAX_CONSECUTIVE_FAILURES = Number(process.env.FILL_MAX_CONSECUTIVE_FAILURES) || 4;
+
+// Per-question budget, passed explicitly rather than left to GENERATION_BUDGET_MS. The bank worker
+// sizes its own (110s) to fit inside a 300s serverless invocation; CI has no such ceiling, so a
+// question that needs a fourth or fifth attempt can have one instead of falling back to a banked
+// question the batch then counts as a failure. The call timeout is the worker's — that one is about
+// how long a single model call may reasonably take, which does not change with the environment.
+const FILL_BUDGET_MS = Number(process.env.FILL_GENERATION_BUDGET_MS) || 240_000;
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
@@ -141,7 +149,14 @@ for (const paper of papers) {
               // batchId on the meta is what makes a FAILED attempt costable (migration 029).
               { source: "server", userId: null, batchId: batch.id },
               undefined, undefined,
-              { status: "pending", batchId: batch.id, awaitBackgroundWork: true, familyTargeted: true }
+              {
+                status: "pending",
+                batchId: batch.id,
+                awaitBackgroundWork: true,
+                familyTargeted: true,
+                budgetMs: FILL_BUDGET_MS,
+                callTimeoutMs: WORKER_CALL_TIMEOUT_MS,
+              }
             );
             return !("error" in outcome) && outcome.source === "generated";
           } catch (err) {
