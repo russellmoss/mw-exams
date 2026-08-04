@@ -5,8 +5,10 @@ import {
   getLatestBatchPerPaper,
   releaseStalledBatches,
   getBankPerQuestionAvgCost,
+  getTopBinReasons,
 } from "@/lib/db";
 import { EST_COST_PER_QUESTION } from "@/lib/bank-worker";
+import { BIN_REASON_LABELS } from "@/lib/bin-reasons";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,11 +32,12 @@ export async function GET(request: Request) {
   // the card reflects a 'stalled' state promptly and a new Generate is unblocked.
   await releaseStalledBatches();
 
-  const [counts, latest, reviewable, avgCost] = await Promise.all([
+  const [counts, latest, reviewable, avgCost, topBinReasons] = await Promise.all([
     getBankStatusCounts(),
     getLatestBatchPerPaper(),
     getReviewableBatches(),
     getBankPerQuestionAvgCost(),
+    getTopBinReasons(30),
   ]);
 
   const costPerQuestion = avgCost > 0 ? avgCost : EST_COST_PER_QUESTION;
@@ -44,6 +47,12 @@ export async function GET(request: Request) {
     const last = latest.find((b) => b.paper === paper) || null;
     // Newest reviewable batch for this paper — the review pane opens on it.
     const rev = reviewable.find((b) => b.paper === paper) || null;
+
+    // "Learned from your bins" line — top tag by count over the last 30 days for this paper.
+    const top = topBinReasons.get(paper) || null;
+    const learnedFrom = top
+      ? { label: BIN_REASON_LABELS[top.tag] || top.tag, count: top.count }
+      : null;
 
     const isRunning = last?.status === "running";
     const isStalled = last?.status === "stalled";
@@ -79,6 +88,7 @@ export async function GET(request: Request) {
             }
           : null,
       reviewBatchId: rev?.id ?? (isRunning ? last!.id : null),
+      learnedFrom,
     };
   });
 

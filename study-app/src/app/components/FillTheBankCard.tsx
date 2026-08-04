@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { BIN_REASON_OPTIONS, MAX_BIN_NOTE_CHARS } from "@/lib/bin-reasons";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -57,6 +58,8 @@ interface PaperStatus {
   stalled: Stalled | null;
   done: Done | null;
   reviewBatchId: string | null;
+  // "Learned from your bins" — top bin-reason tag for this paper over the last 30 days; null = none.
+  learnedFrom: { label: string; count: number } | null;
 }
 interface ReviewWine {
   slot: number;
@@ -112,6 +115,16 @@ function costRange(count: number, perQuestion: number): string {
   return min === max ? `roughly $${max}` : `roughly $${min}–${max}`;
 }
 
+// Small inline spinner for an in-flight review button — amber ring on a transparent track.
+function Spinner() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-3.5 w-3.5 rounded-full border-2 border-transparent border-t-current animate-spin"
+    />
+  );
+}
+
 export function FillTheBankRows() {
   const [papers, setPapers] = useState<PaperStatus[]>([]);
   const [costPerQuestion, setCostPerQuestion] = useState(0.35);
@@ -123,7 +136,17 @@ export function FillTheBankRows() {
   const [reviewBatchId, setReviewBatchId] = useState<string | null>(() => initialReviewBatch());
   const [reviewOpen, setReviewOpen] = useState(() => !!initialReviewBatch());
   const [review, setReview] = useState<ReviewData | null>(null);
-  const [busy, setBusy] = useState(false);
+  // Which review action is in flight (null = idle). Drives per-button spinners and the shared disable.
+  const [inFlight, setInFlight] = useState<null | "keep" | "bin" | "keepAll">(null);
+  const busy = inFlight !== null;
+  // Inline error beneath the card when an action fails (network / non-2xx). Cleared on the next action.
+  const [actionError, setActionError] = useState<string | null>(null);
+  // Optimistic removal: hide the current card the instant an action fires, restore it on failure.
+  const [optimisticHidden, setOptimisticHidden] = useState(false);
+  // OPTIONAL bin-reason panel (spec §2) — expands inside the card; Esc / Bin again collapses it.
+  const [binPanelOpen, setBinPanelOpen] = useState(false);
+  const [binTags, setBinTags] = useState<string[]>([]);
+  const [binNote, setBinNote] = useState("");
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
 
@@ -253,29 +276,72 @@ export function FillTheBankRows() {
     [fetchStatus]
   );
 
-  const act = async (action: "keep" | "bin" | "keepAll") => {
+  // A single review decision. Optimistically removes the card, then reconciles with the server; on any
+  // non-2xx / network error it restores the card and surfaces an inline FAIL-red message. Keep and Bin
+  // (and Keep all) all run through here so none can silently die.
+  const submit = async (
+    action: "keep" | "bin" | "keepAll",
+    reason?: { tags: string[] | null; note: string | null }
+  ) => {
     if (!review) return;
     const id = action === "keepAll" ? review.batchId : review.question?.id;
     if (!id) return;
-    setBusy(true);
+    setInFlight(action);
+    setActionError(null);
+    // Optimistic removal of the single card (Keep all collapses via its own summary path below).
+    if (action !== "keepAll") setOptimisticHidden(true);
     try {
-      await fetch("/api/admin/fill-bank/review", {
+      const res = await fetch("/api/admin/fill-bank/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, action }),
+        body: JSON.stringify({
+          id,
+          action,
+          reasonTags: reason?.tags ?? null,
+          reasonNote: reason?.note ?? null,
+        }),
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      // Reconcile with the server (advances to the next pending question).
       const next = await loadReview(review.batchId);
       await fetchStatus();
+      setBinPanelOpen(false);
+      setBinTags([]);
+      setBinNote("");
+      setOptimisticHidden(false);
       // Queue emptied and nothing left generating → collapse with a brief summary.
       if (next && !next.question && next.remaining === 0 && next.status !== "running") {
         setSummary({ kept: next.keptCount });
         setReviewOpen(false);
         setReviewBatchId(null);
       }
+    } catch {
+      // Restore the card and render inline error text; never leave a button in a dead state.
+      setOptimisticHidden(false);
+      setActionError(
+        action === "bin"
+          ? "Couldn't bin this one — try again."
+          : action === "keep"
+            ? "Couldn't keep this one — try again."
+            : "Couldn't keep these — try again."
+      );
     } finally {
-      setBusy(false);
+      setInFlight(null);
     }
   };
+
+  const toggleBinTag = (tag: string) =>
+    setBinTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+
+  // Esc collapses the bin-reason panel.
+  useEffect(() => {
+    if (!binPanelOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setBinPanelOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [binPanelOpen]);
 
   const toggleReplace = async () => {
     if (!review) return;
@@ -409,6 +475,16 @@ export function FillTheBankRows() {
         )}
       </div>
 
+      {/* ── LEARNED-FROM LINE ── top bin reason for the selected paper over the last 30 days. Hidden
+          when this paper has no tagged bins in the window. */}
+      {current?.learnedFrom && (
+        <p className="text-xs text-muted mt-3">
+          Learned from your bins · Most common reason:{" "}
+          {current.learnedFrom.label.toLowerCase()}{" "}
+          <span className="tabular-nums">({current.learnedFrom.count})</span>
+        </p>
+      )}
+
       {/* ── STALLED / AUTO-RELEASED NOTE ── grey note; Generate above is re-enabled by the else branch */}
       {!running && stalled && (
         <p className="text-xs text-muted mt-3">
@@ -467,6 +543,13 @@ export function FillTheBankRows() {
       {reviewOpen && (
         <div className="mt-5 pt-5 border-t border-border">
           {q ? (
+            optimisticHidden ? (
+              /* Card optimistically removed while the decision is in flight. */
+              <div className="py-8 flex items-center gap-2 text-sm text-muted">
+                <Spinner />
+                {inFlight === "bin" ? "Binning…" : "Saving…"}
+              </div>
+            ) : (
             <div>
               {/* Header: "Question n of total" + paper / family / difficulty chips */}
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -595,28 +678,102 @@ export function FillTheBankRows() {
                   />
                   Replace anything I bin
                 </label>
+                {/* Bin toggles the reason panel (it doesn't bin on its own click); pressing it again
+                    collapses. The actual bin fires from inside the panel. */}
                 <button
-                  onClick={() => act("bin")}
+                  onClick={() => setBinPanelOpen((o) => !o)}
                   disabled={busy}
-                  className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
+                  aria-expanded={binPanelOpen}
+                  className={`text-sm px-4 py-2 rounded-lg border transition-colors cursor-pointer disabled:opacity-50 ${
+                    binPanelOpen ? "border-fail text-fail" : "border-border text-fail hover:border-fail"
+                  }`}
                 >
                   Bin
                 </button>
                 <button
-                  onClick={() => act("keep")}
+                  onClick={() => submit("keep")}
                   disabled={busy}
-                  className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                  className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
                 >
+                  {inFlight === "keep" && <Spinner />}
                   Keep
                 </button>
                 <button
-                  onClick={() => act("keepAll")}
+                  onClick={() => submit("keepAll")}
                   disabled={busy || review!.remaining === 0}
-                  className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+                  className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
                 >
+                  {inFlight === "keepAll" && <Spinner />}
                   Keep all
                 </button>
               </div>
+
+              {/* ── OPTIONAL BIN-REASON PANEL (spec §2) ── inline, no modal. A reason is NEVER
+                  required: "Bin without a reason" submits a null reason. */}
+              {binPanelOpen && (
+                <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
+                  <p className="text-xs font-medium text-foreground mb-2">Why? (optional)</p>
+                  <div className="flex flex-wrap gap-2">
+                    {BIN_REASON_OPTIONS.map((opt) => {
+                      const on = binTags.includes(opt.value);
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => toggleBinTag(opt.value)}
+                          aria-pressed={on}
+                          className={`text-xs px-3 py-1.5 rounded-full border transition-colors cursor-pointer ${
+                            on
+                              ? "border-accent bg-accent/15 text-foreground"
+                              : "border-border text-muted hover:border-muted"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <textarea
+                    value={binNote}
+                    onChange={(e) => setBinNote(e.target.value.slice(0, MAX_BIN_NOTE_CHARS))}
+                    maxLength={MAX_BIN_NOTE_CHARS}
+                    rows={3}
+                    placeholder="e.g. stem asks for two different grape varieties but both wines are Sauvignon Blanc"
+                    className="mt-3 w-full text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder:text-muted focus:outline-none focus:border-accent resize-y"
+                  />
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-[11px] text-muted tabular-nums">
+                      {binNote.length}/{MAX_BIN_NOTE_CHARS}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <button
+                      onClick={() =>
+                        submit("bin", {
+                          tags: binTags.length > 0 ? binTags : null,
+                          note: binNote.trim() ? binNote.trim() : null,
+                        })
+                      }
+                      disabled={busy}
+                      className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+                    >
+                      {inFlight === "bin" && <Spinner />}
+                      Bin it
+                    </button>
+                    <button
+                      onClick={() => submit("bin", { tags: null, note: null })}
+                      disabled={busy}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Bin without a reason
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Inline failure text — verdict-FAIL red, beneath the card. */}
+              {actionError && <p className="text-xs text-fail mt-3">{actionError}</p>}
+
               {/* "Keep all" accepts every remaining question, not just the one on screen — say how
                   many of those would fail validation so it isn't a blind bulk approve. */}
               {review!.failingRemaining > 0 && (
@@ -627,6 +784,7 @@ export function FillTheBankRows() {
                 </p>
               )}
             </div>
+            )
           ) : review?.status === "running" ? (
             <p className="text-sm text-muted">Writing your first questions…</p>
           ) : (

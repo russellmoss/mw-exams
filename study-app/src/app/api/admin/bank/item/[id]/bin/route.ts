@@ -1,7 +1,13 @@
 import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
-import { reviewBankQuestion, getBankBatch, extendBatchForReplacement } from "@/lib/db";
+import {
+  reviewBankQuestion,
+  getBankBatch,
+  extendBatchForReplacement,
+  getBatchPendingQuestions,
+} from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
+import { sanitizeBinTags, sanitizeBinNote } from "@/lib/bin-reasons";
 
 export const runtime = "nodejs";
 // A binned item can enqueue one replacement generation, driven in after() past the response.
@@ -23,10 +29,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const result = await reviewBankQuestion(id, "bin", keyResult.user.id);
+  // OPTIONAL bin reason (never required) — sanitised to known tags / a trimmed <=500-char note.
+  const body = await request.json().catch(() => ({}));
+  const { reasonTags, reasonNote } = body as { reasonTags?: unknown; reasonNote?: unknown };
+  const result = await reviewBankQuestion(id, "bin", keyResult.user.id, {
+    tags: sanitizeBinTags(reasonTags),
+    note: sanitizeBinNote(reasonNote),
+  });
   if (!result || !result.changed) {
     return Response.json({ ok: true, changed: false });
   }
+
+  // Servable pool already excludes this row (it's hard-deleted); report the batch's remaining pending.
+  const remaining = result.batchId
+    ? (await getBatchPendingQuestions(result.batchId)).length
+    : 0;
 
   let replacementQueued = false;
   if (result.batchId) {
@@ -49,5 +66,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
   }
 
-  return Response.json({ ok: true, changed: true, replacementQueued });
+  return Response.json({ ok: true, changed: true, replacementQueued, remaining });
 }
