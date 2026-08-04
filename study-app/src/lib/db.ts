@@ -174,14 +174,15 @@ export async function saveGeneratedQuestion(q: {
       question_id, paper, family, family_label, subcategory,
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
-      metadata, created_by_user_id, status, batch_id
+      metadata, created_by_user_id, status, batch_id, review_state
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
       ${q.modelAnswer || null}, ${q.proposedAnnotation || null},
       ${q.reasoningTrace || null}, ${q.studyDiagramAssist || null},
       ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null},
-      ${q.status ?? "approved"}, ${q.batchId ?? null}
+      ${q.status ?? "approved"}, ${q.batchId ?? null},
+      ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -213,7 +214,7 @@ export async function getQuestionsByFilter(
       SELECT * FROM generated_questions
       WHERE paper = ${paper} AND family = ${family}
         AND invalid_reasons IS NULL
-        AND status = 'approved'
+        AND review_state = 'kept'
       ORDER BY created_at DESC
     `) as GeneratedQuestion[];
   }
@@ -221,7 +222,7 @@ export async function getQuestionsByFilter(
     SELECT * FROM generated_questions
     WHERE paper = ${paper}
       AND invalid_reasons IS NULL
-      AND status = 'approved'
+      AND review_state = 'kept'
     ORDER BY created_at DESC
   `) as GeneratedQuestion[];
 }
@@ -256,7 +257,7 @@ export async function getUnansweredQuestions(
       WHERE q.paper = ${paper}
         AND q.family = ${family}
         AND q.invalid_reasons IS NULL
-        AND q.status = 'approved'
+        AND q.review_state = 'kept'
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
@@ -270,7 +271,7 @@ export async function getUnansweredQuestions(
       AND (${uid}::int IS NULL OR a.user_id = ${uid})
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
-      AND q.status = 'approved'
+      AND q.review_state = 'kept'
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
@@ -336,7 +337,7 @@ export async function getBankCount(
     WHERE q.paper = ${paper}
       AND (${fam}::text IS NULL OR q.family = ${fam})
       AND q.invalid_reasons IS NULL
-      AND q.status = 'approved'
+      AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
@@ -362,7 +363,7 @@ export async function getEligibleBankedQuestions(
     WHERE q.paper = ${paper}
       AND (${fam}::text IS NULL OR q.family = ${fam})
       AND q.invalid_reasons IS NULL
-      AND q.status = 'approved'
+      AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
@@ -386,27 +387,42 @@ export interface BankBatch {
   requested_count: number;
   generated_count: number;
   failed_count: number;
-  status: "running" | "ready" | "cancelled" | "error";
+  status: "running" | "ready" | "complete" | "cancelled" | "error" | "failed";
   replace_rejected: boolean;
+  replace_binned: boolean;
+  kept_count: number;
   created_by: number | null;
   created_at: string;
   completed_at: string | null;
   est_cost_usd: string | null;
   actual_cost_usd: string | null;
+  est_cost_min_cents: number | null;
+  est_cost_max_cents: number | null;
+  actual_cost_cents: number | null;
 }
 
 export async function createBankBatch(input: {
   paper: number;
   requestedCount: number;
-  replaceRejected: boolean;
+  replaceBinned: boolean;
   createdBy: number | null;
   estCostUsd: number;
+  estCostMinCents?: number | null;
+  estCostMaxCents?: number | null;
 }): Promise<BankBatch> {
   const sql = getDb();
+  // replace_rejected (migration 022) and replace_binned (migration 025) are the same flag under two
+  // names; write both so either read path is correct.
   const rows = await sql`
-    INSERT INTO bank_batches (paper, requested_count, replace_rejected, created_by, est_cost_usd)
-    VALUES (${input.paper}, ${input.requestedCount}, ${input.replaceRejected},
-            ${input.createdBy}, ${input.estCostUsd})
+    INSERT INTO bank_batches (
+      paper, requested_count, replace_rejected, replace_binned, created_by,
+      est_cost_usd, est_cost_min_cents, est_cost_max_cents
+    )
+    VALUES (
+      ${input.paper}, ${input.requestedCount}, ${input.replaceBinned}, ${input.replaceBinned},
+      ${input.createdBy}, ${input.estCostUsd},
+      ${input.estCostMinCents ?? null}, ${input.estCostMaxCents ?? null}
+    )
     RETURNING *
   `;
   return rows[0] as BankBatch;
@@ -441,12 +457,12 @@ export async function getRunningBatches(): Promise<BankBatch[]> {
 export async function getReviewableBatches(): Promise<(BankBatch & { pending_count: number })[]> {
   const sql = getDb();
   return (await sql`
-    SELECT b.*, COUNT(q.id) FILTER (WHERE q.status = 'pending')::int AS pending_count
+    SELECT b.*, COUNT(q.id) FILTER (WHERE q.review_state = 'pending')::int AS pending_count
     FROM bank_batches b
     LEFT JOIN generated_questions q ON q.batch_id = b.id
-    WHERE b.status = 'ready'
+    WHERE b.status IN ('ready', 'complete')
     GROUP BY b.id
-    HAVING COUNT(q.id) FILTER (WHERE q.status = 'pending') > 0
+    HAVING COUNT(q.id) FILTER (WHERE q.review_state = 'pending') > 0
     ORDER BY b.completed_at DESC NULLS LAST, b.created_at DESC
   `) as (BankBatch & { pending_count: number })[];
 }
@@ -474,7 +490,7 @@ export async function extendBatchForReplacement(id: string): Promise<BankBatch |
   const sql = getDb();
   const rows = await sql`
     UPDATE bank_batches SET requested_count = requested_count + 1, status = 'running', completed_at = NULL
-    WHERE id = ${id} AND status IN ('running', 'ready')
+    WHERE id = ${id} AND status IN ('running', 'ready', 'complete')
     RETURNING *
   `;
   return (rows[0] as BankBatch) ?? null;
@@ -484,7 +500,10 @@ export async function extendBatchForReplacement(id: string): Promise<BankBatch |
 // the flag the review endpoint reads when an admin bins a question.
 export async function setBatchReplaceRejected(id: string, replaceRejected: boolean): Promise<void> {
   const sql = getDb();
-  await sql`UPDATE bank_batches SET replace_rejected = ${replaceRejected} WHERE id = ${id}`;
+  await sql`
+    UPDATE bank_batches SET replace_rejected = ${replaceRejected}, replace_binned = ${replaceRejected}
+    WHERE id = ${id}
+  `;
 }
 
 export async function setBankBatchStatus(
@@ -493,11 +512,14 @@ export async function setBankBatchStatus(
   opts?: { completed?: boolean; actualCostUsd?: number }
 ): Promise<void> {
   const sql = getDb();
+  const actualCents =
+    opts?.actualCostUsd == null ? null : Math.round(opts.actualCostUsd * 100);
   await sql`
     UPDATE bank_batches SET
       status = ${status},
       completed_at = ${opts?.completed ? new Date().toISOString() : null}::timestamptz,
-      actual_cost_usd = COALESCE(${opts?.actualCostUsd ?? null}::numeric, actual_cost_usd)
+      actual_cost_usd = COALESCE(${opts?.actualCostUsd ?? null}::numeric, actual_cost_usd),
+      actual_cost_cents = COALESCE(${actualCents}::int, actual_cost_cents)
     WHERE id = ${id}
   `;
 }
@@ -507,7 +529,7 @@ export async function getBatchPendingQuestions(batchId: string): Promise<Generat
   const sql = getDb();
   return (await sql`
     SELECT * FROM generated_questions
-    WHERE batch_id = ${batchId} AND status = 'pending'
+    WHERE batch_id = ${batchId} AND review_state = 'pending'
     ORDER BY created_at ASC
   `) as GeneratedQuestion[];
 }
@@ -523,47 +545,56 @@ export async function getBatchQuestions(batchId: string): Promise<GeneratedQuest
   `) as GeneratedQuestion[];
 }
 
-// Approve / reject one pending bank question. Scoped to status='pending' so a double-click or a
-// replayed request can't flip a decision that was already made. Returns the row's batch_id + old
-// status so the caller can trigger a replacement only on a genuine first-time bin.
+// Decide one pending bank question. Scoped to review_state='pending' so a double-click or a replayed
+// request can't flip a decision that was already made. Returns the row's batch_id so the caller can
+// trigger a replacement only on a genuine first-time bin.
+//
+// keep → review_state='kept' (servable) and the batch's kept_count is bumped.
+// bin  → the row is HARD-DELETED (spec: binned rows are hard-deleted, no resurrect path, no reason
+//        field). We RETURN the batch_id first so the caller can enqueue a replacement.
 export async function reviewBankQuestion(
   questionId: string,
   decision: "keep" | "bin",
   reviewerId: number
 ): Promise<{ batchId: string | null; changed: boolean } | null> {
   const sql = getDb();
-  const status = decision === "keep" ? "approved" : "rejected";
+
+  if (decision === "bin") {
+    const rows = await sql`
+      DELETE FROM generated_questions
+      WHERE question_id = ${questionId} AND review_state = 'pending'
+      RETURNING batch_id
+    `;
+    if (rows.length === 0) return { batchId: null, changed: false };
+    return { batchId: (rows[0].batch_id as string) ?? null, changed: true };
+  }
+
   const rows = await sql`
     UPDATE generated_questions SET
-      status = ${status}, reviewed_at = NOW(), reviewed_by = ${reviewerId}
-    WHERE question_id = ${questionId} AND status = 'pending'
+      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId}
+    WHERE question_id = ${questionId} AND review_state = 'pending'
     RETURNING batch_id
   `;
   if (rows.length === 0) return { batchId: null, changed: false };
-  return { batchId: (rows[0].batch_id as string) ?? null, changed: true };
+  const batchId = (rows[0].batch_id as string) ?? null;
+  if (batchId) {
+    await sql`UPDATE bank_batches SET kept_count = kept_count + 1 WHERE id = ${batchId}`;
+  }
+  return { batchId, changed: true };
 }
 
-// Undo a review decision back to pending — powers the "Undo" link on kept/binned rows. Only touches
-// rows still owned by this batch that were approved/rejected (never re-opens something un-reviewed).
-export async function undoBankReview(questionId: string, batchId: string): Promise<boolean> {
-  const sql = getDb();
-  const rows = await sql`
-    UPDATE generated_questions SET status = 'pending', reviewed_at = NULL, reviewed_by = NULL
-    WHERE question_id = ${questionId} AND batch_id = ${batchId} AND status IN ('approved', 'rejected')
-    RETURNING id
-  `;
-  return rows.length > 0;
-}
-
-// Approve every pending question in a batch in one shot ("Keep all").
+// Keep every pending question in a batch in one shot ("Keep all").
 export async function keepAllPending(batchId: string, reviewerId: number): Promise<number> {
   const sql = getDb();
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'approved', reviewed_at = NOW(), reviewed_by = ${reviewerId}
-    WHERE batch_id = ${batchId} AND status = 'pending'
+      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId}
+    WHERE batch_id = ${batchId} AND review_state = 'pending'
     RETURNING id
   `;
+  if (rows.length > 0) {
+    await sql`UPDATE bank_batches SET kept_count = kept_count + ${rows.length} WHERE id = ${batchId}`;
+  }
   return rows.length;
 }
 
@@ -575,8 +606,8 @@ export async function getBankStatusCounts(): Promise<
   const sql = getDb();
   const rows = (await sql`
     SELECT paper,
-      COUNT(*) FILTER (WHERE status = 'approved' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE)::int AS approved,
-      COUNT(*) FILTER (WHERE status = 'pending')::int AS pending
+      COUNT(*) FILTER (WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE)::int AS approved,
+      COUNT(*) FILTER (WHERE review_state = 'pending')::int AS pending
     FROM generated_questions
     WHERE paper IN (1, 2, 3)
     GROUP BY paper
@@ -597,7 +628,7 @@ export async function getBankFamilyHistogram(): Promise<
     SELECT paper, family, COUNT(*)::int AS count
     FROM generated_questions
     WHERE paper IN (1, 2, 3)
-      AND status = 'approved'
+      AND review_state = 'kept'
       AND invalid_reasons IS NULL
       AND is_retired IS NOT TRUE
       AND family IS NOT NULL

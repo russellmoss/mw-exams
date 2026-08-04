@@ -2,7 +2,6 @@ import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import {
   reviewBankQuestion,
-  undoBankReview,
   getBankBatch,
   extendBatchForReplacement,
 } from "@/lib/db";
@@ -26,19 +25,13 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { questionId, decision, batchId } = body as {
+  const { questionId, decision } = body as {
     questionId?: string;
     decision?: string;
-    batchId?: string;
   };
-  if (!questionId || !decision || !["keep", "bin", "undo"].includes(decision)) {
+  // Bin is immediate and permanent (spec): the row is hard-deleted, so there is no 'undo'.
+  if (!questionId || !decision || !["keep", "bin"].includes(decision)) {
     return Response.json({ error: "Missing questionId or invalid decision" }, { status: 400 });
-  }
-
-  if (decision === "undo") {
-    if (!batchId) return Response.json({ error: "Missing batchId for undo" }, { status: 400 });
-    const ok = await undoBankReview(questionId, batchId);
-    return Response.json({ ok });
   }
 
   const result = await reviewBankQuestion(questionId, decision as "keep" | "bin", keyResult.user.id);

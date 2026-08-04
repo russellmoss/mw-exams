@@ -72,9 +72,9 @@ async function pickBankedDrill(paper: number | null, family: string | null, vari
     FROM generated_questions q
     JOIN stem_answer_keys k ON k.question_id = q.question_id
     WHERE k.validated = true
-      -- Bank review gate (migration 022): this is a serve path, so pending/rejected bank rows
+      -- Bank review gate (migration 025): this is a serve path, so pending/binned bank rows
       -- must never reach a candidate — same rule as every read in src/lib/db.ts.
-      AND q.status = 'approved'
+      AND q.review_state = 'kept'
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
       AND (

@@ -215,7 +215,7 @@ export function NotificationBell() {
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">P{b.paper}</span>
                     </div>
                     <p className="text-xs text-muted mt-0.5">
-                      {b.pending} question{b.pending === 1 ? "" : "s"} ready to review →
+                      {b.pending} new question{b.pending === 1 ? "" : "s"} ready to review →
                     </p>
                   </Link>
                 ))}
