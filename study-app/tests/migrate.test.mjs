@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { splitStatements, checksum } from "../scripts/migrate.mjs";
+import { splitStatements, checksum, shouldRunMigrations } from "../scripts/migrate.mjs";
 
 describe("checksum", () => {
   // The bug this guards: hashing bytes as-read made the checksum depend on the checkout platform
@@ -115,5 +115,35 @@ describe("splitStatements", () => {
   it("splits 013 into exactly the 8 statements applied to production", () => {
     const sql = readFileSync(join(import.meta.dirname, "..", "migrations", "013_stem_detail.sql"), "utf8");
     expect(splitStatements(sql)).toHaveLength(8);
+  });
+});
+
+describe("shouldRunMigrations", () => {
+  // The bug this guards: previews share the PRODUCTION database and prebuild runs the migrator, so
+  // every preview build of every unmerged branch was migrating production. Three migrations reached
+  // the production schema that way from branches that never merged.
+  it("refuses on a preview deployment", () => {
+    const g = shouldRunMigrations({ VERCEL_ENV: "preview" });
+    expect(g.run).toBe(false);
+    expect(g.reason).toContain("preview");
+  });
+
+  it("runs on a production deployment", () => {
+    expect(shouldRunMigrations({ VERCEL_ENV: "production" }).run).toBe(true);
+  });
+
+  it("runs off Vercel, where a human is driving", () => {
+    // `npm run migrate` and local builds are the documented manual path.
+    expect(shouldRunMigrations({}).run).toBe(true);
+  });
+
+  it("can be forced on, for when previews get their own database", () => {
+    expect(
+      shouldRunMigrations({ VERCEL_ENV: "preview", MIGRATE_ALLOW_NON_PRODUCTION: "1" }).run
+    ).toBe(true);
+  });
+
+  it("does not treat other Vercel environments as production", () => {
+    expect(shouldRunMigrations({ VERCEL_ENV: "development" }).run).toBe(false);
   });
 });

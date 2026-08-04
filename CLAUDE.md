@@ -144,6 +144,19 @@ Vercel cron above daily.** Anything that needs to run more often belongs in a Gi
 pattern to copy (hourly `/api/cron/bank-worker`, with the daily Vercel cron kept as a backstop
 because GitHub schedules are best-effort).
 
+**Only PRODUCTION deploys migrate the database.** Preview deployments share the production
+`DATABASE_URL` (there is no preview branch DB) and `prebuild` runs `scripts/migrate.mjs` — so every
+preview build of every unmerged branch was applying its schema to production. Three migrations
+reached prod that way (`018_generation_telemetry`, `019_generation_attempt_timeouts`,
+`026_bank_batch_family`); they are ledger rows in `schema_migrations` with no file on master, which
+is why a production build reports fewer applied migrations than the table has rows. All three were
+additive, but a branch carrying a `DROP COLUMN` or a backfill would have mutated production from an
+experiment nobody merged. `shouldRunMigrations()` now gates on `VERCEL_ENV`: production migrates,
+previews skip loudly, off-Vercel runs (`npm run migrate`, local builds) still migrate because a
+human is driving. A preview needing a new column will fail against the production schema — that is
+the correct outcome. If previews are ever given their own database, set
+`MIGRATE_ALLOW_NON_PRODUCTION=1` so they resume migrating it.
+
 **Cron routes authenticate on `CRON_SECRET`** (`/api/cron/*` and `/api/admin/bank/resume`): they
 compare `Authorization: Bearer $CRON_SECRET` and otherwise fall back to an admin session. It must be
 set with the **same value** in the Vercel project env (Production) *and* in the repo's Actions

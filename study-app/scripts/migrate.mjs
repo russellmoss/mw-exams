@@ -129,7 +129,51 @@ export function splitStatements(sql) {
   return statements;
 }
 
+/**
+ * Decide whether this build is allowed to migrate the database it is pointed at.
+ *
+ * Preview deployments share the PRODUCTION database (there is no separate preview branch), and
+ * prebuild runs this script. So every preview build of every unmerged branch was migrating
+ * production. That is not theoretical: 018_generation_telemetry, 019_generation_attempt_timeouts
+ * and 026_bank_batch_family all reached the production schema from branches that never merged to
+ * master — one of them created a table whose writer did not exist in production for a day.
+ *
+ * All three happened to be additive. A branch carrying a DROP COLUMN, a NOT NULL backfill or a data
+ * rewrite would have silently mutated production from an experiment nobody had approved. The
+ * migration runner exists to stop code and schema arriving separately; a preview writing to prod is
+ * the same failure wearing different clothes.
+ *
+ * So: production deploys migrate. Previews do not. A preview whose code needs a new column will
+ * fail against the production schema — which is the correct outcome, and a far cheaper one than
+ * discovering the reverse.
+ *
+ * Off-Vercel runs (no VERCEL_ENV) still migrate: `npm run migrate` and local builds are a human
+ * acting deliberately, and that is the documented manual path.
+ *
+ * MIGRATE_ALLOW_NON_PRODUCTION=1 forces it on. Set that if previews are ever given their OWN
+ * database — at that point they should migrate it, and this guard becomes the wrong default.
+ */
+export function shouldRunMigrations(env = process.env) {
+  if (env.MIGRATE_ALLOW_NON_PRODUCTION === "1") {
+    return { run: true, reason: "MIGRATE_ALLOW_NON_PRODUCTION=1" };
+  }
+  if (!env.VERCEL_ENV) return { run: true, reason: "not a Vercel build" };
+  if (env.VERCEL_ENV === "production") return { run: true, reason: "production deploy" };
+  return { run: false, reason: `VERCEL_ENV=${env.VERCEL_ENV}` };
+}
+
 async function main() {
+  const gate = shouldRunMigrations();
+  if (!gate.run) {
+    console.warn(
+      `[migrate] SKIPPING migrations (${gate.reason}). Preview deployments share the production ` +
+        `database, so migrating from here would apply an unmerged branch's schema to production. ` +
+        `If this preview needs new columns, merge to master and deploy, or set ` +
+        `MIGRATE_ALLOW_NON_PRODUCTION=1 once previews have their own database.`
+    );
+    return;
+  }
+
   const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
 
   if (!url) {
