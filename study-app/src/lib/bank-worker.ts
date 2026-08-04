@@ -19,6 +19,7 @@ import {
   incrementBatchCounts,
   setBankBatchStatus,
   getBatchActualCost,
+  getBankFamilyHistogram,
   type BankBatch,
 } from "@/lib/db";
 import { generateFreshQuestion, type UsageMeta } from "@/lib/question-engine";
@@ -33,13 +34,18 @@ export const PAPER_FAMILIES: Record<number, string[]> = {
   3: ["F1", "F2", "F4", "F5", "F6", "F7"],
 };
 
-// Round-robin ordering: start from F4 (the single largest family, EK-0077) so small runs still lead
-// with the dominant shape, then cycle the rest.
-function familyForIndex(paper: number, index: number): string {
+// Diversity ordering (spec): before generating, read the paper's live banked distribution and lead
+// with the THINNEST families so a bulk run fills the gaps first, then cycles the rest — deliberately
+// spreading the batch across question families rather than stacking an already-over-represented
+// shape. `counts` is the current APPROVED-question count per family for this paper (from
+// getBankFamilyHistogram). Sorted ascending by count; ties (and the empty-bank cold start) fall back
+// to the corpus family order for a stable rotation.
+function orderFamiliesByDeficit(paper: number, counts: Map<string, number>): string[] {
   const fams = PAPER_FAMILIES[paper] || PAPER_FAMILIES[1];
-  const f4 = fams.indexOf("F4");
-  const ordered = f4 >= 0 ? [fams[f4], ...fams.filter((_, i) => i !== f4)] : fams;
-  return ordered[index % ordered.length];
+  return [...fams].sort((a, b) => {
+    const diff = (counts.get(a) ?? 0) - (counts.get(b) ?? 0);
+    return diff !== 0 ? diff : fams.indexOf(a) - fams.indexOf(b);
+  });
 }
 
 // Coarse up-front estimate for the Admin card's "estimated cost" line. Each banked question pays for
@@ -151,6 +157,15 @@ export async function runBankBatch(opts: {
   // done so a resume continues the rotation rather than restarting it.
   let issued = batch.generated_count + batch.failed_count;
 
+  // Read the live banked distribution ONCE per invocation and lead with the thinnest families (spec's
+  // diversity step). Recomputed on each resume so a long run keeps chasing the current gaps.
+  const histogram = await getBankFamilyHistogram();
+  const familyCounts = new Map<string, number>();
+  for (const h of histogram) {
+    if (h.paper === batch.paper) familyCounts.set(h.family, h.count);
+  }
+  const familyOrder = orderFamiliesByDeficit(batch.paper, familyCounts);
+
   const remaining = () => {
     const b = batch!;
     return b.requested_count - (b.generated_count + b.failed_count);
@@ -166,7 +181,7 @@ export async function runBankBatch(opts: {
     }
 
     const slotCount = Math.min(CONCURRENCY, remaining());
-    const slots = Array.from({ length: slotCount }, () => familyForIndex(batch!.paper, issued++));
+    const slots = Array.from({ length: slotCount }, () => familyOrder[issued++ % familyOrder.length]);
 
     const results = await Promise.all(
       slots.map((family) => generateOneIntoBatch(batch!, family, apiKey, meta))
