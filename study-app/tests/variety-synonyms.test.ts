@@ -102,3 +102,17 @@ describe("data/variety_lexicon.json stays in sync", () => {
     }
   });
 });
+
+// ── Detection gaps found by auditing banked questions ────────────────────────────────────────────
+// Both are DETECTION failures, not rule failures: the rule was correct and simply had nothing to
+// compare, because the grape was never read off the label.
+describe("accented labels resolve", () => {
+  // The indicator regexes are ASCII but real labels are accented, and only lower-casing was applied.
+  // Every accented grape read as "unknown", so the diversity rules silently skipped those wines.
+  it.each([
+    ["Jurtschitsch Sonnhalde Grüner Veltliner, 2022. Kamptal, Austria.", "gruner"],
+    ["Château Climens, Barsac, 2016. Sémillon.", "semillon"],
+  ])("%s", (label, expected) => {
+    expect(detectPrimaryVariety(label)).toBe(expected);
+  });
+});

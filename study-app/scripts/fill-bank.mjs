@@ -27,6 +27,8 @@
 import { neon } from "@neondatabase/serverless";
 import { generateFreshQuestion } from "@/lib/question-engine";
 import {
+  getRunningBatchForPaper,
+  releaseStalledBatches,
   createBankBatch,
   incrementBatchCounts,
   setBankBatchStatus,
@@ -100,6 +102,18 @@ for (const paper of papers) {
   const buckets = plan.filter((b) => b.paper === paper);
   if (!buckets.length) continue;
   const paperNeed = Math.min(buckets.reduce((s, b) => s + b.need, 0), cap - made);
+
+  // Refuse to run alongside another batch for this paper. The app's route checks this; calling
+  // createBankBatch directly bypassed it, and on 2026-08-04 a CI fill and an admin-UI batch ran on
+  // Paper 1 together — each saw the other's questions in its novelty window, both redrafted harder,
+  // and the pair cost ~$61 for 17 questions. Stale 'running' rows are released first so a batch
+  // killed mid-flight cannot block this forever.
+  await releaseStalledBatches();
+  const busy = await getRunningBatchForPaper(paper);
+  if (busy) {
+    console.error(`::warning::P${paper} skipped — batch ${busy.id} is already running for this paper`);
+    continue;
+  }
 
   const batch = await createBankBatch({
     paper,

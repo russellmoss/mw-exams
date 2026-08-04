@@ -19,6 +19,9 @@ import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
+// Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
+// the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
+import "@/lib/appellation-resolver";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
 import { buildModelAnswerPrompt } from "@/lib/prompts/model-answer-prompt";

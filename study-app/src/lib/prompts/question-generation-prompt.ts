@@ -443,6 +443,21 @@ Typical per-wine mark ranges for written sub-questions:
 - Commercial position: 5-10 marks
 - Style: 5-10 marks (often combined with quality)
 
+## OLD WORLD / NEW WORLD BALANCE (flights of 3+ wines, except same-origin families)
+Unless the stem ties the flight to ONE country or region (a same-country or same-region question),
+a flight of 3 or more wines MUST NOT be entirely Old World or entirely New World. Real F1/F4/F6
+flights mix the two roughly 60%+ of the time (EK-0099): the Old/New contrast is one of the exam's
+main discriminators, because it forces the candidate to read ripeness, oak handling and acid
+structure rather than recite an appellation.
+
+Old World = France, Italy, Spain, Portugal, Germany, Austria, Greece, Hungary and the rest of
+Europe, plus Georgia and Lebanon. New World = USA, Australia, New Zealand, Chile, Argentina, South
+Africa, Canada, Uruguay.
+
+So: if you have picked three European wines, replace one with a credible New World counterpart that
+still fits the stem — a Central Otago Pinot against Burgundy, a Swartland Chenin against Vouvray, an
+Eden Valley Riesling against the Mosel. This is checked and a single-world flight is rejected.
+
 ## MARK EMPHASIS FOR THIS PAPER (match the modern 2018–2025 shape — EK-0098)
 ${markEmphasis}
 Across any paper: keep IDENTIFICATION at most ~46–55% of total marks (modern papers run ~46% ID, down from ~60% pre-2014); commercial should appear in most questions (never 0% of marks); include a compare/contrast item (20–36 marks) where the flight invites it.

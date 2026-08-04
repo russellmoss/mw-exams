@@ -323,14 +323,32 @@ function normalizeVariety(value) {
   return canonVariety(value);
 }
 
+// Optional SERVER-SIDE appellation resolver. This module is reachable from the client bundle
+// (StemSniperCard -> stem-scoring -> question-rules), so it cannot itself hold the 220-entry
+// appellation dataset the answer-key resolver uses. src/lib/appellation-resolver.ts registers one on
+// the server; detectPrimaryVariety consults it ONLY when its own table comes back "unknown", so the
+// client is unaffected and the server stops missing grapes that are named by appellation rather than
+// on the label (Savennieres -> Chenin Blanc, Vouvray -> Chenin Blanc).
+let appellationResolver = null;
+export function registerAppellationResolver(fn) {
+  appellationResolver = typeof fn === "function" ? fn : null;
+}
+
 export function detectPrimaryVariety(fullText) {
-  const text = fullText.toLowerCase();
+  // Accents STRIPPED before matching. The indicator regexes are ASCII ("gruner", "semillon"), but
+  // real labels are accented — "Grüner Veltliner", "Sémillon", "Nero d'Avola". Lower-casing alone
+  // left every accented grape reading as "unknown", so the diversity rules silently skipped those
+  // wines: a flight could carry two Grüners and no rule could see it.
+  const text = fullText.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
   const whiteMatch = text.match(WHITE_GRAPE_INDICATORS);
   const redMatch = text.match(RED_GRAPE_INDICATORS);
   const direct = (whiteMatch?.[0] || redMatch?.[0])?.toLowerCase().trim();
   if (direct) return normalizeVariety(direct);
   const appellationMatch = APPELLATION_TO_PRIMARY_VARIETY.find((entry) => entry.pattern.test(text));
-  return appellationMatch ? appellationMatch.variety : "unknown";
+  if (appellationMatch) return appellationMatch.variety;
+  // Server-only fallback across the full appellation dataset (see registerAppellationResolver).
+  const resolved = appellationResolver?.(fullText);
+  return resolved ? canonVariety(resolved) : "unknown";
 }
 
 const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|champagne\s*(brut|nv|vintage|rose)|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
