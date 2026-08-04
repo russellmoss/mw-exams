@@ -4,6 +4,7 @@ import { requireApiKey } from "@/lib/api-key";
 import {
   getBankBatch,
   getBatchPendingQuestions,
+  getFlaggedPendingQuestions,
   getAnswerKeyGroundTruth,
   getAnswerKeyGroundTruths,
   getQuestionById,
@@ -13,6 +14,7 @@ import {
   extendBatchForReplacement,
   type GeneratedQuestion,
 } from "@/lib/db";
+import type { ProducerFlag } from "@/lib/bank-health/producer";
 import { runBankBatch } from "@/lib/bank-worker";
 import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
 import { sanitizeBinTags, sanitizeBinNote, VALIDATOR_LINKED_TAGS } from "@/lib/bin-reasons";
@@ -71,6 +73,21 @@ function serialize(q: GeneratedQuestion) {
     marks: perWine,
   }));
 
+  // Producer Spread review flags (migration 032): one chip per over-used producer, surfaced above the
+  // Keep/Bin controls. Parsed defensively — the column is JSONB but may arrive as a string.
+  let producerFlags: ProducerFlag[] = [];
+  const rawFlags = q.producer_flags;
+  if (Array.isArray(rawFlags)) {
+    producerFlags = rawFlags as ProducerFlag[];
+  } else if (typeof rawFlags === "string") {
+    try {
+      const parsed = JSON.parse(rawFlags);
+      if (Array.isArray(parsed)) producerFlags = parsed as ProducerFlag[];
+    } catch {
+      producerFlags = [];
+    }
+  }
+
   return {
     id: q.question_id,
     paper: q.paper,
@@ -81,6 +98,7 @@ function serialize(q: GeneratedQuestion) {
     markBreakdown,
     total: q.total_marks,
     wines: outWines,
+    producerFlags,
   };
 }
 
@@ -147,7 +165,42 @@ export async function GET(request: Request) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const batchId = new URL(request.url).searchParams.get("batch");
+  const params = new URL(request.url).searchParams;
+
+  // Producer-flag deep-link (spec §3): the Bank Health "N flagged items awaiting review" link opens the
+  // review queue filtered to items carrying a producer flag, ACROSS batches. Keep/Bin work per-item, so
+  // the batch-scoped fields are synthesised from the flagged set.
+  if (params.get("flagged") === "producer") {
+    const pending = await getFlaggedPendingQuestions();
+    const keys = await getAnswerKeyGroundTruths(pending.map((q) => q.question_id));
+    const questions = pending.map((q) => {
+      const gt = keys.get(q.question_id);
+      let cardVerdict: { ok: boolean; hard: Violation[]; soft: Violation[] } | null = null;
+      if (gt && gt.length > 0) {
+        const violations = violationsFor(q, gt);
+        const hard = violations.filter((v) => v.severity === "hard");
+        cardVerdict = { ok: hard.length === 0, hard, soft: violations.filter((v) => v.severity === "soft") };
+      }
+      return { ...serialize(q), verdict: cardVerdict };
+    });
+    const total = pending.length;
+    return Response.json({
+      batchId: "flagged:producer",
+      flagged: "producer",
+      paper: pending[0]?.paper ?? null,
+      replaceBinned: false,
+      status: "complete",
+      keptCount: 0,
+      remaining: total,
+      position: { n: total > 0 ? 1 : 0, total },
+      question: questions[0] ?? null,
+      verdict: questions[0]?.verdict ?? null,
+      failingRemaining: await failingPendingCount(pending),
+      questions,
+    });
+  }
+
+  const batchId = params.get("batch");
   if (!batchId) return Response.json({ error: "Missing batch" }, { status: 400 });
 
   const batch = await getBankBatch(batchId);

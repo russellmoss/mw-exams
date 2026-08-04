@@ -7,6 +7,11 @@ import {
   deriveFlightPriceBand,
   deriveFlightSize,
 } from "./bank-health/derive";
+import {
+  extractFlightProducers,
+  producerStatus,
+  type ProducerFlag,
+} from "./bank-health/producer";
 import { getAppVersion } from "./app-version";
 import { DEFAULT_PACE_PREFERENCE, isPaceMode, isSpeedSeconds, type PaceData, type PacePreference } from "./pace";
 
@@ -47,6 +52,10 @@ export interface GeneratedQuestion {
   batch_id: string | null;
   reviewed_at: string | null;
   reviewed_by: number | null;
+  // Producer Spread (migration 032). The over-used-producer flags computed when the item landed in the
+  // pending-review queue: [{producer_display, appearance_number, paper}]. NULL for servable rows and for
+  // any pending item whose producers were all within their normal share.
+  producer_flags: ProducerFlag[] | null;
 }
 
 export interface UserAttempt {
@@ -182,13 +191,17 @@ export async function saveGeneratedQuestion(q: {
   const curveball = deriveCurveball(q.metadata);
   const priceBand = deriveFlightPriceBand(q.wines);
   const flightSize = deriveFlightSize(q.wines);
+  // Producer Spread review flag (migration 032). Computed ONLY for a fresh pending item, against the
+  // producer tally as of insert time; a servable/approved study-path row carries no flag. The ON
+  // CONFLICT re-save (background model answer) never recomputes it, so the flag from first insert holds.
+  const producerFlags = q.status === "pending" ? await computeProducerFlags(q.paper, q.wines) : null;
   const rows = await sql`
     INSERT INTO generated_questions (
       question_id, paper, family, family_label, subcategory,
       question_text, wines, total_marks, p3_category,
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
       metadata, created_by_user_id, status, batch_id, review_state,
-      question_type, curveball, price_band, flight_size
+      question_type, curveball, price_band, flight_size, producer_flags
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
@@ -197,7 +210,8 @@ export async function saveGeneratedQuestion(q: {
       ${JSON.stringify(q.metadata || {})}, ${q.createdByUserId ?? null},
       ${q.status ?? "approved"}, ${q.batchId ?? null},
       ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
-      ${questionType}, ${curveball}, ${priceBand}, ${flightSize}
+      ${questionType}, ${curveball}, ${priceBand}, ${flightSize},
+      ${producerFlags && producerFlags.length > 0 ? JSON.stringify(producerFlags) : null}::jsonb
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -209,7 +223,200 @@ export async function saveGeneratedQuestion(q: {
       study_diagram_assist = COALESCE(EXCLUDED.study_diagram_assist, generated_questions.study_diagram_assist)
     RETURNING *
   `;
+  // Producer Spread derived table (migration 032): keep bank_wine_producer in step with this item's
+  // wines. Delete-then-insert so a re-save (background model answer, or an edited flight) never leaves
+  // stale producer rows behind. Best-effort — a tally hiccup must never fail a save.
+  try {
+    await syncProducerRowsForItem(q.questionId, q.paper, q.wines);
+  } catch (err) {
+    console.error(`[producer-spread] failed to sync producer rows for ${q.questionId}:`, err);
+  }
   return rows[0] as GeneratedQuestion;
+}
+
+// ── Producer Spread tally (migration 032) ────────────────────────────────────────────────────────
+//
+// bank_wine_producer holds one row per banked wine, keyed on a normalised producer string. It is
+// written here on every insert and backfilled once by migration 032. Every READ joins back to
+// generated_questions and applies the SAME servable gate the rest of Bank Health uses, so a pending or
+// binned item's rows never leak into the counts.
+
+// Replace this item's derived producer rows with the current flight's. A wine whose descriptor yields
+// no usable producer contributes no row (see extractFlightProducers).
+export async function syncProducerRowsForItem(
+  itemId: string,
+  paper: number,
+  wines: unknown
+): Promise<void> {
+  const sql = getDb();
+  const producers = extractFlightProducers(wines);
+  await sql`DELETE FROM bank_wine_producer WHERE item_id = ${itemId}`;
+  for (const p of producers) {
+    await sql`
+      INSERT INTO bank_wine_producer (item_id, slot, paper, producer_key, producer_display, region, country)
+      VALUES (${itemId}, ${p.slot}, ${paper}, ${p.key}, ${p.display}, ${p.region}, ${p.country})
+      ON CONFLICT (item_id, slot) DO UPDATE SET
+        paper = EXCLUDED.paper,
+        producer_key = EXCLUDED.producer_key,
+        producer_display = EXCLUDED.producer_display,
+        region = EXCLUDED.region,
+        country = EXCLUDED.country
+    `;
+  }
+}
+
+// The servable producer counts for a paper, plus the paper's total banked-wine count — the denominator
+// for producer share. Excludes the item being inserted (it has no rows yet), so it is the tally "as of
+// insert time" the review flag is judged against.
+async function getProducerBaseCounts(
+  paper: number
+): Promise<{ counts: Map<string, number>; total: number }> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT bwp.producer_key AS key, COUNT(*)::int AS count
+    FROM bank_wine_producer bwp
+    JOIN generated_questions g ON g.question_id = bwp.item_id
+    WHERE bwp.paper = ${paper}
+      AND g.review_state = 'kept'
+      AND g.invalid_reasons IS NULL
+      AND g.is_retired IS NOT TRUE
+    GROUP BY bwp.producer_key
+  `) as { key: string; count: number }[];
+  const counts = new Map<string, number>();
+  let total = 0;
+  for (const r of rows) {
+    counts.set(r.key, r.count);
+    total += r.count;
+  }
+  return { counts, total };
+}
+
+// The over-used-producer flags for a fresh pending flight, judged against the tally as of insert time.
+// One entry per over-used producer (deduped by key, keeping the highest appearance number).
+export async function computeProducerFlags(paper: number, wines: unknown): Promise<ProducerFlag[]> {
+  const producers = extractFlightProducers(wines);
+  if (producers.length === 0) return [];
+  const { counts, total } = await getProducerBaseCounts(paper);
+  const running = new Map<string, number>();
+  const flagsByKey = new Map<string, ProducerFlag>();
+  let added = 0;
+  for (const p of producers) {
+    added++;
+    const prev = running.get(p.key) ?? 0;
+    running.set(p.key, prev + 1);
+    const appearance = (counts.get(p.key) ?? 0) + prev + 1;
+    const denom = total + added;
+    const share = denom > 0 ? appearance / denom : 0;
+    if (producerStatus(appearance, share) === "over-used") {
+      const existing = flagsByKey.get(p.key);
+      if (!existing || appearance > existing.appearance_number) {
+        flagsByKey.set(p.key, { producer_display: p.display, appearance_number: appearance, paper });
+      }
+    }
+  }
+  return [...flagsByKey.values()];
+}
+
+export interface ProducerTallyRow {
+  producer_key: string;
+  producer_display: string;
+  region: string | null;
+  country: string | null;
+  count: number;
+  share: number;
+  status: "over-used" | "watch" | "ok";
+}
+
+export interface ProducerTally {
+  total_wines: number;
+  distinct_producers: number;
+  widest_share: number;
+  rows: ProducerTallyRow[];
+}
+
+// The full producer tally for a paper (or all papers), sorted by count desc. Display / region / country
+// take the most frequent raw spelling per key (spec). status/share are computed in TS from the config.
+export async function getProducerTally(paper: number | "all"): Promise<ProducerTally> {
+  const sql = getDb();
+  const paperArg = paper === "all" ? null : paper;
+  const rows = (await sql`
+    SELECT bwp.producer_key AS producer_key,
+           COUNT(*)::int AS count,
+           mode() WITHIN GROUP (ORDER BY bwp.producer_display) AS producer_display,
+           mode() WITHIN GROUP (ORDER BY bwp.region)  AS region,
+           mode() WITHIN GROUP (ORDER BY bwp.country) AS country
+    FROM bank_wine_producer bwp
+    JOIN generated_questions g ON g.question_id = bwp.item_id
+    WHERE g.review_state = 'kept'
+      AND g.invalid_reasons IS NULL
+      AND g.is_retired IS NOT TRUE
+      AND (${paperArg}::int IS NULL OR bwp.paper = ${paperArg})
+    GROUP BY bwp.producer_key
+    ORDER BY count DESC, producer_display ASC
+  `) as { producer_key: string; count: number; producer_display: string; region: string | null; country: string | null }[];
+
+  const total = rows.reduce((a, r) => a + r.count, 0);
+  const widest = rows.length > 0 ? rows[0].count : 0;
+  const tallyRows: ProducerTallyRow[] = rows.map((r) => {
+    const share = total > 0 ? r.count / total : 0;
+    return {
+      producer_key: r.producer_key,
+      producer_display: r.producer_display || r.producer_key,
+      region: r.region,
+      country: r.country,
+      count: r.count,
+      share,
+      status: producerStatus(r.count, share),
+    };
+  });
+  return {
+    total_wines: total,
+    distinct_producers: rows.length,
+    widest_share: total > 0 ? widest / total : 0,
+    rows: tallyRows,
+  };
+}
+
+// Compact producer signal for the generation nudge: the paper's total banked wines + its heaviest
+// producers by display name with counts. Returns the top `limit` producers, count desc.
+export async function getProducerNudge(
+  paper: number,
+  limit: number
+): Promise<{ totalWines: number; top: { display: string; count: number }[] }> {
+  const tally = await getProducerTally(paper);
+  return {
+    totalWines: tally.total_wines,
+    top: tally.rows.slice(0, limit).map((r) => ({ display: r.producer_display, count: r.count })),
+  };
+}
+
+// How many pending items awaiting review carry a producer flag (paper-scoped, or all papers). Feeds the
+// Bank Health "N flagged items awaiting review" deep-link + count.
+export async function getFlaggedPendingCount(paper: number | "all"): Promise<number> {
+  const sql = getDb();
+  const paperArg = paper === "all" ? null : paper;
+  const rows = (await sql`
+    SELECT COUNT(*)::int AS count
+    FROM generated_questions
+    WHERE review_state = 'pending'
+      AND producer_flags IS NOT NULL
+      AND jsonb_array_length(producer_flags) > 0
+      AND (${paperArg}::int IS NULL OR paper = ${paperArg})
+  `) as { count: number }[];
+  return rows[0]?.count ?? 0;
+}
+
+// Every pending item awaiting review that carries a producer flag, oldest first — the cross-batch queue
+// the Bank Health deep-link opens (?review=flagged:producer).
+export async function getFlaggedPendingQuestions(): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM generated_questions
+    WHERE review_state = 'pending'
+      AND producer_flags IS NOT NULL
+      AND jsonb_array_length(producer_flags) > 0
+    ORDER BY created_at ASC
+  `) as GeneratedQuestion[];
 }
 
 export async function getQuestionsByFilter(
