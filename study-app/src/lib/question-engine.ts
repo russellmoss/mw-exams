@@ -1237,7 +1237,26 @@ function validateOriginDiversity(
   return { valid: violations.length === 0, violations };
 }
 
-const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cru\s*class[eé]|pauillac|margaux|saint[- ]julien|saint[- ]estephe|saint[- ]emilion|pomerol|pessac[- ]leognan|sauternes|barsac|meursault|puligny[- ]montrachet|chassagne[- ]montrachet|chablis|corton|gevrey[- ]chambertin|chambolle[- ]musigny|vosne[- ]roman[eé]e|nuits[- ]saint|pommard|volnay|barolo|barbaresco|brunello|chianti\s*classico|vino\s*nobile|taurasi|hermitage|cote[- ]rotie|cornas|chateauneuf[- ]du[- ]pape|marlborough|sancerre|pouilly[- ]fum[eé]|vouvray|savennieres|clos\s*ste\s*hune|alsace\s*grand\s*cru|rioja\s*(gran\s*)?reserva|ribera\s*del\s*duero|priorat|vintage\s*port|lbv|tawny\s*\d+|fino|manzanilla|amontillado|oloroso|palo\s*cortado|madeira|tokaj|rutherford|oakville|stags\s*leap|napa\s*valley|sonoma\s*coast|willamette|stellenbosch|hawkes?\s*bay|waipara|clare\s*valley|eden\s*valley|barossa|margaret\s*river|yarra\s*valley|wachau|kamptal)\b/i;
+export const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cru\s*class[eé]|pauillac|margaux|saint[- ]julien|saint[- ]estephe|saint[- ]emilion|pomerol|pessac[- ]leognan|sauternes|barsac|meursault|puligny[- ]montrachet|chassagne[- ]montrachet|chablis|corton|gevrey[- ]chambertin|chambolle[- ]musigny|vosne[- ]roman[eé]e|nuits[- ]saint|pommard|volnay|barolo|barbaresco|brunello|chianti\s*classico|vino\s*nobile|taurasi|hermitage|cote[- ]rotie|cornas|chateauneuf[- ]du[- ]pape|marlborough|sancerre|pouilly[- ]fum[eé]|vouvray|savennieres|clos\s*ste\s*hune|alsace\s*grand\s*cru|rioja\s*(gran\s*)?reserva|ribera\s*del\s*duero|priorat|vintage\s*port|lbv|tawny\s*\d+|fino|manzanilla|amontillado|oloroso|palo\s*cortado|madeira|tokaj|rutherford|oakville|stags\s*leap|napa\s*valley|sonoma\s*coast|willamette|stellenbosch|hawkes?\s*bay|waipara|clare\s*valley|eden\s*valley|barossa|margaret\s*river|yarra\s*valley|wachau|kamptal)\b/i;
+
+// BENCHMARK_APPELLATIONS is written in ASCII, but real wine labels are not: the corpus contains
+// "Châteauneuf du Pape", "Pessac Léognan", "St Julien", "St Estèphe". The pattern is also only
+// inconsistently accent-aware — it spells out class[eé], roman[eé]e and fum[eé], but not châteauneuf
+// or côte-rôtie — so which benchmarks it recognised came down to which alternates someone remembered
+// to write. Normalise the text instead, the same way wine-bank-lookup already does (NFD + strip
+// diacritics), plus the St/Ste abbreviation that appears on real labels.
+//
+// Worth 16 of the 204 corpus-tagged benchmarks the rule failed to recognise. The remaining 188 are
+// genuine omissions from the list (Champagne, Mosel, Rioja, Alsace, California AVAs…), which is a
+// wine-domain question, not a bug.
+export function matchesBenchmarkAppellation(fullText: string): boolean {
+  const normalized = (fullText || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\bst\.?\s/gi, "saint ")
+    .replace(/\bste\.?\s/gi, "sainte ");
+  return BENCHMARK_APPELLATIONS.test(normalized);
+}
 
 function validateBankerMinimum(
   wines: { slot: number; fullText: string }[]
@@ -1247,7 +1266,7 @@ function validateBankerMinimum(
 
   let bankerCount = 0;
   for (const wine of wines) {
-    if (BENCHMARK_APPELLATIONS.test(wine.fullText)) {
+    if (matchesBenchmarkAppellation(wine.fullText)) {
       bankerCount++;
     }
   }
@@ -1463,7 +1482,7 @@ function validateCompositionBalance(
   const violations: string[] = [];
   // Curveball density — telemetry only. The "non-benchmark ≈ harder" proxy mislabels ~63% of real
   // anchors (findings/08), so we log it for monitoring and never gate generation on it.
-  const nonBenchmark = wines.filter((w) => !BENCHMARK_APPELLATIONS.test(w.fullText)).length;
+  const nonBenchmark = wines.filter((w) => !matchesBenchmarkAppellation(w.fullText)).length;
   console.log(`[composition] ${family} P${paper} ${wines.length}-wine: ${nonBenchmark} non-benchmark (curveball telemetry, not gated)`);
   // OW/NW — robust. Non-same-origin families (exclude F2 same-country, F7 same-region) should not be
   // single-world in a 3+ flight: real F1/F4/F6 mix Old+New World ~60%+ (EK-0099). Only act when worlds
