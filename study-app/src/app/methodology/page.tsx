@@ -81,7 +81,7 @@ export default function MethodologyPage() {
         {/* Key stats strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
-          <StatCard value="161" label="Questions Analyzed" sub="15 years of exam papers" />
+          <StatCard value="162" label="Questions Analyzed" sub="15 years of exam papers" />
           <StatCard value="36%" label="Top-1 Variety (out-of-sample)" sub="72.8% in-sample; see Backtesting" />
           <StatCard value="88.9%" label="Candidate-Set Coverage" sub="Out-of-sample; the metric that held" />
         </div>
@@ -232,11 +232,11 @@ export default function MethodologyPage() {
                 <TableRow header cells={["Family", "What It Tests", "Share"]} />
               </thead>
               <tbody>
-                <TableRow cells={["F1: Same Variety", "Hold one grape across different origins and styles", "22%"]} />
-                <TableRow cells={["F2: Same Origin", "Distinguish wines from one country or region", "21%"]} />
+                <TableRow cells={["F1: Same Variety", "Hold one grape across different origins and styles", "23%"]} />
+                <TableRow cells={["F2: Same Origin", "Distinguish wines from one country or region", "22%"]} />
                 <TableRow cells={["F3: Blend Logic", "Identify blends and their components", "5%"]} />
-                <TableRow cells={["F4: Mixed Breadth", "Handle unrelated wines without anchoring bias", "29%"]} />
-                <TableRow cells={["F5: Method/Production", "Deduce winemaking from what's in the glass", "11%"]} />
+                <TableRow cells={["F4: Mixed Breadth", "Handle unrelated wines without anchoring bias", "30%"]} />
+                <TableRow cells={["F5: Method/Production", "Deduce winemaking from what's in the glass", "10%"]} />
                 <TableRow cells={["F6: Style Mechanism", "Map sweetness, alcohol, and production method", "4%"]} />
                 <TableRow cells={["F7: Hierarchy/Quality", "Calibrate quality within a classification system", "7%"]} />
               </tbody>
@@ -245,7 +245,7 @@ export default function MethodologyPage() {
 
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
-              <strong>F4 (Mixed Breadth) is the largest family at 29%.</strong> These are the questions
+              <strong>F4 (Mixed Breadth) is the largest family at 30%.</strong> These are the questions
               where each wine is a separate identification problem with no linking thread. The examiner
               is testing whether you can reset between wines rather than anchor on patterns from the
               previous glass.
@@ -267,8 +267,8 @@ export default function MethodologyPage() {
               { stat: "91%", desc: "Riesling appears in Paper 1 (10 of 11 years)" },
               { stat: "100%", desc: "P3 Q1 has included sparkling every year since 2021 (6 of 6)" },
               { stat: "45%", desc: "Tokaji appears in Paper 3 (5 of 11 years)" },
-              { stat: "21%", desc: "Questions use \"same single grape variety\" in the stem" },
-              { stat: "26%", desc: "Questions include a commercial/market sub-question" },
+              { stat: "22%", desc: "Questions lock a shared grape variety in the stem" },
+              { stat: "29%", desc: "Questions include a commercial sub-question" },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-3 bg-background rounded-lg p-3 border border-border/50">
                 <span className="text-lg font-bold text-accent shrink-0 w-14 text-right tabular-nums">{item.stat}</span>
@@ -286,15 +286,15 @@ export default function MethodologyPage() {
             </p>
             <div className="grid grid-cols-4 gap-2">
               <div className="bg-background rounded-lg p-3 text-center border border-border/50">
-                <div className="text-xl font-bold text-foreground">75.9%</div>
+                <div className="text-xl font-bold text-foreground">78.0%</div>
                 <div className="text-xs text-muted mt-1">Standard</div>
               </div>
               <div className="bg-background rounded-lg p-3 text-center border border-border/50">
-                <div className="text-xl font-bold text-borderline">17.9%</div>
+                <div className="text-xl font-bold text-borderline">15.7%</div>
                 <div className="text-xs text-muted mt-1">Moderate</div>
               </div>
               <div className="bg-background rounded-lg p-3 text-center border border-border/50">
-                <div className="text-xl font-bold text-fail">6.2%</div>
+                <div className="text-xl font-bold text-fail">6.3%</div>
                 <div className="text-xs text-muted mt-1">High Curveball</div>
               </div>
               <div className="bg-background rounded-lg p-3 text-center border border-border/50">
@@ -358,11 +358,17 @@ export default function MethodologyPage() {
 
         {/* ── BACKTESTING ── */}
         <SectionCard id="backtest">
-          <SectionTitle>Backtesting: Proof, Not Promises</SectionTitle>
+          <SectionTitle>Backtesting: What We Measured, and What Broke</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
             We tested the decision trees using <strong>Leave-One-Year-Out (LOYO) cross-validation</strong>:
             train on 9 years, predict the held-out year, repeat for all 10 folds. Then we scored
             every prediction against the actual wines.
+          </p>
+          <p className="text-sm text-muted italic mb-4">
+            Those ten folds cover <strong>2015-2025</strong>. LOYO has not been re-run with 2026, and
+            it cannot be meaningfully — the trees have since absorbed that year. The genuine
+            out-of-sample check is the 2026 tree holdout below, run against a frozen copy of the trees
+            taken before the exam existed. Where the two disagree, believe the holdout.
           </p>
 
           <h3 className="text-lg font-semibold text-foreground mb-3">Initial Results</h3>
