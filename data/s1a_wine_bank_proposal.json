@@ -1,0 +1,2013 @@
+{
+  "generatedAt": "2026-08-05T18:48:39.994Z",
+  "model": "claude-sonnet-4-6",
+  "corpus": 130,
+  "unique": 128,
+  "inserts": [
+    {
+      "id": "spain_catalonia_vilarnau_gran_reserva_cava",
+      "producer": "Vilarnau",
+      "wine_name": "Gran Reserva Cava",
+      "country": "Spain",
+      "region": "Catalonia",
+      "grape_varieties": [
+        "Macabeo",
+        "Xarel-lo",
+        "Parellada"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2015_s1a_w1"
+      ],
+      "full_text": "Vilarnau Gran Reserva Cava. 2007. Catalonia, Spain (11.5%)"
+    },
+    {
+      "id": "france_champagne_rodier_p_re_fils_brut",
+      "producer": "Rodier Père & Fils",
+      "wine_name": "Brut",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Pinot Meunier",
+        "Chardonnay"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2015_s1a_w2"
+      ],
+      "full_text": "Rodier Père & Fils à Epernay, Brut Champagne. NV. Champagne, France (12.5%)"
+    },
+    {
+      "id": "argentina_mendoza_do_a_paula_estate_torront_s",
+      "producer": "Doña Paula",
+      "wine_name": "Estate Torrontés",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "grape_varieties": [
+        "Torrontés"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w3"
+      ],
+      "full_text": "Doña Paula Estate, Valle de Uco, Torrontes. 2013. Mendoza, Argentina (13.5%)"
+    },
+    {
+      "id": "italy_campania_novaserra_greco_di_tufo",
+      "producer": "Novaserra",
+      "wine_name": "Greco di Tufo",
+      "country": "Italy",
+      "region": "Campania",
+      "grape_varieties": [
+        "Greco"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w4"
+      ],
+      "full_text": "Novaserra Greco di Tufo. 2013. Campania, Italy (13%)"
+    },
+    {
+      "id": "france_rh_ne_domaine_fran_ois_villard_condrieu_le_grand_vallon",
+      "producer": "Domaine François Villard",
+      "wine_name": "Condrieu Le Grand Vallon",
+      "country": "France",
+      "region": "Rhône",
+      "grape_varieties": [
+        "Viognier"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w5"
+      ],
+      "full_text": "Condrieu Le Grand Vallon Domaine Francois Villard. 2011. Rhone, France (13%)"
+    },
+    {
+      "id": "spain_rueda_bodegas_cerrosol_rueda_verdejo",
+      "producer": "Bodegas Cerrosol",
+      "wine_name": "Rueda Verdejo",
+      "country": "Spain",
+      "region": "Rueda",
+      "grape_varieties": [
+        "Verdejo"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w6"
+      ],
+      "full_text": "Rueda Verdejo Bodegas Cerrosol. 2012. Rueda, Spain (12.5%)"
+    },
+    {
+      "id": "usa_santa_barbara_byron_santa_barbara_county_pinot_noir",
+      "producer": "Byron",
+      "wine_name": "Santa Barbara County Pinot Noir",
+      "country": "USA",
+      "region": "Santa Barbara",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w7"
+      ],
+      "full_text": "Byron, Santa Barbara County, Pinot Noir. 2012. Santa Barbara, USA (13.5%)"
+    },
+    {
+      "id": "france_burgundy_domaine_arnoux_lachaux_nuits_st_georges",
+      "producer": "Domaine Arnoux-Lachaux",
+      "wine_name": "Nuits-St-Georges",
+      "country": "France",
+      "region": "Burgundy",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w8"
+      ],
+      "full_text": "Nuits-St-Georges, Domaine Arnoux-Lachaux. 2011. Burgundy, France (13%)"
+    },
+    {
+      "id": "france_burgundy_berthelemot_bourgogne_hautes_c_tes_de_beaune",
+      "producer": "Berthelemot",
+      "wine_name": "Bourgogne Hautes Côtes de Beaune",
+      "country": "France",
+      "region": "Burgundy",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w9"
+      ],
+      "full_text": "Bourgogne Hautes Cotes de Beaune, Berthelemot. 2011. Burgundy, France (13%)"
+    },
+    {
+      "id": "new_zealand_central_otago_carrick_bannockburn_pinot_noir",
+      "producer": "Carrick",
+      "wine_name": "Bannockburn Pinot Noir",
+      "country": "New Zealand",
+      "region": "Central Otago",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2015_s1a_w10"
+      ],
+      "full_text": "Carrick Bannockburn, Pinot Noir. 2012. Central Otago, New Zealand (14%)"
+    },
+    {
+      "id": "portugal_porto_graham_s_quinta_dos_malvedos_vintage_port",
+      "producer": "Graham's",
+      "wine_name": "Quinta dos Malvedos Vintage Port",
+      "country": "Portugal",
+      "region": "Porto",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Touriga Franca",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2015_s1a_w11"
+      ],
+      "full_text": "Graham's Quinta Dos Malvedos Vintage Port. 2001. Porto, Portugal (20%)"
+    },
+    {
+      "id": "portugal_porto_graham_s_late_bottled_vintage_port",
+      "producer": "Graham's",
+      "wine_name": "Late Bottled Vintage Port",
+      "country": "Portugal",
+      "region": "Porto",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Touriga Franca",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2015_s1a_w12"
+      ],
+      "full_text": "Graham's Late Bottled Vintage Port. 2008. Porto, Portugal (20%)"
+    },
+    {
+      "id": "italy_valdobbiadene_nino_franco_rustico",
+      "producer": "Nino Franco",
+      "wine_name": "Rustico",
+      "country": "Italy",
+      "region": "Valdobbiadene",
+      "grape_varieties": [
+        "Glera"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2016_s1a_w1"
+      ],
+      "full_text": "Nino Franco, Rustico, NV, Valdobbiadene e Conegliano DOCG (11%)"
+    },
+    {
+      "id": "france_champagne_ar_lenoble_grand_cru_blanc_de_blancs",
+      "producer": "AR Lenoble",
+      "wine_name": "Grand Cru Blanc de Blancs",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2016_s1a_w2"
+      ],
+      "full_text": "AR Lenoble, Grand Cru Blanc de Blancs, 2008, Chouilly, Champagne, France (12%)"
+    },
+    {
+      "id": "new_zealand_marlborough_greywacke_wild_sauvignon_blanc",
+      "producer": "Greywacke",
+      "wine_name": "Wild Sauvignon Blanc",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w3"
+      ],
+      "full_text": "Greywacke, Wild Sauvignon Blanc, 2014, Marlborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "new_zealand_marlborough_villa_maria_private_bin_sauvignon_blanc",
+      "producer": "Villa Maria",
+      "wine_name": "Private Bin Sauvignon Blanc",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w4",
+        "2024_s1a_w6"
+      ],
+      "full_text": "Villa Maria, Private Bin Sauvignon Blanc, 2014, Marlborough, New Zealand (13%)"
+    },
+    {
+      "id": "new_zealand_marlborough_lawson_s_dry_hills_pinot_gris",
+      "producer": "Lawson's Dry Hills",
+      "wine_name": "Pinot Gris",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Pinot Gris"
+      ],
+      "style_category": "still_off_dry",
+      "refs": [
+        "2016_s1a_w5"
+      ],
+      "full_text": "Lawson's Dry Hills, Pinot Gris, 2013, Marlborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "new_zealand_marlborough_seresin_reserve_chardonnay",
+      "producer": "Seresin",
+      "wine_name": "Reserve Chardonnay",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w6"
+      ],
+      "full_text": "Seresin, Chardonnay Reserve, 2013, Marlborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "italy_tuscany_felsina_berardenga_chianti_classico",
+      "producer": "Felsina",
+      "wine_name": "Berardenga Chianti Classico",
+      "country": "Italy",
+      "region": "Tuscany",
+      "grape_varieties": [
+        "Sangiovese"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w7"
+      ],
+      "full_text": "Felsina, Berardenga, 2013, Chianti Classico DOCG, Italy (13.5%)"
+    },
+    {
+      "id": "italy_tuscany_felsina_colonia_gran_selezione",
+      "producer": "Felsina",
+      "wine_name": "Colonia Gran Selezione",
+      "country": "Italy",
+      "region": "Tuscany",
+      "grape_varieties": [
+        "Sangiovese"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w8"
+      ],
+      "full_text": "Felsina, Colonia Gran Selezione Felsina, Colonia Gran Selezione (14%)"
+    },
+    {
+      "id": "italy_trentino_alto_adige_franz_haas_pinot_nero",
+      "producer": "Franz Haas",
+      "wine_name": "Pinot Nero",
+      "country": "Italy",
+      "region": "Trentino Alto Adige",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w9"
+      ],
+      "full_text": "Franz Haas, Pinot Nero, 2013, Trentino Alto Adige DOC, Italy (13%)"
+    },
+    {
+      "id": "italy_puglia_san_marzano_anniversario_62_primitivo_di_manduria_riserva",
+      "producer": "San Marzano",
+      "wine_name": "Anniversario 62 Primitivo di Manduria Riserva",
+      "country": "Italy",
+      "region": "Puglia",
+      "grape_varieties": [
+        "Primitivo"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w10"
+      ],
+      "full_text": "San Marzano Anniversario 62 Primitivo di Manduria Riserva, 2012, Puglia, Italy (14.5%)"
+    },
+    {
+      "id": "france_alsace_zind_humbrecht_goldert_grand_cru_muscat",
+      "producer": "Zind-Humbrecht",
+      "wine_name": "Goldert Grand Cru Muscat",
+      "country": "France",
+      "region": "Alsace",
+      "grape_varieties": [
+        "Muscat"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2016_s1a_w11"
+      ],
+      "full_text": "Zind-Humbrecht, Goldert Grand Cru Muscat, 2013, Alsace, France (12.5%)"
+    },
+    {
+      "id": "portugal_setubal_adega_de_pegoes_moscatel_de_setubal",
+      "producer": "Adega de Pegoes",
+      "wine_name": "Moscatel de Setubal",
+      "country": "Portugal",
+      "region": "Setubal",
+      "grape_varieties": [
+        "Moscatel"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2016_s1a_w12"
+      ],
+      "full_text": "Adega de Pegoes, Moscatel de Setubal, NV, Setubal DOC, Portugal (17.5%)"
+    },
+    {
+      "id": "france_champagne_taittinger",
+      "producer": "Taittinger",
+      "wine_name": "",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Noir",
+        "Pinot Meunier"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2017_s1a_w1"
+      ],
+      "full_text": "Taittinger. 2009. Champagne, France (12.5%)"
+    },
+    {
+      "id": "spain_pened_s_codorn_u",
+      "producer": "Codorníu",
+      "wine_name": "",
+      "country": "Spain",
+      "region": "Penedès",
+      "grape_varieties": [
+        "Macabeo",
+        "Xarel·lo",
+        "Parellada"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2017_s1a_w2"
+      ],
+      "full_text": "Cordorniu. NV. Penedès, Spain (11.5%)"
+    },
+    {
+      "id": "france_alsace_zind_humbrecht_pinot_gris_grand_cru_rangen_de_thann",
+      "producer": "Zind-Humbrecht",
+      "wine_name": "Pinot Gris Grand Cru Rangen de Thann",
+      "country": "France",
+      "region": "Alsace",
+      "grape_varieties": [
+        "Pinot Gris"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w3"
+      ],
+      "full_text": "Pinot Gris, Grand Cru Rangen de Thann. 2013. Alsace, France (13.5%)"
+    },
+    {
+      "id": "france_alsace_cave_de_beblenheim_pinot_gris",
+      "producer": "Cave de Beblenheim",
+      "wine_name": "Pinot Gris",
+      "country": "France",
+      "region": "Alsace",
+      "grape_varieties": [
+        "Pinot Gris"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w4"
+      ],
+      "full_text": "Pinot Gris, Cave de Beblenheim. 2015. Alsace, France (13%)"
+    },
+    {
+      "id": "new_zealand_marlborough_villa_maria_seddon_pinot_gris",
+      "producer": "Villa Maria",
+      "wine_name": "Seddon Pinot Gris",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Pinot Gris"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w5"
+      ],
+      "full_text": "Pinot Gris, Seddon, Villa Maria. 2015. Marlborough, New Zealand (13.5%)"
+    },
+    {
+      "id": "italy_veneto_canaletto_pinot_grigio",
+      "producer": "Canaletto",
+      "wine_name": "Pinot Grigio",
+      "country": "Italy",
+      "region": "Veneto",
+      "grape_varieties": [
+        "Pinot Grigio"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w6"
+      ],
+      "full_text": "Pinot Grigio, Canaletto. 2015, Veneto, Italy (12%)"
+    },
+    {
+      "id": "chile_colchagua_lapostolle_cuv_e_alexandre_vi_edo_apalta",
+      "producer": "Lapostolle",
+      "wine_name": "Cuvée Alexandre Viñedo Apalta",
+      "country": "Chile",
+      "region": "Colchagua",
+      "grape_varieties": [
+        "Carmenere"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w7"
+      ],
+      "full_text": "Carmenere, Lapostolle, Cuvee Alexandre Vinedo Apalta. 2014. Colchagua, Chile (14.5%)"
+    },
+    {
+      "id": "chile_central_valley_concha_y_toro_casillero_del_diablo_cabernet_sauvignon",
+      "producer": "Concha y Toro",
+      "wine_name": "Casillero del Diablo Cabernet Sauvignon",
+      "country": "Chile",
+      "region": "Central Valley",
+      "grape_varieties": [
+        "Cabernet Sauvignon"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w8"
+      ],
+      "full_text": "Cabernet Sauvignon, Casillero Del Diablo. 2015. Central Valley, Chile (13.5%)"
+    },
+    {
+      "id": "chile_leyda_valley_vi_a_leyda_pinot_noir",
+      "producer": "Viña Leyda",
+      "wine_name": "Pinot Noir",
+      "country": "Chile",
+      "region": "Leyda Valley",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w9"
+      ],
+      "full_text": "Pinot Noir, Vina Leyda. 2013. Leyda Valley, Chile (13.5%)"
+    },
+    {
+      "id": "chile_leyda_valley_vi_a_leyda_syrah",
+      "producer": "Viña Leyda",
+      "wine_name": "Syrah",
+      "country": "Chile",
+      "region": "Leyda Valley",
+      "grape_varieties": [
+        "Syrah"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2017_s1a_w10"
+      ],
+      "full_text": "Syrah, Vina Leyda. 2013. Leyda Valley, Chile (14.5%)"
+    },
+    {
+      "id": "france_sauternes_ch_teau_climens_1er_cru_barsac",
+      "producer": "Château Climens",
+      "wine_name": "1er Cru Barsac",
+      "country": "France",
+      "region": "Sauternes",
+      "grape_varieties": [
+        "Sémillon"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2017_s1a_w11"
+      ],
+      "full_text": "Chateau Climens, 1er Cru Barsac. 2008. Sauternes, France (13.5%)"
+    },
+    {
+      "id": "italy_sicily_planeta_passito_di_noto",
+      "producer": "Planeta",
+      "wine_name": "Passito di Noto",
+      "country": "Italy",
+      "region": "Sicily",
+      "grape_varieties": [
+        "Moscato Bianco"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2017_s1a_w12"
+      ],
+      "full_text": "Planeta. Moscato Bianco, Passito di Noto. 2014. Sicily, Italy (12.5%)"
+    },
+    {
+      "id": "italy_veneto_casa_vinicola_zonin_san_leo_prosecco",
+      "producer": "Casa Vinicola Zonin",
+      "wine_name": "San Leo Prosecco",
+      "country": "Italy",
+      "region": "Veneto",
+      "grape_varieties": [
+        "Glera"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2018_s1a_w1"
+      ],
+      "full_text": "Prosecco, Casa Vinicola Zonin S.p.A. San Leo, NV, Veneto, Italy 11%"
+    },
+    {
+      "id": "italy_franciacorta_berlucchi_61_brut_nature",
+      "producer": "Berlucchi",
+      "wine_name": "'61 Brut Nature",
+      "country": "Italy",
+      "region": "Franciacorta",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Nero",
+        "Pinot Bianco"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2018_s1a_w2"
+      ],
+      "full_text": "Franciacorta, Berlucchi '61 Brut Nature, 2009, Italy 12.5%"
+    },
+    {
+      "id": "italy_emilia_romagna_cleto_chiarli_pruno_nero_dry_lambrusco_di_modena",
+      "producer": "Cleto Chiarli",
+      "wine_name": "Pruno Nero Dry Lambrusco di Modena",
+      "country": "Italy",
+      "region": "Emilia-Romagna",
+      "grape_varieties": [
+        "Lambrusco"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2018_s1a_w3"
+      ],
+      "full_text": "Lambrusco, Pruno Nero Dry Cleto Chiarli Modena, NV, Emilia Romagna Italy, 11%"
+    },
+    {
+      "id": "spain_rioja_marqu_s_de_murrieta_capellan_a_blanco_reserva",
+      "producer": "Marqués de Murrieta",
+      "wine_name": "Capellanía Blanco Reserva",
+      "country": "Spain",
+      "region": "Rioja",
+      "grape_varieties": [
+        "Viura"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w4"
+      ],
+      "full_text": "Viura, Marques de Murrieta Capellania Blanco Reserva, 2013, Rioja, Spain 14%"
+    },
+    {
+      "id": "spain_jerez_croft_original_pale_cream",
+      "producer": "Croft",
+      "wine_name": "Original Pale Cream",
+      "country": "Spain",
+      "region": "Jerez",
+      "grape_varieties": [
+        "Palomino"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2018_s1a_w5"
+      ],
+      "full_text": "Pale Cream Sherry Croft Original, Jerez, Spain 17.5%"
+    },
+    {
+      "id": "spain_r_as_baixas_pazo_se_orans_albari_o",
+      "producer": "Pazo Señorans",
+      "wine_name": "Albariño",
+      "country": "Spain",
+      "region": "Rías Baixas",
+      "grape_varieties": [
+        "Albariño"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w6"
+      ],
+      "full_text": "Albariño, Pazo Senorans, 2016, Rías Baixas, Spain 13%"
+    },
+    {
+      "id": "spain_navarra_chivite_colecci_n_125_blanco_special_edition",
+      "producer": "Chivite",
+      "wine_name": "Colección 125 Blanco Special Edition",
+      "country": "Spain",
+      "region": "Navarra",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w7"
+      ],
+      "full_text": "Chardonnay, Chivite Colección 125 Blanco 125 Special Edition, 2015, Navarra, Spain 13.5%"
+    },
+    {
+      "id": "france_loire_taluau_saint_nicolas_de_bourgueil_l_expression",
+      "producer": "Taluau",
+      "wine_name": "Saint Nicolas de Bourgueil l'Expression",
+      "country": "France",
+      "region": "Loire",
+      "grape_varieties": [
+        "Cabernet Franc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w8"
+      ],
+      "full_text": "Joël and Clarisse Taluau-Saint Nicolas de Bourgueil l'expression, Cabernet Franc, 2016, Loire, France 12.5%"
+    },
+    {
+      "id": "south_africa_stellenbosch_raats_family_cabernet_franc",
+      "producer": "Raats Family",
+      "wine_name": "Cabernet Franc",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "grape_varieties": [
+        "Cabernet Franc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w9"
+      ],
+      "full_text": "Raats Family Cabernet Franc, 2015, Stellenbosch, South Africa 14%"
+    },
+    {
+      "id": "chile_limari_valley_tabali_vetas_blancas_cabernet_franc",
+      "producer": "Tabali",
+      "wine_name": "Vetas Blancas Cabernet Franc",
+      "country": "Chile",
+      "region": "Limari Valley",
+      "grape_varieties": [
+        "Cabernet Franc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w10"
+      ],
+      "full_text": "Tabali Vetas Blancas Cabernet Franc, 2015, Limari Valley, Chile 14.5%"
+    },
+    {
+      "id": "france_loire_valley_domaine_des_baumard_quarts_de_chaume",
+      "producer": "Domaine des Baumard",
+      "wine_name": "Quarts de Chaume",
+      "country": "France",
+      "region": "Loire Valley",
+      "grape_varieties": [
+        "Chenin Blanc"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2018_s1a_w11"
+      ],
+      "full_text": "Domaine des Baumard Quarts de Chaume, 2009, Rochefort sur Loire, France 13%"
+    },
+    {
+      "id": "france_vouvray_domaine_vincent_careme_le_clos",
+      "producer": "Domaine Vincent Careme",
+      "wine_name": "Le Clos",
+      "country": "France",
+      "region": "Vouvray",
+      "grape_varieties": [
+        "Chenin Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2018_s1a_w12"
+      ],
+      "full_text": "Domaine Vincent Careme, Le Clos, 2015, Vouvray, France 13%"
+    },
+    {
+      "id": "australia_barossa_valley_magpie_estate_the_tight_cluster_sparkling_shiraz",
+      "producer": "Magpie Estate",
+      "wine_name": "The Tight Cluster Sparkling Shiraz",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "grape_varieties": [
+        "Shiraz"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2019_s1a_w1"
+      ],
+      "full_text": "Sparkling Shiraz, the Tight Cluster, Magpie Estate, 2012. Barossa Valley, Australia (13.5%)"
+    },
+    {
+      "id": "australia_tasmania_house_of_arras_grand_vintage",
+      "producer": "House of Arras",
+      "wine_name": "Grand Vintage",
+      "country": "Australia",
+      "region": "Tasmania",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Noir"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2019_s1a_w2"
+      ],
+      "full_text": "Grand Vintage, Arras, 2008. Tasmania, Australia (12.5%)"
+    },
+    {
+      "id": "australia_margaret_river_stella_bella_pink_muscat",
+      "producer": "Stella Bella",
+      "wine_name": "Pink Muscat",
+      "country": "Australia",
+      "region": "Margaret River",
+      "grape_varieties": [
+        "Muscat"
+      ],
+      "style_category": "rose",
+      "refs": [
+        "2019_s1a_w3"
+      ],
+      "full_text": "Pink Muscat, Stella Bella, 2017. Margaret River, Australia (7.2%)"
+    },
+    {
+      "id": "austria_wachau_fx_pichler_ried_steinertal_riesling_smaragd",
+      "producer": "FX Pichler",
+      "wine_name": "Ried Steinertal Riesling Smaragd",
+      "country": "Austria",
+      "region": "Wachau",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w4"
+      ],
+      "full_text": "Ried Steinertal Riesling, Smaragd, F X Pichler, 2016. Wachau, Austria (13%)"
+    },
+    {
+      "id": "australia_clare_valley_mount_horrocks_watervale_riesling",
+      "producer": "Mount Horrocks",
+      "wine_name": "Watervale Riesling",
+      "country": "Australia",
+      "region": "Clare Valley",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w5"
+      ],
+      "full_text": "Watervale Riesling, Mount Horrocks, 2018. Clare Valley, Australia (12.5%)"
+    },
+    {
+      "id": "germany_rheingau_leitz_r_desheimer_magdalenkreuz_riesling_sp_tlese",
+      "producer": "Leitz",
+      "wine_name": "Rüdesheimer Magdalenkreuz Riesling Spätlese",
+      "country": "Germany",
+      "region": "Rheingau",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_off_dry",
+      "refs": [
+        "2019_s1a_w6"
+      ],
+      "full_text": "Rudesheimer Magdalenkreuz Riesling, Spätlese, Leitz, 2017. Rheingau, Germany (8%)"
+    },
+    {
+      "id": "france_loire_domaine_filliatreau_saumur_champigny",
+      "producer": "Domaine Filliatreau",
+      "wine_name": "Saumur-Champigny",
+      "country": "France",
+      "region": "Loire",
+      "grape_varieties": [
+        "Cabernet Franc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w7"
+      ],
+      "full_text": "Domaine Filliatreau, 2017. Saumur-Champigny, Loire, France (13.5%)"
+    },
+    {
+      "id": "argentina_mendoza_zuccardi_q_malbec",
+      "producer": "Zuccardi",
+      "wine_name": "Q Malbec",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "grape_varieties": [
+        "Malbec"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w8"
+      ],
+      "full_text": "Malbec, Q, Zuccardi, 2016. Valle de Uco, Mendoza, Argentina (14%)"
+    },
+    {
+      "id": "chile_colchagua_santa_rita_medalla_real_gran_reserva",
+      "producer": "Santa Rita",
+      "wine_name": "Medalla Real Gran Reserva",
+      "country": "Chile",
+      "region": "Colchagua",
+      "grape_varieties": [
+        "Carmenère"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w9"
+      ],
+      "full_text": "Carmenère, Gran Reserva Medalla Real, Santa Rita, 2016. Colchagua, Chile (14%)"
+    },
+    {
+      "id": "usa_napa_valley_pine_ridge_napa_valley_cabernet_sauvignon",
+      "producer": "Pine Ridge",
+      "wine_name": "Napa Valley Cabernet Sauvignon",
+      "country": "USA",
+      "region": "Napa Valley",
+      "grape_varieties": [
+        "Cabernet Sauvignon"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2019_s1a_w10"
+      ],
+      "full_text": "Cabernet Sauvignon, Pine Ridge, 2015. Napa Valley, USA (15%)"
+    },
+    {
+      "id": "hungary_tokaji_royal_tokaji_blue_label_5_puttonyos_asz",
+      "producer": "Royal Tokaji",
+      "wine_name": "Blue Label 5 Puttonyos Aszú",
+      "country": "Hungary",
+      "region": "Tokaji",
+      "grape_varieties": [
+        "Furmint",
+        "Hárslevelű",
+        "Muscat Blanc à Petits Grains"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2019_s1a_w11"
+      ],
+      "full_text": "Blue Label, 5 Puttonyos Aszu, Royal Tokaji, 2013. Tokaji, Hungary (11%)"
+    },
+    {
+      "id": "france_roussillon_domaine_pouderoux_grande_reserve",
+      "producer": "Domaine Pouderoux",
+      "wine_name": "Grande Reserve",
+      "country": "France",
+      "region": "Roussillon",
+      "grape_varieties": [
+        "Grenache"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2019_s1a_w12"
+      ],
+      "full_text": "Grande Reserve, Domaine Pouderoux, NV. Maury, Roussillon, France (15.5%)"
+    },
+    {
+      "id": "austria_kamptal_domaene_gobelsburg_kamptal_gr_ner_veltliner",
+      "producer": "Domaene Gobelsburg",
+      "wine_name": "Kamptal Grüner Veltliner",
+      "country": "Austria",
+      "region": "Kamptal",
+      "grape_varieties": [
+        "Grüner Veltliner"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w3"
+      ],
+      "full_text": "Domaene Gobelsburg, Kamptal Grüner Veltliner, 2019. Kamptal, Austria. (12.8%)"
+    },
+    {
+      "id": "austria_wachau_dom_ne_wachau_achleiten_riesling_smaragd",
+      "producer": "Domäne Wachau",
+      "wine_name": "Achleiten Riesling Smaragd",
+      "country": "Austria",
+      "region": "Wachau",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w4"
+      ],
+      "full_text": "Domäne Wachau, Achleiten Riesling Smaragd, 2018. Wachau, Austria. (14%)"
+    },
+    {
+      "id": "austria_s_dsteiermark_tement_kalk_kreide_sauvignon_blanc",
+      "producer": "Tement",
+      "wine_name": "Kalk & Kreide Sauvignon Blanc",
+      "country": "Austria",
+      "region": "Südsteiermark",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w5"
+      ],
+      "full_text": "Tement, Kalk & Kreide Sauvignon Blanc, 2019. Sudsteiermark, Austria (12.5%)"
+    },
+    {
+      "id": "chile_leyda_valley_vi_a_leyda_pinot_noir_lot_21",
+      "producer": "Viña Leyda",
+      "wine_name": "Pinot Noir Lot 21",
+      "country": "Chile",
+      "region": "Leyda Valley",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w6"
+      ],
+      "full_text": "Viña Leyda, Pinot Noir Lot 21, 2015. Leyda Valley, Chile (13.5%)"
+    },
+    {
+      "id": "france_burgundy_albert_bichot_c_te_de_nuits_villages",
+      "producer": "Albert Bichot",
+      "wine_name": "Côte de Nuits-Villages",
+      "country": "France",
+      "region": "Burgundy",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w7"
+      ],
+      "full_text": "Albert Bichot, Côte de Nuits-Villages, 2018. Burgundy, France (14.1%)"
+    },
+    {
+      "id": "usa_sonoma_j_vineyards_pinot_noir_russian_river_valley",
+      "producer": "J Vineyards",
+      "wine_name": "Pinot Noir Russian River Valley",
+      "country": "USA",
+      "region": "Sonoma",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w8"
+      ],
+      "full_text": "J Vineyards, Pinot Noir Russian River Valley, 2018. Sonoma, USA (14.3%)"
+    },
+    {
+      "id": "australia_tasmania_tolpuddle_vineyard_pinot_noir",
+      "producer": "Tolpuddle Vineyard",
+      "wine_name": "Pinot Noir",
+      "country": "Australia",
+      "region": "Tasmania",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2021_s1a_w9"
+      ],
+      "full_text": "Tolpuddle Vineyard, Pinot Noir, 2018. Tasmania, Australia (13.5%)"
+    },
+    {
+      "id": "spain_jerez_gonz_lez_byass_matusalem_muy_viejo_cream_sherry_vors",
+      "producer": "González Byass",
+      "wine_name": "Matusalem Muy Viejo Cream Sherry VORS",
+      "country": "Spain",
+      "region": "Jerez",
+      "grape_varieties": [
+        "Palomino",
+        "Pedro Ximénez"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2021_s1a_w10"
+      ],
+      "full_text": "González Byass, Matusalem Muy Viejo Cream Sherry VORS, NV. Jerez, Spain (20.5%)"
+    },
+    {
+      "id": "italy_sicily_curatolo_arini_marsala_superiore_dolce_5_years",
+      "producer": "Curatolo Arini",
+      "wine_name": "Marsala Superiore Dolce 5 years",
+      "country": "Italy",
+      "region": "Sicily",
+      "grape_varieties": [
+        "Grillo",
+        "Catarratto",
+        "Inzolia"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2021_s1a_w11"
+      ],
+      "full_text": "Cuaratolo Arini, Marsala Superiore Dolce 5 years, NV. Sicily, Italy (18%)"
+    },
+    {
+      "id": "portugal_madeira_henriques_henriques_10_year_old_malvasia",
+      "producer": "Henriques & Henriques",
+      "wine_name": "10 Year Old Malvasia",
+      "country": "Portugal",
+      "region": "Madeira",
+      "grape_varieties": [
+        "Malvasia"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2021_s1a_w12"
+      ],
+      "full_text": "Henriques & Henriques, 10 Year Old Malvasia, NV. Madeira, Portugal (20%)"
+    },
+    {
+      "id": "australia_adelaide_hills_shaw_smith_sauvignon_blanc",
+      "producer": "Shaw + Smith",
+      "wine_name": "Sauvignon Blanc",
+      "country": "Australia",
+      "region": "Adelaide Hills",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w2"
+      ],
+      "full_text": "Sauvignon Blanc, Shaw + Smith, 2021. Adelaide Hills, Australia. (12.5%)"
+    },
+    {
+      "id": "australia_clare_valley_jim_barry_the_florita_riesling",
+      "producer": "Jim Barry",
+      "wine_name": "The Florita Riesling",
+      "country": "Australia",
+      "region": "Clare Valley",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w3"
+      ],
+      "full_text": "The Florita Riesling, Jim Barry, 2017. Clare Valley, Australia. (12.5%)"
+    },
+    {
+      "id": "france_bordeaux_ch_teau_langoa_barton_saint_julien",
+      "producer": "Château Langoa Barton",
+      "wine_name": "Saint-Julien",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w4"
+      ],
+      "full_text": "St. Julien, Château Langoa Barton, 2010. Bordeaux, France. (13%)"
+    },
+    {
+      "id": "france_bordeaux_ch_teau_les_ormes_de_pez",
+      "producer": "Château Les Ormes de Pez",
+      "wine_name": "",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w5"
+      ],
+      "full_text": "St. Estèphe, Château Les Ormes de Pez, 2018. Bordeaux, France. (14.5%)"
+    },
+    {
+      "id": "france_bordeaux_ch_teau_moulin_st_georges_st_milion_grand_cru",
+      "producer": "Château Moulin St Georges",
+      "wine_name": "St. Émilion Grand Cru",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Merlot",
+        "Cabernet Franc",
+        "Cabernet Sauvignon"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w6"
+      ],
+      "full_text": "St. Émilion Grand Cru, Château Moulin St Georges, 2015. Bordeaux, France. (14.5%)"
+    },
+    {
+      "id": "france_loire_valley_domaine_des_forges_quarts_de_chaume_grand_cru",
+      "producer": "Domaine des Forges",
+      "wine_name": "Quarts de Chaume Grand Cru",
+      "country": "France",
+      "region": "Loire Valley",
+      "grape_varieties": [
+        "Chenin Blanc"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2022_s1a_w7"
+      ],
+      "full_text": "Quarts de Chaume Grand Cru, Domaine des Forges, 2016. Loire Valley, France. (11.0%)"
+    },
+    {
+      "id": "australia_new_south_wales_de_bortoli_noble_one",
+      "producer": "De Bortoli",
+      "wine_name": "Noble One",
+      "country": "Australia",
+      "region": "New South Wales",
+      "grape_varieties": [
+        "Semillon"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2022_s1a_w8"
+      ],
+      "full_text": "Noble One, De Bortoli, 2017. New South Wales, Australia. (12.7%)"
+    },
+    {
+      "id": "portugal_douro_valley_taylor_s_vintage_port",
+      "producer": "Taylor's",
+      "wine_name": "Vintage Port",
+      "country": "Portugal",
+      "region": "Douro Valley",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Touriga Franca",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2022_s1a_w10"
+      ],
+      "full_text": "Vintage Port, Taylor's, 1983. Douro Valley, Portugal. (20.5%)"
+    },
+    {
+      "id": "portugal_douro_valley_taylor_s_quinta_de_vargellas_vintage_port",
+      "producer": "Taylor's",
+      "wine_name": "Quinta de Vargellas Vintage Port",
+      "country": "Portugal",
+      "region": "Douro Valley",
+      "grape_varieties": [
+        "Touriga Franca",
+        "Touriga Nacional",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2022_s1a_w11"
+      ],
+      "full_text": "Quinta de Vargellas Vintage Port, Taylor's, 2008. Douro Valley, Portugal. (20%)"
+    },
+    {
+      "id": "portugal_douro_valley_taylor_s_lbv_port",
+      "producer": "Taylor's",
+      "wine_name": "LBV Port",
+      "country": "Portugal",
+      "region": "Douro Valley",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Touriga Franca",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2022_s1a_w12"
+      ],
+      "full_text": "LBV Port, Taylor's, 2016. Douro Valley, Portugal. (20%)"
+    },
+    {
+      "id": "italy_veneto_imperativo_prosecco_extra_dry",
+      "producer": "Imperativo",
+      "wine_name": "Prosecco Extra Dry",
+      "country": "Italy",
+      "region": "Veneto",
+      "grape_varieties": [
+        "Glera"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2023_s1a_w1"
+      ],
+      "full_text": "Prosecco Extra Dry, Imperativo, NV. Veneto, Italy. (11.0%)"
+    },
+    {
+      "id": "italy_franciacorta_ca_del_bosco_franciacorta_cuv_e_annamaria_clementi",
+      "producer": "Ca' del Bosco",
+      "wine_name": "Franciacorta Cuvée Annamaria Clementi",
+      "country": "Italy",
+      "region": "Franciacorta",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Nero",
+        "Pinot Bianco"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2023_s1a_w2"
+      ],
+      "full_text": "Franciacorta Cuvee Annamaria Clementi, Ca' del Bosco, 2013. Brescia, Italy. (13.0%)"
+    },
+    {
+      "id": "argentina_mendoza_susana_balbo_crios_torront_s",
+      "producer": "Susana Balbo",
+      "wine_name": "Crios Torrontés",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "grape_varieties": [
+        "Torrontés"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w3"
+      ],
+      "full_text": "Torrontes 'Crios', Susana Balbo, 2022. Mendoza, Argentina. (13.0%)"
+    },
+    {
+      "id": "chile_central_valley_santa_rita_120_reserva_especial_sauvignon_blanc",
+      "producer": "Santa Rita",
+      "wine_name": "120 Reserva Especial Sauvignon Blanc",
+      "country": "Chile",
+      "region": "Central Valley",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w4"
+      ],
+      "full_text": "Sauvignon Blanc 120 Reserva Especial, Santa Rita, 2021. Central Valley, Chile. (13%)"
+    },
+    {
+      "id": "usa_russian_river_valley_la_crema_russian_river_valley_chardonnay",
+      "producer": "La Crema",
+      "wine_name": "Russian River Valley Chardonnay",
+      "country": "USA",
+      "region": "Russian River Valley",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w5"
+      ],
+      "full_text": "Chardonnay Russian River Valley, La Crema, 2020. Russian River Valley, USA. (14.5%)"
+    },
+    {
+      "id": "canada_niagara_charles_baker_picone_riesling",
+      "producer": "Charles Baker",
+      "wine_name": "Picone Riesling",
+      "country": "Canada",
+      "region": "Niagara",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_off_dry",
+      "refs": [
+        "2023_s1a_w6"
+      ],
+      "full_text": "Picone Riesling, Charles Baker, 2019. Niagara, Canada. (10.4%)"
+    },
+    {
+      "id": "france_bordeaux_calvet_reserve_merlot_cabernet_sauvignon",
+      "producer": "Calvet",
+      "wine_name": "Reserve Merlot / Cabernet Sauvignon",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Merlot",
+        "Cabernet Sauvignon"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w7"
+      ],
+      "full_text": "Calvet Reserve Merlot / Cabernet Sauvignon, 2019. Bordeaux, France. (14.0%)"
+    },
+    {
+      "id": "france_bordeaux_ch_teau_beaumont_cru_bourgeois",
+      "producer": "Château Beaumont",
+      "wine_name": "Cru Bourgeois",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w8"
+      ],
+      "full_text": "Château Beaumont Cru Bourgeois, 2016. Médoc, Bordeaux, France. (13.5%)"
+    },
+    {
+      "id": "france_bordeaux_ch_teau_langoa_barton_3_me_grand_cru_class",
+      "producer": "Château Langoa Barton",
+      "wine_name": "3ème Grand Cru Classé",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Cabernet Franc",
+        "Petit Verdot"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2023_s1a_w9"
+      ],
+      "full_text": "Château Langoa Barton 3ème Grand Cru Classé, 2009. St Julien, Bordeaux, France. (13.0%)"
+    },
+    {
+      "id": "portugal_douro_taylor_s_20_year_old_tawny_port",
+      "producer": "Taylor's",
+      "wine_name": "20 Year Old Tawny Port",
+      "country": "Portugal",
+      "region": "Douro",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Touriga Franca",
+        "Tinta Roriz",
+        "Tinta Barroca",
+        "Tinto Cão"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2023_s1a_w10"
+      ],
+      "full_text": "20 Year Old Tawny Port, Taylors. Douro, Portugal. (20.0%)"
+    },
+    {
+      "id": "portugal_madeira_henriques_henriques_15_year_old_malvasia",
+      "producer": "Henriques & Henriques",
+      "wine_name": "15 Year Old Malvasia",
+      "country": "Portugal",
+      "region": "Madeira",
+      "grape_varieties": [
+        "Malvasia"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2023_s1a_w12"
+      ],
+      "full_text": "15 Year Old Malvasia, Henriques & Henriques. Madeira, Portugal. (20.0%)"
+    },
+    {
+      "id": "france_champagne_bollinger_la_grande_ann_e_ros",
+      "producer": "Bollinger",
+      "wine_name": "La Grande Année Rosé",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Chardonnay"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2024_s1a_w1"
+      ],
+      "full_text": "La Grande Année Rosé, Bollinger, 2007. Champagne, France. (12.0%)"
+    },
+    {
+      "id": "france_champagne_bollinger_ros_brut",
+      "producer": "Bollinger",
+      "wine_name": "Rosé Brut",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Chardonnay",
+        "Pinot Meunier"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2024_s1a_w2"
+      ],
+      "full_text": "Rosé Brut, Bollinger, NV. Champagne, France. (12.0%)"
+    },
+    {
+      "id": "france_burgundy_albert_bichot_cr_mant_de_bourgogne_brut_r_serve",
+      "producer": "Albert Bichot",
+      "wine_name": "Crémant de Bourgogne Brut Réserve",
+      "country": "France",
+      "region": "Burgundy",
+      "grape_varieties": [
+        "Chardonnay",
+        "Pinot Noir"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2024_s1a_w3"
+      ],
+      "full_text": "Crémant de Bourgogne Brut Réserve, Albert Bichot, NV. Burgundy, France. (12.0%)"
+    },
+    {
+      "id": "spain_jerez_bodegas_lustau_manzanilla_papirusa_solera_familiar",
+      "producer": "Bodegas Lustau",
+      "wine_name": "Manzanilla Papirusa Solera Familiar",
+      "country": "Spain",
+      "region": "Jerez",
+      "grape_varieties": [
+        "Palomino"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2024_s1a_w4"
+      ],
+      "full_text": "Manzanilla Papirusa Solera Familiar, Bodegas Lustau, NV. Jerez, Spain. (15.0%)"
+    },
+    {
+      "id": "france_jura_domaine_berthet_bondet_ch_teau_chalon_vin_jaune",
+      "producer": "Domaine Berthet-Bondet",
+      "wine_name": "Château-Chalon Vin Jaune",
+      "country": "France",
+      "region": "Jura",
+      "grape_varieties": [
+        "Savagnin"
+      ],
+      "style_category": "oxidative",
+      "refs": [
+        "2024_s1a_w5"
+      ],
+      "full_text": "Château-Chalon Vin Jaune, Domaine Berthet-Bondet, 2015. Jura, France. (14.0%)"
+    },
+    {
+      "id": "new_zealand_hawkes_bay_smith_sheth_cru_chardonnay",
+      "producer": "Smith & Sheth",
+      "wine_name": "CRU Chardonnay",
+      "country": "New Zealand",
+      "region": "Hawkes Bay",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w7"
+      ],
+      "full_text": "CRU Chardonnay, Smith & Sheth, 2019. Hawkes Bay, New Zealand. (13.5%)"
+    },
+    {
+      "id": "new_zealand_marlborough_kumeu_river_village_pinot_gris",
+      "producer": "Kumeu River",
+      "wine_name": "Village Pinot Gris",
+      "country": "New Zealand",
+      "region": "Marlborough",
+      "grape_varieties": [
+        "Pinot Gris"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w8"
+      ],
+      "full_text": "Pinot Gris, Kumeu Village, 2022. Martinborough, New Zealand. (13.5%)"
+    },
+    {
+      "id": "france_loire_domaine_charles_joguet_clos_du_ch_ne_vert",
+      "producer": "Domaine Charles Joguet",
+      "wine_name": "Clos du Chêne Vert",
+      "country": "France",
+      "region": "Loire",
+      "grape_varieties": [
+        "Cabernet Franc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w9"
+      ],
+      "full_text": "Chinon, Clos du Chêne Vert, Domaine Charles Joguet, 2019. Loire, France. (13.5%)"
+    },
+    {
+      "id": "argentina_mendoza_catena_malbec",
+      "producer": "Catena",
+      "wine_name": "Malbec",
+      "country": "Argentina",
+      "region": "Mendoza",
+      "grape_varieties": [
+        "Malbec"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w10"
+      ],
+      "full_text": "Malbec, Catena, 2020. Mendoza, Argentina. (13.5%)"
+    },
+    {
+      "id": "germany_mosel_maximin_gr_nh_user",
+      "producer": "Maximin Grünhäuser",
+      "wine_name": "",
+      "country": "Germany",
+      "region": "Mosel",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w11"
+      ],
+      "full_text": "Pinot Noir, Maximin Grünhäuser, 2020. Mosel, Germany. (14.5%)"
+    },
+    {
+      "id": "austria_burgenland_moric_lutzmannsburger_blaufr_nkisch",
+      "producer": "Moric",
+      "wine_name": "Lutzmannsburger Blaufränkisch",
+      "country": "Austria",
+      "region": "Burgenland",
+      "grape_varieties": [
+        "Blaufränkisch"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2024_s1a_w12"
+      ],
+      "full_text": "Blaufränkisch, Moric Lutzmannsburger, 2021. Burgenland, Austria. (13.5%)"
+    },
+    {
+      "id": "france_bordeaux_domaine_de_chevalier_blanc_pessac_l_ognan",
+      "producer": "Domaine de Chevalier",
+      "wine_name": "Blanc Pessac-Léognan",
+      "country": "France",
+      "region": "Bordeaux",
+      "grape_varieties": [
+        "Sauvignon Blanc",
+        "Sémillon"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w1"
+      ],
+      "full_text": "Domaine de Chevalier Blanc Pessac Leognan, 2021. Bordeaux, France. (13.5%)"
+    },
+    {
+      "id": "usa_california_barefoot_buttery_chardonnay",
+      "producer": "Barefoot",
+      "wine_name": "Buttery Chardonnay",
+      "country": "USA",
+      "region": "California",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w2"
+      ],
+      "full_text": "Barefoot Buttery Chardonnay, NV. USA. (13.5%)"
+    },
+    {
+      "id": "australia_adelaide_hills_shaw_and_smith_m3_chardonnay",
+      "producer": "Shaw and Smith",
+      "wine_name": "M3 Chardonnay",
+      "country": "Australia",
+      "region": "Adelaide Hills",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w3"
+      ],
+      "full_text": "Shaw and Smith M3 Chardonnay, 2022. Adelaide Hills, Australia. (13%)"
+    },
+    {
+      "id": "italy_veneto_corte_sant_alda_amarone_della_valpolicella",
+      "producer": "Corte Sant'Alda",
+      "wine_name": "Amarone della Valpolicella",
+      "country": "Italy",
+      "region": "Veneto",
+      "grape_varieties": [
+        "Corvina",
+        "Corvinone",
+        "Rondinella"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w4"
+      ],
+      "full_text": "Corte Sant'Alda Valpolicella Amarone, 2016. Veneto, Italy. (15.5%)"
+    },
+    {
+      "id": "italy_veneto_allegrini_valpolicella",
+      "producer": "Allegrini",
+      "wine_name": "Valpolicella",
+      "country": "Italy",
+      "region": "Veneto",
+      "grape_varieties": [
+        "Corvina",
+        "Corvinone",
+        "Rondinella"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w5"
+      ],
+      "full_text": "Allegrini Valpolicella, 2022. Veneto, Italy. (13%)"
+    },
+    {
+      "id": "new_zealand_central_otago_felton_road_bannockburn_pinot_noir",
+      "producer": "Felton Road",
+      "wine_name": "Bannockburn Pinot Noir",
+      "country": "New Zealand",
+      "region": "Central Otago",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w6"
+      ],
+      "full_text": "Felton Road Bannockburn Pinot Noir, 2022. Central Otago, New Zealand. (14%)"
+    },
+    {
+      "id": "france_burgundy_maison_roisin_curley_bourgogne_rouge",
+      "producer": "Maison Roisin Curley",
+      "wine_name": "Bourgogne Rouge",
+      "country": "France",
+      "region": "Burgundy",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w7"
+      ],
+      "full_text": "Maison Roisin Curley, Bourgogne Rouge, 2022. Burgundy, France. (13%)"
+    },
+    {
+      "id": "usa_santa_rita_hills_sandhi_santa_rita_hills",
+      "producer": "Sandhi",
+      "wine_name": "Santa Rita Hills",
+      "country": "USA",
+      "region": "Santa Rita Hills",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2025_s1a_w8"
+      ],
+      "full_text": "Sandhi Santa Rita Hills, 2022. California, USA. (13%)"
+    },
+    {
+      "id": "portugal_madeira_henriques_henriques_malvasia_10_years_old",
+      "producer": "Henriques & Henriques",
+      "wine_name": "Malvasia 10 Years Old",
+      "country": "Portugal",
+      "region": "Madeira",
+      "grape_varieties": [
+        "Malvasia"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2025_s1a_w10"
+      ],
+      "full_text": "Henriques & Henriques Malvasia 10 years old, NV. Madeira, Portugal. (20%)"
+    },
+    {
+      "id": "spain_jerez_gonzalez_byass_leonor_palo_cortado_12_years",
+      "producer": "Gonzalez Byass",
+      "wine_name": "Leonor Palo Cortado 12 Years",
+      "country": "Spain",
+      "region": "Jerez",
+      "grape_varieties": [
+        "Palomino"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2025_s1a_w12"
+      ],
+      "full_text": "Gonzalez Byass Leonor Palo Cortado, 12 years old. Jerez, Spain. (20%)"
+    },
+    {
+      "id": "france_champagne_bollinger_special_cuv_e",
+      "producer": "Bollinger",
+      "wine_name": "Special Cuvée",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Chardonnay",
+        "Pinot Meunier"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2026_s1a_w1"
+      ],
+      "full_text": "Special Cuvée, Bollinger, NV. Champagne, France. (12%)"
+    },
+    {
+      "id": "france_champagne_bollinger_la_grande_ann_e",
+      "producer": "Bollinger",
+      "wine_name": "La Grande Année",
+      "country": "France",
+      "region": "Champagne",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Chardonnay"
+      ],
+      "style_category": "sparkling",
+      "refs": [
+        "2026_s1a_w2"
+      ],
+      "full_text": "La Grande Année, Bollinger, 2015. Champagne, France. (12.5%)"
+    },
+    {
+      "id": "france_loire_domaine_des_baumard_clos_de_st_yves_savenni_res",
+      "producer": "Domaine des Baumard",
+      "wine_name": "Clos de St Yves Savennières",
+      "country": "France",
+      "region": "Loire",
+      "grape_varieties": [
+        "Chenin Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2026_s1a_w3"
+      ],
+      "full_text": "Clos de St Yves Savennieres, Domaine des Baumard, 2020. Loire, France. (13%)"
+    },
+    {
+      "id": "south_africa_swartland_david_nadia_chenin_blanc",
+      "producer": "David & Nadia",
+      "wine_name": "Chenin Blanc",
+      "country": "South Africa",
+      "region": "Swartland",
+      "grape_varieties": [
+        "Chenin Blanc"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2026_s1a_w4"
+      ],
+      "full_text": "Chenin Blanc, David & Nadia, 2023. Swartland, South Africa. (12.5%)"
+    },
+    {
+      "id": "usa_california_duckhorn_decoy_red_blend",
+      "producer": "Duckhorn",
+      "wine_name": "Decoy Red Blend",
+      "country": "USA",
+      "region": "California",
+      "grape_varieties": [
+        "Zinfandel",
+        "Merlot",
+        "Cabernet Sauvignon",
+        "Syrah",
+        "Petite Sirah"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2026_s1a_w5"
+      ],
+      "full_text": "Decoy Red Blend, Duckhorn, 2019. California, USA. (14%)"
+    },
+    {
+      "id": "australia_barossa_valley_torbreck_the_steading",
+      "producer": "Torbreck",
+      "wine_name": "The Steading",
+      "country": "Australia",
+      "region": "Barossa Valley",
+      "grape_varieties": [
+        "Grenache",
+        "Shiraz",
+        "Mataro"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2026_s1a_w6"
+      ],
+      "full_text": "The Steading, Torbreck, 2022. Barossa Valley, Australia. (15%)"
+    },
+    {
+      "id": "spain_priorat_onix_classic_priorat",
+      "producer": "Onix",
+      "wine_name": "Classic Priorat",
+      "country": "Spain",
+      "region": "Priorat",
+      "grape_varieties": [
+        "Grenache",
+        "Carignan"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2026_s1a_w7"
+      ],
+      "full_text": "Classic Priorat, Onix, 2023. Catalonia, Spain. (15%)"
+    },
+    {
+      "id": "germany_nahe_dr_crusius_m_hlberg_riesling_eiswein",
+      "producer": "Dr. Crusius",
+      "wine_name": "Mühlberg Riesling Eiswein",
+      "country": "Germany",
+      "region": "Nahe",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2026_s1a_w8"
+      ],
+      "full_text": "Mühlberg Riesling Eiswein, Dr. Crusius, 2020. Nahe, Germany. (8%)"
+    },
+    {
+      "id": "austria_burgenland_kracher_tba_no_5_scheurebe",
+      "producer": "Kracher",
+      "wine_name": "TBA No. 5 Scheurebe",
+      "country": "Austria",
+      "region": "Burgenland",
+      "grape_varieties": [
+        "Scheurebe"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2026_s1a_w9"
+      ],
+      "full_text": "TBA No. 5, Scheurebe, Kracher, 2021. Burgenland, Austria. (6.5%)"
+    },
+    {
+      "id": "france_roussillon_domaine_de_bila_haut_banyuls",
+      "producer": "Domaine de Bila-Haut",
+      "wine_name": "Banyuls",
+      "country": "France",
+      "region": "Roussillon",
+      "grape_varieties": [
+        "Grenache"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2026_s1a_w10"
+      ],
+      "full_text": "Banyuls, Domaine de Bila-Haut, 2021. Languedoc-Roussillon, France. (17%)"
+    },
+    {
+      "id": "australia_rutherglen_victoria_chambers_rosewood_rutherglen_muscat",
+      "producer": "Chambers Rosewood",
+      "wine_name": "Rutherglen Muscat",
+      "country": "Australia",
+      "region": "Rutherglen, Victoria",
+      "grape_varieties": [
+        "Muscat Blanc à Petits Grains Rouge"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2026_s1a_w11"
+      ],
+      "full_text": "Rutherglen Muscat, Chambers Rosewood, NV. Victoria, Australia. (17.7%)"
+    },
+    {
+      "id": "south_africa_klein_karoo_boplaas_cape_vintage",
+      "producer": "Boplaas",
+      "wine_name": "Cape Vintage",
+      "country": "South Africa",
+      "region": "Klein Karoo",
+      "grape_varieties": [
+        "Touriga Nacional",
+        "Tinta Barroca",
+        "Souzão",
+        "Tinta Roriz"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2026_s1a_w12"
+      ],
+      "full_text": "Cape Vintage, Boplaas, 2022. Klein Karoo, South Africa. (17.8%)"
+    }
+  ],
+  "alreadyBanked": [
+    {
+      "id": "australia_margaret_river_vasse_felix_heytesbury_chardonnay",
+      "producer": "Vasse Felix",
+      "wine_name": "Heytesbury Chardonnay",
+      "country": "Australia",
+      "region": "Margaret River",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "style_category": "still_dry",
+      "refs": [
+        "2022_s1a_w1"
+      ],
+      "full_text": "Heytesbury Chardonnay, Vasse Felix, 2019. Margaret River, Australia. (13.0%)"
+    },
+    {
+      "id": "south_africa_constantia_klein_constantia_vin_de_constance",
+      "producer": "Klein Constantia",
+      "wine_name": "Vin de Constance",
+      "country": "South Africa",
+      "region": "Constantia",
+      "grape_varieties": [
+        "Muscat de Frontignan"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2022_s1a_w9",
+        "2025_s1a_w11"
+      ],
+      "full_text": "Vin de Constance, Klein Constantia, 2017. Constantia, South Africa. (14%)"
+    },
+    {
+      "id": "australia_rutherglen_campbells_rutherglen_muscat",
+      "producer": "Campbells",
+      "wine_name": "Rutherglen Muscat",
+      "country": "Australia",
+      "region": "Rutherglen",
+      "grape_varieties": [
+        "Muscat à Petits Grains Rouge"
+      ],
+      "style_category": "fortified",
+      "refs": [
+        "2023_s1a_w11"
+      ],
+      "full_text": "Rutherglen Muscat, Campbells, NV. Rutherglen, Australia. (17.5%)"
+    },
+    {
+      "id": "hungary_tokaj_diszn_k_tokaji_asz_5_puttonyos",
+      "producer": "Disznókő",
+      "wine_name": "Tokaji Aszú 5 Puttonyos",
+      "country": "Hungary",
+      "region": "Tokaj",
+      "grape_varieties": [
+        "Furmint",
+        "Hárslevelű",
+        "Muscat Blanc à Petits Grains"
+      ],
+      "style_category": "still_sweet",
+      "refs": [
+        "2025_s1a_w9"
+      ],
+      "full_text": "Disznókő Tokaji 5 Puttonyos, 2013. Tokaj, Hungary. (12%)"
+    }
+  ]
+}
