@@ -19,7 +19,7 @@ import { PreGlassReasoning } from "../components/PreGlassReasoning";
 import { StreamingFeedback } from "../components/StreamingFeedback";
 import { SectionMarksRow, parseSectionMarks, stripSectionMarksTag } from "../components/SectionMarksRow";
 import { WineReveal } from "../components/WineReveal";
-import type { WineProvenance } from "@/lib/wine-bank-lookup";
+import type { WineProvenance } from "@/lib/wine-provenance";
 import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";

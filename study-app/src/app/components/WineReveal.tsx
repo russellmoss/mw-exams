@@ -1,7 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { describeSource, type WineProvenance } from "@/lib/wine-bank-lookup";
+import { describeSource, type WineProvenance } from "@/lib/wine-provenance";
 
 interface WineRevealProps {
   tastingNotes: string[];

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { buildProvenance } from "@/lib/wine-bank-lookup";
+import { buildProvenance } from "@/lib/wine-provenance";
 
 /**
  * Source URLs name the producer and appellation. Rendering them next to a blind tasting note hands
@@ -60,31 +60,21 @@ describe("buildProvenance", () => {
 
   it("counts sourced vs inferred fields from the citation map", () => {
     const p = buildProvenance(2, {
-      bank_match: null,
       tasting_profile: {
-        appearance: "", nose_summary: "", palate_summary: "", structural_summary: "",
         sources: src,
         citations: { color: [0], nose_descriptors: [0], palate_tannin: [], palate_finish: [] },
       },
       confidence: "high",
-      source_method: "tavily_research",
       evidence_tier: "tech_sheet",
-      enriched_at: "",
     });
     expect(p).toMatchObject({ slot: 2, evidence_tier: "tech_sheet", sourcedFields: 2, totalFields: 4 });
   });
 
   it("derives a tier for a profile stored before tiers existed", () => {
     const p = buildProvenance(1, {
-      bank_match: "x",
-      tasting_profile: {
-        appearance: "", nose_summary: "", palate_summary: "", structural_summary: "",
-        // Legacy shape: bare URL strings, no citations.
-        sources: ["https://vinous.com/a"] as unknown as typeof src,
-      },
+      // Legacy shape: bare URL strings, no citations.
+      tasting_profile: { sources: ["https://vinous.com/a"] },
       confidence: "medium",
-      source_method: "bank_lookup",
-      enriched_at: "",
     });
     expect(p.evidence_tier).toBe("web");
     expect(p.sources).toEqual([{ url: "https://vinous.com/a", type: "web" }]);
