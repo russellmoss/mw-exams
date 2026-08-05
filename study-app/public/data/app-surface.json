@@ -25,6 +25,7 @@
     "/api/admin/bank-health/slice",
     "/api/admin/bank/batch/[id]",
     "/api/admin/bank/batch/[id]/reopen",
+    "/api/admin/bank/batch/[id]/send-back",
     "/api/admin/bank/batch/recent",
     "/api/admin/bank/cancel",
     "/api/admin/bank/counts",

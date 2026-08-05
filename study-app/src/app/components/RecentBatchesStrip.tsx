@@ -58,13 +58,72 @@ function summaryText(b: RecentBatch): string {
   return parts.length > 0 ? parts.join(" · ") : "Nothing kept yet";
 }
 
-export function RecentBatchesStrip({ onReopened }: { onReopened?: () => void }) {
+// Plain, id-free label for the review-queue notice, e.g. "the 5 Aug batch".
+function batchLabel(b: RecentBatch): string {
+  const d = formatDate(b.createdAt);
+  return d ? `the ${d} batch` : "this batch";
+}
+
+export function RecentBatchesStrip({
+  onReopened,
+  onSentBack,
+}: {
+  onReopened?: () => void;
+  onSentBack?: (info: { movedCount: number; label: string }) => void;
+}) {
   const [batches, setBatches] = useState<RecentBatch[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [reopeningId, setReopeningId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ id: string; text: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // "Send back to review" per-row state — the id currently sending, ids sent back (→ muted confirm),
+  // and per-row inline error.
+  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [sentBackIds, setSentBackIds] = useState<Set<string>>(new Set());
+  const [sendErrorId, setSendErrorId] = useState<string | null>(null);
+
+  const sendBack = async (b: RecentBatch) => {
+    setSendingId(b.id);
+    setSendErrorId(null);
+    try {
+      const res = await fetch(`/api/admin/bank/batch/${encodeURIComponent(b.id)}/send-back`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(b.kind === "window" && b.window ? { window: b.window } : {}),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { movedCount: number };
+      const moved = data.movedCount ?? 0;
+      // Optimistic card update: auto-approved → 0, pending += movedCount, kept -= movedCount, and the
+      // one-shot Reopen control disappears with its auto-kept pool.
+      setBatches((prev) =>
+        prev.map((x) =>
+          x.id === b.id
+            ? {
+                ...x,
+                autoKept: 0,
+                reopenable: 0,
+                canReopen: false,
+                pending: x.pending + moved,
+                kept: Math.max(0, x.kept - moved),
+              }
+            : x,
+        ),
+      );
+      setSentBackIds((prev) => new Set(prev).add(b.id));
+      // Refresh every pending-count consumer in the same tick: the parent card's status counter, the
+      // global pending-count source, and the NotificationBell / badge (via a window event it listens for).
+      void fetch("/api/admin/bank/pending-count", { cache: "no-store" }).catch(() => {});
+      window.dispatchEvent(new CustomEvent("mw-bank-refresh"));
+      onReopened?.();
+      onSentBack?.({ movedCount: moved, label: batchLabel(b) });
+    } catch {
+      setSendErrorId(b.id);
+    } finally {
+      setSendingId(null);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -152,6 +211,28 @@ export function RecentBatchesStrip({ onReopened }: { onReopened?: () => void }) 
                       {b.generated === 1 ? "" : "s"}
                     </p>
                     <p className="text-xs text-muted mt-0.5">{summaryText(b)}</p>
+                    {/* ── SEND BACK TO REVIEW ── secondary action, shown only while the batch still holds
+                        auto-approved (never-reviewed) items. Transparent fill, thin amber border/text —
+                        never the primary amber fill. */}
+                    {b.autoKept > 0 &&
+                      (sentBackIds.has(b.id) ? (
+                        <p className="text-xs text-muted mt-1.5">Sent back to review</p>
+                      ) : (
+                        <div className="mt-1.5">
+                          <button
+                            onClick={() => sendBack(b)}
+                            disabled={sendingId === b.id}
+                            className="text-xs px-3 py-1 rounded-lg border border-accent/60 text-accent bg-transparent hover:bg-accent/10 hover:border-accent transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default"
+                          >
+                            {sendingId === b.id ? "Sending…" : "Send back to review"}
+                          </button>
+                          {sendErrorId === b.id && (
+                            <p className="text-xs text-fail mt-1.5">
+                              Couldn&rsquo;t send back &mdash; try again.
+                            </p>
+                          )}
+                        </div>
+                      ))}
                   </div>
                   <div className="shrink-0">
                     {b.canReopen ? (

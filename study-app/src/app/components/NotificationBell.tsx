@@ -126,10 +126,15 @@ export function NotificationBell() {
     const handleVisibility = () => {
       if (document.visibilityState === "visible") fetchNotifications();
     };
+    // "Send back to review" (and any other bank mutation) fires this so the bell's ready-to-review
+    // list updates in the same tick rather than on the next 30s poll.
+    const handleBankRefresh = () => fetchNotifications();
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("mw-bank-refresh", handleBankRefresh);
     return () => {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("mw-bank-refresh", handleBankRefresh);
     };
   }, [fetchNotifications]);
 
