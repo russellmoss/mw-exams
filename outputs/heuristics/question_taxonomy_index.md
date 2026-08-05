@@ -1,6 +1,6 @@
 ---
 generated: 2026-05-25
-questions_tagged: 161
+questions_tagged: 162
 years_covered: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026]
 ---
 
@@ -15,7 +15,7 @@ This index applies the canonical taxonomy in `outputs/heuristics/question_taxono
 - `F3 Blend / Composition Logic Set`: 6 questions
 - `F4 Mixed Identification Breadth Set`: 53 questions
 - `F5 Method / Production Dominant Set`: 12 questions
-- `F6 Style Mechanism Comparative Set`: 7 questions
+- `F6 Style Mechanism Comparative Set`: 8 questions
 - `F7 Hierarchy / Quality Calibration Set`: 10 questions
 
 ## Paper x family counts
@@ -40,7 +40,7 @@ This index applies the canonical taxonomy in `outputs/heuristics/question_taxono
 - `F2`: 9
 - `F4`: 17
 - `F5`: 10
-- `F6`: 7
+- `F6`: 8
 - `F7`: 4
 
 ## Tagged questions
@@ -229,6 +229,7 @@ This index applies the canonical taxonomy in `outputs/heuristics/question_taxono
 - `2024_p3_q1` -> `F5a`; method-led, structure-led, quality-led, mixed-styles
 
 #### F6 Style Mechanism Comparative Set
+- `2011_p3_q1` -> `F6a`; origin-led, structure-led, quality-led, mixed-styles
 - `2013_p3_q3` -> `F6a`; variety-led, origin-led, method-led, structure-led
 - `2014_p3_q2` -> `F6a`; variety-led, origin-led, method-led, structure-led
 - `2015_p3_q3` -> `F6a`; origin-led, method-led, structure-led, quality-led

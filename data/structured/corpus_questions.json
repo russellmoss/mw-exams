@@ -449,9 +449,15 @@
       }
     ],
     "n_subquestions": 5,
-    "family": null,
-    "subcategory": null,
-    "secondary_tags": [],
+    "family": "F6",
+    "subcategory": "F6a",
+    "secondary_tags": [
+      "origin-led",
+      "structure-led",
+      "quality-led",
+      "mixed-styles",
+      "sweet"
+    ],
     "text": "Wines 1 to 12 are all presented in pairs: 1&2, 3&4, 5&6, 7&8, 9&10, 11&12. Each pair is from a single region of origin.\nFor each pair:\na) Identify the region of origin as closely as possible (8 marks per pair)\nb) Comment on the methods of production (14 marks per pair)\nc) Compare the quality of the two wines, within the context of the region of origin (20 marks per pair)\nFor each wine:\nd) State the alcohol to the nearest degree (12 x 2 marks)\ne) State the residual sugar in grammes per litre (12 x 2 marks)"
   },
   {
