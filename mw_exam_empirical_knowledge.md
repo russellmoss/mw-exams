@@ -37,6 +37,15 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-05 — early-era examiner reports mined: the newly-recovered 2013 + 2010 Examiners' Reports
+  (`docs/examiners reports/`, fetched from mastersofwine.org — the only two public reports predating the
+  2017–2025 synthesis corpus) produced 6 new entries — EK-0136 (never leave blanks / mark-up generosity),
+  EK-0137 (candidate-side length calibration + quality-answer content boundary), EK-0138 (language-precision
+  doctrine), EK-0139 (commit to ONE definitive conclusion; option-lists earn zero), EK-0140 (NW
+  single-country flights draw from the big four, §4), EK-0141 (P3 numerical canon: single number, leeway
+  at extremes, style parameters are examinable facts) — plus early-era evidence appended to EK-0007,
+  EK-0009, EK-0011, EK-0014, EK-0015, EK-0116 and EK-0122 (the cardinal-rule doctrine is now attested
+  back to 2010, not just 2017). §8 index updated with the new `docs/` source folders.**
 - **2026-08-03 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0135).**
 - **2026-06-08 — consolidate: 5 feedback item(s) processed → 3 new entries (EK-0132, EK-0133, EK-0134).**
 - **2026-06-02 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0131).**
@@ -226,7 +235,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 ### EK-0007 · Cardinal Rule 1 — Reasoning > Identification (CONDITIONAL on plausibility)
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** examiner_report_synthesis §2.1 (every report 2017–2025); `outputs/research/evidence_audit.md`
-  T1-2a / Audit B (VERY STRONG — the conditional form is better-evidenced than the old unconditional one)
+  T1-2a / Audit B (VERY STRONG — the conditional form is better-evidenced than the old unconditional one);
+  earliest attestations: 2013 Practical (Hoskins MW — "It is not just about 'picking the winners'"; wines
+  "geographically wrong… able to pick up good marks through their reasoning", P3 Q3) and 2010 Practical
+  ("Good answers do of course contain mistakes but their reasoning invariably appears sound") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
 - **claim:** Sound reasoning earns marks even when the conclusion is wrong — **but only when the
   conclusion is PLAUSIBLE and the structural read (alcohol/acidity/tannin/RS) is correct** (see EK-0112,
   EK-0090). The 2025 verbatim is conditional: "many still managed 5–6/8 **if their reasoning was sound
@@ -244,10 +257,15 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0009 · Cardinal Rule 3 — No shoehorning
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §2.3
+- **evidence:** examiner_report_synthesis §2.3; 2010 Practical §4c (the term's earliest use in the corpus:
+  a Cabernet Franc "shoe-horned" into Nebbiolo) — `docs/examiners reports/extracted_txt/2010-Examiners-Report.txt`
 - **claim:** Do not decide identity first and bend tasting notes to fit. Read alcohol, acidity,
   tannin, RS accurately FIRST, then deduce. "A lot of shoehorning on paper two… led to the failure
-  of many candidates" (2025).
+  of many candidates" (2025). **Prescription when a hallmark trait is missing (2010):** if you conclude a
+  variety whose signature structure isn't fully in the glass, say so explicitly and argue anyway —
+  "Although the acidity is only medium, the high tannins and medium-high alcohol are consistent with
+  Nebbiolo" — rather than inventing the trait (which reads as not knowing the classic style). Also 2013:
+  changing tasting notes to suit a conclusion was the named failure mode on P2 Q2/Q3.
 
 ### EK-0010 · Cardinal Rule 4 — Answer the question as asked
 - **tier:** STRONG SIGNAL · **status:** live
@@ -258,7 +276,10 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0011 · Cardinal Rule 5 — Maturity = a QUANTIFIED window with BOTH trajectories
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §2.5 (2023 definition); `outputs/research/evidence_audit.md` (SUPPORTED)
+- **evidence:** examiner_report_synthesis §2.5 (2023 definition); `outputs/research/evidence_audit.md` (SUPPORTED);
+  2010 Practical P2 ("answers on maturity should always consider the wine's future/potential"; in a classic
+  area the best candidates "considered vintage options, not just age in general") —
+  `docs/examiners reports/extracted_txt/2010-Examiners-Report.txt`
 - **claim:** A maturity assessment must give a **quantified drinking window** covering **both
   trajectories**: (1) current age, (2) ready now or benefits from ageing, (3) how long it will
   **improve**, (4) how long it will **hold before declining**. The exact element-count is secondary to
@@ -281,15 +302,29 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 
 ### EK-0014 · Funnelling is the endorsed answer technique
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §3
-- **claim:** Endorsed by name in every report since 2017: consider all glass evidence → list 2–3
-  options → argue for/against each → narrow with reasoning → state the conclusion clearly (ideally up
-  top). Reward enthusiasm/conviction; reward cross-referencing wines within a flight to unlock each
-  other; reward honest engagement with unidentifiable wines.
+- **evidence:** examiner_report_synthesis §3; endorsed **by name** as early as 2013 ("If ever there was a
+  case for intelligent 'funneling'…"; "even to 'funnel' when you are struggling") and described without the
+  name in 2010 ("approach the whole exercise of blind tasting in a very systematic manner… all elements of
+  the wine… discussed, every time, and in a logical order") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** Endorsed by name in every report since 2017 (and since at least 2013 — see evidence): consider
+  all glass evidence → list 2–3 options → argue for/against each → narrow with reasoning → state the
+  conclusion clearly (ideally up top). Reward enthusiasm/conviction; reward cross-referencing wines within
+  a flight to unlock each other ("if these were sensibly argued then the more neutral partner often fell
+  into place", 2013 P1); reward honest engagement with unidentifiable wines — "the examiners are always
+  aware that some wines are harder to identify than others. In every case what we are looking for is an
+  intelligent summary of the likely options and a reasoned argument" (2013). Lead with the evidence that
+  unlocks the argument: "talking about tannins at the beginning of your argument when they are not the key
+  that unlocks the origin argument… comes across as a weak argument that lacks authority" (2010).
 
 ### EK-0015 · "Howler" theory errors sink borderline papers
 - **tier:** STRONG SIGNAL · **status:** live
-- **evidence:** examiner_report_synthesis §4
+- **evidence:** examiner_report_synthesis §4; the "clanger" catalogue goes back to 2010/2013 — "high
+  acidity → Châteauneuf du Pape", "semi-aromatic, high acidity = Viognier", Rutherglen Muscat called
+  unfortified, PX at 11% abv, "Rueda DOCG", "Napa AOC", "solera… used for port", "lees work is evidenced
+  by marked minerality", "Rias Baixas – warm climate", cold soak + MLF claimed for a Gewurztraminer,
+  "1er Cru Corton Charlemagne", Chassagne-Montrachet placed in the Côte de Nuits —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
 - **claim:** Factual howlers destroy examiner confidence: "Tawny Port aged in a solera," "Meursault
   Grand Cru," "Pouilly-Fuissé in the Loire," "Sauternes fermented at 16°C in stainless." Also
   penalized: copy-paste/repetitive answers, phantom oak (finding oak that isn't there, or missing
@@ -358,7 +393,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   mind of the examiner" (2019), "considerable doubt in the mind of the reader" (2024). **Cross-question
   propagation:** 2017 Practical — a Vosne-Romanée justified by "moderate alcohol of 15%" "totally
   undermines the confidence… further shattered by reading from the same paper 'Douro, Spain' for Vintage
-  Port in the next question."
+  Port in the next question." Earliest attestation 2010: a talented taster's sound Malbec reasoning was
+  "wasted" by a Douro/Tinta-Roriz confusion — "it is therefore hard to give many marks for the answer,
+  despite some of the reasoning being sound… the Examiners are left with the impression that the student
+  has no grasp of Portuguese grape varieties"; and on spelling: "how easily a candidate's credibility can
+  be compromised" — `docs/examiners reports/extracted_txt/2010-Examiners-Report.txt`
 - **claim:** A single factual impossibility or howler does **not** merely cost its own marks — it
   **retroactively poisons the examiner's trust in everything else the candidate wrote, and propagates
   forward across questions.** This is the mechanism behind the howler override (EK-0015) and the cascade
@@ -368,6 +407,41 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   *structural read* or a *theory howler* is trust-bankrupting. Grading consequence: the prompt audit found
   `marking-principles.ts` localises a howler to "adjacent claims," **too weak** against this ≥10-report
   finding (`outputs/research/confidence_prompt_audit.md`, gap 3).
+
+### EK-0136 · Never leave a blank — examiners "mark up when we can" but cannot mark nothing
+- **tier:** STRONG SIGNAL · **status:** live · **pairs with:** EK-0007 (2021: "a wrong answer yields more marks than an answer that is unfinished")
+- **evidence:** 2010 Practical §1 ("It is almost impossible for candidates to pass the exam if they leave
+  blank sheets. The best candidates all put something down for every section of every answer, however
+  brief… do not be delayed by agonizing over one or two wines"); 2013 Practical FINISHING (a candidate,
+  "clearly an outstanding taster", left P2 Q1 b/c blank → 5/50 on "the easiest question of the 4"; 25
+  marks there would have passed the paper; "We will always try to 'mark up' candidates when we can, but in
+  this case it was impossible to be generous when there was nothing to mark") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** Examiner temperament is **generous by default — but generosity needs raw material.** A brief,
+  imperfect attempt on every sub-part beats perfection on some and blanks on others; blank sections are
+  the single most mechanically fatal time-management failure. Consequences for this system: (a) model
+  answers and study guidance must teach "something on every sub-part, however brief"; (b) the grader
+  should score an omitted sub-part as zero *without* letting it poison the temperament applied to the
+  attempted parts (the inverse of contamination, EK-0122 — a blank is a lost opportunity, not a howler).
+
+### EK-0138 · Language-precision doctrine — complete names, native terminology, defined abbreviations, correct spelling
+- **tier:** STRONG SIGNAL · **status:** live · **feeds:** EK-0015 (persistent violations become credibility debits)
+- **evidence:** 2010 Practical §3 (Syrah not Shiraz for the Rhône; "if asked for a region or grape variety,
+  the answer should be complete — e.g. not simply 'Gruner' or 'Pessac'"; state currency origin "e.g. US$";
+  the abbreviation-legend cautionary tale — a half-page code like "RN&SP" that became a rote formula;
+  "Millennials" flagged as jargon without relevance); 2013 guidelines page (define an abbreviation at first
+  use — "Sulphur Dioxide (SO2)… malolactic fermentation (mlf)" — never a separate legend; "examiners
+  expect candidates to spell wine names and terms correctly, and persistent incorrect spelling… will be
+  noted in the award of marks"); 2013 'PREMIUM' section (incessant "premium" and a little-known native
+  currency as a quality reference both flagged: "whatever you are trying to tell us, please be clear") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** Answer language is itself graded surface: use the **terminology native to the concluded
+  region** (Syrah in the Rhône, Shiraz in Barossa); give **complete** names for regions/varieties (no
+  "Gruner", no "Pessac"); define an abbreviation **once at first use** and never front-load a legend;
+  anchor prices in a **stated major currency**; spell classic wine terms correctly (misspellings like
+  "Valdibadore" / "Greuner Veltliner" / "Method Champanoise" / "Botrutis" compromise credibility,
+  EK-0122); avoid vague register words ("premium" as a crutch, unexplained marketing jargon). Model-answer
+  generation and grading should both enforce this surface.
 
 ---
 
@@ -499,7 +573,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   average of 65% to pass"); 2024 Practical (Marks MW, bands defined "across all three papers"); 2018
   Chief (Hoskins MW, sub-45% *average* rarely recovers); `outputs/research/evidence_audit.md` Audit A /
   T1-1 (VERY STRONG); `outputs/research/examiner_confidence_model.md` §7; memory
-  `ek-0093-pass-standard-correction`
+  `ek-0093-pass-standard-correction`; **primary-source confirmation from 2013** (Hoskins MW: "A pass has
+  always been an average score of 65%") plus the floor's mechanism in the wild — "crashes (scores so low
+  in one paper that they made a pass virtually impossible)": 49 of 81 candidates crashed on P2 in 2013 vs
+  27 on each other paper; overall practical pass 13/81 (16%), down from 20% in 2012 —
+  `docs/examiners reports/extracted_txt/2013-Examiners-Report.txt`
 - **claim:** The IMW practical pass standard is a **65% AVERAGE across the three papers, with a ~50%
   per-paper floor**, criterion-referenced (an absolute bar, not a curve) — **NOT 65% on every paper**.
   A strong paper can carry a weaker one above the average provided the weak paper clears the floor.
@@ -588,6 +666,69 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** PLAUSIBLE · **status:** live
 - **evidence:** ledger: attempt #135 / analysis #19 (partial)
 - **claim:** A quality-hierarchy answer must not flatten all 'legally defined ladders' into the same geographic delimiting. The classification models differ in kind: Burgundy is a vineyard/terroir ladder (Bourgogne→village→1er→Grand Cru); Bordeaux (1855) is a producer/château classification; Rioja's ladder is an AGEING-regime designation (Crianza/Reserva/Gran Reserva, plus varietal/DOCa rules) — NOT geographic; Tuscany/Sangiovese combines geographic (Chianti vs Chianti Classico) AND structural (Classico vs Gran Selezione). A model answer or grader that frames Rioja's tiers as a geographic appellation ladder is factually wrong; place each wine within the correct TYPE of hierarchy for its origin.
+
+### EK-0137 · Candidate-side length calibration — "less is more" has a floor; quality answers have a content boundary
+- **tier:** STRONG SIGNAL · **status:** live · **pairs with:** EK-0017 (the grading-side proportionality rule)
+- **evidence:** 2013 Practical REASONING ("be mindful of the space and mark allocation on the pro forma as
+  a guide to the level and detail of the answer required. Resist the temptation to write too much or the
+  timing will become a problem" — but equally "some candidates often wrote too little to earn the full
+  marks allocated… frequently… when answering for quality"); the same examiner's content boundary:
+  candidates "included superfluous information such as commercial position when answering for quality
+  (i.e. 'white table cloth restaurant', specific food pairings, WBG, etc.) while neglecting to include
+  price point or when to drink / capacity to age"; 2013 BULLET POINTS ("Bullet points can work,
+  particularly when time is short. But if you need to argue a point, to compare and contrast, or even to
+  'funnel'… bullet points rarely do the job"); 2010 §1 ("Many candidates wrote too much when there were
+  not that many marks on offer. Try to write enough to secure maximum points, but do not over-elaborate") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** The mark allocation (and, on the real pro forma, the physical space) is the calibration
+  signal in **both directions** — over-writing costs time, under-writing caps the score below the
+  allocation ("it's all about balance. Stick to the point and back that point up"). **Quality sub-answers
+  have a content boundary:** they SHOULD include price point and drink-window/ageing capacity, and should
+  NOT drift into commercial staging (venue types, food pairings, by-the-glass placement — that content
+  belongs only in a commercial sub-question). **Format:** prose that argues; bullet points are legitimate
+  only for non-argumentative content under time pressure, never for funnelling or compare/contrast
+  (EK-0022). Generation consequence: model answers should visibly scale word count with the printed
+  sub-part tariff and keep quality/commercial content in their own lanes.
+
+### EK-0139 · Commit to ONE definitive conclusion — option lists, unresolved hedges and unnamed winners earn zero
+- **tier:** STRONG SIGNAL · **status:** live · **sharpens:** EK-0014 (the funnel's mandatory final step)
+- **evidence:** 2013 Practical P2 ("…suggests Cabernet Franc, Tempranillo, Sangiovese, Barbera or Mencia.
+  'Okuzgozu' from Turkey also considered — but no conclusion drawn. **We cannot give any marks if we are
+  simply given a list of diverse options**"); 2013 P2 Q1 ("Too often there was ambiguity in the final
+  choice — there has to be a definitive conclusion"; "some candidates lost easy marks in the comparative
+  section by not clearly stating which wine was the better of the two, simply describing each wine
+  individually"); 2010 P3 Q2 on numerical answers ("Note that a single number is required, not a range") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** The funnel (EK-0014) must **land**: a survey of candidates without a single committed
+  conclusion earns **zero** for the conclusion mark regardless of the survey's quality. This applies in
+  every form — identity calls (one final answer, not a shortlist), comparative sub-questions (name the
+  better wine explicitly, EK-0022), and numerical answers (one number, never a range — EK-0141). Hedging
+  is not caution; to the examiner it is a refusal to answer. Grading consequence: the grader should award
+  conclusion marks only when a single conclusion is actually stated, while still crediting the option
+  survey as reasoning (EK-0090).
+
+### EK-0141 · P3 numerical canon — one number (with leeway at the extremes), and classic style parameters are examinable facts
+- **tier:** STRONG SIGNAL · **status:** live · **extends:** EK-0018, EK-0109 (the P3 production-canon exception)
+- **evidence:** 2010 Practical P3 ("at no point in the paper were the candidates asked to identify grape
+  varieties. The focus was on method of production and detailed structural analysis"; "The failure to
+  break down each wine and analyse its structural parts — acidity, sugar, tannins, alcohol — was the
+  undoing of many"; on RS/abv: "Examiners realise precise identification of sugar and alcohol is difficult
+  at extreme highs and lows, and so **leeway is given during the grading**. Note that a single number is
+  required, not a range"; "candidates must do the basic homework e.g. learning residual sugar levels and
+  alcohol parameters for classic sweet wine styles" — a candidate "nailed the PX but suggested it was 11%
+  alcohol"; "finding fortification where there was none"; Rutherglen Muscat called unfortified); 2013
+  Practical P3 (an Icewine judged "much less sweet than it is… candidates should taste more Icewines,
+  especially… Vidal: very sweet, unoaked and high in acidity"; a passito's alcohol overestimated and sugar
+  underestimated — "close to 300 grams") —
+  `docs/examiners reports/extracted_txt/{2013,2010}-Examiners-Report.txt`
+- **claim:** In P3, the **RS/abv/production parameters of the classic sweet, fortified and sparkling
+  styles are themselves examinable facts** (the EK-0109 canon, quantified): Kabinett vs Aszú vs Icewine vs
+  SGN vs passito RS bands, fortification abv ranges (PX/sherry ~15–17%, Port ~19–20%, VDN ~15%),
+  fortified-vs-unfortified discrimination. Grading of numerical sub-answers: demand a **single number**
+  (a range = no commitment, EK-0139), score with a **tolerance band that widens at extreme highs/lows**,
+  and treat a parameter impossibility (PX at 11%) as a howler-class credibility debit (EK-0015/EK-0122),
+  not a near-miss. Question generation should keep answer keys' RS/abv values inside the style's
+  documented band and mark-scheme tolerances proportional to how extreme the true value is.
 
 ---
 
@@ -837,6 +978,21 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **tier:** PLAUSIBLE · **status:** live
 - **evidence:** ledger: attempt #178 / analysis #30 (reject)
 - **claim:** A sous-voile / flor-aged Jura white (e.g. Montbourgeau L'Étoile Savagnin) is NOT exclusively a Paper 3 wine. Placement follows the question's organising logic: when the stem is built around production-METHOD comparison (flor vs non-flor, biological vs physical ageing) the wine goes to P3 (2015 P3 Q3 Pinte Savagnin sous voile + Manzanilla; 2019 P3 Q4 Montbourgeau L'Étoile + Manzanilla); but when it appears as one wine in a winemaking-diversity flight of dry STILL whites (alongside reductive Chablis, barrel/MLF Chardonnay, oxidatively-aged white Rioja), it is legitimately P1. Oxidatively-aged white Rioja is the analogous P1-attested case (2013/2018/2025 P1). Refines EK-0088, which only addressed P3 still-white inclusions.
+
+### EK-0140 · "Same New-World country" red flights draw from the big four (NZ / Australia / Chile / South Africa)
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** 2013 Practical P2 Q2 ("The first key to passing Paper 2 was to pick for Question 2 a New
+  World country with a range of appropriate options. **Those who went outside New Zealand, Chile,
+  Australia or South Africa inevitably ended up squeezing their tasting notes to try to fit their answer**
+  and, therefore, gaining few points") — `docs/examiners reports/extracted_txt/2013-Examiners-Report.txt`.
+  n=1 report, but stated as the paper's decisive fork; consistent with the corpus's NW selections (USA the
+  obvious fifth — 2013's phrasing reflects that year's wines, not a USA exclusion).
+- **claim:** When a stem groups several reds under "the same New World country [with a range of styles]",
+  the realistic candidate set is the big producers — **New Zealand, Australia, Chile, South Africa, plus
+  the USA** — because only they field enough distinct varietal/style range to fill a flight. Answering
+  outside that set forces note-squeezing (a shoehorning tell, EK-0009). Master trees (P2 Layer A) and the
+  question engine should treat "same NW country" stems as routing to this set; graders should treat an
+  exotic-country call on such a stem as low-plausibility (EK-0090).
 
 ---
 
@@ -1428,7 +1584,17 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   `confidence_building_behaviors.md`, `confidence_destroying_behaviors.md`, `plausibility_framework.md`,
   `sophistication_framework.md`, and `confidence_prompt_audit.md` (grading/feedback/model-answer prompts
   scored against the model — see §9 EK-0124). Source text: `docs/examiners reports/extracted_txt/`
-  (8 practical + chief + theory reports 2017–2025; 2021/2022 practical & chief OCR'd from scans).
+  (8 practical + chief + theory reports 2017–2025; 2021/2022 practical & chief OCR'd from scans; **plus
+  the 2013 and 2010 Examiners' Reports** — the only public pre-2017 reports, recovered from
+  mastersofwine.org 2026-08-05, mined into EK-0136…EK-0141).
+- **IMW-website haul (2026-08-05 crawl — see `outputs/imw_website_crawl_2026-08-05.md` for URLs):**
+  `docs/s1a_papers/` (all 11 Stage One Assessment papers 2015–2026, practical + theory, with
+  extracted_txt — a difficulty-calibrated sibling corpus, not yet structured), `docs/past_papers_2000s/`
+  (MW exams 2000–2010; the scanned 2010 paper hand-transcribed incl. the **Crib Sheet 2010** full wine
+  list that pairs with the 2010 Examiners' Report), `docs/research_papers/` (4 MW RPs on tasting language —
+  Wang acidity / Martindale minerality / Drew tannin vocabulary / Furuholmen mousiness; **IMW terms:
+  personal use only, never republish**), `docs/MW-Syllabus-2021.pdf` (official practical assessment
+  criteria; papers are 2h15m = 11.25 min/wine).
 - **Validator + pipeline:** `study-app/src/lib/question-validator.ts`; remediation history in
   `question_quality_remediation_plan.md`.
 
