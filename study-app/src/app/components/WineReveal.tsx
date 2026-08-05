@@ -23,7 +23,7 @@ const TIER_LABEL: Record<string, string> = {
   inferred: "Inferred",
 };
 
-function SourceList({ p }: { p: WineProvenance }) {
+export function SourceList({ p }: { p: WineProvenance }) {
   if (!p.sources.length && p.evidence_tier !== "inferred") return null;
   return (
     <details className="mt-4 border-t border-border pt-3">
