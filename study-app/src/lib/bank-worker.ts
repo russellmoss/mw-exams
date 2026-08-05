@@ -21,6 +21,7 @@ import {
   touchBankBatch,
   getBatchActualCost,
   getBankFamilyHistogram,
+  reclaimStalledBatch,
   type BankBatch,
   type BankTargeting,
 } from "@/lib/db";
@@ -313,7 +314,19 @@ export async function runBankBatch(opts: {
 
   let batch = await getBankBatch(batchId);
   if (!batch) return;
-  // A cancelled/stalled batch stops immediately; a ready one has no work left.
+  // A STALLED batch may be reclaimed. 'stalled' means the heartbeat went cold and the paper lock was
+  // released (releaseStalledBatches) — an interruption, not an abandonment. Refusing it here was half
+  // of a dead end: nothing could pick such a batch up, so it sat until someone cleared it by hand.
+  //
+  // The reclaim is a conditional UPDATE, so if two resumers race, only one gets the row and the other
+  // falls through to the status check below and stops.
+  if (batch.status === "stalled") {
+    const reclaimed = await reclaimStalledBatch(batchId);
+    if (!reclaimed) return; // lost the race, or it changed state underneath us
+    batch = reclaimed;
+    console.log(`[bank-worker] batch ${batchId} reclaimed from stalled; resuming`);
+  }
+  // Cancelled/complete/failed stop here; a ready one has no work left.
   if (batch.status !== "running") return;
 
   // Heartbeat immediately: this invocation is alive and working the batch, so the stall sweep must

@@ -776,6 +776,49 @@ export async function getRunningBatches(): Promise<BankBatch[]> {
   `) as BankBatch[];
 }
 
+// Batches the cron may pick back up — 'running' AND 'stalled'.
+//
+// 'stalled' exists to RELEASE THE PAPER LOCK when a heartbeat goes cold (see releaseStalledBatches),
+// not to abandon the run. But the cron only ever looked for 'running', and runBankBatch refuses
+// anything that is not 'running', so a released batch could never be picked up by anything. Seven
+// accumulated over ~25 hours, one of them 24 questions into a request for 50, and each had to be
+// cleared by hand.
+//
+// Three guards, because this drives autonomous spend:
+//   • unfinished only — a batch that met its request is done, whatever its status says
+//   • not poor-yield — resuming a 3-generated/16-failed run just burns more money; that shape is
+//     what the circuit breaker exists to stop, and a stall must not launder it into a fresh start.
+//     NOTE: this predicate duplicates shouldAbortForPoorYield() in bank-worker.ts (>=10 failures and
+//     yield <=1-in-4). It is repeated here because the filter has to run in SQL, and the two will not
+//     track each other automatically — change both, or the cron will resume batches the worker then
+//     immediately aborts.
+//   • age-capped — a day-old batch is abandoned, not interrupted. Without this, fixing the dead end
+//     would resurrect every historical stall at once the first time the cron fired.
+export async function getResumableBatches(maxAgeHours = 24): Promise<BankBatch[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM bank_batches
+    WHERE status IN ('running', 'stalled')
+      AND generated_count + failed_count < requested_count
+      AND created_at > NOW() - (${maxAgeHours} * INTERVAL '1 hour')
+      AND NOT (failed_count >= 10 AND generated_count * 3 <= failed_count)
+    ORDER BY created_at DESC
+  `) as BankBatch[];
+}
+
+// Re-acquire a stalled batch so the worker may drive it again: flip it back to 'running' and reset
+// the heartbeat in one statement, so two concurrent resumers cannot both claim it (the second sees
+// no row). A batch already 'running' is left alone — its own invocation still owns it.
+export async function reclaimStalledBatch(id: string): Promise<BankBatch | null> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_batches SET status = 'running', updated_at = NOW()
+    WHERE id = ${id} AND status = 'stalled'
+    RETURNING *
+  `;
+  return (rows[0] as BankBatch) ?? null;
+}
+
 // Ready batches that still hold unreviewed (pending) questions — the "Review N questions" surface
 // and the NotificationBell feed.
 export async function getReviewableBatches(): Promise<(BankBatch & { pending_count: number })[]> {

@@ -1,5 +1,5 @@
 import { isCronAuthorized } from "@/lib/cron-auth";
-import { getRunningBatches } from "@/lib/db";
+import { getResumableBatches } from "@/lib/db";
 import { runBankBatch } from "@/lib/bank-worker";
 
 export const runtime = "nodejs";
@@ -19,8 +19,12 @@ export async function GET(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return Response.json({ error: "Server API key not configured" }, { status: 500 });
 
-  const running = await getRunningBatches();
-  const batch = running[0];
+  // 'stalled' as well as 'running': a stalled batch has merely had its paper lock released after a
+  // cold heartbeat, and before this nothing could pick one back up — see getResumableBatches, which
+  // also screens out finished, poor-yield and day-old batches so the cron cannot resurrect runs that
+  // were rightly given up on.
+  const resumable = await getResumableBatches();
+  const batch = resumable[0];
   if (!batch) return Response.json({ ok: true, resumed: null });
 
   const baseUrl = new URL(request.url).origin;
