@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { BinUndoBar } from "./BinUndoBar";
 import { BinReasonChips } from "./BinReasonChips";
 import { RecentBatchesStrip } from "./RecentBatchesStrip";
-import { BankReviewBadge, LengthCheckChip } from "./BankReviewBadge";
+import { BankReviewBadge, LengthCheckChip, AnswerLengthChip } from "./BankReviewBadge";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -100,6 +100,23 @@ interface LengthCheck {
   changes: LengthChange[];
   summary: string;
 }
+// Answer Length (migration 039) — the model answer's mark-proportional word budget. Mirrors
+// StoredAnswerLength in lib/answer-length.ts.
+interface AnswerLengthAttempt {
+  attempt: number;
+  wordCount: number;
+  verdict: "ok" | "over" | "under";
+}
+interface AnswerLength {
+  wordCount: number;
+  totalMarks: number;
+  target: number;
+  min: number;
+  max: number;
+  wordsPerMark: number;
+  attempts: AnswerLengthAttempt[];
+  summary: string;
+}
 interface ReviewQuestion {
   id: string;
   paper: number;
@@ -114,6 +131,10 @@ interface ReviewQuestion {
   // 'clean' | 'trimmed' | 'over' | null — NULL / 'clean' shows no chip.
   lengthCheckStatus: "clean" | "trimmed" | "over" | null;
   lengthCheck: LengthCheck | null;
+  // Answer Length — the model ANSWER's verdict, independent of the stem's above.
+  answerLengthStatus: "clean" | "corrected" | "over" | "under" | null;
+  answerWordCount: number | null;
+  answerLength: AnswerLength | null;
 }
 interface Violation {
   rule: string;
@@ -264,6 +285,99 @@ function LengthCheckPanel({
   );
 }
 
+// Answer Length panel — the model ANSWER's word budget, opened by the "Answer …" chip.
+//
+// Deliberately NOT a diff panel like LengthCheckPanel above. The stem's repair edits a bullet, so a
+// before/after is the useful view. The answer's repair rewrites prose the reviewer is about to read
+// in full anyway; what they cannot see by reading it is whether it is on budget FOR ITS MARKS and how
+// it got there. So this shows the measurement and the attempt trail instead.
+function AnswerLengthPanel({
+  status,
+  data,
+  wordCount,
+  onClose,
+}: {
+  status: "corrected" | "over" | "under";
+  data: AnswerLength | null;
+  wordCount: number | null;
+  onClose: () => void;
+}) {
+  const words = data?.wordCount ?? wordCount ?? 0;
+  const attempts = data?.attempts ?? [];
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-card-hover/40 p-4">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <h4 className="font-display text-sm text-foreground">Answer length</h4>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-muted hover:text-foreground underline underline-offset-2 transition-colors cursor-pointer"
+        >
+          Close
+        </button>
+      </div>
+
+      {data?.summary && (
+        <p className="text-xs text-foreground leading-relaxed mb-3">{data.summary}</p>
+      )}
+
+      {/* The measurement. Numbers are tabular so the four cells line up. */}
+      {data && (
+        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 mb-3">
+          {[
+            { k: "Measured", v: `${words}` },
+            { k: "Target", v: `${data.target}` },
+            { k: "Band", v: `${data.min}–${data.max}` },
+            { k: "Per mark", v: `${data.wordsPerMark}` },
+          ].map((cell) => (
+            <div key={cell.k}>
+              <dt className="text-[10px] uppercase tracking-wide text-muted">{cell.k}</dt>
+              <dd
+                className={`text-sm tabular-nums ${
+                  cell.k === "Measured" && status !== "corrected" ? "text-fail" : "text-foreground"
+                }`}
+              >
+                {cell.v}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {/* The attempt trail — what generation produced, then each rewrite. One row means the gate
+          measured once and did not need to act. */}
+      {attempts.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-wide text-muted mb-1">
+            Attempts ({attempts.length})
+          </div>
+          <ul className="space-y-0.5">
+            {attempts.map((a) => (
+              <li key={a.attempt} className="text-xs leading-relaxed flex items-baseline gap-2">
+                <span className="text-muted tabular-nums w-14 shrink-0">
+                  {a.attempt === 1 ? "generated" : `rewrite ${a.attempt - 1}`}
+                </span>
+                <span className="tabular-nums text-foreground">{a.wordCount}w</span>
+                <span className={a.verdict === "ok" ? "text-success" : "text-fail"}>
+                  {a.verdict === "ok" ? "in band" : a.verdict}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {status !== "corrected" && (
+        <p className="text-xs text-muted leading-relaxed mt-3">
+          The rewrite passes did not bring this inside the band; the closest attempt was kept. The
+          answer is still usable — this flags it for a read, not for binning.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // Small inline spinner for an in-flight review button — amber ring on a transparent track.
 function Spinner() {
   return (
@@ -317,6 +431,9 @@ export function FillTheBankRows() {
   // Length Check (feature): which card's "Length check" panel is expanded (by question id), or null.
   // Only the card on screen ever shows a chip, so a single id is enough; toggled by the chip / Close.
   const [lengthPanelId, setLengthPanelId] = useState<string | null>(null);
+  // Separate from lengthPanelId on purpose: the stem and answer verdicts are independent, and a
+  // reviewer comparing "the stem was trimmed" against "the answer runs long" wants both open.
+  const [answerLengthPanelId, setAnswerLengthPanelId] = useState<string | null>(null);
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
   // One-line amber notice atop the review list, shown only immediately after a "Send back to review"
@@ -1052,6 +1169,15 @@ export function FillTheBankRows() {
                     open={lengthPanelId === q.id}
                     onClick={() => setLengthPanelId((cur) => (cur === q.id ? null : q.id))}
                   />
+                  {/* Answer Length: amber "Answer rewritten" / red "Answer runs long|short"; nothing
+                      for clean/NULL. Sits next to the stem chip — they flag different artifacts. */}
+                  <AnswerLengthChip
+                    status={q.answerLengthStatus}
+                    words={q.answerWordCount}
+                    open={answerLengthPanelId === q.id}
+                    onClick={() => setAnswerLengthPanelId((cur) => (cur === q.id ? null : q.id))}
+                  />
+
                   <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
                     {PAPER_LABEL[q.paper]}
                   </span>
@@ -1117,6 +1243,19 @@ export function FillTheBankRows() {
                     status={q.lengthCheckStatus}
                     data={q.lengthCheck}
                     onClose={() => setLengthPanelId(null)}
+                  />
+                )}
+
+              {/* Answer length panel — same inline-expanding treatment, opened by the Answer chip. */}
+              {answerLengthPanelId === q.id &&
+                (q.answerLengthStatus === "corrected" ||
+                  q.answerLengthStatus === "over" ||
+                  q.answerLengthStatus === "under") && (
+                  <AnswerLengthPanel
+                    status={q.answerLengthStatus}
+                    data={q.answerLength}
+                    wordCount={q.answerWordCount}
+                    onClose={() => setAnswerLengthPanelId(null)}
                   />
                 )}
 

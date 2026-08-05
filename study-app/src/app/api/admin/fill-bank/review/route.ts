@@ -106,6 +106,20 @@ function serialize(q: GeneratedQuestion) {
     }
   }
 
+  // Answer Length (migration 039): the model ANSWER's mark-proportional word verdict, same defensive
+  // JSONB parse as the stem's length check above.
+  let answerLength: Record<string, unknown> | null = null;
+  const rawAl = q.answer_length as unknown;
+  if (rawAl && typeof rawAl === "object") {
+    answerLength = rawAl as Record<string, unknown>;
+  } else if (typeof rawAl === "string") {
+    try {
+      answerLength = JSON.parse(rawAl);
+    } catch {
+      answerLength = null;
+    }
+  }
+
   return {
     id: q.question_id,
     paper: q.paper,
@@ -120,6 +134,10 @@ function serialize(q: GeneratedQuestion) {
     // 'clean' | 'trimmed' | 'over' | null. NULL / 'clean' → no badge on the card.
     lengthCheckStatus: (q.length_check_status as string | null) ?? null,
     lengthCheck,
+    // 'clean' | 'corrected' | 'over' | 'under' | null. NULL / 'clean' → no badge.
+    answerLengthStatus: (q.answer_length_status as string | null) ?? null,
+    answerWordCount: (q.answer_word_count as number | null) ?? null,
+    answerLength,
   };
 }
 

@@ -52,3 +52,49 @@ export function LengthCheckChip({
     </button>
   );
 }
+
+/**
+ * Answer Length (migration 039) — the model ANSWER's word-budget verdict, the counterpart of
+ * LengthCheckChip above (which is about the question STEM).
+ *
+ * Both chips can sit on the same card, so the labels say "Answer …" rather than reusing the stem's
+ * bare "Trimmed" / "Runs long" — otherwise a reviewer cannot tell which artifact is being flagged.
+ *
+ * Tone follows the stem chip's logic, not the verdict palette: amber = the system fixed it and you
+ * may want to see what it did; red = it is still off budget and needs a human. `under` is red for the
+ * same reason `over` is — an answer too thin for the marks on offer is as wrong as a bloated one, and
+ * on a six-wine flight it is the more likely failure.
+ */
+export function AnswerLengthChip({
+  status,
+  words,
+  open,
+  onClick,
+}: {
+  status: "clean" | "corrected" | "over" | "under" | null | undefined;
+  words: number | null | undefined;
+  open: boolean;
+  onClick: () => void;
+}) {
+  if (status !== "corrected" && status !== "over" && status !== "under") return null;
+  const corrected = status === "corrected";
+  const label =
+    status === "corrected" ? "Answer rewritten" : status === "over" ? "Answer runs long" : "Answer runs short";
+  const tone = corrected
+    ? "border-accent/60 text-accent hover:bg-accent/10"
+    : "border-fail/60 text-fail hover:bg-fail/10";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={open}
+      className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border transition-colors cursor-pointer ${tone} ${
+        open ? (corrected ? "bg-accent/10" : "bg-fail/10") : ""
+      }`}
+    >
+      {label}
+      {typeof words === "number" && <span className="tabular-nums opacity-80">{words}w</span>}
+      <span aria-hidden className="text-[9px]">{open ? "▲" : "▼"}</span>
+    </button>
+  );
+}
