@@ -589,7 +589,58 @@ Document 1 is the most authoritative and they descend from there. A TECH SHEET i
   };
 }
 
+// Country names, for the "producer is just a country" check below. Only the ones the generator's
+// planning checklists actually produce — this is a shape guard, not a geography database.
+const COUNTRY_WORDS = new Set([
+  "france", "germany", "spain", "italy", "portugal", "austria", "hungary", "greece", "australia",
+  "new zealand", "south africa", "chile", "argentina", "usa", "united states", "canada", "england",
+  "lebanon", "slovenia", "croatia", "georgia", "switzerland", "israel", "uruguay", "brazil", "china",
+]);
+
+/**
+ * Structural sanity check before a wine is written to the bank.
+ *
+ * addToWineBank used to insert whatever classifyWine returned, and classifyWine will confidently
+ * classify things that are not wines. Ten junk rows reached the bank that way: four country names off
+ * a flight-planning checklist ("France ✓", "Germany ✓"), four STYLE names ("Fino (fortified/
+ * biologically aged) ✓", "Auslese", "Torcolato", "Jurançon"), and two real producers with the
+ * generator's deliberation welded onto the cuvée.
+ *
+ * The style names are the instructive ones: classifyWine categorised them CORRECTLY — Fino as
+ * fortified, Auslese as still_sweet — which is exactly why they looked plausible and got through. So
+ * this keys on STRUCTURE, never on whether the classification looks sane.
+ */
+export function isBankableIdentity(identity: WineIdentity): { ok: boolean; reason?: string } {
+  const producer = (identity.producer || "").trim();
+  const all = `${producer} ${identity.wineName || ""} ${identity.country || ""} ${identity.region || ""}`;
+
+  if (!producer) return { ok: false, reason: "no producer" };
+  if (producer.length <= 2) return { ok: false, reason: `producer too short ("${producer}")` };
+  // A sentence, not an estate name.
+  if (producer.length > 60) return { ok: false, reason: "producer too long to be a name" };
+  // Ticks and markdown bold are the generator marking off its own checklist, never part of a name.
+  if (/[✓✗]|\*\*/.test(all)) return { ok: false, reason: "contains a checklist/markdown marker" };
+  if (/\b(excluded|banned|wait,|let me|correction applied|sub-rule|deduplication)\b/i.test(all)) {
+    return { ok: false, reason: "contains deliberation text" };
+  }
+  // Every real wine has at least one of these; the checklist rows had neither.
+  if (!(identity.country || "").trim() && !(identity.region || "").trim()) {
+    return { ok: false, reason: "no country and no region" };
+  }
+  if (COUNTRY_WORDS.has(producer.toLowerCase())) {
+    return { ok: false, reason: `producer is a country name ("${producer}")` };
+  }
+  return { ok: true };
+}
+
 async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOverride?: string): Promise<void> {
+  const bankable = isBankableIdentity(identity);
+  if (!bankable.ok) {
+    // Not fatal: the profile still serves the question that triggered this. It just must not become a
+    // permanent bank row that a future flight can draw as if it were a real wine.
+    console.warn(`Refusing to bank non-wine entry (${bankable.reason}): ${identity.producer} | ${identity.wineName}`);
+    return;
+  }
   try {
     const sql = neon(process.env.DATABASE_URL!);
     // Include wine_name so different cuvées from the same producer/region get distinct ids

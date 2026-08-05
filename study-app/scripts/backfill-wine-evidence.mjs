@@ -85,7 +85,19 @@ const refWines = await sql`
   FROM generated_questions q, jsonb_array_elements(q.wines) w
   WHERE q.wines IS NOT NULL AND length(w->>'fullText') BETWEEN 20 AND 200`;
 const norm = (s) => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
-const refIndex = refWines.map((r) => ({ raw: r.t, n: norm(r.t) }));
+// Reference strings are themselves polluted in places -- the generator's deliberation was stored as
+// a wine ("Schlossgut Diel -- wait, Donnhoff is on the deduplication list"). Recovering a vintage from
+// one of those feeds the junk straight back into the search, which is how a row being REPAIRED got
+// re-researched against the very text it was being cleaned of. Filter them out of the index.
+// Plain substring tests, NOT a regex: this line was previously written by tooling that turned the
+// regex word-boundary  into a literal backspace character (0x08), so the alternation could never
+// match and the filter was silently inert. Substrings cannot be mangled that way.
+const POLLUTION_MARKERS = [
+  "✓", "✗", "**", "excluded", "banned", "wait,", "let me", "correction applied",
+  "sub-rule", "deduplication",
+];
+const isPolluted = (t) => { const s = (t || "").toLowerCase(); return POLLUTION_MARKERS.some((m) => s.includes(m)); };
+const refIndex = refWines.filter((r) => !isPolluted(r.t)).map((r) => ({ raw: r.t, n: norm(r.t) }));
 
 function subjectFor(row) {
   const p = norm(row.producer), w = norm(row.wine_name);
