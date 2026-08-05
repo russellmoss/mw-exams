@@ -1404,8 +1404,11 @@ export function validateWineReferenceShape(
   return { valid: violations.length === 0, violations };
 }
 
-function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
+export function validatePaperScope(paper: number, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
+  // Paper 3 wines that give a flight its Paper-3 character (sparkling / fortified / sweet / rosé /
+  // oxidative / orange). Judged together below, never individually.
+  const p3Qualifying: { slot: number; fullText: string }[] = [];
   for (const wine of wines) {
     const text = wine.fullText.toLowerCase();
     if (paper === 1) {
@@ -1441,10 +1444,45 @@ function validatePaperScope(paper: number, wines: { slot: number; fullText: stri
       const abv = abvMatch ? parseFloat(abvMatch[1]) : null;
       const isLikelySweet = abv !== null && abv <= 10;
       const isLikelyFortified = abv !== null && abv >= 15;
-      if ((isWhiteGrape || isRedGrape) && !hasSpecialIndicator && !isLikelySweet && !isLikelyFortified) {
-        violations.push(`Wine ${wine.slot}: "${wine.fullText}" appears to be a standard still wine in Paper 3 (sparkling/fortified/sweet/rosé/oxidative only)`);
+      // Nothing is flagged per wine. A still dry wine is legitimate on Paper 3; the flight-level
+      // check after this loop enforces the real rule. We record the CONVERSE — whether this wine is
+      // one of the styles that make a flight Paper 3 — because that is detectable from the label
+      // alone, whereas "is still dry" depends on recognising a grape and many real P3 wines name
+      // none ("Nuits St Georges, 1er Cru Clos des Argillières" is a still red with no variety in the
+      // text). Testing for the presence of a qualifying wine avoids that blind spot entirely.
+      void isWhiteGrape;
+      void isRedGrape;
+      if (hasSpecialIndicator || isLikelySweet || isLikelyFortified) {
+        p3Qualifying.push(wine);
       }
     }
+  }
+
+  // PAPER 3 STILL-DRY RULE (flight-level, and the whole rule).
+  //
+  // This used to reject any still dry wine on Paper 3 — "sparkling/fortified/sweet/rosé/oxidative
+  // only". That is not what the IMW sets. Measured over the 51 real P3 questions in the corpus:
+  //
+  //     entirely still dry .... 0
+  //     contains one or more .. 42  (82%)
+  //     none .................. 9
+  //
+  // 32 of 180 real P3 wines (17.8%) are still dry, and they are not exotica: Nuits St Georges 1er
+  // Cru, Bandol, Saint-Romain, Riesling Trocken and Alsace Pinot Gris Grand Cru all appear, tagged
+  // curveball_level=low. So a still dry wine belongs on P3; what never happens is a flight made
+  // ENTIRELY of them, because that is simply a Paper 1 or Paper 2 question.
+  //
+  // Rejecting them individually also created a loop that could not terminate. pickP3StyleCategory
+  // draws the most under-represented style, still_dry sat at 2.8% banked against a 20% target, so it
+  // was drawn repeatedly — and every such question was then rejected by this rule, which kept the
+  // deficit at 2.8%. paperScope was joint-top blocker on P3 (16 of 40 attempts) while barely
+  // registering on P1/P2.
+  if (paper === 3 && wines.length > 0 && p3Qualifying.length === 0) {
+    violations.push(
+      `No wine in this flight is sparkling, fortified, sweet, rosé, oxidative or orange — that is a Paper 1 or Paper 2 flight, ` +
+        `not Paper 3. Paper 3 mixes styles: still dry wines are welcome (82% of real P3 questions ` +
+        `contain at least one) but must sit alongside sparkling, fortified, sweet, rosé, oxidative or orange.`
+    );
   }
 
   // Paper 3 oxidative still-white sub-rule (flight-level). P3 admits a STILL white only when its
