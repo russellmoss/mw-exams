@@ -116,6 +116,27 @@ const P3_STYLE_DISTRIBUTION: Record<string, number> = {
   oxidative: 2,
 };
 
+/**
+ * How far each category is below its target, measured PROPORTIONALLY to that target, keeping only
+ * those still owed something. Exported for testing; see the note at the call site for why absolute
+ * gaps starve small categories.
+ */
+export function relativeDeficits(
+  styles: [string, number][],
+  current: Record<string, number>,
+  totalGenerated: number
+): { style: string; relative: number }[] {
+  const totalTarget = styles.reduce((sum, [, w]) => sum + w, 0);
+  if (totalTarget <= 0 || totalGenerated <= 0) return [];
+  return styles
+    .map(([style, targetPct]) => {
+      const targetShare = targetPct / totalTarget;
+      const actualShare = (current[style] || 0) / totalGenerated;
+      return { style, relative: (targetShare - actualShare) / targetShare };
+    })
+    .filter((d) => d.relative > 0);
+}
+
 async function pickP3StyleCategory(): Promise<string> {
   const styles = Object.entries(P3_STYLE_DISTRIBUTION);
 
@@ -162,21 +183,42 @@ async function pickP3StyleCategory(): Promise<string> {
       return styles[0][0];
     }
 
-    const totalTarget = styles.reduce((sum, [, w]) => sum + w, 0);
-    let bestStyle = styles[0][0];
-    let bestGap = -Infinity;
+    // PROPORTIONAL deficit, drawn at random — not the single largest ABSOLUTE gap.
+    //
+    // Comparing absolute share gaps starves every small category permanently. A category's gap can
+    // never exceed its own target share, so rosé (7.6% of the target) could not out-rank sparkling
+    // (39.2%) until sparkling was itself nearly satisfied. Measured on the live bank: sparkling's
+    // gap was 25.8% while rosé's maximum conceivable gap was 7.6%, so rosé was unreachable until
+    // sparkling's actual share passed 31.6%. It sat at 1 question in ~70 with the second-largest
+    // relative shortfall in the bank.
+    //
+    // Dividing the gap by the target share asks the right question — "how empty is this category
+    // relative to what it should be?" — and puts them on comparable footing: rosé 80% short beats
+    // sparkling 66% short, which is the correct priority.
+    //
+    // Drawing at random among the deficits rather than always taking the maximum also stops a batch
+    // becoming a single-category run. The deterministic version produced 11 consecutive sparkling
+    // questions in one batch, because the winner stays the winner until its own share moves.
+    const deficits = relativeDeficits(styles, current, totalGenerated);
 
-    for (const [style, targetPct] of styles) {
-      const targetShare = targetPct / totalTarget;
-      const actualShare = (current[style] || 0) / totalGenerated;
-      const gap = targetShare - actualShare;
-      if (gap > bestGap) {
-        bestGap = gap;
-        bestStyle = style;
+    // Every category at or above target — nothing is owed, so fall back to the plain target weights.
+    if (deficits.length === 0) {
+      const totalWeight = styles.reduce((sum, [, w]) => sum + w, 0);
+      let roll = Math.random() * totalWeight;
+      for (const [style, weight] of styles) {
+        roll -= weight;
+        if (roll <= 0) return style;
       }
+      return styles[0][0];
     }
 
-    return bestStyle;
+    const totalDeficit = deficits.reduce((sum, d) => sum + d.relative, 0);
+    let roll = Math.random() * totalDeficit;
+    for (const d of deficits) {
+      roll -= d.relative;
+      if (roll <= 0) return d.style;
+    }
+    return deficits[0].style;
   } catch (err) {
     console.error("P3 style distribution lookup failed:", err);
     const totalWeight = styles.reduce((sum, [, w]) => sum + w, 0);
