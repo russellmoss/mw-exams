@@ -160,21 +160,51 @@ const model = await resolveModel();
 const lexiconGuidance = buildTastingLexiconGuidance(await getTastingLexicon());
 console.log(`Model: ${model} | concurrency: ${opt.concurrency}\n${"=".repeat(70)}`);
 
+// Raw fetch, not the SDK — so none of the SDK's retry/timeout behaviour applies and it has to be
+// supplied here. Without it a single dropped connection permanently skips that question: a 22-question
+// batch lost 3 to "fetch failed" and then STALLED, because a hung request with no timeout holds its
+// concurrency slot forever and the run never finishes.
+//
+// Retries on transport errors, timeouts, 429 and 5xx. NOT on 4xx (bad request, auth, model-not-found)
+// — those are deterministic and retrying only burns tokens on the same failure.
+const MAX_ATTEMPTS = 4;
+const REQUEST_TIMEOUT_MS = 180_000; // an 8000-token Opus package takes ~40-90s; 3 min is a stall, not slowness
+
 async function callClaude(system, user) {
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    // 8000, not 4000. One call produces FOUR sections (model answer ~420 words, proposed annotation,
-    // reasoning trace, study-diagram walkthrough) and 4000 was marginal for that, so the response was
-    // being cut intermittently — same input, three runs, 1,618 / 3,294 / 3,170 chars, the short one
-    // stopping mid-word at "Wine 4 — Chardonnay; Côte de". Truncation lands on the TAIL sections, which
-    // is why 17-21 of 104 banked questions have a NULL annotation / reasoning_trace /
-    // study_diagram_assist. Matches the 8000 already used for the thinking-on path in question-engine.
-    body: JSON.stringify({ model, max_tokens: 8000, system, messages: [{ role: "user", content: user }] }),
-  });
-  const d = await r.json();
-  if (d.error) throw new Error(JSON.stringify(d.error));
-  return d.content?.filter((b) => b.type === "text").map((b) => b.text).join("") ?? "";
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        // 8000, not 4000. One call produces FOUR sections (model answer ~420 words, proposed annotation,
+        // reasoning trace, study-diagram walkthrough) and 4000 was marginal for that, so the response was
+        // being cut intermittently — same input, three runs, 1,618 / 3,294 / 3,170 chars, the short one
+        // stopping mid-word at "Wine 4 — Chardonnay; Côte de". Truncation lands on the TAIL sections, which
+        // is why 17-21 of 104 banked questions have a NULL annotation / reasoning_trace /
+        // study_diagram_assist. Matches the 8000 already used for the thinking-on path in question-engine.
+        body: JSON.stringify({ model, max_tokens: 8000, system, messages: [{ role: "user", content: user }] }),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      if (r.status === 429 || r.status >= 500) {
+        throw Object.assign(new Error(`HTTP ${r.status}`), { retryable: true });
+      }
+      const d = await r.json();
+      // A 4xx surfaces here as d.error; treat it as terminal.
+      if (d.error) throw new Error(JSON.stringify(d.error));
+      return d.content?.filter((b) => b.type === "text").map((b) => b.text).join("") ?? "";
+    } catch (e) {
+      // fetch() rejects with TypeError("fetch failed") on transport errors and TimeoutError on abort;
+      // neither carries a status, so anything that is not an explicit API error is treated as transient.
+      const terminal = e.message?.startsWith("{") && !e.retryable;
+      if (terminal || attempt === MAX_ATTEMPTS) throw e;
+      lastErr = e;
+      const backoffMs = 2000 * 2 ** (attempt - 1); // 2s, 4s, 8s
+      console.warn(`    retry ${attempt}/${MAX_ATTEMPTS - 1} after ${e.message} — waiting ${backoffMs / 1000}s`);
+      await new Promise((res) => setTimeout(res, backoffMs));
+    }
+  }
+  throw lastErr;
 }
 
 async function regenOne(row) {
