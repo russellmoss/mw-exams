@@ -1427,7 +1427,16 @@ function validatePaperScope(paper: number, wines: { slot: number; fullText: stri
     } else if (paper === 3) {
       const isWhiteGrape = WHITE_GRAPE_INDICATORS.test(text);
       const isRedGrape = RED_GRAPE_INDICATORS.test(text);
-      const hasSpecialIndicator = /\b(sparkling|champagne|cava|prosecco|cremant|sekt|brut|blanc\s*de|rose|rosé|fortified|sherry|port|madeira|marsala|vin\s*santo|tokaj|aszu|sauternes|barsac|beerenauslese|trockenbeerenauslese|auslese|spätlese|kabinett|ice\s*wine|eiswein|passito|recioto|amarone|brachetto|moscato|muscat|rutherglen|maury|banyuls|rivesaltes|pedro\s*ximenez|oloroso|amontillado|manzanilla|fino|palo\s*cortado|VDN|vin\s*doux|late\s*harvest|botrytis|noble\s*rot|vendange\s*tardive|SGN|szamorodni|tawny|rimage|ruby|vintage|colheita|cream|dry\s*sack)\b/i.test(text);
+      const hasSpecialIndicator = /\b(sparkling|champagne|cava|prosecco|cremant|sekt|brut|blanc\s*de|rose|rosé|fortified|sherry|port|madeira|marsala|vin\s*santo|tokaj|aszu|sauternes|barsac|beerenauslese|trockenbeerenauslese|auslese|spätlese|kabinett|ice\s*wine|eiswein|passito|recioto|amarone|brachetto|moscato|muscat|rutherglen|maury|banyuls|rivesaltes|pedro\s*ximenez|oloroso|amontillado|manzanilla|fino|palo\s*cortado|VDN|vin\s*doux|late\s*harvest|botrytis|noble\s*rot|noble\s+(?:one|riesling|semillon|s[ée]millon|blend)|vendange\s*tardive|SGN|szamorodni|tawny|rimage|ruby|vintage|colheita|cream|dry\s*sack)\b/i.test(text);
+      // `noble <varietal>` sits alongside `noble rot` because that is how the southern hemisphere
+      // labels botrytis: De Bortoli Noble One, Brown Brothers Patricia Noble Riesling, Vidal Noble
+      // Riesling. Those never say "rot" or "botrytis", and at 10-12% they also clear the sweet ABV
+      // floor below — so a genuine P3 sweet wine was being rejected as a standard still white.
+      // Observed: "Brown Brothers, Patricia Noble Riesling, 2018. King Valley … (11%)".
+      //
+      // Deliberately NOT solved by raising the ABV threshold. 11% catches Patricia, but 12% would
+      // start admitting dry Riesling and Vinho Verde onto Paper 3 — the exact error this rule exists
+      // to prevent. A name token is the precise signal; ABV is the blunt fallback.
       const abvMatch = text.match(/\((\d+(?:\.\d+)?)%(?:\s*abv)?\)/);
       const abv = abvMatch ? parseFloat(abvMatch[1]) : null;
       const isLikelySweet = abv !== null && abv <= 10;
