@@ -1589,7 +1589,9 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   mastersofwine.org 2026-08-05, mined into EK-0136…EK-0141).
 - **IMW-website haul (2026-08-05 crawl — see `outputs/imw_website_crawl_2026-08-05.md` for URLs):**
   `docs/s1a_papers/` (all 11 Stage One Assessment papers 2015–2026, practical + theory, with
-  extracted_txt — a difficulty-calibrated sibling corpus, not yet structured), `docs/past_papers_2000s/`
+  extracted_txt), **`data/s1a_exams.json`** (the structured S1A practical corpus — 11 years / 45
+  questions / 132 wines, exams.json-style schema, wine IDs `YYYY_s1a_wM`, validated by
+  `scripts/validate_s1a.py`: slots 1–12, exact coverage, 300 marks per paper), `docs/past_papers_2000s/`
   (MW exams 2000–2010; the scanned 2010 paper hand-transcribed incl. the **Crib Sheet 2010** full wine
   list that pairs with the 2010 Examiners' Report), `docs/research_papers/` (4 MW RPs on tasting language —
   Wang acidity / Martindale minerality / Drew tannin vocabulary / Furuholmen mousiness; **IMW terms:

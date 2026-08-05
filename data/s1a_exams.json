@@ -1,0 +1,464 @@
+{
+  "_meta": {
+    "description": "Structured corpus of IMW Stage One Assessment (S1A) PRACTICAL papers, 2015-2026. A difficulty-calibrated sibling of data/exams.json: one 12-wine blind-tasting paper per year, written by the same examiner panel one step below the stage-two exam. Theory questions are NOT captured here (see docs/s1a_papers/ for the full papers).",
+    "source": "docs/s1a_papers/*.pdf (downloaded from mastersofwine.org 2026-08-05; see outputs/imw_website_crawl_2026-08-05.md for URLs). 2021-2023 PDFs have no text layer; their entries were transcribed from rendered page images.",
+    "wine_id_format": "YYYY_s1a_wM (e.g. 2024_s1a_w3)",
+    "conventions": "Question text and wine full_text are transcribed verbatim from the papers (line-wrap artifacts joined; original misprints preserved and flagged in notes). Marks per year sum to 300 (25/wine average), validated by scripts/validate_s1a.py.",
+    "gap_years": [2020],
+    "gap_note": "No S1A in 2020 (pandemic). 2021 was sat remotely: Q1 was a 'dry note' question with the wines disclosed in the stem, and the wine list covers slots 3-12 only."
+  },
+  "years": [
+    {
+      "year": 2015,
+      "title_as_printed": "INSTITUTE OF MASTERS OF WINE — FIRST YEAR ASSESSMENT 2015",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1-2 are sparkling.\nFor each wine:\na) Identify the origin and grape variety/ies as closely as possible. (2x10 marks)\nb) Comment on the method of production. (2x8 marks)\nc) Comment on the quality and maturity. (2x7 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5, 6],
+          "text": "Wines 3-6 are made from different single varieties.\nFor each wine:\na) Identify the variety and origin as closely as possible. (4x13 marks)\nb) Assess the quality and style of the wine, making reference to its likely commercial position. (4x12 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9, 10],
+          "text": "Wines 7-10 are made from the same single variety and come from three different countries.\nFor all four wines:\na) Identify the grape variety. (12 marks)\nThen for each wine:\nb) Outline the commercial potential. (4x4 marks)\nc) Identify the origin. (4x7 marks)\nd) Comment on the winemaking. (4x4 marks)\ne) Comment on the quality and maturity. (4x7 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [11, 12],
+          "text": "Wines 11-12 are from the same country and region.\na) Comment on the wines as a pair, making reference to their region of origin, quality, winemaking, maturity, ability to age and commercial appeal. (50 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Vilarnau Gran Reserva Cava. 2007. Catalonia, Spain (11.5%)" },
+        { "slot": 2, "full_text": "Rodier Père & Fils à Epernay, Brut Champagne. NV. Champagne, France (12.5%)" },
+        { "slot": 3, "full_text": "Doña Paula Estate, Valle de Uco, Torrontes. 2013. Mendoza, Argentina (13.5%)" },
+        { "slot": 4, "full_text": "Novaserra Greco di Tufo. 2013. Campania, Italy (13%)" },
+        { "slot": 5, "full_text": "Condrieu Le Grand Vallon Domaine Francois Villard. 2011. Rhone, France (13%)" },
+        { "slot": 6, "full_text": "Rueda Verdejo Bodegas Cerrosol. 2012. Rueda, Spain (12.5%)" },
+        { "slot": 7, "full_text": "Byron, Santa Barbara County, Pinot Noir. 2012. Santa Barbara, USA (13.5%)" },
+        { "slot": 8, "full_text": "Nuits-St-Georges, Domaine Arnoux-Lachaux. 2011. Burgundy, France (13%)" },
+        { "slot": 9, "full_text": "Bourgogne Hautes Cotes de Beaune, Berthelemot. 2011. Burgundy, France (13%)" },
+        { "slot": 10, "full_text": "Carrick Bannockburn, Pinot Noir. 2012. Central Otago, New Zealand (14%)" },
+        { "slot": 11, "full_text": "Graham's Quinta Dos Malvedos Vintage Port. 2001. Porto, Portugal (20%)" },
+        { "slot": 12, "full_text": "Graham's Late Bottled Vintage Port. 2008. Porto, Portugal (20%)" }
+      ]
+    },
+    {
+      "year": 2016,
+      "title_as_printed": "INSTITUTE OF MASTERS OF WINE — STAGE 1 ASSESSMENT 2016 (practical section headed 'PRACTICAL PAPER 1')",
+      "notes": "Wine 1 is printed without a country. Wine 8 is printed exactly as transcribed (duplicated name, no vintage) — the misprint is in the original PDF; the wine is Fèlsina's Chianti Classico Gran Selezione 'Colonia'.",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1 and 2 are from different countries.\nFor each wine:\na) Comment on the method of production, considering how it has influenced the style of the wine. (2x10 marks)\nb) Identify the origin as closely as possible. (2x7 marks)\nc) Comment on the quality. (2x8 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5, 6],
+          "text": "Wines 3-6 come from the same region of origin and are single variety wines. Three different grape varieties are represented, and wines 3 and 4 are made from the same variety.\nWith reference to all four wines:\na) Identify the country and region of origin. (24 marks)\nWith reference to wines 3 and 4:\nb) Identify the grape variety. (20 marks)\nc) Compare the quality of the two wines, stating clearly which you think is the better of the two and why. (18 marks)\nFor wines 5 and 6:\nd) Identify the grape variety. (2x10 marks)\ne) Comment on the style and quality within the context of the region of origin. (2x9 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9, 10],
+          "text": "Wines 7-10 come from the same country, and wines 7 and 8 are from the same region of origin and are made from the same single grape variety.\nWith reference to all four wines:\na) Identify the country of origin. (28 marks)\nWith reference to wines 7 and 8:\nb) Identify the region and grape variety. (24 marks)\nc) Compare the quality of the two wines, stating clearly which you think is the better of the two and why. (12 marks)\nFor wines 9 and 10:\nd) Identify the grape variety and the region of origin as closely as possible. (2x12 marks)\ne) Briefly comment on the style of the wine. (2x6 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [11, 12],
+          "text": "Wines 11 and 12 are made from the same predominant grape variety.\nWith reference to both wines:\na) Identify the predominant grape variety. (14 marks)\nFor each wine:\nb) State the alcohol level (% abv). (2x4 marks)\nc) Assess and comment on the levels of acidity. (2x4 marks)\nd) State the residual sugar (g/l). (2x4 marks)\ne) Briefly comment on the method of production, considering how it has influenced the style of the wine. (2x6 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Nino Franco, Rustico, NV, Valdobbiadene e Conegliano DOCG (11%)" },
+        { "slot": 2, "full_text": "AR Lenoble, Grand Cru Blanc de Blancs, 2008, Chouilly, Champagne, France (12%)" },
+        { "slot": 3, "full_text": "Greywacke, Wild Sauvignon Blanc, 2014, Marlborough, New Zealand (13.5%)" },
+        { "slot": 4, "full_text": "Villa Maria, Private Bin Sauvignon Blanc, 2014, Marlborough, New Zealand (13%)" },
+        { "slot": 5, "full_text": "Lawson's Dry Hills, Pinot Gris, 2013, Marlborough, New Zealand (13.5%)" },
+        { "slot": 6, "full_text": "Seresin, Chardonnay Reserve, 2013, Marlborough, New Zealand (13.5%)" },
+        { "slot": 7, "full_text": "Felsina, Berardenga, 2013, Chianti Classico DOCG, Italy (13.5%)" },
+        { "slot": 8, "full_text": "Felsina, Colonia Gran Selezione Felsina, Colonia Gran Selezione (14%)" },
+        { "slot": 9, "full_text": "Franz Haas, Pinot Nero, 2013, Trentino Alto Adige DOC, Italy (13%)" },
+        { "slot": 10, "full_text": "San Marzano Anniversario 62 Primitivo di Manduria Riserva, 2012, Puglia, Italy (14.5%)" },
+        { "slot": 11, "full_text": "Zind-Humbrecht, Goldert Grand Cru Muscat, 2013, Alsace, France (12.5%)" },
+        { "slot": 12, "full_text": "Adega de Pegoes, Moscatel de Setubal, NV, Setubal DOC, Portugal (17.5%)" }
+      ]
+    },
+    {
+      "year": 2017,
+      "title_as_printed": "STAGE 1 ASSESSMENT 2017",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1-2 come from different countries.\nFor each wine:\na) Identify the origin as closely as possible. (2 x 8 marks)\nb) Comment on the method of production. (2 x 9 marks)\nc) Comment on commercial appeal. (2 x 8 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5, 6],
+          "text": "Wines 3-6 are made from the same single grape variety, but come from three different countries. Wines 3 and 4 come from the same region of origin.\nWith reference to all four wines:\na) Identify the grape variety. (20 marks)\nWith reference to wines 3 and 4:\nb) Identify the origin as closely as possible. (16 marks)\nc) Compare the style and quality of the two wines, stating clearly which you think is the better of the two and why. (24 marks)\nFor each of wines 5 and 6:\nd) Identify the origin as closely as possible. (2 x 8 marks)\ne) Comment on style and quality. (2 x 12 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9, 10],
+          "text": "Wines 7-10 are from the same country of origin and are made from different single, or predominant, grape varieties.\nWith reference to all four wines:\na) Identify the country of origin. (20 marks)\nFor each wine:\nb) Identify the predominant grape variety. (4 x 8 marks)\nc) Comment on quality. (4 x 8 marks)\nd) Assess the level of tannins and describe them. (4 x 4 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [11, 12],
+          "text": "Wines 11-12 are made from different grape varieties and come from different countries.\nFor each wine:\na) Identify the origin as closely as possible, and the predominant grape variety. (2 x 10 marks)\nb) Comment on winemaking. (2 x 11 marks)\nc) State the level of residual sugar in g/l. (2 x 2 marks)\nd) State the alcohol in % abv. (2 x 2 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Taittinger. 2009. Champagne, France (12.5%)" },
+        { "slot": 2, "full_text": "Cordorniu. NV. Penedès, Spain (11.5%)" },
+        { "slot": 3, "full_text": "Pinot Gris, Grand Cru Rangen de Thann. 2013. Alsace, France (13.5%)" },
+        { "slot": 4, "full_text": "Pinot Gris, Cave de Beblenheim. 2015. Alsace, France (13%)" },
+        { "slot": 5, "full_text": "Pinot Gris, Seddon, Villa Maria. 2015. Marlborough, New Zealand (13.5%)" },
+        { "slot": 6, "full_text": "Pinot Grigio, Canaletto. 2015, Veneto, Italy (12%)" },
+        { "slot": 7, "full_text": "Carmenere, Lapostolle, Cuvee Alexandre Vinedo Apalta. 2014. Colchagua, Chile (14.5%)" },
+        { "slot": 8, "full_text": "Cabernet Sauvignon, Casillero Del Diablo. 2015. Central Valley, Chile (13.5%)" },
+        { "slot": 9, "full_text": "Pinot Noir, Vina Leyda. 2013. Leyda Valley, Chile (13.5%)" },
+        { "slot": 10, "full_text": "Syrah, Vina Leyda. 2013. Leyda Valley, Chile (14.5%)" },
+        { "slot": 11, "full_text": "Chateau Climens, 1er Cru Barsac. 2008. Sauternes, France (13.5%)" },
+        { "slot": 12, "full_text": "Planeta. Moscato Bianco, Passito di Noto. 2014. Sicily, Italy (12.5%)" }
+      ]
+    },
+    {
+      "year": 2018,
+      "title_as_printed": "STAGE 1 ASSESSMENT 2018",
+      "notes": "Wine 5 (Pale Cream Sherry) is printed without a vintage (NV implied).",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2, 3],
+          "text": "Wines 1-3 all come from the same country.\nFor all three wines:\na) Identify the country of origin. (15 marks)\nFor each wine:\nb) Identify the region of origin as closely as possible. (3 x 8 marks)\nc) Comment on the method of production, focusing on those elements that help determine the style of the wine. (3 x 12 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [4, 5, 6, 7],
+          "text": "Wines 4-7 all come from the same country and are made from different single grape varieties.\nFor all four wines:\na) Identify the country of origin. (20 marks)\nFor each wine:\nb) Identify the origin as closely as possible, and the grape variety. (4 x 10 marks)\nc) Comment on quality within the context of the region of origin. (4 x 8 marks)\nd) Assess and describe the level of acidity. (4 x 2 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [8, 9, 10],
+          "text": "Wines 8-10 are all made from the same grape variety but come from different countries.\nFor all three wines:\na) Identify the grape variety. (15 marks)\nFor each wine:\nb) Identify the origin as closely as possible, commenting on how climate has affected the wine's style. (3 x 10 marks)\nc) Comment on commercial position. (3 x 7 marks)\nd) Assess and describe the tannins. (3 x 3 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [11, 12],
+          "text": "Wines 11-12 come from the same region of origin and are made from the same grape variety.\nFor both wines:\na) Identify the grape variety and origin(s) as closely as possible. (24 marks)\nFor each wine:\nb) Comment on maturity. (2 x 5 marks)\nc) Comment on style. (2 x 4 marks)\nd) State the level of residual sugar (g/l) and level of alcohol (% abv). (2 x 4 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Prosecco, Casa Vinicola Zonin S.p.A. San Leo, NV, Veneto, Italy 11%" },
+        { "slot": 2, "full_text": "Franciacorta, Berlucchi '61 Brut Nature, 2009, Italy 12.5%" },
+        { "slot": 3, "full_text": "Lambrusco, Pruno Nero Dry Cleto Chiarli Modena, NV, Emilia Romagna Italy, 11%" },
+        { "slot": 4, "full_text": "Viura, Marques de Murrieta Capellania Blanco Reserva, 2013, Rioja, Spain 14%" },
+        { "slot": 5, "full_text": "Pale Cream Sherry Croft Original, Jerez, Spain 17.5%" },
+        { "slot": 6, "full_text": "Albariño, Pazo Senorans, 2016, Rías Baixas, Spain 13%" },
+        { "slot": 7, "full_text": "Chardonnay, Chivite Colección 125 Blanco 125 Special Edition, 2015, Navarra, Spain 13.5%" },
+        { "slot": 8, "full_text": "Joël and Clarisse Taluau-Saint Nicolas de Bourgueil l'expression, Cabernet Franc, 2016, Loire, France 12.5%" },
+        { "slot": 9, "full_text": "Raats Family Cabernet Franc, 2015, Stellenbosch, South Africa 14%" },
+        { "slot": 10, "full_text": "Tabali Vetas Blancas Cabernet Franc, 2015, Limari Valley, Chile 14.5%" },
+        { "slot": 11, "full_text": "Domaine des Baumard Quarts de Chaume, 2009, Rochefort sur Loire, France 13%" },
+        { "slot": 12, "full_text": "Domaine Vincent Careme, Le Clos, 2015, Vouvray, France 13%" }
+      ]
+    },
+    {
+      "year": 2019,
+      "title_as_printed": "STAGE 1 ASSESSMENT 2019",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2, 3],
+          "text": "Wines 1-3 all come from the same country.\nFor each wine:\na) Identify the origin as closely as possible, and the grape variety(ies). (3 x 10 marks)\nb) Comment on the method of production, focusing on the key elements that determine the wine's style (3 x 7 marks)\nc) Comment on the commercial potential. (3 x 8 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [4, 5, 6],
+          "text": "Wines 4-6 are all made from the same single grape variety but come from three different countries.\nWith reference to all three wines:\na) Identify the grape variety. (21 marks)\nFor each wine:\nb) Identify the origin as closely as possible. (3 x 8 marks)\nc) Comment on quality within the context of origin, with specific reference to capacity to age. (3 x 10 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9, 10],
+          "text": "Wines 7-10 are made from grape varieties associated with Bordeaux. Each wine is from a different country and from a different single or predominant (minimum 90%) grape variety.\nFor each wine:\na) Identify the origin as closely as possible and the predominant grape variety. (4 x 12 marks)\nb) Comment on style, quality and commercial appeal. (4 x 13 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [11, 12],
+          "text": "Wines 11-12 are from different countries.\nFor each wine:\na) Comment on quality, with specific reference to the method of production. (2 x 12 marks)\nb) Identify the origin as closely as possible. (2 x 9 marks)\nc) Specify the alcohol level in % abv. (2 x 2 marks)\nd) Specify the residual sugar level in g/l. (2 x 2 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Sparkling Shiraz, the Tight Cluster, Magpie Estate, 2012. Barossa Valley, Australia (13.5%)" },
+        { "slot": 2, "full_text": "Grand Vintage, Arras, 2008. Tasmania, Australia (12.5%)" },
+        { "slot": 3, "full_text": "Pink Muscat, Stella Bella, 2017. Margaret River, Australia (7.2%)" },
+        { "slot": 4, "full_text": "Ried Steinertal Riesling, Smaragd, F X Pichler, 2016. Wachau, Austria (13%)" },
+        { "slot": 5, "full_text": "Watervale Riesling, Mount Horrocks, 2018. Clare Valley, Australia (12.5%)" },
+        { "slot": 6, "full_text": "Rudesheimer Magdalenkreuz Riesling, Spätlese, Leitz, 2017. Rheingau, Germany (8%)" },
+        { "slot": 7, "full_text": "Domaine Filliatreau, 2017. Saumur-Champigny, Loire, France (13.5%)" },
+        { "slot": 8, "full_text": "Malbec, Q, Zuccardi, 2016. Valle de Uco, Mendoza, Argentina (14%)" },
+        { "slot": 9, "full_text": "Carmenère, Gran Reserva Medalla Real, Santa Rita, 2016. Colchagua, Chile (14%)" },
+        { "slot": 10, "full_text": "Cabernet Sauvignon, Pine Ridge, 2015. Napa Valley, USA (15%)" },
+        { "slot": 11, "full_text": "Blue Label, 5 Puttonyos Aszu, Royal Tokaji, 2013. Tokaji, Hungary (11%)" },
+        { "slot": 12, "full_text": "Grande Reserve, Domaine Pouderoux, NV. Maury, Roussillon, France (15.5%)" }
+      ]
+    },
+    {
+      "year": 2021,
+      "title_as_printed": "PRACTICAL PAPER (2021, sat remotely)",
+      "notes": "Remote assessment year. Question 1 was answered as DRY NOTES: the two wines were not tasted; their identity and technical details were disclosed in the question (transcribed in the question text below). The paper's wine list covers slots 3-12 only; slots 1-2 here reproduce the disclosed dry-note information and are flagged with dry_note. Transcribed from rendered page images (PDF has no text layer). Wine 11 producer printed as 'Cuaratolo Arini' (sic — the Marsala house usually spelled Curatolo Arini).",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1 and 2 come from different countries.\nFor each wine:\na) Identify the origin as closely as possible. (2 x 8 marks)\nb) Comment on winemaking. (2 x 8 marks)\nc) Discuss style and commercial potential. (2 x 9 marks)\nPlease write dry note answers for this question using the following information:\nWine 1: Cava Gran Reserva Brut Nature 2015. 55% Xarel-lo, 35% Macabeo, 10% Parellada. 12% ABV, RS <1 g/L. Approximate retail: GBP20-25. Hand-harvested. Cuvée made 100% from free run juice. Second fermentation in bottle, with 36 months on lees prior to disgorgement. No dosage, for Brut Nature style.\nWine 2: Prosecco Treviso DOC Brut NV. 100% Glera. 11% ABV, RS 9-12 g/L, TA 5.5-6.5 g/L. Approximate retail: GBP11. Must is inoculated with cultured yeast for fermentation in stainless steel that results in a base wine of around 9-10% ABV. Wine is transferred into pressurized tanks where it undergoes the Charmat method of secondary fermentation."
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5],
+          "text": "Wines 3 - 5 come from Austria and are made from different single grape varieties.\nFor each wine:\na) Identify the grape variety and the origin as closely as possible. (3 x 13 marks)\nb) Comment on quality, with reference to capacity to age. (3 x 12 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [6, 7, 8, 9],
+          "text": "Wines 6 - 9 are made from the same single grape variety but come from different countries.\nWith reference to all four wines:\na) Identify the grape variety. (20 marks)\nFor each wine:\nb) Identify the origin as closely as possible. (4 x 8 marks)\nc) Comment on quality within the context of origin. (4 x 7 marks)\nd) Comment on capacity to age. (4 x 5 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [10, 11, 12],
+          "text": "Wines 10 - 12 come from three different countries.\nFor each wine:\na) Identify the origin as closely as possible. (3 x 8 marks)\nb) Comment on the method of production. (3 x 8 marks)\nc) Comment on commercial appeal. (3 x 5 marks)\nd) State the level of residual sugar level in g/l. (3 x 2 marks)\ne) State the level of alcohol in % abv. (3 x 2 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Cava Gran Reserva Brut Nature 2015 (dry-note wine, disclosed in Question 1; no producer given)", "dry_note": true },
+        { "slot": 2, "full_text": "Prosecco Treviso DOC Brut NV (dry-note wine, disclosed in Question 1; no producer given)", "dry_note": true },
+        { "slot": 3, "full_text": "Domaene Gobelsburg, Kamptal Grüner Veltliner, 2019. Kamptal, Austria. (12.8%)" },
+        { "slot": 4, "full_text": "Domäne Wachau, Achleiten Riesling Smaragd, 2018. Wachau, Austria. (14%)" },
+        { "slot": 5, "full_text": "Tement, Kalk & Kreide Sauvignon Blanc, 2019. Sudsteiermark, Austria (12.5%)" },
+        { "slot": 6, "full_text": "Viña Leyda, Pinot Noir Lot 21, 2015. Leyda Valley, Chile (13.5%)" },
+        { "slot": 7, "full_text": "Albert Bichot, Côte de Nuits-Villages, 2018. Burgundy, France (14.1%)" },
+        { "slot": 8, "full_text": "J Vineyards, Pinot Noir Russian River Valley, 2018. Sonoma, USA (14.3%)" },
+        { "slot": 9, "full_text": "Tolpuddle Vineyard, Pinot Noir, 2018. Tasmania, Australia (13.5%)" },
+        { "slot": 10, "full_text": "González Byass, Matusalem Muy Viejo Cream Sherry VORS, NV. Jerez, Spain (20.5%)" },
+        { "slot": 11, "full_text": "Cuaratolo Arini, Marsala Superiore Dolce 5 years, NV. Sicily, Italy (18%)" },
+        { "slot": 12, "full_text": "Henriques & Henriques, 10 Year Old Malvasia, NV. Madeira, Portugal (20%)" }
+      ]
+    },
+    {
+      "year": 2022,
+      "title_as_printed": "Stage one assessment (S1A) 2022",
+      "notes": "Transcribed from rendered page images (PDF has no text layer).",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2, 3],
+          "text": "Wines 1-3 come from three different regions within the same country and are made from three different, single grape varieties.\nWith reference to all three wines:\na) Identify the country. (15 marks)\nFor each wine:\nb) Identify the origin as closely as possible, with reference to the grape variety used. (3 x 8 marks)\nc) Comment on style, quality and commercial potential. (3 x 12 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [4, 5, 6],
+          "text": "Wines 4-6 come from the same region.\nWith reference to all three wines:\na) Identify the region, specifying the origins of each wine as closely as possible. (30 marks)\nb) Compare and contrast quality in the context of the region of origin. (24 marks)\nFor each wine:\nc) Discuss maturity with reference to vintage. (3 x 7 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9],
+          "text": "Wines 7-9 come from three different countries. Each is made from a different, single grape variety.\nFor each wine:\na) Identify the grape variety and the origin as closely as possible. (3 x 10 marks)\nb) Comment on winemaking. (3 x 7 marks)\nc) Comment on style and commercial positioning. (3 x 8 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [10, 11, 12],
+          "text": "Wines 10-12 come from the same region.\nWith reference to all three wines:\na) Identify the region. (15 marks)\nFor each wine:\nb) Assess quality in the context of the region of origin. (3 x 8 marks)\nc) Comment on maturity and capacity to age, with specific reference to vintage. (3 x 12 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Heytesbury Chardonnay, Vasse Felix, 2019. Margaret River, Australia. (13.0%)" },
+        { "slot": 2, "full_text": "Sauvignon Blanc, Shaw + Smith, 2021. Adelaide Hills, Australia. (12.5%)" },
+        { "slot": 3, "full_text": "The Florita Riesling, Jim Barry, 2017. Clare Valley, Australia. (12.5%)" },
+        { "slot": 4, "full_text": "St. Julien, Château Langoa Barton, 2010. Bordeaux, France. (13%)" },
+        { "slot": 5, "full_text": "St. Estèphe, Château Les Ormes de Pez, 2018. Bordeaux, France. (14.5%)" },
+        { "slot": 6, "full_text": "St. Émilion Grand Cru, Château Moulin St Georges, 2015. Bordeaux, France. (14.5%)" },
+        { "slot": 7, "full_text": "Quarts de Chaume Grand Cru, Domaine des Forges, 2016. Loire Valley, France. (11.0%)" },
+        { "slot": 8, "full_text": "Noble One, De Bortoli, 2017. New South Wales, Australia. (12.7%)" },
+        { "slot": 9, "full_text": "Vin de Constance, Klein Constantia, 2017. Constantia, South Africa. (14%)" },
+        { "slot": 10, "full_text": "Vintage Port, Taylor's, 1983. Douro Valley, Portugal. (20.5%)" },
+        { "slot": 11, "full_text": "Quinta de Vargellas Vintage Port, Taylor's, 2008. Douro Valley, Portugal. (20%)" },
+        { "slot": 12, "full_text": "LBV Port, Taylor's, 2016. Douro Valley, Portugal. (20%)" }
+      ]
+    },
+    {
+      "year": 2023,
+      "title_as_printed": "Stage one assessment (S1A) 2023",
+      "notes": "Transcribed from rendered page images (PDF has no text layer). Wine 10 (Tawny Port) is printed without a vintage (NV implied).",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1 & 2 come from the same country.\nFor each wine:\na) Identify the origin as closely as possible, with reference to the grape variety(ies) used. (2 x 6 marks)\nThen, with reference to both wines:\nb) Compare and contrast style, quality and commercial potential. (24 marks)\nc) Compare and contrast winemaking. (14 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5, 6],
+          "text": "Wines 3-6 come from four different countries in the Americas. Each is made from a different, single grape variety.\nFor each wine:\na) Identify the grape variety. (4 x 8 marks)\nb) Identify the origin as closely as possible. (4 x 7 marks)\nc) Comment on style, quality and commercial positioning. (4 x 10 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [7, 8, 9],
+          "text": "Wines 7-9 come from the same region.\nWith reference to all three wines:\na) Identify the region, specifying the origins of each wine as closely as possible. (24 marks)\nThen for each wine:\nb) Comment on quality in the context of the region of origin. (3 x 7 marks)\nc) Comment on maturity with reference to vintage, and capacity to age. (3 x 10 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [10, 11, 12],
+          "text": "Wines 10-12 come from two different countries.\nFor each wine:\na) Identify the origin as closely as possible, with reference to residual sugar and alcohol levels. (3 x 10 marks)\nb) Comment on the method of production. (3 x 8 marks)\nc) Comment on style and commercial potential. (3 x 7 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Prosecco Extra Dry, Imperativo, NV. Veneto, Italy. (11.0%)" },
+        { "slot": 2, "full_text": "Franciacorta Cuvee Annamaria Clementi, Ca' del Bosco, 2013. Brescia, Italy. (13.0%)" },
+        { "slot": 3, "full_text": "Torrontes 'Crios', Susana Balbo, 2022. Mendoza, Argentina. (13.0%)" },
+        { "slot": 4, "full_text": "Sauvignon Blanc 120 Reserva Especial, Santa Rita, 2021. Central Valley, Chile. (13%)" },
+        { "slot": 5, "full_text": "Chardonnay Russian River Valley, La Crema, 2020. Russian River Valley, USA. (14.5%)" },
+        { "slot": 6, "full_text": "Picone Riesling, Charles Baker, 2019. Niagara, Canada. (10.4%)" },
+        { "slot": 7, "full_text": "Calvet Reserve Merlot / Cabernet Sauvignon, 2019. Bordeaux, France. (14.0%)" },
+        { "slot": 8, "full_text": "Château Beaumont Cru Bourgeois, 2016. Médoc, Bordeaux, France. (13.5%)" },
+        { "slot": 9, "full_text": "Château Langoa Barton 3ème Grand Cru Classé, 2009. St Julien, Bordeaux, France. (13.0%)" },
+        { "slot": 10, "full_text": "20 Year Old Tawny Port, Taylors. Douro, Portugal. (20.0%)" },
+        { "slot": 11, "full_text": "Rutherglen Muscat, Campbells, NV. Rutherglen, Australia. (17.5%)" },
+        { "slot": 12, "full_text": "15 Year Old Malvasia, Henriques & Henriques. Madeira, Portugal. (20.0%)" }
+      ]
+    },
+    {
+      "year": 2024,
+      "title_as_printed": "Stage one assessment (S1A) 2024",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1 and 2 are from the same region.\nFor both wines:\na) Identify the region as closely as possible. (10 marks)\nb) Comment on the production methods for the wines. (20 marks)\nc) Compare the wines' maturity and quality, stating which is the higher quality wine. (20 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4, 5],
+          "text": "Wines 3-5 are all from Europe.\nFor each wine:\na) Discuss the major factors involved in the method of production, with particular reference to the role of yeast. (3 x 15 marks)\nb) Comment on quality and style. (3 x 10 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [6, 7, 8],
+          "text": "Wines 6-8 come from the same country and are made from three different single grape varieties.\nWith reference to all three wines:\na) Identify the country of origin. (15 marks)\nFor each wine:\nb) Identify the grape variety and origin as closely as possible. (3 x 8 marks)\nc) Discuss quality in the context of the region of origin. (3 x 7 marks)\nd) Comment on winemaking. (3 x 5 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [9, 10, 11, 12],
+          "text": "Wines 9-12 come from four different countries. Each is made from a different single grape variety.\nFor each wine:\na) Identify the grape variety and origin as closely as possible. (4 x 10 marks)\nb) Comment on winemaking. (4 x 7 marks)\nc) Comment on style and commercial potential. (4 x 8 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "La Grande Année Rosé, Bollinger, 2007. Champagne, France. (12.0%)" },
+        { "slot": 2, "full_text": "Rosé Brut, Bollinger, NV. Champagne, France. (12.0%)" },
+        { "slot": 3, "full_text": "Crémant de Bourgogne Brut Réserve, Albert Bichot, NV. Burgundy, France. (12.0%)" },
+        { "slot": 4, "full_text": "Manzanilla Papirusa Solera Familiar, Bodegas Lustau, NV. Jerez, Spain. (15.0%)" },
+        { "slot": 5, "full_text": "Château-Chalon Vin Jaune, Domaine Berthet-Bondet, 2015. Jura, France. (14.0%)" },
+        { "slot": 6, "full_text": "Private Bin Sauvignon Blanc, Villa Maria, 2022. Marlborough, New Zealand. (12.5%)" },
+        { "slot": 7, "full_text": "CRU Chardonnay, Smith & Sheth, 2019. Hawkes Bay, New Zealand. (13.5%)" },
+        { "slot": 8, "full_text": "Pinot Gris, Kumeu Village, 2022. Martinborough, New Zealand. (13.5%)" },
+        { "slot": 9, "full_text": "Chinon, Clos du Chêne Vert, Domaine Charles Joguet, 2019. Loire, France. (13.5%)" },
+        { "slot": 10, "full_text": "Malbec, Catena, 2020. Mendoza, Argentina. (13.5%)" },
+        { "slot": 11, "full_text": "Pinot Noir, Maximin Grünhäuser, 2020. Mosel, Germany. (14.5%)" },
+        { "slot": 12, "full_text": "Blaufränkisch, Moric Lutzmannsburger, 2021. Burgenland, Austria. (13.5%)" }
+      ]
+    },
+    {
+      "year": 2025,
+      "title_as_printed": "Stage one assessment (S1A) 2025",
+      "notes": "Wine 8 is printed without a grape variety (Sandhi's Santa Rita Hills bottling).",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2, 3],
+          "text": "Wines 1-3 come from three different countries.\nFor each wine:\na) Identify the origin as closely as possible making reference to grape variety/ies. (3 x 11 marks)\nb) Comment on method of production making particular reference to oak. (3 x 7 marks)\nc) Comment on quality in the context of the region of origin. (3 x 7 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [4, 5],
+          "text": "Wines 4 and 5 are from the same region of origin.\nFor both wines:\na) Identify the origin as closely as possible. (12 marks)\nb) Comment on winemaking. (18 marks)\nc) Compare and contrast style and quality. (20 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [6, 7, 8],
+          "text": "Wines 6-8 are made from the same single grape variety and are from three different countries.\nFor all three wines:\na) Identify the grape variety. (21 marks)\nFor each wine:\nb) Identify the origin as closely as possible. (3 x 8 marks)\nc) Comment on quality within the context of the region of origin. (3 x 10 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [9, 10, 11, 12],
+          "text": "Wines 9-12 are from four different countries.\nFor each wine:\na) Identify the origin as closely as possible making reference to grape variety/ies used. (4 x 9 marks)\nb) Comment on the key methods of production. (4 x 12 marks)\nc) State ABV in % (4 x 2 marks)\nd) State RS in g/l (4 x 2 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Domaine de Chevalier Blanc Pessac Leognan, 2021. Bordeaux, France. (13.5%)" },
+        { "slot": 2, "full_text": "Barefoot Buttery Chardonnay, NV. USA. (13.5%)" },
+        { "slot": 3, "full_text": "Shaw and Smith M3 Chardonnay, 2022. Adelaide Hills, Australia. (13%)" },
+        { "slot": 4, "full_text": "Corte Sant'Alda Valpolicella Amarone, 2016. Veneto, Italy. (15.5%)" },
+        { "slot": 5, "full_text": "Allegrini Valpolicella, 2022. Veneto, Italy. (13%)" },
+        { "slot": 6, "full_text": "Felton Road Bannockburn Pinot Noir, 2022. Central Otago, New Zealand. (14%)" },
+        { "slot": 7, "full_text": "Maison Roisin Curley, Bourgogne Rouge, 2022. Burgundy, France. (13%)" },
+        { "slot": 8, "full_text": "Sandhi Santa Rita Hills, 2022. California, USA. (13%)" },
+        { "slot": 9, "full_text": "Disznókő Tokaji 5 Puttonyos, 2013. Tokaj, Hungary. (12%)" },
+        { "slot": 10, "full_text": "Henriques & Henriques Malvasia 10 years old, NV. Madeira, Portugal. (20%)" },
+        { "slot": 11, "full_text": "Klein Constantia, Vin de Constance, 2019. Constantia, South Africa. (14%)" },
+        { "slot": 12, "full_text": "Gonzalez Byass Leonor Palo Cortado, 12 years old. Jerez, Spain. (20%)" }
+      ]
+    },
+    {
+      "year": 2026,
+      "title_as_printed": "Stage one assessment (S1A) 2026",
+      "notes": "Five questions — the only S1A paper with more than four. Question 5's negative constraint ('None are from Spain or Portugal') is unusual.",
+      "questions": [
+        {
+          "n": 1,
+          "wines": [1, 2],
+          "text": "Wines 1 and 2 come from the same region and the same producer.\nFor both wines:\na) Identify the region. (10 marks)\nb) Compare quality, clearly stating which one is of higher quality. (25 marks)\nc) Compare commercial potential. (15 marks)"
+        },
+        {
+          "n": 2,
+          "wines": [3, 4],
+          "text": "Wines 3 and 4 are made from the same single grape variety and come from two different countries.\nFor both wines:\na) Identify the grape variety. (20 marks)\nb) Comment on style and quality with reference to winemaking. (30 marks)"
+        },
+        {
+          "n": 3,
+          "wines": [5, 6, 7],
+          "text": "Wines 5-7 are red blends from three different countries.\nFor each wine:\na) Identify the origin as closely as possible with reference to grape varieties. (3 x 10 marks)\nb) Comment on style and quality. (3 x 15 marks)"
+        },
+        {
+          "n": 4,
+          "wines": [8, 9],
+          "text": "Wines 8 and 9 are from two different countries.\nFor each wine:\na) Identify the origin. (2 x 8 marks)\nb) Comment on the key methods of production. (2 x 7 marks)\nc) Comment on style and commercial potential. (2 x 10 marks)"
+        },
+        {
+          "n": 5,
+          "wines": [10, 11, 12],
+          "text": "Wines 10-12 are fortified. None are from Spain or Portugal.\nFor each wine:\na) Identify the origin as closely as possible referring to grape variety/ies used. (3 x 9 marks)\nb) Comment on the method of production. (3 x 12 marks)\nc) State ABV in %. (3 x 2 marks)\nd) State RS in g/l. (3 x 2 marks)"
+        }
+      ],
+      "wines": [
+        { "slot": 1, "full_text": "Special Cuvée, Bollinger, NV. Champagne, France. (12%)" },
+        { "slot": 2, "full_text": "La Grande Année, Bollinger, 2015. Champagne, France. (12.5%)" },
+        { "slot": 3, "full_text": "Clos de St Yves Savennieres, Domaine des Baumard, 2020. Loire, France. (13%)" },
+        { "slot": 4, "full_text": "Chenin Blanc, David & Nadia, 2023. Swartland, South Africa. (12.5%)" },
+        { "slot": 5, "full_text": "Decoy Red Blend, Duckhorn, 2019. California, USA. (14%)" },
+        { "slot": 6, "full_text": "The Steading, Torbreck, 2022. Barossa Valley, Australia. (15%)" },
+        { "slot": 7, "full_text": "Classic Priorat, Onix, 2023. Catalonia, Spain. (15%)" },
+        { "slot": 8, "full_text": "Mühlberg Riesling Eiswein, Dr. Crusius, 2020. Nahe, Germany. (8%)" },
+        { "slot": 9, "full_text": "TBA No. 5, Scheurebe, Kracher, 2021. Burgenland, Austria. (6.5%)" },
+        { "slot": 10, "full_text": "Banyuls, Domaine de Bila-Haut, 2021. Languedoc-Roussillon, France. (17%)" },
+        { "slot": 11, "full_text": "Rutherglen Muscat, Chambers Rosewood, NV. Victoria, Australia. (17.7%)" },
+        { "slot": 12, "full_text": "Cape Vintage, Boplaas, 2022. Klein Karoo, South Africa. (17.8%)" }
+      ]
+    }
+  ]
+}

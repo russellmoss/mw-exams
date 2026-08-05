@@ -142,7 +142,9 @@ Relevant to the tasting-lexicon system (examiner-endorsed vocabulary research by
 
 ## Remaining next actions
 1. Ingest 2026 stage-2 paper into data/exams.json pipeline — IN PROGRESS (separate effort).
-2. Parse S1A practical papers into a structured sibling corpus (difficulty-calibrated tier).
+2. ~~Parse S1A practical papers into a structured sibling corpus~~ — DONE 2026-08-05:
+   `data/s1a_exams.json` (11 years / 45 questions / 132 wines; 2021-2023 transcribed from page
+   images), validated by `scripts/validate_s1a.py`.
 3. Mine 2013 + 2010 examiners' reports into mw_exam_empirical_knowledge.md §2/§3/§5
    (marking doctrine, clanger taxonomy, per-paper strategy) with citations.
 4. Correct the 12-min/wine assumption to 135 min/paper (11.25 min/wine) where it matters.
