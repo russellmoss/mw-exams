@@ -4,9 +4,12 @@ import ReactMarkdown from "react-markdown";
 import type { Question } from "@/lib/study-session";
 import {
   deriveQuestion,
+  markPhrase,
   SECTION_A_HEADING,
   SECTION_B_HEADING,
 } from "@/lib/question-sections";
+import { SourceList } from "./WineReveal";
+import type { WineProvenance } from "@/lib/wine-provenance";
 
 // Split Sections: if the model answer was keyed under the two section sub-headings, split it so each
 // half renders beneath its own Fraunces heading (matching the question's section cards). Returns null
@@ -59,11 +62,17 @@ function cleanModelAnswer(text: string): {
 interface ModelAnswerRevealProps {
   question: Question;
   onNextQuestion: () => void;
+  /** The tasting notes shown during the session, in flight order (index i = wines[i]). */
+  tastingNotes?: string[];
+  /** Where each note's reference profile came from, in flight order. */
+  provenance?: WineProvenance[];
 }
 
 export function ModelAnswerReveal({
   question,
   onNextQuestion,
+  tastingNotes,
+  provenance,
 }: ModelAnswerRevealProps) {
   const parsed = cleanModelAnswer(question.modelAnswer || "");
   const hasModelAnswer = parsed.answer.length > 0;
@@ -80,30 +89,90 @@ export function ModelAnswerReveal({
 
   // Render the model answer under the two section headings when the question spans both scopes and the
   // exemplar keyed its prose accordingly; otherwise fall back to one block.
-  const multiScope = deriveQuestion(question.text, question.wines.length).scopes.length > 1;
+  const derived = deriveQuestion(question.text, question.wines.length);
+  const multiScope = derived.scopes.length > 1;
   const sectioned = multiScope ? splitAnswerBySection(parsed.answer) : null;
 
   return (
     <div className="space-y-6">
-      {/* Wine identities reveal */}
+      {/* Original question — kept in view so the identities and answer are read against what was
+          actually asked. */}
+      <div className="bg-card rounded-xl border border-border p-6">
+        <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
+          The Question
+        </h3>
+        <p className="text-[15px] text-foreground leading-relaxed font-medium">
+          {derived.preamble}
+        </p>
+        {derived.subParts.length > 0 && (
+          <div className="mt-4 space-y-3">
+            {derived.subParts.map((sq) => (
+              <div key={sq.label} className="flex gap-3">
+                <span className="text-accent font-mono text-xs font-semibold shrink-0 mt-0.5">
+                  {sq.label})
+                </span>
+                <p className="flex-1 text-sm text-foreground/90 leading-relaxed">{sq.text}</p>
+                {sq.marks > 0 && (
+                  <span className="text-xs text-muted font-mono shrink-0 mt-0.5 whitespace-nowrap tabular-nums">
+                    {markPhrase(sq, question.wines.length)}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Wine identities reveal — each row expands to the tasting note the candidate saw for that
+          wine, with its source citations. Post-answer surface, so showing sources is safe. */}
       <div className="bg-card rounded-xl border border-accent/30 p-6">
-        <h3 className="text-sm font-semibold text-accent uppercase tracking-wider mb-4">
+        <h3 className="text-sm font-semibold text-accent uppercase tracking-wider mb-1">
           Wine Identities
         </h3>
-        <div className="space-y-2">
-          {question.wines.map((w) => (
-            <div
-              key={w.slot}
-              className="flex items-start gap-3 py-2 border-b border-border/50 last:border-0"
-            >
-              <span className="text-xs font-mono text-muted w-16 shrink-0 pt-0.5">
-                Wine {w.slot}
-              </span>
-              <span className="text-sm text-foreground">
-                {w.fullText}
-              </span>
-            </div>
-          ))}
+        {tastingNotes && tastingNotes.length > 0 && (
+          <p className="text-xs text-muted mb-3">
+            Click a wine to revisit its tasting note and sources.
+          </p>
+        )}
+        <div className={tastingNotes && tastingNotes.length > 0 ? "" : "mt-3"}>
+          {question.wines.map((w, i) => {
+            const note = tastingNotes?.[i];
+            if (!note) {
+              return (
+                <div
+                  key={w.slot}
+                  className="flex items-start gap-3 py-2 border-b border-border/50 last:border-0"
+                >
+                  <span className="text-xs font-mono text-muted w-16 shrink-0 pt-0.5">
+                    Wine {w.slot}
+                  </span>
+                  <span className="text-sm text-foreground">{w.fullText}</span>
+                </div>
+              );
+            }
+            return (
+              <details key={w.slot} className="group border-b border-border/50 last:border-0">
+                <summary className="flex items-start gap-3 py-2 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-card-hover/50 rounded-lg px-1 -mx-1 transition-colors">
+                  <span className="text-xs font-mono text-muted w-16 shrink-0 pt-0.5">
+                    Wine {w.slot}
+                  </span>
+                  <span className="text-sm text-foreground flex-1">{w.fullText}</span>
+                  <span
+                    className="text-muted text-xs shrink-0 pt-0.5 transition-transform duration-150 group-open:rotate-90"
+                    aria-hidden
+                  >
+                    ▸
+                  </span>
+                </summary>
+                <div className="mb-3 mt-1 rounded-lg border border-border bg-background/40 p-4 font-[family-name:var(--font-geist-mono)] text-sm leading-relaxed">
+                  <div className="markdown-content">
+                    <ReactMarkdown>{note}</ReactMarkdown>
+                  </div>
+                  {provenance?.[i] && <SourceList p={provenance[i]} />}
+                </div>
+              </details>
+            );
+          })}
         </div>
       </div>
 

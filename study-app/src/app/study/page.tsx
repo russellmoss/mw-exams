@@ -1192,6 +1192,8 @@ export default function StudyPage() {
               <ModelAnswerReveal
                 question={state.question}
                 onNextQuestion={handleNextQuestion}
+                tastingNotes={tastingNotes}
+                provenance={tastingProvenance}
               />
               {/* Flag Question (feature): debrief footer control — shown only now the wines are
                   revealed. Withdraws the question from rotation and swaps in a fresh one. */}
