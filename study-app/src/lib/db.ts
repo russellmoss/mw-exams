@@ -75,7 +75,7 @@ export interface GeneratedQuestion {
   // review panel; NULL unless the item was checked and needed attention.
   length_check_status: string | null;
   length_check: Record<string, unknown> | null;
-  // Answer Length (migration 038). The model-ANSWER counterpart of the stem's length check:
+  // Answer Length (migration 039). The model-ANSWER counterpart of the stem's length check:
   // 'clean' | 'corrected' | 'over' | 'under', or NULL for a pre-feature / unmeasured row (read as
   // 'clean'). answer_word_count is the body words measured in code — the only count to trust, since
   // the model's own `actual_word_count` self-report was fabricated on ~half the corpus.
@@ -291,7 +291,7 @@ export async function applyLengthCheck(
   `;
 }
 
-// Answer Length (migration 038). Stamp the measured word count + verdict on a question AFTER its
+// Answer Length (migration 039). Stamp the measured word count + verdict on a question AFTER its
 // model answer has been saved. Mirrors applyLengthCheck above, with one difference: the count is
 // stamped on EVERY measured answer, not only the off-budget ones, because the count is the datum the
 // offline repair selector filters on and a distribution query wants every row. The status/JSONB are
