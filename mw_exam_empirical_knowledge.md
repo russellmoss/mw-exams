@@ -37,6 +37,18 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-05 — long-horizon study (2000–2025): the corpus doubled backwards.** Structured the 11
+  published pre-2011 papers into `data/past_exams_2000_2010.json` (33 papers / 111 questions / 396 wines)
+  and compared them to `data/exams.json` with the new `scripts/analyze_long_horizon.py`
+  (write-up: `outputs/heuristics/long_horizon_analysis_2000_2025.md`). Results: **EK-0001 CORRECTED** —
+  the 25-marks-per-wine rule is stated verbatim in the 2001–2008 printed instructions, so the
+  "modern exam (~2013 onward) / pre-2013 differed" caveat was wrong; the 2007→2008 change was only
+  *where* marks are printed. **EK-0120 RESOLVED** (Era-1 allocation now characterised by script; note
+  EK-0078's vintage-ID half remains open). New **EK-0142** (26-year structural invariants + the
+  competency drift: commercial 12.6%→34.0%, winemaking 43.2%→65.4%, variety ID 66.7%→56.2%, origin ID
+  ~90% in both eras; 4-wine default → 2-wine pair; 8-wine flights extinct) and **EK-0143** (two
+  `data/exams.json` defects: 2011 P3 question missing, 2013 per-wine multipliers dropped, plus the
+  two-source-compilation drift behind them).
 - **2026-08-05 — early-era examiner reports mined: the newly-recovered 2013 + 2010 Examiners' Reports
   (`docs/examiners reports/`, fetched from mastersofwine.org — the only two public reports predating the
   2017–2025 synthesis corpus) produced 6 new entries — EK-0136 (never leave blanks / mark-up generosity),
@@ -157,15 +169,63 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 ### EK-0001 · Three papers, twelve wines each, ~25 marks per wine
 - **tier:** STRONG SIGNAL · **status:** live
 - **evidence:** CLAUDE.md; `outputs/heuristics/examiner_patterns.md` §2.5; ledger: attempt #96 (accept),
-  attempt #138 (accept); user domain expertise (MW candidate, 2026-05-30) for the pre-2013 boundary
+  attempt #138 (accept); **2026-08-05 long-horizon study — `outputs/heuristics/long_horizon_analysis_2000_2025.md`
+  + `scripts/analyze_long_horizon.py` over `data/past_exams_2000_2010.json` + `data/exams.json`
+  (75 papers / 264 questions / 900 wines, 2000–2025)**
 - **claim:** The practical is three blind-tasting papers. **P1 = white still**, **P2 = red still**,
   **P3 = mixed** (sparkling, fortified, sweet, rosé, oxidative, occasionally orange/unusual). Each
-  paper presents **12 wines**. Mark allocation is **exactly 25 marks per wine, universally** — a
-  2-wine question = 50, 3-wine = 75, 4-wine = 100, etc. This exact-25 scheme is a hallmark of the
-  **modern exam (~2013 onward)**: **zero exceptions across the verified 2014–2025 corpus**. Pre-2013
-  papers did **not** use a uniform 25-marks-per-wine allocation — so treat exactly-25/wine as a truth
-  of the *current* exam, not of all IMW history (cf. EK-0004, the exam evolves). It is now enforced as
-  a hard validator rule (see EK-0041), because it is easy for a generator to get wrong.
+  paper presents **12 wines** — verified in **75/75 papers across 2000–2025**. Mark allocation is
+  **exactly 25 marks per wine, universally** — a 2-wine question = 50, 3-wine = 75, 4-wine = 100, etc.
+  **This is NOT a modern-era innovation.** The practical's own printed instructions state
+  *"The total number of MARKS for each Paper is 300 and the total number of MARKS per QUESTION is shown
+  on the appropriate proforma"* verbatim in **2001–2008**, and every marked paper sums to 300 (Era 1
+  9/9, Era 2 38/41 — the three 2013 exceptions are a transcription artifact that drops per-wine
+  multipliers, not a real deviation; see EK-0142). What changed at **2007→2008** is only *where* the
+  marks are printed — proforma/answer sheet before, on the question paper after. Only **2000** sits
+  outside the convention, making no reference to marks at all. It is enforced as a hard validator rule
+  (see EK-0041), because it is easy for a generator to get wrong.
+  *(Supersedes the earlier "hallmark of the modern exam (~2013 onward) / pre-2013 papers differed"
+  wording, which rested on user recollection and is contradicted by the printed papers.)*
+
+### EK-0142 · The exam's skeleton is 26-year stable; what moved is the assessed competency mix
+- **tier:** STRONG SIGNAL · **status:** live · **resolves:** EK-0120 · **corrects:** EK-0001
+- **evidence:** `outputs/heuristics/long_horizon_analysis_2000_2025.md`, computed by
+  `scripts/analyze_long_horizon.py` over `data/past_exams_2000_2010.json` (Era 1, structured from the
+  published PDFs in `docs/past_papers_2000s/`) and `data/exams.json` (Era 2) — 75 papers, 264 questions,
+  900 wines
+- **claim:** Across the full published history (2000–2025) four things never move: **12 wines per paper**
+  (75/75), **300 marks per paper** (25/wine — §EK-0001), the **P1 white / P2 red / P3 mixed** split, and
+  an origin mix of **~2/3 Old World with France at ~1/3 of all wines** (Era 1 64.9% OW / 33.1% France;
+  Era 2 68.1% / 33.7%). What changed is **what candidates are asked about the wine**:
+  **commercial 12.6% → 34.0%** and **winemaking 43.2% → 65.4%** of questions (the two big additions),
+  **style +13.8pts**, **quality +11.0pts**, against **variety ID 66.7% → 56.2%**, **maturity −12.8pts**
+  and **numeric RS/ABV −7.1pts**. **Origin ID is near-universal in BOTH eras (~90%)** — the exam did not
+  reduce identification, it moved the burden from *which grape* to *where from* and spent the freed marks
+  on the analytical competencies. Flights also shrank: the **4-wine flight was Era 1's default (37.8%)**,
+  the **2-wine pair is Era 2's growth format (18.0% → 32.7%)**, and **8-wine flights (2008 P3, 2009 P1)
+  are extinct**. Two consequences: (1) this **independently corroborates the ID-suppression arc (EK-0104)
+  and the commercial rise from a corpus those entries were never built on**, raising confidence they are a
+  real long-run trajectory rather than a last-decade artifact; (2) **Era-1 question SHAPES are obsolete
+  and must not be used as generation templates** — treat Era 1 as evidence about invariants, trends and
+  wine-selection precedent only.
+
+### EK-0143 · Two corpus defects in data/exams.json (2011 P3 missing; 2013 multipliers dropped)
+- **tier:** PROCESS · **status:** open (found 2026-08-05; not yet fixed — `exams.json` is a parser output,
+  regenerate rather than hand-edit per CLAUDE.md)
+- **evidence:** `outputs/heuristics/long_horizon_analysis_2000_2025.md` §5; verified against
+  `source/MW_Practical_Papers_Compilation V2.md`
+- **claim:** (1) **2011 Paper 3 has 12 wines but ZERO questions** in `data/exams.json`. The question does
+  exist in `source/MW_Practical_Papers_Compilation V2.md` — a single 12-wine paired question ("Wines 1 to
+  12 are all presented in pairs… 8 / 14 / 20 marks per pair, plus 12 x 2 and 12 x 2") summing to exactly
+  300 — so this is a parse/merge gap, and that paper is currently invisible to every downstream analysis
+  and to any "112 historical questions" count. (2) **The three 2013 papers dropped their per-wine
+  multipliers** in transcription, printing "(10 marks)" under a "For each wine" heading where other years
+  print "(6 x 10 marks)"; restoring the implied multiplier returns 2013 P3 to exactly 300, confirming the
+  papers were normal and only the transcription is lossy. (3) Structural cause to fix first: there are
+  **two source compilations** — `MW_Practical_Papers_Compilation.md` (2,585 lines, the file
+  `scripts/parse_source.py` actually reads, and the only one CLAUDE.md names authoritative) and
+  `MW_Practical_Papers_Compilation V2.md` (574 lines). The 2011 P3 content exists **only in V2**, so the
+  "authoritative" file is not a superset. Reconcile the two before any re-parse.
 
 ### EK-0002 · 3–4 questions per paper, trending to fewer/larger
 - **tier:** STRONG SIGNAL · **status:** live
@@ -1587,6 +1647,10 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   (8 practical + chief + theory reports 2017–2025; 2021/2022 practical & chief OCR'd from scans; **plus
   the 2013 and 2010 Examiners' Reports** — the only public pre-2017 reports, recovered from
   mastersofwine.org 2026-08-05, mined into EK-0136…EK-0141).
+- **Long-horizon corpus & study (2000–2025):** `data/past_exams_2000_2010.json` (Era-1 practicals,
+  built by `scripts/build_era1_corpus.py`), `scripts/analyze_long_horizon.py` (the analyzer — `--compare`
+  reproduces every figure), and `outputs/heuristics/long_horizon_analysis_2000_2025.md` (the write-up;
+  feeds EK-0142/EK-0143 and the EK-0001 correction).
 - **IMW-website haul (2026-08-05 crawl — see `outputs/imw_website_crawl_2026-08-05.md` for URLs):**
   `docs/s1a_papers/` (all 11 Stage One Assessment papers 2015–2026, practical + theory, with
   extracted_txt), **`data/s1a_exams.json`** (the structured S1A practical corpus — 11 years / 45
@@ -1678,7 +1742,15 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   do **not** make it a gradable EK rule. Open until there is a per-question-expressible form.
 
 ### EK-0120 · Era-1 (2011–2014) mark allocation is quantitatively uncharacterised
-- **tier:** CURVEBALL · **status:** live
+- **tier:** CURVEBALL · **status:** RESOLVED 2026-08-05 — see EK-0142
+- **resolution:** The blocker is cleared. `scripts/analyze_long_horizon.py` now computes mark totals
+  programmatically over both `data/exams.json` and the new `data/past_exams_2000_2010.json`, so the
+  2011–2014 figures no longer rest on manual sums: **2011 P1/P2, 2012 all three and 2014 all three sum
+  to exactly 300**, and 2013's shortfall is a transcription defect (dropped per-wine multipliers), not a
+  real deviation. Going further back, the 300-mark convention is stated verbatim in the 2001–2008
+  printed instructions. **EK-0001 has therefore been flipped** (its "pre-2013 differed" caveat struck).
+  **EK-0078 ("vintage ID declined") is NOT resolved by this work** — the long-horizon study did not
+  measure vintage-ID tariffs, so that half of the original blocker stands.
 - **evidence:** `outputs/research/evidence_audit.md` §0 Coda + T3-5 ("Era-1 structured tagging is the
   precondition for any 14-year trend claim"); `outputs/research/evolution_analysis.md` §0
 - **claim:** The 2011–2014 papers are **not structured-tagged**, so any claim about that era rests on
