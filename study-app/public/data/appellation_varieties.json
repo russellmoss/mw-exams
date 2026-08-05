@@ -2359,5 +2359,64 @@
     },
     "notes": "Etna Rosso = Nerello Mascalese; Etna Bianco = Carricante",
     "source": "DOC Etna"
+  },
+  "bandol blanc": {
+    "country": "France",
+    "region": "Provence",
+    "varieties": [
+      "Clairette",
+      "Bourboulenc"
+    ],
+    "dominance": "Clairette-led",
+    "source": "AOC Bandol blanc regulations; Chateau de Pibarnon 2024 cepage (55% Clairette / 30% Bourboulenc / 15% other) - see data/wine_research/2026_p1_w12.md"
+  },
+  "crozes hermitage blanc": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Marsanne",
+      "Roussanne"
+    ],
+    "dominance": "Marsanne-dominant",
+    "source": "AOC Crozes-Hermitage regulations (white: Marsanne and/or Roussanne only)"
+  },
+  "crozes-hermitage blanc": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Marsanne",
+      "Roussanne"
+    ],
+    "dominance": "Marsanne-dominant",
+    "source": "AOC Crozes-Hermitage regulations (white: Marsanne and/or Roussanne only)"
+  },
+  "saumur": {
+    "country": "France",
+    "region": "Loire Valley",
+    "varieties": [
+      "Cabernet Franc"
+    ],
+    "dominance": "Cabernet Franc-dominant (red)",
+    "source": "AOC Saumur rouge regulations; Cave de Saumur Les Plantagenets confirmed 100% Cabernet Franc - see data/wine_research/2026_p2_w1.md"
+  },
+  "saumur blanc": {
+    "country": "France",
+    "region": "Loire Valley",
+    "varieties": [
+      "Chenin Blanc"
+    ],
+    "dominance": "100%",
+    "source": "AOC Saumur blanc regulations (Chenin Blanc)"
+  },
+  "arbois rouge": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Trousseau",
+      "Poulsard",
+      "Pinot Noir"
+    ],
+    "dominance": "Trousseau/Poulsard-led",
+    "source": "AOC Arbois rouge regulations (Poulsard, Trousseau, Pinot Noir)"
   }
 }

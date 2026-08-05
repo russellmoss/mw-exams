@@ -68,7 +68,9 @@
     "Welschriesling",
     "Xarel-lo",
     "Xinomavro",
-    "Zinfandel"
+    "Zinfandel",
+    "Muscat Blanc à Petits Grains",
+    "Muscat of Alexandria"
   ],
   "synonyms": {
     "spatburgunder": "Pinot Noir",
@@ -121,6 +123,17 @@
     "muscadet": "Melon de Bourgogne",
     "melon": "Melon de Bourgogne",
     "malmsey": "Malvasia",
-    "boal": "Bual"
+    "boal": "Bual",
+    "moscato": "Muscat Blanc à Petits Grains",
+    "moscato bianco": "Muscat Blanc à Petits Grains",
+    "muscat": "Muscat Blanc à Petits Grains",
+    "muscat blanc": "Muscat Blanc à Petits Grains",
+    "muscat de frontignan": "Muscat Blanc à Petits Grains",
+    "moscatel de grano menudo": "Muscat Blanc à Petits Grains",
+    "muskateller": "Muscat Blanc à Petits Grains",
+    "gelber muskateller": "Muscat Blanc à Petits Grains",
+    "zibibbo": "Muscat of Alexandria",
+    "moscatel de alejandria": "Muscat of Alexandria",
+    "moscatel graudo": "Muscat of Alexandria"
   }
 }
