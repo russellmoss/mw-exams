@@ -572,13 +572,17 @@ Document 1 is the most authoritative and they descend from there. A TECH SHEET i
   };
 }
 
-async function addToWineBank(identity: WineIdentity, profile: WineProfile): Promise<void> {
+async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOverride?: string): Promise<void> {
   try {
     const sql = neon(process.env.DATABASE_URL!);
     // Include wine_name so different cuvées from the same producer/region get distinct ids
     // (country_region_producer alone collapses e.g. Muga Reserva and Muga Rosado onto one row).
     const slug = (s: string) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-    const id = [slug(identity.country), slug(identity.region), slug(identity.producer), slug(identity.wineName)]
+    // idOverride pins the write to a row that already exists. classifyWine is an LLM call, so
+    // re-classifying the same wine can return "López de Heredia" where the banked row was built from
+    // "R. López de Heredia" — a different slug, and the upsert would silently INSERT a duplicate
+    // instead of upgrading the row. A backfill iterating the bank must always pass the row's own id.
+    const id = idOverride || [slug(identity.country), slug(identity.region), slug(identity.producer), slug(identity.wineName)]
       .filter(Boolean).join("_").slice(0, 120);
 
     await sql`
@@ -614,6 +618,29 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile): Prom
   } catch (err) {
     console.error("Failed to add wine to DB bank:", err);
   }
+}
+
+/**
+ * Research ONE wine and write it straight to the bank, with no question attached.
+ *
+ * enrichWineProfiles is the normal entry point and is question-scoped: it looks wines up, skips the
+ * ones already banked, and stores the result on the question. This exists for maintenance passes that
+ * iterate the BANK itself — where there is no question, and where the write must land on an existing
+ * row rather than creating a near-duplicate.
+ */
+export async function researchAndBankWine(
+  fullText: string,
+  apiKey: string,
+  opts: { bankId?: string; meta?: EnrichMeta } = {}
+): Promise<WineProfile> {
+  const identity = await classifyWine(fullText, apiKey, opts.meta);
+  const profile = await researchWineViaTavily({ slot: 1, fullText }, identity, apiKey, opts.meta);
+  profile.style_category = identity.styleCategory;
+  profile.grape_varieties = identity.grapeVarieties;
+  // No tasting profile means the research produced nothing usable; writing that over a row that
+  // already has one would be a downgrade, so leave the existing row alone.
+  if (profile.tasting_profile) await addToWineBank(identity, profile, opts.bankId);
+  return profile;
 }
 
 export async function enrichWineProfiles(
