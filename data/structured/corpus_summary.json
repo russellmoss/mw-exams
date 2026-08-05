@@ -1,14 +1,14 @@
 {
   "counts": {
-    "wines_total": 504,
-    "wines_last10": 360,
-    "questions_total": 153,
-    "questions_last10": 112,
-    "subquestions_total": 462,
-    "subquestions_last10": 337
+    "wines_total": 540,
+    "wines_recent": 396,
+    "questions_total": 161,
+    "questions_recent": 120,
+    "subquestions_total": 488,
+    "subquestions_recent": 363
   },
-  "marks_ok_rate_all": 0.889,
-  "marks_ok_rate_last10": 1.0,
+  "marks_ok_rate_all": 0.894,
+  "marks_ok_rate_recent": 1.0,
   "marks_not_ok_questions": [
     "2012_p1_q1",
     "2012_p1_q2",
@@ -28,66 +28,67 @@
     "2013_p3_q2",
     "2013_p3_q3"
   ],
-  "world_dist_last10": {
-    "old_world": 252,
-    "new_world": 108
+  "world_dist_recent": {
+    "old_world": 282,
+    "new_world": 114
   },
-  "variety_unknown_last10": 0,
-  "vintage_missing_last10": 32,
-  "price_band_dist_last10": {
+  "variety_unknown_recent": 0,
+  "vintage_missing_recent": 36,
+  "price_band_dist_recent": {
     "premium": 176,
     "super_premium": 76,
     "value": 66,
     "luxury": 31,
     "mainstream": 11
   },
-  "curveball_dist_last10": {
-    "low": 272,
-    "medium": 61,
+  "curveball_dist_recent": {
+    "low": 305,
+    "medium": 64,
     "high": 27
   },
-  "flight_size_dist_last10": {
+  "flight_size_dist_recent": {
     "2": 37,
-    "4": 31,
-    "3": 30,
+    "3": 34,
+    "4": 32,
+    "6": 8,
     "5": 7,
-    "6": 6,
-    "1": 1
+    "1": 1,
+    "8": 1
   },
-  "family_dist_last10": {
-    "F4": 33,
-    "F1": 25,
-    "F2": 24,
+  "family_dist_recent": {
+    "F4": 36,
+    "F1": 27,
+    "F2": 26,
     "F5": 12,
     "F7": 8,
     "F3": 6,
-    "F6": 4
+    "F6": 5
   },
-  "subq_type_dist_last10": {
-    "origin_id": 84,
-    "variety_id": 78,
-    "winemaking": 58,
-    "commercial": 42,
-    "maturity": 32,
+  "subq_type_dist_recent": {
+    "origin_id": 92,
+    "variety_id": 82,
+    "winemaking": 64,
+    "commercial": 46,
+    "maturity": 33,
     "quality": 27,
-    "vintage_id": 7,
-    "sweetness_rs": 5,
-    "structure": 3,
+    "vintage_id": 8,
+    "sweetness_rs": 6,
+    "structure": 4,
     "style": 1
   },
   "subq_type_other_examples": [],
-  "subq_multilabel_last10": {
-    "origin_id": 128,
-    "quality": 99,
-    "variety_id": 78,
-    "winemaking": 76,
-    "style": 54,
-    "commercial": 47,
-    "maturity": 35,
-    "comparative": 23,
-    "vintage_id": 7,
-    "structure": 7,
-    "sweetness_rs": 7
+  "subq_multilabel_recent": {
+    "origin_id": 139,
+    "quality": 104,
+    "winemaking": 82,
+    "variety_id": 82,
+    "style": 58,
+    "commercial": 51,
+    "maturity": 37,
+    "comparative": 26,
+    "vintage_id": 8,
+    "structure": 8,
+    "sweetness_rs": 8
   },
   "id_share_by_year": {
     "2011": {
@@ -172,6 +173,12 @@
       "id_pct": 39.7,
       "quality_pct": 40.1,
       "commercial_pct": 17.8,
+      "total_marks": 900
+    },
+    "2026": {
+      "id_pct": 58.0,
+      "quality_pct": 25.7,
+      "commercial_pct": 12.0,
       "total_marks": 900
     }
   }

@@ -3526,5 +3526,257 @@
     "paper": 3,
     "slot": 12,
     "full_text": "40 Year Tawny Port, Kopke, NV. Douro, Portugal. (20%)"
+  },
+  {
+    "id": "2026_p1_w1",
+    "year": 2026,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Meursault Les Narvaux, Domaine Latour-Giraud, 2023. Burgundy, France. (13.5%)"
+  },
+  {
+    "id": "2026_p1_w2",
+    "year": 2026,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "Chardonnay, Greywacke, 2022. Marlborough, New Zealand. (14%)"
+  },
+  {
+    "id": "2026_p1_w3",
+    "year": 2026,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Chardonnay Prelude, Leeuwin Estate, 2024. Margaret River, Australia. (14%)"
+  },
+  {
+    "id": "2026_p1_w4",
+    "year": 2026,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Chardonnay Terra Alpina, Alois Lageder, 2024. IGT Dolomiti, Italy. (12%)"
+  },
+  {
+    "id": "2026_p1_w5",
+    "year": 2026,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Chablis La Butte “O”, Patrick Piuze, 2021. Burgundy, France. (12.5%)"
+  },
+  {
+    "id": "2026_p1_w6",
+    "year": 2026,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "Chardonnay Buttery Reserve, Josh Cellars, 2023. Central Coast, California, USA. (13.5%)"
+  },
+  {
+    "id": "2026_p1_w7",
+    "year": 2026,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Riesling Federspiel Bruck, Domäne Wachau, 2020. Wachau, Austria. (12.5%)"
+  },
+  {
+    "id": "2026_p1_w8",
+    "year": 2026,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Riesling Cuvée Frédéric Emile, Trimbach, 2017. Alsace, France. (13.5%)"
+  },
+  {
+    "id": "2026_p1_w9",
+    "year": 2026,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "Riesling, Pewsey Vale, 2024. Eden Valley, South Australia. (11.5%)"
+  },
+  {
+    "id": "2026_p1_w10",
+    "year": 2026,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Vermentino di Sardegna Costamolino, Argiolas, 2024. Sardegna, Italy. (13.5%)"
+  },
+  {
+    "id": "2026_p1_w11",
+    "year": 2026,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Assyrtiko Thalassitis, Gaia, 2024. Santorini, Greece. (13%)"
+  },
+  {
+    "id": "2026_p1_w12",
+    "year": 2026,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Château de Pibarnon Blanc, 2024. Bandol, France. (13.5%)"
+  },
+  {
+    "id": "2026_p2_w1",
+    "year": 2026,
+    "paper": 2,
+    "slot": 1,
+    "full_text": "Saumur Les Plantagenêts, Cave de Saumur, 2024. Loire Valley, France. (12%)"
+  },
+  {
+    "id": "2026_p2_w2",
+    "year": 2026,
+    "paper": 2,
+    "slot": 2,
+    "full_text": "Régnié, Domaine de la Margot, 2024. Beaujolais, France. (12.7%)"
+  },
+  {
+    "id": "2026_p2_w3",
+    "year": 2026,
+    "paper": 2,
+    "slot": 3,
+    "full_text": "Trousseau Singulier, Bénédicte et Stéphane Tissot, 2023. Arbois, France. (13.5%)"
+  },
+  {
+    "id": "2026_p2_w4",
+    "year": 2026,
+    "paper": 2,
+    "slot": 4,
+    "full_text": "Amarone della Valpolicella Riserva Vigna Garzon, Pieropan, 2019. Veneto, Italy. (16%)"
+  },
+  {
+    "id": "2026_p2_w5",
+    "year": 2026,
+    "paper": 2,
+    "slot": 5,
+    "full_text": "Shiraz The Factor, Torbreck, 2019. Barossa Valley, Australia. (15%)"
+  },
+  {
+    "id": "2026_p2_w6",
+    "year": 2026,
+    "paper": 2,
+    "slot": 6,
+    "full_text": "Cabernet Sauvignon TD-9, Shafer, 2021. Napa Valley, California, USA. (15.3%)"
+  },
+  {
+    "id": "2026_p2_w7",
+    "year": 2026,
+    "paper": 2,
+    "slot": 7,
+    "full_text": "Rioja Reserva Viña Ardanza, La Rioja Alta, 2019. Rioja, Spain. (14.5%)"
+  },
+  {
+    "id": "2026_p2_w8",
+    "year": 2026,
+    "paper": 2,
+    "slot": 8,
+    "full_text": "Rioja Paso Las Mañas, Artuke, 2021. Paraje el Chorro, Spain. (14%)"
+  },
+  {
+    "id": "2026_p2_w9",
+    "year": 2026,
+    "paper": 2,
+    "slot": 9,
+    "full_text": "Chianti Classico I Sassi, Melini, 2021. Tuscany, Italy. (14%)"
+  },
+  {
+    "id": "2026_p2_w10",
+    "year": 2026,
+    "paper": 2,
+    "slot": 10,
+    "full_text": "Chianti Classico Gran Selezione San Lorenzo, Castello di Ama, 2021. Tuscany, Italy. (13.5%)"
+  },
+  {
+    "id": "2026_p2_w11",
+    "year": 2026,
+    "paper": 2,
+    "slot": 11,
+    "full_text": "Château Giscours, 2017. Margaux, France. (13%)"
+  },
+  {
+    "id": "2026_p2_w12",
+    "year": 2026,
+    "paper": 2,
+    "slot": 12,
+    "full_text": "Château Rauzan-Ségla 2016. Margaux, France. (13.5%)"
+  },
+  {
+    "id": "2026_p3_w1",
+    "year": 2026,
+    "paper": 3,
+    "slot": 1,
+    "full_text": "Lambrusco del Fondatore, Cleto Chiarli, 2024. Emilia-Romagna, Italy. (11.5%)"
+  },
+  {
+    "id": "2026_p3_w2",
+    "year": 2026,
+    "paper": 3,
+    "slot": 2,
+    "full_text": "Cava Reserva Expression, Dominio de la Vega, 2022. Utiel-Requena, Spain. (12%)"
+  },
+  {
+    "id": "2026_p3_w3",
+    "year": 2026,
+    "paper": 3,
+    "slot": 3,
+    "full_text": "Vouvray Brut, Château Moncontour, NV. Loire Valley, France. (12.5%)"
+  },
+  {
+    "id": "2026_p3_w4",
+    "year": 2026,
+    "paper": 3,
+    "slot": 4,
+    "full_text": "Blanc de Blancs, Harrow & Hope, 2020. Thames & Chilterns, England. (12%)"
+  },
+  {
+    "id": "2026_p3_w5",
+    "year": 2026,
+    "paper": 3,
+    "slot": 5,
+    "full_text": "Blanc de Chardonnay Brut Nature, Chavost, NV. Champagne, France. (12.5%)"
+  },
+  {
+    "id": "2026_p3_w6",
+    "year": 2026,
+    "paper": 3,
+    "slot": 6,
+    "full_text": "Brut, Delacourt, NV. Champagne, France. (12.5%)"
+  },
+  {
+    "id": "2026_p3_w7",
+    "year": 2026,
+    "paper": 3,
+    "slot": 7,
+    "full_text": "20-Year-Old Tawny Port, Kopke, NV. Douro, Portugal. (20%)"
+  },
+  {
+    "id": "2026_p3_w8",
+    "year": 2026,
+    "paper": 3,
+    "slot": 8,
+    "full_text": "Late Bottled Vintage Port, Taylor’s, 2020. Douro, Portugal. (19%)"
+  },
+  {
+    "id": "2026_p3_w9",
+    "year": 2026,
+    "paper": 3,
+    "slot": 9,
+    "full_text": "Château Coutet, 2022. Barsac, France. (13.5%)"
+  },
+  {
+    "id": "2026_p3_w10",
+    "year": 2026,
+    "paper": 3,
+    "slot": 10,
+    "full_text": "Château Delmond, 2023. Sauternes, France. (13.5%)"
+  },
+  {
+    "id": "2026_p3_w11",
+    "year": 2026,
+    "paper": 3,
+    "slot": 11,
+    "full_text": "Riesling Trocken Niederhäuser Hermannshöhle, Jakob Schneider, 2023. Nahe, Germany. (12.5%)"
+  },
+  {
+    "id": "2026_p3_w12",
+    "year": 2026,
+    "paper": 3,
+    "slot": 12,
+    "full_text": "Riesling Spätlese Norheimer Kirschheck, Jakob Schneider, 2022. Nahe, Germany. (8%)"
   }
 ]

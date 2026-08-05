@@ -160,9 +160,15 @@ def extract_variety_from_text(ft):
         ("boal", "Boal"), ("malmsey", "Malmsey"),
         ("xarel", "Xarel-lo"), ("macabeo", "Macabeo"),
         ("lambrusco", "Lambrusco"),
+        ("vermentino", "Vermentino"), ("assyrtiko", "Assyrtiko"),
+        ("rolle", "Vermentino"),
     ]
 
-    for pattern, name in variety_checks:
+    # Match the most specific (longest) name first. Order matters: the list contains
+    # short fallbacks ("sauvignon", "chenin") that are substrings of longer varieties
+    # ("cabernet sauvignon", "chenin blanc"), so a plain first-match-wins scan in list
+    # order mislabels every varietally-named Cabernet Sauvignon as Sauvignon Blanc.
+    for pattern, name in sorted(variety_checks, key=lambda pair: -len(pair[0])):
         if pattern in ft_stripped:
             return name
 

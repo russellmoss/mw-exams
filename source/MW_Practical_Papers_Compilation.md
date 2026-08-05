@@ -1,6 +1,6 @@
 # **Master of Wine — Practical Papers**
 
-*Question & Wine Compilation, 2015 – 2025*
+*Question & Wine Compilation, 2015 – 2026*
 
 *Source: Institute of Masters of Wine examination papers*
 
@@ -13,6 +13,212 @@ Wines are numbered 1–12 per paper. Question stems reference these wine numbers
 Theory papers are not included — this compilation covers only the three practical (blind tasting) papers from each exam.
 
 Use the space beneath each question to annotate the examiners' intent: what skill is being tested, what the wines have in common, and what distinguishes them.
+
+# **Master of Wine Exam 2026**
+
+## **Paper 1**
+
+### **Question 1   *(Wines 1–6)***
+
+Wines 1-6 are from the same single grape variety and come from five different countries.
+
+For each wine:
+
+a) Identify the origin as closely as possible. (6 x 10 marks)
+
+b) Discuss how winemaking has influenced the wine’s style. (6 x 10 marks)
+
+c) Comment on the commercial position. (6 x 5 marks)
+
+*Notes / Examiner intent:*
+
+### **Question 2   *(Wines 7–9)***
+
+Wines 7-9 are from the same single variety and come from three different countries.
+
+With reference to all three wines:
+
+a) Identify the grape variety. (15 marks)
+
+For each wine:
+
+b) Discuss the quality in the context of its region of origin. (3 x 15 marks)
+
+c) Comment on the wine’s maturity. (3 x 5 marks)
+
+*Notes / Examiner intent:*
+
+### **Question 3   *(Wines 10–12)***
+
+Wines 10–12 are wines from regions influenced by the Mediterranean Sea.
+
+For each wine:
+
+a) Identify the primary grape variety and origin as closely as possible. (3 x 10 marks)
+
+b) Discuss how winemaking has impacted the freshness of the wine. (3 x 10 marks)
+
+c) Comment on the commercial position. (3 x 5 marks)
+
+*Notes / Examiner intent:*
+
+### **Wines for Paper 1**
+
+1\. Meursault Les Narvaux, Domaine Latour-Giraud, 2023\. Burgundy, France. (13.5%)
+
+2\. Chardonnay, Greywacke, 2022\. Marlborough, New Zealand. (14%)
+
+3\. Chardonnay Prelude, Leeuwin Estate, 2024\. Margaret River, Australia. (14%)
+
+4\. Chardonnay Terra Alpina, Alois Lageder, 2024\. IGT Dolomiti, Italy. (12%)
+
+5\. Chablis La Butte “O”, Patrick Piuze, 2021\. Burgundy, France. (12.5%)
+
+6\. Chardonnay Buttery Reserve, Josh Cellars, 2023\. Central Coast, California, USA. (13.5%)
+
+7\. Riesling Federspiel Bruck, Domäne Wachau, 2020\. Wachau, Austria. (12.5%)
+
+8\. Riesling Cuvée Frédéric Emile, Trimbach, 2017\. Alsace, France. (13.5%)
+
+9\. Riesling, Pewsey Vale, 2024\. Eden Valley, South Australia. (11.5%)
+
+10\. Vermentino di Sardegna Costamolino, Argiolas, 2024\. Sardegna, Italy. (13.5%)
+
+11\. Assyrtiko Thalassitis, Gaia, 2024\. Santorini, Greece. (13%)
+
+12\. Château de Pibarnon Blanc, 2024\. Bandol, France. (13.5%)
+
+## **Paper 2**
+
+### **Question 1   *(Wines 1–3)***
+
+Wines 1-3 are from the same country and different single grape varieties.
+
+For each wine:
+
+a) Comment on the style and commercial position. (3 x 11 marks)
+
+b) Comment on the method of production. (3 x 6 marks)
+
+c) Identify the grape variety and origin as closely as possible (3 x 8 marks)
+
+*Notes / Examiner intent:*
+
+### **Question 2   *(Wines 4–6)***
+
+Wines 4-6 are from three different countries.
+
+For each wine:
+
+a) Identify the grape variety(ies) and origin as closely as possible. (3 x 10 marks)
+
+b) Comment on the method of production. (3 x 5 marks)
+
+c) Comment on the quality and commercial position. (3 x 10 marks)
+
+*Notes / Examiner intent:*
+
+### **Question 3   *(Wines 7–12)***
+
+Wines 7-8, 9-10, and 11-12 form three pairs. Within each pair, the wines are from the same country and region. Each pair is from a different country.
+
+For each pair:
+
+a) Identify the origin as closely as possible. (3 x 20 marks)
+
+b) Compare the style and quality in the context of the region of origin. (3 x 20 marks)
+
+c) Compare the maturity of the two wines, considering the likely vintage. (3 x 10 marks)
+
+*Notes / Examiner intent:*
+
+### **Wines for Paper 2**
+
+1\. Saumur Les Plantagenêts, Cave de Saumur, 2024\. Loire Valley, France. (12%)
+
+2\. Régnié, Domaine de la Margot, 2024\. Beaujolais, France. (12.7%)
+
+3\. Trousseau Singulier, Bénédicte et Stéphane Tissot, 2023\. Arbois, France. (13.5%)
+
+4\. Amarone della Valpolicella Riserva Vigna Garzon, Pieropan, 2019\. Veneto, Italy. (16%)
+
+5\. Shiraz The Factor, Torbreck, 2019\. Barossa Valley, Australia. (15%)
+
+6\. Cabernet Sauvignon TD-9, Shafer, 2021\. Napa Valley, California, USA. (15.3%)
+
+7\. Rioja Reserva Viña Ardanza, La Rioja Alta, 2019\. Rioja, Spain. (14.5%)
+
+8\. Rioja Paso Las Mañas, Artuke, 2021\. Paraje el Chorro, Spain. (14%)
+
+9\. Chianti Classico I Sassi, Melini, 2021\. Tuscany, Italy. (14%)
+
+10\. Chianti Classico Gran Selezione San Lorenzo, Castello di Ama, 2021\. Tuscany, Italy. (13.5%)
+
+11\. Château Giscours, 2017\. Margaux, France. (13%)
+
+12\. Château Rauzan-Ségla 2016\. Margaux, France. (13.5%)
+
+## **Paper 3**
+
+### **Question 1   *(Wines 1–4)***
+
+Wines 1-4 are sparkling wines and come from four different countries.
+
+For each wine:
+
+a) Identify the origin as closely as possible. (4 x 10 marks)
+
+b) Comment on the quality within the context of the region of origin. (4 x 8 marks)
+
+c) Identify the key winemaking decisions that have affected the wine’s style. (4 x 7 marks)
+
+*Notes / Examiner intent:*
+
+### **Question 2   *(Wines 5–12)***
+
+Wines 5-6, 7-8, 9-10, and 11-12 are pairs. Within each pair, the wines are from the same country and region.
+
+For each pair:
+
+a) Identify the origin as closely as possible. (4 x 8 marks)
+
+b) Comment on the methods of production. (4 x 14 marks)
+
+c) Compare the quality in the context of the region of origin. (4 x 16 marks)
+
+For each wine:
+
+a) State the alcohol level. (8 x 3 marks)
+
+b) State the level of residual sugar. (8 x 3 marks)
+
+*Notes / Examiner intent:*
+
+### **Wines for Paper 3**
+
+1\. Lambrusco del Fondatore, Cleto Chiarli, 2024\. Emilia-Romagna, Italy. (11.5%)
+
+2\. Cava Reserva Expression, Dominio de la Vega, 2022\. Utiel-Requena, Spain. (12%)
+
+3\. Vouvray Brut, Château Moncontour, NV. Loire Valley, France. (12.5%)
+
+4\. Blanc de Blancs, Harrow & Hope, 2020\. Thames & Chilterns, England. (12%)
+
+5\. Blanc de Chardonnay Brut Nature, Chavost, NV. Champagne, France. (12.5%)
+
+6\. Brut, Delacourt, NV. Champagne, France. (12.5%)
+
+7\. 20-Year-Old Tawny Port, Kopke, NV. Douro, Portugal. (20%)
+
+8\. Late Bottled Vintage Port, Taylor’s, 2020\. Douro, Portugal. (19%)
+
+9\. Château Coutet, 2022\. Barsac, France. (13.5%)
+
+10\. Château Delmond, 2023\. Sauternes, France. (13.5%)
+
+11\. Riesling Trocken Niederhäuser Hermannshöhle, Jakob Schneider, 2023\. Nahe, Germany. (12.5%)
+
+12\. Riesling Spätlese Norheimer Kirschheck, Jakob Schneider, 2022\. Nahe, Germany. (8%)
 
 # **Master of Wine Exam 2025**
 

@@ -49,8 +49,11 @@ OUT_DIR = ROOT / "data" / "structured"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Years the exam was actually sat. 2020 was not held.
-SAT_YEARS = [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025]
-LAST10_YEARS = [2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025]  # the 10 most-recent sat papers
+SAT_YEARS = [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026]
+# The primary analysis window: every sat year from 2015 on. Was the 10 most-recent
+# papers (2015-2025); adding 2026 widened it to 11 rather than dropping 2015, so
+# earlier backtest/LOYO/taxonomy artifacts stay directly comparable.
+RECENT_YEARS = [2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025, 2026]
 
 OLD_WORLD = {
     "France", "Italy", "Spain", "Germany", "Portugal", "Austria", "Hungary",
@@ -236,7 +239,7 @@ def main():
                 wines_out.append({
                     "wine_id": wid,
                     "year": year, "paper": paper, "slot": slot,
-                    "is_last10": year in LAST10_YEARS,
+                    "is_recent_window": year in RECENT_YEARS,
                     "full_text": ft,
                     "producer": c.get("producer"),
                     "wine_name": c.get("wine_name"),
@@ -276,7 +279,7 @@ def main():
                 questions_out.append({
                     "qid": qid,
                     "year": year, "paper": paper, "n": n,
-                    "is_last10": year in LAST10_YEARS,
+                    "is_recent_window": year in RECENT_YEARS,
                     "flight_size": flight,
                     "wine_slots": slots,
                     "wine_ids": [f"{year}_p{paper}_w{s}" for s in slots],
@@ -290,12 +293,22 @@ def main():
                     "secondary_tags": t.get("secondary_tags", []),
                     "text": text,
                 })
+                # A question can restart its lettering: 2026 P3 Q2 runs "For each pair:
+                # a) b) c)" and then "For each wine: a) b)", so the raw label is not
+                # unique within the question and {qid}_{label} collides. corpus.subquestions
+                # keys on subq_id, so a collision is a hard primary-key failure on sync.
+                # Suffix the 2nd+ occurrence of a label (a, a2, a3 ...) — this leaves every
+                # already-unique id byte-identical and only disambiguates real repeats.
+                seen_labels = Counter()
                 for idx, s in enumerate(subs):
+                    base = s["label"] or str(idx)
+                    seen_labels[base] += 1
+                    suffix = "" if seen_labels[base] == 1 else str(seen_labels[base])
                     subq_out.append({
-                        "subq_id": f"{qid}_{s['label'] or idx}",
+                        "subq_id": f"{qid}_{base}{suffix}",
                         "qid": qid,
                         "year": year, "paper": paper, "n": n,
-                        "is_last10": year in LAST10_YEARS,
+                        "is_recent_window": year in RECENT_YEARS,
                         "flight_size": flight,
                         "label": s["label"],
                         "type": s["type"],
@@ -319,29 +332,29 @@ def main():
     def dist(rows, key, filt=None):
         return dict(Counter(r[key] for r in rows if (filt is None or filt(r)) and r.get(key) is not None).most_common())
 
-    last10_w = [w for w in wines_out if w["is_last10"]]
-    last10_q = [q for q in questions_out if q["is_last10"]]
-    last10_s = [s for s in subq_out if s["is_last10"]]
+    recent_w = [w for w in wines_out if w["is_recent_window"]]
+    recent_q = [q for q in questions_out if q["is_recent_window"]]
+    recent_s = [s for s in subq_out if s["is_recent_window"]]
     summary = {
         "counts": {
-            "wines_total": len(wines_out), "wines_last10": len(last10_w),
-            "questions_total": len(questions_out), "questions_last10": len(last10_q),
-            "subquestions_total": len(subq_out), "subquestions_last10": len(last10_s),
+            "wines_total": len(wines_out), "wines_recent": len(recent_w),
+            "questions_total": len(questions_out), "questions_recent": len(recent_q),
+            "subquestions_total": len(subq_out), "subquestions_recent": len(recent_s),
         },
         "marks_ok_rate_all": round(sum(q["marks_ok"] for q in questions_out) / len(questions_out), 3),
-        "marks_ok_rate_last10": round(sum(q["marks_ok"] for q in last10_q) / len(last10_q), 3),
+        "marks_ok_rate_recent": round(sum(q["marks_ok"] for q in recent_q) / len(recent_q), 3),
         "marks_not_ok_questions": [q["qid"] for q in questions_out if not q["marks_ok"]],
-        "world_dist_last10": dist(last10_w, "world"),
-        "variety_unknown_last10": sum(1 for w in last10_w if w["variety"] == "Unknown"),
-        "vintage_missing_last10": sum(1 for w in last10_w if w["vintage"] is None),
-        "price_band_dist_last10": dist(last10_w, "price_band"),
-        "curveball_dist_last10": dist(last10_w, "curveball_level"),
-        "flight_size_dist_last10": dist(last10_q, "flight_size"),
-        "family_dist_last10": dist(last10_q, "family"),
-        "subq_type_dist_last10": dist(last10_s, "type"),
-        "subq_type_other_examples": [s["text"][:90] for s in last10_s if s["type"] == "other"][:8],
-        "subq_multilabel_last10": dict(
-            Counter(h for s in last10_s for h in s["type_hits"]).most_common()),
+        "world_dist_recent": dist(recent_w, "world"),
+        "variety_unknown_recent": sum(1 for w in recent_w if w["variety"] == "Unknown"),
+        "vintage_missing_recent": sum(1 for w in recent_w if w["vintage"] is None),
+        "price_band_dist_recent": dist(recent_w, "price_band"),
+        "curveball_dist_recent": dist(recent_w, "curveball_level"),
+        "flight_size_dist_recent": dist(recent_q, "flight_size"),
+        "family_dist_recent": dist(recent_q, "family"),
+        "subq_type_dist_recent": dist(recent_s, "type"),
+        "subq_type_other_examples": [s["text"][:90] for s in recent_s if s["type"] == "other"][:8],
+        "subq_multilabel_recent": dict(
+            Counter(h for s in recent_s for h in s["type_hits"]).most_common()),
     }
 
     # Identification's share of marks per year (focus #5: the post-2014 shift).

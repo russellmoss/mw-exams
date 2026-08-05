@@ -1741,8 +1741,8 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   quantified version of the weak-spots noted in EK-0068.
 
 ### EK-0084 · A separate "exam-structure predictor" forecasts next year's paper shape
-- **tier:** PLAUSIBLE · **status:** live
-- **evidence:** `outputs/backtest_reports/exam_predictor_backtest.md`; `data/predicted_2026_exam_profile.json`
+- **tier:** PLAUSIBLE · **status:** live — **the 12/12 exact-count figure below is superseded by EK-0143**
+- **evidence:** `outputs/backtest_reports/exam_predictor_backtest.md`; `data/frozen_predictions/predicted_2026_exam_profile.PRE-EXAM-FROZEN.json`
 - **claim:** Beyond per-wine ID, a sequence-aware 5-layer model predicts the **structure** of an
   upcoming paper (question count, family archetype per question, slot-level variety/country/style),
   backtested 2022–2025. It predicts the **exact question-count per paper correctly in every paper-year
@@ -1750,3 +1750,76 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   mean-F1 0.499. **P2 structure is the hardest to predict.** It is explicitly *"a steering layer, not an
   oracle"* — useful for biasing mock-exam generation toward likely shapes, not for guaranteeing content.
 </content>
+
+### EK-0142 · The 2026 paper is the system's first true out-of-sample test — structure held, exact-count did not
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `outputs/backtest_reports/2026_holdout.md`; `data/holdout_2026_score.json`;
+  frozen forecast `data/frozen_predictions/predicted_2026_exam_profile.PRE-EXAM-FROZEN.json`
+  (committed 2026-05-27, before the exam was sat); scorer `scripts/score_2026_holdout.py`
+- **claim:** The 2026 papers were ingested *after* the forecast was frozen, so this is the only
+  measurement of the system that is not contaminated by hindsight. **Question archetypes: 6 of 8
+  anticipated (75% recall, 60% precision)** — better than the 2022–25 in-sample structure F1 proxy
+  of 0.499, so the family/subcategory layer generalizes. **Countries: 61% recall.** Paper 1 was the
+  strongest result (100% archetype recall — F1 same-variety-cross-origin, F6 maturity-axis and F7
+  quality-calibration all called correctly). Paper 3 was weakest (50%): the forecast expected a
+  quality-calibration question and a third question that never came. The single biggest miss is
+  structural, not varietal — see EK-0143. Variety recall (27%) is **not** a fair number: the
+  denominator counts every blend component in the paper (corvinone, touriga franca, macabeo) while
+  the forecast only offers three guesses per slot. Do not cite it as a variety accuracy figure.
+
+### EK-0143 · The predictor's "12/12 exact question count" was in-sample — out-of-sample it is 1/3
+- **tier:** STRONG SIGNAL · **status:** live — **qualifies EK-0084**
+- **evidence:** `outputs/backtest_reports/2026_holdout.md` vs `outputs/backtest_reports/exam_predictor_backtest.md`
+- **claim:** EK-0084 reports the exam-structure predictor calling the **exact question count correctly
+  in every paper-year (12/12)** across the 2022–25 backtest. On the held-out 2026 paper it got
+  **1 of 3** — it predicted 4 questions in Paper 1 (actual 3) and 3 in Paper 3 (actual 2), and was
+  right only on Paper 2. The 12/12 figure was measured on years the model had been tuned against and
+  is **overfit**; question count is materially less predictable than that claim implies. 2026 also
+  ran **fewer, larger flights** than forecast (a 6-wine P1 opener, a 6-wine P2 pair-set, an 8-wine P3
+  pair-set), which is how a paper sheds a question while keeping 12 wines and 300 marks. Treat
+  predicted question *count* as a soft prior; treat predicted *archetype mix* (EK-0142) as the
+  reliable part. The 2026 marks split also skews harder to identification than any recent year
+  (id 58.0% / quality 25.7% / commercial 12.0%, vs 39.7 / 40.1 / 17.8 in 2025).
+
+### EK-0144 · A single question can restart its sub-question lettering when it changes scope
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** `data/exams.json` 2026 P3 Q2; `data/structured/corpus_subquestions.json` rows
+  `2026_p3_q2_a`/`_a2`; the fix in `scripts/build_structured_corpus.py`
+- **claim:** 2026 Paper 3 Question 2 asks **two differently-scoped blocks inside one question** and
+  restarts the letters for the second: *"For each pair: a) identify the origin (4 x 8) b) comment on
+  the methods of production (4 x 14) c) compare the quality (4 x 16)"* then *"For each wine: a) state
+  the alcohol level (8 x 3) b) state the level of residual sugar (8 x 3)"* — so the labels run
+  a, b, c, a, b. The scopes differ (four **pairs** vs eight **wines**), which is why the letters
+  reset. Two consequences: (1) any generator that mimics IMW phrasing must be able to emit a
+  scope-change + lettering restart, not just a flat a/b/c list; (2) `{question_id}_{label}` is **not**
+  a unique sub-question key — it collided on primary-key insert into `corpus.subquestions` and the
+  builder now suffixes repeats (`_a`, `_a2`). Marks still reconcile normally: 32+56+64+24+24 = 200
+  for an 8-wine flight (8 x 25). This is also the first corpus question to award marks for **stating
+  ABV and RS as bare numbers** across a whole flight (8 x 3 + 8 x 3 = 48 marks, 16% of the paper).
+
+### EK-0145 · The master trees now include 2026 — 2026 is spent as a holdout, 2027 is the next honest test
+- **tier:** PROCESS · **status:** live — **read before quoting any tree accuracy figure**
+- **evidence:** `outputs/master_trees/` (re-synthesized 2026-08-05 across 120 matrices);
+  frozen pre-2026 snapshot at `outputs/master_trees/_frozen_pre2026/`;
+  guard `scripts/verify_tree_resynthesis.py`
+- **claim:** The three master trees were re-synthesized from all **120** decision matrices
+  (2015–2026) on 2026-08-05, after the 2026 holdout had been scored and banked. **Any backtest that
+  uses 2026 against the current trees is now contaminated** — the trees were built knowing those
+  answers. EK-0142/EK-0143 remain valid because they were measured against the pre-2026 trees, which
+  are preserved verbatim in `_frozen_pre2026/`; re-run them against that snapshot, never against the
+  live trees. The next uncontaminated out-of-sample test is **2027**, and the frozen 2027 forecast
+  (`data/predicted_2027_exam_profile.json`, once generated) should be committed before that exam is
+  sat, exactly as the 2026 one was.
+- **what the re-synthesis added:** P1 gained a **geographic/climatic-framing branch** (there was
+  none — the "regions influenced by the Mediterranean Sea" stem had no home) plus the
+  white-wine-from-a-red-appellation trap (Bandol/Châteauneuf/Pessac-Léognan blanc). P2 promoted
+  **Rioja from PLAUSIBLE to STRONG SIGNAL** for same-region pairs and named the three within-region
+  contrast axes the examiners actually use — traditional-vs-modern, quality tier, vintage. P3 made
+  **non-Champagne the default expectation for a multi-country sparkling opener** (2026 P3 Q1 ran four
+  countries with zero Champagne), added a **multi-pair same-region branch**, and gained an **ABV/RS
+  calibration table** for the flights that award marks for stating those numbers.
+- **process note:** the re-synthesis was an *update in place*, not a rewrite. Every pre-existing
+  `**Practical rule:**` line survived (the LOYO post-fix edits of EK-0082), evidence lists were
+  extended rather than replaced, and P3's visual-triage order-of-operations trunk is
+  character-identical. That was verified mechanically, not trusted — run
+  `python scripts/verify_tree_resynthesis.py` after any future tree edit.

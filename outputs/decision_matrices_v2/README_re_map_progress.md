@@ -18,7 +18,9 @@ companion_docs:
 - the relevant **family tree pack** section
 - the relevant **matrix template** in `family_matrix_templates.md`
 
-The re-map preserves source material (candidates, rationale, evidence) but reorganises it under the per-family skeleton so that all 112 matrices share one vocabulary.
+The re-map preserves source material (candidates, rationale, evidence) but reorganises it under the per-family skeleton so that all 120 matrices share one vocabulary.
+
+**2026 update (2026-08-05).** The corpus grew from 112 to **120** matrices when the 2026 exam was ingested. The eight 2026 files were written *directly* in the family-aware skeleton, so they are complete on arrival and add nothing to the re-map backlog — the 82 still-unmapped files are all pre-2026. Note the Provenance clause at the foot of this file does not apply to them: they are not structural re-maps of an earlier version, they are new matrices researched from sourced wine briefs.
 
 ## Re-map convention
 
@@ -124,6 +126,23 @@ The P1 anti-overlink breadth bucket. Nine questions covering the full F4 sub-for
 - Torrontés / Gewürztraminer discrimination (rose-lychee aromatic pair) recurs as the key in-taste trap across multiple P1 F4 questions.
 - The partly-linked F4b variant (2019) uses country-pair structure requiring explicit end-of-pair resets.
 
+### Phase 5B-FA batch 5 — 2026 exam (8/8 complete, born family-aware)
+
+The first year written straight into the family-aware skeleton rather than re-mapped into it. Each file was produced from the blind v1 matrix in `outputs/decision_matrices/` plus the sourced wine briefs in `data/wine_research/2026_*`, against the master trees and family packs re-synthesized the same day across all 120 matrices.
+
+| Question | Sub-form | Written | Notes |
+| --- | --- | --- | --- |
+| `2026_p1_q1` | F1b same variety, different countries | OK 2026-08-05 | 6-wine Chardonnay flight, 5 countries; doubled-France split unoaked Chablis vs oaked Cote de Beaune. Widest commercial spread in a P1 flight (Meursault to ~$16). |
+| `2026_p1_q2` | F1b same variety, different countries | OK 2026-08-05 | 3-wine Riesling, Wachau/Alsace/Eden Valley; deliberate 9/6/2-year maturity spread, all dry. |
+| `2026_p1_q3` | F4a pure breadth | OK 2026-08-05 | "Regions influenced by the Mediterranean Sea" — no precedent in the corpus. Carries the white-from-a-red-appellation trap (Pibarnon Blanc = Clairette/Bourboulenc, not Mourvedre). |
+| `2026_p2_q1` | F2a same country, different varieties | OK 2026-08-05 | Three light French reds; inverted mark order (ID last and cheapest). Pale-red trap: Trousseau misreads as Pinot Noir. |
+| `2026_p2_q2` | F4a pure breadth | OK 2026-08-05 | Three countries at 15-16% abv. Blend-label trap: Shafer TD-9 is 76/11/10/3, not a varietal Cabernet (EK-0083). |
+| `2026_p2_q3` | F2a/F2b same region pairs | OK 2026-08-05 | 150 marks, half the paper. Three pairs, contrast axis named per Branch 2.4: traditional-vs-modern (Rioja), quality tier (Chianti Classico), vintage (Margaux). |
+| `2026_p3_q1` | F4a pure breadth | OK 2026-08-05 | Four-country sparkling with **no Champagne**. Tagged F4 by stem but scored like F5 — part (c) marks production method. |
+| `2026_p3_q2` | F6a style mechanism | OK 2026-08-05 | Largest flight in the corpus: 8 wines, 4 pairs, 200 marks. 48 marks (24%) for stating ABV and RS as bare numbers. New Branch 6.4. |
+
+Two genuinely unpublished figures are flagged "Source needed" rather than invented: the Delacourt Champagne dosage, and the exact 2020 Taylor's LBV residual sugar.
+
 ### Next priority buckets (pending)
 
 | Priority | Bucket | Count | Tree pack section |
@@ -142,7 +161,7 @@ The P1 anti-overlink breadth bucket. Nine questions covering the full F4 sub-for
 | 16 | P1 F5 method | 2 | `p1_family_tree_pack.md#f5-method--production-dominant-set-p1` |
 | 17 | P1 F7 classification | 3 | `p1_family_tree_pack.md#f7-hierarchy--quality-calibration-set-p1` |
 
-Total remaining after batch 4: 82 of 112 matrices.
+Total remaining after batch 5: **82 of 120** matrices. The count is unchanged from batch 4 because the eight 2026 files were born family-aware; every outstanding file is pre-2026.
 
 ## After each bucket
 

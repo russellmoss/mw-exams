@@ -1,0 +1,98 @@
+[
+  {
+    "id": "s1a_2026_p1_w1",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 1,
+    "full_text": "Special Cuvée, Bollinger, NV. Champagne, France. (12%)"
+  },
+  {
+    "id": "s1a_2026_p1_w2",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 2,
+    "full_text": "La Grande Année, Bollinger, 2015. Champagne, France. (12.5%)"
+  },
+  {
+    "id": "s1a_2026_p1_w3",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 3,
+    "full_text": "Clos de St Yves Savennieres, Domaine des Baumard, 2020. Loire, France. (13%)"
+  },
+  {
+    "id": "s1a_2026_p1_w4",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 4,
+    "full_text": "Chenin Blanc, David & Nadia, 2023. Swartland, South Africa. (12.5%)"
+  },
+  {
+    "id": "s1a_2026_p1_w5",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 5,
+    "full_text": "Decoy Red Blend, Duckhorn, 2019. California, USA. (14%)"
+  },
+  {
+    "id": "s1a_2026_p1_w6",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 6,
+    "full_text": "The Steading, Torbreck, 2022. Barossa Valley, Australia. (15%)"
+  },
+  {
+    "id": "s1a_2026_p1_w7",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 7,
+    "full_text": "Classic Priorat, Onix, 2023. Catalonia, Spain. (15%)"
+  },
+  {
+    "id": "s1a_2026_p1_w8",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 8,
+    "full_text": "Mühlberg Riesling Eiswein, Dr. Crusius, 2020. Nahe, Germany. (8%)"
+  },
+  {
+    "id": "s1a_2026_p1_w9",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 9,
+    "full_text": "TBA No. 5, Scheurebe, Kracher, 2021. Burgenland, Austria. (6.5%)"
+  },
+  {
+    "id": "s1a_2026_p1_w10",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 10,
+    "full_text": "Banyuls, Domaine de Bila-Haut, 2021. Languedoc-Roussillon, France. (17%)"
+  },
+  {
+    "id": "s1a_2026_p1_w11",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 11,
+    "full_text": "Rutherglen Muscat, Chambers Rosewood, NV. Victoria, Australia. (17.7%)"
+  },
+  {
+    "id": "s1a_2026_p1_w12",
+    "exam_type": "S1A",
+    "year": 2026,
+    "paper": 1,
+    "slot": 12,
+    "full_text": "Cape Vintage, Boplaas, 2022. Klein Karoo, South Africa. (17.8%)"
+  }
+]

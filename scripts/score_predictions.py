@@ -66,16 +66,66 @@ def _strip_accents(s):
     out = out.replace('“', '"').replace('”', '"')
     return out.lower()
 
+_WHITE_MARKER = _re.compile(r"\b(?:blanc|blanco|bianco|weiss|white)\b", _re.I)
+
+# Red varieties that appear in data/appellation_varieties.json. Used only to detect
+# "this appellation entry describes the RED wine" — see resolve_appellation_varieties.
+_RED_VARIETIES = {
+    "aglianico", "baga", "barbera", "brachetto", "cabernet franc", "cabernet sauvignon",
+    "carignan", "carinena", "cinsault", "corvina", "corvinone", "counoise", "gamay",
+    "garnacha", "graciano", "grenache", "grenache noir", "lambrusco", "malbec", "mazuelo",
+    "mencia", "merlot", "montepulciano", "mourvedre", "muscardin", "nebbiolo",
+    "nerello mascalese", "petit verdot", "petite sirah", "pinot meunier", "pinot noir",
+    "rondinella", "rufete", "sangiovese", "shiraz", "syrah", "tempranillo", "terret noir",
+    "tinta barroca", "tinta negra", "tinta roriz", "tinto cao", "touriga franca",
+    "touriga nacional", "vaccarese", "xinomavro", "zinfandel",
+}
+
+
 def resolve_appellation_varieties(wine_text):
-    """Given a wine's full_text, try to resolve variety via appellation lookup."""
+    """Given a wine's full_text, try to resolve variety via appellation lookup.
+
+    Colour-aware. The lookup holds separate entries for the white version of several
+    appellations ('pessac leognan blanc', 'chateauneuf du pape blanc', 'rioja blanco'),
+    but a plain longest-substring scan only finds them when the words happen to be
+    contiguous in the wine name. "Chateau de Fieuzal Blanc, 2021. Pessac-Leognan"
+    puts 'Blanc' before the appellation, so it fell through to the RED entry and the
+    white Bordeaux came back as Cabernet Sauvignon/Merlot. Same failure gave white
+    Bandol as Mourvedre/Grenache and white Rioja as Tempranillo/Garnacha.
+
+    So: when the wine is marked white, prefer a white-marked key; otherwise try the
+    matched appellation's own white variant; and if the entry we landed on is purely
+    red, return nothing rather than a confidently wrong red answer.
+    """
     if not APPELLATION_LOOKUP:
         _load_appellation_lookup()
     stripped = _strip_accents(wine_text)
+    is_white = bool(_WHITE_MARKER.search(stripped))
     sorted_keys = sorted(APPELLATION_LOOKUP.keys(), key=len, reverse=True)
+
+    # Pass 1 — a white wine prefers an explicitly white appellation entry.
+    if is_white:
+        for key in sorted_keys:
+            if not _WHITE_MARKER.search(key):
+                continue
+            if _strip_accents(key) in stripped:
+                return APPELLATION_LOOKUP[key].get("varieties", [])
+
+    # Pass 2 — normal longest-match.
     for key in sorted_keys:
-        key_stripped = _strip_accents(key)
-        if key_stripped in stripped:
-            return APPELLATION_LOOKUP[key].get("varieties", [])
+        if _strip_accents(key) not in stripped:
+            continue
+        varieties = APPELLATION_LOOKUP[key].get("varieties", [])
+        if not (is_white and varieties):
+            return varieties
+        if not all(v.lower() in _RED_VARIETIES for v in varieties):
+            return varieties  # already a white/mixed entry — fine
+        # Red entry but a white wine: reach for that appellation's white sibling.
+        for suffix in (" blanc", " blanco", " bianco"):
+            alt = APPELLATION_LOOKUP.get(key + suffix)
+            if alt:
+                return alt.get("varieties", [])
+        return []  # unknown beats confidently wrong
     return []
 
 def normalize_variety(name):

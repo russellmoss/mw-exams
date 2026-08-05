@@ -13,7 +13,11 @@ to parse.
 
 import json
 import re
+import sys
 from pathlib import Path
+
+# --strict = regenerate purely from the MD, discarding any year the MD lacks.
+STRICT = "--strict" in sys.argv
 
 SOURCE = Path("source/MW_Practical_Papers_Compilation.md")
 OUT_EXAMS = Path("data/exams.json")
@@ -203,6 +207,31 @@ def main():
     # Final flush
     flush_question()
 
+    # --- Merge with any years already in the JSON but absent from the source MD ---
+    # The source MD covers 2015+ only, but the JSON carries 2011-2014 as well (they
+    # were ingested from an earlier source that is no longer in the repo). A plain
+    # regenerate would silently delete them, so years the MD does not mention are
+    # preserved verbatim unless --strict is passed.
+    md_years = {e["year"] for e in exams}
+    preserved_years = []
+    if not STRICT and OUT_EXAMS.exists():
+        prev_exams = json.loads(OUT_EXAMS.read_text(encoding="utf-8"))
+        prev_wines = json.loads(OUT_WINES.read_text(encoding="utf-8")) if OUT_WINES.exists() else []
+        prev_annos = json.loads(OUT_ANNOS.read_text(encoding="utf-8")) if OUT_ANNOS.exists() else []
+        keep = sorted({e["year"] for e in prev_exams} - md_years)
+        if keep:
+            preserved_years = keep
+            exams.extend(e for e in prev_exams if e["year"] in set(keep))
+            wines_flat.extend(w for w in prev_wines if w["year"] in set(keep))
+            annotations.extend(a for a in prev_annos if a["year"] in set(keep))
+
+    # Stable ordering: ascending by year, then paper, then question / slot.
+    exams.sort(key=lambda e: e["year"])
+    for e in exams:
+        e["papers"].sort(key=lambda p: p["paper"])
+    wines_flat.sort(key=lambda w: (w["year"], w["paper"], w["slot"]))
+    annotations.sort(key=lambda a: (a["year"], a["paper"], a["question"]))
+
     # Write outputs
     OUT_EXAMS.parent.mkdir(parents=True, exist_ok=True)
     OUT_EXAMS.write_text(json.dumps(exams, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -213,10 +242,13 @@ def main():
     total_questions = sum(len(p["questions"]) for e in exams for p in e["papers"])
     total_wines = len(wines_flat)
     filled_annos = sum(1 for a in annotations if a["is_filled"])
-    print(f"OK: parsed {len(exams)} exams")
-    print(f"OK: parsed {sum(len(e['papers']) for e in exams)} papers")
-    print(f"OK: parsed {total_questions} questions")
-    print(f"OK: parsed {total_wines} wines")
+    print(f"OK: parsed {len(md_years)} exams from the source MD ({min(md_years)}-{max(md_years)})")
+    if preserved_years:
+        print(f"OK: preserved {len(preserved_years)} pre-MD exam years from existing JSON: {preserved_years}")
+    print(f"OK: {len(exams)} exams total")
+    print(f"OK: {sum(len(e['papers']) for e in exams)} papers")
+    print(f"OK: {total_questions} questions")
+    print(f"OK: {total_wines} wines")
     print(f"OK: {filled_annos} of {len(annotations)} annotations are filled")
 
 

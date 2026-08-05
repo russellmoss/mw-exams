@@ -434,7 +434,9 @@ def render_index(tags: list[Tag]) -> str:
         "---",
         f"generated: {GENERATED_DATE}",
         f"questions_tagged: {len(tags)}",
-        f"years_covered: {[2015, 2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025]}",
+        # Derived, not hardcoded: this index tags every question in data/exams.json, which
+        # reaches back to 2011, so a literal 10-year list here contradicted questions_tagged.
+        f"years_covered: {sorted({tag.year for tag in tags})}",
         "---",
         "",
         "# Question Taxonomy Index",

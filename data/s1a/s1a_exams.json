@@ -1,0 +1,105 @@
+[
+  {
+    "exam_type": "S1A",
+    "year": 2026,
+    "papers": [
+      {
+        "paper": 1,
+        "questions": [
+          {
+            "n": 1,
+            "wines": [
+              1,
+              2
+            ],
+            "text": "Wines 1 and 2 come from the same region and the same producer.\n\nFor both wines:\n\na) Identify the region. (10 marks)\n\nb) Compare quality, clearly stating which one is of higher quality. (25 marks)\n\nc) Compare commercial potential. (15 marks)"
+          },
+          {
+            "n": 2,
+            "wines": [
+              3,
+              4
+            ],
+            "text": "Wines 3 and 4 are made from the same single grape variety and come from two different countries.\n\nFor both wines:\n\na) Identify the grape variety. (20 marks)\n\nb) Comment on style and quality with reference to winemaking. (30 marks)"
+          },
+          {
+            "n": 3,
+            "wines": [
+              5,
+              6,
+              7
+            ],
+            "text": "Wines 5-7 are red blends from three different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible with reference to grape varieties. (3 x 10 marks)\n\nb) Comment on style and quality. (3 x 15 marks)"
+          },
+          {
+            "n": 4,
+            "wines": [
+              8,
+              9
+            ],
+            "text": "Wines 8 and 9 are from two different countries.\n\nFor each wine:\n\na) Identify the origin. (2 x 8 marks)\n\nb) Comment on the key methods of production. (2 x 7 marks)\n\nc) Comment on style and commercial potential. (2 x 10 marks)"
+          },
+          {
+            "n": 5,
+            "wines": [
+              10,
+              11,
+              12
+            ],
+            "text": "Wines 10-12 are fortified. None are from Spain or Portugal.\n\nFor each wine:\n\na) Identify the origin as closely as possible referring to grape variety/ies used. (3 x 9 marks)\n\nb) Comment on the method of production. (3 x 12 marks)\n\nc) State ABV in %. (3 x 2 marks)\n\nd) State RS in g/l. (3 x 2 marks)"
+          }
+        ],
+        "wines": [
+          {
+            "slot": 1,
+            "full_text": "Special Cuvée, Bollinger, NV. Champagne, France. (12%)"
+          },
+          {
+            "slot": 2,
+            "full_text": "La Grande Année, Bollinger, 2015. Champagne, France. (12.5%)"
+          },
+          {
+            "slot": 3,
+            "full_text": "Clos de St Yves Savennieres, Domaine des Baumard, 2020. Loire, France. (13%)"
+          },
+          {
+            "slot": 4,
+            "full_text": "Chenin Blanc, David & Nadia, 2023. Swartland, South Africa. (12.5%)"
+          },
+          {
+            "slot": 5,
+            "full_text": "Decoy Red Blend, Duckhorn, 2019. California, USA. (14%)"
+          },
+          {
+            "slot": 6,
+            "full_text": "The Steading, Torbreck, 2022. Barossa Valley, Australia. (15%)"
+          },
+          {
+            "slot": 7,
+            "full_text": "Classic Priorat, Onix, 2023. Catalonia, Spain. (15%)"
+          },
+          {
+            "slot": 8,
+            "full_text": "Mühlberg Riesling Eiswein, Dr. Crusius, 2020. Nahe, Germany. (8%)"
+          },
+          {
+            "slot": 9,
+            "full_text": "TBA No. 5, Scheurebe, Kracher, 2021. Burgenland, Austria. (6.5%)"
+          },
+          {
+            "slot": 10,
+            "full_text": "Banyuls, Domaine de Bila-Haut, 2021. Languedoc-Roussillon, France. (17%)"
+          },
+          {
+            "slot": 11,
+            "full_text": "Rutherglen Muscat, Chambers Rosewood, NV. Victoria, Australia. (17.7%)"
+          },
+          {
+            "slot": 12,
+            "full_text": "Cape Vintage, Boplaas, 2022. Klein Karoo, South Africa. (17.8%)"
+          }
+        ]
+      }
+    ]
+  }
+]

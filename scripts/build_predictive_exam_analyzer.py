@@ -11,14 +11,20 @@ EXAMS_PATH = ROOT / "data" / "exams.json"
 RESEARCH_DIR = ROOT / "data" / "wine_research"
 CLASSIFICATION_PATH = ROOT / "data" / "historical_wine_classification.json"
 
+# 2026 is deliberately NOT a backtest year yet. run_backtest() scores variety /
+# country / style top-3 against labels sourced from data/wine_research/, and the
+# 36 wines of 2026 have no research files. score_topk() returns a 0.0 miss for an
+# empty actual set, so including 2026 here would quietly drag every label hit rate
+# down and misreport the baseline. Add 2026 once its wine research exists.
+# Structure-only scoring for 2026 lives in scripts/score_2026_holdout.py.
+BACKTEST_YEARS = [2022, 2023, 2024, 2025]
+FUTURE_YEAR = 2027
+RECENT_STRUCTURE_START_YEAR = 2018
+
 BACKTEST_JSON_PATH = ROOT / "data" / "exam_predictor_backtest.json"
 BACKTEST_MD_PATH = ROOT / "outputs" / "backtest_reports" / "exam_predictor_backtest.md"
-FORECAST_JSON_PATH = ROOT / "data" / "predicted_2026_exam_profile.json"
-FORECAST_MD_PATH = ROOT / "outputs" / "mock_exams" / "predicted_2026_exam_profile.md"
-
-BACKTEST_YEARS = [2022, 2023, 2024, 2025]
-FUTURE_YEAR = 2026
-RECENT_STRUCTURE_START_YEAR = 2018
+FORECAST_JSON_PATH = ROOT / "data" / f"predicted_{FUTURE_YEAR}_exam_profile.json"
+FORECAST_MD_PATH = ROOT / "outputs" / "mock_exams" / f"predicted_{FUTURE_YEAR}_exam_profile.md"
 
 
 VARIETY_ALIASES = {

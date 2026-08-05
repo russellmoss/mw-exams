@@ -48,3 +48,6 @@ outputs/**/*.draft.md
 *.log
 logs/
 .vercel
+
+# Generated Neon corpus sync SQL (~1MB, rebuild with scripts/gen_neon_corpus_sql.py)
+data/structured/_neon_statements.json

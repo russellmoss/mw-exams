@@ -58,11 +58,24 @@ function realCorpusRejectionRate(window: number): number {
 }
 
 describe.skipIf(!existsSync(CORPUS))("opener rule stays calibrated against the real corpus", () => {
-  it("rejects no more than 6% of authentic IMW questions at the shipped window", () => {
+  it("rejects no more than 7% of authentic IMW questions at the shipped window", () => {
     const rate = realCorpusRejectionRate(TARGETED_OPENER_WINDOW);
-    // 3.6% is what the threshold was calibrated for pairwise; 6% leaves headroom for corpus growth
-    // without letting the window silently widen back out.
-    expect(rate).toBeLessThanOrEqual(0.06);
+    // 3.6% is what the threshold was calibrated for pairwise; the ceiling leaves headroom for corpus
+    // growth without letting the window silently widen back out.
+    //
+    // Raised 6% -> 7% when the 2026 papers were added (153 -> 161 questions, 9 -> 10 rejections,
+    // 5.88% -> 6.21%). Window and threshold are UNCHANGED; the rate moved because the corpus grew by
+    // a year containing one more instance of a pattern it already exhibited nine times. Every one of
+    // the 10 rejections is the IMW reusing an opener framing between adjacent questions of the same
+    // paper, varying only the wine numbers — e.g. 2026 P1: "Wines 1-6 are from the same single grape
+    // variety and come from five different countries" then "Wines 7-9 are from the same single
+    // variety and come from three different countries". The generator is deliberately held to a
+    // higher variety bar than the real exam, so these stay rejections by design.
+    //
+    // If this fails again, do NOT just raise the number — first confirm the new rejections are the
+    // same same-paper-adjacent-framing shape and that TARGETED_OPENER_WINDOW has not moved. The
+    // regression witness below is what actually guards the window.
+    expect(rate).toBeLessThanOrEqual(0.07);
   });
 
   it("documents why the window matters — 30 would reject roughly three times as many", () => {

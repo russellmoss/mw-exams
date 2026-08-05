@@ -1,0 +1,2667 @@
+{
+  "years": {
+    "2022": {
+      "papers": {
+        "1": {
+          "actual_structures": {
+            "p1:F6:maturity_axis": 1,
+            "p1:F2:same_origin_comparative": 2,
+            "p1:F7:quality_calibration": 1
+          },
+          "predicted_structures": {
+            "p1:F2:same_origin_comparative": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F3:blend_logic": 1,
+            "p1:F1:same_variety_cross_origin": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p1:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 2.77
+            },
+            {
+              "slot": 2,
+              "archetype": "p1:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 4.328
+            },
+            {
+              "slot": 3,
+              "archetype": "p1:F3:blend_logic",
+              "family": "F3",
+              "subcategory": "blend_logic",
+              "score": 2.723
+            },
+            {
+              "slot": 4,
+              "archetype": "p1:F1:same_variety_cross_origin",
+              "family": "F1",
+              "subcategory": "same_variety_cross_origin",
+              "score": 2.107
+            }
+          ],
+          "precision": 0.5,
+          "recall": 0.5,
+          "exact_count_match": true
+        },
+        "2": {
+          "actual_structures": {
+            "p2:F3:blend_logic": 1,
+            "p2:F2:same_origin_comparative": 2,
+            "p2:F1:same_variety_same_region": 2
+          },
+          "predicted_structures": {
+            "p2:F2:same_origin_comparative": 1,
+            "p2:F1:same_variety_cross_origin": 1,
+            "p2:F6:maturity_axis": 1,
+            "p2:F7:quality_calibration": 1,
+            "p2:F1:same_variety_same_region": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p2:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 2.692
+            },
+            {
+              "slot": 2,
+              "archetype": "p2:F1:same_variety_cross_origin",
+              "family": "F1",
+              "subcategory": "same_variety_cross_origin",
+              "score": 3.272
+            },
+            {
+              "slot": 3,
+              "archetype": "p2:F6:maturity_axis",
+              "family": "F6",
+              "subcategory": "maturity_axis",
+              "score": 2.723
+            },
+            {
+              "slot": 4,
+              "archetype": "p2:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 3.292
+            },
+            {
+              "slot": 5,
+              "archetype": "p2:F1:same_variety_same_region",
+              "family": "F1",
+              "subcategory": "same_variety_same_region",
+              "score": 2.869
+            }
+          ],
+          "precision": 0.4,
+          "recall": 0.4,
+          "exact_count_match": true
+        },
+        "3": {
+          "actual_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F6:sweetness_axis": 1,
+            "p3:F7:quality_calibration": 1
+          },
+          "predicted_structures": {
+            "p3:F2:same_origin_comparative": 1,
+            "p3:F6:sweetness_axis": 1,
+            "p3:F7:quality_calibration": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p3:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.325
+            },
+            {
+              "slot": 2,
+              "archetype": "p3:F6:sweetness_axis",
+              "family": "F6",
+              "subcategory": "sweetness_axis",
+              "score": 3.023
+            },
+            {
+              "slot": 3,
+              "archetype": "p3:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 3.956
+            }
+          ],
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "exact_count_match": true
+        }
+      },
+      "question_level": [
+        {
+          "paper": 1,
+          "question": 1,
+          "family": "F6",
+          "subcategory": "maturity_axis",
+          "archetype": "p1:F6:maturity_axis",
+          "actual_varieties": [
+            "chardonnay"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "chenin blanc"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "New Zealand",
+            "Austria"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 2,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p1:F2:same_origin_comparative",
+          "actual_varieties": [
+            "chardonnay",
+            "rhone_white_blend",
+            "riesling"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "pinot gris",
+            "riesling"
+          ],
+          "actual_countries": [
+            "Australia"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.6666666666666666,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p1:F2:same_origin_comparative",
+          "actual_varieties": [
+            "gewurztraminer",
+            "pinot gris",
+            "predominantly carricante; source needed for exact blend if any"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "pinot gris",
+            "riesling"
+          ],
+          "actual_countries": [
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "commercial_foil",
+            "comparative_peer"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 0.5
+        },
+        {
+          "paper": 1,
+          "question": 4,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p1:F7:quality_calibration",
+          "actual_varieties": [
+            "albarino",
+            "gruner veltliner",
+            "rhone_white_blend",
+            "torrontes"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "chenin blanc"
+          ],
+          "actual_countries": [
+            "Argentina",
+            "Austria",
+            "France",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "sparkling"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "commercial_foil",
+            "supporting_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.25,
+          "style_recall": 1.0,
+          "role_recall": 0.3333333333333333
+        },
+        {
+          "paper": 2,
+          "question": 1,
+          "family": "F3",
+          "subcategory": "blend_logic",
+          "archetype": "p2:F3:blend_logic",
+          "actual_varieties": [
+            "bordeaux_red_family",
+            "cabernet franc",
+            "cabernet sauvignon",
+            "merlot"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "bordeaux_red_family",
+            "syrah"
+          ],
+          "actual_countries": [
+            "Chile",
+            "France",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.25,
+          "country_recall": 0.6666666666666666,
+          "style_recall": 1.0,
+          "role_recall": 0.5
+        },
+        {
+          "paper": 2,
+          "question": 2,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p2:F2:same_origin_comparative",
+          "actual_varieties": [
+            "bordeaux_red_family",
+            "sangiovese"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "cabernet sauvignon",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p2:F2:same_origin_comparative",
+          "actual_varieties": [
+            "pinot noir"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "cabernet sauvignon",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 4,
+          "family": "F1",
+          "subcategory": "same_variety_same_region",
+          "archetype": "p2:F1:same_variety_same_region",
+          "actual_varieties": [
+            "malbec"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "syrah",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "Argentina"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "New Zealand"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "commercial_foil"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "maturity_reference"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 5,
+          "family": "F1",
+          "subcategory": "same_variety_same_region",
+          "archetype": "p2:F1:same_variety_same_region",
+          "actual_varieties": [
+            "zinfandel"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "syrah",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "New Zealand"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "benchmark_anchor"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "maturity_reference"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": false,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 0.0
+        },
+        {
+          "paper": 3,
+          "question": 1,
+          "family": "F5",
+          "subcategory": "sparkling_method",
+          "archetype": "p3:F5:sparkling_method",
+          "actual_varieties": [
+            "glera/pinot noir",
+            "lambrusco grape varieties",
+            "sparkling_classic_blend"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "palomino",
+            "riesling"
+          ],
+          "actual_countries": [
+            "France",
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Spain"
+          ],
+          "actual_styles": [
+            "sparkling"
+          ],
+          "predicted_styles_top3": [
+            "sparkling",
+            "fortified",
+            "still_dry"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 2,
+          "family": "F6",
+          "subcategory": "sweetness_axis",
+          "archetype": "p3:F6:sweetness_axis",
+          "actual_varieties": [
+            "chenin blanc",
+            "gewürztraminer",
+            "riesling",
+            "sauvignon blanc",
+            "tokaj_family"
+          ],
+          "predicted_varieties_top3": [
+            "palomino",
+            "douro_red_family",
+            "muscat"
+          ],
+          "actual_countries": [
+            "France",
+            "Germany",
+            "Hungary",
+            "New Zealand",
+            "South Africa"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "fortified",
+            "still_dry",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "sweetness_reference",
+            "maturity_reference"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.2,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 3,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p3:F7:quality_calibration",
+          "actual_varieties": [
+            "corvina",
+            "douro_red_family",
+            "gsm_rhone_red_blend"
+          ],
+          "predicted_varieties_top3": [
+            "palomino",
+            "gsm_rhone_red_blend",
+            "sparkling_classic_blend"
+          ],
+          "actual_countries": [
+            "Australia",
+            "Italy",
+            "Portugal"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "USA"
+          ],
+          "actual_styles": [
+            "fortified",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "fortified",
+            "sparkling",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        }
+      ]
+    },
+    "2023": {
+      "papers": {
+        "1": {
+          "actual_structures": {
+            "p1:F1:same_variety_cross_origin": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F2:same_origin_comparative": 1
+          },
+          "predicted_structures": {
+            "p1:F2:same_origin_comparative": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F3:blend_logic": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p1:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.504
+            },
+            {
+              "slot": 2,
+              "archetype": "p1:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 2.994
+            },
+            {
+              "slot": 3,
+              "archetype": "p1:F3:blend_logic",
+              "family": "F3",
+              "subcategory": "blend_logic",
+              "score": 2.869
+            }
+          ],
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "exact_count_match": true
+        },
+        "2": {
+          "actual_structures": {
+            "p2:F2:same_origin_comparative": 1,
+            "p2:F4:mixed_bag": 1,
+            "p2:F7:quality_calibration": 1
+          },
+          "predicted_structures": {
+            "p2:F2:same_origin_comparative": 1,
+            "p2:F1:same_variety_cross_origin": 1,
+            "p2:F6:maturity_axis": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p2:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.448
+            },
+            {
+              "slot": 2,
+              "archetype": "p2:F1:same_variety_cross_origin",
+              "family": "F1",
+              "subcategory": "same_variety_cross_origin",
+              "score": 3.084
+            },
+            {
+              "slot": 3,
+              "archetype": "p2:F6:maturity_axis",
+              "family": "F6",
+              "subcategory": "maturity_axis",
+              "score": 2.869
+            }
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "exact_count_match": true
+        },
+        "3": {
+          "actual_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F7:quality_calibration": 1,
+            "p3:F2:same_origin_comparative": 1,
+            "p3:F1:same_variety_cross_origin": 1
+          },
+          "predicted_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F6:sweetness_axis": 1,
+            "p3:F7:quality_calibration": 1,
+            "p3:F2:same_origin_comparative": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p3:F5:sparkling_method",
+              "family": "F5",
+              "subcategory": "sparkling_method",
+              "score": 3.346
+            },
+            {
+              "slot": 2,
+              "archetype": "p3:F6:sweetness_axis",
+              "family": "F6",
+              "subcategory": "sweetness_axis",
+              "score": 4.215
+            },
+            {
+              "slot": 3,
+              "archetype": "p3:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 4.887
+            },
+            {
+              "slot": 4,
+              "archetype": "p3:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.331
+            }
+          ],
+          "precision": 0.75,
+          "recall": 0.75,
+          "exact_count_match": true
+        }
+      },
+      "question_level": [
+        {
+          "paper": 1,
+          "question": 1,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p1:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "bordeaux_white_blend",
+            "sauvignon blanc",
+            "semillon"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "chenin blanc"
+          ],
+          "actual_countries": [
+            "Australia",
+            "Chile",
+            "France",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "New Zealand"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 2,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p1:F7:quality_calibration",
+          "actual_varieties": [
+            "chardonnay",
+            "muscat",
+            "riesling",
+            "viognier"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "rhone_white_blend"
+          ],
+          "actual_countries": [
+            "France",
+            "Germany",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "sparkling"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 0.3333333333333333,
+          "style_recall": 0.5,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p1:F2:same_origin_comparative",
+          "actual_varieties": [
+            "chardonnay",
+            "chenin blanc",
+            "sauvignon blanc"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "pinot gris",
+            "riesling"
+          ],
+          "actual_countries": [
+            "South Africa"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "comparative_peer"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 1,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p2:F2:same_origin_comparative",
+          "actual_varieties": [
+            "aglianico",
+            "corvina",
+            "nebbiolo",
+            "nerello mascalese"
+          ],
+          "predicted_varieties_top3": [
+            "bordeaux_red_family",
+            "pinot noir",
+            "cabernet sauvignon"
+          ],
+          "actual_countries": [
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 2,
+          "family": "F4",
+          "subcategory": "mixed_bag",
+          "archetype": "p2:F4:mixed_bag",
+          "actual_varieties": [
+            "bordeaux_red_family",
+            "grenache",
+            "syrah",
+            "tempranillo"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "bordeaux_red_family",
+            "cabernet sauvignon"
+          ],
+          "actual_countries": [
+            "Australia",
+            "France",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "supporting_reference"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.25,
+          "country_recall": 0.3333333333333333,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 3,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p2:F7:quality_calibration",
+          "actual_varieties": [
+            "malbec",
+            "pinot noir"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "bordeaux_red_family",
+            "tempranillo"
+          ],
+          "actual_countries": [
+            "Argentina",
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "commercial_foil",
+            "supporting_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 0.6666666666666666
+        },
+        {
+          "paper": 3,
+          "question": 1,
+          "family": "F5",
+          "subcategory": "sparkling_method",
+          "archetype": "p3:F5:sparkling_method",
+          "actual_varieties": [
+            "macabeo/parellada",
+            "riesling"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "riesling",
+            "palomino"
+          ],
+          "actual_countries": [
+            "Germany",
+            "New Zealand",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "sparkling",
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "sparkling",
+            "fortified",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 0.0,
+          "style_recall": 0.6666666666666666,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 2,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p3:F7:quality_calibration",
+          "actual_varieties": [
+            "garnacha",
+            "gsm_rhone_red_blend",
+            "palomino"
+          ],
+          "predicted_varieties_top3": [
+            "palomino",
+            "gsm_rhone_red_blend",
+            "douro_red_family"
+          ],
+          "actual_countries": [
+            "France",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Portugal"
+          ],
+          "actual_styles": [
+            "fortified",
+            "rose",
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "fortified",
+            "still_sweet",
+            "sparkling"
+          ],
+          "actual_roles": [
+            "commercial_foil",
+            "supporting_reference",
+            "sweetness_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "maturity_reference"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.6666666666666666,
+          "country_recall": 1.0,
+          "style_recall": 0.3333333333333333,
+          "role_recall": 0.3333333333333333
+        },
+        {
+          "paper": 3,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p3:F2:same_origin_comparative",
+          "actual_varieties": [
+            "pinot gris",
+            "tokaj_family"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "sauvignon blanc",
+            "palomino"
+          ],
+          "actual_countries": [
+            "France",
+            "Hungary"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Spain"
+          ],
+          "actual_styles": [
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "sparkling",
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "comparative_peer"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": false,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.5,
+          "style_recall": 0.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 4,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p3:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "exact grape mix not stated on the consulted official materials. source needed",
+            "sercial",
+            "traditional douro grape varieties"
+          ],
+          "predicted_varieties_top3": [
+            "gsm_rhone_red_blend",
+            "palomino",
+            "sparkling_classic_blend"
+          ],
+          "actual_countries": [
+            "Portugal"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Italy"
+          ],
+          "actual_styles": [
+            "fortified"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "supporting_reference"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": false,
+          "variety_recall": 0.0,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 0.0
+        }
+      ]
+    },
+    "2024": {
+      "papers": {
+        "1": {
+          "actual_structures": {
+            "p1:F1:same_variety_cross_origin": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F2:same_origin_comparative": 1
+          },
+          "predicted_structures": {
+            "p1:F2:same_origin_comparative": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F1:same_variety_same_region": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p1:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.313
+            },
+            {
+              "slot": 2,
+              "archetype": "p1:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 4.194
+            },
+            {
+              "slot": 3,
+              "archetype": "p1:F1:same_variety_same_region",
+              "family": "F1",
+              "subcategory": "same_variety_same_region",
+              "score": 3.283
+            }
+          ],
+          "precision": 0.6666666666666666,
+          "recall": 0.6666666666666666,
+          "exact_count_match": true
+        },
+        "2": {
+          "actual_structures": {
+            "p2:F1:same_variety_cross_origin": 1,
+            "p2:F7:quality_calibration": 2
+          },
+          "predicted_structures": {
+            "p2:F2:same_origin_comparative": 1,
+            "p2:F4:breadth": 1,
+            "p2:F7:quality_calibration": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p2:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 4.353
+            },
+            {
+              "slot": 2,
+              "archetype": "p2:F4:breadth",
+              "family": "F4",
+              "subcategory": "breadth",
+              "score": 3.283
+            },
+            {
+              "slot": 3,
+              "archetype": "p2:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 3.356
+            }
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "exact_count_match": true
+        },
+        "3": {
+          "actual_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F2:same_origin_comparative": 2,
+            "p3:F6:sweetness_axis": 1
+          },
+          "predicted_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F7:quality_calibration": 1,
+            "p3:F2:same_origin_comparative": 1,
+            "p3:F1:same_variety_cross_origin": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p3:F5:sparkling_method",
+              "family": "F5",
+              "subcategory": "sparkling_method",
+              "score": 4.279
+            },
+            {
+              "slot": 2,
+              "archetype": "p3:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 3.929
+            },
+            {
+              "slot": 3,
+              "archetype": "p3:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.176
+            },
+            {
+              "slot": 4,
+              "archetype": "p3:F1:same_variety_cross_origin",
+              "family": "F1",
+              "subcategory": "same_variety_cross_origin",
+              "score": 2.789
+            }
+          ],
+          "precision": 0.5,
+          "recall": 0.5,
+          "exact_count_match": true
+        }
+      },
+      "question_level": [
+        {
+          "paper": 1,
+          "question": 1,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p1:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "chardonnay",
+            "riesling",
+            "sauvignon blanc"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "sauvignon blanc"
+          ],
+          "actual_countries": [
+            "Australia",
+            "France",
+            "Germany",
+            "New Zealand"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "still_sweet",
+            "oxidative"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 2,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p1:F7:quality_calibration",
+          "actual_varieties": [
+            "gewurztraminer",
+            "moschofilero",
+            "viognier"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "chenin blanc"
+          ],
+          "actual_countries": [
+            "Australia",
+            "France",
+            "Greece"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "still_sweet",
+            "oxidative"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.6666666666666666,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p1:F2:same_origin_comparative",
+          "actual_varieties": [
+            "bordeaux_white_blend",
+            "petit manseng, petit courbu, gros manseng",
+            "rhone_white_blend"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "sauvignon blanc",
+            "pinot gris"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 1,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p2:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "syrah"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "syrah",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "Australia",
+            "Chile",
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "supporting_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 0.6666666666666666,
+          "style_recall": 1.0,
+          "role_recall": 0.5
+        },
+        {
+          "paper": 2,
+          "question": 2,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p2:F7:quality_calibration",
+          "actual_varieties": [
+            "bordeaux_red_family",
+            "nebbiolo",
+            "sangiovese",
+            "tempranillo"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "malbec",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "France",
+            "Italy",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": false,
+          "variety_recall": 0.25,
+          "country_recall": 0.6666666666666666,
+          "style_recall": 1.0,
+          "role_recall": 0.0
+        },
+        {
+          "paper": 2,
+          "question": 3,
+          "family": "F7",
+          "subcategory": "quality_calibration",
+          "archetype": "p2:F7:quality_calibration",
+          "actual_varieties": [
+            "pinot noir"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "bordeaux_red_family",
+            "malbec"
+          ],
+          "actual_countries": [
+            "Canada",
+            "France",
+            "Germany",
+            "New Zealand",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 0.4,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 1,
+          "family": "F5",
+          "subcategory": "sparkling_method",
+          "archetype": "p3:F5:sparkling_method",
+          "actual_varieties": [
+            "macabeo/parellada/xarel-lo",
+            "sparkling_classic_blend"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "riesling",
+            "palomino"
+          ],
+          "actual_countries": [
+            "Spain",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Italy"
+          ],
+          "actual_styles": [
+            "sparkling"
+          ],
+          "predicted_styles_top3": [
+            "sparkling",
+            "still_sweet",
+            "still_dry"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 2,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p3:F2:same_origin_comparative",
+          "actual_varieties": [
+            "chardonnay",
+            "chardonnay/savagnin"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "palomino",
+            "tokaj_family"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Spain"
+          ],
+          "actual_styles": [
+            "oxidative",
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "sparkling",
+            "still_dry",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "comparative_peer"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 0.5,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p3:F2:same_origin_comparative",
+          "actual_varieties": [
+            "bordeaux_white_blend",
+            "sauvignon blanc",
+            "source needed for the exact blend"
+          ],
+          "predicted_varieties_top3": [
+            "tokaj_family",
+            "sparkling_classic_blend",
+            "palomino"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Spain"
+          ],
+          "actual_styles": [
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_sweet",
+            "sparkling",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 0.5,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 4,
+          "family": "F6",
+          "subcategory": "sweetness_axis",
+          "archetype": "p3:F6:sweetness_axis",
+          "actual_varieties": [
+            "chardonnay",
+            "chenin blanc",
+            "muscat",
+            "vidal",
+            "vin_santo_family"
+          ],
+          "predicted_varieties_top3": [
+            "riesling",
+            "tokaj_family",
+            "douro_red_family"
+          ],
+          "actual_countries": [
+            "Austria",
+            "Canada",
+            "France",
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Portugal"
+          ],
+          "actual_styles": [
+            "fortified",
+            "oxidative",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_sweet",
+            "fortified",
+            "still_dry"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "sweetness_reference"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.5,
+          "style_recall": 0.6666666666666666,
+          "role_recall": 1.0
+        }
+      ]
+    },
+    "2025": {
+      "papers": {
+        "1": {
+          "actual_structures": {
+            "p1:F3:blend_logic": 1,
+            "p1:F1:same_variety_cross_origin": 1,
+            "p1:F2:same_origin_comparative": 1,
+            "p1:F5:human_vs_natural": 1
+          },
+          "predicted_structures": {
+            "p1:F1:same_variety_cross_origin": 1,
+            "p1:F7:quality_calibration": 1,
+            "p1:F2:same_origin_comparative": 1,
+            "p1:F1:same_variety_same_region": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p1:F1:same_variety_cross_origin",
+              "family": "F1",
+              "subcategory": "same_variety_cross_origin",
+              "score": 3.966
+            },
+            {
+              "slot": 2,
+              "archetype": "p1:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 5.058
+            },
+            {
+              "slot": 3,
+              "archetype": "p1:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 5.79
+            },
+            {
+              "slot": 4,
+              "archetype": "p1:F1:same_variety_same_region",
+              "family": "F1",
+              "subcategory": "same_variety_same_region",
+              "score": 2.869
+            }
+          ],
+          "precision": 0.5,
+          "recall": 0.5,
+          "exact_count_match": true
+        },
+        "2": {
+          "actual_structures": {
+            "p2:F1:same_variety_cross_origin": 1,
+            "p2:F2:same_region_internal_diversity": 1,
+            "p2:F2:same_origin_comparative": 1
+          },
+          "predicted_structures": {
+            "p2:F2:same_origin_comparative": 1,
+            "p2:F7:quality_calibration": 1,
+            "p2:F1:same_variety_same_region": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p2:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 3.454
+            },
+            {
+              "slot": 2,
+              "archetype": "p2:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 4.606
+            },
+            {
+              "slot": 3,
+              "archetype": "p2:F1:same_variety_same_region",
+              "family": "F1",
+              "subcategory": "same_variety_same_region",
+              "score": 3.347
+            }
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "exact_count_match": true
+        },
+        "3": {
+          "actual_structures": {
+            "p3:F1:same_variety_cross_origin": 1,
+            "p3:F2:same_origin_comparative": 1,
+            "p3:F4:mixed_bag": 1
+          },
+          "predicted_structures": {
+            "p3:F5:sparkling_method": 1,
+            "p3:F2:same_origin_comparative": 1,
+            "p3:F7:quality_calibration": 1
+          },
+          "predicted_sequence": [
+            {
+              "slot": 1,
+              "archetype": "p3:F5:sparkling_method",
+              "family": "F5",
+              "subcategory": "sparkling_method",
+              "score": 4.951
+            },
+            {
+              "slot": 2,
+              "archetype": "p3:F2:same_origin_comparative",
+              "family": "F2",
+              "subcategory": "same_origin_comparative",
+              "score": 4.627
+            },
+            {
+              "slot": 3,
+              "archetype": "p3:F7:quality_calibration",
+              "family": "F7",
+              "subcategory": "quality_calibration",
+              "score": 3.711
+            }
+          ],
+          "precision": 0.3333333333333333,
+          "recall": 0.3333333333333333,
+          "exact_count_match": true
+        }
+      },
+      "question_level": [
+        {
+          "paper": 1,
+          "question": 1,
+          "family": "F3",
+          "subcategory": "blend_logic",
+          "archetype": "p1:F3:blend_logic",
+          "actual_varieties": [
+            "bordeaux_white_blend",
+            "sauvignon blanc"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "sauvignon blanc",
+            "riesling"
+          ],
+          "actual_countries": [
+            "Australia",
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "New Zealand"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 2,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p1:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "chardonnay"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "sauvignon blanc"
+          ],
+          "actual_countries": [
+            "Australia",
+            "France",
+            "South Africa",
+            "USA"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "New Zealand"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "still_sweet",
+            "oxidative"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 1.0,
+          "country_recall": 0.5,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p1:F2:same_origin_comparative",
+          "actual_varieties": [
+            "chenin blanc",
+            "melon de bourgogne",
+            "riesling"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "rhone_white_blend",
+            "riesling"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "Italy"
+          ],
+          "actual_styles": [
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "oxidative",
+            "still_sweet"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "maturity_reference"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 1,
+          "question": 4,
+          "family": "F5",
+          "subcategory": "human_vs_natural",
+          "archetype": "p1:F5:human_vs_natural",
+          "actual_varieties": [
+            "malvasia",
+            "riesling",
+            "trebbiano"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "riesling",
+            "sauvignon blanc"
+          ],
+          "actual_countries": [
+            "Germany",
+            "Italy",
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Australia",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "still_sweet",
+            "oxidative"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "commercial_foil",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.3333333333333333,
+          "country_recall": 0.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 1,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p2:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "bordeaux_red_family",
+            "cabernet franc"
+          ],
+          "predicted_varieties_top3": [
+            "syrah",
+            "pinot noir",
+            "bordeaux_red_family"
+          ],
+          "actual_countries": [
+            "Argentina",
+            "France",
+            "Italy"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "USA",
+            "Australia"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "benchmark_anchor",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.5,
+          "country_recall": 0.3333333333333333,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 2,
+          "family": "F2",
+          "subcategory": "same_region_internal_diversity",
+          "archetype": "p2:F2:same_region_internal_diversity",
+          "actual_varieties": [
+            "gsm_rhone_red_blend",
+            "syrah"
+          ],
+          "predicted_varieties_top3": [
+            "bordeaux_red_family",
+            "pinot noir",
+            "nebbiolo"
+          ],
+          "actual_countries": [
+            "France"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "maturity_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 1.0,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 2,
+          "question": 3,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p2:F2:same_origin_comparative",
+          "actual_varieties": [
+            "barbera",
+            "douro_red_family",
+            "gamay",
+            "xinomavro",
+            "zweigelt"
+          ],
+          "predicted_varieties_top3": [
+            "pinot noir",
+            "bordeaux_red_family",
+            "nebbiolo"
+          ],
+          "actual_countries": [
+            "Austria",
+            "France",
+            "Greece",
+            "Italy",
+            "Portugal"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "USA"
+          ],
+          "actual_styles": [
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "benchmark_anchor",
+            "commercial_foil",
+            "maturity_reference",
+            "supporting_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.4,
+          "style_recall": 1.0,
+          "role_recall": 0.5
+        },
+        {
+          "paper": 3,
+          "question": 1,
+          "family": "F1",
+          "subcategory": "same_variety_cross_origin",
+          "archetype": "p3:F1:same_variety_cross_origin",
+          "actual_varieties": [
+            "riesling"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "gsm_rhone_red_blend",
+            "chardonnay"
+          ],
+          "actual_countries": [
+            "Germany",
+            "New Zealand"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Portugal"
+          ],
+          "actual_styles": [
+            "sparkling",
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "sparkling",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "benchmark_anchor"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": false,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 0.0,
+          "style_recall": 0.6666666666666666,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 2,
+          "family": "F2",
+          "subcategory": "same_origin_comparative",
+          "archetype": "p3:F2:same_origin_comparative",
+          "actual_varieties": [
+            "garnacha",
+            "macabeo/parellada/xarel-lo",
+            "palomino"
+          ],
+          "predicted_varieties_top3": [
+            "chardonnay",
+            "sauvignon blanc",
+            "sparkling_classic_blend"
+          ],
+          "actual_countries": [
+            "Spain"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Italy",
+            "Spain"
+          ],
+          "actual_styles": [
+            "fortified",
+            "sparkling",
+            "still_dry"
+          ],
+          "predicted_styles_top3": [
+            "still_dry",
+            "still_sweet",
+            "sparkling"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "commercial_foil"
+          ],
+          "variety_top3_hit": false,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.0,
+          "country_recall": 1.0,
+          "style_recall": 0.6666666666666666,
+          "role_recall": 1.0
+        },
+        {
+          "paper": 3,
+          "question": 3,
+          "family": "F4",
+          "subcategory": "mixed_bag",
+          "archetype": "p3:F4:mixed_bag",
+          "actual_varieties": [
+            "gsm_rhone_red_blend",
+            "pinot gris",
+            "selection of young wines from multiple harvests; specific varieties not stated on the cited producer material",
+            "sercial",
+            "tokaj_family",
+            "traditional douro grape varieties"
+          ],
+          "predicted_varieties_top3": [
+            "sparkling_classic_blend",
+            "sauvignon blanc",
+            "gsm_rhone_red_blend"
+          ],
+          "actual_countries": [
+            "France",
+            "Hungary",
+            "Portugal"
+          ],
+          "predicted_countries_top3": [
+            "France",
+            "Spain",
+            "Italy"
+          ],
+          "actual_styles": [
+            "fortified",
+            "rosé",
+            "still_dry",
+            "still_sweet"
+          ],
+          "predicted_styles_top3": [
+            "still_sweet",
+            "still_dry",
+            "fortified"
+          ],
+          "actual_roles": [
+            "method_reference"
+          ],
+          "predicted_roles_top3": [
+            "method_reference",
+            "maturity_reference",
+            "supporting_reference"
+          ],
+          "variety_top3_hit": true,
+          "country_top3_hit": true,
+          "style_top3_hit": true,
+          "role_top3_hit": true,
+          "variety_recall": 0.16666666666666666,
+          "country_recall": 0.3333333333333333,
+          "style_recall": 0.75,
+          "role_recall": 1.0
+        }
+      ]
+    }
+  },
+  "summary": {
+    "structure_mean_f1_proxy": 0.4986111111111111,
+    "variety_top3_hit_rate": 0.5952380952380952,
+    "country_top3_hit_rate": 0.8095238095238095,
+    "style_top3_hit_rate": 0.9761904761904762,
+    "role_top3_hit_rate": 0.9285714285714286,
+    "variety_mean_recall": 0.3273809523809524,
+    "country_mean_recall": 0.5535714285714286,
+    "style_mean_recall": 0.8869047619047619,
+    "role_mean_recall": 0.8412698412698413
+  }
+}

@@ -2,6 +2,7 @@
 paper: 3
 pack_name: P3 Family Tree Pack
 generated: 2026-05-26
+last_resynthesized: 2026-08-05  # absorbed 2026_p3_q1 (F4a, 4-country all-sparkling breadth opener, zero Champagne) and 2026_p3_q2 (F6a, 8-wine/4-pair same-country-and-region flight with a lettering-restart per-wine ABV/RS block)
 families_covered: [F1, F2, F4, F5, F6, F7]
 accuracy_target: variety + region + style/method category
 source_index: outputs/heuristics/question_taxonomy_index.md
@@ -35,9 +36,9 @@ Confidence is expressed as **STRONG SIGNAL**, **PLAUSIBLE**, or **CURVEBALL**.
 | --- | --- | --- |
 | F1 Same Variety (mostly F1d cross-style) | 4 | Built |
 | F2 Same Origin (mostly F2a, F2d) | 8 | Built |
-| F4 Mixed Identification Breadth | 9 | Built (anti-overlink) |
+| F4 Mixed Identification Breadth | 10 | Built (anti-overlink) |
 | F5 Method / Production Dominant | 10 | **Built (highest-priority)** |
-| F6 Style Mechanism Comparative | 4 | Built |
+| F6 Style Mechanism Comparative | 5 | Built |
 | F7 Hierarchy / Quality Calibration | 3 | Built (classification/commercial position) |
 
 P3 has no `F3 Blend / Composition Logic Set` and no `F8 Curveball / Boundary Set` as primary families in the corpus.
@@ -72,7 +73,7 @@ P3 F5 nearly always pulls from one of these six production families. Always carr
 1. Traditional-method sparkling (Champagne; non-Champagne Crémant, Cava, English sparkling, Franciacorta, Cap Classique, California prestige cuvées, German Sekt)
 2. Tank/charmat or ancestral sparkling (Prosecco, Lambrusco, pet-nat)
 3. Botrytis sweet (Sauternes, Tokaji Aszú, German BA/TBA, Alsace SGN)
-4. Non-botrytis sweet by mechanism (Icewine/Eiswein, passito/Vin Santo/Recioto, late-harvest non-botrytis, Vouvray demi-sec/moelleux)
+4. Non-botrytis sweet by mechanism (Icewine/Eiswein, passito/Vin Santo/Recioto, late-harvest non-botrytis, Vouvray demi-sec/moelleux, dry-vs-Prädikat-sweet German estate pairs — Mosel, **Nahe**, Rheingau; Nahe confirmed live in `2026_p3_q2`, see the F6 section Branch 6.4)
 5. Fortified by pathway (Port spirit-stopped sweet red, VDN spirit-stopped sweet, Sherry biologically aged dry, Sherry oxidatively aged, Madeira estufa/canteiro)
 6. Oxidative / flor / unusual elevage non-fortified (Vin Jaune, Jura oxidative, oxidative Rioja Blanco, qvevri/skin contact, Sherry-style table whites)
 
@@ -103,6 +104,8 @@ Default universe:
 
 When commercial framing is heavy (e.g. 2024 P3 Q1: two non-Champagne sparkling wines, commercial position weighted): collapse to California prestige + Cava, or English + Cava, as a working prior.
 
+**Cross-reference (2026):** `2026_p3_q1` is tagged `F4a` (pure breadth), not `F5`, because its stem gives no shared variety/origin anchor beyond "sparkling, four different countries." But its sub-question (c) — "key winemaking decisions that have affected the wine's style," 7 of 25 marks per wine — tests exactly this branch's logic: non-Champagne default (Lambrusco del Fondatore, Italy; Cava Reserva, Dominio de la Vega, Utiel-Requena, Spain; Vouvray Brut, Château Moncontour, France; Blanc de Blancs, Harrow & Hope, England — zero Champagne), spanning ancestral method (Lambrusco) and traditional method at different lees ages and dosage levels (Cava 18 months lees; Harrow & Hope ~34–35 months lees, part oak-fermented; Vouvray ~11 g/L dosage; Harrow & Hope 8.1 g/L dosage). See the F4 section's Branch 4.1 and Main traps below for the full "F4-tagged-but-F5-scored" treatment — the family label alone does not tell you where the marks are.
+
 #### Branch 5.2 — Sweet-wine mechanism F5 (F5d)
 
 Triggers: "all have residual sugar" / "different methods of production… reference to residual sugar and alcohol" / four-to-five sweet wines.
@@ -112,7 +115,7 @@ Mandatory candidate set — one slot reserved per mechanism:
 - Cryoextraction / frozen fruit (Canadian Vidal Icewine, German/Austrian Eiswein, BC Riesling Icewine)
 - Drying / passito (Vin Santo, Recioto di Soave, Recioto della Valpolicella, Tokaji Eszencia-adjacent, Pedro Ximenez sun-dried if non-fortified scope opens)
 - Fortified sweet (Port LBV/Vintage/Tawny, VDN Beaumes-de-Venise / Banyuls, Pedro Ximenez Sherry, Maury, Australian Rutherglen Muscat)
-- Late-harvest non-botrytis (Vouvray moelleux, Alsace VT, Mosel Auslese, German Riesling Auslese off-dry)
+- Late-harvest non-botrytis (Vouvray moelleux, Alsace VT, Mosel/Nahe Auslese, German Riesling Auslese off-dry — Nahe confirmed as a live German Prädikat region, not just Mosel/Rheingau, by `2026_p3_q2`)
 
 Anti-collapse rule: even if two wines smell of honey and apricot, keep at least one in the non-botrytis lane until acid/alcohol/RS profile says otherwise.
 
@@ -178,14 +181,15 @@ For each F5 wine, the matrix should hit:
 3. Style consequence in palate language tied to the method.
 4. Origin family, narrowed only as far as the sensory evidence allows.
 5. Quality / commercial position framed in classification terms (NV vs vintage; reserva vs gran reserva; ruby vs tawny; SAQR vs basic Madeira) rather than vague "good quality".
+6. If the sub-question separately marks ABV and/or RS as bare numbers (increasingly common on P3 sweet/fortified flights — see `2026_p3_q2`'s per-wine block), use the ABV/RS anchor table in the F6 Matrix-writing template further below as the reference set rather than guessing cold.
 
 ---
 
 ## F4 Mixed Identification Breadth Set (P3)
 
-Nine P3 questions. The trap is over-linking. The stem deliberately removes the variety or origin anchor, and the candidate must treat each wine almost independently.
+Ten P3 questions. The trap is over-linking. The stem deliberately removes the variety or origin anchor, and the candidate must treat each wine almost independently.
 
-Tagged questions: `2015_p3_q2`, `2016_p3_q3`, `2017_p3_q1`, `2018_p3_q3 (F4c)`, `2019_p3_q3`, `2021_p3_q1`, `2021_p3_q3`, `2022_p3_q1`, `2022_p3_q3`.
+Tagged questions: `2015_p3_q2`, `2016_p3_q3`, `2017_p3_q1`, `2018_p3_q3 (F4c)`, `2019_p3_q3`, `2021_p3_q1`, `2021_p3_q3`, `2022_p3_q1`, `2022_p3_q3`, `2026_p3_q1 (F4a)`.
 
 ### Pre-taste objective
 
@@ -198,6 +202,7 @@ Resist the urge to find a hidden theme. On P3 F4, the only safe theme is "this i
 - no shared-variety or shared-origin language
 - explicit independent mark allocation per wine
 - final question of the paper
+- opening question that states only a shared *category* (e.g. "Wines 1-4 are sparkling wines and come from four different countries") with no shared variety, origin, or method language — the category alone is the anchor, and each wine is otherwise independent (`2026_p3_q1`)
 
 ### Default candidate universe
 
@@ -206,6 +211,8 @@ Treat each slot as drawing from a different category. P3 F4 flights typically in
 - at least one fortified or oxidative wine
 - at least one sweet wine
 - at least one classic still wine with a recognisable signature (Riesling, Chardonnay, Pinot Noir, Sangiovese)
+
+**Single-category F4a (2026 confirmed sub-form):** when the F4a anchor itself is a stated category rather than an unstated theme — e.g. "sparkling wines... four different countries" — default to non-Champagne origins filling most or all of the country slots, and expect the flight to deliberately mix production methods (traditional / tank / ancestral) so a method sub-question has real contrast to reward. `2026_p3_q1`: Lambrusco del Fondatore (Emilia-Romagna, Italy — ancestral method/metodo ancestrale, RS 3.15 g/L, 11.5%), Cava Reserva Expression (Dominio de la Vega, Utiel-Requena, Spain — traditional method, 100% Macabeo, 18 months lees, a Cava zone outside the Penedès core), Vouvray Brut (Château Moncontour, Loire, France — traditional method, Chenin Blanc, ~11 g/L dosage), Blanc de Blancs (Harrow & Hope, Thames & Chilterns, England — traditional method, 8.1 g/L dosage, 50% oak-puncheon ferment, ~34-35 months lees). Zero Champagne. Method diversity (ancestral vs traditional, lees age, dosage level) is itself a scored axis here, not a footnote.
 
 ### Default rule-outs
 
@@ -219,6 +226,7 @@ Treat each slot as drawing from a different category. P3 F4 flights typically in
 - Hidden organising theme (F4c): there is usually a single subtle thread (e.g. "all share oxidative handling"), but it does not collapse the candidate set — it widens it
 - Final-question fatigue: the worst time to over-commit
 - "European but not France/Italy/Spain" style instructions that are intended to remove the easy candidates rather than identify a country
+- Reading the family tag alone: an all-sparkling F4a flight can still score like F5 in its sub-questions. `2026_p3_q1` tags as `F4a` (pure breadth — no shared variety/origin/method language beyond "sparkling"), but its part (c), "identify the key winemaking decisions that have affected the wine's style," awards 7 of 25 marks per wine on exactly the F5 production-mechanism logic. Read the sub-questions, not just the family label, before deciding how much prep time goes to method vs origin — a candidate who treats this as pure identification under-serves nearly a third of the marks.
 
 ### Pre-taste decision branches
 
@@ -227,6 +235,8 @@ Treat each slot as drawing from a different category. P3 F4 flights typically in
 Triggers: "different countries", "different methods", no shared anchor.
 
 Default universe: build a five-or-six-slot working ballot where each slot is a distinct category bucket. Do not write a country down for two slots until at least three slots have been pencilled.
+
+**Confirmed instance (`2026_p3_q1`):** a four-wine, four-country, all-sparkling F4a flight with no Champagne. Country slots ran Italy (ancestral method), Spain (traditional method, outside the core Penedès zone), France-but-not-Champagne (Loire, traditional method), England (traditional method, extended lees ageing). Treat "sparkling, N different countries" as a breadth instruction, not a Champagne guarantee — spread predictions across non-Champagne producing countries first, and reserve Champagne as one plausible slot rather than the default anchor. Because the sub-questions here also scored "key winemaking decisions" per wine (7 of 25 marks), pencil in a specific method note (lees duration, dosage level, ancestral vs traditional vs tank) for every slot, not just an origin guess.
 
 #### Branch 4.2 — Hidden organising theme (F4c)
 
@@ -273,7 +283,7 @@ For F4, the matrix should be slot-by-slot, not flight-level. For each wine:
 - Best-guess country + region
 - Best-guess variety / blend family
 - One alternative if the first guess is wrong (the "branch B" candidate)
-- One short method comment if marks demand it
+- One short method comment if marks demand it. When the flight is entirely one stated category (e.g. all-sparkling, per `2026_p3_q1`), make the method comment specific — lees duration, dosage level, ancestral/traditional/tank method — since these are often independently and heavily marked, not a throwaway line.
 
 The matrix should explicitly state: "do not infer wine N from wine N−1."
 
@@ -298,7 +308,7 @@ Convert the *classification language* in the stem into a working ladder. On P3 F
 ### Default candidate universe
 
 The wines almost always come from categories whose labels carry a regulated or industry-recognised hierarchy:
-- **STRONG SIGNAL:** Champagne (NV / vintage / prestige cuvée), Port (Ruby / LBV / Vintage / Tawny / Aged Tawny), Sherry (Fino / Amontillado / Oloroso / VOS / VORS), Madeira (3 / 5 / 10 / 20 / 40 / Frasqueira), Tokaji (Szamorodni / Aszú 5–6 puttonyos / Eszencia), German Riesling (Kabinett → Auslese → BA/TBA / VDP Grosses Gewächs), Alsace (Lieu-dit → Grand Cru → VT → SGN), Sauternes/Barsac (1er Grand Cru Classé), Provence rosé (Cru Classé)
+- **STRONG SIGNAL:** Champagne (NV / vintage / prestige cuvée), Port (Ruby / LBV / Vintage / Tawny / Aged Tawny), Sherry (Fino / Amontillado / Oloroso / VOS / VORS), Madeira (3 / 5 / 10 / 20 / 40 / Frasqueira), Tokaji (Szamorodni / Aszú 5–6 puttonyos / Eszencia), German Riesling (Kabinett → Auslese → BA/TBA / VDP Grosses Gewächs — Mosel, **Nahe**, Rheingau; Nahe's GG-tier-vs-Prädikat ladder confirmed live by `2026_p3_q2`, see F6 Branch 6.4), Alsace (Lieu-dit → Grand Cru → VT → SGN), Sauternes/Barsac (1er Grand Cru Classé), Provence rosé (Cru Classé)
 - **PLAUSIBLE:** Rioja (Crianza / Reserva / Gran Reserva), Vintage Port houses, Provence Cru Classé rosé, Tokaji classifications, Hungarian sweet hierarchy
 - **CURVEBALL:** wines whose hierarchy is implicit rather than legal (single-vineyard cuvée from a Cap Classique or Franciacorta house; "premium" Cava de Paraje Calificado)
 
@@ -509,7 +519,9 @@ Per wine:
 
 ## F6 Style Mechanism Comparative Set (P3)
 
-Four P3 questions, all `F6a` (sweetness / residual sugar axis): `2015_p3_q3`, `2017_p3_q3`, `2019_p3_q5`, `2024_p3_q4`. The dividing line vs F5d is subtle: F6 is about *placing wines on a structural axis*; F5d is about *explaining the production mechanism behind each wine*. The same flight can be tagged either way depending on stem emphasis.
+Five P3 questions, all `F6a` (sweetness / residual sugar axis): `2015_p3_q3`, `2017_p3_q3`, `2019_p3_q5`, `2024_p3_q4`, `2026_p3_q2`. The dividing line vs F5d is subtle: F6 is about *placing wines on a structural axis*; F5d is about *explaining the production mechanism behind each wine*. The same flight can be tagged either way depending on stem emphasis.
+
+`2026_p3_q2` is a structurally new sub-form within F6a: an 8-wine, 4-pair, 200-mark flight ("Wines 5-6, 7-8, 9-10, and 11-12 are pairs. Within each pair, the wines are from the same country and region") — the largest flight recorded in the P3 corpus, and one that restarts its sub-question lettering mid-question (pair-level a/b/c, then a fresh per-wine a/b). Treat it as a distinct branch (6.4 below), not a scaled-up version of the small four/five-wine sweetness ladder in Branches 6.1-6.3 — the organizing logic is different (see Default candidate universe below).
 
 ### Pre-taste objective
 
@@ -521,16 +533,21 @@ Place each wine on the dominant structural axis (almost always RS × alcohol on 
 - "State the level of alcohol"
 - explicit ladder language ("from driest to sweetest")
 - structure-led mark allocation
+- "wines X-Y, A-B, ... are pairs. Within each pair, the wines are from the same country and region" — a paired-flight variant, not a single ladder (`2026_p3_q2`)
+- sub-question lettering restarts mid-question (a fresh "For each wine: a)... b)..." block after a pair-level a/b/c block) — signals the scope has shifted from pair-level comparison to per-wine bare-fact marks, almost always ABV and/or RS (`2026_p3_q2`)
 
 ### Default candidate universe
 
 For RS × alcohol axis (the dominant P3 F6 form):
-- Low-RS / low-alcohol corner: Mosel Kabinett, very light demi-sec
-- Low-RS / high-alcohol corner: dry table wine outliers
+- Low-RS / low-alcohol corner: Mosel/Nahe Kabinett, very light demi-sec
+- Low-RS / high-alcohol corner: dry table wine outliers, incl. dry top-vineyard Trocken/GG-tier Riesling (12-13.5% ABV, RS often under 9 g/L — confirmed Nahe example: Jakob Schneider Niederhäuser Hermannshöhle Trocken, `2026_p3_q2`)
 - Mid-RS / mid-alcohol: Auslese, Vouvray demi-sec/moelleux
+- Mid-RS / very-low-alcohol: Spätlese-tier German Prädikat (confirmed Nahe example: Jakob Schneider Norheimer Kirschheck Spätlese, ~73 g/L RS at 8.0% ABV, `2026_p3_q2`)
 - High-RS / low-alcohol: Icewine/Eiswein, TBA
 - High-RS / high-alcohol: Sauternes / Tokaji Aszú
 - Very-high-RS / fortified: PX Sherry, Vintage Port, Rutherglen Muscat
+
+**Multi-pair form (Branch 6.4) — a different organizing logic.** The confirmed 2026 multi-pair flight does not plot five points on one shared RS x alcohol ladder; instead each PAIR shares an origin and diverges on one production fork, and RS/alcohol are used to characterise each pair's fork rather than to rank the whole flight against every other wine. Keep the two organizing logics separate: single-ladder F6a (Branches 6.1-6.3, one flight, five points on one axis) vs paired-fork F6a (Branch 6.4, four independent pairs, each with its own local axis).
 
 ### Pre-taste decision branches
 
@@ -548,6 +565,24 @@ Triggers: explicit comparison between fortified and unfortified, or between fort
 
 Triggers: pair questions comparing youthful and developed expressions of similar wines.
 
+#### Branch 6.4 — Multi-pair same-region flight (paired production-method contrast)
+
+Triggers: stem groups the flight into named pairs ("wines X-Y are pairs") and states each pair shares country and region; sub-question lettering restarts mid-question (pair-level a/b/c, then a fresh per-wine a/b).
+
+**Confirmed instance (`2026_p3_q2`):** 8 wines, 4 pairs, 200 marks — the largest flight recorded in the P3 corpus. Structure was: (a) origin per pair (4x8), (b) methods of production per pair (4x14 — the single heaviest mark band in the question), (c) compare quality in region per pair (4x16), then a restarted per-wine block: (a) state ABV (8x3), (b) state RS (8x3) — 48 of 200 marks (24%) on bare numbers alone.
+
+Each pair is built around ONE named production fork within a shared origin, not a spread of five sweetness points:
+- **Dosage level within the same base wine and appellation** — Champagne: Brut Nature (0 g/L) vs standard Brut. *`2026_p3_q2` pair 1: Chavost Blanc de Chardonnay Brut Nature, 0 g/L, 12.5% vs Delacourt Brut (M&S own-label, ~£25), 12.5%.*
+- **Oxidative cask ageing vs reductive/bottle-then-filtered ageing** — Port: extended-cask Tawny vs Late Bottled Vintage. *`2026_p3_q2` pair 2: Kopke 20-Year-Old Tawny NV, 20%, RS 121 g/L, long oxidative cask ageing vs Taylor's LBV 2020, 19%, 4-6 years wood then filtered.*
+- **Classified/1er Cru vs unclassified/second-label within the same botrytis appellation** — Sauternes/Barsac. *`2026_p3_q2` pair 3: Château Coutet 2022 (Barsac, 1855 Premier Cru Classé, RS 158 g/L, 13.5%, 100% barrel-fermented 50% new oak) vs Château Delmond 2023 (Sauternes, unclassified second label, unoaked, ~125 g/L).*
+- **Dry (Trocken, top-vineyard/Grosse Lage) vs Prädikat-sweet (Spätlese), one grower, two vineyards, same region** — Nahe, not Mosel or Rheingau. *`2026_p3_q2` pair 4: Jakob Schneider Niederhäuser Hermannshöhle Trocken 2023 (VDP.GROSSE LAGE, ~2.6-3.8 g/L RS, 12.5%) vs Norheimer Kirschheck Spätlese 2022 (non-Grosse-Lage, ~73 g/L RS, 8.0%).*
+
+**Working priors for this branch:** when the stem tells you the pairs share country and region, do not spend time guessing geography per pair — spend it identifying the single production fork the examiner built the pair around. The canonical fork families to keep pre-loaded are dosage/style level (Champagne), oxidative-vs-reductive ageing (Port, and by extension Sherry), classified-vs-unclassified (Sauternes/Barsac, and by extension any classed-growth region), and dry-vs-Prädikat-sweet from one grower (German regions — confirmed Nahe in 2026; the same logic would apply equally to a Mosel or Rheingau grower-pair).
+
+**Lettering-restart rule:** when sub-question letters restart mid-question, read it as a hard scope change from pair-level to wine-level, and expect the new block to be low-effort, high-yield bare-fact marks (ABV, RS) rather than another round of prose analysis — collect those marks fast and do not over-write them.
+
+Evidence: `2026_p3_q2` (founding instance for this branch; watch for recurrence before treating the multi-pair same-region structure as a stable, repeating P3 form rather than a one-off scaling of the paper — see also `p3_special_tree.md` Layer A Branch 6).
+
 ### Tasting branch order (F6)
 
 1. Estimate alcohol from warmth and weight
@@ -555,6 +590,8 @@ Triggers: pair questions comparing youthful and developed expressions of similar
 3. Plot the wine on the RS × alcohol matrix
 4. Choose the candidate that fits the plotted point
 5. Explain the production mechanism that produced the point
+
+**For the multi-pair form (Branch 6.4)**, reorder slightly: confirm the shared origin across the pair first (regional signature), then identify the production fork (dosage / oxidative-vs-reductive / classified-vs-unclassified / dry-vs-Prädikat) before estimating RS and alcohol per wine — the fork usually explains the RS/alcohol contrast rather than the other way round (`2026_p3_q2`).
 
 ### Matrix-writing template (F6)
 
@@ -564,6 +601,24 @@ Per wine:
 - Most plausible production mechanism for that position
 - Origin and variety as confirmation
 - Quality / commercial position
+
+**For the multi-pair form (Branch 6.4)**, add a pair-level line before the per-wine lines: shared origin, and the single named production fork that separates the two wines (dosage / oxidative-vs-reductive / classified-vs-unclassified / dry-vs-Prädikat).
+
+**ABV/RS anchor set** — reference points for stating bare numbers quickly and confidently when a sub-question scores them as their own fact (as `2026_p3_q2` did for 24% of its marks). Commit to a specific figure near the anchor rather than a wide hedge range; general-style rows with no 2026-confirmed figure are marked "Source needed" rather than invented. This table mirrors the fuller version in `p3_special_tree.md` (Layer B, "ABV / RS calibration aid") — check there for the master-tree framing and the full practical rule.
+
+| Style family | Typical ABV | Typical RS (g/L) | Anchor |
+| --- | --- | --- | --- |
+| Brut Nature / zero-dosage sparkling | 12-12.5% | 0-3 | Chavost Blanc de Chardonnay Brut Nature, 0 g/L, 12.5% (`2026_p3_q2` w5) |
+| Standard Brut sparkling | 11.5-12.5% | 6-12 | Delacourt Brut, 12.5% (`2026_p3_q2` w6) |
+| Dry still (Trocken, top vineyard/GG-tier) | 12-13.5% | 0-9 | Jakob Schneider Niederhäuser Hermannshöhle Trocken, ~2.6-3.8 g/L, 12.5% (`2026_p3_q2` w11) |
+| Prädikat-sweet (Spätlese) | 7.5-9.5% | 40-90 | Jakob Schneider Norheimer Kirschheck Spätlese, ~73 g/L, 8.0% (`2026_p3_q2` w12) |
+| Auslese/BA/TBA | 6-8.5% | 90-200+ | Source needed — no 2026-confirmed anchor |
+| Botrytis sweet, Sauternes/Barsac tier | 13-14.5% | 100-160 | Château Coutet (Barsac, 1er Cru), 158 g/L, 13.5%; Château Delmond (Sauternes, unclassified), ~125 g/L, 13.5% (`2026_p3_q2` w9-10) |
+| Canada Icewine / Eiswein | 8-11% | 150-220 | Source needed — no 2026-confirmed anchor |
+| Tawny Port (10-20+ yr, oxidative cask) | 19-20% | 90-130 | Kopke 20-Year-Old Tawny, 121 g/L, 20% (`2026_p3_q2` w7) |
+| LBV Port (4-6 yr wood, filtered) | 19-20% | typically lower and less oxidative-marked than an age-stated Tawny at the same ABV | Taylor's LBV 2020, 19% (`2026_p3_q2` w8; RS not stated in source — describe qualitatively rather than inventing a figure) |
+| Fino/Manzanilla Sherry | ~15% | <5 | Source needed — no 2026-confirmed anchor |
+| Oloroso/PX Sherry | 17-20% | Oloroso <5 unless sweetened; PX 300-400+ | Source needed — no 2026-confirmed anchor |
 
 ---
 

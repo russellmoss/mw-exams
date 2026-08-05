@@ -3787,5 +3787,259 @@
         ]
       }
     ]
+  },
+  {
+    "year": 2026,
+    "papers": [
+      {
+        "paper": 1,
+        "questions": [
+          {
+            "n": 1,
+            "wines": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "text": "Wines 1-6 are from the same single grape variety and come from five different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (6 x 10 marks)\n\nb) Discuss how winemaking has influenced the wine’s style. (6 x 10 marks)\n\nc) Comment on the commercial position. (6 x 5 marks)"
+          },
+          {
+            "n": 2,
+            "wines": [
+              7,
+              8,
+              9
+            ],
+            "text": "Wines 7-9 are from the same single variety and come from three different countries.\n\nWith reference to all three wines:\n\na) Identify the grape variety. (15 marks)\n\nFor each wine:\n\nb) Discuss the quality in the context of its region of origin. (3 x 15 marks)\n\nc) Comment on the wine’s maturity. (3 x 5 marks)"
+          },
+          {
+            "n": 3,
+            "wines": [
+              10,
+              11,
+              12
+            ],
+            "text": "Wines 10–12 are wines from regions influenced by the Mediterranean Sea.\n\nFor each wine:\n\na) Identify the primary grape variety and origin as closely as possible. (3 x 10 marks)\n\nb) Discuss how winemaking has impacted the freshness of the wine. (3 x 10 marks)\n\nc) Comment on the commercial position. (3 x 5 marks)"
+          }
+        ],
+        "wines": [
+          {
+            "slot": 1,
+            "full_text": "Meursault Les Narvaux, Domaine Latour-Giraud, 2023. Burgundy, France. (13.5%)"
+          },
+          {
+            "slot": 2,
+            "full_text": "Chardonnay, Greywacke, 2022. Marlborough, New Zealand. (14%)"
+          },
+          {
+            "slot": 3,
+            "full_text": "Chardonnay Prelude, Leeuwin Estate, 2024. Margaret River, Australia. (14%)"
+          },
+          {
+            "slot": 4,
+            "full_text": "Chardonnay Terra Alpina, Alois Lageder, 2024. IGT Dolomiti, Italy. (12%)"
+          },
+          {
+            "slot": 5,
+            "full_text": "Chablis La Butte “O”, Patrick Piuze, 2021. Burgundy, France. (12.5%)"
+          },
+          {
+            "slot": 6,
+            "full_text": "Chardonnay Buttery Reserve, Josh Cellars, 2023. Central Coast, California, USA. (13.5%)"
+          },
+          {
+            "slot": 7,
+            "full_text": "Riesling Federspiel Bruck, Domäne Wachau, 2020. Wachau, Austria. (12.5%)"
+          },
+          {
+            "slot": 8,
+            "full_text": "Riesling Cuvée Frédéric Emile, Trimbach, 2017. Alsace, France. (13.5%)"
+          },
+          {
+            "slot": 9,
+            "full_text": "Riesling, Pewsey Vale, 2024. Eden Valley, South Australia. (11.5%)"
+          },
+          {
+            "slot": 10,
+            "full_text": "Vermentino di Sardegna Costamolino, Argiolas, 2024. Sardegna, Italy. (13.5%)"
+          },
+          {
+            "slot": 11,
+            "full_text": "Assyrtiko Thalassitis, Gaia, 2024. Santorini, Greece. (13%)"
+          },
+          {
+            "slot": 12,
+            "full_text": "Château de Pibarnon Blanc, 2024. Bandol, France. (13.5%)"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "questions": [
+          {
+            "n": 1,
+            "wines": [
+              1,
+              2,
+              3
+            ],
+            "text": "Wines 1-3 are from the same country and different single grape varieties.\n\nFor each wine:\n\na) Comment on the style and commercial position. (3 x 11 marks)\n\nb) Comment on the method of production. (3 x 6 marks)\n\nc) Identify the grape variety and origin as closely as possible (3 x 8 marks)"
+          },
+          {
+            "n": 2,
+            "wines": [
+              4,
+              5,
+              6
+            ],
+            "text": "Wines 4-6 are from three different countries.\n\nFor each wine:\n\na) Identify the grape variety(ies) and origin as closely as possible. (3 x 10 marks)\n\nb) Comment on the method of production. (3 x 5 marks)\n\nc) Comment on the quality and commercial position. (3 x 10 marks)"
+          },
+          {
+            "n": 3,
+            "wines": [
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "text": "Wines 7-8, 9-10, and 11-12 form three pairs. Within each pair, the wines are from the same country and region. Each pair is from a different country.\n\nFor each pair:\n\na) Identify the origin as closely as possible. (3 x 20 marks)\n\nb) Compare the style and quality in the context of the region of origin. (3 x 20 marks)\n\nc) Compare the maturity of the two wines, considering the likely vintage. (3 x 10 marks)"
+          }
+        ],
+        "wines": [
+          {
+            "slot": 1,
+            "full_text": "Saumur Les Plantagenêts, Cave de Saumur, 2024. Loire Valley, France. (12%)"
+          },
+          {
+            "slot": 2,
+            "full_text": "Régnié, Domaine de la Margot, 2024. Beaujolais, France. (12.7%)"
+          },
+          {
+            "slot": 3,
+            "full_text": "Trousseau Singulier, Bénédicte et Stéphane Tissot, 2023. Arbois, France. (13.5%)"
+          },
+          {
+            "slot": 4,
+            "full_text": "Amarone della Valpolicella Riserva Vigna Garzon, Pieropan, 2019. Veneto, Italy. (16%)"
+          },
+          {
+            "slot": 5,
+            "full_text": "Shiraz The Factor, Torbreck, 2019. Barossa Valley, Australia. (15%)"
+          },
+          {
+            "slot": 6,
+            "full_text": "Cabernet Sauvignon TD-9, Shafer, 2021. Napa Valley, California, USA. (15.3%)"
+          },
+          {
+            "slot": 7,
+            "full_text": "Rioja Reserva Viña Ardanza, La Rioja Alta, 2019. Rioja, Spain. (14.5%)"
+          },
+          {
+            "slot": 8,
+            "full_text": "Rioja Paso Las Mañas, Artuke, 2021. Paraje el Chorro, Spain. (14%)"
+          },
+          {
+            "slot": 9,
+            "full_text": "Chianti Classico I Sassi, Melini, 2021. Tuscany, Italy. (14%)"
+          },
+          {
+            "slot": 10,
+            "full_text": "Chianti Classico Gran Selezione San Lorenzo, Castello di Ama, 2021. Tuscany, Italy. (13.5%)"
+          },
+          {
+            "slot": 11,
+            "full_text": "Château Giscours, 2017. Margaux, France. (13%)"
+          },
+          {
+            "slot": 12,
+            "full_text": "Château Rauzan-Ségla 2016. Margaux, France. (13.5%)"
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "questions": [
+          {
+            "n": 1,
+            "wines": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "text": "Wines 1-4 are sparkling wines and come from four different countries.\n\nFor each wine:\n\na) Identify the origin as closely as possible. (4 x 10 marks)\n\nb) Comment on the quality within the context of the region of origin. (4 x 8 marks)\n\nc) Identify the key winemaking decisions that have affected the wine’s style. (4 x 7 marks)"
+          },
+          {
+            "n": 2,
+            "wines": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "text": "Wines 5-6, 7-8, 9-10, and 11-12 are pairs. Within each pair, the wines are from the same country and region.\n\nFor each pair:\n\na) Identify the origin as closely as possible. (4 x 8 marks)\n\nb) Comment on the methods of production. (4 x 14 marks)\n\nc) Compare the quality in the context of the region of origin. (4 x 16 marks)\n\nFor each wine:\n\na) State the alcohol level. (8 x 3 marks)\n\nb) State the level of residual sugar. (8 x 3 marks)"
+          }
+        ],
+        "wines": [
+          {
+            "slot": 1,
+            "full_text": "Lambrusco del Fondatore, Cleto Chiarli, 2024. Emilia-Romagna, Italy. (11.5%)"
+          },
+          {
+            "slot": 2,
+            "full_text": "Cava Reserva Expression, Dominio de la Vega, 2022. Utiel-Requena, Spain. (12%)"
+          },
+          {
+            "slot": 3,
+            "full_text": "Vouvray Brut, Château Moncontour, NV. Loire Valley, France. (12.5%)"
+          },
+          {
+            "slot": 4,
+            "full_text": "Blanc de Blancs, Harrow & Hope, 2020. Thames & Chilterns, England. (12%)"
+          },
+          {
+            "slot": 5,
+            "full_text": "Blanc de Chardonnay Brut Nature, Chavost, NV. Champagne, France. (12.5%)"
+          },
+          {
+            "slot": 6,
+            "full_text": "Brut, Delacourt, NV. Champagne, France. (12.5%)"
+          },
+          {
+            "slot": 7,
+            "full_text": "20-Year-Old Tawny Port, Kopke, NV. Douro, Portugal. (20%)"
+          },
+          {
+            "slot": 8,
+            "full_text": "Late Bottled Vintage Port, Taylor’s, 2020. Douro, Portugal. (19%)"
+          },
+          {
+            "slot": 9,
+            "full_text": "Château Coutet, 2022. Barsac, France. (13.5%)"
+          },
+          {
+            "slot": 10,
+            "full_text": "Château Delmond, 2023. Sauternes, France. (13.5%)"
+          },
+          {
+            "slot": 11,
+            "full_text": "Riesling Trocken Niederhäuser Hermannshöhle, Jakob Schneider, 2023. Nahe, Germany. (12.5%)"
+          },
+          {
+            "slot": 12,
+            "full_text": "Riesling Spätlese Norheimer Kirschheck, Jakob Schneider, 2022. Nahe, Germany. (8%)"
+          }
+        ]
+      }
+    ]
   }
 ]

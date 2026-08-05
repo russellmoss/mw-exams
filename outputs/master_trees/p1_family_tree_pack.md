@@ -2,6 +2,7 @@
 paper: 1
 pack_name: P1 Family Tree Pack
 generated: 2026-05-26
+last_resynthesized: 2026-08-05
 families_covered: [F1, F2, F3, F4, F5, F7]
 accuracy_target: variety + region
 source_index: outputs/heuristics/question_taxonomy_index.md
@@ -18,20 +19,24 @@ The family-by-family layer for Paper 1, layered on top of `p1_whites_tree.md`. S
 
 | Family | Count | Status in this pack |
 | --- | --- | --- |
-| F1 Same Variety | 11 | Built (cross-country white varietal benchmarking) |
+| F1 Same Variety | 13 | Built (cross-country white varietal benchmarking; now includes large 5-6 wine flights, see 2026) |
 | F2 Same Origin | 8 | Built (all `F2a` — same country, different varieties) |
 | F3 Blend / Composition Logic | 4 | Built (Bordeaux blanc / Rhône white / regional blends) |
-| F4 Mixed Identification Breadth | 9 | **Built (anti-overlink for final-question slot)** |
+| F4 Mixed Identification Breadth | 10 | **Built (anti-overlink for final-question slot; new geographic/climatic-framing sub-form, see 2026)** |
 | F5 Method / Production Dominant | 2 | Built (small but distinct — origin de-emphasised) |
 | F7 Hierarchy / Quality Calibration | 3 | Built |
 
 P1 has no `F6` and no `F8` primary tags in the corpus.
 
+**2026 update:** three new P1 questions absorbed — `2026_p1_q1` (F1b, 6-wine/5-country Chardonnay flight), `2026_p1_q2` (F1b, 3-wine/3-country Riesling flight), `2026_p1_q3` (F4a, Mediterranean-Sea geographic-framing flight). See the F1 and F4 sections below for the specific extensions. F2, F3, F5, and F7 are untouched by 2026 — no questions this year tagged into those families.
+
 ---
 
 ## F4 Mixed Identification Breadth Set (P1)
 
-Nine P1 questions. The final P1 question is the recurring curveball slot. Tagged: `2015_p1_q3`, `2016_p1_q5`, `2017_p1_q3`, `2017_p1_q4`, `2018_p1_q2`, `2019_p1_q2 (F4b)`, `2022_p1_q4`, `2023_p1_q2`, `2024_p1_q2`. The remaining-work doc flags this as the area where P1 still risks over-linking; this section builds the explicit anti-overlink discipline.
+Ten P1 questions. The final P1 question is the recurring curveball slot. Tagged: `2015_p1_q3`, `2016_p1_q5`, `2017_p1_q3`, `2017_p1_q4`, `2018_p1_q2`, `2019_p1_q2 (F4b)`, `2022_p1_q4`, `2023_p1_q2`, `2024_p1_q2`, `2026_p1_q3 (F4a)`. The remaining-work doc flags this as the area where P1 still risks over-linking; this section builds the explicit anti-overlink discipline.
+
+**2026 addition — geographic/climatic-framing sub-form.** `2026_p1_q3` ("Wines 10-12 are wines from regions influenced by the Mediterranean Sea," 3 wines, 75 marks: 3x10 primary-variety-and-origin / 3x10 winemaking-impact-on-freshness / 3x5 commercial) sits in the recurring final-slot position but is tagged `F4a` rather than the pure-breadth-with-no-constraint pattern the rest of this family shows — it is breadth *within* a stated geography rather than open-field breadth. This framing has no precedent anywhere in the corpus before 2026. Actual wines: Vermentino di Sardegna Costamolino, Argiolas (Sardegna, IT); Assyrtiko Thalassitis, Gaia (Santorini, GR); Château de Pibarnon Blanc (Bandol, FR — a Clairette/Bourboulenc-led white, not the Mourvèdre-led red the appellation is famous for). See Branch 4.5 below for the dedicated sub-tree; this is a single data point and should be treated as a live hypothesis for how the final P1 slot may evolve, not yet a confirmed recurring shape.
 
 ### Pre-taste objective
 
@@ -43,6 +48,7 @@ Treat each wine as an independent identification problem. The white-paper contex
 - "different varieties"
 - breadth-test framing
 - final question of P1 — the corpus shows this slot is the curveball position year after year
+- **(new 2026) a named sea, ocean, or climate zone instead of a country or variety** — e.g. "wines from regions influenced by the Mediterranean Sea" (`2026_p1_q3`). This is a distinct sub-form: breadth-with-a-geographic-filter rather than pure open-field breadth. See Branch 4.5.
 
 ### Default candidate universe
 
@@ -54,6 +60,12 @@ P1 F4 flights typically include:
 
 For "different European countries" stems (the most common P1 F4c shape):
 - Germany / Austria, France (Alsace / Loire / Jura), Italy (Friuli / Veneto / Campania / Etna), Spain, Portugal, Greece, Hungary
+
+For "regions influenced by the Mediterranean Sea" stems (new 2026 sub-form, `2026_p1_q3`):
+- **STRONG SIGNAL:** Vermentino/Rolle (Liguria, Sardinia, Corsica, southern France), Assyrtiko (Santorini and other Cyclades)
+- **PLAUSIBLE:** Fiano / Falanghina / Greco (Campania), Grillo / Catarratto / Carricante-Etna Bianco (Sicily), southern French Mediterranean-coast blends (Bandol Blanc, Cassis, Provence Blanc, Picpoul de Pinet, southern Rhône white-blend components — Clairette, Bourboulenc, Grenache Blanc, Roussanne, Marsanne)
+- **CURVEBALL:** Istrian Malvazija (Croatia), Xynisteri (Cyprus), Château Musar White-style oxidative Lebanese field blend
+- All three of these were live in the actual 2026 flight: Vermentino (Sardegna), Assyrtiko (Santorini), Bandol Blanc (Clairette/Bourboulenc). See Branch 4.5 for the full working priors.
 
 ### Default rule-outs
 
@@ -67,6 +79,8 @@ For "different European countries" stems (the most common P1 F4c shape):
 - Locking Chardonnay too easily because of oak / lees — Sémillon, white Rioja, oxidative Chenin, oaked Chenin, white Bordeaux, and Vin Santo-adjacent dry wines all share oak vocabulary
 - Forgetting that the final P1 question often deliberately weights *style / method / origin de-emphasised* framing (overlap with F5)
 - Predicting only mainstream varieties for European-breadth stems where Assyrtiko / Furmint / Grüner / Garganega regularly appear
+- **(new 2026) The white-wine-from-a-red-appellation trap.** When a stem or a producer/appellation name points at a region famous chiefly for reds — Bandol, Châteauneuf-du-Pape, Pessac-Léognan, Rioja, even Barolo country — a **white** from that same appellation is a live candidate, not a decoy. The grapes are usually unrelated to the red blend: Bandol Blanc is Clairette/Bourboulenc/Ugni Blanc against a Mourvèdre-led red; Châteauneuf-du-Pape Blanc is Grenache Blanc/Roussanne/Clairette/Bourboulenc against a Grenache-led red; Pessac-Léognan Blanc is Sauvignon Blanc/Sémillon against a Cabernet/Merlot red. Do not let a red-famous appellation name talk you out of a white. See `2026_p1_q3` (Château de Pibarnon Blanc, Bandol).
+- **(new 2026) The literal-sea vs climate-analogue reading trap.** "Regions influenced by the Mediterranean Sea" is a literal geographic filter, not the looser "Mediterranean climate" phrasing the IMW sometimes uses to sweep in California / Chile / South Africa. The 2026 evidence supports reading it literally: all three wines drawn were from the actual Mediterranean basin (Sardinia, Santorini, Bandol), and Atlantic-facing France/Iberia, Germany/Austria, Marlborough/Central Otago, and warm-climate "Mediterranean-climate" New World regions are the wrong universe under this reading even though they would be correct if the stem said "climate." Defaulting to climate-type reasoning here is the trap the stem is built to set. See `2026_p1_q3`.
 
 ### Pre-taste decision branches
 
@@ -97,6 +111,20 @@ Standard template (corpus-supported): the slot rewards candidates who:
 - Allow at least one wine to be a non-mainstream European indigenous variety
 - Accept that one wine may be oxidative / qvevri / off-style and need a curveball pick
 
+#### Branch 4.5 — Geographic / climatic-framing (new 2026, F4a variant)
+
+Triggers: the stem names a sea, ocean, or climate zone instead of a country or a variety — e.g. "wines from regions influenced by the Mediterranean Sea" (`2026_p1_q3`).
+
+This is a single data point (2026 only) — treat as a live hypothesis for how the final P1 slot may evolve, not a confirmed recurring shape. Unlike the pure-breadth branches above (4.1-4.4), this sub-form gives a real, filterable constraint rather than an open field, so it rewards narrower geographic reasoning than the usual anti-overlink discipline demands elsewhere in F4.
+
+Working priors:
+- Read the geographic term literally, not as a climate-analogue. "Mediterranean Sea" means the actual Mediterranean basin (southern France, Italy including the islands, Spain's east coast, Greece, Croatia/Slovenia, Cyprus, Lebanon, North Africa, Turkey's Aegean coast) — not California, Chile, or South Africa, which are "Mediterranean climate" by textbook classification but fail a literal sea test. See the literal-sea-vs-climate-analogue trap above.
+- Expect at least one wine to test the white-wine-from-a-red-appellation trap (see Main traps above).
+- Default candidate set: Vermentino/Rolle, Assyrtiko, Fiano/Falanghina/Greco, Sicilian/Etna whites, southern French Mediterranean-coast blends (Bandol/Cassis/Provence Blanc, Picpoul de Pinet, southern Rhône components). See the Default candidate universe entry above for tiering.
+- Stay alert to an oxidative/deliberately-not-fresh curveball if the winemaking sub-question asks specifically about freshness — a wine like Château Musar White (Obaideh/Merwah, Lebanon) would be built to test whether the candidate can argue freshness was deliberately *not* the winemaking goal. Not the wine actually drawn in 2026 (both Vermentino and Assyrtiko in the real flight were fresh, reductive styles) but remains plausible for a future variant.
+
+Evidence: `2026_p1_q3` only.
+
 ### Tasting branch order (F4 in P1)
 
 Per wine:
@@ -124,6 +152,9 @@ Reset between wines.
 - **White pepper + lentil + green stone fruit + mineral ⇒** Grüner Veltliner (Austria).
 - **Smoke + nuts + oxidative + dry ⇒** white Rioja Reserva / Gran Reserva; or Jura ouillé/oxidative; or qvevri/orange.
 - **Amber colour + tannin grip + dried fruit + oxidative ⇒** orange / skin-contact / qvevri.
+- **(new 2026) Pale lemon + salinity + pithy citrus + high retained acid + reductive stainless handling ⇒** Vermentino/Rolle (Liguria / Sardinia / Corsica / Provence).
+- **(new 2026) Searing acidity despite evident ripeness/heat on the nose + volcanic/saline minerality ⇒** Assyrtiko (Santorini) or Carricante/Etna Bianco.
+- **(new 2026) Herbal/garrigue, fennel, white pepper + broader phenolic texture + aromatics that don't resolve to one clean varietal marker ⇒** southern French Mediterranean-coast blend (Bandol Blanc, Cassis, Provence Blanc, CdP Blanc) — check appellation name for the white-from-a-red-appellation trap before ruling it out.
 
 ### When to stay broad vs commit (F4 in P1)
 
@@ -234,7 +265,9 @@ Per wine:
 
 ## F1 Same Variety Comparative Set (P1)
 
-Eleven P1 questions, dominated by `F1b` (different countries). Tagged: `2015_p1_q2`, `2016_p1_q2 (F1a)`, `2016_p1_q3`, `2017_p1_q2`, `2017_p1_q5`, `2018_p1_q1`, `2018_p1_q3`, `2021_p1_q2`, `2023_p1_q1`, `2024_p1_q1`, `2025_p1_q2`.
+Thirteen P1 questions, dominated by `F1b` (different countries). Tagged: `2015_p1_q2`, `2016_p1_q2 (F1a)`, `2016_p1_q3`, `2017_p1_q2`, `2017_p1_q5`, `2018_p1_q1`, `2018_p1_q3`, `2021_p1_q2`, `2023_p1_q1`, `2024_p1_q1`, `2025_p1_q2`, `2026_p1_q1 (F1b)`, `2026_p1_q2 (F1b)`.
+
+**2026 addition — large-flight scale.** `2026_p1_q1` (6 wines, "five different countries," 150 marks: 6x10 origin / 6x10 how-winemaking-influenced-style / 6x5 commercial) is the largest single-variety flight in the corpus — all six **Chardonnay**: Meursault Les Narvaux/Latour-Giraud (Burgundy FR), Chablis La Butte "O"/Patrick Piuze (Burgundy FR), Greywacke (Marlborough NZ), Leeuwin Estate Prelude (Margaret River AU), Alois Lageder Terra Alpina (IGT Dolomiti IT), Josh Cellars Buttery Reserve (Central Coast CA USA). `2026_p1_q2` (3 wines, "three different countries," 75 marks: 15 variety / 3x15 quality-in-region / 3x5 maturity) is all **Riesling** — Domäne Wachau Federspiel Bruck (Wachau AT, 2020, RS 1.6 g/L), Trimbach Cuvée Frédéric Emile (Alsace FR, 2017, RS 2.4 g/L), Pewsey Vale (Eden Valley AU, 2024) — a deliberate 9/6/2-year maturity spread, all dry. See the new sub-branch and the doubled-country rule below.
 
 ### Pre-taste objective
 
@@ -246,6 +279,7 @@ Lock the white grape family with confidence, then build the comparative axis (cl
 - one named variety
 - "predominantly the same single variety"
 - "in two countries" or "in different countries"
+- **(new 2026) "N wines … five different countries" / "N wines … three different countries" at scale (5-6 wines, not just 2-4)** — the same F1b logic still applies but the flight size (and mark count) is materially larger. See the doubled-country rule below.
 
 ### Default candidate universe
 
@@ -253,6 +287,13 @@ Lock the white grape family with confidence, then build the comparative axis (cl
 - **STRONG SIGNAL:** Chardonnay (Burgundy / California / Margaret River / South Africa / Chile / NZ), Riesling (Mosel / Alsace / Clare / Eden / Washington / NY), Sauvignon Blanc (Loire / Marlborough / Bordeaux / South Africa / Chile)
 - **PLAUSIBLE:** Chenin Blanc (Loire / South Africa), Sémillon (Bordeaux / Hunter Valley / Chile), Viognier (Condrieu / new-world)
 - **CURVEBALL:** Pinot Gris (Alsace / Oregon / Alto Adige / NZ), Gewürztraminer cross-country
+
+**F1b large-scale flights (5-6 wines, new 2026):**
+- **STRONG SIGNAL:** Chardonnay — the only variety with genuine commercial-scale, examinable-quality plantings across five-plus countries, and the most winemaking-malleable, which fits a flight that weights "winemaking's influence on style" as heavily as origin. See `2026_p1_q1` (Burgundy x2 / NZ / Australia / Italy / USA).
+- **PLAUSIBLE:** Riesling across three countries at smaller scale (3 wines) — see `2026_p1_q2` (Austria / France / Australia). Riesling belongs at STRONG SIGNAL for 3-wine/3-country flights specifically (per the companion master tree's revised leaf), even though it has not yet been attested at 5-6-wine scale.
+- **CURVEBALL:** Sauvignon Blanc or Pinot Gris stretched to 5-6-wine scale — plausible in principle but unattested; a large flight is more likely to reward a single highly winemaking-malleable variety like Chardonnay than a more climate-fixed one like Sauvignon Blanc.
+- **Doubled-country rule (2026):** when the stem gives *N* wines from *N-1* countries — i.e. exactly one country is doubled — the doubled country is most likely **France**, split by contrasting style within the same grape: an unoaked/lean expression (Chablis) against an oaked/malo-driven expression (Côte de Beaune, e.g. Meursault). The doubling exists to test whether the candidate can articulate a winemaking-driven contrast within one place and grape, not to reward guessing an exotic doubled country (Chile, Argentina). See `2026_p1_q1`.
+- **Wide commercial spread inside one F1 flight (2026):** `2026_p1_q1` is the widest quality/price spread ever attested in a single-variety P1 question — Meursault premier-cru-adjacent Burgundy at the top against a ~$16 supermarket Central Coast Chardonnay at the bottom, with serious mid-tier examples (Greywacke, Leeuwin Prelude, Alois Lageder) in between. This changes what "quality tier" means inside an F1 flight going forward: do not assume all wines in a same-variety flight cluster at similar quality/price — the examiner may be deliberately using the full ladder from grand-cru-adjacent to commodity to test calibration across the whole commercial range, not just origin discrimination.
 
 **F1a same-country (rare in P1 but present):**
 - France with Burgundy + Chablis + Mâcon-style Chardonnay; Alsace dry + late-harvest Riesling
@@ -273,6 +314,8 @@ Lock the white grape family with confidence, then build the comparative axis (cl
 - Predicting Sauvignon Blanc when the stem allows Chenin (lanolin / wax markers separate)
 - Predicting Chardonnay when the stem allows Sémillon (denser, more wax, more lanolin)
 - Reading a winemaking split as a varietal split
+- **(new 2026) In a large multi-country flight, assuming the "extra" wine beyond the country count must be an exotic doubled country rather than a stylistic doubling of the country the candidate already expects (usually France, split unoaked vs oaked).** See `2026_p1_q1`.
+- **(new 2026) In a flight spanning grand-cru-adjacent to supermarket-tier examples of the same variety, mistaking commodity oak/diacetyl cues (Josh Cellars-style "buttery" Central Coast Chardonnay) for a genuine Burgundian winemaking signature, or conversely under-rating a cool-subregion, low-alcohol, minimal-oak Italian Chardonnay (Alois Lageder IGT Dolomiti) as "not serious enough to be Chardonnay."** See `2026_p1_q1`.
 
 ### Pre-taste decision branches
 
@@ -290,12 +333,19 @@ Working priors: France ⇒ Chardonnay across Burgundy + Chablis + Mâcon; or Rie
 
 Working priors: Burgundy Chardonnay tier ladder; Alsace Riesling cuvée; Mosel Riesling vintage stack.
 
+#### Branch 1.4 — Large-scale flight, 5-6 wines (new 2026, F1b variant)
+
+Triggers: stem gives 5 or more wines under one variety and names 3+ countries, with a heavier total mark allocation (e.g. 150 marks across origin / winemaking-influence / commercial) than the standard 3-4 wine F1b form.
+
+Working priors: default to Chardonnay first (only variety with genuine 5+-country commercial-scale depth); apply the doubled-country rule if the country count is one short of the wine count (expect France split Chablis vs Côte de Beaune); expect the full commercial ladder to be in play (grand-cru-adjacent through supermarket), not a narrow quality band. See `2026_p1_q1`.
+
 ### Tasting branch order (F1 in P1)
 
 1. Aromatic family lock (citrus / stone / tropical / herbaceous / aromatic floral)
 2. Acid / body / sugar structure
 3. Oak / lees / MLF
 4. Origin discrimination
+5. **(new 2026, large flights only)** Commercial/quality-tier placement along the full ladder — do not assume a same-variety flight clusters at one quality band; place each wine from grand-cru-adjacent through commodity before finalising origin, since 2026 shows tier and origin are tested together across a wide spread.
 
 ### Branch-specific candidate narrowing (F1 in P1)
 
@@ -307,6 +357,12 @@ Working priors: Burgundy Chardonnay tier ladder; Alsace Riesling cuvée; Mosel R
 - **Pyrazine + tropical / passionfruit ⇒** Marlborough Sauvignon Blanc.
 - **Pyrazine + flint / smoke / restraint ⇒** Loire Sauvignon Blanc.
 - **Wax + lanolin + quince + dry phenolic ⇒** Chenin Blanc (Loire / South Africa).
+- **(new 2026) Restrained oak + saline/mineral core + malo read as texture not overt butter + ~13.5% + long layered finish ⇒** Meursault / premium Côte de Beaune Chardonnay.
+- **(new 2026) Blunt vanilla/coconut + pronounced diacetyl butter + simple candied fruit + short/coarse finish despite richness ⇒** commodity/supermarket New World Chardonnay (oak alternatives, not barrel).
+- **(new 2026) Alpine-cool orchard-fruit purity (apple/pear/white flower) + low alcohol (~12%) + minimal oak + gentle acid ⇒** cool-subregion Italian Chardonnay (Alto Adige/IGT Dolomiti) — distinguish from Chablis by softer, more floral fruit and gentler acid.
+- **(new 2026) Moderate alcohol (~12-12.5%) + dry but softer stone-fruit/apricot + saline minerality + not yet fully petrol at mid-maturity (5-7 yrs) ⇒** Wachau Federspiel Riesling, Austria.
+- **(new 2026) Higher alcohol (13-14%) + bone dry + structured/powerful + floral/stone fruit moving toward honeyed/toasty at 8-10 yrs + firm mineral backbone ⇒** Alsace Riesling (Trimbach-style Grand Cru/lieu-dit).
+- **(new 2026) Lower alcohol (11-12%) + youthful (0-3 yrs, no petrol/honey) + pure linear lime/citrus + high unresolved acid + no oak ⇒** Eden/Clare Valley Riesling, Australia.
 
 ### Matrix-writing template (F1 in P1)
 
@@ -316,6 +372,7 @@ Per wine:
 - Comparative axis position
 - Quality in context
 - Maturity / potential
+- **(large 5-6 wine flights only, new 2026)** If the country count is one short of the wine count, actively test the doubled-country-is-France-split-by-style hypothesis before defaulting to an exotic double; place every wine on the full commercial ladder (grand-cru-adjacent to commodity) rather than assuming a narrow quality band
 
 ---
 
@@ -540,8 +597,8 @@ The remaining-work doc named these as top priorities:
 
 | Priority | Item | Status |
 | --- | --- | --- |
-| 5 | P1 F4 anti-overlink breadth tree | **Built (Branch 4.1–4.4 with final-question template)** |
-| — | P1 F1 same-variety pre-taste / tasting | Built |
+| 5 | P1 F4 anti-overlink breadth tree | **Built (Branch 4.1–4.5, adds 2026 geographic/climatic-framing sub-form)** |
+| — | P1 F1 same-variety pre-taste / tasting | Built (extended 2026 with Branch 1.4 large-scale flights + doubled-country rule) |
 | — | P1 F2 same-country regional literacy | Built |
 | — | P1 F3 blend tree | Built (Bordeaux Blanc + Rhône Blanc + Iberian + Loire branches) |
 | — | P1 F5 method/style trees | Built (small but distinct family) |

@@ -1867,5 +1867,113 @@
     ],
     "annotation": "This tests for the ability to discern a wide range of wine styles, from light rose to off-dry whites, to fortified.  Within that, the question wants to know how good the wine is (within its category) and where it would be sold (again, country, channel and to whom).  Lastly, they are testing the ability to discern uncommon winemaking techniques across a range of wines.",
     "is_filled": true
+  },
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 2,
+    "wines": [
+      7,
+      8,
+      9
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 3,
+    "wines": [
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 2,
+    "wines": [
+      4,
+      5,
+      6
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 3,
+    "wines": [
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 3,
+    "question": 1,
+    "wines": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "annotation": "",
+    "is_filled": false
+  },
+  {
+    "year": 2026,
+    "paper": 3,
+    "question": 2,
+    "wines": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "annotation": "",
+    "is_filled": false
   }
 ]

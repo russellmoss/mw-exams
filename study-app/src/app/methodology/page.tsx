@@ -73,15 +73,15 @@ export default function MethodologyPage() {
             How We Built This
           </h2>
           <p className="text-lg text-muted max-w-2xl mx-auto leading-relaxed">
-            A study engine grounded in 14 years of MW practical exam data, 13 examiner reports,
+            A study engine grounded in 15 years of MW practical exam data, 13 examiner reports,
             and rigorous backtesting -- not intuition.
           </p>
         </div>
 
         {/* Key stats strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard value="504" label="Wines Researched" sub="Every wine from 2011-2025" />
-          <StatCard value="153" label="Questions Analyzed" sub="14 years of exam papers" />
+          <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
+          <StatCard value="161" label="Questions Analyzed" sub="15 years of exam papers" />
           <StatCard value="72.8%" label="Top-1 Variety Accuracy" sub="Backtested prediction rate" />
           <StatCard value="95.6%" label="Candidate-Set Coverage" sub="Correct variety in prediction set" />
         </div>
@@ -103,27 +103,27 @@ export default function MethodologyPage() {
         <SectionCard id="corpus">
           <SectionTitle>The Corpus: Every MW Exam Since 2011</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
-            We assembled the complete text of every MW practical exam paper from 2011 to 2025 -- 14 years
+            We assembled the complete text of every MW practical exam paper from 2011 to 2026 -- 15 years
             of exams (2020 was cancelled). This is not a sample. It is the entire modern MW practical exam corpus.
           </p>
 
           <div className="grid grid-cols-3 gap-3 my-6">
             <div className="bg-background rounded-lg p-4 text-center border border-border/50">
-              <div className="text-2xl font-bold text-foreground">14</div>
+              <div className="text-2xl font-bold text-foreground">15</div>
               <div className="text-xs text-muted mt-1">Exam Years</div>
             </div>
             <div className="bg-background rounded-lg p-4 text-center border border-border/50">
-              <div className="text-2xl font-bold text-foreground">42</div>
+              <div className="text-2xl font-bold text-foreground">45</div>
               <div className="text-xs text-muted mt-1">Papers</div>
             </div>
             <div className="bg-background rounded-lg p-4 text-center border border-border/50">
-              <div className="text-2xl font-bold text-foreground">504</div>
+              <div className="text-2xl font-bold text-foreground">540</div>
               <div className="text-xs text-muted mt-1">Individual Wines</div>
             </div>
           </div>
 
           <p className="text-muted leading-relaxed mb-4">
-            Every one of the 504 wines was individually researched from authoritative sources: producer
+            Every one of the 540 wines was individually researched from authoritative sources: producer
             websites, Wine Enthusiast, Decanter, Tim Atkin MW, JancisRobinson.com, and regional wine board
             technical sheets. For each wine we documented tasting profile, technical specifications, vintage
             character, and -- critically -- why the examiners likely chose it.
@@ -170,7 +170,7 @@ export default function MethodologyPage() {
         <SectionCard id="analysis">
           <SectionTitle>Question-by-Question Analysis</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
-            We analyzed all 112 questions from the 10-year core corpus using a disciplined protocol.
+            We analyzed all 120 questions from the 11-year core corpus using a disciplined protocol.
             For each question, working from the stem alone -- without looking at the wines -- we mapped
             the logical path from question text to plausible wine candidates.
           </p>
@@ -186,7 +186,7 @@ export default function MethodologyPage() {
           </Callout>
 
           <p className="text-muted leading-relaxed mb-4">
-            This produced <strong>112 individual decision matrices</strong> -- each tracing the path from
+            This produced <strong>120 individual decision matrices</strong> -- each tracing the path from
             stem to candidates using three confidence tiers:
           </p>
 
@@ -207,7 +207,7 @@ export default function MethodologyPage() {
 
           <p className="text-sm text-muted italic">
             We use confidence tiers rather than percentages because the corpus -- while complete --
-            is 10 years: too small for reliable probability distributions.
+            is 11 years: too small for reliable probability distributions.
           </p>
 
           <p className="text-muted leading-relaxed mt-4">
@@ -263,10 +263,10 @@ export default function MethodologyPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
-              { stat: "100%", desc: "Paper 1 includes Chardonnay every year (10 of 10)" },
-              { stat: "80%", desc: "Riesling appears in Paper 1 (8 of 10 years)" },
-              { stat: "100%", desc: "P3 Q1 has been sparkling since 2021 (4 of 4 years)" },
-              { stat: "50%", desc: "Tokaji appears in Paper 3 (5 of 10 years)" },
+              { stat: "100%", desc: "Paper 1 includes Chardonnay every year (11 of 11)" },
+              { stat: "91%", desc: "Riesling appears in Paper 1 (10 of 11 years)" },
+              { stat: "100%", desc: "P3 Q1 has included sparkling every year since 2021 (6 of 6)" },
+              { stat: "45%", desc: "Tokaji appears in Paper 3 (5 of 11 years)" },
               { stat: "21%", desc: "Questions use \"same single grape variety\" in the stem" },
               { stat: "26%", desc: "Questions include a commercial/market sub-question" },
             ].map((item, i) => (
@@ -280,7 +280,7 @@ export default function MethodologyPage() {
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-foreground mb-3">Curveball Analysis</h3>
             <p className="text-muted leading-relaxed mb-4">
-              We classified all 504 wines by difficulty. The critical finding: curveballs follow
+              We classified all 540 wines by difficulty. The critical finding: curveballs follow
               a <strong>&quot;1 in 4&quot; rule</strong>. In a multi-wine question, typically exactly one wine
               is significantly harder. The rest are anchors.
             </p>
@@ -309,8 +309,16 @@ export default function MethodologyPage() {
         <SectionCard id="trees">
           <SectionTitle>The Decision Trees</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
-            From 112 individual question analyses, we synthesized three master decision trees
+            From 120 individual question analyses, we synthesized three master decision trees
             -- one per paper. Each tree has two layers:
+          </p>
+          <p className="text-sm text-muted italic mb-4">
+            The trees were first built from the 112 questions of 2015-2025, scored against 2026 as a
+            blind holdout (that is what makes the 2026 result above a fair test rather than a
+            self-assessment), and then re-synthesized across all 120 questions once that measurement
+            was banked. The pre-2026 trees are preserved verbatim so the holdout stays reproducible.
+            The consequence is worth stating plainly: <strong>2026 can never be used as a holdout
+            again</strong> -- the trees have now seen it. The next honest out-of-sample test is 2027.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
@@ -406,21 +414,49 @@ export default function MethodologyPage() {
 
           <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">Exam Structure Prediction</h3>
           <p className="text-muted leading-relaxed mb-3">
-            A separate model predicts what question types, varieties, and regions will appear. Backtested on 2022-2025:
+            A separate model predicts what question types, varieties, and regions will appear.
+            Backtested on 2022-2025 (in-sample -- these are years the model was tuned against):
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard value="100%" label="Question Count" sub="Exact per-paper prediction" />
+            <StatCard value="100%" label="Question Count" sub="In-sample; see 2026 result below" />
             <StatCard value="97.6%" label="Style Prediction" sub="Top-3 hit rate" />
             <StatCard value="81.0%" label="Country Prediction" sub="Top-3 hit rate" />
             <StatCard value="59.5%" label="Variety Prediction" sub="Top-3 hit rate" />
           </div>
+
+          <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">
+            The 2026 Holdout -- the only out-of-sample test
+          </h3>
+          <p className="text-muted leading-relaxed mb-3">
+            The 2026 forecast was committed before the exam was sat, then scored against the real
+            papers once they were published. Every number above was measured on years the model had
+            already seen; these were not. This is the honest measure of whether the system works.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <StatCard value="75%" label="Question Archetypes" sub="6 of 8 anticipated" />
+            <StatCard value="96%" label="Country (matrices)" sub="24 of 25 named blind" />
+            <StatCard value="1 of 3" label="Exact Question Count" sub="In-sample said 100%" />
+            <StatCard value="61%" label="Country (structure model)" sub="Held-out recall" />
+          </div>
+          <Callout>
+            <p className="text-sm text-muted">
+              <strong>What we got wrong, stated plainly.</strong> The &quot;100% question count&quot;
+              figure above is <strong>overfit</strong>. On the held-out 2026 papers the model called the
+              exact question count in only <strong>1 of 3</strong> papers -- it expected four questions in
+              Paper 1 and three in Paper 3, and got three and two. 2026 ran fewer, larger flights (a
+              six-wine Paper 1 opener, an eight-wine Paper 3 pair-set), which is how a paper sheds a
+              question while keeping twelve wines and 300 marks. Treat predicted question <em>count</em> as
+              a soft prior. The archetype mix -- which question <em>types</em> appear -- held up out of
+              sample at 75%, better than its own in-sample score, and that is the part worth trusting.
+            </p>
+          </Callout>
         </SectionCard>
 
         {/* ── GENERATION PIPELINE ── */}
         <SectionCard id="pipeline">
           <SectionTitle>Question Generation Pipeline</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
-            A study tool that only replays historical questions is limited -- 112 questions is not enough
+            A study tool that only replays historical questions is limited -- 120 questions is not enough
             practice material. We built a generation pipeline that produces new questions indistinguishable
             from real MW exam questions in structure, difficulty, and marking philosophy.
           </p>
@@ -546,7 +582,7 @@ export default function MethodologyPage() {
             <div>
               <div className="text-sm font-semibold text-success mb-3">What it is</div>
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
-                <li>Built on the <strong>complete modern MW exam corpus</strong> (14 years, 504 wines)</li>
+                <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
                 <li>Decision trees <strong>backtested to 72.8% accuracy</strong></li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
