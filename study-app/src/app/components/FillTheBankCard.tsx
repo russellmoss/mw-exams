@@ -21,11 +21,12 @@ function initialReviewBatch(): string | null {
 //              and the amber Generate button. A quiet amber link "N waiting for review" sits at the
 //              row end when a batch is waiting.
 //   RUNNING  — controls collapse to "Writing N of M… you can close this tab." + a thin amber bar.
-//   REVIEW   — the section expands into a review pane: one question at a time, Keep / Bin / Keep all /
-//              Bin all. Bin is a single, immediate, optimistic action with NO reason (the row is
-//              soft-deleted server-side so a ~10s Undo bar can reverse it); an OPTIONAL fault reason is
-//              captured after the fact via one-tap chips beneath that bar. When the queue empties the
-//              pane collapses back to the resting row with a brief "Batch reviewed · N kept" line.
+//   REVIEW   — the section expands into a review pane: one question at a time. The per-card action row
+//              is primary amber Keep, then plain Bin and Bin with reason (plus Keep all / Bin all for
+//              bulk). "Bin" is immediate with empty reasons; "Bin with reason" expands an inline panel
+//              (multi-select fault chips + optional note) confirmed with "Bin it". Every bin is
+//              soft-deleted server-side so a 5s Undo bar can reverse it (restoring its reasons too).
+//              When the queue empties the pane collapses back with a brief "Batch reviewed · N kept".
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PAPER_LABEL: Record<number, string> = { 1: "Paper 1", 2: "Paper 2", 3: "Paper 3" };
@@ -160,6 +161,17 @@ function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+}
+
+// A short human wine descriptor for the Undo bar ("Binned — Chablis 1er Cru, Burgundy, France").
+// Prefers the verbatim descriptor of the flight's first wine; falls back to variety/region/country.
+function cardLabel(card: ReviewCard | null): string | null {
+  const w = card?.wines?.[0];
+  if (!w) return null;
+  const text = (w.text || "").trim();
+  if (text) return text.length > 70 ? `${text.slice(0, 70)}…` : text;
+  const parts = [w.variety, w.region, w.country].filter((p): p is string => !!p && p.trim().length > 0);
+  return parts.length > 0 ? parts.join(", ") : null;
 }
 
 // Length Check (feature) — the inline expanding panel beneath the question text. Titled "Length
@@ -308,11 +320,27 @@ export function FillTheBankRows() {
   // action (client state, never persisted). Cleared when the review pane closes.
   const [sentBackNotice, setSentBackNotice] = useState<{ movedCount: number; label: string } | null>(null);
 
-  // ── UNDO STACK (spec §2) ── binned items awaiting the 5s window, each with its original index.
-  const [undoStack, setUndoStack] = useState<{ card: ReviewCard; index: number }[]>([]);
-  // Bumped on every new bin — restarts the countdown + drain animation inside BinUndoBar, and resets
-  // the post-bin reason-chip selection (the chips are keyed by this token).
+  // ── UNDO STACK ── binned items awaiting the 5s window, each with its original index and the
+  // reasons/note it was binned with (so Undo restores the item AND its reasons — survive undo→re-bin).
+  const [undoStack, setUndoStack] = useState<
+    { card: ReviewCard; index: number; reasons: string[]; note: string | null }[]
+  >([]);
+  // Bumped on every new bin — restarts the countdown + drain animation inside BinUndoBar.
   const [resetToken, setResetToken] = useState(0);
+
+  // ── BIN WITH REASON (spec §3) ── the inline panel state. `reasonPanelId` is the card id whose
+  // reason panel is open (null = closed); `panelReasons`/`panelNote` are the in-progress selection.
+  const [reasonPanelId, setReasonPanelId] = useState<string | null>(null);
+  const [panelReasons, setPanelReasons] = useState<string[]>([]);
+  const [panelNote, setPanelNote] = useState("");
+  // Retain a card's reasons/note client-side keyed by id, so an Undo→re-open of "Bin with reason"
+  // re-populates the panel with what it was last binned with (reasons must survive undo→re-bin).
+  const reasonDraft = useRef<Map<string, { reasons: string[]; note: string | null }>>(new Map());
+  // The reason panel container — focused on open so Esc-to-cancel works without tabbing in first.
+  const reasonPanelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (reasonPanelId) reasonPanelRef.current?.focus();
+  }, [reasonPanelId]);
 
   const fetchStatus = useCallback(async () => {
     try {
@@ -541,16 +569,17 @@ export function FillTheBankRows() {
     setBinError({ card, index, message });
   }, []);
 
-  // Fire the bin request in the background with NO reason payload (spec §1a) — reason capture is fully
-  // decoupled and happens after success via BinReasonChips. On a genuine failure the real server error
-  // message is extracted and shown on the card; the optimistic removal is rolled back.
+  // Fire the bin request in the background with its reason payload (spec §4) — { reasons, note }.
+  // A plain "Bin" sends empty reasons + null note; "Bin with reason" sends the panel's selection. On a
+  // genuine failure the real server error message is extracted and shown; the optimistic removal is
+  // rolled back.
   const fireBin = useCallback(
-    async (card: ReviewCard, index: number) => {
+    async (card: ReviewCard, index: number, reasons: string[], note: string | null) => {
       try {
         const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(card.id)}/bin`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: JSON.stringify({ reasons, note }),
         });
         if (!res.ok) {
           // Prefer a structured { error } message; fall back to raw text, then a bare status line.
@@ -579,16 +608,20 @@ export function FillTheBankRows() {
     [fetchStatus, revertBin]
   );
 
-  // BIN — a single, immediate, optimistic action (spec §1). Fire the bin at once and register the item
-  // on the undo stack, then grey-out + slide-out the card over ~220ms before splicing it and advancing.
-  // The exit is timer-driven so the animation is visible; a fast failure cancels it in revertBin.
-  const binCard = (card: ReviewCard, index: number) => {
+  // BIN — a single, immediate, optimistic action (spec §2). Fire the bin at once with its reasons/note
+  // and register the item on the undo stack, then grey-out + slide-out the card over ~220ms before
+  // splicing it and advancing. The exit is timer-driven so the animation is visible; a fast failure
+  // cancels it in revertBin.
+  const binCard = (card: ReviewCard, index: number, reasons: string[] = [], note: string | null = null) => {
     decidedAny.current = true;
     setBinError(null);
+    // Close the reason panel if it was open for this card, and retain the payload for undo→re-bin.
+    if (reasonPanelId === card.id) setReasonPanelId(null);
+    if (reasons.length > 0 || note) reasonDraft.current.set(card.id, { reasons, note });
     setExitingId(card.id);
-    setUndoStack((s) => [...s, { card, index }]);
+    setUndoStack((s) => [...s, { card, index, reasons, note }]);
     setResetToken((t) => t + 1);
-    void fireBin(card, index);
+    void fireBin(card, index, reasons, note);
     exitTimerRef.current = window.setTimeout(() => {
       exitTimerRef.current = null;
       setQueue((qq) => qq.filter((c) => c.id !== card.id));
@@ -596,20 +629,43 @@ export function FillTheBankRows() {
       setExitingId(null);
     }, 220);
   };
+  // Plain "Bin" — immediate, empty reasons (spec §2).
   const binCurrent = () => {
     if (exitingId) return; // ignore taps mid-exit
     const idx = Math.min(cursor, queue.length - 1);
     const card = queue[idx];
-    if (card) binCard(card, idx);
+    if (card) binCard(card, idx, [], null);
+  };
+
+  // "Bin with reason" (spec §3) — open the inline panel, pre-filled from any retained draft so an
+  // Undo→re-open restores the prior selection.
+  const openReasonPanel = (card: ReviewCard) => {
+    if (exitingId) return;
+    const draft = reasonDraft.current.get(card.id);
+    setPanelReasons(draft?.reasons ?? []);
+    setPanelNote(draft?.note ?? "");
+    setReasonPanelId(card.id);
+  };
+  const closeReasonPanel = () => setReasonPanelId(null);
+  const toggleReason = (value: string) =>
+    setPanelReasons((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  // Confirm — bin the current card with the panel's selection (always allowed, even with zero chips).
+  const confirmBinWithReason = () => {
+    const idx = Math.min(cursor, queue.length - 1);
+    const card = queue[idx];
+    if (!card) return;
+    const note = panelNote.trim();
+    binCard(card, idx, panelReasons, note.length > 0 ? note : null);
   };
 
   // BIN ALL (spec §5) — bin every remaining pending item in one shot. Each is fired independently and
   // pushed onto the undo stack (so the same Undo bar reads "N binned · Undo" and restores them all).
   const binAll = () => {
-    const items = queue.map((card, index) => ({ card, index }));
+    const items = queue.map((card, index) => ({ card, index, reasons: [] as string[], note: null }));
     if (items.length === 0) return;
     decidedAny.current = true;
     setConfirmBinAll(false);
+    setReasonPanelId(null);
     setBinError(null);
     setExitingId(null);
     if (exitTimerRef.current !== null) {
@@ -620,7 +676,7 @@ export function FillTheBankRows() {
     setCursor(0);
     setUndoStack((s) => [...s, ...items]);
     setResetToken((t) => t + 1);
-    items.forEach((it) => void fireBin(it.card, it.index));
+    items.forEach((it) => void fireBin(it.card, it.index, [], null));
   };
 
   // KEEP — optimistic single-card. On failure the card is restored with an inline message.
@@ -634,10 +690,10 @@ export function FillTheBankRows() {
     setReview((r) => (r ? { ...r, keptCount: r.keptCount + 1 } : r));
     (async () => {
       try {
-        const res = await fetch("/api/admin/fill-bank/review", {
+        const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(card.id)}/keep`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: card.id, action: "keep" }),
+          body: JSON.stringify({}),
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         await fetchStatus();
@@ -1125,7 +1181,8 @@ export function FillTheBankRows() {
                 </div>
               )}
 
-              {/* Footer: replace toggle left · Bin / Keep / Keep all right */}
+              {/* Footer: replace toggle left · the three-button action row + Keep all right.
+                  Primary amber Keep, then two plain bordered Bin / Bin with reason (spec §1). */}
               <div className="flex flex-wrap items-center gap-3 mt-5">
                 <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer mr-auto">
                   <input
@@ -1153,32 +1210,94 @@ export function FillTheBankRows() {
                   </div>
                 ) : (
                   <>
-                    {/* Bin is a single, immediate, optimistic action — no reason, no modal (spec §1). */}
-                    <button
-                      onClick={binCurrent}
-                      disabled={busy || !!exitingId}
-                      className="text-sm px-4 py-2 rounded-lg border border-border text-fail hover:border-fail transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      Bin
-                    </button>
+                    {/* Keep — primary amber (spec §1). */}
                     <button
                       onClick={keepCurrent}
                       disabled={busy || !!exitingId}
-                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                      className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
                     >
                       Keep
+                    </button>
+                    {/* Bin — immediate, empty reasons, no modal (spec §2). */}
+                    <button
+                      onClick={binCurrent}
+                      disabled={busy || !!exitingId}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Bin
+                    </button>
+                    {/* Bin with reason — toggles the inline reason panel (spec §3). */}
+                    <button
+                      onClick={() =>
+                        reasonPanelId === q.id ? closeReasonPanel() : openReasonPanel(q)
+                      }
+                      disabled={busy || !!exitingId}
+                      aria-expanded={reasonPanelId === q.id}
+                      className={`text-sm px-4 py-2 rounded-lg border transition-colors cursor-pointer disabled:opacity-50 ${
+                        reasonPanelId === q.id
+                          ? "border-accent text-accent"
+                          : "border-border text-foreground hover:border-muted"
+                      }`}
+                    >
+                      Bin with reason
                     </button>
                   </>
                 )}
                 <button
                   onClick={keepAll}
                   disabled={busy || queue.length === 0}
-                  className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
+                  className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-2"
                 >
                   {inFlight === "keepAll" && <Spinner />}
                   Keep all
                 </button>
               </div>
+
+              {/* ── BIN WITH REASON PANEL (spec §3) ── inline, INSIDE the card (no modal). Multi-select
+                  fault chips + an optional single-line note, then amber "Bin it" (always enabled) and
+                  plain "Cancel". Keyboard accessible; Esc cancels. */}
+              {reasonPanelId === q.id && (
+                <div
+                  ref={reasonPanelRef}
+                  tabIndex={-1}
+                  role="group"
+                  aria-label="Bin with reason"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeReasonPanel();
+                    }
+                  }}
+                  className="mt-3 rounded-lg border border-border bg-background/40 p-4 focus:outline-none"
+                >
+                  <p className="text-[11px] uppercase tracking-wide text-muted mb-2">Why bin this?</p>
+                  <BinReasonChips selected={panelReasons} onToggle={toggleReason} />
+                  <input
+                    type="text"
+                    value={panelNote}
+                    maxLength={200}
+                    onChange={(e) => setPanelNote(e.target.value)}
+                    placeholder="Optional note"
+                    aria-label="Optional note"
+                    className="mt-3 w-full text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
+                  />
+                  <div className="mt-3 flex items-center gap-3">
+                    <button
+                      onClick={confirmBinWithReason}
+                      disabled={busy || !!exitingId}
+                      className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      Bin it
+                    </button>
+                    <button
+                      onClick={closeReasonPanel}
+                      className="text-sm px-4 py-2 rounded-lg border border-border text-foreground hover:border-muted transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Inline failure text for Keep / Keep-all — verdict-FAIL red, beneath the card. */}
               {actionError && <p className="text-xs text-fail mt-3">{actionError}</p>}
@@ -1204,19 +1323,18 @@ export function FillTheBankRows() {
         </div>
       )}
 
-      {/* ── UNDO BAR + REASON CHIPS (spec §2/§3) ── fixed at the viewport bottom-centre while binned
-          items sit inside the ~10s window. The bin already happened; the chips are optional, one-tap,
-          fire-and-forget reason capture attached to every item still in the window. Keyed by
-          resetToken so a fresh bin clears the previous selection. */}
+      {/* ── UNDO BAR (spec: Undo) ── fixed at the viewport bottom-centre while binned items sit inside
+          the 5s window, with a 1px amber progress line draining left→right. Reads "Binned — <wine>"
+          for a single bin (the last one binned) or "N binned" for a bulk bin. Undo restores every item
+          on the stack AND its reasons/note. */}
       {reviewOpen && undoStack.length > 0 && (
         <BinUndoBar
           count={undoStack.length}
+          label={cardLabel(undoStack[undoStack.length - 1]?.card ?? null)}
           resetToken={resetToken}
           onUndo={handleUndo}
           onExpire={handleExpire}
-        >
-          <BinReasonChips key={resetToken} itemIds={undoStack.map((u) => u.card.id)} />
-        </BinUndoBar>
+        />
       )}
     </div>
   );

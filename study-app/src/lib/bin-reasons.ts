@@ -9,17 +9,19 @@ export interface BinReasonOption {
   label: string;
 }
 
-// The one-tap fault chips shown BELOW the Undo bar after a bin (spec §3). Order is the render order.
-// "Other…" is NOT in this list — it is a UI affordance that reveals the free-text note, stored as
-// reason_note rather than a tag. Values are stable short-codes; labels are candidate-neutral English.
+// The multi-select fault chips shown inside the "Bin with reason" panel (spec §3). Order is the render
+// order. The chip set is FIXED. Values are stable short-codes; labels are the exact candidate-neutral
+// English shown on the chips. Legacy codes from earlier bins still resolve through BIN_REASON_LABELS'
+// fallback, so historical ledger rows keep displaying.
 export const BIN_REASON_OPTIONS: readonly BinReasonOption[] = [
-  { value: "stem_mismatch", label: "Wines don't match the stem" },
-  { value: "flight_samey", label: "Flight too samey" },
-  { value: "wrong_marks", label: "Marks look wrong" },
-  { value: "quality_narrow", label: "Quality spread too narrow" },
-  { value: "factual_error", label: "Factual error" },
+  { value: "wrong_marks", label: "Wrong marks" },
+  { value: "not_realistic", label: "Not exam-realistic" },
+  { value: "duplicate_wine", label: "Duplicate wine" },
+  { value: "weak_stem", label: "Weak stem" },
+  { value: "factually_wrong", label: "Factually wrong" },
+  { value: "wrong_paper", label: "Wrong paper" },
   { value: "too_easy", label: "Too easy" },
-  { value: "too_hard", label: "Too hard" },
+  { value: "too_obscure", label: "Too obscure" },
 ] as const;
 
 export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(
@@ -29,9 +31,11 @@ export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(
 // Tags that name a CONTRADICTION-class fault the hard validator is meant to catch mechanically. When a
 // bin carries one of these, we log it against the validator so a gap (a fault the validator missed) is
 // visible in the logs. Mirrors §4 HARD of the spec.
-export const VALIDATOR_LINKED_TAGS = ["stem_mismatch", "wrong_marks"] as const;
+export const VALIDATOR_LINKED_TAGS = ["wrong_marks", "wrong_paper", "factually_wrong"] as const;
 
-export const MAX_BIN_NOTE_CHARS = 500;
+// The optional note is a single short line (spec §3): capped at 200 chars, enforced both at the input
+// (maxLength) and again server-side in sanitizeBinNote.
+export const MAX_BIN_NOTE_CHARS = 200;
 
 // Keep only recognised tags (defensive against a stale/hand-crafted client payload).
 export function sanitizeBinTags(tags: unknown): string[] | null {

@@ -8,6 +8,7 @@ import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 import { FillTheBankRows } from "../components/FillTheBankCard";
 import { BankHealthSection } from "../components/BankHealthSection";
+import { WhyBinnedSection } from "../components/WhyBinnedSection";
 
 interface UserRow {
   id: number;
@@ -386,6 +387,9 @@ export default function AdminPage() {
               prior standalone /admin/bank-health page 404'd in production, so it lives here, in the
               same JSX block that always renders, guaranteeing it ships wherever this page does. */}
           <BankHealthSection />
+
+          {/* Why wines get binned — the bin learning-loop summary (reason volumes + recent notes). */}
+          <WhyBinnedSection />
 
           {/* Auto-Feature pipeline toggle */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoFeature ? "border-accent bg-accent/5" : "border-border bg-card"}`}>
