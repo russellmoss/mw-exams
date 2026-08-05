@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
 import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
 import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
+import { loadStoredWineProfiles } from "@/lib/wine-bank-lookup";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
@@ -31,7 +32,10 @@ export async function POST(request: Request) {
     // fortified" caveat that used to sit here is obsolete — that hole was filled and the gate
     // reopened.) Fails soft: null block => previous behaviour.
     const { block: knowledgeBlock, passages: kbPassages } = await getKnowledgeContext({ questionText, family });
-    const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock);
+    // Researched per-wine profiles, so a regenerated exemplar is anchored to the same evidence as the
+    // tasting notes the candidate reads. Falls back to a bank lookup, then to {} — never blocks.
+    const wineProfiles = await loadStoredWineProfiles(questionId, wines);
+    const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock, wineProfiles);
 
     const t0 = Date.now();
     const message = await client.messages.create({

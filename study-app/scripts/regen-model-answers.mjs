@@ -61,6 +61,8 @@ const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db
 // live routes use, which is the exact drift the "ONE source of truth" note warns about.
 // Needs VOYAGE_API_KEY; getKnowledgeContext fails soft to null if it is missing.
 const { getKnowledgeContext, buildCitationBlock } = await import("../src/lib/knowledge/context.ts");
+// Researched per-wine profiles, for the same no-drift reason as the KB block above.
+const { loadStoredWineProfiles } = await import("../src/lib/wine-bank-lookup.ts");
 
 // ---- args ----
 const args = process.argv.slice(2);
@@ -69,7 +71,10 @@ const has = (name) => args.includes(name);
 const opt = {
   paper: flag("--paper") ? Number(flag("--paper")) : undefined,
   family: flag("--family"),
+  // Comma-separated list accepted: repairing a batch (e.g. every question whose wine profiles were
+  // just re-researched) otherwise means one node process and one model-resolution round trip per id.
   questionId: flag("--question-id"),
+  questionIds: (flag("--question-id") || "").split(",").map((s) => s.trim()).filter(Boolean),
   all: has("--all"),
   limit: flag("--limit") ? Number(flag("--limit")) : undefined,
   concurrency: flag("--concurrency") ? Number(flag("--concurrency")) : 3,
@@ -81,7 +86,7 @@ if (!opt.all && !opt.paper && !opt.questionId && !opt.repair) {
   console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair\nUse --dry-run to preview. See header for all flags.");
   process.exit(1);
 }
-const limit = opt.questionId ? 1 : (opt.all || opt.repair) ? null : (opt.limit ?? 5);
+const limit = opt.questionIds.length ? opt.questionIds.length : (opt.all || opt.repair) ? null : (opt.limit ?? 5);
 
 // ---- select rows to regen ----
 const sql = neon(process.env.DATABASE_URL);
@@ -129,8 +134,8 @@ if (opt.repair) {
         OR reasoning_trace IS NULL
         OR study_diagram_assist IS NULL)
     ORDER BY created_at DESC`;
-} else if (opt.questionId) {
-  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ${opt.questionId}`;
+} else if (opt.questionIds.length) {
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ANY(${opt.questionIds})`;
 } else if (opt.paper && opt.family) {
   rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} AND family = ${opt.family} ORDER BY created_at DESC`;
 } else if (opt.paper) {
@@ -178,7 +183,11 @@ async function regenOne(row) {
     questionText: row.question_text,
     family: row.family,
   });
-  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock);
+  // Same researched profiles the live routes now pass, fetched per row rather than added to the six
+  // different SELECTs above. One extra read per question is nothing in an offline bulk pass, and it
+  // keeps this script from being the one path that regenerates an exemplar off the wine's name alone.
+  const wineProfiles = await loadStoredWineProfiles(row.question_id, wines);
+  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock, wineProfiles);
   const text = await callClaude(prompt.system, prompt.user);
   const s = parseModelAnswerSections(text);
   // Append the source list exactly as the live routes do. Without this a bulk regeneration would

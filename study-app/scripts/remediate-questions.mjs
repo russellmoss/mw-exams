@@ -142,9 +142,9 @@ async function callModel(model, system, user) {
   return text;
 }
 
-async function genModelAnswer(questionText, wines, paper) {
+async function genModelAnswer(questionText, wines, paper, wineProfiles) {
   try {
-    const p = buildModelAnswerPrompt(questionText, wines, paper);
+    const p = buildModelAnswerPrompt(questionText, wines, paper, undefined, undefined, wineProfiles);
     const text = await callModel(OPUS, p.system, p.user);
     const answer = extractSection(text, "Model Answer", "Proposed Annotation") || text;
     // An empty answer is a silent failure: the caller skips the save and the replacement lands in
@@ -200,7 +200,10 @@ async function remediateOne(old, existingWines, latest) {
 
     if (audit.ok && key.ok) {
       console.log(`    attempt ${attempt}: ✓ VALID (${cand.wines.length} wines)`);
-      return { newId, cand, key, audit };
+      // Carry the enriched profiles out to genModelAnswer — they are already in hand from the
+      // enrich + read above, and the exemplar must be written against the same researched evidence
+      // the candidate's tasting notes are built from.
+      return { newId, cand, key, audit, wineProfiles: row.wine_profiles };
     }
     console.warn(`    attempt ${attempt}: invalid — keyProblems=[${key.problems.join("; ")}] hard=[${hard.map((v) => v.rule).join(",")}]`);
     await rejectCandidate(newId, [...key.problems, ...hard.map((v) => `${v.rule}: ${v.detail}`)]);
@@ -255,7 +258,7 @@ async function main() {
 
     if (APPLY) {
       await upsertKey(res.newId, res.key); // validated=true
-      const ma = await genModelAnswer(res.cand.questionText, res.cand.wines, old.paper);
+      const ma = await genModelAnswer(res.cand.questionText, res.cand.wines, old.paper, res.wineProfiles);
       if (ma) await saveGeneratedQuestion({
         questionId: res.newId, paper: old.paper, family: res.cand.family, familyLabel: res.cand.familyLabel,
         subcategory: res.cand.subcategory, questionText: res.cand.questionText, wines: res.cand.wines,

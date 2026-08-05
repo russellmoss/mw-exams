@@ -61,6 +61,13 @@ async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippet
   }
 }
 
+// The vintage is the one field the regex parse gets right regardless of how the reference string is
+// shaped, so it stays a standalone helper rather than something classifyWine has to be trusted for.
+function extractVintage(fullText: string): string {
+  const m = fullText.match(/\b(19|20)\d{2}\b/);
+  return m ? m[0] : "NV";
+}
+
 function parseWineIdentity(fullText: string): { producer: string; wineName: string; vintage: string; region: string; country: string } {
   const parts = fullText.split(".");
   const firstPart = (parts[0] || "").trim();
@@ -160,13 +167,27 @@ Rules:
   return fallbackIdentity;
 }
 
+// `identity` MUST be the classifyWine result, not parseWineIdentity's. The search query is only as
+// good as the producer/cuvée it names, and the regex parser mangles anything that doesn't fit
+// "Producer, Name. Region, Country" — the same failure that put producer="R" / country="2012" rows in
+// the wine bank. Building the query from a mangled parse searched the open web for nonsense, returned
+// nothing usable, and dropped the wine silently into the LLM gap-fill path below: the enrichment
+// LOOKED like it had researched the wine (source_method could still read tavily_research off one
+// irrelevant snippet) while the grid was really the model's own recall.
 async function researchWineViaTavily(
   wine: { slot: number; fullText: string },
+  identity: WineIdentity,
   apiKey: string,
   meta?: EnrichMeta
 ): Promise<WineProfile> {
-  const identity = parseWineIdentity(wine.fullText);
-  const query = `${identity.producer} ${identity.wineName} ${identity.vintage} tasting notes appearance color aroma palate review`;
+  // Region disambiguates the many repeated producer names; vintage pins the note to the right release.
+  // If classification came back empty on every field, search the raw reference string rather than a
+  // query made only of the boilerplate suffix.
+  const subject = [identity.producer, identity.wineName, identity.region, extractVintage(wine.fullText)]
+    .map((s) => (s || "").trim())
+    .filter(Boolean)
+    .join(" ");
+  const query = `${subject || wine.fullText} tasting notes appearance color aroma palate review`;
 
   const tavily = await searchTavily(query, meta);
   const hasTavilyResults = tavily.snippets.length >= 1;
@@ -370,7 +391,14 @@ export async function enrichWineProfiles(
   questionId: string,
   wines: { slot: number; fullText: string }[],
   apiKey: string,
-  meta?: { source?: "user" | "server"; userId?: number | null; batchId?: string | null }
+  meta?: { source?: "user" | "server"; userId?: number | null; batchId?: string | null },
+  // Maintenance escape hatch. Normally a wine already in the bank is served from cache and never
+  // re-researched — correct for the generation path, but it also means a profile built from a BAD
+  // search is permanent. forceSlots re-researches the listed slots regardless of a bank hit, so a
+  // wine whose profile was built before a search-quality fix can be repaired without wiping the bank
+  // row (addToWineBank's ON CONFLICT overwrites tasting_profile with the fresh one). Slot-scoped on
+  // purpose: re-researching a whole flight to repair one wine is wasted spend.
+  opts?: { forceSlots?: number[] }
 ): Promise<Record<string, WineProfile>> {
   const profiles = await lookupWines(wines);
   const enrichMeta: EnrichMeta = {
@@ -380,14 +408,19 @@ export async function enrichWineProfiles(
     questionId,
   };
 
+  const force = new Set(opts?.forceSlots ?? []);
   const needsEnrichment = wines.filter(
-    (w) => profiles[String(w.slot)]?.source_method === "none"
+    (w) => force.has(w.slot) || profiles[String(w.slot)]?.source_method === "none"
   );
 
-  // Research each non-bank wine via Tavily, classify it, then add to bank
+  // CLASSIFY FIRST, then research. The order is load-bearing, not stylistic: researchWineViaTavily
+  // builds its search query out of the identity, so classification has to have happened before the
+  // search, not after it. (It used to run second — purely to shape the bank row — which left the
+  // search itself on the mangled regex parse.) No extra API call: the same classifyWine invocation
+  // now just happens one line earlier.
   for (const wine of needsEnrichment) {
-    const profile = await researchWineViaTavily(wine, apiKey, enrichMeta);
     const identity = await classifyWine(wine.fullText, apiKey, enrichMeta);
+    const profile = await researchWineViaTavily(wine, identity, apiKey, enrichMeta);
     // Carry the classification onto the profile so the current question's wine_profiles
     // (and any downstream tasting context) reflect the real style/grapes, not still_dry/[].
     profile.style_category = identity.styleCategory;

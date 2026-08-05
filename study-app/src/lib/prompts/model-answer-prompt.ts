@@ -72,7 +72,24 @@ export function buildModelAnswerPrompt(
   // of this comment said fortified was never populated because the corpus had no sherry/port
   // coverage — that hole has since been filled and the gate reopened.) Passed in rather than fetched
   // here because retrieval is async and this builder is sync and used by two call sites.
-  knowledgeBlock?: string | null
+  knowledgeBlock?: string | null,
+  // Researched per-wine reference profiles (lib/wine-enrichment.ts: Tavily notes/tech sheets, gaps
+  // filled from model knowledge), keyed by wine slot. Optional and fails soft — omit it and the
+  // prompt is byte-identical to before.
+  //
+  // This exists because the exemplar used to be written from the wine's NAME alone while the
+  // enrichment ran concurrently and was handed only to the tasting-note generator. The candidate
+  // therefore read a glass description anchored to real notes, then compared their answer against a
+  // model answer whose sensory claims were the model's recall of that producer — so the two could
+  // disagree about the wine in front of them, and the exemplar was the less well-sourced of the pair.
+  wineProfiles?: Record<string, {
+    tasting_profile?: {
+      appearance?: string;
+      nose_summary?: string;
+      palate_summary?: string;
+      structural_summary?: string;
+    } | null;
+  }> | null
 ): { system: string; user: string } {
   const refs = loadReferenceData();
   const ctx = loadPipelineContext();
@@ -103,15 +120,45 @@ ${decisionTree}
 ## STUDY DIAGRAM FOR PAPER ${paper}
 ${studyDiagram}${knowledgeBlock ? `\n\n${knowledgeBlock}` : ""}`;
 
+  let anyProfile = false;
   const wineList = wines
-    .map((w) => `Wine ${w.slot}: ${w.fullText}`)
+    .map((w) => {
+      let line = `Wine ${w.slot}: ${w.fullText}`;
+      const tp = wineProfiles?.[String(w.slot)]?.tasting_profile;
+      if (tp && (tp.appearance || tp.nose_summary || tp.palate_summary || tp.structural_summary)) {
+        anyProfile = true;
+        line += `\n  [RESEARCHED PROFILE — what this wine actually shows in the glass:`;
+        if (tp.appearance) line += `\n   Appearance: ${tp.appearance}`;
+        if (tp.nose_summary) line += `\n   Nose: ${tp.nose_summary}`;
+        if (tp.palate_summary) line += `\n   Palate: ${tp.palate_summary}`;
+        if (tp.structural_summary) line += `\n   Structure: ${tp.structural_summary}`;
+        line += `]`;
+      }
+      return line;
+    })
     .join("\n");
+
+  // Deliberately NOT a licence to quote the profile. The profile constrains what the answer may claim
+  // about the glass; the reasoning still has to be the candidate's, derived blind and reproducible
+  // from a tasting note. Sources are withheld from this prompt for the same reason — an exemplar that
+  // cites a critic is modelling something the candidate cannot do in the exam room.
+  const profileGuidance = anyProfile
+    ? `
+## USING THE RESEARCHED PROFILES
+Some wines above carry a researched reference profile. It is ground truth about the liquid — the candidate is smelling and tasting THAT wine, and the tasting notes they were shown were built from the same profile.
+- Every sensory claim you make about a wine must be consistent with its profile. Do not describe a deep, opaque red as "pale ruby" because the variety usually is, and do not give a wine tertiary development the profile does not support.
+- Where the profile CONTRADICTS the textbook expectation for that variety/region, that tension is usually the most markable thing in the glass — use it, don't smooth it over.
+- Reason FORWARD from the sensory evidence to the conclusion, exactly as a candidate must. Never write as though you had the profile, the label, or a critic in front of you: no "the producer's tech sheet notes...", no citations, no stated ABV figures (see AT-3 below), no reference to this block existing.
+- A wine with no profile above is unchanged: reason from your knowledge of the producer and appellation as before.
+`
+    : "";
 
   const user = `## Question
 ${questionText}
 
 ## Wines (actual identities — candidate does not see this)
 ${wineList}
+${profileGuidance}
 
 Generate ALL four sections:
 

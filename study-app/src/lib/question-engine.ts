@@ -24,6 +24,7 @@ import { saveGeneratedQuestion, applyLengthCheck, getTastingLexicon, type BankTa
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
+import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
 // the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
@@ -194,7 +195,10 @@ function generateModelAnswerInBackground(
   paper: number,
   family: string,
   apiKey: string,
-  meta?: UsageMeta
+  meta?: UsageMeta,
+  // Researched reference profiles from enrichWineProfiles. The caller must have AWAITED enrichment
+  // before calling this — see the sequencing note at the call site.
+  wineProfiles?: Record<string, WineProfile> | null
 ): Promise<boolean> {
   return (async () => {
     try {
@@ -206,7 +210,7 @@ function generateModelAnswerInBackground(
       // Same gated production references as the standalone generate-model-answer route, so the two
       // model-answer paths stay in step (they already share the lexicon for the same reason).
       const { block: knowledgeBlock, passages: kbPassages } = await getKnowledgeContext({ questionText, family });
-      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock);
+      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock, wineProfiles);
 
       const t0 = Date.now();
       const message = await client.messages.create({
@@ -1040,29 +1044,48 @@ export async function generateFreshQuestion(
   // Chaining it here makes every generated question auditable by construction, and puts it inside the
   // promise awaitBackgroundWork already waits on. Ordering is load-bearing — buildStemKeyForQuestion
   // reads back the wine_profiles that enrichWineProfiles writes.
-  const enrichment = enrichWineProfiles(questionId, parsed.wines, apiKey, meta)
+  // Resolves to the researched profiles, and never rejects — an enrichment outage degrades the two
+  // consumers below rather than failing generation.
+  const enrichment: Promise<Record<string, WineProfile>> = enrichWineProfiles(questionId, parsed.wines, apiKey, meta)
+    .catch((err) => {
+      console.error("Wine enrichment background error:", err);
+      return {} as Record<string, WineProfile>;
+    });
+
+  const stemKey = enrichment
     .then(() => buildStemKeyForQuestion(questionId))
     .then((res) => {
       if ("error" in res) console.error(`Stem key for ${questionId} not built: ${res.error}`);
       else if (!res.ok) console.warn(`Stem key for ${questionId} validated=false: ${res.problems.join("; ")}`);
     })
-    .catch((err) => console.error("Wine enrichment / stem key background error:", err));
+    .catch((err) => console.error("Stem key background error:", err));
 
-  const modelAnswer = generateModelAnswerInBackground(
-    questionId,
-    parsed.questionText,
-    parsed.wines,
-    paper,
-    parsed.family,
-    apiKey,
-    meta
+  // CHAINED off enrichment, not fired alongside it. These two used to start on the same tick, so the
+  // model answer could not have used the researched profiles even once the parameter existed — the
+  // enrichment simply had not happened yet. The candidate got tasting notes anchored to real research
+  // and an exemplar anchored to the model's recall of the producer, and the two were free to disagree
+  // about the wine in the glass.
+  //
+  // The added latency is invisible on the study path: the answer is fire-and-forget and is not read
+  // until the candidate submits, which is minutes away. The bulk worker awaits the whole chain below.
+  const modelAnswer = enrichment.then((profiles) =>
+    generateModelAnswerInBackground(
+      questionId,
+      parsed.questionText,
+      parsed.wines,
+      paper,
+      parsed.family,
+      apiKey,
+      meta,
+      profiles
+    )
   );
 
   // The bulk worker asks for these to be finished, not merely started (see awaitBackgroundWork).
   // Neither promise rejects, so this cannot turn a banked question into a thrown error.
   let modelAnswerSaved = false;
   if (saveOpts?.awaitBackgroundWork) {
-    [, modelAnswerSaved] = await Promise.all([enrichment, modelAnswer]);
+    [, modelAnswerSaved] = await Promise.all([stemKey, modelAnswer]);
   }
 
   return {

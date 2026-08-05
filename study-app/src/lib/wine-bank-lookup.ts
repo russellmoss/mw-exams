@@ -257,3 +257,36 @@ export async function lookupWines(wines: { slot: number; fullText: string }[]): 
   }
   return profiles;
 }
+
+/**
+ * Read back the wine_profiles enrichWineProfiles stored for a question, falling back to a live bank
+ * lookup when the row has none yet (older questions, or one still enriching). Returns `{}` only if
+ * both fail — every caller treats an empty map as "no reference profiles", never as an error.
+ *
+ * Exists so the model-answer paths that run AFTER generation (the standalone route, the bulk regen
+ * script) reach the same researched profiles the tasting-note generator uses, instead of writing an
+ * exemplar off the wine's name alone.
+ */
+export async function loadStoredWineProfiles(
+  questionId: string,
+  wines?: { slot: number; fullText: string }[]
+): Promise<Record<string, WineProfile>> {
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`SELECT wine_profiles FROM generated_questions WHERE question_id = ${questionId}`;
+    const stored = rows[0]?.wine_profiles;
+    if (stored && typeof stored === "object" && Object.keys(stored).length > 0) {
+      return stored as Record<string, WineProfile>;
+    }
+  } catch (err) {
+    console.error(`Could not read stored wine profiles for ${questionId}:`, err);
+  }
+  if (wines?.length) {
+    try {
+      return await lookupWines(wines);
+    } catch {
+      /* fall through to empty */
+    }
+  }
+  return {};
+}
