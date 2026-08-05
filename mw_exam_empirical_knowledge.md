@@ -37,6 +37,13 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-05 — 2013 checked against the original paper: no defect.** Downloaded the IMW 2013
+  question paper (`docs/past_papers_2000s/MW-Exam-2013.pdf`) and diffed it against our source: faithful
+  word for word, IMW's own a/c/d lettering typo included. 2013 states tariffs by SCOPE, not multiplier,
+  so the "missing multipliers" defect is **withdrawn** (EK-0147). `scripts/analyze_long_horizon.py` now
+  reads scope headers (anchored to line start; single-wine headers scope back to 1), which makes
+  **all 54 marks-printing papers 2008–2026 total exactly 300 with zero exceptions** — the strongest
+  form of the EK-0001 invariant.
 - **2026-08-05 — sources reconciled + re-parsed.** Merged `MW_Practical_Papers_Compilation V2.md`
   (2011–2014) into `MW_Practical_Papers_Compilation.md` (2015–2026) via `scripts/reconcile_sources.py`,
   repairing three silent format mismatches, and re-ran `parse_source.py --strict`. **Recovered the
@@ -184,9 +191,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   **exactly 25 marks per wine, universally** — a 2-wine question = 50, 3-wine = 75, 4-wine = 100, etc.
   **This is NOT a modern-era innovation.** The practical's own printed instructions state
   *"The total number of MARKS for each Paper is 300 and the total number of MARKS per QUESTION is shown
-  on the appropriate proforma"* verbatim in **2001–2008**, and every marked paper sums to 300 (Era 1
-  9/9, Era 2 41/45 — the three 2013 exceptions are a transcription artifact that drops per-wine
-  multipliers, not a real deviation; see EK-0146). What changed at **2007→2008** is only *where* the
+  on the appropriate proforma"* verbatim in **2001–2008**, and **every marks-printing paper 2008–2026
+  totals exactly 300 — 54/54, zero exceptions** — once scope notation (`For each wine:` … `(15 marks)`)
+  is read as equivalent to the multiplier form (`3 x 15 marks`); the apparent 2013 shortfall was a
+  reader fault, not a corpus one (verified against the original IMW paper — see EK-0147). What changed
+  at **2007→2008** is only *where* the
   marks are printed — proforma/answer sheet before, on the question paper after. Only **2000** sits
   outside the convention, making no reference to marks at all. It is enforced as a hard validator rule
   (see EK-0041), because it is easy for a generator to get wrong.
@@ -214,34 +223,34 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   and must not be used as generation templates** — treat Era 1 as evidence about invariants, trends and
   wine-selection precedent only.
 
-### EK-0147 · Two corpus defects in data/exams.json (2011 P3 missing; 2013 multipliers dropped)
-- **tier:** PROCESS · **status:** MOSTLY RESOLVED 2026-08-05 — sources reconciled and re-parsed
-- **resolution:** Defects (1) and (3) are fixed. `scripts/reconcile_sources.py` merged the V2
-  compilation into `source/MW_Practical_Papers_Compilation.md` (now the single source, covering
-  **2011–2026**) after repairing three silent format mismatches — the unnumbered 2011 P3 question
-  heading, 144 unescaped wine-line numbers, and 42 question headings missing the inner `*(Wines …)*`
-  emphasis that `QUESTION_RE` requires. Re-parsed with `parse_source.py --strict`; V2 deleted (its
-  content is merged, and git history retains it). **Regression check: the ONLY change was 2011 P3
-  gaining its question (0 → 1); all 540 wine texts byte-identical, all 32 filled annotations intact.**
-  `parse_source.py`'s `WINE_LINE_RE` was also relaxed to accept both escape styles so an unescaped
-  paste cannot silently drop wines again. **Defect (2) is NOT fixed and is a SOURCE-CONTENT issue, not
-  a parser one:** the 2013 question text as transcribed genuinely lacks the per-wine multipliers, so
-  2013 still sums to 195/135/91 rather than 300. Repairing it means editing authoritative question
-  text against the original IMW paper — deliberately not done unilaterally.
-- **evidence:** `outputs/heuristics/long_horizon_analysis_2000_2026.md` §5; verified against
-  `source/MW_Practical_Papers_Compilation V2.md`
-- **claim:** (1) **2011 Paper 3 has 12 wines but ZERO questions** in `data/exams.json`. The question does
-  exist in `source/MW_Practical_Papers_Compilation V2.md` — a single 12-wine paired question ("Wines 1 to
-  12 are all presented in pairs… 8 / 14 / 20 marks per pair, plus 12 x 2 and 12 x 2") summing to exactly
-  300 — so this is a parse/merge gap, and that paper is currently invisible to every downstream analysis
-  and to any "112 historical questions" count. (2) **The three 2013 papers dropped their per-wine
-  multipliers** in transcription, printing "(10 marks)" under a "For each wine" heading where other years
-  print "(6 x 10 marks)"; restoring the implied multiplier returns 2013 P3 to exactly 300, confirming the
-  papers were normal and only the transcription is lossy. (3) Structural cause to fix first: there are
-  **two source compilations** — `MW_Practical_Papers_Compilation.md` (2,585 lines, the file
-  `scripts/parse_source.py` actually reads, and the only one CLAUDE.md names authoritative) and
-  `MW_Practical_Papers_Compilation V2.md` (574 lines). The 2011 P3 content exists **only in V2**, so the
-  "authoritative" file is not a superset. Reconcile the two before any re-parse.
+### EK-0147 · Sources reconciled; 2011 P3 recovered; the "2013 defect" was a NOTATION difference, not a defect
+- **tier:** PROCESS · **status:** RESOLVED 2026-08-05
+- **evidence:** `outputs/heuristics/long_horizon_analysis_2000_2026.md` §5;
+  `scripts/reconcile_sources.py`; the original IMW paper `docs/past_papers_2000s/MW-Exam-2013.pdf`
+  (downloaded from mastersofwine.org and diffed against our source text)
+- **claim:** **(1) FIXED — 2011 Paper 3 had 12 wines but ZERO questions.** Its question lived only in
+  the second compilation and was lost because the heading omitted the question *number* that
+  `QUESTION_RE` requires. `scripts/reconcile_sources.py` merged that compilation into
+  `source/MW_Practical_Papers_Compilation.md` (now the single source, **2011–2026**), repairing three
+  silently-failing format mismatches — the unnumbered heading, 144 unescaped wine-line numbers, and 42
+  question headings missing the inner `*(Wines …)*` emphasis. Re-parsed with `parse_source.py
+  --strict`. **Regression check: the ONLY change was 2011 P3 gaining its question (0 → 1); all 540
+  wine texts byte-identical; all 32 filled annotations intact.** `WINE_LINE_RE` now accepts both
+  escape styles so an unescaped paste cannot silently drop wines again.
+  **(2) WITHDRAWN — the 2013 papers were never defective.** They were recorded as having "dropped
+  per-wine multipliers" because they appeared to total 195/135/91. Diffing our text against the
+  original IMW PDF shows it is **faithful word for word**, including the sub-part lettering skip in
+  P3 Q1 (a, c, d — no b), which is a typo in the IMW original. 2013 simply states tariffs by **scope**
+  (`For each wine:` … `(15 marks)`, or explicitly `(15 marks per wine)`) where other years use a
+  multiplier (`3 x 15 marks`). The two notations are equivalent; the fault was in our reader, not the
+  corpus. With scope honoured, **all 54 marks-printing papers 2008–2026 total exactly 300 — zero
+  exceptions** (see EK-0001, EK-0146). Two parsing rules make this work and are worth reusing: scope
+  headers must be **anchored to line start** (2013 P2 Q1 c ends "…the vintage *for each wine*.
+  (10 marks)" *inside* a sub-part under `For both wines:` — matching mid-sentence inflates the paper),
+  and a header naming one wine (`For wine 4:`, 2022 P2 Q1) scopes back down to 1.
+  **(3) FIXED — the two-compilation split** that caused (1): the file CLAUDE.md named authoritative was
+  not a superset (2011–2014 lived only in the other). There is now a single compilation; the redundant
+  one is deleted, with its content merged and git history retaining it.
 
 ### EK-0002 · 3–4 questions per paper, trending to fewer/larger
 - **tier:** STRONG SIGNAL · **status:** live

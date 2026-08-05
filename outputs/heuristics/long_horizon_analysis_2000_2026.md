@@ -28,7 +28,7 @@ question text was transcribed by agents from the published PDFs and spot-checked
 | questions | 111 | 162 |
 | wines | 396 | 540 |
 | **wines per paper** | **12 in 33/33** | **12 in 45/45** |
-| **marked papers totalling 300** | **9/9** | **41/45** |
+| **marked papers totalling 300** | **9/9** | **45/45** |
 | questions per paper | 3.36 | 3.60 |
 | mean flight size | 3.57 | 3.33 |
 | Old World share | 64.9% | 69.1% |
@@ -36,8 +36,8 @@ question text was transcribed by agents from the published PDFs and spot-checked
 
 Four constants hold across the whole 26 years: **12 wines per paper** (78/78 papers), **300 marks per
 paper**, the **P1 white / P2 red / P3 mixed** structure, and an origin mix of roughly **two-thirds Old
-World with France at a third of all wines**. The three 2013 papers are the only marked papers that do
-not total 300, and that is a transcription artifact (see §5), not a real exception.
+World with France at a third of all wines**. **Every** marks-printing paper in both eras totals exactly 300 once scope notation is honoured
+(see §5) — there are no exceptions at all.
 
 ## 2. The 25-marks-per-wine rule is 12 years older than we thought
 
@@ -60,8 +60,8 @@ What actually changed in this period is **where the marks were printed, not what
 |---|---|---|
 | 2000 | no — no reference to marks at all | not stated |
 | 2001–2007 | no — "shown on the appropriate proforma" (i.e. on the answer sheet) | **stated as 300** |
-| 2008–2010 | **yes, per sub-part** | 300 (9/9 papers verified by summation) |
-| 2011–2026 | yes, per sub-part | 300 (41/45 marked papers verified; 2013 excepted, §5) |
+| 2008–2010 | **yes, per sub-part** | 300 (9/9 papers verified) |
+| 2011–2026 | yes, per sub-part | 300 (45/45 marked papers verified) |
 
 So the transition is **2007 → 2008**, and it is a change of *presentation*. The 300-mark convention runs
 continuously from at least 2001 to 2025. Only **2000** stands outside it, making no reference to marks at all.
@@ -118,24 +118,37 @@ The practical effect for a candidate is more compare-and-contrast work: a 2-wine
 for direct comparison, which is exactly the sub-question type examiners repeatedly say is answered badly
 (EK-0022).
 
-## 5. Corpus defects found along the way
+## 5. Corpus defects found along the way — and one that wasn't
 
-Two real data problems in `data/exams.json`, both worth fixing at the source:
+**Fixed: 2011 Paper 3 had 12 wines but zero questions.** The question existed only in the second
+compilation (`MW_Practical_Papers_Compilation V2.md`) and was lost because its heading omitted the
+question *number*, which the parser's `QUESTION_RE` requires. The two compilations have since been
+reconciled into one file covering 2011-2026 (`scripts/reconcile_sources.py`) and re-parsed; the
+recovered question is a single 12-wine paired question that totals exactly 300.
 
-1. **2011 Paper 3 has 12 wines but zero questions.** The question exists in
-   `source/MW_Practical_Papers_Compilation V2.md` — a single 12-wine paired question ("Wines 1 to 12 are
-   all presented in pairs… 8 marks per pair / 14 / 20, plus 12 x 2 and 12 x 2") which sums to exactly 300.
-   It is absent from the corpus, so this paper is invisible to every downstream analysis and to any
-   "112 historical questions" count.
-2. **The three 2013 papers dropped their per-wine multipliers in transcription.** They print e.g.
-   "(10 marks)" under a "For each wine" heading where other years print "(6 x 10 marks)". Restoring the
-   implied multiplier makes 2013 P3 total exactly 300 (91 → 300), confirming the papers themselves were
-   normal and only the transcription is lossy.
+**Not a defect after all: the 2013 "missing multipliers."** This was initially recorded as a
+transcription fault because the three 2013 papers appeared to total 195/135/91 instead of 300.
+Checking our text against the original IMW paper
+(`docs/past_papers_2000s/MW-Exam-2013.pdf`, downloaded from mastersofwine.org) showed our source is
+**faithful word for word** — including the sub-part lettering skip in P3 Q1 (a, c, d with no b),
+which is a typo in the IMW original.
 
-Also worth recording: there are **two source compilations** — `MW_Practical_Papers_Compilation.md` (2,585
-lines, the file `scripts/parse_source.py` reads and the only one CLAUDE.md names as authoritative) and
-`MW_Practical_Papers_Compilation V2.md` (574 lines). The 2011 P3 content exists **only in V2**, so the
-authoritative file is not a superset. Any re-parse should reconcile the two first.
+What 2013 actually does is state tariffs by **scope** rather than by multiplier. Where 2022 writes
+`(3 x 15 marks)`, 2013 writes a standalone `For each wine:` header and then `(15 marks)` — or, in
+P1 Q5, the explicit `(15 marks per wine)`. Both notations are equivalent; only a scope-aware reader
+sees it. The analyzer now honours scope headers, and the result is unambiguous:
+
+> **All 54 marks-printing papers (2008-2026) total exactly 300 — 25 marks per wine, zero exceptions.**
+
+Two parsing subtleties were needed to get there, both worth knowing for any future tooling:
+scope headers must be anchored to the start of a line (2013 P2 Q1 c) ends "…stating the vintage
+*for each wine*. (10 marks)" *inside* a sub-part that sits under `For both wines:` — matching that
+mid-sentence phrase inflates the paper), and a header naming a single wine (`For wine 4:`, 2022 P2 Q1)
+scopes its sub-parts back down to one.
+
+**Structural cause of the original split, now removed:** there were two source compilations, and the
+file CLAUDE.md named authoritative was *not* a superset — 2011-2014 lived only in the other one.
+There is now a single compilation.
 
 ## 6. Origin mix: two shifts inside a stable total
 

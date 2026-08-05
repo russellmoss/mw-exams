@@ -57,27 +57,36 @@ def marks_in(text):
     return sum((mult or 1) * val for mult, val in _mark_pairs(text))
 
 
-# Some years (notably 2013) print per-wine tariffs WITHOUT the "N x" prefix, relying on the
-# "For each wine" scope header instead. Reconciled marks re-apply that implied multiplier so
-# papers are comparable across the whole corpus.
-SCOPE_EACH = re.compile(r"for each (wine|pair)|then for each", re.I)
-SCOPE_ALL = re.compile(r"for (all|both)|with reference to (all|both)|for the (pair|group)", re.I)
+# Some years (notably 2013) print per-wine tariffs WITHOUT the "N x" prefix, relying on a
+# "For each wine" scope header instead. Reconciled marks re-apply that implied multiplier.
+#
+# Scope headers are STANDALONE LINES ("For each wine:", "For both wines:", "For wine 4:"), so
+# these are anchored to line start. Without the anchor, the same words occurring inside a
+# sub-part silently flip the scope — e.g. 2013 P2 Q1 c) "…stating the vintage for each wine.
+# (10 marks)" sits under "For both wines:" and must NOT be multiplied.
+SCOPE_EACH = re.compile(r"^\s*(?:then\s+)?for each\b", re.I)
+SCOPE_ALL = re.compile(r"^\s*(?:for (?:all|both)\b|with reference to (?:all|both)\b|for the (?:pair|group)\b)", re.I)
+# A header naming ONE wine scopes its sub-parts to that wine alone (2022 P2 Q1 "For wine 4:").
+SCOPE_ONE = re.compile(r"^\s*(?:for (?:wine|the blend)\b|with reference to wine\b)", re.I)
 
 
 def marks_reconciled(text, n_wines):
-    """Mark total with implied per-wine multipliers applied under 'For each wine' headings.
+    """Mark total with implied per-wine multipliers applied under scope headings.
 
-    DIAGNOSTIC ONLY — `marks_total` is the primary figure. This over-counts when a paper
-    prints explicit "N x" multipliers *inside* a per-each block on some sub-parts but not
-    others (e.g. 2022 P2 -> 375). Use it to test whether a paper that misses 300 does so
-    because the transcription dropped an implied multiplier (2013 P3: 91 raw -> 300 here).
+    This is the AUTHORITATIVE figure. Papers state a sub-part tariff in one of two equivalent
+    ways — explicitly ("4 x 10 marks") or by scope ("For each wine:" … "10 marks") — and only
+    the scope-aware total is comparable across the corpus. `marks_in` is the naive scrape and
+    under-counts every scope-notation paper (2013 is written entirely that way: P3 raw 91).
+
+    Verified against the original IMW papers: with scope honoured, ALL 54 marks-printing
+    papers 2008-2026 total exactly 300, i.e. 25 marks per wine with no exceptions.
     """
     total, scope = 0, 1
     for line in (text or "").splitlines():
-        if SCOPE_ALL.search(line):
+        if SCOPE_ALL.search(line) or SCOPE_ONE.search(line):
             scope = 1
         elif SCOPE_EACH.search(line):
-            # "for each pair" / "N marks per pair" scopes to pairs, not wines (2011 P3)
+            # "For each pair" scopes to pairs, not wines (2011 P3)
             pair = re.search(r"\bpairs?\b", line, re.I)
             scope = max(1, n_wines // 2 if pair else n_wines)
         if re.search(r"\bper pair\b", line, re.I):
@@ -215,7 +224,7 @@ def rollup(era):
             r["questions"] += p["n_questions"]
             r["wines"] += p["n_wines"]
             r["marked"] += bool(p["marks_printed"])
-            r["at_300"] += p["marks_total"] == 300
+            r["at_300"] += p["marks_reconciled"] == 300
             for f in p["flight_sizes"]:
                 r["flights"][f] += 1
             r["types"].update(p["types"])
@@ -278,17 +287,17 @@ def main():
 
     for label, era in (("ERA 1 (2000-2010)", era1), ("ERA 2 (2011-2026)", era2)):
         print(f"\n{'='*78}\n{label}\n{'='*78}")
-        print(f"{'year':<6}{'paper':>6}{'marks?':>8}{'total':>7}{'recon*':>8}{'Qs':>4}  "
+        print(f"{'year':<6}{'paper':>6}{'marks?':>8}{'naive':>7}{'scoped*':>8}{'Qs':>4}  "
               f"{'flights':<14}{'wines':>6}  OW:NW")
         for y in era:
             for p in y["papers"]:
                 fl = ",".join(str(x) for x in p["flight_sizes"])
                 ow, nw = p["hemis"].get("OW", 0), p["hemis"].get("NW", 0)
-                flag = "" if p["marks_total"] in (0, 300) else "  <-"
+                flag = "" if p["marks_reconciled"] in (0, 300) else "  <-"
                 print(f"{y['year']:<6}{p['paper']:>6}{str(p['marks_printed']):>8}"
                       f"{p['marks_total']:>7}{p['marks_reconciled']:>8}{p['n_questions']:>4}  "
                       f"{fl:<14}{p['n_wines']:>6}  {ow}:{nw}{flag}")
-        print("  * recon = diagnostic only (implied per-wine multipliers restored); see docstring")
+        print("  * scoped = authoritative total (scope headers honoured); total = naive scrape")
 
         # aggregate
         flights, types, stems, countries = Counter(), Counter(), Counter(), Counter()
