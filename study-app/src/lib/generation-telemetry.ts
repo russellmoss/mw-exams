@@ -40,11 +40,22 @@ export type GenerationAttemptRecord = {
   questionId?: string | null;
   latencyMs?: number | null;
   parseFailed?: boolean;
+  /**
+   * Head of the response that failed to parse (migration 038). Without it, parse_failed is countable
+   * but not diagnosable — you can see the rate move and never learn whether the draft was truncated,
+   * missing a heading, or wrapped in prose. Set only when parseFailed; truncated by the writer.
+   */
+  parseFailureSample?: string | null;
   modelError?: string | null;
   /** The transport caps in force for this attempt, so timeout tuning is a GROUP BY (migration 019). */
   callTimeoutMs?: number | null;
   budgetMs?: number | null;
 };
+
+// Enough to see the SHAPE of a malformed draft — which headings arrived, whether it opens with
+// prose, whether it stops mid-sentence — without turning telemetry into a transcript store. Written
+// only on a parse failure, so the typical row is unaffected.
+const PARSE_SAMPLE_CHARS = 2000;
 
 export function logGenerationAttempt(record: GenerationAttemptRecord): void {
   // Deliberately not awaited by callers.
@@ -57,7 +68,7 @@ export function logGenerationAttempt(record: GenerationAttemptRecord): void {
           paper, family, source, user_id, attempt, model, ab_group,
           prompt_version, spec_version, is_repair, spec_wine_count, spec_axis,
           passed, rules_fired, violations, question_id, latency_ms, parse_failed, model_error,
-          call_timeout_ms, budget_ms
+          call_timeout_ms, budget_ms, parse_failure_sample
         ) VALUES (
           ${record.paper}, ${record.family ?? null}, ${record.source ?? null}, ${record.userId ?? null},
           ${record.attempt}, ${record.model ?? null}, ${record.abGroup ?? null},
@@ -66,7 +77,8 @@ export function logGenerationAttempt(record: GenerationAttemptRecord): void {
           ${record.passed}, ${record.rulesFired}, ${JSON.stringify(record.violations ?? {})},
           ${record.questionId ?? null}, ${record.latencyMs ?? null},
           ${record.parseFailed ?? false}, ${record.modelError ?? null},
-          ${record.callTimeoutMs ?? null}, ${record.budgetMs ?? null}
+          ${record.callTimeoutMs ?? null}, ${record.budgetMs ?? null},
+          ${record.parseFailed ? (record.parseFailureSample ?? "").slice(0, PARSE_SAMPLE_CHARS) || null : null}
         )`;
     } catch (err) {
       // A missing table (migration not yet applied) or a transient DB blip must not surface.

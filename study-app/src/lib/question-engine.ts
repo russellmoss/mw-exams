@@ -702,6 +702,7 @@ export async function generateFreshQuestion(
       violations?: Record<string, string[]> | null;
       latencyMs?: number | null;
       parseFailed?: boolean;
+      parseFailureSample?: string | null;
       modelError?: string | null;
     }
   ) =>
@@ -722,6 +723,7 @@ export async function generateFreshQuestion(
       violations: f.violations ?? null,
       latencyMs: f.latencyMs ?? null,
       parseFailed: f.parseFailed ?? false,
+      parseFailureSample: f.parseFailureSample ?? null,
       modelError: f.modelError ?? null,
     });
 
@@ -835,6 +837,10 @@ export async function generateFreshQuestion(
         abGroup: producedAb,
         passed: false,
         parseFailed: true,
+        // The draft itself. parse_failed alone says a draft was malformed but never HOW, so the
+        // only way to chase the cause was comparing rates across deploys — which needs thousands
+        // of attempts to resolve a couple of points. One stored sample answers it directly.
+        parseFailureSample: text,
         latencyMs: callMs,
       });
       continue;
