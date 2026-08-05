@@ -8,6 +8,9 @@ import { FeedbackMarkdown } from "./FeedbackMarkdown";
 import { TimingBadge } from "./StudyTimer";
 import { OriginalStem } from "./OriginalStem";
 import { normalizePaceData, paceBadge, type PaceData } from "@/lib/pace";
+import { deriveQuestion } from "@/lib/question-sections";
+import { QuestionSectionCards } from "./QuestionSectionCards";
+import { SectionMarksRow, parseSectionMarks, stripSectionMarksTag } from "./SectionMarksRow";
 
 function parseModelAnswer(text: string): {
   answer: string;
@@ -631,7 +634,23 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           )}
 
           <ExpandedSection title="Question Stem">
-            <div className="markdown-content text-sm"><ReactMarkdown>{attempt.question_text}</ReactMarkdown></div>
+            {(() => {
+              // Split Sections: replay a mixed-scope question under the same two labelled section
+              // cards the study screen used, so History renders identically. Single-scope stems keep
+              // the flat markdown they always showed.
+              const derived = deriveQuestion(attempt.question_text, wines?.length ?? 0);
+              if (derived.scopes.length > 1) {
+                return (
+                  <>
+                    {derived.preamble && (
+                      <p className="text-sm text-foreground/90 leading-relaxed mb-3">{derived.preamble}</p>
+                    )}
+                    <QuestionSectionCards sections={derived.sections} wineCount={wines?.length ?? 0} />
+                  </>
+                );
+              }
+              return <div className="markdown-content text-sm"><ReactMarkdown>{attempt.question_text}</ReactMarkdown></div>;
+            })()}
             {wines && wines.length > 0 && (
               <div className="mt-3 space-y-1">
                 <p className="text-xs text-muted uppercase tracking-wider mb-2">Wines</p>
@@ -684,7 +703,8 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
 
           {attempt.answer_feedback && (
             <ExpandedSection title="AI Evaluation / Debrief">
-              <div className="markdown-content text-sm"><FeedbackMarkdown>{attempt.answer_feedback}</FeedbackMarkdown></div>
+              <SectionMarksRow marks={parseSectionMarks(attempt.answer_feedback)} />
+              <div className="markdown-content text-sm"><FeedbackMarkdown>{stripSectionMarksTag(attempt.answer_feedback)}</FeedbackMarkdown></div>
             </ExpandedSection>
           )}
 

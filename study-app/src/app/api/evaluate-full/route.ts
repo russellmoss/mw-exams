@@ -11,6 +11,7 @@ import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTIO
 import { deriveStemKey } from "@/lib/stem-answer-key";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
+import { deriveQuestion, markPhrase } from "@/lib/question-sections";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -216,6 +217,28 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
     // allow-list and tell the model to query only those wines' regions/producers/varieties.
     const imageAllowList = deriveWineSubjects(wines);
 
+    // Split Sections: when the flight's sub-parts span BOTH scopes, tell the grader to score each
+    // section and report the marks awarded per section in a machine tag (parsed for the debrief's
+    // Section A / Section B row). Skipped for single-scope questions — there is only one section.
+    const wineCount = Array.isArray(wines) ? wines.length : 0;
+    const derivedSections = deriveQuestion(questionText, wineCount);
+    let sectionMarksBlock = "";
+    if (derivedSections.scopes.length > 1) {
+      const flight = derivedSections.sections.find((s) => s.scope === "flight");
+      const perWine = derivedSections.sections.find((s) => s.scope === "per_wine");
+      const listOf = (sec: typeof derivedSections.sections[number]) =>
+        sec.subParts.map((p) => `  ${p.label}) ${p.text} — ${markPhrase(p, wineCount)}`).join("\n");
+      sectionMarksBlock = `
+
+## SPLIT SECTIONS — PER-SECTION MARKS (REQUIRED)
+This question is organised into two scored sections. Grade every sub-part under its own section.
+${flight ? `Section A · For the flight as a whole — out of ${flight.subtotal} marks:\n${listOf(flight)}` : ""}
+${perWine ? `Section B · For each wine individually — out of ${perWine.subtotal} marks:\n${listOf(perWine)}` : ""}
+In ADDITION to your per-sub-question marks, emit this machine-readable tag LAST — once, after all visible feedback, on its own line, exactly like the grading tag — and NEVER mention it in the visible debrief:
+<!-- SECTION_MARKS {"sectionA":{"awarded":<int 0-${flight?.subtotal ?? 0}>,"outOf":${flight?.subtotal ?? 0}},"sectionB":{"awarded":<int 0-${perWine?.subtotal ?? 0}>,"outOf":${perWine?.subtotal ?? 0}}} -->
+The two awarded values MUST sum to your overall estimated marks.`;
+    }
+
     const { model, abGroup } = await selectModel("full_debrief", keyResult.apiKey, "opus");
     const t0 = Date.now();
     // Adaptive thinking so the debrief's reasoning streams while the (long) markdown is composed.
@@ -223,7 +246,7 @@ Please provide the full debrief: pre-glass review, answer evaluation with pass/f
     const stream = await client.messages.stream({
       model,
       system:
-        systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
+        systemPrompt + sectionMarksBlock + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
         "\n" + answerImageConstraint(wines),
       messages: [{ role: "user", content: userMessage }],
       ...(await withThinking(model, 4000)),
