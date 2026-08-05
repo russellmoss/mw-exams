@@ -483,10 +483,27 @@ async function callGenerationModel(
   // ~950 tokens here, so 4000 is comfortably above both arms' real output.
   // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
   const extra = emit ? await resolveThinking(model) : {};
-  const thinkingOn = Object.keys(extra).length > 0;
+  // 8000 UNCONDITIONALLY, not just when adaptive thinking was asked for.
+  //
+  // The premise of the old split was that without `extra` the response is JSON only, so 4000 is
+  // ample. That is false for Opus 5: it emits `thinking` blocks whether or not adaptive thinking was
+  // requested, and max_tokens caps thinking + text TOGETHER. The batch path passes no emitter, so it
+  // was running the reasoning-heavy model on the budget sized for text alone.
+  //
+  // Captured directly in generation_attempts.parse_failure_sample (migration 038), 8 failures in one
+  // Paper 2 batch, every one attempt 1 on Opus at ~60s with no API error:
+  //     4x  (no text content) stop_reason=max_tokens output_tokens=4000 blocks=[thinking]
+  //     4x  a draft that stops after ~375 chars, before "## Wines" — thinking took ~3,900 of the
+  //         4,000 and the question died mid-sentence
+  // Both shapes are the same defect: the budget is spent before the answer is written.
+  //
+  // This file already records the same bug one doubling down, when 2000 truncated every Opus
+  // generation mid-JSON. Sizing this to observed text length is what keeps reintroducing it, because
+  // the reasoning is invisible in the output and therefore easy to forget. 8000 is what the
+  // thinking-on path already uses.
   const params = {
     model,
-    max_tokens: thinkingOn ? 8000 : 4000,
+    max_tokens: 8000,
     system: prompt.system,
     messages: [{ role: "user" as const, content: prompt.user }],
     ...extra,
