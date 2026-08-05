@@ -310,7 +310,7 @@ export default function MethodologyPage() {
           <SectionTitle>The Decision Trees</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
             From 120 individual question analyses, we synthesized three master decision trees
-            -- one per paper. Each tree has two layers:
+            -- one per paper. Each has a fallback gate, then two layers:
           </p>
           <p className="text-sm text-muted italic mb-4">
             The trees were first built from the 112 questions of 2015-2025, scored against 2026 as a
@@ -319,7 +319,28 @@ export default function MethodologyPage() {
             was banked. The pre-2026 trees are preserved verbatim so the holdout stays reproducible.
             The consequence is worth stating plainly: <strong>2026 can never be used as a holdout
             again</strong> -- the trees have now seen it. The next honest out-of-sample test is 2027.
+            <br /><br />
+            The blind tests also named the specific question shapes that had <em>no</em> route through
+            the trees -- a bare &quot;three different countries&quot; on Paper 3, an &quot;Americas&quot;
+            framing on Paper 2, two same-country questions inside one paper, pairs organised by producer
+            rather than style. Each now has a branch, derived from the wines those questions actually
+            held. Several rest on one or two instances and say so. <strong>None of it is validated</strong>
+            -- these leaves were written from the years that exposed the gaps, so 2027 is the first
+            honest test of whether they help.
           </p>
+
+          <div className="bg-background rounded-xl p-5 border border-border my-5">
+            <div className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Branch 0: Unrecognised Construction</div>
+            <p className="text-sm text-muted leading-relaxed">
+              Added after blind testing showed the trees&apos; real weakness is <strong>stem routing, not
+              wine knowledge</strong>: 29% of questions from an unseen 2000-2010 corpus matched no branch
+              at all, and those scored far worse than routed ones -- because the tree had no instruction
+              for &quot;none of these fit&quot;, so it force-fit the nearest branch and inherited a prior
+              that did not apply. Branch 0 now says: don&apos;t. Name the stem as unrecognised, fall back
+              to the paper-level prior, keep the candidate set deliberately wide, and let the glass lead.
+              An honest &quot;I don&apos;t recognise this shape&quot; beats a confident wrong branch.
+            </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-5">
             <div className="bg-background rounded-xl p-5 border border-accent/20">
@@ -340,10 +361,12 @@ export default function MethodologyPage() {
 
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
-              <strong>Paper 3 has a unique Layer A.5: Visual Triage.</strong> Before smelling anything,
-              look at the glasses. Bubbles = sparkling. Amber = oxidative. Deep ruby = fortified red.
-              Pink = rose. This single step collapses the Paper 3 universe from &quot;could be anything&quot;
-              to a specific production category.
+              <strong>Paper 3 leads with your eyes.</strong> Before smelling anything, look at the
+              glasses. Bubbles = sparkling. Amber = oxidative. Deep ruby = fortified red. Pink = rose.
+              This single step collapses the Paper 3 universe from &quot;could be anything&quot; to a
+              specific production category. Visual triage is not a footnote to the stem analysis --
+              it is the <em>trunk</em> of Paper 3&apos;s in-glass tree, which is why the paper is read
+              eyes-first and stem-second.
             </p>
           </Callout>
 
