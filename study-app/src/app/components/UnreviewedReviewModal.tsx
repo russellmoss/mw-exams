@@ -46,7 +46,9 @@ interface ReviewPayload {
 
 const PAGE_SIZE = 25;
 
-export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
+// onClose reports how many keep/bin decisions landed this session, so the parent can refresh the
+// Bank Health headline counts only when the numbers actually moved (a look-and-close reports 0).
+export function UnreviewedReviewModal({ onClose }: { onClose: (decisionsMade: number) => void }) {
   // The loaded, still-undecided queue (oldest first) + keyset cursor + starting total.
   const [items, setItems] = useState<QueueItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -54,6 +56,9 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
   const [reviewedCount, setReviewedCount] = useState(0);
   const [listLoaded, setListLoaded] = useState(false);
   const fetchingRef = useRef(false);
+  // Mirrors reviewedCount for the close handlers, which fire from stable closures (keyboard, backdrop).
+  const reviewedRef = useRef(0);
+  const close = useCallback(() => onClose(reviewedRef.current), [onClose]);
 
   // Full payload for the item on screen (items[0]).
   const [payload, setPayload] = useState<ReviewPayload | null>(null);
@@ -166,6 +171,7 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
       setReviewedCount((c) => c + 1);
       showToast(kind === "keep" ? "Kept" : "Binned");
       try {
+        reviewedRef.current += 1;
         const url = `/api/admin/bank/item/${encodeURIComponent(card.id)}/${kind}`;
         const res = await fetch(url, {
           method: "POST",
@@ -190,6 +196,7 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
       } catch (err) {
         // Roll back: put the card back at the front and re-enable the actions.
         setItems((prev) => (prev.some((i) => i.id === card.id) ? prev : [card, ...prev]));
+        reviewedRef.current = Math.max(0, reviewedRef.current - 1);
         setReviewedCount((c) => Math.max(0, c - 1));
         setToast(null);
         setError(err instanceof Error ? err.message : `The ${kind} request failed.`);
@@ -222,7 +229,7 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
       if (e.key === "Escape") {
         e.preventDefault();
         if (reasonOpen) setReasonOpen(false);
-        else onClose();
+        else close();
         return;
       }
       const el = e.target as HTMLElement | null;
@@ -242,13 +249,13 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [current, allClear, reasonOpen, decide, skip, onClose]);
+  }, [current, allClear, reasonOpen, decide, skip, close]);
 
   const position = Math.min(reviewedCount + 1, Math.max(total, 1));
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-4 sm:p-8 overflow-y-auto">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60" onClick={close} />
       <div className="relative w-full max-w-2xl rounded-xl border border-border bg-card shadow-2xl my-auto">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-border">
@@ -261,7 +268,7 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
             )}
           </div>
           <button
-            onClick={onClose}
+            onClick={close}
             className="text-sm text-muted hover:text-foreground transition-colors cursor-pointer"
           >
             Done
@@ -272,15 +279,15 @@ export function UnreviewedReviewModal({ onClose }: { onClose: () => void }) {
         <div className="px-6 py-5">
           {allClear ? (
             <div className="py-10 text-center">
-              <p className="font-display text-lg text-foreground">All clear.</p>
+              <p className="font-display text-lg text-foreground">Nothing waiting.</p>
               <p className="text-sm text-muted mt-2">
-                You&rsquo;ve worked through every unreviewed question.
+                Every question in the bank has been reviewed.
               </p>
               <button
-                onClick={onClose}
+                onClick={close}
                 className="mt-6 text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer"
               >
-                Done
+                Back to Bank Health
               </button>
             </div>
           ) : !activePayload ? (

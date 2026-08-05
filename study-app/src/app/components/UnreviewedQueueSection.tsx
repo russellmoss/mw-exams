@@ -39,7 +39,9 @@ function relativeDate(iso: string): string {
   return `${Math.round(months / 12)}y ago`;
 }
 
-export function UnreviewedQueueSection() {
+// onReviewed — fired when the reviewer closes after at least one keep/bin, so the parent Bank Health
+// page can re-read its headline counts (banked total, never-served, keep rate) alongside this section.
+export function UnreviewedQueueSection({ onReviewed }: { onReviewed?: () => void }) {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [total, setTotal] = useState(0);
@@ -98,11 +100,17 @@ export function UnreviewedQueueSection() {
     }
   }, [nextCursor, loadingMore, total]);
 
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-    setLoading(true);
-    void fetchFirstPage();
-  }, [fetchFirstPage]);
+  const closeModal = useCallback(
+    (decisionsMade: number) => {
+      setModalOpen(false);
+      setLoading(true);
+      void fetchFirstPage();
+      // Only nudge the page's headline counts when a keep/bin actually moved them; a look-and-close
+      // (or pure skips) leaves the bank untouched, so there's nothing to re-read.
+      if (decisionsMade > 0) onReviewed?.();
+    },
+    [fetchFirstPage, onReviewed]
+  );
 
   // Empty state — a calm centred card. No button (spec).
   if (!loading && !error && total === 0) {
@@ -119,15 +127,20 @@ export function UnreviewedQueueSection() {
 
   return (
     <section className="rounded-xl border border-border bg-card p-6">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="font-display text-lg text-foreground flex items-center gap-2">
-          Unreviewed
-          {total > 0 && (
-            <span className="rounded-full bg-accent/15 text-accent text-xs font-medium px-2 py-0.5 tabular-nums">
-              {total.toLocaleString()}
-            </span>
-          )}
-        </h2>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="min-w-0">
+          <h2 className="font-display text-lg text-foreground flex items-center gap-2">
+            Unreviewed
+            {total > 0 && (
+              <span className="rounded-full bg-accent/15 text-accent text-xs font-medium px-2 py-0.5 tabular-nums">
+                {total.toLocaleString()}
+              </span>
+            )}
+          </h2>
+          <p className="text-sm text-muted mt-1">
+            Questions that have never been approved or binned.
+          </p>
+        </div>
         <button
           onClick={() => setModalOpen(true)}
           disabled={total === 0}
