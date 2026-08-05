@@ -748,6 +748,9 @@ export interface BankTargeting {
   grape?: string;
   region?: string;
   priceBand?: string;
+  // Grape Balance "Fill the gap": the dominant variety KEY (e.g. "sangiovese") the whole batch should
+  // be built around, spread across its classic sub-styles / appellations / price bands.
+  varietyFocus?: string;
 }
 
 export async function createBankBatch(input: {

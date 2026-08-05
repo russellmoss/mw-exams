@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { PaperFilterPills, type PaperValue } from "@/app/components/PaperFilterPills";
 import { CountryBalanceSection, type CountryBalance } from "@/app/components/CountryBalanceSection";
+import { GrapeBalanceSection } from "@/app/components/GrapeBalanceSection";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -280,6 +281,9 @@ export default function BankHealthPage() {
 
               {/* ── Country Balance (always-on read; bank-wide, no controls) ── */}
               {data.countryBalance && <CountryBalanceSection balance={data.countryBalance} />}
+
+              {/* ── Grape Balance (variety coverage vs. expected exam frequency; own paper scope) ── */}
+              <GrapeBalanceSection />
             </div>
           )}
         </div>

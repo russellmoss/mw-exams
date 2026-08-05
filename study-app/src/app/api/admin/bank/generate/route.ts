@@ -24,6 +24,7 @@ function parseTargeting(raw: unknown): BankTargeting | null {
   if (str(t.grape)) out.grape = str(t.grape);
   if (str(t.region)) out.region = str(t.region);
   if (str(t.priceBand)) out.priceBand = str(t.priceBand);
+  if (str(t.varietyFocus)) out.varietyFocus = str(t.varietyFocus);
   return Object.keys(out).length > 0 ? out : null;
 }
 
@@ -47,8 +48,10 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   // Bank Health "Generate more like this" sends an optional targeting object. Its paper (when set)
-  // is the batch's paper, so a slice can generate for its own paper without a separate field.
-  const targeting = parseTargeting(body.targeting);
+  // is the batch's paper, so a slice can generate for its own paper without a separate field. Grape
+  // Balance "Fill the gap" sends its aim (varietyFocus / paper) at the top level, so fall back to
+  // parsing the body itself when it carries a top-level varietyFocus aim.
+  const targeting = parseTargeting(body.targeting ?? (body.varietyFocus ? body : null));
   const paper = Number(body.paper ?? targeting?.paper);
   const count = Math.round(Number(body.count));
   const replaceRejected = !!body.replaceRejected;

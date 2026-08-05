@@ -24,6 +24,7 @@ import { saveGeneratedQuestion, applyLengthCheck, applyAnswerLength, getTastingL
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
+import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
 import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
@@ -130,6 +131,18 @@ function buildTargetingConstraints(targeting: BankTargeting | null | undefined):
   if (targeting.grape) prefs.push(`Feature the ${targeting.grape} grape variety where it is credible for this paper.`);
   if (targeting.region) prefs.push(`Draw on the ${targeting.region} region where it is credible for this paper.`);
   if (targeting.priceBand) prefs.push(`Lean toward the ${targeting.priceBand.replace(/_/g, " ")} price band where appropriate.`);
+  // Grape Balance "Fill the gap": the wines should be DOMINANTLY the named variety, spread across its
+  // classic sub-styles / appellations / price bands and across producer tiers (not twelve of the same
+  // appellation). Still a soft steer — the existing validators (country diversity, same-variety, the
+  // 25-marks-per-wine rule) and the paper scope always take precedence.
+  if (targeting.varietyFocus) {
+    const label = varietyLabel(targeting.varietyFocus);
+    prefs.push(
+      `Build the flight so its wines are DOMINANTLY ${label}. Spread the choices across ${substyleSpreadFor(
+        targeting.varietyFocus
+      )}, and across producer tiers (commercial → specialist → fine). Prefer producers not already dense in the bank, and never violate the country-diversity, same-variety or 25-marks-per-wine rules.`
+    );
+  }
   if (prefs.length === 0) return null;
   return (
     "\n\nSOFT PREFERENCES (nudge only — never break the paper scope, flight-size or mark rules above):\n" +
