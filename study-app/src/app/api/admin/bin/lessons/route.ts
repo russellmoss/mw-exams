@@ -6,6 +6,8 @@ import {
   setUseBinLessons,
   regenerateBinLessons,
 } from "@/lib/bin-lessons";
+import { getBinReasonAggregation } from "@/lib/db";
+import { BIN_REASON_LABELS } from "@/lib/bin-reasons";
 
 export const runtime = "nodejs";
 // Regeneration makes one Claude call; give it room past the response like the other admin AI routes.
@@ -19,11 +21,24 @@ export async function GET(request: Request) {
   if (!user || !user.isAdmin) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
-  const [{ summary, updatedAt }, useBinLessons] = await Promise.all([
+  const [{ summary, updatedAt }, useBinLessons, aggregation] = await Promise.all([
     getBinLessons(),
     getUseBinLessons(),
+    // "Why wines get binned" — reason_codes counts + 3 recent notes over the last N batches (spec).
+    getBinReasonAggregation(5),
   ]);
-  return Response.json({ summary, updatedAt, useBinLessons });
+  return Response.json({
+    summary,
+    updatedAt,
+    useBinLessons,
+    // Map reason codes → their user-facing labels here so the client never handles internal codes.
+    reasons: aggregation.reasons.map((r) => ({
+      code: r.code,
+      label: BIN_REASON_LABELS[r.code] || r.code,
+      count: r.count,
+    })),
+    notes: aggregation.notes,
+  });
 }
 
 /**

@@ -1641,6 +1641,50 @@ export async function getRecentBinReasonRows(
   }));
 }
 
+// ── "Why wines get binned" (spec: learning loop) ─────────────────────────────────────────────────
+//
+// Aggregate the reason_codes over the bins that belong to the last N bank_batches (default 5), plus
+// the 3 most-recent free-text notes from that same window. Bins are keyed by item_id, so we join the
+// (soft-deleted) generated_questions row to recover its batch_id and scope to the recent batches. The
+// caller maps codes → labels; here we only count.
+export interface BinReasonAggregation {
+  reasons: { code: string; count: number }[];
+  notes: { note: string; paper: number; binnedAt: string }[];
+}
+export async function getBinReasonAggregation(batches = 5): Promise<BinReasonAggregation> {
+  const sql = getDb();
+
+  const reasons = (await sql`
+    SELECT tag AS code, COUNT(*)::int AS count
+    FROM bank_bin_reasons b
+    JOIN generated_questions g ON g.question_id = b.item_id
+    CROSS JOIN LATERAL UNNEST(b.reason_tags) AS tag
+    WHERE b.reason_tags IS NOT NULL
+      AND g.batch_id IN (
+        SELECT id FROM bank_batches ORDER BY created_at DESC LIMIT ${batches}
+      )
+    GROUP BY tag
+    ORDER BY count DESC, tag ASC
+  `) as { code: string; count: number }[];
+
+  const notes = (await sql`
+    SELECT b.reason_note AS note, b.paper, b.binned_at
+    FROM bank_bin_reasons b
+    JOIN generated_questions g ON g.question_id = b.item_id
+    WHERE b.reason_note IS NOT NULL AND btrim(b.reason_note) <> ''
+      AND g.batch_id IN (
+        SELECT id FROM bank_batches ORDER BY created_at DESC LIMIT ${batches}
+      )
+    ORDER BY b.binned_at DESC
+    LIMIT 3
+  `) as { note: string; paper: number; binned_at: string }[];
+
+  return {
+    reasons,
+    notes: notes.map((n) => ({ note: n.note, paper: n.paper, binnedAt: n.binned_at })),
+  };
+}
+
 // Per-paper bank health for the Admin card: how many APPROVED (servable) and PENDING (awaiting
 // review) questions exist per paper.
 export async function getBankStatusCounts(): Promise<

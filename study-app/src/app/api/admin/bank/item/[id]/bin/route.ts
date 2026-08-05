@@ -32,11 +32,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  // OPTIONAL bin reason (never required) — sanitised to known tags / a trimmed <=500-char note.
+  // OPTIONAL bin reason (never required) — sanitised to known codes / a trimmed <=200-char note.
+  // Accepts the current { reasons, note } shape (spec §4) and the legacy { reasonTags, reasonNote }.
   const body = await request.json().catch(() => ({}));
-  const { reasonTags, reasonNote } = body as { reasonTags?: unknown; reasonNote?: unknown };
-  const tags = sanitizeBinTags(reasonTags);
-  const note = sanitizeBinNote(reasonNote);
+  const { reasons, note: noteIn, reasonTags, reasonNote } = body as {
+    reasons?: unknown;
+    note?: unknown;
+    reasonTags?: unknown;
+    reasonNote?: unknown;
+  };
+  const tags = sanitizeBinTags(reasons ?? reasonTags);
+  const note = sanitizeBinNote(noteIn ?? reasonNote);
   const result = await reviewBankQuestion(id, "bin", keyResult.user.id, { tags, note });
   if (!result || !result.changed) {
     return Response.json({ ok: true, changed: false });
