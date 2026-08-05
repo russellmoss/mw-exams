@@ -26,6 +26,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
+import { modelAnswerMaxTokens, modelAnswerEffort } from "@/lib/prompts/model-answer-prompt";
 import {
   answerWordBudget,
   buildStoredAnswerLength,
@@ -117,9 +118,14 @@ async function rewriteToBudget(
   const message = await client.messages.create(
     {
       model,
-      // The answer body itself is the output. Generous enough for the top of the band (a 150-mark
-      // flight budgets 1,275 words) with room for the model's own framing.
-      max_tokens: 4000,
+      // The shared model-answer budget, NOT a smaller hand-picked number. A rewrite emits one section
+      // rather than four, so a bare 1,275-word ceiling (the top of the 150-mark band) looks like plenty
+      // — but max_tokens caps thinking AND response together, and Opus 4.7+/Sonnet 5 emit a thinking
+      // block whether or not one is requested. A reasoning model would spend most of a 4,000 budget
+      // before writing a word and truncate the rewrite, which the gate would then read as a short
+      // answer and "fix" by rewriting again. See modelAnswerMaxTokens for the measurements.
+      max_tokens: modelAnswerMaxTokens(model),
+      ...modelAnswerEffort(model),
       // NO `temperature`. Opus 5 rejects it outright — "`temperature` is deprecated for this model",
       // HTTP 400 — and because this gate fails soft, that 400 surfaces as nothing at all: every
       // rewrite silently no-ops and every off-budget answer is stored exactly as generated. Caught on
