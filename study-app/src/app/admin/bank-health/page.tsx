@@ -123,6 +123,10 @@ export default function BankHealthPage() {
   });
   const firstLoadRef = useRef(true);
 
+  // Bumped whenever the Unreviewed reviewer closes after making decisions, so the headline counts
+  // (banked total, never-served, keep rate) re-read the numbers those keeps/bins just moved.
+  const [refreshTick, setRefreshTick] = useState(0);
+
   const handlePaperChange = useCallback(
     (p: PaperValue) => {
       setSelectedPaper(p);
@@ -173,7 +177,7 @@ export default function BankHealthPage() {
       }
     })();
     return () => controller.abort();
-  }, [user?.isAdmin, selectedPaper]);
+  }, [user?.isAdmin, selectedPaper, refreshTick]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -292,7 +296,7 @@ export default function BankHealthPage() {
               kept or binned. Bank-wide and deliberately NOT re-scoped by the paper filter; shown
               alongside the benchmark sections regardless of whether any are populated. */}
           <div className="mt-6">
-            <UnreviewedQueueSection />
+            <UnreviewedQueueSection onReviewed={() => setRefreshTick((t) => t + 1)} />
           </div>
         </div>
       </main>
