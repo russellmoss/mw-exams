@@ -5,7 +5,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
-import { matchScore, lookupWine, lookupWines, type WineBankEntry } from "../src/lib/wine-bank-lookup.ts";
+import { matchScore, lookupWine, lookupWines, type WineBankEntry } from "../src/lib/wine-bank-lookup";
 
 // Self-load .env.local so the script runs under plain `npx tsx` (no --env-file needed).
 if (!process.env.DATABASE_URL) {
