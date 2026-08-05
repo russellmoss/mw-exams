@@ -44,7 +44,7 @@ if (!process.env.TAVILY_API_KEY) {
   process.exit(1);
 }
 
-const { researchAndBankWine } = await import("../src/lib/wine-enrichment.ts");
+const { researchAndBankWine, isTavilyQuotaExhausted } = await import("../src/lib/wine-enrichment.ts");
 
 const sql = neon(process.env.DATABASE_URL);
 const args = process.argv.slice(2);
@@ -56,8 +56,19 @@ const CONCURRENCY = flag("--concurrency") ? Number(flag("--concurrency")) : 4;
 const ONE_ID = flag("--id");
 
 // ── select ──────────────────────────────────────────────────────────────────
+// --retry-inferred targets rows the pipeline marked `inferred` with ZERO sources. Those are the
+// casualties of a run that lost its Tavily quota partway through: the wine is not necessarily
+// obscure, we were simply blind when we looked. The default selector cannot reach them, because they
+// now HAVE an evidence_tier.
 const rows = ONE_ID
   ? await sql`SELECT id, producer, wine_name, country, region, tasting_profile FROM wine_bank WHERE id = ${ONE_ID}`
+  : has("--retry-inferred")
+  ? await sql`
+      SELECT id, producer, wine_name, country, region, tasting_profile
+      FROM wine_bank
+      WHERE tasting_profile->>'evidence_tier' = 'inferred'
+        AND jsonb_array_length(COALESCE(tasting_profile->'sources','[]'::jsonb)) = 0
+      ORDER BY id`
   : await sql`
       SELECT id, producer, wine_name, country, region, tasting_profile
       FROM wine_bank
@@ -103,7 +114,7 @@ if (!APPLY) {
 // ── run ─────────────────────────────────────────────────────────────────────
 const t0 = Date.now();
 const spendBefore = await spend();
-const tally = { tech_sheet: 0, critic: 0, web: 0, inferred: 0, failed: 0 };
+const tally = { tech_sheet: 0, critic: 0, web: 0, inferred: 0, skipped: 0, failed: 0 };
 let done = 0;
 
 async function spend() {
@@ -112,12 +123,17 @@ async function spend() {
   return Number(c.v) + Number(t.v);
 }
 
+let aborted = false;
+
 async function one(row) {
   try {
     const profile = await researchAndBankWine(subjectFor(row), APIKEY, {
       bankId: row.id,
       meta: { source: "server" },
+      // Only ever upgrade. A row that already has sources must not be replaced by an unsourced grid.
+      writeOnlyIfSourced: (row.tasting_profile?.sources?.length ?? 0) > 0,
     });
+    if (profile.written === false) { tally.skipped++; console.log(`  [${++done}/${list.length}] skipped   (no sources found; kept existing profile)  ${row.id.slice(0, 46)}`); return; }
     const tier = profile.evidence_tier ?? "inferred";
     tally[tier] = (tally[tier] ?? 0) + 1;
     const n = profile.tasting_profile?.sources?.length ?? 0;
@@ -133,13 +149,24 @@ async function one(row) {
 // Fixed-size worker pool: a wine that hits a slow PDF must not stall the whole batch behind it.
 const queue = [...list];
 await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
-  while (queue.length) await one(queue.shift());
+  while (queue.length) {
+    // Stop the moment the plan limit is hit. Continuing would burn Claude tokens rewriting every
+    // remaining wine from model knowledge alone while reporting success -- the failure that cost 447
+    // rows on the first run.
+    if (isTavilyQuotaExhausted()) { aborted = true; break; }
+    await one(queue.shift());
+  }
 }));
+if (aborted) {
+  console.error(`
+!! ABORTED: Tavily returned 432 (plan usage limit). ${queue.length} wine(s) left untouched.`);
+  console.error("   Restore quota, then re-run. Rows already written are kept; the selector resumes.");
+}
 
 const spentUsd = (await spend()) - spendBefore;
 const mins = (Date.now() - t0) / 60000;
 console.log(`\n${"=".repeat(70)}`);
-console.log(`tech_sheet ${tally.tech_sheet} | critic ${tally.critic} | web ${tally.web} | inferred ${tally.inferred} | failed ${tally.failed}`);
+console.log(`tech_sheet ${tally.tech_sheet} | critic ${tally.critic} | web ${tally.web} | inferred ${tally.inferred} | skipped ${tally.skipped} | failed ${tally.failed}`);
 console.log(`elapsed ${mins.toFixed(1)} min  |  spend $${spentUsd.toFixed(2)}  |  $${(spentUsd / Math.max(1, list.length)).toFixed(3)}/wine`);
 const remaining = rows.length - list.length;
 if (remaining > 0) {

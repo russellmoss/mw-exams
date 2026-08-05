@@ -65,6 +65,20 @@ function publisherFor(url: string): string | undefined {
   return key ? DOMAIN_PUBLISHER[key] : undefined;
 }
 
+// Tavily answers 432 when the account's plan usage limit is reached. Every call after that returns
+// nothing, and because enrichment FAILS SOFT — no documents means fall back to model knowledge — a
+// bulk run keeps going and quietly rewrites every remaining wine as pure inference. That is exactly
+// what happened on the first bank backfill: the quota died after 294 wines and the next 447 were
+// overwritten with unsourced grids, at full Claude cost, reporting success.
+//
+// Failing soft is right for ONE wine in a live request: the candidate still gets a note. It is wrong
+// for a bulk pass, which must stop. So the condition is recorded here and a batch job checks it;
+// per-request behaviour is unchanged.
+let tavilyQuotaExhausted = false;
+export function isTavilyQuotaExhausted(): boolean {
+  return tavilyQuotaExhausted;
+}
+
 async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; query: string; credits: number }, meta?: EnrichMeta): Promise<unknown | null> {
   const tavilyKey = process.env.TAVILY_API_KEY;
   if (!tavilyKey) {
@@ -85,6 +99,9 @@ async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; 
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
+      // 432 = plan usage limit reached. Latch it: every subsequent call will fail the same way, and a
+      // batch job needs to know the difference between "this wine is obscure" and "we are blind".
+      if (res.status === 432) tavilyQuotaExhausted = true;
       console.error(`Tavily ${ctx.taskType} error ${res.status}: ${text.slice(0, 200)}`);
       log(false, 0);
       return null;
@@ -631,16 +648,29 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
 export async function researchAndBankWine(
   fullText: string,
   apiKey: string,
-  opts: { bankId?: string; meta?: EnrichMeta } = {}
-): Promise<WineProfile> {
+  opts: {
+    bankId?: string;
+    meta?: EnrichMeta;
+    /**
+     * Refuse to write a profile that cites no sources. A backfill must only ever UPGRADE a row: if
+     * research came back empty, the resulting grid is pure model knowledge and overwriting an
+     * already-sourced profile with it destroys real evidence. Set this whenever the target row
+     * already has sources.
+     */
+    writeOnlyIfSourced?: boolean;
+  } = {}
+): Promise<WineProfile & { written: boolean }> {
   const identity = await classifyWine(fullText, apiKey, opts.meta);
   const profile = await researchWineViaTavily({ slot: 1, fullText }, identity, apiKey, opts.meta);
   profile.style_category = identity.styleCategory;
   profile.grape_varieties = identity.grapeVarieties;
-  // No tasting profile means the research produced nothing usable; writing that over a row that
+
+  const sourced = (profile.tasting_profile?.sources?.length ?? 0) > 0;
+  // No tasting profile at all means research produced nothing usable; writing that over a row that
   // already has one would be a downgrade, so leave the existing row alone.
-  if (profile.tasting_profile) await addToWineBank(identity, profile, opts.bankId);
-  return profile;
+  const write = !!profile.tasting_profile && (sourced || !opts.writeOnlyIfSourced);
+  if (write) await addToWineBank(identity, profile, opts.bankId);
+  return { ...profile, written: write };
 }
 
 export async function enrichWineProfiles(
