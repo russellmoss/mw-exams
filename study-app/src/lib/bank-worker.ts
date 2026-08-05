@@ -26,6 +26,7 @@ import {
   type BankTargeting,
 } from "@/lib/db";
 import { generateFreshQuestion, familyForQuestionType, type UsageMeta } from "@/lib/question-engine";
+import { computeCountryBalance, buildCountryNudge } from "@/lib/bank-health/country-balance";
 
 // Families valid for each paper, from the corpus paper×family grid (EK-0077). Requested questions
 // are distributed round-robin across these so a bulk run ladders the whole family spread rather than
@@ -228,7 +229,10 @@ async function generateOneIntoBatch(
   apiKey: string,
   meta: UsageMeta,
   deadline: number,
-  targeting?: BankTargeting | null
+  targeting?: BankTargeting | null,
+  // Country Balance soft steer for this invocation (the prompt clause, or null when the bank read is
+  // insufficient / nothing is light). Passed straight through to the engine as a soft preference.
+  countryNudge?: string | null
 ): Promise<"generated" | "failed" | "timeout"> {
   for (let attempt = 0; attempt < 3; attempt++) {
     // Deadline-aware, like the generation loop's own attempt guard: only start a retry we can
@@ -261,6 +265,8 @@ async function generateOneIntoBatch(
             // costing us a third of all attempts.
             budgetMs: WORKER_GENERATION_BUDGET_MS,
             callTimeoutMs: WORKER_CALL_TIMEOUT_MS,
+            // Country Balance (always-on): soft preference toward the light origins for this run.
+            countryNudge: countryNudge ?? null,
           },
           undefined,
           // Bank Health soft-constraint aim (Generate more like this). Absent on an untargeted run.
@@ -353,6 +359,19 @@ export async function runBankBatch(opts: {
     ? [pinnedFamily]
     : orderFamiliesByDeficit(batch.paper, familyCounts);
 
+  // Country Balance (always-on steer): read the live bank's country mix ONCE per invocation and build
+  // the soft prompt clause naming the origins the bank is currently light on. Null when the read is
+  // insufficient (< 40 wines) or nothing is light — in which case nothing is injected. This is a
+  // preference only; the hard R1/R2 + 25-marks-per-wine validators are untouched and take precedence,
+  // and no retry or rejection is ever added on country grounds. Non-fatal: a failure here just skips
+  // the nudge for this run.
+  let countryNudge: string | null = null;
+  try {
+    countryNudge = buildCountryNudge(await computeCountryBalance());
+  } catch (err) {
+    console.error(`[bank-worker] country balance read failed for batch ${batchId} (non-fatal):`, err);
+  }
+
   const remaining = () => {
     const b = batch!;
     return b.requested_count - (b.generated_count + b.failed_count);
@@ -413,7 +432,7 @@ export async function runBankBatch(opts: {
     const results = await Promise.all(
       slots.map(async (family) => {
         const outcome = await generateOneIntoBatch(
-          batch!, family, !!pinnedFamily, apiKey, meta, deadline, targeting
+          batch!, family, !!pinnedFamily, apiKey, meta, deadline, targeting, countryNudge
         );
         if (outcome === "generated" || outcome === "failed") {
           await incrementBatchCounts(batchId, {

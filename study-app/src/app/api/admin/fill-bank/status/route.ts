@@ -9,6 +9,7 @@ import {
 } from "@/lib/db";
 import { EST_COST_PER_QUESTION } from "@/lib/bank-worker";
 import { BIN_REASON_LABELS } from "@/lib/bin-reasons";
+import { computeCountryBalance, leaningToward } from "@/lib/bank-health/country-balance";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,12 +33,13 @@ export async function GET(request: Request) {
   // the card reflects a 'stalled' state promptly and a new Generate is unblocked.
   await releaseStalledBatches();
 
-  const [counts, latest, reviewable, avgCost, topBinReasons] = await Promise.all([
+  const [counts, latest, reviewable, avgCost, topBinReasons, balance] = await Promise.all([
     getBankStatusCounts(),
     getLatestBatchPerPaper(),
     getReviewableBatches(),
     getBankPerQuestionAvgCost(),
     getTopBinReasons(30),
+    computeCountryBalance(),
   ]);
 
   const costPerQuestion = avgCost > 0 ? avgCost : EST_COST_PER_QUESTION;
@@ -92,5 +94,8 @@ export async function GET(request: Request) {
     };
   });
 
-  return Response.json({ papers, costPerQuestion });
+  // Country Balance (always-on): the light origins the next batches will lean toward, so the Fill the
+  // Bank panel can show its one-line "Leaning toward…" hint without a separate request. Empty when the
+  // read is insufficient or nothing is light — the panel then hides the line entirely.
+  return Response.json({ papers, costPerQuestion, leaningToward: leaningToward(balance) });
 }

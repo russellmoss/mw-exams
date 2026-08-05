@@ -539,6 +539,10 @@ export async function generateFreshQuestion(
       curveballCounts?: Record<string, number>;
       excludeFromCounters?: boolean;
     } | null;
+    // Country Balance (always-on): a soft, generation-time steer naming the countries the bank is
+    // currently light on, so the model prefers comparable wines from those origins. Set only by the
+    // bank-generation path (bank-worker); a pure preference block, never a validator rule.
+    countryNudge?: string | null;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -591,6 +595,11 @@ export async function generateFreshQuestion(
   // flight-size rules so it can nudge wine/style/framing choices without ever overriding paper scope.
   const targetingBlock = buildTargetingConstraints(targeting);
   if (targetingBlock) prompt.system += targetingBlock;
+
+  // Country Balance (always-on steer): a soft preference toward the countries the bank is currently
+  // light on, computed by the bank worker before this call. Appended after the hard scope / flight
+  // rules like every other soft block — it nudges wine choice only and never overrides a validator.
+  if (saveOpts?.countryNudge) prompt.system += saveOpts.countryNudge;
 
   // Producer Spread nudge (spec §2): scoped to the bank-generation path (Fill-the-Bank / generate /
   // cron worker), identified by a batchId on saveOpts — the interactive study path has none and is

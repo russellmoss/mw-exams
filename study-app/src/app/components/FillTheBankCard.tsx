@@ -277,6 +277,9 @@ function Spinner() {
 export function FillTheBankRows() {
   const [papers, setPapers] = useState<PaperStatus[]>([]);
   const [costPerQuestion, setCostPerQuestion] = useState(0.35);
+  // Country Balance (always-on): the light origins the next batches will lean toward, from the status
+  // poll. Empty when the read is insufficient or nothing is light — the hint line then hides entirely.
+  const [leaningToward, setLeaningToward] = useState<string[]>([]);
   const [selectedPaper, setSelectedPaper] = useState(1);
   const [count, setCount] = useState(10);
   const [generating, setGenerating] = useState(false);
@@ -349,6 +352,7 @@ export function FillTheBankRows() {
       const data = await res.json();
       setPapers(data.papers || []);
       if (typeof data.costPerQuestion === "number") setCostPerQuestion(data.costPerQuestion);
+      setLeaningToward(Array.isArray(data.leaningToward) ? data.leaningToward : []);
     } catch {
       /* transient — next poll retries */
     }
@@ -861,6 +865,14 @@ export function FillTheBankRows() {
         ) : (
           /* ── RESTING CONTROLS ── */
           <div className="flex flex-wrap items-center gap-3">
+            {/* Country Balance (always-on): a single muted line directly above Generate naming the
+                light origins the next batch will lean toward. Hidden when nothing is light. `w-full`
+                floats it onto its own line above the controls row. */}
+            {leaningToward.length > 0 && (
+              <p className="w-full text-[13px] text-muted">
+                Leaning toward {leaningToward.join(", ")}
+              </p>
+            )}
             <select
               value={selectedPaper}
               onChange={(e) => setSelectedPaper(Number(e.target.value))}

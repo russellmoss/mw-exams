@@ -1,6 +1,7 @@
 import { getUser } from "@/lib/auth";
 import { getBankHealthCached } from "@/lib/bank-health/aggregate";
 import { parsePaperParam } from "@/lib/bank-health/paper-param";
+import { computeCountryBalance, toCountryBalancePayload } from "@/lib/bank-health/country-balance";
 
 export const runtime = "nodejs";
 
@@ -24,10 +25,17 @@ export async function GET(request: Request) {
   }
 
   try {
-    const payload = await getBankHealthCached(paper);
-    return Response.json(payload, {
-      headers: { "Cache-Control": "private, max-age=60" },
-    });
+    // Country Balance is bank-wide (counted per wine across all papers), so it does NOT re-scope with
+    // the paper filter — it reads the same figures whatever paper is selected. Its own 60s cache keeps
+    // this cheap on every poll.
+    const [payload, balance] = await Promise.all([
+      getBankHealthCached(paper),
+      computeCountryBalance(),
+    ]);
+    return Response.json(
+      { ...payload, countryBalance: toCountryBalancePayload(balance) },
+      { headers: { "Cache-Control": "private, max-age=60" } }
+    );
   } catch (err) {
     console.error("[bank-health] aggregation failed:", err);
     return Response.json({ error: "Couldn't read bank health right now." }, { status: 500 });
