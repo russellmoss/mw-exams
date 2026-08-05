@@ -2,6 +2,27 @@
 
 import ReactMarkdown from "react-markdown";
 import type { Question } from "@/lib/study-session";
+import {
+  deriveQuestion,
+  SECTION_A_HEADING,
+  SECTION_B_HEADING,
+} from "@/lib/question-sections";
+
+// Split Sections: if the model answer was keyed under the two section sub-headings, split it so each
+// half renders beneath its own Fraunces heading (matching the question's section cards). Returns null
+// when the headings aren't present, so a single-scope or legacy answer renders as one block.
+function splitAnswerBySection(answer: string): { a: string; b: string } | null {
+  const aRe = /#{2,5}\s*Section A[^\n]*\n/i;
+  const bRe = /#{2,5}\s*Section B[^\n]*\n/i;
+  const aMatch = answer.match(aRe);
+  const bMatch = answer.match(bRe);
+  if (!aMatch || !bMatch || aMatch.index === undefined || bMatch.index === undefined) return null;
+  if (bMatch.index <= aMatch.index) return null;
+  const a = answer.slice(aMatch.index + aMatch[0].length, bMatch.index).trim();
+  const b = answer.slice(bMatch.index + bMatch[0].length).trim();
+  if (!a || !b) return null;
+  return { a, b };
+}
 
 function cleanModelAnswer(text: string): {
   answer: string;
@@ -57,6 +78,11 @@ export function ModelAnswerReveal({
   const hasStudyDiagram = studyDiagramText.length > 0;
   const hasReasoning = parsed.reasoning.length > 0;
 
+  // Render the model answer under the two section headings when the question spans both scopes and the
+  // exemplar keyed its prose accordingly; otherwise fall back to one block.
+  const multiScope = deriveQuestion(question.text, question.wines.length).scopes.length > 1;
+  const sectioned = multiScope ? splitAnswerBySection(parsed.answer) : null;
+
   return (
     <div className="space-y-6">
       {/* Wine identities reveal */}
@@ -87,9 +113,26 @@ export function ModelAnswerReveal({
           <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
             Model Answer
           </h3>
-          <div className="markdown-content text-[15px] leading-relaxed">
-            <ReactMarkdown>{parsed.answer}</ReactMarkdown>
-          </div>
+          {sectioned ? (
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-display text-lg text-foreground mb-2">{SECTION_A_HEADING}</h4>
+                <div className="markdown-content text-[15px] leading-relaxed">
+                  <ReactMarkdown>{sectioned.a}</ReactMarkdown>
+                </div>
+              </div>
+              <div>
+                <h4 className="font-display text-lg text-foreground mb-2">{SECTION_B_HEADING}</h4>
+                <div className="markdown-content text-[15px] leading-relaxed">
+                  <ReactMarkdown>{sectioned.b}</ReactMarkdown>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="markdown-content text-[15px] leading-relaxed">
+              <ReactMarkdown>{parsed.answer}</ReactMarkdown>
+            </div>
+          )}
         </div>
       )}
 

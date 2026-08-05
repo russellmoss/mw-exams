@@ -17,6 +17,7 @@ import { isStemDetailLevel, stepUpLevel, type StemDetailLevel } from "@/lib/prom
 import { QuestionDisplay } from "../components/QuestionDisplay";
 import { PreGlassReasoning } from "../components/PreGlassReasoning";
 import { StreamingFeedback } from "../components/StreamingFeedback";
+import { SectionMarksRow, parseSectionMarks, stripSectionMarksTag } from "../components/SectionMarksRow";
 import { WineReveal } from "../components/WineReveal";
 import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
@@ -1092,13 +1093,17 @@ export default function StudyPage() {
                   </p>
                 </div>
               ) : (
-                <StreamingFeedback
-                  text={evalStream.text}
-                  thinking={evalStream.thinking}
-                  isStreaming={evalStream.isStreaming}
-                  error={evalStream.error}
-                  title="Full Debrief"
-                />
+                <>
+                  {/* Split Sections: per-section marks awarded, above the debrief body. */}
+                  <SectionMarksRow marks={parseSectionMarks(evalStream.text)} />
+                  <StreamingFeedback
+                    text={stripSectionMarksTag(evalStream.text)}
+                    thinking={evalStream.thinking}
+                    isStreaming={evalStream.isStreaming}
+                    error={evalStream.error}
+                    title="Full Debrief"
+                  />
+                </>
               )}
 
               {/* Known-Wine Write-Up: submitting reveals the actual reference tasting notes for the
@@ -1137,8 +1142,9 @@ export default function StudyPage() {
               {timer.elapsed > 0 && (
                 <TimingFeedback seconds={timer.elapsed} wineCount={state.question.wines.length} />
               )}
+              <SectionMarksRow marks={parseSectionMarks(state.answerFeedback)} />
               <StreamingFeedback
-                text={state.answerFeedback}
+                text={stripSectionMarksTag(state.answerFeedback)}
                 isStreaming={false}
                 error={null}
                 title="Full Debrief"

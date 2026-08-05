@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { FUNNELLING_PRINCIPLE } from "./funnelling";
 import { MARKING_PRINCIPLES } from "./marking-principles";
+import { deriveQuestion, SECTION_A_HEADING, SECTION_B_HEADING } from "@/lib/question-sections";
 
 let cachedIndex: {
   decisionTrees: Record<string, string>;
@@ -160,7 +161,19 @@ ${questionText}
 ${wineList}
 ${profileGuidance}
 
-Generate ALL four sections:
+${(() => {
+    // Split Sections: when the flight's sub-parts span both scopes, tell the exemplar to organise its
+    // Model Answer under the SAME two headings the app renders, so ModelAnswerReveal can key the prose
+    // to each section. Single-scope questions are unchanged.
+    const d = deriveQuestion(questionText, wines.length);
+    if (d.scopes.length <= 1) return "";
+    return `## SPLIT SECTIONS — KEY THE MODEL ANSWER BY SECTION
+This question is organised into two sections. Structure your Model Answer under these EXACT sub-headings (verbatim), addressing that section's sub-parts under each; do NOT renumber the sub-part letters:
+#### ${SECTION_A_HEADING}
+#### ${SECTION_B_HEADING}
+
+`;
+  })()}Generate ALL four sections:
 
 ### 1. Model Answer
 Full answer addressing every sub-question. MW-note style, 250-420 words. **Demonstrate funnelling** (see the Funnelling principle above): commit to the leading variety + broad-region call early, but visibly weigh the 1–2 plausible alternatives and rule them out from structural evidence ("what it might have been, but was not"), then narrow to the specific call and land it decisively. Do not simply assert one wine with no alternatives considered. Follow the mock-answer-writer rules exactly.
