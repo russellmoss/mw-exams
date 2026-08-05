@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { PaperFilterPills, type PaperValue } from "@/app/components/PaperFilterPills";
+import { CountryBalanceSection, type CountryBalance } from "@/app/components/CountryBalanceSection";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -43,6 +44,9 @@ interface BankHealthPayload {
   benchmarkYears: number[];
   benchmarkVersion: string;
   generatedAt: string;
+  // Country Balance (always-on): the bank's country mix against the historical shape of the exam.
+  // Bank-wide, so it does not re-scope with the paper filter.
+  countryBalance?: CountryBalance;
 }
 
 interface SliceItem {
@@ -273,6 +277,9 @@ export default function BankHealthPage() {
                   onGenerate={(row) => setConfirm({ selection: { slice, row }, paper: paperGuess(slice, row) })}
                 />
               ))}
+
+              {/* ── Country Balance (always-on read; bank-wide, no controls) ── */}
+              {data.countryBalance && <CountryBalanceSection balance={data.countryBalance} />}
             </div>
           )}
         </div>
