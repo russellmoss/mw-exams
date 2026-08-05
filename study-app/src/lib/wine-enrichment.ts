@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEntry, type TastingGrid } from "./wine-bank-lookup";
+import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEntry, type TastingGrid,
+  type WineSource, type SourceType, type GridCitations } from "./wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage, logTavilyUsage } from "./usage-log";
 import { selectModel } from "./model-selector";
@@ -15,50 +16,131 @@ type EnrichMeta = {
   batchId?: string | null; // migration 029 — attribute bulk-run enrichment spend to its batch
 };
 
-async function searchTavily(query: string, meta?: EnrichMeta): Promise<{ snippets: string[]; sources: string[] }> {
+const TAVILY_EXTRACT_URL = "https://api.tavily.com/extract";
+
+type TavilyResult = { url: string; title: string; content: string };
+
+// Sources CLAUDE.md's working principles already name as preferred, expressed as an actual search
+// filter rather than a hope. Producer/importer domains are unbounded (a tech sheet can live on any
+// of a thousand distributor sites) so they are reached via the tech-sheet tier, not this allowlist.
+const CRITIC_DOMAINS = [
+  "vinous.com", "jancisrobinson.com", "decanter.com", "robertparker.com", "wineadvocate.com",
+  "jamessuckling.com", "timatkin.com", "jebdunnuck.com", "winespectator.com", "wineanorak.com",
+  "thewinecellarinsider.com", "janeanson.com", "falstaff.com", "guildsomm.com",
+];
+
+// Named in CLAUDE.md as acceptable sources, but they are aggregators and community databases, not
+// signed criticism — and a domain-scoped search returns them by the fistful. Measured on an obscure
+// Burgenland wine, putting wine-searcher in the critic tier filled 6 of 12 slots with price
+// listings that contain no tasting descriptors at all. They stay usable via the open-web tier and
+// keep their display names, but they are typed `web` so a citation never overstates what backs it.
+const AGGREGATOR_DOMAINS = new Set(["wine-searcher.com", "cellartracker.com"]);
+
+function sourceTypeFor(url: string): SourceType {
+  const h = hostOf(url);
+  if ([...AGGREGATOR_DOMAINS].some((d) => h === d || h.endsWith(`.${d}`))) return "web";
+  return publisherFor(url) ? "critic" : "web";
+}
+
+// Publisher shown in a citation. Anything unlisted falls back to the bare hostname, which is still
+// more use than a raw URL.
+const DOMAIN_PUBLISHER: Record<string, string> = {
+  "vinous.com": "Vinous", "jancisrobinson.com": "JancisRobinson.com", "decanter.com": "Decanter",
+  "robertparker.com": "Wine Advocate", "wineadvocate.com": "Wine Advocate",
+  "jamessuckling.com": "James Suckling", "timatkin.com": "Tim Atkin MW",
+  "jebdunnuck.com": "Jeb Dunnuck", "winespectator.com": "Wine Spectator",
+  "wineanorak.com": "Wine Anorak", "thewinecellarinsider.com": "The Wine Cellar Insider",
+  "janeanson.com": "Jane Anson", "falstaff.com": "Falstaff", "guildsomm.com": "GuildSomm",
+  "wine-searcher.com": "Wine-Searcher", "cellartracker.com": "CellarTracker",
+};
+
+function hostOf(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; }
+}
+
+function publisherFor(url: string): string | undefined {
+  const h = hostOf(url);
+  if (DOMAIN_PUBLISHER[h]) return DOMAIN_PUBLISHER[h];
+  const key = Object.keys(DOMAIN_PUBLISHER).find((d) => h.endsWith(d));
+  return key ? DOMAIN_PUBLISHER[key] : undefined;
+}
+
+async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; query: string; credits: number }, meta?: EnrichMeta): Promise<unknown | null> {
   const tavilyKey = process.env.TAVILY_API_KEY;
   if (!tavilyKey) {
     console.warn("TAVILY_API_KEY not set — skipping web research");
-    return { snippets: [], sources: [] };
+    return null;
   }
-
+  const log = (ok: boolean, n: number) =>
+    logTavilyUsage({ taskType: ctx.taskType, query: ctx.query, resultsCount: n, credits: ctx.credits,
+      userId: meta?.userId, batchId: meta?.batchId, questionId: meta?.questionId, success: ok });
   try {
-    const res = await fetch(TAVILY_API_URL, {
+    const res = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${tavilyKey}`,
-      },
-      body: JSON.stringify({
-        query,
-        max_results: 6,
-        search_depth: "basic",
-      }),
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${tavilyKey}` },
+      body: JSON.stringify(body),
+      // An extract of a large PDF is slow; without a cap a stalled connection hangs enrichment,
+      // which is exactly how the model-answer batch wedged itself.
+      signal: AbortSignal.timeout(60_000),
     });
     if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      console.error(`Tavily API error ${res.status}: ${body.slice(0, 200)}`);
-      logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId,
-          batchId: meta?.batchId, questionId: meta?.questionId, success: false });
-      return { snippets: [], sources: [] };
+      const text = await res.text().catch(() => "");
+      console.error(`Tavily ${ctx.taskType} error ${res.status}: ${text.slice(0, 200)}`);
+      log(false, 0);
+      return null;
     }
     const data = await res.json();
-    const snippets: string[] = [];
-    const sources: string[] = [];
-    for (const r of data.results || []) {
-      if (r.content) snippets.push(r.content.slice(0, 400));
-      if (r.url) sources.push(r.url);
-    }
-    console.log(`Tavily returned ${snippets.length} snippets for: ${query.slice(0, 80)}`);
-    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: (data.results || []).length, userId: meta?.userId,
-          batchId: meta?.batchId, questionId: meta?.questionId, success: true });
-    return { snippets, sources };
+    log(true, Array.isArray((data as { results?: unknown[] }).results) ? (data as { results: unknown[] }).results.length : 0);
+    return data;
   } catch (err) {
-    console.error("Tavily search failed:", err);
-    logTavilyUsage({ taskType: "wine_enrichment", query, resultsCount: 0, userId: meta?.userId,
-          batchId: meta?.batchId, questionId: meta?.questionId, success: false });
-    return { snippets: [], sources: [] };
+    console.error(`Tavily ${ctx.taskType} failed:`, err);
+    log(false, 0);
+    return null;
   }
+}
+
+async function searchTavily(
+  query: string,
+  meta?: EnrichMeta,
+  opts?: { includeDomains?: string[]; maxResults?: number; taskType?: string }
+): Promise<TavilyResult[]> {
+  const data = await tavilyFetch(
+    TAVILY_API_URL,
+    {
+      query,
+      max_results: opts?.maxResults ?? 6,
+      search_depth: "basic",
+      ...(opts?.includeDomains?.length ? { include_domains: opts.includeDomains } : {}),
+    },
+    { taskType: opts?.taskType ?? "wine_enrichment", query, credits: 1 },
+    meta
+  );
+  const results = (data as { results?: { url?: string; title?: string; content?: string }[] } | null)?.results ?? [];
+  return results
+    .filter((r) => r.url)
+    .map((r) => ({ url: r.url!, title: r.title ?? "", content: r.content ?? "" }));
+}
+
+// Full-text extraction. A search snippet is ~400 chars of whatever the crawler grabbed; an extracted
+// tech sheet is the whole document — analysis, winemaking, the producer's note, and on importer
+// sheets a dozen attributed critic reviews. Verified against a real PDF tech sheet before this was
+// built, because PDF support was the load-bearing unknown.
+async function extractTavily(urls: string[], meta?: EnrichMeta): Promise<{ url: string; text: string }[]> {
+  if (!urls.length) return [];
+  const data = await tavilyFetch(
+    TAVILY_EXTRACT_URL,
+    { urls, extract_depth: "advanced" },
+    // Advanced extract bills roughly 2 credits per 5 URLs; round up so the Cost dashboard is not
+    // quietly under-reporting the most expensive call in the pipeline.
+    { taskType: "wine_tech_sheet", query: urls.join(" "), credits: Math.ceil(urls.length / 5) * 2 },
+    meta
+  );
+  const results = (data as { results?: { url?: string; raw_content?: string }[] } | null)?.results ?? [];
+  return results
+    .filter((r) => r.url && r.raw_content)
+    // Tech sheets run long (the Mouton sheet is ~10k words). Cap per document so one verbose PDF
+    // cannot crowd the others out of the extraction prompt.
+    .map((r) => ({ url: r.url!, text: r.raw_content!.slice(0, 14_000) }));
 }
 
 // The vintage is the one field the regex parse gets right regardless of how the reference string is
@@ -167,6 +249,120 @@ Rules:
   return fallbackIdentity;
 }
 
+type EvidenceDoc = { source: WineSource; text: string };
+
+// Keys on TastingGrid that are metadata rather than sensory fields. Gap detection and citation
+// bookkeeping must skip these or they get treated as missing tasting values.
+const META_KEYS = ["sources", "citations", "inferred_fields"];
+
+/**
+ * Keep only citations that point at a document we actually supplied. The model is asked for document
+ * numbers; a hallucinated "[7]" against a 3-document prompt would otherwise render as a confident
+ * link to nothing, which is worse than admitting the field was inferred.
+ */
+export function normalizeCitations(raw: unknown, sourceCount: number): GridCitations {
+  const out: GridCitations = {};
+  if (!raw || typeof raw !== "object") return out;
+  for (const [field, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (META_KEYS.includes(field)) continue;
+    const refs = Array.isArray(v)
+      ? v.map((n) => (typeof n === "number" ? n : Number(n)))
+          // Prompt numbers documents from 1; storage indexes from 0.
+          .map((n) => n - 1)
+          .filter((n) => Number.isInteger(n) && n >= 0 && n < sourceCount)
+      : [];
+    out[field] = [...new Set(refs)];
+  }
+  return out;
+}
+
+// A URL worth paying for a full extract on. PDFs are the giveaway — tech sheets are overwhelmingly
+// PDFs — but plenty of importers publish the same document as HTML, hence the filename hints.
+export function looksLikeTechSheet(r: { url: string; title: string }): boolean {
+  if (/\.pdf(\?|#|$)/i.test(r.url)) return true;
+  return /(tech[-_ ]?sheet|fiche[-_ ]?technique|fact[-_ ]?sheet|spec[-_ ]?sheet|sell[-_ ]?sheet|\bTS\b)/i
+    .test(`${r.url} ${r.title}`);
+}
+
+/**
+ * Gather evidence in preference order: technical sheets, then named critics, then open web, and stop
+ * as soon as we have enough. Tiers ACCUMULATE rather than compete — a thin tech sheet still gets
+ * critic notes layered on top — because the goal is one complete, coherent note, not one pure source.
+ *
+ * Ordering is the point. A tech sheet carries the analysis (pH, abv, blend), the winemaking, the
+ * producer's own tasting note, and — on importer sheets — a dozen attributed critic reviews, all in
+ * one document. A search snippet carries ~400 characters of whatever the crawler happened to grab.
+ */
+async function acquireEvidence(subject: string, meta?: EnrichMeta): Promise<{ docs: EvidenceDoc[]; tier: SourceType | "inferred" }> {
+  const docs: EvidenceDoc[] = [];
+  const seen = new Set<string>();
+  const volume = () => docs.reduce((n, d) => n + d.text.length, 0);
+  // Below this, the evidence is too thin to build a full grid from and the next tier is worth its
+  // cost. Above it, stop — a rich tech sheet already answers more than a critic snippet would add.
+  const ENOUGH = 2500;
+
+  // ── Tier 1: technical sheets ────────────────────────────────────────────────
+  const sheetHits = await searchTavily(`${subject} technical sheet tasting notes`, meta, { taskType: "wine_tech_sheet_search" });
+  const candidates = sheetHits.filter(looksLikeTechSheet).slice(0, 2);
+  if (candidates.length) {
+    for (const { url, text } of await extractTavily(candidates.map((c) => c.url), meta)) {
+      if (seen.has(url)) continue;
+      seen.add(url);
+      const hit = candidates.find((c) => c.url === url);
+      docs.push({
+        source: { url, type: "tech_sheet", publisher: publisherFor(url) ?? hostOf(url), title: hit?.title || undefined },
+        text,
+      });
+    }
+  }
+  // The non-sheet results from the same search are already paid for — keep the useful ones rather
+  // than discarding them and searching again.
+  if (volume() < ENOUGH) {
+    for (const r of sheetHits.filter((r) => !seen.has(r.url) && r.content).slice(0, 3)) {
+      seen.add(r.url);
+      docs.push({
+        source: { url: r.url, type: sourceTypeFor(r.url), publisher: publisherFor(r.url) ?? hostOf(r.url), title: r.title || undefined },
+        text: r.content,
+      });
+    }
+  }
+
+  // ── Tier 2: named critics ───────────────────────────────────────────────────
+  if (volume() < ENOUGH) {
+    const criticHits = await searchTavily(`${subject} tasting note review`, meta, {
+      includeDomains: CRITIC_DOMAINS,
+      taskType: "wine_critic_search",
+    });
+    for (const r of criticHits.filter((r) => !seen.has(r.url) && r.content).slice(0, 5)) {
+      seen.add(r.url);
+      docs.push({
+        source: { url: r.url, type: "critic", publisher: publisherFor(r.url) ?? hostOf(r.url), title: r.title || undefined },
+        text: r.content,
+      });
+    }
+  }
+
+  // ── Tier 3: open web (the original behaviour, now a fallback) ───────────────
+  if (volume() < ENOUGH) {
+    const webHits = await searchTavily(`${subject} tasting notes appearance color aroma palate review`, meta);
+    for (const r of webHits.filter((r) => !seen.has(r.url) && r.content).slice(0, 4)) {
+      seen.add(r.url);
+      docs.push({
+        source: { url: r.url, type: sourceTypeFor(r.url), publisher: publisherFor(r.url) ?? hostOf(r.url), title: r.title || undefined },
+        text: r.content,
+      });
+    }
+  }
+
+  const tier: SourceType | "inferred" = docs.some((d) => d.source.type === "tech_sheet")
+    ? "tech_sheet"
+    : docs.some((d) => d.source.type === "critic")
+      ? "critic"
+      : docs.length ? "web" : "inferred";
+  console.log(`Evidence for "${subject.slice(0, 60)}": ${docs.length} doc(s), ${volume()} chars, best tier=${tier}`);
+  return { docs, tier };
+}
+
 // `identity` MUST be the classifyWine result, not parseWineIdentity's. The search query is only as
 // good as the producer/cuvée it names, and the regex parser mangles anything that doesn't fit
 // "Producer, Name. Region, Country" — the same failure that put producer="R" / country="2012" rows in
@@ -187,10 +383,8 @@ async function researchWineViaTavily(
     .map((s) => (s || "").trim())
     .filter(Boolean)
     .join(" ");
-  const query = `${subject || wine.fullText} tasting notes appearance color aroma palate review`;
-
-  const tavily = await searchTavily(query, meta);
-  const hasTavilyResults = tavily.snippets.length >= 1;
+  const evidence = await acquireEvidence(subject || wine.fullText, meta);
+  const hasTavilyResults = evidence.docs.length >= 1;
 
   const GRID_SYSTEM = `You are an MW-level wine expert building a structured tasting grid. Use the MW Systematic Approach to Tasting (SAT) framework.
 
@@ -210,7 +404,12 @@ For every field, use the standard MW vocabulary scales:
 - quality_assessment: "poor", "acceptable", "good", "very good", "outstanding"
 
 Output exactly one JSON object (no markdown, no code fences):
-{"color":"...","clarity":"...","viscosity":"...","nose_intensity":"...","nose_descriptors":"...","palate_sweetness":"...","palate_acid":"...","palate_tannin":"...","palate_body":"...","palate_alcohol":"...","palate_flavor_descriptors":"...","palate_finish":"...","quality_assessment":"...","sources":["..."],"inferred_fields":["field names you had to infer rather than find stated"]}`;
+{"color":"...","clarity":"...","viscosity":"...","nose_intensity":"...","nose_descriptors":"...","palate_sweetness":"...","palate_acid":"...","palate_tannin":"...","palate_body":"...","palate_alcohol":"...","palate_flavor_descriptors":"...","palate_finish":"...","quality_assessment":"...","citations":{"<field>":[<document numbers>]},"inferred_fields":["field names you had to infer rather than find stated"]}
+
+CITATIONS are required and are the point of this task — they are what makes a note auditable instead of a black box:
+- For every field, list the numbers of the documents that actually support the value, e.g. "nose_descriptors":[1,3].
+- Use an EMPTY array for a field no document supports. Never cite a document that does not state or clearly imply the value; a wrong citation is worse than none.
+- A document's own words outrank your expectations. If a tech sheet says the wine is deep purple and you expected garnet, cite the sheet and record what it says.`;
 
   const client = new Anthropic({ apiKey });
   const { model: enrichModel, abGroup: enrichAb } = await selectModel("wine_enrichment", apiKey, "sonnet");
@@ -225,10 +424,14 @@ Output exactly one JSON object (no markdown, no code fences):
       const message = await client.messages.create({
         model: enrichModel,
         max_tokens: 1000,
-        system: GRID_SYSTEM + `\n\nIMPORTANT: You have real search results below. Extract every detail the sources state. For fields where sources give no information, write "NOT_FOUND" as the value — do NOT guess. Put "NOT_FOUND" fields in inferred_fields.`,
+        system: GRID_SYSTEM + `\n\nIMPORTANT: You have real source documents below. Extract every detail they state. For fields where the documents give no information, write "NOT_FOUND" as the value — do NOT guess at this stage; a later pass fills gaps and records that it did so. Put "NOT_FOUND" fields in inferred_fields with an empty citation array.
+
+Document 1 is the most authoritative and they descend from there. A TECH SHEET is the producer's or importer's own document: prefer its analysis (abv, pH, residual sugar), its winemaking detail, and its tasting note over anything else. Importer tech sheets often reproduce several named critic reviews — treat those as part of that document and cite its number.`,
         messages: [{
           role: "user",
-          content: `Wine: ${wine.fullText}\n\nSearch results:\n${tavily.snippets.map((s, i) => `[${i + 1}] ${s}`).join("\n\n")}\n\nBuild the tasting grid from these sources. Use "NOT_FOUND" for anything the sources don't cover.`,
+          content: `Wine: ${wine.fullText}\n\nSource documents:\n${evidence.docs
+            .map((d, i) => `[${i + 1}] (${d.source.type.toUpperCase()}${d.source.publisher ? ` — ${d.source.publisher}` : ""}) ${d.source.url}\n${d.text}`)
+            .join("\n\n---\n\n")}\n\nBuild the tasting grid from these documents. Use "NOT_FOUND" for anything they don't cover, and cite document numbers for everything they do.`,
         }],
       });
       logClaudeUsage(
@@ -242,16 +445,23 @@ Output exactly one JSON object (no markdown, no code fences):
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         grid = JSON.parse(jsonMatch[0]) as TastingGrid;
-        grid.sources = tavily.sources.slice(0, 4);
+        // Sources are set from the documents we actually supplied, NOT from anything the model
+        // emitted — the model's job is to say which document supports which field, never to invent
+        // the document list. Index i in `sources` is document [i+1] in the prompt, which is what the
+        // citation numbers refer to, so this ordering is load-bearing.
+        grid.sources = evidence.docs.map((d) => d.source);
+        grid.citations = normalizeCitations(grid.citations, grid.sources.length);
         sourceMethod = "tavily_research";
-        confidence = "medium";
+        // A tech sheet is the producer's own document; a grid built on one is materially better
+        // evidenced than one assembled from search snippets, and the confidence should say so.
+        confidence = evidence.tier === "tech_sheet" ? "high" : "medium";
       }
     } catch (err) {
       console.error("Tavily grid extraction failed for", wine.fullText, err);
     }
   }
 
-  // Step 2: Fill gaps — either from Tavily partial grid or from scratch
+  // Step 2: Fill gaps — either from a partial researched grid or from scratch
   const isGap = (v: unknown): boolean => {
     if (!v || v === "NOT_FOUND") return true;
     const s = String(v).toLowerCase();
@@ -259,14 +469,14 @@ Output exactly one JSON object (no markdown, no code fences):
       || s.length < 5 || s === "n/a" || s === "unknown" || s === "red, still" || s === "white, still";
   };
   const hasGaps = grid && Object.entries(grid)
-    .filter(([k]) => !["sources", "inferred_fields"].includes(k))
+    .filter(([k]) => !META_KEYS.includes(k))
     .some(([, v]) => isGap(v));
   if (!grid || hasGaps) {
     try {
       // Mark all gap fields for the LLM
       const gapFields = grid
         ? Object.entries(grid)
-            .filter(([k, v]) => !["sources", "inferred_fields"].includes(k) && isGap(v))
+            .filter(([k, v]) => !META_KEYS.includes(k) && isGap(v))
             .map(([k]) => k)
         : [];
       const gapContext = grid
@@ -296,16 +506,29 @@ Output exactly one JSON object (no markdown, no code fences):
         const filled = JSON.parse(jsonMatch[0]) as TastingGrid;
         if (!grid) {
           grid = filled;
+          // Nothing was found on the web, so every value here is model knowledge. Say so explicitly
+          // rather than leaving citations absent, which reads as "unknown provenance".
+          grid.sources = [];
+          grid.citations = Object.fromEntries(
+            Object.keys(filled).filter((k) => !META_KEYS.includes(k)).map((k) => [k, [] as number[]])
+          );
           sourceMethod = "llm_enrichment";
           confidence = "medium";
         } else {
-          // Merge: keep Tavily values, fill gaps with LLM
+          // Merge: keep researched values, fill gaps with model knowledge — and mark exactly which
+          // fields that was. A filled gap MUST end up with an empty citation array: carrying over the
+          // researched field's citation would attribute an inferred value to a real document, which
+          // is the precise dishonesty this whole change exists to remove.
           const gridAny = grid as unknown as Record<string, unknown>;
+          const citations = grid.citations ?? {};
           for (const [k, v] of Object.entries(filled)) {
+            if (META_KEYS.includes(k)) continue;
             if (isGap(gridAny[k])) {
               gridAny[k] = v;
+              citations[k] = [];
             }
           }
+          grid.citations = citations;
           grid.inferred_fields = filled.inferred_fields || [];
         }
       }
@@ -328,10 +551,13 @@ Output exactly one JSON object (no markdown, no code fences):
         palate_summary: `${grid.palate_flavor_descriptors || ""}. Finish: ${grid.palate_finish || "medium"}.`.trim(),
         structural_summary: `Sweetness: ${grid.palate_sweetness || "dry"}. Acid: ${grid.palate_acid || "medium"}. Tannin: ${grid.palate_tannin || "n/a"}. Body: ${grid.palate_body || "medium"}. Alcohol: ${grid.palate_alcohol || "medium"}.`,
         sources: grid.sources || [],
+        citations: grid.citations,
       },
       tasting_grid: grid,
       confidence,
       source_method: sourceMethod,
+      // What the note is actually built on, independent of whether a search ran at all.
+      evidence_tier: sourceMethod === "llm_enrichment" ? "inferred" : evidence.tier,
       enriched_at: new Date().toISOString(),
     };
   }
@@ -341,6 +567,7 @@ Output exactly one JSON object (no markdown, no code fences):
     tasting_profile: null,
     confidence: "low",
     source_method: "none",
+    evidence_tier: "inferred",
     enriched_at: new Date().toISOString(),
   };
 }
@@ -369,6 +596,8 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile): Prom
           nose_summary: profile.tasting_profile.nose_summary,
           palate_summary: profile.tasting_profile.palate_summary,
           sources: profile.tasting_profile.sources,
+          citations: profile.tasting_profile.citations,
+          evidence_tier: profile.evidence_tier,
           confidence: profile.confidence,
         }) : null},
         ${profile.source_method}

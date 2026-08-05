@@ -46,7 +46,7 @@ export function buildTastingUserPrompt(
       nose_summary?: string;
       palate_summary?: string;
       structural_summary?: string;
-      sources?: string[];
+      // No `sources` here by design — see the note at the render site below.
     } | null;
     structural_tags?: string[];
     style_category?: string;
@@ -69,7 +69,9 @@ export function buildTastingUserPrompt(
           if (tp.appearance) line += `\n   Appearance: ${tp.appearance}`;
           if (tp.nose_summary) line += `\n   Nose: ${tp.nose_summary}`;
           if (tp.palate_summary) line += `\n   Palate: ${tp.palate_summary}`;
-          if (tp.sources?.length) line += `\n   Sources: ${tp.sources.join(", ")}`;
+          // Source URLs are deliberately NOT passed. They name the château, so putting them in the
+          // prompt that writes the CANDIDATE-FACING blind note is a leak risk for zero benefit — the
+          // note is sensory-only and cites nothing. Provenance lives on the profile for the reveal.
           line += `]`;
         } else if (profile.structural_tags?.length || profile.style_category) {
           const parts: string[] = [];

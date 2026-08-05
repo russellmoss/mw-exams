@@ -2,6 +2,82 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 
+// Where a tasting claim came from, in the order we prefer to believe it. A producer/importer
+// technical sheet is the best evidence available: it carries the analysis (pH, abv, blend), the
+// winemaking, the producer's own note, and — on importer sheets — a dozen attributed critic reviews
+// in one document. A named critic note is next. Generic web is the fallback we used to run on
+// exclusively.
+export type SourceType = "tech_sheet" | "critic" | "web";
+
+export interface WineSource {
+  url: string;
+  type: SourceType;
+  /** "Vinous", "Wine Advocate", "Château Mouton Rothschild" */
+  publisher?: string;
+  /** "Neal Martin" — present when a note is signed, which critic sheets usually are. */
+  author?: string;
+  title?: string;
+}
+
+/**
+ * Per-field provenance: grid field name -> indices into the profile's `sources` array.
+ * An EMPTY array means the value was inferred from model knowledge rather than read from a source —
+ * that distinction is the whole point, so an inferred field must never be silently dropped from the
+ * map. Absent key = unknown provenance (a legacy row written before citations existed).
+ */
+export type GridCitations = Record<string, number[]>;
+
+/**
+ * Sources were originally stored as bare URL strings and hundreds of banked rows still are. Every
+ * read goes through here so old and new rows present identically to callers.
+ */
+export function normalizeSources(raw: unknown): WineSource[] {
+  if (!Array.isArray(raw)) return [];
+  const out: WineSource[] = [];
+  for (const item of raw) {
+    if (typeof item === "string") {
+      if (item.trim()) out.push({ url: item.trim(), type: "web" });
+      continue;
+    }
+    if (item && typeof item === "object") {
+      const o = item as Record<string, unknown>;
+      const url = typeof o.url === "string" ? o.url.trim() : "";
+      if (!url) continue;
+      const type = o.type === "tech_sheet" || o.type === "critic" ? o.type : "web";
+      out.push({
+        url,
+        type,
+        publisher: typeof o.publisher === "string" ? o.publisher : undefined,
+        author: typeof o.author === "string" ? o.author : undefined,
+        title: typeof o.title === "string" ? o.title : undefined,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Best tier present in a source list. Used for rows banked before evidence_tier was stored, so a
+ * cached wine still reports how well evidenced it is instead of showing a blank.
+ */
+export function tierFromSources(sources: WineSource[]): SourceType | "inferred" {
+  if (sources.some((s) => s.type === "tech_sheet")) return "tech_sheet";
+  if (sources.some((s) => s.type === "critic")) return "critic";
+  return sources.length ? "web" : "inferred";
+}
+
+/** Human-readable attribution for display: "Neal Martin, Vinous" / "Tech sheet — Elite Wines". */
+export function describeSource(s: WineSource): string {
+  const who = [s.author, s.publisher].filter(Boolean).join(", ");
+  if (s.type === "tech_sheet") return who ? `Tech sheet — ${who}` : "Tech sheet";
+  if (who) return who;
+  try {
+    return new URL(s.url).hostname.replace(/^www\./, "");
+  } catch {
+    return s.url;
+  }
+}
+
 export interface WineBankEntry {
   id: string;
   producer: string;
@@ -23,7 +99,9 @@ export interface WineBankEntry {
     appearance?: string;
     nose_summary?: string;
     palate_summary?: string;
-    sources?: string[];
+    sources?: WineSource[];
+    citations?: GridCitations;
+    evidence_tier?: SourceType | "inferred";
     confidence?: string;
   };
 }
@@ -42,7 +120,8 @@ export interface TastingGrid {
   palate_flavor_descriptors: string;
   palate_finish: string;
   quality_assessment: string;
-  sources: string[];
+  sources: WineSource[];
+  citations?: GridCitations;
   inferred_fields: string[];
 }
 
@@ -53,11 +132,17 @@ export interface WineProfile {
     nose_summary: string;
     palate_summary: string;
     structural_summary: string;
-    sources: string[];
+    sources: WineSource[];
+    citations?: GridCitations;
   } | null;
   tasting_grid?: TastingGrid | null;
   confidence: "high" | "medium" | "low";
+  // COARSE method, kept as-is because scripts and the answer-key builder branch on it
+  // (`=== "none"` means "not researched yet"). The finer question — how GOOD the evidence was —
+  // is evidence_tier below, added rather than folded in here so no existing consumer changes meaning.
   source_method: "bank_lookup" | "llm_enrichment" | "tavily_research" | "none";
+  /** Best tier of evidence that actually contributed. "inferred" = nothing was found on the web. */
+  evidence_tier?: SourceType | "inferred";
   enriched_at: string;
   structural_tags?: string[];
   style_category?: string;
@@ -110,7 +195,10 @@ async function loadBankWithDb(): Promise<WineBankEntry[]> {
             appearance: tp.appearance,
             nose_summary: tp.nose_summary,
             palate_summary: tp.palate_summary,
-            sources: (tp.sources as unknown as string[]) || [],
+            // Legacy rows hold bare URL strings here; normalizeSources folds both shapes to one.
+            sources: normalizeSources(tp.sources),
+            citations: (tp.citations as unknown as GridCitations) || undefined,
+            evidence_tier: (tp.evidence_tier as unknown as SourceType | "inferred") || undefined,
             confidence: tp.confidence,
           } : undefined,
         });
@@ -233,8 +321,15 @@ export async function lookupWines(wines: { slot: number; fullText: string }[]): 
           nose_summary: match.entry.tasting_profile.nose_summary || "",
           palate_summary: match.entry.tasting_profile.palate_summary || "",
           structural_summary: buildStructuralProfile(match.entry),
-          sources: match.entry.tasting_profile.sources || [],
+          sources: normalizeSources(match.entry.tasting_profile.sources),
+          citations: match.entry.tasting_profile.citations,
         } : null,
+        // Stored on rows banked since evidence tiers existed; derived from the source types for the
+        // ones banked before, so a cached wine never reports a blank provenance.
+        evidence_tier: match.entry.tasting_profile
+          ? (match.entry.tasting_profile.evidence_tier
+              ?? tierFromSources(normalizeSources(match.entry.tasting_profile.sources)))
+          : undefined,
         confidence: match.score >= 0.8 ? "high" : "medium",
         source_method: "bank_lookup",
         enriched_at: new Date().toISOString(),
