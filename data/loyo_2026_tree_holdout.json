@@ -1,0 +1,397 @@
+{
+  "target_year": 2026,
+  "n_questions": 8,
+  "n_wines": 36,
+  "trees": "outputs/master_trees/_frozen_pre2026/ (never saw 2026)",
+  "aggregate": {
+    "top1_variety": 0.3611111111111111,
+    "top3_variety": 0.6388888888888888,
+    "candidate_set": 0.8888888888888888,
+    "top1_region_country": 0.3055555555555556,
+    "top3_region": 0.7777777777777778
+  },
+  "baseline_2015_2025_postfix": {
+    "top1_variety": 0.728,
+    "top3_variety": 0.892,
+    "candidate_set": 0.956
+  },
+  "questions": [
+    {
+      "qid": "2026_p1_q1",
+      "paper": 1,
+      "question": 1,
+      "n_wines": 6,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-1-Same-single-grape-variety > sub-branch:3-4-wines-origin-and-maturity/quality-heavily-marked > leaf:stem-says-different-countries-or-two-countries",
+      "variety_ranking": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc",
+        "Chenin Blanc",
+        "Semillon",
+        "Pinot Gris"
+      ],
+      "top1_variety": 1.0,
+      "top3_variety": 1.0,
+      "candidate_set": 1.0,
+      "top1_region_country": 0.3333333333333333,
+      "top3_region": 0.6666666666666666,
+      "actual": [
+        {
+          "slot": 1,
+          "variety": "Chardonnay",
+          "country": "France"
+        },
+        {
+          "slot": 2,
+          "variety": "Chardonnay",
+          "country": "New Zealand"
+        },
+        {
+          "slot": 3,
+          "variety": "Chardonnay",
+          "country": "Australia"
+        },
+        {
+          "slot": 4,
+          "variety": "Chardonnay",
+          "country": "Italy"
+        },
+        {
+          "slot": 5,
+          "variety": "Chardonnay",
+          "country": "France"
+        },
+        {
+          "slot": 6,
+          "variety": "Chardonnay",
+          "country": "USA"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p1_q2",
+      "paper": 1,
+      "question": 2,
+      "n_wines": 3,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-1-Same-single-grape-variety > sub-branch:3-4-wines-origin-and-maturity/quality-heavily-marked > leaf:stem-says-different-countries-or-two-countries",
+      "variety_ranking": [
+        "Chardonnay",
+        "Riesling",
+        "Sauvignon Blanc",
+        "Chenin Blanc",
+        "Semillon",
+        "Pinot Gris"
+      ],
+      "top1_variety": 0.0,
+      "top3_variety": 1.0,
+      "candidate_set": 1.0,
+      "top1_region_country": 0.3333333333333333,
+      "top3_region": 0.6666666666666666,
+      "actual": [
+        {
+          "slot": 7,
+          "variety": "Riesling",
+          "country": "Austria"
+        },
+        {
+          "slot": 8,
+          "variety": "Riesling",
+          "country": "France"
+        },
+        {
+          "slot": 9,
+          "variety": "Riesling",
+          "country": "Australia"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p1_q3",
+      "paper": 1,
+      "question": 3,
+      "n_wines": 3,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-4-mixed-bag-different-countries-different-varieties > sub-branch:identification-marks-high-no-linking-constraint (cross-referenced with p1_family_tree_pack.md#F4-Branch-4.3-Hidden-organising-theme, treating 'Mediterranean Sea influence' as the filter, and #F5-freshness-as-a-winemaking-lever, and #F3-Rhone/Iberian-blend-candidates for the Mediterranean-coast archetype)",
+      "variety_ranking": [
+        "Vermentino",
+        "Assyrtiko",
+        "Grenache Blanc/Rhone-style blend",
+        "Grillo/Catarratto (Sicily)",
+        "Viognier",
+        "Marsanne/Roussanne",
+        "Chardonnay",
+        "Albarino"
+      ],
+      "top1_variety": 0.3333333333333333,
+      "top3_variety": 0.6666666666666666,
+      "candidate_set": 1.0,
+      "top1_region_country": 0.3333333333333333,
+      "top3_region": 1.0,
+      "actual": [
+        {
+          "slot": 10,
+          "variety": "Vermentino",
+          "country": "Italy"
+        },
+        {
+          "slot": 11,
+          "variety": "Assyrtiko",
+          "country": "Greece"
+        },
+        {
+          "slot": 12,
+          "variety": "Clairette/Bourboulenc",
+          "country": "France"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p2_q1",
+      "paper": 2,
+      "question": 1,
+      "n_wines": 3,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-2-same-country-questions-sub-branch-same-country-different-regions-region-first (cross-ref: outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2-branch-2.1-same-country-different-varieties-f2a)",
+      "variety_ranking": [
+        "Sangiovese",
+        "Nebbiolo",
+        "Aglianico",
+        "Nerello Mascalese",
+        "Pinot Noir",
+        "Syrah/Shiraz",
+        "Cabernet Sauvignon/Cabernet Franc",
+        "Grenache",
+        "Tempranillo",
+        "Corvina-led blend"
+      ],
+      "top1_variety": 0.0,
+      "top3_variety": 0.0,
+      "candidate_set": 0.3333333333333333,
+      "top1_region_country": 0.0,
+      "top3_region": 1.0,
+      "actual": [
+        {
+          "slot": 1,
+          "variety": "Cabernet Franc",
+          "country": "France"
+        },
+        {
+          "slot": 2,
+          "variety": "Gamay",
+          "country": "France"
+        },
+        {
+          "slot": 3,
+          "variety": "Savagnin/Chardonnay",
+          "country": "France"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p2_q2",
+      "paper": 2,
+      "question": 2,
+      "n_wines": 3,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-5-mixed-bag-different-countries-different-varieties-indigenous-varieties-sub-branch-different-countries-different-varieties (cross-ref: outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2-branch-4.1-pure-breadth)",
+      "variety_ranking": [
+        "Cabernet Sauvignon/Merlot",
+        "Syrah/Shiraz",
+        "Pinot Noir",
+        "Tempranillo",
+        "Sangiovese",
+        "Cabernet Franc",
+        "Touriga Nacional",
+        "Carmenere",
+        "Pinotage",
+        "Malbec",
+        "Tannat",
+        "Blaufrankisch/Zweigelt",
+        "Xinomavro/Agiorgitiko"
+      ],
+      "top1_variety": 0.3333333333333333,
+      "top3_variety": 0.6666666666666666,
+      "candidate_set": 0.6666666666666666,
+      "top1_region_country": 0.0,
+      "top3_region": 0.3333333333333333,
+      "actual": [
+        {
+          "slot": 4,
+          "variety": "Corvina/Corvinone",
+          "country": "Italy"
+        },
+        {
+          "slot": 5,
+          "variety": "Shiraz",
+          "country": "Australia"
+        },
+        {
+          "slot": 6,
+          "variety": "Cabernet Sauvignon",
+          "country": "USA"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p2_q3",
+      "paper": 2,
+      "question": 3,
+      "n_wines": 6,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-4-classic-european-benchmark-red-questions-sub-branch-classic-europe-quality-and-maturity-in-context (cross-ref: branch-3-same-region-terroir-deep-dive-sub-branch-same-region-same-vintage-or-same-producer; outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f7-hierarchy-quality-calibration-set-p2-branch-7.3-age-maturity-ladder)",
+      "variety_ranking": [
+        "Cabernet Sauvignon/Merlot",
+        "Sangiovese",
+        "Nebbiolo",
+        "Tempranillo/Garnacha",
+        "Pinot Noir",
+        "Syrah",
+        "Grenache/Syrah/Mourvedre",
+        "Touriga Nacional/Touriga Franca/Tinta Roriz"
+      ],
+      "top1_variety": 0.3333333333333333,
+      "top3_variety": 0.6666666666666666,
+      "candidate_set": 1.0,
+      "top1_region_country": 0.3333333333333333,
+      "top3_region": 1.0,
+      "actual": [
+        {
+          "slot": 7,
+          "variety": "Tempranillo/Garnacha",
+          "country": "Spain"
+        },
+        {
+          "slot": 8,
+          "variety": "Tempranillo/Garnacha",
+          "country": "Spain"
+        },
+        {
+          "slot": 9,
+          "variety": "Sangiovese",
+          "country": "Italy"
+        },
+        {
+          "slot": 10,
+          "variety": "Sangiovese",
+          "country": "Italy"
+        },
+        {
+          "slot": 11,
+          "variety": "Cabernet Sauvignon/Merlot",
+          "country": "France"
+        },
+        {
+          "slot": 12,
+          "variety": "Cabernet Sauvignon/Merlot",
+          "country": "France"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p3_q1",
+      "paper": 3,
+      "question": 1,
+      "n_wines": 4,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#branch-1-p3-q1--sparkling-led-opening-flights (leaf: stem names multiple traditional-method countries) + outputs/master_trees/_frozen_pre2026/p3_family_tree_pack.md#branch-51--sparkling-led-f5-f5a (exact trigger match: 'sparkling wines from four different countries')",
+      "variety_ranking": [
+        "Chardonnay",
+        "Pinot Noir",
+        "Xarel-lo/Macabeo/Parellada",
+        "Pinot Meunier",
+        "Chenin Blanc",
+        "Pinot Blanc/Auxerrois",
+        "Riesling",
+        "Glera"
+      ],
+      "top1_variety": 0.25,
+      "top3_variety": 0.5,
+      "candidate_set": 0.75,
+      "top1_region_country": 0.25,
+      "top3_region": 0.75,
+      "actual": [
+        {
+          "slot": 1,
+          "variety": "Lambrusco",
+          "country": "Italy"
+        },
+        {
+          "slot": 2,
+          "variety": "Xarel-lo/Macabeo",
+          "country": "Spain"
+        },
+        {
+          "slot": 3,
+          "variety": "Chenin Blanc",
+          "country": "France"
+        },
+        {
+          "slot": 4,
+          "variety": "Chardonnay",
+          "country": "England"
+        }
+      ]
+    },
+    {
+      "qid": "2026_p3_q2",
+      "paper": 3,
+      "question": 2,
+      "n_wines": 8,
+      "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#branch-4-same-region-producing-multiple-styles (leaf: compare styles from one region) + outputs/master_trees/_frozen_pre2026/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3 branch 2.3 (F2d: same origin, different elevage/sweetness/age) + f6-style-mechanism-comparative-set-p3 (RS x alcohol axis, per-wine RS/alcohol asked)",
+      "variety_ranking": [
+        "Chardonnay/Pinot Noir",
+        "Palomino",
+        "Touriga Nacional/Touriga Franca",
+        "Sercial/Verdelho/Bual/Malmsey",
+        "Sémillon/Sauvignon Blanc",
+        "Furmint",
+        "Chenin Blanc",
+        "Riesling",
+        "Glera",
+        "Chardonnay/Pinot Nero"
+      ],
+      "top1_variety": 0.25,
+      "top3_variety": 0.5,
+      "candidate_set": 1.0,
+      "top1_region_country": 0.5,
+      "top3_region": 0.75,
+      "actual": [
+        {
+          "slot": 5,
+          "variety": "Chardonnay",
+          "country": "France"
+        },
+        {
+          "slot": 6,
+          "variety": "Chardonnay/Pinot Noir",
+          "country": "France"
+        },
+        {
+          "slot": 7,
+          "variety": "Touriga Nacional/Touriga Franca",
+          "country": "Portugal"
+        },
+        {
+          "slot": 8,
+          "variety": "Touriga Nacional/Touriga Franca",
+          "country": "Portugal"
+        },
+        {
+          "slot": 9,
+          "variety": "Semillon/Sauvignon Blanc",
+          "country": "France"
+        },
+        {
+          "slot": 10,
+          "variety": "Semillon/Sauvignon Blanc",
+          "country": "France"
+        },
+        {
+          "slot": 11,
+          "variety": "Riesling",
+          "country": "Germany"
+        },
+        {
+          "slot": 12,
+          "variety": "Riesling",
+          "country": "Germany"
+        }
+      ]
+    }
+  ]
+}

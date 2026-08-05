@@ -1,0 +1,74 @@
+[
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4, 5, 6],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-1-Same-single-grape-variety > sub-branch:3-4-wines-origin-and-maturity/quality-heavily-marked > leaf:stem-says-different-countries-or-two-countries",
+    "variety_ranking": ["Chardonnay", "Riesling", "Sauvignon Blanc", "Chenin Blanc", "Semillon", "Pinot Gris"],
+    "region_ranking": ["France", "Australia", "USA", "South Africa", "New Zealand", "Chile"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["Burgundy/Chablis", "California", "Margaret River", "South Africa", "Chile", "New Zealand"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Mosel", "Alsace", "Rheingau/Franken", "Clare Valley/Eden Valley", "Washington State", "New York"]},
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["Loire (Sancerre/Pouilly-Fume)", "Marlborough", "Bordeaux", "South Africa", "Chile"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["Loire (Vouvray/Savennieres)", "South Africa (Stellenbosch/Swartland)"]},
+      {"variety": "Semillon", "confidence": "PLAUSIBLE", "regions": ["Bordeaux", "Hunter Valley", "Chile"]},
+      {"variety": "Pinot Gris", "confidence": "CURVEBALL", "regions": ["Alsace", "Oregon", "Alto Adige", "New Zealand"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["France"], "variety": "Chardonnay", "raw": "Rationale: with a 6-wine/5-country single-variety flight and heavy origin+winemaking+commercial marks, France is the anchor slot. Most likely Burgundy or Chablis Chardonnay (chalk, high acid, restrained fruit, oak/lees signature); if the variety is Riesling instead, most likely Alsace; if Sauvignon Blanc, most likely Loire/Sancerre."},
+      "2": {"countries": ["USA"], "variety": "Chardonnay", "raw": "Rationale: California is the classic New World counterpoint slot in a Chardonnay world tour, most likely Sonoma or Napa/Russian River with riper stone fruit, lower acid, obvious oak/malolactic; if Riesling, most likely Washington State or New York Finger Lakes."},
+      "3": {"countries": ["Australia"], "variety": "Chardonnay", "raw": "Rationale: Australia is a STRONG SIGNAL region for both Chardonnay (Margaret River) and Riesling (Clare Valley/Eden Valley) in cross-country flights; most likely Margaret River Chardonnay with restrained oak and citrus-stone fruit, or Clare Valley Riesling with lime cordial and bone-dry power."},
+      "4": {"countries": ["South Africa"], "variety": "Chenin Blanc", "raw": "Rationale: South Africa recurs as a PLAUSIBLE slot for both Chardonnay (Stellenbosch/Walker Bay/Hemel-en-Aarde) and Chenin Blanc (Swartland/Stellenbosch old-vine); if the flight variety is Chardonnay, expect Walker Bay or Stellenbosch; if Chenin Blanc or Sauvignon Blanc, also plausible."},
+      "5": {"countries": ["New Zealand"], "variety": "Sauvignon Blanc", "raw": "Rationale: New Zealand is the natural fifth-country slot, most likely Marlborough Sauvignon Blanc (pyrazine, pungent acid) if the flight variety is SB; if Chardonnay, most likely Gisborne, Hawke's Bay, or Central Otago/Kumeu."},
+      "6": {"countries": ["Chile"], "variety": "Sauvignon Blanc", "raw": "Rationale: Chile is a plausible sixth slot (overlap country) for either Chardonnay (Casablanca/Limari coastal cool-climate) or Sauvignon Blanc (Casablanca/Leyda/San Antonio); Argentina (Mendoza/Uco Valley Chardonnay) held as a secondary alternative for this slot."}
+    }
+  },
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [7, 8, 9],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-1-Same-single-grape-variety > sub-branch:3-4-wines-origin-and-maturity/quality-heavily-marked > leaf:stem-says-different-countries-or-two-countries",
+    "variety_ranking": ["Chardonnay", "Riesling", "Sauvignon Blanc", "Chenin Blanc", "Semillon", "Pinot Gris"],
+    "region_ranking": ["France", "USA", "Australia", "South Africa", "New Zealand", "Germany"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["Burgundy/Chablis", "California", "Margaret River", "South Africa"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Mosel", "Alsace", "Clare Valley/Eden Valley", "Rheingau/Franken"]},
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["Loire (Sancerre/Pouilly-Fume)", "Marlborough", "South Africa", "Bordeaux"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["Loire (Vouvray/Savennieres)", "South Africa"]},
+      {"variety": "Semillon", "confidence": "PLAUSIBLE", "regions": ["Bordeaux", "Hunter Valley", "Chile"]},
+      {"variety": "Pinot Gris", "confidence": "CURVEBALL", "regions": ["Alsace", "Oregon", "Alto Adige"]}
+    ],
+    "origins_per_slot": {
+      "7": {"countries": ["France"], "variety": "Chardonnay", "raw": "Rationale: France is the STRONG SIGNAL anchor for a 3-wine cross-country single-variety comparison with quality-in-context-of-region marks; most likely Burgundy or Chablis Chardonnay, or if the variety is Sauvignon Blanc, Loire/Sancerre, or if Riesling, Alsace."},
+      "8": {"countries": ["USA"], "variety": "Chardonnay", "raw": "Rationale: USA (California - Sonoma or Napa) is the classic second leg of a 3-country Chardonnay comparison, showing riper fruit, oak and malolactic character contrasted against Old World restraint; secondary possibility Washington State if the variety is Riesling."},
+      "9": {"countries": ["Australia"], "variety": "Chardonnay", "raw": "Rationale: Australia (Margaret River for Chardonnay, or Clare/Eden Valley for Riesling) is the STRONG SIGNAL third leg; South Africa (Stellenbosch/Walker Bay) held as the main alternative if the flight favors Chenin Blanc or Sauvignon Blanc instead."}
+    }
+  },
+  {
+    "year": 2026,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch-4-mixed-bag-different-countries-different-varieties > sub-branch:identification-marks-high-no-linking-constraint (cross-referenced with p1_family_tree_pack.md#F4-Branch-4.3-Hidden-organising-theme, treating 'Mediterranean Sea influence' as the filter, and #F5-freshness-as-a-winemaking-lever, and #F3-Rhone/Iberian-blend-candidates for the Mediterranean-coast archetype)",
+    "variety_ranking": ["Vermentino", "Assyrtiko", "Grenache Blanc/Rhone-style blend", "Grillo/Catarratto (Sicily)", "Viognier", "Marsanne/Roussanne", "Chardonnay", "Albarino"],
+    "region_ranking": ["Italy", "Greece", "France", "Spain", "Croatia", "Lebanon/Israel"],
+    "full_candidate_set": [
+      {"variety": "Vermentino", "confidence": "STRONG SIGNAL", "regions": ["Sardinia", "Liguria", "Corsica", "Provence (Rolle)"]},
+      {"variety": "Assyrtiko", "confidence": "STRONG SIGNAL", "regions": ["Santorini", "other Greek islands/Aegean"]},
+      {"variety": "Grenache Blanc / Clairette / southern Rhone-Languedoc white blend", "confidence": "PLAUSIBLE", "regions": ["Southern Rhone", "Languedoc", "Provence", "Chateauneuf-du-Pape Blanc"]},
+      {"variety": "Grillo / Catarratto / Sicilian white (incl. Etna Bianco/Carricante)", "confidence": "PLAUSIBLE", "regions": ["Sicily", "Etna"]},
+      {"variety": "Viognier", "confidence": "PLAUSIBLE", "regions": ["Condrieu (northern Rhone, Mediterranean-adjacent)", "Languedoc"]},
+      {"variety": "Marsanne/Roussanne", "confidence": "PLAUSIBLE", "regions": ["Rhone", "southern France"]},
+      {"variety": "Xarel-lo/Macabeo (Penedes-style)", "confidence": "CURVEBALL", "regions": ["Catalonia, Spain"]},
+      {"variety": "Malvasia/Posip/coastal Croatian white", "confidence": "CURVEBALL", "regions": ["Istria/Dalmatia, Croatia"]},
+      {"variety": "Indigenous Levantine/island Mediterranean white (Obeideh, Xynisteri, etc.)", "confidence": "CURVEBALL", "regions": ["Lebanon", "Israel", "Cyprus", "Malta"]}
+    ],
+    "origins_per_slot": {
+      "10": {"countries": ["Italy"], "variety": "Vermentino", "raw": "Rationale: 'regions influenced by the Mediterranean Sea' with a freshness-focused winemaking question points first to Sardinia or Liguria Vermentino (saline, high acid, coastal moderating influence preserving freshness in a warm climate); Sicily (Grillo, Catarratto, or Etna Bianco/Carricante) held as the strong alternative for this slot."},
+      "11": {"countries": ["Greece"], "variety": "Assyrtiko", "raw": "Rationale: Santorini Assyrtiko is the STRONG SIGNAL Mediterranean-freshness archetype -- volcanic soil, windswept site, naturally retained acidity despite a hot climate, which directly answers a 'how has winemaking impacted freshness' prompt (minimal oak, early picking, basket-trained vines)."},
+      "12": {"countries": ["France"], "variety": "Grenache Blanc/Rhone-style blend", "raw": "Rationale: Southern Rhone or Languedoc-Provence coastal white blend (Grenache Blanc, Clairette, Vermentino/Rolle, Marsanne-Roussanne) is the natural third Mediterranean-influenced European slot; Spain (Catalonia/Penedes Xarel-lo-Macabeo) and Croatia (Istrian Malvasia) held as secondary alternatives."}
+    }
+  }
+]

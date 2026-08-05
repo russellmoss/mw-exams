@@ -1,0 +1,213 @@
+[
+  {
+    "year": 2026,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#branch-1-p3-q1--sparkling-led-opening-flights (leaf: stem names multiple traditional-method countries) + outputs/master_trees/_frozen_pre2026/p3_family_tree_pack.md#branch-51--sparkling-led-f5-f5a (exact trigger match: 'sparkling wines from four different countries')",
+    "variety_ranking": [
+      "Chardonnay",
+      "Pinot Noir",
+      "Xarel-lo/Macabeo/Parellada",
+      "Pinot Meunier",
+      "Chenin Blanc",
+      "Pinot Blanc/Auxerrois",
+      "Riesling",
+      "Glera"
+    ],
+    "region_ranking": [
+      "France",
+      "Spain",
+      "England",
+      "Italy",
+      "Germany",
+      "South Africa",
+      "United States"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay/Pinot Noir",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Champagne, France", "English sparkling (Sussex/Hampshire/Kent), England", "Crémant de Bourgogne, France"]
+      },
+      {
+        "variety": "Xarel-lo/Macabeo/Parellada",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Cava/Penedès, Spain"]
+      },
+      {
+        "variety": "Pinot Blanc/Auxerrois",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Crémant d'Alsace, France"]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Crémant de Loire, France"]
+      },
+      {
+        "variety": "Chardonnay/Pinot Nero",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Franciacorta, Italy", "Trento DOC, Italy"]
+      },
+      {
+        "variety": "Chardonnay/Pinot Noir",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Cap Classique, Stellenbosch, South Africa", "California prestige cuvée (Anderson Valley/Carneros), USA"]
+      },
+      {
+        "variety": "Riesling/Pinot Noir",
+        "confidence": "PLAUSIBLE",
+        "regions": ["German Sekt, Rheingau/Pfalz, Germany"]
+      },
+      {
+        "variety": "Glera",
+        "confidence": "CURVEBALL",
+        "regions": ["Prosecco, Veneto, Italy"]
+      }
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": ["France", "Spain", "England", "Italy"],
+        "variety": "Chardonnay/Pinot Noir (or Xarel-lo/Macabeo/Parellada if Cava)",
+        "raw": "Likely Champagne (Chardonnay/Pinot Noir, traditional method) given typical P3 opening position; alternatively Cava (Penedès, Xarel-lo/Macabeo/Parellada) or English sparkling (Sussex/Hampshire, Chardonnay/Pinot Noir/Pinot Meunier)."
+      },
+      "2": {
+        "countries": ["Spain", "France", "Italy"],
+        "variety": "Xarel-lo/Macabeo/Parellada (or Pinot Blanc/Auxerrois if Crémant d'Alsace)",
+        "raw": "Likely Cava (Penedès, Spain, Xarel-lo/Macabeo/Parellada) or Crémant d'Alsace (Pinot Blanc/Auxerrois) or Franciacorta (Lombardy, Italy, Chardonnay/Pinot Nero)."
+      },
+      "3": {
+        "countries": ["England", "Germany", "South Africa"],
+        "variety": "Chardonnay/Pinot Noir/Pinot Meunier (or Riesling if German Sekt)",
+        "raw": "Likely English sparkling (Sussex/Hampshire/Kent, Chardonnay/Pinot Noir/Pinot Meunier) or German Sekt (Rheingau/Pfalz, Riesling) or Cap Classique (Stellenbosch, South Africa)."
+      },
+      "4": {
+        "countries": ["Italy", "United States", "Germany"],
+        "variety": "Chardonnay/Pinot Nero (or Riesling if German Sekt)",
+        "raw": "Likely Franciacorta (Lombardy, Italy, Chardonnay/Pinot Nero) or Trento DOC or California prestige cuvée (Anderson Valley/Carneros, Chardonnay/Pinot Noir) or German Sekt (Riesling)."
+      }
+    }
+  },
+  {
+    "year": 2026,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [5, 6, 7, 8, 9, 10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#branch-4-same-region-producing-multiple-styles (leaf: compare styles from one region) + outputs/master_trees/_frozen_pre2026/p3_family_tree_pack.md#f2-same-origin-comparative-set-p3 branch 2.3 (F2d: same origin, different elevage/sweetness/age) + f6-style-mechanism-comparative-set-p3 (RS x alcohol axis, per-wine RS/alcohol asked)",
+    "variety_ranking": [
+      "Chardonnay/Pinot Noir",
+      "Palomino",
+      "Touriga Nacional/Touriga Franca",
+      "Sercial/Verdelho/Bual/Malmsey",
+      "Sémillon/Sauvignon Blanc",
+      "Furmint",
+      "Chenin Blanc",
+      "Riesling",
+      "Glera",
+      "Chardonnay/Pinot Nero"
+    ],
+    "region_ranking": [
+      "France",
+      "Spain",
+      "Portugal",
+      "Hungary",
+      "Italy",
+      "Germany"
+    ],
+    "full_candidate_set": [
+      {
+        "variety": "Chardonnay/Pinot Noir",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Champagne, France"]
+      },
+      {
+        "variety": "Palomino",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Jerez/Sherry, Spain"]
+      },
+      {
+        "variety": "Touriga Nacional/Touriga Franca",
+        "confidence": "STRONG SIGNAL",
+        "regions": ["Douro, Portugal (Port)"]
+      },
+      {
+        "variety": "Sercial/Verdelho/Bual/Malmsey (Malvasia)",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Madeira, Portugal"]
+      },
+      {
+        "variety": "Sémillon/Sauvignon Blanc",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Sauternes/Barsac, France"]
+      },
+      {
+        "variety": "Furmint",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Tokaj, Hungary"]
+      },
+      {
+        "variety": "Chenin Blanc",
+        "confidence": "PLAUSIBLE",
+        "regions": ["Vouvray, France"]
+      },
+      {
+        "variety": "Riesling",
+        "confidence": "CURVEBALL",
+        "regions": ["Mosel/Rheingau, Germany"]
+      },
+      {
+        "variety": "Glera",
+        "confidence": "CURVEBALL",
+        "regions": ["Prosecco, Veneto, Italy"]
+      },
+      {
+        "variety": "Chardonnay/Pinot Nero",
+        "confidence": "CURVEBALL",
+        "regions": ["Franciacorta, Italy"]
+      }
+    ],
+    "origins_per_slot": {
+      "5": {
+        "countries": ["France", "Spain", "Portugal"],
+        "variety": "Chardonnay/Pinot Noir",
+        "raw": "Likely Champagne, France (NV, Chardonnay/Pinot Noir/Pinot Meunier blend) paired with wine 6 from the same house/region; alternative Jerez, Spain (Fino) or Douro, Portugal (Ruby Port) if pair 1 is not sparkling."
+      },
+      "6": {
+        "countries": ["France", "Spain"],
+        "variety": "Chardonnay/Pinot Noir",
+        "raw": "Likely Champagne, France (vintage or prestige cuvée, more developed/richer than wine 5) as the second half of the pair; alternative Cava, Penedès, Spain reserva."
+      },
+      "7": {
+        "countries": ["Spain"],
+        "variety": "Palomino",
+        "raw": "Likely Jerez/Sherry, Spain (Palomino, Fino — biologically aged, bone dry, low RS, roughly 15% alcohol)."
+      },
+      "8": {
+        "countries": ["Spain"],
+        "variety": "Palomino",
+        "raw": "Likely Jerez/Sherry, Spain (Palomino, Oloroso or Amontillado — oxidatively aged, higher alcohol roughly 18-20%, drier or nutty) as the pair partner to wine 7."
+      },
+      "9": {
+        "countries": ["Portugal"],
+        "variety": "Touriga Nacional/Touriga Franca",
+        "raw": "Likely Douro, Portugal (Touriga Nacional/Touriga Franca, Ruby or LBV Port — high RS, roughly 19-20% alcohol); alternative Madeira, Portugal (Sercial/Verdelho)."
+      },
+      "10": {
+        "countries": ["Portugal"],
+        "variety": "Touriga Nacional/Touriga Franca",
+        "raw": "Likely Douro, Portugal (Vintage Port or Aged Tawny — higher RS/alcohol, more development) as the pair partner to wine 9; alternative Madeira, Portugal (Bual/Malmsey)."
+      },
+      "11": {
+        "countries": ["France", "Hungary"],
+        "variety": "Sémillon/Sauvignon Blanc",
+        "raw": "Likely Sauternes/Barsac, France (Sémillon/Sauvignon Blanc, botrytis-affected, high RS, moderate alcohol roughly 13-14%); alternative Tokaj, Hungary (Furmint, dry)."
+      },
+      "12": {
+        "countries": ["France", "Hungary"],
+        "variety": "Sémillon/Sauvignon Blanc",
+        "raw": "Likely Sauternes/Barsac, France (a second botrytis cuvée or more concentrated vintage, very high RS) as the pair partner to wine 11; alternative Tokaj, Hungary (Aszú 5-6 puttonyos)."
+      }
+    }
+  }
+]

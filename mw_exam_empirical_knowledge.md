@@ -1810,7 +1810,7 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
 > See §0.5 stage 7 for where this sits in the pipeline.
 
 ### EK-0082 · LOYO backtesting — method and result (pre-fix → post-fix)
-- **tier:** PROCESS · **status:** live
+- **tier:** PROCESS · **status:** live — **the post-fix 72.8/89.2/95.6 headline is IN-SAMPLE and optimistic; out-of-sample it is 36.1/63.9/88.9 — see EK-0148**
 - **evidence:** `outputs/backtest_reports/loyo_report.md`, `loyo_postfix_audit.md`, `loyo_audit_2015_2018_2024_2025.md`
 - **claim:** The master trees are validated by **Leave-One-Year-Out** cross-validation: for each of
   10 folds, train on 9 years and predict the held-out year's wines from the stem + tree alone (360
@@ -1933,3 +1933,43 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   extended rather than replaced, and P3's visual-triage order-of-operations trunk is
   character-identical. That was verified mechanically, not trusted — run
   `python scripts/verify_tree_resynthesis.py` after any future tree edit.
+
+### EK-0148 · Out-of-sample, the trees hit 63.9% top-3 on variety — not 89.2%. The candidate set is the part that holds.
+- **tier:** STRONG SIGNAL · **status:** live — **corrects the headline of EK-0082**
+- **evidence:** `outputs/backtest_reports/2026_tree_holdout.md`; `data/loyo_2026_tree_holdout.json`;
+  predictions in `data/loyo_2026_predictions_p{1,2,3}.json`; scorer `scripts/score_2026_tree_holdout.py`
+- **method:** tree-backtester agents applied the **frozen pre-2026 trees**
+  (`outputs/master_trees/_frozen_pre2026/`, which never saw 2026) to the eight 2026 stems, barred from
+  every 2026 wine source. Scoring reuses `run_loyo.score_question` verbatim, so the figures sit on the
+  same scale as the 10-fold LOYO report rather than a lookalike metric. 36 wines, 8 questions.
+- **result:**
+
+  | metric | 2015–2025 LOYO (post-fix) | 2026 out-of-sample | delta |
+  | --- | --- | --- | --- |
+  | top-1 variety | 72.8% | **36.1%** | −36.7pp |
+  | top-3 variety | 89.2% | **63.9%** | −25.3pp |
+  | candidate-set | 95.6% | **88.9%** | −6.7pp |
+  | top-1 country | — | 30.6% | — |
+
+- **claim:** EK-0082's post-fix headline was measured **after tree edits made in response to the very
+  2024/2025 misses being scored** — the audit itself called for a later "non-overfit pass". On a year
+  the trees could not have been fitted to, **top-1 variety halves and top-3 falls 25 points**. Quote
+  63.9% as the expected top-3, not 89.2%.
+- **the finding that matters more than the headline:** the **candidate set barely moved** (95.6% →
+  88.9%). Precision collapsed out-of-sample; coverage did not. Operationally: **never act on the
+  tree's top-1** (a coin flip at 36%), use the tree to bound the universe, and let the glass decide
+  within it. The tree is good at what a wine *could* be and unreliable at what it *is*.
+- **where it holds and where it breaks:** `2026_p1_q1` (six-wine Chardonnay flight) scored **100%
+  across every metric** — a large single-variety flight is the trees' home ground. `2026_p1_q2` is the
+  pattern in miniature: **0% top-1, 100% top-3** (ranked Chardonnay first, flight was all Riesling).
+  `2026_p2_q1` was a **total failure — 0% top-1, 0% top-3, 33% candidate set**: the tree routed
+  Italy-first for "same country, different single varieties" and the answer was three light French
+  reds (Cabernet Franc / Gamay / Trousseau), with Gamay and Cabernet Franc both mispredicted as
+  Sangiovese. Mixed-category P3 flights sat at 50% top-3.
+- **EK-0083 reconfirmed exactly:** the misprediction list is blend collapse — Grenache/Tempranillo →
+  Cabernet Sauvignon/Merlot, Touriga Franca/Nacional → Chardonnay/Pinot Noir, Sauvignon Blanc/Sémillon
+  → Chardonnay/Pinot Noir, Riesling → Chardonnay.
+- **caveats, stated so the number is not over-read:** one year, 36 wines. And P3 was scored
+  **stem-only**, so its visual-triage Layer B — the strongest part of that tree — never ran; real P3
+  performance with a glass in hand should beat the 50% recorded here. This is also the **last
+  uncontaminated use of 2026** (EK-0145); it cannot be re-run against the live trees.

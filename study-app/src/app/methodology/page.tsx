@@ -82,8 +82,8 @@ export default function MethodologyPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
           <StatCard value="161" label="Questions Analyzed" sub="15 years of exam papers" />
-          <StatCard value="72.8%" label="Top-1 Variety Accuracy" sub="Backtested prediction rate" />
-          <StatCard value="95.6%" label="Candidate-Set Coverage" sub="Correct variety in prediction set" />
+          <StatCard value="36%" label="Top-1 Variety (out-of-sample)" sub="72.8% in-sample; see Backtesting" />
+          <StatCard value="88.9%" label="Candidate-Set Coverage" sub="Out-of-sample; the metric that held" />
         </div>
 
         {/* Section nav */}
@@ -394,21 +394,28 @@ export default function MethodologyPage() {
           <div className="overflow-x-auto mb-5">
             <table className="w-full text-sm">
               <thead>
-                <TableRow header cells={["Metric", "Before", "After", "Improvement"]} />
+                <TableRow header cells={["Metric", "Before", "After (in-sample)", "2026 out-of-sample"]} />
               </thead>
               <tbody>
-                <TableRow cells={["Top-1 variety", "51.3%", "72.8%", "+21.5 points"]} />
-                <TableRow cells={["Top-3 variety", "70.7%", "89.2%", "+18.5 points"]} />
-                <TableRow cells={["Candidate-set hit", "82.5%", "95.6%", "+13.1 points"]} />
+                <TableRow cells={["Top-1 variety", "51.3%", "72.8%", "36.1%"]} />
+                <TableRow cells={["Top-3 variety", "70.7%", "89.2%", "63.9%"]} />
+                <TableRow cells={["Candidate-set hit", "82.5%", "95.6%", "88.9%"]} />
               </tbody>
             </table>
           </div>
 
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
-              <strong>For nearly 3 out of 4 wines</strong>, the tree&apos;s top prediction is the correct variety.
-              For <strong>nearly 9 out of 10</strong>, the correct variety is in the top 3.
-              And for <strong>over 95% of wines</strong>, the correct variety appears somewhere in the candidate set.
+              <strong>Those &quot;after&quot; figures are in-sample</strong> -- they were measured after the
+              trees were edited in response to the very misses being scored. On the 2026 papers, which the
+              trees had never seen, top-1 variety <strong>halved to 36.1%</strong> and top-3 fell to
+              <strong>63.9%</strong>. But the candidate set barely moved: <strong>88.9%</strong> versus 95.6%.
+              Precision collapsed out-of-sample; coverage held.
+              <br /><br />
+              <strong>So: do not act on the tree&apos;s top-1 answer.</strong> Use the tree to bound the
+              universe of what a wine could be, then let the glass decide within it. A six-wine
+              single-variety flight scored 100% on every metric; a &quot;same country, different
+              varieties&quot; red flight scored zero. The tree knows shapes, not bottles.
             </p>
           </Callout>
 
@@ -586,7 +593,7 @@ export default function MethodologyPage() {
               <div className="text-sm font-semibold text-success mb-3">What it is</div>
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
-                <li>Decision trees <strong>backtested to 72.8% accuracy</strong></li>
+                <li>Decision trees <strong>measured out-of-sample at 63.9% top-3, 88.9% candidate-set</strong></li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
                 <li>A framework for <strong>narrowing down before you taste</strong></li>
@@ -597,7 +604,7 @@ export default function MethodologyPage() {
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>A shortcut -- the trees give a better starting position, not a guaranteed answer</li>
                 <li>A replacement for tasting practice</li>
-                <li>Infallible -- 72.8% means ~1 in 4 top predictions is wrong</li>
+                <li>Infallible -- out-of-sample the top-1 prediction is wrong about 2 times in 3</li>
                 <li>Static -- new exam years and user feedback drive continuous improvement</li>
               </ul>
             </div>

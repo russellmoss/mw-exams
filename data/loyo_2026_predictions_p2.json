@@ -1,0 +1,173 @@
+[
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [1, 2, 3],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-2-same-country-questions-sub-branch-same-country-different-regions-region-first (cross-ref: outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f2-same-origin-comparative-set-p2-branch-2.1-same-country-different-varieties-f2a)",
+    "variety_ranking": [
+      "Sangiovese",
+      "Nebbiolo",
+      "Aglianico",
+      "Nerello Mascalese",
+      "Pinot Noir",
+      "Syrah/Shiraz",
+      "Cabernet Sauvignon/Cabernet Franc",
+      "Grenache",
+      "Tempranillo",
+      "Corvina-led blend"
+    ],
+    "region_ranking": ["Italy", "France", "USA", "Spain"],
+    "full_candidate_set": [
+      {"variety": "Nebbiolo", "confidence": "STRONG SIGNAL", "regions": ["Piedmont", "Barolo", "Barbaresco"]},
+      {"variety": "Sangiovese", "confidence": "STRONG SIGNAL", "regions": ["Tuscany", "Chianti Classico", "Brunello di Montalcino"]},
+      {"variety": "Aglianico", "confidence": "STRONG SIGNAL", "regions": ["Campania", "Taurasi", "Basilicata", "Aglianico del Vulture"]},
+      {"variety": "Nerello Mascalese", "confidence": "STRONG SIGNAL", "regions": ["Sicily", "Etna Rosso"]},
+      {"variety": "Corvina-led blend", "confidence": "PLAUSIBLE", "regions": ["Veneto", "Valpolicella", "Amarone"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["Burgundy"]},
+      {"variety": "Syrah/Shiraz", "confidence": "STRONG SIGNAL", "regions": ["Northern Rhone"]},
+      {"variety": "Cabernet Sauvignon/Cabernet Franc", "confidence": "PLAUSIBLE", "regions": ["Bordeaux", "Loire"]},
+      {"variety": "Grenache blend", "confidence": "PLAUSIBLE", "regions": ["Southern Rhone", "Chateauneuf-du-Pape"]},
+      {"variety": "Tempranillo", "confidence": "PLAUSIBLE", "regions": ["Rioja", "Ribera del Duero"]},
+      {"variety": "Garnacha", "confidence": "PLAUSIBLE", "regions": ["Priorat"]},
+      {"variety": "Monastrell", "confidence": "CURVEBALL", "regions": ["Jumilla"]},
+      {"variety": "Mencia", "confidence": "CURVEBALL", "regions": ["Bierzo"]},
+      {"variety": "Cabernet Sauvignon", "confidence": "PLAUSIBLE", "regions": ["USA - Napa"]},
+      {"variety": "Zinfandel", "confidence": "CURVEBALL", "regions": ["USA - California"]},
+      {"variety": "Petite Sirah", "confidence": "CURVEBALL", "regions": ["USA - California"]}
+    ],
+    "origins_per_slot": {
+      "1": {
+        "countries": ["Italy", "France"],
+        "variety": "Nebbiolo",
+        "raw": "If Italy (top prior): Piedmont Nebbiolo (Barolo or Barbaresco), the classic anchor variety in an Italian same-country different-variety flight. If France (second prior): Burgundy Pinot Noir as the anchor variety instead."
+      },
+      "2": {
+        "countries": ["Italy", "France"],
+        "variety": "Sangiovese",
+        "raw": "If Italy: Tuscany Sangiovese, either Chianti Classico or Brunello di Montalcino. If France: Northern Rhone Syrah, Cote-Rotie or Hermitage."
+      },
+      "3": {
+        "countries": ["Italy", "France"],
+        "variety": "Aglianico / Nerello Mascalese",
+        "raw": "If Italy: southern or insular Italy, either Campania Aglianico (Taurasi) or Sicily Nerello Mascalese (Etna Rosso), rounding out the three-region tour. If France: Loire Cabernet Franc (Chinon or Bourgueil) or a Bordeaux Cabernet Sauvignon/Merlot blend."
+      }
+    }
+  },
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [4, 5, 6],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-5-mixed-bag-different-countries-different-varieties-indigenous-varieties-sub-branch-different-countries-different-varieties (cross-ref: outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f4-mixed-identification-breadth-set-p2-branch-4.1-pure-breadth)",
+    "variety_ranking": [
+      "Cabernet Sauvignon/Merlot",
+      "Syrah/Shiraz",
+      "Pinot Noir",
+      "Tempranillo",
+      "Sangiovese",
+      "Cabernet Franc",
+      "Touriga Nacional",
+      "Carmenere",
+      "Pinotage",
+      "Malbec",
+      "Tannat",
+      "Blaufrankisch/Zweigelt",
+      "Xinomavro/Agiorgitiko"
+    ],
+    "region_ranking": ["France", "Italy", "Spain", "Chile", "South Africa", "Argentina", "Australia", "Portugal", "USA", "Austria", "Greece"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon/Merlot (Bordeaux blend)", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux", "Napa", "Stellenbosch", "Chile", "Coonawarra"]},
+      {"variety": "Syrah/Shiraz", "confidence": "STRONG SIGNAL", "regions": ["Northern Rhone", "Barossa", "McLaren Vale", "Chile", "South Africa"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["Burgundy", "Germany", "New Zealand", "Oregon"]},
+      {"variety": "Tempranillo", "confidence": "PLAUSIBLE", "regions": ["Rioja", "Ribera del Duero"]},
+      {"variety": "Sangiovese", "confidence": "PLAUSIBLE", "regions": ["Tuscany"]},
+      {"variety": "Cabernet Franc", "confidence": "PLAUSIBLE", "regions": ["Loire", "Hungary", "Stellenbosch"]},
+      {"variety": "Touriga Nacional", "confidence": "PLAUSIBLE", "regions": ["Douro", "Dao"]},
+      {"variety": "Carmenere", "confidence": "PLAUSIBLE", "regions": ["Chile"]},
+      {"variety": "Pinotage", "confidence": "PLAUSIBLE", "regions": ["Stellenbosch", "South Africa"]},
+      {"variety": "Malbec", "confidence": "PLAUSIBLE", "regions": ["Mendoza", "Cahors"]},
+      {"variety": "Tannat", "confidence": "PLAUSIBLE", "regions": ["Uruguay", "Madiran"]},
+      {"variety": "Blaufrankisch/Zweigelt", "confidence": "CURVEBALL", "regions": ["Austria"]},
+      {"variety": "Xinomavro/Agiorgitiko", "confidence": "CURVEBALL", "regions": ["Greece"]},
+      {"variety": "Lagrein", "confidence": "CURVEBALL", "regions": ["Alto Adige"]}
+    ],
+    "origins_per_slot": {
+      "4": {
+        "countries": ["France", "USA", "Australia", "South Africa"],
+        "variety": "Cabernet Sauvignon/Merlot or Syrah",
+        "raw": "Benchmark international-variety anchor: Bordeaux Cabernet Sauvignon/Merlot blend or Northern Rhone Syrah as the STRONG SIGNAL default, with a New World alternate in Napa, Coonawarra, Stellenbosch, or Barossa."
+      },
+      "5": {
+        "countries": ["Spain", "Italy", "Portugal"],
+        "variety": "Tempranillo or Sangiovese or Touriga Nacional",
+        "raw": "Regional-signature variety: Rioja or Ribera del Duero Tempranillo, or Tuscany Sangiovese, or Douro Touriga Nacional, the classic indigenous-Europe anchor to pair with the benchmark wine."
+      },
+      "6": {
+        "countries": ["South Africa", "Chile", "Argentina", "Austria"],
+        "variety": "Pinotage or Carmenere or Malbec or Blaufrankisch/Zweigelt",
+        "raw": "Curveball or New World signature completing the three-country spread: Stellenbosch Pinotage, Chilean Carmenere, Mendoza Malbec, or Austrian Blaufrankisch/Zweigelt."
+      }
+    }
+  },
+  {
+    "year": 2026,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [7, 8, 9, 10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#branch-4-classic-european-benchmark-red-questions-sub-branch-classic-europe-quality-and-maturity-in-context (cross-ref: branch-3-same-region-terroir-deep-dive-sub-branch-same-region-same-vintage-or-same-producer; outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#f7-hierarchy-quality-calibration-set-p2-branch-7.3-age-maturity-ladder)",
+    "variety_ranking": [
+      "Cabernet Sauvignon/Merlot",
+      "Sangiovese",
+      "Nebbiolo",
+      "Tempranillo/Garnacha",
+      "Pinot Noir",
+      "Syrah",
+      "Grenache/Syrah/Mourvedre",
+      "Touriga Nacional/Touriga Franca/Tinta Roriz"
+    ],
+    "region_ranking": ["France", "Italy", "Spain", "Portugal", "USA"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon/Merlot (Bordeaux blend)", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux Left Bank (Medoc/Pauillac/Margaux)", "Bordeaux Right Bank (Saint-Emilion/Pomerol)"]},
+      {"variety": "Sangiovese", "confidence": "STRONG SIGNAL", "regions": ["Tuscany - Chianti Classico", "Brunello di Montalcino"]},
+      {"variety": "Nebbiolo", "confidence": "STRONG SIGNAL", "regions": ["Piedmont - Barolo", "Barbaresco"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["Burgundy - village/premier cru/grand cru"]},
+      {"variety": "Tempranillo/Garnacha", "confidence": "PLAUSIBLE", "regions": ["Rioja (Crianza/Reserva/Gran Reserva)", "Ribera del Duero"]},
+      {"variety": "Syrah", "confidence": "PLAUSIBLE", "regions": ["Northern Rhone - Cote-Rotie/Hermitage/Cornas"]},
+      {"variety": "Grenache/Syrah/Mourvedre", "confidence": "PLAUSIBLE", "regions": ["Chateauneuf-du-Pape"]},
+      {"variety": "Touriga Nacional/Touriga Franca/Tinta Roriz", "confidence": "CURVEBALL", "regions": ["Douro"]}
+    ],
+    "origins_per_slot": {
+      "7": {
+        "countries": ["France"],
+        "variety": "Cabernet Sauvignon/Merlot",
+        "raw": "Pair 1 (wines 7-8): classic Bordeaux benchmark, Left Bank Medoc/Pauillac/Margaux or Right Bank Saint-Emilion/Pomerol Cabernet Sauvignon/Merlot blend, compared for maturity and likely vintage across the pair."
+      },
+      "8": {
+        "countries": ["France"],
+        "variety": "Cabernet Sauvignon/Merlot",
+        "raw": "Second wine of the Bordeaux pair, likely a different vintage or a different classification tier (cru bourgeois vs classed growth) within the same commune or bank."
+      },
+      "9": {
+        "countries": ["Italy"],
+        "variety": "Sangiovese or Nebbiolo",
+        "raw": "Pair 2 (wines 9-10): Italy, either Tuscany Sangiovese (Chianti Classico vs Brunello di Montalcino Riserva) or Piedmont Nebbiolo (Barolo vs Barbaresco or two MGA communes), compared for maturity and vintage."
+      },
+      "10": {
+        "countries": ["Italy"],
+        "variety": "Sangiovese or Nebbiolo",
+        "raw": "Second wine of the Italian pair, differing in classification tier or vintage from its partner within Tuscany or Piedmont."
+      },
+      "11": {
+        "countries": ["Spain"],
+        "variety": "Tempranillo/Garnacha",
+        "raw": "Pair 3 (wines 11-12): Spain, Rioja Tempranillo/Garnacha, likely Reserva vs Gran Reserva classification ladder or two vintages, the classic F7 age/maturity comparison template; Ribera del Duero is the secondary Spanish candidate."
+      },
+      "12": {
+        "countries": ["Spain"],
+        "variety": "Tempranillo/Garnacha",
+        "raw": "Second wine of the Rioja pair, positioned at a different point on the Crianza/Reserva/Gran Reserva ladder or a different vintage from its partner."
+      }
+    }
+  }
+]
