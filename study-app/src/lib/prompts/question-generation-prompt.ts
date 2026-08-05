@@ -189,10 +189,32 @@ interface PipelineContext {
   >;
 }
 
+// The agent fields hold whole .claude/agents/*.md files, and those open with YAML frontmatter
+// written for the agent RUNNER rather than for the model — including
+// `tools: Read, Write, Edit, Bash, Grep`.
+//
+// Pasted verbatim into a system prompt that reads as a tool grant, and the model acts on it: in the
+// model-answer path the same frontmatter produced answers that opened "I'll load the necessary files
+// and wine research data before writing the answer" followed by fabricated <function_calls> blocks
+// (fixed in 2f55858). This path embeds mockExamWriterAgent the same way and was missed, so the same
+// contamination has been reaching question generation — where the symptom is a draft that does not
+// parse rather than a bloated answer. Parse failures were running 8.3% and rising to 17.6%.
+//
+// Only the runner metadata is removed; the agent INSTRUCTIONS, which are the point of embedding the
+// file, are untouched.
+function stripFrontmatter(md: string): string {
+  return md.replace(/^﻿?\s*---\r?\n[\s\S]*?\r?\n---\r?\n?/, "").trimStart();
+}
+
 function loadPipelineContext(): PipelineContext {
   if (cachedContext) return cachedContext;
   const filePath = join(process.cwd(), "public", "data", "pipeline-context.json");
-  cachedContext = JSON.parse(readFileSync(filePath, "utf-8"));
+  const raw = JSON.parse(readFileSync(filePath, "utf-8")) as PipelineContext;
+  cachedContext = {
+    ...raw,
+    mockExamWriterAgent: stripFrontmatter(raw.mockExamWriterAgent || ""),
+    mockAnswerWriterAgent: stripFrontmatter(raw.mockAnswerWriterAgent || ""),
+  };
   return cachedContext!;
 }
 
