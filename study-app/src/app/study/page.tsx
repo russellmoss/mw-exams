@@ -23,6 +23,7 @@ import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
 import { StudyTimerDisplay, FloatingTimer, TimingFeedback, useStudyTimer } from "../components/StudyTimer";
 import { FeedbackButton } from "../components/FeedbackButton";
+import { FlagQuestionButton } from "../components/FlagQuestionButton";
 import { PaceStrip } from "../components/PaceStrip";
 import { PaceReport } from "../components/PaceReport";
 import {
@@ -653,6 +654,107 @@ export default function StudyPage() {
     router.push("/");
   }, [router, evalStream, timer]);
 
+  // Flag Question (feature): after a candidate flags the question, auto-load the next one in the SAME
+  // paper/family/mode. Reuses the ordinary serve path (/api/get-question, banked-first — NOT forceFresh)
+  // so a fresh flag doesn't force a generation. Mirrors handleGenerateFresh's mapping but resets the
+  // per-question transient state first (like handleNextQuestion, minus the RESET/redirect) and swaps the
+  // question in place, so the debrief unmounts and the fresh question renders from the "question" step.
+  const handleFlagLoadNext = useCallback(async () => {
+    if (state.step === "select-paper") return;
+    const paper = state.question.paper;
+    const family = state.question.family;
+
+    evalStream.reset();
+    timer.reset();
+    setTastingNotes([]);
+    setTastingLoading(false);
+    setWaitingForModel(false);
+    setPreGlassReasoning("");
+    setBankedWineTimes([]);
+    setActiveWineStart(0);
+    setPaceResult(null);
+    setModelAnswerReady(false);
+    setAttemptId(null);
+    if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
+
+    try {
+      const res = await fetch("/api/get-question", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paper, family }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const q = data.question;
+      const question = {
+        id: q.question_id,
+        source: data.source,
+        paper: q.paper,
+        questionNumber: 1,
+        text: q.question_text,
+        wines: typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines,
+        totalMarks: q.total_marks,
+        family: q.family,
+        familyLabel: q.family_label,
+        subcategory: q.subcategory || "",
+        hasModelAnswer: data.hasModelAnswer,
+        hasDecisionMatrix: false,
+        hasWineResearch: false,
+        modelAnswer: q.model_answer || "",
+        proposedAnnotation: q.proposed_annotation || "",
+        reasoningTrace: q.reasoning_trace || "",
+        studyDiagramAssist: q.study_diagram_assist || "",
+        year: null,
+      };
+
+      sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+      setModelAnswerReady(data.hasModelAnswer);
+      dispatch({ type: "SELECT_QUESTION", question });
+
+      fetch("/api/save-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create",
+          questionId: question.id,
+          userId: userIdRef.current || null,
+          mode: studyMode === "known-wine" ? "known-wine" : null,
+        }),
+      })
+        .then((r) => r.json())
+        .then((d) => { if (d.attempt?.id) setAttemptId(d.attempt.id); })
+        .catch(() => {});
+
+      if (!data.hasModelAnswer) {
+        fetch("/api/generate-model-answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionId: question.id,
+            questionText: question.text,
+            wines: question.wines,
+            paper: question.paper,
+            family: question.family,
+          }),
+        })
+          .then((r) => r.json())
+          .then((d) => { if (d.success) setModelAnswerReady(true); })
+          .catch(() => {});
+      }
+    } catch (err) {
+      console.error("Flag load-next error:", err);
+    }
+  }, [state, evalStream, timer, studyMode]);
+
+  // "Back to paper" escape hatch after a flag — clear the current question and return to the picker.
+  const handleBackToPaper = useCallback(() => {
+    sessionStorage.removeItem("mw-current-question");
+    sessionStorage.removeItem("mw-study-mode");
+    dispatch({ type: "RESET" });
+    router.push("/");
+  }, [router]);
+
   return (
     <div className="flex flex-col flex-1">
       {/* Header */}
@@ -864,6 +966,17 @@ export default function StudyPage() {
                   Practice Another Question
                 </button>
               </div>
+
+              {/* Flag Question (feature): debrief footer control for stem-only — the wines are now
+                  revealed, so the candidate can flag a broken question and swap in a fresh one. */}
+              <div className="flex justify-center">
+                <FlagQuestionButton
+                  questionId={state.question.id}
+                  attemptId={attemptId}
+                  onLoadNext={handleFlagLoadNext}
+                  onBackToPaper={handleBackToPaper}
+                />
+              </div>
             </div>
           )}
 
@@ -1062,6 +1175,16 @@ export default function StudyPage() {
                 question={state.question}
                 onNextQuestion={handleNextQuestion}
               />
+              {/* Flag Question (feature): debrief footer control — shown only now the wines are
+                  revealed. Withdraws the question from rotation and swaps in a fresh one. */}
+              <div className="flex justify-center">
+                <FlagQuestionButton
+                  questionId={state.question.id}
+                  attemptId={attemptId}
+                  onLoadNext={handleFlagLoadNext}
+                  onBackToPaper={handleBackToPaper}
+                />
+              </div>
             </div>
           )}
         </div>
