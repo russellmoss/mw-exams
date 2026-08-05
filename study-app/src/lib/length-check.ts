@@ -113,8 +113,8 @@ function extractJson(text: string): unknown {
 // ── runLengthCheck — the single classification call ──────────────────────────────────────────────
 
 /**
- * Audit a question's sub-bullets for ask-density and length against the MW budgets. One LLM call, low
- * temperature, same provider/model tier as generation. Returns the per-bullet counts + the list of
+ * Audit a question's sub-bullets for ask-density and length against the MW budgets. One LLM call, same
+ * provider/model tier as generation. Returns the per-bullet counts + the list of
  * asks the model found + which budgets each bullet broke, plus the whole-question word count and a
  * pass flag. Token cost is logged under task 'length-check'.
  */
@@ -149,7 +149,7 @@ Respond with ONLY this JSON, no prose:
     {
       model,
       max_tokens: 1500,
-      temperature: 0,
+      // NO `temperature` — see the note on the same omission in repairQuestion below.
       system,
       messages: [{ role: "user", content: `QUESTION:\n${questionText}` }],
     },
@@ -233,7 +233,18 @@ Respond with ONLY this JSON:
     {
       model,
       max_tokens: 2000,
-      temperature: 0.2,
+      // NO `temperature`. Opus 5 rejects it outright — HTTP 400, "`temperature` is deprecated for this
+      // model". This module selects the 'question_generation' tier with an "opus" default, so the day
+      // that tier resolves to Opus 5 both calls here start 400ing. And because enforceLengthCheck
+      // swallows every error and returns { status: 'clean' } so a checker outage can't fail a batch,
+      // the failure would be COMPLETELY silent: every stem stamped clean, no badge, nothing in the
+      // logs a reviewer reads. Caught when the identical parameter broke the new model-answer gate on
+      // the 'model_answer' tier, which already resolves to Opus 5.
+      //
+      // Losing temperature:0 costs the audit call its determinism — two runs on the same stem may now
+      // differ at the margin. That is the right trade: the check is advisory, one repair pass is
+      // bounded, and a non-deterministic check that RUNS beats a deterministic one that silently
+      // doesn't.
       system,
       messages: [{ role: "user", content: `QUESTION:\n${questionText}` }],
     },

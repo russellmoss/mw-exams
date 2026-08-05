@@ -123,12 +123,8 @@ async function rewriteToBudget(
       // NO `temperature`. Opus 5 rejects it outright — "`temperature` is deprecated for this model",
       // HTTP 400 — and because this gate fails soft, that 400 surfaces as nothing at all: every
       // rewrite silently no-ops and every off-budget answer is stored exactly as generated. Caught on
-      // the first real run, where the 'model_answer' tier resolved to claude-opus-5.
-      //
-      // lib/length-check.ts DOES still pass temperature, on the 'question_generation' tier. That tier
-      // is currently resolving to a model which accepts it (59 length-check calls and 2 'trimmed'
-      // verdicts on 2026-08-05, so it is genuinely running) — but it is one A/B reweight away from the
-      // same silent no-op, for the same fail-soft reason. Worth removing there too.
+      // the first real run, where the 'model_answer' tier resolved to claude-opus-5. lib/length-check.ts
+      // had the same latent bug on the 'question_generation' tier and was fixed in the same change.
       system: buildRewriteSystem(budget),
       messages: [
         {
