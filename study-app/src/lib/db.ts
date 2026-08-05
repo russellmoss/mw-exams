@@ -1174,6 +1174,93 @@ export async function reopenWindow(from: string, to: string): Promise<ReopenResu
   };
 }
 
+// ── "Send back to review" ─────────────────────────────────────────────────────────────────────────
+// Live counts for a batch after a mutation, so the admin card can update in place without a full
+// refetch. Only counts the review states we surface; auto_kept is the "never reviewed & kept" bucket
+// the Send-back button keys off.
+export interface BatchCounts {
+  generated: number;
+  kept: number;
+  binned: number;
+  pending: number;
+  autoKept: number;
+}
+
+async function batchCounts(batchId: string): Promise<BatchCounts> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COUNT(*)::int                                                    AS generated,
+           COUNT(*) FILTER (WHERE review_state = 'kept')::int               AS kept,
+           COUNT(*) FILTER (WHERE review_state = 'binned')::int             AS binned,
+           COUNT(*) FILTER (WHERE review_state = 'pending')::int            AS pending,
+           COUNT(*) FILTER (WHERE auto_kept AND review_state = 'kept')::int AS auto_kept
+    FROM generated_questions
+    WHERE batch_id = ${batchId}
+  `) as { generated: number; kept: number; binned: number; pending: number; auto_kept: number }[];
+  const r = rows[0] ?? { generated: 0, kept: 0, binned: 0, pending: 0, auto_kept: 0 };
+  return { generated: r.generated, kept: r.kept, binned: r.binned, pending: r.pending, autoKept: r.auto_kept };
+}
+
+export interface SendBackResult {
+  movedCount: number;
+  batch: BatchCounts;
+}
+
+// Revert every auto-approved item in a batch back to the review queue. Unlike reopenBatch this has NO
+// served-item safety rail (per spec: no special handling for items already served — attempt history is
+// left untouched regardless). Items go review_state='pending', status='pending', and every keep-decision
+// field (reviewed_by/reviewed_at/auto_kept) is cleared so they behave identically to never-reviewed
+// items in the queue. Explicit admin keeps (auto_kept=false) are never touched.
+export async function sendBatchBackToReview(batchId: string): Promise<SendBackResult> {
+  const sql = getDb();
+  const moved = (await sql`
+    UPDATE generated_questions SET
+      review_state = 'pending', status = 'pending',
+      reviewed_by = NULL, reviewed_at = NULL, auto_kept = false
+    WHERE batch_id = ${batchId} AND review_state = 'kept' AND auto_kept = true
+    RETURNING question_id
+  `) as { question_id: string }[];
+
+  if (moved.length > 0) {
+    await sql`
+      UPDATE bank_batches SET kept_count = GREATEST(0, kept_count - ${moved.length})
+      WHERE id = ${batchId}
+    `;
+  }
+
+  return { movedCount: moved.length, batch: await batchCounts(batchId) };
+}
+
+// FALLBACK for historic items with no batch_id (surfaced as a day-window pseudo-batch). Same revert,
+// scoped to a created_at window. There is no batch row to update; counts are reported for the window.
+export async function sendWindowBackToReview(from: string, to: string): Promise<SendBackResult> {
+  const sql = getDb();
+  const moved = (await sql`
+    UPDATE generated_questions SET
+      review_state = 'pending', status = 'pending',
+      reviewed_by = NULL, reviewed_at = NULL, auto_kept = false
+    WHERE batch_id IS NULL AND review_state = 'kept' AND auto_kept = true
+      AND created_at >= ${from}::timestamptz AND created_at <= ${to}::timestamptz
+    RETURNING question_id
+  `) as { question_id: string }[];
+
+  const rows = (await sql`
+    SELECT COUNT(*)::int                                                    AS generated,
+           COUNT(*) FILTER (WHERE review_state = 'kept')::int               AS kept,
+           COUNT(*) FILTER (WHERE review_state = 'binned')::int             AS binned,
+           COUNT(*) FILTER (WHERE review_state = 'pending')::int            AS pending,
+           COUNT(*) FILTER (WHERE auto_kept AND review_state = 'kept')::int AS auto_kept
+    FROM generated_questions
+    WHERE batch_id IS NULL AND created_at >= ${from}::timestamptz AND created_at <= ${to}::timestamptz
+  `) as { generated: number; kept: number; binned: number; pending: number; auto_kept: number }[];
+  const c = rows[0] ?? { generated: 0, kept: 0, binned: 0, pending: 0, auto_kept: 0 };
+
+  return {
+    movedCount: moved.length,
+    batch: { generated: c.generated, kept: c.kept, binned: c.binned, pending: c.pending, autoKept: c.auto_kept },
+  };
+}
+
 export interface RecentBatchRow {
   kind: "batch" | "window";
   id: string;

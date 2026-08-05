@@ -188,6 +188,9 @@ export function FillTheBankRows() {
   const [confirmBinAll, setConfirmBinAll] = useState(false);
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
+  // One-line amber notice atop the review list, shown only immediately after a "Send back to review"
+  // action (client state, never persisted). Cleared when the review pane closes.
+  const [sentBackNotice, setSentBackNotice] = useState<{ movedCount: number; label: string } | null>(null);
 
   // ── UNDO STACK (spec §2) ── binned items awaiting the 5s window, each with its original index.
   const [undoStack, setUndoStack] = useState<{ card: ReviewCard; index: number }[]>([]);
@@ -556,6 +559,7 @@ export function FillTheBankRows() {
         setSummary({ kept: next.keptCount });
         setReviewOpen(false);
         setReviewBatchId(null);
+        setSentBackNotice(null);
       }
     } catch {
       setActionError("Couldn't keep these — try again.");
@@ -576,6 +580,7 @@ export function FillTheBankRows() {
       setSummary({ kept: review.keptCount });
       setReviewOpen(false);
       setReviewBatchId(null);
+      setSentBackNotice(null);
       decidedAny.current = false;
     }
   }, [queue.length, undoStack.length, review, reviewOpen]);
@@ -614,6 +619,10 @@ export function FillTheBankRows() {
           onReopened={() => {
             void fetchStatus();
             if (reviewBatchId) void loadReview(reviewBatchId);
+          }}
+          onSentBack={(info) => {
+            setSentBackNotice(info);
+            if (reviewOpen && reviewBatchId) void loadReview(reviewBatchId, true);
           }}
         />
       </div>
@@ -794,6 +803,16 @@ export function FillTheBankRows() {
       {/* ── REVIEW PANE ─────────────────────────────────────────────────────────────────────────── */}
       {reviewOpen && (
         <div className="mt-5 pt-5 border-t border-border">
+          {/* One-line notice after a "Send back to review" action — amber-bordered, client-only. */}
+          {sentBackNotice && (
+            <div className="mb-4 rounded-lg border border-accent/50 bg-accent/5 px-3 py-2">
+              <p className="text-sm text-foreground">
+                <span className="tabular-nums">{sentBackNotice.movedCount}</span>{" "}
+                {sentBackNotice.movedCount === 1 ? "question" : "questions"} sent back to review from{" "}
+                {sentBackNotice.label}.
+              </p>
+            </div>
+          )}
           {q ? (
             <div
               className={`transition-all duration-200 ease-out ${
