@@ -1,0 +1,2550 @@
+
+===== PAGE 1 =====
+ 
+ 
+Candidate Number: 24570 
+ 
+ 
+ 
+ 
+The influence of vocabulary on perception of wine:  
+tasting tannins in Barolo and Brunello 
+ 
+June 2018 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Word Count: 9522 
+===== PAGE 2 =====
+ 
+ 
+  
+===== PAGE 3 =====
+ 
+ 
+CONTENTS 
+       page 
+ 
+1. SUMMARY ……………………………………………………………………………. 1 
+ 
+2. INTRODUCTION ……………………………………………………………………... 3 
+ 
+3. LITERATURE REVIEW ……………………………………………………………... 5 
+ 
+3.1  Tasting Approaches: Systematic or Free-Form     5 
+ 
+3.2 Tannin Vocabulary         6 
+ 
+3.3  Italian Red Wines         8 
+ 
+3.4 Wine Education and Consumer Preference     9 
+ 
+4. METHODOLOGY ……………………………………………………………………. 11 
+ 
+4.1 Materials         12 
+ 
+4.2  Location and Timing       15 
+ 
+4.3  Participants         16 
+ 
+4.4  The Tastings         17 
+ 
+4.5  Statistical Analysis        20 
+ 
+5. RESULTS AND STATISTICAL ANALYSIS ……………………………..……….. 23 
+ 
+5.1  Hypothesis One        23 
+ 
+5.1.1  Understanding What Drove the Significance   24 
+ 
+5.2 Hypothesis Two        26 
+ 
+5.2.1  Changes in Tannin Measurement     26 
+ 
+5.2.2  Word Cloud Descriptors: Texture     27 
+ 
+5.2.3  Word Cloud Descriptors: Flavour     29 
+ 
+5.3 Hypothesis Three        30 
+ 
+5.3.1 Enjoyment with Respect to Wine Education   30 
+ 
+5.3.2  Wine Trade Participants      33 
+ 
+ 
+===== PAGE 4 =====
+ 
+ 
+6. INTERPRETATION AND LIMITATIONS ……………………..…………………… 37 
+ 
+6.1  Hypothesis One        37 
+ 
+6.1.1  Choice of Vocabulary      38 
+ 
+6.1.2  Changes in Enjoyment in Barolo Versus Brunello  40 
+ 
+6.2  Hypothesis Two        41 
+ 
+6.2.1  Reduction in Perception of Tannin    41 
+ 
+6.2.2  Change in Tannin in Barolo Versus Brunello   42 
+ 
+6.2.3  The Link Between Tannin and Flavour    43 
+ 
+6.3  Hypothesis Three        44 
+ 
+6.3.1 Wine Education and Experience     44 
+ 
+6.3.2  The Wine Trade       46 
+ 
+6.4  Limitations and Further Research      47 
+ 
+7. CONCLUSIONS AND RECOMMENDATIONS …….…………………………….. 51 
+ 
+7.1  Using Vocabulary to Change Consumers’ Experience of Wine 51 
+ 
+7.2  Understanding the Role of Wine Education and the Trade  52 
+ 
+8. BIBLIOGRAPHY …………………………………………………………………….. 55 
+ 
+APPENDICES ………………………………………………………………………...… 67 
+ 
+1. Approved Research Paper Proposal       67 
+ 
+2. The Wines         72 
+ 
+3. The Tasting Sheets        75 
+ 
+4. Word Count         82 
+ 
+===== PAGE 5 =====
+1 
+ 
+1. SUMMARY 
+Understanding of how priming can affect consumers’ experience of food and 
+wine is well developed, yet little research has been done on the effect of specific 
+vocabulary choices when describing tannins in wine. Tastings were carried out to 
+test the effect of quantitative tannin measurement (high/low) versus adjectival 
+descriptors on the enjoyment and perception of Barolo and Brunello di Montalcino 
+wines. A significant change in enjoyment was reported for the Brunello di Montalcino 
+wines when vocabulary used to describe the tannins was changed. Furthermore, 
+significant changes in both tannin assessment and flavour perception were recorded, 
+highlighting the crucial impact vocabulary has on consumers’ enjoyment and 
+experience of wine.  
+  
+===== PAGE 6 =====
+2 
+ 
+  
+===== PAGE 7 =====
+3 
+ 
+2. INTRODUCTION  
+“Language affects perception, as well as being a tool to describe that perception” 
+(Goode, 2016, p168) 
+Human beings are visual creatures and therefore very good at describing 
+what can be seen. As Deutscher (2010) argues, however, our skills of describing 
+what can be smelt or tasted are far inferior to other species’. Nevertheless, in the 
+wine trade, a specific and universal language is required to ensure we can 
+communicate effectively. If everyone describes wine differently, it is difficult to 
+discuss styles or regions coherently. It is even harder to educate to a national or 
+global standard. As a result, many standardised methods for describing wine have 
+been created, from the Wine and Spirit Education Trust’s (WSET) Systematic 
+Approach to Tasting® (SAT) to Ann Noble’s Flavour Wheel (Robinson, 2015).  
+ 
+However, as is so effectively summarised by Goode, above, the very act of 
+describing something can, in fact, alter it, or at least our experience of it. 
+Furthermore, in any attempt to standardise the experience of wine, something that is 
+closely bound to pleasure, there is the risk that something is lost in the process, and 
+the enjoyment diminished.  
+ 
+This study therefore seeks to explore how much vocabulary can alter the 
+experience and enjoyment of wine. The focus of the study will specifically be tannic 
+red wines, often deemed difficult for consumers to appreciate, particularly if they are 
+unfamiliar styles (Cliff et al, 2016). Given the lack of previous research on Italian 
+===== PAGE 8 =====
+4 
+ 
+wines (Pagliarini et al, 2013) and the firm tannic structure of Barolo and Brunello di 
+Montalcino, these two styles will be the focus. 
+ 
+The specific research questions the paper will address are: 
+• Does describing tannins rather than quantifying them affect consumers’ 
+enjoyment of wine? 
+• Does altering the description of tannins alter consumers’ perception of wine? 
+• Is there a link between wine education experience and enjoyment of tannic 
+red wines? 
+ 
+By investigating the effect of tannin vocabulary on consumers’ experience of 
+wine, this paper will address the extent to which descriptions of wine can affect 
+consumers’ overall enjoyment and sensory perception of a wine. The results will 
+have important implications, not just for the specific styles of wine investigated, but 
+for tannic wines more generally. It is hoped that the research will generate debate 
+over how wines are described and explained to consumers, and bring recognition of 
+the important role of vocabulary in shaping the consumer experience of a wine.   
+ 
+  
+===== PAGE 9 =====
+5 
+ 
+3. LITERATURE REVIEW 
+The framing effects of language are broadly understood (Deutscher 2010; 
+Kahneman, 2011). Furthermore, research has addressed the role of priming in 
+reference to both wine and foodstuffs (Spence, 2015), demonstrating that perception 
+changes based on preconceptions, whether we are aware of them or not. Szymanski 
+elaborates on this in the context of wine, pointing out that the words we use draw 
+attention to some aspects of a complex picture, and, in so doing, change what we 
+see (Szymanski, 2017). Thus it follows that by highlighting or focusing on tannins, 
+our perception of a wine will be altered. However, no specific studies have thus far 
+covered the role of language, priming and tannins in wine.  
+ 
+3.1   Tasting Approaches: Systematic or Free-Form 
+Using language to describe the full, multi-sensory experience of wine is 
+nothing more than a shorthand, argues Szymanski (2017), yet nevertheless it 
+remains the most effective way we have of communicating our experience of wine 
+with others. Research on vocabulary content and application have proven that wine 
+experts have both a broader and more specific vocabulary for describing wine than 
+novices and as such are better at communicating their experiences (Herdenstam et 
+al, 2009). This accords with Solomon’s (1990) findings, that the “more precise the 
+language (…) the more subtle and complex are the distinctions” (p495) between 
+wines.  
+ 
+One such example of precise vocabulary applied to wine appreciation in the 
+English-speaking world is the WSET’s SAT® which, when applied correctly, should 
+===== PAGE 10 =====
+6 
+ 
+result in all graduates of the same qualification being able to describe all structural 
+components of a wine in the same way. Goode disagrees with this approach though, 
+countering that whilst such approaches result in a description of the wine, they “fail to 
+capture its essence” (Goode, 2016, p199). However, the literature is quite clear that, 
+despite inconsistencies in use of systematic tasting approaches, free-form tasting is 
+no better, with Lehrer finding little consensus on how words are applied to wine 
+(Lehrer, 1975). Even for a single taster, she argues that it is rare to use similar words 
+in a repeatable and accurate pattern (Lehrer, 2007, p134). In short “free description 
+needs careful, in-depth methodological examination if it is ever to become a useful 
+technique” (Sauvageot et al, 2006). 
+ 
+There is therefore a lack of agreement in the literature over the best way 
+forward – between providing an accurate and repeatable description of a wine using 
+a systematic approach, or describing the wine, and experience of it, in its entirety, 
+without resorting to reductionist methods that fail to capture a wine’s essence.  
+ 
+3.2 Tannin Vocabulary  
+Our understanding of tannins is still incomplete; whilst we know what they do, 
+we still don’t really understand why (Schuster, 2017, p22). Nevertheless, whilst the 
+term itself is “chemically imprecise” it is “used by almost all wine tasters” (Goode, 
+2016, p95). For inexperienced tasters, however, Solomon discovered the term is not 
+a meaningful one, with these tasters faring no better than chance at ranking wines 
+based on tannin. He concluded that “tannin as an analysable dimension does not 
+appear to exist for novices” (Solomon, 1990, p511).  
+===== PAGE 11 =====
+7 
+ 
+For consumers with limited or moderate formal wine training, the simplest 
+approach found by far is the WSET SAT®, which asks students to grade tannins on 
+a scale from low to high. At Level 2, the scale covers Low, Medium and High, whilst 
+at Level 3 Medium- and Medium+ are added. Only at Level 4 are students expected 
+to, in addition, comment on the nature of tannins (WSET, 2018). 
+ 
+However, this is not the only approach in the English-speaking world, with the 
+University of Adelaide’s Waite campus recommending 10 different terms for 
+describing tannins, based on Emile Peynaud (1996), whilst the Swedish Sommelier 
+Association uses just four: soft – balanced – astringent – hard (Herdenstam et al, 
+2009). Interestingly, these same four words were previously used by the WSET, 
+though in a different order (soft – balanced – hard – astringent; ibid.), showing over 
+time an evolution from a descriptive approach to a more quantitative method.  
+ 
+Gawel et al (2000) attempted to support a more systematic approach to 
+tannins by creating a “mouth-feel wheel”, similar to Noble’s Flavour Wheel, to aid in 
+describing wine texture. However, King et al (2003) demonstrated that, even with 
+clear training on how to use the wheel, consistency of tannin descriptors amongst 
+trained judges was poor. They concluded that the lexicon for astringency needs 
+simplification before use (ibid.). Vidal et al (2015) differ somewhat in their analysis, 
+stating only that the mouth-feel wheel is “not adequate” to communicate astringency 
+of red wine.  
+ 
+===== PAGE 12 =====
+8 
+ 
+Herdenstam et al propose an alternative, arguing that not only should 
+consideration be given to what a consumer might understand by terms familiar to 
+those in the trade (p79), but that the wine trade should “complement the existing, 
+traditional analytical perspective with an aesthetic one” to improve overall 
+understanding (Herdenstam et al, 2009, p81). Clearly, further research on tannin 
+terminology is warranted.  
+ 
+3.3  Italian Red Wines 
+Despite the lack of agreement on how to approach tannins, limited work has 
+been carried out on enjoyment of tannic red wines. The studies that are available 
+have been restricted mainly to international grapes such as Merlot, Cabernet 
+Sauvignon and Pinot Noir (King et al, 2003).  
+ 
+Literature looking in particular at Italian wines (Belfrage, 2001; O’Keefe 2012, 
+2014) takes their tannic structure as given, and spends limited time considering how 
+these wines could be interpreted or appreciated by less engaged consumers, with 
+Pagliarini et al (2013) stating “little previous work exists on the sensory properties of 
+Sangiovese”. However, in addition to their high tannins, the acidity in these wines 
+can enhance their astringency (Kallithraka et al, 1997), and wine educators confirm 
+that students often find the more overt tannins in such wines harder to understand, 
+with students initially disliking Barolo, as “it’s far too grippy and drying” (Creamer, 
+2017, pers. comm.).  
+ 
+===== PAGE 13 =====
+9 
+ 
+Furthermore, wines such as Barolo are finding it increasingly hard to compete 
+in the global market given their high prices (Mullen, 2017). Given the increasing 
+range and complexity of styles emerging from Montalcino and Barolo in particular, 
+with varying tannins as a result of different winemaking practices, an understanding 
+of whether more detailed vocabulary on texture will aid consumers’ enjoyment of 
+these styles is important.  
+ 
+3.4   Wine Education and Consumer Preference 
+There are very few studies of consumers’ wine sensory preferences (Lockshin 
+and Corsi, 2012, p14), though the 2015 Wine Business Survey of American Wine 
+Consumer Preferences showed a marked dominance of fruity, semi-sweet and 
+smooth wines (with 58%, 57% and 56% of respondents respectively preferring these 
+styles) and only 9% preferring tannic wines (Thach and Chang, 2015).  
+ 
+This proportion has not been demonstrated to increase with wine education, 
+with Rossetto and Cai (2010) finding that oenology students ranked tannic wines 
+such as Brunello di Montalcino, Barolo and Barbaresco no differently than those with 
+no wine education, arguing there was no link between education and taster 
+appreciation for these wines. 
+ 
+Despite the rapid expansion of wine education worldwide (WSET reported 
+85,000 students sitting exams in 2016/17, with 12 years of double-digit growth in 
+candidate numbers – WSET website 2018), the effect of education has not been 
+studied in depth with respect to wines (Jackson, 2017). The research that has been 
+===== PAGE 14 =====
+10 
+ 
+carried out has shown that whilst education can increase the enjoyment of white and 
+rosé wines in the short term, the same cannot be demonstrated for reds over the 
+same period (Cliff et al, 2016). The authors attribute this to greater tannin in red 
+wines, making them harder for consumers to appreciate. However, research by 
+Bindon et al (2014) calls into question the effect of tannin on preference, highlighting 
+that, across a range of red wines, consumers preferred those wines from later-picked 
+grapes with slightly higher tannin, alcohol and lower acid than those from earlier-
+picked grapes. This preference for higher tannin wines may be attributed to the 
+richer, fruitier style produced by later-harvested grapes. The scarcity of research in 
+this area would be well served by further focus on the role of education in consumer 
+appreciation of tannic red wines.  
+ 
+  
+===== PAGE 15 =====
+11 
+ 
+4. METHODOLOGY 
+The heart of the project comprised a series of 11 experimental tastings, 
+carried out over two weeks with over 200 volunteer participants, to test the effect of 
+wine descriptors on tasters’ enjoyment and perception of wines. Since the literature 
+review indicated that tannins are not well tolerated by consumers, and highlighted an 
+absence of research on Italian wines, two classic Italian styles – Barolo and Brunello 
+di Montalcino – were selected for the research. The tastings were supplemented by 
+discussions with wine educators, to add context to the results.  
+ 
+The tastings and subsequent analysis were designed to test three main 
+hypotheses that emerged from the literature review: 
+ 
+• Hypothesis One: There is a statistically significant difference in hedonic 
+ratings of wines when the vocabulary used to describe tannins is changed 
+[Null Hypothesis One: There is no significant difference in hedonic ratings of 
+wines when the vocabulary used to describe tannins is changed] 
+ 
+• Hypothesis Two: There is a statistically significant difference in perception of 
+wines (both tannin measurement and flavour assessment) when tannin 
+vocabulary is changed 
+[Null Hypothesis Two: There is no significant difference in perception of 
+wines when tannin vocabulary is changed] 
+ 
+===== PAGE 16 =====
+12 
+ 
+• Hypothesis Three: There is a positive correlation between hedonic ratings of 
+tannic Italian reds and wine education experience 
+[Null Hypothesis Three: There is no positive correlation between hedonic 
+ratings of tannic Italian reds and wine education experience] 
+ 
+4.1  Materials 
+The wines were selected to be classic examples of high tannin, high alcohol, 
+high acid Italian wines (acidity increasing the sensation of tannin, Kallithraka et al, 
+1997). To maximise commercial relevance of the results, as well as availability of 
+wines, Barolo and Brunello di Montalcino were selected at the proposal stage as 
+widely commercially available wines representative of this style.  
+ 
+Pre-selection research was carried out to discover traditional and modern 
+producers of Barolo, and representative high- and low-altitude examples of Brunello 
+di Montalcino, to illustrate a range of flavour profiles and tannic expressions. To 
+ensure consistency between the wines and ensure that any differences in preference 
+were not to do with differences in maturity, the same very good recent vintage was 
+selected for each wine – 2012. The 2010 vintage was also considered, but 
+availability of wines and high prices made this unfeasible within the scope of the 
+project. A shortlist of producers was selected, in collaboration with Italian specialists 
+and buyers, and wines were tasted throughout October and November 2017 at trade 
+tastings to confirm their typicity. The final selection was made in late November 
+2017, based on tastings, availability and pricing.  
+ 
+ 
+===== PAGE 17 =====
+13 
+ 
+The wines selected were: 
+• Wine A: 2012 Giacomo Fenocchio, Barolo 
+• Wine B: 2012 Elio Altare, Arborina, Barolo 
+• Wine C: 2012 Eredi Fuligni, Brunello di Montalcino 
+• Wine D: 2012 Sesti, Brunello di Montalcino 
+ 
+Wines were purchased by the researcher from independent wine merchants, 
+at full retail price. Full details of each wine are available in Appendix 2.  
+ 
+During December, a panel tasting of one MW and three Diploma graduates 
+tasted the wines to: 
+• Confirm typicity and quality 
+• Decide on tannin descriptors (both positive and negative) for each wine, and 
+discuss the aroma/flavour profile 
+• Decide on glassware for the tastings 
+ 
+It was concluded that all four wines were representative of their type and of 
+good to excellent quality. Regarding glassware, the wines were tasted in: 
+• ISO glass 
+• Riedel Spiegelau glass 
+• Berry Bros. & Rudd (BB&R) bespoke John Jenkins tasting glass 
+ 
+It was agreed that the ISO glasses were too small to capture the full aroma of 
+the wine, whilst the John Jenkins glasses were too large, resulting in a noticeable 
+change in texture of some of the wines after 30 minutes in the glass. It was agreed 
+===== PAGE 18 =====
+14 
+ 
+that the Spiegelau glass provided a similar level of aroma as the John Jenkins glass, 
+but with less noticeable change in wine characteristics throughout the tasting, and 
+therefore was selected as the best option.  
+ 
+Regarding the descriptors for tannins and aromas, there was some discussion 
+over what constituted a “negative” tannin descriptor, but eventually the below were 
+agreed upon for the wines.  
+Wine Positive descriptors 
+(+) 
+Negative descriptors 
+(-) 
+A (traditional Barolo) Firm, forward Austere, angular 
+B (modern Barolo) Ripe, powdery Chewy, taut 
+C (high-altitude Brunello) Fine, supportive Dusty, drying 
+D (low-altitude Brunello) Easy-going, round1 Large, chalky 
+Table 4a: Agreed tannin descriptors for the wines 
+ 
+For the flavour and aroma descriptors, it was decided for ease of analysis to 
+offer participants a selection of words, rather than free-form writing. As Sauvageot et 
+al (2006) argued, free description of wine needs careful methodological analysis if it 
+is to be a useful technique2. A mixture of aroma and structural descriptors was 
+decided upon, for two reasons: firstly, the structural descriptors (“grippy”, “coarse”) 
+would act as a proxy for tannin measurement, allowing for cross-checking of results; 
+secondly, the flavour descriptors offered a rough measure of how fruity, or otherwise, 
+participants thought a wine was. With an awareness that the flavours were very 
+                                                           
+1 Initially one of the positive descriptors for Wine D was also “ ripe” – however, it was agreed for clarity in the 
+results that there should be no overlap in descriptors, so this was replaced with “easy-going”. 
+2 Sauvageot et al (2006) discovered that offering participants completely free choice in how to describe wine 
+resulted in no participants of a study being able to match descriptions to wines. Providing some limitatio ns 
+allowed for some matches of wines to descriptions to be made.  
+===== PAGE 19 =====
+15 
+ 
+much UK-focused, those in Table 4b, below, were agreed upon, offering an 
+accurate, but broad selection that could describe each of the four wines. 
+Structural Fruit/Sweet Non-Fruit 
+Bitter Black fruit Earthy 
+Coarse Floral Herbal 
+Grippy3 Red Fruit Leather 
+Rounded Sweet4 Smoky 
+Smooth Vanilla Spice 
+Sour   
+Table 4b: Range of descriptors agreed upon at panel tasting for tasting sheets, 
+grouped by type 
+ 
+4.2  Location and Timing 
+The tastings took place in the first two weeks of January 2018, in the 
+Pickering Cellar at BB&R in the heart of London. The cellar is used throughout the 
+year for wine tastings and is well equipped for the purpose. Tastings took place at 
+12.30pm and 6.30pm on test days. These timings not only increased the likelihood 
+that participants would be able to attend a tasting session, but also ensured that 
+most attendees would be experiencing the tasting before a main meal (either lunch 
+or dinner). The panel tasting (conducted 2pm Monday 11th December 2017) 
+concluded that wines should be tasted before a main meal for maximum effect of 
+tannins and acidity, and this was borne out by the pilot studies, which took place at 
+11am and 12noon, and showed a marked increase in perception of tannin and 
+acidity in the wines versus the panel tasting.  
+ 
+                                                           
+3 “Grippy” replaced “astringent” after the pilot tasting, as some testers were unsure as to the meaning of 
+astringent. 
+4 Although technically a structural component (a taste, rather than a flavour) given its close association with 
+ripe fruit and vanilla, it was agreed that sweet would be better analysed along with fruity flavours.  
+===== PAGE 20 =====
+16 
+ 
+4.3  Participants 
+The target population was consumers with some previous wine tasting 
+experience (minimum one wine tasting attended previously, so that they were 
+familiar with the concept of tannin). For convenience purposes, and to ensure some 
+consistency in style of teaching, students of BB&R’s wine school over the past three 
+years were targeted, a population of approximately 7,000 students. Only those who 
+had agreed to receive emails were contacted, bringing the pool down to 
+approximately 1,600 students. Students were emailed in December 2017 and invited 
+to take part in the tastings in January 2018, with the opportunity to win a case of 
+wine from a country of their choice as an inducement.  
+ 
+A desired sample size of around 200 was necessary to ensure the number of 
+responses in each of the sub-sets of data was suitably large for application of 
+standard statistical analysis. Conventionally this is suggested to be a minimum of 30 
+(Corder and Foreman, 2009); a target of 50 was therefore set for the experimental 
+sub-sets to allow for incomplete responses, resulting in a desired sample of 200. In 
+total 262 students agreed to take part, with 222 attending and completing the 
+tastings. The table below shows the breakdown of participants by gender and age. 
+Age Range  Female Male Total 
+18-29  22 17 39 
+30-39  38 32 70 
+40-49  15 17 32 
+50-59  11 27 38 
+60+  8 18 26 
+Total 94 111 205 
+Table 4c: Breakdown of tasting participants by gender and age. Note that 17 
+participants made errors on the tasting sheets – these sheets were discarded, so 
+only 205 complete results sets were used 
+ 
+===== PAGE 21 =====
+17 
+ 
+4.4  The Tastings  
+Once all participants had responded and most had assigned themselves to a 
+tasting, it was possible to observe the distribution of gender between the tastings as 
+well as gain an approximate idea of wine education (based on the highest WSET 
+course participants had taken with BB&R). Some participants were happy to be 
+allocated to a time slot, and this allowed for an approximately even distribution of 
+gender and age to be achieved across the sessions. At each tasting, 50% of the 
+question papers were Control and 50% were Experiment. This ensured that any 
+slight bottle variation (though none was detected by the researcher) would affect 
+both Control and Experiment responses evenly.  
+ 
+Wines were opened and tasted by the researcher half an hour before 
+participants were due to arrive. One bottle of Wine A was discarded due to cork taint. 
+Temperature of the wine at opening was noted using a probe, and time of opening 
+was also noted. Wines were then put into blind tasting socks, numbered 1 to 4. 
+Finally, bottle numbers (1 to 12) were noted on each question paper, to ensure that 
+any outlier results could be traced back to faulty bottles once the raw data were later 
+analysed. A control set of the four wines was poured out, aroma intensity assessed 
+and temperature taken just before participants arrived.   
+ 
+Participants were welcomed into the tasting room and invited to sit anywhere. 
+Each place setting had four glasses set up on a numbered tasting mat (to reduce 
+any confusion about wine order), a spittoon, water glass and bottle of purified water. 
+Participants also had a question sheet in front of them (question sheets were laid out 
+around the room in random order), with cover sheet explaining how the tasting would 
+===== PAGE 22 =====
+18 
+ 
+run, explaining confidentiality protocol, and asking for a signature to confirm 
+agreement to the conditions of the tasting.  
+ 
+The pourers then checked the question paper number against a master 
+document, which showed which order the wines needed to be poured in for that 
+paper, and poured the wines accordingly. This way, wines were always poured in the 
+correct, bespoke order for each participant, and were also freshly poured for each 
+participant.  
+ 
+Question sheets were designed to answer the key research questions and fell 
+into Control or Experiment. For each wine there was a short description: 
+ 
+• Control: Wine 1 is a full-bodied red wine with high tannins OR 
+• Experiment: The adjectives agreed upon at the panel tasting were used to 
+describe the wine, for example Wine 1 is a full-bodied red wine with ripe, 
+powdery tannins.  
+ 
+Participants were then asked to rate the wine on a 1-9 scale for enjoyment 
+and do the same for level of tannins5. Finally, for each wine, participants had to circle 
+descriptors from a word cloud that they felt best suited the wine. The order of the 
+words in the word cloud was randomised for each participant, to cancel out effects of 
+optimal viewing position and right visual field advantage (O’Regan and Jacobs, 
+                                                           
+5 Given the controversial nature of statistical treatment of Likert-type data, Carifio and Perla (2007) were 
+considered in the design of the questionnaire. The response sheet was created with equally spaced numerical 
+scores for respondents, in order to ensure the resulting data could be treated as interval data.  
+===== PAGE 23 =====
+19 
+ 
+1992; Brysbaert et al, 1996). Participants then had to answer some demographic 
+questions. A sample question sheet can be viewed in Appendix 3.  
+ 
+To generate the test papers, an Excel spreadsheet was created. The first 100 
+lines were allocated as Control papers, and wines were ordered randomly for each of 
+these participants, to eliminate effects of serial order preference (Mantonakis et al, 
+20096). For the test subjects, again random wine order, combined with a mix of 
+positive and negative descriptors was used, to ensure that each wine was tasted 
+with 50 positive and 50 negative descriptors throughout the series of tastings.  
+ 
+The spreadsheet was linked to a mail merge, so that 200 unique question 
+papers were generated, each with a unique identifying number, linked to a master 
+document showing the order the wines needed to be poured in for each participant. 
+All papers had the wines ordered randomly. For participants 201-222, duplicates of 
+papers 101-122 were generated, so in total 100 Control and 122 Experiment papers 
+were completed.  
+ 
+Participants were invited to spend as long as they wished carrying out the 
+tasting, but asked not to go back and re-taste. Participants were given no time limit 
+on the tasting, but advised it would take approximately 20 minutes. Most completed 
+within 20 minutes and over 95% within 30 minutes.  
+ 
+                                                           
+6 Mantonakis et al (2009) discovered a large primacy effect in wine tastings – if participants were asked to 
+choose their favourite wine in a tasting, the first wine was often favoured.  
+===== PAGE 24 =====
+20 
+ 
+Once all participants had completed the tasting, the researcher collected all 
+question papers, noted the time, and re-tasted the four control glasses on the side, 
+to ensure no noticeable change had occurred in intensity of aromas or texture of 
+tannins.  
+ 
+4.5  Statistical Analysis 
+Of the 222 responses, 17 were incomplete, with papers missing enjoyment 
+level data, tannin data or with no descriptors circled. To minimise any additional 
+complexity in the analysis from partial data entry, these 17 responses were all 
+discarded. The remaining 205 complete data sets were entered into Excel (2016, 
+Version 1803) by the researcher, in batches of 20, over two weeks, to minimise input 
+errors. They were then cross-checked. All analysis was performed in Excel.  
+ 
+To test whether the data fit a normal distribution (to allow appropriate 
+statistical analysis to be conducted), enjoyment and tannin ratings were formatted in 
+a bar chart, and skew and kurtosis assessed. Whilst some skew was expected for 
+the tannin assessment (as these wines were more tannic than many red wines), for 
+both enjoyment and tannin level, skew and kurtosis were well within the -2.0 to 2.0 
+range7 suggested as suitable for parametric analysis (George and Mallery, 2010). 
+There were no outliers or unusual data points that needed to be removed.  
+ 
+                                                           
+7 For enjoyment data, kurtosis was -0.37, and skew was -0.39, whilst for tannin data kurtosis was -0.35 and 
+skew was -0.44.   
+===== PAGE 25 =====
+21 
+ 
+Data for tannin and enjoyment were analysed for significance against the 
+hypotheses using two-tailed two-sample t-tests8 (Snedecor and Cochran, 1989). The 
+t-test compares the means of data sets and assesses the probability that differences 
+between the sample means have occurred by chance. A two-tailed test considers the 
+probability that the Experiment data set may result in either an increase in enjoyment 
+or a decrease in enjoyment, as compared with the Control data set, thereby reducing 
+the risk of Type I9 error. As an additional precaution, a Mann Whitney U-test10 was 
+applied to check for significance on a number of sub-sets of the data, and in all 
+cases agreed with the outcome of the t-test.  
+ 
+Finally, to assess changes in choice of flavour/aroma descriptors in Part 3 of 
+the tasting sheet, Chi-squared analysis was performed. This is a method of 
+assessing all the adjectives circled across all the tasting papers, and then comparing 
+the selected data set (positive descriptors, negative descriptors, or Control) with this 
+baseline, to assess whether deviations in the distribution of descriptors were 
+significant or not. This analysis therefore accounted for the fact that participants 
+knew how to taste wine, and the distribution of descriptors was not equally 
+distributed across the different wines.  
+                                                           
+8 Whilst it was expected that positive vocabulary would result in an increase in enjoyment, and vice versa, the 
+two-tailed t-test also assesses the likelihood of a reduction in enjoyment occurring by chance. It is a more 
+stringent test than the one-tail test, essentially allowing just 2.5% probability that any result has occurred by 
+chance at the 95% significance level – as the 5% chance probability is split between any possible increase OR 
+decrease. A two-sample test was used as Experiment data points were compared against the Control data set, 
+and each set consisted of different participants.  
+9 A false positive result. 
+10 Like a t-test, a Mann Whitney U test compares the difference in sample means to determine whether the 
+difference is statistically significant, using ordinal, rather than interval data as an input. Whilst the tasting 
+sheets were carefully designed so that parametric tests could be applied, for additional rigour, an equivalent 
+non-parametric test (Mann Whitney U-test) was also applied to the data for Hypothesis One and Two. No 
+difference was observed compared with the results of the t-test. 
+===== PAGE 26 =====
+22 
+ 
+  
+===== PAGE 27 =====
+23 
+ 
+5. RESULTS AND STATISTICAL ANALYSIS 
+The results were analysed using the statistical methods outlined in 4.5 
+Statistical Analysis. The key findings relating to vocabulary and its influence on 
+enjoyment and perception are highlighted here. All averages expressed in the results 
+are arithmetic means. P values in tables show the probability that a result occurred 
+by chance. P values of 5% and below indicate the results are statistically significant 
+at the 95% confidence level and are highlighted in red and underlined. P values of 
+10% and below indicate results are statistically significant at the 90% confidence 
+level and are highlighted in pale pink. 
+ 
+5.1  Hypothesis One  
+“There is a statistically significant difference in hedonic ratings of wines when 
+the vocabulary used to describe tannins is changed” 
+The hedonic ratings for all wines were tabulated, the mean and standard 
+deviation calculated and a two-tail t-test run to compare the sample means of the 
+Experiment against the Control data for each of Wines A-D. The table overleaf 
+shows the results for enjoyment, with the second column showing the difference 
+from the mean enjoyment of the Control wine and the third the P value. A- refers to 
+responses where negative descriptors were used for Wine A, and A+ where the 
+positive descriptors were used.  
+ 
+ 
+===== PAGE 28 =====
+24 
+ 
+Wine 
+Mean hedonic 
+rating 
+(enjoyment) 
+Change in  
+enjoyment  
+compared with  
+Control 
+P Value 
+Wine A (traditional Barolo) 5.61   
+A- 5.38 -0.23 46% 
+A+ 5.72 0.11 72% 
+Wine B (modern Barolo) 5.75   
+B- 5.74 -0.01 97% 
+B+ 5.76 0.01 95% 
+Wine C (high-altitude Brunello) 5.95   
+C- 5.32 -0.63 4% 
+C+ 5.96 0.01 96% 
+Wine D (low-altitude Brunello) 5.72   
+D- 6.21 0.49 8% 
+D+ 5.70 -0.02 95% 
+Table 5a: Change in mean hedonic rating of Experiment wines compared with 
+Control wines 
+ 
+As the table highlights, Wine C shows a significant reduction in enjoyment in 
+the case of the negative descriptors (Wine C-). For Wine D, by contrast, the negative 
+descriptors in fact resulted in increased enjoyment of the wine, not significant at 95% 
+but significant at the 90% confidence level. For Wines A and B, the two Barolos, the 
+change in preference was not sufficient to be statistically significant, but nonetheless 
+there was a small positive correlation between vocabulary used and increased 
+enjoyment of the wine.  
+ 
+5.1.1  Understanding What Drove the Significance 
+Segmenting the data for Wines C and D and comparing those participants 
+who selected “full-bodied red wine” as one of their preferences for wine at the end of 
+the tasting, with those who didn’t, it can be seen that each group has had a specific 
+impact on the results. 
+===== PAGE 29 =====
+25 
+ 
+Wine 
+Change in 
+enjoyment 
+compared 
+with 
+Control 
+P Value 
+Wine C   
+C- -0.33 31% 
+C+ -0.07 82% 
+Wine D   
+D- 0.56 8% 
+D+ 0.02 96% 
+Table 5b: Change in average hedonic 
+rating of Experiment wines compared 
+with Control wines for participants who 
+like Full-Bodied Red Wine 
+Wine 
+Change in 
+enjoyment 
+compared 
+with 
+Control 
+P Value 
+Wine C   
+C- -2.00 0% 
+C+ 0.30 62% 
+Wine D   
+D- 0.24 69% 
+D+ -0.12 90% 
+Table 5c: Change in average hedonic 
+rating of Experiment wines compared 
+with Control wines for participants who 
+did not like Full-Bodied Red Wine 
+ 
+Those preferring full-bodied red wines clearly drove the increased enjoyment 
+of Wine D-, (described as having “large, chalky tannins”) whilst those who do not 
+normally enjoy full-bodied red wines contributed to the marked reduction in 
+enjoyment of Wine C- (“dusty, drying tannins”). There was no significant interaction 
+for the Barolos when observing the data in this manner. 
+ 
+Summary of Results 
+for Hypothesis One: 
+Partially Supported 
+• Significant change in enjoyment for Brunello di 
+Montalcino wines when description of tannins is 
+changed  
+• Difference between “positive” and “negative” 
+descriptors is not clear cut; negative descriptors may 
+cause an increase in enjoyment  
+• Initial preference for a style of wine can drive a 
+particular response 
+ 
+===== PAGE 30 =====
+26 
+ 
+5.2 Hypothesis Two 
+“There is a statistically significant difference in perception of wines (both 
+tannin measurement and flavour assessment) when tannin vocabulary is 
+changed” 
+5.2.1  Changes in Tannin Measurement 
+There was a clear difference in assessment of tannins across the four wines, 
+with the single-vineyard Barolo (Wine B) standing out as the most tannic, and the 
+lower-altitude, riper Brunello di Montalcino (Wine D) as the least. The change in 
+vocabulary from neutral (Control) to positive or negative (Experiment) triggered 
+changes in how participants rated the tannins, as Table 5d below highlights.  
+Wine Mean tannin 
+rating 
+Change in 
+tannin rating 
+compared 
+with Control 
+P Value 
+Wine A (traditional Barolo) 6.51   
+A- 6.45 -0.06 86% 
+A+ 6.22 -0.29 34% 
+Wine B (modern Barolo) 6.93   
+B- 7.13 0.20 47% 
+B+ 6.61 -0.32 25% 
+Wine C (high-altitude Brunello) 6.43   
+C- 6.53 0.10 75% 
+C+ 6.60 0.17 49% 
+Wine D (low-altitude Brunello) 5.84   
+D- 5.70 -0.14 62% 
+D+ 5.15 -0.69 2% 
+Table 5d: Change in average assessment of tannin levels in Experiment wines 
+compared with Control wines  
+ 
+As seen above, as with the enjoyment data, it is the Brunello di Montalcino 
+wines where there is a significant difference, but this time Wine D shows the largest 
+change; Wine D+ showing an average reduction in tannin measurement of 0.69 with 
+===== PAGE 31 =====
+27 
+ 
+the positive descriptors, statistically significant at the 95% confidence level. Wines A 
+and B also show a sizeable, but not significant, reduction in tannins measured with 
+positive descriptors. For negative descriptors there is less of a pattern, with the 
+change in measured tannins being small and varying from positive to negative. 
+ 
+5.2.2   Word Cloud Descriptors: Texture 
+The analysis of the word-cloud descriptors (outlined in Table 4b) was two-fold. 
+Firstly, it was used as a proxy for tannin measurement, with the descriptors “coarse” 
+and “grippy” indicating a more tannic experience, and “round” and “smooth” 
+indicating a less tannic experience for the participant. Secondly, it also considered 
+whether the actual flavour experience for participants was different depending on the 
+descriptors used. Figure 5a, below, is the simple sum of all of the adjectives for all 
+wines. 
+ 
+Figure 5a: Instances of word cloud descriptors used across all wines 
+0
+10
+20
+30
+40
+50
+60
+70
+80
+90
+Bitter
+Black fruit
+Coarse
+Earthy
+Floral
+Grippy
+Herbal
+Leather
+Red fruit
+Rounded
+Smoky
+Smooth
+Sour
+Spice
+Sweet
+Vanilla
+Frequency of descriptor use
+Descriptors circled by participants in word cloud
+Wine A Wine B Wine C Wine D
+Indicator of tannins
+Contra-indicators 
+of tannins
+===== PAGE 32 =====
+28 
+ 
+This shows a wide spread in how the wines were described, however some 
+clear patterns emerge: Wine B was described as “grippy” 79 times, suggesting this 
+was seen as the most tannic wine11 and indicates “grippy” is a good proxy 
+measurement for tannin. By contrast, Wine D is described as “rounded” 39 times and 
+“smooth” 52 times (versus 26 and 34 for Wine C, the next highest scorer on these 
+words). This correlates with the low tannin score for Wine D.  
+ 
+A Chi-squared analysis of these word cloud descriptors (relative to the full 
+data set) corroborates this, showing that for Wine B, there was a statistically 
+significant increase in the use of “coarse” or “grippy” in both the Control and the 
+negative Experiment group (see Table 5e below). In other words, Wine B+ (positive 
+descriptors) was felt to be significantly less grippy when described as having “ripe, 
+powdery” tannins. Chi-squared analysis on “rounded” and “smooth” showed the 
+obverse, with a significant increase in use of these descriptors for Wines C and C+, 
+i.e. Wine C- was deemed significantly less smooth when described as “dusty, 
+drying”.   
+Wine 
+P value for 
+“coarse”, 
+“grippy” 
+Wine 
+P value for 
+“coarse”, 
+“grippy” 
+Wine 
+P value for 
+“coarse”, 
+“grippy” 
+A 23% A+ 35% A- 31% 
+B 2% B+ 76% B- 1% 
+C 27% C+ 51% C- 10% 
+D 38% D+ 19% D- 43% 
+Table 5e: P values from Chi-squared test on texture adjectives “coarse” and “grippy” 
+across all wines, as a proxy for tannin measurement  
+ 
+                                                           
+11 This is consistent with the tannin scores noted in Table 5d. 
+===== PAGE 33 =====
+29 
+ 
+Wine 
+P value for 
+“rounded”, 
+“smooth” 
+Wine 
+P value for 
+“rounded”, 
+“smooth” 
+Wine 
+P value for 
+“rounded”, 
+“smooth” 
+A 13% A+ 32% A- 20% 
+B 13% B+ 46% B- 12% 
+C 2% C+ 2% C- 50% 
+D 19% D+ 9% D- 21% 
+Table 5f: P values from Chi-squared test on adjectives “round” and “smooth” across 
+all wines, as a contra-indication for tannin 
+ 
+5.2.3   Word Cloud Descriptors: Flavour 
+As there were 16 descriptors in total, individual analysis on flavours gave too 
+varied a pattern to pick out any trends. However, analysing the results for flavour 
+descriptors by themed groups highlighted a significant change for Wine B12. An 
+analysis on non-fruit flavours in the wines (“earthy”, “herbal”, “leather”, “smoky”, 
+“spicy”) shows the below.   
+Wine 
+P value for 
+“earthy”, 
+“herbal”, 
+“leather”, 
+“smoky”, 
+“spicy” 
+Wine 
+P value for 
+“earthy”, 
+“herbal”, 
+“leather”, 
+“smoky”, 
+“spicy” 
+Wine 
+P value for 
+“earthy”, 
+“herbal”, 
+“leather”, 
+“smoky”, 
+“spicy” 
+A 29% A+ 23% A- 18% 
+B 4% B+ 96% B- 2% 
+C 14% C+ 6% C- 86% 
+D 54% D+ 27% D- 64% 
+Table 5g: P values from Chi-squared test on non-fruit adjectives “earthy”, “herbal”, 
+“leather”, “smoky”, “spicy” across all wines  
+ 
+Wine B was described as significantly more savoury in the Control and 
+negative cases (when the wine was described as either “high” in tannins, or having 
+“chewy, taut”, rather than “ripe, powdery” tannins). However, there was no significant 
+                                                           
+12 See Table 4b in “Methodology” for flavour groupings. 
+===== PAGE 34 =====
+30 
+ 
+change across the fruity descriptors (“black fruit”, “floral”, “red fruit”, “sweet”, “vanilla”) 
+for any of the wines, with the distribution of flavour descriptors here being no better 
+than random compared with the data set as a whole.  
+ 
+Summary of 
+Results for 
+Hypothesis Two: 
+Partially 
+Supported 
+• Positive language can reduce tannin perception in 
+wines – this was statistically significant in Wine D  
+• Assessing tannin proxies (“coarse” and “grippy”) 
+demonstrated a significant occurrence of these words 
+with negative or neutral vocabulary for Wine B. There 
+was a significant occurrence of “round” and “smooth” 
+with positive and neutral vocabulary in Wine C  
+• Changing tannin vocabulary can change how the 
+flavour of a wine is perceived. There was a significant 
+shift to “non-fruit” flavour descriptors in Wines B and B-, 
+as compared with Wine B+  
+ 
+ 
+5.3 Hypothesis Three 
+“There is a positive correlation between hedonic ratings of tannic Italian reds 
+and wine education experience” 
+5.3.1 Enjoyment with Respect to Wine Education 
+To assess the effect of wine education on enjoyment of these wines, the data 
+were broken down by the highest level of wine qualification studied for. This was 
+supplemented by questions on the number of wine tastings or courses attended over 
+the past year. For the purpose of creating a single, cohesive data set, those 
+===== PAGE 35 =====
+31 
+ 
+participants who had not undertaken formal WSET qualifications were assigned an 
+“equivalent” WSET level, based on the number of wine tastings they had attended. 
+This mapping was carried out as below13. 
+Number of tastings 
+attended in past year 
+Number of participants 
+who had attended 
+tastings, but not WSET 
+courses 
+WSET qualification 
+“equivalent”, for 
+purposes of results 
+analysis 
+0 23 NONE 
+1 20 NONE 
+2-3 29 Level 1 
+4-6 15 Level 2 
+7-10 9 Level 2 
+11+ 6 Level 3 
+Table 5h: Mapping of number of tastings onto equivalent WSET qualifications for the 
+purposes of data analysis 
+ 
+An assessment of average enjoyment of the wines was carried out, using the 
+mapping above, incorporating all participants. The results are shown in Figure 5b, 
+overleaf. 
+ 
+                                                           
+13 Whilst participants with previous wine tasting experience were sought for the experiment, some brought 
+friends with them to the tastings who had not previously participated in formal wine tastings, hence the 23 
+participants with no qualifications or formal wine tasting experience. For an outline of limitations of this 
+methodology, see 6.4 Limitations and Further Research 
+===== PAGE 36 =====
+32 
+ 
+Figure 5b: Enjoyment of the wines with respect to wine qualification 
+ 
+As can be seen, there is a trend for enjoyment of the wines to increase with 
+wine tasting experience. Furthermore, Wine D, the least tannic, was clearly preferred 
+at lower wine education levels. This was overtaken by a preference for Wines B and 
+C, at higher wine education levels.  
+ 
+Breaking this down to look at changes in enjoyment highlighted that WSET 
+Levels 1, 2 and 3, or equivalent, showed significant change in enjoyment from 
+Control to Experiment groups, as Table 5i shows, opposite. 
+ 
+ 
+ 
+ 
+4.8
+5.0
+5.2
+5.4
+5.6
+5.8
+6.0
+6.2
+6.4
+None Level 1 Level 2 Level 3 Level 4+
+Average hedonic rating of wine
+Highest wine qualification studied for (including "equivalents")
+Wine A Wine B Wine C Wine D All wines
+===== PAGE 37 =====
+33 
+ 
+Wine 
+WSET Level 1 WSET Level 2 WSET Level 3 
+Change in 
+enjoyment P value Change in 
+enjoyment P value Change in 
+enjoyment P value 
+C- 0.64 48% -0.90 23% -0.73 30% 
+C+ 1.29 4% -0.79 26% 0.66 19% 
+D- -1.03 18% 2.27 0% 0.67 26% 
+D+ -0.76 28% 0.79 23% -1.55 3% 
+Table 5i: Change in enjoyment versus Control wines, broken down by wine 
+education level 
+ 
+• Level 1 students showed a statistically significant increase in enjoyment of 
+Wine C+ 
+• Level 2 students showed a significant increase in enjoyment of Wine D-  
+• Level 3 students showed a significant drop in enjoyment of Wine D+  
+• At Level 4, and for those participants with no previous wine qualifications, 
+there was no significant change in enjoyment  
+ 
+These results were significant looking at both WSET-qualified participants alone, and 
+when combined with the WSET-equivalent data.  
+ 
+5.3.2  Wine Trade Participants 
+Narrowing the focus even more, and just looking at those participants involved 
+in promoting or selling wine, the average enjoyment of all wines was 5.80, versus 
+5.73 for those not working in the wine trade. Crucially there was a broader range of 
+enjoyment (0.61 versus 0.26 for the data set as a whole), and the least-favoured 
+wine by the whole data set (Wine A) was second favourite for wine trade 
+participants.  
+===== PAGE 38 =====
+34 
+ 
+Wine  
+Enjoyment 
+for whole 
+data set 
+Enjoyment 
+for wine 
+trade 
+Tannin for 
+whole data set 
+Tannin for 
+wine trade 
+A (traditional Barolo) 5.58 6.03 6.42 6.71 
+B (modern Barolo) 5.75 5.45 6.90 7.48 
+C (high-altitude Brunello) 5.79 6.06 6.50 7.03 
+D (low-altitude Brunello) 5.84 5.65 5.62 5.45 
+Average for all wines  5.74 5.80 6.36 6.67 
+Table 5j: Average enjoyment and tannin levels for all types of each wine (Control, 
+positive and negative) across whole data set, versus only those participants 
+employed in the wine trade 
+ 
+Ranking of the wines in order of level of tannin was the same for both the 
+general data set and the wine trade14, suggesting there is sufficient understanding of 
+what tannins are (despite the range of experience across participants) for the data to 
+be valid. However, the assessment of tannin level by the wine trade was higher in 
+Wines A, B and C, and significantly so for Wine B, suggesting an important 
+mismatch in how consumers and the trade assess tannins.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                                                           
+14 From highest to lowest: Wine B (modern Barolo), Wine C (high-altitude Brunello di Montalcino), Wine A 
+(traditional Barolo), Wine D (low-altitude Brunello di Montalcino) 
+===== PAGE 39 =====
+35 
+ 
+Summary of 
+Results for 
+Hypothesis Three:  
+Hypothesis 
+Supported 
+• Trend for increasing enjoyment of the wines with 
+increasing wine tasting experience  
+• Complete novices and highly experienced tasters were 
+less influenced by changes in wine descriptions. Those 
+with a moderate level of wine education showed 
+significant changes in enjoyment for the Brunello di 
+Montalcino wines. 
+• Broader spectrum of enjoyment across wine trade 
+members than general population, and significantly 
+higher measurement of tannin by trade members for the 
+most tannic wine  
+ 
+  
+===== PAGE 40 =====
+36 
+ 
+ 
+  
+===== PAGE 41 =====
+37 
+ 
+6. INTERPRETATION AND LIMITATIONS 
+The aim of the research was to test the three hypotheses, linked to the 
+research questions: 
+• Hypothesis One: There is a statistically significant difference in hedonic 
+ratings of wines when the vocabulary used to describe tannins is changed 
+• Hypothesis Two: There is a statistically significant difference in perception of 
+wines (both tannin measurement and flavour assessment) when tannin 
+vocabulary is changed  
+• Hypothesis Three: There is a positive correlation between hedonic ratings of 
+tannic Italian reds and wine education experience 
+ 
+There was evidence in the results to support all three hypotheses, underlining 
+the important role of vocabulary in both consumers’ enjoyment of wine, and also in 
+how they perceive that wine. Furthermore, there was a positive link between wine 
+education experience and enjoyment of these tannic Italian red wines. Within these 
+results there were considerable variations though, between the differing styles of 
+wine, and among data sets. These differences will be explored here, and possible 
+explanations for, and implications of, these results considered.   
+ 
+6.1  Hypothesis One 
+The aim of this hypothesis was to test whether qualitative descriptions of 
+tannins affect consumers’ enjoyment of wines. Whilst there was no significant 
+difference for Wines A and B (the Barolos), for Wine C (high-altitude Brunello di 
+===== PAGE 42 =====
+38 
+ 
+Montalcino), the null hypothesis was rejected where negative descriptors were used 
+to prime participants. Given that all other variables remained the same, this result 
+proves that consumers’ enjoyment of a wine can be changed simply by altering the 
+vocabulary used to describe that wine.  
+ 
+6.1.1  Choice of Vocabulary 
+In the case of Wine C, the negative description was “Wine 1 is a full-bodied 
+red wine with dusty, drying tannins”. The Control replaced “dusty, drying” with “high”. 
+The results show that, subconsciously or otherwise, participants felt that “dusty” and 
+“drying” were negative descriptors, which diminished their enjoyment of the wine.  
+ 
+Despite this change in enjoyment though, there was no significant change in 
+tannin assessment for this wine, i.e. participants did not automatically rate a wine 
+described as “dusty, drying” as more tannic than one described as having “high” 
+tannins. However, the choice of descriptive vocabulary, with all else in the 
+experiment staying constant, was sufficient to reduce consumers’ enjoyment of Wine 
+C-. Furthermore, this reduction in enjoyment was entirely driven by participants who 
+did not like full-bodied red wines, indicating that the terms “dusty, drying” are only 
+viewed as negative by consumers who do not like this style of wine. For those who 
+do, “dusty, drying” tannins are in no way pejorative. 
+ 
+This lack of a clear division of vocabulary into “positive” and “negative” is also 
+evident when looking at the other Brunello di Montalcino, Wine D. There was an 
+===== PAGE 43 =====
+39 
+ 
+increase in enjoyment of this wine with the terms “large, chalky” and it was 
+participants who enjoyed full-bodied red wines driving this increase. This increase 
+came about despite these words being selected in the panel tasting by four 
+experienced wine trade members as “negative” adjectives. This unexpected result 
+highlights quite clearly that: 
+• Vocabulary can have a significant effect on consumers’ enjoyment of wine as 
+compared with a quantitative approach to tannins (high/low) 
+• Arguably more importantly though, consumers and trade may not see eye-to-
+eye on which adjectives are deemed positive or negative. Indeed, even 
+among consumers there is variation as to what the desirable characteristics of 
+a wine may be, depending on the styles of wine they prefer to drink 
+ 
+Discussions with communicators and educators in the wine trade underline 
+this debate over choice of vocabulary, particularly with reference to tannins. 
+According to Jeremy Cukierman MW (2018, pers. comm.) “for me, chalky and chewy 
+are not negative terms when used to describe tannins. Chalky is probably the best 
+descriptor for the tannins of Nebbiolo, yet I love Nebbiolo”. Lehrer also proposes that 
+“velvety, silky, firm and round”, among others, can all be viewed as positive tannin 
+descriptors (Lehrer, 2007, p129). Nevertheless, though Wine D+ was described as 
+“round”, there was no significant change in enjoyment for Wine D+. It is therefore 
+apparent that whilst the wine industry may ascribe positive or negative meaning or 
+connotations to adjectives, there is some inconsistency within the trade on these 
+terms. More importantly, however, there is a disconnect between the trade and 
+consumers as to what these terms mean, and a lack of understanding as to the 
+effect they will have. Considerable further research is therefore needed on specific 
+===== PAGE 44 =====
+40 
+ 
+tannin descriptors, to develop a better understanding of which descriptors will result 
+in a positive experience for consumers. 
+ 
+6.1.2  Changes in Enjoyment in Barolo Versus Brunello 
+Looking at the different styles of wine, whilst the Barolos showed a small 
+increase in enjoyment with positive vocabulary, it was the Brunello di Montalcino 
+wines where the significant interactions occurred. This suggests that participants’ 
+liking of the Barolos was more set, and their enjoyment harder to alter with pre-
+tasting priming, whether they enjoyed this style of wine or not.   
+ 
+Anne McHale MW reports that when teaching, she finds students like Brunello 
+di Montalcino more, whereas Barolo is often more divisive, an observation she 
+attributes to its tannins and acidity (McHale, 2017, pers. comm.). One explanation for 
+these results is that due to the slightly softer and rounder nature of Brunello di 
+Montalcino, it is easier to change participants’ perception of it. Overall the Brunello di 
+Montalcino wines were enjoyed more than the Barolos (and the modern Barolo more 
+than the traditional), which supports Frøst and Noble’s idea that both high levels of 
+tannins and earthier wines are harder for consumers to appreciate than fruitier wines 
+(Frøst and Noble, 2002).  
+ 
+This theory is supported further by the result that those not liking full-bodied 
+red wines drove the reduction in enjoyment for Wine C-, suggesting that vocabulary 
+can enhance an effect that is already present. This wine was the more savoury and 
+===== PAGE 45 =====
+41 
+ 
+grippy of the two Brunello di Montalcino wines, with less apparent fruit flavour than 
+Wine D. One possible explanation for this result is that with less fruit, the tannins and 
+alcohol provide the main characteristics of the wine. For those participants who enjoy 
+this style, highlighting the structure of the wine more with vocabulary will have little 
+effect on their enjoyment of the wine. For consumers who are less keen on this style, 
+priming with key descriptors such as “dusty” and “drying” may highlight the tannins 
+more, and therefore result in a reduction of enjoyment. This chimes with the results 
+for Wine D, with participants who preferred full-bodied red wines causing the 
+increase in enjoyment in Wine D-, again pointing to choice of vocabulary 
+accentuating a natural tendency (enjoyment of the wine) but not completely altering 
+it. 
+ 
+6.2  Hypothesis Two 
+6.2.1  Reduction in Perception of Tannin 
+There was a statistically significant reduction in measurement of tannins with 
+Wine D+ (“easy-going, round”). This was unexpected, as the data for enjoyment 
+indicate that in fact vocabulary for Wine D+ led to a reduction in enjoyment of the 
+wine. This highlights that tannin and enjoyment levels are not automatically 
+correlated, despite the literature review indicating that it is tannins that make such 
+wines unapproachable to many consumers (Thach and Chang, 2015).  
+ 
+It can also be seen that there was a notable uptick in Wine C being described 
+as “round” and “smooth” in the word cloud, both with the Control wine, and also for 
+===== PAGE 46 =====
+42 
+ 
+Wine C+. However, in the Experiment papers, it was Wine D+ that was described as 
+“easy-going, round” in the pre-tasting priming, not Wine C. This counter-intuitive 
+result shows that participants felt free to describe the wines as they wished, and 
+although the change in vocabulary did, in some cases, cause a significant change in 
+how participants experienced the wines, the mechanism was not as simple as 
+participants merely repeating the words they had already been exposed to.  
+ 
+This evidence therefore strongly argues for a subconscious effect of 
+vocabulary on perception of tannin; Labroo et al (2008) demonstrated quite clearly in 
+their studies that subconscious priming can be a powerful influencer on opinions. 
+The most likely mechanism here is that the descriptors cause the mind to focus on 
+other aspects of the wine, meaning the tannin is less noticeable15. 
+ 
+6.2.2  Change in Tannin in Barolo Versus Brunello 
+As with the enjoyment data, it was with the Brunello di Montalcino wines, not 
+the Barolos, where the largest perceived change in tannins occurred. This perceived 
+drop in tannins could well be to do with the structure of tannins in Brunello di 
+Montalcino – with Alessandra Fedi describing Sangiovese tannins as “medium+” 
+(Fedi, 2017, pers. comm.), whilst Michelle Cherutti-Kowal MW comments that, due to 
+                                                           
+15 Due to the design of this experiment, it was not possible conclusively to confirm whether the priming effect 
+was conscious or subconscious. Labroo et al (2008) concluded that subcon scious priming can take hold in as 
+little as 16 milliseconds. Given the wines in this experiment were tasted blind and given the lack of context 
+participants were provided before the tasting, it is likely most of the effect was subconscious. The speed with  
+which most participants completed the tasting also supports this theory, as few will have had time to ponder 
+any negative connotations of any of the adjectives. Testing this assertion is far beyond the scope or means of 
+this project; there is however much potential here for further research, and the possibility of developing a 
+hierarchy of positive or negative vocabulary for priming wine-drinking consumers.  
+===== PAGE 47 =====
+43 
+ 
+the time in barrel, these tannins always feel softer than those of a Barolo (Cherutti-
+Kowal, 2017, pers. comm.). This may give the taster more leeway on measurement 
+of tannin, as the wine seems less extreme. As with the enjoyment data, this points to 
+an upper limit on tannin measurement, and whilst priming can “nudge” a consumer, it 
+cannot outright change their view of the wine. For those who found the wines very 
+tannic, vocabulary was insufficient to change that view. For those who found the 
+wines slightly less tannic, positive vocabulary could alter that perception slightly.  
+ 
+6.2.3  The Link Between Tannin and Flavour 
+Whilst the distribution of descriptors across the wines was broad, Wine B was 
+significantly more savoury in Wines B and B- in the Chi-squared analysis, when 
+compared with Wine B+. This exactly matches the significant increase in the use of 
+“coarse” or “grippy” in these wines. This suggests that the change in perceived 
+tannin in a wine also has a knock-on effect on the flavour profile of that wine, 
+resulting in an increase in savoury flavours such as “earth” and “leather”.  
+ 
+Wine B was the most modern in style of all wines, with pronounced fruit 
+flavours. These results indicate that with negative tannin vocabulary (for this wine, 
+the negative adjectives were “chewy, taut”), the influence switches away from the 
+fruit, resulting in more savoury descriptors. For those wines which were clearly 
+dominated by earthy and leather flavours already (e.g. Wine A, Wine C), the change 
+in flavour perception triggered by the priming was not sufficient to be noticeable.  
+ 
+===== PAGE 48 =====
+44 
+ 
+This mechanism of flavour affecting structural components of a wine has been 
+observed with sweetness and acidity, with fruitier flavours increasing perception of 
+sweetness and suppressing sensation of acidity (Stevenson et al, 1999). 
+Furthermore, Frøst and Noble (2002) demonstrated that wines high in vanilla and 
+berry aromas are liked significantly more than wines high in either leather aromas 
+and/or with a sour taste. This was shown across participants with a range of wine 
+knowledge. Little work exists though on the effect of flavour changing tannin 
+perception, and vice versa; further research into this effect is warranted.  
+ 
+This result was only evident in one of the four wines in this tasting. However, if 
+it can be demonstrated again, in a larger study focusing on the interactions between 
+different components in wine, that tannins are correlated with savoury flavours, this 
+would have important implications for the wine trade. It may be that those consumers 
+who dislike tannins actually associate such wines with savoury, or earthy flavours. 
+One approach therefore would be for the trade to focus more on the fruit flavours in 
+these wines, or point such consumers towards fruitier examples, (for example, the 
+glossy fruit and oak of the Elio Altare Barolo rather than the leather flavours of the 
+Giacomo Fenocchio Barolo).  
+ 
+6.3  Hypothesis Three 
+6.3.1 Wine Education and Experience 
+The results showed a trend for enjoyment of these wines to increase with 
+increasing wine education and experience. This supports Alba and Williams’ general 
+===== PAGE 49 =====
+45 
+ 
+theory (2012) that “expertise increases hedonic enjoyment”, though this is the first 
+time it has been demonstrated with regards to tannic red wines.  
+ 
+Looking at the nuances, there were significant changes in enjoyment across 
+the experiment for students at WSET Levels 1, 2 and 3. Students with no previous 
+formal wine qualifications showed no significant change in hedonic ratings between 
+the Control and Experiment wines. This indicates that some understanding of tannins 
+or structure is required for priming to be effective. At the other end of the spectrum, 
+WSET Level 4 students also showed no significant difference in enjoyment from the 
+Control group to the Experiment group. This indicates that after a certain level of 
+education, consumers approach wine in a more objective fashion, or rate their 
+enjoyment differently, again making priming less effective in changing their opinion of 
+the wine.  
+ 
+Instead, it is the middle ground of moderately experienced consumers where 
+the greatest change in enjoyment and perception is likely to occur. This is relevant to 
+the trade, as this is often where consumers are spending more money per bottle of 
+wine (Jackson, 201716), in addition to starting to explore more unusual styles of wine. 
+Positioning region-specific and more esoteric styles of wine correctly for these 
+consumers is therefore crucial.  
+ 
+                                                           
+16 Tim Jackson found that at least a two-hour course can increase spend on wine by up to 12%, but more in-
+depth courses such as WSET can lead to an increase of up to 49% on wine spend.  
+===== PAGE 50 =====
+46 
+ 
+It is also these middle qualification levels (WSET 1, 2 and 3) where tannins 
+are measured objectively but not adjectivally. At Level 4, students are encouraged to 
+describe tannins using adjectives such as “coarse, chalky, fine”. It may be that, 
+already being familiar with such an approach, Level 4 students are less suggestible 
+when faced with a range of vocabulary focusing on tannins. At the lower qualification 
+levels, the quantitative approach of “high”, “medium” etc for tannins may in fact leave 
+consumers more open to being swayed by textural descriptions of a wine.  
+ 
+Michelle Cherutti-Kowal MW agrees, arguing that at WSET Level 3, some 
+discussion of the nature of tannins is warranted (2017, pers. comm.). Whilst this may 
+seem as though it is complicating the tasting process, it could be that additional 
+information will help consumers to understand the style of wine they can expect. 
+ 
+6.3.2  The Wine Trade 
+Taking the link between wine education and enjoyment further, a comparison 
+was done on those participants in the wine trade, versus the sample as a whole. 
+Overall, participants working in the wine trade enjoyed the wines slightly more on 
+average as compared with the whole data set, and crucially had a much wider range 
+of enjoyment for these wines. This highlights that the wine trade must be careful to 
+adjust its view to take account of consumers’ different preferences or possible 
+reduced appreciation for such styles of wines. This is underscored by the reversal in 
+preference by those working in the trade, preferring Wines A and C (traditional 
+Barolo and high-altitude Brunello di Montalcino), instead of the fruitier, softer Wines 
+===== PAGE 51 =====
+47 
+ 
+B and D, (modern Barolo and low-altitude Brunello di Montalcino) preferred by the 
+data set at large. Whilst this could be due to a greater exposure to less fruity wines 
+for those in the trade, the key inference here is that preferences do differ between 
+the trade and consumers. Although this is recognised and acknowledged, it should 
+always be borne in mind when discussing wines with consumers.  
+ 
+What was more apparent between the two groups though was the contrast in 
+tannin measurement. Wine trade participants rated Wine B as significantly more 
+tannic than consumers. This was a modernist single-vineyard Barolo, with very high 
+levels of tannins, but also plenty of primary fruit and new oak.  
+ 
+Once again, this highlights that tannins are closely intertwined with the flavour 
+profile of a wine. Whilst the trade may well be able to detect tannins more readily 
+(partly due to being well trained to detect tannins as an indicator of style, longevity 
+and quality), there is a risk that these are overemphasised to consumers. In fact, in 
+fruitier wines, consumers may find tannins far less noticeable than those in the trade, 
+and so less off-putting. This accords with the work done by Bindon et al (2014), 
+demonstrating that consumers prefer wines with higher tannins, if the grapes are 
+picked later, so balancing the tannins with more fruit and alcohol.  
+ 
+6.4  Limitations and Further Research 
+Whilst every effort was made to ensure a truly blind tasting and broad sample 
+of attendees, the participants were by no means representative of the wine-
+===== PAGE 52 =====
+48 
+ 
+consuming population of the UK. Whilst the research targeted consumers with some 
+wine tasting experience, and targeting previous attendees of BB&R’s wine school 
+ensured some consistency in teaching, attendees were generally limited to those 
+living and working in London and BB&R customers. This meant participants were 
+likely to have greater exposure to a wider range of wines than is available in the UK 
+at large, and were also likely to have higher-than-average income compared with the 
+rest of the UK. The very act of inviting participants to take part in a wine tasting also 
+likely self-selected for participants who were interested in wine and wine tasting. A 
+repeat of the experiment on a truly representative sample across the UK population 
+at large may well have yielded different results, in particular lower average ratings for 
+enjoyment of the wines.  
+ 
+The design of the research was very much focused on English-speaking 
+consumers and a UK-focused vocabulary. The words offered for the descriptors 
+were typical British English words used to describe these types of wines and 
+generated in the panel tasting. The panel for the tasting were all native English 
+speakers (though not all British born). However, of the research participants, 41 were 
+non-native English speakers, and additional written comments on the papers and 
+discussions with the researcher illuminated some issues with the methodology for 
+these participants. It was noted by some non-native English speakers for example 
+that phrases such as “black fruit” have no significance in the West Indies (participant 
+number 177) despite this being a commonly used descriptor in the UK and for WSET 
+qualifications.  
+ 
+===== PAGE 53 =====
+49 
+ 
+This highlights a key issue, which is that much of the language used within the 
+wine trade is very Western-focused, with few English-language tasting notes 
+replicating the smells and flavours of the Caribbean, Nordics or Far East. Whilst 
+investigating different languages or vocabulary use in different cultures was beyond 
+the scope of this project, it offers an interesting avenue for further research, 
+particularly as wine qualifications become increasingly popular worldwide17. 
+ 
+The grouping of participants for analysis by level of wine education also had 
+limitations. Whilst attending two-to-three wine tastings may provide roughly 
+equivalent exposure to wine as taking WSET Level 1, the method of teaching is often 
+very different between formal qualifications and casual wine tastings. Casual tastings 
+often focus on a wider range of descriptive vocabulary (fruits, flowers, smoke) 
+whereas WSET qualifications focus more on the structure of the wine. That said, the 
+pattern of preference was not significantly different with WSET qualifications 
+analysed separately, as with them included with the WSET “equivalents”, therefore 
+for the purposes of a more comprehensive analysis they were kept together.   
+ 
+The correlation between increased enjoyment of tannic red wines with wine 
+education was also loosely mirrored by a general increase in enjoyment of these 
+wines with age. This pattern is supported by recent studies on the phenomenon of 
+enjoyment changing with lifecycle, and drier red wines becoming more appealing 
+with age (Thach et al, 2018). There was an exception to the age correlation however; 
+                                                           
+17 WSET qualifications are now taught in 73 countries, as of 2016/17 (WSET website, 2018).  
+===== PAGE 54 =====
+50 
+ 
+namely that the youngest group of participants (18-29) enjoyed the wines as a whole 
+far more than the 30-39 age group or 40-49 age group, which is contrary to what 
+would be expected in Thach’s model (ibid.). This suggests that in fact wine education 
+is the more powerful driver in this correlation, though further work would be required 
+ultimately to confirm this. Finally, whilst there was a slight variation in enjoyment 
+between men and women, there were no statistically significant interactions when 
+breaking down by gender. However, this is an area ripe for further research, 
+especially given the often gender-specific approach of many wine marketers.  
+ 
+  
+===== PAGE 55 =====
+51 
+ 
+7. CONCLUSIONS AND RECOMMENDATIONS 
+The study aimed to investigate the influence of vocabulary on perception of 
+wine. Specifically, it focused on three aspects: 
+• Whether describing tannins rather than quantifying them affects consumers’ 
+enjoyment of wine 
+• Whether altering the description of tannins can alter consumers’ perception of 
+wine 
+• Whether there is a link between wine education experience and enjoyment of 
+tannic red wines  
+In all cases the results either partially or significantly supported the research 
+hypotheses, highlighting the crucial role of vocabulary in consumers’ experience of 
+wine. 
+ 
+7.1  Using Vocabulary to Change Consumers’ Experience of Wine 
+The research demonstrated that vocabulary can significantly affect 
+consumers’ enjoyment of a wine, and this occurs regardless of consumers’ initial 
+preference for that wine. This result was especially true for the less austere Brunello 
+di Montalcino wines, indicating that the trade has a better chance of adjusting 
+consumers’ opinions with less extreme red wine styles.  
+ 
+The research also demonstrated that vocabulary can change how tannic 
+consumers feel a wine is, and that this is not directly correlated to enjoyment. 
+===== PAGE 56 =====
+52 
+ 
+Furthermore, the results showed that tannins and savoury flavours seem to be linked 
+in many consumers’ minds. Much of the conversation around tannins so far has 
+focused on how to make tannic wines more approachable. In fact, these results 
+underline that a focus on flavours in these wines may be just as important as 
+discussions of their structure.  
+ 
+7.2  Understanding the Role of Wine Education and the Trade 
+As expected, enjoyment of the Experiment wines increased with wine 
+education. However, as more consumers and trade members undertake WSET and 
+other formal qualifications, it is worth questioning the approach to describing wines, 
+and tannins in particular. Until students tackle WSET Level 4, tannins are only 
+described in terms of level, not nature. Yet it was those consumers with moderate 
+wine education experience (WSET Levels 1-3) who were most susceptible to priming 
+and changing their enjoyment and perception of the wine. Whether this is due to their 
+training, and the fact that tannins are not discussed in detail at these levels, is a 
+subject for further investigation.  
+ 
+Members of the wine trade also need to bear in mind their own preferences 
+and assessments. Whether due to increased exposure to more unusual styles of 
+wine, or due to years of formal training, the results highlighted that the trade assess 
+wines as far more extreme than consumers and may, as a result, inadvertently 
+overstate the tannic nature of a wine for a consumer. Care must be taken to see both 
+viewpoints and make more effort to understand how consumers experience wine. 
+===== PAGE 57 =====
+53 
+ 
+That could take the form of ensuring a range of different training levels within a retail 
+team, or holding regular tasting sessions with consumers, for trade members to re-
+calibrate their palates.   
+ 
+Furthermore, whilst it is a responsibility in the trade to educate consumers – to 
+increase their enjoyment and engagement with wine – it must not be forgotten that 
+for most consumers wine is pleasure. A purely objective or quantitative approach to 
+wine may, in some cases, do the wine a disservice and ensure consumers do not get 
+maximum pleasure from it. Just as blind tasting is rarely relevant for consumers 
+enjoying wine, so assessing a wine on a standardised scale and measuring tannins 
+relatively and quantitatively holds little value for most drinkers of Italian red wines. 
+Instead, it is suggested the trade work to describe wines accurately, but creatively, 
+using a wider and more evocative range of vocabulary, tailoring it to consumers’ 
+interests and education level.  
+ 
+The trade does need to be cognisant of the possibility of making a wine seem 
+less appealing by using vocabulary with negative connotations – for example “dusty”, 
+“drying” – but rather that than lose the varied landscape of description altogether. As 
+Skilleås argues “we learn to taste, talk about and judge wine from others” (Skilleås, 
+cited in Goode, 2016, p147). It is vital that members of the wine trade understand 
+their part in this, and, in exploring and expanding the crucial role of vocabulary in 
+enjoyment, continue to improve consumers’ understanding and experience of wine.  
+ 
+===== PAGE 58 =====
+54 
+ 
+  
+===== PAGE 59 =====
+55 
+ 
+8. BIBLIOGRAPHY 
+ 
+Alba, J. W. and Williams, E. F. (2012), “Pleasure principles: a review of research on 
+hedonic consumption”, Journal of Consumer Psychology, Vol. 23(1), 2-18, DOI: 
+10.1016/j.jcps.2012.07.003 
+ 
+van Beilen, M., Bult, H., Renken, R., Stieger, M., Thumfart, S., Cornelissen, F. and 
+Kooijman, V. (2011), “Effects of visual priming on taste-odor interaction”, PLosOne, 
+Vol. 6(9), DOI: 10.1371/journal.pone.0023857 
+ 
+Belfrage, N. (2001), “Brunello to Zibibbo: the wines of Tuscany, Central and 
+Southern Italy”, First Edition, England: Faber and Faber, ISBN: 9780571195169 
+ 
+Bindon, K., Holt, H. E., Williamson, P. O., Varela, C., Herderich, M. J. and Francis, I. 
+L., (2014) “Relationships between harvest time and wine composition in Vitis vinifera 
+L. cv. Cabernet Sauvignon. 2. Wine sensory properties and consumer preference”, 
+Food Chemistry, Vol. 154, 90-101, DOI: 10.1016/j.foodchem.2013.12.099 
+ 
+Bruwer, J., Saliba, A. and Miller, B. (2011), “Consumer behaviour and sensory 
+preference differences: implications for wine product marketing”, Journal of 
+Consumer Marketing, Vol. 28(1), 5-18, DOI: 10.1108/07363761111101903 
+ 
+ 
+ 
+===== PAGE 60 =====
+56 
+ 
+Brysbaert, M., Vitu, F. and Schroyens, W. (1996), “The right visual field advantage 
+and the optimal viewing position effect: on the relation between foveal and 
+parafoveal word recognition”, Neuropsychology, Vol. 10(3), 385-395, DOI: 
+10.1037/0894-4105.10.3.385 
+ 
+Bult, J. H., de Wijk, R. A. and Hummel, T. (2007), “Investigations on multimodal 
+sensory integration: texture, taste and ortho- and retronasal olfactory stimuli in 
+concert”, Neuroscience Letters, Vol. 411(1), 6-10, DOI: 10.1016/j.neulet.2006.09.036 
+ 
+Burt, V. (2015), “Does glassware have an impact on the sensory perception of 
+Champagne?”, Institute of Masters of Wine Research Paper 
+ 
+Carifio, J. and Perla, R. J. (2007), “Ten common misunderstandings, 
+misconceptions, persistent myths and urban legends about Likert scales and Likert 
+response formats and their antidotes,” Journal of Social Sciences, Vol. 3(3), 106-
+116, DOI: 10.3844/jssp.2007.106.116 
+ 
+Cherutti-Kowal, M. (2017), Personal Communication, Wine Educator, London, UK 
+ 
+Chocarro, R. and Cortiñas, M. (2013), “The impact of expert opinion in consumer 
+perception of wines”, International Journal of Wine Business Research, Vol. 25(3), 
+227-248, DOI: 10.1108/IJWBR-2012-0014 
+ 
+===== PAGE 61 =====
+57 
+ 
+Cliff, M. A., Bejaei, M., King, M. C. and McArthur, D. A. J., (2016) “Influence of Wine 
+Education on Wine Hedonic and Confidence Ratings by Millennial Wine Consumers 
+of Different Ethnicities”, Beverages, Vol. 2(4), 3, DOI: 10.3390/beverages2040032  
+ 
+Corder, G. W. and Foreman, D. I. (2009), “Nonparametric statistics for non-
+statisticians: a step-by-step approach”, New Jersey: Wiley and Sons, ISBN: 978-0-
+470454619 
+ 
+Creamer, P. (2017), Personal Communication, Wine Buyer and Educator, 
+Birmingham, UK 
+ 
+Croijmans, I. and Majid, A. (2016), “Not all flavour expertise is equal: the language of 
+wine and coffee experts”, PLoS ONE, Vol. 11(6), DOI: 
+10.1371/journal.pone.0155845 
+ 
+Cukierman, J. (2018), Personal Communication, Wine Educator and Writer, Paris, 
+France 
+ 
+Denscombe, M. (2010) “The Good Research Guide: for small-scale social research 
+projects”, Fourth Edition, England: Open University Press, ISBN: 978-0-335241392 
+ 
+Deutscher, G. (2010), “Through the language glass: why the world looks different in 
+other languages”, Great Britain: William Heinemann, ISBN: 978-0-099505570 
+ 
+Fedi, A. (2017), Personal Communication, Wine Educator, Milan, Italy 
+===== PAGE 62 =====
+58 
+ 
+Frøst, M. B. and Noble, A. C. (2002), “Preliminary study of the effect of knowledge 
+and sensory expertise on liking for red wines”, American Journal of Enology and 
+Viticulture, Vol. 53(4), 275-28418 
+ 
+Gawel, R, Oberholster, A. and Francis, I. L. (2000), “A ‘mouth‐feel wheel’: 
+terminology for communicating the mouth‐feel characteristics of red wine”, Australian 
+Journal of Grape and Wine Research, Vol 6(3), 203–207, DOI: 10.1111/j.1755-
+0238.2000.tb00180.x 
+ 
+Gawel, R., Iland, P. G. and Francis, I. L. (2001), “Characterizing the astringency of 
+red wine: a case study”, Food Quality and Preference, Vol 12(1), 83-94, DOI: 
+10.1016/S0950-3293(00)00033-1 
+ 
+George, D. and Mallery, M. (2010), “SPSS for Windows Step by Step: A Simple 
+Guide and Reference, 17.0 Update”, Tenth Edition, Boston: Allyn and Bacon, ISBN: 
+978-0-205755615  
+ 
+Goode, J. (2014), “So what did I learn about the way I use language to describe 
+wine?”, Wineanorak.com, 28th July 2014, 
+http://www.wineanorak.com/wineblog/uncategorized/so-what-did-i-learn-about-the-
+way-i-use-language-to-describe-wine, (last accessed 21st November 2017) 
+ 
+Goode, J. (2016), “I taste red: the science of tasting wine”, Oakland, California: 
+University of California Press, ISBN: 978 0 520 29224 6 
+                                                           
+18 No Digital Object Identifier available.  
+===== PAGE 63 =====
+59 
+ 
+Herdenstam, A. P. F., Hammarén, M., Ahlström, R. and Wiktorsson, P. A. (2009), 
+“The professional language of wine: perception, training and dialogue”, Journal of 
+Wine Research, Vol. 20(1), 53-84, DOI: 10.1080/09571260902978543  
+ 
+Jackson, T. (2017) “Elementary Consumer Wine Education: UK Market Size, 
+Characteristics and Significance to the Trade”, Institute of Masters of Wine Research 
+Paper 
+ 
+Kahneman, D. (2011) “Thinking, fast and slow”, New York: Farrar, Straus and 
+Giroux, ISBN: 978-0141033570 
+ 
+Kallithraka, S., Bakker, J., Clifford, M. N., (1997), “Effect of pH on astringency in 
+Model Solutions and Wines”, Journal of Agricultural and Food Chemistry, Vol. 45(6), 
+2211-2216, DOI: 10.1021/jf960871l  
+ 
+Kassara, S. and Kennedy, J. A., (2011) “Relationship between red wine grade and 
+phenolics. 2. Tannin composition and size”, Journal of Agricultural and Food 
+Chemistry, Vol. 59, 8409-8412, DOI: 10.1021/jf201054p 
+ 
+King, M. C., Cliff, M. A. and Hall, J. (2003) “Effectiveness of the ‘Mouth-feel Wheel’ 
+for the evaluation of astringent subqualities in British Columbia red wines”, Journal of 
+Wine Research, Vol. 14(2-3), 67-78, DOI: 10.1080/09571260410001677932 
+ 
+Knopf, J. W., (2006), “Doing a Literature Review”, PS: Political Science and Politics, 
+Vol 39(1), 127-132, DOI: 10.1017/S1049096506060264  
+===== PAGE 64 =====
+60 
+ 
+Koone, R., Harrington, R. J., Gozzi, M. and McCarthy, M. (2014), “The role of acidity, 
+sweetness, tannin and consumer knowledge on wine and food match perceptions”, 
+Journal of Wine Research, Vol. 25(3), 158-174, DOI: 
+10.1080/09571264.2014.899491 
+ 
+Labroo, A. A., Dhar, R. and Schwarz, N. (2008), “Of frog wines and frowning 
+watches: semantic priming, perceptual fluency, and brand evaluation”, Journal of 
+Consumer Research, Vol. 34(6), 819-813, DOI: 10.1086/523290 
+ 
+Lehrer, A. (1975), “Talking about wine”, Language, Vol. 51(4), 901-923, DOI: 
+10.2307/412700 
+ 
+Lehrer, A. (2007), “Can wines be brawny? Reflections on wine vocabulary” in Smith, 
+B. C. (ed., 2015), “Questions of taste: the philosophy of wine”, Second Edition, 
+Oxford: Signal Books, pp 127-141, ISBN: 978-1-909930216 
+ 
+Lockshin, L. and Corsi, A. M. (2012), “Consumer behaviour for wine 2.0: a review 
+since 2003 and future directions”, Wine Economics and Policy, Vol. 1, 2-23, DOI: 
+10.1016/j.wep.2012.11.003 
+ 
+Mantonakis, A., Rodero, P., Lesschaeve, I. and Hastie, R. (2009), “Order in choice: 
+effects of serial position on preferences”, Psychological Science, Vol. 20(11), 1309-
+1312, DOI: 10.1111/j.1467-9280.2009.02453.x 
+ 
+===== PAGE 65 =====
+61 
+ 
+Mattes, R. (1994), “Influences on acceptance of bitter foods and beverages”, 
+Physiology and Behavior, Vol. 56(6), 1229-1236, DOI: 10.1016/0031-
+9384(94)90370-0 
+ 
+McHale, A. (2017), Personal Communication, Wine Educator and Consultant, 
+London, UK 
+ 
+McRae, J. M., Schulkin, A., Kassara, S., Holt, H. E. and Smith, P. A., (2013) 
+“Sensory properties of wine tannin fractions: implications for in-mouth sensory 
+properties”, Journal of Agricultural and Food Chemistry, Vol. 61, 719-727, DOI: 
+10.1021/jf304239n 
+ 
+Mercurio, M. D. and Smith, P. A., (2008), “Tannin quantification in red grapes and 
+wines: comparison of polysaccharide- and protein-based tannin precipitation 
+techniques and their ability to model wine astringency”, Journal of Agricultural and 
+Food Chemistry, Vol. 56, 5528-5537, DOI: 10.1021/jf8008266 
+ 
+Mullen, T. (2017), “The ancient king of wine Barolo faces modern challenges”, 
+Forbes online, 4th December 2017, 
+https://www.forbes.com/sites/tmullen/2017/12/04/the-ancient-king-of-wine-barolo-
+faces-modern-challenges/#5716aa7820da, (last accessed 5th May 2018) 
+ 
+O’Keefe, K. (2012), “Brunello di Montalcino: understanding and appreciating one of 
+Italy's greatest wines”, First Edition, Oakland, California: University of California 
+Press, ISBN: 978-0-520265646 
+===== PAGE 66 =====
+62 
+ 
+O’Keefe, K. (2014), “Barolo and Barbaresco: the king and queen of Italian wine”, 
+First Edition, Oakland, California: University of California Press, ISBN: 978-0-
+520273269 
+ 
+O’Regan, J. K. and Jacobs, A. M. (1992), “Optimal viewing position effect in word 
+recognition: a challenge to current theory”, Journal of Experimental Psychology: 
+Human Perception and Performance, Vol. 18(1), 185-197, DOI: 
+apa.org/journals/xhp/18/1/185.pdf 
+ 
+Pagliarini, E., Laureati, M. and Gaeta, D., (2013), “Sensory descriptors, hedonic 
+perception and consumer’s attitudes to Sangiovese red wine deriving from 
+organically and conventionally grown grapes”, Frontiers in Psychology, Vol. 4, 896, 
+DOI: 10.3389/fpsyg.2013.00896 
+ 
+Peynaud, E. (1996), “The Taste of Wine: The Art and Science of Wine Appreciation”, 
+Second Edition, New Jersey: John Wiley and Sons, ISBN: 978-0-471113768 
+ 
+Robinson, J. (ed., 2015), “The Oxford Companion to Wine”, Fourth Edition, Oxford: 
+Oxford University Press, ISBN: 978-0-198705383 
+ 
+ 
+ 
+ 
+===== PAGE 67 =====
+63 
+ 
+Rosetto, L. and Cai, M. (2010), “Does good wine need any bush? Wine education in 
+student tasting”, Paper for the pre-AARES conference workshop on The World’s 
+Wine Markets by 2030: Terroir, Climate Change, R&D and Globalization, Adelaide 
+Convention Centre, Adelaide, South Australia, 7-9 February 2010, 
+http://docplayer.net/12962989-Does-good-wine-need-any-bush-wine-education-in-
+student-tasting.html, (last accessed 18th May 2018) 
+ 
+Sauvageot, F., Urdapilleta, I., Peyron, D. (2006), “Within and between variations of 
+texts elicited from nine wine experts”, Food Quality and Preference, Vol. 17(6), 429-
+444, DOI: 10.1016/j.foodqual.2005.05.007 
+ 
+Schuster, M. (2017), “Essential winetasting: the complete practical winetasting 
+course”, Reprint Edition, Great Britain: Mitchell Beazley, ISBN: 978-1784720919 
+ 
+Smith, B. C. (2016), “In defence of the wine expert”, Prospect Magazine Online, 14th 
+December 2016, https://www.prospectmagazine.co.uk/magazine/in-defence-of-the-
+wine-expert (last accessed 21st November 2017) 
+ 
+Snedecor, G. W. and Cochran, W. G. (1989), “Statistical Methods”, Eighth Edition, 
+Ames: Iowa State University Press, ISBN: 978-0813815619 
+ 
+Solomon, G., (1990), “Psychology of novice and expert wine talk”, The American 
+Journal of Psychology, Vol. 103(4), 495-517, DOI: 10.2307/1423321 
+ 
+===== PAGE 68 =====
+64 
+ 
+Spence, C., Richards, L., Kjellin, E., Huhnt, A.M., Daskal, V., Scheybeler, A., 
+Velasco, C., Deroy, O. (2013), “Looking for crossmodal correspondences between 
+classical music and fine wine”, Flavour, Vol. 2(29), DOI: 10.1186/2044-7248-2-29 
+ 
+Spence, C. (2015), “On the psychological impact of food colour”, Flavour, Vol. 4(21), 
+DOI: 10.1186/s13411-015-0031-3 
+ 
+Spence, C. (2016), “Multisensory Flavour Perception”, in Guichard, E., Salles, C., 
+Morzel, M., Le Bon, A.M., (ed., 2016), “Flavour: From Food to Perception”, New 
+Jersey: John Wiley and Sons, ISBN: 978-1118929414  
+ 
+Stevenson, R. J., Prescott, J. and Boakes, R. A., (1999), “Confusing tastes and 
+smells: how odors can influence the perception of sweet and sour tastes”, Chemical 
+Senses, Vol. 24(6), 627-635, DOI: 10.1093/chemse/24.6.627 
+ 
+Szymanski, E. (2017) “Responding to Matt Kramer: Is terroir a metaphor?”, The 
+Wineoscope, 29th October 2017, http://wineoscope.com/2017/10/29/responding-to-
+matt-kramer-is-terroir-a-metaphor/, (last accessed 30th October 2017) 
+ 
+Taylor, D. C., Dodd, T. H. and Barber, N. (2008), “Impact of wine education on 
+developing knowledge and preferences: an exploratory study”, Journal of Wine 
+Research, Vol. 19(3), 193-207, DOI: 10.1080/09571260902891175  
+ 
+ 
+===== PAGE 69 =====
+65 
+ 
+Thach, L. and Bus 305W Researchers, Sonoma State University (2018), “Do wine 
+consumer preferences change over time? New research study provides some 
+answers”, Wine Business Online, 20th April 2018, 
+https://www.winebusiness.com/news/?go=getArticleanddataid=198045 (last 
+accessed 22nd April 2018) 
+ 
+Thach, L. and Chang, K. (2015), “2015 Survey of American Wine Consumer 
+Preferences”, Wine Business Online, 11th November 2015, 
+https://www.winebusiness.com/news/?dataid=160722andgo=getArticle (last 
+accessed 26th November 2017) 
+ 
+Torri, L., Dinella, C., Recchia, A., Naes, T., Tuorila, H. and Monteleone, E. (2013), 
+“Projective mapping or interpreting wine aroma differences as perceived by naïve 
+and experienced assessors”, Food Quality and Preference, Vol. 29(1), 6-15, DOI: 
+10.1016/j.foodqual.2013.01.006 
+ 
+Vidal, L., Gimenez, A., Medina, K., Boido, E. and Ares, G. (2015), “How do 
+consumers describe wine astringency?”, Food Research International, Vol. 78, 321-
+326, DOI: 10.1016/j.foodres.2015.09.025 
+ 
+Weil, R. (2007), “Debunking critics’ wine words: can amateurs distinguish the smell 
+of asphalt from the taste of cherries?”, Journal of Wine Economics, Vol. 2(2), 136-
+144, DOI: 10.1017/S1931436100000390 
+ 
+===== PAGE 70 =====
+66 
+ 
+WSET website (2018), WSET Systematic Approach to Tasting® (SAT), available at 
+https://www.wsetglobal.com/knowledge-centre/wset-systematic-approach-to-tasting-
+sat/ (last accessed 19th May 2018) 
+ 
+  
+===== PAGE 71 =====
+67 
+ 
+APPENDIX 1 
+ 
+Approved Research Paper Proposal 
+Proposed Title 
+The influence of vocabulary on perception of wine: tasting tannins in Barolo and Brunello 
+Research Questions:  Define the subject of your Research Paper and specify the specific 
+research questions you plan to pursue. (No more than 200 words) 
+ 
+“Language affects perception as well as being a tool to describe that perception” (Goode, 2016, 
+p168).  
+ 
+This study seeks to address Goode’s statement, and consider to what extent the wine trade’s 
+choice of vocabulary can alter consumers’ perception of wines.  
+ 
+Specifically, the research aims to examine whether treating tannins in a quantitative way (low – 
+medium - high) can affect a consumer’s enjoyment of a wine with a marked tannic structure such 
+as Barolo and Brunello di Montalcino, when compared with a more descriptive approach.  
+ 
+Specific areas of investigation: 
+- To what extent (if at all) does describing tannins with more descriptive adjectives (such as 
+smooth, firm, silky) rather than quantifying them (low, medium, high) affect consumers’ 
+enjoyment of wine? 
+- To what extent (if at all) does changing the description of tannins in a wine alter consumers’ 
+perception of that wine? 
+- Is there a link between consumers’ wine education experience, and their enjoyment of tannic 
+wines? 
+ 
+ 
+ 
+ 
+Background and Context: Explain what is currently known about the topic and address why 
+this topic requires/offers opportunities for further research. (No more than 200 words) 
+ 
+Although the priming effects of language have been widely studied (Kahneman, 2011) these 
+have rarely been applied to wine. Furthermore, there is little consistency in how tannins are 
+described around the English-speaking world. The UK-based WSET uses a quantitative scale 
+from low to high; the University of Adelaide uses ten different tannin descriptors. Vidal et al 
+(2015) concur that research on vocabulary when applied to astringency is lacking. 
+ 
+Whilst education can increase the enjoyment of white and rosé wines in the short term, the same 
+cannot be demonstrated for reds over the same period (Cliff et al, 2016). After a 12-week wine 
+course students were not only better able to describe, but also showed greater enjoyment of 
+white and rosé wines. However, though their confidence in describing red wines increased, there 
+===== PAGE 72 =====
+68 
+ 
+was no corresponding increase in enjoyment of red wines. The authors attribute this to greater 
+tannin in red wines, making them harder for consumers to appreciate if unfamiliar with them. 
+Taylor et al (2008) first found this effect, though noticed that men did report an improved 
+enjoyment of red wines after a short (three-week) wine education course, whilst women did not. 
+Goode concurs that an increase in the prevalence of off-dry red wines is a result of tannins 
+making wines difficult for less knowledgeable consumers to enjoy. A focus on the role 
+vocabulary can play in consumer appreciation of tannic reds may therefore provide valuable 
+insight into this area.  
+ 
+Previous hedonic studies on red wines have focused on Merlot, Pinot Noir and Cabernet 
+Sauvignon (King et al, 2003). However, as perceived astringency increases at low pHs 
+(Kallithraka et al, 1997a) and little previous work exists on the sensory properties of Sangiovese 
+(Pagliarini et al, 2013) a focus on red wines based on Sangiovese and Nebbiolo is both original 
+and relevant in the context of consumer appreciation of tannic red wines.  
+ 
+ 
+ 
+Sources: Identify the nature of your source materials (official documents, books, articles, other 
+studies, etc.) and give principle sources if appropriate. (No more than 150 words) 
+ 
+Initial literature review looking at books and peer-reviewed journal articles to set the research 
+context. Particular focus on: 
+ 
+- Effects of language on perception and description of wine, and other multi-sensory products. 
+Works including:  
+Cliff et al, (2016), “Influence of Wine Education on Wine Hedonic and Confidence Ratings by 
+Millennial Wine Consumers of Different Ethnicities”  
+Goode (2016), “I Taste Red”  
+Kahneman (2001), “Thinking Fast and Slow”,  
+Taylor et al, (2008), “Impact of Wine Education on Developing Knowledge and Preferences” 
+ 
+- Investigation of current state of terminology for describing tannins in red wines. 
+Papers including:  
+Herdenstam et al, (2009), “The professional language of wine: perception, training and dialogue”  
+Kallithraka et al, (1997a), “Effect of pH on astringency in model solutions and wines” 
+King et al, (2003), “Effectiveness of the ‘Mouth-feel Wheel’ for the evaluation of astringent 
+subqualities in British Columbia red wines” 
+Pagliarini et al, (2013), “Sensory descriptors, hedonic perception and consumer’s attitudes to 
+Sangiovese red wine deriving from organically and conventionally grown grapes” 
+Vidal et al, (2015), “How do consumers describe wine astringency?”  
+In addition to research into different institutes’ approaches for describing tannins (WSET, UC 
+Davis, University of Adelaide, Sommelier Associations) 
+ 
+- Methodology for tastings: 
+Drawing on work done by Charles Spence among others, creating blind tastings and assessing 
+participant’s responses when one or more factors that could affect perception of the wine is 
+altered. Papers including: 
+Burt, (2015), “Does glassware have an impact on the sensory perception of Champagne?” 
+===== PAGE 73 =====
+69 
+ 
+Spence et al, (2013), “Looking for crossmodal correspondences between classical music and 
+fine wine” 
+ 
+ 
+This background work will support primary research in the form of blind tastings for consumers.  
+ 
+Research Methodology: Please detail how you will identify and gather the material or 
+information necessary to answer the research question(s) and discuss what techniques you will 
+use to analyse this information. (No more than 500 words) 
+ 
+The core of the project will be tastings carried out to test the effect of vocabulary on perception 
+and enjoyment of wines. 
+ 
+The target population will be consumers with previous wine tasting experience (sufficient at least 
+to know what tannins are). I will therefore target consumers who have undertaken at least one 
+taught wine class, up to and including WSET Diploma, in the past three years. For convenience 
+purposes and to ensure a consistent style of teaching, students of BB&R’s wine school will be 
+targeted (a population of over 7,000 students). Students will be invited to take part in a short 
+blind tasting, and entered into a draw for a case of wine as an inducement. To eliminate bias, 
+participants will not be told the purpose of the tasting. Tastings will take place over a period of 
+two weeks to maximise convenience for participants. To allow statistical tests to be carried out 
+on the data with confidence levels of 95%, a sample of minimum size 200 students will be 
+utilized.  
+ 
+The tasting will consist of two Barolos and two Brunellos, illustrating low pH, high tannin wines. 
+They will be selected by a panel tasting of Diploma graduates and MWs (max 5 participants) to 
+represent different flavour characteristics and tannic structures – this will provide a range of 
+styles in the experiments to ensure differences in preference are not solely to do with 
+participants disliking a particular flavour profile. The different tannic expressions will provide 
+scope for a broader range of vocabulary to be used in the tastings.  
+ 
+The Brunellos will come from the same recent (past 7 years) vintage and cover a high altitude 
+and a low altitude producer, giving a contrast in texture (one wine more grippy with a dusty 
+texture, and one with a slightly smoother, riper style). The Barolo pair will also come from the 
+same recent vintage, one from a modern producer and one traditional; again these will represent 
+tannic wines, but one wine will have glossier fruit and more overt oak versus the other with more 
+dried fruit and old oak character.  
+ 
+Participants will be divided into groups – a pre-screening process will ensure that each group is 
+representative of the sample as a whole in terms of gender and age split, as well as wine 
+education: 
+- One group will taste the wines with quantitative tasting notes describing the wines as high in 
+tannins.  
+- The second group will be given descriptors of the wines that will focus on the style and 
+nature of the tannins.  
+- Each wine will have associated “positive” descriptors, such as “smooth, silky tannins”, and 
+also more negative descriptors, such as “coarse, grippy tannins”.”. Participants in the second 
+group will be allocated positive or negative descriptors across the set of wines at random.  
+===== PAGE 74 =====
+70 
+ 
+ 
+All participants will rate wines on a scale of 1-9 for liking, as well as describing the wine using a 
+pre-prepared tasting grid, in terms of aroma/flavour clusters, and structural components. Tasting 
+order will be randomised for each participant, to cancel out effects caused by build-up of tannin 
+and recency. Participants will also complete a short questionnaire after the tasting detailing their 
+wine tasting experience and wine preferences.  
+ 
+The data provided from these experiments will be analysed using appropriate statistical tests to 
+determine:  
+ 
+• Whether there is a statistically significant difference in hedonic ratings of the wines when 
+the vocabulary used to describe tannins is changed.  
+ 
+• Whether there is a statistically significant difference in perception of the wines (both 
+tannin measurement and flavour assessment) when tannin vocabulary is changed.  
+ 
+• Whether there is a positive correlation between hedonic ratings of tannic Italian reds and 
+wine education experience.  
+ 
+A pilot study will be carried out in December to highlight any issues in methodology and a 
+selection tasting will be conducted by a panel of MWs and Diploma graduates to agree on the 
+appropriate adjectives to describe the tannins in each of the wines.  
+ 
+Potential to Contribute to the Body of Knowledge on Wine: Explain how this Research 
+Paper will add to the current body of knowledge on this subject.  (No more than 150 words) 
+ 
+Wine education increases spend on wine in both the on and off-trade (Jackson, 2017), by up to 
+49% in some cases. However, research demonstrates that fruity and semi-sweet styles of wine 
+are preferred by US consumers, with just 9% of respondents in the 2015 Survey of American 
+Wine Consumer Preferences preferring tannic wines. Even with focused wine education, 
+consumers take longer to appreciate and enjoy tannic red wines than whites (Cliff et al, 2016). 
+An increased understanding of the role vocabulary plays in both perception and enjoyment of 
+tannic reds may help the trade accelerate consumers’ understanding and appreciation of this 
+style, and therefore increase their spend in this segment.  
+ 
+Given the increasing range and complexity of styles emerging from Montalcino and Barolo, with 
+varying tannins as a result of changing winemaking practices, an understanding of whether more 
+detailed and descriptive vocabulary can help consumers enjoy and differentiate these wines is 
+timely. It is hoped the research will assist retailers, restaurateurs and educators in considering 
+how best to present wines of this style to consumers, for greatest enjoyment and uplift in sales.  
+ 
+ 
+ 
+Proposed Time Schedule/Programme: This section should layout the time schedule for the 
+research, analysis and write-up of the Research Paper and should indicate approximate dates 
+with key deliverables. Dates of submission to both Advisors and the IMW must be those 
+specified by the IMW. 
+===== PAGE 75 =====
+71 
+ 
+ 
+November 2017  
+Finalise literature review 
+Finesse research methodology, including sourcing wines. 
+Interviews with wine educators to investigate how they approach tannins in wines with their 
+students.  
+ 
+December 2017  
+Contact sample group and ensure participants are aware of what is involved.  
+Panel tasting to select wines, and decide on appropriate tannin descriptors. 
+Pilot experiment to test design. 
+ 
+January 2018 
+3rd to 27th January - Experiments and collecting data.  
+27th January - All data to have been collected.  
+ 
+February 2018 
+Data collation, entry, analysis and write-up of results. 
+  
+March 2018 
+Further analysis and write up of analysis. 
+  
+April 2018 
+9th April - Send analysis to advisor for feedback.  
+Write up of conclusions and introduction.  
+30th April - Send first draft to advisor 
+ 
+May 2018 
+1st May 2017 – Notify IMW of intent to submit.  
+Rewrites, updates and proofing.  
+20th May - Send second draft to advisor. 
+  
+June 2018 
+1st June - Final RP sent to advisor 
+Further amendments, if required, throughout June.  
+29th June - Final submission to Institute.  
+ 
+ 
+ 
+ 
+  
+===== PAGE 76 =====
+72 
+ 
+APPENDIX 2 
+ 
+The Wines 
+After tasting a range of Barolo and Brunello di Montalcino wines and discussing with 
+Italian buyers to ensure typicity of style, the below wines were selected. 2012 was 
+chosen as the vintage due to its excellent quality, availability and pricing.  
+ 
+All wines were purchased by the researcher at their own expense at the start of 
+December and stored in BB&R’s temperature-controlled London cellars until the 
+tastings. All prices are retail price paid, including duty and VAT, but excluding any 
+delivery charges.  
+ 
+Wine A 
+2012 Giacomo Fenocchio, Barolo 
+Production zone: Monforte d’Alba 
+Altitude: 350m 
+Approximate age of vines: 20 years old 
+Vinification: Traditional, with long maceration. Natural fermentation with wild yeast 
+over 40 days in stainless steel tanks. 
+Maturation: 6 months in inert vessels, then 30 months in Slavonian botti (25-35hl in 
+size) 
+Alcohol: 14.0% 
+Purchased from: Petersham Cellar 
+Price: £25.67/bottl 
+===== PAGE 77 =====
+73 
+ 
+Wine B 
+2012 Elio Altare, Arborina, Barolo 
+Production zone: La Morra 
+Approximate age of vines: 64 and 23 years old 
+Vinification: Maceration on the skins for approximately four to five days in rotary 
+fermenters with temperature control.  
+Maturation: 24 months in French barrique 
+Alcohol: 14.5% 
+Purchased from: Justerini and Brooks 
+Price: £54.60/bottle 
+ 
+ 
+Wine C 
+2012 Eredi Fuligni, Brunello di Montalcino  
+Altitude: 380-450m 
+Approximate age of vines: 12-30 years 
+Vinification: Traditional vinification, approx. 18 days, in stainless steel. 
+Maturation: 24-36 months in Slavonian oak barrels and Allier oak tonneaux (35/40 hl. 
+and 5/7.5 hl. respectively) and 4 months in bottle before release. 
+Alcohol: 14.5% 
+Purchased from: Lea and Sandeman 
+Price: £49.95/bottle 
+ 
+ 
+ 
+===== PAGE 78 =====
+74 
+ 
+Wine D 
+2012 Sesti, Brunello di Montalcino 
+Altitude: Up to 350m 
+Approximate age of vines: 20 years 
+Vinification: Traditional vinification in stainless steel 
+Maturation: 39 months in 30hl oak botti, followed by 12 months bottle ageing 
+Alcohol: 14.5% 
+Purchased from: Armit wines 
+Price: £47.60/bottle 
+ 
+ 
+  
+===== PAGE 79 =====
+75 
+ 
+APPENDIX 3 
+ 
+The Tasting Sheets 
+Each participant received a copy of a tasting sheet, as below, to complete. These 
+were linked to an Excel spreadsheet, and a mail merge, which created 200 tasting 
+documents, all with a unique identifying tasting number. The first 100 documents 
+were Control documents, where all wine descriptions were the same. The second 
+100 documents had either positive or negative descriptions for each wine (or a mix 
+across the tasting sheet). Wine order was randomised for each participant and the 
+word cloud for each wine was also randomised, to ensure location on the page was 
+not a determinant in which words were selected. A master data sheet was also 
+generated, which linked each tasting document to the order in which wines should be 
+poured.  
+  
+===== PAGE 80 =====
+76 
+ 
+- Firstly, thank you for committing the time to take part in this research project. Your help is 
+invaluable. 
+- You will be required to  
+(1) taste, and spit out, four red wines;  
+(2) rate them in terms of liking;  
+(3) describe the wines, and finally;  
+(4) answer a small number of background questions about yourself. 
+- This tasting should take you no more than 20 minutes to complete; however, there is no time 
+limit so please take as long as you need.   
+- If you need further information at any point during the tasting, please raise your hand. If you 
+have any questions or concerns after the tasting, please contact the researcher on the details 
+below.  
+- You have the right to withdraw from this tasting at any time without reason.  
+- Your responses will be kept confidential and will only be used for the purposes of this research 
+paper. At no point will you be identified by name in the final research, and only the researcher 
+will have access to your complete responses.  
+- It is important, for the purposes of the research, to keep the format and content of the tasting 
+confidential, so as not to influence other participants. For this reason, the identity of the wines 
+will not be disclosed at the end of the tasting.  
+- If you would like to know more about the tasting, and results, as well as the wines shown, 
+please enter your email address below, and you will be contacted at the end of April with the 
+list of wines and a short summary of the findings.  
+ 
+⃝ I confirm that I have read and understood the information provided above, and am willing to 
+participate in the research.  
+Signed: ____________________________________ 
+⃝ Please let me know further information about this research project, and the wines tasted: 
+Email address: ____________________________________ 
+ 
+Researcher contact details: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101  
+===== PAGE 81 =====
+77 
+ 
+Please taste wine number 1 and then answer the questions below for this wine: 
+Wine 1 is a full-bodied red wine with easy-going, round tannins. 
+ 
+a. On a scale of 1 to 9, 1 being strongly dislike and 9 being strongly like, how much do you like 
+Wine 1? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Strongly    Neutral    Strongly 
+Dislike        Like 
+ 
+b. On a scale of 1 to 9, 1 being extremely low and 9 being extremely high, how tannic do you 
+think Wine 1 is? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Low    Medium    High 
+tannin    tannin    tannin 
+ 
+c. Please circle the descriptors below that you think best describe Wine 1; please circle a 
+MAXIMUM of FOUR descriptors.  
+Black fruit  Spice  Rounded  Herbal  
+        
+ Vanilla  Sour  Leather  Red fruit 
+        
+Coarse  Smoky  Earthy  Smooth  
+        
+ Grippy  Bitter  Floral  Sweet 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101  
+===== PAGE 82 =====
+78 
+ 
+Please taste wine number 2 and then answer the questions below for this wine: 
+Wine 2 is a full-bodied red wine with dusty, drying tannins.  
+ 
+a. On a scale of 1 to 9, 1 being strongly dislike and 9 being strongly like, how much do you like 
+Wine 2? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Strongly    Neutral    Strongly 
+Dislike        Like 
+ 
+b. On a scale of 1 to 9, 1 being extremely low and 9 being extremely high, how tannic do you 
+think Wine 2 is? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Low    Medium    High 
+tannin    tannin    tannin 
+ 
+c. Please circle the descriptors below that you think best describe Wine 2; please circle a 
+MAXIMUM of FOUR descriptors.  
+Black fruit  Spice  Rounded  Herbal  
+        
+ Vanilla  Sour  Leather  Red fruit 
+        
+Coarse  Smoky  Earthy  Smooth  
+        
+ Grippy  Bitter  Floral  Sweet 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101  
+===== PAGE 83 =====
+79 
+ 
+Please taste wine number 3 and then answer the questions below for this wine: 
+Wine 3 is a full-bodied red wine with chewy, taut tannins. 
+ 
+a. On a scale of 1 to 9, 1 being strongly dislike and 9 being strongly like, how much do you like 
+Wine 3? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Strongly    Neutral    Strongly 
+Dislike        Like 
+ 
+b. On a scale of 1 to 9, 1 being extremely low and 9 being extremely high, how tannic do you 
+think Wine 3 is? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Low    Medium    High 
+tannin    tannin    tannin 
+ 
+c. Please circle the descriptors below that you think best describe Wine 3; please circle a 
+MAXIMUM of FOUR descriptors.  
+Black fruit  Spice  Rounded  Herbal  
+        
+ Vanilla  Sour  Leather  Red fruit 
+        
+Coarse  Smoky  Earthy  Smooth  
+        
+ Grippy  Bitter  Floral  Sweet 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101  
+===== PAGE 84 =====
+80 
+ 
+Please taste wine number 4 and then answer the questions below for this wine: 
+Wine 4 is a full-bodied red wine with firm, forward tannins.  
+ 
+a. On a scale of 1 to 9, 1 being strongly dislike and 9 being strongly like, how much do you like 
+Wine 4? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Strongly    Neutral    Strongly 
+Dislike        Like 
+ 
+b. On a scale of 1 to 9, 1 being extremely low and 9 being extremely high, how tannic do you 
+think Wine 4 is? Please circle one number only.  
+ 
+1 2 3 4 5 6 7 8 9 
+Low    Medium    High 
+tannin    tannin    tannin 
+ 
+c. Please circle the descriptors below that you think best describe Wine 4; please circle a 
+MAXIMUM of FOUR descriptors.  
+Black fruit  Spice  Rounded  Herbal  
+        
+ Vanilla  Sour  Leather  Red fruit 
+        
+Coarse  Smoky  Earthy  Smooth  
+        
+ Grippy  Bitter  Floral  Sweet 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101  
+===== PAGE 85 =====
+81 
+ 
+Demographic information 
+Please take the time to fill in these responses as fully as you are comfortable; the responses are an 
+important input to the analytical process. 
+1. What is your gender?  
+ Male  Female   
+ 
+2. What is your age range? 
+ 18-29  30-39  40-49  50-59 
+ 60+    
+ 
+3. Is English your native language? 
+ Yes  No   
+ 
+4. What is the highest wine qualification you have studied for? 
+ None  WSET Level 1  WSET Level 2  WSET Level 3 
+ WSET Level 4  Master of Wine  Other:___________  
+ 
+5. How many wine tastings have you attended in the past year (both BB&R and other venues)? 
+ None  1  2-3  4-6 
+ 7-10  11+   
+ 
+6. Are you involved in the promotion or selling of wine? 
+ Yes  No   
+ 
+7. Which style(s) of wine do you prefer to drink? Please tick a MAXIMUM of THREE.   
+ Sparkling  Dry white  Off-dry white  Rosé 
+ Light red  Full-bodied red  Dessert  Fortified 
+ 
+If you wish to be entered into a draw to win a case of wine, please enter your email address below. 
+Please enter me into the prize draw, my email address is:__________________________________ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Tasting #: 101 
+===== PAGE 86 =====
+82 
+ 
+APPENDIX 4 
+ 
+Word Count 
+Section Section 
+Titles 
+Table and 
+Figure 
+Titles 
+Tables 
+(EXCLUDING 
+text boxes) 
+Total Words 
+Counted 
+Summary 2   110 108 
+Introduction 2   401 399 
+Literature review 22   1341 1319 
+Methodology 16 56 83 2431 2276 
+Results and 
+Analysis 103 218 491 2358 1546 
+Interpretation and 
+Limitations 59   3277 3218 
+Conclusion 23   679 656 
+Total main text    10597 9522 
+Bibliography    1759 1759 
+Appendices    3549 3549 
+ 
+ 
+ 
+ 

@@ -1,0 +1,2416 @@
+
+===== PAGE 1 =====
+Candidate number: 26040  
+ 
+ 
+ 
+ 
+Mousiness in wine:  
+An investigation into the effects of repeated exposures and 
+systematic training on wine professionals’ sensitivity to 
+mousiness 
+ 
+June 2024 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+   
+ 
+ 
+ 
+  
+ 
+ 
+ 
+ 
+  
+Word count: 9998 
+===== PAGE 2 =====
+ 
+This page is intentionally blank 
+ 
+  
+===== PAGE 3 =====
+Contents 
+1. Summary ............................................................................................................. 1 
+2. Introduction ........................................................................................................ 2 
+3. Background and context ................................................................................... 5 
+3.1 Mousiness in wine ........................................................................................... 5 
+3.1.1 Occurrence of mousiness in wine ............................................................... 5 
+3.1.2 Formation of mousiness .............................................................................. 6 
+3.1.3 Sensory character and the detection ability of individuals ........................... 7 
+3.1.4 Evaluation techniques ................................................................................. 8 
+3.1.5 Previous research ....................................................................................... 8 
+3.2 Sensory evaluation and measurement of detection thresholds ................. 9 
+3.2.1 Criteria for a correct answer ...................................................................... 10 
+4. Methodology ..................................................................................................... 13 
+4.1 Pilot Study ...................................................................................................... 13 
+4.2 Materials and methods ................................................................................. 14 
+4.2.1 Experimental design .................................................................................. 14 
+4.2.2 Location and schedule .............................................................................. 15 
+4.2.3 Assessors and panel size ......................................................................... 16 
+4.2.4 Pre-screening of assessors ....................................................................... 17 
+4.2.5 Sample preparation and glassware ........................................................... 18 
+4.3 Stimuli ............................................................................................................ 19 
+4.3.1 Concentration ranges ................................................................................ 19 
+4.4 Procedure ....................................................................................................... 20 
+4.4.1 Sensitivity measurement tastings (T1 and T2) .......................................... 20 
+4.4.2 Training ..................................................................................................... 22 
+4.4.3 Qualitative descriptions of mousy samples ............................................... 23 
+4.5 Measurement of detection thresholds ......................................................... 24 
+4.5.1 Probability of Detection ............................................................................. 24 
+4.5.2 BET measurements .................................................................................. 25 
+4.6 Statistical analyses ....................................................................................... 26 
+5. Results and analysis ........................................................................................ 28 
+5.1 Research Question 1 ..................................................................................... 28 
+5.1.1 Probability of Detection ............................................................................. 28 
+5.1.2 BET measurements .................................................................................. 30 
+5.2 Discussion Research Question 1 results .................................................... 31 
+===== PAGE 4 =====
+5.2.1 Hyper-sensitive assessors ........................................................................ 31 
+5.2.2 Least sensitive assessors ......................................................................... 32 
+5.2.3 Specific anosmia ....................................................................................... 33 
+5.3 Research Question 2 ..................................................................................... 34 
+5.3.1 Improvement between T1 and T2 ............................................................. 34 
+5.3.2 Difference between the control group and the training group .................... 35 
+5.3.3 Comparison of high/less-sensitive and certain/uncertain assessors ......... 36 
+5.4 Discussion Research Question 2 results .................................................... 37 
+5.4.1 Induced sensitivity from repeated exposures ............................................ 37 
+5.4.2 Effect of systematic training versus repeated exposure ............................ 39 
+5.4.3 Effects of awareness ................................................................................. 40 
+5.4.4 Potential effects of adaptation ................................................................... 42 
+5.5 Research Question 3 ..................................................................................... 43 
+5.5.1 Results and discussion ............................................................................. 43 
+6. Conclusions ..................................................................................................... 49 
+7. Bibliography ..................................................................................................... 52 
+Appendix 1: Research Paper Proposal (RPP) ...................................................... 60 
+Appendix 2: List of Abbreviations ........................................................................ 68 
+Appendix 3: Assessors’ individual detection thresholds T1, T2 ........................ 69 
+Appendix 4: Heatmaps ........................................................................................... 70 
+Appendix 5: Glossary ............................................................................................. 76 
+Appendix 6: Answer sheets for EyeQuestion ...................................................... 78 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 5 =====
+1 
+ 
+1. Summary  
+ 
+Mousy taint is perceived to be increasing. Variation in wine professionals’ (WPs) 
+detection abilities and a lack of consensus regarding the taint represent challenges to 
+sensory quality control. Several studies have found an induction of sensitivity in 
+subjects after repeated exposure to a substance. Thus far, no study has explored 
+whether this also applies to mousiness in wine. 
+ 
+The aim of this research paper was to test whether repeated exposure to one of the 
+mousy compounds, 2-acetyltetrahydropyridine (ATHP), could induce sensitivity in 
+WPs. Fifty volunteer WPs were randomly divided into a training group that conducted 
+systematic training on ATHP, as well as a control group not subject to training. 
+Measurement of detection thresholds were used to monitor changes in sensitivity. 
+The WPs also described two concentrations of ATHP in wine and these descriptions 
+were compared to terms used in the literature. 
+ 
+The results show that WPs’ detection thresholds of ATHP can be reduced and 
+exposure to a limited number of clear benchmarks is sufficient to achieve this. Also, 
+the number of subjects truly anosmic to ATHP seems to be much lower than what is 
+commonly referred to in the literature, while the inducible subjects represent a more 
+important category. WPs’ descriptors of ATHP also indicated a relationship between 
+retro-nasal odour quality and stimulus intensity, and that the degree to which a 
+mousy wine is unpalatable depends on the concentration. 
+===== PAGE 6 =====
+2 
+ 
+2. Introduction  
+ 
+Mousiness is a wine fault that has re-emerged in recent years (Tempère, et al., 2019, 
+p. 1) and has even been referred to as “the wine fault of our times” (Goode, 2020). It 
+was described by Thudicum (1894), referenced in Grbin & Henschke (2000, p. 255), 
+as “closely resembling to the smell of a residence of mice,” representing one of the 
+earliest known reports of the fault. 
+ 
+Under normal wine tasting conditions, retro-nasal evaluation is most commonly 
+necessary for detection as the mousy compounds in general are not sufficiently 
+volatile at the low pH of wine, meaning they are first released when the wine comes 
+into contact with an individual’s higher saliva pH (Tucknott, 1977, cited in Costello, 
+1998, p. 23). It is generally perceived after the wine has been expectorated or 
+swallowed (Snowdon, et al., 2006, p. 6466). 
+ 
+Mousiness is referred to as both unpleasant, persistent and even unpalatable (Grbin, 
+et al., 1996, p. 57), potentially causing significant financial loss to a wine producer. 
+There is, however, a lack of consensus, including among wine professionals (WPs), 
+regarding both the detection and the characterisation of mousy off-flavour in wine 
+(Tempère, et al., 2019, p. 2). Thus, discussions on the topic can be challenging, as a 
+wine may seem faultless to one person yet unpalatable to another.  
+ 
+There have been no recent studies on the actual incidence of mousiness in wine on a 
+larger scale. In contrast, for detection rates of mousiness, one of the most extensive 
+studies to date was undertaken by the Australian Wine Research Institute (AWRI, 
+2011). The AWRI found that as many as 25% of WPs could not detect the taint, 
+===== PAGE 7 =====
+3 
+ 
+which makes this wine fault particularly interesting. However, whether this was due to 
+actual specific anosmia or the assessors’ lack of familiarity with the taint is unclear. 
+ 
+Several studies have reported an induced sensitivity to odorous compounds following 
+repeated exposure (Tempère, et al., 2012); (Cain & Schmidt, 2002); (Wysocki, et al., 
+1989). Specific anosmia has for instance been related to the flavour compound 
+diacetyl (Lawless, et al., 1994). However, Tempère et al. (2012) reported a decrease 
+in detection thresholds for both diacetyl and linalool in WPs following a period of 
+training. 
+ 
+Variation in the ability to detect mousiness is partially related to differences in the 
+composition of a person’s saliva and the pH of the tongue’s surface (Snowdon, et al., 
+2006, p. 6466). However, if repeated exposure to 2-acetyltetrahydropyridine (ATHP), 
+one of the compounds that produce the taint, could influence WPs’ detection ability, 
+these may be effective in reducing both the lack of consensus among WPs and 
+increase their sensory quality control ability to detect mousiness under normal wine 
+tasting conditions. 
+ 
+This research paper (RP) will therefore investigate the following:  
+1) What are wine professionals’ detection levels of ATHP pre- and post-
+exposure?  
+2) Can wine professionals’ sensitivity to mousiness be changed by repeated 
+exposures and systematic training? 
+===== PAGE 8 =====
+4 
+ 
+3) What are wine professionals’ descriptors of one of the mousy compounds, 
+ATHP, in wine and how do these relate to established terms by previous 
+literature? 
+ 
+Given the apparent increase in the incidence of mousiness and the high degree of 
+specific anosmia reported by the AWRI (2011), exploring whether repeated 
+exposures to mousiness can improve WPs’ detection ability may be of significant 
+value to the wine trade. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 9 =====
+5 
+ 
+3. Background and context 
+ 
+3.1 Mousiness in wine 
+ 
+3.1.1 Occurrence of mousiness in wine 
+ 
+Historically, mousiness has been described as both “sporadic” (Snowdon, et al., 
+2006, p. 6465) and “infrequent” (Grbin, et al., 1996, p. 57), though these authors 
+acknowledge the strong detrimental effect on wine quality when mousiness does 
+occur. 
+ 
+However, more recently, both wine experts and researchers share an impression that 
+the presence of the taint is increasing (Tempère, et al., 2019, p. 1); (Kiyomichi, et al., 
+2023, p. 1); (Snowdon, et al., 2006, p. 6465); (A. Feiring, 2017, personal 
+communication, 22 October). Indeed, several articles on the topic have recently been 
+published in the international wine press (Woolf, 2017); (Goode, 2020); (Feiring, 
+2022). Further, the AWRI (AWRI, u.d.) reported that an increasing number of wine 
+samples suspected of mousiness had been submitted to its technical services group 
+in the 1990s and 2010s. 
+ 
+The rise of the natural wine movement over the past two decades may be of 
+relevance to explaining the apparent increase in mousy wines. Massini & Vuchot 
+(2015) associated mousiness in wines with a significant reduction in the use of SO2 
+(supported by recent research by Kiyomichi, et al., 2023), increasing pH levels, and 
+the use of native microbiota in fermentations. Thus, the fault is particularly relevant to 
+natural wines made with minimal intervention. Another explanation for the increased 
+===== PAGE 10 =====
+6 
+ 
+reported incidence of the wine fault may be increasing awareness and familiarity with 
+the taint among WPs. 
+ 
+3.1.2 Formation of mousiness  
+ 
+Mousiness is usually of microbial origin (AWRI, u.d.) and is mainly attributable to 
+Dekkera/Brettanomyces yeast (Grbin & Henschke, 2000) and certain strains of lactic 
+acid bacteria (Costello, et al., 2001). There is no method for removing mousy off-
+flavour once it has occurred, but an effective form of protection against the taint 
+seems to be SO2  (AWRI, u.d.). 
+ 
+Three N-heterocyclic molecules have been associated to the mousy off-flavour in 
+wine: 2-acetyltetrahydropyridine (ATHP) (Strauss & Heresztyn, 1984), 2-
+ethyltetrahydropyridine (ETHP) (Grbin, et al., 1996, p. 59) and 2-acetyl-1-pyrroline 
+(APY) (Herderich, et al., 1995). Of the three, ETHP was previously considered the 
+least important compound. In fact, its sensory threshold measured in water is higher 
+than both ATHP and APY (Tempère, et al., 2019, p. 2). Nevertheless, it is difficult to 
+compare the detection threshold values per se, especially when the compounds are 
+diluted in a complex matrix such as wine (Kiyomichi, et al., 2023, p. 2). 
+ 
+Research by Hayasaka (2019) and Kiyomichi, et al. (2023) recently provided reliable 
+and rapid methods for the quantification of the N-heterocyclic compounds associated 
+with mousiness, which can be useful for the routine screening of wines. In fact, the 
+latter showed that, based on a sample of 68 wines produced with limited or no SO2, 
+ETHP was found in almost all and ATHP was found in nearly all wines suspected of 
+===== PAGE 11 =====
+7 
+ 
+mousiness. In contrast, APY was only found in 11 wines and therefore represented 
+only a few cases compared to ATHP and ETHP. Also, in Strauss & Heresztyn’s 
+research (1984), ATHP was only present in mousy and not sound wines.  
+ 
+3.1.3 Sensory character and the detection ability of individuals 
+ 
+Various research referenced in Tempère, et al. (2019, p. 2) described a mousy 
+character in wine as similar to rodent urine (dirty mouse cage) and grilled foods, such 
+as popcorn, rice, crackers and bread crusts (Tucknott, 1974); (Buttery, et al., 1983); 
+(Strauss & Heresztyn, 1984); (Herderich, et al., 1995). Other descriptions include 
+dried sausage skin, vomit and dirty mops (Tempère, et al., 2019, p. 2). The wide 
+range of descriptions may be due to the potential and unexplored matrix effect 
+between the compounds involved, and their relative levels of intensity and variation in 
+individual detection abilities (Tempère, et al., 2019, p. 2).  
+ 
+Ever since the early 1900s, variations in individuals’ ability to detect mousiness have 
+been recognized (Müller-Thurgau & Osterwalder, 1913). Using ATHP, Grbin, et al. 
+(1996), examined individuals’ detection thresholds and concluded that their range of 
+detection was large.  
+ 
+APY, ETHP and ATHP are generally not sufficiently volatile at the pH range of wine 
+to be detected ortho-nasally (Bartowsky & Henschke, 1995). However, when the wine 
+(2.8–3.8 pH) comes into contact with the higher pH range of a person’s saliva 
+(usually near 7), the off-flavour can be detected retro-nasally. Nevertheless, there are 
+===== PAGE 12 =====
+8 
+ 
+wide inter-individual variations in oral pH of between 5.76 and 7.96 (Larsen, et al., 
+1999), which may partially explain the differences in individuals’ ability to detect 
+mousiness (Snowdon, et al., 2006, p. 6466). 
+ 
+3.1.4 Evaluation techniques 
+ 
+Ortho-nasal evaluation techniques have been developed to detect mousy off-flavour 
+in wine without actually tasting it, such as the “palm and sniff” method, where one 
+drop of wine is placed on the back of the hand and the skin is then sniffed (Grbin, et 
+al., 1996, p. 58); the alkaline strip method, using alkaline strips dipped in culture 
+media or wine (Grbin & Henschke, 2000); oxidation of the wine due to the instability 
+of APY and ATHP in its presence (Weerawatanakorn, et al., 2015); and pH 
+adjustment (Tempère, et al., 2019). Tempère, et al. (2019) found that by adjusting the 
+pH to around 5, the consensus among WPs increased significantly, as well as their 
+ability to discriminate. These methods, however, are not representative of normal 
+wine tasting conditions. 
+ 
+3.1.5 Previous research  
+ 
+Important wine literature, such as the Oxford Companion to Wine, has often stated 
+that as many as 30% of WPs cannot detect mousiness. The source of this specific 
+figure is not cited. However, this percentage is also widely reported elsewhere 
+(Feiring, 2022); (Goode, 2018, p. 180); (Woolf, 2017). 
+ 
+The 30% anosmia figure likely originated from the wine taint and fault tasting clinics 
+organized by the AWRI during their Advanced Wine Assessment Courses (A. 
+===== PAGE 13 =====
+9 
+ 
+Coulter1 2022, personal communication, 18 February) and is also referred to in “Ask 
+the AWRI column” of Grapegrower & Winemaker (2015). In accumulated data from 
+2006 to 2011, only 75% of WPs could detect mousiness (AWRI, 2011). As the 
+anosmia data were collected over time, the 30% figure often quoted in various 
+sources of wine literature was based on 148 study participants and not the final 
+number of 238 participants who accounted for a lower average anosmia of 25% (A. 
+Coulter 2022, personal communication, 18 February). 
+ 
+These results, however, were based on one single and unquantifiable concentration 
+of ATHP presented to the study participants and did not take into account different 
+levels of sensitivity. Thus, rigorous sensory investigations to collect the anosmia data 
+were not conducted (A. Coulter 2022, personal communication, 18 February). 
+Because of its prominence, the AWRI’s study is regarded as important research. 
+ 
+3.2 Sensory evaluation and measurement of detection thresholds 
+ 
+In this RP, sensory evaluation is used to determine the level at which the stimulus of 
+mousy compounds is detected and if it can be changed through repeated exposures. 
+The 50 WPs of the RP are referred to as “assessors” and their detection levels as 
+“thresholds”. These are taken as a description of the assessors’ performance. 
+ 
+Three-alternative forced-choice (3-AFC) is a common procedure for measuring 
+odour, flavour and taste detection thresholds (ISO 13301, 2018), and was used in the 
+RP. During a 3-AFC test, the participants of a panel are presented with three 
+ 
+1 Senior Oenologist, AWRI 
+===== PAGE 14 =====
+10 
+ 
+samples, one of which contains the substance to be detected (test sample), while the 
+other two samples (references) do not contain the substance in question. The 
+participants are asked to choose the test sample, and if uncertain they are required to 
+guess (ISO 13301, 2018).2  
+ 
+An ascending series is mostly used in taste and smell to avoid adaptation and carry-
+over effects from a strong concentration affecting a successively weaker one 
+(Lawless & Heymann, 2010, p. 21). Lawless & Heymann (2010, p. 19) refer to 
+sensory adaptation as “a commonly observed decrease in responsiveness to 
+conditions of more or less constant stimulation.” The potential effects of adaptation 
+must therefore be anticipated in the experimental design of a sensory study 
+(O'Mahony, 1986) and are highly relevant when taking into account the persistent 
+character of the mousy compounds and the need for retro-nasal detection (S. 
+Tempère3 2023, personal communication, 13 October). 
+ 
+3.2.1 Criteria for a correct answer 
+ 
+Because 3-AFC testing requires the participants of a panel to guess when they are 
+uncertain, the literature has taken different approaches to the kind of criteria that 
+should apply to a correct answer when establishing individual detection thresholds. 
+Lawless and Heymann (2010, p. 131) refer to a participant’s first correct answer 
+when all higher concentrations are also correct. At the same time, they (p. 137) 
+ 
+2 In a 3-AFC test where only one of three available choices is correct, the probability of selecting the 
+correct sample by chance is equal to 1/3 (ISO 13301, 2018). 
+3 Assistant Professor at the Institute of Vine and Wine, University of Bordeaux 
+===== PAGE 15 =====
+11 
+ 
+acknowledge the probability of the potential effects of adaptation in the threshold 
+tastings where “the sensory impression will sometimes “fade in and out” at levels 
+near threshold.” Furthermore, a strong stimulus late in the ascending series may be 
+perceived as weaker than it actually is, due to the repeated exposure to a given 
+substance.  
+ 
+Thus, several studies such as Tempère, et al. (2011, 2012, 2019) and Wise, et al. 
+(2008) have applied as criterion for a correct answer the lowest concentration 
+detected of three correct answers in a row. The latter study also asked the study 
+participants to confirm their certainty regarding the last correct answer of the three 
+(based on the former version ASTM E679-04). With such an approach, however, 
+there is a risk of a) interference between detection and recognition thresholds (S. 
+Tempère 2023, personal communication, 13 October) and b) influencing the results 
+with a subjective component as the group of assessors will likely comprise both 
+conservative and more liberal individuals with regards to their ability to be certain 
+(Macmillan & Creelman, 1991, referenced in Wise, et al., 2008, p. 17). 
+ 
+Another method for minimising the effects of adaptation is to use a stopping rule4. 
+However, this approach could also lead to an incorrect result (W. Pearson5 2024, 
+personal communication, 1 February) and miss important data for a subsequent 
+probability of detection analysis. Considering the above, the most appropriate 
+ 
+4 A stopping rule means that individuals may stop tasting after giving a predefined number of correct 
+answers (Lawless & Heymann, 2010, p. 133). 
+5 Senior Research Scientist, AWRI 
+===== PAGE 16 =====
+12 
+ 
+criterion for a correct answer will likely depend on the substances that are to be 
+detected. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 17 =====
+13 
+ 
+4. Methodology 
+ 
+4.1 Pilot Study 
+ 
+In 2022, an in-depth pilot study was conducted involving 30 WPs from the Norwegian 
+Wine Monopoly (Vinmonopolet). All the pilot study participants performed two 
+ascending 3-AFC tests based on eight different combinations of two of the mousy 
+compounds: ATHP and APY, with a period of 13 days of training in between the two 
+tasting sessions. The concentration ranges of APY and ATHP (Table 2) were based 
+on the concentrations found in spoiled wines in the previous literature (Grbin, et al., 
+1996, p. 59), as well as preliminary experiments by Laboratorios Excell Ibérica S.L. 
+and the researcher. 
+ 
+The results indicated that, on average, the pilot study participants performed better in 
+the second 3-AFC test. However, some of the results also raised questions about 
+whether training sometimes resulted in certain individuals adapting, leading to a 
+reduced level of sensitivity after training. Also, some of the pilot study participants 
+seemed to be affected by adaptation and/or fatigue during the two tasting sessions 
+and therefore questioned a) whether the minimum 45 seconds that elapsed between 
+each wine tasted in the 3-AFC tests were sufficient and b) the appropriateness of 
+using the first correct concentration identified where all other concentrations are also 
+correct (Lawless & Heymann, 2010, p. 131) as the criteria for a correct answer for the 
+best estimate of individual threshold (BET).  
+ 
+===== PAGE 18 =====
+14 
+ 
+12 pilot study participants were able to detect all concentrations in the first tasting 
+session, showing that the range of concentrations was probably too high for a 3-AFC 
+test. As the interactions between ATHP and APY are unknown, the effect of each of 
+the compounds was also difficult to interpret. Furthermore, due to the lack of a fixed 
+geometrical dilution factor between the concentration steps, detection thresholds 
+could not be estimated in accordance with ISO 13301 (2018). Finally, it could be 
+questioned whether the average improvement of the pilot study participants was due 
+to repeated exposure from repetition of the 3-AFC test, or to the training.    
+ 
+4.2 Materials and methods 
+ 
+4.2.1 Experimental design 
+ 
+Based on the experience from the pilot study, the new RP study had a higher number 
+of assessors (50) to increase the statistical robustness of the research. For the 
+threshold measurements, all assessors were required to complete two identical 
+sensitivity tastings using ascending 3-AFC tests referred to as T1 (first sensitivity 
+tasting) and T2 (second sensitivity tasting). Only ATHP was used, with a consistent 
+dilution factor between each concentration step. A minimum break of two minutes 
+between each wine tasted was required for the 3-AFC tests. 
+ 
+All assessors were randomized to a control group (C) and a training group (T) to 
+distinguish between the effect of repeated exposure through 3-AFC compared to 
+systematic training. In between T1 and T2, T trained at home for 14 days. Estimated 
+detection thresholds for ATHP were used to measure changes in sensitivity between 
+T1 and T2 at individual and group level. 
+===== PAGE 19 =====
+15 
+ 
+The criterion used for assessing BET for T1 and T2 was set to be the lowest 
+concentration detected of three correct answers in a row in line with the research 
+referenced in 3.2.1. This criterion would therefore consider the potential effects of 
+adaptation that are especially relevant to a persistent taint such as mousiness (also 
+indicated by the pilot study), while not potentially losing important data by applying a 
+stopping rule. If an assessor did not reach the criterion of three correct answers in a 
+row but answered correctly at the end of the series (e.g. the last two concentration 
+steps), a correct answer was considered the first of those correct answers following 
+research of Wysocki, et al. (1989). 
+ 
+The probability of finding three correct answers in a row at random is only 3.7% (S. 
+Tempère 2023, personal communication, 13 October). Despite the low likelihood of 
+making three correct guesses in a row, an additional and stricter criterion compared 
+to the referenced research was applied: three correct answers in a row were only 
+considered correct when the assessor had a maximum of one incorrect answer later 
+in the series. As one incorrect answer after three correct answers may occur as a 
+consequence of adaptation explained in 3.2.1, several incorrect answers would, in 
+contrast, suggest that the assessor had not accurately identified three in a row, but 
+had instead guessed correctly. 
+ 
+4.2.2 Location and schedule 
+ 
+All tastings took place at Vinmonopolet’s headquarters in Dronning Eufemias gt. 13, 
+Oslo, Norway. The test room was designed in accordance with the general guidance 
+for the design of test rooms (ISO 8589, 2007) and the standard for Testing and 
+===== PAGE 20 =====
+16 
+ 
+calibration laboratories (ISO/IEC 17025, 2017) with seven separate tasting booths 
+and a room temperature of 19–21 °C. All booths included an integrated spittoon and 
+PC. 
+ 
+All tastings were performed between 09:30 and 17:00. Due to the high number of 
+assessors and the capacity of the test room, both T1 and T2 were organized over a 
+period of two days each. 
+ 
+4.2.3 Assessors and panel size 
+ 
+The cohort of this study comprised 50 WPs from different sectors of the Norwegian 
+wine trade. Their participation was based on their own desire to learn. In the research 
+by Parr, et al. (2002), the expert group comprised winemakers, wine science 
+researchers, wine professionals (Masters of Wine, wine judges, wine writers, wine 
+retailers), graduate students of viticulture and oenology and people who had been 
+involved in wine for more than ten years. 
+ 
+Due to the limited amount of wine produced in Norway, the most suitable assessors 
+were employees of Vinmonopolet (retail), wine importers, wine educators and wine 
+writers. All the assessors had completed a minimum WSET 3/Sommelier degree, 
+were currently working full time in the wine trade with regular wine tasting as part of 
+their work and had not been part of the pilot study. Twenty-seven female and 23 male 
+assessors participated in the study with ages ranging from 18–60+ (Table 1).  
+ 
+===== PAGE 21 =====
+17 
+ 
+Lawless & Heymann (2010, p. 130) consider a panel of 25 assessors to be sufficient 
+for threshold tastings, while Leske, et. al. (2013, p. 23) suggest a minimum of 15–20. 
+For an equivalent study, Tempère, et al. (2012) had a total of 32 WPs divided into a 
+training and a control group comprising 16 WPs each. Since the pilot study did not 
+yield the desired robustness due to the elimination of some hyper-sensitive 
+assessors, a notably higher number of assessors than the pilot study, as well as 
+similar studies and the recommendations described above, were targeted for the RP.  
+ 
+ 
+Table 1: WP demographics 
+ 
+ 
+4.2.4 Pre-screening of assessors 
+ 
+In advance of T1, the assessors were asked whether they had previously detected 
+mousiness in wine. They were also subject to a pre-screening of their detection 
+ability. This took place a minimum of one hour before T1. The assessors were 
+presented with three glasses of wine: one reference wine (W1) with no added 
+substance and a set of two wines (W2 and W3) in which one was spiked with the 
+highest concentration of ATHP (C8, Table 2) and the other was not. In their own time, 
+they were asked to describe W2 and W3 and whether/how each of them was 
+different from the reference wine. 
+Age range Male Female Total 
+18–29 2 0 2 
+30–39 7 7 14 
+40–49 6 15 21 
+50–59 7 4 11 
+60+ 1 1 2 
+Total 23 27 50 
+ 
+===== PAGE 22 =====
+18 
+ 
+The purpose of the pre-screening was as follows: 
+1. To ensure that all assessors had the exact same benchmark of the compound 
+to be detected during the subsequent 3-AFC tests. 
+2. To give an indication of potentially anosmic assessors who could then be 
+randomized equally into C and T. 
+ 
+4.2.5 Sample preparation and glassware 
+ 
+Wine and samples were prepared in a separate room away from the assessors. Two 
+hours prior to the tastings, bottles of the base wine were spiked with the different 
+concentrations of mousy compounds (Table 2) supplied by Laboratorios Excell 
+Ibérica S.L. in small vials. Each vial contained mousy compounds precisely 
+measured for a 75cL bottle. 50mL of base wine was measured for each glass, using 
+a graduated measuring device on top of each bottle. The pilot study wine was slightly 
+oaky6 with a light popcorn note. As popcorn can describe mousiness, this could have 
+been a confounding factor in the results of the pilot study. Thus, a neutral unoaked 
+Chardonnay from the Languedoc7 was chosen as being more appropriate for the RP. 
+All glasses were Spiegelau Special Glasses Expert Tasting, which are also used for 
+Vinmonopolet’s blind tastings8.  
+ 
+ 
+ 
+6 Lindeman’s Bin 65 Chardonnay was regularly used in the AWRI’s previous research (2011) (A. 
+Coulter 2022, personal communication, 18 February) and was therefore used in the pilot study. 
+7 Vintage 2022, no malolactic fermentation, 12.3% alcohol, pH 3.35. 
+8 The glasses are similar to ISO 3591 wine tasting glasses but have a slightly wider diameter. 
+===== PAGE 23 =====
+19 
+ 
+4.3 Stimuli 
+ 
+4.3.1 Concentration ranges 
+ 
+Due to ATHP’s relevance in the occurrence of mousiness and its role in previous 
+research, this compound was selected for the concentration range. 
+ 
+The concentrations of ATHP were determined based on the concentrations 
+measured in spoiled wine by Grbin, et al. (1996, p. 59) from 4.8μg/L to 106μg/L, 
+Costello (1998, p. 95) from 0.7μg/L to 106μg/L and Hayasaka (2019, p. 114) from 
+0.52μg/L to 26.46μg/L, as well as the results from the pilot study (Table 2).  
+ 
+The final levels of the concentrations selected were tested by using a 3-AFC test, 
+performed under the same conditions and circumstances as in the main study of the 
+RP, on a selection of 13 participants from the previous pilot study (described in 4.1), 
+including the least and most sensitive participants. None of them could detect the 
+lowest concentration of 0.2μg/L, and only one of the participants could not detect the 
+highest level of 122.07μg/L. Thus, the selected concentrations seemed appropriate to 
+cover a variety of thresholds.  
+ 
+A dilution factor of 2.59 was applied between each of the eight concentration steps for 
+the successive BET calculations. Due to the requirement for retro-nasal evaluation 
+and taking into account the results from the pilot study, eight steps with no 
+ 
+9 A dilution factor of two or three is common in taste and smell where the concentrations represent 
+equal steps on a log scale (Lawless & Heymann, 2010, p. 130). 
+===== PAGE 24 =====
+20 
+ 
+replications were considered the maximum number of steps due to the risk of palate 
+fatigue and adaptation. However, these were also considered sufficient for a 
+threshold tasting (Lawless & Heymann, 2010, p. 130). 
+ 
+ 
+Table 2: Concentrations used in the 3-AFC tests of T1 and T2 of the RP (including 
+the systematic training procedure for T and pre-screening of all assessors) and the 
+pilot study10. 
+ 
+4.4 Procedure 
+ 
+4.4.1 Sensitivity measurement tastings (T1 and T2) 
+ 
+T1 and T2 were completely identical.  
+ 
+The assessors were instructed beforehand to avoid consuming anything but water 
+one hour prior to the tastings. Each assessor was provided with a set of 24 glasses of 
+ 
+10 In the pilot study detection thresholds could not be estimated in accordance with ISO 13301 (2018) 
+due to the lack of a fixed dilution factor between the concentration steps. The concentrations of the RP 
+were therefore different and also covered a wider range of detection thresholds. References to C1–C8 
+throughout the RP refer to the concentrations of the RP and not the pilot study. 
+ RP Pilot study 
+Concentration 
+(C) ATHP in μg/L APY in μg/L ATHP in μg/L 
+ 
+CI 0.20 0.05 1  
+C2 0.50 0.1 2  
+C3 1.25 0.3 3  
+C4 3.13 0.5 4  
+C5 7.81 1 6  
+C6 19.53 3 25  
+C7 48.83 5 50  
+C8 122.07 8 100  
+ 
+===== PAGE 25 =====
+21 
+ 
+wine at a temperature of 19–21°C, presented simultaneously. The samples were all 
+coded with three digits and distributed at random between the assessors. The 24 
+glasses of wine were divided into eight trials presented to the assessors as one line 
+for each trial, starting with the line containing the lowest concentration (C1) of mousy 
+compounds (closest to the assessors) and finishing with the strongest concentration 
+(C8), which was present in trial eight (furthest away from the assessors). All samples 
+were tasted from left to right. The assessors submitted their answers online in 
+EyeQuestion (EyeQuestion v.4.11.70, 2018). They were instructed to taste each 
+sample only once to avoid fatigue. They were not informed of the results during the 
+tasting, nor that the trials were increasing in intensity.  
+ 
+The assessors were asked to expectorate the wine after four to eight seconds and 
+wait a minimum two minutes before tasting a new wine to avoid residual mousiness 
+affecting a subsequent clean sample. The results from the pilot study revealed that 
+the lowest concentrations of mousiness could first be perceived as long as 16–20 
+seconds after the wine had been expectorated. However, some of the assessors 
+perceived the strongest concentrations while the wine was still in their mouths and 
+had a lengthy persistency.  
+ 
+The suggested minimum break of two minutes between each wine proved to be 
+sufficient to avoid the effects of adaptation based on the pre-test with 13 of the 
+participants from the pilot study described in 4.3.1. The assessors were also 
+encouraged to wait even longer if necessary to allow sensory recovery between wine 
+samples containing high concentrations (ISO 13301, 2018). The assessors were 
+===== PAGE 26 =====
+22 
+ 
+permitted to rinse/neutralize their palates with neutral table water and biscuits in 
+between the wines tasted. 30 minutes before the tastings, the assessors were 
+informed both verbally and in writing about the tasting procedure, as explained 
+above.  
+ 
+4.4.2 Training 
+ 
+The assessors of T were asked to follow a systematic training programme individually 
+at home for two weeks in between T1 and T2. Previous sensory training research on 
+other compounds has included training periods with different levels of intensity lasting 
+from five to 60 days (Tempère, et al., 2012); (Wysocki, et al., 1989); (Cain & Schmidt, 
+2002); (Dalton, et al., 2002). The 14 days proposed for this RP were within this 
+range. 
+ 
+All assessors completed T1 and T2. However, any assessors who detected all 
+concentrations of ATHP in T1 were excluded from assignment to C or T, in 
+accordance with research by Tempère, et al. (2012). Nevertheless, ensuring that 
+these hyper-sensitive assessors still completed T2 allowed a qualitative exploration 
+of potential variations in the thresholds of such WPs. Assessors who could not detect 
+C8 during T1, on the other hand, were randomized equally into C and T.  
+ 
+After completing T1, the assessors assigned to T were provided with four 5.7cL 
+Vivaplex glass bottles of the base wine to taste over the next 14 days. Two of the 
+wines were spiked with the strongest concentration of mousiness (C8) and the 
+===== PAGE 27 =====
+23 
+ 
+remaining two with C4 (Table 2). Small bottles were selected for practical reasons so 
+that the assessors could carry the bottles as hand luggage on planes, etc. The 
+training kit also included a vial with residues of C8, dissolved in ethanol, to nose daily 
+during the training period which, due to the higher pH, could be detected ortho-
+nasally.  
+ 
+The results from the pilot study revealed that some participants felt less sensitive to 
+mousiness following the training period when they tasted both concentrations every 
+day. Thus, for the RP, the assessors in T were asked to alternate their training with 
+C8 and C4 over the two weeks. To track their commitment to the training, they would 
+access EyeQuestion each day by scanning a QR code attached to the bottles on 
+their phone and indicate on a scale from 1–9 how they had perceived the 
+concentration they had tasted each day (1=no mousiness, 9=strong mousiness). 
+Each assessor trained for an average of 6.8 days for both C8 and C4 with a minimum 
+of five days and a maximum of seven days for each. 
+ 
+4.4.3 Qualitative descriptions of mousy samples 
+ 
+After completing T2 and a break of a minimum of 20 minutes, the assessors were 
+briefly asked to describe two glasses of wine containing C4 and C8 respectively, 
+without knowing either the compound or the concentrations used and were given a 
+reference sample with no added substance for comparison. As a final step, T 
+assessors were also asked to report how the training had affected their personal 
+acceptance, perceived sensitivity, level of certainty and awareness of mousiness in 
+wine. 
+===== PAGE 28 =====
+24 
+ 
+4.5 Measurement of detection thresholds 
+ 
+4.5.1 Probability of Detection 
+ 
+Probability of Detection (PD) of the panel as a whole was calculated for T1 and T2 in 
+order to find the absolute detection level as the concentration where PD=0.5, thereby 
+indicating the concentration level at which 50% of the panel had successfully 
+detected ATHP. PD was modelled as described in ISO 13301 (2018) by considering 
+all data from the threshold tastings, adjusting the data for chance, taking into account 
+the guessing model represented by 3-AFC, in which Pc represents the probability of 
+making a correct selection11: 
+PD (concentration) = 1.5*Pc (concentration) - 0.5 
+ 
+For comparison of the results, a linear model was made with group (categorical 
+variables with levels C and T), test (categorical variables with levels T1 and T2) and 
+x=log10 (concentration) (continuous variable) as independent variables and PD as 
+the dependent variable, including all interaction terms. A variable selection was 
+performed with stepwise selection using the Akaike information criterion (AIC)12 using 
+the R-function step with default settings (Venables & Ripley, 2002) to obtain the most 
+parsimonious model. The final model included only main effects, resulting in 
+regression models with different intercepts defined by group (C, T) and test (T1, T2). 
+The adjusted R-square is reported for both the full and reduced model. Analysis of 
+ 
+11 In a 3-AFC test a correct answer may happen by chance, especially at lower concentration levels, 
+since the assessors are required to guess if uncertain as explained in 3.2. ISO 13301 (2018) describes 
+in detail a common mathematical model applied to take into account the probability of guessing 
+correctly (1/3). According to this standard, the detection threshold is defined as the concentration level 
+where 2/3 of the panel makes a correct selection, which further corresponds to the probability of 
+detection=0.5.  
+12 AIC is a measure of model fit 
+===== PAGE 29 =====
+25 
+ 
+Variance (ANOVA) was used to evaluate whether there were significant differences 
+at the panel level between T1 and T2, and whether there were significant differences 
+between the groups (C, T). 
+ 
+4.5.2 BET measurements 
+ 
+Individual BET estimates and group thresholds, taking the geometric mean13 of the 
+individual values (ISO 13301, 2018), were appropriate for a more in-depth analysis.14 
+ 
+In accordance with ISO 13301 (2018), BET was calculated as the geometric mean 
+between the last concentration that was missed and the first correct concentration. 
+For assessors who gave the correct answer at the lowest proposed concentration, 
+the threshold was identified as the geometric mean between this concentration and 
+the hypothetical next lowest calculated concentration. For assessors who failed to 
+correctly recognise the highest concentration, the threshold was defined as the 
+geometric mean between the highest proposed concentration and the subsequent 
+hypothetical calculated concentration.  
+ 
+ 
+13According to Lawless and Heymann (2010, p. 129) the geometric mean is a reasonable choice when 
+it comes to finding the minimum level of a substance that is detected by 50% of a sample group, as it 
+is often very close to the median of a positively skewed distribution, which is often a consequence of 
+high outliers caused by insensitive individuals in the threshold data. 
+14 PD was used for calculating group thresholds at panel level. BET estimates were also useful to 
+evaluate individual performances. Both methods are based on 3-AFC and are suggested in ISO 13301 
+(2018) and were therefore considered relevant. Both take into account the probability of correct 
+guesses in a 3-AFC test (PD by following the mathematical model explained in ISO 13301 (2018); 
+BET by the criterion for a correct answer explained in 4.2.1). 
+ 
+===== PAGE 30 =====
+26 
+ 
+BET values were also analysed after log transformation (base 10), and the 
+log10(BET) will be referred to as logBET.  
+ 
+4.6 Statistical analyses 
+ 
+Pairwise tests of BET and logBET, with pairwise observations resulting from T1 and 
+T2 within each group, were analysed using the Wilcoxon signed-rank test.15 
+ 
+The change between T1 and T2 was measured by the difference in the number of 
+concentration steps, the fold change (FC) computed as BET2/BET1, and the log fold 
+change (LFC), which is the logarithm (base 10) of the FC. The values of C and T 
+were compared using Wilcoxon rank-sum tests.  
+ 
+Non-parametric tests were used as the data did not follow a normal distribution 
+according to the Shapiro-Wilk test.  
+ 
+It is reasonable to expect that the improvement potential will vary depending on an 
+assessor’s sensitivity. Thus, the assessors on the panel (independent of C or T) were 
+ 
+15 The Wilcoxon signed-rank test is known to be an alternative for paired tests when normality does 
+not hold. The test does not assume a specific statistical distribution and rely only on the assumption 
+that the distribution is symmetric around a central value and aims to test if this is significantly different 
+from zero. That is, the test considers if the difference between paired observations (the two BET 
+estimates obtained in T1 and T2) are different or not. The Wilcoxon signed-rank test has more power 
+than the sign test because it considers the magnitude of the differences. Likewise, Wilcoxon rank-sum 
+test was chosen to compare LFC for C and T, as this is a two-sample comparison. Wilcoxon rank-sum 
+test is also known as the Mann-Whitney U test. 
+ 
+===== PAGE 31 =====
+27 
+ 
+categorized as high sensitive or less sensitive based on the results of T1. The 
+criterion set for high-sensitive assessors (H) was the correct identification of C4 and 
+lower, while the remaining assessors were categorized as less sensitive (L). There 
+were 13 (H) and ten (L) in C and 11 (H) and 12 (L) in T. 
+ 
+ANOVA was used to consider the effect of the sensitivity group (L, H) and group (C, 
+T), as well as the interaction between them, with LFC or rank (LFC) as the dependent 
+response variable. Ranking was used as the data did not meet the assumptions of 
+normality. As the sensitivity groups were not perfectly balanced, an F-test type III was 
+used for significance testing. 
+ 
+In a separate analysis, the same approach, including BET (T1) as the dependent 
+response variable, was used to compare those assessors who, in the pre-screening, 
+reported they had experienced mousiness before with those assessors who had 
+not/were uncertain. Comparisons were also made using Wilcoxon rank-sum tests. 
+ 
+In all the analyses, the significance level was set to alpha=0.05. All statistical data 
+analyses were performed with R (R Core Team, 2022) by the Norwegian Food 
+Research Institute (Nofima) on behalf of the researcher. Subsequent interpretation 
+and critical analyses were conducted by the researcher.  
+ 
+ 
+===== PAGE 32 =====
+28 
+ 
+5. Results and analysis 
+ 
+The threshold measurements showed variation both across assessors and between 
+T1 and T2. Based on T1, four of the total 50 assessors were classified as hyper-
+sensitive according to the criterion explained in 4.4.2. Therefore, C and T consisted 
+of 23 assessors each. All raw data are presented graphically in the Appendix.  
+ 
+5.1 Research Question 1 
+ 
+What are wine professionals’ detection levels of ATHP pre- and post-exposure?  
+PD and BET measurements served to answer this question.  
+ 
+5.1.1 Probability of Detection 
+ 
+The model fitted for each group and test is presented in Table 3, where the estimated 
+concentration for PD=0.5 is also given. For the panel as a whole there was a 
+significant difference between T1 and T2 (p=0.03) indicating that, with more than 
+95% certainty, repeated exposure can induce sensitivity to ATHP in WPs. 
+ 
+A decrease in detection threshold was observed for both C and T from T1 to T2 
+(Table 3). The level of sensitivity in T was somewhat lower in T1 compared to C 
+(p=0.07) and this difference persisted in T2. No interaction between test (T1, T2) and 
+group (C, T) was reported, meaning that changes from T1 to T2 were not significantly 
+different between C and T. 
+ 
+===== PAGE 33 =====
+29 
+ 
+Figure 1 shows the proportion of assessors in C and T who gave correct answers for 
+each concentration in T1 and T2. With limited exceptions, such as C4 for both groups 
+and C7 for T, the number of correct answers was higher for each concentration in T2 
+compared to T1. 
+ 
+ 
+ 
+ 
+Table 3: Estimates where PD = 0.5, x = log10 concentration, cc = concentration 
+where PD = 0.5, concentration step = the relative concentration steps.                       
+C n=23; T n=23.16 
+ 
+ 
+Figure 1: Proportion of assessors who gave a correct answer for each concentration 
+in T1 and T2. C n=23; T n=23. 
+ 
+16 Adjusted R-square was 0.80 for the full model and 0.82 after step wise variable selection. 
+ 
+===== PAGE 34 =====
+30 
+ 
+5.1.2 BET measurements 
+ 
+The individual thresholds for ATHP covered the whole range of concentration steps 
+and beyond (Figure 2) and the results showed an improved or equal sensitivity for 
+most of the assessors on the panel in T2 compared to T1. Nevertheless, five 
+assessors in T and two assessors in C decreased their performance from T1 to T2. 
+However, three of the four hyper-sensitive assessors, none of whom had been 
+subject to training, also decreased their performance.  
+ 
+Both C and T had lower mean values for BET and logBET in T2 compared to T1, 
+indicating an average increase in sensitivity in both groups (Table 4). On average, 
+the whole panel improved by 0.7 steps, C by 1.4 steps and T by 0.5 steps.  
+ 
+Figure 2: Assessors’ individual thresholds in T1 (TR.1) and T2 (TR.2). TR = Last 
+incorrect concentration before first correct of three correct answers in a row. C n=23; 
+T n=23; S n=4 (Hyper-sensitive assessors who were not randomized to C or T).  
+
+===== PAGE 35 =====
+31 
+ 
+ 
+Table 4: Summary of mean BET, logBET and values for differences including 
+standard deviations. Mean whole panel n=50; Mean C n=23; Mean T n=23.            
+Diff = Average improvement in concentration steps. 
+ 
+ 
+5.2 Discussion Research Question 1 results 
+ 
+As Figure 2 clearly shows, there is wide range in individual detection thresholds for 
+ATHP, which is in line with previous research on mousy compounds (Grbin, et al., 
+1996). The selected concentration range therefore appears to have been appropriate 
+to cover the wide range of thresholds.  
+ 
+5.2.1 Hyper-sensitive assessors 
+ 
+Following T1, four assessors were classified as “hyper-sensitive”. To guard against 
+the effect of correct guesses at the lowest concentration, these assessors performed 
+a retest of the first trial, where they were all able to successfully detect C1 again.  
+ 
+Interestingly, during T2, only one of these assessors could detect C1, and one of 
+them even failed to detect C3 and C4. After the experiment, the latter assessor (A49) 
+explained that she had felt confident about all concentrations during T1, while they 
+  Mean whole panel Mean C Mean T 
+BET T1 29.77 (61.85) 32.02 (64.74) 32.68 (64.46) 
+BET T2 13.24 (33.48) 14.30 (42.41) 14.23 (25.87) 
+LogBET T1 0.49 (1.00) 0.57 (0.98) 0.66 (0.95) 
+LogBET T2 0.21 (0.89) 0.04 (0.93) 0.47 (0.82) 
+Diff 0.72 (2.39) 1.35 (2.42) 0.48 (2.25) 
+FC 13.23 (37.54) 20.34 (50.83) 8.35 (21.15) 
+LFC 0.29 (0.95) 0.54 (0.96) 0.19 (0.90) 
+ 
+===== PAGE 36 =====
+32 
+ 
+seemed more difficult during T2. This is line with research by Stevens, et al. (1988), 
+where the individual thresholds of assessors in the study often varied from one test to 
+another, despite stable average thresholds based on several measurements. 
+ 
+5.2.2 Least sensitive assessors 
+ 
+Two of the 50 assessors failed to detect C8 during the pre-screening. The results 
+from T1 revealed that the same two assessors as well as four more assessors did not 
+detect C8, giving a total of six assessors characterized as the least sensitive in the 
+first phase of the study. 
+ 
+In T2, C8 was detected by all six assessors referred to above. Considering the 
+possibility of correct guesses, after completing the 3-AFC test, all six were asked to 
+do a retest of the last trial where C8 was again detected successfully by all of them. 
+When asked about their level of certainty before revealing the correct result, they all 
+confirmed 100%.  
+ 
+In contrast, one assessor in C (A14) detected C8 in both the pre-screening and from 
+C3–C8 during T1, while showing unstable results during T2, also failing to detect C8. 
+However, when subject to a retest of the highest dilution step, this assessor also 
+detected C8 successfully and confirmed 100% certainty. Thus, the assessor was able 
+to detect C8 in three out of four sessions. The variation in this assessor’s 
+performance in T2 was therefore more likely a consequence of palate fatigue or 
+adaptation, variation of individual thresholds from one test to another (Stevens, et al., 
+===== PAGE 37 =====
+33 
+ 
+1988), or even self-induced psychological pressure of performing a second test in 
+which the repeatability could lead to a decrease in performance due to overthinking 
+and limited experience of an in-depth 3-AFC test (W. Pearson 2024, personal 
+communication, 3 April). Due to the instability of the responses of this assessor 
+during T2, the retest of C8 was not considered a correct answer in the BET 
+measurements, but rather serves as an indication that anosmia with regards to ATHP 
+could not be confirmed in this panel of 50 WPs. 
+ 
+5.2.3 Specific anosmia 
+ 
+A previous study (2011) by the AWRI found that 25% of WPs could not detect 
+mousiness. This study was based on a significantly higher number (238) of 
+participants than this RP (50). However, as the concentration of ATHP in the AWRI’s 
+study could not be determined, the results did not reflect the different ranges of 
+sensitivity in the participants as some of them simply might have been less sensitive 
+to the concentration that was presented to them. 
+ 
+Based on the above and what concluded in 5.2.2, the probability of having no 
+anosmic assessors in the panel was calculated by a binomial probability distribution 
+with the parameters p=0.25 and N=50. The probability that none of the 50 assessors 
+were anosmic was highly significant (p<0.001).  
+ 
+If a softer definition of anosmia was taken, it could be said that the seven least 
+sensitive assessors who had problems detecting C8 during either T1 or T2 
+===== PAGE 38 =====
+34 
+ 
+(described in 5.2.2) could be categorized as anosmic. However, even with this looser 
+definition the estimated proportion of anosmic assessors was only 14%, which is 
+significantly lower (p=0.04) than the 25% from the AWRI study. 
+ 
+5.3 Research Question 2 
+ 
+Can wine professionals’ sensitivity to mousiness be changed by repeated 
+exposures and systematic training? 
+Research Question 2 further examined the differences between C and T. 
+ 
+5.3.1 Improvement between T1 and T2 
+ 
+21 and 18 assessors in C and T respectively had a similar or better performance in 
+T2 compared to T1, and in both groups 14 assessors achieved a better result (61%). 
+Lower BET was registered for both C and T in T2 compared to T1, and the level of  
+improvement is shown in Table 4.  
+ 
+Considering pairwise tests with BET and logBET as response variables (Table 5), 
+there were highly significant lower values in T2 compared to T1 (Table 5) for C 
+(p≤0.01). For T the values were significantly lower for BET (p<0.05) while logBET 
+showed a weaker significance (p<0.1). 
+===== PAGE 39 =====
+35 
+ 
+ 
+ 
+Table 5: Pairwise tests of BET and logBET showing the difference between BET and 
+logBET for C and T from T1 to T2. Estimate = difference between the two 
+observations (T1 and T2) in a pair (Wilcoxon signed-rank test). C n=23; T n=23. 
+ 
+ 
+ 
+Thus, the tests demonstrate that there was a statistically significant improvement 
+between T1 and T2 for both groups, even though the significance of logBET is a little 
+weaker for T. There is also a counterintuitive suggestion of a greater improvement in 
+C compared to T. 
+ 
+Taking into account the difference in the number of steps in the 3-AFC series, both 
+groups had a significant improvement from T1 to T2 (p<0.01), with an average 
+reduction in concentration steps (Table 4) (Wilcoxon rank-sum test). 
+ 
+ 
+5.3.2 Difference between the control group and the training group 
+ 
+Despite a slightly lower BET and logBET registered for C in T1 (Table 4), there was 
+no statistically significant difference on BET or logBET between C and T in either T1 
+or T2 (p>0.1, Wilcoxon rank-sum test). 
+ 
+Group Response 
+variable Estimate Statistic P-value 
+C BET 14.79 113.0 0.01 
+T BET 10.96 148.5 0.02 
+C logBET 0.99 118.5 0.00 
+T logBET 0.40 128.0 0.09 
+ 
+===== PAGE 40 =====
+36 
+ 
+Both groups improved between the two tests, but improvement was not significantly 
+different between C and T, as the Wilcoxon rank-sum test for both the difference, FC 
+and LFC (Table 4), was not significant (p>0.1). 
+ 
+ 
+5.3.3 Comparison of high/less-sensitive and certain/uncertain assessors 
+ 
+The improvement from T1 to T2 was more substantial for the assessors with a high 
+threshold in T1 (Figure 3), indicating that repeated exposure had more effect on the 
+less-sensitive assessors. 
+ 
+Figure 3: Performance of less-sensitive and high-sensitive assessors from T1 to T2. 
+TR.1=Threshold T1 (last incorrect concentration before first correct), TR.1 – 
+TR.2=Difference between threshold in T1 and T2. C n=23; T n=23; S n=4 (hyper-
+sensitive assessors). The assessors with the lowest sensitivity are on the right and 
+have substantial improvements from T1 to T2, while the assessors with the highest 
+sensitivity on the left are at the same level or slightly worse in T2.  
+ 
+ 
+To investigate whether the systematic training had a different effect for high/less-
+sensitive assessors, an ANOVA model was fitted with the effect of group (C, T) and 
+
+===== PAGE 41 =====
+37 
+ 
+sensitivity group (L, H) and the interaction between them. The model was fitted with 
+both LFC and rank (LFC), and results were comparable. Sensitivity group was highly 
+significant (p<0.001) with more improvement for L compared to H. When adjusting for 
+sensitivity, there was in comparison a weaker significant difference between the 
+groups (C, T) (p=0.05 LFC, p=0.04 rank LFC). However, the interaction between 
+group and sensitivity group was not significant, meaning that the systematic training 
+had no significantly different effect for L compared to H.  
+ 
+Before the pre-screening test, a total of 32 of the 50 assessors answered “yes” when 
+asked whether they had detected mousiness in wine before. Two assessors gave 
+negative answers to this question and the rest (16) were “uncertain”.  
+ 
+The group of assessors who had confirmed their certainty in detecting mousiness 
+prior to the pre-screening test was compared to the assessors who were 
+uncertain/had not previously encountered mousiness. The first group had a lower 
+BET in T1 than the other group (Wilcoxon rank-sum test, p=0.03).  
+ 
+5.4 Discussion Research Question 2 results 
+ 
+5.4.1 Induced sensitivity from repeated exposures 
+ 
+At panel level, the assessors achieved a lower detection threshold for ATHP following 
+repeated exposures. The results were therefore in line with the research (2012) by 
+Tempère, et al., who uncovered an induced sensitivity to diacetyl and linalool 
+following a simple training procedure.  
+===== PAGE 42 =====
+38 
+ 
+These are not the only examples where increased sensitivity has been documented 
+for substances often related to a specific anosmia, the possible causes of the latter 
+being thoroughly discussed in Wysocki, et al. (1989), who found that the ability to 
+detect androstenone17 was induced in 10 out of 20 initially insensitive individuals who 
+were systematically exposed to the compound. One of the researchers, who had 
+initially been insensitive to androstenone, also experienced an induced sensitivity 
+after months of interaction with the compound.  
+ 
+In the above research it was consequently suggested that there were three 
+categories of human subjects: the truly anosmic, the inducible, and subjects who are 
+naturally sensitive or have experienced incidental induction. Following the research 
+by Wysocki, et al. (1989), both Cain & Schmidt (2002) and Dalton, et al. (2002) found 
+that an induced sensitivity to the flavour of glutaraldehyde in drinking water, 
+benzaldehyde and citralva, respectively, could be achieved through repeated 
+exposures. The latter study found that the effect was limited to women, an effect 
+which was not in line with the findings of, for example, Tempère, et al. (2012).  
+ 
+In this RP, the six assessors who did not detect C8 in T1 could initially qualify as 
+“truly anosmic”. In T2, however, they were all able to detect C8 twice, making “the 
+inducible” a more appropriate category. In fact, one of the assessors who did not 
+detect C8 in either the pre-screening or in T1 (also confirming his complete lack of 
+sensitivity after T1), appeared to “discover” the taint during the systematic training 
+ 
+17 A volatile steroid found in human perspiration, boar saliva, some pork products ( in bacon, for 
+example), truffles and celery (Wysocki, et al., 1989) (p. 7976). 
+===== PAGE 43 =====
+39 
+ 
+programme, especially by nosing the vial in the tasting kit, which led to further retro-
+nasal detection. After completing the study, the same assessor also stated that 
+during the training period, for the first time in his 20-year wine career he had 
+encountered a wine he suspected was mousy, likely due to his increased awareness 
+and/or detection ability as a consequence of the training. In fact, two of the pilot study 
+participants had a similar experience of having acquired the ability to detect 
+mousiness after being presented proper benchmarks for the taint. 
+ 
+In the pilot study, only one of the participants, despite the training, was still unable to 
+detect the highest concentration in either the second sensitivity tasting or during a 
+retest. When exposed to C8 used in the RP in a separate tasting to further 
+investigate this participant, he could still not detect the strongest concentration of 
+ATHP. Thus, this individual represented the only one of a total of 80 WPs who 
+participated in either the pilot study or in the experiment in the RP who qualified as 
+“truly anosmic”, even after repeated exposures. 
+ 
+5.4.2 Effect of systematic training versus repeated exposure 
+ 
+The systematic training of T did not lead to a more substantial reduction in detection 
+threshold compared C, which perhaps could be expected due to a higher frequency 
+of exposure. When comparing C and T, surprisingly, it was C that had a tendency to 
+improve more.  
+ 
+===== PAGE 44 =====
+40 
+ 
+In fact, in research by Tempère, et al. (2012), the increase in the WPs’ sensitivity was 
+only related to the compound (diacetyl or linalool) included in the systematic training 
+programme, not the control compound, which also presented repeated exposure to 
+the WPs of the study through repetition of the 3-AFC test. Also, in research by 
+Wysocki, et al. (1989), the shift in sensitivity was unique to androstenone.  
+ 
+Contrary to these studies, less frequent exposures seemed to be enough to induce 
+sensitivity to ATHP. While a single high intensity exposure (in this case, through the 
+pre-screening) is not sufficient to train someone, multiple repeated exposures may be 
+sufficient. However, a high level of exposure, as presented by the systematic training 
+programme, seems unnecessary as there is no marginal gain versus less frequent 
+repetitions. Nevertheless, following the study of the RP, as many as 17 assessors of 
+T reported their impression of an increase in their own sensitivity following the 
+systematic training. Thus, the effect of systematic training cannot be excluded.  
+ 
+Similar to studies by Tempere, et al. (2012) and Wysocki, et al. (1984) the decrease 
+in the detection threshold was not uniform among all assessors of the RP. 
+Furthermore, the effect of repeated exposure was very uneven, ranging from small to 
+substantial improvement. 
+ 
+5.4.3 Effects of awareness 
+ 
+Knowing what mousiness actually is, and having previous experience of the taint, 
+may be of importance to detection ability and might at least partially explain the 
+===== PAGE 45 =====
+41 
+ 
+differences reported in sensitivity (Cain & Schmidt, 2002). This was supported by the 
+lower BET in T1 of the 32 assessors who responded affirmatively to detecting 
+mousiness prior to the pre-screening. As WPs are perhaps less familiar with 
+mousiness than, for example, 2,4,6-trichloroanisole (TCA), being certain of how to 
+separate the taint from, for example, “brett character”, which shares some of the 
+descriptors of mousiness (revealed in 5.5) such as animal and stable (Tempère, et 
+al., 2014), appears to be important to detection.  
+ 
+In fact, 20 out of 23 assessors of T confirmed an increased certainty about their own 
+ability to detect mousiness and 19 assessors confirmed an increased awareness 
+after having completed the systematic training programme. 
+ 
+Mousiness is not mentioned in either WSET Level 1–3 or in the WSET Diploma 
+materials (Master of Wine H. I. Hansen18 2024, personal communication 23 April). 
+Nor is it part of the one-day wine fault clinic in the Sommelier programme of the 
+Culinary Academy in Norway. The fact that it is a relatively unknown wine fault 
+among many WPs even though they have completed their formal wine education 
+may therefore partially explain the lack of consensus regarding the taint.  
+ 
+ 
+ 
+ 
+18 Responsible for WSET levels 1-4 and the Sommelier education at the Culinary Academy in Norway 
+===== PAGE 46 =====
+42 
+ 
+5.4.4 Potential effects of adaptation 
+ 
+In general, both C and T detected all concentrations more successfully in T2 
+compared to T1. However, both groups found it harder to detect C4 in T2 and T to 
+detect C7 (Figure 1), indicating the effects of short-term adaptation.  
+ 
+Adaptation, however, is not only relevant to a threshold tasting. In fact, research by 
+Dalton & Wysocki (1996) explored the long-term effects of odour exposure, finding a 
+significant loss of sensitivity in the subjects of the study after two weeks of exposure 
+to an odorant at home while an increase in sensitivity (although not significant) was 
+registered for the control odorant. Before any exposure, the subjects in the above 
+study completed two threshold tastings where the detection levels decreased 
+significantly for both the control odorant and the adapting odorant from the first to the 
+second test. Without long-term exposure, an increased sensitivity to both odorants 
+across several tastings could therefore be expected. 
+ 
+These results may explain the tendency of increased improvement of C compared to 
+T in the RP. With exposure to fewer, but still clear, benchmarks of mousiness, C did 
+not seem to adapt as much as T. 
+ 
+The repeated exposure during the training programme for T was much less extensive 
+than the research by Dalton & Wysocki’s (1996), and therefore accounted for a 
+potentially more limited long-term effect of adaptation. Contrary to the above study, 
+the detection threshold of T in the RP actually decreased. Thus, it appears that the 
+===== PAGE 47 =====
+43 
+ 
+training had a positive effect, although a less intense procedure might, in fact, have 
+been even more successful in increasing sensitivity, since a partial effect of the 
+training seemed to be a degree of adaptation in addition to sensitization (Dalton & 
+Wysocki, 1996).  
+ 
+Thus, the most appropriate level of exposure for achieving the highest sensitivity 
+possible is yet to be established and would be a good subject for further research. 
+Whether a long-term exposure programme for truly anosmic subjects may induce 
+sensitivity would also be worth exploring. 
+ 
+5.5 Research Question 3 
+ 
+What are wine professionals’ descriptors of one of the mousy compounds, 
+ATHP, in wine and how do these relate to established terms by previous 
+literature? 
+A complete glossary can be found in Appendix 5. 
+ 
+5.5.1 Results and discussion 
+ 
+ATHP was first isolated in mousy wines in research by Strauss & Heresztyn (1984). 
+Snowdon, et al. (2006) summarizes research that dates from 1969 to 2002 (pp. 
+6467– 6468) regarding ATHP, APY and ETHP where ATHP is regarded as an 
+important component of baked bread, crackers, taco shells, tortilla chips, popcorn 
+and rice cakes, and is described as having a “cracker biscuit” and/or a “roast-
+===== PAGE 48 =====
+44 
+ 
+smelling” aroma. However, the latter two descriptions are also attributed to both APY 
+and ETHP in their pure form.  
+ 
+Thus far, the sensory interactions between the three causative compounds of 
+mousiness have not been explored (Snowdon, et al., 2006, p. 6466) and likely 
+depend on their relative concentrations. In fact, when considering some of the more 
+negative descriptors of mousiness outlined in 3.1.3 (regardless of the compound 
+involved) such as “rodent urine”, “vomit” and “dirty mops”, it would be reasonable to 
+assume that these occur at higher concentrations.  
+ 
+The properties of ETHP are less discussed in the literature. APY, on the other hand, 
+is in previous research referenced in Snowdon, et al. (2006, p. 6467), explained as a 
+key odorant present in wheat bread and particularly in more aromatic rice varieties 
+such as Indian Basmati, as well as pandan leaves. Furthermore, it is regarded as an 
+important compound in rice cakes, boiled trout, canned, frozen and fresh sweet corn, 
+cooked lean beef, dried cured hams, lobster meat, green tea and even tiger urine, 
+with descriptions such as “roasted and popcorn-like”, the latter two not unlike ATHP. 
+ 
+The assessors’ personal descriptors of C4 and C8 were used to evaluate whether 
+these terms were similar to terms used in the literature in a qualitative context. 
+Furthermore, they served to map the variation of descriptors of ATHP in general 
+among WPs, and how they differed between a lower and a higher concentration. A 
+total of 150 single descriptors were identified (Appendix 5). These were further 
+===== PAGE 49 =====
+45 
+ 
+grouped in 30 main group descriptors by the researcher and revised by a colleague. 
+The main group descriptors for C4 and C8 could therefore be compared (Figure 4).  
+ 
+ 
+Figure 4: Main group descriptors of ATHP for C4 and C8 of the whole panel n=50. 
+ 
+ 
+Figure 5: Top 10 single descriptors for C4 of the whole panel n=50. 
+
+===== PAGE 50 =====
+46 
+ 
+ 
+Figure 6: Top 10 single descriptors for C8 of the whole panel n=50. 
+ 
+The more numerous descriptors used for C8 compared to C4 (206 vs. 148 in total) 
+indicated, first of all, the higher degree of complexity involved for a stronger 
+concentration, but also indicates that C4 was perceived by fewer assessors. For C4, 
+“attenuation of fruity aromas” (Figure 4) and “lack of fruit” (Figure 5) were by far the 
+most common main group and single descriptor respectively. These indicated a 
+vaguer impression of the taint and can be compared with, for example, TCA where a 
+wine affected by cork taint at lower concentrations might be perceived as “less fruity” 
+rather than clearly faulty. In comparison, the most common main group descriptor by 
+far for C8 was “mousy” (Figure 4), with “mousiness”, “rodent cage” and “mouse urine 
+and faeces” as the most frequently used single descriptors within the top main group 
+descriptor (Figure 6).  
+ 
+
+===== PAGE 51 =====
+47 
+ 
+Many of the main group descriptors were used for both concentrations. However, the 
+frequency of the more negative descriptors such as “rancid/stale food products” and 
+“rotten” was higher for C8. One of the most negative descriptors such as “illness” 
+(including the single descriptors “nauseating,” “vomit” and “baby spit”) were in fact 
+unique to C8. Thus, there would appear to be a relationship between the perception 
+of retro-nasal odour quality and stimulus intensity for ATHP.  
+ 
+When comparing the assessors’ descriptors to terms previously used for ATHP, but 
+also for ETHP and APY, in the literature outlined in both this section and in 3.1.3, 
+they could all be found in the assessors’ vocabulary. Also, many of the descriptors 
+used were the same or similar to terms referred to in the literature for APY in 
+particular, indicating a sensory similarity between the different mousy compounds.  
+ 
+What is not known is whether the assessors’ descriptors, at least to some degree, 
+were influenced by having read about mousiness prior to their participation in the 
+experiment of the RP. While this cannot be ruled out, compared to the literature, 
+some terms such as “roasted”, and “bready” (including “cracker”) were used by the 
+assessors with an unexpectedly low frequency, and more emphasis was given to, for 
+example, “attenuation of fruity aromas”, “bitter” and “chemical”, which are terms that 
+are less discussed in the literature. 
+ 
+An interesting observation regarding descriptors related to mouthfeel was the wide 
+range of single descriptors varying from “warming”, “weighty” and “viscous” to 
+“astringent”, “thin” and “rustic”. This point in particular may indicate that the wide 
+===== PAGE 52 =====
+48 
+ 
+variation in WPs' perception of mousiness goes beyond the retro-nasal smell itself, 
+also affecting perception on the palate, especially in the aftertaste.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 53 =====
+49 
+ 
+6. Conclusions 
+ 
+Mousy taint is perceived to be increasing and WPs struggle to detect it. Consumer 
+risk is therefore growing. Although rapid quantification methods for ATHP, ETHP and 
+APY are available for routine screening of wines, these do not replace sensory 
+quality control. If repeated exposure to mousiness can induce sensitivity in WPs, we 
+have a strong tool to address this challenge. 
+ 
+The results from the RP demonstrate that WPs’ ability to detect mousiness in wine 
+can be influenced by repeated exposures. ATHP can therefore be added to the wine-
+related compounds for which an induced sensitivity can be achieved.  
+ 
+Nevertheless, it is clear that an in-depth systematic training programme did not 
+reduce detection thresholds any more than the simple repeated exposures that took 
+place through repetition of the 3-AFC test. Therefore, we can conclude that all that is 
+required for WPs to detect mousiness with more confidence is exposure to a limited 
+number of clear benchmarks of ATHP. 
+ 
+Thus, a potential approach could be to include proper benchmarks of mousiness in 
+wine education programmes such as WSET, Sommelier education and private 
+programmes such as Campden BRI in the UK, in order to increase awareness, 
+improve the detection ability and therefore also consensus among WPs regarding the 
+taint.  
+ 
+===== PAGE 54 =====
+50 
+ 
+Importantly, there was little evidence to support the widely-(mis)quoted figure of 25% 
+for specific anosmia with respect to mousiness. Indeed, this RP suggests that a 
+figure for true, specific anosmia may be much closer to zero. In other words, most 
+subjects who cannot initially detect mousiness would be better described as 
+“inducible subjects”, which makes them prime candidates for successful training, 
+meaning there would be few limitations regarding the effectiveness of such a training 
+programme in the wine trade at large. 
+ 
+The assessors’ descriptions of ATHP were extensive and both coincided with, and 
+went beyond, what had previously been referred to in the literature for both ATHP, 
+APY and ETHP, indicating a similarity in perception across the compounds. Retro-
+nasal odour quality appeared to depend on the level of concentration and negative 
+descriptors were particularly relevant for the higher concentration. Thus, very weak 
+concentrations of mousiness may not actually be a major issue to most individuals at 
+all. As a follow-up to this study, measuring the consumer rejection threshold may 
+uncover the concentration levels at which mousiness is in fact unpalatable from a 
+mass-consumption perspective. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 55 =====
+51 
+ 
+ 
+This page is intentionally blank 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 56 =====
+52 
+ 
+7. Bibliography 
+ 
+ 
+ASTM E679, 2004. Standard Practice for Determination of Odor and Taste 
+Thresholds By a Forced-Choice Ascending Concentration Series Method of Limits. 
+s.l.:s.n. 
+ 
+AWRI, 2011. AWRI Annual Report, Adelaide: Australian Wine Research Institute. 
+ 
+AWRI, u.d. www.awri.com.au. [Internet]  
+Available at: 
+https://www.awri.com.au/industry_support/winemaking_resources/sensory_assessm
+ent/recognition-of-wine-faults-and-taints/wine_faults/ 
+ 
+Bartowsky, E. J. & Henschke, P. A., 1995. Malolactic fermentation and wine flavour. 
+Australian Grapegrower & Winemaker, 378, p. 83–94. 
+ 
+Buttery, R. G., Ling, L. C., Juliano, B. O. & Turnbaugh, J. G., 1983. Cooked rice 
+aroma and 2-acetyl-1-pyrroline. Journal of Agricultural and Food Chemistry, p. 823–
+826. 
+ 
+Cain, W. S. & Schmidt, R., 2002. Sensory detection of glutaraldehyde in drinking 
+water - emergence of sensitivity and specific anosmia. Chem Senses 27, p. 425–433. 
+===== PAGE 57 =====
+53 
+ 
+Costello, P. J., 1998. Formation of mousy off-flavour in wine by lactic acid bacteria. 
+Adelaide: The University of Adelaide, Department for Horticulture, Viticulture and 
+Oenology. 
+ 
+Costello, P. J., Lee, T. H. & Henschke, P. A., 2001. Ability of lactic acid bacteria to 
+produce N-heterocycles. Australian Journal of Grape and Wine Research, p. 160–
+167. 
+ 
+Craig, J. T. & Heresztyn, T., 1984. 2-Ethyl-3,4,5,6-tetrahydropyridine - an 
+assessment of its possible contribution to the mousy off-flavor of wines. American 
+Journal of Enology and Viticulture, p. 46–48. 
+ 
+Dalton, P., Doolittle, N. & Breslin, P. A., 2002. Gender-specific introduction of 
+enhanced sensitivity to odors. Nat Neurosci, p. 199–200. 
+ 
+Dalton, P. & Wysocki, C. J., 1996. The nature and duration of adaptation following 
+long-term odor exposure. Perception & Psychophysics, 58, pp. 781–792. 
+ 
+EyeQuestion v.4.11.70, 2018. Elst, The Netherlands: s.n. 
+ 
+Feiring, A., 2022. Mouse of III Repute. Noble Rot, 2022(29), p. 99–101. 
+===== PAGE 58 =====
+54 
+ 
+Goode, J., 2020. Wine anorak. [Internet]  
+Available at: https://wineanorak.com/2020/04/24/the-latest-on-mouse-the-wine-taint-
+of-our-times/ 
+[Found 10 February 2022]. 
+ 
+Goode, J., 2018. Flawless. 1 red. Oakland, California: University of California Press 
+ 
+Grapegrower & Winemaker, 2015. Ask the AWRI: Avoid mousy off-flavours. 
+Grapegrower & Winemaker, Issue 613, p. 50. Available at: GGWM_Feb2015_LR.pdf 
+(awri.com.au) 
+ 
+Grbin, P. R. et al., 1996. Developments in the sensory, chemical and microbiological 
+basis of mousy taint in wine. Stockley, Adelaide, s.n., p. 57–61. 
+ 
+Grbin, P. R. & Henschke, P. A., 2000. Mousy off-flavour production in grape juice and 
+wine by Dekkera and Brettanomyces yeasts. Australian Journal of Grape Wine 
+Research, 6(3), p. 255–262. 
+ 
+Hayasaka, Y., 2019. Quantitative analysis of mousy off-flavour compound 2-
+acetyltetrahydropyridine in wine using liquid chromatography tandemmass 
+spectrometry interfaced with atmospheric chemical ionisation. Journal of 
+Chromatography A, 1588, p. 108–114. 
+ 
+===== PAGE 59 =====
+55 
+ 
+Herderich, M., Costello, P. J., Grbin, P. R. & Henschke, P. A., 1995. Occurrence of 2-
+Acetyl-1-Pyrroline in Mousy Wines. Natural Product Letters, p. 129–132. 
+ 
+13301, ISO, 2018. Sensory analysis-methodology-general guidance for measuring 
+odour, flavour and taste detection thresholds by a three-alternative forced-choice. 
+s.l.:s.n. 
+ 
+ISO 8589, 2007. Sensory analysis — General guidance for the design of test rooms. 
+s.l.:s.n. 
+ 
+ISO/IEC 17025, 2017. Testing and calibration laboratories. s.l.:s.n. 
+ 
+Kiyomichi, D. et al., 2023. Investigation into mousy off-flavor in wine using gas 
+chromatography-mass. Food Chemistry 411, 15 June, pp. 1–8. 
+ 
+Larsen, M. J., Jensen, A. F., Madsen, D. M. & Pearce, E. F., 1999. Individual 
+variations of pH, buffer capacity and concentrations of calcium and phosphate in 
+unstimulated whole saliva. Archives of Oral Biology, p. 111–117. 
+ 
+Lawless, H. T., Antinone, M. J., Ledford, R. A. & Johnston, M., 1994. Olfactory 
+responsiveness to diacetyl. J. Sensory Stud 9, p. 47–56. 
+ 
+===== PAGE 60 =====
+56 
+ 
+Lawless, H. T. & Heymann, H., 2010. Sensory evaluation of food, second edition. 
+s.l.:Springer. 
+ 
+Leske, P. A., Francis, I. L. & Hunt, D., 2013. Sensory Evaluation. s.l.:Australian 
+Winemaking, eds N. Bulleid and V. Jiranek. 
+ 
+Macmillan, N. A. & Creelman, C. D., 1991. Detection theory: a user’s guide. 
+Cambridge University Press, New York, USA.  
+ 
+Massini, L. & Vuchot, P., 2015. Mieux cerner le défaut du « goût de souris". Le 
+vigneron des Côtes du Rhône et du Sud-Est, n° 843, p. 26–27. 
+ 
+Müller-Thurgau, H. & Osterwalder, A., 1913. Die bakterien im Wein und Obstwein 
+und die dardurch verursachten Veränderrungen. Cent. für Bakt. ABT II, pp. 141–142, 
+323–324. 
+ 
+O'Mahony, M., 1986. Sensory adaptation. Journal of Sensory Studies, 1, p. 237–257. 
+ 
+Oxford Companion to Wine, 2015. www.jancisrobinson.com. (Internet). Available at: 
+https://www.jancisrobinson.com/ocw/detail/mousy 
+ 
+===== PAGE 61 =====
+57 
+ 
+Parr, W. V., Heatherbell, D. & White, K. G., 2002. Demystifying wine expertise: 
+Olfactory threshold, perceptual skill and semantic memory in expert and novice 
+judges. Chemical senses 27, p. 747–755. 
+ 
+R Core Team, 2022. R: A language and environment for statistical ## computing, 
+version 4.3.0., Vienna: s.n. 
+ 
+Snowdon, E. M., Bawyer, M. C., Grbin, P. R. & Bawyer, P. K., 2006. Mousy Off-
+Flavor: A Review. Journal of Agricultural and Food Chemistry, 8 August, p. 6465–
+6474. 
+ 
+Stevens, J. C., Cain, W. S. & Burke, R. J., 1988. Variability of olfactory thresholds. 
+Chemical senses, 20, p. 643–653. 
+ 
+Strauss, C. R. & Heresztyn, T., 1984. 2-Acetyltetrahydropyridines – a cause of the 
+“mousy” taint in wine. Chem. Ind., pp. 109–110. 
+ 
+Tempère, S. et al., 2019. Comparison between standardized sensory methods used 
+to evaluate the mousy off-flavor in red wine. Oeno One, Vol. 53 No. 2, 19 April, p. 1–
+10. 
+ 
+===== PAGE 62 =====
+58 
+ 
+Tempère, S. et al., 2012. Explicit Sensory Training Improves the Olfactory Sensitivity 
+of Wine Experts. Chem Percept., 20 January, p. 205–213. 
+ 
+Tempère, S. et al., 2011. The Training Level of Experts Influences their Detection 
+Thresholds for Key Wine Compounds. Chem. Percept., 29 July, p. 99–115. 
+ 
+Tempère, S. et al., 2014. ‘‘Brett character’’ in wine: Is there a consensus among 
+professional assessors? A perceptual and conceptual approach. Food Quality and 
+Preference 34, p. 29–36. 
+ 
+Thudichum, J., 1894. A Treatise on Wines. London: George Bell & Sons. 
+ 
+Tucknott, O., 1974. Taints in fermented juice products: mousy taint in cider, s.l.: 
+Annual Report Long Ashton Research Station: University of Bristol. 
+ 
+Venables, W. N. & Ripley, B. D., 2002. Modern Applied Statistics with S. 4 ed. New 
+York: Springer. 
+ 
+Weerawatanakorn, M., Wu, J. C., Pan, M. H. & Ho, C. T., 2015. Reactivity and 
+stability of selected flavor compounds. Journal of Food and Drug Analysis, 23(2), p. 
+176–190. 
+ 
+===== PAGE 63 =====
+59 
+ 
+Wise, P. M., Bien, N. & Wysocki, C. J., 2008. Two Rapid Odor Threshold Methods 
+Compared to a Modified Method of Constant Stimuli. Chem. Percept. 1, p. 16–23. 
+ 
+Woolf, S. J., 2017. The Morning Claret. [Internet]  
+Available at: https://themorningclaret.com/2017/are-natural-winemakers-in-denial-
+about-mousiness/ [Found 29 March 2023]. 
+ 
+Wysocki, C. J., Dorries, K. M. & Beauchamp, G. K., 1989. Ability to perceive 
+androstenone can be acquired by ostensibly anosmic people. Proc. Natl. Acad. Sci. 
+USA, 1 October, p. 7976–7978. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 64 =====
+60 
+ 
+Appendix 1: Research Paper Proposal (RPP) 
+ 
+IMW Research Paper Proposal Submission Form  
+Student ID 26040 Date of submission May 24th 2024 
+RPP Version No 12 Name of Advisor Tim Jackson MW 
+Note: RPPs must be submitted via your Advisor to the IMW 
+Proposed Title 
+Mousiness in wine: An investigation into the effects of repeated exposures 
+and systematic training on wine professionals’ sensitivity to mousiness 
+Research Questions:  Define the subject of your Research Paper and specify the specific 
+research questions you plan to pursue. (No more than 200 words) 
+Mousiness is referred to as «the wine fault of our times» by Jamie Goode (www.wineanorak.com, 2020), 
+and several other authorities like Alice Feiring (personal communication, 2016) and Simon J. Woolf 
+(www.themorningclaret.com, 2017) have expressed concern about the increasing number of mousy 
+wines. No updated research exists on the actual occurrence of the taint on a larger scale, however, the 
+perception of rising incidences is supported by various sources of research and studies (Snowdon, et al., 
+2006, AWRI, 2015, Tempère, et al., 2019, Kiyomichi, et al., 2023).  
+Mousiness can render a wine unpalatable and hence represents a significant risk to a wine producer both 
+in terms of costs and reputation. Moreover, there is still a lack of both consensus and awareness 
+regarding the taint among wine professionals (Tempère, et al., 2019). Thus, discussions on the topic and 
+differences in expert reviews can be both challenging and confusing as a wine may seem faultless to one 
+person yet unpalatable to another. 
+Several studies have found an induction of sensitivity in subjects after repeated exposure to a substance 
+(Tempère, et al., 2012, Cain and Schmidt, 2002, Wysocki, et al., 1989). Thus far, no study has explored 
+whether this also applies to mousiness. 
+ 
+This research paper will therefore investigate the following:  
+ 
+1) What are wine professionals’ detection levels of ATHP pre- and post-exposure?  
+2) Can wine professionals’ sensitivity to mousiness be changed by repeated exposures and 
+systematic training? 
+3) What are wine professionals’ descriptors of one of the mousy compounds, ATHP, in wine and 
+how do these relate to established terms by previous literature? 
+ 
+Background and Context: Explain what is currently known about the topic and address why 
+this topic requires/offers opportunities for further research. (No more than 200 words) 
+===== PAGE 65 =====
+61 
+ 
+Mousiness is perceived during retronasal evaluation (Bartowsky and Henschke, 1995), and is most 
+commonly detected in a delayed fashion on the palate after the wine has been swallowed or 
+expectorated. The off-flavour can rarely be perceived by sniffing as the mousy compounds are not 
+sufficiently volatile at wine pH range (Grbin, et al., 1996). When the wine comes into contact with the 
+higher pH range of a person’s saliva, however, the taint can be detected retronasally. According to 
+Massini and Vuchot (2015) the occurrence of mousiness in wines can be associated with significant 
+decreases in the use of SO2, increasing pH levels in wines, and the use of native microbiota in 
+fermentations. The fault is therefore especially relevant for natural wines, which use minimal SO2 and 
+rely on native microbiota. 
+ 
+Mousiness can be of both microbial and chemical origin. Most strains of lactic acid bacteria and the yeast 
+Dekkera/Brettanomyces can produce the character (AWRI, 2015).  
+Three N-heterocyclic molecules responsible for mousiness in wine have been identified, namely 2-acetyl-
+1-pyrroline (APY) (Herderich, et al., 1995), 2-acetyltetrahydropyridine (ATHP)  
+(Strauss, et al., 1984) and 2-ethyltetrahydropyridine (ETHP) (Craig & Heresztyn, 1984). Of the three, ATHP 
+is reported to be of major importance to the mousy off-flavour (Hayasaka, 2019). In Kiyomichi et al.’s 
+recent research (2023) ATHP was detected in almost all of the wines suspected of mousiness in the 
+study, which makes ATHP an interesting compound to investigate further in isolation in terms of 
+detection thresholds. The ability to detect mousiness has been associated with a person’s composition of 
+saliva and pH on the tongue’s surface (Grbin, et al., 1996). This may explain the findings from the 
+Australian Wine Research Institute’s (AWRI) fault tasting clinics, where, accumulating data from 2006 to 
+2011, only 75% of 238 wine professionals could detect the taint (AWRI Annual Report, 2011). This study 
+is often referred to in articles about mousiness (although erroneously reported 70% instead of 75% 
+which was the final result) (www.themorningclaret,com, 2017, www.wine-business-international.com, 
+2017, www.wineanorak.com, 2020) and even in wine literature such as The Oxford Companion to Wine. 
+It should be noted that the AWRI did not conduct rigorous sensory investigations to collect the anosmia 
+data. Moreover, the researchers couldn’t determine the exact concentration of ATHP used in their 
+experiment (Adrian Coulter, personal communication, 2022) so presumably it is difficult to say whether 
+some participants were anosmic or simply less sensitive than others to whatever concentration was 
+being provided.  
+In comparison, this study will investigate wine professionals’ sensitivity to mousiness on an eight- step 
+scale and whether induced sensitivity can be achieved by means of repeated exposures. The 
+experimental design of this Research Paper is based on an in-depth pilot study carried out in 2022 on a 
+panel of 30 wine professionals. As no previous research has investigated whether sensitivity to 
+mousiness can be influenced by repeated exposures, insight from the pilot study has played an important 
+role in defining the most appropriate methodology for answering the research questions of this RP. 
+ 
+ 
+Sources: Identify the nature of your source materials (official documents, books, articles, other 
+studies, etc.) and give principle sources if appropriate. (No more than 150 words) 
+===== PAGE 66 =====
+62 
+ 
+External provider of all statistical analysis including consultation on 3-AFC tests and experimental design: 
+NOFIMA (Norwegian Food Research Institute)  
+Nofima - A leading institute for applied research within fisheries, aquaculture and food. 
+Sensory scientist Josephine Skaret 
+Dr. scient and researcher (Statistics) Ingunn Berget 
+ 
+Lallemand: 19 
+Oenologist Marion Bastion and MScs Ann Dumont (Communication Manager) 
+Laboratorios Excell Ibérica S.L., Provider of concentrations of ATHP 
+Antonio Palacios 
+ 
+Advisors for the experimental design of the RP: 
+AWRI: 
+Senior Research Scientist Wes Pearson 
+Université de Bordeaux/INRAE/IPB, Unité de recherche Oenologie: 
+Maître de conférences à l’Institut des sciences de la vigne et du vin, Sophie Tempère 
+  
+ 
+Books/ Articles on sensory training, 3-AFC Method and Statistics 
+• ASTM E679-19 Standard Practice for Determination of Odor and Taste Thresholds by a Forced-
+Choice Ascending Concentration Series Method of Limits1 
+• Cain W. S and Schmidt R., 2002, Sensory detection of glutaraldehyde in drinking water -
+emergence of sensitivity and specific anosmia. Chem Senses 27(5): 425-433 
+• Dalton P., Doolittle N., Breslin P. A. S., 2002. Gender-specific induction of enhanced sensitivity to 
+odors. Nat Neurosci 5(3):199-200 
+• ISO 13301-Second edition 2018-04. Sensory Analysis – Methodology – General guidance for 
+measuring odour, flavour and taste detection thresholds by a three-alternative forced-choice (3-
+AFC) procedure 
+• ISO 6658- Third edition 2017-07. Sensory analysis- Methodology – General guidance 
+• Lawless H. T., and Heymann H., 2010. Sensory evaluation of food Principles and practices. Second 
+edition, Springer, p. 129-133 
+• Leske P. A., Francis I. L., Hunt D., 2013. Sensory Evaluation. Australian Winemaking, eds N. Bulleid 
+and V. Jiranek, online www.trivinum.com.au/awm/SEN 
+• R Core Team (2022). R: A language and environment for statistical ## computing. R Foundation 
+for Statistical Computing, Vienna, Austria. ## URL https://www.R-project.org/.  
+• Tempère S., Cuzange E., Bougeant J. C., de Revel G., Sicard G., 2012. Explicit Sensory Training 
+Improves the Olfactory Sensitivity of Wine Experts. Chemosensory perception 2012, 5:205-213 
+• Tempère S., Cuzange E., Malak J., Bougeant JC., de Revel G., Sicard G., 2011. The training level of 
+experts influences their detection thresholds for key wine compounds. Chemosensory Perception 
+2011, 4:99-115. 
+• Wise, P. M., Bien, N. & Wysocki, C. J., 2008. Two Rapid Odor Threshold Methods Compared to a 
+Modified Method of Constant Stimuli. Chem. Percept. 1, pp. 16–23. 
+• Wysocki, C. J., Dorries, K. M. & Beauchamp, G. K., 1989. Ability to perceive androstenone can be 
+acquired by ostensibly anosmic people. Proc. Natl. Acad. Sci. USA, 1 October, pp. 7976–7978. 
+ 
+19 Sponsor of the concentrations of ATHP used in Research Paper 
+===== PAGE 67 =====
+63 
+ 
+Other articles/literature on mousiness for context:  
+• Costello P. J., Lee T. H., Henschke P. A., 2001. Ability of lactic acid bacteria to produce N -
+heterocycles causing mousy off -flavour in wine. Australian Journal of grape and wine research 7, 
+160-167. 
+• Grbin, P.R., Costello, P.J., Herderich, M., Markides, A.J., Henschke, P.A. and Lee, T.H., 1996. 
+Developments in the sensory, chemical and microbiological basis of mousy taint in wine. 
+Proceedings of the 9th Australian Wine Industry Technical Conference, Winetitles, Adelaide, Pag. 
+57-61. 
+• Hayasaka Y., 2019. Quantitative analysis of mousy off-flavour compound 2-
+acetyltetrahydropyridine in wine using liquid chromatography tandem mass spectrometry 
+interfaced with atmospheric chemical ionisation. Journal of Chromatography A, 1588 (2019), pp. 
+108–114. 
+• Kiyomichi D., Frank C., Moulis P., Riquier L., Ballestra P., Marchand S., Tempère S., de Revel G., 
+2023. Investigation into mousy off-flavor in wine using gas chromatography-mass spectrometry 
+with stir bar sorptive extraction. Food Chemistry 411 (2023), 135454 
+• Massini L., Vuchot P., 2015. Mieux cerner le défaut du “gout de souris”. Le vigneron des Côtes du 
+Rhône et du Sud-Est n. 843-26-27. 
+• Snowdon E. M., Bowyer M.C., Grbin P.R. and Bowyer P.K., 2006. Mousy off-flavor: a review. 
+Journal of Agricultural and Food Chemistry, 54(18), 6465–6474. 
+• Tempère S., Chatelet B., de Revel G., Dufoir M., Denat M., Ramonet P. Y., Marchand S., Sadoudi 
+M., Richard N., Lucas P., Miot-Sertier C., Claisse O., Riquier L., Perello M. C., Ballestra P., 2019. 
+Comparison between standardized sensory methods used to evaluate the mousy off-flavour in 
+red wine. OENO One, 53(2). 
+• Goode, J., 2020, www.wineanorak.com The latest on mouse, the wine taint of our times – 
+wineanorak.com 
+• Mccarrol j., 2022, Punch Drink: Mousiness Is Natural Wine's Biggest Flaw | PUNCH (punchdrink.com) 
+• Williams P., Oxford Companion to Wine mousy | JancisRobinson.com. Accessed 04/12/2023. 
+• Woolf S. J., 2017, www.themorningclaret.com Are natural winemakers in denial about mousiness? 
+| The Morning Claret 
+• Woolf S. J., 2017, www.wine-business-international.com, The mousiness problem | Meiningers 
+Wine Business International (wine-business-international.com) 
+ 
+• AWRI research on mousiness –  GGWM_Feb2015_LR.pdf (awri.com.au), 2015 (this fact sheet is 
+not up to date, however it refers to the 30 % of anosmic subjects reported in mentioned 
+literature/articles above) 
+• AWRI Annual Report, 2011 (see attached file). Contains the actual number of participants of the 
+study and the final correct percentage of detection among the participants (75 % and not 70 %) 
+ 
+Research Methodology: Please detail how you will identify and gather the material or 
+information necessary to answer the research question(s) and discuss what techniques you will 
+use to analyse this information. (No more than 500 words) 
+===== PAGE 68 =====
+64 
+ 
+The experimental design is based on previous research, books on sensory evaluation and methods, ISO 
+and ASTM standards, findings from the pilot study and further discussions with sensory scientists, 
+researchers and statisticians defined under “Sources”. 
+ 
+The overall objective of the research is to measure changes in sensitivity to one of the mousy 
+compounds, ATHP, in the specific population of “wine professionals” through repeated exposures. 
+Changes in detection thresholds are used as a tool to evaluate the potential impact of these exposures. 
+To investigate whether a potential change is due to repetitions of the 3-AFC test during “Test 1” and 
+“Test 2” (ISO 13301-18) described below or systematic training procedure, the participants will be 
+divided into a training group and a control group. The details of the methodology are described below. 
+ 
+The experiment will consist of three phases: two test sessions separated by a training period of 
+approx. 2 weeks. 
+ 
+Phase 1: Test session 1 
+Objective: Measure the detection threshold of mousiness (ATHP) of each participant 
+ 
+• Participants of the panel: The panel will consist of wine professionals from different 
+branches of the Norwegian wine trade: Employees of the Norwegian Monopoly (retail), 
+wine importers, educators and wine journalists. The participants will all have completed 
+minimum WSET 3/Sommelier degree and currently work in the wine trade with wine 
+tasting as part of their work. They will know in advance that they will taste for mousiness 
+and their participation is based on their own motivation of learning.  
+• Panel size: The intention is to recruit around 40 participants, however a minimum of 30 
+participants will be accepted as the final panel size. Twenty-five participants are 
+considered sufficient for threshold tastings by Lawless and Heymann (2010, p. 130), while 
+Leske, et al., 2013 suggests a minimum of 15-20 panelists for difference testing. The aim 
+of the research is not to obtain the absolute detection threshold value for ATHP, but to 
+evaluate if it is possible to induce an increased sensitivity in the participants by means of 
+repeated exposures. For the same purposes Tempère, et al.’s study (2012) had 16 
+participants. The suggested minimum of participants for this research will therefore allow 
+for some unforeseen drop out during the experiment.   
+• Pre-screening of panelists: The panel will consist of both participants who prior to the 3-
+AFC tests confirm their detection of mousiness based on exposure to the highest 
+concentration of ATHP used in the experiment, and participants who fail to detect it. All 
+participants will therefore have tasted the same benchmark for mousiness prior to the 
+tastings, contrary to the pilot study. 
+• Randomized groups for training and control: The participants will be equally divided into 
+two different groups. One group will take part in an individual training procedure in 
+between the two 3-AFC test sessions, while the other group will serve as a control group 
+and will not take part in the training procedure. The participants who do not detect the 
+highest concentration of ATHP during the pre-screening test and/or the first sensitivity 
+tasting measurement will be equally randomized in the training and control group. 
+• Location: The tastings will be organized in the Norwegian Wine Monopoly’s seven ISO – 
+certified isolated tasting booths with an average consistent room temperature of 19–21°C.  
+• Performance of 3-AFC tests by participants: All participants will be exposed to eight 3-
+alternative forced choice tests (3-AFC, ISO 13301-2018) in order of ascending 
+===== PAGE 69 =====
+65 
+ 
+concentrations of one of the mousy compounds, ATHP. The participants are asked to taste 
+and identify the mousy sample in each of the eight 3-AFC tests, giving their answers in the 
+sensory software EyeQuestion. If they are uncertain, they are told to guess (Lawless and 
+Heymann, 2010, p. 129). The participants can taste each sample only once to avoid 
+fatigue. They will not be informed of the results during the tasting. During tasting, the 
+participants are asked to expectorate the wine after 4-8 seconds. A minimum break of 2 
+minutes between each wine is required to avoid residual mousiness to affect a following 
+clean sample. This prolonged recovery time is based on the findings of the pilot study, 
+uncovering the strong adaptation effect. The participants are also encouraged to wait 
+even longer between samples and/or trials if necessary, as the highest concentrations 
+may require an even longer recovery time depending on individual sensitivities. The 
+participants can rinse their palate with neutral table water in between the samples. The 
+participants will also have small pieces of bread/neutral biscuits to eat in between wines if 
+in need to neutralize their palate after a mousy example. The participants must complete 
+all eight 3-AFC tests to minimize the false positive rate. 
+• Concentrations: The concentrations of ATHP are provided by Laboratorios Excell Ibérica 
+S.L. The concentration range will be based on the pilot study, previous concentrations 
+found in wines (Kiyomichi et al., 2023, Grbin et al., 1996) and a new pilot testing of the 
+selected concentrations to ensure that they cover a various range of thresholds. The 
+concentrations of ATHP will be provided in solutions in small vials. 1 vial shall be added to 
+one 75 cl bottle of wine 2 hours before the tasting (the wines will be spiked in the Wine 
+Monopoly’s premises in Oslo where the tastings are held). Whereas the pilot study 
+combined ATHP and APY at each concentration step with no consistent dilution factor, a 
+consistent dilution factor between the eight concentrations of the 3-AFC test will be 
+applied in order to 1) calculate the Best Estimate of individual threshold (BET) for the 
+subsequent analysis and 2) avoid a potential matrix effect between the compounds.  
+• BET – measurements and criteria for correct answers: Lawless and Heymann (2010, p. 
+131) defines BET as “the geometric mean of the first correct trial with all subsequent trials 
+correct and the previous trial incorrect”. If all the answers of a participant are correct 
+throughout the entire series it is the geometric mean of the lowest concentration and the 
+next hypothetical lower concentration. At the top it is the geometric mean of the highest 
+concentration tested and the next hypothetical higher concentration. Previous research 
+such as Tempère, et al. (2011, 2012, 2019) and Wise, et al. (2008) on the other hand, have 
+applied other criteria for a “correct answer” such as the geometrical mean between the 
+lower concentration in three consecutive answers and the previous concentration. The 
+quality of the data achieved for this experiment will determine the most suitable 
+approach in this respect and will be explained and justified in the RP. 
+ 
+Phase 2 : Approx. 2 weeks of individual sensory training period for half of the 
+participants of the panel 
+ 
+After completing the first test session, the participants assigned to the training group are provided with 
+the following to last over the individual training period: 
+• Materials: Small 2 oz glass bottles with wine spiked with the highest concentration of 
+ATHP used in the 3-AFC tests and a set of identical bottles of a lower concentration used 
+in the same tests. A small vial containing residues of the supraliminal concentration to be 
+===== PAGE 70 =====
+66 
+ 
+nosed during the training period as it gives a clear aroma of the taint even without tasting 
+it (due to the pyridines dissolved in ethanol). 
+• Training period: Results from the pilot study revealed that some participants felt more 
+insensitive to mousiness following the intensive training period. For the next experiment 
+participants will therefore be asked to alternate training with the higher and lower 
+concentration of ATHP during the 2 weeks. Each training session will last for max. five 
+minutes and the participants will log on into EyeQuestion by means of a QR code on the 
+samples to track their commitment to the training. Previous sensory training research on 
+other compounds have included training periods running from five to sixty days with 
+different intensities (Tempère et al., 2012, Cain and Schmidt, 2002, Dalton et al., 2002). 
+The 2 week-period proposed for this research sits in the middle of this range and 
+appropriate length and intensity will be based on the pilot study.   
+ 
+Phase 3: Test session 2  
+Objective 1: Track any changes to the panel’s sensitivity to mousiness. 
+Objective 2: Compare any differences in detection ability between the group of 
+participants subject to training and the control group 
+Objective 3: Obtain descriptors of ATHP from the participants to answer RQ3 
+ 
+• The second tasting session will be organized in the same location and under the same 
+circumstances as test session 1. 
+• The participants will be exposed to the exact same eight ascending 3-AFC tests as in the 
+first test session.    
+• After completion of the 3-AFC test and a short break, the participants are asked to 
+describe a lower and a higher concentration of ATHP by means of two separate glasses 
+ 
+Base wine: The same base wine will be used for the pre-screening, both test sessions and 
+the training period (Laroche Chardonnay L 2022). 
+ 
+Statistical methods:  
+Linear regression with the proportion of assessors detecting the mousy-sample as the 
+dependent variable and the concentration levels (on log scale) as independent variable, 
+will be applied to test if there is i) a significant difference at the panel level for the two 
+rounds of test, and ii) if the difference between the two rounds differs between the 
+training and the control group. In addition, individual BET-estimates for the two test 
+rounds will be compared for the training and control group using parametric and non-
+parametric tests. In all analyses the significance level will be set to alpha=0.05. All data 
+analysis will be performed with R (R-project20). 
+ 
+Potential to Contribute to the Body of Knowledge on Wine: Explain how this Research 
+Paper will add to the current body of knowledge on this subject.  (No more than 150 words) 
+ 
+20 See “sources”  
+===== PAGE 71 =====
+67 
+ 
+ 
+Taints and off-flavours represent a major concern in the wine industry and mousiness is no exception to 
+the rule. Up to now, most research on the subject has been devoted to understanding the causes of 
+mousiness and recently about quantification of the compounds involved (Kiyomichi, et al., 2023, 
+Hayasaka, 2019). The most referenced research to date on detection rates of mousiness (AWRI, 2011), 
+however, concluded that 25 % of wine professionals could not detect the taint. Although this result is 
+commonly explained by tasters’ different composition of saliva and pH on the tongue’s surface, no 
+research has so far explored whether repeated exposures to one of the compounds responsible for the 
+taint may influence wine professionals’ detection ability. If so, repeated exposures may potentially 
+represent a tool to both reduce the lack of consensus among wine professionals and increase their 
+abilities for sensory quality control in wine under normal wine tasting conditions. 
+ 
+Proposed Time Schedule/Programme: This section should layout the time schedule for the 
+research, analysis and write-up of the Research Paper and should indicate approximate dates 
+with key deliverables. Dates of submission to both Advisors and the IMW must be those 
+specified by the IMW. 
+ 
+ 
+May 
+• May 31st: Proof reading of RP 
+ 
+June 
+• June 6th: Deadline any amendments to RPP or RP title 
+• June 20th: Final submission of paper 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 72 =====
+68 
+ 
+Appendix 2: List of Abbreviations 
+ 
+Abbreviation Meaning 
+3-AFC Three-alternative forced-choice 
+AIC Akaike information criterion 
+ANOVA Analysis of Variance 
+APY 2-acetyl-1-pyrroline 
+ATHP 2-acetyltetrahydropyridine 
+AWRI Australian Wine Research Institute 
+BET Best Estimate Threshold 
+C Control group 
+C1–C8 Range of concentration levels 
+ETHP 2-ethyltetrahydropyridine 
+FC Fold change 
+H High-sensitive assessor 
+L Less-sensitive assessor 
+LFC Log fold change 
+PC Probability of correct 
+PD  Probability of detection 
+RP Research paper 
+S Hyper-sensitive assessor 
+T Training group 
+T1 First sensitivity tasting 
+T2 Second sensitivity tasting 
+WP Wine professional 
+===== PAGE 73 =====
+69 
+ 
+Appendix 3: Assessors’ individual detection thresholds T1, T2 
+BET and thresholds from T1 and T2. Group: C= Control group, T=Training group, S=Hyper -sensitive. 
+Certainty of having detected mousiness prior to pre-screening Y=Yes, N=No, U=Uncertain, 
+TR=Threshold (last incorrect concentration before first correct of three correct answers in a row), 
+last0=Last incorrect concentration in the whole series (different from TR if one incorrect answer after 3 
+correct answers). BET 1= BET estimate T1, BET 2= BET estimate T2. In T1, A19 and A29 had several 
+incorrect answers after three correct answers in a row. These two assessors therefore have the 
+highest BET value.  
+ 
+Assessor Group Certainty 
+mousiness TR1 last0 BET1 TR2 last0 BET2
+A1 T Y 5 5 12.353 4 4 4.941
+A2 C Y 3 3 1.976 1 1 0.316
+A3 T U 8 8 193.010 7 7 77.204
+A4 T Y 2 2 0.791 2 6 0.791
+A5 C Y 2 2 0.791 2 2 0.791
+A6 T Y 2 2 0.791 2 2 0.791
+A7 T Y 0 4 0.126 5 5 12.353
+A8 C Y 3 3 1.976 4 4 4.941
+A9 S Y 0 0 0.126 0 0 0.126
+A10 C Y 2 2 0.791 1 1 0.316
+A11 T Y 2 2 0.791 2 2 0.791
+A12 T Y 1 1 0.316 1 1 0.316
+A13 C U 6 6 30.882 6 6 30.882
+A14 C Y 2 2 0.791 8 8 193.010
+A15 C U 2 2 0.791 2 6 0.791
+A16 T Y 2 2 0.791 1 1 0.316
+A17 T U 5 5 12.353 0 4 0.126
+A18 C U 3 3 1.976 1 1 0.316
+A19 T Y 8 8 193.010 7 7 77.204
+A20 T U 3 3 1.976 2 2 0.791
+A21 C Y 6 6 30.882 3 3 1.976
+A22 T U 2 2 0.791 6 6 30.882
+A23 T U 2 2 0.791 3 3 1.976
+A24 C Y 0 4 0.126 0 0 0.126
+A25 T Y 4 4 4.941 1 1 0.316
+A26 T Y 1 1 0.316 3 3 1.976
+A27 C Y 2 2 0.791 0 0 0.126
+A28 C U 1 1 0.316 0 0 0.126
+A29 C Y 8 8 193.010 7 7 77.204
+A30 C Y 2 2 0.791 2 2 0.791
+A31 T Y 4 4 4.941 3 3 1.976
+A32 S Y 0 0 0.126 1 1 0.316
+A33 T U 6 6 30.882 4 4 4.941
+A34 T Y 3 3 1.976 5 5 12.353
+A35 C Y 4 4 4.941 4 4 4.941
+A36 C N 6 6 30.882 0 0 0.126
+A37 C Y 6 6 30.882 2 6 0.791
+A38 C U 4 4 4.941 0 0 0.126
+A39 C Y 5 5 12.353 2 6 0.791
+A40 T U 6 6 30.882 4 4 4.941
+A41 S Y 0 0 0.126 1 1 0.316
+A42 T U 6 6 30.882 2 2 0.791
+A43 T U 8 8 193.010 7 7 77.204
+A44 T U 6 6 30.882 5 5 12.353
+A45 C Y 8 8 193.010 4 4 4.941
+A46 T N 4 4 4.941 3 3 1.976
+A47 C Y 1 1 0.316 1 1 0.316
+A48 C Y 1 1 0.316 0 0 0.126
+A49 S U 0 0 0.126 4 4 4.941
+A50 C Y 8 8 193.010 4 4 4.941
+Test1 Test 2
+===== PAGE 74 =====
+70 
+ 
+Appendix 4: Heatmaps 
+ 
+Heatmap T1 
+Every cell in the figure below represents a test for each assessor and a concentration. Grey=incorrect, 
+Blue=correct. The assessors are sorted according to clustering in T1. The most similar performances 
+are therefore grouped. Green=number of incorrect T1, Purple=number of incorrect T2  
+ 
+
+===== PAGE 75 =====
+71 
+ 
+Heatmap T2 
+ 
+Same type of figure as for Heatmap T1, but with data from T2, grouped in the same order as T1 
+ 
+ 
+
+===== PAGE 76 =====
+72 
+ 
+Heatmap T2-T1 
+ 
+Red= Correct (C) T1/Wrong (W) T2 (CW) 
+Green= Wrong T1/Correct T2 (WC) 
+Grey= Same answer in T1 and T2 (WW or CC) 
+ 
+
+===== PAGE 77 =====
+73 
+ 
+Heatmap comparison T1, T2 
+Green: Either correct in both T1 and T2 (CC) or wrong in T1 and correct in T2 (dark green) (WC) 
+Purple: Either wrong in both T1 and T2 (WW) or correct in T1 and wrong in T2 (dark purple)  (CW)  
+ 
+ 
+ 
+
+===== PAGE 78 =====
+74 
+ 
+Individual curves T1 and T2 together, incl. BET 
+ 
+Vertical line: BET T1, vertical dotted line: BET 2. If one line only: Same BET in T1 and T2.  
+ 
+ 
+ 
+Results of Control group (C) and 4 hyper-sensitive assessors (S): 
+ 
+ 
+ 
+ 
+===== PAGE 79 =====
+75 
+ 
+ 
+ 
+ 
+ 
+Individual curves T1 and T2 together, incl. BET 
+ 
+ 
+Results of training group (T): 
+ 
+ 
+ 
+===== PAGE 80 =====
+76 
+ 
+Appendix 5: Glossary 
+ 
+Complete glossary: Main group and single descriptors. Main group descriptors sorted according to frequency for C4. 
+
+===== PAGE 81 =====
+77 
+ 
+Main group descriptors C4 and C8.  
+N=Number of times descriptor used by assessors. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGE 82 =====
+78 
+ 
+Appendix 6: Answer sheets for EyeQuestion 
+ 
+Questionnaire for all assessors prior to T1 
+Gender: 
+o Female  
+o Male 
+Age:  
+o 18–29 
+o 30–39 
+o 40–49 
+o 50–59 
+o 60+ 
+Experience (choose the option that represents the highest level of education): 
+o Completed WSET 3/Sommelier exam 
+o Completed WSET Diploma 
+o Completed Master of Wine 
+ 
+How often does your current position involve tasting wine? (Choose one response option) 
+o Daily 
+o Several times per week 
+o Weekly/several times per month 
+o Less frequently 
+ 
+In what part of the wine business do you mainly work (Choose one response option)? 
+o Wine journalism 
+o Wine education  
+o Wine imports 
+o The Norwegian Wine Monopoly 
+Do you currently have a cold or other factors that could influence your ability to smell and 
+taste? 
+o Yes 
+o No 
+ 
+Comment: 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 83 =====
+79 
+ 
+Answer sheet during T1 and T2 
+ 
+Instructions: 
+o Taste the samples from left to right 
+o One of the samples is mousy 
+o Indicate which sample is mousy 
+o If you cannot detect mousiness in any of the samples, please guess 
+o Taste each sample with a minimum two-minute break between each tasting 
+ 
+Please indicate the mousy sample: 
+845 
+(1) 
+768 
+(2) 
+976 
+(3) 
+ 
+ 
+Comment: 
+ 
+ 
+ 
+ 
+ 
+Description test of two wines containing C4 and C8 respectively, completed after T2 
+ 
+You have two glasses of wine in front of you. Please taste and evaluate the two wines from left to right 
+with a break of a minimum of two minutes in between. Please describe each wine in your own words. 
+ 
+443:  
+ 
+ 
+ 
+ 
+ 
+782: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 84 =====
+80 
+ 
+Questionnaire during the training period for the training group 
+ 
+Name: 
+ 
+What date are you training (choose one)?: 
+ 
+o Saturday 13 Jan.  
+o Sunday 14 Jan.  
+o Monday 15 Jan. 
+o Tuesday 16 Jan. 
+o Wednesday 17 Jan. 
+o Thursday 18 Jan.  
+o Friday 19 Jan. 
+o Saturday 20 Jan.  
+o Sunday 21 Jan. 
+o Monday 22 Jan. 
+o Tuesday 23 Jan.  
+o Wednesday 24 Jan.  
+o Thursday 25 Jan.  
+o Friday 26 Jan.  
+ 
+Bottle 1 (C4): Can you detect mousiness?  
+Indicate on the following scale your perception of mousiness: No mousiness (1) – (9) Strong 
+mousiness.  
+ 
+Bottle 2 (C8): Can you detect mousiness? 
+Indicate on the following scale your perception of mousiness: No mousiness (1) – (9) Strong 
+mousiness.  
+ 
+ 
+ 
+Comments/observations: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 85 =====
+81 
+ 
+Questionnaire completed by the assessors in the training group after completing T2 and the 
+description test (number of responses of the assessors indicated in parentheses) 
+ 
+Please answer the following questions: 
+ 
+How has the 14-day training period affected your personal acceptance of mousiness in wine? 
+o I now have a higher level of acceptance of the taint (e.g. you think mousiness is less 
+unpleasant now than before you started the training) (1) 
+o I now have a lower level of acceptance of the taint (e.g. you think mousiness is more 
+unpleasant now than before you started the training) (16) 
+o It has not affected my level of acceptance (6) 
+ 
+What is your personal perception of how the training has affected your sensitivity to 
+mousiness?  
+o The training has increased my sensitivity to mousiness in wine (17) 
+o The training has decreased my sensitivity to mousiness in wine (2) 
+o It has not affected my sensitivity to mousiness in wine (4) 
+ 
+How has the training period affected how certain you are about your ability to detect 
+mousiness in wine?  
+o The training has made me more certain about how to detect mousiness in wine (20) 
+o The training has made me less certain about how to detect mousiness in wine (0) 
+o It has not affected how certain I am about my ability to detect mousiness in wine (3) 
+ 
+How has the training affected your awareness regarding mousiness in wine? 
+o I now have a higher awareness of mousiness in wine (19) 
+o I now have a lower awareness of mousiness in wine (0) 
+o It has not affected my awareness of mousiness in wine (4) 
+ 
+Please describe in your own words your experience of being part of this study regarding both 
+the training period and the tastings: 
+ 
+ 
+ 

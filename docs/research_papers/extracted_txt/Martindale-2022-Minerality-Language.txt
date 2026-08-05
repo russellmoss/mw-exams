@@ -1,0 +1,3036 @@
+
+===== PAGE 1 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+The evolving language of minerality in 
+wine tasting: a case study of Decanter 
+tasting notes 1976-2019 
+ 
+ 
+ 
+ 
+ 
+December 2021 
+ 
+Candidate Number 23955 
+ 
+ 
+ 
+Word Count 9996 
+===== PAGE 2 =====
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 3 =====
+ 
+ 
+Contents 
+ 
+1. SUMMARY ............................................................................................................................................ 1 
+2. INTRODUCTION ................................................................................................................................. 2 
+3. LITERATURE REVIEW ...................................................................................................................... 3 
+3.1 Origins and rise in usage ............................................................................................................ 3 
+3.2 Meaning and application ............................................................................................................ 5 
+3.3 Defining minerality ....................................................................................................................... 6 
+3.4 Practical applications ........................................................................................................................ 7 
+4. METHODOLOGY ................................................................................................................................. 9 
+4.1 Content analysis ................................................................................................................................ 9 
+4.2 Selection of content ...................................................................................................................10 
+4.2.1 Source material .................................................................................................................10 
+4.2.2 Limitations of source material..........................................................................................10 
+4.2.3 Sourcing of materials ........................................................................................................11 
+4.2.4 Digitisation ..........................................................................................................................11 
+4.2.5 Sampling strategy .............................................................................................................11 
+4.2.6 Tasting note definition ......................................................................................................13 
+4.3 Definition of units and categories of analysis ........................................................................14 
+4.4 Development of rules for coding .............................................................................................14 
+4.5 Coding the text ...........................................................................................................................15 
+4.5.1 Software ..............................................................................................................................15 
+5. RESULTS AND ANALYSIS..............................................................................................................17 
+===== PAGE 4 =====
+ 
+ 
+5.1 Discussion of research question 1 ..........................................................................................17 
+5.1.1 Mineral, minerals, minerally, minerality ..........................................................................17 
+5.1.2 Number of mentions .........................................................................................................17 
+5.1.3 Wine colour ........................................................................................................................18 
+5.1.4 Grape varieties ..................................................................................................................22 
+5.1.5 White grape varieties ........................................................................................................24 
+5.1.6 Red grape varieties ...........................................................................................................25 
+5.1.7 Wine styles .........................................................................................................................26 
+5.2 Discussion of research question 2 ..........................................................................................29 
+5.2.1 Mineral, minerals, minerally, minerality ..........................................................................29 
+5.2.2 Nose or palate ...................................................................................................................33 
+5.2.3 References to Minerality by year ....................................................................................35 
+5.2.4 Wine colour ........................................................................................................................43 
+5.3 Discussion of research question 3 ..........................................................................................45 
+5.3.1 Direct modifiers ..................................................................................................................45 
+5.3.2 Positive and negative predictors .....................................................................................48 
+5.3.3 Links to reduction ..............................................................................................................54 
+6 CONCLUSION ...................................................................................................................................56 
+7 REFERENCES ...................................................................................................................................59 
+Appendix 1: Full list of terms searched for analysis in table 1 ............................................................61 
+Appendix 2: Uncategorised tasting terms for analysis in 5.3.2 ...........................................................64 
+Appendix 2: Data for Figs. 3-14, 16-20 ...................................................................................................73 
+Appendix 3: Research Paper Proposal ...................................................................................................80 
+===== PAGE 5 =====
+1 
+ 
+1. SUMMARY 
+This study is a textual analysis of 20, 678 tasting notes published in Decanter from 
+1976-2019. It takes the form of a content analysis of ‘minerality’ and its cognates to 
+explore the term’s history, evolution and application. 
+The research found that the term has been in circulation since at least the mid-1960s, 
+but did not become widespread until the turn of the century. In the Decanter corpus it 
+was first mentioned in 1985, and has been used 1,784 times, or in 8.6% of all tasting 
+notes, making it the fourth most common wine descriptor. It is the most frequently used 
+descriptor in both white and rosé wines and the sixth most common in red wines. At 
+its peak in 2010 it was found in over 15% of all tasting notes, but since then its 
+popularity has started to wane. 
+Positive predictors of minerality include a citrus character in white wines, and red fruit 
+character in red wine s. Tasting notes that include references to high acidity, stone, 
+salt, metal and smoke are all more likely to be found in notes that also cite a ‘mineral’ 
+character. Ripeness, smoothness, oak, savouriness, sweet spice, toast and a dairy 
+character are all negative predictors of minerality. 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 6 =====
+2 
+ 
+2. INTRODUCTION 
+This paper explores the history, evolution and application of ‘minerality’ in wine tasting 
+notes. In the rich lexicon of wine terms that have developed in the modern era, few 
+have proved more important, and more divisive , than this one.  The study takes the 
+form of a content analysis of 20,678 tasting notes published in Decanter from 1976-
+2019, and analyses the term’s usage and rise to prominence.  
+The study will address the following questions: 
+1. How common is the term, and to which wines is it most regularly applied? 
+2. How is the term used, and has its usage changed over time? 
+3. How do other wine characteristics associate with the concept of minerality? Are 
+there consistencies in usage that might add to our understanding of the 
+meaning of the term? 
+It is hoped that by doing so it will provide a detailed look at an example of wine 
+language evolution in action, as well as adding to the conversation around the usage 
+of ‘minerality’ as a tasting term, which has been much discussed in recent years. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 7 =====
+3 
+ 
+3. LITERATURE REVIEW 
+ 
+3.1 Origins and rise in usage 
+ 
+Several studies suggest the term ‘minerality’ is a neologism coined between the mid-
+1980s and the turn of the century. Alex Maltman in Minerality in wine: a geological 
+perspective says: 
+Although terms such as “lean”, “austere” and “steely” have long 
+been in the wine lexicon, as have “flinty” and “chalky” for certain 
+European white wines, the term minerality is a recent invention. 
+It seems unclear exactly by whom and when. Certainly wine 
+books before the turn of the millenium [sic] have no mention of 
+any of this.1 
+Jamie Goode in Wine Science dates it earlier and quotes Stephen Spurrier as saying 
+‘Mineral…did not exist until the mid-1980s. During most of my time in Paris I don’t think 
+I ever used the word.’2 Goode quotes critic Michel Bettane describing minerality as ‘a 
+fashionable word never employed in the 1970s and 1980s.’3 At a minerality summit in 
+2020, Goode also states ‘Minerality is this term which didn’t exist in the wine lexicon 
+until the late 1980. I’ve chatted to a few people…and they can’t recall ever having used 
+the word ‘mineral’ to describe wines before the 1980s.’4 
+The authors of a French study state ‘The word “minerality” has only relatively recently 
+emerged from wine tasting notes but is now frequently used to describe wine…Even 
+though the word minerality cannot be found in most contemporary general English 
+ 
+1 Maltman, A. Minerality in wine: a geological perspective (Journal of Wine Research, Vol. 24, 2013, pp. 169-
+181) p. 3 
+2 Goode, J. Wine Science: The Application of Science in Winemaking, 2nd edition (London: Mitchell Beazley, 
+2014) p. 42 
+3 Ibid p. 43 
+4 Wilson, C. Hallgarten hosts ‘minerality’ summit and tasting (Harpers Magazine, 9th January 2020)  
+<https://harpers.co.uk/news/fullstory.php/aid/26450/Hallgarten_hosts__91minerality_92_summit_and_tasti
+ng.html> [Accessed 25/10/2021] 
+===== PAGE 8 =====
+4 
+ 
+dictionaries, minéralité has been mentioned in most French wine lexicons since 
+1988.’5 
+Therefore there appears to be a consensus that the term was coined sometime in the 
+mid-to-late 1980s. However, there are instances of ‘mineral’ and its cognates 
+appearing in mainstream wine writing in the preceding 20 years. 
+In Wine (1966) Hugh Johnson refers to a mineral character in Chablis and Mosel 
+Riesling. In his description of Grand Cru Chablis, he states: 
+The taste of one of these great Chablis is bone-dry, but by no 
+means thin. They have a remarkably powerful scent, and a 
+flavour which I can only describe as slightly mineral, rather than 
+fruity.6 
+And of Mosel Riesling: 
+The typical Bernkasteler is one of the drier of the Moselles, with 
+something of  the stony, mineral taste which occasionally 
+reminds me of Chablis, yet no less of the fragrance of Riesling 
+grapes than any other.7 
+Pamela Vandyke Price used the term ‘minerally’ in relation to Chablis in The Taste of 
+Wine (1975): 
+It is very pale in colour and unlike any other white Burgundy, has 
+a greenish tinge at the edge of the wine; even as it ages, Chablis 
+never really becomes golden in colour. It can have great nobility, 
+but is generally an austere wine, so minerally dry that few wine 
+ 
+5 Deneulin P.; Le Fur, Y.; Bavaud, F. Study of the polysemic term of minerality in wine: Segmentation of 
+consumers based on their textual responses to an open-ended survey (Food Research International Vol. 90, 
+2016, pp. 288-297) p. 288 
+6 Johnson, H. Wine, 1st Edition (New York: Simon and Schuster, 1966) p. 91 
+7 Ibid p. 121 
+===== PAGE 9 =====
+5 
+ 
+drinkers like  it at first and most appreciate it only after some 
+experience.8 
+Adrienne Lehrer in Wine and Conversation  (2009) includes ‘mineral’ in a list of 145 
+most used wine descriptors during the 1970s.9 
+The consensus in the current body of research suggesting a genesis sometime during 
+the 1980s can therefore be rejected, but remains highly indicative that although in 
+circulation since at least the 1960s, mineral -related terms did not become commonly 
+used until some time later.  
+There are also several references t hat claim a rise in usage since the term’s  
+introduction,10 but it appears no studies have researched this. The only cited evidence 
+uncovered is the same French study noting increase d usage in a corpus of French 
+books from 1950 -2008. The authors reported a rise until around 1995, but the data 
+was generated by a rudimentary analysis using Google Books Ngram Viewer and was 
+only designed to be a small contextual element of the study.11  
+ 
+3.2 Meaning and application 
+ 
+Research on the subject focusses primarily on four areas: the concept and definition 
+of minerality, the suggested link between vineyard soil and wine flavours, the sensory 
+characteristics of minerality, and specific chemical compounds that might impart a 
+mineral flavour. Thanks largely to Minerality in wine: a geological perspective the 
+ 
+8 Vandyke Price, P. The Taste of Wine (London: Dorling Kindersley Ltd, 1970) p. 62 
+9 Lehrer, A. Wine and Conversation, 2nd edition (New York: Oxford University Press, 2009) p. 5 
+10 Maltman, A. Minerality in wine: a geological perspective, p. 2 
+ Goode, J. Wine Science: The Application of Science in Winemaking, 2nd edition, p. 42 
+ Deneulin Pascale, Le Fur, Yves and Bavaud, Francois Study of the term of minerality in wine: Segmentation of 
+consumers based on their textual responses to an open-ended survey, p. 289 
+11 Ibid. p. 296 
+===== PAGE 10 =====
+6 
+ 
+second of these has been resolved and there is an established acade mic consensus 
+that any ‘mineral’ character perceived cannot be literally derived directly from the soil.12 
+Maltman concludes the following: 
+The mineral nutrients in wine normally have minuscule 
+concentrations and they lack flavour anyway. Although attempts 
+to explain the perception of minerality involve allusions to 
+geological materials, these are irrelevant to its origin. Whatever 
+minerality is, it cannot literally be the taste of minerals derived 
+from the vineyard geology.13  
+The fourth area is beyond the remit of this study as it will not be possible to chemically 
+analyse the wines documented in the tasting notes that form the source material.  
+However there is opportunity for further research regarding the conceptual and 
+linguistic aspects of the term, as well as its sensory characteristics. 
+ 
+3.3 Defining minerality 
+ 
+Minerality seems to be a new word invented by the world of wine and is not defined in 
+dictionaries. Despite this lack of an established definition, previous studies have 
+suggested some consistencies regarding the concept of minerality, but remain 
+inconclusive.  
+For example, a survey of wine professionals undertaken by Ballester et al found ‘the 
+definitions of the experts included these main characteristics…as being typical 
+subdimensions of minerality: stone -related odours, seashore-related odours, acidity 
+ 
+12 Parr, W.V.; Maltman, A.; Easton, S.; Ballester, J. Minerality in Wine: Towards the Reality behind the Myths 
+(Beverages, 4, 77, 2018) p. 5 
+13 Maltman, A. Minerality in wine: a geological perspective p. 1 
+===== PAGE 11 =====
+7 
+ 
+and freshness’14 whilst also noting ‘the experts use a great diversity of words to define 
+minerality, which suggests that the definitions of experts are inconsistent.’15 
+Likewise, Deneulin et al linked ‘salient flint odours’, ‘acidity and freshness’ and also 
+the concept of terroir with minerality, whilst acknowledging ‘inspection of textual 
+networks generated by the representation of ‘‘minerality’’ in wine suggests that this 
+new term possesses different meanings among wine professionals, and is even 
+polysemic within respondents.’16 
+To complicate the picture further, Ballester  et al’s  study also found that any pre -
+existing conceptions of minerality are not always then applied consistently by the same 
+tasters in practical settings. 
+ 
+3.4 Practical applications 
+ 
+Further studies have looked at practical applications of the term relat ing to specific 
+wines. Whilst some wine characteristics have been suggested as associating 
+positively with perceived minerality, evidence is not consistent and many contradictory 
+results have been produced. For example, Ballester et al  found high acidity and 
+reduction-related terms to be positive predictors of minerality, and sweetness to be 
+negative,17 whereas Parr and colleagues noted ‘of particular interest, no … association 
+was found between perceived sourness/acidity and minerality judgements.’ 18 In 
+ 
+14 Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy Chardonnay wines: A 
+sensory approach with wine experts and trained panellists (Aust. J. Grape Wine Research 19, 2013) p. 49 
+15 Ibid. p. 48 
+16 Deneulin P.; Le Fur, Y.; Bavaud, F. Analyses of open-ended questions by renormalized associativities and 
+textual networks: A study of perception of minerality in wine (Food Quality and Preference, 12/2015, pp. 34-44)  
+p. 43 
+17 Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy Chardonnay wines: A 
+sensory approach with wine experts and trained panellists p. 50 
+18 Ballester, J.; Peyron, D.; Grose, C.; Valentin, D.; Parr, W.V. Perception of mineral character in sauvignon blanc 
+wine: inter-individual differences (Wine Studies, vol. 3:4474, pp. 9-12) p. 9  
+===== PAGE 12 =====
+8 
+ 
+another study, the same authors also found ‘reductive notes were not positively 
+associated by either cultural group with perception of mineral character in the wines.’19 
+Likewise, a recent Spanish study found sweetness to be a positive, and not negative, 
+predictor of minerality.20 
+  
+The picture therefore is quite muddled, and suggests a need for further clarification. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+19 Parr, W.V.; Ballester, J.; Peyron, D.; Grose, C.; Valentin, D. Perceived minerality in Sauvignon wines: Influence 
+of culture and perception mode (Food Quality and Preference 41, pp121-132) p. 128 
+20 Zaldívar, E. Caracterización químico-sensorial en vinos blancos y tintos del atributo mineralidad (Tesis 
+Doctoral, Universidad de la Rioja, 2017) p. 233 
+===== PAGE 13 =====
+9 
+ 
+4. METHODOLOGY 
+ 
+4.1 Content analysis 
+ 
+This study takes the form of a content analysis of Decanter tasting notes published 
+between 1976 and 2019. 
+Content analysis ‘is a research tool used to determine the presence of certain words, 
+themes, or concepts within some given qualitative data. Using content analysis, 
+researchers can quantify and analyze the presence, meanings and relationships of 
+such certain words, themes, or concepts… In conceptual analysis, a concept is chosen 
+for examination and the analysis involves quantifying and counting its presence.’21 
+In this study, a conceptual content analysis was undertaken for mineral-related terms 
+that quantified their frequency in the corpus. 
+This type of analysis involves five main steps: 
+1. Selection of content 
+2. Definition of units and categories of analysis 
+3. Development of rules for coding 
+4. Coding the text 
+5. Analysis and conclusions 
+ 
+ 
+ 
+ 
+21 Anonymous, Content Analysis <https://www.publichealth.columbia.edu/research/population -health-
+methods/content-analysis#Description> [Accessed 14/10/21] 
+===== PAGE 14 =====
+10 
+ 
+4.2 Selection of content 
+ 
+4.2.1 Source material 
+ 
+The source material is Decanter’s monthly publications. Decanter was first printed in 
+1975, with its first full year of publications in 1976. It has become Europe’s best selling 
+wine magazine with a global print circulation of 41,000. 22 It publishes 12 monthly 
+issues per year , each featuring several hundred tasting not es. As one of the oldest 
+wine magazines in the UK and with no breaks in publication, it provides a detailed, 
+historical archive of tasting notes and has had several hundred contributors since its 
+inception who rotate regularly, to ensure a wide spread of voices.  
+ 
+4.2.2 Limitations of source material 
+ 
+• The number of reviews per year differs considerably, from 349 reviews 
+published in 1976 to 3745 in 2019.  
+• The wines reviewed also differ widely. The earlier years are skewed towards 
+traditional Old World wines such as bordeaux and burgundy, whereas modern 
+editions are more eclectic. 
+• Whilst a wide range of reviewers have been employed across the magazine’s 
+history, wine styles or colours with fewer reviews can potentially be affected by 
+individual writers’ language choices.  
+• Although this study will examine a substantial number of tasting notes, it cannot 
+be assumed that the language used in Decanter is representative of the world 
+ 
+22 Anonymous, Decanter Media Pack, p.4 <https://keyassets.timeincuk.net/inspirewp/live/wp-
+content/uploads/sites/34/2021/02/Decanter-Media-Pack-2021.pdf> [Accessed 05/10/21] 
+===== PAGE 15 =====
+11 
+ 
+of wine during this era. Therefore caution should be taken in drawing 
+conclusions beyond the scope of this magazine.  
+ 
+4.2.3 Sourcing of materials 
+ 
+The editions from 1985 -2005, 2015 & 2019 were purchased from various collectors. 
+The editions from 1976, 1980 and 2010 were reviewed at the National Library of 
+Scotland, Edinburgh. 
+ 
+4.2.4 Digitisation 
+ 
+To enable computer -assisted analysis, tasting notes were digitised from the printed 
+editions of the magazine. 
+The software used to transcribe them was Microsoft Office Lens. The technology 
+operates by converting a photograph of a tasting note into editable text in the form of 
+a Microsoft Word document. This functions with a high degree of precision, but to 
+ensure accuracy, notes were then proofread  to correct any misreadings by the 
+technology.  
+ 
+4.2.5 Sampling strategy 
+ 
+For issues of practicality and time constraints, a sample of editions from the period 
+was necessary, as is common in studies of this nature. ‘With a period as short as a 
+year, a researcher might conduct a census of all…twelve monthly issues in the year’s 
+===== PAGE 16 =====
+12 
+ 
+publication. However, longitudinal designs often involve extended time 
+periods…where a census is not feasible and sampling may be desirable.’23 
+The study included all 12 editions of the magazine in each sample year, at roughly 
+five-year intervals. Supplements, promotional/sponsored features and Decanter World 
+Wine Awards  were not included. The years included are 1976, 1980, 1985, 1990, 
+1995, 2000, 2005, 2010, 2015 and 201 9. A corpus of  20,678 tasting notes was 
+compiled.  
+Choosing twelve issues per five years has been recommended in previous studies as 
+being the optimal amount to ensure a representative number of editions, and a 
+January to December selection as being more effective than a random sample. ‘When 
+sampling from a five -year period, a constructed year of 12 issues…is more efficient 
+and accurate than 20 randomly selected issues.’24 The authors of a study that utilised 
+this sampling strategy stated ‘If a random or purposeful sample of issues within a year 
+was taken, the risk of missing important instances…would be high. A fair 
+representation of the magazine’s coverage, therefore, could not be stated.’25 
+This strategy has further benefits when examining media publicati ons. ‘Previous 
+studies…have shown that the cyclic nature of media content can render simple 
+random sampling inefficient compared to other types of sampling.’26 This is in evidence 
+in Decanter, which tends to focus more heavily on particular regions, styles and grape 
+varieties, in certain months within a year’s worth of editions. Therefore full-year blocks 
+were chosen ahead of random samples to ensure the maximum spread across 
+ 
+23 Lacy, S.; Riffe, D.; Randle, Q. Sample Size in Multi-Year Content Analysis of Monthly Consumer Magazines 
+(J&MC Quarterly, Vol. 75, No.2, 1998) p. 408  
+24 Ibid. p. 414 
+25 Lester P.; Smith R. African-American Photo Coverage in Life, Newsweek and Time, 1937-1988 (Journalism 
+Quarterly, Vol. 67, No. 1, Spring 1990) p. 132 
+26 Lacy, S.; Riffe, D; Stoddard, S.; Martin, H.; Kuang-Kuo C. Sample Size for Newspaper Content Analysis in Multi-
+Year Studies (Journalism & Mass Communication Quarterly, Dec. 2001) p. 837 
+===== PAGE 17 =====
+13 
+ 
+different wine styles, with 12 editions per five years to ensure a representative number 
+of samples. 
+This strategy is considered optimal for examining trends in usage over time. It does, 
+however, have limitations when discussing  topics such as first usages of the term in 
+the corpus or first mentions in relation to a particular grape variety as these could 
+conceivably have appeared in an intervening year not covered in the sample. Such 
+issues will be considered and discussed as they occur. 
+ 
+4.2.6 Tasting note definition 
+ 
+From 1995, tasting notes were clearly signposted. However, before 1995 they were 
+often included sporadically in a body of prose. The term ‘tasting note’ does not appear 
+in dictionaries, so a definition was sought. The most detailed that could be found is in 
+The Oxford Companion to Wine, ‘[tasting notes] are conventionally divided into notes 
+for what is sensed by the eye, the nose, and for the mouth, together with overall 
+conclusions.’27 
+Therefore it was decided that for inclusion in the study, a tasting note must ref er to 
+one specific wine and must make a substantive attempt to describe its sensory 
+character. Notes that only gave a quality assessment, with no flavour/aroma/sensory 
+characteristics, were not included. Short notes were permitted if they were deemed to 
+be making a genuine attempt to describe the wine’s attributes (‘the number of words 
+in a personal average tasting note can vary between one and 100.’28) For example, a 
+short review of Chablis 1er cru Fourchaumes ‘splendidly flinty and full of flavour’ (1976, 
+ 
+27 Robinson, J. (ed.) The Oxford Companion to Wine, 3rd edition (New York: Oxford University Press Inc., 2006) 
+p. 685 
+28 Ibid. p. 685 
+===== PAGE 18 =====
+14 
+ 
+February) was permitted, whereas a review of Champagne de Saint Gall 1980  ‘very 
+familiar style of champagne, with good depth of flavour' (1985, July) was not. 
+4.3 Definition of units and categories of analysis 
+ 
+Coding is ‘a process of selective reduction. By reducing the text to categories, the 
+researcher can focus on and code for specific words or patterns that inform the 
+research question.’29 
+For this study, the units coded for were ‘minerality’, ‘mineral’, ‘minerals’ and ‘minerally’.  
+ 
+4.4 Development of rules for coding 
+ 
+Coding rules ‘will keep the coding process organized and consistent. The researcher 
+can code for exactly what he/she wants to code. Validity of the coding process is 
+ensured when the researcher is consistent and coherent in their codes, meaning that 
+they follow their translation rules.’30 
+As this paper focusses primarily on a single word, the coding rules are straightforward. 
+For the most part, the terms minerality/mineral/minerals/minerally will be considered 
+together, hereafter referred to under the umbrella term ‘Minerality’, with a capital ‘M’. 
+This is an important methodological consideration, given that ‘minerality’ has no official 
+definition. This follows a precedent set by previous studies which suggests that these 
+terms appear to be used interchangeably, both in the target of the studies, and within 
+the studies themselves. For example, Maltman states: ‘A glance at current writings on 
+wine in newspapers, magazines, web blogs, company literature and the like shows 
+frequent reference to things ‘mineral’ in wines. Thus a wine may have a mineral taste, 
+ 
+29 Anonymous, Content Analysis <http://www.publichealth.columbia.edu/research/population -health-
+methods/content-analysis> [accessed 03/11/21] 
+30 Ibid. [accessed 03/11/21] 
+===== PAGE 19 =====
+15 
+ 
+a mineral edge, a mineral streak, etc., or it possesses something called minerality’ 31 
+and later, ‘In striking contrast, modern popular writings are replete with mentions of 
+minerality and the like. For example, a single article in the issue of Decanter magazine 
+current at the time of writing employs the words mineral, minerally, and minerality 116 
+times in just a few pages.’ 32 Ballester et al also consider these terms togethe r: ‘few 
+mentions of minerality or minerality -related terms were generated at the end of the 
+sorting task, which suggests…the experts did not tend to use minerality -related 
+descriptors to describe their groups.’ 33 No previous studies on the subject have 
+suggested, or even considered, that there might be a difference in meaning between 
+these terms apart from  that they represent different parts of speech. However, there 
+is an opportunity for elucidation in how they have been applied and whether that 
+application changes throughout the corpus, which will be considered in the analysis. 
+ 
+4.5 Coding the text 
+4.5.1 Software 
+ 
+Once digitised, tasting notes were transferred into a Microsoft Excel spreadsheet 
+under the following headings: 
+ 
+• Year of publication 
+• Issue 
+• Wine details (e.g. producer/name/brand) 
+• Vintage (if appropriate) 
+ 
+31 Maltman, A. Minerality in wine: a geological perspective p. 2 
+32 Ibid. p. 3 
+33 Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy Chardonnay wines: A 
+sensory approach with wine experts and trained panellists p. 49 
+===== PAGE 20 =====
+16 
+ 
+• Country 
+• Region (if appropriate) 
+• Sub-region (if appropriate) 
+• Predominant grape variety (if known) 
+• Tasting note 
+• Mention of mineral, minerals, minerally or minerality 
+ 
+Straightforward analyses such as collating the number of occurrences could be done 
+within the Excel software itself to generate much of the data needed for research 
+questions 1 and 2; more advanced analyses were required to answer rese arch 
+question 3, which were done with the assistance of the Sketch Engine software.  
+Sketch Engine is an online text analysis tool that works with large samples of language 
+to identify not only frequency of occurrence of certain terms, but also the regulari ty of 
+any other terms which appear in close proximity to them.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 21 =====
+17 
+ 
+5. RESULTS AND ANALYSIS34 
+ 
+5.1 Discussion of research question 1 
+ 
+5.1.1 Mineral, minerals, minerally, minerality 
+ 
+This paper largely follows the precedent from previous studies that consider minerality-
+related terms together. In this corpus, ‘minerals’ and ‘minerality’ are used as nouns, 
+and ‘minerally’ an adjective. Whilst ‘mineral’ can be used in the English language as 
+either a noun or an adjective, in Decanter it is used exclusively as an adjective. Despite 
+being no obvious difference in meaning between the terms, there are some 
+idiosyncrasies in how they have been deployed linguistically, further explored in 5.2.1. 
+ 
+5.1.2 Number of mentions 
+ 
+ 
+This study looked at 20,678 tasting notes, in which Minerality has been mentioned on 
+1,784 occasions, or in 8.6% of the sample.  
+To see how this compares to other descriptors, a search was undertaken for other 
+common tasting terms as listed in the WSET’s Level 2 Wine-Lexicon,35 which can be 
+found in Appendix 1.  The WSET’s materials were chosen as a reliable standard for 
+this analysis as they are globally recognised as the world’s leading provider of wine 
+education.36 
+ 
+34 Ful data for Figs. 3-14, 16-20 are presented in Appendix 3 
+35 Wine and Spirit Education Trust Wines and Spirits: Looking Behind the Label (London: Wine & Spirit 
+Education Trust, 2014) p. 3 
+36 Robinson, J. (ed.) The Oxford Companion to Wine, 3rd edition p. 769 
+===== PAGE 22 =====
+18 
+ 
+By this metric, minerality and its variations are the fourth most widely used descriptors 
+in the corpus as can be seen in Table 1, which lists the 15 most used descriptors. This 
+data includes the lemma and all of its possible  variations (e.g. plummy, cherries, 
+minerality) and counts every instance of the terms in the corpus.  
+ 
+Table 1: Most used flavour descriptors 
+Wine Descriptor Number of times used % of tasting notes 
+spice 3808 18.4% 
+oak 3551 17.2% 
+cherry 1972 9.5% 
+mineral 1784 8.6% 
+plum 1289 6.2% 
+floral 1221 5.9% 
+cream 1179 5.7% 
+apple 1042 5.0% 
+citrus 911 4.4% 
+nut 889 4.3% 
+pepper 849 4.1% 
+honey 792 3.8% 
+lemon 715 3.5% 
+green 700 3.4% 
+peach 691 3.3% 
+ 
+ 
+ 
+5.1.3 Wine colour 
+ 
+Minerality is predominantly used to describe white wines, where it has occurred 949 
+times, as shown in Table 2:  
+===== PAGE 23 =====
+19 
+ 
+Table 2: Mentions of Minerality by colour 
+Wine category Mentions of 
+Minerality 
+Number of tasting 
+notes 
+% of mentions 
+of Minerality 
+White 949 4937 19.2% 
+Red 681 13205 5.2% 
+Sparkling 81 1123 7.2% 
+Rosé 39 281 13.9% 
+Sweet 27 590 4.6% 
+Orange 5 46 10.9% 
+Fortified 4 496 0.8% 
+All 1784 20678 8.6% 
+ 
+ 
+It has also been used quite frequently to describe red wines, which account for 681 of 
+the total.  However, this is slightly misleading as there have also been many more 
+reviews for red wines (13,205) than white wines (4,937) across the corpus. Looking at 
+the colour split as a percentage of tasting notes is more illuminating. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 24 =====
+20 
+ 
+Fig. 2: Mentions of Minerality by wine colour, as a percentage of total tasting notes 
+ 
+ 
+That the term is most associated with white wines (19.2%) is an anticipated result, and 
+consistent with the focus on white wines in the existing literature. There is only one 
+study that considers red wines,37 and the data here shows that while Minerality is less 
+frequently used to describe red wine (5.2%), it is still a common descriptor. No existing 
+studies consider rosé or sparkling wines.  
+To understand the relative frequency of these terms compared to other popular 
+descriptors, an analysis was undertaken to find the top ten terms used in each major 
+category of wine as presented in Table 3. Search terms were again selected from the 
+WSET’s Level 2 Wine Lexicon. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+37 Zaldívar, E. Caracterización químico-sensorial en vinos blancos y tintos del atributo mineralidad 
+0%
+5%
+10%
+15%
+20%
+25%
+white red sparkling rosé sweet orange fortified
+% of mentions of Minerality
+Wine Colour
+===== PAGE 25 =====
+21 
+ 
+Table 3: Mentions of Minerality by colour 
+ 
+ Red    White  
+Descriptor No. of 
+mentions 
+% of red 
+reviews 
+ Descriptor No. of 
+mentions 
+% of 
+white 
+reviews 
+spice 2999 22.7%  mineral 949 19.2% 
+oak 2841 21.5%  oak 839 17.0% 
+cherry 1893 14.3%  apple 750 15.2% 
+plum 1147 8.7%  citrus 742 15.0% 
+pepper 695 5.3%  spice 591 12.0% 
+mineral 681 5.2%  honey 519 10.5% 
+floral 629 4.8%  lemon 513 10.4% 
+chocolate 620 4.7%  peach 501 10.1% 
+blackberry 596 4.5%  floral 479 9.7% 
+violet 593 4.5%  cream 476 9.6% 
+       
+ Rosé    Sparkling  
+Descriptor No. of 
+mentions 
+% of rosé 
+reviews 
+ Descriptor No. of 
+mentions 
+% of 
+sparkling 
+reviews 
+mineral 39 13.9%  cream 191 17.0% 
+cream 38 13.5%  apple 178 15.9% 
+peach 35 12.5%  lemon 105 9.3% 
+strawberry 32 11.4%  citrus 97 8.6% 
+floral 30 10.7%  honey 89 7.9% 
+cherry 30 10.7%  floral 84 7.5% 
+raspberry 27 9.6%  mineral 81 7.2% 
+orange 26 9.3%  spice 69 6.1% 
+redcurrant 15 5.3%  peach 65 5.8% 
+apple 14 5.0%  pear 62 5.5% 
+ 
+===== PAGE 26 =====
+22 
+ 
+The term does not appear in the list of top descriptors for sweet or fortified wines, and 
+there is insufficent data in the corpus to discuss orange wine . This analysis shows 
+Minerality to be the most used descriptor for white and rosé wines, however with only 
+281 reviews for rosé in the corpus the latter result should be approached with caution. 
+This data shows that the term is the sixth and seventh most commonly used descriptor 
+for red wines  and sparkling wines 38 respectively. This indicates that there is an 
+opportunity for further research beyond its application in white wines.  
+ 
+5.1.4 Grape varieties 
+ 
+The term is used across a wide array of grape varieties.  Table 4 shows all varieties 
+that have been described as ‘mineral’ in the corpus. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+38 Sparkling wines are not discussed further in this study due to the relatively limited data provided by the 
+corpus for this category 
+===== PAGE 27 =====
+23 
+ 
+Table 4: Grape varieties described as mineral
+ 
+ 
+White/pink varieties described as mineral Red varieties 
+described as mineral 
+Albarino 
+Albillo 
+Aligote 
+Arinto 
+Arneis 
+Assyrtiko 
+Bacchus 
+Carricante 
+Cataratto 
+Chardonnay 
+Chasselas 
+Chenin Blanc 
+Clairette 
+Colombard 
+Cortese 
+Encruzado 
+Falanghina 
+Fetească Regală 
+Friulano 
+Furmint 
+Garganega 
+Garnacha Blanca 
+Gewürztraminer 
+Godello 
+Greco 
+Grenache Gris 
+Grillo 
+Grüner Veltliner 
+Hárslevelű 
+Malagousia 
+Malvasia 
+Marsanne 
+Melon Blanc 
+Muscat 
+Palomino 
+Pedro Ximénez 
+Petite Arvine 
+Petit Manseng 
+Pinot Gris 
+Picpoul 
+Pinot Blanc 
+Ribolla 
+Riesling 
+Roussanne 
+Sauvignon Gris 
+Sauvignon Blanc 
+Semillon 
+Tocai Friulano 
+Torrontés 
+Verdejo 
+Verdicchio 
+Viognier 
+Xarel-lo 
+Xynisteri 
+Baboso Negro 
+Barbera 
+Bonarda 
+Cabernet Sauvignon 
+Cabernet Franc 
+Carignan 
+Carménère  
+Ciliegiolo 
+Cinsault 
+Dolcetto 
+Frapatto 
+Gamay 
+Garnacha 
+Listán Negro 
+Listán Prieto 
+Malbec 
+Mencía 
+Merlot 
+Nebbiolo 
+Nerello Mascalese  
+Nero d'Avola 
+Petit Verdot 
+Pinot Noir 
+Sangiovese 
+Syrah 
+Tannat 
+Tempranillo 
+Teroldego 
+ 
+===== PAGE 28 =====
+24 
+ 
+The full corpus represents 173 unique grape varieties.39 As shown here, 82 (47.4%) 
+have been described as mineral at least once . This further shows the wide spread 
+usage of the term across many different styles of wine. 
+There are few obvious commonalities between these varieties, which supports existing 
+research that suggests the term is used idiosyncratically and inconsistently. 
+ 
+5.1.5 White grape varieties 
+ 
+The white variety most commonly described as mineral is Chardonnay closely followed 
+by Sauvignon Blanc, then Riesling. Table 5 shows the frequency of usage for the top 
+five white grape varieties that have at least 100 reviews. 
+ 
+Table 5: Top white varieties by frequency 
+White grape variety Total reviews Mentions of mineral % 
+Chardonnay 1782 418 23.5% 
+Sauvignon Blanc 443 102 23.0% 
+Riesling 828 164 19.8% 
+Grüner Veltliner 128 20 15.6% 
+Chenin Blanc 249 26 10.4% 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+39 Varieties with synonyms such as Pinot Gris/Pinot Grigio, or Vermentino/Rolle are counted as one single 
+variety 
+===== PAGE 29 =====
+25 
+ 
+5.1.6 Red grape varieties 
+ 
+The same analysis for red wines shows that mentions of Minerality are split more 
+evenly across a larger number of varieties (Table 6), with one notable exception. 
+ 
+Table 6: Top black varieties by frequency 
+Black grape variety Total reviews Mentions of mineral % 
+Gamay 264 63 23.9% 
+Cabernet Franc 108 9 8.3% 
+Dolcetto 128 8 6.5% 
+Syrah/Shiraz 901 57 6.3% 
+Nebbiolo 529 33 6.2% 
+ 
+ 
+Minerality is used in 23. 9% of all reviews of Gamay, making it the most likely variety 
+of any colour to be described using the term. 
+Exploring potential for Minerality in different varieties is highlighted in another study as 
+being an interesting avenue for further research. 
+To increase clarity in the field, we suggest that more 
+consideration be given to wine variety in future studies, with 
+potential for both sensorial and chemical aspects of minerality to 
+differ as a function of wine variety and wine-production style.40 
+This data suggests that Chardonnay is the strongest candidate for further study, as 
+not only is it the  white wine most frequently described as ‘mineral’, it also has the 
+largest number of reviews and mentions, which lends weight  to the evidence 
+presented. Sauvignon Blanc and Riesling are also suggested with confidence given 
+their high likelihood of eliciting the term from reviewers.  
+ 
+40 Parr, W.V.; Maltman, A.; Easton, S.; Ballester, J. Minerality in Wine: Towards the Reality behind the Myths p. 
+16 
+===== PAGE 30 =====
+26 
+ 
+As suggested in 5.1.3, it should be considered that Minerality in red wine is currently 
+an under -explored area.  The data here suggests that should such studies be 
+undertaken, Gamay is the best candidate for future research. 
+ 
+5.1.7 Wine styles 
+ 
+Of the major styles of wine (e.g. Chilean Merlot, Australian Shiraz, German Riesling), 
+the most likely to be described as mineral is Sancerre, where the term is mentioned 
+46.3% of the time. 
+Table 7 shows the fifteen wine styles most commonly described as mineral that have 
+at least 100 reviews, expressed as a percentage of their total reviews. 
+===== PAGE 31 =====
+27 
+ 
+Table 7: Wine styles most commonly described as mineral
+Wine Style Total Reviews Mentions of mineral % 
+Sancerre (White) 121 56 46.3% 
+Puligny-Montrachet 
+(White) 
+149 60 40.3% 
+Chassagne-Montrachet 
+(White) 
+128 47 36.7% 
+New Zealand 
+Chardonnay 
+108 38 35.2% 
+Chablis 311 107 34.4% 
+Australian Riesling 146 38 26.0% 
+Beaujolais (Red) 248 62 25.0% 
+Meursault (White) 203 45 22.1% 
+Alsace Riesling 131 29 22.1% 
+New Zealand Pinot Noir 111 22 19.8% 
+Austrian Grüner 
+Veltliner 
+126 20 15.9% 
+Portuguese Red Blends 177 29 16.4% 
+German Riesling 467 73 15.6% 
+Californian Chardonnay 134 15 11.2% 
+N. Rhône Syrah 201 22 11.0% 
+ 
+ 
+White burgundy is a strong candidate for further study, accounting for four of the top 
+eight wine styles represented. It is notable that Chablis is less commonly described as 
+mineral in the corpus than either Puligny-Montrachet or Chassagne-Montrachet, given 
+that Chablis bears one of the first uses of the term uncovered in the literature review, 
+and remains one of the styles most frequently linked to Minerality in popular literature 
+===== PAGE 32 =====
+28 
+ 
+on the subject .41 This suggests that more focus might be given to other subregions 
+within Burgundy as a number of tasters are regularly associating Minerality with these 
+other appellations as well. 
+The predominant red wine featured is Beaujolais , which was expected given the 
+frequency with which Gamay is described using these terms. 
+However, w hilst this evidence suggests these varieties and styles to be the most 
+fruitful options for further research, it does also potentially show a limitation of th e 
+research generated by human behaviour.  Just because 46. 3% of Sancerre reviews 
+contain a reference to Minerality, it cannot be assumed that this is the most ‘mineral’ 
+wine style.  The results here could be skewed by top-down processing , that is: 
+‘information processing that proceeds from information already store d in memory, 
+especially general assumptions or presuppositions about the material being 
+processed, as when a person forms a hypothesis on the basis of existing schemata 
+and prior experience about what an object might be and then uses sensory evidence 
+to corroborate or disconfirm the hypothesis.’42 
+In other words, tasters are potentially conditioned pre-emptively to associate certain 
+wine styles with being more mineral than others and so more likely to use the term . 
+Therefore in order to shed further light on the concept of Minerality, further analyses 
+are needed and considered in section 5.3. 
+ 
+ 
+ 
+ 
+41 Maltman, A. Minerality in wine: Where are we now? <https://www.decanter.com/wine-
+news/opinion/guest-blog/minerality-in-wine-429893/> [accessed 20/11/21] 
+42Anonymous, Top-Down Processing 
+<https://www.oxfordreference.com/view/10.1093/oi/authority.20110803104932817?rskey=ZJnlgC&result=6 > 
+[accessed 15/11/21] 
+===== PAGE 33 =====
+29 
+ 
+5.2 Discussion of research question 2 
+ 
+5.2.1 Mineral, minerals, minerally, minerality 
+ 
+Although no semantic difference was noted between these terms, there are a number 
+of ways in which their usage differs throughout the corpus. Fig. 3 shows the popularity 
+of each of these terms individually. 
+ 
+Fig. 3: Mentions of mineral, minerals, minerally and minerality 
+ 
+ 
+ 
+‘Mineral’ is by far the most common  variation with 56% of  mentions, followed by 
+‘minerality’ with 28%. ‘Minerals’ and ‘minerally’ are both much less frequently used. 
+Fig. 4 shows how usage of these variations has changed over time. 
+ 
+ 
+ 
+minerally minerals minerality mineral
+===== PAGE 34 =====
+30 
+ 
+Fig. 4: Mineral, minerals, minerally and minerality over time 
+ 
+ 
+Although the term ‘minerality’ has become the primary focus for this study and others, 
+this research suggests that it is a much more recent addition to the language than its 
+cognates. In the Decanter corpus it did not appear until July 2000, where it was used 
+to describe Cantina Colterenzio Pinot Grigio 1999, from Alto Adige: 
+Fresh, crisp, appley fruit. Taut acidity with good firm fruit, 
+minerality and a touch of oilyness. Good concentrated firm finish. 
+The first mention of any mineral-related term was in December 1985, describing Daniel 
+Bissey’s 1982 Vosne-Romanée 1er Cru Les Beaumonts: 
+I thought was admirable. It had all the spicy scent of Vosne, with 
+the typical minerally nose which I associate with the Appellation, 
+and a glorious violetty finish. Bravo M. Bissey. 
+The term does not appear in the corpus again until October 1990, in relation to the 
+Cabernet Riserva, Alois Lageder, Südtirol 1986: 
+Quite a full, round, earthy, Sud Tirol nose; black and rather 
+minerally pepper, and a touch of softness too. 
+0
+50
+100
+150
+200
+250
+300
+350
+1970 1980 1990 2000 2010 2020 2030
+No. of usages
+Year
+minerally minerals minerality mineral
+===== PAGE 35 =====
+31 
+ 
+ 
+It was March 1990 when ‘mineral’ was introduced and superseded ‘minerally’ as the 
+most popular cognate , where it remains. The first example was written in relation to 
+Santenay 1er Cru Les Gravières 1987, Olivier Leflaive: 
+Positive creamy-ripe nose, with delicate scents of woodland fern; 
+dryish, but well -fleshed oaky fruit concentration, and mineral 
+nerve from the red soil. Archetypal fine Burgundy, for drinking 
+soon. 
+Finally, it was October 1995 when ‘minerals’ first appeared describing Châteauneuf-
+du-Pape, Clos des Papes 1984: 
+This is a wine whose bouquet is full of stewed aromas, some red 
+fruit, some pepper; there is some discreet fatness in a generally 
+well-sustained flavour, and while the finish is a little short, the 
+wine could live towards 2004.  Flavour associations with these 
+years are resins and minerals rather than garden or hedgerow 
+fruits in sweet or dry form; fruit smells on the bouquets tend to 
+be stewed rather than fresh or clear-cut. 
+These first occurrences in the corpus  provide a valuable  historical perspective , 
+however because the study utilises a sampling strategy instead of a comprehensive 
+analysis of every printed edition, it remains possible that earlier examples of each of 
+these terms might exist in editions not included in the sample. 
+However, what it does show clearly is another noteworthy trend over time. Fig. 5 shows 
+the percentage mentions of each of the terms for every year of the sample. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 36 =====
+32 
+ 
+Fig. 5: Percentage split of mineral, minerals, minerally and minerality over time 
+ 
+ 
+Here we can see that in the early years ‘minerally’ and ‘mineral’ were the only cognates 
+used, and then a gradual change over time  sees ‘minerally’ and ‘minerals’ become 
+almost obsolete. It seems that in today’s language  just two terms are regularly used; 
+‘mineral’ is the adjective o f choice and ‘minerality’ the noun. There are no obvious 
+causes identified that would account for this, and so it is suggested this is most likely 
+an example of changes in fashion and the natural ebb and flow of language. The wine 
+lexicon’s ability to evolve is charted in detail in Shapin’s The Tastes of Wine: Towards 
+a Cultural History 43 (2012) and is also well-documented in Lehrer’s Wine and 
+Conversation (2009): ‘All languages have resources that enable speakers to increase 
+their vocabulary—by adding new words and by extending the meanings of  existing 
+words. The wine vocabulary illustrates these processes very clearly.’44 
+ 
+ 
+43 Shapin, S. The Tastes of Wine: Towards a Cultural History (Rivista di estetica Vol. 51, 2012) 
+44 Lehrer, Adrienne Wine and Conversation p. 19 
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+100%
+1976 1980 1985 1990 1995 2000 2005 2010 2015 2019
+Split by %
+Year
+minerally minerals minerality mineral
+===== PAGE 37 =====
+33 
+ 
+5.2.2 Nose or palate 
+ 
+The existing literature suggests that there is no consensus around whether Minerality 
+is used primarily as a nose or palate sensation. 45 Fig. 6 shows the split of references 
+for the nose and the palate over time. 
+ 
+Fig. 6: References to perception of Minerality on nose or palate over time 
+ 
+ 
+There are a large number of reviews where the term is used ambiguously and it is 
+unclear if the reviewer is referring to a nose or palate sensation . These ambiguous 
+reviews have the potential to sway the data towards either the nose or the palate, and 
+so firm conclusions about whether Minerality is primarily a nose or palate sensation 
+are fraught. However we can conclude that many reviewers find the term to be a useful 
+descriptor for both, and the data suggests it is more regularly used to describe a palate 
+sensation, particularly recently. The proportion of r eferences to the palate has 
+ 
+45 Parr, W.V.; Maltman, A.; Easton, S.; Ballester, J. Minerality in Wine: Towards the Reality behind the Myths p. 
+2 
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+100%
+1976 1980 1985 1990 1995 2000 2005 2010 2015 2019
+% Mentions of Minerality
+Year
+nose palate ambiguous
+===== PAGE 38 =====
+34 
+ 
+remained consistent, whereas there is a clear trend for Minerality to be less directly 
+associated with the nose over time. 
+There also appears to be no major difference in where a mineral character might be 
+perceived between red and white wine, as shown in Fig. 7. 
+ 
+Fig. 7: References to nose or palate by wine colour 
+ 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+100%
+reds whites
+% Mentions of Minerality
+nose palate ambiguous
+===== PAGE 39 =====
+35 
+ 
+5.2.3 References to Minerality by year 
+ 
+Table 8 shows the number of mentions of Minerality in each year of the Decanter 
+corpus. 
+Table 8: Mentions of Minerality by year 
+Year References to Minerality 
+1976 0 
+1980 0 
+1985 1 
+1990 14 
+1995 32 
+2000 72 
+2005 202 
+2010 584 
+2015 490 
+2019 389 
+  
+Total 1784 
+ 
+ 
+The first mention in this corpus was in 1985  and instances were very limited until the 
+year 2000  when it  became more widespread.  This, combined with the data from 
+previous studies, confirms that although references to Minerality existed earlier, it did 
+not become a commonly used term until some time around the turn of the century.  
+The data shows a notable increase in usage over the period of this study, from one 
+mention in 1985, to 584 at its peak in 2010. However, this must be considered in the 
+context of a n increase in the total number of tasting notes published , as shown in 
+Table 9.  
+ 
+===== PAGE 40 =====
+36 
+ 
+Table 9: Number of tasting notes per year 
+Year Total no. of tasting notes 
+1976 349 
+1980 719 
+1985 980 
+1990 1164 
+1995 1146 
+2000 1615 
+2005 2940 
+2010 3974 
+2015 4048 
+2019 3743 
+  
+Total 20678 
+ 
+ 
+The most useful analysis is to consider mentions of Minerality as a percentage of total 
+tasting notes, as shown in Fig. 8: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 41 =====
+37 
+ 
+Fig. 8: Mentions of Minerality as a percentage of tasting notes 
+ 
+ 
+This shows a steady and uniform rise in prevalence for the 15-year period from 1985 
+to 2 000, followed by a much sharper climb from 2000 to 2010 . A marked decline 
+occurred between 2010 and the present day.  
+The reason for this decline is unclear, but there are three possible hypotheses to 
+consider: that wine styles are changing and becoming less mineral,  that the term is 
+becoming less popular and falling out of fashion , or that fluctuations in the frequency 
+and range of wines being reviewed each year are affecting the data.  
+There is evidence to support all three hypotheses. Although the literature shows a 
+diverse interpretation of the meaning of Minerality, there are some consistencies 
+suggested in attributes that most commonly associate with the term , as described in 
+the literature review . Amongst these are a  sense of freshness deriving from  high 
+acidity, and a citrus character in white wines  – characteristics commonly associated 
+with cooler climates, and it is notable that most of the main wine styles associated with 
+Minerality in 5.1.7. hail from cooler regions , and /or high acidity varieties . The link 
+0%
+2%
+4%
+6%
+8%
+10%
+12%
+14%
+16%
+1975 1980 1985 1990 1995 2000 2005 2010 2015 2020
+% of tasting notes
+Year
+===== PAGE 42 =====
+38 
+ 
+between Minerality and cool climates has been suggested in previous research on the 
+topic,46 with Palacios and Molina finding that  ‘Minerality was associated with certain 
+distinctions such as lower pH and higher acidity in whites particularly those from 
+northern latitudes or marginal cold climate regions.’47  
+Many regions are experiencing the effects of climate change and experiencing warmer 
+growing seasons leading to higher alcohol, lower acidity and riper fruit flavours. 
+One such example is Chablis, which is also a region whose wines are regularly cited 
+as ‘mineral’. One study looking at climate change in this region stated: 
+Mean spring/summer temperature increased by almost 0.5 °C 
+per decade between 1963 and 2020 and slightly more so than 
+mean autumn/winter temperature cumulatively.  The mean 
+maximum rose considerably more than the mean minimum 
+temperature. Similarly, the number of days reaching or 
+exceeding 35 °C between 1st April and 30 September each year 
+has risen from close to zero to almost six days; much of this 
+occurred between 2015 and 2020.48 
+This appears to be manifesting itself in tasting notes. Fig. 9 shows the number of times 
+Chablis has been described as mineral, as a percentage of its total reviews. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+46 Deneulin P.; Le Fur, Y.; Bavaud, F. Study of the polysemic term of minerality in wine: Segmentation of 
+consumers based on their textual responses to an open-ended survey, p. 289 
+47 Palacios, Antonio, Molina, David Chemical Basis of Minerality perception in Wines (Excell Ibérica and Outlook 
+Wine, March 2015) p. 27 
+48 Biss, A., Ellis, R. Modelling Chablis vintage quality in response to inter-annual variation in weather (OENO 
+One, 2021, 55(3), 209–228) p. 213 
+===== PAGE 43 =====
+39 
+ 
+Fig. 9: References to Minerality in Chablis 
+ 
+Here a sharp decline can be seen in 2019  compared to the period 2005 -2015. The 
+reviews for this year come mainly from the Dec ember edition which  contained 40 
+reviews of 2018 Chablis, where Minerality was only mentioned 5 times. Tim Atkin MW 
+said this of the 2018 vintage: 
+Make no mistake: this was a climate change vintage, registering 
+temperatures that hit a peak of 38.4C…  As you’d expect, given 
+the growing season, the wines are generally on the soft side, 
+although they have tightened up in tank, barrel and bottle to a 
+certain degree. They are mostly wines for comparatively young 
+drinking, with low to medium levels of acidity, which are 
+compensated for by higher ones of dry extract in certain cases.49 
+Therefore this evidence would seem to suggest that hotter vintages like this are less 
+likely to produce a mineral character, and with global temperatures continuing to rise, 
+that may account, at least partly, for a reduction in the prevalence of the term. 
+ 
+49 Atkin, T. 2018 Chablis Scores <https://timatkin.com/product/chablis-2018-scores/> [Accessed 20/11/21] 
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+1976 1980 1985 1990 1995 2000 2005 2010 2015 2019
+% Mentions of Minerality
+Year
+===== PAGE 44 =====
+40 
+ 
+Alternatively this downturn could be a result of the term starting to go out of fashion. 
+There has been an increasing level of controversy over its usage in recent years. Many 
+wine commentators believe the word to be overused, and have expressed a growing 
+sense of frustration at its nebulous definition and liberal application.50 In January 2020 
+The Inter national Wine Challenge’s magazine Canopy surveyed 400 international 
+wine experts to discover the word they would most like to see banned from tasting 
+notes, and ‘minerality’ was the ‘clear winner’.  The judges said ‘the word is “too 
+generic”, “overused”, “misused”, “vague”, “misleading”, and “with out any proper 
+meaning”.’51 This generic usage was alluded to in 5.1.4 which showed 47.4% of grape 
+varieties represented in the corpus have at one time been described as mineral.  Fig. 
+10 shows that this spread across varieties has increased over time. 
+ 
+Fig. 10: Percentage of varieties described as mineral 
+ 
+ 
+ 
+50 Anonymous, Old stones, old wines, new theories <https://worldoffinewine.com/2014/10/28/old-stones-old-
+wines-new-theories-4418498/> [Accessed 20/11/21] 
+51 Boiling, C. Minerality: IWC judges’ view (Canopy Magazine, 28th January 2020) 
+<https://www.internationalwinechallenge.com/Canopy-Articles/minerality-iwc-judges%E2%80%99-view.html> 
+[Accessed 20/11/21] 
+0%
+5%
+10%
+15%
+20%
+25%
+30%
+35%
+40%
+45%
+50%
+1970 1980 1990 2000 2010 2020
+% of varieties
+Year
+===== PAGE 45 =====
+41 
+ 
+As with the number of reviews using the term, the percentage of varieties described 
+as mineral has increased markedly since the 1980s and peaked in 2010, where of the 
+81 unique grape varieties reviewed that year, 37 (45.7%) were described as mineral. 
+This has also seen a slight downward trend since 2010 b ut remains high. This liberal 
+spread across so many different wine styles could be driving such frustrations amongst 
+wine commentators. 
+One further trend was noted which seems to support this. Fig. 11 shows the number 
+of occasions the term ‘minerality’ was directly modified by a preceding adjective, in 
+order to add a sense of meaning, for example ‘stony minerality’ or ‘gravelly minerality’. 
+ 
+Fig. 11: Percentage of occasions ‘minerality’ is modified 
+ 
+ 
+This shows a clear trend that reviewers are increasingly attempting to clarify their use 
+of the term by associating it with a nother tangible wine characteristic, much more 
+regularly than previously. This would suggest that there is now a greater attempt to 
+achieve precision of language, and  overcome the accusations of vagueness 
+highlighted above, and this trend for qualifying the term shows no sign of abating; by 
+0%
+5%
+10%
+15%
+20%
+25%
+30%
+35%
+40%
+45%
+1985-2000 2005 2010 2015 2019
+% of occasions
+Year
+===== PAGE 46 =====
+42 
+ 
+2019 over 40% of instances were qualified in some way. The specific descriptors used 
+will be explored in 5.3.1. 
+The third hypothes is is that variation in wines being reviewed in the sample is 
+fluctuating and affecting the data.  Table 5 showed that the white varieties most 
+commonly described as mineral are Chardonnay, Sauvignon Blanc and Riesling. Fig. 
+12 shows the proportion of total white wine reviews accounted for by these varieties  
+per year. 
+ 
+Fig. 12: Percentage of Chardonnay, Riesling and Sauvignon Blanc  
+white wine reviews per year 
+ 
+ 
+In 2005 and 2010 , over 80% of all white reviews were for these three varieties 
+compared to 53.5% in 2015 and 44.2% in 2019.  A smaller proportion of reviews 
+focussed on these key ‘mineral’ varieties is likely to have affected its  prevalence. So 
+although the data in this study sugg ests that the term is becoming less widely used, 
+further study would be needed that looked at the intervening years not covered in the 
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+100%
+1976-1995 2000 2005 2010 2015 2019
+% of white wine reviews
+Year(s)
+===== PAGE 47 =====
+43 
+ 
+sample to understand how much influence fluctuations in varieties have on the term’s 
+usage.  
+However, reviews for these varieties  still show a marked decrease in Minerality 
+descriptors since 2010 where 41.6% of reviews referenced Minerality compared to 
+17.2% in 2019, as shown in Fig. 13. 
+ 
+Fig. 13: Percentage of ‘mineral’ reviews in Chardonnay, Riesling and Sauvignon 
+Blanc  
+ 
+ 
+5.2.4 Wine colour 
+ 
+Whilst Minerality has always been used predominantly to describe white wines, in the 
+earlier years of the study this was almost exclusive.  Its application to reds has grown 
+since the turn of the century, peaking at almost 10% in 2015, as shown in Fig. 14. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+0%
+5%
+10%
+15%
+20%
+25%
+30%
+35%
+40%
+45%
+1976-1995 2000 2005 2010 2015 2019
+% of Reviews
+Year
+===== PAGE 48 =====
+44 
+ 
+Fig. 14: Frequency of usage over time by wine colour 
+ 
+ 
+The rise in usage for white wines has been much steeper, with the term used in almost 
+10% of all white tasting notes by 1995, rising to a peak of 37.8% in 2010. Since 2010 
+for whites and 2015 for reds, both colours have seen a drop in usage that is consistent 
+with previous analyses. Usage with rosé has taken the longest to gain traction and 
+was practically non-existent until 2015, but has shown a dramatic increase since then. 
+However this style of wine has far fewer reviews in the corpus, with just 281 entrants 
+in total and 3 7 usages of the term.  Therefore results are more likely to fluctuate  and 
+are less reliable than the data produced for red and white wine. For styles of wine with 
+fewer reviews, there is greater potential for individual commentators who might have 
+a fondness of the term to skew the data. However, when considering other major styles 
+and categories of wine, the data is more commonly drawn from several contributions 
+spread across a year’s worth of editions featuring a much wider range of writers.  The 
+data produced in such cases is therefore considered more robust and reliable , 
+although because of the nature of the source material in this study,  this factor can 
+0%
+5%
+10%
+15%
+20%
+25%
+30%
+35%
+40%
+1970 1975 1980 1985 1990 1995 2000 2005 2010 2015 2020 2025
+% of mentions of Minerality
+Year
+red white rosé
+===== PAGE 49 =====
+45 
+ 
+never be entirely mitigated.  In the instance of rosé, almost all ‘mineral’ reviews were 
+found in August 2019 and clearly display one individual’s penchant for the term. 
+ 
+5.3  Discussion of research question 3 
+ 
+Whilst the existing literature  suggests the term is used idiosyncratically, it remains 
+plausible that there are some consistencies  in its usage that might further our 
+understanding of its meaning . By exploring other terms that have come to coexist 
+alongside Minerality, conclusions can be drawn about what attributes most commonly 
+associate positively or negatively with a ‘minerally’ wine.  
+ 
+5.3.1 Direct modifiers 
+ 
+The first analysis looks at direct modifiers of these terms, to see which descriptors 
+have become regularly  employed by tasters with the intention of elucidating the 
+perceived mineral sensations. 
+Fig. 11 showed that the term has become increasingly qualified over time, suggesting 
+attempts to achieve greater precision of usage. Table 10 shows the specific adjectives 
+employed across the corpus that directly precede the two nouns ‘minerals’ and 
+‘minerality’. This data is limited only to terms that have been used at least three times 
+in the corpus. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 50 =====
+46 
+ 
+Table 10: Direct modifiers of ‘minerality’ and ‘minerals’ 
+Term Frequency Category  Term Frequency Category 
+good 17 hedonic  earthy 5 earthy 
+lovely 17 hedonic  smoky 5 smoky 
+fine 16 hedonic  steely 5 metal 
+nice 14 hedonic  stone 5 stone 
+chalky 13 stone  attractive 4 hedonic 
+salty 10 salt  clean 4 acidity 
+stony 10 stone  elegant 4 hedonic 
+saline 9 salt  refreshing 4 acidity 
+great 8 hedonic  cool 3 acidity 
+flinty 8 stone  piquant 3 acidity 
+slatey 7 stone  spicy 3 spice 
+ 
+ 
+Looking at the semantic relationships between these words, the majority of the terms 
+belong to only four semantic fields : hedonic liking, stone-related terms, 
+acidity/freshness terms and salt-related terms, as shown in Fig. 15. 
+ 
+Fig. 15: Direct modifiers of ‘minerals’ and ‘minerality’ by semantic fields 
+ 
+hedonic stone salt acidity earthy smoky metal spice
+===== PAGE 51 =====
+47 
+ 
+Hedonic liking terms account for almost half the total modifiers. This is unsurprising as 
+minerality and its cognates are used exclusively as positive attributes in the corpus. It 
+is hypothesised therefore that Minerality is used to describe a desirable attribute  in 
+wine tasting. However, Decanter only publishes tasting notes for wines that have been 
+positively reviewed, so any negative connotations are unlikely to have registered in 
+this analysis.  
+The other three semantic fields of stone -related terms, acidity/freshness terms and 
+salt-related terms  support some of the findings in previous studies. Ball ester et al 
+highlighted the same semantic fields when they asked respondents to define the term 
+Minerality. 
+We can easily note that  53% of the cited words [used to define 
+Minerality] can be related to only three semantic fields.  Indeed, 
+all the stone-related terms accounted for 21% of total citations , 
+acidity/freshness-related terms for 17% and seashore -related 
+terms for 15%.52 
+However they also found  that in practical settings the same respondents were not 
+consistent in using those terms to describe a ‘mineral’ sensation. This study would 
+suggest that there is some consistency between the conceptual definitions  of 
+Minerality and its practical deployment.  
+ 
+ 
+ 
+ 
+ 
+ 
+52 Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy Chardonnay wines: A 
+sensory approach with wine experts and trained panellists p. 49 
+===== PAGE 52 =====
+48 
+ 
+5.3.2 Positive and negative predictors 
+ 
+As well as looking at words directly employed to modify these terms, analyses were 
+undertaken to look at other descriptors that have come to coexist frequently in the 
+same tasting note. These were then compared to notes without reference to Minerality, 
+to see which descriptors act as positive or negative predictors for the term. 
+To generate this data a list of all words that appeared in every tasting note was 
+compiled, together with their frequency in both ‘mineral’ and ‘non-mineral’ reviews, 
+using the Sketch Engine software.  Stop words (e.g. and, of, an) and irrelevant non -
+descriptive words (e.g. wine, aromas, Chardonnay) were removed, and the list was 
+limited to the 100 most frequent descriptors for both ‘mineral’ and ‘non-mineral’ 
+reviews. This can be found in Appendix 2. 
+These descriptors were then placed into semantic categories for clarity of analysis.  
+Fig. 16 shows a comparison for the frequency of appearance of terms relating to each 
+semantic category for ‘mineral’ and ‘non-mineral’ white wines. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 53 =====
+49 
+ 
+Fig. 16: Frequency of terms appearing in tasting notes 
+ for ‘mineral’ and ‘non-mineral’ white wines 
+ 
+ 
+This graph shows that descriptors relating to high acidity, a citrus fruit character and 
+references to stone -related terms are all notable positive predictors of Minerality. 
+Notes containing references to oak, sweetness, smoothness and spice are much less 
+frequently described as mineral. 
+Fig. 17 shows the same data listed with the percentage increase or decrease for each 
+category. 
+ 
+ 
+ 
+ 
+ 
+ 
+0%
+20%
+40%
+60%
+80%
+100%
+120%
+high acidity
+citrus fruit
+dairy
+dry
+floral
+green fruit
+herbaceous
+lees
+metal
+mineral
+nut
+oak
+petrol
+salt
+savoury
+smoke
+smoothness
+spice
+stone
+stone fruit
+sweetness
+toast
+tropical fruit
+% Tasting notes than include terms
+Semantic Categories
+non-mineral whites mineral whites
+===== PAGE 54 =====
+50 
+ 
+Fig. 17: Positive and negative predictors of Minerality by percentage for white wines 
+ 
+Here we can see that the biggest percentage increases are for stone-related, metal-
+related and salt -related terms which are all 100-300% more likely to be found in a 
+‘mineral’ rather than a ‘non-mineral’ tasting note.  Smokiness also sees a sizeable 
+increase. In terms of fruit flavours, citrus is the most likely fruit character to appear in 
+a ‘mineral’ tasting note , with smaller increase s for stone fruit and a decrease in 
+likelihood for tropical fruit.  When coupled with the increase to references of high 
+acidity, this would seem to suggest that Minerality associates most commonly with 
+less ripe, more crisp and citrussy styles of wine.  Increases in ripeness tend to 
+associate negatively with perceived Minerality.  
+This study finds seven negative predictors for Minerality in white wine: most notably 
+sweetness, followed by smoothness, oak, spice, toast, savouriness, tropical fruit and 
+a dairy character.  
+There is little existing research on which red wine characteristics act as positive or 
+negative predictors of Minerality. This analysis follows the same method as for white 
+wines, however semantic categorisation proved slightly mor e challenging with red 
+-100%
+-50%
+0%
+50%
+100%
+150%
+200%
+250%
+300%
+high acidity
+citrus fruit
+dairy
+dry
+floral
+green fruit
+herb
+lees
+metal
+mineral
+nut
+oak
+petrol
+salt
+savoury
+smoke
+smoothness
+spice
+stone
+stone fruit
+sweetness
+toast
+tropical fruit
+% Difference
+Semantic Category
+===== PAGE 55 =====
+51 
+ 
+wines, as tasting terms are often more  ambiguous. For example ‘ green’ could be 
+referring to tannins, high acidity, or a vegetal aspect in the wine. Such descriptors have 
+been included in a miscellaneous category. 
+Fig. 18 shows the frequency of the appearance of terms for ‘mineral’ and ‘non-mineral’ 
+reds. 
+ 
+Fig. 18: Frequency of terms appearing in tasting notes  
+for ‘mineral’ and ‘non-mineral’ red wines 
+ 
+ 
+There are many similarities here with the corresponding white wine analysis. High 
+acidity also acts as a notable positive predictor in red wines  whereas references to 
+oak, ripeness and smoothness are all less likely to occur alongside Minerality. The 
+largest positive and negative predictors by percentage increase and decrease can be 
+seen in Fig. 19. 
+ 
+0%
+20%
+40%
+60%
+80%
+100%
+120%
+high acidity
+black fruit
+cherry
+floral
+herbaceous
+mineral
+miscellaneous
+oak
+plum
+red fruit
+ripeness
+salt
+savoury
+smoke
+smoothness
+spice
+stone
+sweetness
+tannin
+toast
+vegetal
+% Tasting notes than include terms
+Semantic Categories
+non-mineral reds mineral reds
+===== PAGE 56 =====
+52 
+ 
+Fig. 19: Positive and negative predictors of Minerality by percentage for red wines 
+ 
+The biggest increases can be seen for references to stone -related terms, as well as 
+salt and smoke which were also three of the four largest predictors for white wines. In 
+terms of likely fruit characters, Minerality is most commonly purported  in wines with 
+red fruit flavours. Cherries and plums are included as separate entities in this analysis 
+as they can refer to either red or black fruit, but both are positive predictors of 
+Minerality, particularly cherries . Ripeness, savouriness, oak flavours and sweetness 
+are all negative predictors, as they were with white wines.  
+In fact of the  12 semantic categories that are common to both red and white wines , 
+there is a high level of consistency as to whether they are likely to be positive or 
+negative predictors of Minerality, as shown in Table 11.  
+ 
+ 
+ 
+ 
+-100%
+0%
+100%
+200%
+300%
+400%
+500%
+600%
+high acidity
+black fruit
+cherry
+floral
+herbaceous
+mineral
+miscellaneous
+oak
+plum
+red fruit
+ripeness
+salt
+savoury
+smoke
+smoothness
+spice
+stone
+sweetness
+tannin
+toast
+vegetal
+% Difference (Max. 500%)
+Semantic Category
+856%
+===== PAGE 57 =====
+53 
+ 
+Table 11: Common Positive/Negative predictors by % increase/decrease 
+Semantic 
+Category 
+Positive/Negative 
+(White Wines) 
++/- % Positive/Negative 
+(Red Wines) 
++/- % 
+High acidity Positive 34% Positive 48% 
+Floral Positive 11% Positive 74% 
+Herbaceous Positive 6% Positive 16% 
+Oak Negative -22% Negative -30% 
+Salt Positive 109% Positive 221% 
+Savoury Negative -10% Negative -18% 
+Smoke Positive 59% Positive 314% 
+Smoothness Negative -27% Negative -20% 
+Spice Negative -21 % Positive 23% 
+Stone Positive 265% Positive 856% 
+Sweetness Negative -35% Negative -26% 
+Toast Negative -18% Negative -67% 
+ 
+ 
+The only category not consistent is ‘Spice’, which is showing as a negative predictor 
+in white wines and a positive predictor in red wines. This category contains a number 
+of quite different flavour characteristics.  Apart from generic references to spice or 
+spiciness, there are four individual flavours that are used with such frequency that they 
+registered in this analysis: vanilla, cinnamon, pepper and liqourice. The sweet spices 
+of vanilla and cinnamon are commonly considered oak-derived, whereas the pungent 
+spices of pepper and liqourice are linked more with other compounds not related to 
+oak. We can see in Fig. 20 that the specific spice characteristics being referred to are 
+often different in red and white wines.53 
+ 
+ 
+ 
+53 Generic references to ‘spice’, ‘spicy’, ‘spiced’, ‘spices’ have been removed from this data 
+===== PAGE 58 =====
+54 
+ 
+Fig. 20: References to spice by percentage for red and white wines 
+ 
+This data shows that over 90% of references to spices in ‘non-mineral’ white wines 
+refer to sweet spices of vanilla or cinammon , whereas a reference to spiciness in 
+‘mineral’ white wines is much less likely to be referring to a sweet spice sensation. In 
+red wines, references to sweet spice are less common for ‘mineral’ and ‘non-mineral’ 
+styles, but almost 80% of references to spice in ‘mineral’ red wines are referring to the 
+pungent spices of pepper or liquorice. When considered alongside the trend for oak to 
+associate negatively with Minerality, it is hypothesised that a sweet spice sensation 
+might associate negatively with the term , whereas a pungent spice character 
+associates positively. 
+ 
+5.3.3 Links to reduction 
+ 
+Stone, salt and smoke -related terms are consistently associating positively with 
+perceived Minerality in this study, both as direct modifiers of the term, and through 
+regularly appearing alongside Minerality in the same tasting note. Parr et al list these 
+0% 20% 40% 60% 80% 100%
+Non-mineral reds
+Mineral reds
+Non-mineral whites
+Mineral whites
+sweet spice pungent spice
+===== PAGE 59 =====
+55 
+ 
+terms as reductive characteristics 54 most likely deriving through the compounds 
+benzenemethanethiol (gunflint) and methanethiol ( seashore).55 Whilst the term 
+reduction and its cognates are rarely used in the corpus, with only 6 3 mentions and 
+10 tasting notes where it appears together with  Minerality, the high prevalence of 
+reduction-derived terms suggests that this is a key contributor to perceived Minerality 
+in both red and white wines.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+54 Ballester, J.; Peyron, D.; Grose, C.; Valentin, D.; Parr, W.V. Perception of mineral character in sauvignon blanc 
+wine: inter-individual differences p. 12 
+55 Parr, W.V.; Maltman, A.; Easton, S.; Ballester, J. Minerality in Wine: Towards the Reality behind the Myths p. 
+14 
+===== PAGE 60 =====
+56 
+ 
+6 CONCLUSION 
+ 
+This study sought to explore the history , evolution and application of the term  
+‘minerality’ and its cognates, by answering the following research questions. 
+ 
+How common is the term, and to which wines is it most regularly applied? 
+The corpus contained 20,678 tasting notes, in which Minerality has been mentioned 
+on 1,784 occasions, or in 8.6% of the sample. That makes it the fourth most popular 
+tasting descriptor. It is mainly attributed to white wines, but is common across  red, 
+rosé and sparkling wine s too. It is the most frequently used descriptor for white and 
+rosé, and the sixth most popular for red wine s which suggests there is potential for 
+future research beyond its application in white wines . Its use across a wide array of 
+grape varieties indicates the term is idiosyncratic in meaning. 
+The white grape varieties most commonly described as mineral are Chardonnay, 
+Sauvignon Blanc and Riesling, and Gamay is the most common red variety. Sancerre 
+and Beaujolais are the most frequently attributed red and white styles, but the white 
+wines of Burgundy are also very common recipients of the term.  
+ 
+How is the term used, and has its usage changed over time? 
+Whilst no semantic difference between the terms ‘mineral’, ‘minerals’, ‘minerally’ and 
+‘minerality’ was noted , each term shows a different evolution.  ‘Mineral’ is the most 
+commonly used variant having superseded ‘minerally’ in the 1990s. ‘Minerality’ did not 
+appear in the corpus until 2000 . In recent times, ‘minerally’ and 'minerals’ have 
+===== PAGE 61 =====
+57 
+ 
+become largely obsolete. The literature review found references to Minerality since at 
+least the 1960s, but the data suggests it did not become commonplace until this 
+century. Its usage peaked in 2010, since when its popularity has started to wane. It is 
+commonly used to describe both a nose and palate sensation, but is more commonly 
+directly associated with the palate, in red and white wines. Whilst Minerality has been 
+criticised for lacking consistency in meaning, the sustained increase in the term being 
+directly modified suggests an increase in precision of usage over time. 
+ 
+How do other wine characteristics associate with the concept of minerality? Are 
+there consistencies in usage that might add to our understanding of the 
+meaning of the term? 
+The descriptors most frequently directly associated with Minerality are hedonic liking 
+terms, and it is used exclusively as a positive attribute in this corpus.  Other common 
+descriptors used to elucidate its meaning  fall mainly into three semantic categories: 
+stone-related terms, acidity/freshness terms and salt-related terms. 
+The most important positive predictors of Minerality in white wines are stone-related, 
+metal-related and salt-related terms all of which are  100-300% more likely to appear 
+in a ‘mineral’ tasting note.  References to high acidity and a citrus character are also 
+very common.  The term associates negatively with sweetness, smoothness, oak, 
+spice, toast, savouriness, tropical fruit and a dairy character. A red fruit character and 
+high acidity are positive predictors of Minerality in red wines.  Ripeness, savouriness, 
+oak flavours and sweetness are all negative predictors , as they were in white wines.  
+There is a high level of consistency between positive and negative predictors in red 
+and white wines. 
+===== PAGE 62 =====
+58 
+ 
+Stone, salt and smoke-related terms frequently coexist alongside Minerality, and often 
+modify it directly. These descriptors most likely derive from reduction, suggesting this 
+might be one of the major contributors in creating a ‘mineral’ sensation in wine. 
+It is hoped that the results presented in this study add an interesting element to the 
+conversation around Minerality in wine. While it seems clear the term means different 
+things to different tasters, there are consistencies in usage that have emerged tha t 
+suggest other wine attributes that might contribute to a ‘mineral’ character in wine. The 
+paper charts the application and evolution of the term to provide a historical and 
+linguistic perspective that was missing from current research on the topic. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 63 =====
+59 
+ 
+7 REFERENCES 
+Anonymous, Content Analysis 
+<https://www.publichealth.columbia.edu/research/population-health-
+methods/content-analysis#Description> [Accessed 14/10/21] 
+ 
+Anonymous, Decanter Media Pack, p.4 
+<https://keyassets.timeincuk.net/inspirewp/live/wp-
+content/uploads/sites/34/2021/02/Decanter-Media-Pack-2021.pdf> [Accessed 
+05/10/21] 
+ 
+Anonymous, Old stones, old wines, new theories 
+<https://worldoffinewine.com/2014/10/28/old-stones-old-wines-new-theories-
+4418498/> [Accessed 20/11/21] 
+ 
+Anonymous, Top-Down Processing 
+<https://www.oxfordreference.com/view/10.1093/oi/authority.20110803104932817?r
+skey=ZJnlgC&result=6> [accessed 15/11/21] 
+ 
+Atkin, T. 2018 Chablis Scores <https://timatkin.com/product/chablis-2018-scores/> 
+[Accessed 20/11/21] 
+ 
+Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy 
+Chardonnay wines: A sensory approach with wine experts and trained panellists 
+(Aust. J. Grape Wine Research 19, 2013)  
+ 
+Ballester, J.; Peyron, D.; Grose, C.; Valentin, D.; Parr, W.V., Perception of mineral 
+character in sauvignon blanc wine: inter-individual differences (Wine Studies, vol. 
+3:4474, pp. 9-12) 
+ 
+Biss, A., Ellis, R. Modelling Chablis vintage quality in response to inter-annual 
+variation in weather (OENO One, 2021, 55(3), 209–228)  
+ 
+Boiling, C. Minerality: IWC judges’ view (Canopy Magazine, 28th January 2020) 
+<https://www.internationalwinechallenge.com/Canopy-Articles/minerality-iwc-
+judges%E2%80%99-view.html> [Accessed 20/11/21] 
+ 
+Deneulin P.; Le Fur, Y.; Bavaud, F. Analyses of open-ended questions by 
+renormalized associativities and textual networks: A study of perception of minerality 
+in wine (Food Quality and Preference, 12/2015, pp. 34-44)  
+ 
+Deneulin P.; Le Fur, Y.; Bavaud, F. Study of the polysemic term of minerality in wine: 
+Segmentation of consumers based on their textual responses to an open-ended 
+survey (Food Research International Vol. 90, 2016, pp. 288-297)  
+ 
+Goode, J. Wine Science: The Application of Science in Winemaking, 2nd edition 
+(London: Mitchell Beazley, 2014)  
+ 
+Johnson, H. Wine, 1st Edition (New York: Simon and Schuster, 1966)  
+ 
+===== PAGE 64 =====
+60 
+ 
+Lacy, S.; Riffe, D.; Randle, Q. Sample Size in Multi-Year Content Analysis of Monthly 
+Consumer Magazines (J&MC Quarterly, Vol. 75, No.2, 1998)  
+ 
+Lacy, S.; Riffe, D; Stoddard, S.; Martin, H.; Kuang-Kuo C. Sample Size for 
+Newspaper Content Analysis in Multi-Year Studies (Journalism & Mass 
+Communication Quarterly, Dec. 2001)  
+ 
+Lehrer, A. Wine and Conversation, 2nd edition (New York: Oxford University Press, 
+2009)  
+ 
+Lester P.; Smith R. African-American Photo Coverage in Life, Newsweek and Time, 
+1937-1988 (Journalism Quarterly, Vol. 67, No. 1, Spring 1990)  
+ 
+Maltman, A. Minerality in wine: Where are we now? 
+<https://www.decanter.com/wine-news/opinion/guest-blog/minerality-in-wine-
+429893/> [accessed 20/11/21]  
+ 
+Maltman, A. Minerality in wine: a geological perspective (Journal of Wine Research, 
+Vol. 24, 2013, pp. 169-181) 
+ 
+Palacios, Antonio, Molina, David Chemical Basis of Minerality perception in Wines 
+(Excell Ibérica and Outlook Wine, March 2015)  
+ 
+Parr, W.V.; Ballester, J.; Peyron, D.; Grose, C.; Valentin, D. Perceived minerality in 
+Sauvignon wines: Influence of culture and perception mode (Food Quality and 
+Preference 41, pp121-132) 
+ 
+Parr, W.V.; Maltman, A.; Easton, S.; Ballester, J. Minerality in Wine: Towards the 
+Reality behind the Myths (Beverages, 4, 77, 2018)  
+ 
+Robinson, J. (ed.) The Oxford Companion to Wine, 3rd edition (New York: Oxford 
+University Press Inc., 2006)  
+ 
+Shapin, S. The Tastes of Wine: Towards a Cultural History (Rivista di estetica Vol. 
+51, 2012) 
+Vandyke Price, P. The Taste of Wine (London: Dorling Kindersley Ltd, 1970)  
+ 
+Wilson, C. Hallgarten hosts ‘minerality’ summit and tasting (Harpers Magazine, 9th 
+January 2020) 
+<https://harpers.co.uk/news/fullstory.php/aid/26450/Hallgarten_hosts__91minerality_
+92_summit_and_tasting.html> [Accessed 25/10/2021] 
+ 
+Wine and Spirit Education Trust Wines and Spirits: Looking Behind the Label 
+(London: Wine & Spirit Education Trust, 2014)  
+ 
+Zaldívar, E. Caracterización químico-sensorial en vinos blancos y tintos del atributo 
+mineralidad (Tesis Doctoral, Universidad de la Rioja, 2017)  
+ 
+===== PAGE 65 =====
+61 
+ 
+Appendix 1: Full list of terms searched for analysis in table 1 
+ 
+Category Term(s) Searched For 
+Floral Floral (florality), blossom (blossomy), rose (roses, rosey), violet 
+(violets, violetty) 
+Green Fruit 
+Apple (appley, apples), gooseberry (gooseberries), pear (peary, 
+pears), grape (grapey, grapes), green 
+Citrus Fruit 
+Citrus (citric, citrussy), grapefruit (grapefruity, grapefruits), 
+lemon (lemony, lemons), lime (limey, limes) 
+Stone Fruit 
+Peach (peachy, peaches), apricot (apricots), nectarine 
+(nectarines) 
+Tropical Fruit 
+Banana (bananas), lychee (lychees), mango (mangoes), melon 
+(melony, melons), passion fruit (passion fruity, passion fruits), 
+pineapple (pineappley, pineapples) 
+Red Fruit Redcurrant (redcurranty, redcurrants), cranberry (cranberries), 
+raspberry (raspberries), strawberry (strawberries), cherry 
+(cherries, cherried), plum (plummy, plums) 
+Black Fruit Blackcurrant (blackcurranty, blackcurrants), blackberry 
+(blackberries), blueberry (blueberries)  
+Dried Fruit Fig (figgy, figs), prune (pruney, prunes), raisin (raisined, 
+raisins), sultana (sultanas), kirsch, jamminess (jam, jammy) 
+===== PAGE 66 =====
+62 
+ 
+Under-ripeness Green bell pepper (capsicum, green pepper, green peppers, 
+bell pepper, bell peppers), grass (grassy), leafiness (leafy, 
+leaves), tomato (tomatoes), potato (potatoes) 
+Herbaceous Asparagus (asparagussy) 
+Herbal Eucalyptus, mint (minty), medicinal (medicine), lavender, fennel 
+(fennels, fennely), dill 
+Vegetable Cabbage (cabbages, cabbagey), peas (pea), beans (bean), 
+olive (olives) 
+Sweet Spice 
+Cinnamon (cinnamony), cloves (clove, clovey), ginger 
+(gingery), nutmeg (nutmeggy) 
+Pungent Spice Pepper (peppery), liquorice (liquoricey), juniper (junipery) 
+Autolytic Yeast (yeasty), biscuit (biscuits, biscuitty), bread (bready), toast 
+(toasty), pastry, lees (leesy) 
+Dairy Butter (buttery, buttered), cheese (cheesey), cream (creamy), 
+yoghurt (yoghurty) 
+Oak Vanilla, toast (toasty), cedar (cedary), charred, smoke (smokey, 
+smoky), resinous 
+Kernel Almond (almonds, almondy), coconut (coconuts, coconutty), 
+hazelnut (hazelnuts, hazelnutty), walnut (walnuts, walnutty), 
+chocolate (chocolates, chocolatey), coffee 
+===== PAGE 67 =====
+63 
+ 
+Animal Animal (animally), Leather (leathery), meaty (meat), farmyard 
+(farmyardy) 
+Maturity Vegetal, mushroom (mushrooms, mushroomy), hay, wet 
+leaves, forest floor, game (gamey), savoury (savouriness), 
+tobacco, cedar (cedary), honey (honeyed), cereal 
+Mineral Mineral (minerals, minerality, minerally) earth (earthy), petrol 
+(petrolly), rubber (rubbery), tar (tarry), stone (stoney, stony, 
+stones) steel (steely), wet wool (woolly)  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 68 =====
+64 
+ 
+Appendix 2: Uncategorised tasting terms for analysis in 5.3.2 
+ Non-mineral 
+whites 
+   Non-mineral 
+whites (cont.) 
+ 
+Descriptor Mentions Category  Descriptor Mentions Category 
+oak 650 oak  mango 59 tropical 
+citrus 448 citrus  racy 59 acidity 
+dry 422 dry  oily 59 smooth 
+apple 367 green fruit  fat 58 smooth 
+crisp 332 acidity  perfumed 58 floral 
+creamy 324 dairy  smooth 57 smooth 
+floral 312 floral  steely 56 metal 
+sweet 292 sweet  saline 56 salt 
+lemon 289 citrus  mouthwatering 55 acidity 
+peach 282 stone fruit  waxy 54 smooth 
+lime 247 citrus  flowery 53 floral 
+soft 228 smooth  quince 53 green fruit 
+spicy 221 spice  pepper 53 spice 
+honey 220 sweet  grassy 53 herb 
+spice 205 spice  appley 52 green fruit 
+nutty 176 nut  fleshy 52 smooth 
+tropical 175 tropical  peaches 50 stone fruit 
+refreshing 174 acidity  almond 50 nut 
+honeyed 174 sweet  tart 48 acidity 
+freshness 168 acidity  sugar 48 sweet 
+pear 165 green fruit  salty 47 salt 
+grapefruit 163 citrus  toast 46 toast 
+===== PAGE 69 =====
+65 
+ 
+apricot 163 stone fruit  apricots 43 stone fruit 
+stone fruit 138 stone fruit  silky 43 smooth 
+melon 127 tropical  flinty 43 stone 
+toasty 125 toast  taut 43 acidity 
+savoury 120 savoury  citric 42 citrus 
+pineapple 113 tropical  austere 42 acidity 
+vanilla 113 spice  peel 42 citrus 
+lemony 112 citrus  honeysuckle 40 floral 
+smoky 109 smoky  limey 40 citrus 
+zesty 106 citrus  stony 38 stone 
+oaky 103 oak  cream 38 dairy 
+apples 98 green fruit  greengage 36 green fruit 
+flowers 91 floral  citrussy 36 citrus 
+buttery 87 dairy  nuts 35 nut 
+straw 87 sweet  nectarine 35 stone fruit 
+tangy 86 acidity  toasted 35 toast 
+herbal 84 herb  grapey 34 green fruit 
+lean 84 acidity  spices 34 spice 
+orange 83 citrus  chalky 31 stone 
+stone56 76 stone  luscious 31 sweet 
+blossom 72 floral  fennel 31 herb 
+lees 70 lees  perfume 30 floral 
+full-bodied 69 smooth  earthy 30 savoury 
+leesy 69 lees  petrol 30 petrol 
+herbs 67 herb  zingy 30 acidity 
+ 
+56 Excludes ‘stone’ followed by the lemma ‘fruit’ 
+===== PAGE 70 =====
+66 
+ 
+peachy 65 stone fruit  pithy 29 citrus 
+zest 63 citrus  cinnamon 29 spice 
+gooseberry 59 green fruit  smoke 29 smoky 
+ 
+ Mineral whites    Mineral whites 
+(cont.) 
+ 
+Descriptor Mentions Category  Descriptor Mentions Category 
+mineral 555 mineral  pineapple 21 tropical 
+minerality 308 mineral  apples 20 green fruit 
+citrus 194 citrus  toast 20 toast 
+oak 117 oak  toasty 20 toast 
+dry 110 dry  lemony 19 citrus 
+apple 108 green fruit  austere 18 acidity 
+lime 102 citrus  mouthwatering 18 acidity 
+peach 91 stone fruit  zest 18 citrus 
+floral 88 floral  lees 17 lees 
+minerals 78 mineral  herbal 17 herb 
+lemon 73 citrus  leesy 17 lees 
+creamy 71 dairy  orange 16 citrus 
+crisp 65 acidity  cream 16 dairy 
+minerally 59 mineral  nuts 16 nuts 
+freshness 57 acidity  slatey 15 stone 
+honey 54 sweet  silky 15 smooth 
+stone fruit 53 stone fruit  peachy 15 stone fruit 
+grapefruit 53 citrus  tang 14 acidity 
+pear 49 green fruit  brisk 14 acidity 
+===== PAGE 71 =====
+67 
+ 
+spicy 48 spicy  oaky 13 oak 
+apricot 48 stone fruit  citrussy 12 citrus 
+tropical 47 tropical  hazelnut 12 nuts 
+nutty 46 nuts  vanilla 12 spicy 
+stone57 43 stone  oily 12 smooth 
+spice 43 spicy  pears 12 green fruit 
+stony 40 stone  oil 12 smooth 
+zesty 39 citrus  buttery 11 dairy 
+honeyed 39 sweet  nectarine 11 stone fruit 
+sweet 38 sweet  peaches 11 stone fruit 
+lean 37 acidity  honeysuckle 11 floral 
+refreshing 35 acidity  almond 11 nuts 
+taut 34 acidity  pepper 11 spicy 
+smoky 31 smoky  greengage 11 green fruit 
+chalky 31 stone  gooseberry 11 green fruit 
+flowers 30 floral  smooth 10 smooth 
+racy 30 acidity  mango 10 tropical 
+soft 28 smooth  waxy 9 smooth 
+saline 27 salt  spices 9 spicy 
+blossom 27 floral  wood 9 oak 
+steely 27 metal  zingy 9 acidity 
+flinty 27 stone  grassy 9 herb 
+savoury 25 savoury  flower 9 floral 
+tangy 25 acidity  fennel 9 herb 
+herbs 24 herb  tangerine 9 citrus 
+ 
+57 Excludes ‘stone’ followed by the lemma ‘fruit’ 
+===== PAGE 72 =====
+68 
+ 
+salty 24 salt  gunflint 8 stone 
+melon 24 tropical  citric 8 citrus 
+peel 23 citrus  florality 8 floral 
+quince 23 green fruit  earthy 7 savoury 
+full-bodied 21 smooth  tart 7 acidity 
+smoke 21 smoky  mandarin 7 citrus 
+ 
+ 
+ 
+ 
+ Non-mineral reds    Non-mineral 
+reds (cont.) 
+ 
+Descriptor Mentions Category  Descriptor Mentions Category 
+ripe 2874 ripeness  mint 218 herb 
+oak 2292 oak  wood 215 oak 
+rich 2259 misc.  crunchy 200 acidity 
+fresh 1535 acidity  refreshing 198 acidity 
+cherry 1493 cherry  plums 190 plum 
+sweet 1484 sweetness  ripeness 187 ripeness 
+spicy 1329 spice  sweetness 187 sweetness 
+spice 1232 spice  grippy 178 tannin 
+soft 1126 smooth  crisp 176 acidity 
+savoury 703 savoury  jammy 168 ripeness 
+smooth 569 smooth  damson 156 plum 
+tannic 564 tannin  green 156 misc. 
+plum 556 plum  leafy 149 herb 
+===== PAGE 73 =====
+69 
+ 
+floral 520 floral  perfume 145 misc. 
+cassis 515 black fruit  minty 144 herb 
+smoky 504 smoke  blueberry 136 black fruit 
+chocolate 483 misc.  lean 132 acidity 
+blackberry 463 black fruit  leathery 128 savoury 
+blackcurrant 461 black fruit  cinnamon 125 spice 
+freshness 459 acidity  chocolatey 123 misc. 
+raspberry 444 red fruit  tar 123 savoury 
+vanilla 430 spice  bitter 120 tannin 
+oaky 424 oak  rose 116 floral 
+liquorice 422 spice  earth 115 savoury 
+silky 380 smooth  smoke 113 smoke 
+pepper 379 spice  gamey 109 savoury 
+lively 373 acidity  redcurrant 108 red fruit 
+fleshy 370 smooth  mocha 107 misc. 
+earthy 357 savoury  austere 105 misc. 
+perfumed 351 misc.  mulberry 105 red fruit 
+grip 319 tannin  bramble 104 black fruit 
+creamy 317 smooth  leaf 103 herb 
+spices 293 spice  herbaceous 103 herb 
+cherries 290 cherry  blackberries 100 black fruit 
+herbal 277 herb  tarry 99 savoury 
+velvety 276 smooth  flowers 99 floral 
+herbs 271 herb  cedary 91 misc. 
+peppery 268 spice  voluptuous 85 smooth 
+violets 267 floral  menthol 85 herb 
+===== PAGE 74 =====
+70 
+ 
+tobacco 264 herb  spiced 83 spice 
+coffee 264 misc.  tea 83 herb 
+meaty 262 savoury  jam 81 ripeness 
+violet 255 floral  eucalyptus 80 herb 
+cedar 247 misc.  vegetal 80 vegetal 
+chewy 246 tannin  sour 78 acidity 
+plummy 243 plum  graphite 75 stone 
+leather 242 savoury  fine-grained 73 tannin 
+strawberry 236 red fruit  olive 70 vegetal 
+richness 228 misc.  cranberry 68 red fruit 
+toasty 221 toast  raspberries 68 red fruit 
+ 
+ 
+ Mineral reds    Mineral reds 
+(cont.) 
+ 
+Descriptor Mentions Category  Descriptor Mentions Category 
+mineral 386 mineral  perfume 14 misc. 
+minerality 153 mineral  redcurrant 14 red fruit 
+ripe 145 ripeness  vanilla 14 spice 
+cherry 130 cherry  rose 14 floral 
+fresh 126 acidity  chewy 13 tannin 
+oak 100 oak  tobacco 13 herb 
+spice 89 spice  cranberry 13 red fruit 
+minerals 81 mineral  flowers 12 floral 
+spicy 81 spice  earth 12 savoury 
+rich 79 misc.  oaky 12 oak 
+===== PAGE 75 =====
+71 
+ 
+savoury 77 savoury  velvety 12 smooth 
+sweet 61 sweet  rounded 11 misc. 
+minerally 61 mineral  meaty 11 savoury 
+floral 52 floral  saline 11 salt 
+freshness 50 acidity  mint 11 herb 
+raspberry 48 red fruit  graphite 10 stone 
+plum 46 plum  damson 10 plum 
+earthy 43 savoury  tea 10 herb 
+soft 41 smooth  herb 10 herb 
+liquorice 37 spice  dusty 10 tannin 
+tannic 36 tannin  smoke 9 smoke 
+cassis 34 black fruit  coffee 9 misc. 
+smoky 32 smoke  sour 9 acidity 
+spices 31 spice  plums 8 plum 
+silky 31 smooth  flinty 8 stone 
+blackberry 30 black fruit  plummy 8 plum 
+pepper 25 spice  leaf 8 herb 
+herbs 23 herb  jam 8 ripeness 
+crunchy 22 misc.  brisk 8 acidity 
+blackcurrant 21 black fruit  spiced 7 spice 
+austere 21 misc.  blueberry 7 black fruit 
+violets 21 floral  green 7 misc. 
+cherries 21 cherry  bitter 7 tannin 
+refreshing 20 acidity  mocha 7 misc. 
+strawberry 20 red fruit  cinnamon 7 spice 
+violet 20 floral  garrigue 7 herb 
+===== PAGE 76 =====
+72 
+ 
+creamy 19 smooth  salty 7 salt 
+herbal 19 herb  sweetness 6 sweet 
+chalky 19 misc.  sappy 6 misc. 
+grippy 18 tannin  balsamic 6 misc. 
+lively 18 acidity  menthol 6 herb 
+fleshy 18 smooth  stone 6 stone 
+crisp 17 acidity  fine-grained 6 tannin 
+cedar 17 misc.  racy 5 acidity 
+chocolate 16 misc.  raspberries 5 red fruit 
+grip 16 tannin  meat 5 savoury 
+leather 15 savoury  jammy 5 ripeness 
+smooth 15 smooth  tar 5 savoury 
+stony 15 stone  minty 5 herb 
+peppery 14 spice  toasty 4 toast 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 77 =====
+73 
+ 
+Appendix 3: Data for Figs. 3-14, 16-20 
+Figs. 3, 4 & 5 data 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Fig. 6 data 
+year mentions 
+total 
+tasting 
+notes nose palate ambiguous total 
+1976 0 349 0 0 0 0 
+1980 0 719 0 0 0 0 
+1985 1 980 1 0 0 1 
+1990 14 1164 3 5 6 14 
+1995 32 1146 13 12 7 32 
+2000 72 1615 23 31 20 74 
+2005 202 2940 48 83 79 210 
+2010 584 3974 129 253 242 624 
+2015 490 4048 84 229 188 501 
+2019 389 3743 46 175 171 392 
+total 1784 20678 347 788 713 1848 
+ 
+Fig. 7 data 
+ nose palate ambiguous total 
+reds 140 284 270 694 
+whites 170 423 396 989 
+ 
+year mentions 
+total 
+tasting 
+notes minerally minerals minerality mineral 
+1976 0 349 0 0 0 0 
+1980 0 719 0 0 0 0 
+1985 1 980 1 0 0 0 
+1990 14 1164 5 0 0 9 
+1995 32 1146 9 3 0 20 
+2000 72 1615 23 6 3 40 
+2005 202 2940 35 5 60 102 
+2010 584 3974 38 81 174 291 
+2015 490 4048 12 58 135 285 
+2019 389 3743 8 15 120 246 
+       
+total 1784 20678 131 168 492 993 
+===== PAGE 78 =====
+74 
+ 
+Fig. 8 data 
+year mentions total tasting notes Mentions of minerality as % of tasting notes 
+1976 0 349 0.0% 
+1980 0 719 0.0% 
+1985 1 980 0.1% 
+1990 14 1164 1.2% 
+1995 32 1146 2.8% 
+2000 72 1615 4.5% 
+2005 202 2940 6.9% 
+2010 584 3974 14.7% 
+2015 490 4048 12.1% 
+2019 389 3743 10.4% 
+total 1784 20678 8.6% 
+ 
+Fig. 9 data 
+Chablis 
+total 
+reviews 
+mineral 
+reviews % 
+1976 2 0 0.0% 
+1980 0 0 0.0% 
+1985 4 0 0.0% 
+1990 1 0 0.0% 
+1995 1 0 0.0% 
+2000 45 9 20.0% 
+2005 17 9 52.9% 
+2010 179 69 38.5% 
+2015 22 14 63.6% 
+2019 40 5 12.5% 
+Fig. 10 data 
+Year 
+total no. unique 
+varieties reviewed varieties described as mineral % 
+1976 41 0 0.0% 
+1980 46 0 0.0% 
+1985 45 1 2.2% 
+1990 43 5 11.6% 
+1995 38 8 21.1% 
+2000 55 17 30.9% 
+2005 61 21 34.4% 
+2010 81 37 45.7% 
+2015 121 46 38.0% 
+2019 145 60 41.4% 
+ 
+===== PAGE 79 =====
+75 
+ 
+ 
+Fig. 11 data 
+minerality mentions occasions modified % 
+1985-2000 3 0 0.0% 
+2005 60 7 11.7% 
+2010 174 35 20.1% 
+2015 135 42 31.1% 
+2019 120 49 40.8% 
+ 
+Fig. 12 data 
+Year Total white tasting notes 
+Chardonnay, Riesling &  
+Sauvignon Blanc reviews % 
+1976-1995 1052 515 49.0% 
+2000 290 167 57.6% 
+2005 678 589 86.9% 
+2010 940 762 81.1% 
+2015 1023 547 53.5% 
+2019 946 418 44.2% 
+ 
+Fig. 13 data 
+year Chardonnay, Riesling & Sauvignon Blanc reviews mineral 
+non 
+mineral % 
+1976-
+1995 515 20 495 3.9% 
+2000 167 27 140 16.2% 
+2005 589 109 480 18.5% 
+2010 762 317 445 41.6% 
+2015 547 130 417 23.8% 
+2019 418 72 346 17.2% 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 80 =====
+76 
+ 
+Fig. 14 data 
+year red mineral % white mineral % rose mineral % 
+total 
+tasting 
+notes 
+1976 182 0 0.0% 105 0 0.0% 14 0 0.0% 349 
+1980 499 0 0.0% 117 0 0.0% 5 0 0.0% 719 
+1985 512 1 0.2% 251 0 0.0% 7 0 0.0% 980 
+1990 542 3 0.6% 327 7 2.1% 5 0 0.0% 1164 
+1995 710 6 0.8% 260 22 8.5% 2 0 0.0% 1146 
+2000 1055 22 2.1% 291 38 13.1% 9 0 0.0% 1615 
+2005 1967 66 3.4% 678 126 18.6% 82 2 2.4% 2940 
+2010 2809 212 7.5% 940 355 37.8% 4 0 0.0% 3974 
+2015 2706 229 8.5% 1023 232 22.7% 27 4 14.8% 4048 
+2019 2223 142 6.4% 947 167 17.6% 126 31 24.6% 3743 
+ 
+Fig. 16 data 
+Semantic 
+category 
+non-
+mineral 
+whites % 
+mineral 
+whites % 
+high acidity 1121 28.09% 356 37.59% 
+citrus fruit 1700 42.60% 580 61.25% 
+dairy 449 11.25% 98 10.35% 
+dry 422 10.57% 110 11.62% 
+floral 656 16.44% 173 18.27% 
+green fruit 864 21.65% 234 24.71% 
+herbaceous 235 5.89% 59 6.23% 
+lees 139 3.48% 34 3.59% 
+metal 56 1.40% 27 2.85% 
+nut 261 6.54% 85 8.98% 
+oak 753 18.87% 139 14.68% 
+petrol 30 0.75% 0 0.00% 
+salt 103 2.58% 51 5.39% 
+savoury 150 3.76% 32 3.38% 
+smoke 138 3.46% 52 5.49% 
+smoothness 620 15.53% 107 11.30% 
+spice 655 16.41% 123 12.99% 
+stone 188 4.71% 163 17.21% 
+stone fruit 776 19.44% 229 24.18% 
+sweetness 852 21.35% 131 13.83% 
+toast 206 5.16% 40 4.22% 
+tropical fruit 474 11.88% 102 10.77% 
+no of tasting 
+notes 3991  947  
+ 
+===== PAGE 81 =====
+77 
+ 
+Fig. 17 data 
+Semantic Category % increase/decrease 
+high acidity 34% 
+citrus fruit 44% 
+dairy -8% 
+dry 10% 
+floral 11% 
+green fruit 14% 
+herb 6% 
+lees 3% 
+metal 103% 
+nut 37% 
+oak -22% 
+salt 109% 
+savoury -10% 
+smoke 59% 
+smoothness -27% 
+spice -21% 
+stone 265% 
+stone fruit 12% 
+sweetness -35% 
+toast -18% 
+tropical fruit -9% 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 82 =====
+78 
+ 
+Fig. 18 data 
+term 
+non-
+mineral 
+reds non-mineral reds term 
+mineral 
+reds 
+mineral 
+reds 
+high acidity 3151 25.18% high acidity 253 37.15% 
+black fruit 1779 14.21% black fruit 92 13.51% 
+cherry 1783 14.25% cherry 151 22.17% 
+floral 1257 10.04% floral 119 17.47% 
+herbaceous 1777 14.20% herbaceous 112 16.45% 
+mineral 0 0.00% mineral 681 100.00% 
+miscellaneous 4559 36.43% miscellaneous 179 26.28% 
+oak 2931 23.42% oak 112 16.45% 
+plum 1145 9.15% plum 72 10.57% 
+red fruit 1029 8.22% red fruit 100 14.68% 
+ripeness 3310 26.45% ripeness 158 23.20% 
+salt 103 0.82% salt 18 2.64% 
+savoury 2138 17.08% savoury 95 13.95% 
+smoke 617 4.93% smoke 139 20.41% 
+smoothness 3123 24.95% smoothness 136 19.97% 
+spice 4561 36.44% spice 305 44.79% 
+stone 75 0.60% stone 39 5.73% 
+sweetness 1671 13.35% sweet 67 9.84% 
+tannin 1500 11.98% tannin 106 15.57% 
+toast 221 1.77% toast 4 0.59% 
+vegetal 150 1.20% vegetal 0 0.00% 
+no of tasting notes 12516  
+no of tasting 
+notes 681  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 83 =====
+79 
+ 
+Fig. 19 data 
+Semantic 
+Category % increase/decrease 
+high acidity 48% 
+black fruit -5% 
+cherry 56% 
+floral 74% 
+herbaceous 16% 
+miscellaneous -28% 
+oak -30% 
+plum 16% 
+red fruit 79% 
+ripeness -12% 
+salt 221% 
+savoury -18% 
+smoke 314% 
+smoothness -20% 
+spice 23% 
+stone 860% 
+sweetness -26% 
+tannin 30% 
+toast -67% 
+vegetal 0% 
+ 
+Fig. 20 data 
+ Non-mineral reds Mineral reds Non-mineral whites Mineral whites 
+spice 2937 208 460 100 
+sweet spice 555 21 602 12 
+pungent spice 1069 76 53 9 
+     
+total 4561 305 655 123 
+ 
+ 
+ 
+ 
+ 
+ 
+===== PAGE 84 =====
+80 
+ 
+Appendix 3: Research Paper Proposal 
+IMW Research Paper Proposal Submission Form  
+Student ID 23955 Date of submission 18/10/21 
+RPP Version No 8 Name of Advisor Alex Hunt MW 
+Note: RPPs must be submitted via your Advisor to the IMW 
+Proposed Title 
+The evolving language of minerality in wine tasting: a case study of Decanter tasting 
+notes 1976-2019 
+Research Questions: Define the subject of your Research Paper and specify the specific 
+research questions you plan to pursue. (No more than 200 words) 
+Within the rich tapestry of language employed to describe wine, few terms have proved as 
+controversial and divisive as ‘minerality’. This paper will examine the term’s usage in Decanter 
+wine tasting notes from 1976-2019 and explore its history, evolution and application. 
+ 
+‘Minerality’ is believed to be a relatively recently invented term, with several major studies on the 
+topic suggesting that it was coined sometime between the mid-1980s and late 1990s.58 Its rise in 
+popularity has been remarkable. A 2013 study by Cees Van Casteren MW of 258,000 notes in 
+Wine Spectator found that it was used in over 10% of all of that publication’s reviews, making it 
+more popular than other common terms such as ‘fruity’, ‘floral’ and ‘oaky’.59,60  
+ 
+The study will seek to answer the following questions: 
+ 
+ 
+1. How common is the term, and to which wines is it most regularly applied? 
+2. How is the term used, and has its usage changed over time? 
+3. How do other wine characteristics associate with the concept of minerality? Are there 
+consistencies in usage that might add to our understanding of the meaning of the term? 
+ 
+ 
+ 
+58 Maltman, Alexander Minerality in wine: a geological perspective (Journal of Wine Research, Vol. 24, 2013, 
+pp. 169-181) 
+ Goode, Jamie Wine Science: The Application of Science in Winemaking, 2nd edition (London: Mitchell Beazley, 
+2014) p.42 
+ Deneulin Pascale, Le Fur, Yves and Bavaud, Francois Study of the polysemic term of minerality in wine: 
+Segmentation of consumers based on their textual responses to an open-ended survey (Food Research 
+International Vol. 90, 2016) pp. 288-297 
+59 Minerality in Wine: Metaphor or Reality (Wine Business Monthly, July 2013) 
+<https://www.winebusiness.com/wbm/?go=getArticle&dataId=118546 > [Accessed 14/10/21] 
+60 Unfortunately the original research and presentation was stored on a laptop which was subsequently stolen 
+so further elucidation for the purposes of this research is not possible (Van Casteren 2021, pers comm.) 
+===== PAGE 85 =====
+81 
+ 
+ 
+ 
+ 
+Background and Context: Explain what is currently known about the topic and address why 
+this topic requires/offers opportunities for further research. (No more than 200 words) 
+The three questions proposed will look to address some of the opportunities for further research 
+presented from reviewing the existing literature.  
+ 
+1. How common is the term, and to which wines is it most regularly applied? 
+ 
+Whilst there are many studies that cite the widespread commonality of the term, no previous 
+research has been undertaken that explores how prevalent the term is, within the context of 
+other popular wine tasting descriptors. Equally, while there appears to be some perceived 
+wisdom amongst wine professionals about particular varieties, styles or colours of wine that have 
+the potential to display a mineral character, no studies have explored which wines are most 
+commonly described in this way. It is hoped that understanding this further might add interesting 
+depth to the discussion on the topic as well as assisting future researchers in focusing their 
+studies towards particular styles and varieties, which is an area highlighted as being ripe for 
+further research.  
+ 
+‘To increase clarity in the field, we suggest that more consideration be given 
+to wine variety in future studies, with potential for both sensorial and 
+chemical aspects of minerality to differ as a function of wine variety and wine-
+production style.’61 
+ 
+2. How is the term used, and has its usage changed over time? 
+ 
+The newness of the term and its growth in usage are two common themes encountered in 
+almost every study on this subject reviewed. However, it appears that this increase in usage has 
+been tested only fleetingly in a French study from 2016.62 Here the authors noted a significant 
+rise in its usage, which peaked around 1995. However this was only a small contextual element 
+of the study, produced using Google Books Ngram Viewer, and was not looking to produce 
+robust data. This historical perspective regarding the origins and evolution of the term is missing 
+from the current body of research.  
+ 
+Equally, no studies have been undertaken to elucidate upon how the word is used linguistically. 
+For example, is there a difference or evolution in how ‘mineral’, ‘minerals’, ‘minerally’ and 
+‘minerality’ are deployed? Has it always been applied to the same wines, and in the same way? 
+ 
+61 Parr, Wendy, Maltman, Alexander, Easton, Sally, Ballester, Jordi Minerality in Wine: Towards the Reality 
+behind the Myths (Beverages, 4, 77, 2018) p. 16 
+62 Deneulin Pascale, Le Fur, Yves and Bavaud, Francois Study of the polysemic term of minerality in wine: 
+Segmentation of consumers based on their textual responses to an open-ended survey (Food Research 
+International Vol. 90, 2016, pp. 288-297)  
+===== PAGE 86 =====
+82 
+ 
+It is hoped that by exploring these considerations and others, a fuller picture of the term can be 
+presented. 
+ 
+3. How do other wine characteristics associate with the concept of minerality? Are there 
+consistencies in usage that might add to our understanding of the meaning of the term? 
+ 
+To look at how the term is used in practice, some studies have sought to examine how other 
+wine tasting terms associate with the concept of minerality, but research in this area is quite 
+limited. The studies that do exist are often contradictory in their conclusions. There is clearly 
+scope for more research in this area. The data in this corpus will contain a large amount of real-
+life, unprompted usages of the term that should be able to elucidate further on which other terms 
+have come to coexist alongside minerality, and it is hoped consistencies may appear that could 
+shed further light on its meaning. 
+Sources: Identify the nature of your source materials (official documents, books, articles, other 
+studies, etc.) and give principle sources if appropriate. (No more than 150 words) 
+ 
+• Ballester, Jordi, Peyron, Dominique, Grose, Claire, Valentin, Dominique, Parr, Wendy 
+Veronica Perception of mineral character in sauvignon blanc wine: inter-individual 
+differences (Wine Studies, vol. 3:4474, pp. 9-12)  
+• Ballester, J.; Mihnea, M.; Peyron, D.; Valentin, D. Exploring minerality of Burgundy 
+Chardonnay wines: A sensory approach with wine experts and trained panellists (Aust. J. 
+Grape Wine Research 19, 2013) 
+• Bell, Judith Doing Your Research Project, 7th Edition (New York: Open International 
+Publishing Ltd. 2018) 
+• Decanter Magazine publications from 1976-2019 (Decanter Magazine Ltd.) 
+• Deneulin Pascale, Le Fur, Yves and Bavaud, Francois Study of the polysemic term of 
+minerality in wine: Segmentation of consumers based on their textual responses to an 
+open-ended survey (Food Research International Vol. 90, 2016, pp. 288-297)  
+• Goode, Jamie Wine Science: The Application of Science in Winemaking, 2nd edition 
+(London: Mitchell Beazley, 2014)  
+• Lehrer, Adrienne Wine and Conversation, 2nd edition (New York: Oxford University Press, 
+2009)  
+• Maltman, Alexander Minerality in wine: a geological perspective (Journal of Wine 
+Research, Vol. 24, 2013, pp. 169-181) 
+• Parr, Wendy, Maltman, Alexander, Easton, Sally, Ballester, Jordi Minerality in Wine: 
+Towards the Reality behind the Myths (Beverages, 4, 77, 2018) 
+• Peynaud, Emile (translated by Schuster, Michael) The Taste of Wine: The Art and 
+Science of Wine Appreciation, 2nd edition (New York: John Wiley & Sons, 1983) 
+• Rodrigues, Sáenz-Navajas, Franco-Luesma, Valentin, Fernández-Zurbano, Ferreira, De 
+La Fuente Blanco, Ballester, Sensory and chemical drivers of wine minerality aroma: An 
+application to Chablis wines (Food Chemistry 230, 2017, pp. 553-562) 
+ 
+Research Methodology: Please detail how you will identify and gather the material or 
+information necessary to answer the research question(s) and discuss what techniques you will 
+use to analyse this information. (No more than 500 words) 
+===== PAGE 87 =====
+83 
+ 
+The primary source materials for this study will be Decanter publications from 1976-2019. 
+Decanter is the oldest consumer wine publication in the UK and is now Europe’s best selling 
+wine magazine with a global print circulation of 41,000.63 It publishes over one hundred wine 
+tasting notes each month. This study will compile a database of every tasting note printed in all 
+12 monthly publications from the magazine at four to five year intervals, namely: 1976, 1980, 
+1985, 1990, 1995, 2000, 2005, 2010, 2015 and 2019. 
+ 
+The full archive of printed magazines is held at the National Library of Scotland, Edinburgh from 
+where this data will need to be transcribed and digitalized, so it can be subjected to computer-
+assisted analysis. 
+ 
+1. How common is the term, and to which wines is it most regularly applied? 
+2. How is the term used, and has its usage changed over time? 
+ 
+These two questions can be answered by conducting a conceptual content analysis of the term 
+using computer software which will be able to chart its usage accurately. 
+ 
+‘Content analysis is a research tool used to determine the presence of 
+certain words, themes, or concepts within some given qualitative data (i.e. 
+text). Using content analysis, researchers can quantify and analyze the 
+presence, meanings and relationships of such certain words, themes, or 
+concepts… In conceptual analysis, a concept is chosen for examination and 
+the analysis involves quantifying and counting its presence. The main goal 
+is to examine the occurrence of selected terms in the data.’64 
+ 
+3. How do other wine characteristics associate with the concept of minerality? Are there 
+consistencies in usage that might add to our understanding of the meaning of the term? 
+ 
+This can be answered through two further content analyses. Firstly an analysis will be 
+undertaken to look at direct modifiers of the term minerality and its variations to see which 
+specific sensory characteristics, or other aspects in the wine, the taster was directly associating 
+with the term. Secondly a wider analysis will look at other words that have come to coexist 
+alongside this term in the same tasting notes. By comparing this to other tasting notes that do 
+not include the term it should be possible to explore which wine attributes associate positively or 
+negatively with minerality, to add to the conversation surrounding its meaning. 
+ 
+ 
+Potential to Contribute to the Body of Knowledge on Wine: Explain how this Research 
+Paper will add to the current body of knowledge on this subject. (No more than 150 words) 
+ 
+63 Decanter Media Pack, p.4 <https://keyassets.timeincuk.net/inspirewp/live/wp-
+content/uploads/sites/34/2021/02/Decanter-Media-Pack-2021.pdf> [Accessed 05/10/21] 
+64 Content Analysis <https://www.publichealth.columbia.edu/research/population -health-methods/content-
+analysis#Description> [Accessed 14/10/21] 
+===== PAGE 88 =====
+84 
+ 
+It is hoped that this study can add a broader historical context to the work done on wine 
+language analysis by the likes of Adrienne Lehrer in her book Wine and Conversation. This 
+study will examine not only how the term ‘minerality’ is used today, but also how its usage has 
+evolved over time. It is also hoped that this study will open the door to further study in this area 
+with regard to the evolution of other terms used to describe wines. 
+ 
+Proposed Time Schedule/Programme: This section should layout the time schedule for the 
+research, analysis and write-up of the Research Paper and should indicate approximate dates 
+with key deliverables. Dates of submission to both Advisors and the IMW must be those 
+specified by the IMW. 
+• July 2021 – Revise Research Paper Proposal as per recommendations in refer report, 
+and consider implications for Research Paper 
+• August/September 2021 – Analysis of results 
+• October 2021 – Submit amended Research Paper Proposal and write up Research Paper 
+• 5th November 2021 – Submission of final Research Paper to adviser 
+• 13th December 2021 – Submission of final Research Paper to the Institute  
+ 
+ 
