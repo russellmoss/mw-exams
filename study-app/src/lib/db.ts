@@ -52,6 +52,10 @@ export interface GeneratedQuestion {
   batch_id: string | null;
   reviewed_at: string | null;
   reviewed_by: number | null;
+  // Unreviewed Queue (migration 040): the per-item review decision, independent of any batch.
+  // 'unreviewed' (default — every fresh generation) until an admin keeps or bins it; then 'kept' /
+  // 'binned'. This is what the standing Unreviewed Queue on /admin/bank-health filters on.
+  review_status: string;
   // Flag Question (migration 037): true when a candidate flagged the item and it was withdrawn back to
   // the pending review gate. Drives the "Flagged by candidate" tag + top-of-queue sort. false otherwise.
   flagged_by_candidate?: boolean;
@@ -1110,10 +1114,15 @@ export async function reviewBankQuestion(
     // window can reverse it (see unbinBankQuestion). Binned rows are excluded from every servable and
     // pending read exactly as before; they simply retain their row instead of vanishing. RETURNING
     // paper/family lets us log the bin ledger with context.
+    // Scope also covers an UNREVIEWED banked item (migration 040): an on-the-fly generation lands
+    // review_state='kept' but review_status='unreviewed', so it is servable yet never decided. Binning
+    // it from the Unreviewed Queue must work exactly as binning a pending batch item does.
     const rows = await sql`
       UPDATE generated_questions SET
-        status = 'rejected', review_state = 'binned', reviewed_at = NOW(), reviewed_by = ${reviewerId}
-      WHERE question_id = ${questionId} AND review_state = 'pending'
+        status = 'rejected', review_state = 'binned', review_status = 'binned',
+        reviewed_at = NOW(), reviewed_by = ${reviewerId}
+      WHERE question_id = ${questionId}
+        AND (review_state = 'pending' OR review_status = 'unreviewed')
       RETURNING batch_id, paper, family
     `;
     if (rows.length === 0) return { batchId: null, changed: false };
@@ -1135,11 +1144,16 @@ export async function reviewBankQuestion(
   // Also accepts a 'binned' row — this is the "Reinstate" path from The Bin page, which reverses a bin
   // by keeping the item (approved / servable). A kept item carries no fault, so its bin-ledger row is
   // dropped; for a normal pending→kept there is no ledger row, so the DELETE is a harmless no-op.
+  // Scope also covers an UNREVIEWED banked item (migration 040) — keeping it from the Unreviewed
+  // Queue records the explicit decision (review_status='kept', auto_kept cleared) without changing its
+  // already-servable review_state.
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId},
+      status = 'approved', review_state = 'kept', review_status = 'kept',
+      reviewed_at = NOW(), reviewed_by = ${reviewerId},
       auto_kept = false, flagged_by_candidate = false
-    WHERE question_id = ${questionId} AND review_state IN ('pending', 'binned')
+    WHERE question_id = ${questionId}
+      AND (review_state IN ('pending', 'binned') OR review_status = 'unreviewed')
     RETURNING batch_id
   `;
   if (rows.length === 0) return { batchId: null, changed: false };
@@ -1152,6 +1166,99 @@ export async function reviewBankQuestion(
     await sql`UPDATE bank_batches SET kept_count = kept_count + 1 WHERE id = ${batchId}`;
   }
   return { batchId, changed: true };
+}
+
+// ── Unreviewed Queue (migration 040) ──────────────────────────────────────────────────────────────
+//
+// The standing catch-all: every banked question an admin has never explicitly kept or binned, keyed
+// off review_status (independent of any batch). Ordered oldest-first so the backlog is worked FIFO.
+
+export interface UnreviewedQueueItem {
+  id: string;
+  paper: number;
+  family: string;
+  familyLabel: string | null;
+  wineCount: number;
+  createdAt: string;
+  stemPreview: string;
+}
+
+// Cheap count for the badge — a single indexed COUNT over unreviewed rows.
+export async function getUnreviewedCount(): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT COUNT(*)::int AS n FROM generated_questions WHERE review_status = 'unreviewed'
+  `;
+  return (rows[0]?.n as number) ?? 0;
+}
+
+// One page of the queue. Keyset-paginated on (created_at, question_id) so a growing bank can't shift
+// rows across page boundaries. `cursor` is the last item of the previous page; omit it for page one.
+// Returns the page plus the cursor for the next page (null when the queue is exhausted).
+export async function getUnreviewedQueue(
+  limit: number,
+  cursor?: { createdAt: string; id: string } | null
+): Promise<{
+  total: number;
+  items: UnreviewedQueueItem[];
+  nextCursor: { createdAt: string; id: string } | null;
+}> {
+  const sql = getDb();
+  const lim = Math.min(Math.max(Math.trunc(limit) || 25, 1), 100);
+  const rows = (cursor
+    ? await sql`
+        SELECT question_id, paper, family, family_label, wines, question_text, created_at
+        FROM generated_questions
+        WHERE review_status = 'unreviewed'
+          AND (created_at, question_id) > (${cursor.createdAt}::timestamptz, ${cursor.id})
+        ORDER BY created_at ASC, question_id ASC
+        LIMIT ${lim + 1}
+      `
+    : await sql`
+        SELECT question_id, paper, family, family_label, wines, question_text, created_at
+        FROM generated_questions
+        WHERE review_status = 'unreviewed'
+        ORDER BY created_at ASC, question_id ASC
+        LIMIT ${lim + 1}
+      `) as {
+    question_id: string;
+    paper: number;
+    family: string | null;
+    family_label: string | null;
+    wines: unknown;
+    question_text: string | null;
+    created_at: string;
+  }[];
+
+  const hasMore = rows.length > lim;
+  const page = hasMore ? rows.slice(0, lim) : rows;
+
+  const items: UnreviewedQueueItem[] = page.map((r) => {
+    let wineCount = 0;
+    try {
+      const arr = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
+      if (Array.isArray(arr)) wineCount = arr.length;
+    } catch {
+      wineCount = 0;
+    }
+    const stem = (r.question_text || "").replace(/\s+/g, " ").trim();
+    const stemPreview = stem.length > 140 ? `${stem.slice(0, 140).trimEnd()}…` : stem;
+    return {
+      id: r.question_id,
+      paper: r.paper,
+      family: r.family ?? "",
+      familyLabel: r.family_label ?? null,
+      wineCount,
+      createdAt: r.created_at,
+      stemPreview,
+    };
+  });
+
+  const last = page[page.length - 1];
+  const nextCursor = hasMore && last ? { createdAt: last.created_at, id: last.question_id } : null;
+  const total = await getUnreviewedCount();
+
+  return { total, items, nextCursor };
 }
 
 // ── Flag Question (migration 037) ──────────────────────────────────────────────────────────────
@@ -1303,8 +1410,8 @@ export async function keepAllPending(batchId: string, reviewerId: number): Promi
   const sql = getDb();
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId},
-      auto_kept = false
+      status = 'approved', review_state = 'kept', review_status = 'kept',
+      reviewed_at = NOW(), reviewed_by = ${reviewerId}, auto_kept = false
     WHERE batch_id = ${batchId} AND review_state = 'pending'
     RETURNING id
   `;
@@ -1667,7 +1774,8 @@ export async function unbinBankQuestion(
   const sql = getDb();
   const rows = await sql`
     UPDATE generated_questions SET
-      status = 'pending', review_state = 'pending', reviewed_at = NULL, reviewed_by = ${reviewerId}
+      status = 'pending', review_state = 'pending', review_status = 'unreviewed',
+      reviewed_at = NULL, reviewed_by = ${reviewerId}
     WHERE question_id = ${questionId} AND review_state = 'binned'
     RETURNING batch_id
   `;

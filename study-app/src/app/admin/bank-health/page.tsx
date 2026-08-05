@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth-context";
 import { PaperFilterPills, type PaperValue } from "@/app/components/PaperFilterPills";
 import { CountryBalanceSection, type CountryBalance } from "@/app/components/CountryBalanceSection";
 import { GrapeBalanceSection } from "@/app/components/GrapeBalanceSection";
+import { UnreviewedQueueSection } from "@/app/components/UnreviewedQueueSection";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -286,6 +287,13 @@ export default function BankHealthPage() {
               <GrapeBalanceSection />
             </div>
           )}
+
+          {/* ── Unreviewed Queue ── a standing review surface for banked questions never explicitly
+              kept or binned. Bank-wide and deliberately NOT re-scoped by the paper filter; shown
+              alongside the benchmark sections regardless of whether any are populated. */}
+          <div className="mt-6">
+            <UnreviewedQueueSection />
+          </div>
         </div>
       </main>
 
