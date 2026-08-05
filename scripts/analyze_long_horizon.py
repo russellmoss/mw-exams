@@ -1,4 +1,4 @@
-"""Long-horizon comparison of the MW practical: Era 1 (2000-2010) vs Era 2 (2011-2025).
+"""Long-horizon comparison of the MW practical: Era 1 (2000-2010) vs Era 2 (2011-2026).
 
 Reads data/past_exams_2000_2010.json (Era 1, structured from docs/past_papers_2000s/)
 and data/exams.json (Era 2) and reports, per era and per year:
@@ -77,7 +77,11 @@ def marks_reconciled(text, n_wines):
         if SCOPE_ALL.search(line):
             scope = 1
         elif SCOPE_EACH.search(line):
-            scope = max(1, n_wines)
+            # "for each pair" / "N marks per pair" scopes to pairs, not wines (2011 P3)
+            pair = re.search(r"\bpairs?\b", line, re.I)
+            scope = max(1, n_wines // 2 if pair else n_wines)
+        if re.search(r"\bper pair\b", line, re.I):
+            scope = max(1, n_wines // 2)
         for mult, val in _mark_pairs(line):
             # an explicit "N x" prefix already encodes the multiplier — never double-count it
             total += val * (mult if mult else scope)
@@ -226,7 +230,7 @@ def compare(era1, era2):
     a, b = rollup(era1), rollup(era2)
     pct = lambda n, d: (100.0 * n / d) if d else 0.0
 
-    print(f"\n{'':<24}{'ERA 1 (2000-2010)':>20}{'ERA 2 (2011-2025)':>20}   delta")
+    print(f"\n{'':<24}{'ERA 1 (2000-2010)':>20}{'ERA 2 (2011-2026)':>20}   delta")
     print("-" * 88)
     for label, key in (("papers", "papers"), ("questions", "questions"), ("wines", "wines")):
         print(f"{label:<24}{a[key]:>20}{b[key]:>20}")
@@ -272,7 +276,7 @@ def main():
     if "--compare" in sys.argv:
         return compare(era1, era2)
 
-    for label, era in (("ERA 1 (2000-2010)", era1), ("ERA 2 (2011-2025)", era2)):
+    for label, era in (("ERA 1 (2000-2010)", era1), ("ERA 2 (2011-2026)", era2)):
         print(f"\n{'='*78}\n{label}\n{'='*78}")
         print(f"{'year':<6}{'paper':>6}{'marks?':>8}{'total':>7}{'recon*':>8}{'Qs':>4}  "
               f"{'flights':<14}{'wines':>6}  OW:NW")

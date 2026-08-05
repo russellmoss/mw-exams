@@ -32,7 +32,10 @@ QUESTION_RE = re.compile(
 )
 WINES_HEADER_RE = re.compile(r"^(?:###\s+)?\*\*Wines for Paper (\d+)\*\*\s*$")
 # Wine line: "1\. Producer, year. Region, Country. (12.5%)"
-WINE_LINE_RE = re.compile(r"^(\d+)\\\.\s+(.+?)\s*$")
+# The leading backslash is optional: markdown exporters differ on whether they escape the
+# list number, and an unescaped export silently dropped every 2011-2014 wine before the
+# sources were reconciled (see scripts/reconcile_sources.py).
+WINE_LINE_RE = re.compile(r"^(\d+)\\?\.\s+(.+?)\s*$")
 ANNOTATION_MARKER = "*Notes / Examiner intent:*"
 
 

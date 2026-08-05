@@ -1,7 +1,7 @@
-# Long-horizon analysis of the MW practical: 2000–2025
+# Long-horizon analysis of the MW practical: 2000–2026
 
 **What this is.** The first analysis of the MW practical across its full published history — 26 years,
-**75 papers, 264 questions, 900 wines**. Until now every heuristic in this system was derived from the
+**78 papers, 273 questions, 936 wines**. Until now every heuristic in this system was derived from the
 2011+ window. This tests those heuristics against the 11 years that came before, which the trees were
 never built on.
 
@@ -22,19 +22,19 @@ question text was transcribed by agents from the published PDFs and spot-checked
 
 ## 1. Headline: the exam's skeleton has not moved in 26 years
 
-| | Era 1 (2000–2010) | Era 2 (2011–2025) |
+| | Era 1 (2000–2010) | Era 2 (2011–2026) |
 |---|---|---|
-| papers | 33 | 42 |
-| questions | 111 | 153 |
-| wines | 396 | 504 |
-| **wines per paper** | **12 in 33/33** | **12 in 42/42** |
-| **marked papers totalling 300** | **9/9** | **38/41** |
-| questions per paper | 3.36 | 3.64 |
-| mean flight size | 3.57 | 3.29 |
-| Old World share | 64.9% | 68.1% |
-| France share | 33.1% | 33.7% |
+| papers | 33 | 45 |
+| questions | 111 | 162 |
+| wines | 396 | 540 |
+| **wines per paper** | **12 in 33/33** | **12 in 45/45** |
+| **marked papers totalling 300** | **9/9** | **41/45** |
+| questions per paper | 3.36 | 3.60 |
+| mean flight size | 3.57 | 3.33 |
+| Old World share | 64.9% | 69.1% |
+| France share | 33.1% | 34.1% |
 
-Four constants hold across the whole 26 years: **12 wines per paper** (75/75 papers), **300 marks per
+Four constants hold across the whole 26 years: **12 wines per paper** (78/78 papers), **300 marks per
 paper**, the **P1 white / P2 red / P3 mixed** structure, and an origin mix of roughly **two-thirds Old
 World with France at a third of all wines**. The three 2013 papers are the only marked papers that do
 not total 300, and that is a transcription artifact (see §5), not a real exception.
@@ -61,7 +61,7 @@ What actually changed in this period is **where the marks were printed, not what
 | 2000 | no — no reference to marks at all | not stated |
 | 2001–2007 | no — "shown on the appropriate proforma" (i.e. on the answer sheet) | **stated as 300** |
 | 2008–2010 | **yes, per sub-part** | 300 (9/9 papers verified by summation) |
-| 2011–2025 | yes, per sub-part | 300 (38/41 marked papers verified; 2013 excepted, §5) |
+| 2011–2026 | yes, per sub-part | 300 (41/45 marked papers verified; 2013 excepted, §5) |
 
 So the transition is **2007 → 2008**, and it is a change of *presentation*. The 300-mark convention runs
 continuously from at least 2001 to 2025. Only **2000** stands outside it, making no reference to marks at all.
@@ -75,14 +75,14 @@ The skeleton held; the *questions asked about the wine* shifted substantially.
 
 | sub-question type | Era 1 | Era 2 | change |
 |---|---|---|---|
-| origin ID | 90.1% | 91.5% | +1.4 pts |
-| quality | 76.6% | 87.6% | +11.0 pts |
-| winemaking | 43.2% | 65.4% | **+22.1 pts** |
-| **commercial** | 12.6% | 34.0% | **+21.4 pts** |
-| style | 23.4% | 37.3% | +13.8 pts |
-| **variety ID** | 66.7% | 56.2% | **−10.5 pts** |
-| maturity | 39.6% | 26.8% | −12.8 pts |
-| numeric (RS / ABV) | 11.7% | 4.6% | −7.1 pts |
+| origin ID | 90.1% | 91.4% | +1.3 pts |
+| quality | 76.6% | 86.4% | +9.8 pts |
+| winemaking | 43.2% | 66.0% | **+22.8 pts** |
+| **commercial** | 12.6% | 34.6% | **+22.0 pts** |
+| style | 23.4% | 37.7% | +14.2 pts |
+| **variety ID** | 66.7% | 55.6% | **−11.1 pts** |
+| maturity | 39.6% | 26.5% | −13.1 pts |
+| numeric (RS / ABV) | 11.7% | 5.6% | −6.2 pts |
 
 Three things stand out:
 
@@ -97,22 +97,22 @@ the freed marks onto winemaking, style and commercial.
 
 **This independently corroborates two existing EK entries from a corpus they were never built on.** The
 ID-suppression arc (EK-0104) and the rise of dual-pole commercial questioning were both derived from
-2011–2025 evidence. Era 1 shows the same gradients extending backwards, which raises confidence that they
+2011–2026 evidence. Era 1 shows the same gradients extending backwards, which raises confidence that they
 are a real long-run trajectory rather than an artifact of the last decade's sample.
 
 ## 4. Flights got smaller and more numerous
 
 | flight size | Era 1 | Era 2 | change |
 |---|---|---|---|
-| 2-wine | 18.0% | 32.7% | **+14.7 pts** |
-| 3-wine | 28.8% | 27.5% | −1.4 pts |
-| 4-wine | 37.8% | 28.8% | −9.1 pts |
-| 5-wine | 8.1% | 4.6% | −3.5 pts |
-| 8-wine | 1.8% | 0.0% | −1.8 pts |
+| 2-wine | 18.0% | 30.9% | **+12.8 pts** |
+| 3-wine | 28.8% | 28.4% | −0.4 pts |
+| 4-wine | 37.8% | 27.8% | −10.1 pts |
+| 5-wine | 8.1% | 4.3% | −3.8 pts |
+| 8-wine | 1.8% | 0.6% | −1.2 pts |
 
 The 4-wine flight was Era 1's default; the 2-wine pair is Era 2's growth format, nearly doubling in share.
 Large flights have gone: **8-wine questions existed in Era 1 (2008 P3, 2009 P1) and are extinct in Era 2.**
-Papers now carry slightly more questions (3.36 → 3.64) over slightly smaller flights (3.57 → 3.29 wines).
+Papers now carry slightly more questions (3.36 → 3.60) over slightly smaller flights (3.57 → 3.33 wines).
 
 The practical effect for a candidate is more compare-and-contrast work: a 2-wine flight almost always asks
 for direct comparison, which is exactly the sub-question type examiners repeatedly say is answered badly
@@ -139,13 +139,13 @@ authoritative file is not a superset. Any re-parse should reconcile the two firs
 
 ## 6. Origin mix: two shifts inside a stable total
 
-The Old World share barely moved (64.9% → 68.1%) and France is immovable at a third of all wines. Underneath:
+The Old World share barely moved (64.9% → 69.1%) and France is immovable at a third of all wines. Underneath:
 
 - **Australia roughly halved**, 13.1% → 8.1% — the largest single-country move in either direction. In Era 1
   Australia was the second most-shown country after France; in Era 2 it is third, behind Italy.
-- **South Africa nearly tripled**, 1.3% → 3.6%, consistent with the syllabus explicitly naming Swartland as
+- **South Africa more than doubled**, 1.3% → 3.3%, consistent with the syllabus explicitly naming Swartland as
   a fair-game modern reference.
-- **Italy rose**, 10.1% → 11.5%, taking second place.
+- **Italy rose**, 10.1% → 11.9%, taking second place.
 - Chile, Argentina, New Zealand, USA, Germany and Austria all moved by less than a point — stable.
 
 ## 7. What this means for the study system
