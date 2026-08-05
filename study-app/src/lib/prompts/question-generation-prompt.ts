@@ -89,11 +89,28 @@ async function pickFlightSizeFromDistribution(
   }
 }
 
-// P3 wine style category distribution from 49-question corpus
+// P3 wine style category distribution from 49-question corpus.
+//
+// still_dry is deliberately ABSENT, though 17.8% of real P3 wines are still dry. It is a component
+// of P3 flights, not a category OF one: 42 of 51 real P3 questions (82%) contain a still dry wine,
+// and 0 are built around them, because a flight with no sparkling / fortified / sweet / rosé /
+// oxidative / orange wine is simply a Paper 1 or Paper 2 question.
+//
+// Listing it here made it selectable as the MANDATORY category, and the picker draws the biggest
+// deficit — so still_dry (2.8% banked against a 20% target) was drawn over and over, the model built
+// the all-still-dry flight it had been asked for, validatePaperScope rejected it, and the deficit
+// never closed. paperScope was joint-top blocker on P3 (16 of 40 attempts) while barely registering
+// on P1/P2. Relaxing the validator alone did not fix it: the next batch still failed 13 times on
+// "no wine in this flight is sparkling, fortified, sweet, rosé, oxidative or orange", because the
+// prompt was still ordering an all-still-dry flight.
+//
+// Still dry wines remain welcome — the scope text invites them and validatePaperScope permits them.
+// They just arrive as part of a flight whose identity comes from another style, which is how the IMW
+// actually sets them. The remaining weights renormalise on their own (the picker divides by their
+// sum), so the balance among them is unchanged.
 const P3_STYLE_DISTRIBUTION: Record<string, number> = {
   sparkling: 31,
   sweet: 22,
-  still_dry: 20,
   fortified: 18,
   rose: 6,
   oxidative: 2,
@@ -377,9 +394,10 @@ ${targetFlightSize >= 5 ? "This is a larger comparative flight — use it for br
 ${targetP3Style ? `## P3 WINE STYLE CATEGORY FOR THIS QUESTION: ${targetP3Style.toUpperCase()} (MANDATORY)
 This Paper 3 question must feature ${targetP3Style} wines as the primary category. This was selected from the corpus distribution to ensure users practice all P3 categories at realistic frequencies.
 
-Corpus distribution: sparkling=31%, sweet=22%, still_dry=20%, fortified=18%, rose=6%, oxidative=2%.
+Flight categories and their frequencies: sparkling=39%, sweet=28%, fortified=23%, rose=8%, oxidative=3%.
+Still dry wines are NOT a category of their own — they appear WITHIN these flights (82% of real Paper 3 questions contain at least one) and are welcome here, but a flight's identity always comes from one of the styles above.
 
-${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Sekt, Cap Classique." : ""}${targetP3Style === "fortified" ? "Select fortified wines — Port, Sherry, Madeira, Banyuls, Rutherglen, VDN, Marsala." : ""}${targetP3Style === "sweet" ? "Select sweet wines with meaningful RS — Sauternes, Tokaji, BA/TBA, Icewine, Quarts de Chaume, Vin Santo, late harvest." : ""}${targetP3Style === "rose" ? "Select rosé wines — Provence, Tavel, Bandol, sparkling rosé, New World rosé." : ""}${targetP3Style === "oxidative" ? "Select oxidative wines — Vin Jaune, orange/amber wines, oxidative Jura, sous voile styles." : ""}${targetP3Style === "still_dry" ? "Anchor the flight on still dry wines — often unusual varieties, rare styles, or wines that cross paper boundaries (e.g., Grenache across dry/fortified, Furmint dry alongside Tokaji sweet). CRITICAL: 'primary category' here does NOT mean every wine. No real Paper 3 question is made entirely of still dry wines (0 of 51 in the corpus) — such a flight is just a Paper 1 or Paper 2 question and will be rejected. Include AT LEAST ONE sparkling, fortified, sweet, rosé, oxidative or orange wine to give the flight its Paper 3 contrast." : ""}
+${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Sekt, Cap Classique." : ""}${targetP3Style === "fortified" ? "Select fortified wines — Port, Sherry, Madeira, Banyuls, Rutherglen, VDN, Marsala." : ""}${targetP3Style === "sweet" ? "Select sweet wines with meaningful RS — Sauternes, Tokaji, BA/TBA, Icewine, Quarts de Chaume, Vin Santo, late harvest." : ""}${targetP3Style === "rose" ? "Select rosé wines — Provence, Tavel, Bandol, sparkling rosé, New World rosé." : ""}${targetP3Style === "oxidative" ? "Select oxidative wines — Vin Jaune, orange/amber wines, oxidative Jura, sous voile styles." : ""}
 
 P3 OXIDATIVE STILL-WHITE SUB-RULE (HARD): A still (non-sparkling, non-fortified) white wine is in-scope for Paper 3 ONLY if its oxidative character is flor/sous voile-driven (e.g., Jura Savagnin sous voile, Vin Jaune). Conventionally cask-oxidized still whites — oxidative white Rioja (e.g., López de Heredia Tondonia/Gravonia Blanco, Marqués de Murrieta Castillo Ygay Blanco), oxidative aged Hunter Semillon — are PAPER 1 wines and must NOT be the basis of a Paper 3 question. Two such still whites contrasted by production method is a Paper 1 question. A P3 question may feature a conventionally-oxidative still white ONLY when it is paired with a fortified or biologically-aged (flor) wine (e.g., a Fino/Manzanilla Sherry) that supplies a genuine P3 contrast (oxidative-vs-biological, or still-vs-fortified). If you reason about including a Fino, Sherry, or other fortified/flor wine, you MUST actually place that wine in the wine list — do not let the selection collapse into all still wines.
 ` : ""}${examMixBlock}## YOUR TASK
