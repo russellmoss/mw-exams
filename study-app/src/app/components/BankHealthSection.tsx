@@ -12,8 +12,9 @@
 // confirm step that queues targeted generation into the normal review queue via the existing
 // /api/admin/bank/generate. No new generation pipeline; no new route.
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { BankReviewBadge } from "./BankReviewBadge";
+import { PaperScopePills, scopeToPaper, type Scope } from "./PaperScopePills";
 
 // ── Payload shape (mirrors src/lib/bank-health/aggregate.ts) ──────────────────────────────────────
 type Flag = "on" | "over" | "thin";
@@ -130,7 +131,15 @@ export function BankHealthSection() {
   const [open, setOpen] = useState(initialOpen);
   const [data, setData] = useState<BankHealthPayload | null>(null);
   const [loading, setLoading] = useState(true);
+  // Cross-fade flag: true while re-fetching for a NEW paper scope (keeps the current cards mounted and
+  // dims them ~150ms) as opposed to the first-load skeleton.
+  const [refetching, setRefetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Paper scope for every slice below. ALWAYS 'all' on mount — never persisted to localStorage or user
+  // prefs (spec). Switching a pill re-fetches every section scoped to that paper.
+  const [scope, setScope] = useState<Scope>("all");
+  const firstLoadRef = useRef(true);
 
   // Screen 2 (slide-over) and Screen 3 (confirm modal) selections.
   const [panel, setPanel] = useState<Selection | null>(null);
@@ -150,34 +159,51 @@ export function BankHealthSection() {
   }, []);
 
   // Pure fetch — returns the payload, writes no state — so the effect owns every setState in its own
-  // async continuation (matching SlicePanel below and the codebase's effect conventions).
-  const fetchHealth = useCallback(async (): Promise<BankHealthPayload> => {
-    const res = await fetch("/api/admin/bank-health", { cache: "no-store" });
-    if (!res.ok) throw new Error(String(res.status));
-    return (await res.json()) as BankHealthPayload;
-  }, []);
+  // async continuation (matching SlicePanel below and the codebase's effect conventions). Scoped to the
+  // selected paper via `?paper=N` (omitted for the all-papers aggregate).
+  const fetchHealth = useCallback(
+    async (signal?: AbortSignal): Promise<BankHealthPayload> => {
+      const paper = scopeToPaper(scope);
+      const qs = paper == null ? "" : `?paper=${paper}`;
+      const res = await fetch(`/api/admin/bank-health${qs}`, { cache: "no-store", signal });
+      if (!res.ok) throw new Error(String(res.status));
+      return (await res.json()) as BankHealthPayload;
+    },
+    [scope]
+  );
 
-  // Fetch on mount regardless of open state — the header summary + attention pill read from it, and
-  // the endpoint is memoised server-side for 60s so this is cheap. `loading` starts true.
+  // Fetch on mount and on every paper switch — the header summary + attention pill read from it, and
+  // the endpoint is memoised server-side for 60s so this is cheap. The first load shows the skeleton;
+  // later paper switches keep the current cards mounted and cross-fade them (refetching) rather than
+  // remounting. A slow response for a stale scope can't overwrite a newer one — the AbortController
+  // cancels the in-flight request the moment the scope changes again.
   useEffect(() => {
-    let alive = true;
+    const controller = new AbortController();
+    if (firstLoadRef.current) setLoading(true);
+    else setRefetching(true);
     (async () => {
       try {
-        const payload = await fetchHealth();
-        if (alive) {
-          setData(payload);
-          setError(null);
-        }
-      } catch {
-        if (alive) setError("Couldn't load bank health.");
+        const payload = await fetchHealth(controller.signal);
+        setData(payload);
+        setError(null);
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setError("Couldn't load bank health.");
       } finally {
-        if (alive) setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+          setRefetching(false);
+          firstLoadRef.current = false;
+        }
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => controller.abort();
   }, [fetchHealth]);
+
+  // Selected pill is a no-op (spec): re-selecting the current scope changes nothing and skips a refetch.
+  const handleScopeChange = useCallback((next: Scope) => {
+    setScope((prev) => (prev === next ? prev : next));
+  }, []);
 
   // Retry link — runs on click (never inside an effect), so setState here is fine.
   const retry = useCallback(() => {
@@ -258,6 +284,12 @@ export function BankHealthSection() {
       {/* ── Expanded body ── */}
       {open && (
         <div className="px-5 pb-5 border-t border-border pt-5">
+          {/* Paper scope filter — re-scopes every slice below to one paper or the all-papers aggregate.
+              Sits directly under the header, above the first slice card. */}
+          <div className="mb-5">
+            <PaperScopePills scope={scope} onChange={handleScopeChange} total={data?.totals.total ?? null} />
+          </div>
+
           {loading && <OverviewSkeleton />}
 
           {error && !loading && (
@@ -277,13 +309,18 @@ export function BankHealthSection() {
           )}
 
           {!loading && !error && data && data.totals.total > 0 && (
-            <div className="space-y-5">
+            <div
+              className={`space-y-5 transition-opacity duration-150 ${refetching ? "opacity-50" : "opacity-100"}`}
+              aria-busy={refetching}
+            >
               {data.slices.map((slice) => (
                 <SliceCard
                   key={slice.id}
                   slice={slice}
                   onOpenRow={(row) => setPanel({ slice, row })}
-                  onGenerate={(row) => setConfirm({ selection: { slice, row }, paper: paperGuess(slice, row) })}
+                  onGenerate={(row) =>
+                    setConfirm({ selection: { slice, row }, paper: scopeToPaper(scope) ?? paperGuess(slice, row) })
+                  }
                 />
               ))}
             </div>
@@ -293,8 +330,9 @@ export function BankHealthSection() {
 
       {panel && (
         <SlicePanel
-          key={`${panel.slice.id}:${panel.row.key}`}
+          key={`${panel.slice.id}:${panel.row.key}:${scope}`}
           selection={panel}
+          scopePaper={scopeToPaper(scope)}
           onClose={() => setPanel(null)}
           onGenerate={(paper) => setConfirm({ selection: panel, paper })}
         />
@@ -477,10 +515,13 @@ function OverviewSkeleton() {
 // ── Screen 2: right-hand slide-over listing the banked questions in one slice bucket ──────────────
 function SlicePanel({
   selection,
+  scopePaper,
   onClose,
   onGenerate,
 }: {
   selection: Selection;
+  // The page's paper scope (1|2|3 or null for all) — keeps the drill-down list scoped to the same paper.
+  scopePaper: number | null;
   onClose: () => void;
   onGenerate: (paper: number) => void;
 }) {
@@ -497,13 +538,14 @@ function SlicePanel({
     async (next: string | null) => {
       const params = new URLSearchParams({ slice: slice.id, key: row.key, limit: "50" });
       if (reviewFilter !== "all") params.set("reviewStateFilter", reviewFilter);
+      if (scopePaper != null) params.set("paper", String(scopePaper));
       if (next) params.set("cursor", next);
       const res = await fetch(`/api/admin/bank-health/slice?${params.toString()}`, { cache: "no-store" });
       if (!res.ok) return { items: [] as SliceItem[], nextCursor: null as string | null };
       const d = await res.json();
       return { items: (d.items || []) as SliceItem[], nextCursor: (d.nextCursor ?? null) as string | null };
     },
-    [slice.id, row.key, reviewFilter]
+    [slice.id, row.key, reviewFilter, scopePaper]
   );
 
   // Keyed by (slice, row) at the call site, so this component remounts per selection.
