@@ -106,6 +106,15 @@ if (opt.repair) {
   // files and wine research data before writing the answer" — then emits fabricated <function_calls>
   // blocks instead of an answer. 15 of 62 pending questions and 3 already-approved ones are in this
   // state, running to 29,000 characters.
+  // `actual_word_count: TBD` is the SHARPEST signal of the three length checks, because it catches
+  // the CAUSE rather than a symptom. The answer frontmatter declares a target (~400-430 words) and
+  // is supposed to report the actual count back. When the model fills that in, it lands on target:
+  // 1 of 151 such answers exceeds 8000 chars. When it writes TBD and skips the self-check, 17 of 63
+  // do, running as far as 14,593 chars — five times the stated target.
+  //
+  // Length alone therefore under-detects: 46 of those 63 sit UNDER 8000 and look healthy, while
+  // having been produced by exactly the same unverified path. Length also over-detects, since a
+  // genuinely thorough answer can be long. Trigger on the missing self-count itself.
   rows = await sql`
     SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks,
            length(model_answer) AS old_len
@@ -114,6 +123,7 @@ if (opt.repair) {
       AND (model_answer IS NULL
         OR length(model_answer) < 2000
         OR length(model_answer) > 8000
+        OR model_answer ~ 'actual_word_count:\s*TBD'
         OR model_answer ~ '<function_calls>|<tool_call>|<invoke name='
         OR proposed_annotation IS NULL
         OR reasoning_trace IS NULL
