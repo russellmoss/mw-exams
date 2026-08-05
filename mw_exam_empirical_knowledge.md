@@ -37,6 +37,15 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-05 — first BLIND out-of-sample backtest of the master trees (EK-0148).** Ran the trees
+  against the newly structured 2000–2010 corpus with the wines withheld from the predicting agents and
+  ground truth resolved independently (111 questions / 396 wines;
+  `outputs/backtest_reports/era1_blind_backtest_2000_2010.md`, harness
+  `scripts/build_backtest_input.py` + `scripts/score_backtest.py`, results `data/backtest_era1_blind.json`).
+  Variety 30%/52%/69% and country 36%/62%/83% versus LOYO's 72.8%/89.2%/95.6% — so **LOYO measures fit,
+  not generalisation** (qualifies EK-0082). The confidence tiers ARE well-calibrated out-of-sample
+  (STRONG > PLAUSIBLE > CURVEBALL, monotonic on all six metrics), and the failure is concentrated in
+  **Layer A stem-routing** (29% of stems unroutable; P2 only 9%) rather than in the wine knowledge.
 - **2026-08-05 — 2013 checked against the original paper: no defect.** Downloaded the IMW 2013
   question paper (`docs/past_papers_2000s/MW-Exam-2013.pdf`) and diffed it against our source: faithful
   word for word, IMW's own a/c/d lettering typo included. 2013 states tariffs by SCOPE, not multiplier,
@@ -1808,6 +1817,34 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
 
 > How we proved the trees work, and where they still fail. Source: `outputs/backtest_reports/`.
 > See §0.5 stage 7 for where this sits in the pipeline.
+
+### EK-0148 · First BLIND out-of-sample backtest — trees generalise worse than LOYO implies, but the confidence tiers hold
+- **tier:** STRONG SIGNAL · **status:** live · **qualifies:** EK-0082 (LOYO is fit, not generalisation)
+- **evidence:** `outputs/backtest_reports/era1_blind_backtest_2000_2010.md`;
+  `data/backtest_era1_blind.json` (111 questions / 396 wines); harness
+  `scripts/build_backtest_input.py` + `scripts/score_backtest.py`. Protocol: wines withheld from the
+  predicting agents; ground truth resolved by separate agents that never saw the predictions;
+  deterministic synonym-aware matching.
+- **claim:** Every earlier backtest scored the trees against the 2011–2025 corpus they were
+  **synthesised from**, so LOYO (top-1 variety 72.8% / top-3 89.2% / candidate-set 95.6%) measures
+  **fit, not generalisation** — a tree built from all years cannot be honestly held out from one of
+  them. Against the unseen 2000–2010 corpus the same trees score **variety 30% / 52% / 69%** and
+  **country 36% / 62% / 83%** per wine (MRR 0.43 / 0.52). Treat the gap as indicative, not exact —
+  different harnesses, and this one caps predictions at 5–8 ranked candidates — but the direction is
+  not in doubt. **Three findings matter operationally.** (1) **The three-tier confidence scheme is
+  honest out-of-sample**: STRONG SIGNAL 38%/65%/82% > PLAUSIBLE 21%/45%/61% > CURVEBALL 16%/26%/43%
+  on variety, monotonic across all six metrics — a label that survives this distribution shift is
+  doing real work, and supports tiers over percentages. (2) **Layer A stem-routing is the brittle
+  part, not the wine knowledge**: 32/111 stems (29%) hit NO matching branch (P1 38%, P3 39%, but P2
+  only 9% — red-wine stem grammar is the most stable across 26 years), and coverage drives accuracy
+  (branch matched 33%/56%/74% vs no branch 20%/41%/58%); meanwhile country in-set stays 83% overall
+  and 90% on STRONG SIGNAL calls. Unroutable constructions include vintage verticals, price ranking,
+  OW-vs-NW paired grids, and single-wine isolation. (3) **P3 is the weakest tree** (variety top-1 20%,
+  in-set 51%) with joint-worst coverage — matching the examiner reports, where P3 is where candidates
+  come unstuck. **Consequences:** stop quoting LOYO as a generalisation figure; add an explicit
+  "unrecognised construction" fallback leaf to Layer A that degrades to the paper-level prior (EK-0004
+  says new question types appear regularly); strengthen P3 first; and do **NOT** fit the trees to
+  Era-1 question shapes, which are extinct (EK-0146) — this corpus is a test set, not training data.
 
 ### EK-0082 · LOYO backtesting — method and result (pre-fix → post-fix)
 - **tier:** PROCESS · **status:** live — **the post-fix 72.8/89.2/95.6 headline is IN-SAMPLE and optimistic; out-of-sample it is 36.1/63.9/88.9 — see EK-0148**
