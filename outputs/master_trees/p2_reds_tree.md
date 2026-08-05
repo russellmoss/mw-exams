@@ -12,6 +12,31 @@ accuracy_target: variety + region (not exact wine)
 ## Accuracy target
 This tree targets **variety + region** accuracy. Producer, vintage, and vineyard identification are bonus, not the target. A correct prediction = right variety AND right country/region.
 
+## Branch 0 — Unrecognised construction (fallback). READ THIS FIRST.
+
+**Why this exists.** The blind 2000-2010 backtest (EK-0148) found **29% of stems matched no branch at
+all** — P1 38%, P3 39%, P2 9% — and that unrouted stems score far worse than routed ones
+(20/41/58 vs 33/56/74 on variety top-1/top-3/in-set). The damage was not ignorance of wine; it was
+this tree **force-fitting an unfamiliar stem into the nearest-looking branch** and inheriting a prior
+that did not apply. EK-0004 says new question types appear regularly, so this will keep happening.
+
+**The rule.** If the stem does not clearly match a branch below, do **not** pick the closest one.
+Say so, and fall back to the paper-level prior with a deliberately wide candidate set. An honest
+"unrecognised construction, staying broad" outperforms a confident wrong branch — the tree's own
+numbers say so.
+
+**Known unroutable constructions** (from the Era-1 blind test): vintage verticals, price ranking,
+open-vs-blind or Old-World-vs-New-World paired grids, and single-wine isolation questions.
+
+**Paper 2 fallback prior** (2015-2026, 132 wines): Pinot Noir 17%, Cabernet Sauvignon/Merlot 9%,
+Sangiovese 7%, Tempranillo/Garnacha 6%, Cabernet Franc 5%, Nebbiolo 5%. Countries: France 32%,
+Italy 19%, USA 11%, Spain 6%, Australia 6%, Argentina 5%. Note P2 stem grammar is the most stable
+of the three papers across 26 years (only 9% unroutable), so an unrecognised P2 stem is genuinely rare
+— re-read it before falling back.
+
+**Then let the glass lead.** With no branch to narrow on, sensory evidence carries more weight than
+usual — go to Layer B early and rank on what is actually in front of you.
+
 ## Layer A - Pre-tasting decision tree (question stem only)
 
 ### Branch 1: "Same single grape variety" questions
@@ -155,6 +180,25 @@ country, alive in the candidate set at all times.
   - survive: Cabernet Franc, especially Loire/Hungary. eliminate Merlot and Syrah. Evidence base: 2017 P2 Q3, 2019 P2 Q3, 2025 P2 Q1.
 - **Dried herbs, olive, black fruit but unfamiliar profile**
   - survive: Xinomavro, Lagrein, Pinotage, Carmenere depending tannin/pyrazine/smoke mix. treat as curveball if no classic benchmark lock appears.
+
+### Branch 6: stem shapes that had NO route before 2026-08-05 (added from the frozen-tree LOYO gaps)
+
+#### 6.1 — "from the Americas" / each wine from a different American country
+- **Leaf:** STRONG SIGNAL: **USA + Chile**. PLAUSIBLE: Argentina. CURVEBALL: Uruguay, Canada, Brazil.
+- **Variety leaf:** reach for each country's **signature** grape rather than the international set —
+  STRONG SIGNAL: Zinfandel, Petite Sirah (USA); Carménère (Chile); Malbec (Argentina); Tannat (Uruguay).
+  PLAUSIBLE: Cabernet Sauvignon (either), Pinot Noir (either).
+- **Evidence (n=2, both USA+Chile):** 2018 P2 Q4 "come from the Americas" → **Zinfandel (USA) + Cabernet Sauvignon (Chile)**; 2021 P2 Q3 "different single grape varieties, each from a different country" → **Petite Sirah (USA) + Carménère (Chile)**.
+- **Practical rule:** an Americas stem is a **signature-variety** question, not a Cabernet question. Both attested instances pair a distinctive US grape with a distinctive South American one; leading with Cabernet Sauvignon on both slots wastes the discrimination the examiners built in.
+
+#### 6.2 — N wines, **two varieties**, paired by country
+- **Leaf:** STRONG SIGNAL: one Old World benchmark variety + one New World signature variety, two wines each. Countries: France + Argentina/Chile/USA.
+- **Evidence:** 2023 P2 Q3 ("each made from a single grape variety; two different grape varieties are represented") → **Pinot Noir x2 (France) + Malbec x2 (Argentina)**.
+- **Routing conflict note:** the family pack tags this F4c (hidden organising theme) while this tree's same-variety branch does not fit it cleanly. **The stem wins**: it states the grid explicitly ("two different grape varieties"), so treat it as a structured 2x2, not a breadth question.
+
+#### 6.3 — where this tree and `p2_family_tree_pack.md` disagree
+Prefer the branch whose trigger words actually appear in the stem. A taxonomy tag is a post-hoc
+classification; the stem is the examiner speaking.
 
 ## Curveball cases
 - **2017 P2 Q3**: Chinon, German Pinot Noir, Pinotage, Lagrein is the template for the final-flight ambush.

@@ -12,6 +12,29 @@ accuracy_target: variety + region (not exact wine)
 ## Accuracy target
 This tree targets **variety + region** accuracy. Producer, vintage, and vineyard identification are bonus, not the target. A correct prediction = right variety AND right country/region.
 
+## Branch 0 — Unrecognised construction (fallback). READ THIS FIRST.
+
+**Why this exists.** The blind 2000-2010 backtest (EK-0148) found **29% of stems matched no branch at
+all** — P1 38%, P3 39%, P2 9% — and that unrouted stems score far worse than routed ones
+(20/41/58 vs 33/56/74 on variety top-1/top-3/in-set). The damage was not ignorance of wine; it was
+this tree **force-fitting an unfamiliar stem into the nearest-looking branch** and inheriting a prior
+that did not apply. EK-0004 says new question types appear regularly, so this will keep happening.
+
+**The rule.** If the stem does not clearly match a branch below, do **not** pick the closest one.
+Say so, and fall back to the paper-level prior with a deliberately wide candidate set. An honest
+"unrecognised construction, staying broad" outperforms a confident wrong branch — the tree's own
+numbers say so.
+
+**Known unroutable constructions** (from the Era-1 blind test): vintage verticals, price ranking,
+open-vs-blind or Old-World-vs-New-World paired grids, and single-wine isolation questions.
+
+**Paper 1 fallback prior** (2015-2026, 132 wines): Chardonnay 24%, Riesling 12%, Chenin Blanc 8%,
+Sauvignon Blanc 8%, Pinot Gris 5%, Albariño 4%. Countries: France 37%, Australia 11%, USA 10%,
+Italy 9%, Spain 7%, South Africa 6%. Open with Chardonnay + Riesling and a French default, then widen.
+
+**Then let the glass lead.** With no branch to narrow on, sensory evidence carries more weight than
+usual — go to Layer B early and rank on what is actually in front of you.
+
 ## Layer A - Pre-tasting decision tree (question stem only)
 
 ### Branch 1: "Same single grape variety" questions
@@ -135,6 +158,21 @@ This tree targets **variety + region** accuracy. Producer, vintage, and vineyard
   - promote technique-first explanations: qvevri, oxidation, skin contact, drying, flor, or extreme lees/oak handling.
   - survive: Chinuri/qvevri, oxidative Rioja Blanco, Vin Santo-adjacent, orange wine. eliminate mainstream international whites.
   - Evidence base: 2019 P1 Q3, 2024 P1 Q2, 2025 P1 Q4.
+
+### Branch 6: two "same country" questions in ONE paper (added from the frozen-tree LOYO gaps)
+
+- **The gap:** the pre-fix tree sent both same-country questions of a paper to the identical
+  France/Italy leaf, giving no way to differentiate them. A backtester flagged this on 2021, where the
+  paper carries two such questions.
+- **Leaf:** the two questions are from **different countries**, and the later one skews **New World**.
+  STRONG SIGNAL for the first: France. STRONG SIGNAL for the second: USA, Australia, South Africa.
+  PLAUSIBLE: Italy, Spain, New Zealand.
+- **Evidence:** 2021 — **P1 Q1 = France**, **P1 Q4 = USA** (Muscat, Chardonnay, Pinot Gris). n=1 paper,
+  so treat as orientation: the reliable half is "do not answer the same country twice", not the
+  specific claim that the second is American.
+- **Practical rule:** once you have committed a country to one same-country flight in a paper, remove
+  it from the candidate set for the other. Examiners do not spend two questions of one paper on one
+  country.
 
 ## Curveball cases
 - **2019 P1 Q3**: explicit instruction not to over-focus on exact origin; this is the clearest P1 outlier slot.

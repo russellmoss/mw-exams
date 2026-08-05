@@ -24,6 +24,31 @@ Paper 3 is the **only** paper where you should let your eyes lead. The productio
 
 Read Layer A first if you have the question paper in hand — it is genuine pre-tasting context — but the **in-glass workflow begins with the visual trunk in Layer B**, not with variety guessing.
 
+## Branch 0 — Unrecognised construction (fallback). READ THIS FIRST.
+
+**Why this exists.** The blind 2000-2010 backtest (EK-0148) found **29% of stems matched no branch at
+all** — P1 38%, P3 39%, P2 9% — and that unrouted stems score far worse than routed ones
+(20/41/58 vs 33/56/74 on variety top-1/top-3/in-set). The damage was not ignorance of wine; it was
+this tree **force-fitting an unfamiliar stem into the nearest-looking branch** and inheriting a prior
+that did not apply. EK-0004 says new question types appear regularly, so this will keep happening.
+
+**The rule.** If the stem does not clearly match a branch below, do **not** pick the closest one.
+Say so, and fall back to the paper-level prior with a deliberately wide candidate set. An honest
+"unrecognised construction, staying broad" outperforms a confident wrong branch — the tree's own
+numbers say so.
+
+**Known unroutable constructions** (from the Era-1 blind test): vintage verticals, price ranking,
+open-vs-blind or Old-World-vs-New-World paired grids, and single-wine isolation questions.
+
+**Paper 3 fallback prior** (2015-2026, 132 wines): Chardonnay/Pinot Noir 10%, Chardonnay 8%,
+Touriga Nacional/Touriga Franca 8%, Riesling 8%, Sémillon/Sauvignon Blanc 7%, Palomino 6%.
+Countries: France 36%, Spain 12%, Portugal 12%, Italy 10%, Germany 5%, USA 5%. **P3 is the weakest
+tree and ties for worst coverage** (variety top-1 20%, in-set 51% on the Era-1 blind test), so the
+fallback fires most often here — and the visual trunk in Layer B matters most when it does.
+
+**Then let the glass lead.** With no branch to narrow on, sensory evidence carries more weight than
+usual — go to Layer B early and rank on what is actually in front of you.
+
 ## Layer A - Pre-tasting decision tree (question stem only)
 
 ### Branch 1: P3 Q1 / sparkling-led opening flights
@@ -205,6 +230,40 @@ P3 increasingly awards marks for stating bare numbers — alcohol % and residual
 | Oloroso/PX Sherry | 17-20% (Oloroso dry-to-off-dry; PX much sweeter) | Oloroso <5 unless sweetened; PX 300-400+ | general style range — Source needed for a 2026-confirmed anchor |
 
 **Practical rule:** if a sub-question asks for ABV/RS as bare numbers, do not hedge with a wide range you haven't earned from the glass — commit to a specific figure near your best anchor and adjust from perceived heat/sweetness on the palate. A number close to the anchor scores; "somewhere between 10 and 20%" does not.
+
+### Branch 7: stem shapes that had NO route before 2026-08-05 (added from the frozen-tree LOYO gaps)
+
+Each of these was flagged by a backtester agent as unroutable in the pre-fix tree. Each is now given
+the leaf its actual wines support. All are low-n — treat as orientation, not certainty.
+
+#### 7.1 — "N different countries" with **no style keyword at all**
+- **Leaf:** STRONG SIGNAL: **fortified / oxidative sweep**. PLAUSIBLE: sweet. CURVEBALL: a still wine hiding in the set.
+- **Evidence:** 2015 P3 Q2 ("Wines 5-8 are from three different countries") resolved to **Port (Portugal), Australian fortified Shiraz, Sherry/Palomino (Spain), Madeira (Sercial/Verdelho)** — a four-wine, all-fortified sweep. When P3 gives you a bare country count and nothing else, the fortified family is the default, not a random mixed bag.
+- **Practical rule:** a P3 stem with no style word is not "anything goes". Fortified/oxidative is the house default; spend your first sniff confirming or killing spirit heat.
+
+#### 7.2 — "made predominantly from the same grape variety" (P3, small flight)
+- **Leaf:** STRONG SIGNAL: **Grenache-led southern-Rhône family across two countries**. PLAUSIBLE: Syrah/Shiraz-led. CURVEBALL: Touriga or Tempranillo family.
+- **Evidence:** 2017 P3 Q4 — Grenache/Shiraz (Australia) vs Grenache/Syrah (France). "Predominantly" is the tell that these are **blends sharing a lead grape**, not varietal wines; do not single-lock (EK-0083).
+
+#### 7.3 — "same country and region", two wines, in Paper 3
+- **Leaf:** STRONG SIGNAL: a **still red pair from one fine-wine region**. PLAUSIBLE: two styles from one fortified region. CURVEBALL: two vintages of one wine.
+- **Evidence:** 2017 P3 Q5 — **Pinot Noir x2, Burgundy, France**. A reminder that P3 admits still dry wines; it simply cannot be *only* them. Do not assume a same-region P3 pair must be fortified or sweet.
+
+#### 7.4 — pairs each made by a **different producer**, no style family named
+- **Leaf:** STRONG SIGNAL: each pair is a **different style AND usually a different country**; keep one candidate per production family alive across the three pairs.
+- **Evidence:** 2018 P3 Q1 — three pairs: Champagne (Chardonnay/Pinot Noir, France), Bordeaux Blanc (Sémillon/Sauvignon Blanc, France), Port (Touriga, Portugal). The organising principle is *producer*, so the styles are free to diverge; the anti-collapse rule applies with full force.
+
+#### 7.5 — Rhône varieties appearing as **single varietals across countries** in Paper 3
+- **Leaf:** STRONG SIGNAL: Cinsault, Grenache, Mourvèdre as standalone varietal wines. PLAUSIBLE: Syrah. Countries: France + Spain + USA.
+- **Evidence:** 2018 P3 Q3 ("different countries and different single grape varieties, minimum 90%") — **Cinsault (France), Grenache (Spain), Mourvèdre/Grenache (USA)**. The tree's own Curveball Cases already named this question; it now has a leaf. A "minimum 90% single variety" qualifier in P3 is a strong signal for the Rhône grape set expressed varietally rather than blended.
+
+#### 7.6 — "all made using different methods of production"
+- **Leaf:** STRONG SIGNAL: one wine per **production method**, spanning styles and countries — not one region's range.
+- **Evidence:** 2023 P3 Q2 — Champagne (traditional method, France), a Grenache/Cinsault rosé, and a Baga/Rufete wine (Portugal). Route on **method contrast** first; family-pack tags that call this a sweetness question are misleading (see the routing note below).
+
+#### 7.7 — routing conflicts between this tree and the family pack
+- **2023 P3 Q2** — the master tree reads it as a method-contrast flight (7.6 above); the family pack tags it F5d (sweet-wine mechanism). **The stem wording wins**: it says "different methods of production" and never mentions sugar. Route on the literal stem.
+- **General rule:** where this tree and `p3_family_tree_pack.md` disagree, prefer the branch whose trigger words actually appear in the stem. A taxonomy tag is a post-hoc classification; the stem is the examiner speaking.
 
 ## Curveball cases
 - **2017 P3 Q2**: explicit instruction to treat origin as secondary; style/technique dominates.
