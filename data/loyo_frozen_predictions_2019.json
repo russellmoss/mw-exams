@@ -1,0 +1,244 @@
+[
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch 1 (Same single grape variety) > Sub-branch (3-4 wines, origin/maturity heavy) > Leaf ('stem says different countries or two countries') [cross-ref p1_family_tree_pack.md#F3 Blend/Composition Logic > Branch 3.1 Same blend family, different origins (F3a)]",
+    "variety_ranking": ["Sauvignon Blanc", "Semillon", "Chardonnay", "Riesling", "Chenin Blanc", "Pinot Gris"],
+    "region_ranking": ["France", "New Zealand", "Australia", "South Africa", "USA", "Chile"],
+    "full_candidate_set": [
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux (Pessac-Leognan/Graves, blended with Semillon)", "Marlborough NZ (varietal)", "Loire", "South Africa"]},
+      {"variety": "Semillon", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux Blanc blend", "Hunter Valley", "Margaret River SB-Sem blend"]},
+      {"variety": "Chardonnay", "confidence": "PLAUSIBLE", "regions": ["Burgundy", "California", "Margaret River"]},
+      {"variety": "Riesling", "confidence": "PLAUSIBLE", "regions": ["Mosel", "Alsace", "Clare Valley"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["Loire", "South Africa"]},
+      {"variety": "Pinot Gris", "confidence": "CURVEBALL", "regions": ["Alsace", "Oregon", "Alto Adige"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["France"], "variety": "Sauvignon Blanc-Semillon blend", "raw": "Bordeaux Blanc blend, Pessac-Leognan, oak-aged Sauvignon Blanc-Semillon"},
+      "2": {"countries": ["France"], "variety": "Sauvignon Blanc-Semillon blend", "raw": "Bordeaux Blanc blend, Graves, Sauvignon Blanc-Semillon"},
+      "3": {"countries": ["New Zealand"], "variety": "Sauvignon Blanc", "raw": "Marlborough Sauvignon Blanc varietal, pungent pyrazine"},
+      "4": {"countries": ["Australia"], "variety": "Sauvignon Blanc / Semillon blend", "raw": "Margaret River Sauvignon Blanc-Semillon blend"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [5, 6, 7, 8, 9, 10],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch 3 (same region / pair-comparison questions) > Sub-branch same region + quality/vintage differentiation (evidence cites 2019 P1 Q2 directly)",
+    "variety_ranking": ["Chardonnay", "Riesling", "Viura (Rioja Blanco)", "Chenin Blanc", "Pinot Gris", "Sauvignon Blanc"],
+    "region_ranking": ["France", "Germany", "Spain", "Italy", "Austria", "Australia"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["Burgundy (Chablis vs Cote de Beaune)"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Mosel", "Rheingau", "Franken"]},
+      {"variety": "Viura / Rioja Blanco blend", "confidence": "CURVEBALL", "regions": ["Rioja"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["Vouvray", "Savennieres"]},
+      {"variety": "Pinot Gris", "confidence": "PLAUSIBLE", "regions": ["Alsace"]},
+      {"variety": "Sauvignon Blanc", "confidence": "PLAUSIBLE", "regions": ["Marlborough intra-region comparison"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["France"], "variety": "Chardonnay", "raw": "Chablis Chardonnay, high acid, flint/chalk, restrained fruit"},
+      "6": {"countries": ["France"], "variety": "Chardonnay", "raw": "Cote de Beaune Chardonnay (Meursault/Puligny-Montrachet), riper stone fruit, oak"},
+      "7": {"countries": ["Germany"], "variety": "Riesling", "raw": "Mosel Kabinett Riesling, low alcohol, slate, residual sugar"},
+      "8": {"countries": ["Germany"], "variety": "Riesling", "raw": "Rheingau or Franken Spatlese Riesling, firmer extract"},
+      "9": {"countries": ["Spain"], "variety": "Viura", "raw": "Rioja Blanco Gran Reserva, oxidative, oak-aged Viura"},
+      "10": {"countries": ["Spain"], "variety": "Viura", "raw": "Rioja Blanco Reserva, fresher style, less oak"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Curveball case '2019 P1 Q3: explicit instruction not to over-focus on exact origin' + Branch 4 (mixed-bag) [cross-ref p1_family_tree_pack.md#F5 Method/Production Dominant > Branch 5.2 Style and commercial method (F5f), this exact question is the F5f template]",
+    "variety_ranking": ["Chardonnay", "Sauvignon Blanc/Semillon blend", "Furmint", "Riesling", "Viognier", "Gruner Veltliner"],
+    "region_ranking": ["France", "Hungary", "Italy", "Spain", "Germany", "Austria"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["Burgundy"]},
+      {"variety": "Sauvignon Blanc-Semillon blend", "confidence": "STRONG SIGNAL", "regions": ["Pessac-Leognan white Bordeaux"]},
+      {"variety": "Furmint", "confidence": "PLAUSIBLE", "regions": ["Tokaj (dry, Mad)"]},
+      {"variety": "Riesling", "confidence": "PLAUSIBLE", "regions": ["Alsace Grand Cru"]},
+      {"variety": "Viognier", "confidence": "CURVEBALL", "regions": ["Condrieu"]},
+      {"variety": "Gruner Veltliner", "confidence": "CURVEBALL", "regions": ["Wachau"]}
+    ],
+    "origins_per_slot": {
+      "11": {"countries": ["France"], "variety": "Sauvignon Blanc-Semillon blend", "raw": "Pessac-Leognan white Bordeaux, oak-fermented, human-input-dominant style, premium commercial position"},
+      "12": {"countries": ["Hungary"], "variety": "Furmint", "raw": "dry Furmint from Tokaj-Mad, natural-factor-dominant volcanic/loess terroir expression"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#Branch 1 (Same single grape variety) > Sub-branch same variety across multiple countries [cross-ref p2_family_tree_pack.md#F3 Blend/Composition Logic > Branch 3.3 Compare varietal roles within blends (F3c) — this exact question is the F3c template]",
+    "variety_ranking": ["Cabernet Sauvignon", "Merlot", "Cabernet Franc", "Petit Verdot"],
+    "region_ranking": ["France", "Italy", "South Africa", "USA", "Australia", "Chile"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux Left Bank", "Napa", "Coonawarra", "Stellenbosch"]},
+      {"variety": "Merlot", "confidence": "STRONG SIGNAL", "regions": ["Bordeaux Right Bank (Saint-Emilion/Pomerol)", "Chile"]},
+      {"variety": "Cabernet Franc", "confidence": "STRONG SIGNAL", "regions": ["Loire (Chinon/Saumur-Champigny)", "Bordeaux blend component"]},
+      {"variety": "Petit Verdot / Malbec", "confidence": "PLAUSIBLE", "regions": ["Bordeaux blend component", "Argentina (Malbec)"]},
+      {"variety": "Sangiovese-Cabernet blend (Super Tuscan)", "confidence": "PLAUSIBLE", "regions": ["Bolgheri, Tuscany"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["France"], "variety": "Cabernet Sauvignon-dominant blend", "raw": "Bordeaux Left Bank, Pauillac or Saint-Julien, Cabernet Sauvignon-dominant with firm tannin and graphite"},
+      "2": {"countries": ["Italy"], "variety": "Cabernet Sauvignon/Merlot blend", "raw": "Bolgheri Super Tuscan, Cabernet-dominant with riper fruit and plush oak"},
+      "3": {"countries": ["France"], "variety": "Cabernet Franc", "raw": "Loire, Chinon or Saumur-Champigny, leafy pyrazine, medium body"},
+      "4": {"countries": ["South Africa"], "variety": "Cabernet Sauvignon/Merlot blend", "raw": "Stellenbosch Bordeaux blend, riper cassis, denser palate"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [5, 6, 7, 8],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#Branch 5 (mixed-bag / different countries, different varieties) > Sub-branch different countries, different varieties [cross-ref p2_family_tree_pack.md#F4 Mixed Identification Breadth Set, Americas-restricted sub-case]",
+    "variety_ranking": ["Cabernet Sauvignon", "Malbec", "Carmenere", "Pinot Noir", "Zinfandel", "Merlot"],
+    "region_ranking": ["USA", "Argentina", "Chile", "Canada", "Uruguay", "Mexico"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon", "confidence": "STRONG SIGNAL", "regions": ["Napa Valley, USA"]},
+      {"variety": "Malbec", "confidence": "STRONG SIGNAL", "regions": ["Mendoza, Argentina"]},
+      {"variety": "Carmenere / Cabernet Sauvignon", "confidence": "STRONG SIGNAL", "regions": ["Colchagua/Maipo, Chile"]},
+      {"variety": "Pinot Noir / Cabernet Franc", "confidence": "PLAUSIBLE", "regions": ["Niagara/Okanagan, Canada"]},
+      {"variety": "Zinfandel", "confidence": "PLAUSIBLE", "regions": ["Dry Creek/Sonoma, USA"]},
+      {"variety": "Tannat", "confidence": "CURVEBALL", "regions": ["Uruguay"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["USA"], "variety": "Cabernet Sauvignon", "raw": "Napa Valley Cabernet Sauvignon, cassis, plush new oak"},
+      "6": {"countries": ["Argentina"], "variety": "Malbec", "raw": "Mendoza Malbec, floral, polished, sunny black fruit"},
+      "7": {"countries": ["Chile"], "variety": "Carmenere / Cabernet Sauvignon", "raw": "Colchagua Valley, Chile, green pepper edge with riper core"},
+      "8": {"countries": ["Canada"], "variety": "Pinot Noir or Cabernet Franc", "raw": "Niagara Peninsula or Okanagan Valley, Canada, cool-climate red fruit"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [9, 10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#Curveball case '2019 P2 Q3: Europe, but not France, Italy or Spain is an explicit curveball instruction' + Branch 5 Sub-branch varieties closely associated with origin [cross-ref p2_family_tree_pack.md#F4c preserve one candidate each from Portugal, Austria, Italy(excluded here), France(excluded here), Greece before adding a second grape from any one country]",
+    "variety_ranking": ["Blaufrankisch", "Touriga Nacional", "Pinot Noir (Spatburgunder)", "Xinomavro", "Zweigelt", "Cabernet Franc"],
+    "region_ranking": ["Portugal", "Austria", "Germany", "Greece", "Hungary", "Croatia"],
+    "full_candidate_set": [
+      {"variety": "Touriga Nacional / Touriga Franca blend", "confidence": "STRONG SIGNAL", "regions": ["Douro, Portugal"]},
+      {"variety": "Blaufrankisch", "confidence": "STRONG SIGNAL", "regions": ["Burgenland, Austria"]},
+      {"variety": "Pinot Noir (Spatburgunder)", "confidence": "PLAUSIBLE", "regions": ["Ahr/Pfalz/Baden, Germany"]},
+      {"variety": "Xinomavro", "confidence": "PLAUSIBLE", "regions": ["Naoussa, Greece"]},
+      {"variety": "Zweigelt", "confidence": "PLAUSIBLE", "regions": ["Austria"]},
+      {"variety": "Cabernet Franc / Kekfrankos", "confidence": "CURVEBALL", "regions": ["Hungary (Villany/Eger)"]},
+      {"variety": "Lagrein", "confidence": "CURVEBALL", "regions": ["Alto Adige (technically Italy — excluded but flagged as edge case)"]}
+    ],
+    "origins_per_slot": {
+      "9": {"countries": ["Portugal"], "variety": "Touriga Nacional / Touriga Franca blend", "raw": "Douro red blend, bramble, sweet spice, dense grippy young tannin"},
+      "10": {"countries": ["Austria"], "variety": "Blaufrankisch", "raw": "Burgenland Blaufrankisch, blue-black fruit, alpine spice, structured tannin"},
+      "11": {"countries": ["Germany"], "variety": "Pinot Noir (Spatburgunder)", "raw": "Ahr or Pfalz Spatburgunder, translucent ruby, red fruit, earthy restraint"},
+      "12": {"countries": ["Greece"], "variety": "Xinomavro", "raw": "Naoussa Xinomavro, dried herb, tomato/olive, high acid and tannin"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [1, 2],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 1 (P3 Q1 / sparkling-led opening flights, 2019 P3 Q1 cited as evidence) [cross-ref p3_family_tree_pack.md#F2 Same Origin > Branch 2.3 same origin, different elevage/age (F2d) — this exact question is tagged F2d]",
+    "variety_ranking": ["Chardonnay", "Pinot Noir", "Palomino", "Touriga Nacional", "Furmint"],
+    "region_ranking": ["France", "Spain", "Portugal", "Italy", "United Kingdom", "Hungary"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay / Pinot Noir blend", "confidence": "STRONG SIGNAL", "regions": ["Champagne, France (NV vs Vintage/Blanc de Blancs)"]},
+      {"variety": "Palomino", "confidence": "PLAUSIBLE", "regions": ["Jerez, Spain (Fino vs Oloroso)"]},
+      {"variety": "Touriga Nacional / Tinta Roriz blend", "confidence": "PLAUSIBLE", "regions": ["Douro/Porto, Portugal (Ruby vs Tawny)"]},
+      {"variety": "Various Madeira grapes (Sercial/Verdelho/Bual/Malmsey)", "confidence": "CURVEBALL", "regions": ["Madeira, Portugal"]},
+      {"variety": "Furmint", "confidence": "CURVEBALL", "regions": ["Tokaj, Hungary"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["France"], "variety": "Chardonnay/Pinot Noir/Meunier blend", "raw": "Champagne NV Brut, biscuit autolysis, chalk-driven acidity"},
+      "2": {"countries": ["France"], "variety": "Chardonnay-led or Pinot Noir-led blend", "raw": "Champagne Vintage or Blanc de Blancs, more concentration and complexity than the NV"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 4 (same region producing multiple styles, evidence cites 2019 P3 Q2 directly) [cross-ref p3_family_tree_pack.md#F2 Same Origin > Branch 2.3 same origin, different elevage/sweetness/age (F2d)]",
+    "variety_ranking": ["Palomino", "Semillon/Sauvignon Blanc blend", "Savagnin", "Furmint", "Sercial/Verdelho (Madeira grapes)"],
+    "region_ranking": ["Spain", "France", "Portugal", "Hungary", "Italy"],
+    "full_candidate_set": [
+      {"variety": "Palomino", "confidence": "STRONG SIGNAL", "regions": ["Jerez, Spain (Fino/Manzanilla vs Oloroso/Amontillado)"]},
+      {"variety": "Semillon-Sauvignon Blanc blend", "confidence": "STRONG SIGNAL", "regions": ["Sauternes/Barsac, France"]},
+      {"variety": "Savagnin", "confidence": "PLAUSIBLE", "regions": ["Jura, France (ouille vs sous voile)"]},
+      {"variety": "Furmint", "confidence": "PLAUSIBLE", "regions": ["Tokaj, Hungary (dry vs Aszu/Szamorodni)"]},
+      {"variety": "Sercial / Verdelho / Bual / Malmsey", "confidence": "CURVEBALL", "regions": ["Madeira, Portugal"]}
+    ],
+    "origins_per_slot": {
+      "3": {"countries": ["Spain"], "variety": "Palomino", "raw": "Jerez Fino or Manzanilla, flor-derived saline and bruised-apple, bone dry"},
+      "4": {"countries": ["Spain"], "variety": "Palomino", "raw": "Jerez Oloroso or Amontillado, oxidative walnut and caramel, deeper style"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [5, 6, 7, 8],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 5 (rose / unusual still / mixed-bag) + anti-collapse rule [cross-ref p3_family_tree_pack.md#F4 Mixed Identification Breadth default candidate universe: one rose/unusual style, one fortified/oxidative, one sweet, one classic still with recognisable signature]",
+    "variety_ranking": ["Grenache", "Palomino", "Chardonnay", "Riesling", "Pinot Noir", "Sauvignon Blanc"],
+    "region_ranking": ["France", "Spain", "USA", "Australia", "South Africa", "New Zealand"],
+    "full_candidate_set": [
+      {"variety": "Grenache / Cinsault (rose)", "confidence": "STRONG SIGNAL", "regions": ["Provence, France"]},
+      {"variety": "Palomino (fortified/oxidative)", "confidence": "PLAUSIBLE", "regions": ["Jerez, Spain"]},
+      {"variety": "Chardonnay (classic still)", "confidence": "STRONG SIGNAL", "regions": ["California, USA"]},
+      {"variety": "Riesling (classic still, aromatic)", "confidence": "STRONG SIGNAL", "regions": ["Clare Valley, Australia"]},
+      {"variety": "Pinot Noir", "confidence": "PLAUSIBLE", "regions": ["New Zealand", "South Africa"]},
+      {"variety": "Sauvignon Blanc / Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["South Africa"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["France"], "variety": "Grenache/Cinsault rose blend", "raw": "Provence rose, pale salmon, dry and delicate"},
+      "6": {"countries": ["Spain"], "variety": "Palomino", "raw": "Jerez Sherry, fortified, flor or oxidative aging"},
+      "7": {"countries": ["USA"], "variety": "Chardonnay", "raw": "California (Sonoma/Napa) Chardonnay, riper stone fruit, oak and malo"},
+      "8": {"countries": ["Australia"], "variety": "Riesling", "raw": "Clare Valley or Eden Valley Riesling, bone dry, lime cordial, youthful"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [9, 10],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 3 (fortified / oxidative / biologically aged questions, evidence cites 2019 P3 Q4 directly) [cross-ref p3_family_tree_pack.md#F5 Method/Production Dominant > Branch 5.3 Fortified/oxidative mechanism (F5c), question tagged F5c]",
+    "variety_ranking": ["Palomino", "Touriga Nacional", "Savagnin", "Muscat", "Furmint"],
+    "region_ranking": ["Spain", "Portugal", "France", "Hungary", "Italy"],
+    "full_candidate_set": [
+      {"variety": "Palomino", "confidence": "STRONG SIGNAL", "regions": ["Jerez, Spain"]},
+      {"variety": "Touriga Nacional / Tinta Roriz blend or Sercial/Verdelho/Bual/Malmsey", "confidence": "STRONG SIGNAL", "regions": ["Douro/Porto or Madeira, Portugal"]},
+      {"variety": "Savagnin", "confidence": "PLAUSIBLE", "regions": ["Jura, France"]},
+      {"variety": "Muscat / Grenache", "confidence": "PLAUSIBLE", "regions": ["Roussillon (VDN), France"]},
+      {"variety": "Furmint", "confidence": "CURVEBALL", "regions": ["Tokaj Szamorodni, Hungary"]}
+    ],
+    "origins_per_slot": {
+      "9": {"countries": ["Spain"], "variety": "Palomino", "raw": "Jerez, biologically aged Fino/Amontillado or oxidatively aged Oloroso, flor or rancio character"},
+      "10": {"countries": ["Portugal"], "variety": "Touriga Nacional blend or Madeira grapes", "raw": "Douro Port (spirit-stopped, sweet red fruit and tannin) or Madeira (volatile lift, curry, high acid)"}
+    }
+  },
+  {
+    "year": 2019,
+    "paper": 3,
+    "question": 5,
+    "wine_slots": [11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 2 (residual sugar / sweet wine mechanism questions) > Sub-branch explicit RS and alcohol asked (evidence cites 2019 P3 Q5 directly)",
+    "variety_ranking": ["Vidal", "Riesling", "Furmint", "Semillon", "Chenin Blanc", "Muscat"],
+    "region_ranking": ["Canada", "Hungary", "Germany", "France", "Australia"],
+    "full_candidate_set": [
+      {"variety": "Vidal / Riesling (Icewine)", "confidence": "STRONG SIGNAL", "regions": ["Niagara/Okanagan, Canada"]},
+      {"variety": "Furmint (Aszu)", "confidence": "STRONG SIGNAL", "regions": ["Tokaj, Hungary"]},
+      {"variety": "Riesling (BA/TBA)", "confidence": "PLAUSIBLE", "regions": ["Mosel or Rheingau, Germany"]},
+      {"variety": "Semillon-Sauvignon Blanc blend (Sauternes)", "confidence": "PLAUSIBLE", "regions": ["France"]},
+      {"variety": "Chenin Blanc (Vouvray moelleux)", "confidence": "PLAUSIBLE", "regions": ["Loire, France"]},
+      {"variety": "Muscat (Rutherglen or VDN)", "confidence": "CURVEBALL", "regions": ["Australia", "France (Roussillon)"]}
+    ],
+    "origins_per_slot": {
+      "11": {"countries": ["Canada"], "variety": "Vidal or Riesling", "raw": "Niagara Peninsula or Okanagan Icewine, very high RS, low alcohol (~10%), electric acid"},
+      "12": {"countries": ["Hungary"], "variety": "Furmint", "raw": "Tokaji Aszu, 5-6 puttonyos, honey/apricot/saffron noble rot, higher alcohol than the icewine (~11-12%)"}
+    }
+  }
+]

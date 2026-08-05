@@ -1,0 +1,263 @@
+[
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch 1: \"Same single grape variety\" questions > Sub-branch: 3-4 wines, origin and maturity/quality heavily marked > Leaf (stem says \"different countries\") | cross-checked p1_family_tree_pack.md#F1 Same Variety (F1b cross-country, Branch 1.1)",
+    "variety_ranking": ["Chardonnay", "Riesling", "Sauvignon Blanc", "Chenin Blanc", "Semillon", "Pinot Gris"],
+    "region_ranking": ["France", "Germany", "Australia", "USA", "South Africa", "New Zealand"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["France (Burgundy/Chablis)", "USA (California)", "Australia (Margaret River)", "South Africa"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Germany (Mosel/Rheingau/Franken)", "France (Alsace)", "Australia (Clare Valley)"]},
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Loire/Bordeaux)", "New Zealand (Marlborough)"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["France (Loire)", "South Africa"]},
+      {"variety": "Semillon", "confidence": "PLAUSIBLE", "regions": ["France (Bordeaux)", "Australia (Hunter Valley)"]},
+      {"variety": "Pinot Gris", "confidence": "CURVEBALL", "regions": ["France (Alsace)", "Italy (Alto Adige)", "USA (Oregon)"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["France", "USA", "Australia", "Germany", "New Zealand", "South Africa"], "variety": "Chardonnay or Riesling or Sauvignon Blanc (pair-mate of slot 2)", "raw": "Stem gives four different countries, two varieties, slots 1&2 sharing one variety. Leading hypothesis: Chardonnay from Burgundy/Chablis (France) or California (USA) or Margaret River (Australia) as one pair; alternatively Riesling from Mosel or Rheingau (Germany) or Clare Valley (Australia); or Sauvignon Blanc from Loire (France) or Marlborough (New Zealand)."},
+      "2": {"countries": ["France", "USA", "Australia", "Germany", "New Zealand", "South Africa"], "variety": "same variety as slot 1, different country", "raw": "Pair-mate of slot 1, same variety different country: if slot 1 is Old World (Burgundy Chardonnay / Mosel Riesling / Loire Sauvignon Blanc), slot 2 is the New World counterpart (California/Margaret River Chardonnay, Clare Valley Riesling, Marlborough Sauvignon Blanc), or vice versa."},
+      "3": {"countries": ["Germany", "France", "Australia", "South Africa"], "variety": "Riesling or Chenin Blanc or Semillon (pair-mate of slot 4, the other of the two varieties)", "raw": "Second pair, second variety: Riesling from Mosel/Rheingau/Franken (Germany) or Alsace (France) or Clare Valley (Australia); or Chenin Blanc from Loire (France) or South Africa; or Semillon from Bordeaux (France) or Hunter Valley (Australia)."},
+      "4": {"countries": ["Germany", "France", "Australia", "South Africa"], "variety": "same variety as slot 3, different country", "raw": "Pair-mate of slot 3, same variety different country, mirroring the Old World vs New World structure of the first pair."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 2,
+    "wine_slots": [5, 6, 7, 8],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch 4: mixed-bag / different countries, different varieties > Sub-branch: identification marks high, no linking constraint | p1_family_tree_pack.md#F4 Mixed Identification Breadth (Branch 4.1 Pure breadth / Branch 4.4 Final-question-style ambush pattern, though this is Q2 not the final question)",
+    "variety_ranking": ["Sauvignon Blanc", "Riesling", "Chardonnay", "Chenin Blanc", "Semillon", "Gruner Veltliner", "Viognier", "Albarino", "Assyrtiko", "Furmint", "Garganega", "Torrontes", "Gewurztraminer"],
+    "region_ranking": ["France", "Germany", "Austria", "Spain", "Italy", "Portugal", "Greece", "Hungary", "Argentina", "South Africa"],
+    "full_candidate_set": [
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Loire)", "New Zealand (Marlborough)", "South Africa"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Germany (Mosel)", "France (Alsace)", "Australia (Clare Valley)"]},
+      {"variety": "Chardonnay", "confidence": "PLAUSIBLE", "regions": ["France (Burgundy)", "USA", "Australia"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["France (Loire)", "South Africa"]},
+      {"variety": "Semillon", "confidence": "PLAUSIBLE", "regions": ["France (Bordeaux)", "Australia (Hunter Valley)"]},
+      {"variety": "Gruner Veltliner", "confidence": "PLAUSIBLE", "regions": ["Austria (Kamptal/Wachau)"]},
+      {"variety": "Viognier", "confidence": "PLAUSIBLE", "regions": ["France (Condrieu)", "new-world"]},
+      {"variety": "Albarino", "confidence": "PLAUSIBLE", "regions": ["Spain (Rias Baixas)"]},
+      {"variety": "Assyrtiko", "confidence": "PLAUSIBLE", "regions": ["Greece (Santorini)"]},
+      {"variety": "Furmint", "confidence": "PLAUSIBLE", "regions": ["Hungary (Tokaj, dry)"]},
+      {"variety": "Garganega", "confidence": "PLAUSIBLE", "regions": ["Italy (Soave)"]},
+      {"variety": "Torrontes", "confidence": "PLAUSIBLE", "regions": ["Argentina"]},
+      {"variety": "Gewurztraminer", "confidence": "CURVEBALL", "regions": ["France (Alsace)", "Italy (Alto Adige)"]},
+      {"variety": "Chinuri / qvevri orange wine", "confidence": "CURVEBALL", "regions": ["Georgia"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["France", "New Zealand", "South Africa"], "variety": "Sauvignon Blanc (aromatic anchor) or Riesling", "raw": "First identification-only wine, no linking constraint: most likely an aromatic varietal signature such as Sauvignon Blanc (Loire, France or Marlborough, New Zealand) or Riesling (Mosel, Germany)."},
+      "6": {"countries": ["France", "USA", "Australia", "South Africa"], "variety": "Chardonnay or oaked Chenin Blanc or Semillon", "raw": "Likely the textural/oaked white of the flight: Chardonnay (Burgundy, France or California, USA) or oaked Chenin Blanc (Loire or South Africa) or Semillon (Bordeaux, France or Hunter Valley, Australia)."},
+      "7": {"countries": ["Austria", "Greece", "Hungary", "Italy"], "variety": "Gruner Veltliner or Assyrtiko or Furmint or Garganega", "raw": "Likely the indigenous-European wine: Gruner Veltliner (Kamptal/Wachau, Austria), Assyrtiko (Santorini, Greece), Furmint (Tokaj, Hungary), or Garganega (Soave, Italy)."},
+      "8": {"countries": ["Georgia", "Spain", "Argentina"], "variety": "Gewurztraminer or orange/qvevri wine or Torrontes or Albarino", "raw": "Likely the curveball wine: Chinuri/qvevri orange wine (Georgia), oxidative white, or a mainstream aromatic outlier such as Torrontes (Argentina) or Albarino (Rias Baixas, Spain)."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 1,
+    "question": 3,
+    "wine_slots": [9, 10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p1_whites_tree.md#Branch 2: same country > Sub-branch: same country, different single varieties, origin-heavy | p1_family_tree_pack.md#F2 Same Origin (Branch 2.1 Three-grape French triangle)",
+    "variety_ranking": ["Chenin Blanc", "Riesling", "Sauvignon Blanc", "Melon de Bourgogne (Muscadet)", "Chardonnay", "Savagnin", "Pinot Grigio", "Gewurztraminer"],
+    "region_ranking": ["France", "Italy", "South Africa", "Australia", "USA", "Spain"],
+    "full_candidate_set": [
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["France (Alsace)"]},
+      {"variety": "Chenin Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Loire)"]},
+      {"variety": "Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Loire)"]},
+      {"variety": "Melon de Bourgogne (Muscadet)", "confidence": "STRONG SIGNAL", "regions": ["France (Muscadet/Pays Nantais)"]},
+      {"variety": "Chardonnay", "confidence": "STRONG SIGNAL", "regions": ["France (Burgundy/Chablis)"]},
+      {"variety": "Savagnin", "confidence": "PLAUSIBLE", "regions": ["France (Jura)"]},
+      {"variety": "Pinot Grigio", "confidence": "PLAUSIBLE", "regions": ["Italy (Alto Adige)"]},
+      {"variety": "Gewurztraminer", "confidence": "PLAUSIBLE", "regions": ["Italy (Alto Adige)"]},
+      {"variety": "Carricante", "confidence": "PLAUSIBLE", "regions": ["Italy (Etna)"]},
+      {"variety": "Chenin Blanc / Chardonnay / Sauvignon Blanc", "confidence": "PLAUSIBLE", "regions": ["South Africa"]},
+      {"variety": "Viura / Albarino / Godello", "confidence": "CURVEBALL", "regions": ["Spain"]}
+    ],
+    "origins_per_slot": {
+      "9": {"countries": ["France"], "variety": "Chenin Blanc, Riesling, Sauvignon Blanc, or Melon de Bourgogne", "raw": "Same-country flight, primary hypothesis France: candidate sub-regions are Loire (Chenin Blanc, Sauvignon Blanc, or Melon de Bourgogne/Muscadet), Alsace (Riesling), and Burgundy/Chablis (Chardonnay) as the three-grape French triangle."},
+      "10": {"countries": ["France"], "variety": "one of the same three varieties as slot 9, likely repeated", "raw": "Same French triangle as slot 9: Loire (Chenin Blanc, Sauvignon Blanc, Muscadet), Alsace (Riesling), Burgundy/Chablis (Chardonnay); with three varieties across four wines one variety likely repeats."},
+      "11": {"countries": ["France"], "variety": "one of the same three varieties, likely repeated", "raw": "Same French triangle: Loire (Chenin Blanc, Sauvignon Blanc, Muscadet), Alsace (Riesling), Burgundy/Chablis (Chardonnay)."},
+      "12": {"countries": ["France"], "variety": "one of the same three varieties, likely repeated", "raw": "Same French triangle: Loire (Chenin Blanc, Sauvignon Blanc, Muscadet), Alsace (Riesling), Burgundy/Chablis (Chardonnay). Secondary hypothesis if not France: Italy with Alto Adige Pinot Grigio/Gewurztraminer, Etna Carricante, and Soave Garganega."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#Branch 2: \"Same country\" questions > Sub-branch: same country, different regions, region-first | p2_family_tree_pack.md#F2 Same Origin (Branch 2.1 Same country, different varieties)",
+    "variety_ranking": ["Nebbiolo", "Sangiovese", "Aglianico", "Nerello Mascalese", "Corvina-led blend", "Syrah", "Grenache blend", "Cabernet Sauvignon/Merlot", "Pinot Noir", "Zinfandel", "Petite Sirah"],
+    "region_ranking": ["Italy", "France", "USA", "Spain", "Argentina"],
+    "full_candidate_set": [
+      {"variety": "Nebbiolo", "confidence": "STRONG SIGNAL", "regions": ["Italy (Piedmont - Barolo/Barbaresco)"]},
+      {"variety": "Sangiovese", "confidence": "STRONG SIGNAL", "regions": ["Italy (Tuscany - Chianti Classico/Brunello)"]},
+      {"variety": "Aglianico", "confidence": "STRONG SIGNAL", "regions": ["Italy (Campania - Taurasi)"]},
+      {"variety": "Nerello Mascalese", "confidence": "STRONG SIGNAL", "regions": ["Italy (Sicily - Etna Rosso)"]},
+      {"variety": "Corvina-led blend", "confidence": "STRONG SIGNAL", "regions": ["Italy (Veneto - Valpolicella/Amarone)"]},
+      {"variety": "Syrah", "confidence": "STRONG SIGNAL", "regions": ["France (Northern Rhone)"]},
+      {"variety": "Grenache-led blend", "confidence": "STRONG SIGNAL", "regions": ["France (Southern Rhone)"]},
+      {"variety": "Cabernet Sauvignon/Merlot", "confidence": "STRONG SIGNAL", "regions": ["France (Bordeaux)"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["France (Burgundy)"]},
+      {"variety": "Cabernet Sauvignon", "confidence": "PLAUSIBLE", "regions": ["USA (Napa)"]},
+      {"variety": "Zinfandel", "confidence": "PLAUSIBLE", "regions": ["USA (California)"]},
+      {"variety": "Pinot Noir", "confidence": "PLAUSIBLE", "regions": ["USA (Oregon/Sonoma)"]},
+      {"variety": "Petite Sirah", "confidence": "PLAUSIBLE", "regions": ["USA (California)"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["Italy", "France", "USA"], "variety": "Nebbiolo or Pinot Noir (region-first, different region within country)", "raw": "Same-country, different-regions flight. Leading hypothesis Italy: Piedmont (Barolo/Barbaresco, Nebbiolo). Alternative France: Burgundy (Pinot Noir) or Bordeaux (Cabernet/Merlot). Alternative USA: Napa (Cabernet)."},
+      "2": {"countries": ["Italy", "France", "USA"], "variety": "Sangiovese or Syrah/Grenache blend", "raw": "Second region within same country: Italy Tuscany (Chianti Classico/Brunello, Sangiovese) or France Rhone (Syrah/Grenache) or USA Sonoma (Pinot Noir/Zinfandel)."},
+      "3": {"countries": ["Italy", "France", "USA"], "variety": "Aglianico or Nerello Mascalese, or Bordeaux blend", "raw": "Third region within same country: Italy Campania (Taurasi, Aglianico) or Sicily (Etna Rosso, Nerello Mascalese); France Bordeaux (Cabernet/Merlot); USA Napa (Cabernet)."},
+      "4": {"countries": ["Italy", "France", "USA"], "variety": "Corvina-led blend or Loire Cabernet Franc", "raw": "Fourth region within same country: Italy Veneto (Amarone/Valpolicella, Corvina blend); France Loire (Cabernet Franc) or Burgundy; USA California (Zinfandel/Petite Sirah)."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 2,
+    "wine_slots": [5, 6, 7, 8],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_reds_tree.md#Branch 5: mixed-bag / different countries, different varieties / indigenous varieties > Sub-branch: different countries, different varieties",
+    "variety_ranking": ["Cabernet Sauvignon", "Merlot", "Syrah/Shiraz", "Pinot Noir", "Cabernet Franc", "Carmenere", "Tannat", "Pinotage", "Blaufrankisch", "Lagrein", "Xinomavro", "Zweigelt"],
+    "region_ranking": ["France", "Chile", "South Africa", "Uruguay", "Austria", "Hungary", "Italy", "Greece"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon/Merlot", "confidence": "STRONG SIGNAL", "regions": ["France (Bordeaux)", "Chile"]},
+      {"variety": "Syrah/Shiraz", "confidence": "STRONG SIGNAL", "regions": ["France (Rhone)", "Australia"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["France (Burgundy)"]},
+      {"variety": "Cabernet Franc", "confidence": "PLAUSIBLE", "regions": ["France (Loire)", "Hungary"]},
+      {"variety": "Carmenere", "confidence": "PLAUSIBLE", "regions": ["Chile"]},
+      {"variety": "Tannat", "confidence": "PLAUSIBLE", "regions": ["Uruguay"]},
+      {"variety": "Pinotage", "confidence": "PLAUSIBLE", "regions": ["South Africa (Stellenbosch)"]},
+      {"variety": "Blaufrankisch", "confidence": "PLAUSIBLE", "regions": ["Austria (Burgenland)"]},
+      {"variety": "Lagrein", "confidence": "CURVEBALL", "regions": ["Italy (Alto Adige)"]},
+      {"variety": "Xinomavro", "confidence": "CURVEBALL", "regions": ["Greece (Naoussa)"]},
+      {"variety": "Zweigelt", "confidence": "CURVEBALL", "regions": ["Austria"]},
+      {"variety": "Cabernet Franc (Hungarian)", "confidence": "CURVEBALL", "regions": ["Hungary (Villany/Eger)"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["France", "Chile"], "variety": "Cabernet Sauvignon/Merlot or Cabernet Franc", "raw": "Mixed bag, one benchmark international variety expected first: Bordeaux blend (France) or Chilean Cabernet/Carmenere; alternatively Loire Cabernet Franc (France)."},
+      "6": {"countries": ["Chile", "South Africa", "Uruguay"], "variety": "Carmenere or Pinotage or Tannat", "raw": "Regional-signature variety: Carmenere (Chile), Pinotage (Stellenbosch, South Africa), or Tannat (Uruguay)."},
+      "7": {"countries": ["Austria", "Hungary"], "variety": "Blaufrankisch or Zweigelt or Cabernet Franc", "raw": "Regional-signature or curveball: Blaufrankisch/Zweigelt (Burgenland, Austria) or Cabernet Franc/Kekfrankos (Villany or Eger, Hungary)."},
+      "8": {"countries": ["Italy", "Greece"], "variety": "Lagrein or Xinomavro", "raw": "Likely curveball indigenous variety: Lagrein (Alto Adige, Italy) or Xinomavro (Naoussa, Greece)."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 2,
+    "question": 3,
+    "wine_slots": [9, 10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p2_family_tree_pack.md#F4 Mixed Identification Breadth Set (P2) > Branch 4.3 Hidden organising theme (F4c) [pairing structure: two countries, two varieties]",
+    "variety_ranking": ["Cabernet Sauvignon", "Pinot Noir", "Syrah/Shiraz", "Sangiovese", "Tempranillo", "Malbec", "Touriga Nacional", "Grenache"],
+    "region_ranking": ["France", "USA", "Italy", "Argentina", "Spain", "Chile", "South Africa", "Portugal"],
+    "full_candidate_set": [
+      {"variety": "Cabernet Sauvignon", "confidence": "STRONG SIGNAL", "regions": ["USA (Napa)", "France (Bordeaux)"]},
+      {"variety": "Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["France (Burgundy)"]},
+      {"variety": "Syrah/Shiraz", "confidence": "PLAUSIBLE", "regions": ["France (Rhone)", "Australia"]},
+      {"variety": "Sangiovese", "confidence": "PLAUSIBLE", "regions": ["Italy (Tuscany)"]},
+      {"variety": "Tempranillo", "confidence": "PLAUSIBLE", "regions": ["Spain (Rioja)"]},
+      {"variety": "Malbec", "confidence": "PLAUSIBLE", "regions": ["Argentina (Mendoza)"]},
+      {"variety": "Touriga Nacional", "confidence": "CURVEBALL", "regions": ["Portugal (Douro)"]},
+      {"variety": "Grenache", "confidence": "CURVEBALL", "regions": ["Spain", "France (Southern Rhone)"]}
+    ],
+    "origins_per_slot": {
+      "9": {"countries": ["Italy", "France"], "variety": "Sangiovese or Pinot Noir", "raw": "First of two wines sharing one country and variety. Hidden-theme pairing hypothesis: Italy (Tuscany, Sangiovese) or France (Burgundy, Pinot Noir)."},
+      "10": {"countries": ["Italy", "France"], "variety": "same as slot 9", "raw": "Same country and variety as slot 9 (paired), completing the first country/variety combination."},
+      "11": {"countries": ["Argentina", "USA"], "variety": "Malbec or Cabernet Sauvignon", "raw": "Second pair, different country and different variety from wines 9-10: Argentina (Mendoza, Malbec) or USA (Napa, Cabernet Sauvignon)."},
+      "12": {"countries": ["Argentina", "USA"], "variety": "same as slot 11", "raw": "Same country and variety as slot 11 (paired), completing the second country/variety combination."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 1,
+    "wine_slots": [1, 2, 3, 4],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 1: sparkling-led opening flights > Sub-branch: stem says \"not from Champagne\" or names multiple traditional-method countries | p3_family_tree_pack.md#F5 Method/Production Dominant > Branch 5.1 Sparkling-led F5a (explicit corpus match: 2023 P3 Q1)",
+    "variety_ranking": ["Chardonnay", "Pinot Noir", "Riesling", "Chenin Blanc", "Pinot Blanc/Auxerrois", "Xarel-lo/Macabeo/Parellada"],
+    "region_ranking": ["Spain", "England", "France", "Germany", "Italy", "South Africa", "USA"],
+    "full_candidate_set": [
+      {"variety": "Xarel-lo/Macabeo/Parellada", "confidence": "STRONG SIGNAL", "regions": ["Spain (Cava/Penedes)"]},
+      {"variety": "Chardonnay/Pinot Noir/Pinot Meunier", "confidence": "STRONG SIGNAL", "regions": ["England (West Sussex/Hampshire/Kent)"]},
+      {"variety": "Pinot Blanc/Auxerrois", "confidence": "STRONG SIGNAL", "regions": ["France (Cremant d'Alsace)"]},
+      {"variety": "Chardonnay/Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["France (Cremant de Bourgogne)"]},
+      {"variety": "Chenin Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Cremant de Loire)"]},
+      {"variety": "Riesling", "confidence": "STRONG SIGNAL", "regions": ["Germany (Sekt)"]},
+      {"variety": "Chardonnay/Pinot Nero", "confidence": "PLAUSIBLE", "regions": ["Italy (Franciacorta)"]},
+      {"variety": "Chardonnay/Pinot Noir", "confidence": "PLAUSIBLE", "regions": ["South Africa (Cap Classique)"]},
+      {"variety": "Chardonnay/Pinot Noir", "confidence": "PLAUSIBLE", "regions": ["USA (California prestige)"]},
+      {"variety": "Glera", "confidence": "CURVEBALL", "regions": ["Italy (Prosecco)"]}
+    ],
+    "origins_per_slot": {
+      "1": {"countries": ["Spain", "England", "France", "Germany"], "variety": "Xarel-lo/Macabeo/Parellada or Chardonnay/Pinot Noir or Riesling", "raw": "Four different countries, none Champagne. Candidates by country: Cava (Penedes, Spain), English sparkling (West Sussex/Hampshire, England), Cremant d'Alsace or de Bourgogne or de Loire (France), German Sekt (Germany)."},
+      "2": {"countries": ["Spain", "England", "France", "Italy"], "variety": "Xarel-lo/Macabeo/Parellada or Chardonnay/Pinot Noir or Chenin Blanc", "raw": "One of the four countries: Cava (Penedes, Spain), English sparkling (Hampshire/Kent, England), Cremant de Loire (Chenin Blanc, France), or Franciacorta (Italy)."},
+      "3": {"countries": ["France", "Germany", "South Africa", "Italy"], "variety": "Pinot Blanc/Auxerrois or Chardonnay/Pinot Noir or Riesling", "raw": "One of the four countries: Cremant d'Alsace (Pinot Blanc/Auxerrois, France), German Sekt (Riesling, Germany), Cap Classique (Chardonnay/Pinot Noir, South Africa), or Franciacorta (Italy)."},
+      "4": {"countries": ["Germany", "South Africa", "USA", "Italy"], "variety": "Riesling or Chardonnay/Pinot Noir", "raw": "Fourth country: German Sekt (Riesling), Cap Classique (South Africa), California prestige cuvee (USA), or Trento DOC/Franciacorta (Italy)."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 2,
+    "wine_slots": [5, 6, 7],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_family_tree_pack.md#F5 Method/Production Dominant Set (P3) > Branch 5.4 Hybrid F5 (style-commercial / \"different methods\") [verbatim stem match: \"all made using different methods of production\"]",
+    "variety_ranking": ["Chardonnay", "Pinot Noir", "Palomino", "Touriga Nacional/Touriga Franca", "Furmint", "Chenin Blanc", "Savagnin", "Muscat"],
+    "region_ranking": ["France", "Spain", "Portugal", "Hungary", "Germany", "Italy"],
+    "full_candidate_set": [
+      {"variety": "Chardonnay/Pinot Noir", "confidence": "STRONG SIGNAL", "regions": ["France (Champagne/Cremant)", "Spain (Cava)"]},
+      {"variety": "Palomino", "confidence": "STRONG SIGNAL", "regions": ["Spain (Jerez - Fino/Manzanilla/Amontillado/Oloroso)"]},
+      {"variety": "Touriga Nacional/Touriga Franca", "confidence": "STRONG SIGNAL", "regions": ["Portugal (Douro - Port)"]},
+      {"variety": "Furmint", "confidence": "PLAUSIBLE", "regions": ["Hungary (Tokaj - dry or Aszu)"]},
+      {"variety": "Riesling/Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["Germany (Auslese)", "France (Sauternes/Vouvray)"]},
+      {"variety": "Savagnin", "confidence": "CURVEBALL", "regions": ["France (Jura - Vin Jaune)"]},
+      {"variety": "Muscat", "confidence": "CURVEBALL", "regions": ["France (Muscat de Beaumes-de-Venise)"]}
+    ],
+    "origins_per_slot": {
+      "5": {"countries": ["France", "Spain"], "variety": "Chardonnay/Pinot Noir (sparkling) or Palomino (Fino)", "raw": "First of three wines, each a different production method: most likely the sparkling entry - traditional-method Champagne or Crémant (France) or Cava (Spain)."},
+      "6": {"countries": ["Spain", "Portugal"], "variety": "Palomino (fortified/biologically aged) or Touriga Nacional (fortified spirit-stopped)", "raw": "Likely the fortified entry: Sherry - Fino/Amontillado/Oloroso (Jerez, Spain) or Port (Douro, Portugal) or Madeira."},
+      "7": {"countries": ["France", "Hungary", "Germany"], "variety": "Semillon/Sauvignon Blanc or Furmint or Riesling or Chenin Blanc", "raw": "Likely the sweet/oxidative entry: Sauternes (Bordeaux, France), Tokaji Aszu (Hungary), German Riesling Auslese, or Vouvray moelleux (Loire, France)."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 3,
+    "wine_slots": [8, 9],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Branch 4: same region producing multiple styles > Sub-branch: compare styles from one region | p3_family_tree_pack.md#F2 Same Origin (F2d, same origin different sweetness/age/elevage)",
+    "variety_ranking": ["Furmint", "Savagnin", "Semillon/Sauvignon Blanc", "Palomino", "Chenin Blanc", "Sercial/Verdelho/Bual/Malmsey (Madeira field varieties)"],
+    "region_ranking": ["Hungary", "France", "Spain", "Portugal"],
+    "full_candidate_set": [
+      {"variety": "Furmint", "confidence": "STRONG SIGNAL", "regions": ["Hungary (Tokaj - dry Furmint vs Aszu)"]},
+      {"variety": "Savagnin", "confidence": "STRONG SIGNAL", "regions": ["France (Jura - Vin Jaune vs Vin de Paille/Cotes du Jura ouille)"]},
+      {"variety": "Semillon/Sauvignon Blanc", "confidence": "STRONG SIGNAL", "regions": ["France (Bordeaux - dry Graves Blanc vs Sauternes)"]},
+      {"variety": "Palomino", "confidence": "STRONG SIGNAL", "regions": ["Spain (Jerez - Fino vs Oloroso/PX)"]},
+      {"variety": "Sercial/Verdelho/Bual/Malmsey", "confidence": "PLAUSIBLE", "regions": ["Portugal (Madeira - different age statements/styles)"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["France (Vouvray - dry vs demi-sec/moelleux)"]}
+    ],
+    "origins_per_slot": {
+      "8": {"countries": ["Hungary", "France", "Spain", "Portugal"], "variety": "Furmint or Savagnin or Semillon/Sauvignon Blanc or Palomino", "raw": "Same region producing two contrasting styles. Candidates: Tokaj (Hungary, dry Furmint vs Aszu), Jura (France, Vin Jaune vs Vin de Paille), Sauternes/Graves Bordeaux (France, dry vs sweet), Jerez (Spain, Fino vs Oloroso/PX), or Madeira (Portugal, contrasting age statements)."},
+      "9": {"countries": ["Hungary", "France", "Spain", "Portugal"], "variety": "same region/grape as slot 8, contrasting style", "raw": "Second wine from the same region as slot 8 but a contrasting production style: e.g. Tokaji Aszu vs dry Furmint, Vin Jaune vs fresh Jura white, Sauternes vs dry Bordeaux Blanc, Oloroso/PX vs Fino, or an older vs younger Madeira."}
+    }
+  },
+  {
+    "year": 2023,
+    "paper": 3,
+    "question": 4,
+    "wine_slots": [10, 11, 12],
+    "tree_path": "outputs/master_trees/_frozen_pre2026/p3_special_tree.md#Curveball cases > \"2023 P3 Q4: Grenache across three countries and categories is broad enough to break a rigid P3=sweet/sparkling/fortified assumption\" | p3_family_tree_pack.md#F1 Same Variety (P3) > Branch 1.2 One grape across still/fortified",
+    "variety_ranking": ["Grenache", "Riesling", "Chenin Blanc", "Chardonnay", "Pinot Noir", "Muscat", "Furmint", "Tempranillo"],
+    "region_ranking": ["Spain", "France", "Australia", "USA", "South Africa"],
+    "full_candidate_set": [
+      {"variety": "Grenache", "confidence": "STRONG SIGNAL", "regions": ["Spain (Priorat/Rioja - Garnacha)", "France (Southern Rhone/Roussillon)", "Australia (Barossa/McLaren Vale)"]},
+      {"variety": "Riesling", "confidence": "PLAUSIBLE", "regions": ["Germany", "France (Alsace)", "Australia (Clare Valley)"]},
+      {"variety": "Chenin Blanc", "confidence": "PLAUSIBLE", "regions": ["France (Loire)", "South Africa"]},
+      {"variety": "Chardonnay", "confidence": "PLAUSIBLE", "regions": ["France (Burgundy)", "England (sparkling base)"]},
+      {"variety": "Pinot Noir", "confidence": "PLAUSIBLE", "regions": ["France (Burgundy)", "Germany", "England (sparkling)"]},
+      {"variety": "Muscat", "confidence": "CURVEBALL", "regions": ["France (VDN)", "Italy (Asti)"]},
+      {"variety": "Furmint", "confidence": "CURVEBALL", "regions": ["Hungary (Tokaj)"]},
+      {"variety": "Tempranillo", "confidence": "CURVEBALL", "regions": ["Spain", "Portugal"]}
+    ],
+    "origins_per_slot": {
+      "10": {"countries": ["Spain", "France", "Australia"], "variety": "Grenache", "raw": "Three different countries, same single grape variety - leading hypothesis Grenache: Priorat or Rioja (Garnacha, Spain), Southern Rhone/Roussillon/Banyuls (France), or Barossa/McLaren Vale (Australia)."},
+      "11": {"countries": ["Spain", "France", "Australia"], "variety": "Grenache", "raw": "Second country of the three, same grape as slot 10: Priorat/Rioja (Spain), Southern Rhone/Roussillon (France), or Barossa/McLaren Vale (Australia) - whichever was not used in slot 10."},
+      "12": {"countries": ["Spain", "France", "Australia", "USA"], "variety": "Grenache", "raw": "Third country of the three, same grape as slots 10-11: remaining candidate among Priorat/Rioja (Spain), Southern Rhone/Roussillon/Banyuls (France), Barossa/McLaren Vale (Australia), or California (USA)."}
+    }
+  }
+]

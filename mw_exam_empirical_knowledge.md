@@ -1847,7 +1847,7 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   Era-1 question shapes, which are extinct (EK-0146) — this corpus is a test set, not training data.
 
 ### EK-0082 · LOYO backtesting — method and result (pre-fix → post-fix)
-- **tier:** PROCESS · **status:** live — **the post-fix 72.8/89.2/95.6 headline is IN-SAMPLE and optimistic; out-of-sample it is 36.1/63.9/88.9 — see EK-0148**
+- **tier:** PROCESS · **status:** live — **the post-fix 72.8/89.2/95.6 headline is IN-SAMPLE and not reproducible. Two independent blind tests: EK-0148 (2000-2010, 396 wines) and EK-0150 (2026, 36 wines). Read EK-0149 for the reconciliation.**
 - **evidence:** `outputs/backtest_reports/loyo_report.md`, `loyo_postfix_audit.md`, `loyo_audit_2015_2018_2024_2025.md`
 - **claim:** The master trees are validated by **Leave-One-Year-Out** cross-validation: for each of
   10 folds, train on 9 years and predict the held-out year's wines from the stem + tree alone (360
@@ -1971,8 +1971,8 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   character-identical. That was verified mechanically, not trusted — run
   `python scripts/verify_tree_resynthesis.py` after any future tree edit.
 
-### EK-0148 · Out-of-sample, the trees hit 63.9% top-3 on variety — not 89.2%. The candidate set is the part that holds.
-- **tier:** STRONG SIGNAL · **status:** live — **corrects the headline of EK-0082**
+### EK-0150 · The 2026 tree holdout — 36.1 / 63.9 / 88.9 per wine on a paper the trees had never seen
+- **tier:** STRONG SIGNAL · **status:** live — figures stand, **framing corrected by EK-0149**. The "-25.3pp out-of-sample penalty" claimed below is WRONG: it compared fresh-agent predictions against an older, differently-generated pass. Renumbered from EK-0148 on 2026-08-05 after the auto-feedback bot independently claimed that id.
 - **evidence:** `outputs/backtest_reports/2026_tree_holdout.md`; `data/loyo_2026_tree_holdout.json`;
   predictions in `data/loyo_2026_predictions_p{1,2,3}.json`; scorer `scripts/score_2026_tree_holdout.py`
 - **method:** tree-backtester agents applied the **frozen pre-2026 trees**
@@ -2010,3 +2010,42 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   **stem-only**, so its visual-triage Layer B — the strongest part of that tree — never ran; real P3
   performance with a glass in hand should beat the 50% recorded here. This is also the **last
   uncontaminated use of 2026** (EK-0145); it cannot be re-run against the live trees.
+
+### EK-0149 · Reconciling the two blind tests — the penalty comes from ERA SHIFT, not from being unseen
+- **tier:** STRONG SIGNAL · **status:** live — **reconciles EK-0148 (2000–2010) with EK-0150 (2026); supersedes the per-year table in EK-0082**
+- **evidence:** `outputs/backtest_reports/frozen_tree_per_year.md`; `data/loyo_frozen_per_year.json`
+  (112 questions / 360 wines re-derived); alongside `era1_blind_backtest_2000_2010.md` (EK-0148) and
+  `2026_tree_holdout.md` (EK-0150)
+- **the problem this resolves:** two blind tests of the same frozen trees disagreed. EK-0148 scored
+  **52% top-3** on 2000–2010 (396 wines) and concluded the trees "generalise worse than LOYO
+  implies". EK-0150 scored **63.9%** on 2026 (36 wines). Both are honest; neither was comparable to
+  the 89.2% LOYO headline, which used a different prediction pass entirely.
+- **what closed it:** re-deriving all of 2015–2025 with the *same* fresh-agent method used for 2026 —
+  frozen trees, stems only, `run_loyo.score_question`. Three numbers now sit on one scale:
+
+  | corpus | seen by trees? | top-1 | top-3 | candidate-set |
+  | --- | --- | --- | --- | --- |
+  | 2015–2025 (n=360) | cited **verbatim**, 112/112 | 35.0% | **59.2%** | 80.0% |
+  | 2026 (n=36) | never seen, contemporary | 36.1% | **63.9%** | 88.9% |
+  | 2000–2010 (n=396, EK-0148) | never seen, 15–26 yrs older | 30% | **52%** | 69% |
+
+- **claim:** **Being unseen costs nothing; being from a different era costs ~7pp.** A contemporary
+  paper the trees have never met scores at or slightly above the years they quote by ID. Reach back
+  to 2000–2010 and top-3 drops to 52%. The variable is **distribution shift, not novelty** — which is
+  exactly what EK-0148's own mechanism finding predicts: **29% of Era-1 stems hit no branch at all**
+  (P1 38%, P3 39%, P2 9%), and unrouted stems score far worse (20/41/58 vs 33/56/74). 2026's stems
+  are modern, so they route; 2000-era constructions (vintage verticals, price ranking, OW-vs-NW grids)
+  have no leaf to land on. The brittleness is in **Layer A stem-routing**, not in the wine knowledge.
+- **what to expect, and what to stop quoting:** for a contemporary paper, **~60% top-3 variety,
+  ~80–89% candidate-set, ~35% top-1**. Do **not** quote 72.8/89.2/95.6 (EK-0082) — no consistent
+  re-measurement reproduces them; fresh application of the very same frozen trees to the very same
+  years yields 59.2% top-3, not 89.2%. The 89.2% is an artifact of its prediction pass.
+- **also settled — the exam is not getting harder.** Across 2015–2025 the per-year top-3 spread is
+  50.0–72.2% with sd 6.6%, and 2015–2019 (mean 70.9% on the older pass) versus 2021–2025 (70.5%) is
+  flat. Earlier claims of a downward trend were reading two data points of noise.
+- **limitations:** the 2026 run used ~2.7 questions per agent versus ~11 for the per-year series, so
+  2026 may have had more attention per question — the +4.7pp should not be read as the trees being
+  *better* on unseen material, only as *not worse*. Agents also varied in how much of the tree they
+  used; notably the strictest (2025, Layer A only, avoiding Layer B leaves that cite the question
+  under test) scored **highest** at 72.2% top-3, so leakage did not obviously help. And "LOYO"
+  remains a label, not a method, for 2015–2025: one tree artifact, nothing retrained per fold.
