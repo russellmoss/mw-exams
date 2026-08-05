@@ -1,15 +1,26 @@
 // remediate-questions.mjs — Phase D: replace quarantined questions with valid regenerations.
 //
-// For every quarantined question (stem_answer_keys.validated=false, not archived), regenerate a
+// Selector (see main()): stem_answer_keys.validated=false, OR generated_questions.invalid_reasons,
+// OR a wines[] entry that holds the generator's reasoning instead of a wine reference.
+//
+// For every quarantined question, regenerate a
 // fresh question for the SAME paper×family through the hardened generation pipeline, gate it on the
 // ACCURATE validator (question-validator.ts against the resolved answer key) AND the key builder's
 // §2b validation, retry until valid, build its model answer, then archive the old row so it leaves
 // the live pool. This fully closes CF-1: the 6 invalid questions are replaced by valid ones.
 //
-//   node scripts/remediate-questions.mjs            (dry run: regenerate + verify, do NOT commit)
-//   node scripts/remediate-questions.mjs --apply     (commit: upsert keys, archive old rows)
+// Run FROM study-app/, THROUGH the ts-loader — this script imports .ts modules whose own imports are
+// extensionless, which plain `node` cannot resolve (it dies on prompts/funnelling before doing any
+// work). The header used to say plain `node` and that invocation has never worked from here:
 //
-// Run from study-app/.  Reads DATABASE_URL + ANTHROPIC_API_KEY from env or .env.local.
+//   node --import ./scripts/ts-loader.mjs scripts/remediate-questions.mjs           (dry run)
+//   node --import ./scripts/ts-loader.mjs scripts/remediate-questions.mjs --apply   (commit)
+//   ... --limit=N   cap the number of questions remediated (smoke-test a couple first)
+//
+// Note a dry run still SPENDS: it regenerates and verifies, it just doesn't commit or archive.
+//
+// Reads DATABASE_URL + ANTHROPIC_API_KEY from env or .env.local, plus TAVILY_API_KEY (wine
+// enrichment) and VOYAGE_API_KEY (the model answer's knowledge context — fails soft without it).
 
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
@@ -34,13 +45,14 @@ if (!process.env.DATABASE_URL || !APIKEY) {
 }
 
 const { buildQuestionGenerationPrompt } = await import("../src/lib/prompts/question-generation-prompt.ts");
-const { buildModelAnswerPrompt } = await import("../src/lib/prompts/model-answer-prompt.ts");
+const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, modelAnswerEffort } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
 const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions } = await import("../src/lib/db.ts");
 const { validateQuestion } = await import("../src/lib/question-validator.ts");
 const { normalizeMarkAllocation } = await import("../src/lib/question-engine.ts");
 const { getLatestOpus } = await import("../src/lib/model-resolver.ts");
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
+const { checkWineReferenceShape } = await import("../src/lib/question-rules.mjs");
 
 const sql = neon(process.env.DATABASE_URL);
 const APPLY = process.argv.includes("--apply");
@@ -95,6 +107,16 @@ function parseGenerated(text, paper, family) {
     for (const m of repairedText.matchAll(/\((\d+)\s*marks?\)/gi)) totalMarks += parseInt(m[1]);
     if (!totalMarks) totalMarks = wines.length * 25;
     if (!questionText || wines.length === 0) return null;
+    // A slot holding the generator's reasoning ("… — wait, excluded. Let me correct.") rather than a
+    // wine is not a lesser question, it is a broken one: enrichment would Tavily-search the paragraph
+    // and bank it as a producer. Reject the whole draft so the retry loop tries again.
+    for (const w of wines) {
+      const shape = checkWineReferenceShape(w.fullText);
+      if (!shape.ok) {
+        console.warn(`    wine ${w.slot} is not a wine reference (${shape.problem})`);
+        return null;
+      }
+    }
     const stemCountMatch = questionText.match(/wines\s+1\s+(?:to|–|-)\s+(\d+)/i);
     if (stemCountMatch && wines.length < parseInt(stemCountMatch[1])) return null;
     return {
@@ -106,54 +128,58 @@ function parseGenerated(text, paper, family) {
   } catch { return null; }
 }
 
-function extractSection(text, startHeader, endHeader) {
-  const startMatch = text.match(new RegExp(`#+\\s*\\d*\\.?\\s*${startHeader}[\\s\\S]*?\\n`, "i"));
-  if (!startMatch) return null;
-  const startIdx = text.indexOf(startMatch[0]) + startMatch[0].length;
-  if (endHeader) {
-    const remaining = text.slice(startIdx);
-    const endMatch = remaining.match(new RegExp(`#+\\s*\\d*\\.?\\s*${endHeader}`, "i"));
-    if (endMatch) return remaining.slice(0, remaining.indexOf(endMatch[0])).trim();
-  }
-  return text.slice(startIdx).trim();
-}
-
 const client = new Anthropic({ apiKey: APIKEY });
 let OPUS = "claude-sonnet-4-6";
 try { OPUS = await getLatestOpus(APIKEY); } catch { /* fall back to sonnet */ }
 
-// 8000 to match the live engine (question-engine.ts) and regen-model-answers.mjs. It was 2000, which
-// is half of a budget question-engine.ts already documents as too small ("4000 cut the tail often
-// enough to leave a fifth of the banked corpus" truncated). The model-answer package runs ~2,900-3,300
-// chars, so 2000 tokens silently produced empty or truncated answers: 12 of 17 remediated questions
-// landed in the live pool with NO model answer at all, and genModelAnswer's `catch` never fired
-// because nothing threw — the response simply came back short.
-const MAX_TOKENS = 8000;
-
+// Sizing comes from the ONE shared helper (prompts/model-answer-prompt.ts), which carries the
+// evidence. It was hard-coded here — first 2000, then 8000 — and hard-coding is what let this script
+// drift below the live engine: at 2000, 12 of 17 remediated questions landed in the live pool with NO
+// model answer at all, and genModelAnswer's `catch` never fired because nothing threw, the response
+// simply came back short.
 async function callModel(model, system, user) {
+  const maxTokens = modelAnswerMaxTokens(model);
   const msg = await client.messages.create(
-    { model, max_tokens: MAX_TOKENS, system, messages: [{ role: "user", content: user }] },
-    { timeout: 90_000, maxRetries: 2 }
+    { model, max_tokens: maxTokens, ...modelAnswerEffort(model), system, messages: [{ role: "user", content: user }] },
+    // The timeout has to be able to cover maxTokens or it converts a truncation into a lost call. At
+    // Opus's ~50-80 tok/s a full 16k-token answer runs 200-320s, so the previous 90s ceiling could not
+    // have completed one — and with maxRetries: 2 a slow answer cost three timeouts and still failed.
+    // This is an offline script with nobody waiting, so it gets the room; the interactive route relies
+    // on the SDK's own default instead.
+    { timeout: 360_000, maxRetries: 2 }
   );
   const text = msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
   if (msg.stop_reason === "max_tokens") {
-    console.warn(`    ⚠ response hit max_tokens (${MAX_TOKENS}) — output may be truncated`);
+    console.warn(`    ⚠ response hit max_tokens (${maxTokens}) — output may be truncated`);
   }
   return text;
 }
 
+// Returns the FOUR parsed sections, not one blob.
+//
+// This used to be `extractSection(text, "Model Answer", "Proposed Annotation") || text`, and that
+// `|| text` is a documented defect that had already been fixed in question-engine.ts and
+// regen-model-answers.mjs — this script was simply missed, which is the offline/production drift both
+// of those files carry warnings about. When the heading did not match exactly, the fallback stored the
+// ENTIRE response — all four sections plus any preamble — in model_answer, while leaving
+// proposed_annotation / reasoning_trace / study_diagram_assist NULL.
+//
+// It is not hypothetical: the first two questions remediated in this session landed at 7,785 and
+// 9,462 characters against a ~430-word target, each containing every section's heading, and each
+// with the model's own `actual_word_count: 428` in the frontmatter — i.e. the ANSWER was on target
+// and the bloat was purely the un-split remainder. Raising max_tokens made the blob bigger.
 async function genModelAnswer(questionText, wines, paper, wineProfiles) {
   try {
     const p = buildModelAnswerPrompt(questionText, wines, paper, undefined, undefined, wineProfiles);
     const text = await callModel(OPUS, p.system, p.user);
-    const answer = extractSection(text, "Model Answer", "Proposed Annotation") || text;
+    const s = parseModelAnswerSections(text);
     // An empty answer is a silent failure: the caller skips the save and the replacement lands in
     // the live pool with no model answer, having archived the question it replaced. Say so loudly.
-    if (!answer || !answer.trim()) {
+    if (!s.modelAnswer || !s.modelAnswer.trim()) {
       console.warn("    ⚠ model-answer came back EMPTY — replacement will have no model answer");
       return null;
     }
-    return answer;
+    return s;
   } catch (e) {
     console.warn("    model-answer generation failed:", e.message);
     return null;
@@ -192,9 +218,13 @@ async function remediateOne(old, existingWines, latest) {
       continue;
     }
     const key = buildKeyForRow(row);
+    // Zip the raw label onto each resolved key wine so the shape rule runs here too — the key builder
+    // discards the original string, and parseGenerated's check above only sees this attempt's draft.
+    const bySlot = new Map(cand.wines.map((w) => [w.slot, w.fullText]));
     const audit = validateQuestion({
       questionId: newId, paper, family: cand.family,
-      questionText: cand.questionText, totalMarks: cand.totalMarks, wines: key.ground,
+      questionText: cand.questionText, totalMarks: cand.totalMarks,
+      wines: (key.ground || []).map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w)),
     });
     const hard = audit.violations.filter((v) => v.severity === "hard");
 
@@ -228,12 +258,41 @@ async function main() {
   // 30 of them on the `marks` rule alone (total_marks != flight_size x 25, always an OVER-allocation;
   // the historical corpus never overshoots). Those are real defects, not cosmetic, so they are
   // regenerated through the same hardened path rather than patched in place.
-  const bad = await sql`
+  const flagged = await sql`
     SELECT g.question_id, g.paper, g.family
     FROM generated_questions g LEFT JOIN stem_answer_keys k USING (question_id)
     WHERE (k.validated = false OR g.invalid_reasons IS NOT NULL)
       AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
     ORDER BY g.paper, g.family`;
+
+  // Third quarantine signal: a wines[] entry that isn't a wine at all but the generator's own
+  // deliberation ("Chambers Rosewood — wait, excluded. Let me correct.", a 601-char paragraph weighing
+  // up Amontillados, a truncated "The Sadie Family Wines, Pof"). These are invisible to BOTH signals
+  // above — the answer-key resolver happily keys a paragraph mentioning "Amontillado" and "Spain" as
+  // Palomino/Jerez/Spain — so they are detected here directly from the raw label. The rule itself lives
+  // in question-rules.mjs; audit-questions.mjs applies the same one and will flag these into
+  // invalid_reasons, but this scan does not depend on the audit having been run first.
+  const live = await sql`
+    SELECT question_id, paper, family, wines
+    FROM generated_questions
+    WHERE (metadata->>'archived') IS DISTINCT FROM 'true'
+    ORDER BY paper, family`;
+  const malformed = [];
+  for (const r of live) {
+    const ws = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
+    const bad = (Array.isArray(ws) ? ws : []).filter((w) => !checkWineReferenceShape(w.fullText).ok);
+    if (bad.length) malformed.push({ question_id: r.question_id, paper: r.paper, family: r.family, bad });
+  }
+  if (malformed.length) {
+    console.log(`Malformed wine references found in ${malformed.length} live question(s):`);
+    for (const m of malformed)
+      for (const w of m.bad)
+        console.log(`  ${m.question_id} slot ${w.slot}: ${JSON.stringify(String(w.fullText).slice(0, 90))}`);
+    console.log("");
+  }
+
+  const seen = new Set(flagged.map((r) => r.question_id));
+  const bad = [...flagged, ...malformed.filter((m) => !seen.has(m.question_id)).map(({ bad: _bad, ...r }) => r)];
   const targets = Number.isFinite(LIMIT) ? bad.slice(0, LIMIT) : bad;
   console.log(`Remediating ${targets.length}/${bad.length} quarantined question(s). apply=${APPLY}\n`);
 
@@ -262,7 +321,13 @@ async function main() {
       if (ma) await saveGeneratedQuestion({
         questionId: res.newId, paper: old.paper, family: res.cand.family, familyLabel: res.cand.familyLabel,
         subcategory: res.cand.subcategory, questionText: res.cand.questionText, wines: res.cand.wines,
-        totalMarks: res.cand.totalMarks, modelAnswer: ma,
+        totalMarks: res.cand.totalMarks,
+        // All four sections, not just the answer — leaving the other three unsaved is what left
+        // proposed_annotation / reasoning_trace / study_diagram_assist NULL on every remediated row.
+        modelAnswer: ma.modelAnswer,
+        proposedAnnotation: ma.proposedAnnotation || undefined,
+        reasoningTrace: ma.reasoningTrace || undefined,
+        studyDiagramAssist: ma.studyDiagramAssist || undefined,
       });
       // Archive the old row (keeps history; leaves the live pool + audit/build scope).
       await sql`

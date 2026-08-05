@@ -19,8 +19,10 @@ if (apply) {
 // Skip archived rows (Phase D: a quarantined question replaced by a regenerated one is marked
 // metadata.archived=true). They stay hidden from both study flows and out of the audit's tally,
 // so a remediated corpus can report 0 HARD violations on the live pool.
+// g.wines comes along for the ride so the raw label can be zipped back onto the resolved key below —
+// the wine-reference-shape rule needs the original string, which ground_truth has already thrown away.
 const rows = await sql`
-  SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, k.ground_truth, k.validated
+  SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, k.ground_truth, k.validated
   FROM generated_questions g JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
@@ -29,9 +31,16 @@ let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0;
 const byRule = {};
 for (const r of rows) {
   const gt = typeof r.ground_truth === "string" ? JSON.parse(r.ground_truth) : r.ground_truth;
+  // Zip the raw label back onto each resolved key wine, by slot. A slot holding the generator's
+  // deliberation instead of a wine still resolves to a plausible-looking key (a paragraph mentioning
+  // "Amontillado" and "Spain" keys as Palomino/Jerez/Spain), so the shape rule is the only one that
+  // can see the defect — and it needs the string ground_truth discarded.
+  const raw = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
+  const bySlot = new Map((Array.isArray(raw) ? raw : []).map((w) => [w.slot, w.fullText]));
+  const wines = (gt || []).map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w));
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
-    questionText: r.question_text, totalMarks: r.total_marks, wines: gt,
+    questionText: r.question_text, totalMarks: r.total_marks, wines,
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;

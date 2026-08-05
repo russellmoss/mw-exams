@@ -20,25 +20,32 @@ const textRules = (paper, questionText, totalMarks, wines) =>
   applyQuestionRules({ paper, questionText, totalMarks, wines: winesFromText(wines) }, ENGINE_OPTS).map((v) => v.rule).sort();
 
 // ---------- 1. EK regression (text path) ----------
+// Labels are in the corpus format the generator actually emits — "Producer, wine name, vintage.
+// Region, Country. (ABV%)" — not shorthand. They used to be shorthand ("Caymus Cabernet Sauvignon,
+// Napa, USA (14.5%)"), which meant every fixture tripped the wine-reference-shape rule and each case's
+// printed rule list carried noise that had nothing to do with what it was testing.
 const ek = [
   { name: "EK four-countries / two-USA", inc: ["country-diversity"], paper: 2, marks: 100,
     stem: "Wines 1 to 4 come from four different countries.",
-    wines: [W(1, "Château Margaux, Pauillac, France (13%)"), W(2, "Produttori Barolo, Piedmont, Italy (14%)"), W(3, "Caymus Cabernet Sauvignon, Napa, USA (14.5%)"), W(4, "Columbia Crest Merlot, Washington, USA (13.5%)")] },
+    wines: [W(1, "Château Margaux, Grand Vin, 2016. Margaux, Bordeaux, France. (13.5%)"), W(2, "Produttori del Barbaresco, Barbaresco DOCG, 2019. Piedmont, Italy. (14.0%)"), W(3, "Caymus Vineyards, Cabernet Sauvignon, 2020. Napa Valley, California, USA. (14.5%)"), W(4, "Columbia Crest, H3 Merlot, 2021. Horse Heaven Hills, Washington, USA. (13.5%)")] },
   { name: "EK same-variety with two varieties", inc: ["same-variety"], paper: 1, marks: 50,
     stem: "Wines 1 to 2 are from the same single grape variety.",
-    wines: [W(1, "Domaine Leflaive Chardonnay, Burgundy, France (13%)"), W(2, "Dr Loosen Riesling, Mosel, Germany (12%)")] },
+    wines: [W(1, "Domaine Leflaive, Mâcon-Verzé Chardonnay, 2023. Mâcon, Burgundy, France. (13.0%)"), W(2, "Dr. Loosen, Blue Slate Riesling Kabinett, 2022. Mosel, Germany. (8.5%)")] },
   { name: "stricter two-countries all-one-country", inc: ["country-diversity"], paper: 2, marks: 75,
     stem: "Wines 1 to 3 are from two different countries.",
-    wines: [W(1, "Penfolds Shiraz, Barossa, Australia (14.5%)"), W(2, "Henschke Shiraz, Eden Valley, Australia (14%)"), W(3, "Torbreck Grenache, Barossa, Australia (15%)")] },
-  { name: "guard: detection gap -> no false flag", exc: ["country-diversity"], paper: 1, marks: 75,
+    wines: [W(1, "Penfolds, Bin 128 Shiraz, 2021. Coonawarra, South Australia, Australia. (14.0%)"), W(2, "Henschke, Mount Edelstone Shiraz, 2019. Eden Valley, South Australia, Australia. (14.5%)"), W(3, "Torbreck, Les Amis Grenache, 2018. Barossa Valley, South Australia, Australia. (15.0%)")] },
+  { name: "guard: detection gap -> no false flag", exc: ["country-diversity", "wine-reference-shape"], paper: 1, marks: 75,
     stem: "Wines 1 to 3 come from three different countries.",
-    wines: [W(1, "Cloudy Bay Sauvignon Blanc, Marlborough, New Zealand (13%)"), W(2, "Sancerre, Loire, France (12.5%)"), W(3, "Domaine des Mysteres, Cuvée Spéciale (13%)")] },
-  { name: "clean same-variety all Chardonnay", exc: ["same-variety", "country-diversity"], paper: 1, marks: 50,
+    // Wine 3's country is absent from detectCountryName's (deliberately narrow, order-sensitive) list,
+    // so country-diversity must skip the flight rather than flag it. The shape rule's origin anchor is
+    // a SUPERSET of that list and knows Slovakia — the two lists differ on purpose, and this pins it.
+    wines: [W(1, "Cloudy Bay, Sauvignon Blanc, 2023. Marlborough, New Zealand. (13.0%)"), W(2, "Domaine Vacheron, Sancerre Blanc, 2022. Loire Valley, France. (12.5%)"), W(3, "Château Belá, Riesling, 2021. Muzla, Slovakia. (12.5%)")] },
+  { name: "clean same-variety all Chardonnay", exc: ["same-variety", "country-diversity", "wine-reference-shape"], paper: 1, marks: 50,
     stem: "Wines 1 to 2 are from the same single grape variety.",
-    wines: [W(1, "Domaine Leflaive Chardonnay, Burgundy, France (13%)"), W(2, "Kumeu River Chardonnay, Auckland, New Zealand (13.5%)")] },
-  { name: "clean three genuinely-different countries", exc: ["country-diversity"], paper: 1, marks: 75,
+    wines: [W(1, "Domaine Leflaive, Mâcon-Verzé Chardonnay, 2023. Mâcon, Burgundy, France. (13.0%)"), W(2, "Kumeu River, Estate Chardonnay, 2022. Auckland, New Zealand. (13.5%)")] },
+  { name: "clean three genuinely-different countries", exc: ["country-diversity", "wine-reference-shape"], paper: 1, marks: 75,
     stem: "Wines 1 to 3 come from three different countries, each a different grape variety.",
-    wines: [W(1, "Chablis, Burgundy, France (12.5%)"), W(2, "Pewsey Vale Riesling, Eden Valley, Australia (12%)"), W(3, "Ken Forrester Chenin Blanc, Stellenbosch, South Africa (13.5%)")] },
+    wines: [W(1, "Louis Jadot, Bourgogne Chardonnay, 2022. Burgundy, France. (13.0%)"), W(2, "Pewsey Vale, Riesling, 2022. Eden Valley, South Australia, Australia. (12.0%)"), W(3, "Ken Forrester, Old Vine Reserve Chenin Blanc, 2022. Stellenbosch, South Africa. (13.5%)")] },
 ];
 console.log("== EK regression (text path) ==");
 for (const c of ek) {

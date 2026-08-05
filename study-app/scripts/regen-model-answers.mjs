@@ -52,7 +52,7 @@ if (!process.env.ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not set")
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
 // ---- the LIVE generator + parser + writer (single source of truth; resolved by ts-loader) ----
-const { buildModelAnswerPrompt, parseModelAnswerSections } = await import("../src/lib/prompts/model-answer-prompt.ts");
+const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, modelAnswerEffort } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { buildTastingLexiconGuidance } = await import("../src/lib/prompts/tasting-lexicon.ts");
 const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db.ts");
 // Gated tier-1 production references — the same call both live model-answer paths make. Imported
@@ -177,13 +177,20 @@ async function callClaude(system, user) {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        // 8000, not 4000. One call produces FOUR sections (model answer ~420 words, proposed annotation,
-        // reasoning trace, study-diagram walkthrough) and 4000 was marginal for that, so the response was
-        // being cut intermittently — same input, three runs, 1,618 / 3,294 / 3,170 chars, the short one
-        // stopping mid-word at "Wine 4 — Chardonnay; Côte de". Truncation lands on the TAIL sections, which
-        // is why 17-21 of 104 banked questions have a NULL annotation / reasoning_trace /
-        // study_diagram_assist. Matches the 8000 already used for the thinking-on path in question-engine.
-        body: JSON.stringify({ model, max_tokens: 8000, system, messages: [{ role: "user", content: user }] }),
+        // Sizing + effort come from the ONE shared helper (prompts/model-answer-prompt.ts), which
+        // carries the evidence. This was hard-coded here at 8000 — the script's own history is why:
+        // one call produces FOUR sections, and at 4000 the response was cut intermittently (same
+        // input, three runs, 1,618 / 3,294 / 3,170 chars, the short one stopping mid-word at
+        // "Wine 4 — Chardonnay; Côte de"). Truncation lands on the TAIL, which is why 17-21 of 104
+        // banked questions had a NULL annotation / reasoning_trace / study_diagram_assist. 8000
+        // reduced that but did not end it — measured, Opus still hit the cap on 30% of calls.
+        body: JSON.stringify({
+          model,
+          max_tokens: modelAnswerMaxTokens(model),
+          ...modelAnswerEffort(model),
+          system,
+          messages: [{ role: "user", content: user }],
+        }),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
       if (r.status === 429 || r.status >= 500) {
@@ -192,6 +199,9 @@ async function callClaude(system, user) {
       const d = await r.json();
       // A 4xx surfaces here as d.error; treat it as terminal.
       if (d.error) throw new Error(JSON.stringify(d.error));
+      if (d.stop_reason === "max_tokens") {
+        console.warn(`  ⚠ hit max_tokens (${modelAnswerMaxTokens(model)}) on ${model} — tail sections may be missing`);
+      }
       return d.content?.filter((b) => b.type === "text").map((b) => b.text).join("") ?? "";
     } catch (e) {
       // fetch() rejects with TypeError("fetch failed") on transport errors and TimeoutError on abort;

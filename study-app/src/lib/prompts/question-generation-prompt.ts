@@ -404,6 +404,8 @@ The following ${avoid.length} producers already appear in the question bank for 
 
 This is a STRONG PREFERENCE, not an absolute ban. The benchmark/iconic producers a flight of 3+ needs to satisfy the banker requirement are a small, finite set, and most of them are already listed below — so if every suitable banker for this flight appears here, reuse one rather than dropping the banker. When you do, pick a DIFFERENT cuvée from that producer. What is never acceptable is repeating the same producer + cuvée combination.
 
+Check this list silently. Whether a producer appeared on it is working, not output: the wine list must never mention a producer being "excluded", "banned", "non-banned", "on the deduplication list", or being replaced by another.
+
 ${avoid.join(" · ")}
 ` : "";
 })()}
@@ -484,7 +486,7 @@ Wine selection rules for F4:
 - The banker in F4 should be a well-known VARIETY from its classic region (e.g., a good Chinon, a solid Stellenbosch Pinotage) — not a prestige producer.
 
 ## WINE NAME / LABEL INTEGRITY
-For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version.
+For same-variety flights ("same single grape variety"), NO wine's name, cuvée, or producer name may contain a DIFFERENT grape variety name. If a wine is labeled "Blaufränkisch" it IS Blaufränkisch, not Syrah. If a wine is labeled "Pinot Noir" it cannot appear in a Riesling flight. Verify every wine name against the declared variety before outputting. If you catch a contradiction during your reasoning, you MUST apply the correction to your final output — do not output the pre-correction version. Apply it silently: the wine list carries the corrected wine alone, with no note that a substitution happened.
 
 ## STEM-WINE CONSISTENCY: RESIDUAL SUGAR CLAIMS
 When the stem says "both wines have residual sugar" or "all wines have residual sugar," EVERY wine in the flight must have MEANINGFUL residual sugar — at least 10g/L, detectable as off-dry or sweet on the palate. Do NOT include essentially dry wines (like Savennières, dry Alsace Riesling, brut Champagne, dry Furmint) in an RS-focused flight. The MW only uses "residual sugar" language when sweetness is a defining characteristic of the wine, not for trace amounts that are sub-threshold.
@@ -588,10 +590,11 @@ Weight recent exam years (2021-2025) more heavily when designing sub-questions. 
 3. Marks shown as: (15 marks) or (4 x 8 marks). Plain parentheses, no bold.
 4. The question reads like it would appear on a printed exam paper.
 5. Metadata must never reveal the answer. Family is only the code (F1-F7). Subcategory describes structure only and must not contain a country, region, appellation, producer, grape variety, or parenthetical answer clue.
-6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction. Never output a pre-correction wine.
+6. If you self-correct during reasoning (e.g., replacing a wine that contradicts a constraint), the FINAL output must reflect the correction SILENTLY — print the replacement wine on its own. Never output a pre-correction wine, and never annotate the swap: no "excluded", "replacing:", "CORRECTION APPLIED", "wait", or "see reasoning" anywhere in the wine list. A reader must not be able to tell a wine was ever changed.
 7. Every written sub-question must be worth at least 5 marks. Only "State RS" or "State ABV" can be 2-3 marks.
 
 ## FINAL SELF-CHECK (run this before output; if any check fails, FIX the wines and output the corrected version)
+Work these silently, or write them out under ## Paper Scope Check if you need them on the page. They must NEVER be written into the ## Wines block — a wine line that reads "Spain ✓" or "Sparkling ✓" is a self-check verdict standing where a wine should be, and the flight is unusable.
 - If the stem says "N different countries": list each wine's country — they MUST be N genuinely DISTINCT countries (two wines from the USA do NOT satisfy "four different countries").
 - If the stem says "same single grape variety": every wine's dominant grape MUST be identical (no blends of a different grape, no second variety).
 - If the stem says "different grape varieties" (and not "predominantly"): every wine's dominant grape MUST be distinct — no repeats.
@@ -627,6 +630,14 @@ Output in this EXACT format:
 
 1. [Producer, Cuvee, Vintage. Region, Country. (ABV%)]
 2. ...
+
+Each numbered line is MACHINE-PARSED as one wine reference and is shown to the candidate verbatim. A line must hold the finished wine and NOTHING else: no commentary, no markdown, no ticks or crosses, no rejected alternatives, no dedup or correction notes, no ellipsis. If you weighed several wines for a slot, only the winner appears here — the weighing-up belongs in ## Generation Reasoning. Every line must be complete (never truncated mid-word) and must end on the country, followed by the ABV parenthetical if you have it.
+BAD: **Spain** — Amontillado Sherry (Palomino, oxidative) — Barbadillo VORS is non-banned ✓. But VORS is quite special...
+BAD: Chambers Rosewood — wait, excluded. Let me correct.
+BAD: Stanton & Killeen has been excluded — replacing: Yalumba Museum Reserve Muscat NV. Rutherglen, Victoria, Australia. (18%)
+BAD: Weingut Dr. Loosen, Erdener Treppchen Riesling — CORRECTION APPLIED — see reasoning.
+BAD: Spain ✓
+GOOD: Yalumba, Museum Reserve Muscat, NV. Rutherglen, Victoria, Australia. (18%)
 ${paper === 3 ? `
 ## Wine Appearance
 

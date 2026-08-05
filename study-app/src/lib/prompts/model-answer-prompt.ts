@@ -3,6 +3,81 @@ import { join } from "path";
 import { FUNNELLING_PRINCIPLE } from "./funnelling";
 import { MARKING_PRINCIPLES } from "./marking-principles";
 import { deriveQuestion, SECTION_A_HEADING, SECTION_B_HEADING } from "@/lib/question-sections";
+import { supportsAdaptiveThinking } from "../model-capabilities";
+
+// ── OUTPUT BUDGET ──────────────────────────────────────────────────────────────────────────────────
+//
+// One call emits FOUR sections (model answer ~420 words, proposed annotation, reasoning trace,
+// study-diagram walkthrough), and truncation lands on the TAIL — so a cut response loses the
+// annotation / reasoning trace / diagram assist rather than failing loudly.
+//
+// This has now been raised twice on the same evidence. 4000 left 15/104 banked questions with no
+// model answer at all and 17-21 missing tail sections; that became 8000. Measured again over 14 days,
+// 8000 is still truncating (model_usage where task_type='model_answer'):
+//
+//     claude-opus-5      106 calls   32 at the 8000 cap (30.2%)   avg 6,904
+//     claude-sonnet-4-6  113 calls   17 at the 8000 cap (15.0%)   avg 5,105
+//
+// Two causes stack. The visible package alone is big — Sonnet 4.6 does not reason unless asked and
+// still hits the ceiling on 15% of calls, so the PLAIN tier has to clear roughly 8-10k on its own.
+// On top of that, `max_tokens` caps thinking + response TOGETHER and a reasoning model spends part of
+// the budget before writing a word: Opus 4.7+/Sonnet 5 emit a thinking block whether or not one is
+// requested (the default display is "omitted", so those tokens are spent and invisible — see
+// thinkingParams). That is why Opus truncates at twice Sonnet's rate on the identical prompt.
+//
+// Hence two tiers, sized on the MODEL rather than on whether visible reasoning was requested — the
+// same rule as generationMaxTokens in question-engine.ts, and for the same reason.
+//
+// Why 16k and not more. The averages above are depressed BY the cap (32 Opus calls stopped at exactly
+// 8000, so the true uncapped distribution runs higher and is unknown), so the tiers are set with real
+// margin rather than just above the observed mean — but NOT with unlimited margin, because every
+// model-answer call site is non-streaming. Anthropic's guidance is to keep non-streaming max_tokens
+// near ~16000: the SDK's HTTP timeout is what a longer generation runs into, and a timeout costs the
+// whole call rather than truncating it. (The models themselves allow far more — 128K output on Opus 5
+// and Sonnet 4.6, 64K on Haiku 4.5 — so the ceiling here is the transport, not the model.) Doubling
+// the old cap covers the four-section package plus a reasoning model's thinking; going to 24k+ would
+// trade a truncation failure for a timeout failure. If the tail still truncates at 16k, the fix is to
+// switch these call sites to streaming, not to raise the cap again.
+const MODEL_ANSWER_MAX_TOKENS_REASONING = 16_000;
+const MODEL_ANSWER_MAX_TOKENS_PLAIN = 12_000;
+
+/**
+ * The output budget for one model-answer call.
+ *
+ * Every model-answer call site MUST use this — the live route, the engine's background generator, and
+ * the two offline scripts. They previously carried four hand-copied 8000s, and this file's own header
+ * notes that offline/production drift on this path is a recurring bug ("the offline path was the
+ * correct one and production had drifted from it").
+ */
+export function modelAnswerMaxTokens(model: string): number {
+  return supportsAdaptiveThinking(model)
+    ? MODEL_ANSWER_MAX_TOKENS_REASONING
+    : MODEL_ANSWER_MAX_TOKENS_PLAIN;
+}
+
+// ── REASONING EFFORT ───────────────────────────────────────────────────────────────────────────────
+//
+// Every model-answer call site sent no `output_config`, which is the API default `high` — the deepest
+// and slowest setting. That is most of why this call is the slowest thing in the system: p50 102s,
+// p90 115s on Opus (p90 158s on Sonnet).
+//
+// Measured on a real banked question (P1, 4 wines, Opus-5, same prompt, same max_tokens):
+//     effort=medium   4,821 tokens   71s   4/4 sections   458-word answer
+//     default (high)  8,167 tokens  114s   4/4 sections   520-word answer
+//
+// 38% faster with the package intact — and note the answer LENGTH: the brief is ~430 words of answer
+// body under 8-minute exam discipline, so medium's 458 lands closer to the target than high's 520.
+// Lower effort is not a quality concession here; the extra deliberation was partly being spent
+// overshooting the word budget this prompt exists to enforce.
+const MODEL_ANSWER_EFFORT = "medium";
+
+/**
+ * Reasoning effort for one model-answer call. Gated on the same capability list as the token budget —
+ * `output_config.effort` is a 400 on a model that does not accept it.
+ */
+export function modelAnswerEffort(model: string): Record<string, unknown> {
+  return supportsAdaptiveThinking(model) ? { output_config: { effort: MODEL_ANSWER_EFFORT } } : {};
+}
 
 let cachedIndex: {
   decisionTrees: Record<string, string>;

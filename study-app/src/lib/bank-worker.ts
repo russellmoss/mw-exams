@@ -83,19 +83,43 @@ export const CONCURRENCY = 3;
 
 // Generation limits for THIS worker, overriding the interactive defaults in question-engine.ts.
 //
-// Those defaults (45s per call, 95s of budget) are sized to sit under the browser's 120s abort with a
-// user watching a spinner. A background bulk run has neither, and inheriting that ceiling threw away
-// near-complete work: measured p90 latency sat at exactly 45,00Xms in every hour sampled — the
-// distribution was censored at the cap, so we could not even see how long those calls needed — and
-// 33% of attempts died there rather than at a validator.
+// History: the interactive defaults were once 45s per call / 95s of budget, and inheriting them threw
+// away near-complete work — measured p90 latency sat at exactly 45,00Xms in every hour sampled (the
+// distribution was censored at the cap, so we could not even see how long those calls needed) and 33%
+// of attempts died there rather than at a validator. This worker raised them to 70s/110s.
 //
-// 70s per call inside 110s of budget guarantees one full attempt and affords a second whenever the
-// first returns quickly (the loop needs MIN_CALL_MS=25s remaining to start one).
-export const WORKER_CALL_TIMEOUT_MS = Number(process.env.BANK_WORKER_CALL_TIMEOUT_MS) || 70_000;
-export const WORKER_GENERATION_BUDGET_MS = Number(process.env.BANK_WORKER_GENERATION_BUDGET_MS) || 110_000;
+// 70s/110s is now too small for the same reason, one level up. generationMaxTokens raised the output
+// budget to 16000 so a reasoning model is no longer truncated mid-JSON, and at Opus-5's measured
+// ~68 tok/s that permits generations of 75-113s (two probes of the live prompt: 5,084 and 7,718 output
+// tokens). A 70s cap re-censors exactly the calls the token raise was meant to let finish. The two
+// settings have to move together — see GENERATION_TIMING in question-engine.ts, which these mirror.
+//
+// The budget is ONE full call rather than a call plus an in-engine retry, and that is deliberate.
+// A whole item has to fit inside a single 300s invocation alongside the awaited model answer and
+// enrichment (POST_GENERATION_MS below), and at real model speeds there is not room for both a
+// generation retry and a model answer. The retry is the cheaper thing to give up because it is the
+// third of three redundant layers: generateOneIntoBatch already retries an item up to 3 times, and an
+// item that runs out of invocation is left untouched for the resume hop. A model answer is not
+// optional — a banked question without one is unusable.
+export const WORKER_CALL_TIMEOUT_MS = Number(process.env.BANK_WORKER_CALL_TIMEOUT_MS) || 130_000;
+export const WORKER_GENERATION_BUDGET_MS = Number(process.env.BANK_WORKER_GENERATION_BUDGET_MS) || 130_000;
 
 // The awaited model answer + wine enrichment that run after generation, before the item is done.
-export const POST_GENERATION_MS = 55_000;
+//
+// This was 55_000 and was fiction — off by roughly 3x against what those two steps actually take.
+// It survived because ITEM_TIMEOUT_MS (the number it feeds) was still generous enough in practice;
+// the split inside it was simply never checked against the work. Measured over 14 days:
+//
+//   model answer   p50 102s, p90 115s on Opus — but that is at the API default effort. The call now
+//                  runs at `medium` (see modelAnswerEffort): a probe of the same prompt fell from
+//                  8,167 tokens / 114s to 4,821 / 71s with all four sections intact, so p90 ~90s.
+//   enrichment     p90 45s of model time per question (avg 5.9 calls, one per wine), plus the Tavily
+//                  search each of those calls wraps.
+//
+// 135s covers both at p90. It does NOT cover both at their maxima (185s + 159s), and cannot: that
+// would exceed the invocation on its own. ITEM_TIMEOUT_MS is a kill for a wedged item, not a promise
+// that every item fits — a genuinely pathological one is cut and retried.
+export const POST_GENERATION_MS = 135_000;
 
 // Hard per-item timeout (spec §3). generateFreshQuestion has its own internal generation budget, but
 // this is a belt-and-braces ceiling around the whole item (generation + awaited model answer +

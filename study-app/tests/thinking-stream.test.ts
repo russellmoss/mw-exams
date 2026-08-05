@@ -65,13 +65,28 @@ describe("thinking request params", () => {
       output_config: { effort: string };
     };
     expect(p.thinking).toEqual({ type: "adaptive", display: "summarized" });
-    // Low effort keeps reasoning short: this is a progress signal, and generation runs against a
-    // hard wall-clock budget.
+    // Low is the DEFAULT, for the callers that stream reasoning purely as a liveness cue — the
+    // graders and tasting notes, whose responses are short and whose quality doesn't hinge on the
+    // reasoning pass. It is deliberately no longer generation's setting: generation passes its own
+    // (see GENERATION_EFFORT), because tying its depth to this default meant a Stem Sniper drill was
+    // generated at lower effort than the identical question on the study page.
     expect(p.output_config.effort).toBe("low");
   });
 
+  it("lets a caller whose output quality depends on reasoning ask for more", () => {
+    const p = thinkingParams("claude-sonnet-4-6", "medium") as {
+      thinking: { type: string; display: string };
+      output_config: { effort: string };
+    };
+    expect(p.output_config.effort).toBe("medium");
+    // The override must not disturb the display opt-in, or the reasoning streams back empty.
+    expect(p.thinking).toEqual({ type: "adaptive", display: "summarized" });
+  });
+
   it("returns nothing for an unsupported model, leaving the call unchanged", () => {
+    // Including when an effort was requested — output_config.effort is a 400 on Haiku 4.5.
     expect(thinkingParams("claude-haiku-4-5-20251001")).toEqual({});
+    expect(thinkingParams("claude-haiku-4-5-20251001", "medium")).toEqual({});
   });
 
   it("grows max_tokens when thinking is on, because it caps thinking + response together", async () => {

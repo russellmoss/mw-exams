@@ -21,6 +21,11 @@ export interface AuditWine {
   country?: string;
   is_blend?: boolean;
   style?: string;
+  // The raw generated label from generated_questions.wines[].fullText. The answer key resolves a wine
+  // into varieties/region/country and loses the original string, so a slot holding the generator's
+  // reasoning rather than a wine resolves to a plausible-looking key and the audit sees nothing wrong.
+  // Callers that can supply the label should, to enable the wine-reference-shape rule.
+  fullText?: string;
 }
 export interface QuestionForAudit {
   questionId: string;

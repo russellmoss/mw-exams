@@ -1,6 +1,11 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, getTastingLexicon } from "@/lib/db";
-import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
+import {
+  buildModelAnswerPrompt,
+  parseModelAnswerSections,
+  modelAnswerMaxTokens,
+  modelAnswerEffort,
+} from "@/lib/prompts/model-answer-prompt";
 import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
 import { loadStoredWineProfiles } from "@/lib/wine-bank-lookup";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
@@ -40,13 +45,18 @@ export async function POST(request: Request) {
     const t0 = Date.now();
     const message = await client.messages.create({
       model,
-      // 8000: this one call emits four sections, and 4000 truncated the tail intermittently —
-      // measured across the banked corpus as 15/104 questions with no model answer at all and
-      // 17-21 missing annotation / reasoning trace / diagram assist. See regen-model-answers.mjs.
-      max_tokens: 8000,
+      // Sizing + evidence: modelAnswerMaxTokens in prompts/model-answer-prompt.ts. Shared with the
+      // engine's background generator and both offline scripts.
+      max_tokens: modelAnswerMaxTokens(model),
+      ...modelAnswerEffort(model),
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });
+    if (message.stop_reason === "max_tokens") {
+      console.warn(
+        `[model-answer] ${questionId}: hit max_tokens (${modelAnswerMaxTokens(model)}) on ${model} — tail sections may be missing`
+      );
+    }
     logClaudeUsage(
       { taskType: "model_answer", model, source: keyResult.source, userId: keyResult.user.id, questionId, abGroup },
       message.usage,

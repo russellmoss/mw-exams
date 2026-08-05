@@ -19,9 +19,8 @@ import {
   WORKER_CALL_TIMEOUT_MS,
   WORKER_GENERATION_BUDGET_MS,
 } from "../src/lib/bank-worker";
+import { GENERATION_TIMING } from "../src/lib/question-engine";
 
-// question-engine's own floor: it will not begin an attempt with less than this left on the clock.
-const MIN_CALL_MS = 25_000;
 // The route's maxDuration. BUDGET_MS must leave room under it for the final flush + resume hop.
 const ROUTE_MAX_DURATION_MS = 300_000;
 
@@ -40,13 +39,31 @@ describe("worker timing constants are mutually consistent", () => {
 
   it("affords at least one complete generation attempt", () => {
     // A budget below one call timeout means the loop can never finish even a single attempt.
-    expect(WORKER_GENERATION_BUDGET_MS).toBeGreaterThanOrEqual(WORKER_CALL_TIMEOUT_MS + MIN_CALL_MS);
+    //
+    // This used to demand `+ MIN_CALL_MS` on top, i.e. room for a second in-engine attempt. That no
+    // longer fits: the whole item must also cover the awaited model answer and enrichment inside one
+    // invocation, and at real model speeds a generation retry and a model answer cannot both have
+    // room. The retry is the right one to drop — generateOneIntoBatch retries the item up to 3 times
+    // and the resume hop retries a timed-out one, so it was the third of three layers, whereas a
+    // question banked without a model answer is unusable.
+    expect(WORKER_GENERATION_BUDGET_MS).toBeGreaterThanOrEqual(WORKER_CALL_TIMEOUT_MS);
   });
 
-  it("raises the per-call ceiling above the interactive default it used to inherit", () => {
-    // The whole point of the override. If this ever drops back to 45s the worker is silently paying
-    // the browser tax again.
-    expect(WORKER_CALL_TIMEOUT_MS).toBeGreaterThan(45_000);
+  it("keeps the whole item — generation AND the awaited post-generation work — inside an invocation", () => {
+    // The binding constraint, and the one that forced the trade above. Both halves are sized from
+    // measurement (see the comments on each), so if either grows this is where it surfaces.
+    expect(ITEM_WORST_CASE_MS).toBeLessThan(BUDGET_MS);
+    // Real margin, not a rounding accident.
+    expect(BUDGET_MS - ITEM_WORST_CASE_MS).toBeGreaterThanOrEqual(15_000);
+  });
+
+  it("never falls below the interactive per-call ceiling", () => {
+    // This used to assert `> 45_000` — the interactive default at the time, hard-coded here. Both
+    // halves of that are now wrong: the interactive default was itself too small (it censored the
+    // median Opus call) and has been raised, so a frozen 45_000 no longer refers to anything real.
+    // The durable rule is relative: a background bulk run has no one waiting on it, so it must never
+    // be given LESS time per call than the path that does.
+    expect(WORKER_CALL_TIMEOUT_MS).toBeGreaterThanOrEqual(GENERATION_TIMING.callTimeoutMs);
   });
 
   it("can still start a full round of items inside one invocation", () => {

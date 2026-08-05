@@ -97,6 +97,35 @@ export const VARIETY_SYNONYMS = {
   "tinta negra mole": "tinta negra",
   nerello: "nerello mascalese",
 
+  // ── Muscat ──
+  //
+  // One grape under many regional names. Keeping them apart made correct MW Muscat flights read as
+  // three or four different varieties and marked them unanswerable: a Moscato d'Asti + Beaumes-de-
+  // Venise + Rutherglen + Samos flight is the classic Paper 3 same-variety set, and the audit was
+  // reporting it as "stem says same variety; key has 3: moscato bianco, muscat blanc a petits grains,
+  // muscat". Two such questions were queued for regeneration before this was caught.
+  //
+  // Muscat of Alexandria is a DIFFERENT variety and deliberately stays separate. That distinction is
+  // load-bearing, not pedantry: it is what correctly flags the one flight in this set that IS broken —
+  // three Muscat Blanc à Petits Grains wines plus a Ben Ryé Passito di Pantelleria, which is Zibibbo.
+  //
+  // Bare "muscat" folds into Muscat Blanc à Petits Grains because that is what it means on every
+  // appellation that uses it unqualified (Beaumes-de-Venise, Rutherglen, Samos, St-Jean-de-Minervois).
+  // A genuine Muscat of Alexandria labelled only "Muscat" would merge wrongly — but that direction
+  // yields a missed defect, whereas the reverse destroys a good question at remediation. Prefer the
+  // cheaper error.
+  moscato: "muscat blanc a petits grains",
+  "moscato bianco": "muscat blanc a petits grains",
+  muscat: "muscat blanc a petits grains",
+  "muscat blanc": "muscat blanc a petits grains",
+  "muscat de frontignan": "muscat blanc a petits grains",
+  "moscatel de grano menudo": "muscat blanc a petits grains",
+  muskateller: "muscat blanc a petits grains",
+  "gelber muskateller": "muscat blanc a petits grains",
+  zibibbo: "muscat of alexandria",
+  "moscatel de alejandria": "muscat of alexandria",
+  "moscatel graudo": "muscat of alexandria",
+
   // ── Whites ──
   alvarinho: "albarino",
   "tocai friulano": "friulano",
@@ -147,11 +176,106 @@ function isSubsetSplit(stem) {
   );
 }
 
+// ---------------------------------------------------------------------------------------------------
+// WINE REFERENCE SHAPE — is this string a wine, or is it the generator thinking out loud?
+//
+// The generator sometimes emits its own deliberation into a wine slot instead of a wine. Twelve slots
+// across seven banked questions held things like "Chambers Rosewood — wait, excluded. Let me correct.",
+// "**Spain** — Amontillado Sherry (Palomino, oxidative/fortified) — ... non-banned ✓. But VORS is still
+// quite special...", "The P3 STILL_DRY sub-rule requires that...", a bare "...", and truncated
+// fragments ("The Sadie Family Wines, Pof"). Nothing downstream noticed: wine enrichment ran a Tavily
+// search on the paragraph, the wine_bank gained a row whose "producer" was a sentence of reasoning, and
+// the question reached the candidate.
+//
+// Every real wine banked as of 2026-08-05 follows the same shape —
+//   Producer, wine name, vintage. Region, Country. (ABV%)
+// — the longest being 137 characters. Swept over the whole bank the four checks below reject 28 slots
+// across 12 questions and accept all ~1,157 real references, with each check the sole catch for at
+// least one row: length 16, deliberation marker 10, origin anchor 1, separator 1. So none is redundant
+// — in particular the anchor is what catches a truncation ("… 2022. Bierz") that reads perfectly well
+// as a wine, and the markers are what catch a reasoning preamble followed by a well-formed wine, which
+// ends on a country and so clears the anchor.
+// ---------------------------------------------------------------------------------------------------
+
+// Anchors for "this string ends on an origin". Deliberately a SUPERSET of COUNTRY_NAMES (which is
+// order-sensitive — detectCountryName returns its first hit — and so is left alone): matching here only
+// asks "does this look like a country?", so the extra entries cost nothing and stop a legitimate
+// curveball origin from being rejected as junk. COUNTRY_NAMES is spread in lazily (see
+// countryAnchorRe) because it is declared further down, with the text adapter it belongs to.
+const COUNTRY_ANCHOR_EXTRAS = [
+  "czech republic", "czechia", "slovakia", "romania", "bulgaria", "moldova", "ukraine", "russia",
+  // Accent-free by construction: the anchor regex is tested against norm()'d text (NFD, marks stripped).
+  "turkey", "turkiye", "cyprus", "malta", "luxembourg", "belgium", "netherlands", "denmark", "sweden",
+  "norway", "poland", "serbia", "montenegro", "north macedonia", "macedonia", "albania", "kosovo",
+  "bosnia and herzegovina", "armenia", "azerbaijan", "india", "thailand", "vietnam", "south korea",
+  "taiwan", "morocco", "algeria", "tunisia", "egypt", "ethiopia", "kenya", "namibia", "zimbabwe",
+  "peru", "bolivia", "paraguay", "colombia", "united kingdom", "great britain", "wales", "scotland",
+  "ireland",
+];
+
+// Built on first use, not at module load: COUNTRY_NAMES is declared below (TDZ at init).
+let _countryAnchorRe = null;
+const countryAnchorRe = () =>
+  (_countryAnchorRe ??= new RegExp(
+    `(?:^|[\\s,.\\-])(?:${[...COUNTRY_NAMES, ...COUNTRY_ANCHOR_EXTRAS].join("|")})$`,
+    "i"
+  ));
+
+// Tells that the string is the model reasoning rather than naming a wine. Each pattern is chosen to be
+// impossible on a real label — no wine is called "wait", carries a ✓, or asks a question.
+const DELIBERATION_MARKERS = [
+  { re: /\*\*/, why: "markdown emphasis (**)" },
+  { re: /[✓✗✔✘]/, why: "a check/cross mark" },
+  { re: /\?/, why: "a question mark" },
+  { re: /\b(wait|actually|instead|let me|i need|i'll|i will|we need)\b/i, why: "first-person deliberation" },
+  { re: /\b(exclude[ds]?|banned|non-banned|dedupl\w*|correction|corrected)\b/i, why: "a dedup/exclusion note" },
+  { re: /\b(the stem|sub-?rule|per the prompt|paper [123]\b|this is a problem|see reasoning)/i, why: "a reference to the prompt's own rules" },
+];
+
+// The longest legitimate reference in the bank is 137 chars. The bounds below are deliberately loose —
+// they exist to catch a bare "..." or a paragraph of prose, not to police label length.
+const MIN_REFERENCE_LEN = 20;
+const MAX_REFERENCE_LEN = 200;
+
+/**
+ * Does `fullText` read as a wine reference (producer/name + "." + region, country) rather than as
+ * generator reasoning or a truncated fragment?
+ * @param {string} fullText
+ * @returns {{ ok: boolean, problem: string | null }}
+ */
+export function checkWineReferenceShape(fullText) {
+  const text = (fullText || "").toString().trim();
+  const fail = (problem) => ({ ok: false, problem });
+
+  if (!text) return fail("empty");
+  if (text.length < MIN_REFERENCE_LEN) return fail(`too short to be a wine reference (${text.length} chars)`);
+  if (text.length > MAX_REFERENCE_LEN) return fail(`too long to be a wine reference (${text.length} chars) — reads as prose`);
+
+  for (const m of DELIBERATION_MARKERS) {
+    if (m.re.test(text)) return fail(`contains ${m.why} — this is generator reasoning, not a wine`);
+  }
+
+  // Producer/name and origin must be separated by a sentence break, per the corpus format.
+  if (!/[^\s.]\.\s/.test(text)) return fail("no '. ' separating the wine name from its region/country");
+
+  // Origin anchor: drop a trailing ABV parenthetical or bare percentage, then require a country at the end.
+  const core = text
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .replace(/\s*\d+(?:\.\d+)?\s*%(?:\s*abv)?\s*$/i, "")
+    .replace(/[\s.,;:—–-]+$/, "")
+    .trim();
+  if (!countryAnchorRe().test(norm(core)))
+    return fail("does not end on a recognised country — the origin is missing or the entry is truncated");
+
+  return { ok: true, problem: null };
+}
+
 /**
  * Run the shared contradiction rules against a (normalized) question.
  * @param {{ paper: number, questionText: string, totalMarks?: number,
  *           wines: Array<{ slot: number, varieties: string[], region?: string, country?: string,
- *                          is_blend?: boolean, style?: string }> }} q
+ *                          is_blend?: boolean, style?: string, fullText?: string }> }} q
+ * `fullText` is the raw generated label; supply it to enable R8 (wine-reference-shape).
  * @returns {Array<{ rule: string, severity: "hard"|"soft", detail: string }>}
  * hard = stem contradicts its own wines/key (unanswerable as framed); soft = worth flagging.
  */
@@ -237,6 +361,23 @@ export function applyQuestionRules(q, opts = {}) {
       detail: `stem says single grape variety; a wine is a blend (${wines.filter((w) => w.is_blend).map((w) => w.varieties.join("/")).join("; ")})`,
     });
 
+  // R8 — every wine slot must hold a wine REFERENCE, not the generator's reasoning about which wine to
+  // pick. HARD: an unparseable entry is enriched (a Tavily search on the reasoning text), banked as a
+  // bogus wine_bank producer, and served to the candidate as a real wine. Only fires for callers that
+  // supply the raw label — the key stage passes fullText through from generated_questions.wines.
+  for (const w of wines) {
+    if (typeof w.fullText !== "string") continue;
+    const shape = checkWineReferenceShape(w.fullText);
+    if (!shape.ok)
+      v.push({
+        rule: "wine-reference-shape",
+        severity: "hard",
+        detail: `Wine ${w.slot} is not a wine reference — ${shape.problem}. Expected "Producer, wine name, vintage. Region, Country. (ABV%)"; got: ${JSON.stringify(
+          w.fullText.length > 120 ? `${w.fullText.slice(0, 120)}…` : w.fullText
+        )}`,
+      });
+  }
+
   // R6 — marks: 25 per wine (universal in the MW corpus). HARD.
   if (q.totalMarks && wines.length && q.totalMarks !== wines.length * 25)
     v.push({ rule: "marks", severity: "hard", detail: `total_marks ${q.totalMarks} != ${wines.length}x25` });
@@ -284,7 +425,7 @@ export function applyQuestionRules(q, opts = {}) {
 // resolves to "unknown" and the diversity rules skip it. Every synonym key above that can appear on a
 // real label therefore has a token here. Longer alternatives must precede the shorter ones they
 // contain ("garnacha blanca" before "garnacha") because the regex alternation is first-match.
-export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|muscat|moscato|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano)\b/i;
+export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|moscato\s*bianco|moscatel\s*de\s*grano\s*menudo|moscatel|muscat\s*blanc|muscat|moscato|zibibbo|gelber\s*muskateller|muskateller|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano)\b/i;
 export const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|cabernet\s*franc|merlot|pinot\s*noir|pinot\s*nero|spatburgunder|sp[aä]tburgunder|blauburgunder|syrah|shiraz|garnacha\s*tinta|grenache|garnacha|cannonau|tempranillo|tinta\s*de\s*toro|tinto\s*fino|tinta\s*roriz|aragonez|ull\s*de\s*llebre|cencibel|sangiovese|prugnolo\s*gentile|nielluccio|morellino|nebbiolo|spanna|chiavennasca|malbec|zinfandel|primitivo|tribidrag|mourvedre|monastrell|mataro|carignan|carinena|cari[nñ]ena|mazuelo|samso|barbera|dolcetto|touriga\s*nacional|touriga\s*franca|touriga\s*francesa|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|kekfrankos|k[ée]kfrankos|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|xinomavro|cinsault|tinta\s*negra\s*mole|tinta\s*negra|petite\s*sirah|durif|cot|baga)\b/i;
 
 const APPELLATION_TO_PRIMARY_VARIETY = [
@@ -361,33 +502,39 @@ export function isLikelyBlend(fullText) {
   return false;
 }
 
+// ORDER IS LOAD-BEARING for detectCountryName: it returns the FIRST entry found in the label, so
+// "united states" must precede "usa". Do not reorder; append only.
+const COUNTRY_NAMES = [
+  "south africa", "new zealand", "united states", "france", "italy", "spain", "portugal",
+  "germany", "austria", "greece", "hungary", "australia", "argentina", "chile", "canada",
+  "usa", "england", "georgia", "uruguay", "brazil", "lebanon", "japan", "switzerland",
+  "croatia", "slovenia", "israel", "mexico", "china",
+];
+
 export function detectCountryName(fullText) {
   const text = fullText.toLowerCase();
-  const countries = [
-    "south africa", "new zealand", "united states", "france", "italy", "spain", "portugal",
-    "germany", "austria", "greece", "hungary", "australia", "argentina", "chile", "canada",
-    "usa", "england", "georgia", "uruguay", "brazil", "lebanon", "japan", "switzerland",
-    "croatia", "slovenia", "israel", "mexico", "china",
-  ];
-  const match = countries.find((country) => text.includes(country));
+  const match = COUNTRY_NAMES.find((country) => text.includes(country));
   return match?.replace("united states", "usa") || "unknown";
 }
 
 /**
  * Build normalized RuleWine[] from raw generated wines by detecting variety/country/blend from the
  * label. Undetectable variety -> varieties:[] and undetectable country -> "" so the rules' "known"
- * filters behave exactly like the engine's detected/undetected split.
+ * filters behave exactly like the engine's detected/undetected split. `fullText` is carried through
+ * unchanged so R8 (wine-reference-shape) can see the raw label.
  * @param {Array<{ slot: number, fullText: string }>} wines
  */
 export function winesFromText(wines) {
   return (wines || []).map((w) => {
-    const primary = detectPrimaryVariety(w.fullText);
-    const country = detectCountryName(w.fullText);
+    const fullText = (w.fullText ?? "").toString();
+    const primary = detectPrimaryVariety(fullText);
+    const country = detectCountryName(fullText);
     return {
       slot: w.slot,
+      fullText,
       varieties: primary === "unknown" ? [] : [primary],
       country: country === "unknown" ? "" : country,
-      is_blend: isLikelyBlend(w.fullText),
+      is_blend: isLikelyBlend(fullText),
     };
   });
 }

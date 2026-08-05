@@ -14,6 +14,12 @@
 
 import type Anthropic from "@anthropic-ai/sdk";
 import { isReasoningEnabled } from "@/lib/settings";
+import { supportsAdaptiveThinking } from "@/lib/model-capabilities";
+
+// Re-exported so every existing importer keeps working. The predicate itself moved to
+// model-capabilities.ts — it is a pure fact about a model id, and callers that only size max_tokens
+// from it should not have to pull in this module's settings/database dependencies.
+export { supportsAdaptiveThinking };
 
 export type ProgressEvent =
   | { type: "status"; label: string }
@@ -23,28 +29,30 @@ export type ProgressEvent =
 
 export type ProgressEmitter = (event: ProgressEvent) => void;
 
-/**
- * Models that accept `thinking: {type:"adaptive"}`. Deliberately an allow-list of exact ids rather
- * than a loose /opus/ match: adaptive thinking is Opus 4.6+ / Sonnet 4.6+ only, and sending it to
- * Haiku 4.5 (or an older Opus resolved by getLatestOpus) is a 400 that would kill the generation.
- */
-export function supportsAdaptiveThinking(model: string): boolean {
-  return /^claude-(opus-(4-6|4-7|4-8|5)|sonnet-(4-6|5)|fable-5|mythos-5)\b/.test(model);
-}
+/** Reasoning depth. Every model on the adaptive-thinking list accepts at least low/medium/high. */
+export type ReasoningEffort = "low" | "medium" | "high";
 
 /**
  * The request fragment that turns visible reasoning on.
  *
  * `display: "summarized"` is required — the default on Opus 4.7+/Sonnet 5 is `"omitted"`, which
  * still streams thinking blocks but with empty text (i.e. a long silent pause, exactly the problem
- * we're fixing). `effort: "low"` keeps the reasoning short: this is a progress signal, not a
- * capability upgrade, and the generation path runs against a hard wall-clock budget.
+ * we're fixing).
+ *
+ * `effort` defaults to `"low"`, which is right for the callers that stream reasoning purely as a
+ * progress signal (the graders, tasting notes) — there it is a liveness cue, not a capability
+ * upgrade, and the extra depth would only add latency to a short response. Callers whose OUTPUT
+ * quality depends on the reasoning pass their own; question generation uses `medium` on both its
+ * streaming and non-streaming paths, so a drill and a study question are generated identically.
  */
-export function thinkingParams(model: string): Record<string, unknown> {
+export function thinkingParams(
+  model: string,
+  effort: ReasoningEffort = "low"
+): Record<string, unknown> {
   if (!supportsAdaptiveThinking(model)) return {};
   return {
     thinking: { type: "adaptive", display: "summarized" },
-    output_config: { effort: "low" },
+    output_config: { effort },
   };
 }
 
@@ -102,10 +110,19 @@ export async function reasoningEnabled(): Promise<boolean> {
   }
 }
 
-/** `thinkingParams`, gated by the admin toggle. Returns `{}` when reasoning is switched off. */
-export async function resolveThinking(model: string): Promise<Record<string, unknown>> {
+/**
+ * `thinkingParams`, gated by the admin toggle. Returns `{}` when reasoning is switched off.
+ *
+ * Note what that empty return means for a caller that relies on the `effort` inside: switching
+ * reasoning off also drops the effort, restoring the API default of `high`. A caller for whom that
+ * matters must re-apply effort itself — see callGenerationModel, where the default is a 164s call.
+ */
+export async function resolveThinking(
+  model: string,
+  effort: ReasoningEffort = "low"
+): Promise<Record<string, unknown>> {
   if (!(await reasoningEnabled())) return {};
-  return thinkingParams(model);
+  return thinkingParams(model, effort);
 }
 
 /**

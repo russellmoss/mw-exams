@@ -31,7 +31,12 @@ import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import "@/lib/appellation-resolver";
 import { neon } from "@neondatabase/serverless";
 import { selectModel } from "@/lib/model-selector";
-import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/model-answer-prompt";
+import {
+  buildModelAnswerPrompt,
+  parseModelAnswerSections,
+  modelAnswerMaxTokens,
+  modelAnswerEffort,
+} from "@/lib/prompts/model-answer-prompt";
 import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
@@ -58,7 +63,12 @@ import {
   type WineCategory,
   type CurveballLevel,
 } from "@/lib/bank/examMix";
-import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
+import {
+  streamWithThinking,
+  resolveThinking,
+  supportsAdaptiveThinking,
+  type ProgressEmitter,
+} from "@/lib/thinking-stream";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -215,13 +225,20 @@ function generateModelAnswerInBackground(
       const t0 = Date.now();
       const message = await client.messages.create({
         model,
-        // 8000 — see the note on the same call in generate-model-answer/route.ts. Four sections in
-        // one response; 4000 cut the tail often enough to leave a fifth of the banked corpus with a
-        // missing annotation, reasoning trace or diagram assist.
-        max_tokens: 8000,
+        // Sizing + evidence: modelAnswerMaxTokens in prompts/model-answer-prompt.ts. Shared with the
+        // live route and both offline scripts so this path can no longer drift from them.
+        max_tokens: modelAnswerMaxTokens(model),
+        ...modelAnswerEffort(model),
         system: prompt.system,
         messages: [{ role: "user", content: prompt.user }],
       });
+      // Truncation here is SILENT — a cut response still parses, it just loses the tail sections — so
+      // say so. This is the signal that told us 8000 was still too small.
+      if (message.stop_reason === "max_tokens") {
+        console.warn(
+          `[model-answer] ${questionId}: hit max_tokens (${modelAnswerMaxTokens(model)}) on ${model} — tail sections may be missing`
+        );
+      }
       logClaudeUsage(
         { taskType: "model_answer", model, source: meta?.source, userId: meta?.userId,
           batchId: meta?.batchId, questionId, abGroup },
@@ -367,7 +384,17 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
 
   const questionText = q.question_text || "";
 
-  // Run critical validators against banked questions
+  // Run critical validators against banked questions.
+  // Shape first: 12 banked questions hold slots containing the generator's reasoning rather than a
+  // wine ("Chambers Rosewood — wait, excluded. Let me correct.", a 601-char paragraph weighing up
+  // Amontillados, a truncated "The Sadie Family Wines, Pof"). They predate the generation-stage gate,
+  // so the serve path has to refuse them until remediate-questions.mjs regenerates them.
+  const wineShapeCheck = validateWineReferenceShape(wines);
+  if (!wineShapeCheck.valid) {
+    console.log(`Bank filter: ${q.question_id} failed wine-reference shape: ${wineShapeCheck.violations[0]}`);
+    return false;
+  }
+
   const markCheck = validateMarkAllocation(questionText, wineCount);
   if (!markCheck.valid) {
     console.log(`Bank filter: ${q.question_id} failed mark check: ${markCheck.violations[0]}`);
@@ -458,17 +485,101 @@ function pickFlightSizeAware(questions: GeneratedQuestion[], family?: string): G
   return questions[Math.floor(Math.random() * questions.length)];
 }
 
+// `max_tokens` caps thinking + visible response TOGETHER, so a reasoning model needs headroom for
+// both. These two constants are that budget.
+//
+// The sizing must key on whether the MODEL reasons, not on whether WE asked it to. That distinction is
+// the bug this replaced: the old code used `thinkingOn` — true only when an emitter was present and
+// `resolveThinking` returned params — so the non-streaming path (the study page, the bank worker, every
+// call without a live progress feed) sent a bare 4000. But every model on the adaptive-thinking list
+// emits a thinking block whether or not one is requested; on Opus 4.7+/Sonnet 5 the default display is
+// "omitted" (see thinkingParams), so those tokens are spent AND invisible. A probe of the real
+// generation prompt at max_tokens 4000 came back `content: [["thinking", 0]]`, stop_reason
+// "max_tokens" — the entire budget consumed by reasoning, not one character of question. Production
+// telemetry over 14 days agrees: Opus attempt 1 parse-failed 174/349 = 49.9%, against 0.8% for Sonnet
+// (generation_attempts.parse_failed). Half of every Opus attempt was a wasted call and ~30s of the
+// budget, discarded before the loop fell through to Sonnet.
+//
+// generation_attempts.parse_failure_sample (migration 038) caught the same thing from the other end,
+// and its samples are worth keeping — 8 failures in one Paper 2 batch, all attempt 1 on Opus at ~60s
+// with no API error:
+//     4x  (no text content) stop_reason=max_tokens output_tokens=4000 blocks=[thinking]
+//     4x  a draft stopping after ~375 chars, before "## Wines" — thinking took ~3,900 of the 4,000
+//         and the question died mid-sentence
+// That evidence first drove an unconditional 8000, which fixes the emitter-keyed split but not the
+// sizing: measured at the API default effort this prompt wants 11,696 tokens, so 8000 truncates it
+// too. Keying on the model AND setting the effort (GENERATION_EFFORT) is what actually closes it.
+//
+// 16000 is ~2x the observed worst case: two probes of the live prompt spent 5,084 and 7,718 output
+// tokens including thinking, which means the 8000 applied on the streaming path was itself marginal
+// (one probe reached 96% of it). Unused headroom is free — billing is per token emitted, not per cap,
+// and a cap is not a target: Sonnet still averages ~950 tokens on this prompt.
+//
+// supportsAdaptiveThinking is a deliberate SUPERSET of the models that reason by default (it also
+// matches Opus 4.6 / Sonnet 4.6, which reason only on request). Over-sizing a model that stays quiet
+// costs nothing; under-sizing one that reasons costs the whole call.
+const GENERATION_MAX_TOKENS_REASONING = 16_000;
+const GENERATION_MAX_TOKENS_PLAIN = 4_000;
+
+/**
+ * The output budget for one generation call. Exported so the sizing rule — key on the MODEL, never on
+ * whether visible reasoning was requested — is pinned by a test rather than left to a call site.
+ */
+export function generationMaxTokens(model: string): number {
+  return supportsAdaptiveThinking(model) ? GENERATION_MAX_TOKENS_REASONING : GENERATION_MAX_TOKENS_PLAIN;
+}
+
+/**
+ * Wall-clock defaults for the generation phase, exported so the arithmetic BETWEEN them is pinned by
+ * a test. Individually each looks arbitrary; together they encode one rule — a call must be given
+ * enough time to produce what generationMaxTokens permits, and the budget must fit a slow first
+ * attempt plus a retry. The pair drifted apart before: a 45s cap against a token budget that needed
+ * ~59s produced 77 Opus attempts and 1 success. Callers override per-run (see bank-worker.ts).
+ */
+export const GENERATION_TIMING = {
+  budgetMs: 180_000,
+  callTimeoutMs: 130_000,
+  minCallMs: 25_000,
+  opusMinCallMs: 120_000,
+  /** Measured Opus-5 output rate, flat across task types (model_usage, 14 days). */
+  opusTokensPerSecond: 68,
+} as const;
+
+/**
+ * Reasoning effort for a generation call — BOTH paths, streaming and not.
+ *
+ * The non-streaming path sent no `output_config` at all, which is not "no opinion" — it is the API
+ * default, `high`, the deepest and slowest setting, on every call the study page and the bank worker
+ * make. That is the direct cause of the latencies behind GENERATION_TIMING above: the model was being
+ * asked to think as hard as it possibly could, on every draft, including the seven redrafts a
+ * validator failure can trigger. Measured on the live prompt, `medium` cut a generation from 11,696
+ * tokens / 164s to 5,710 / 83s, and both produced a clean, well-formed flight.
+ *
+ * `medium` is the recommended cost/latency lever here — on Opus 5, low and medium are unusually
+ * strong, and effort is the control that actually moves generation latency (raising max_tokens only
+ * removes a ceiling; it does not make the model stop deliberating).
+ *
+ * The streaming path previously inherited `low` from thinkingParams' default, chosen there because
+ * reasoning doubles as a live progress feed. That coupled a UI concern to generation quality: a Stem
+ * Sniper drill was generated at lower effort than the same question on the study page, for no reason
+ * a candidate would recognise. Both paths now take this one constant, so how a question is produced
+ * no longer depends on whether anyone happened to be watching it being produced.
+ */
+const GENERATION_EFFORT = "medium";
+
 /**
  * One generation call, with the model's reasoning surfaced when someone is watching.
  *
- * Without an emitter this is byte-for-byte the request the engine has always sent. With one, the
- * call is made in streaming mode and adaptive thinking is turned on so the reasoning can be piped
- * to the browser. Two knock-on details matter:
- *   • `max_tokens` caps thinking + JSON together, so the 4000 sized for the JSON alone would now
- *     truncate mid-object. Doubled when thinking is on (kept at low effort, so the headroom is
- *     ample rather than speculative).
+ * Without an emitter this is a non-streaming request. With one, the call is made in streaming mode and
+ * adaptive thinking is turned on so the reasoning can be piped to the browser. Three knock-on details
+ * matter:
+ *   • `max_tokens` covers thinking + JSON together — see the constants above for the sizing, and why
+ *     it keys on the model rather than on whether we requested visible reasoning.
  *   • the model may not support adaptive thinking (Haiku, older Opus). `thinkingParams` returns
  *     `{}` there and the call still streams — status events alone keep the UI alive.
+ *   • both branches run at GENERATION_EFFORT, delivered two ways — bundled with the thinking config
+ *     when streaming, on its own when not — and never by spread-order accident. Both are gated on the
+ *     same capability list, because `output_config.effort` is a 400 on models that don't take it.
  */
 async function callGenerationModel(
   client: Anthropic,
@@ -477,35 +588,26 @@ async function callGenerationModel(
   callOpts: { timeout: number; maxRetries: number },
   emit?: ProgressEmitter
 ) {
-  // 2000 was too tight for the reasoning-heavy arm: EVERY Opus generation in production
-  // stopped at exactly 2000 output tokens, i.e. truncated mid-JSON, so attempt 1 could
-  // never parse and simply burned ~30s before falling through to Sonnet. Sonnet averages
-  // ~950 tokens here, so 4000 is comfortably above both arms' real output.
   // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
-  const extra = emit ? await resolveThinking(model) : {};
-  // 8000 UNCONDITIONALLY, not just when adaptive thinking was asked for.
-  //
-  // The premise of the old split was that without `extra` the response is JSON only, so 4000 is
-  // ample. That is false for Opus 5: it emits `thinking` blocks whether or not adaptive thinking was
-  // requested, and max_tokens caps thinking + text TOGETHER. The batch path passes no emitter, so it
-  // was running the reasoning-heavy model on the budget sized for text alone.
-  //
-  // Captured directly in generation_attempts.parse_failure_sample (migration 038), 8 failures in one
-  // Paper 2 batch, every one attempt 1 on Opus at ~60s with no API error:
-  //     4x  (no text content) stop_reason=max_tokens output_tokens=4000 blocks=[thinking]
-  //     4x  a draft that stops after ~375 chars, before "## Wines" — thinking took ~3,900 of the
-  //         4,000 and the question died mid-sentence
-  // Both shapes are the same defect: the budget is spent before the answer is written.
-  //
-  // This file already records the same bug one doubling down, when 2000 truncated every Opus
-  // generation mid-JSON. Sizing this to observed text length is what keeps reintroducing it, because
-  // the reasoning is invisible in the output and therefore easy to forget. 8000 is what the
-  // thinking-on path already uses.
+  // Note this governs only whether the reasoning is VISIBLE; it does not control whether it happens.
+  // When it does return params it carries GENERATION_EFFORT with them.
+  const extra = emit ? await resolveThinking(model, GENERATION_EFFORT) : {};
+  // Effort has to be applied whether or not the reasoning is VISIBLE, so this cannot key on `emit`:
+  // resolveThinking returns `{}` when the admin reasoning toggle is off, and without this the
+  // streaming path would silently fall back to the API default (`high`) — a measured 164s call — the
+  // moment someone flipped a switch about UI. Keying on "did `extra` already bring an effort?"
+  // covers all three states and can never double-apply. Gated on the same capability list:
+  // output_config.effort is a 400 on a model that doesn't accept it (Haiku 4.5).
+  const effort =
+    supportsAdaptiveThinking(model) && !("output_config" in extra)
+      ? { output_config: { effort: GENERATION_EFFORT } }
+      : {};
   const params = {
     model,
-    max_tokens: 8000,
+    max_tokens: generationMaxTokens(model),
     system: prompt.system,
     messages: [{ role: "user" as const, content: prompt.user }],
+    ...effort,
     ...extra,
   } as Parameters<typeof client.messages.create>[0] & { stream?: never };
 
@@ -647,6 +749,7 @@ export async function generateFreshQuestion(
   let parsed: ReturnType<typeof parseGeneratedQuestion> = null;
   let validation:
     | {
+        wineShapeCheck: ReturnType<typeof validateWineReferenceShape>;
         paperScopeCheck: ReturnType<typeof validatePaperScope>;
         varietyCheck: ReturnType<typeof validateVarietyConsistency>;
         markCheck: ReturnType<typeof validateMarkAllocation>;
@@ -680,17 +783,70 @@ export async function generateFreshQuestion(
   // The attempt loop below is itself the retry mechanism, and it is deadline-aware — so transient
   // 429/529s are still retried, just never past the deadline.
   //
-  // Sizing: production Sonnet generations average ~24s but the tail reaches 60s+, so a 35s per-call
-  // cap threw away otherwise-good slow calls and dropped the request to the banked fallback. 45s
-  // covers the observed tail; 95s of budget still fits ~4 typical attempts and leaves ~25s of
-  // headroom under the browser's 120s abort. MIN_CALL_MS sits above a typical call so the loop never
-  // burns the tail of the budget on an attempt that cannot finish.
+  // Sizing (measured over 14 days of generation_attempts, grouped by the call_timeout_ms each run
+  // recorded — runs at the worker's higher cap give the UNCENSORED distribution):
+  //
+  //     model              cap    attempts  passed  p50     p90     p99     max
+  //     claude-opus-5      45s          77       1  45.0s   45.0s   45.4s   45.9s   ← every call at the cap
+  //     claude-opus-5      70s         285      32  59.0s   64.0s   66.3s   67.1s
+  //     claude-sonnet-4-6  45s         387      22  24.3s   45.0s   45.0s   —
+  //     claude-sonnet-4-6  70s        1094     156  28.5s   63.8s   70.0s   —
+  //
+  // The 45s rows are degenerate: the MEDIAN equals the cap, i.e. more than half of all calls were
+  // killed by the timeout rather than by anything the model did. Opus went 1-for-77. At 70s the
+  // timeouts essentially vanish (1 model error in 271) and Opus's real distribution appears — p50
+  // 59s, max 67.1s. So 45s was not a tail-trimming cap, it was below the median of the work.
+  //
+  // Those numbers were all measured under the OLD 4000-token cap, and the cap is why they look the
+  // way they do: question_generation's p90 output is exactly 4000, i.e. censored. The timeout cannot
+  // be sized from them directly, because generationMaxTokens now allows 16000 and latency scales with
+  // tokens. Opus-5's throughput is remarkably flat across task types (model_usage, 14 days):
+  // question_generation 67.6 tok/s, model_answer 69.1, feature_request 65.9, full_debrief 69.8 — call
+  // it ~68 tok/s. Two probes of the real prompt at the raised cap produced 5,084 and 7,718 output
+  // tokens, which at 68 tok/s is 75s and 113s.
+  //
+  // So 130s, not 75s: a timeout has to cover what the token budget actually permits the model to
+  // produce, or the two settings fight each other and every slow generation is thrown away after
+  // paying for it. (The full 16000 would be ~235s; the cap is a truncation guard, not a target, so
+  // the timeout is sized to the observed distribution and a genuinely pathological run is still cut.)
+  // The budget has to fit one such call plus a retry, or raising the cap just converts the request
+  // into a one-shot.
+  //
+  // Measured directly on the live prompt (P3/F4, Opus-5, max_tokens 16000), which is what these are
+  // now sized against — both runs produced a clean, well-formed 4-wine flight:
+  //     effort=medium (what GENERATION_EFFORT sets)   5,710 tokens   83s
+  //     API default (high)                           11,696 tokens  164s
+  // 130s sits comfortably above the medium-effort figure and deliberately below the default-effort
+  // one: at `high` this prompt does not fit in ANY reasonable interactive budget, which is precisely
+  // why the effort is now set explicitly rather than left to the API default.
+  //
+  // On the old ceiling: the previous sizing was justified as "~25s of headroom under the browser's
+  // 120s abort". That abort does not exist. app/study/page.tsx fetches /api/get-question with no
+  // AbortController and no signal, app/page.tsx fetches the (fast) /banked route, and the only
+  // 120_000 left in the tree is a stale comment in bank-worker.ts. The real ceiling is this route's
+  // own `maxDuration = 300`, so 180s of budget still leaves ~120s for the banked fallback query,
+  // the model-answer kickoff and serialization.
+  //
+  // Latency should IMPROVE for the common case despite the larger budget: today attempt 1 burns a
+  // guaranteed 45s timeout before Sonnet gets a turn, where now it can simply succeed at ~59s.
   const startedAt = Date.now();
   const BUDGET_MS =
-    saveOpts?.budgetMs || Number(process.env.GENERATION_BUDGET_MS) || 95_000;
+    saveOpts?.budgetMs || Number(process.env.GENERATION_BUDGET_MS) || GENERATION_TIMING.budgetMs;
   const CALL_TIMEOUT_MS =
-    saveOpts?.callTimeoutMs || Number(process.env.GENERATION_CALL_TIMEOUT_MS) || 45_000;
-  const MIN_CALL_MS = Number(process.env.GENERATION_MIN_CALL_MS) || 25_000;
+    saveOpts?.callTimeoutMs ||
+    Number(process.env.GENERATION_CALL_TIMEOUT_MS) ||
+    GENERATION_TIMING.callTimeoutMs;
+  // Absolute floor: below this no arm can return, so the loop stops and serves a banked question.
+  const MIN_CALL_MS = Number(process.env.GENERATION_MIN_CALL_MS) || GENERATION_TIMING.minCallMs;
+  // Per-arm floor. Sonnet does not reason unless asked, so it still lands around its measured ~28s
+  // p50; Opus reasons on every call and takes ~83s at medium effort. "Enough time left to bother
+  // starting" is therefore not one number. Starting an Opus call with 40s left is the exact mistake
+  // the 45s cap was making 77 times over; when the selected arm no longer fits, the loop drops to
+  // Sonnet for that attempt instead of spending the remaining budget on a call that cannot land.
+  // 120s leaves margin over the measured 83s without being so tight that a slow draft is refused.
+  const OPUS_MIN_CALL_MS =
+    Number(process.env.GENERATION_OPUS_MIN_CALL_MS) || GENERATION_TIMING.opusMinCallMs;
+  const minCallMsFor = (m: string) => (/opus/i.test(m) ? OPUS_MIN_CALL_MS : MIN_CALL_MS);
   const remainingMs = () => BUDGET_MS - (Date.now() - startedAt);
 
   // Minted BEFORE the first model call so every question_generation usage row can carry it. The id
@@ -755,8 +911,19 @@ export async function generateFreshQuestion(
       );
       break;
     }
-    const model = attempt === 1 ? gen.model : "claude-sonnet-4-6";
-    const attemptAb = attempt === 1 ? gen.abGroup : null;
+    // Prefer the selected A/B arm, but never START an arm that cannot finish in the time left. The
+    // budget above fits Opus + a retry from cold; once Opus has had its turn the remainder usually
+    // suits Sonnet only, and spending it on a second Opus call would guarantee another timeout.
+    // Downgrading keeps the attempt (and its retry value) rather than dropping straight to banked.
+    let model = attempt === 1 ? gen.model : "claude-sonnet-4-6";
+    let attemptAb = attempt === 1 ? gen.abGroup : null;
+    if (remaining < minCallMsFor(model)) {
+      console.warn(
+        `Generation attempt ${attempt}: ${remaining}ms left is under ${model}'s ${minCallMsFor(model)}ms floor; using claude-sonnet-4-6`
+      );
+      model = "claude-sonnet-4-6";
+      attemptAb = null;
+    }
     const callOpts = { timeout: Math.min(CALL_TIMEOUT_MS, remaining), maxRetries: 0 } as const;
     let message;
     let producedModel = model;
@@ -878,6 +1045,9 @@ export async function generateFreshQuestion(
     emit?.({ type: "status", label: "Running the examiner validators…" });
 
     // Critical validators (always run)
+    // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
+    // below is reading a paragraph of deliberation and its verdict means nothing.
+    const wineShapeCheck = validateWineReferenceShape(candidate.wines);
     const paperScopeCheck = validatePaperScope(paper, candidate.wines);
     const varietyCheck = validateVarietyConsistency(candidate.questionText, candidate.wines);
     const markCheck = validateMarkAllocation(candidate.questionText, candidate.wines.length);
@@ -936,6 +1106,7 @@ export async function generateFreshQuestion(
     // of the table: "which validator is costing us the redrafts?" Every rule here is recorded;
     // ADVISORY_RULES below controls which of them can actually fail an attempt.
     const checks: Record<string, { violations: string[] }> = {
+      wineShape: wineShapeCheck,
       paperScope: paperScopeCheck,
       variety: varietyCheck,
       varietyFilter: varietyFilterCheck,
@@ -967,7 +1138,7 @@ export async function generateFreshQuestion(
 
     if (lastViolations.length === 0) {
       parsed = candidate;
-      validation = { paperScopeCheck, varietyCheck, markCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
+      validation = { wineShapeCheck, paperScopeCheck, varietyCheck, markCheck, originDiversityCheck, countryDiversityCheck, bankerCheck, flightSizeCheck, noveltyCheck };
       genModelUsed = producedModel;
       genAbGroup = producedAb;
       if (attempt > 1) console.log(`Generation retry ${attempt} succeeded (relaxed=${relaxNiceToHave ? "nice-to-have" : relaxImportant ? "important" : "none"})`);
@@ -1036,6 +1207,7 @@ export async function generateFreshQuestion(
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,
+      wineShapeCheck: validation.wineShapeCheck,
       paperScopeCheck: validation.paperScopeCheck,
       varietyCheck: validation.varietyCheck,
       markCheck: validation.markCheck,
@@ -1181,6 +1353,26 @@ export function validateVarietyFilter(
       `Wine ${wine.slot}: "${wine.fullText}" reads as ${got}, but this flight was filtered to ${variety}`
     );
   }
+  return { valid: violations.length === 0, violations };
+}
+
+/**
+ * Every wine slot must hold a wine REFERENCE, not the generator's reasoning about which wine to pick.
+ *
+ * Delegated to the shared rule layer (R8, wine-reference-shape) so the audit path catches the same
+ * defect on already-banked rows. CRITICAL and never relaxed: an unparseable entry is not a lesser
+ * question, it is a broken one. Twelve banked questions carried slots holding text like
+ * "Chambers Rosewood — wait, excluded. Let me correct." or a 601-character paragraph weighing up
+ * Amontillados. Nothing downstream noticed — wine enrichment ran a Tavily search on the paragraph, the
+ * wine_bank gained a row whose producer was a sentence of deliberation, and the flight reached the
+ * candidate as a real question.
+ */
+export function validateWineReferenceShape(
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  const violations = applyQuestionRules({ paper: 0, questionText: "", wines: winesFromText(wines) }, {})
+    .filter((v) => v.rule === "wine-reference-shape")
+    .map((v) => v.detail);
   return { valid: violations.length === 0, violations };
 }
 
