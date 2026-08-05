@@ -1741,13 +1741,15 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   quantified version of the weak-spots noted in EK-0068.
 
 ### EK-0084 · A separate "exam-structure predictor" forecasts next year's paper shape
-- **tier:** PLAUSIBLE · **status:** live — **the 12/12 exact-count figure below is superseded by EK-0143**
+- **tier:** PLAUSIBLE · **status:** live — **the 12/12 exact-count figure below is WRONG; it measured a tautology. Real rate is 27% — see EK-0143**
 - **evidence:** `outputs/backtest_reports/exam_predictor_backtest.md`; `data/frozen_predictions/predicted_2026_exam_profile.PRE-EXAM-FROZEN.json`
 - **claim:** Beyond per-wine ID, a sequence-aware 5-layer model predicts the **structure** of an
   upcoming paper (question count, family archetype per question, slot-level variety/country/style),
   backtested 2022–2025. It predicts the **exact question-count per paper correctly in every paper-year
-  (12/12)**; top-3 hit rates: style 97.6%, question-role 92.9%, country 81.0%, variety 59.5%; structure
-  mean-F1 0.499. **P2 structure is the hardest to predict.** It is explicitly *"a steering layer, not an
+  (12/12)** — **this figure is invalid, see EK-0143**; top-3 hit rates: style 97.6%, question-role 92.9%,
+  country 81.0%, variety 59.5%; structure mean-F1 0.499. (Re-measured 2026-08-05 with 2026 added as a
+  fifth fold: structure mean-F1 0.521, style 98.0%, role 92.0%, country 84.0%, variety 60.0%, and real
+  question-count accuracy 27%.) **P2 structure is the hardest to predict.** It is explicitly *"a steering layer, not an
   oracle"* — useful for biasing mock-exam generation toward likely shapes, not for guaranteeing content.
 </content>
 
@@ -1767,19 +1769,30 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   denominator counts every blend component in the paper (corvinone, touriga franca, macabeo) while
   the forecast only offers three guesses per slot. Do not cite it as a variety accuracy figure.
 
-### EK-0143 · The predictor's "12/12 exact question count" was in-sample — out-of-sample it is 1/3
-- **tier:** STRONG SIGNAL · **status:** live — **qualifies EK-0084**
-- **evidence:** `outputs/backtest_reports/2026_holdout.md` vs `outputs/backtest_reports/exam_predictor_backtest.md`
+### EK-0143 · The predictor's "12/12 exact question count" measured a tautology — the real rate is 27%
+- **tier:** STRONG SIGNAL · **status:** live — **corrects EK-0084**
+- **evidence:** `outputs/backtest_reports/2026_holdout.md`; `outputs/backtest_reports/exam_predictor_backtest.md`;
+  the `count_correct` field added to `scripts/build_predictive_exam_analyzer.py` on 2026-08-05
 - **claim:** EK-0084 reports the exam-structure predictor calling the **exact question count correctly
-  in every paper-year (12/12)** across the 2022–25 backtest. On the held-out 2026 paper it got
-  **1 of 3** — it predicted 4 questions in Paper 1 (actual 3) and 3 in Paper 3 (actual 2), and was
-  right only on Paper 2. The 12/12 figure was measured on years the model had been tuned against and
-  is **overfit**; question count is materially less predictable than that claim implies. 2026 also
-  ran **fewer, larger flights** than forecast (a 6-wine P1 opener, a 6-wine P2 pair-set, an 8-wine P3
-  pair-set), which is how a paper sheds a question while keeping 12 wines and 300 marks. Treat
-  predicted question *count* as a soft prior; treat predicted *archetype mix* (EK-0142) as the
-  reliable part. The 2026 marks split also skews harder to identification than any recent year
+  in every paper-year (12/12)**. That figure was **not overfit — it was vacuous.** `run_backtest()`
+  called `predict_paper_sequence(..., forced_count=len(paper_rows))`, forcing the predicted sequence
+  to the *actual* question count, and then asserted `sum(predicted) == sum(actual)`. That identity is
+  **true by construction for every paper of every year**. The real predictor, `predict_question_count()`,
+  was **never invoked by the backtest at all** — only by the forward forecast. So the capability was
+  reported at 100% while going entirely unmeasured.
+- **the real number:** scoring `predict_question_count()` properly across 2022–2026 gives
+  **4 of 15 paper-years correct = 27%**. Per year: 2022 1/3, 2023 0/3, 2024 2/3, 2025 0/3, 2026 1/3.
+  The 2026 row matches the independent frozen-forecast holdout exactly (1 of 3 — Paper 2 only), which
+  is two separate code paths agreeing and is why the figure can be trusted.
+- **consequence:** **do not use predicted question count as a planning input.** Predicting how many
+  questions a paper will carry is close to a coin-flip at 3-vs-4. Predicted *archetype mix* is the
+  usable half (EK-0142: 75% recall out-of-sample). 2026 ran **fewer, larger flights** than forecast
+  (a 6-wine P1 opener, a 6-wine P2 pair-set, an 8-wine P3 pair-set), which is how a paper sheds a
+  question while keeping 12 wines and 300 marks — that mechanism, not the count itself, is the thing
+  worth internalising. The 2026 marks split also skews harder to identification than any recent year
   (id 58.0% / quality 25.7% / commercial 12.0%, vs 39.7 / 40.1 / 17.8 in 2025).
+- **generalised lesson:** a metric that can only ever return one value is not a measurement. When a
+  backtest reports a perfect score, check whether the quantity is derived from the answer.
 
 ### EK-0144 · A single question can restart its sub-question lettering when it changes scope
 - **tier:** STRONG SIGNAL · **status:** live

@@ -415,13 +415,13 @@ export default function MethodologyPage() {
           <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">Exam Structure Prediction</h3>
           <p className="text-muted leading-relaxed mb-3">
             A separate model predicts what question types, varieties, and regions will appear.
-            Backtested on 2022-2025 (in-sample -- these are years the model was tuned against):
+            Backtested leave-one-year-out across 2022-2026 (each fold trains only on earlier years):
           </p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard value="100%" label="Question Count" sub="In-sample; see 2026 result below" />
-            <StatCard value="97.6%" label="Style Prediction" sub="Top-3 hit rate" />
-            <StatCard value="81.0%" label="Country Prediction" sub="Top-3 hit rate" />
-            <StatCard value="59.5%" label="Variety Prediction" sub="Top-3 hit rate" />
+            <StatCard value="27%" label="Question Count" sub="4 of 15 paper-years; was mis-reported as 100%" />
+            <StatCard value="98.0%" label="Style Prediction" sub="Top-3 hit rate" />
+            <StatCard value="84.0%" label="Country Prediction" sub="Top-3 hit rate" />
+            <StatCard value="60.0%" label="Variety Prediction" sub="Top-3 hit rate" />
           </div>
 
           <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">
@@ -435,19 +435,22 @@ export default function MethodologyPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <StatCard value="75%" label="Question Archetypes" sub="6 of 8 anticipated" />
             <StatCard value="96%" label="Country (matrices)" sub="24 of 25 named blind" />
-            <StatCard value="1 of 3" label="Exact Question Count" sub="In-sample said 100%" />
+            <StatCard value="1 of 3" label="Exact Question Count" sub="Matches the 27% backtest rate" />
             <StatCard value="61%" label="Country (structure model)" sub="Held-out recall" />
           </div>
           <Callout>
             <p className="text-sm text-muted">
-              <strong>What we got wrong, stated plainly.</strong> The &quot;100% question count&quot;
-              figure above is <strong>overfit</strong>. On the held-out 2026 papers the model called the
-              exact question count in only <strong>1 of 3</strong> papers -- it expected four questions in
-              Paper 1 and three in Paper 3, and got three and two. 2026 ran fewer, larger flights (a
-              six-wine Paper 1 opener, an eight-wine Paper 3 pair-set), which is how a paper sheds a
-              question while keeping twelve wines and 300 marks. Treat predicted question <em>count</em> as
-              a soft prior. The archetype mix -- which question <em>types</em> appear -- held up out of
-              sample at 75%, better than its own in-sample score, and that is the part worth trusting.
+              <strong>What we got wrong, stated plainly.</strong> This page previously reported
+              &quot;100% question count&quot; accuracy. That number was not merely optimistic -- it was
+              <strong>measuring nothing</strong>. The backtest forced its prediction to equal the actual
+              question count and then checked whether the two matched, an identity true by construction;
+              the real predictor was never called. Scored properly, question-count accuracy is
+              <strong>27% -- 4 of 15 paper-years</strong>. On the held-out 2026 papers it was 1 of 3,
+              which agrees. 2026 ran fewer, larger flights (a six-wine Paper 1 opener, an eight-wine
+              Paper 3 pair-set), which is how a paper sheds a question while keeping twelve wines and
+              300 marks. <strong>Do not plan around predicted question count.</strong> The archetype
+              mix -- which question <em>types</em> appear -- held up out of sample at 75%, better than
+              its own in-sample score, and that is the half worth trusting.
             </p>
           </Callout>
         </SectionCard>

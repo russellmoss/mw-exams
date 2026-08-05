@@ -11,15 +11,15 @@ The model now has five layers:
 
 ## Summary
 
-- Structure mean F1 proxy: `0.499`
-- Variety top-3 hit rate: `0.595`
-- Country top-3 hit rate: `0.810`
-- Style top-3 hit rate: `0.976`
-- Question-role top-3 hit rate: `0.929`
-- Variety mean recall: `0.327`
-- Country mean recall: `0.554`
-- Style mean recall: `0.887`
-- Question-role mean recall: `0.841`
+- Structure mean F1 proxy: `0.521`
+- Variety top-3 hit rate: `0.600`
+- Country top-3 hit rate: `0.840`
+- Style top-3 hit rate: `0.980`
+- Question-role top-3 hit rate: `0.920`
+- Variety mean recall: `0.336`
+- Country mean recall: `0.567`
+- Style mean recall: `0.900`
+- Question-role mean recall: `0.850`
 
 ## Year-by-year
 
@@ -65,7 +65,7 @@ The model now has five layers:
   - predicted question count matched actual: `True`
   - predicted archetypes: `{'p3:F5:sparkling_method': 1, 'p3:F6:sweetness_axis': 1, 'p3:F7:quality_calibration': 1, 'p3:F2:same_origin_comparative': 1}`
   - actual archetypes: `{'p3:F5:sparkling_method': 1, 'p3:F7:quality_calibration': 1, 'p3:F2:same_origin_comparative': 1, 'p3:F1:same_variety_cross_origin': 1}`
-- Question-level top-3 hit rates: variety `0.600`, country `0.700`, style `0.900`, role `0.900`
+- Question-level top-3 hit rates: variety `0.600`, country `0.700`, style `0.900`, role `0.800`
 
 ### 2024
 
@@ -110,6 +110,28 @@ The model now has five layers:
   - predicted archetypes: `{'p3:F5:sparkling_method': 1, 'p3:F2:same_origin_comparative': 1, 'p3:F7:quality_calibration': 1}`
   - actual archetypes: `{'p3:F1:same_variety_cross_origin': 1, 'p3:F2:same_origin_comparative': 1, 'p3:F4:mixed_bag': 1}`
 - Question-level top-3 hit rates: variety `0.600`, country `0.800`, style `1.000`, role `1.000`
+
+### 2026
+
+- Paper 1:
+  - structure precision: `0.667`
+  - structure recall: `0.667`
+  - predicted question count matched actual: `True`
+  - predicted archetypes: `{'p1:F1:same_variety_cross_origin': 1, 'p1:F7:quality_calibration': 1, 'p1:F2:same_origin_comparative': 1}`
+  - actual archetypes: `{'p1:F1:same_variety_cross_origin': 1, 'p1:F6:maturity_axis': 1, 'p1:F7:quality_calibration': 1}`
+- Paper 2:
+  - structure precision: `0.667`
+  - structure recall: `0.667`
+  - predicted question count matched actual: `True`
+  - predicted archetypes: `{'p2:F1:same_variety_cross_origin': 1, 'p2:F7:quality_calibration': 1, 'p2:F2:same_origin_comparative': 1}`
+  - actual archetypes: `{'p2:F2:same_origin_comparative': 1, 'p2:F7:quality_calibration': 1, 'p2:F2:same_region_internal_diversity': 1}`
+- Paper 3:
+  - structure precision: `0.500`
+  - structure recall: `0.500`
+  - predicted question count matched actual: `True`
+  - predicted archetypes: `{'p3:F5:sparkling_method': 1, 'p3:F2:same_origin_comparative': 1}`
+  - actual archetypes: `{'p3:F5:sparkling_method': 1, 'p3:F2:same_region_internal_diversity': 1}`
+- Question-level top-3 hit rates: variety `0.625`, country `1.000`, style `1.000`, role `1.000`
 
 ## Interpretation
 

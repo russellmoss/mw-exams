@@ -11,13 +11,18 @@ EXAMS_PATH = ROOT / "data" / "exams.json"
 RESEARCH_DIR = ROOT / "data" / "wine_research"
 CLASSIFICATION_PATH = ROOT / "data" / "historical_wine_classification.json"
 
-# 2026 is deliberately NOT a backtest year yet. run_backtest() scores variety /
-# country / style top-3 against labels sourced from data/wine_research/, and the
-# 36 wines of 2026 have no research files. score_topk() returns a 0.0 miss for an
-# empty actual set, so including 2026 here would quietly drag every label hit rate
-# down and misreport the baseline. Add 2026 once its wine research exists.
-# Structure-only scoring for 2026 lives in scripts/score_2026_holdout.py.
-BACKTEST_YEARS = [2022, 2023, 2024, 2025]
+# 2026 joined the backtest on 2026-08-05, once all 36 of its wines had research files.
+# It was held out until then for a real reason: run_backtest() scores variety / country /
+# style top-3 against labels sourced from data/wine_research/, and score_topk() returns a
+# 0.0 miss for an empty actual set — so a label-less 2026 would have quietly dragged every
+# hit rate down and misreported the baseline rather than erroring.
+#
+# Note what the 2026 row in this backtest is and is not. run_backtest() trains on
+# year < test_year, so the 2026 fold is still a genuine leave-one-year-out measurement.
+# But the FORECAST below is a different thing: forecast_2027() trains on everything
+# including 2026, and the master trees have now absorbed 2026 too (EK-0145). Only the
+# frozen pre-exam artifact in data/frozen_predictions/ is uncontaminated evidence.
+BACKTEST_YEARS = [2022, 2023, 2024, 2025, 2026]
 FUTURE_YEAR = 2027
 RECENT_STRUCTURE_START_YEAR = 2018
 
@@ -547,6 +552,7 @@ def score_topk(actual: list[str], predicted: list[str]) -> dict[str, float | boo
 def run_backtest(rows: list[dict]) -> dict:
     results: dict[str, dict] = {"years": {}, "summary": {}}
     structure_hits = []
+    count_hits = []
     variety_hits = []
     country_hits = []
     style_hits = []
@@ -564,20 +570,38 @@ def run_backtest(rows: list[dict]) -> dict:
 
         for paper in [1, 2, 3]:
             paper_rows = [r for r in test_rows if r["paper"] == paper]
+            # The archetype-mix comparison deliberately FORCES the sequence length to the
+            # actual question count, so that precision/recall measure "did we pick the right
+            # question types", not "did we guess how many questions there are". That is a
+            # legitimate design — but it means the old `exact_count_match` derived from this
+            # sequence was a tautology (forced length == actual length, always True), which
+            # is how EK-0084 came to report a meaningless 12/12. The real question-count
+            # predictor is scored separately below. See EK-0143.
             predicted_seq = predict_paper_sequence(structure_rows, paper, test_year, forced_count=len(paper_rows))
             actual_counter = Counter(r["archetype"] for r in paper_rows)
             predicted_counter = Counter(item["archetype"] for item in predicted_seq)
             overlap = sum(min(actual_counter[k], predicted_counter[k]) for k in set(actual_counter) | set(predicted_counter))
             precision = overlap / sum(predicted_counter.values()) if predicted_counter else 0.0
             recall = overlap / sum(actual_counter.values()) if actual_counter else 0.0
-            exact_count_match = sum(predicted_counter.values()) == sum(actual_counter.values())
+
+            # The genuine, unforced question-count prediction.
+            predicted_count = predict_question_count(structure_rows, paper, test_year)
+            actual_count = len(paper_rows)
+            count_correct = predicted_count == actual_count
+            count_hits.append(count_correct)
+
             year_result["papers"][str(paper)] = {
                 "actual_structures": dict(actual_counter),
                 "predicted_structures": dict(predicted_counter),
                 "predicted_sequence": predicted_seq,
                 "precision": precision,
                 "recall": recall,
-                "exact_count_match": exact_count_match,
+                "predicted_question_count": predicted_count,
+                "actual_question_count": actual_count,
+                "count_correct": count_correct,
+                # Retained under its old name for compatibility, but it is the forced-length
+                # identity and is always True — do not cite it. Use count_correct.
+                "exact_count_match": sum(predicted_counter.values()) == sum(actual_counter.values()),
             }
             structure_hits.append((precision + recall) / 2 if actual_counter else 0.0)
 
@@ -631,6 +655,11 @@ def run_backtest(rows: list[dict]) -> dict:
 
     results["summary"] = {
         "structure_mean_f1_proxy": sum(structure_hits) / len(structure_hits),
+        # The real, unforced question-count accuracy. The old "exact_count_match" was a
+        # forced-length identity that always read 100%; this is what it should have been.
+        "question_count_exact_rate": sum(1 for x in count_hits if x) / len(count_hits) if count_hits else 0.0,
+        "question_count_correct": sum(1 for x in count_hits if x),
+        "question_count_total": len(count_hits),
         "variety_top3_hit_rate": sum(1 for x in variety_hits if x) / len(variety_hits),
         "country_top3_hit_rate": sum(1 for x in country_hits if x) / len(country_hits),
         "style_top3_hit_rate": sum(1 for x in style_hits if x) / len(style_hits),
