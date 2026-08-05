@@ -161,6 +161,8 @@ def extract_variety_from_text(ft):
         ("xarel", "Xarel-lo"), ("macabeo", "Macabeo"),
         ("lambrusco", "Lambrusco"),
         ("vermentino", "Vermentino"), ("assyrtiko", "Assyrtiko"),
+        ("trousseau", "Trousseau"), ("poulsard", "Poulsard"),
+        ("ploussard", "Poulsard"),
         ("rolle", "Vermentino"),
     ]
 

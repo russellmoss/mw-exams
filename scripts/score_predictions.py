@@ -67,6 +67,22 @@ def _strip_accents(s):
     return out.lower()
 
 _WHITE_MARKER = _re.compile(r"\b(?:blanc|blanco|bianco|weiss|white)\b", _re.I)
+_RED_MARKER = _re.compile(r"\b(?:rouge|rosso|tinto|tinta|rot|red)\b", _re.I)
+
+# White grapes appearing in data/appellation_varieties.json. Used only to detect
+# "this appellation entry describes the WHITE wine" — the mirror of _RED_VARIETIES.
+# Auxerrois is deliberately excluded: it names both an Alsace white and a Malbec synonym,
+# so it cannot be used as colour evidence.
+_WHITE_VARIETIES = {
+    "aligote", "arneis", "boal", "bourboulenc", "carricante", "chardonnay", "chenin blanc",
+    "clairette", "furmint", "garganega", "garnacha blanca", "glera", "grenache blanc",
+    "grillo", "gros manseng", "harslevelu", "macabeo", "malmsey", "malvasia", "marsanne",
+    "melon de bourgogne", "moscato bianco", "muscadelle", "muscat lunel",
+    "muscat a petits grains", "muscat of alexandria", "palomino", "parellada",
+    "pedro ximenez", "petit manseng", "pinot blanc", "pinot gris", "riesling", "roussanne",
+    "sauvignon blanc", "savagnin", "semillon", "sercial", "trebbiano", "verdelho",
+    "viognier", "viura", "welschriesling", "xarel-lo",
+}
 
 # Red varieties that appear in data/appellation_varieties.json. Used only to detect
 # "this appellation entry describes the RED wine" — see resolve_appellation_varieties.
@@ -101,27 +117,31 @@ def resolve_appellation_varieties(wine_text):
         _load_appellation_lookup()
     stripped = _strip_accents(wine_text)
     is_white = bool(_WHITE_MARKER.search(stripped))
+    is_red = bool(_RED_MARKER.search(stripped)) and not is_white
     sorted_keys = sorted(APPELLATION_LOOKUP.keys(), key=len, reverse=True)
 
-    # Pass 1 — a white wine prefers an explicitly white appellation entry.
-    if is_white:
+    marker = _WHITE_MARKER if is_white else (_RED_MARKER if is_red else None)
+    # Pass 1 — a colour-marked wine prefers an appellation entry of the same colour.
+    if marker is not None:
         for key in sorted_keys:
-            if not _WHITE_MARKER.search(key):
+            if not marker.search(key):
                 continue
             if _strip_accents(key) in stripped:
                 return APPELLATION_LOOKUP[key].get("varieties", [])
 
-    # Pass 2 — normal longest-match.
+    # Pass 2 — normal longest-match, refusing to hand back the wrong colour's grapes.
     for key in sorted_keys:
         if _strip_accents(key) not in stripped:
             continue
         varieties = APPELLATION_LOOKUP[key].get("varieties", [])
-        if not (is_white and varieties):
+        if not varieties or not (is_white or is_red):
             return varieties
-        if not all(v.lower() in _RED_VARIETIES for v in varieties):
-            return varieties  # already a white/mixed entry — fine
-        # Red entry but a white wine: reach for that appellation's white sibling.
-        for suffix in (" blanc", " blanco", " bianco"):
+        wrong_colour_set = _RED_VARIETIES if is_white else _WHITE_VARIETIES
+        if not all(v.lower() in wrong_colour_set for v in varieties):
+            return varieties  # entry is the right colour, or mixed — fine
+        # Entry describes the other colour: reach for this appellation's sibling.
+        suffixes = (" blanc", " blanco", " bianco") if is_white else (" rouge", " rosso", " tinto")
+        for suffix in suffixes:
             alt = APPELLATION_LOOKUP.get(key + suffix)
             if alt:
                 return alt.get("varieties", [])

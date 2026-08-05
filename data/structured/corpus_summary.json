@@ -2,14 +2,15 @@
   "counts": {
     "wines_total": 540,
     "wines_recent": 396,
-    "questions_total": 161,
+    "questions_total": 162,
     "questions_recent": 120,
-    "subquestions_total": 488,
+    "subquestions_total": 493,
     "subquestions_recent": 363
   },
-  "marks_ok_rate_all": 0.894,
+  "marks_ok_rate_all": 0.889,
   "marks_ok_rate_recent": 1.0,
   "marks_not_ok_questions": [
+    "2011_p3_q1",
     "2012_p1_q1",
     "2012_p1_q2",
     "2012_p1_q3",
@@ -92,10 +93,10 @@
   },
   "id_share_by_year": {
     "2011": {
-      "id_pct": 72.2,
-      "quality_pct": 39.2,
-      "commercial_pct": 3.3,
-      "total_marks": 600
+      "id_pct": 66.8,
+      "quality_pct": 36.3,
+      "commercial_pct": 3.1,
+      "total_marks": 648
     },
     "2012": {
       "id_pct": 34.0,

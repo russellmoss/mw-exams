@@ -296,9 +296,23 @@ Lock the origin family and then explain internal diversity via variety substitut
 
 ### Pre-taste decision branches
 
+> **Which country, before you pick varieties.** All nine single-country P2 instances:
+> Italy 3, France 2, South Africa 1, New Zealand 1, Spain 1, USA 1. Italy is a **plurality, not a
+> default** — 3 of 9. Two observable stem features move it, and both fired together in 2026 P2 Q1,
+> the worst-scoring question of the 2026 tree holdout (0% top-1, 0% top-3 — EK-0148):
+>
+> 1. **Identification demoted.** ID is sub-question (a), asked first, in **8 of 9** instances. The
+>    sole exception is 2026 P2 Q1 (11 style / 6 method / 8 ID, ID last). When ID is demoted, the
+>    examiners want market fluency, and the flight skews lighter and more commercial — weaken the
+>    Italian benchmark prior and **widen**, rather than swapping in another single country. n=1.
+> 2. **Three wines.** Italy's three appearances are **all 4-wine**; all three **3-wine** instances
+>    were non-Italy (South Africa 2011, New Zealand 2013, France 2026).
+>
+> See the ROUTING GATE at the head of Branch 2 in `p2_reds_tree.md` for the full version.
+
 #### Branch 2.1 — Same country, different varieties (F2a)
 
-Working priors per country: France ⇒ Pinot/Cabernet/Syrah/Grenache; Italy ⇒ Nebbiolo/Sangiovese/Aglianico/Nerello; Spain ⇒ Tempranillo/Garnacha/Mencía/Monastrell.
+Working priors per country: France ⇒ Pinot/Cabernet/Syrah/Grenache **plus the light cool-climate tour (Loire Cabernet Franc, Beaujolais Gamay, Jura Trousseau/Poulsard)**; Italy ⇒ Nebbiolo/Sangiovese/Aglianico/Nerello; Spain ⇒ Tempranillo/Garnacha/Mencía/Monastrell.
 
 #### Branch 2.1b — Same country, different varieties, market-fluency/showcase structure (2026 addition)
 

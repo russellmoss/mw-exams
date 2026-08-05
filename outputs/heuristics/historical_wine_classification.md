@@ -17,10 +17,10 @@ This file classifies the historical exam wine corpus into reusable sourcing role
 
 - `method_reference`: `326`
 - `maturity_reference`: `78`
-- `benchmark_anchor`: `44`
 - `commercial_foil`: `43`
+- `benchmark_anchor`: `39`
 - `supporting_reference`: `23`
-- `sweetness_reference`: `14`
+- `sweetness_reference`: `19`
 - `comparative_peer`: `6`
 - `curveball_probe`: `6`
 

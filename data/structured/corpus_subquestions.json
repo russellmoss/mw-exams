@@ -486,6 +486,103 @@
     "text": "Comment on quality and style, with particular reference to commercial appeal (2 x 10 marks)"
   },
   {
+    "subq_id": "2011_p3_q1_a",
+    "qid": "2011_p3_q1",
+    "year": 2011,
+    "paper": 3,
+    "n": 1,
+    "is_recent_window": false,
+    "flight_size": 12,
+    "label": "a",
+    "type": "origin_id",
+    "type_hits": [
+      "origin_id"
+    ],
+    "marks_each": null,
+    "marks_count": null,
+    "marks_sum": 0,
+    "marks_pct_of_question": 0.0,
+    "text": "Identify the region of origin as closely as possible (8 marks per pair)"
+  },
+  {
+    "subq_id": "2011_p3_q1_b",
+    "qid": "2011_p3_q1",
+    "year": 2011,
+    "paper": 3,
+    "n": 1,
+    "is_recent_window": false,
+    "flight_size": 12,
+    "label": "b",
+    "type": "winemaking",
+    "type_hits": [
+      "winemaking"
+    ],
+    "marks_each": null,
+    "marks_count": null,
+    "marks_sum": 0,
+    "marks_pct_of_question": 0.0,
+    "text": "Comment on the methods of production (14 marks per pair)"
+  },
+  {
+    "subq_id": "2011_p3_q1_c",
+    "qid": "2011_p3_q1",
+    "year": 2011,
+    "paper": 3,
+    "n": 1,
+    "is_recent_window": false,
+    "flight_size": 12,
+    "label": "c",
+    "type": "origin_id",
+    "type_hits": [
+      "origin_id",
+      "quality",
+      "comparative"
+    ],
+    "marks_each": null,
+    "marks_count": null,
+    "marks_sum": 0,
+    "marks_pct_of_question": 0.0,
+    "text": "Compare the quality of the two wines, within the context of the region of origin (20 marks per pair)\nFor each wine:"
+  },
+  {
+    "subq_id": "2011_p3_q1_d",
+    "qid": "2011_p3_q1",
+    "year": 2011,
+    "paper": 3,
+    "n": 1,
+    "is_recent_window": false,
+    "flight_size": 12,
+    "label": "d",
+    "type": "structure",
+    "type_hits": [
+      "structure"
+    ],
+    "marks_each": 2,
+    "marks_count": 12,
+    "marks_sum": 24,
+    "marks_pct_of_question": 50.0,
+    "text": "State the alcohol to the nearest degree (12 x 2 marks)"
+  },
+  {
+    "subq_id": "2011_p3_q1_e",
+    "qid": "2011_p3_q1",
+    "year": 2011,
+    "paper": 3,
+    "n": 1,
+    "is_recent_window": false,
+    "flight_size": 12,
+    "label": "e",
+    "type": "sweetness_rs",
+    "type_hits": [
+      "sweetness_rs"
+    ],
+    "marks_each": 2,
+    "marks_count": 12,
+    "marks_sum": 24,
+    "marks_pct_of_question": 50.0,
+    "text": "State the residual sugar in grammes per litre (12 x 2 marks)"
+  },
+  {
     "subq_id": "2012_p1_q1_a",
     "qid": "2012_p1_q1",
     "year": 2012,

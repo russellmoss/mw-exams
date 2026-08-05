@@ -65,7 +65,7 @@ Scored **36 wines** across **8 questions**.
 | --- | --- | --- |
 | 1 | Cabernet Franc | France |
 | 2 | Gamay | France |
-| 3 | Savagnin/Chardonnay | France |
+| 3 | Trousseau | France |
 
 **`2026_p2_q2`** — predicted ranking: Cabernet Sauvignon/Merlot, Syrah/Shiraz, Pinot Noir, Tempranillo, Sangiovese, Cabernet Franc
 

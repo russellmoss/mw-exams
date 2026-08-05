@@ -30,6 +30,35 @@ This tree targets **variety + region** accuracy. Producer, vintage, and vineyard
 ### Branch 2: "Same country" questions
 **Historical frequency:** 9 of 40 P2 questions, dominated by France and Italy.
 
+#### ROUTING GATE — read this before any sub-branch below
+
+This branch has three sub-branches and until 2026 it had no rule for choosing between them, so a
+reader entered the first one by default and inherited its Italy-led prior. That is precisely how the
+frozen tree failed 2026 P2 Q1: it routed to "different regions, region-first", led Italy, and the
+answer was three light French reds — **0% top-1, 0% top-3, 33% candidate set**, the worst result of
+any question in the 2026 holdout (EK-0148). The prior was not the bug; the missing routing was.
+
+Check these in order:
+
+1. **Where does identification sit, and what is it worth?** Across the nine single-country P2
+   instances, identification is sub-question **(a), asked first, in eight of nine**. The single
+   exception is 2026 P2 Q1, where ID is asked **last (c) and is not the heaviest** (11 style /
+   6 method / 8 ID). If ID is demoted, go to the **market-fluency/showcase** sub-branch and treat the
+   Italian benchmark prior as **weakened, not merely re-pointed** — widen, do not swap one country
+   for another. n=1, so this is a flag to open up, not a predictor of France.
+2. **How many wines?** Italy's three appearances (2015 Q3, 2017 Q2, 2023 Q1) are **all 4-wine
+   flights**. All three **3-wine** instances were non-Italy — South Africa (2011 Q1), New Zealand
+   (2013 Q2), France (2026 Q1). A 3-wine same-country flight has never been Italian in this corpus.
+   Small n, but it points the same way as signal 1 and the two co-occurred in 2026.
+3. **What does the stem link on?** "different **regions**" → region-first sub-branch. "different
+   single **grape varieties**" → market-fluency/showcase sub-branch. "variety/ies" plural or
+   "predominant" → the blend-language sub-branch.
+
+**Country base rates for a single-country P2 stem** (all nine instances, so this is the honest prior
+when no signal above fires): Italy 3, France 2, South Africa 1, New Zealand 1, Spain 1, USA 1.
+Italy leads, but it is 3 of 9 — a plurality, not a default. Keep France, and at least one New World
+country, alive in the candidate set at all times.
+
 #### Sub-branch: same country, different regions, region-first
 - **Leaf:** STRONG SIGNAL: Italy, France. PLAUSIBLE: USA. CURVEBALL: broader "Americas" or ex-big-three Europe.
 - **Evidence:** 2015 P2 Q3, 2017 P2 Q2, 2023 P2 Q1, 2025 P2 Q2, 2018 P2 Q1, 2024 P2 Q2.
