@@ -28,6 +28,7 @@ import { FeedbackButton } from "../components/FeedbackButton";
 import { FlagQuestionButton } from "../components/FlagQuestionButton";
 import { PaceStrip } from "../components/PaceStrip";
 import { PaceReport } from "../components/PaceReport";
+import { QuestionRecap } from "../components/QuestionRecap";
 import {
   computePaceData,
   DEFAULT_PACE_PREFERENCE,
@@ -1146,8 +1147,15 @@ export default function StudyPage() {
           {/* Model answer reveal + decision tree walkthrough */}
           {state.step === "reveal-answer" && (
             <div className="space-y-6">
+              {/* The question being debriefed, restated above everything else on the review screen. */}
+              <QuestionRecap question={state.question} />
               {paceEnabled && paceResult && (
-                <PaceReport pace={paceResult} wines={state.question.wines} />
+                <PaceReport
+                  pace={paceResult}
+                  wines={state.question.wines}
+                  tastingNotes={tastingNotes}
+                  provenance={tastingProvenance}
+                />
               )}
               {timer.elapsed > 0 && (
                 <TimingFeedback seconds={timer.elapsed} wineCount={state.question.wines.length} />

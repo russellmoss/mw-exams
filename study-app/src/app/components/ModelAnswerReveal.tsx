@@ -4,7 +4,6 @@ import ReactMarkdown from "react-markdown";
 import type { Question } from "@/lib/study-session";
 import {
   deriveQuestion,
-  markPhrase,
   SECTION_A_HEADING,
   SECTION_B_HEADING,
 } from "@/lib/question-sections";
@@ -95,34 +94,7 @@ export function ModelAnswerReveal({
 
   return (
     <div className="space-y-6">
-      {/* Original question — kept in view so the identities and answer are read against what was
-          actually asked. */}
-      <div className="bg-card rounded-xl border border-border p-6">
-        <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-4">
-          The Question
-        </h3>
-        <p className="text-[15px] text-foreground leading-relaxed font-medium">
-          {derived.preamble}
-        </p>
-        {derived.subParts.length > 0 && (
-          <div className="mt-4 space-y-3">
-            {derived.subParts.map((sq) => (
-              <div key={sq.label} className="flex gap-3">
-                <span className="text-accent font-mono text-xs font-semibold shrink-0 mt-0.5">
-                  {sq.label})
-                </span>
-                <p className="flex-1 text-sm text-foreground/90 leading-relaxed">{sq.text}</p>
-                {sq.marks > 0 && (
-                  <span className="text-xs text-muted font-mono shrink-0 mt-0.5 whitespace-nowrap tabular-nums">
-                    {markPhrase(sq, question.wines.length)}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+      {/* The question itself renders at the top of the review screen (QuestionRecap in study/page). */}
       {/* Wine identities reveal — each row expands to the tasting note the candidate saw for that
           wine, with its source citations. Post-answer surface, so showing sources is safe. */}
       <div className="bg-card rounded-xl border border-accent/30 p-6">
