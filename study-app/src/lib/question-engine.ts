@@ -20,7 +20,7 @@ import {
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion, applyLengthCheck, getTastingLexicon, type BankTargeting } from "@/lib/db";
+import { saveGeneratedQuestion, applyLengthCheck, applyAnswerLength, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
@@ -41,6 +41,8 @@ import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { enforceLengthCheck } from "@/lib/length-check";
+import { marksForWineCount } from "@/lib/answer-length";
+import { enforceAnswerLength } from "@/lib/answer-length-gate";
 import { stemSniperScoringModel } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -208,7 +210,11 @@ function generateModelAnswerInBackground(
   meta?: UsageMeta,
   // Researched reference profiles from enrichWineProfiles. The caller must have AWAITED enrichment
   // before calling this — see the sequencing note at the call site.
-  wineProfiles?: Record<string, WineProfile> | null
+  wineProfiles?: Record<string, WineProfile> | null,
+  // Marks the question is worth. The answer's word budget is mark-proportional (lib/answer-length.ts),
+  // so this drives both the target given to the generator and the band it is gated against. Falls back
+  // to 25 marks per wine (EK-0001) — which is what the hardcoded 100 below silently assumed.
+  totalMarks?: number
 ): Promise<boolean> {
   return (async () => {
     try {
@@ -220,7 +226,8 @@ function generateModelAnswerInBackground(
       // Same gated production references as the standalone generate-model-answer route, so the two
       // model-answer paths stay in step (they already share the lexicon for the same reason).
       const { block: knowledgeBlock, passages: kbPassages } = await getKnowledgeContext({ questionText, family });
-      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock, wineProfiles);
+      const marks = totalMarks && totalMarks > 0 ? totalMarks : marksForWineCount(wines.length);
+      const prompt = buildModelAnswerPrompt(questionText, wines, paper, lexiconGuidance, knowledgeBlock, wineProfiles, marks);
 
       const t0 = Date.now();
       const message = await client.messages.create({
@@ -263,8 +270,15 @@ function generateModelAnswerInBackground(
       // production had drifted from it, which is the drift that script's header says it exists to
       // prevent.
       const sections = parseModelAnswerSections(text);
+      // Mark-proportional word budget, enforced before the citations go on — same ordering and same
+      // reasoning as the standalone generate-model-answer route.
+      const lengthOutcome = await enforceAnswerLength(sections.modelAnswer, marks, apiKey, {
+        meta,
+        questionId,
+        questionText,
+      });
       // Same as the standalone route: append the source list after section extraction.
-      const modelAnswer = sections.modelAnswer + buildCitationBlock(kbPassages);
+      const modelAnswer = lengthOutcome.modelAnswer + buildCitationBlock(kbPassages);
       const proposedAnnotation = sections.proposedAnnotation;
       const reasoningTrace = sections.reasoningTrace;
       const studyDiagramAssist = sections.studyDiagramAssist;
@@ -276,14 +290,27 @@ function generateModelAnswerInBackground(
         familyLabel: "",
         questionText,
         wines,
-        totalMarks: 100,
+        totalMarks: marks,
         modelAnswer,
         proposedAnnotation: proposedAnnotation || undefined,
         reasoningTrace: reasoningTrace || undefined,
         studyDiagramAssist: studyDiagramAssist || undefined,
       });
 
-      console.log(`Background model answer generated for ${questionId}`);
+      // Best-effort verdict stamp — never fail a saved answer over its bookkeeping.
+      try {
+        await applyAnswerLength(questionId, {
+          status: lengthOutcome.status,
+          wordCount: lengthOutcome.wordCount,
+          answerLength: lengthOutcome.answerLength as Record<string, unknown> | null,
+        });
+      } catch (err) {
+        console.error(`[answer-length] failed to stamp ${questionId} (non-fatal):`, err);
+      }
+
+      console.log(
+        `Background model answer generated for ${questionId} — ${lengthOutcome.wordCount} words (${lengthOutcome.status})`
+      );
       return true;
     } catch (err) {
       console.error(`Background model answer failed for ${questionId}:`, err);
@@ -1293,7 +1320,8 @@ export async function generateFreshQuestion(
       parsed.family,
       apiKey,
       meta,
-      profiles
+      profiles,
+      parsed.totalMarks
     )
   );
 

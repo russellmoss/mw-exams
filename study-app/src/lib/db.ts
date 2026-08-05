@@ -75,6 +75,13 @@ export interface GeneratedQuestion {
   // review panel; NULL unless the item was checked and needed attention.
   length_check_status: string | null;
   length_check: Record<string, unknown> | null;
+  // Answer Length (migration 038). The model-ANSWER counterpart of the stem's length check:
+  // 'clean' | 'corrected' | 'over' | 'under', or NULL for a pre-feature / unmeasured row (read as
+  // 'clean'). answer_word_count is the body words measured in code — the only count to trust, since
+  // the model's own `actual_word_count` self-report was fabricated on ~half the corpus.
+  answer_length_status: string | null;
+  answer_word_count: number | null;
+  answer_length: Record<string, unknown> | null;
 }
 
 export interface UserAttempt {
@@ -280,6 +287,26 @@ export async function applyLengthCheck(
       length_check_status = ${params.status},
       length_check        = ${params.lengthCheck ? JSON.stringify(params.lengthCheck) : null}::jsonb,
       question_text       = COALESCE(${params.questionText ?? null}, question_text)
+    WHERE question_id = ${questionId}
+  `;
+}
+
+// Answer Length (migration 038). Stamp the measured word count + verdict on a question AFTER its
+// model answer has been saved. Mirrors applyLengthCheck above, with one difference: the count is
+// stamped on EVERY measured answer, not only the off-budget ones, because the count is the datum the
+// offline repair selector filters on and a distribution query wants every row. The status/JSONB are
+// still NULL for a clean answer (read as no badge). Best-effort at the call site — a measurement
+// hiccup must never fail a saved answer.
+export async function applyAnswerLength(
+  questionId: string,
+  params: { status: string; wordCount: number; answerLength: Record<string, unknown> | null }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE generated_questions SET
+      answer_length_status = ${params.status},
+      answer_word_count    = ${params.wordCount},
+      answer_length        = ${params.answerLength ? JSON.stringify(params.answerLength) : null}::jsonb
     WHERE question_id = ${questionId}
   `;
 }

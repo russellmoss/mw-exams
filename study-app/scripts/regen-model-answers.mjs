@@ -24,8 +24,12 @@
 //   --limit N            cap rows (default 5 unless --all/--question-id)
 //   --concurrency N      parallel API calls (default 3)
 //   --model opus|sonnet  generation tier (default opus — matches the route)
-//   --repair             ONLY the broken rows: missing/short model answer, or a NULL
-//                        annotation / reasoning trace / diagram assist
+//   --repair             ONLY the broken rows: structurally broken (missing answer, NULL tail
+//                        section, tool-call transcript) OR off the mark-proportional word budget,
+//                        measured in code — see the selector below
+//   --repair-structural  the structural half of --repair only; skips answers that are merely
+//                        off-budget (use when you want the broken rows fixed without requeueing
+//                        the ~185-row off-budget corpus)
 //   --dry-run            generate but DO NOT write; print a preview + size delta
 // Requires DATABASE_URL + ANTHROPIC_API_KEY (env or study-app/.env.local).
 
@@ -54,7 +58,7 @@ const API_KEY = process.env.ANTHROPIC_API_KEY;
 // ---- the LIVE generator + parser + writer (single source of truth; resolved by ts-loader) ----
 const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, modelAnswerEffort } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { buildTastingLexiconGuidance } = await import("../src/lib/prompts/tasting-lexicon.ts");
-const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db.ts");
+const { getTastingLexicon, saveGeneratedQuestion, applyAnswerLength } = await import("../src/lib/db.ts");
 // Gated tier-1 production references — the same call both live model-answer paths make. Imported
 // here for the reason stated at the top of this file: the offline path must not drift from
 // production. Without it this script would quietly regenerate exemplars WITHOUT the references the
@@ -63,6 +67,12 @@ const { getTastingLexicon, saveGeneratedQuestion } = await import("../src/lib/db
 const { getKnowledgeContext, buildCitationBlock } = await import("../src/lib/knowledge/context.ts");
 // Researched per-wine profiles, for the same no-drift reason as the KB block above.
 const { loadStoredWineProfiles } = await import("../src/lib/wine-bank-lookup.ts");
+// The SAME budget + measurement the generator gates on, so this script's selector and the live path
+// can never disagree about whether an answer is on target. That is the whole reason answer-length.ts
+// is dependency-free.
+const { answerWordBudget, classifyAnswerLength, countAnswerBodyWords, marksForWineCount } =
+  await import("../src/lib/answer-length.ts");
+const { enforceAnswerLength } = await import("../src/lib/answer-length-gate.ts");
 
 // ---- args ----
 const args = process.argv.slice(2);
@@ -81,67 +91,103 @@ const opt = {
   model: flag("--model") || "opus",
   dryRun: has("--dry-run"),
   repair: has("--repair"),
+  repairStructural: has("--repair-structural"),
 };
-if (!opt.all && !opt.paper && !opt.questionId && !opt.repair) {
-  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair\nUse --dry-run to preview. See header for all flags.");
+if (!opt.all && !opt.paper && !opt.questionId && !opt.repair && !opt.repairStructural) {
+  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair | --repair-structural\nUse --dry-run to preview. See header for all flags.");
   process.exit(1);
 }
-const limit = opt.questionIds.length ? opt.questionIds.length : (opt.all || opt.repair) ? null : (opt.limit ?? 5);
+const limit = opt.questionIds.length
+  ? opt.questionIds.length
+  : (opt.all || opt.repair || opt.repairStructural) ? null : (opt.limit ?? 5);
 
 // ---- select rows to regen ----
 const sql = neon(process.env.DATABASE_URL);
 let rows;
-if (opt.repair) {
+if (opt.repair || opt.repairStructural) {
   // REPAIR selector — the rows that are actually broken, rather than every row.
   //
-  // Deliberately NOT `--all`: that selects `model_answer IS NOT NULL`, which skips the 15 questions
+  // Deliberately NOT `--all`: that selects `model_answer IS NOT NULL`, which skips the questions
   // whose answer is missing entirely — precisely the ones most in need of repair — while burning an
-  // Opus call on ~85 healthy ones and replacing good answers with different ones.
+  // Opus call on healthy ones and replacing good answers with different ones.
   //
+  // TWO HALVES, and they are selected differently on purpose.
+  //
+  // ── 1. STRUCTURALLY BROKEN (SQL, below) ────────────────────────────────────────────────────────
   // "Short" is < 2000 chars: a complete package runs ~2,900-3,300, and the truncated examples
   // measured 1,221 and 1,618. A NULL tail section is the other truncation signature.
   //
-  // TOO LONG is a failure too, and the original selector missed it entirely. The answer targets ~430
-  // words (the prompt sets target_word_count) because the exam allows ~8 minutes of writing; a
-  // 15,000-character answer does not model the discipline the whole system teaches. 8000 chars is
-  // roughly double a healthy package, so it flags bloat without catching a merely thorough answer.
+  // TOOL-CALL TRANSCRIPTS are the worst of the failures and look like a long answer. The model
+  // narrates reading the repo — "I'll load the necessary files and wine research data before writing
+  // the answer" — then emits fabricated <function_calls> blocks instead of an answer, running to
+  // 29,000 characters.
   //
-  // TOOL-CALL TRANSCRIPTS are the worst of the failures and look like a long answer, so they hid
-  // behind the missing length check. The model narrates reading the repo — "I'll load the necessary
-  // files and wine research data before writing the answer" — then emits fabricated <function_calls>
-  // blocks instead of an answer. 15 of 62 pending questions and 3 already-approved ones are in this
-  // state, running to 29,000 characters.
-  // `actual_word_count: TBD` is the SHARPEST signal of the three length checks, because it catches
-  // the CAUSE rather than a symptom. The answer frontmatter declares a target (~400-430 words) and
-  // is supposed to report the actual count back. When the model fills that in, it lands on target:
-  // 1 of 151 such answers exceeds 8000 chars. When it writes TBD and skips the self-check, 17 of 63
-  // do, running as far as 14,593 chars — five times the stated target.
+  // ── 2. OFF THE WORD BUDGET (measured in JS, below) ─────────────────────────────────────────────
+  // This half used to key on `actual_word_count: TBD`, on the reasoning that a filled-in self-count
+  // correlates with health (1 of 151 such answers exceeded 8000 chars, against 17 of 63 TBD ones).
+  // The correlation was real but it conflated "not catastrophically bloated" with "on target", and
+  // the number it trusted was fabricated: across 319 banked answers the reported values span 392-447
+  // with a median of 424, while the measured median body is 458 — the model writes a number near the
+  // target instead of counting, so a made-up `431` sailed through the gate. Gating on it made the
+  // corpus look healthier than it was.
   //
-  // Length alone therefore under-detects: 46 of those 63 sit UNDER 8000 and look healthy, while
-  // having been produced by exactly the same unverified path. Length also over-detects, since a
-  // genuinely thorough answer can be long. Trigger on the missing self-count itself.
-  rows = await sql`
+  // So: measure. countAnswerBodyWords() is the SAME function the generator gates on, applied to the
+  // stored answer — that is why it strips the appended citation block as well as the frontmatter and
+  // headers, and why lib/answer-length.ts has no imports. The budget is mark-proportional (6.5
+  // words/mark, band 4.5-8.5) because a flat ceiling cannot tell a padded two-wine question from a
+  // starved six-wine one: measured against a flat 420 the corpus looked 75% "too long", but per mark
+  // it is 95 of 125 fifty-mark answers OVER and 41 of 86 hundred-mark answers UNDER.
+  //
+  // The budget test has to run in JS (it needs countAnswerBodyWords, and reimplementing the strip
+  // rules in SQL would be a second source of truth), so this reads every live row and filters here.
+  // ~350 rows — a single cheap scan, and it lets --dry-run print exactly why each was picked.
+  const candidates = await sql`
     SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks,
-           length(model_answer) AS old_len
+           model_answer, length(model_answer) AS old_len,
+           (proposed_annotation IS NULL)  AS anno_null,
+           (reasoning_trace IS NULL)      AS trace_null,
+           (study_diagram_assist IS NULL) AS diagram_null
     FROM generated_questions
     WHERE (metadata->>'archived') IS DISTINCT FROM 'true'
-      AND (model_answer IS NULL
-        OR length(model_answer) < 2000
-        OR length(model_answer) > 8000
-        OR model_answer ~ 'actual_word_count:\s*TBD'
-        OR model_answer ~ '<function_calls>|<tool_call>|<invoke name='
-        OR proposed_annotation IS NULL
-        OR reasoning_trace IS NULL
-        OR study_diagram_assist IS NULL)
     ORDER BY created_at DESC`;
+
+  let structural = 0, offBudget = 0;
+  rows = candidates.filter((r) => {
+    if (
+      !r.model_answer ||
+      r.model_answer.length < 2000 ||
+      /<function_calls>|<tool_call>|<invoke name=/.test(r.model_answer) ||
+      r.anno_null || r.trace_null || r.diagram_null
+    ) {
+      structural++;
+      r.repairReason = "structurally broken";
+      return true;
+    }
+    if (opt.repairStructural) return false;
+
+    const marks = r.total_marks > 0 ? r.total_marks : marksForWineCount((r.wines || []).length);
+    const budget = answerWordBudget(marks);
+    const words = countAnswerBodyWords(r.model_answer);
+    const verdict = classifyAnswerLength(words, budget);
+    if (verdict === "ok") return false;
+    offBudget++;
+    r.repairReason = `${verdict}: ${words}w vs ${budget.min}-${budget.max} for ${marks} marks`;
+    return true;
+  });
+  // Never silently truncate coverage — say what was selected and why (and what was skipped).
+  console.log(
+    `Repair selector: ${structural} structurally broken, ` +
+    `${opt.repairStructural ? `off-budget rows SKIPPED (--repair-structural)` : `${offBudget} off the word budget`}` +
+    ` — of ${candidates.length} live rows.`
+  );
 } else if (opt.questionIds.length) {
-  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ANY(${opt.questionIds})`;
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, model_answer, length(model_answer) AS old_len FROM generated_questions WHERE question_id = ANY(${opt.questionIds})`;
 } else if (opt.paper && opt.family) {
-  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} AND family = ${opt.family} ORDER BY created_at DESC`;
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, model_answer, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} AND family = ${opt.family} ORDER BY created_at DESC`;
 } else if (opt.paper) {
-  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} ORDER BY created_at DESC`;
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, model_answer, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL AND paper = ${opt.paper} ORDER BY created_at DESC`;
 } else {
-  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL ORDER BY created_at DESC`;
+  rows = await sql`SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks, model_answer, length(model_answer) AS old_len FROM generated_questions WHERE model_answer IS NOT NULL ORDER BY created_at DESC`;
 }
 if (limit) rows = rows.slice(0, limit);
 console.log(`Selected ${rows.length} question(s) to regenerate${opt.dryRun ? " (DRY RUN — no writes)" : ""}.`);
@@ -227,26 +273,42 @@ async function regenOne(row) {
   // different SELECTs above. One extra read per question is nothing in an offline bulk pass, and it
   // keeps this script from being the one path that regenerates an exemplar off the wine's name alone.
   const wineProfiles = await loadStoredWineProfiles(row.question_id, wines);
-  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock, wineProfiles);
+  const marks = row.total_marks > 0 ? row.total_marks : marksForWineCount(wines.length);
+  const oldWords = countAnswerBodyWords(row.model_answer);
+  const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock, wineProfiles, marks);
   const text = await callClaude(prompt.system, prompt.user);
   const s = parseModelAnswerSections(text);
+  // Same mark-proportional gate the live paths run, before the citations go on. Without it this
+  // script would be the one path that can write an off-budget exemplar — exactly the offline/production
+  // drift the header of this file exists to prevent.
+  const lengthOutcome = await enforceAnswerLength(s.modelAnswer, marks, API_KEY, {
+    questionId: row.question_id,
+    questionText: row.question_text,
+  });
   // Append the source list exactly as the live routes do. Without this a bulk regeneration would
   // silently strip citations from every exemplar it touched — the same offline/production drift the
   // header of this file warns about, and the second time it has bitten in this feature.
-  s.modelAnswer = (s.modelAnswer || "") + buildCitationBlock(passages);
-  const newLen = (s.modelAnswer || "").length;
+  s.modelAnswer = lengthOutcome.modelAnswer + buildCitationBlock(passages);
+  const newLen = s.modelAnswer.length;
+  const budget = answerWordBudget(marks);
   const kb = `${passages.length} passage(s) [${reason}]`;
+  const words = `${oldWords}→${lengthOutcome.wordCount}w (target ${budget.target}, band ${budget.min}-${budget.max}) ${lengthOutcome.status}`;
   if (opt.dryRun) {
-    return { id: row.question_id, oldLen: row.old_len, newLen, kb, preview: (s.modelAnswer || "").slice(0, 240).replace(/\s+/g, " ") };
+    return { id: row.question_id, oldLen: row.old_len, newLen, kb, words, preview: s.modelAnswer.slice(0, 240).replace(/\s+/g, " ") };
   }
   await saveGeneratedQuestion({
     questionId: row.question_id, paper: row.paper, family: row.family || "F4",
     familyLabel: row.family_label || "", subcategory: row.subcategory || undefined,
-    questionText: row.question_text, wines, totalMarks: row.total_marks || 100,
+    questionText: row.question_text, wines, totalMarks: marks,
     modelAnswer: s.modelAnswer, proposedAnnotation: s.proposedAnnotation || undefined,
     reasoningTrace: s.reasoningTrace || undefined, studyDiagramAssist: s.studyDiagramAssist || undefined,
   });
-  return { id: row.question_id, oldLen: row.old_len, newLen, kb, wrote: true };
+  await applyAnswerLength(row.question_id, {
+    status: lengthOutcome.status,
+    wordCount: lengthOutcome.wordCount,
+    answerLength: lengthOutcome.answerLength,
+  });
+  return { id: row.question_id, oldLen: row.old_len, newLen, kb, words, wrote: true };
 }
 
 // ---- bounded-concurrency pool ----
@@ -257,7 +319,7 @@ async function worker() {
     try {
       const r = await regenOne(row);
       ok++;
-      console.log(`  [${ok + fail}/${rows.length}] ${r.id}  p${row.paper}/${row.family}  ${r.oldLen}→${r.newLen} chars  kb: ${r.kb}${r.wrote ? " (written)" : ""}`);
+      console.log(`  [${ok + fail}/${rows.length}] ${r.id}  p${row.paper}/${row.family}  ${r.words}  ${r.oldLen}→${r.newLen} chars  kb: ${r.kb}${r.wrote ? " (written)" : ""}${row.repairReason ? `  [picked: ${row.repairReason}]` : ""}`);
       if (opt.dryRun) console.log(`        preview: ${r.preview}…`);
     } catch (e) {
       fail++;

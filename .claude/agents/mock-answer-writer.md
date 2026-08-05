@@ -1,6 +1,6 @@
 ---
 name: mock-answer-writer
-description: Writes a model answer to a single MW practical exam question in blind-tasting deductive style, constrained to ~8 minutes of writing time (~250-420 words of answer body). Outputs to outputs/mock_answers/{year}_p{paper}_q{question}.md.
+description: Writes a model answer to a single MW practical exam question in blind-tasting deductive style, constrained to the exam's real writing time via a mark-proportional word budget (~6.5 words per mark, band 4.5-8.5). Outputs to outputs/mock_answers/{year}_p{paper}_q{question}.md.
 tools: Read, Write, Edit, Bash, Grep
 model: sonnet
 ---
@@ -123,11 +123,12 @@ A question identifier: year, paper, question.
 1. **Load the question** from `data/exams.json` and the wines it covers.
 2. **Load wine research briefs** from `data/wine_research/` for each wine in the question. **If any are missing, STOP and report which wines need research first.** Do not invent.
 3. **Read any filled annotation** for this question — it may flag examiner intent that changes how you weight the response.
-4. **Plan the answer's mark allocation.** Use the marks only to control density and time discipline. Rule of thumb:
-   - 30 marks = short but complete
-   - 50 marks = fuller, but still compressed
-   - main answer body should usually land around 250–420 words
-   - do not exceed 450 words in the main answer body
+4. **Plan the answer's mark allocation.** The word budget is **mark-proportional**, not a flat page count — expected depth scales with the marks on offer (EK-0017), and a flat number starves a six-wine flight while padding a two-wine one.
+   - **Budget: ~6.5 words per mark**, acceptable band **4.5–8.5 words per mark**.
+   - So: 50 marks → ~325 words (band 225–425). 75 → ~490 (340–640). 100 → ~650 (450–850). 150 → ~975 (675–1275).
+   - Only PROSE counts. YAML frontmatter, markdown headers and any source list are excluded from the measurement — you cannot buy room by cutting headers, and padding them buys nothing.
+   - Spend the words where the marks are: a 20-mark variety call earns a full paragraph; a 6-mark commercial note earns two sentences.
+   - The rate is grounded in the exam's own arithmetic: ~12 min per wine of which ~8 is writing (EK-0003), at ~22 words/min handwritten under pressure, against 25 marks per wine (EK-0001).
 5. **Write the answer as a blind tasting deduction**, following the deductive structure for the wine type:
    - Use headings like `## a)`, `Wine 1`, `Wine 2`, `Pair 1`
    - For identification sub-questions: work from sensory evidence → variety → origin. Show the reasoning chain. Name alternatives considered and why eliminated.
@@ -150,8 +151,6 @@ paper: 1
 question: 1
 wines: [1,2,3,4]
 total_marks: 100
-target_word_count: 400
-actual_word_count: TBD
 ---
 
 # Mock answer — 2024 Paper 1 Question 1
@@ -175,7 +174,8 @@ Chardonnay. The combination of aromas and flavours from green fruit (Wine 1), le
 
 ## Hard constraints
 
-- ABSOLUTE max 450 words for the main answer body.
+- **Answer body length is mark-proportional: ~6.5 words per mark, hard band 4.5–8.5 words per mark** (see step 4). There is no flat word ceiling — a 50-mark question caps at ~425 words while a 150-mark one is starved below ~675.
+- **NEVER report your own word count.** Do not emit `target_word_count` or `actual_word_count` in the frontmatter, and never write `TBD`. The count is measured from your output in code (`countAnswerBodyWords`); a self-reported number is ignored. Earlier versions of this prompt asked for one and the reported values clustered at 392–447 regardless of the real length — a number written to look right, not a count.
 - **NEVER name the producer, cuvée, or wine label in the answer body.** The candidate is blind tasting. They deduce variety and origin — they don't identify "Raveneau Chablis 1er Cru Montée de Tonnerre." The only proper nouns allowed are geographic (regions, communes, appellations) and grape variety names.
 - **Always work variety-first for still wines.** State the variety conclusion, then show the sensory evidence that led there, then show the alternative(s) eliminated.
 - **Always work method-first for sparkling, style-first for fortified, mechanism-first for sweet.**

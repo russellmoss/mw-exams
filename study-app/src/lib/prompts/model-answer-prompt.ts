@@ -4,6 +4,12 @@ import { FUNNELLING_PRINCIPLE } from "./funnelling";
 import { MARKING_PRINCIPLES } from "./marking-principles";
 import { deriveQuestion, SECTION_A_HEADING, SECTION_B_HEADING } from "@/lib/question-sections";
 import { supportsAdaptiveThinking } from "../model-capabilities";
+import {
+  answerWordBudget,
+  countAnswerBodyWords,
+  marksForWineCount,
+  WORDS_PER_MARK_TARGET,
+} from "@/lib/answer-length";
 
 // ── OUTPUT BUDGET ──────────────────────────────────────────────────────────────────────────────────
 //
@@ -65,10 +71,15 @@ export function modelAnswerMaxTokens(model: string): number {
 //     effort=medium   4,821 tokens   71s   4/4 sections   458-word answer
 //     default (high)  8,167 tokens  114s   4/4 sections   520-word answer
 //
-// 38% faster with the package intact — and note the answer LENGTH: the brief is ~430 words of answer
-// body under 8-minute exam discipline, so medium's 458 lands closer to the target than high's 520.
-// Lower effort is not a quality concession here; the extra deliberation was partly being spent
-// overshooting the word budget this prompt exists to enforce.
+// 38% faster with the package intact. That is the whole case for medium, and it stands on its own.
+//
+// The original note here made a SECOND argument that no longer holds and is worth correcting rather
+// than deleting: that medium's 458 words landed closer to the brief than high's 520, against a flat
+// ~430-word target. The target is no longer flat (see the mark-proportional budget in
+// lib/answer-length.ts). That measurement was a 4-wine P1 question = 100 marks, which budgets ~650
+// words with a 450-850 band — so BOTH samples are in band and high's 520 is the closer of the two.
+// The length argument for medium is inverted under the real budget; the latency argument is not, and
+// the length gate now handles length directly instead of hoping an effort setting does it.
 const MODEL_ANSWER_EFFORT = "medium";
 
 /**
@@ -165,11 +176,16 @@ export function buildModelAnswerPrompt(
       palate_summary?: string;
       structural_summary?: string;
     } | null;
-  }> | null
+  }> | null,
+  // Marks the question is worth — the answer's word budget is derived from it (lib/answer-length.ts).
+  // Optional so no call site is forced to thread it: omitted, it falls back to 25 marks per wine,
+  // which is the modern exam's universal allocation (EK-0001).
+  totalMarks?: number | null
 ): { system: string; user: string } {
   const refs = loadReferenceData();
   const ctx = loadPipelineContext();
   const keys = TREE_KEYS[paper] || TREE_KEYS[1];
+  const budget = answerWordBudget(totalMarks ?? marksForWineCount(wines.length));
 
   const decisionTree = refs.decisionTrees[keys.tree] || "";
   const studyDiagram = refs.studyDiagrams[keys.diagram] || "";
@@ -178,6 +194,15 @@ export function buildModelAnswerPrompt(
 
 ## MOCK ANSWER WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
 ${ctx.mockAnswerWriterAgent}
+
+## ANSWER LENGTH — MARK-PROPORTIONAL (OVERRIDES any flat word target above)
+The agent instructions may quote a flat word target ("around 250–420 words", "absolute max 450"). That flat number is SUPERSEDED and must be ignored. It does not scale with the size of the question, so it starves a six-wine flight and pads a two-wine one.
+
+- This question is worth **${budget.totalMarks} marks**. The answer body must land between **${budget.min} and ${budget.max} words**, aiming at **~${budget.target}**.
+- The rate is ${WORDS_PER_MARK_TARGET} words per mark, because expected depth scales with the marks on offer, not with a fixed page count. Spend the words where the marks are: a 20-mark variety call earns a full paragraph; a 6-mark commercial note earns two sentences.
+- Only PROSE counts. YAML frontmatter, markdown headers and any appended source list are excluded from the measurement, so you cannot buy room by cutting headers — and padding headers buys you nothing either.
+- **Do NOT report a word count.** Omit \`actual_word_count\` from the frontmatter entirely (and never write \`TBD\`). The count is measured from your output in code; a self-reported number is ignored.
+- The budget is enforced. An answer outside the band is sent back to be rewritten, and the rewrite can only cut padding — so write to length the first time and keep the funnelling, the per-wine differentiation and the "under the skin" insight, which are never what gets cut.
 
 ## SHARED RULES
 ${ctx.sharedRules}
@@ -251,7 +276,7 @@ This question is organised into two sections. Structure your Model Answer under 
   })()}Generate ALL four sections:
 
 ### 1. Model Answer
-Full answer addressing every sub-question. MW-note style, 250-420 words. **Demonstrate funnelling** (see the Funnelling principle above): commit to the leading variety + broad-region call early, but visibly weigh the 1–2 plausible alternatives and rule them out from structural evidence ("what it might have been, but was not"), then narrow to the specific call and land it decisively. Do not simply assert one wine with no alternatives considered. Follow the mock-answer-writer rules exactly.
+Full answer addressing every sub-question. MW-note style, **${budget.min}-${budget.max} words (aim ~${budget.target})** for this ${budget.totalMarks}-mark question — see the mark-proportional length rule above, which overrides any flat word target in the agent instructions. **Demonstrate funnelling** (see the Funnelling principle above): commit to the leading variety + broad-region call early, but visibly weigh the 1–2 plausible alternatives and rule them out from structural evidence ("what it might have been, but was not"), then narrow to the specific call and land it decisively. Do not simply assert one wine with no alternatives considered. Follow the mock-answer-writer rules exactly.
 **Differentiate the wines** (AT-1): when the question covers more than one wine, give each its own argument and shape — never apply the same winemaking technique, commercial framing, or sentence scaffold across wines. The grader marks down cut-and-paste even when each statement is individually defensible (Marking Principles Rule 9), so the exemplar must not model the failure it penalises.
 **Land the distinction move selectively** (AT-2): rather than cataloguing every descriptor, resolve a genuine tension in the glass with one higher-order inference on the strongest wine — e.g. why an exceptional producer would exceed a classification's minimum sugar, or why high ripeness held by firm acidity reads as altitude rather than heat. This is the "under the skin" second-order insight the grader reserves the top band for; selectivity beats completeness, so deploy it once well rather than everywhere.
 **Reason from PERCEIVED alcohol, not the label** (AT-3): alcohol (read alongside acidity) is a primary structural marker for deducing climate and origin, and examiners rate this hard evidence above the flavour profile — so lead with it where it discriminates. But express it as it is assessed in the glass — warmth, weight, and an estimated band ("warm, medium-plus body, ~14%") — NEVER as a bare stated ABV figure lifted from the wine key ("13% alcohol rules out Pinot Noir"). The candidate has no label; the reasoning must be reproducible from the tasting note. Where a flight sits in a narrow alcohol band, say so and cross-reference acidity, tannin quality, and oak rather than leaning on ABV alone.
@@ -310,6 +335,12 @@ export function parseModelAnswerSections(text: string): {
   proposedAnnotation: string | null;
   reasoningTrace: string | null;
   studyDiagramAssist: string | null;
+  // Body words of `modelAnswer`, MEASURED HERE — the only word count anything downstream should
+  // trust. The model used to be asked to report its own count in the frontmatter and it fabricated
+  // one on roughly half the corpus (see the header of lib/answer-length.ts); this is computed after
+  // section slicing, so it is the answer prose alone — no frontmatter, no headers, and no citation
+  // block (which is appended by the caller AFTER this returns, and is excluded either way).
+  modelAnswerWordCount: number;
 } {
   const annoStart = text.match(/\n#+\s*\d*\.?\s*Proposed Annotation/i);
   let modelAnswer =
@@ -324,5 +355,6 @@ export function parseModelAnswerSections(text: string): {
     proposedAnnotation: extractSection(text, "Proposed Annotation", "Reasoning Trace"),
     reasoningTrace: extractSection(text, "Reasoning Trace", "Study Diagram"),
     studyDiagramAssist: extractSection(text, "Study Diagram", null),
+    modelAnswerWordCount: countAnswerBodyWords(modelAnswer),
   };
 }
