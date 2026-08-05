@@ -502,6 +502,13 @@ Typical per-wine mark ranges for written sub-questions:
 - Commercial position: 5-10 marks
 - Style: 5-10 marks (often combined with quality)
 
+## SUB-BULLET LENGTH & ASK DENSITY (match real MW paper terseness)
+Real MW sub-bullets are short and ask one or two things. A candidate has ~8 minutes per written answer, so a bullet that bundles five demands into sixty words is unanswerable and gets rewritten.
+- At most **3 asks per sub-bullet**, and aim for **1-2**. An "ask" is a distinct interrogative demand: "assess the quality and the method of production" is 2 asks. Never bundle oak, yeast, maturity, quality and origin into one bullet — give each its own sub-bullet.
+- Keep each sub-bullet's length proportional to its marks: **<=5 marks -> <=25 words; 6-12 marks -> <=35 words; 13-24 marks -> <=45 words; >=25 marks -> <=60 words**.
+- Numerical "state the residual sugar / alcohol" bullets (2 marks) are a **single line, <=15 words, exactly one ask**.
+- The WHOLE question (preamble + every sub-bullet, excluding the wine list) must stay **under 140 words**.
+
 ## OLD WORLD / NEW WORLD BALANCE (flights of 3+ wines, except same-origin families)
 Unless the stem ties the flight to ONE country or region (a same-country or same-region question),
 a flight of 3 or more wines MUST NOT be entirely Old World or entirely New World. Real F1/F4/F6

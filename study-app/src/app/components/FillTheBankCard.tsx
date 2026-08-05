@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { BinUndoBar } from "./BinUndoBar";
 import { BinReasonChips } from "./BinReasonChips";
 import { RecentBatchesStrip } from "./RecentBatchesStrip";
-import { BankReviewBadge } from "./BankReviewBadge";
+import { BankReviewBadge, LengthCheckChip } from "./BankReviewBadge";
 
 // Read the NotificationBell deep-link (/admin?review=<batchId>) at first render so the review pane
 // auto-expands at the batch's first pending question without a synchronous setState inside an effect.
@@ -80,6 +80,25 @@ interface ProducerFlag {
   appearance_number: number;
   paper: number;
 }
+// Length Check (feature) — the auto-repair audit + before/after diff stored on a reviewed question.
+interface LengthBullet {
+  index: number;
+  marks: number;
+  wordCount: number;
+  askCount: number;
+  violations: string[];
+}
+interface LengthChange {
+  bulletIndex: number;
+  before: string;
+  after: string;
+}
+interface LengthCheck {
+  totalWords: number;
+  bullets: LengthBullet[];
+  changes: LengthChange[];
+  summary: string;
+}
 interface ReviewQuestion {
   id: string;
   paper: number;
@@ -91,6 +110,9 @@ interface ReviewQuestion {
   total: number;
   wines: ReviewWine[];
   producerFlags: ProducerFlag[];
+  // 'clean' | 'trimmed' | 'over' | null — NULL / 'clean' shows no chip.
+  lengthCheckStatus: "clean" | "trimmed" | "over" | null;
+  lengthCheck: LengthCheck | null;
 }
 interface Violation {
   rule: string;
@@ -140,6 +162,96 @@ function ordinal(n: number): string {
   return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
 }
 
+// Length Check (feature) — the inline expanding panel beneath the question text. Titled "Length
+// check". For 'trimmed' it shows the one-line summary and, per changed bullet, a muted "Before" block
+// (subtle red left border) and a normal "After" block (amber left border) with word / ask labels. For
+// 'over' it lists the unresolved violations and the offending bullets with word / ask counts and NO
+// after block. Collapses via the chip or the small "Close" text button. Keep / Bin are unaffected.
+function LengthCheckPanel({
+  status,
+  data,
+  onClose,
+}: {
+  status: "trimmed" | "over";
+  data: LengthCheck | null;
+  onClose: () => void;
+}) {
+  const bulletById = new Map<number, LengthBullet>();
+  for (const b of data?.bullets ?? []) bulletById.set(b.index, b);
+  const offenders = (data?.bullets ?? []).filter((b) => b.violations.length > 0);
+
+  return (
+    <div className="mt-3 rounded-lg border border-border bg-card-hover/40 p-4">
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <h4 className="font-display text-sm text-foreground">Length check</h4>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-xs text-muted hover:text-foreground underline underline-offset-2 transition-colors cursor-pointer"
+        >
+          Close
+        </button>
+      </div>
+
+      {/* One-line summary (both variants). */}
+      {data?.summary && (
+        <p className="text-xs text-foreground leading-relaxed mb-3">{data.summary}</p>
+      )}
+
+      {status === "trimmed" ? (
+        // Per changed bullet: Before (muted, red left border) then After (normal, amber left border).
+        <div className="space-y-3">
+          {(data?.changes ?? []).map((c, i) => {
+            const before = bulletById.get(c.bulletIndex);
+            return (
+              <div key={i} className="space-y-1.5">
+                <div className="border-l-2 border-fail/50 pl-3">
+                  <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">
+                    Before
+                    {before && (
+                      <span className="ml-2 tabular-nums">
+                        {before.wordCount} words · {before.askCount} ask
+                        {before.askCount === 1 ? "" : "s"}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted leading-relaxed whitespace-pre-wrap">{c.before}</p>
+                </div>
+                <div className="border-l-2 border-accent pl-3">
+                  <div className="text-[10px] uppercase tracking-wide text-accent mb-0.5">After</div>
+                  <p className="text-xs text-foreground leading-relaxed whitespace-pre-wrap">{c.after}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        // 'over' — unresolved violations + the offending bullets (word / ask counts), no after block.
+        <div className="space-y-3">
+          {offenders.map((b) => (
+            <div key={b.index} className="border-l-2 border-fail/50 pl-3">
+              <div className="text-[10px] uppercase tracking-wide text-muted mb-0.5">
+                Bullet {b.index}
+                <span className="ml-2 tabular-nums">
+                  {b.marks} marks · {b.wordCount} words · {b.askCount} ask
+                  {b.askCount === 1 ? "" : "s"}
+                </span>
+              </div>
+              <ul className="space-y-0.5">
+                {b.violations.map((v, i) => (
+                  <li key={i} className="text-xs text-fail leading-relaxed">
+                    {v}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Small inline spinner for an in-flight review button — amber ring on a transparent track.
 function Spinner() {
   return (
@@ -186,6 +298,10 @@ export function FillTheBankRows() {
   const exitTimerRef = useRef<number | null>(null);
   // Inline "Bin all N? · Confirm / Cancel" — single confirm before a bulk bin (spec §5).
   const [confirmBinAll, setConfirmBinAll] = useState(false);
+
+  // Length Check (feature): which card's "Length check" panel is expanded (by question id), or null.
+  // Only the card on screen ever shows a chip, so a single id is enough; toggled by the chip / Close.
+  const [lengthPanelId, setLengthPanelId] = useState<string | null>(null);
   // Brief "Batch reviewed · N kept" line shown after the queue empties.
   const [summary, setSummary] = useState<{ kept: number } | null>(null);
   // One-line amber notice atop the review list, shown only immediately after a "Send back to review"
@@ -861,6 +977,13 @@ export function FillTheBankRows() {
                 <div className="flex items-center gap-2">
                   {/* Every item in the review queue is by definition never-reviewed until decided. */}
                   <BankReviewBadge reviewed={false} />
+                  {/* Length Check (feature): amber "Trimmed" / red "Runs long" chip; nothing for
+                      clean/NULL. Clicking toggles the inline "Length check" panel below the stem. */}
+                  <LengthCheckChip
+                    status={q.lengthCheckStatus}
+                    open={lengthPanelId === q.id}
+                    onClick={() => setLengthPanelId((cur) => (cur === q.id ? null : q.id))}
+                  />
                   <span className="text-[11px] px-2 py-0.5 rounded bg-card-hover text-muted border border-border">
                     {PAPER_LABEL[q.paper]}
                   </span>
@@ -917,6 +1040,17 @@ export function FillTheBankRows() {
               <div className="rounded-lg border border-border bg-background/40 p-4">
                 <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{q.stem}</p>
               </div>
+
+              {/* Length check panel (feature) — inline expanding panel (NOT a modal), beneath the
+                  question text inside the same review card. Opened by the Trimmed / Runs long chip. */}
+              {lengthPanelId === q.id &&
+                (q.lengthCheckStatus === "trimmed" || q.lengthCheckStatus === "over") && (
+                  <LengthCheckPanel
+                    status={q.lengthCheckStatus}
+                    data={q.lengthCheck}
+                    onClose={() => setLengthPanelId(null)}
+                  />
+                )}
 
               {/* Mark breakdown — two-column list with a total row */}
               <div className="mt-4 max-w-sm">
