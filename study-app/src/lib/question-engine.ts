@@ -20,7 +20,7 @@ import {
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
-import { saveGeneratedQuestion, getTastingLexicon, type BankTargeting } from "@/lib/db";
+import { saveGeneratedQuestion, applyLengthCheck, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
@@ -34,6 +34,7 @@ import { buildModelAnswerPrompt, parseModelAnswerSections } from "@/lib/prompts/
 import { getKnowledgeContext, buildCitationBlock } from "@/lib/knowledge/context";
 import { buildTastingLexiconGuidance } from "@/lib/prompts/tasting-lexicon";
 import { logClaudeUsage } from "@/lib/usage-log";
+import { enforceLengthCheck } from "@/lib/length-check";
 import { stemSniperScoringModel } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -999,6 +1000,35 @@ export async function generateFreshQuestion(
       genAbGroup,
     },
   });
+
+  // Length Check (feature): the bank-generation path (a batchId is present) audits every saved
+  // question against the MW sub-bullet length / ask-density budgets, auto-repairs ONCE if it runs
+  // long, and stamps the verdict so admin batch review can badge it. Runs AFTER the mark validator
+  // above (parsed.markCheck already passed) and BEFORE the background model answer, so a trimmed stem
+  // is the one the model answer is written for. The interactive study path (no batchId) is untouched.
+  //
+  // enforceLengthCheck never throws and never drops a question: a 'trimmed' result rewrites the stem
+  // (marks + total invariant), an 'over' result keeps the original and records the violation summary,
+  // and a length-check outage degrades to 'clean' (no badge). Only a non-clean verdict is persisted;
+  // a clean item keeps its NULL columns.
+  if (saveOpts?.batchId) {
+    emit?.({ type: "status", label: "Checking length against real MW papers…" });
+    const lengthOutcome = await enforceLengthCheck(parsed.questionText, apiKey, meta, questionId);
+    if (lengthOutcome.status !== "clean") {
+      parsed.questionText = lengthOutcome.questionText;
+      saved.question_text = lengthOutcome.questionText;
+      try {
+        await applyLengthCheck(questionId, {
+          status: lengthOutcome.status,
+          lengthCheck: lengthOutcome.lengthCheck as Record<string, unknown> | null,
+          // Persist the rewritten stem only when it actually changed ('trimmed').
+          questionText: lengthOutcome.status === "trimmed" ? lengthOutcome.questionText : null,
+        });
+      } catch (err) {
+        console.error(`[length-check] failed to persist verdict for ${questionId} (non-fatal):`, err);
+      }
+    }
+  }
 
   // Detached by default (the study path never waits); awaited below when the caller requires it.
   //

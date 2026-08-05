@@ -88,6 +88,21 @@ function serialize(q: GeneratedQuestion) {
     }
   }
 
+  // Length Check (feature): the auto-repair verdict + before/after diff for the review panel. NULL
+  // status (pre-feature / clean-first-time) surfaces as null — the card renders no chip for it.
+  // Parsed defensively — the column is JSONB but may arrive as a string.
+  let lengthCheck: Record<string, unknown> | null = null;
+  const rawLc = q.length_check as unknown;
+  if (rawLc && typeof rawLc === "object") {
+    lengthCheck = rawLc as Record<string, unknown>;
+  } else if (typeof rawLc === "string") {
+    try {
+      lengthCheck = JSON.parse(rawLc);
+    } catch {
+      lengthCheck = null;
+    }
+  }
+
   return {
     id: q.question_id,
     paper: q.paper,
@@ -99,6 +114,9 @@ function serialize(q: GeneratedQuestion) {
     total: q.total_marks,
     wines: outWines,
     producerFlags,
+    // 'clean' | 'trimmed' | 'over' | null. NULL / 'clean' → no badge on the card.
+    lengthCheckStatus: (q.length_check_status as string | null) ?? null,
+    lengthCheck,
   };
 }
 

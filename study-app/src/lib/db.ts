@@ -67,6 +67,11 @@ export interface GeneratedQuestion {
   // fallback deliberately excludes from the mix counters. Server-only — stripped from served payloads.
   wine_category: string | null;
   curveball_level: string | null;
+  // Length Check (migration 035). 'clean' | 'trimmed' | 'over', or NULL for a pre-feature / unchecked
+  // row (read as 'clean', no badge). length_check holds the audit + before/after diff for the admin
+  // review panel; NULL unless the item was checked and needed attention.
+  length_check_status: string | null;
+  length_check: Record<string, unknown> | null;
 }
 
 export interface UserAttempt {
@@ -254,6 +259,26 @@ export async function saveGeneratedQuestion(q: {
     console.error(`[producer-spread] failed to sync producer rows for ${q.questionId}:`, err);
   }
   return rows[0] as GeneratedQuestion;
+}
+
+// Length Check (migration 035). Stamp the length-check verdict on a question AFTER it has been saved,
+// and — when the auto-repair rewrote the stem ('trimmed') — persist the trimmed question_text too. The
+// mark total is invariant by construction (the repair may only split a bullet into parts whose marks
+// sum to the original), so total_marks is never touched here. Called only on the bank-generation path,
+// and only when the check produced a non-clean verdict; a 'clean' item is left with NULL columns (read
+// as no-badge). Best-effort at the call site — a length-check hiccup must never fail a saved question.
+export async function applyLengthCheck(
+  questionId: string,
+  params: { status: string; lengthCheck: Record<string, unknown> | null; questionText?: string | null }
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE generated_questions SET
+      length_check_status = ${params.status},
+      length_check        = ${params.lengthCheck ? JSON.stringify(params.lengthCheck) : null}::jsonb,
+      question_text       = COALESCE(${params.questionText ?? null}, question_text)
+    WHERE question_id = ${questionId}
+  `;
 }
 
 // ── Producer Spread tally (migration 032) ────────────────────────────────────────────────────────
