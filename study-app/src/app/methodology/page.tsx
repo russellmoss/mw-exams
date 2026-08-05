@@ -82,8 +82,8 @@ export default function MethodologyPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
           <StatCard value="162" label="Questions Analyzed" sub="15 years of exam papers" />
-          <StatCard value="36%" label="Top-1 Variety (out-of-sample)" sub="72.8% in-sample; see Backtesting" />
-          <StatCard value="88.9%" label="Candidate-Set Coverage" sub="Out-of-sample; the metric that held" />
+          <StatCard value="~60%" label="Top-3 Variety" sub="On a contemporary unseen paper" />
+          <StatCard value="~89%" label="Candidate-Set Coverage" sub="Correct variety somewhere in the set" />
         </div>
 
         {/* Section nav */}
@@ -365,10 +365,12 @@ export default function MethodologyPage() {
             every prediction against the actual wines.
           </p>
           <p className="text-sm text-muted italic mb-4">
-            Those ten folds cover <strong>2015-2025</strong>. LOYO has not been re-run with 2026, and
-            it cannot be meaningfully — the trees have since absorbed that year. The genuine
-            out-of-sample check is the 2026 tree holdout below, run against a frozen copy of the trees
-            taken before the exam existed. Where the two disagree, believe the holdout.
+            Those ten folds cover <strong>2015-2025</strong> — and calling it cross-validation was
+            generous. The trees are a single artifact built from all 112 questions, so nothing is
+            retrained per fold, and every one of those 112 questions is named <em>verbatim</em> inside
+            the trees (strings like &quot;2016 P1 Q2&quot; attached to the leaf that predicts it).
+            Those years measure recall, not prediction. We have since re-derived every year with one
+            consistent method and blind-tested two genuinely unseen corpora; the results are below.
           </p>
 
           <h3 className="text-lg font-semibold text-foreground mb-3">Initial Results</h3>
@@ -379,49 +381,65 @@ export default function MethodologyPage() {
               </thead>
               <tbody>
                 <TableRow cells={["Top-1 variety accuracy", "51.3%", "16.9%", "+34.4 points"]} />
-                <TableRow cells={["Top-3 variety accuracy", "70.7%", "--", "PASS (target: 70%)"]} />
-                <TableRow cells={["Candidate-set hit rate", "82.5%", "--", "NEAR TARGET (85%)"]} />
+                <TableRow cells={["Top-3 variety accuracy", "70.7%", "--", "hit the 70% target at the time"]} />
+                <TableRow cells={["Candidate-set hit rate", "82.5%", "--", "near the 85% target"]} />
               </tbody>
             </table>
           </div>
 
           <p className="text-muted leading-relaxed mb-4">
-            The naive baseline -- always predicting the most common variety per paper -- scores 16.9%.
-            Our trees achieved a <strong>+34 percentage point improvement</strong> over guessing.
+            The naive baseline -- always predicting the most common variety per paper -- scores 16.9%,
+            so the trees clearly beat guessing. Treat this table as a historical record rather than a
+            current claim: it comes from a prediction pass we have not been able to reproduce, and the
+            re-measured figures below are lower.
           </p>
 
-          <h3 className="text-lg font-semibold text-foreground mb-3">After Iteration</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-3">Re-measured: three corpora, one method</h3>
           <p className="text-muted leading-relaxed mb-4">
-            We audited the results, identified scoring artifacts vs genuine tree weaknesses, and iterated.
-            Specific fixes: added missing variety nodes, region-specific blend rules, category routing
-            for non-Champagne sparkling, anti-collapse rules for mixed-category questions.
+            We audited the results, identified scoring artifacts vs genuine tree weaknesses, and iterated
+            -- adding missing variety nodes, region-specific blend rules, category routing for
+            non-Champagne sparkling, and anti-collapse rules for mixed-category questions. Then, because
+            the numbers above and the blind-test numbers had been produced by different prediction passes
+            and were never comparable, we re-derived <strong>all three corpora with one method</strong>:
+            the same frozen trees, stems only, one scorer, 792 wines in total.
           </p>
 
           <div className="overflow-x-auto mb-5">
             <table className="w-full text-sm">
               <thead>
-                <TableRow header cells={["Metric", "Before", "After (in-sample)", "2026 out-of-sample"]} />
+                <TableRow header cells={["Metric", "2015-2025 (seen)", "2026 (unseen, modern)", "2000-2010 (unseen, old)"]} />
               </thead>
               <tbody>
-                <TableRow cells={["Top-1 variety", "51.3%", "72.8%", "36.1%"]} />
-                <TableRow cells={["Top-3 variety", "70.7%", "89.2%", "63.9%"]} />
-                <TableRow cells={["Candidate-set hit", "82.5%", "95.6%", "88.9%"]} />
+                <TableRow cells={["Top-1 variety", "35.0%", "36.1%", "30%"]} />
+                <TableRow cells={["Top-3 variety", "59.2%", "63.9%", "52%"]} />
+                <TableRow cells={["Candidate-set hit", "80.0%", "88.9%", "69%"]} />
               </tbody>
             </table>
           </div>
 
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
-              <strong>Those &quot;after&quot; figures are in-sample</strong> -- they were measured after the
-              trees were edited in response to the very misses being scored. On the 2026 papers, which the
-              trees had never seen, top-1 variety <strong>halved to 36.1%</strong> and top-3 fell to
-              <strong>63.9%</strong>. But the candidate set barely moved: <strong>88.9%</strong> versus 95.6%.
-              Precision collapsed out-of-sample; coverage held.
+              <strong>The penalty is era shift, not novelty.</strong> All three columns above were
+              measured the same way — the same frozen trees, stems only, one scorer. A
+              <em>contemporary</em> paper the trees had never seen (2026) scores at or slightly above
+              the years they quote by ID. Reach back to 2000-2010 and top-3 drops to 52%. Being unseen
+              costs nothing; being from a different era costs about seven points.
               <br /><br />
-              <strong>So: do not act on the tree&apos;s top-1 answer.</strong> Use the tree to bound the
-              universe of what a wine could be, then let the glass decide within it. A six-wine
-              single-variety flight scored 100% on every metric; a &quot;same country, different
-              varieties&quot; red flight scored zero. The tree knows shapes, not bottles.
+              The reason is mechanical: <strong>29% of the 2000-2010 stems matched no branch at all</strong>
+              (Paper 1 38%, Paper 3 39%, Paper 2 just 9%), and unrouted stems score far worse than routed
+              ones. The brittle part is stem <em>routing</em>, not wine knowledge — old constructions like
+              vintage verticals and price rankings have no leaf to land on.
+              <br /><br />
+              <strong>So: do not act on the tree&apos;s top-1 answer</strong> — it is right about a third
+              of the time. Use the tree to bound the universe of what a wine could be, then let the glass
+              decide within it. A six-wine single-variety flight scored 100% on every metric; a
+              &quot;same country, different varieties&quot; red flight scored zero. The tree knows
+              shapes, not bottles.
+              <br /><br />
+              <strong>What we no longer claim.</strong> An earlier version of this page reported 72.8%
+              top-1 and 89.2% top-3. Those came from a different prediction pass and are
+              <strong>not reproducible</strong>: applying the same trees to the same years with the same
+              method yields 35.0% and 59.2%. We have stopped quoting them.
             </p>
           </Callout>
 
@@ -599,7 +617,7 @@ export default function MethodologyPage() {
               <div className="text-sm font-semibold text-success mb-3">What it is</div>
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
-                <li>Decision trees <strong>measured out-of-sample at 63.9% top-3, 88.9% candidate-set</strong></li>
+                <li>Decision trees <strong>blind-tested on 432 unseen wines</strong> -- 64% top-3 on a contemporary paper, 52% on a 2000-2010 corpus</li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
                 <li>A framework for <strong>narrowing down before you taste</strong></li>
