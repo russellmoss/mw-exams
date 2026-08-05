@@ -793,7 +793,7 @@ export async function generateFreshQuestion(
   // (Opus by default); retries always fall back to Sonnet (not part of the experiment).
   // The arm that produced the served question is stamped into metadata for the Phase 3
   // accuracy join (generated_questions → feedback outcome).
-  const gen = await selectModel("question_generation", apiKey, "opus");
+  const gen = await selectModel("question_generation", apiKey, "sonnet");
   let genModelUsed: string | null = null;
   let genAbGroup: string | null = null;
 

@@ -19,7 +19,7 @@ const HAIKU_ID = "claude-haiku-4-5-20251001";
 
 // The tasks exposed in the admin A/B panel, each with its current-production default tier.
 export const AB_TASKS: { task: string; label: string; defaultTier: ModelTier }[] = [
-  { task: "question_generation", label: "Question generation", defaultTier: "opus" },
+  { task: "question_generation", label: "Question generation", defaultTier: "sonnet" },
   { task: "model_answer", label: "Model answer", defaultTier: "opus" },
   { task: "feedback_analysis", label: "Feedback analysis", defaultTier: "opus" },
   { task: "reasoning_grading", label: "Pre-glass grading", defaultTier: "opus" },

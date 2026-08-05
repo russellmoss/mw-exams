@@ -125,7 +125,7 @@ export async function runLengthCheck(
   questionId?: string
 ): Promise<LengthCheckResult> {
   const client = new Anthropic({ apiKey });
-  const { model, abGroup } = await selectModel("question_generation", apiKey, "opus");
+  const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
 
   const system = `You are a strict MW exam length auditor. You are given ONE tasting question: a short preamble followed by lettered sub-bullets (a), (b), (c)... each ending in a printed mark value like "(2 x 8 marks)" or "(10 marks)".
 
@@ -204,7 +204,7 @@ async function repairQuestion(
   questionId?: string
 ): Promise<RepairResult> {
   const client = new Anthropic({ apiKey });
-  const { model, abGroup } = await selectModel("question_generation", apiKey, "opus");
+  const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
 
   const problems = check.perBullet
     .filter((b) => b.violations.length > 0)
