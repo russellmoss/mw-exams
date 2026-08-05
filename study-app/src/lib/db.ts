@@ -52,6 +52,9 @@ export interface GeneratedQuestion {
   batch_id: string | null;
   reviewed_at: string | null;
   reviewed_by: number | null;
+  // Flag Question (migration 037): true when a candidate flagged the item and it was withdrawn back to
+  // the pending review gate. Drives the "Flagged by candidate" tag + top-of-queue sort. false otherwise.
+  flagged_by_candidate?: boolean;
   // Batch Undo (migration 033). auto_kept = reached 'kept' without an admin ever reviewing it (the
   // "Never reviewed" state); an explicit admin keep sets reviewed_by and auto_kept=false. served_count
   // / first_served_at track candidate serves so the reopen path can leave already-served items kept.
@@ -1050,6 +1053,9 @@ export async function reviewBankQuestion(
       INSERT INTO bank_bin_reasons (item_id, paper, family_id, reason_tags, reason_note, binned_by)
       VALUES (${questionId}, ${row.paper}, ${row.family}, ${tags}, ${reason?.note ?? null}, ${reviewerId})
     `;
+    // Flag Question (migration 037): a bin is the admin's "Delete" decision — resolve any pending
+    // candidate flag on this item to 'deleted' so it leaves the flag queue and stops pinging admins.
+    await resolveQuestionFlags(questionId, "deleted", reviewerId);
     return { batchId: row.batch_id ?? null, changed: true };
   }
 
@@ -1059,17 +1065,164 @@ export async function reviewBankQuestion(
   const rows = await sql`
     UPDATE generated_questions SET
       status = 'approved', review_state = 'kept', reviewed_at = NOW(), reviewed_by = ${reviewerId},
-      auto_kept = false
+      auto_kept = false, flagged_by_candidate = false
     WHERE question_id = ${questionId} AND review_state IN ('pending', 'binned')
     RETURNING batch_id
   `;
   if (rows.length === 0) return { batchId: null, changed: false };
   await sql`DELETE FROM bank_bin_reasons WHERE item_id = ${questionId}`;
+  // Flag Question (migration 037): a keep is the admin's "Keep" decision — return the item to rotation
+  // (flagged_by_candidate cleared above) and resolve any pending candidate flag on it to 'kept'.
+  await resolveQuestionFlags(questionId, "kept", reviewerId);
   const batchId = (rows[0].batch_id as string) ?? null;
   if (batchId) {
     await sql`UPDATE bank_batches SET kept_count = kept_count + 1 WHERE id = ${batchId}`;
   }
   return { batchId, changed: true };
+}
+
+// ── Flag Question (migration 037) ──────────────────────────────────────────────────────────────
+//
+// A candidate flags a served question from the debrief. The flag ledger (question_flags) carries the
+// admin BinReasonChips codes + optional note + who flagged it; the bank item goes back to the pending
+// review gate with a flagged_by_candidate marker so it stops being served and sorts to the top of the
+// review queue; the attempt is stamped flagged (never deleted) so History can tag it.
+
+export interface QuestionFlagInput {
+  questionId: string;
+  attemptId: number | null;
+  userId: number;
+  reasons: string[]; // BinReasonChips codes (already sanitised)
+  note: string | null;
+}
+
+// Create a candidate flag in one transaction. Idempotent: if a pending flag already exists for the
+// item, the bank-state change is NOT duplicated (spec) — we still stamp the attempt so History tags
+// this attempt too. Returns whether a genuinely new flag was created.
+export async function createQuestionFlag(
+  input: QuestionFlagInput
+): Promise<{ created: boolean; duplicated: boolean; flagId: number | null }> {
+  const sql = getDb();
+
+  const existing = await sql`
+    SELECT id FROM question_flags WHERE question_id = ${input.questionId} AND status = 'pending' LIMIT 1
+  `;
+
+  // The attempt is NEVER deleted — always tag it so /history shows the "Flagged" pill, even when this
+  // is a duplicate flag on an item already withdrawn.
+  if (input.attemptId != null) {
+    await sql`UPDATE user_attempts SET flagged = true WHERE id = ${input.attemptId}`;
+  }
+
+  if (existing.length > 0) {
+    // A pending flag is already routing this item through review — return without duplicating the
+    // insert or re-touching bank state.
+    return { created: false, duplicated: true, flagId: (existing[0].id as number) ?? null };
+  }
+
+  // Empty reason list stores NULL (a reason is never required at the DB level; the API enforces >=1).
+  const reasons = input.reasons.length > 0 ? input.reasons : null;
+
+  // One transaction: ledger row + withdraw the item from rotation (back to the 'pending' gate) +
+  // mark it flagged_by_candidate so the queue can render the tag and sort it to the top.
+  const results = await sql.transaction([
+    sql`
+      INSERT INTO question_flags (question_id, attempt_id, user_id, reasons, note, status)
+      VALUES (${input.questionId}, ${input.attemptId}, ${input.userId}, ${reasons}, ${input.note}, 'pending')
+      RETURNING id
+    `,
+    sql`
+      UPDATE generated_questions
+      SET review_state = 'pending', status = 'pending', flagged_by_candidate = true
+      WHERE question_id = ${input.questionId}
+    `,
+  ]);
+  const flagId = (results?.[0]?.[0]?.id as number) ?? null;
+  return { created: true, duplicated: false, flagId };
+}
+
+// Resolve every pending flag on an item when an admin decides it (bin → 'deleted', keep → 'kept').
+export async function resolveQuestionFlags(
+  questionId: string,
+  status: "deleted" | "kept",
+  resolverId: number
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE question_flags
+    SET status = ${status}, resolved_by = ${resolverId}, resolved_at = NOW()
+    WHERE question_id = ${questionId} AND status = 'pending'
+  `;
+}
+
+export interface FlagContext {
+  flaggedBy: string; // display name
+  reasons: string[];
+  note: string | null;
+  flaggedAt: string;
+}
+
+// Flag context per item (the newest pending flag) for a set of question ids — drives the review-card
+// "Flagged by candidate" tag. Keyed by question_id; items with no pending flag are simply absent.
+export async function getFlagContextForItems(
+  questionIds: string[]
+): Promise<Map<string, FlagContext>> {
+  const map = new Map<string, FlagContext>();
+  if (questionIds.length === 0) return map;
+  const sql = getDb();
+  const rows = await sql`
+    SELECT DISTINCT ON (f.question_id)
+      f.question_id, f.reasons, f.note, f.created_at, u.name AS flagged_by
+    FROM question_flags f
+    JOIN users u ON f.user_id = u.id
+    WHERE f.status = 'pending' AND f.question_id = ANY(${questionIds})
+    ORDER BY f.question_id, f.created_at DESC
+  `;
+  for (const r of rows as Array<{ question_id: string; reasons: string[] | null; note: string | null; created_at: string; flagged_by: string }>) {
+    map.set(r.question_id, {
+      flaggedBy: r.flagged_by,
+      reasons: Array.isArray(r.reasons) ? r.reasons : [],
+      note: r.note,
+      flaggedAt: r.created_at,
+    });
+  }
+  return map;
+}
+
+// Every pending candidate-flagged bank item (across batches) — the cross-batch flag review queue,
+// newest flag first. Mirrors getFlaggedPendingQuestions (producer) but scoped to candidate flags.
+export async function getCandidateFlaggedQuestions(): Promise<GeneratedQuestion[]> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT q.* FROM generated_questions q
+    JOIN LATERAL (
+      SELECT created_at FROM question_flags
+      WHERE question_id = q.question_id AND status = 'pending'
+      ORDER BY created_at DESC LIMIT 1
+    ) f ON true
+    WHERE q.review_state = 'pending' AND q.flagged_by_candidate = true
+    ORDER BY f.created_at DESC
+  `;
+  return rows as GeneratedQuestion[];
+}
+
+// Pending candidate flags for the admin NotificationBell — "Question flagged by <name>". Newest first.
+export async function getFlagNotifications(): Promise<
+  { id: number; questionId: string; flaggedBy: string; paper: number | null; createdAt: string }[]
+> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT f.id, f.question_id, f.created_at, u.name AS flagged_by, q.paper
+    FROM question_flags f
+    JOIN users u ON f.user_id = u.id
+    LEFT JOIN generated_questions q ON f.question_id = q.question_id
+    WHERE f.status = 'pending'
+    ORDER BY f.created_at DESC
+    LIMIT 20
+  `;
+  return (rows as Array<{ id: number; question_id: string; created_at: string; flagged_by: string; paper: number | null }>).map(
+    (r) => ({ id: r.id, questionId: r.question_id, flaggedBy: r.flagged_by, paper: r.paper, createdAt: r.created_at })
+  );
 }
 
 // Keep every pending question in a batch in one shot ("Keep all").

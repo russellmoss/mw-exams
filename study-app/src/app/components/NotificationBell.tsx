@@ -29,6 +29,33 @@ function markBankSeen(batchId: string) {
   }
 }
 
+// Flag Question (migration 037) — candidate-flagged questions awaiting an admin Delete/Keep decision
+// (admin only). Dismissal is tracked client-side (by flag id) so a flag the admin has already opened
+// stops nagging; a genuinely new flag still lights the bell.
+interface FlagNotif {
+  id: number;
+  questionId: string;
+  flaggedBy: string;
+  paper: number | null;
+}
+const FLAG_SEEN_KEY = "mw-flag-seen";
+function getFlagSeen(): Set<number> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(FLAG_SEEN_KEY) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+function markFlagSeen(id: number) {
+  try {
+    const seen = getFlagSeen();
+    seen.add(id);
+    localStorage.setItem(FLAG_SEEN_KEY, JSON.stringify([...seen]));
+  } catch {
+    /* localStorage unavailable — non-fatal */
+  }
+}
+
 interface AnalysisSummary {
   id: number;
   attempt_id: number;
@@ -49,6 +76,7 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [analyses, setAnalyses] = useState<AnalysisSummary[]>([]);
   const [bankReady, setBankReady] = useState<BankReady[]>([]);
+  const [flags, setFlags] = useState<FlagNotif[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -116,6 +144,9 @@ export function NotificationBell() {
         const data = await res.json();
         const seen = getBankSeen();
         setBankReady(((data.batches as BankReady[]) || []).filter((b) => !seen.has(b.batchId)));
+        // Candidate flags awaiting a Delete/Keep decision (admin only). Hide ones already opened.
+        const flagSeen = getFlagSeen();
+        setFlags(((data.flags as FlagNotif[]) || []).filter((f) => !flagSeen.has(f.id)));
       }
     } catch {}
   }, [speakNarration]);
@@ -187,9 +218,9 @@ export function NotificationBell() {
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
           </svg>
-          {unreadCount + bankReady.length > 0 && (
+          {unreadCount + bankReady.length + flags.length > 0 && (
             <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent text-[10px] font-bold text-background flex items-center justify-center">
-              {unreadCount + bankReady.length > 9 ? "9+" : unreadCount + bankReady.length}
+              {unreadCount + bankReady.length + flags.length > 9 ? "9+" : unreadCount + bankReady.length + flags.length}
             </span>
           )}
         </button>
@@ -202,6 +233,32 @@ export function NotificationBell() {
                 <p className="text-xs text-muted mt-0.5">{unreadCount} new</p>
               )}
             </div>
+            {flags.length > 0 && (
+              <div className="border-b border-border">
+                {flags.map((f) => (
+                  <Link
+                    key={f.id}
+                    href="/admin?review=flagged:candidate"
+                    onClick={() => {
+                      markFlagSeen(f.id);
+                      setFlags((prev) => prev.filter((x) => x.id !== f.id));
+                      setDropdownOpen(false);
+                    }}
+                    className="block px-4 py-3 bg-accent/5 hover:bg-card-hover transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">⚑ Flagged question</span>
+                      {f.paper != null && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">P{f.paper}</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted mt-0.5">
+                      Question flagged by {f.flaggedBy} — in review queue →
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
             {bankReady.length > 0 && (
               <div className="border-b border-border">
                 {bankReady.map((b) => (
@@ -227,7 +284,7 @@ export function NotificationBell() {
               </div>
             )}
             <div className="max-h-80 overflow-y-auto">
-              {analyses.length === 0 && bankReady.length === 0 ? (
+              {analyses.length === 0 && bankReady.length === 0 && flags.length === 0 ? (
                 <div className="px-4 py-6 text-center text-xs text-muted">
                   No feedback analyses yet. Submit feedback on a question to get started.
                 </div>

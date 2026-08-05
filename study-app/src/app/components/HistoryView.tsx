@@ -111,6 +111,9 @@ export interface AttemptDetail {
   user_feedback: string | null;
   subcategory: string | null;
   mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting' | 'known-wine' | 'flash'
+  // Flag Question (migration 037): true when the candidate flagged this question. The attempt is never
+  // deleted — this just drives the small amber "Flagged" tag next to the verdict pill.
+  flagged?: boolean;
   drill_payload?: DrillPayload | string | null;
   // Flash Notes per-card metadata (mode = 'flash'); null otherwise.
   prompt_type?: string | null;

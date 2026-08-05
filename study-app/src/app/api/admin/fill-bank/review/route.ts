@@ -5,6 +5,8 @@ import {
   getBankBatch,
   getBatchPendingQuestions,
   getFlaggedPendingQuestions,
+  getCandidateFlaggedQuestions,
+  getFlagContextForItems,
   getAnswerKeyGroundTruth,
   getAnswerKeyGroundTruths,
   getQuestionById,
@@ -13,6 +15,7 @@ import {
   applyBinReasons,
   extendBatchForReplacement,
   type GeneratedQuestion,
+  type FlagContext,
 } from "@/lib/db";
 import type { ProducerFlag } from "@/lib/bank-health/producer";
 import { runBankBatch } from "@/lib/bank-worker";
@@ -170,6 +173,37 @@ async function failingPendingCount(pending: GeneratedQuestion[]): Promise<number
   return failing;
 }
 
+// Flag Question (migration 037): enrich serialized review items with candidate-flag context and sort
+// any flagged item to the TOP of the queue (spec). Non-flagged items keep their existing relative
+// order (a stable partition). Each item gains flaggedByCandidate + flaggedBy/reasons/note/flaggedAt.
+async function attachFlagContext<T extends { id: string }>(
+  items: T[]
+): Promise<
+  (T & {
+    flaggedByCandidate: boolean;
+    flaggedBy: string | null;
+    reasons: string[] | null;
+    note: string | null;
+    flaggedAt: string | null;
+  })[]
+> {
+  const map: Map<string, FlagContext> = await getFlagContextForItems(items.map((i) => i.id));
+  const out = items.map((i) => {
+    const f = map.get(i.id);
+    return {
+      ...i,
+      flaggedByCandidate: !!f,
+      flaggedBy: f?.flaggedBy ?? null,
+      reasons: f?.reasons ?? null,
+      note: f?.note ?? null,
+      flaggedAt: f?.flaggedAt ?? null,
+    };
+  });
+  const flagged = out.filter((i) => i.flaggedByCandidate);
+  const rest = out.filter((i) => !i.flaggedByCandidate);
+  return [...flagged, ...rest];
+}
+
 /**
  * GET /api/admin/fill-bank/review?batch=… — admin-only.
  *
@@ -218,6 +252,40 @@ export async function GET(request: Request) {
     });
   }
 
+  // Flag Question deep-link (?flagged=candidate): the NotificationBell "Question flagged by <name>"
+  // item and the flag pill open the cross-batch queue of candidate-flagged items, newest flag first.
+  // Keep/Bin still act per-item; the batch-scoped fields are synthesised from the flagged set.
+  if (params.get("flagged") === "candidate") {
+    const pending = await getCandidateFlaggedQuestions();
+    const keys = await getAnswerKeyGroundTruths(pending.map((q) => q.question_id));
+    const serialized = pending.map((q) => {
+      const gt = keys.get(q.question_id);
+      let cardVerdict: { ok: boolean; hard: Violation[]; soft: Violation[] } | null = null;
+      if (gt && gt.length > 0) {
+        const violations = violationsFor(q, gt);
+        const hard = violations.filter((v) => v.severity === "hard");
+        cardVerdict = { ok: hard.length === 0, hard, soft: violations.filter((v) => v.severity === "soft") };
+      }
+      return { ...serialize(q), verdict: cardVerdict };
+    });
+    const questions = await attachFlagContext(serialized);
+    const total = questions.length;
+    return Response.json({
+      batchId: "flagged:candidate",
+      flagged: "candidate",
+      paper: pending[0]?.paper ?? null,
+      replaceBinned: false,
+      status: "complete",
+      keptCount: 0,
+      remaining: total,
+      position: { n: total > 0 ? 1 : 0, total },
+      question: questions[0] ?? null,
+      verdict: questions[0]?.verdict ?? null,
+      failingRemaining: await failingPendingCount(pending),
+      questions,
+    });
+  }
+
   const batchId = params.get("batch");
   if (!batchId) return Response.json({ error: "Missing batch" }, { status: 400 });
 
@@ -234,7 +302,7 @@ export async function GET(request: Request) {
   // navigation — Bin/Keep advance instantly without a server round-trip per card. Verdicts reuse the
   // batched ground-truth read so the whole list costs one key fetch, not one per question.
   const keys = await getAnswerKeyGroundTruths(pending.map((q) => q.question_id));
-  const questions = pending.map((q) => {
+  const serialized = pending.map((q) => {
     const gt = keys.get(q.question_id);
     let cardVerdict: { ok: boolean; hard: Violation[]; soft: Violation[] } | null = null;
     if (gt && gt.length > 0) {
@@ -244,6 +312,11 @@ export async function GET(request: Request) {
     }
     return { ...serialize(q), verdict: cardVerdict };
   });
+  // Flag Question (migration 037): attach candidate-flag context and float any flagged item in this
+  // batch to the top of the queue. The single `question` mirrors the (possibly re-sorted) first item.
+  const questions = await attachFlagContext(serialized);
+  const firstQuestion = questions[0] ?? question;
+  const firstVerdict = questions[0]?.verdict ?? verdict;
 
   return Response.json({
     batchId: batch.id,
@@ -253,8 +326,8 @@ export async function GET(request: Request) {
     keptCount: batch.kept_count,
     remaining: pending.length,
     position: { n: question ? batch.kept_count + 1 : total, total },
-    question,
-    verdict,
+    question: firstQuestion,
+    verdict: firstVerdict,
     failingRemaining,
     questions,
   });
