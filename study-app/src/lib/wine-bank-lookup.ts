@@ -163,7 +163,8 @@ const NOISE_WORDS = new Set([
   "les", "and", "von", "van", "rouge", "blanc", "rosso", "bianco", "tinto",
 ]);
 
-function matchScore(queryText: string, entry: WineBankEntry): number {
+// Exported for tests only — production callers go through lookupWine/lookupWines.
+export function matchScore(queryText: string, entry: WineBankEntry): number {
   const query = normalize(queryText);
   const producerNorm = normalize(entry.producer);
   const wineNorm = normalize(entry.wine_name);
@@ -198,6 +199,16 @@ function matchScore(queryText: string, entry: WineBankEntry): number {
     }
   }
   const wineScore = wineTokens.length > 0 ? wineHits / wineTokens.length : 0;
+
+  // Cuvée gate: a producer can have several wines in the bank, and question wines routinely name a
+  // cuvée the bank doesn't hold. Under the old producer-weighted score, "Lucien Crochet … Le Chêne"
+  // matched the same producer's La Croix du Roy row at 0.73 and served its tasting profile and
+  // citations; "Leflaive … Les Combettes" matched a Clavoillon row at 0.87. Both are silent
+  // wrong-wine provenance — worse than no match, which just falls back to fresh research. Since
+  // bank wine_names mirror question fullText (vintage stripped, noise words skipped, accents
+  // normalized), a genuine same-wine match has essentially every entry token present in the query;
+  // 0.8 tolerates one orphan token only on long (5+ token) cuvée names.
+  if (wineTokens.length > 0 && wineScore < 0.8) return 0;
 
   // Combined: producer match is weighted 60%, wine name 40%
   return producerScore * 0.6 + wineScore * 0.4;
