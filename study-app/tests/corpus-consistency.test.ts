@@ -82,6 +82,64 @@ describe.skipIf(!HAVE_ALL)("derived layers stay in step with the corpus", () => 
     expect(corpus.size).toBe(wines.length);
   });
 
+  // A brief can describe the WRONG WINE and nothing errors — the filename still matches a
+  // real slot, so every downstream consumer reads it happily. All twelve
+  // data/wine_research/2023_p3_w*.md briefs described the 2025 Paper 3 flight, slot for slot,
+  // and it went unnoticed until a mock answer written from them argued about a Gredos
+  // Garnacha under a question about three rosés (fixed 2026-08-05).
+  //
+  // The check: the brief's `producer` must appear in the wine's own full_text. That is the
+  // one field specific enough to catch a whole-flight swap and stable enough not to
+  // false-positive on wording.
+  it("wine-research briefs describe the wine their filename claims", () => {
+    // Briefs naming the parent company where the exam text names the brand or the wine.
+    // Both are correct; they just share no token.
+    const PARENT_COMPANY_OK = new Set([
+      "2012_p3_w12", // Donnafugata makes 'Ben Ryé'
+      "2018_p1_w1", //  Casella Family Brands owns Yellowtail
+      "2025_p1_w4", //  Gabilan Wine Company farms Old Stage
+    ]);
+
+    // Accents, punctuation and spacing vary between the exam text and the briefs
+    // ("Cockburn's"/"Cockburns", "DuMOL"/"Du MOL"), so compare on collapsed alphanumerics.
+    const collapse = (s: string) =>
+      s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+    const exams = readJson<(Exam & { papers: { paper: number; wines: { slot: number; full_text: string }[] }[] })[]>(EXAMS);
+    const mismatched: string[] = [];
+
+    for (const e of exams) {
+      for (const p of e.papers) {
+        for (const wine of p.wines) {
+          const id = `${e.year}_p${p.paper}_w${wine.slot}`;
+          if (PARENT_COMPANY_OK.has(id)) continue;
+
+          const brief = join(ROOT, "data", "wine_research", `${id}.md`);
+          if (!existsSync(brief)) {
+            mismatched.push(`${id}: no brief`);
+            continue;
+          }
+          const producer = /^producer:\s*(.+)$/m.exec(readFileSync(brief, "utf8"))?.[1]?.trim();
+          if (!producer) {
+            mismatched.push(`${id}: brief has no producer field`);
+            continue;
+          }
+
+          const haystack = collapse(wine.full_text);
+          // Trailing "s" is dropped so a possessive in one source matches a plural in the other.
+          const hit = producer
+            .split(/[\s,()/]+/)
+            .flatMap((tok) => [collapse(tok), collapse(tok).replace(/s$/, "")])
+            .some((tok) => tok.length >= 3 && haystack.includes(tok));
+
+          if (!hit) mismatched.push(`${id}: brief says "${producer}", exam says "${wine.full_text}"`);
+        }
+      }
+    }
+
+    expect(mismatched, "briefs describing a different wine — re-run the wine-researcher").toEqual([]);
+  });
+
   // The Stage 1 Assessment is a different exam with a different structure. It lives in
   // data/s1a/ behind an `s1a_` id prefix precisely so it cannot skew the paper-1/2/3
   // distributions the master trees are built on. This locks that boundary in place.
