@@ -840,7 +840,19 @@ export async function generateFreshQuestion(
         // The draft itself. parse_failed alone says a draft was malformed but never HOW, so the
         // only way to chase the cause was comparing rates across deploys — which needs thousands
         // of attempts to resolve a couple of points. One stored sample answers it directly.
-        parseFailureSample: text,
+        //
+        // When the response carried NO text at all, the draft is not the interesting part — the
+        // reason the model produced none is. Every parse failure in the first batch after this
+        // logging shipped was of exactly that shape: attempt 1, Opus, ~60s, no API error, and zero
+        // text. Storing plain "" there would have recorded null and told us nothing, so record the
+        // stop reason and token counts instead — that distinguishes "budget exhausted before any
+        // text" from "model genuinely returned nothing".
+        parseFailureSample: text
+          ? text
+          : `(no text content) stop_reason=${message.stop_reason ?? "unknown"} ` +
+            `output_tokens=${message.usage?.output_tokens ?? "?"} ` +
+            `input_tokens=${message.usage?.input_tokens ?? "?"} ` +
+            `blocks=[${message.content.map((b) => b.type).join(",")}]`,
         latencyMs: callMs,
       });
       continue;
