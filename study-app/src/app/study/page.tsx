@@ -19,6 +19,7 @@ import { PreGlassReasoning } from "../components/PreGlassReasoning";
 import { StreamingFeedback } from "../components/StreamingFeedback";
 import { SectionMarksRow, parseSectionMarks, stripSectionMarksTag } from "../components/SectionMarksRow";
 import { WineReveal } from "../components/WineReveal";
+import type { WineProvenance } from "@/lib/wine-bank-lookup";
 import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
@@ -41,6 +42,9 @@ export default function StudyPage() {
   const userIdRef = useRef(user?.id);
   const [state, dispatch] = useReducer(studyReducer, initialStudyState);
   const [tastingNotes, setTastingNotes] = useState<string[]>([]);
+  // Where each tasting note's reference profile came from. Rendered only after the candidate has
+  // answered — the source URLs name the producer.
+  const [tastingProvenance, setTastingProvenance] = useState<WineProvenance[]>([]);
   const [tastingLoading, setTastingLoading] = useState(false);
   // Live progress for the tasting-note generation. The generator runs a
   // generate-validate-regenerate loop (a red note on a white wine fixes itself), which is a real
@@ -340,7 +344,7 @@ export default function StudyPage() {
     timer.pause();
 
     try {
-      const data = await tastingTrace.run<{ tastingNotes: string[] }>(
+      const data = await tastingTrace.run<{ tastingNotes: string[]; provenance?: WineProvenance[] }>(
         "/api/generate-tasting/stream",
         { wines: state.question.wines, questionId: state.question.id }
       );
@@ -349,6 +353,7 @@ export default function StudyPage() {
         throw new Error(tastingTrace.errorRef.current || "Failed to generate tasting notes");
       }
       setTastingNotes(data.tastingNotes);
+      setTastingProvenance(data.provenance ?? []);
 
       // Save tasting notes to Neon
       if (attemptId) {
@@ -504,13 +509,14 @@ export default function StudyPage() {
         // Streamed like the reveal path, so the notes panel shows the generator working rather
         // than a bare skeleton while the debrief grades alongside it. Deliberately not awaited.
         tastingTrace
-          .run<{ tastingNotes: string[] }>("/api/generate-tasting/stream", {
+          .run<{ tastingNotes: string[]; provenance?: WineProvenance[] }>("/api/generate-tasting/stream", {
             wines: state.question.wines,
             questionId: state.question.id,
           })
           .then((d) => {
             if (d?.tastingNotes) {
               setTastingNotes(d.tastingNotes);
+              setTastingProvenance(d.provenance ?? []);
               if (attemptId) {
                 fetch("/api/save-attempt", {
                   method: "POST",
@@ -642,6 +648,7 @@ export default function StudyPage() {
     evalStream.reset();
     timer.reset();
     setTastingNotes([]);
+    setTastingProvenance([]);
     setTastingLoading(false);
     setModelAnswerReady(false);
     setWaitingForModel(false);
@@ -668,6 +675,7 @@ export default function StudyPage() {
     evalStream.reset();
     timer.reset();
     setTastingNotes([]);
+    setTastingProvenance([]);
     setTastingLoading(false);
     setWaitingForModel(false);
     setPreGlassReasoning("");
@@ -1127,6 +1135,8 @@ export default function StudyPage() {
                     tastingNotes={tastingNotes}
                     wineCount={state.question.wines.length}
                     isLoading={tastingLoading && tastingNotes.length === 0}
+                    provenance={tastingProvenance}
+                    showSources
                   />
                 </div>
               )}
@@ -1169,6 +1179,8 @@ export default function StudyPage() {
                     tastingNotes={tastingNotes}
                     wineCount={state.question.wines.length}
                     isLoading={tastingLoading && tastingNotes.length === 0}
+                    provenance={tastingProvenance}
+                    showSources
                   />
                 </div>
               )}

@@ -1,17 +1,76 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import { describeSource, type WineProvenance } from "@/lib/wine-bank-lookup";
 
 interface WineRevealProps {
   tastingNotes: string[];
   wineCount: number;
   isLoading: boolean;
+  /** Where each note's reference profile came from, in flight order. */
+  provenance?: WineProvenance[];
+  /**
+   * Render the source list. MUST stay false anywhere the candidate has not yet answered — the URLs
+   * name the producer and appellation, so showing them beside a blind note hands over the answer.
+   */
+  showSources?: boolean;
+}
+
+const TIER_LABEL: Record<string, string> = {
+  tech_sheet: "Tech sheet",
+  critic: "Critic notes",
+  web: "Web sources",
+  inferred: "Inferred",
+};
+
+function SourceList({ p }: { p: WineProvenance }) {
+  if (!p.sources.length && p.evidence_tier !== "inferred") return null;
+  return (
+    <details className="mt-4 border-t border-border pt-3">
+      <summary className="text-xs text-muted cursor-pointer hover:text-foreground transition-colors">
+        {TIER_LABEL[p.evidence_tier ?? "web"] ?? "Sources"}
+        {p.sources.length > 0 && ` · ${p.sources.length} source${p.sources.length === 1 ? "" : "s"}`}
+        {p.totalFields > 0 && (
+          <span className="tabular-nums">
+            {" "}· {p.sourcedFields}/{p.totalFields} fields sourced
+          </span>
+        )}
+      </summary>
+      {p.sources.length > 0 ? (
+        <ul className="mt-3 space-y-2">
+          {p.sources.map((s, i) => (
+            <li key={s.url} className="flex gap-2 text-xs leading-relaxed">
+              <span className="text-muted tabular-nums shrink-0">[{i + 1}]</span>
+              <span className="min-w-0">
+                <span className="text-muted">{describeSource(s)}</span>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-accent hover:text-accent-hover break-all"
+                >
+                  {s.url}
+                </a>
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-xs text-muted">
+          No published source was found for this wine — the note is built from the model&apos;s
+          knowledge of the producer, appellation and vintage.
+        </p>
+      )}
+    </details>
+  );
 }
 
 export function WineReveal({
   tastingNotes,
   wineCount,
   isLoading,
+  provenance,
+  showSources = false,
 }: WineRevealProps) {
   if (isLoading) {
     return (
@@ -46,6 +105,7 @@ export function WineReveal({
           <div className="markdown-content">
             <ReactMarkdown>{note}</ReactMarkdown>
           </div>
+          {showSources && provenance?.[i] && <SourceList p={provenance[i]} />}
         </div>
       ))}
     </div>

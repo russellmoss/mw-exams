@@ -57,6 +57,37 @@ export function normalizeSources(raw: unknown): WineSource[] {
 }
 
 /**
+ * The candidate-safe provenance summary for one wine: where the reference profile behind its tasting
+ * note came from, and how much of that profile was actually sourced rather than inferred.
+ *
+ * Contains NO sensory values and no wine identity of its own — but the URLs name the château, so this
+ * is post-answer material only. See the `showSources` gate in WineReveal.
+ */
+export interface WineProvenance {
+  slot: number;
+  evidence_tier?: SourceType | "inferred";
+  confidence?: string;
+  sources: WineSource[];
+  /** Grid fields backed by at least one document, out of those whose provenance is known. */
+  sourcedFields: number;
+  totalFields: number;
+}
+
+export function buildProvenance(slot: number, profile: WineProfile | undefined): WineProvenance {
+  const sources = normalizeSources(profile?.tasting_profile?.sources);
+  const citations = profile?.tasting_profile?.citations ?? {};
+  const entries = Object.values(citations);
+  return {
+    slot,
+    evidence_tier: profile?.evidence_tier ?? (sources.length ? tierFromSources(sources) : undefined),
+    confidence: profile?.confidence,
+    sources,
+    sourcedFields: entries.filter((refs) => refs.length > 0).length,
+    totalFields: entries.length,
+  };
+}
+
+/**
  * Best tier present in a source list. Used for rows banked before evidence_tier was stored, so a
  * cached wine still reports how well evidenced it is instead of showing a blank.
  */

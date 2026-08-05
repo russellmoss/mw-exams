@@ -1,5 +1,6 @@
 import { requireApiKey } from "@/lib/api-key";
 import { generateSanitizedTastingNotes } from "@/lib/tasting";
+import type { WineProvenance } from "@/lib/wine-bank-lookup";
 
 export const runtime = "nodejs";
 
@@ -15,15 +16,19 @@ export async function POST(request: Request) {
       return Response.json({ error: "Missing or empty wines array" }, { status: 400 });
     }
 
+    // Kept in step with the SSE twin in ./stream/route.ts — both return the same shape, which is the
+    // stated contract in that file's header.
+    let provenance: WineProvenance[] = [];
     const tastingNotes = await generateSanitizedTastingNotes({
       wines,
       questionId,
       apiKey: keyResult.apiKey,
       source: keyResult.source,
       userId: keyResult.user.id,
+      onProvenance: (p) => { provenance = p; },
     });
 
-    return Response.json({ tastingNotes });
+    return Response.json({ tastingNotes, provenance });
   } catch (err) {
     console.error("generate-tasting error:", err);
     return Response.json(

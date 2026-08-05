@@ -1,6 +1,7 @@
 import { requireApiKey } from "@/lib/api-key";
 import { generateSanitizedTastingNotes } from "@/lib/tasting";
 import { sseStream } from "@/lib/thinking-stream";
+import type { WineProvenance } from "@/lib/wine-bank-lookup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
   const userId = keyResult.user.id;
 
   return sseStream(async (emit) => {
+    // Where each note's reference profile came from. Rides on the RESULT event, not a progress event,
+    // so it lands with the notes and the client cannot show it before them.
+    let provenance: WineProvenance[] = [];
     const tastingNotes = await generateSanitizedTastingNotes({
       wines,
       questionId,
@@ -36,8 +40,9 @@ export async function POST(request: Request) {
       source,
       userId,
       emit,
+      onProvenance: (p) => { provenance = p; },
     });
     emit({ type: "status", label: "Notes ready." });
-    return { tastingNotes };
+    return { tastingNotes, provenance };
   });
 }

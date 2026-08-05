@@ -14,7 +14,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { buildTastingSystemPrompt, buildTastingUserPrompt } from "@/lib/prompts/tasting-prompt";
 import { sanitizeTastingNotes } from "@/lib/tasting-sanitizer";
 import { validateTastingNotes } from "@/lib/tasting-validators";
-import { lookupWines } from "@/lib/wine-bank-lookup";
+import { lookupWines, buildProvenance, type WineProvenance } from "@/lib/wine-bank-lookup";
 import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
@@ -51,6 +51,12 @@ export async function generateSanitizedTastingNotes(opts: {
   userId: number | null;
   /** Optional live-progress channel (Reverse Tasting's Layer-B reveal). Omit for the silent path. */
   emit?: ProgressEmitter;
+  /**
+   * Receives where each wine's reference profile came from, once resolved. A CALLBACK rather than a
+   * change to the return type so the two Stem Sniper callers, which have no use for it, are untouched.
+   * Post-answer material only — the source URLs name the wine.
+   */
+  onProvenance?: (provenance: WineProvenance[]) => void;
 }): Promise<string[]> {
   const { wines, questionId, apiKey, source, userId, emit } = opts;
   emit?.({ type: "status", label: "Looking up the wines in the bank…" });
@@ -72,6 +78,11 @@ export async function generateSanitizedTastingNotes(opts: {
       if (paper == null && rows[0]?.paper != null) paper = Number(rows[0].paper);
     } catch {}
   }
+
+  // Reported from the SAME profiles the notes are written from, after the stored-profile preference
+  // above has been applied — so the citations always describe the evidence that actually shaped the
+  // note, not a second lookup that might disagree.
+  opts.onProvenance?.(wines.map((w) => buildProvenance(w.slot, wineProfiles[String(w.slot)])));
 
   const client = new Anthropic({ apiKey });
   const systemPrompt = buildTastingSystemPrompt();
