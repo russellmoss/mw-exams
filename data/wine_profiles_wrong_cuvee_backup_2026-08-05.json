@@ -22683,5 +22683,472 @@
         "structural_summary": "style=still_dry, grape=Chardonnay"
       }
     }
+  },
+  {
+    "question_id": "gen_p3_F6_1785964441098",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "france_alsace_domaine_weinbach_gewurztraminer_furstentum_vendanges_tardives",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:14:42.067Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Gewurztraminer"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.wine-searcher.com/find/dom+weinbach+gewurz+furstentum+alsace+grand+cru+france",
+            "type": "web",
+            "title": "Best local price for Domaine Weinbach Gewurztraminer Furstentum - stores near you in Mexico",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://vintnerproject.com/drink-alsace/domaine-weinbach-gerwurzraminer-reserve-2018",
+            "type": "web",
+            "title": "Domaine Weinbach Gewurztraminer Reserve 2018 - Vintner Project",
+            "publisher": "vintnerproject.com"
+          },
+          {
+            "url": "https://dutchwineapprentice.com/domaine-weinbach-institutional-alsatian-wines-in-a-modern-jacket",
+            "type": "web",
+            "title": "Domaine Weinbach – Institutional Alsatian wines in a ...",
+            "publisher": "dutchwineapprentice.com"
+          },
+          {
+            "url": "https://www.wineanorak.com/Alsace/weinbach.htm",
+            "type": "critic",
+            "title": "The wines of Weinbach, Alsace",
+            "publisher": "Wine Anorak"
+          },
+          {
+            "url": "https://wineanorak.com/2024/03/26/alsace-adventure-1-domaine-weinbach",
+            "type": "critic",
+            "title": "Alsace adventure (1) Domaine Weinbach – wineanorak.com",
+            "publisher": "Wine Anorak"
+          },
+          {
+            "url": "https://www.winespectator.com/vintage-charts/region/alsace",
+            "type": "critic",
+            "title": "Alsace | Vintage Charts",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://www.decanter.com/premium/alsace-grand-cru-vintage-report-2020-2021-512897",
+            "type": "critic",
+            "title": "Alsace Grand Cru vintage report: 2020 & 2021 | Decanter",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.winespectator.com/wine/wine-detail/id/1328523/name/weinbach-gewuerztraminer-alsace-grand-cru-furstentum-2023",
+            "type": "critic",
+            "title": "Weinbach Gewürztraminer Alsace Grand Cru Furstentum 2023 | Wine Rating | Wine Spectator",
+            "publisher": "Wine Spectator"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": []
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "pronounced intensity. rose petal, lychee, candied ginger, Turkish delight, dried apricot, orange blossom, cinnamon, clove, smoke, petrol emerging",
+        "palate_summary": "concentrated lychee, ripe mango, candied citrus peel, dried apricot, honey, ginger spice, white pepper, beeswax, subtle botrytis richness, well-integrated residual sugar balanced by Furstentum's characteristic racy acidity. Finish: long.",
+        "structural_summary": "style=still_sweet, grape=Gewurztraminer"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785964441098",
+    "slot": 2,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "austria_burgenland_feiler_artinger_ruster_ausbruch_pinot_cuv_e",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:14:42.085Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Pinot Gris",
+        "Pinot Blanc"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "/goto?url=CAESUQHuR6pNLR28jQcPIWWZ4-LZuuOF5XtLiNlRRAiXpQ3arRvKRYMrJBGJGluxPsUWgNr03AuInCxr5hMMX0qwZGAlU2SmcvrBhN17DCCNcSq60g%3D%3D",
+            "type": "web",
+            "title": "FEILER Home",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESXAHuR6pNTyGO0Npp73gVEq-puCM5OJLlGW4j35Nw-6Bvm1V8q8ecSXp6eTJI-zQ5YjePXpp5M2IBhhPOaGxx9UxThrHY0yVbkcmYEI5YSJQJiMWERouZQ5hgplNk",
+            "type": "web",
+            "title": "Feiler",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESpAEB7keqTZL1GxQy8vt3RWiXD73zlp4vlXXbP1sZRUr_acd47KQRYQ5h8D5R5jUL2Tje9JPfcIMzH4CA0p978FBUMqyj9P9KMkDiO7HL9VEGXOMYPHDMjBsFWyVTiv1L8qlOWxdsRSy6kCHtkYmQk6gNa8Bke0VPt1VvZUa8bZZtY4s-o5-tK3jO2CPvTpFabFKnb7ifzU3diAO6qr7k9WX5kWqzxg%3D%3D",
+            "type": "web",
+            "title": "About FEILER - Kiko Liebelle",
+            "publisher": ""
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews/austria/burgenland/feiler-artinger-zweigelt-burgenland-austria-2020-62824",
+            "type": "critic",
+            "title": "Feiler-Artinger, Zweigelt, Burgenland, Austria, 2020",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2002-gustav",
+            "type": "critic",
+            "title": "Weingut Feiler-Artinger - 2002 Gustav",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2015-neuburger",
+            "type": "critic",
+            "title": "2015 Neuburger - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2009-neuburger",
+            "type": "critic",
+            "title": "2009 Neuburger - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews/austria/neusiedlersee/muenzenrieder-johannes-cuvee-beerenauslese-2017-47632",
+            "type": "critic",
+            "title": "Münzenrieder Johannes, Cuvee Beerenauslese, Neusiedlersee, ...",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2017-ruster-ausbruch",
+            "type": "critic",
+            "title": "2017 Ruster Ausbruch - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/feiler+artinger+pinot+cuvee+dac+rust+ausbruch+burgenland+austria/1/usa-ok",
+            "type": "web",
+            "title": "Best local price for Feiler-Artinger Pinot Cuvee",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.vinography.com/2012/03/the_sweet_taste_of_freedom_the",
+            "type": "web",
+            "title": "The Sweet Taste of Freedom: Austria's Ruster Ausbruch Wines : Vinography",
+            "publisher": "vinography.com"
+          },
+          {
+            "url": "https://winemonger.com/collections/feiler-artinger",
+            "type": "web",
+            "title": "Feiler-Artinger\n\n    \n\n    \n\n    \n      – Winemonger",
+            "publisher": "winemonger.com"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            9
+          ],
+          "palate_sweetness": [
+            8,
+            9
+          ],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            9
+          ]
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "medium(+) intensity. marzipan, fresh fig, bread-like botrytis nuances, hints of yellow tropical fruit",
+        "palate_summary": "complex, juicy, well-integrated sweetness, hints of yellow tropical fruit, fine (note truncated in source). Finish: long.",
+        "structural_summary": "style=still_sweet, grape=Pinot Noir+Pinot Gris+Pinot Blanc"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785964441098",
+    "slot": 3,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "chile_colchagua_valley_viu_manent_late_harvest_sauvignon_blanc",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:14:42.108Z",
+      "quality_tier": null,
+      "evidence_tier": "tech_sheet",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Sauvignon Blanc"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://viumanent.cl/wp/wp-content/uploads/2016/02/2023-en-technical-sheet-secreto-sb-1.pdf",
+            "type": "tech_sheet",
+            "title": "SECRETO SAUVIGNON BLANC 2023",
+            "publisher": "viumanent.cl"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": []
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "medium(+) intensity. candied citrus peel, dried apricot, peach conserve, honey, orange blossom, light botrytis notes, tropical fruit (mango, pineapple)",
+        "palate_summary": "concentrated apricot jam, candied orange peel, honey, dried peach, mango, balanced residual sugar lifted by fresh acidity, subtle floral finish, no prominent oak. Finish: medium(+).",
+        "structural_summary": "style=still_sweet, grape=Sauvignon Blanc"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F2_1785964790640",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "portugal_madeira_henriques_henriques_sercial_10_year_old",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:20:36.240Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "fortified",
+      "grape_varieties": [
+        "Sercial"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "/goto?url=CAES0gEB7keqTcpb6AkjxBppeezgXrZ2xUQb_XRXK6aBKphgOtCCVN5nJ0HQOnRk1HettfrrMNLz2Cuvmzg8dcK9oGhP3DxrWAPFK4pYQPhfSPviZXm7g8BjEehcW6Frj10EfYxBbf0Vc1y6amjQRdITFpr4f913MUrsFghhk9ZZzT38KvKMPf_U_pj0lEL79gVSTG19lKcXviCt2OD2PYjoo14O2Df0LBb8tqZZ9abnTcE6fDynYD3R8nE5Qob5GTaHY0xElfk5fmpTMVhpFLp-qP6t7FE%3D",
+            "type": "web",
+            "title": "N.V. Henriques & Henriques Sercial 10 Years Old Madeira",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESzQEB7keqTeBcpKo86oUkSNd5WbRoCljtUOvLXSs231Y0KG8vgDYi4TyR12O0xBWaPGf1qDY3ZsQHwU_DIQU_hJB8ghlqSB3U2YX6OSxGX8g9xpdvkyiF_fF716OLFx1_-TGJZSEZ0hb7qQO4zWAGX88yJi2I62pBEZC5OC68V2y0dXjhJ3xFKRypPBnFfyAOYJSRiQ6eTzbfzwyGZh3d7Lydx7Uzhk5rQLYTQldSzF2QDMx9KfoOJ2mjx74C7yjRniZRXuLasAmE0aTKPC7o",
+            "type": "web",
+            "title": "Henriques & Henriques Madeira Sercial 10 Year Old 50cl",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESfAHuR6pN0jUXg_TA0-4Ke5Nlq6G8qs3UUYr2EDaOlkwjklQscZA08GEVU0FFmGCThUuZN6OgZHafA7UCyccm6zW0OTzg-RzEm-IbJ_1lqJlJpLMpMNSDhOORPTAScMdPpACqpzz9ulfGFC9sXdfqKGUHWlDg6Nynk4-WF9A%3D",
+            "type": "web",
+            "title": "Sercial 10 Years Old Madeira DOP - Henriques & ...",
+            "publisher": ""
+          },
+          {
+            "url": "https://www.thehouseofglunz.com/products/henriques-henriques-sercial-10-years-old-madeira.html",
+            "type": "critic",
+            "title": "Henriques & Henriques Sercial 10 Years Old Madeira",
+            "publisher": "thehouseofglunz.com"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=262579",
+            "type": "critic",
+            "title": "N.V. Henriques & Henriques Madeira Sercial 10 Years Old",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.jancisrobinson.com/articles/henriques-henriques-sercial-10-year-old-madeira",
+            "type": "critic",
+            "title": "Henriques & Henriques, Sercial 10 Year Old Madeira",
+            "publisher": "JancisRobinson.com"
+          },
+          {
+            "url": "https://www.vinello.eu/sercial-aged-10-years-henriques-und-henriques",
+            "type": "critic",
+            "title": "Sercial 10 Years Old Madeira DOP - Henriques & ...",
+            "publisher": "vinello.eu"
+          },
+          {
+            "url": "https://alpenz.com/product-sercial_10.html",
+            "type": "critic",
+            "title": "H&H Sercial 10-Year Old Madeira",
+            "publisher": "alpenz.com"
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews/portugal/madeira/henriques-henriques-10-year-old-sercial-madeira-49099",
+            "type": "critic",
+            "title": "Henriques & Henriques, 10 Year Old Sercial, Madeira",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=LnMt88ReOuk",
+            "type": "web",
+            "title": "Review of Henriques & Henriques 10-Year-Old Sercial ...",
+            "publisher": "youtube.com"
+          },
+          {
+            "url": "https://terroirsense.com/en/p/9963.html",
+            "type": "web",
+            "title": "Tales of Two Henriques: The Splendid Wines of Madeira",
+            "publisher": "terroirsense.com"
+          },
+          {
+            "url": "https://easterlywine.com/wp-content/uploads/2023/05/HHSERCIAL10YR-WEB.pdf",
+            "type": "web",
+            "title": "HHSERCIAL10YR SS",
+            "publisher": "easterlywine.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            8
+          ],
+          "clarity": [
+            1,
+            3
+          ],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            11
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [
+            0,
+            1,
+            3
+          ],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            1,
+            3,
+            4,
+            5,
+            8,
+            10
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            4,
+            5,
+            7,
+            8,
+            11
+          ],
+          "palate_flavor_descriptors": [
+            0,
+            5,
+            8,
+            10,
+            11
+          ]
+        },
+        "appearance": "tawny, clear, medium viscosity",
+        "nose_summary": "medium intensity. lightly smoky, nuts, apricots, vanilla, caramel, dried orange peel, citrus, fruit cake, hazelnuts, orange scones, herbs, lightly cheesy, cooked apricot, sultanas",
+        "palate_summary": "nutty, woody, smoked walnuts, raisins, orange peel, figgy richness, fresh citrus, dried apricot, caramel, vanilla, mineral, saline, wood, rich velvety flavors, salty savour, soaked cut peel, tension between residual sugar and acidity. Finish: long.",
+        "structural_summary": "style=fortified, grape=Sercial"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F2_1785964790640",
+    "slot": 2,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "portugal_douro_quinta_do_portal_moscatel_branco",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:20:36.249Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "fortified",
+      "grape_varieties": [
+        "Muscat"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://winehouseportugal.com/en/douro-wines-portugal/4283-quinta-do-portal-moscatel-galego-2019-white-wine-quinta-do-portal-is-a-family-winemaking-company-that-embraced-with-passion-the--5604242009385.html",
+            "type": "web",
+            "title": "Wine House Portugal",
+            "publisher": "winehouseportugal.com"
+          },
+          {
+            "url": "https://www.wineanorak.com/douro/quintadoportal.htm",
+            "type": "critic",
+            "title": "Quinta do Portal",
+            "publisher": "Wine Anorak"
+          },
+          {
+            "url": "https://www.winespectator.com/wine/detail/note_id/400609",
+            "type": "critic",
+            "title": "Quinta do Portal Moscatel Galego Branco Douro 2014 | Wine Rating | Wine Spectator",
+            "publisher": "Wine Spectator"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [
+            0
+          ],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0
+          ],
+          "palate_sweetness": [
+            2
+          ],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": []
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "medium(+) intensity. orange blossom, orange peel, rose, citrus, fresh floral, fruity",
+        "palate_summary": "candied orange peel, apricot, peach, rose water, honey, dried citrus peel, light floral, spirit warmth. Finish: medium(+).",
+        "structural_summary": "style=fortified, grape=Muscat"
+      }
+    }
   }
 ]

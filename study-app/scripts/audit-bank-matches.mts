@@ -98,7 +98,15 @@ if (process.argv.includes("--apply") && mismatches.length > 0) {
     `;
     applied++;
   }
+  // Append to any same-day backup rather than overwrite — repeat sweeps must not lose the
+  // profiles cleared by earlier runs.
   const backupPath = join(process.cwd(), "..", "data", `wine_profiles_wrong_cuvee_backup_${new Date().toISOString().slice(0, 10)}.json`);
-  writeFileSync(backupPath, JSON.stringify(backup, null, 2));
-  console.log(`APPLIED: cleared ${applied} slots; backup of replaced profiles at ${backupPath}`);
+  let existing: { question_id: string; slot: number }[] = [];
+  try { existing = JSON.parse(readFileSync(backupPath, "utf-8")); } catch {}
+  const seen = new Set(existing.map((e) => `${e.question_id}|${e.slot}`));
+  const merged = existing.concat(
+    (backup as { question_id: string; slot: number }[]).filter((e) => !seen.has(`${e.question_id}|${e.slot}`))
+  );
+  writeFileSync(backupPath, JSON.stringify(merged, null, 2));
+  console.log(`APPLIED: cleared ${applied} slots; backup now holds ${merged.length} profiles at ${backupPath}`);
 }
