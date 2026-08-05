@@ -35,6 +35,12 @@ export const COUNTRY_TARGETS: readonly CountryTarget[] = [
   { country: "Hungary", targetPct: 1.5 },
 ] as const;
 
+// The countries the balance tracks by name (spec §1: France, Italy, Spain, Germany, USA, Australia,
+// Portugal, New Zealand, Argentina, Chile, Austria, South Africa — plus corpus-grounded Hungary).
+// Derived from COUNTRY_TARGETS so the named set and the target table stay a single source of truth;
+// every other origin the bank carries buckets into "Other".
+export const TRACKED_COUNTRIES: readonly string[] = COUNTRY_TARGETS.map((t) => t.country);
+
 // User-visible label for the collapsed tail — the only place the tail is ever surfaced.
 export const OTHER_COUNTRY_LABEL = "Other";
 

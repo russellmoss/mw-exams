@@ -1,6 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { getBankStatusCounts } from "@/lib/db";
-import { computeCountryBalance, leaningToward } from "@/lib/bank-health/country-balance";
+import { getGenerationLean } from "@/lib/bank-health/country-balance";
 
 export const runtime = "nodejs";
 
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     return Response.json({ papers: [], pending: 0 });
   }
 
-  const [counts, balance] = await Promise.all([getBankStatusCounts(), computeCountryBalance()]);
+  const [counts, lean] = await Promise.all([getBankStatusCounts(), getGenerationLean()]);
   const papers = [1, 2, 3].map((paper) => {
     const c = counts.find((x) => x.paper === paper);
     return { paper, approved: c?.approved ?? 0, pending: c?.pending ?? 0 };
@@ -27,5 +27,5 @@ export async function GET(request: Request) {
   // Country Balance (always-on): the light origins the next batches will lean toward, so the generate
   // panel can render its one-line hint without a separate request. Empty when the read is
   // insufficient or nothing is light.
-  return Response.json({ papers, pending, leaningToward: leaningToward(balance) });
+  return Response.json({ papers, pending, leaningToward: lean });
 }

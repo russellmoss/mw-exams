@@ -11,16 +11,29 @@ import {
 import {
   COUNTRY_TARGETS,
   OTHER_TARGET_PCT,
+  TRACKED_COUNTRIES,
   canonicalCountry,
   targetPctFor,
 } from "../src/lib/countryTargets";
 
-// A tiny helper to build a balance fixture with a few rows.
+// A tiny helper to build a balance fixture with a few rows. `count` is filled in from bankPct against
+// totalWines when a row omits it — the balance math never reads it, but the API payload carries it.
 function fixture(
-  rows: { country: string; bankPct: number; targetPct: number; deltaPts: number; status: CountryBalance["rows"][number]["status"] }[],
+  rows: {
+    country: string;
+    bankPct: number;
+    targetPct: number;
+    deltaPts: number;
+    status: CountryBalance["rows"][number]["status"];
+    count?: number;
+  }[],
   totalWines = 200
 ): CountryBalance {
-  return { insufficient: false, totalWines, rows };
+  return {
+    insufficient: false,
+    totalWines,
+    rows: rows.map((r) => ({ ...r, count: r.count ?? Math.round((r.bankPct / 100) * totalWines) })),
+  };
 }
 
 describe("countryTargets constant", () => {
@@ -35,6 +48,16 @@ describe("countryTargets constant", () => {
 
   it("collapses only sub-1.5% origins into Other (every named target ≥ 1.5%)", () => {
     for (const t of COUNTRY_TARGETS) expect(t.targetPct).toBeGreaterThanOrEqual(1.5);
+  });
+
+  it("exports TRACKED_COUNTRIES in sync with the target table and covering the spec's core set", () => {
+    expect(TRACKED_COUNTRIES).toEqual(COUNTRY_TARGETS.map((t) => t.country));
+    for (const c of [
+      "France", "Italy", "Spain", "Germany", "USA", "Australia",
+      "Portugal", "New Zealand", "Argentina", "Chile", "Austria", "South Africa",
+    ]) {
+      expect(TRACKED_COUNTRIES).toContain(c);
+    }
   });
 
   it("canonicalises sub-national and alias origins onto named targets", () => {
@@ -53,7 +76,7 @@ describe("leaningToward + nudge", () => {
     { country: "France", bankPct: 33, targetPct: 33.5, deltaPts: -0.5, status: "on_track" },
     { country: "Italy", bankPct: 4, targetPct: 11.5, deltaPts: -7.5, status: "light" },
     { country: "Germany", bankPct: 0, targetPct: 4.9, deltaPts: -4.9, status: "light" },
-    { country: "Portugal", bankPct: 2, targetPct: 5.4, deltaPts: -3.4, status: "on_track" },
+    { country: "Portugal", bankPct: 2, targetPct: 5.4, deltaPts: -3.4, status: "light" },
     { country: "Spain", bankPct: 1, targetPct: 8.4, deltaPts: -7.4, status: "light" },
     { country: "USA", bankPct: 20, targetPct: 7.7, deltaPts: 12.3, status: "heavy" },
   ]);
@@ -89,22 +112,37 @@ describe("leaningToward + nudge", () => {
   });
 });
 
-describe("API payload shape", () => {
-  it("drops deltaPts, keeps target-sorted rows, and carries leaningToward", () => {
-    const balance = fixture([
-      { country: "Italy", bankPct: 4, targetPct: 11.5, deltaPts: -7.5, status: "light" },
-    ]);
+describe("API payload shape (spec §4)", () => {
+  it("emits { sample, status, rows:[{count}], lean }, drops deltaPts, keeps target-sorted rows", () => {
+    const balance = fixture(
+      [{ country: "Italy", bankPct: 4, targetPct: 11.5, deltaPts: -7.5, status: "light", count: 8 }],
+      200
+    );
     const payload = toCountryBalancePayload(balance);
-    expect(payload.rows[0]).toEqual({ country: "Italy", bankPct: 4, targetPct: 11.5, status: "light" });
+    expect(payload.rows[0]).toEqual({
+      country: "Italy",
+      bankPct: 4,
+      targetPct: 11.5,
+      count: 8,
+      status: "light",
+    });
     expect(payload.rows[0]).not.toHaveProperty("deltaPts");
-    expect(payload.leaningToward).toEqual(["Italy"]);
-    expect(payload.totalWines).toBe(200);
+    expect(payload.lean).toEqual(["Italy"]);
+    expect(payload.sample).toBe(200);
+    expect(payload.status).toBe("ok");
+  });
+
+  it("reports status 'insufficient' below the sample floor", () => {
+    const payload = toCountryBalancePayload({ insufficient: true, totalWines: 12, rows: [] });
+    expect(payload.status).toBe("insufficient");
+    expect(payload.sample).toBe(12);
+    expect(payload.lean).toEqual([]);
   });
 });
 
 describe("thresholds", () => {
-  it("uses a ±4 point tolerance and a 40-wine floor (spec)", () => {
-    expect(BALANCE_TOLERANCE_PTS).toBe(4);
+  it("uses a ±3 point tolerance and a 40-wine floor (spec)", () => {
+    expect(BALANCE_TOLERANCE_PTS).toBe(3);
     expect(MIN_WINES_FOR_BALANCE).toBe(40);
   });
 });

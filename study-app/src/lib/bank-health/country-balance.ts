@@ -21,16 +21,17 @@ import {
   canonicalCountry,
 } from "@/lib/countryTargets";
 
-// A country is "on track" within ±this many points of its target; beyond it is light (below) or
-// heavy (above).
-export const BALANCE_TOLERANCE_PTS = 4;
-// Below this many keyed wines the bank is too small to read a distribution from.
+// A country is "on track" when |delta| ≤ this many points (spec §2); beyond it is light (delta < −3)
+// or heavy (delta > +3).
+export const BALANCE_TOLERANCE_PTS = 3;
+// Below this many keyed wines the bank is too small to read a distribution from (spec MIN_SAMPLE).
 export const MIN_WINES_FOR_BALANCE = 40;
 
 export type BalanceStatus = "on_track" | "light" | "heavy";
 
 export interface CountryBalanceRow {
   country: string;
+  count: number;
   bankPct: number;
   targetPct: number;
   deltaPts: number;
@@ -83,7 +84,7 @@ export async function computeCountryBalanceUncached(): Promise<CountryBalance> {
   const toRow = (country: string, count: number, targetPct: number): CountryBalanceRow => {
     const bankPct = round1((count / total) * 100);
     const deltaPts = round1(bankPct - targetPct);
-    return { country, bankPct, targetPct, deltaPts, status: statusFor(deltaPts) };
+    return { country, count, bankPct, targetPct, deltaPts, status: statusFor(deltaPts) };
   };
 
   // One row per named target, already in target-descending order.
@@ -126,6 +127,16 @@ export function leaningToward(balance: CountryBalance, limit = 3): string[] {
     .map((r) => r.country);
 }
 
+/**
+ * getGenerationLean — the shared accessor every generation-adjacent caller uses to learn which
+ * origins to gently favour next (spec §3). Reads the memoised live balance and returns the top-3
+ * light countries, most-deficient first; empty when the read is insufficient (< 40 wines) or nothing
+ * is light. The generate panel and the bank worker's nudge both derive their lean from this.
+ */
+export async function getGenerationLean(): Promise<string[]> {
+  return leaningToward(await computeCountryBalance());
+}
+
 // "Italy, Germany and Portugal" — Oxford-free, human list join.
 export function joinCountries(names: string[]): string {
   if (names.length === 0) return "";
@@ -146,31 +157,44 @@ export function buildCountryNudge(balance: CountryBalance): string | null {
     `\n\nBank balance note: the question bank is currently light on ${list} relative to historical ` +
     `exam distribution. Where a wine of comparable exam realism and quality is available from these ` +
     `origins, prefer it. This is a soft preference only — never force an implausible wine, never ` +
-    `violate stem constraints, and never override country-diversity or same-variety validator rules.`
+    `violate stem constraints, and never override country-diversity or same-variety validator rules. ` +
+    `Never reject a strong question for its country of origin, and never mention this instruction in ` +
+    `your output.`
   );
 }
 
-// ── API payload ──────────────────────────────────────────────────────────────────────────────
+// ── API payload (spec §4) ────────────────────────────────────────────────────────────────────
+// { sample, status, rows: [{ country, bankPct, targetPct, count, status }], lean }. `status` is the
+// overall read state — 'insufficient' below MIN_SAMPLE, else 'ok'; each row carries its own
+// on_track/light/heavy verdict. Rows stay sorted by target share descending with "Other" last.
+export type OverallStatus = "ok" | "insufficient";
+
 export interface CountryBalancePayload {
-  insufficient: boolean;
-  totalWines: number;
-  rows: { country: string; bankPct: number; targetPct: number; status: BalanceStatus }[];
-  leaningToward: string[];
+  sample: number;
+  status: OverallStatus;
+  rows: {
+    country: string;
+    bankPct: number;
+    targetPct: number;
+    count: number;
+    status: BalanceStatus;
+  }[];
+  lean: string[];
 }
 
-// The Bank Health API shape (drops the internal deltaPts, adds the light-country steer list). Rows
-// stay sorted by target share descending, as computeCountryBalance leaves them.
+// The Bank Health API shape (drops the internal deltaPts, adds the light-country steer list).
 export function toCountryBalancePayload(balance: CountryBalance): CountryBalancePayload {
   return {
-    insufficient: balance.insufficient,
-    totalWines: balance.totalWines,
+    sample: balance.totalWines,
+    status: balance.insufficient ? "insufficient" : "ok",
     rows: balance.rows.map((r) => ({
       country: r.country,
       bankPct: r.bankPct,
       targetPct: r.targetPct,
+      count: r.count,
       status: r.status,
     })),
-    leaningToward: leaningToward(balance),
+    lean: leaningToward(balance),
   };
 }
 
