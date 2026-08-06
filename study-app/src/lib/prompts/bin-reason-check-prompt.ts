@@ -20,6 +20,10 @@ export function buildBinReasonCheckPrompt(params: {
   totalMarks: number | null;
   tags: string[];
   note: string | null;
+  /** The admin's reply to a previous challenge (migration 043) — triggers a re-adjudication. */
+  rebuttal?: string | null;
+  /** The prior analysis the rebuttal is answering; only passed alongside a rebuttal. */
+  priorAnalysis?: string | null;
   /** Live empirical knowledge from the Neon projection (paper-filtered). */
   empiricalKnowledge?: string;
 }): { system: string; user: string } {
@@ -80,10 +84,12 @@ respectful pushback card; it never reverses their decision.
   applies to this question.
 
 ## Output format (STRICT)
-First line exactly: \`Verdict: VALID\` or \`Verdict: INVALID\` or \`Verdict: UNCERTAIN\`
-Then a blank line, then 2–5 sentences of plain-language analysis. Cite real past exams by
-year/paper/question where they carry the argument. No markdown headings, no internal codes or file
-paths — the admin reads this text verbatim.
+First 2–5 sentences of plain-language analysis. Cite real past exams by year/paper/question where
+they carry the argument. No markdown headings, no internal codes or file paths — the admin reads
+this text verbatim. Then, on the FINAL line, after the analysis, exactly one of:
+\`Verdict: VALID\` or \`Verdict: INVALID\` or \`Verdict: UNCERTAIN\`
+The verdict comes LAST so it follows from the reasoning — it must agree with the analysis's
+conclusion.
 
 ## Reference Data
 ${params.empiricalKnowledge ? `### Accumulated Empirical Knowledge (evidence-cited rulings and rules)
@@ -94,6 +100,27 @@ ${params.empiricalKnowledge}
 ${samePaperQuestions || "(question index unavailable)"}`;
 
   const tagLabels = params.tags.map((t) => BIN_REASON_LABELS[t] || t);
+
+  // Rebuttal round (migration 043): the reviewer has answered a previous challenge. Re-adjudicate
+  // with genuine openness — the reviewer may hold context the corpus doesn't (e.g. what they meant,
+  // a nuance of the wines) — but a rebuttal that merely restates the refuted claim without new
+  // information does not flip the verdict.
+  const rebuttalBlock = params.rebuttal
+    ? `
+
+### Previous Challenge (your own prior analysis — the reviewer is answering THIS)
+${(params.priorAnalysis || "(prior analysis unavailable)").slice(0, 3000)}
+
+### Reviewer's Rebuttal (new information — engage with it directly)
+"${params.rebuttal}"
+
+This is a RE-adjudication. Weigh the rebuttal's new claims against the corpus exactly as before: if
+it supplies information that answers the challenge, the verdict becomes VALID; if it cannot be
+verified either way, UNCERTAIN; if the corpus still contradicts the reason even granting the
+rebuttal, INVALID. Address the rebuttal's specific points in your analysis — never repeat the prior
+analysis unchanged.`
+    : "";
+
   const user = `## Bin-Reason Check Request
 
 **Binned question:** Paper ${params.paper}${params.familyLabel ? ` / ${params.familyLabel}` : ""}${
@@ -108,7 +135,7 @@ ${params.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}
 
 ### Reviewer's Stated Reason
 ${tagLabels.length > 0 ? `Tags: ${tagLabels.join(", ")}` : "Tags: (none)"}
-${params.note ? `Note: "${params.note}"` : "Note: (none)"}
+${params.note ? `Note: "${params.note}"` : "Note: (none)"}${rebuttalBlock}
 
 Adjudicate the stated reason now, using the output format exactly.`;
 

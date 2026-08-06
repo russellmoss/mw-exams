@@ -9,6 +9,39 @@ export interface ApplyResult {
   analysisId: number;
 }
 
+// Feature-isolation path allow-lists, shared with the bin-fix miner (bin-fix-miner.ts) so a
+// bin-driven fix is scoped exactly like a feedback-driven one of the same Kind.
+export const STEM_PATHS = [
+  "study-app/src/app/stem-sniper/", "study-app/src/app/components/StemSniper",
+  "study-app/src/app/api/stem-sniper/", "study-app/src/lib/stem-scoring.ts",
+  "study-app/src/lib/stem-answer-key.ts", "study-app/src/lib/stem-answer-key.mjs",
+  "study-app/public/data/stem-autocomplete.json", "study-app/scripts/build-stem-",
+  "study-app/scripts/test-stem-scoring.mjs", "data/variety_lexicon.json",
+  "data/appellation_varieties.json", "data/stem_proprietary_blends.json", "data/stem_style_lexicon.json",
+];
+// db.ts is the QUERY layer where selection / dedup / per-user-scoping logic lives. It's included
+// so the agent can propose COMPLETE fixes for that class of bug (e.g. repetition) instead of
+// route-only partials — but generation/validator changes are reviewOnly (PR-gated), so a db.ts
+// change is never auto-merged; a human reviews it. (High blast radius: scrutinise these PRs.)
+export const GEN_PATHS = [
+  "study-app/src/lib/prompts/question-generation-prompt.ts", "study-app/src/lib/wine-enrichment.ts",
+  "study-app/src/lib/wine-bank-lookup.ts", "study-app/src/app/api/get-question/",
+  "study-app/src/lib/question-engine.ts", "study-app/src/app/api/generate-tasting/",
+  "study-app/src/lib/tasting.ts", "study-app/src/lib/tasting-validators.ts",
+  "study-app/src/lib/prompts/tasting-prompt.ts", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
+  // The grader rubric. The analysis prompt already routes a valid scoring dispute here
+  // ("Kind: generation naming marking-principles.ts"), but the path was missing from this
+  // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
+  // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
+  "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
+];
+export const VALIDATOR_PATHS = [
+  "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
+  "study-app/src/lib/question-engine.ts", "study-app/src/lib/tasting-validators.ts",
+  "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
+  "study-app/src/lib/db.ts",
+];
+
 /**
  * Shared orchestrator for the "accept → verified code change → ship" pipeline.
  * Used by both the auto path (feedback-analysis trigger, when the toggle is on) and the
@@ -99,36 +132,9 @@ export async function applyFeedbackChange(opts: {
     return { dispatched: false, workBranch, analysisId };
   }
 
-  const STEM = [
-    "study-app/src/app/stem-sniper/", "study-app/src/app/components/StemSniper",
-    "study-app/src/app/api/stem-sniper/", "study-app/src/lib/stem-scoring.ts",
-    "study-app/src/lib/stem-answer-key.ts", "study-app/src/lib/stem-answer-key.mjs",
-    "study-app/public/data/stem-autocomplete.json", "study-app/scripts/build-stem-",
-    "study-app/scripts/test-stem-scoring.mjs", "data/variety_lexicon.json",
-    "data/appellation_varieties.json", "data/stem_proprietary_blends.json", "data/stem_style_lexicon.json",
-  ];
-  // db.ts is the QUERY layer where selection / dedup / per-user-scoping logic lives. It's included
-  // so the agent can propose COMPLETE fixes for that class of bug (e.g. repetition) instead of
-  // route-only partials — but generation/validator changes are reviewOnly (PR-gated), so a db.ts
-  // change is never auto-merged; a human reviews it. (High blast radius: scrutinise these PRs.)
-  const GEN = [
-    "study-app/src/lib/prompts/question-generation-prompt.ts", "study-app/src/lib/wine-enrichment.ts",
-    "study-app/src/lib/wine-bank-lookup.ts", "study-app/src/app/api/get-question/",
-    "study-app/src/lib/question-engine.ts", "study-app/src/app/api/generate-tasting/",
-    "study-app/src/lib/tasting.ts", "study-app/src/lib/tasting-validators.ts",
-    "study-app/src/lib/prompts/tasting-prompt.ts", "data/mock_wine_bank.json", "study-app/src/lib/db.ts",
-    // The grader rubric. The analysis prompt already routes a valid scoring dispute here
-    // ("Kind: generation naming marking-principles.ts"), but the path was missing from this
-    // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
-    // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
-    "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
-  ];
-  const VALIDATOR = [
-    "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
-    "study-app/src/lib/question-engine.ts", "study-app/src/lib/tasting-validators.ts",
-    "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
-    "study-app/src/lib/db.ts",
-  ];
+  const STEM = STEM_PATHS;
+  const GEN = GEN_PATHS;
+  const VALIDATOR = VALIDATOR_PATHS;
 
   // Feature isolation by Kind. generation/validator are PR-gated (reviewOnly) for human review;
   // answer-key is auto + scoped. No Kind + not Stem Sniper → repo-wide auto (legacy main-flow).

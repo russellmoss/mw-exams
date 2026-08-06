@@ -1,16 +1,18 @@
-// Writes the auto-feedback pipeline result back to feedback_analyses.
+// Writes the auto-feedback pipeline result back to the row that dispatched it.
 // Invoked by the GitHub Action (.github/workflows/auto-feedback.yml).
-// Reads config from env: DATABASE_URL, ANALYSIS_ID, APPLY_STATUS, COMMIT_SHA, PR_URL,
-// DEPLOY_STATE, APPLY_ERROR. Only non-empty fields are written (COALESCE).
+// Reads config from env: DATABASE_URL, ANALYSIS_ID, BIN_PROPOSAL_ID, APPLY_STATUS, COMMIT_SHA,
+// PR_URL, DEPLOY_STATE, APPLY_ERROR. Only non-empty fields are written (COALESCE).
+//
+// Two dispatch sources share the Action:
+//   - feedback (ANALYSIS_ID set)     → feedback_analyses
+//   - bin-fix miner (BIN_PROPOSAL_ID set) → bin_fix_proposals (migration 042). Status maps onto the
+//     proposal lifecycle: merged / pr_opened / failed. Retirement of the evidence rows happens
+//     app-side (reconcileBinFixProposals), never here — this script only records what the run did.
 import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL);
 const analysisId = Number(process.env.ANALYSIS_ID);
-
-if (!analysisId || Number.isNaN(analysisId)) {
-  console.error("record-apply: ANALYSIS_ID missing/invalid; nothing to do");
-  process.exit(0);
-}
+const binProposalId = Number(process.env.BIN_PROPOSAL_ID);
 
 const v = (x) => (x && String(x).length > 0 ? String(x) : null);
 
@@ -20,21 +22,39 @@ const prUrl = v(process.env.PR_URL);
 const deployState = v(process.env.DEPLOY_STATE);
 const applyError = v(process.env.APPLY_ERROR);
 
-await sql`
-  UPDATE feedback_analyses SET
-    apply_status = COALESCE(${applyStatus}::text, apply_status),
-    commit_sha   = COALESCE(${commitSha}::text, commit_sha),
-    pr_url       = COALESCE(${prUrl}::text, pr_url),
-    deploy_state = COALESCE(${deployState}::text, deploy_state),
-    apply_error  = COALESCE(${applyError}::text, apply_error),
-    updated_at   = NOW()
-  WHERE id = ${analysisId}
-`;
-
-console.log("record-apply: updated analysis", analysisId, {
-  applyStatus,
-  commitSha,
-  prUrl,
-  deployState,
-  applyError,
-});
+if (binProposalId && !Number.isNaN(binProposalId)) {
+  // 'merged' should not normally occur (bin fixes are always reviewOnly), but record it faithfully
+  // if it ever does — the app-side reconcile turns merged into shipped + retired.
+  const status =
+    applyStatus === "merged" ? "merged" : applyStatus === "pr_opened" ? "pr_opened" : "failed";
+  await sql`
+    UPDATE bin_fix_proposals SET
+      status = ${status},
+      pr_url = COALESCE(${prUrl}::text, pr_url),
+      apply_error = COALESCE(${applyError}::text, apply_error),
+      updated_at = NOW()
+    WHERE id = ${binProposalId}
+  `;
+  console.log("record-apply: updated bin_fix_proposals", binProposalId, { status, prUrl, applyError });
+} else if (analysisId && !Number.isNaN(analysisId)) {
+  await sql`
+    UPDATE feedback_analyses SET
+      apply_status = COALESCE(${applyStatus}::text, apply_status),
+      commit_sha   = COALESCE(${commitSha}::text, commit_sha),
+      pr_url       = COALESCE(${prUrl}::text, pr_url),
+      deploy_state = COALESCE(${deployState}::text, deploy_state),
+      apply_error  = COALESCE(${applyError}::text, apply_error),
+      updated_at   = NOW()
+    WHERE id = ${analysisId}
+  `;
+  console.log("record-apply: updated analysis", analysisId, {
+    applyStatus,
+    commitSha,
+    prUrl,
+    deployState,
+    applyError,
+  });
+} else {
+  console.error("record-apply: neither ANALYSIS_ID nor BIN_PROPOSAL_ID set; nothing to do");
+  process.exit(0);
+}

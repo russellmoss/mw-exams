@@ -9,6 +9,7 @@ import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
 import { FillTheBankRows } from "../components/FillTheBankCard";
 import { BankHealthSection } from "../components/BankHealthSection";
 import { WhyBinnedSection } from "../components/WhyBinnedSection";
+import { BinFixProposalsSection } from "../components/BinFixProposalsSection";
 
 interface UserRow {
   id: number;
@@ -390,6 +391,10 @@ export default function AdminPage() {
 
           {/* Why wines get binned — the bin learning-loop summary (reason volumes + recent notes). */}
           <WhyBinnedSection />
+
+          {/* Root-cause fixes — recurring bin-reason clusters mined into PR-gated mechanical fixes
+              (codify-and-retire: a shipped fix retires its reasons from the prompt feeds). */}
+          <BinFixProposalsSection />
 
           {/* Auto-Feature pipeline toggle */}
           <div className={`rounded-xl border-2 p-5 mb-6 ${autoFeature ? "border-accent bg-accent/5" : "border-border bg-card"}`}>

@@ -24,6 +24,14 @@ describe("binReasonFingerprint", () => {
   it("changes when the note changes", () => {
     expect(binReasonFingerprint(["too_easy"], "a")).not.toBe(binReasonFingerprint(["too_easy"], "b"));
   });
+
+  it("changes when a rebuttal arrives — that is what re-opens a decided challenge", () => {
+    expect(binReasonFingerprint(["too_easy"], "a")).not.toBe(
+      binReasonFingerprint(["too_easy"], "a", "here is what the review missed")
+    );
+    // No rebuttal and empty rebuttal are the same state.
+    expect(binReasonFingerprint(["too_easy"], "a")).toBe(binReasonFingerprint(["too_easy"], "a", "  "));
+  });
 });
 
 describe("parseBinReasonVerdict", () => {
@@ -36,6 +44,15 @@ describe("parseBinReasonVerdict", () => {
   it("degrades malformed output to 'uncertain', never to a challenge", () => {
     expect(parseBinReasonVerdict("The reason seems wrong to me.")).toBe("uncertain");
     expect(parseBinReasonVerdict("")).toBe("uncertain");
+  });
+
+  it("takes the LAST verdict when several appear (verdict-last format is authoritative)", () => {
+    // The verdict is emitted after the reasoning; an earlier echo of the format must not win.
+    expect(
+      parseBinReasonVerdict(
+        "The format asks for Verdict: VALID or invalid.\nThe claim fails against 2019 P3.\nVerdict: INVALID"
+      )
+    ).toBe("invalid");
   });
 });
 
@@ -71,5 +88,25 @@ describe("buildBinReasonCheckPrompt", () => {
 
   it("injects the live empirical knowledge when supplied", () => {
     expect(prompt.system).toContain("EK-0001: test entry.");
+  });
+
+  it("adds the rebuttal round — prior analysis + the reviewer's reply — only when rebutting", () => {
+    expect(prompt.user).not.toContain("Reviewer's Rebuttal");
+
+    const rebutted = buildBinReasonCheckPrompt({
+      paper: 2,
+      familyLabel: null,
+      questionText: "Q",
+      wines: [{ slot: 1, fullText: "W" }],
+      totalMarks: null,
+      tags: ["too_obscure"],
+      note: "too obscure",
+      rebuttal: "The producer ships 40k cases to the US — it is not obscure where I trained.",
+      priorAnalysis: "The corpus shows this wine in 2025 P2 Q3.",
+    });
+    expect(rebutted.user).toContain("Reviewer's Rebuttal");
+    expect(rebutted.user).toContain("40k cases");
+    expect(rebutted.user).toContain("The corpus shows this wine in 2025 P2 Q3.");
+    expect(rebutted.user).toContain("RE-adjudication");
   });
 });
