@@ -152,16 +152,29 @@ async function login() {
 }
 
 async function createSession(paper) {
-  const res = await api("/api/live-tasting", {
-    method: "POST",
-    body: JSON.stringify({ paper, flightSize: 2 }),
-  });
+  let res;
+  try {
+    res = await api("/api/live-tasting", {
+      method: "POST",
+      body: JSON.stringify({ paper, flightSize: 2 }),
+    });
+  } catch (err) {
+    // Network-level death (run 11: read ETIMEDOUT mid-SSE) must fail the CHECK, not crash the run.
+    check(`p${paper} create`, false, `network: ${err?.cause?.code || err?.message || err}`);
+    return null;
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     check(`p${paper} create`, false, body.error || `status ${res.status}`);
     return null;
   }
-  const sse = await readSse(res, { onStatus: (l) => console.log(`   … ${l}`) });
+  let sse;
+  try {
+    sse = await readSse(res, { onStatus: (l) => console.log(`   … ${l}`) });
+  } catch (err) {
+    check(`p${paper} create`, false, `stream died: ${err?.cause?.code || err?.message || err}`);
+    return null;
+  }
   if (sse.error || !sse.result?.sessionId) {
     check(`p${paper} create`, false, sse.error || "no sessionId in stream");
     return null;
