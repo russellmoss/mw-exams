@@ -2,6 +2,7 @@ import { samplePaperComposition, type PaperComposition } from "./live-tasting-pa
 import {
   createLiveTastingPaper,
   getPaperSessions,
+  getQuestionById,
   linkSessionToPaper,
   type LiveTastingPaper,
   type LiveTastingSession,
@@ -173,6 +174,13 @@ export async function generateNextFlight(opts: {
 
   emit?.({ type: "status", label: `Building flight ${next.position} of ${composition.length}…` });
   const { excludeWineKeys, excludeVarieties } = exclusionsFrom(children);
+  // Scaffold variety across the paper: hand this flight the earlier stems (condensed).
+  const priorStems: string[] = [];
+  for (const c of children) {
+    if (!c.question_id) continue;
+    const q = await getQuestionById(c.question_id);
+    if (q?.question_text) priorStems.push(`Q${c.paper_position}: ${q.question_text.slice(0, 400)}`);
+  }
 
   const outcome = await createLiveTasting({
     userId: paper.user_id,
@@ -188,6 +196,7 @@ export async function generateNextFlight(opts: {
     requireArchetype: (FAMILY_TO_ARCHETYPE[next.family] ?? "mixed-variety") as ArchetypeId,
     excludeWineKeys,
     excludeVarieties,
+    paperStemsContext: priorStems.length ? priorStems.join("\n") : null,
   });
   if ("error" in outcome) return { error: outcome.error ?? "Flight generation failed." };
 

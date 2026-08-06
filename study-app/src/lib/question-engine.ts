@@ -785,6 +785,10 @@ export async function generateFreshQuestion(
     // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
     scope?: string;
     pinnedWines?: { slot: number; fullText: string }[] | null;
+    // Paper flights: earlier questions' stems, so this flight VARIES its scaffold. The paper-QA
+    // examiner judge failed identical a/b/c scaffolds repeated across a paper, and flagged the
+    // absence of POOLED identification marks — both are stem-construction habits, steered here.
+    paperStemsContext?: string | null;
     // Live Tasting's lighter await: block on the enrichment→key chain only (the gradability
     // core), letting the model answer (Opus, ~60-90s) and audit finish in background. The first
     // E2E run proved the full awaitBackgroundWork chain can push session creation past the
@@ -926,7 +930,10 @@ The flight is EXACTLY ${pinned.length} wines — no more, no fewer. Your output 
 ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
-The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
+The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.
+Mark-structure realism: real MW papers MIX pooled sub-questions ("For both wines: identify the grape variety and origin (14 marks)") with per-wine sub-questions — do not default to rigidly symmetric per-wine allocations.${saveOpts?.paperStemsContext ? `
+This question is part of a FULL PAPER. Earlier questions used these stems — VARY your sub-question lettering, structure and phrasing (real papers never repeat an identical scaffold):
+${saveOpts.paperStemsContext}` : ""}`;
   }
 
   // SOFT feed-forward (spec §4): fold the most recent bin reasons for this paper into the prompt so
