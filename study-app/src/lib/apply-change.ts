@@ -34,12 +34,17 @@ export const GEN_PATHS = [
   // allow-list, so such a fix could be recommended and never written. Now that the analysis sees
   // the verbatim grading output, scoring accepts are far more likely — and still PR-gated.
   "study-app/src/lib/prompts/marking-principles.ts", "study-app/src/lib/prompts/funnelling.ts",
+  // Generation-rule changes ship with tests too (same rationale as VALIDATOR_PATHS).
+  "study-app/tests/",
 ];
 export const VALIDATOR_PATHS = [
   "study-app/src/lib/question-validator.ts", "study-app/scripts/audit-questions.mjs",
   "study-app/src/lib/question-engine.ts", "study-app/src/lib/tasting-validators.ts",
   "study-app/src/app/api/get-question/", "study-app/src/lib/prompts/question-generation-prompt.ts",
   "study-app/src/lib/db.ts",
+  // A validator rule ships with its test (the bin-fix proposals explicitly demand one) — the test
+  // dir must be in scope or every such change trips the out-of-scope path.
+  "study-app/tests/",
 ];
 
 /**
