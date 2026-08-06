@@ -33,6 +33,15 @@ name: feature-build
 #      auto-deploys a broken build.
 # The per-feature concurrency group below is kept only to dedupe a double-dispatch of the SAME
 # feature request; cross-feature serialization is the mutex's job.
+#
+# DEPLOY-QUOTA GUARD (added 2026-08-06, shared with auto-feedback.yml): every master push consumes
+# one of the Hobby plan's 100 deployments per rolling day — including pushes the ignoreCommand
+# cancels — and on 2026-08-05/06 bot merges drained the whole bucket, so an urgent human fix
+# (PR #37) could not deploy. Before landing, .github/scripts/deploy-quota-guard.sh checks usage:
+# below the reserve threshold (default: keep 20 slots free, tunable via the DEPLOY_QUOTA_RESERVE
+# repo variable) it merges as normal; at/over it, the feature is PR-gated instead so humans always
+# have deploy headroom. Fails OPEN on API errors. Bot work branches (feature-request/*, etc.) are
+# excluded from deployments entirely in study-app/vercel.json.
 
 on:
   repository_dispatch:
@@ -234,6 +243,19 @@ jobs:
             echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Deploy-quota guard (keep headroom for human deploys)
+        # A merge to master consumes one of the Hobby plan's 100 deployments/day — the same bucket
+        # human pushes and the break-glass manual-deploy.yml draw from. At/over the bot cutoff
+        # (limit − reserve) we defer: the verified feature is PR-gated instead of merged, and a
+        # human lands it when there is headroom. Fails OPEN on API errors (a flaky API must not
+        # block harder than today's behavior). Same gate condition as the landing step below.
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
+        id: quota
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DEPLOY_QUOTA_RESERVE: ${{ vars.DEPLOY_QUOTA_RESERVE || '20' }}
+        run: bash .github/scripts/deploy-quota-guard.sh
+
       # Land on master, defending against master having moved while we built.
       #
       # The green CI from the heal loop was produced against BASE_SHA. If master has moved since,
@@ -242,7 +264,7 @@ jobs:
       # deleted (exactly how feature #5 broke on 2026-08-02). Anything that fails here refuses to
       # touch master and falls through to the PR step with a loud reason.
       - name: Rebase onto latest master, re-verify, and land
-        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1'
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.quota.outputs.defer != '1'
         id: merge
         run: |
           set -e
@@ -328,17 +350,20 @@ jobs:
 
       # NOTE: no explicit Vercel deploy step. A study-app/ merge to master auto-deploys via Vercel.
 
-      - name: Open PR (could not verify, or could not land)
+      - name: Open PR (could not verify, quota deferred, or could not land)
         if: >-
           always() &&
           (steps.heal.outputs.success != '1' ||
            steps.merge.outputs.conflict == '1' ||
-           steps.merge.outputs.stale_broken == '1') &&
+           steps.merge.outputs.stale_broken == '1' ||
+           steps.quota.outputs.defer == '1') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
         env:
           BASE_SHA: ${{ steps.base.outputs.sha }}
           STALE_BROKEN: ${{ steps.merge.outputs.stale_broken }}
+          QUOTA_DEFER: ${{ steps.quota.outputs.defer }}
+          QUOTA_USED: ${{ steps.quota.outputs.used }}
         run: |
           git push origin "$WORK_BRANCH" || true
           CURRENT_MASTER=$(git rev-parse origin/master 2>/dev/null || echo unknown)
@@ -356,6 +381,10 @@ jobs:
                 echo
                 echo "This is the failure mode that broke feature request #5 on 2026-08-02 — do NOT just re-run CI or force the merge. The diff was written against an older master and needs re-reading against the current one."
               fi
+            elif [ "$QUOTA_DEFER" = "1" ]; then
+              echo "### Why this was not auto-merged: **deploy quota reserve**"
+              echo
+              echo "The feature is verified (CI green), but ${QUOTA_USED:-many} of the 100 daily Vercel deployments were already used, at/over the bot cutoff that keeps slots free for human deploys. Merging this PR will consume one deployment — do it when there is headroom (the quota is a rolling 24h window)."
             else
               echo "### Why this needs review: **CI did not go green**"
               echo
@@ -388,6 +417,8 @@ jobs:
           COMMIT_SHA: ${{ steps.merge.outputs.sha }}
           PR_URL: ${{ steps.pr.outputs.pr_url }}
           NO_CHANGES: ${{ steps.heal.outputs.no_changes }}
+          QUOTA_DEFER: ${{ steps.quota.outputs.defer }}
+          QUOTA_USED: ${{ steps.quota.outputs.used }}
         run: |
           if [ "$MERGED" = "1" ]; then
             STATUS=built; APPLY_STATUS=merged
@@ -399,6 +430,10 @@ jobs:
           # Surface a stale-base failure in the admin UI rather than the generic "needs review".
           if [ -f /tmp/fb/stale-note.md ]; then
             export APPLY_ERROR="Built against a master that changed mid-build. $(tr -d '`' < /tmp/fb/stale-note.md)"
+          fi
+          # Surface a quota deferral distinctly: the feature is green, it just was not auto-merged.
+          if [ "$QUOTA_DEFER" = "1" ]; then
+            export APPLY_ERROR="Deploy quota reserve: ${QUOTA_USED:-?}/100 daily Vercel deployments used, so the verified feature was PR-gated instead of auto-merged to keep headroom for human deploys."
           fi
           if [ "$NO_CHANGES" = "1" ]; then
             STATUS=failed; APPLY_STATUS=failed

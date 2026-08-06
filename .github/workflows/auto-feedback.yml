@@ -17,6 +17,15 @@ name: auto-feedback
 # knowledge-doc sync) and for commits that don't touch study-app/. (Requires the Vercel↔GitHub
 # integration to be connected; if it ever disconnects, fall back to a manual `npx vercel --prod`.)
 #
+# DEPLOY-QUOTA GUARD (added 2026-08-06): every master push consumes one of the Hobby plan's 100
+# deployments per rolling day — INCLUDING pushes the ignoreCommand cancels — and on 2026-08-05/06
+# bot merges drained the whole bucket, so an urgent human fix (PR #37) could not deploy. Before
+# landing, this workflow runs .github/scripts/deploy-quota-guard.sh: below the reserve threshold
+# (default: keep 20 of 100 slots free, tunable via the DEPLOY_QUOTA_RESERVE repo variable) it
+# merges as normal; at/over it, the change is PR-gated instead so humans always have headroom.
+# The guard fails OPEN on API errors. Bot work branches (auto-feedback/*, bin-fix/*,
+# feature-request/*, claude/*) are excluded from deployments entirely in study-app/vercel.json.
+#
 # STALE-BASE SAFETY (added 2026-08-02; ported from feature-build.yml):
 # This job branches from master at checkout and merges at the end, with a Claude heal loop in
 # between — so master can move underneath it (a human push, a feature-build merge, another
@@ -224,6 +233,19 @@ jobs:
           echo "out_of_scope=$STRAY" >> "$GITHUB_OUTPUT"
           if [ "$STRAY" -eq 0 ]; then echo "All ${#CHANGED[@]} changed file(s) within allowed paths."; fi
 
+      - name: Deploy-quota guard (keep headroom for human deploys)
+        # A merge to master consumes one of the Hobby plan's 100 deployments/day — the same bucket
+        # human pushes and the break-glass manual-deploy.yml draw from. At/over the bot cutoff
+        # (limit − reserve) we defer: the verified change is PR-gated instead of merged, and a
+        # human lands it when there is headroom. Fails OPEN on API errors (a flaky API must not
+        # block harder than today's behavior). Same gate condition as the landing step below.
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1' && env.REVIEW_ONLY != 'true'
+        id: quota
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DEPLOY_QUOTA_RESERVE: ${{ vars.DEPLOY_QUOTA_RESERVE || '20' }}
+        run: bash .github/scripts/deploy-quota-guard.sh
+
       # Land on master, defending against master having moved while we built.
       #
       # The green CI from the heal loop was produced against BASE_SHA. If master has moved since,
@@ -234,7 +256,7 @@ jobs:
       #
       # reviewOnly (generation/validator changes) are PR-gated for human review — never auto-merged.
       - name: Rebase onto latest master, re-verify, and land
-        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1' && env.REVIEW_ONLY != 'true'
+        if: steps.heal.outputs.success == '1' && steps.heal.outputs.no_changes != '1' && steps.scope.outputs.out_of_scope != '1' && env.REVIEW_ONLY != 'true' && steps.quota.outputs.defer != '1'
         id: merge
         run: |
           set -e
@@ -338,13 +360,14 @@ jobs:
       # NOTE: no explicit Vercel deploy step. Once "Merge to master" pushes a study-app/ change,
       # Vercel git auto-deploy builds + ships it automatically (single deploy path; see header).
 
-      - name: Open PR (review required, could not verify, out of scope, or could not land)
+      - name: Open PR (review required, could not verify, out of scope, quota deferred, or could not land)
         if: >-
           always() &&
           (steps.heal.outputs.success != '1' ||
            steps.merge.outputs.conflict == '1' ||
            steps.merge.outputs.stale_broken == '1' ||
            steps.scope.outputs.out_of_scope == '1' ||
+           steps.quota.outputs.defer == '1' ||
            env.REVIEW_ONLY == 'true') &&
           steps.heal.outputs.no_changes != '1'
         id: pr
@@ -352,6 +375,8 @@ jobs:
           BASE_SHA: ${{ steps.base.outputs.sha }}
           STALE_BROKEN: ${{ steps.merge.outputs.stale_broken }}
           OUT_OF_SCOPE: ${{ steps.scope.outputs.out_of_scope }}
+          QUOTA_DEFER: ${{ steps.quota.outputs.defer }}
+          QUOTA_USED: ${{ steps.quota.outputs.used }}
         run: |
           # Rebase onto the CURRENT master before pushing. If master's workflow files changed
           # between checkout and now (a busy night), pushing a branch whose tree carries the older
@@ -381,6 +406,10 @@ jobs:
               echo "### Why this needs review: **policy (generation/validator)**"
               echo
               echo "High-stakes change (Kind: generation/validator) — PR-gated for human review by policy. The change is verified (CI green) and scoped, but generation/validator edits must be reviewed before merging."
+            elif [ "$QUOTA_DEFER" = "1" ]; then
+              echo "### Why this was not auto-merged: **deploy quota reserve**"
+              echo
+              echo "The change is verified (CI green) and scoped, but ${QUOTA_USED:-many} of the 100 daily Vercel deployments were already used, at/over the bot cutoff that keeps slots free for human deploys. Merging this PR will consume one deployment — do it when there is headroom (the quota is a rolling 24h window)."
             elif [ "$OUT_OF_SCOPE" = "1" ]; then
               echo "### Why this needs review: **out of scope**"
               echo
@@ -422,6 +451,8 @@ jobs:
           COMMIT_SHA: ${{ steps.merge.outputs.sha }}
           PR_URL: ${{ steps.pr.outputs.pr_url }}
           NO_CHANGES: ${{ steps.heal.outputs.no_changes }}
+          QUOTA_DEFER: ${{ steps.quota.outputs.defer }}
+          QUOTA_USED: ${{ steps.quota.outputs.used }}
         run: |
           # Deploy is now async via Vercel git auto-deploy, so the workflow only knows it MERGED —
           # the live deploy lands seconds later (watch the Vercel dashboard if it matters).
@@ -435,6 +466,10 @@ jobs:
           # Surface a stale-base failure in the admin UI rather than the generic "needs review".
           if [ -f /tmp/af/stale-note.md ]; then
             export APPLY_ERROR="Built against a master that changed mid-run. $(tr -d '`' < /tmp/af/stale-note.md)"
+          fi
+          # Surface a quota deferral distinctly: the change is green, it just was not auto-merged.
+          if [ "$QUOTA_DEFER" = "1" ]; then
+            export APPLY_ERROR="Deploy quota reserve: ${QUOTA_USED:-?}/100 daily Vercel deployments used, so the verified change was PR-gated instead of auto-merged to keep headroom for human deploys."
           fi
           if [ "$NO_CHANGES" = "1" ]; then
             APPLY_STATUS=failed
