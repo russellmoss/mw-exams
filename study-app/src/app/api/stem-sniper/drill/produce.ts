@@ -75,6 +75,8 @@ async function pickBankedDrill(paper: number | null, family: string | null, vari
       -- Bank review gate (migration 025): this is a serve path, so pending/binned bank rows
       -- must never reach a candidate — same rule as every read in src/lib/db.ts.
       AND q.review_state = 'kept'
+      -- Live Tasting questions (migration 041) belong to one user's session, never the drill pool.
+      AND q.scope = 'pool'
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
       AND (

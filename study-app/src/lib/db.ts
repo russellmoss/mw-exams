@@ -187,6 +187,43 @@ export async function setUserPacePreference(userId: number, pref: PacePreference
   `;
 }
 
+// Live Tasting market prefs (migration 041): where the user shops and their per-bottle budget.
+// Currency whitelist is enforced app-side (the route), not by a DB CHECK.
+export type LiveTastingPrefs = {
+  city: string | null;
+  country: string | null;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+};
+
+export async function getUserLiveTastingPrefs(userId: number): Promise<LiveTastingPrefs> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT live_city, live_country, live_budget_amount, live_budget_currency
+    FROM users WHERE id = ${userId}
+  `;
+  const r = rows[0];
+  const amount = r?.live_budget_amount != null ? Number(r.live_budget_amount) : null;
+  return {
+    city: r?.live_city ?? null,
+    country: r?.live_country ?? null,
+    budgetAmount: Number.isFinite(amount as number) && (amount as number) > 0 ? amount : null,
+    budgetCurrency: r?.live_budget_currency ?? null,
+  };
+}
+
+export async function setUserLiveTastingPrefs(userId: number, prefs: LiveTastingPrefs): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users SET
+      live_city = ${prefs.city},
+      live_country = ${prefs.country},
+      live_budget_amount = ${prefs.budgetAmount},
+      live_budget_currency = ${prefs.budgetCurrency}
+    WHERE id = ${userId}
+  `;
+}
+
 export async function saveGeneratedQuestion(q: {
   questionId: string;
   paper: number;
@@ -215,6 +252,9 @@ export async function saveGeneratedQuestion(q: {
   // accept-anyway fallback that deliberately excludes an item from the mix counters.
   wineCategory?: string | null;
   curveballLevel?: string | null;
+  // Live Tasting (migration 041): 'live-tasting' rows belong to one user's session and are
+  // excluded from every pool query (which all filter scope='pool'). Omitted → 'pool'.
+  scope?: string;
 }): Promise<GeneratedQuestion> {
   const sql = getDb();
   // Tag Paper 3 questions with their style family at insert (pure code, no LLM) so the weighted
@@ -238,7 +278,7 @@ export async function saveGeneratedQuestion(q: {
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
       metadata, created_by_user_id, status, batch_id, review_state,
       question_type, curveball, price_band, flight_size, producer_flags,
-      wine_category, curveball_level
+      wine_category, curveball_level, scope
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
@@ -249,7 +289,7 @@ export async function saveGeneratedQuestion(q: {
       ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
       ${questionType}, ${curveball}, ${priceBand}, ${flightSize},
       ${producerFlags && producerFlags.length > 0 ? JSON.stringify(producerFlags) : null}::jsonb,
-      ${q.wineCategory ?? null}, ${q.curveballLevel ?? null}
+      ${q.wineCategory ?? null}, ${q.curveballLevel ?? null}, ${q.scope ?? "pool"}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -362,6 +402,7 @@ async function getProducerBaseCounts(
       AND g.review_state = 'kept'
       AND g.invalid_reasons IS NULL
       AND g.is_retired IS NOT TRUE
+      AND g.scope = 'pool'
     GROUP BY bwp.producer_key
   `) as { key: string; count: number }[];
   const counts = new Map<string, number>();
@@ -432,6 +473,7 @@ export async function getProducerTally(paper: number | "all"): Promise<ProducerT
     WHERE g.review_state = 'kept'
       AND g.invalid_reasons IS NULL
       AND g.is_retired IS NOT TRUE
+      AND g.scope = 'pool'
       AND (${paperArg}::int IS NULL OR bwp.paper = ${paperArg})
     GROUP BY bwp.producer_key
     ORDER BY count DESC, producer_display ASC
@@ -539,6 +581,7 @@ export async function getQuestionsByFilter(
       WHERE paper = ${paper} AND family = ${family}
         AND invalid_reasons IS NULL
         AND review_state = 'kept'
+        AND scope = 'pool'
         AND NOT EXISTS (
           SELECT 1 FROM stem_answer_keys k
           WHERE k.question_id = generated_questions.question_id AND k.validated = false
@@ -551,6 +594,7 @@ export async function getQuestionsByFilter(
     WHERE paper = ${paper}
       AND invalid_reasons IS NULL
       AND review_state = 'kept'
+      AND scope = 'pool'
       AND NOT EXISTS (
         SELECT 1 FROM stem_answer_keys k
         WHERE k.question_id = generated_questions.question_id AND k.validated = false
@@ -564,6 +608,7 @@ export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQ
   return (await sql`
     SELECT * FROM generated_questions
     WHERE invalid_reasons IS NULL
+      AND scope = 'pool'
     ORDER BY created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
@@ -590,6 +635,7 @@ export async function getUnansweredQuestions(
         AND q.family = ${family}
         AND q.invalid_reasons IS NULL
         AND q.review_state = 'kept'
+        AND q.scope = 'pool'
         AND NOT EXISTS (
           SELECT 1 FROM stem_answer_keys k
           WHERE k.question_id = q.question_id AND k.validated = false
@@ -608,6 +654,7 @@ export async function getUnansweredQuestions(
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
+      AND q.scope = 'pool'
       AND NOT EXISTS (
         SELECT 1 FROM stem_answer_keys k
         WHERE k.question_id = q.question_id AND k.validated = false
@@ -686,6 +733,7 @@ export async function getBankCount(
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
       AND NOT EXISTS (
         SELECT 1 FROM stem_answer_keys k
         WHERE k.question_id = q.question_id AND k.validated = false
@@ -716,6 +764,7 @@ export async function getEligibleBankedQuestions(
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
       AND NOT EXISTS (
         SELECT 1 FROM stem_answer_keys k
         WHERE k.question_id = q.question_id AND k.validated = false
@@ -2164,6 +2213,7 @@ export async function getBankFamilyHistogram(): Promise<
       AND review_state = 'kept'
       AND invalid_reasons IS NULL
       AND is_retired IS NOT TRUE
+      AND scope = 'pool'
       AND family IS NOT NULL
     GROUP BY paper, family
   `) as { paper: number; family: string; count: number }[];
@@ -2218,7 +2268,7 @@ export async function getBankPerQuestionAvgCost(): Promise<number> {
 // additionally exclude questions whose stem_answer_key failed validation (k.validated = false, an
 // unresolvable-wine signal — see getQuestionsByFilter), so Bank Health may count a handful more rows
 // than are actually servable; the analytics deliberately keep the cheaper three-flag gate.
-const KEPT_BANK_SQL_WHERE = "review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE";
+const KEPT_BANK_SQL_WHERE = "review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE AND scope = 'pool'";
 
 export interface BankHealthLiteRow {
   question_id: string;
@@ -2245,6 +2295,7 @@ export async function getBankHealthTotals(
            COUNT(*) FILTER (WHERE COALESCE(times_served, 0) = 0)::int AS unserved
     FROM generated_questions
     WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+      AND scope = 'pool'
       AND (${paperArg}::int IS NULL OR paper = ${paperArg})
   `) as { total: number; unserved: number }[];
   return { total: rows[0]?.total ?? 0, unserved: rows[0]?.unserved ?? 0 };
@@ -2353,6 +2404,7 @@ export async function getKeptBankLite(paper?: number | null): Promise<BankHealth
            (reviewed_by IS NOT NULL) AS reviewed
     FROM generated_questions
     WHERE review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE
+      AND scope = 'pool'
       AND (${paperArg}::int IS NULL OR paper = ${paperArg})
   `) as BankHealthLiteRow[];
   return rows;
@@ -3320,4 +3372,199 @@ export async function updateFeatureRequest(
     RETURNING *
   `;
   return rows[0] as FeatureRequest;
+}
+
+// ── Live Tasting sessions (migration 041) ────────────────────────────────────────────────────────
+//
+// A session owns the multi-week lifecycle of one buy-local blind tasting: the generated question
+// (scope='live-tasting'), the availability payload, and IMMUTABLE EVENT TIMESTAMPS from which the
+// display state and blind-integrity badge are DERIVED at render time (src/lib/live-tasting.ts).
+// There is deliberately no status enum to get stale — see live_tasting_plan.md §2.3.
+
+export interface LiveTastingSession {
+  id: string;
+  user_id: number;
+  question_id: string;
+  paper: number;
+  flight_size: number;
+  archetype: string;
+  city: string;
+  country: string;
+  budget_amount: number | null;
+  budget_currency: string | null;
+  availability: unknown;
+  vintages_bought: unknown;
+  share_token_hash: string | null;
+  share_expires_at: string | null;
+  attempt_id: number | null;
+  user_revealed_at: string | null;
+  share_created_at: string | null;
+  token_first_used_at: string | null;
+  graded_at: string | null;
+  abandoned_at: string | null;
+  created_at: string;
+}
+
+export async function createLiveTastingSession(s: {
+  id: string;
+  userId: number;
+  questionId: string;
+  paper: number;
+  flightSize: number;
+  archetype: string;
+  city: string;
+  country: string;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  availability: unknown;
+}): Promise<LiveTastingSession> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO live_tasting_sessions (
+      id, user_id, question_id, paper, flight_size, archetype, city, country,
+      budget_amount, budget_currency, availability
+    ) VALUES (
+      ${s.id}, ${s.userId}, ${s.questionId}, ${s.paper}, ${s.flightSize}, ${s.archetype},
+      ${s.city}, ${s.country}, ${s.budgetAmount}, ${s.budgetCurrency},
+      ${JSON.stringify(s.availability)}::jsonb
+    )
+    RETURNING *
+  `;
+  return rows[0] as LiveTastingSession;
+}
+
+export async function getLiveTastingSession(
+  id: string,
+  userId: number
+): Promise<LiveTastingSession | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM live_tasting_sessions WHERE id = ${id} AND user_id = ${userId} LIMIT 1
+  `;
+  return (rows[0] as LiveTastingSession) ?? null;
+}
+
+export async function getLiveTastingSessionsForUser(userId: number): Promise<LiveTastingSession[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM live_tasting_sessions
+    WHERE user_id = ${userId} AND abandoned_at IS NULL
+    ORDER BY created_at DESC
+    LIMIT 50
+  `) as LiveTastingSession[];
+}
+
+export async function getLiveTastingSessionByTokenHash(
+  tokenHash: string
+): Promise<LiveTastingSession | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM live_tasting_sessions
+    WHERE share_token_hash = ${tokenHash}
+      AND share_expires_at > now()
+      AND graded_at IS NULL
+      AND abandoned_at IS NULL
+    LIMIT 1
+  `;
+  return (rows[0] as LiveTastingSession) ?? null;
+}
+
+// Event stamps are set-once (COALESCE keeps the first value) so a fact can never be un-happened.
+const SESSION_EVENT_COLUMNS = new Set([
+  "user_revealed_at",
+  "share_created_at",
+  "token_first_used_at",
+  "graded_at",
+  "abandoned_at",
+]);
+
+export async function stampLiveTastingEvent(
+  sessionId: string,
+  column: string
+): Promise<void> {
+  if (!SESSION_EVENT_COLUMNS.has(column)) throw new Error(`Not a session event column: ${column}`);
+  const sql = getDb();
+  // Column name is whitelist-checked above; Neon's tagged templates can't parameterize
+  // identifiers, so this goes through sql.query with the name interpolated from the whitelist.
+  await sql.query(
+    `UPDATE live_tasting_sessions SET ${column} = COALESCE(${column}, now()) WHERE id = $1`,
+    [sessionId]
+  );
+}
+
+// The double-submit grading lock (plan §2.4): row-level compare-and-set on attempt_id. Returns
+// true when THIS call claimed the session; false when an attempt already exists (retry path).
+export async function casClaimSessionAttempt(
+  sessionId: string,
+  attemptId: number
+): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE live_tasting_sessions SET attempt_id = ${attemptId}
+    WHERE id = ${sessionId} AND attempt_id IS NULL
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+export async function setLiveTastingShareToken(
+  sessionId: string,
+  tokenHash: string,
+  expiresAt: Date
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions
+    SET share_token_hash = ${tokenHash},
+        share_expires_at = ${expiresAt.toISOString()},
+        share_created_at = COALESCE(share_created_at, now())
+    WHERE id = ${sessionId}
+  `;
+}
+
+export async function setLiveTastingVintages(
+  sessionId: string,
+  vintages: Record<string, string>
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions
+    SET vintages_bought = ${JSON.stringify(vintages)}::jsonb
+    WHERE id = ${sessionId}
+  `;
+}
+
+// Replace-wine (plan §2.1): repoint the session at the regenerated question + fresh availability.
+// The old question row stays behind (scope='live-tasting' keeps it out of pools) for audit.
+export async function repointLiveTastingSession(
+  sessionId: string,
+  questionId: string,
+  availability: unknown
+): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions
+    SET question_id = ${questionId}, availability = ${JSON.stringify(availability)}::jsonb
+    WHERE id = ${sessionId}
+  `;
+}
+
+// Token rotation (plan §2.5): clearing the hash 404s every previously-shared link. Used by
+// replace-wine so a partner can never buy from a stale list; the user re-mints to share again.
+export async function clearLiveTastingShareToken(sessionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions SET share_token_hash = NULL, share_expires_at = NULL
+    WHERE id = ${sessionId}
+  `;
+}
+
+// Rate limit (plan §5.3): sessions created by this user in the last 24h.
+export async function countRecentLiveTastingSessions(userId: number): Promise<number> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT COUNT(*)::int AS count FROM live_tasting_sessions
+    WHERE user_id = ${userId} AND created_at > now() - interval '24 hours'
+  `) as { count: number }[];
+  return rows[0]?.count ?? 0;
 }

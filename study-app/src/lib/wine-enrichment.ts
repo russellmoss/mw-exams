@@ -116,7 +116,7 @@ async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; 
   }
 }
 
-async function searchTavily(
+export async function searchTavily(
   query: string,
   meta?: EnrichMeta,
   opts?: { includeDomains?: string[]; maxResults?: number; taskType?: string }
@@ -192,6 +192,21 @@ export type WineIdentity = {
   region: string;
   grapeVarieties: string[];
   styleCategory: string;
+  // Optional: only classifyWine sets it (Live Tasting budget gate); legacy call sites and test
+  // fixtures build identities without one, and addToWineBank writes NULL when absent/empty.
+  priceBand?: string;
+};
+
+// Live Tasting's deterministic budget gate (migration 041). Bands are indicative typical retail
+// per 750ml bottle, deliberately coarse — the corpus is benchmark wines, not auction lots. A wine
+// whose band is unknown never enters a Live Tasting candidate pool; a Tavily snippet price, when
+// found, refines the band's verdict in either direction.
+export const PRICE_BANDS = ["value", "premium", "super_premium", "icon"] as const;
+export const PRICE_BAND_CEILING_USD: Record<string, number> = {
+  value: 20,
+  premium: 50,
+  super_premium: 150,
+  icon: Infinity,
 };
 
 // Derive a clean, structured identity (+ grape varieties + style classification) from a wine's
@@ -208,6 +223,7 @@ async function classifyWine(fullText: string, apiKey: string, meta?: EnrichMeta)
     region: fallback.region,
     grapeVarieties: [],
     styleCategory: "still_dry",
+    priceBand: "",
   };
 
   try {
@@ -218,7 +234,7 @@ async function classifyWine(fullText: string, apiKey: string, meta?: EnrichMeta)
       model,
       max_tokens: 300,
       system: `You identify a wine from a single reference string. Output exactly one JSON object, no prose, no code fences:
-{"producer":"...","wine_name":"...","country":"...","region":"...","grape_varieties":["..."],"style_category":"..."}
+{"producer":"...","wine_name":"...","country":"...","region":"...","grape_varieties":["..."],"style_category":"...","price_band":"..."}
 
 Rules:
 - producer: the estate/house only, e.g. "Domaine Leflaive", "Billecart-Salmon", "Nyetimber". Never a year or a region.
@@ -234,7 +250,13 @@ Rules:
   - oxidative: Vin Jaune, oxidative/sous-voile Jura whites, biologically/deliberately oxidative styles. This includes wines where the style is implied by the house rather than stated on the label — traditional white Rioja aged for years in old oak (López de Heredia Viña Tondonia Blanco and Viña Gravonia, Marqués de Murrieta Castillo Ygay Blanco, CVNE Monopole Clásico) and the voile-by-default Jura domaines (Macle, Montbourgeau, Berthet-Bondet, Bourdy). A "Blanco Reserva/Gran Reserva" from Rioja is oxidative, not still_dry.
   - NOT oxidative: anything labelled "ouillé" (topped up) is the deliberate opposite — no flor forms — so an Arbois Savagnin Ouillé is still_dry however Jura it looks. A grape or appellation never settles this on its own: Arbois and L'Étoile both cover topped-up and voile-aged wines, and the reds from those same houses (Viña Tondonia Tinto, Castillo Ygay Gran Reserva, Berthet-Bondet Trousseau) are still_dry.
   - rose / orange: as appropriate. Blush wines count as rose even when unlabelled (White Zinfandel).
-  - still_dry: everything else (the default for dry still whites and reds).`,
+  - still_dry: everything else (the default for dry still whites and reds).
+- price_band: typical current retail for a 750ml bottle of this wine (any recent vintage), exactly one of:
+  - value: under ~$20 / €20 (supermarket and entry-level regional wines).
+  - premium: ~$20–50 (classic village-level and quality regional wines — most exam benchmarks).
+  - super_premium: ~$50–150 (top crus, prestige cuvées below icon level, vintage Champagne).
+  - icon: over ~$150 (grand cru Burgundy, classified-growth first tier, prestige Champagne, cult wines).
+  Judge from the producer and appellation's market position. If genuinely unknowable, use "".`,
       messages: [{ role: "user", content: `Wine: ${fullText}` }],
     });
     logClaudeUsage(
@@ -258,6 +280,9 @@ Rules:
           ? (o.grape_varieties as unknown[]).filter((g): g is string => typeof g === "string" && g.trim().length > 0)
           : [],
         styleCategory: str(o.style_category, "still_dry"),
+        priceBand: PRICE_BANDS.includes(o.price_band as (typeof PRICE_BANDS)[number])
+          ? (o.price_band as string)
+          : "",
       };
     }
   } catch (err) {
@@ -654,7 +679,7 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
       .filter(Boolean).join("_").slice(0, 120);
 
     await sql`
-      INSERT INTO wine_bank (id, producer, wine_name, country, region, grape_varieties, style_category, tasting_profile, source)
+      INSERT INTO wine_bank (id, producer, wine_name, country, region, grape_varieties, style_category, price_band, tasting_profile, source)
       VALUES (
         ${id},
         ${identity.producer},
@@ -663,6 +688,7 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
         ${identity.region},
         ${JSON.stringify(identity.grapeVarieties)},
         ${identity.styleCategory || "still_dry"},
+        ${identity.priceBand || null},
         ${profile.tasting_profile ? JSON.stringify({
           appearance: profile.tasting_profile.appearance,
           nose_summary: profile.tasting_profile.nose_summary,
@@ -679,6 +705,7 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
           WHEN wine_bank.grape_varieties IS NULL OR wine_bank.grape_varieties = '[]'::jsonb
           THEN EXCLUDED.grape_varieties ELSE wine_bank.grape_varieties END,
         style_category = COALESCE(NULLIF(EXCLUDED.style_category, ''), wine_bank.style_category),
+        price_band = COALESCE(wine_bank.price_band, NULLIF(EXCLUDED.price_band, '')),
         tasting_profile = COALESCE(EXCLUDED.tasting_profile, wine_bank.tasting_profile),
         updated_at = now()
     `;

@@ -33,6 +33,12 @@ export default function SettingsPage() {
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwSuccess, setPwSuccess] = useState<string | null>(null);
+  const [liveCity, setLiveCity] = useState("");
+  const [liveCountry, setLiveCountry] = useState("");
+  const [liveBudget, setLiveBudget] = useState("");
+  const [liveCurrency, setLiveCurrency] = useState("USD");
+  const [liveSaving, setLiveSaving] = useState(false);
+  const [liveMsg, setLiveMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -64,6 +70,16 @@ export default function SettingsPage() {
           if (!d) return;
           if (d.pace === "exam" || d.pace === "speed") setPaceMode(d.pace);
           if (d.speedSeconds === 480 || d.speedSeconds === 540) setPaceSpeedSeconds(d.speedSeconds);
+        })
+        .catch(() => {});
+      fetch("/api/user/live-tasting-prefs")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          if (d.city) setLiveCity(d.city);
+          if (d.country) setLiveCountry(d.country);
+          if (d.budgetAmount != null) setLiveBudget(String(d.budgetAmount));
+          if (d.budgetCurrency) setLiveCurrency(d.budgetCurrency);
         })
         .catch(() => {});
       fetch("/api/user/api-key")
@@ -407,6 +423,116 @@ export default function SettingsPage() {
                 Preview sound
               </button>
             </div>
+          </section>
+
+          {/* Live Tasting — where the user shops + per-bottle budget */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Live Tasting</h2>
+            <p className="text-sm text-muted mb-5">
+              Live Tasting builds a blind flight from wines you can actually buy near you. Set your
+              market and a per-bottle budget; you can adjust the budget per session.
+            </p>
+            {liveMsg && (
+              <div className={`rounded-lg p-3 mb-4 border ${liveMsg.kind === "ok" ? "bg-success/10 border-success/30" : "bg-fail/10 border-fail/30"}`}>
+                <p className={`text-sm ${liveMsg.kind === "ok" ? "text-success" : "text-fail"}`}>{liveMsg.text}</p>
+              </div>
+            )}
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setLiveMsg(null);
+                setLiveSaving(true);
+                try {
+                  const res = await fetch("/api/user/live-tasting-prefs", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      city: liveCity,
+                      country: liveCountry,
+                      budgetAmount: liveBudget.trim() ? Number(liveBudget) : null,
+                      budgetCurrency: liveCurrency,
+                    }),
+                  });
+                  const data = await res.json();
+                  if (!res.ok) setLiveMsg({ kind: "err", text: data.error || "Failed to save" });
+                  else setLiveMsg({ kind: "ok", text: "Live Tasting market saved." });
+                } catch {
+                  setLiveMsg({ kind: "err", text: "Network error" });
+                } finally {
+                  setLiveSaving(false);
+                }
+              }}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="liveCity" className="block text-sm font-medium text-foreground mb-1.5">
+                    City / town
+                  </label>
+                  <input
+                    id="liveCity"
+                    type="text"
+                    value={liveCity}
+                    onChange={(e) => setLiveCity(e.target.value)}
+                    placeholder="e.g. New Hope, Pennsylvania"
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                  />
+                  <p className="text-xs text-muted mt-1.5">Include the state or region if outside a major city.</p>
+                </div>
+                <div>
+                  <label htmlFor="liveCountry" className="block text-sm font-medium text-foreground mb-1.5">
+                    Country
+                  </label>
+                  <input
+                    id="liveCountry"
+                    type="text"
+                    value={liveCountry}
+                    onChange={(e) => setLiveCountry(e.target.value)}
+                    placeholder="e.g. United States"
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 max-w-sm">
+                <div>
+                  <label htmlFor="liveBudget" className="block text-sm font-medium text-foreground mb-1.5">
+                    Budget per bottle
+                  </label>
+                  <input
+                    id="liveBudget"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={liveBudget}
+                    onChange={(e) => setLiveBudget(e.target.value)}
+                    placeholder="40"
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="liveCurrency" className="block text-sm font-medium text-foreground mb-1.5">
+                    Currency
+                  </label>
+                  <select
+                    id="liveCurrency"
+                    value={liveCurrency}
+                    onChange={(e) => setLiveCurrency(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm cursor-pointer"
+                  >
+                    <option value="USD">USD $</option>
+                    <option value="EUR">EUR €</option>
+                    <option value="GBP">GBP £</option>
+                  </select>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={liveSaving || !liveCity.trim() || !liveCountry.trim()}
+                className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {liveSaving ? "Saving..." : "Save market"}
+              </button>
+            </form>
           </section>
 
           {/* Pace — per-wine benchmark for Full Question & Dry Notes */}

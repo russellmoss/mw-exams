@@ -35,6 +35,7 @@ import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targe
 import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import { auditAndQuarantineQuestion } from "@/lib/question-audit";
+import { validatePinnedFlight, validateBlindSafety } from "@/lib/live-tasting-validators";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
 // the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
 import "@/lib/appellation-resolver";
@@ -714,6 +715,15 @@ export async function generateFreshQuestion(
     // currently light on, so the model prefers comparable wines from those origins. Set only by the
     // bank-generation path (bank-worker); a pure preference block, never a validator rule.
     countryNudge?: string | null;
+    // Live Tasting (migration 041): pin the flight to EXACTLY these wines — availability-confirmed
+    // upstream by live-tasting-engine — and write the row with the given scope so it never enters
+    // a serving pool. Pinned mode swaps the flight-choice validators (banker/novelty/diversity/
+    // composition/flight-size — all controlled upstream) for two hard checks of its own:
+    // validatePinnedFlight (no substitution) and validateBlindSafety (stem must not leak identity).
+    // There is deliberately NO banked fallback in pinned mode — a random banked question is not
+    // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
+    scope?: string;
+    pinnedWines?: { slot: number; fullText: string }[] | null;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -723,10 +733,15 @@ export async function generateFreshQuestion(
 ) {
   const client = new Anthropic({ apiKey });
 
+  const pinned =
+    saveOpts?.pinnedWines && saveOpts.pinnedWines.length > 0 ? saveOpts.pinnedWines : null;
+
   emit?.({ type: "status", label: "Reading the wine bank for duplicates…" });
 
-  // Pull existing wines from the bank for deduplication
-  const allQuestions = await getQuestionsByFilter(paper);
+  // Pull existing wines from the bank for deduplication. Skipped in pinned mode: the dedup list
+  // tells the model to AVOID those wines, which would directly contradict a pinned wine that
+  // already exists in the bank — and novelty/dedup are meaningless for a single-user session.
+  const allQuestions = pinned ? [] : await getQuestionsByFilter(paper);
   const existingWines: string[] = [];
   for (const q of allQuestions) {
     const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
@@ -739,8 +754,8 @@ export async function generateFreshQuestion(
   // (same stem template + same pedagogical contrast) that happened several questions ago, not just
   // an exact repeat of the immediately-previous one. (Feedback: a user was served the same sweet-wine
   // "different countries / different single variety / sweetness mechanism" template they'd already seen.)
-  emit?.({ type: "status", label: "Checking the last 30 questions for repeats…" });
-  const recentGenerated = await getRecentGeneratedQuestions(30);
+  if (!pinned) emit?.({ type: "status", label: "Checking the last 30 questions for repeats…" });
+  const recentGenerated = pinned ? [] : await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
   const prompt = await buildQuestionGenerationPrompt(
     paper,
@@ -795,6 +810,19 @@ export async function generateFreshQuestion(
   if (saveOpts?.batchId) {
     const producerBlock = await buildProducerSpreadBlock(paper);
     if (producerBlock) prompt.system += producerBlock;
+  }
+
+  // Live Tasting pinned flight: a HARD block, appended last so nothing later can soften it. The
+  // wines were availability-confirmed against the user's retail market; any substitution breaks
+  // the session (the answer key would describe a bottle the user isn't buying). Enforced by
+  // validatePinnedFlight below — this block is the instruction, that check is the guarantee.
+  if (pinned) {
+    prompt.system += `\n\n## PINNED FLIGHT (LIVE TASTING) — ABSOLUTE CONSTRAINT
+The flight is EXACTLY these ${pinned.length} wines in these slots. Do not add, remove, reorder, or substitute any wine. Reproduce each reference verbatim as the slot's wine:
+${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
+Do not invent vintages — write each wine reference without a vintage year, exactly as given.
+The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
+The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
   }
 
   // SOFT feed-forward (spec §4): fold the most recent bin reasons for this paper into the prompt so
@@ -1129,12 +1157,17 @@ export async function generateFreshQuestion(
     // redraft always exists.
     const producerExclusionCheck = validateProducerExclusion(excludedProducerKeys, candidate.wines);
 
-    // Important validators (relax on attempt 6+)
+    // Important validators (relax on attempt 6+). Pinned mode (Live Tasting) skips every
+    // flight-CHOICE validator outright — diversity/composition/price/banker/size/novelty were all
+    // decided upstream by the archetype picker; re-judging them here could only reject a flight
+    // we are not allowed to change. Stem-coherence validators (shape/scope/variety/marks) still run.
     const relaxImportant = attempt >= 6;
-    const originDiversityCheck = relaxImportant
+    const originDiversityCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
-    const countryDiversityCheck = validateCountryDiversity(candidate.questionText, candidate.wines);
+    const countryDiversityCheck = pinned
+      ? { valid: true, violations: [] }
+      : validateCountryDiversity(candidate.questionText, candidate.wines);
     // Phase 2 soft composition rules (also "important" tier): modern mark-mix cap, OW/NW balance,
     // coarse price proxy. Composition and price relax at attempt 6 alongside originDiversity.
     //
@@ -1148,10 +1181,10 @@ export async function generateFreshQuestion(
     const markMixCheck = relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText);
-    const compositionCheck = relaxImportant
+    const compositionCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validateCompositionBalance(candidate.family, paper, candidate.wines);
-    const priceCheck = relaxImportant
+    const priceCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validatePriceSpread(candidate.questionText, candidate.family, candidate.wines);
 
@@ -1159,24 +1192,36 @@ export async function generateFreshQuestion(
     const relaxNiceToHave = attempt >= 4;
     // Bank path (batchId present): banker never relaxes, and via BANK_BLOCKING_RULES it actually
     // blocks — a bankerless flight must not be BANKED, whereas the interactive path keeps both the
-    // relaxation and the advisory demotion because a user is waiting on the spinner.
+    // relaxation and the advisory demotion because a user is waiting on the spinner. Pinned mode
+    // (Live Tasting) skips banker outright — the flight was chosen upstream by the archetype picker.
     const bankPath = Boolean(saveOpts?.batchId);
-    const bankerCheck = shouldRelaxBanker(attempt, bankPath)
+    const bankerCheck = pinned || shouldRelaxBanker(attempt, bankPath)
       ? { valid: true, violations: [] }
       : validateBankerMinimum(candidate.wines);
-    const flightSizeCheck = relaxNiceToHave
+    const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
     // Novelty NEVER fully relaxes: serving a user a question whose shape they've already seen defeats
     // the practice system. On relaxed attempts it runs in "lenient" mode — still blocks exact AND
     // structural/thematic repeats (same template + contrast axis), but drops the fuzzier
     // family/country/variety heuristic so generation can still converge.
-    const noveltyCheck = validateNoveltyAgainstLatest(
-      candidate,
-      latestQuestion,
-      recentGenerated.map(normalizeGeneratedQuestionWines),
-      { lenient: relaxNiceToHave, targeted: saveOpts?.familyTargeted ?? false }
-    );
+    const noveltyCheck = pinned
+      ? ({ valid: true, violations: [] } as ReturnType<typeof validateNoveltyAgainstLatest>)
+      : validateNoveltyAgainstLatest(
+          candidate,
+          latestQuestion,
+          recentGenerated.map(normalizeGeneratedQuestionWines),
+          { lenient: relaxNiceToHave, targeted: saveOpts?.familyTargeted ?? false }
+        );
+
+    // Live Tasting pinned-mode HARD checks (see live-tasting-validators.ts): the draft must use
+    // exactly the pinned wines, and the stem must not leak producer/cuvée identity.
+    const pinnedFlightCheck = pinned
+      ? validatePinnedFlight(pinned, candidate.wines)
+      : { valid: true, violations: [] };
+    const blindSafetyCheck = pinned
+      ? validateBlindSafety(candidate.questionText, pinned)
+      : { valid: true, violations: [] };
 
     // Declared in the order the violations used to be concatenated, so the flat list below preserves
     // the original ordering while the telemetry gets the rule NAME behind each one — the whole point
@@ -1203,6 +1248,8 @@ export async function generateFreshQuestion(
       // and never relaxes — the model is rewording its own text, so convergence is not at risk, and
       // this was the largest stem-quality class in Mike's bin-reason corpus.
       stemDisclosure: { violations: stemDisclosureViolations(candidate.questionText).map((x) => x.detail) },
+      pinnedFlight: pinnedFlightCheck,
+      blindSafety: blindSafetyCheck,
     };
     const violationsByRule: Record<string, string[]> = {};
     for (const [name, check] of Object.entries(checks)) {
@@ -1242,6 +1289,12 @@ export async function generateFreshQuestion(
   // never one this user was just served (that was a silent repeat vector). Only drop the per-user
   // filter as an absolute last resort below, when excluding seen questions would leave nothing.
   if (!parsed || !validation) {
+    // Pinned mode: a banked question is NOT a substitute for the availability-confirmed flight —
+    // the caller (live-tasting-engine) handles failure by swapping a candidate wine and retrying.
+    if (pinned) {
+      console.error("Pinned-flight generation did not converge:", JSON.stringify(lastViolations));
+      return { error: `Live Tasting generation did not converge: ${lastViolations[0] ?? "unknown"}` };
+    }
     console.error("All generation attempts failed, falling back to a banked question");
     emit?.({ type: "status", label: "Generation didn't converge — serving a validated banked question…" });
     const allFallback = filterValidBanked(await getQuestionsByFilter(paper));
@@ -1287,6 +1340,8 @@ export async function generateFreshQuestion(
     // otherwise the DB default 'approved' via saveGeneratedQuestion.
     status: saveOpts?.status,
     batchId: saveOpts?.batchId ?? null,
+    // Live Tasting (migration 041): 'live-tasting' rows are session-private, excluded from pools.
+    scope: saveOpts?.scope,
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,

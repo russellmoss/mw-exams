@@ -58,6 +58,21 @@ export function NavBar() {
           >
             Stem Sniper
           </Link>
+          {/* Live Tasting is a study surface, so it belongs in this row — but it ships behind the
+              admin gate until the user-1 pilot completes (live_tasting_plan.md §9.4). Drop the
+              isAdmin check to open it to everyone. */}
+          {user.isAdmin && (
+            <Link
+              href="/live-tasting"
+              className={`text-sm font-medium transition-colors ${
+                pathname.startsWith("/live-tasting")
+                  ? "text-accent"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Live Tasting
+            </Link>
+          )}
           <Link
             href="/diagrams"
             className={`text-sm font-medium transition-colors ${
