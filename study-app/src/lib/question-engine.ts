@@ -11,18 +11,25 @@ import {
   getRecentGeneratedQuestions,
   getRecentBinReasons,
   getProducerNudge,
+  getOverusedProducers,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
   PRODUCER_NUDGE_MIN_WINES,
   PRODUCER_NUDGE_TOP,
+  PRODUCER_EXCLUDE_TOP,
+  extractProducerDisplay,
+  normaliseProducer,
 } from "@/lib/bank-health/producer";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
 import Anthropic from "@anthropic-ai/sdk";
 import { saveGeneratedQuestion, applyLengthCheck, applyAnswerLength, getTastingLexicon, type BankTargeting } from "@/lib/db";
 import { logGenerationAttempt } from "@/lib/generation-telemetry";
-import { buildQuestionGenerationPrompt } from "@/lib/prompts/question-generation-prompt";
+import {
+  buildQuestionGenerationPrompt,
+  buildProducerExclusionBlock,
+} from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
 import type { WineProfile } from "@/lib/wine-bank-lookup";
@@ -754,6 +761,23 @@ export async function generateFreshQuestion(
       : undefined
   );
 
+  // PRODUCER EXCLUSION (hard, every generation path): the paper's currently over-used producers,
+  // from the same tally + thresholds the review pane's producer flags use. The soft nudge below
+  // demonstrably did not stop the repeats — the reviewer binned Weinbach flights three separate
+  // times ("I have told you this at least three times", bank_bin_reasons) — so the heaviest
+  // offenders are now banned outright in the prompt AND rejected by validateProducerExclusion,
+  // which never relaxes. A tally outage degrades to no exclusion rather than failing generation.
+  let excludedProducers: { key: string; display: string }[] = [];
+  try {
+    excludedProducers = await getOverusedProducers(paper, PRODUCER_EXCLUDE_TOP);
+  } catch (err) {
+    console.error("[producer-exclusion] fetch failed (non-fatal):", err);
+  }
+  if (excludedProducers.length > 0) {
+    prompt.system += buildProducerExclusionBlock(excludedProducers.map((p) => p.display));
+  }
+  const excludedProducerKeys = new Set(excludedProducers.map((p) => p.key));
+
   // Bank Health targeting: append the aim as SOFT preferences. Deliberately after the hard scope /
   // flight-size rules so it can nudge wine/style/framing choices without ever overriding paper scope.
   const targetingBlock = buildTargetingConstraints(targeting);
@@ -1099,6 +1123,10 @@ export async function generateFreshQuestion(
     // Critical and never relaxed: the candidate explicitly asked for this grape. It only fires on a
     // positively-identified wrong variety, so it cannot stall generation on undetectable wines.
     const varietyFilterCheck = validateVarietyFilter(variety, candidate.wines);
+    // Critical and never relaxed: the prompt bans these producers outright, so a draft naming one
+    // has ignored a hard instruction. The list is capped at PRODUCER_EXCLUDE_TOP, so a compliant
+    // redraft always exists.
+    const producerExclusionCheck = validateProducerExclusion(excludedProducerKeys, candidate.wines);
 
     // Important validators (relax on attempt 6+)
     const relaxImportant = attempt >= 6;
@@ -1158,6 +1186,7 @@ export async function generateFreshQuestion(
       paperScope: paperScopeCheck,
       variety: varietyCheck,
       varietyFilter: varietyFilterCheck,
+      producerExclusion: producerExclusionCheck,
       marks: markCheck,
       consistency: consistencyCheck,
       originDiversity: originDiversityCheck,
@@ -1428,6 +1457,33 @@ export function validateVarietyFilter(
     violations.push(
       `Wine ${wine.slot}: "${wine.fullText}" reads as ${got}, but this flight was filtered to ${variety}`
     );
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+/**
+ * Enforce the generation-time producer ban: no wine may come from a producer the bank has already
+ * over-used (the prompt's PRODUCER EXCLUSION block names the same list). Belt-and-suspenders with
+ * that block — the reviewer's repeated Weinbach complaints prove the model does not reliably obey a
+ * list it is merely shown. Matching runs through normaliseProducer, the same canonicalisation the
+ * bank tally uses, so "Domaine Weinbach", "Weinbach" and accent variants all hit one key. Wines
+ * whose descriptor yields no producer are skipped — a malformed line is validateWineReferenceShape's
+ * problem, not a phantom match. CRITICAL tier, never relaxed.
+ */
+export function validateProducerExclusion(
+  excludedKeys: ReadonlySet<string>,
+  wines: { slot: number; fullText: string }[]
+): { valid: boolean; violations: string[] } {
+  if (excludedKeys.size === 0) return { valid: true, violations: [] };
+  const violations: string[] = [];
+  for (const wine of wines) {
+    const display = extractProducerDisplay(wine.fullText);
+    if (!display) continue;
+    if (excludedKeys.has(normaliseProducer(display))) {
+      violations.push(
+        `Wine ${wine.slot}: producer "${display}" is on the over-used producer exclusion list for this paper — replace it with a different credible producer from the same region and price band`
+      );
+    }
   }
   return { valid: violations.length === 0, violations };
 }

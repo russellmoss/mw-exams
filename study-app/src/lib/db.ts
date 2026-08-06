@@ -10,6 +10,7 @@ import {
 import {
   extractFlightProducers,
   producerStatus,
+  selectExcludedProducers,
   type ProducerFlag,
 } from "./bank-health/producer";
 import { getAppVersion } from "./app-version";
@@ -469,6 +470,19 @@ export async function getProducerNudge(
     totalWines: tally.total_wines,
     top: tally.rows.slice(0, limit).map((r) => ({ display: r.producer_display, count: r.count })),
   };
+}
+
+// The producers generation must NOT use: every producer currently 'over-used' for the paper, count
+// desc, capped. Built from the same tally (and so the same producerStatus thresholds) as the review
+// pane's flags — the reviewer's "over-used" badge and the generation exclusion can never disagree.
+// Unlike getProducerNudge this is a HARD list: the prompt forbids these producers outright and
+// validateProducerExclusion rejects any draft that names one.
+export async function getOverusedProducers(
+  paper: number,
+  limit: number
+): Promise<{ key: string; display: string }[]> {
+  const tally = await getProducerTally(paper);
+  return selectExcludedProducers(tally.rows, limit);
 }
 
 // How many pending items awaiting review carry a producer flag (paper-scoped, or all papers). Feeds the

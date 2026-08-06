@@ -330,6 +330,23 @@ export function compressAvoidList(existingWines?: string[]): string[] {
   return out;
 }
 
+// PRODUCER EXCLUSION (hard) — the block generateFreshQuestion appends when the paper's bank has
+// over-used producers. Unlike the deduplication list above (a preference with a banker escape hatch)
+// this is an outright ban: the reviewer has complained repeatedly about the same houses recurring
+// ("please stop including weinbach gewurztraminer - I have told you this at least three times"), and
+// validateProducerExclusion rejects any draft naming one of these producers, so promising less than
+// a ban here would be lying to the model. Kept pure (names in, text out) so it is testable without a
+// database; the caller caps the list (PRODUCER_EXCLUDE_TOP) so the block stays small.
+export function buildProducerExclusionBlock(producers: string[]): string {
+  if (producers.length === 0) return "";
+  return `
+
+## PRODUCER EXCLUSION (HARD RULE — violation = automatic rejection)
+The following producers are over-used in the question bank. Do NOT use a wine from ANY of them, under any label, cuvée or spelling variant (with or without "Domaine"/"Château"/etc.): ${producers.join(" · ")}.
+This is a hard ban, not a preference — a validator rejects any flight naming one of these producers, even as the banker. Choose a different, equally credible producer from the same region and price band instead; every region here has many.
+Apply this silently: the wine list and stem must never mention that a producer was excluded, banned or replaced.`;
+}
+
 // Exam Mix (migration 034): per-flight category + curveball guidance. Human-readable "how to build
 // this category" cues so the model can actually deliver the required, coherent flight the validators
 // then check. Returns "" (no injection) when Exam Mix is inactive.

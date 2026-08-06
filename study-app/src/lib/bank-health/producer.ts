@@ -28,6 +28,10 @@ export const PRODUCER_NUDGE_MIN_WINES = 40;
 export const PRODUCER_NUDGE_TOP = 25;
 export const PRODUCER_ROWS_LIMIT = 12;
 
+// How many over-used producers the generation-time HARD exclusion names. Capped so the prompt block
+// stays small; the tally is count-sorted, so the cap keeps the heaviest offenders.
+export const PRODUCER_EXCLUDE_TOP = 10;
+
 export type ProducerStatus = "over-used" | "watch" | "ok";
 
 // The over-used / watch / ok decision. `count` is the producer's appearance count; `share` is that
@@ -128,4 +132,17 @@ export interface ProducerFlag {
   producer_display: string;
   appearance_number: number;
   paper: number;
+}
+
+// The over-used slice of a producer tally, capped — the generation-time HARD exclusion list. Pure so
+// the cap and the "status decides membership" rule are testable without a database; rows must arrive
+// count-sorted (getProducerTally's order) for the cap to keep the heaviest offenders.
+export function selectExcludedProducers(
+  rows: { producer_key: string; producer_display: string; status: ProducerStatus }[],
+  limit: number
+): { key: string; display: string }[] {
+  return rows
+    .filter((r) => r.status === "over-used")
+    .slice(0, limit)
+    .map((r) => ({ key: r.producer_key, display: r.producer_display }));
 }
