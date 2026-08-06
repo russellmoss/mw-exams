@@ -33,7 +33,7 @@ function fold(s: string): string {
 // "domaine" matched "domaine".
 const GENERIC_TOKENS = new Set([
   "domaine", "chateau", "weingut", "bodega", "bodegas", "cantina", "tenuta", "azienda", "agricola",
-  "estate", "estates", "winery", "cellars", "cellar", "vineyard", "vineyards", "vintners", "wines",
+  "estate", "estates", "winery", "cellars", "cellar", "vineyard", "vineyards", "vintners", "wine", "wines", "wein", "vin", "vino", "vina",
   "reserve", "reserva", "riserva", "gran", "grand", "cru", "premier", "vieilles", "vignes",
   "the", "de", "la", "le", "les", "du", "des", "di", "da", "der", "den", "von", "van", "dr", "el",
   "and", "of", "co", "et", "y", "old", "vine", "vines", "blanc", "rouge", "brut", "sec", "dry",

@@ -194,21 +194,24 @@ export type LiveTastingPrefs = {
   country: string | null;
   budgetAmount: number | null;
   budgetCurrency: string | null;
+  radiusMinutes: number | null;
 };
 
 export async function getUserLiveTastingPrefs(userId: number): Promise<LiveTastingPrefs> {
   const sql = getDb();
   const rows = await sql`
-    SELECT live_city, live_country, live_budget_amount, live_budget_currency
+    SELECT live_city, live_country, live_budget_amount, live_budget_currency, live_radius_minutes
     FROM users WHERE id = ${userId}
   `;
   const r = rows[0];
   const amount = r?.live_budget_amount != null ? Number(r.live_budget_amount) : null;
+  const radius = r?.live_radius_minutes != null ? Number(r.live_radius_minutes) : null;
   return {
     city: r?.live_city ?? null,
     country: r?.live_country ?? null,
     budgetAmount: Number.isFinite(amount as number) && (amount as number) > 0 ? amount : null,
     budgetCurrency: r?.live_budget_currency ?? null,
+    radiusMinutes: Number.isFinite(radius as number) && (radius as number) > 0 ? radius : null,
   };
 }
 
@@ -219,7 +222,8 @@ export async function setUserLiveTastingPrefs(userId: number, prefs: LiveTasting
       live_city = ${prefs.city},
       live_country = ${prefs.country},
       live_budget_amount = ${prefs.budgetAmount},
-      live_budget_currency = ${prefs.budgetCurrency}
+      live_budget_currency = ${prefs.budgetCurrency},
+      live_radius_minutes = ${prefs.radiusMinutes}
     WHERE id = ${userId}
   `;
 }

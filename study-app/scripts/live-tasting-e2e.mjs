@@ -262,8 +262,8 @@ async function runSession(paper, label) {
 - archetype_coherent: is this a coherent MW-style flight (a real pedagogical contrast, not an inventory accident)?
 - blind_safe: judge the QUESTION STEM TEXT ALONE. The WINES list below is shown to YOU for context only — the candidate never sees it, so its producer names do NOT make the stem unsafe. Fail this ONLY if the stem text itself contains a producer or cuvée name.
 - stockists_plausible: are these real merchants that plausibly serve that user (PLCB "Fine Wine & Good Spirits", Bucks County / Lambertville NJ / Philadelphia-area shops, national US mail order = plausible; a shop on another continent = not)?
-- budget_sane: do the listed prices (where present) respect the budget?`,
-    `QUESTION STEM:\n${q.question_text}\n\nWINES:\n${q.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}\n\nSTOCKISTS:\n${JSON.stringify(slots.map((s) => ({ slot: s.slot, stockists: (s.stockists ?? []).map((x) => ({ name: x.name, kind: x.kind, price: x.price })) })), null, 1)}`
+- budget_sane: do the listed prices (where present) respect the budget? A slot marked overBudget:true was explicitly flagged to the user as "cheapest confirmed option, over budget" after affordable alternatives were exhausted — that honesty is SANE (pass), not a violation. Fail only an UNFLAGGED over-budget slot.`,
+    `QUESTION STEM:\n${q.question_text}\n\nWINES:\n${q.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}\n\nSTOCKISTS:\n${JSON.stringify(slots.map((s) => ({ slot: s.slot, overBudget: !!s.overBudget, stockists: (s.stockists ?? []).map((x) => ({ name: x.name, kind: x.kind, price: x.price })) })), null, 1)}`
   );
   try {
     const judge = JSON.parse(judgeRaw.match(/\{[\s\S]*\}/)[0]);

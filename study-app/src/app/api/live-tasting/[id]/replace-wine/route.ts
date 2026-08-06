@@ -1,5 +1,6 @@
+import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
-import { getLiveTastingSession } from "@/lib/db";
+import { getLiveTastingSession, getUserLiveTastingPrefs } from "@/lib/db";
 import { deriveSessionState } from "@/lib/live-tasting";
 import { replaceWine } from "@/lib/live-tasting-engine";
 import { sseStream } from "@/lib/thinking-stream";
@@ -41,8 +42,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     );
   }
 
+  const prefs = await getUserLiveTastingPrefs(keyResult.user.id);
   return sseStream(async (emit) => {
-    const outcome = await replaceWine({ session, slot, apiKey: keyResult.apiKey, emit });
+    const outcome = await replaceWine({
+      session, slot, apiKey: keyResult.apiKey, emit,
+      radiusMinutes: prefs.radiusMinutes,
+      keepAlive: (work) => after(() => work.catch(() => {})),
+    });
     if ("error" in outcome) throw new Error(outcome.error);
     emit({ type: "status", label: "Wine replaced — the old share link no longer works." });
     return { ok: true };

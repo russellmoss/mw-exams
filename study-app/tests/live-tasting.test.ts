@@ -62,6 +62,19 @@ describe("validateBlindSafety", () => {
     expect(validateBlindSafety("Compare this to classic Pénfolds styling.", PINNED).valid).toBe(false);
   });
 
+  it("never fires on generic trade words inside producer names (the Ramey Wine Cellars pilot bug)", () => {
+    // "Ramey Wine Cellars" → tokens must reduce to {ramey}; "wine" appears in EVERY stem, and
+    // treating it as identity made generation permanently unable to converge for this producer.
+    const r = validateBlindSafety(
+      "Wines 1-3 are dry white wines made from the same grape variety. For each wine, identify the variety and origin. (75 marks)",
+      [{ slot: 1, fullText: "Ramey Wine Cellars, Russian River Valley Chardonnay. Sonoma, USA." }]
+    );
+    expect(r.valid).toBe(true);
+    // The actually-distinctive token still fires.
+    expect(validateBlindSafety("This shows classic Ramey oak handling.",
+      [{ slot: 1, fullText: "Ramey Wine Cellars, Russian River Valley Chardonnay. Sonoma, USA." }]).valid).toBe(false);
+  });
+
   it("catches a leaked cuvée token but ignores generic wine words", () => {
     expect(validateBlindSafety("Wine 2 shows classic Kalimna character.", PINNED).valid).toBe(false);
     // "brut"/"reserve"/"blanc" are generic and must never fire.
