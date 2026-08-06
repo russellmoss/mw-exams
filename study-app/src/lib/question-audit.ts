@@ -54,7 +54,12 @@ export async function auditAndQuarantineQuestion(
   // flight: bank-COMPOSITION rules (banker minimum / curveball mix / producer over-use) judge
   // what should enter the shared pool, not what a user can buy — E2E run 9 quarantined a valid
   // 2-wine home flight for "no banker". Key-consistency and answer-content rules still apply.
-  const BANK_COMPOSITION_RULES = new Set(["flight-composition", "producer-exclusion", "banker"]);
+  const BANK_COMPOSITION_RULES = new Set([
+    "flight-composition", "producer-exclusion", "banker",
+    // Mark-split caps are pool-quality standards; the pinned generator deliberately skips the
+    // matching markMix nudge, so auditing them here just quarantines valid home flights (run 12).
+    "id-mark-allocation",
+  ]);
   const hard = res.violations.filter(
     (v) =>
       v.severity === "hard" &&

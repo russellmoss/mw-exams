@@ -227,9 +227,13 @@ async function runSession(paper, label) {
   const detail = await detailRes.json();
   const payload = fold(JSON.stringify(detail));
   const leaks = [];
+  // Same generic-token rule as the server's blind-safety validator: trade words that appear in
+  // producer names ("X Wine Co") are not identity leaks — every stem contains "wine".
+  const GENERIC = new Set(["wine", "wines", "domaine", "chateau", "estate", "estates", "cellars",
+    "cellar", "weingut", "bodega", "bodegas", "vineyard", "vineyards", "winery", "vintners", "family"]);
   for (const w of q.wines) {
     const producer = fold(w.fullText.split(",")[0]).replace(/[^a-z ]/g, " ").trim().split(/\s+/)
-      .filter((t) => t.length >= 4);
+      .filter((t) => t.length >= 4 && !GENERIC.has(t));
     for (const tok of producer) if (payload.includes(tok)) leaks.push(tok);
   }
   check(`${label}: pre-reveal redaction`, leaks.length === 0 && !detail.reveal, leaks.join(",") || "clean");
