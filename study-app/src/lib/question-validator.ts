@@ -10,6 +10,7 @@ import {
   applyQuestionRules,
   stemSniperScoringModel as _stemSniperScoringModel,
   canonVariety,
+  methodClass,
   norm,
   normStem,
 } from "./question-rules.mjs";
@@ -28,6 +29,10 @@ export interface AuditWine {
   country?: string;
   is_blend?: boolean;
   style?: string;
+  // The P3 answer-key style category (e.g. "Botrytis sweet", "Late-harvest sweet", "Port"). Supplied
+  // alongside `style`, it lets methodClass() (and the contrast-integrity rule) resolve a wine's
+  // method / sweetness mechanism the same way the shared rule layer does.
+  style_category?: string;
   // The raw generated label from generated_questions.wines[].fullText. The answer key resolves a wine
   // into varieties/region/country and loses the original string, so a slot holding the generator's
   // reasoning rather than a wine resolves to a plausible-looking key and the audit sees nothing wrong.
@@ -442,6 +447,162 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// CONTRAST INTEGRITY — a compare/contrast/explain ask must sit over wines that actually differ on the
+// dimension it names (admin bin cluster, Paper 3, 5 reasoned bins).
+//
+// The reviewer repeatedly binned questions that ask the candidate to compare/contrast (or explain) a
+// named dimension where every referenced wine shares the SAME value on it, so there is no contrast to
+// earn the marks with: "the method in which sweetness has been achieved is the same in each pair,
+// typically we should see contrast within a pair"; "3 of these wines were made sweet by late
+// harvesting"; "both wines were made by the same method, so no contrast"; "16 marks … for the methods
+// of production … method to make these two wines is identical". Two dimensions are resolved on the
+// flight's own wine records and required to differ:
+//   • SWEETNESS MECHANISM — late harvest, botrytis, dried grape, fortification/mutage, icewine,
+//     arrested fermentation, sweet reserve.
+//   • METHOD OF PRODUCTION — the METHOD CLASS (tank vs traditional method, oxidative vs biological
+//     ageing, cask/port ageing regime) via the shared methodClass() resolver.
+// Where the stem declares a pair structure ("1 and 2, 3 and 4, 5 and 6") the rule is evaluated per
+// PAIR (the reviewer expects the contrast INSIDE each pair); otherwise it is evaluated flight-wide,
+// firing when every referenced wine shares one value, or when a strict majority do (the "3 of 5 late
+// harvest" bin). Wines whose value cannot be positively resolved are skipped, so the rule fails SAFE.
+// ---------------------------------------------------------------------------------------------------
+
+// A dimension the exam can ask the candidate to compare/contrast/explain. `askRe` fires when a
+// sub-question names the dimension under a compare/contrast/explain verb; `resolve` returns the wine's
+// canonical value on it (or null when it can't be positively determined). Regexes run on norm()'d text.
+type ContrastDimension = {
+  id: string;
+  label: string;
+  askRe: RegExp;
+  resolve: (w: AuditWine) => string | null;
+};
+
+// Sweetness-mechanism signals, most-specific first (botrytis's "…beerenauslese" outranks the generic
+// "auslese" late-harvest term). Tested against norm(style + style_category + fullText).
+const SWEETNESS_MECHANISMS: { value: string; re: RegExp }[] = [
+  { value: "botrytis", re: /botrytis|noble rot|edelfaule|sauternes|barsac|aszu|trockenbeerenauslese|beerenauslese|tokaji/ },
+  { value: "icewine", re: /icewine|ice wine|eiswein/ },
+  { value: "dried grape", re: /dried.grape|appassimento|passito|recioto|vin ?santo|straw wine|amarone|pedro ximenez/ },
+  { value: "fortification", re: /fortif|mutage|vin doux naturel|\bvdn\b|\bport\b(?!\s*phillip)|maury|banyuls|rutherglen|liqueur muscat|muscat de|rivesaltes/ },
+  { value: "arrested fermentation", re: /arrested fermentation|fermentation (?:was |is |been )?(?:stopped|arrested|halted)/ },
+  { value: "sweet reserve", re: /sweet reserve|sussreserve/ },
+  { value: "late harvest", re: /late.harvest|late.picked|vendange tardive|spatlese|auslese|noble late/ },
+];
+
+function sweetnessMechanism(w: AuditWine): string | null {
+  const hay = norm([w.style, w.style_category, w.fullText].filter(Boolean).join(" "));
+  if (!hay) return null;
+  const hit = SWEETNESS_MECHANISMS.find((m) => m.re.test(hay));
+  return hit ? hit.value : null;
+}
+
+const CONTRAST_DIMENSIONS: ContrastDimension[] = [
+  {
+    id: "sweetness-mechanism",
+    label: "sweetness mechanism",
+    // "explain the sweetness mechanism", "compare … the sweetness", "the method by/in which sweetness
+    // has been achieved", "how the sweetness is imparted".
+    askRe: /(?:compare|contrast|explain|account for|describe|discuss)[^.?!]{0,60}sweet(?:ness)?|sweet(?:ness)?[^.?!]{0,50}(?:mechanism|achiev|impart|obtain|attain|arriv)|method (?:by|in) which[^.?!]{0,50}sweet/,
+    resolve: sweetnessMechanism,
+  },
+  {
+    id: "method-of-production",
+    label: "method of production",
+    askRe: /(?:compare|contrast)[^.?!]{0,60}(?:methods? of production|production methods?|(?:cask |barrel )?age?ing|maturation|winemaking|vinification)/,
+    resolve: (w) => methodClass(w.style, w.style_category),
+  },
+];
+
+// Slot pairs the stem declares ("Wines 1 to 6 form three pairs: 1 and 2, 3 and 4, 5 and 6"). Only
+// activated when the stem literally speaks of pairs AND lists ≥2 "X and Y" groups, so a plain two-wine
+// "Wines 1 and 2 …" stem is never mistaken for a pair structure.
+function parseDeclaredPairs(stem: string): [number, number][] {
+  const s = norm(stem);
+  if (!/\bpairs?\b/.test(s)) return [];
+  const pairs: [number, number][] = [];
+  for (const m of s.matchAll(/\b(\d+)\s+and\s+(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
+  return pairs.length >= 2 ? pairs : [];
+}
+
+// The letter label ("b") of the sub-question that carries the ask, for a precise "part b" reference.
+function findAskPart(questionText: string, askRe: RegExp): string | null {
+  const text = questionText || "";
+  const labels = [...text.matchAll(/(?:^|[^a-z])([a-z])\)/gi)].map((m) => ({
+    letter: m[1].toLowerCase(),
+    index: (m.index ?? 0) + m[0].length - 2,
+  }));
+  if (labels.length === 0) return null;
+  for (let i = 0; i < labels.length; i++) {
+    const end = i + 1 < labels.length ? labels[i + 1].index : text.length;
+    if (askRe.test(norm(text.slice(labels[i].index, end)))) return labels[i].letter;
+  }
+  return null;
+}
+
+/**
+ * Contrast-integrity rule. For every dimension a sub-question asks the candidate to compare/contrast/
+ * explain, require the referenced wines (or, for a declared pair structure, the wines within each
+ * pair) to actually differ on it. Returns hard violations naming the shared value.
+ */
+export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  if (wines.length < 2) return [];
+  const text = q.questionText || "";
+  const pairs = parseDeclaredPairs(extractStem(text));
+  const v: Violation[] = [];
+
+  for (const dim of CONTRAST_DIMENSIONS) {
+    if (!dim.askRe.test(norm(text))) continue;
+    const part = findAskPart(text, dim.askRe);
+    const ref = part ? `part ${part}` : "the compare-and-contrast";
+
+    if (pairs.length >= 2) {
+      // Per-pair: the reviewer expects the contrast INSIDE each pair.
+      for (const [a, b] of pairs) {
+        const wa = wines.find((w) => w.slot === a);
+        const wb = wines.find((w) => w.slot === b);
+        if (!wa || !wb) continue;
+        const va = dim.resolve(wa);
+        const vb = dim.resolve(wb);
+        if (va && vb && va === vb)
+          v.push({
+            rule: "contrast-integrity",
+            severity: "hard",
+            detail: `wines ${a} and ${b} share the same ${dim.label} (${va}) — no contrast within the pair for ${ref}`,
+          });
+      }
+      continue;
+    }
+
+    // Flight-wide: fire when every resolved wine shares one value, or a strict majority do.
+    const resolved = wines
+      .map((w) => dim.resolve(w))
+      .filter((val): val is string => Boolean(val));
+    if (resolved.length < 2) continue;
+    const counts = new Map<string, number>();
+    for (const val of resolved) counts.set(val, (counts.get(val) || 0) + 1);
+    let dominant = "";
+    let dominantN = 0;
+    for (const [val, n] of counts) if (n > dominantN) [dominant, dominantN] = [val, n];
+    const n = resolved.length;
+    if (counts.size === 1)
+      v.push({
+        rule: "contrast-integrity",
+        severity: "hard",
+        detail: `all ${n} wines use ${dominant} — no contrast available for ${ref}`,
+      });
+    else if (dominantN * 2 > n)
+      v.push({
+        rule: "contrast-integrity",
+        severity: "hard",
+        detail: `${dominantN} of ${n} wines use ${dominant} — insufficient ${dim.label} contrast for ${ref}`,
+      });
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -466,6 +627,7 @@ export function validateQuestion(q: QuestionForAudit): {
     );
   }
   violations.push(...crossCheckStemFacts(q));
+  violations.push(...contrastIntegrityViolations(q));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,
