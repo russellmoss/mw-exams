@@ -1,0 +1,999 @@
+[
+  {
+    "id": "th_2019_p3_q1",
+    "year": 2019,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Explain which pre-bottling treatments and QC analyses you would consider most important for an inexpensive, organic, vegan wine.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain",
+    "command_word_demand": "This question required candidates to think about implications of the specified parameters, i.e. explain choices as they follow from the combination of inexpensive + organic + vegan, not general QC knowledge.",
+    "definitions_required": [
+      {
+        "term": "inexpensive",
+        "quote": "An inexpensive wine should have been defined. Markets do vary, but a 20 Euro wine is hardly inexpensive for most."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Treat the question as one single wine with all three parameters (inexpensive, organic, vegan) combined, not three separate wines",
+        "quote": "Most candidates did understand that the question was meant to cover one wine with all these parameters, but some considered three different wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Know which additives/treatments are prohibited under organic regulation (e.g. no electrodialysis, reverse osmosis) and avoid proposing them",
+        "quote": "Awareness of legislation for organic wine - must comply with EU or other applicable rules which specifies permitted additives and processing techniques (e.g. no electrodialysis, reverse osmosis etc). ... Many answers were let down by lack of awareness of permitted additives and treatments under organic regulations - so proposing electrodialysis, CMC, sorbic acid, PVPP or Velcorin were errors.",
+        "weight": "core"
+      },
+      {
+        "element": "Know permitted sulphite levels for organic wine (lower than non-organic) for at least EU and other key markets like USA",
+        "quote": "Lower sulphite levels than non-organic wine. ... Knowledge of permitted sulphite levels, at least for EU and other key markets like USA, was required.",
+        "weight": "core"
+      },
+      {
+        "element": "Correctly distinguish sulphur from sulphite (not use interchangeably)",
+        "quote": "Once again, some candidates used sulphur and sulphite as interchangeable, which is incorrect.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain that vegan means no animal-derived products even as processing aids (not just ingredients), with implications for traceability and choice of fining agents",
+        "quote": "A number of candidates were not aware of what vegan meant - it's not just about ingredients but also any animal derived products as processing aids even if not detectable in the final wine. This has implications for traceability at all stages and limits the range of fining products that can be used.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise the production pressures of an inexpensive wine: high volume, quicker throughput (no time for barrels, natural clarification etc.), need for stability, clarity, freedom from hazes/deposits, possible residual sugar",
+        "quote": "Awareness of production pressures of inexpensive wine - likely to be high volume, quicker winery throughput (no time for barrels, natural clarification etc). ... It was also reasonable to expect that an inexpensive wine needed to be stable, clear, free from hazes and deposits and possibly would contain residual sugar, and would likely need to be prepared quickly and in large volumes.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Use price-appropriate examples, not premium wines",
+        "quote": "It was not helpful to use examples of premium wines such as classed growth Bordeaux or Ridge to illustrate this answer.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Discussed implications of reduced protection at lower SO2 levels and the need for hygiene, filtration and pH management",
+        "quote": "Good candidates discussed the implications of reduced protection at lower SO2 levels and the need to pay attention to hygiene, filtration and pH management."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Wrote general QC answers rather than answers tailored to the question's specific parameters",
+        "quote": "Candidates writing poor answers lacked factual knowledge and tended to write general QC answers rather than thinking about the question"
+      },
+      {
+        "signal": "Wasted time covering earlier stages of the winemaking process instead of pre-bottling treatments/QC",
+        "quote": "in some cases, time was wasted covering earlier parts of the winemaking process"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as covering three separate wines (one inexpensive, one organic, one vegan) instead of a single wine combining all three parameters",
+        "quote": "some considered three different wines"
+      },
+      {
+        "trap": "Illustrating an 'inexpensive' wine with premium examples",
+        "quote": "It was not helpful to use examples of premium wines such as classed growth Bordeaux or Ridge to illustrate this answer."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p3_q2",
+    "year": 2019,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What steps should a winemaker take, in preparation for bottling and at bottling, to prevent microbial spoilage? Consider both red and white wines.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Consider",
+    "command_word_demand": "\"a technical question requires a technical answer\" — candidates needed to give specific, technical, numeric answers (e.g. actual SO2 levels), not general commentary on microbial spoilage.",
+    "definitions_required": [
+      {
+        "term": "microbial spoilage",
+        "quote": "This question required a definition of microbial spoilage. Microbiological spoilage organisms can be any which are unwanted at a particular stage (but typically bacteria and yeast)..."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define microbial spoilage precisely, including that cork taint is not microbial spoilage",
+        "quote": "This question required a definition of microbial spoilage. ... Cork taint is not considered microbial spoilage.",
+        "weight": "core"
+      },
+      {
+        "element": "Distinguish the differing risks for red versus white wines, primarily because red wines have no/very low malic acid and are usually fermented dry",
+        "quote": "The risks differ for red and white wines primarily because red wines have no/very low levels of malic acid and are usually fermented dry.",
+        "weight": "core"
+      },
+      {
+        "element": "State the correct free SO2 range at bottling (25-35mg/L or 0.8ppm molecular, up to 40mg/L for special cases like bulk or dessert wines) and not confuse free/total/molecular SO2",
+        "quote": "In very simple terms, free sulphur dioxide levels at bottling should be between 25 - 35mg/L or 0.8ppm molecular. Special cases e.g. bulk wines or dessert wines may go up to 40mg/L. It is of great concern that 56 candidates, or 65% of all that answered this question, either provided levels outside this range, didn't mention any level or discussed total sulphur dioxide as the preventative level for microbial spoilage.",
+        "weight": "core"
+      },
+      {
+        "element": "Show that prevention (hygiene, filtration, gas management, temperature control) is the primary strategy, not treatments/additives applied just prior to bottling",
+        "quote": "Prevention is better than cure. In many situations cure is not possible. Hygiene is the number one rule in preventing microbial spoilage. ... Trying to fix, in the case of this topic, microbial spoilage just prior to bottling is near impossible and candidates didn't grasp this.",
+        "weight": "core"
+      },
+      {
+        "element": "Correctly distinguish VA/Brettanomyces/other spoilage organisms rather than confusing VA with Acetobacter",
+        "quote": "confusing VA with Acetobacter",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Cover hygiene, gas management and temperature control, not just SO2 management",
+        "quote": "confining the answer to SO2 management; lack of coverage of hygiene, gas management and temperature control",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Wrote about microbial spoilage in general without defining major risks and implications, resulting in superficial answers",
+        "quote": "It was much harder to write a well-structured essay without defining the major risks and implications and many candidates simply wrote about microbial spoilage in general, which tended to result in superficial answers."
+      },
+      {
+        "signal": "Confused free, total and molecular SO2",
+        "quote": "Particular weaknesses noted included confusing free, total and molecular SO2; errors on filtering and pore sizes"
+      },
+      {
+        "signal": "Implied chemical processes (DMDC, sorbic acid, velcorin, lysozyme, chitosan) applied at bottling are normal practice, rather than describing remedial steps prior to that point",
+        "quote": "A considerable number of candidates implied that applying these and other additives at the time of bottling was normal practice rather than showing/explaining remedial steps and processes prior to getting it to this point."
+      },
+      {
+        "signal": "Assumed big wineries need more rigorous bottling hygiene than small wineries",
+        "quote": "Some candidates clearly felt that big wineries/facilities need to have a more rigorous bottling hygiene/cleaning regime than small wineries/facilities."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "65% of the 86 candidates who answered this question either gave free SO2 levels outside the correct range, didn't mention any level, or discussed total SO2 instead of free SO2.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p3_q3",
+    "year": 2019,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Describe a comprehensive QA and QC system a large winery should implement for the management of dry goods.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Describe",
+    "command_word_demand": "A comprehensive description of a QA/QC system, requiring clear practical knowledge and good examples, not a discussion of procurement or supply management (which the report treats as out of scope).",
+    "definitions_required": [
+      {
+        "term": "QA/QC",
+        "quote": "This answer required a definition of QA/QC."
+      },
+      {
+        "term": "dry goods",
+        "quote": "It also required a definition of dry goods, which should include all packaging goods (bottle, cask or any other vessel, closure, cartons, dividers and labels) plus any products used in the winemaking e.g. yeast, enzyme, tartaric acid, fining agents and oak barrels."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define QA/QC and define dry goods (packaging goods plus winemaking inputs like yeast, enzyme, tartaric acid, fining agents, oak barrels)",
+        "quote": "This answer required a definition of QA/QC. It also required a definition of dry goods, which should include all packaging goods (bottle, cask or any other vessel, closure, cartons, dividers and labels) plus any products used in the winemaking e.g. yeast, enzyme, tartaric acid, fining agents and oak barrels.",
+        "weight": "core"
+      },
+      {
+        "element": "Describe a full written procedure so all winery departments understand the process, covering receipt, storage and use of dry goods, with awareness that wine is a food product and consumer safety is paramount",
+        "quote": "A full written procedure is put in place so all departments at the winery understand the process to ensure dry goods are received, stored and utilised to enable a wine to be produced, bottled and stored in the correct and safe manner, being aware that wine is a food product and consumer safety is paramount.",
+        "weight": "core"
+      },
+      {
+        "element": "Include flow diagrams, HACCP, ability to pass an annual supplier audit, and adequate records for an annual external audit (e.g. BRC)",
+        "quote": "A QA/QC system must include flow diagrams, HACCP and be able to pass an annual supplier audit and with adequate records for an annual external audit like British Retail Consortium (BRC) or other audits.",
+        "weight": "core"
+      },
+      {
+        "element": "Address storage conditions to avoid damage or contamination of dry goods, and that dry goods must match brand specifications",
+        "quote": "Dry goods must also match any brand specifications. ... Storage conditions should also be considered, to avoid damage or contamination.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Showed clear practical knowledge and offered good examples",
+        "quote": "good answers showed clear practical knowledge and offered good examples"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Wasted time discussing procurement procedures or supply management, which are distinct from QA/QC systems",
+        "quote": "Some candidates wasted too much time discussing procurement procedures or managing supply of goods which are distinct from QA/QC systems."
+      },
+      {
+        "signal": "Did not cover sufficient ground",
+        "quote": "Weak answers just did not cover sufficient ground."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [
+        "British Retail Consortium (BRC)"
+      ],
+      "quote": "and with adequate records for an annual external audit like British Retail Consortium (BRC) or other audits"
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing procurement/supply management instead of the QA/QC system itself",
+        "quote": "Some candidates wasted too much time discussing procurement procedures or managing supply of goods which are distinct from QA/QC systems."
+      }
+    ],
+    "performance_note": "Not many candidates tackled this question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p3_q4",
+    "year": 2019,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What are the key factors to consider in drawing up a technical specification for:\n\na. a white dessert wine bottled at source with 150g/l of residual sugar; and\nb. an entry-level red wine imported in bulk with 4g/l of residual sugar",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "consider",
+    "command_word_demand": "Identify what needs to be in a technical specification and why, for each of the two named wine scenarios - not a general discussion of quality control or a list of wine treatments.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show that the key objective of a technical specification is to ensure the wine arrives with the importer in good quality and chemically stable condition, for sale (white, bottled at source) or for final treatment prior to bottling (red, bulk)",
+        "quote": "Candidates should show understanding that the key objective of technical specifications is to ensure wines arrive with the importer in a good quality and chemically stable condition for sale to the consumer (white) or for final treatment prior to bottling (red).",
+        "weight": "core"
+      },
+      {
+        "element": "Highlight the potential spoilage risks specific to each style: a very sweet wine and a dry red wine",
+        "quote": "Should also highlight the potential spoilage which may arise in a very sweet wine and in a dry red wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Understand what a typical specification covers and the differences between a bottled specification and a bulk one",
+        "quote": "Should also understand what a typical specification should cover. There will be differences between a bottled specification and a bulk one.",
+        "weight": "core"
+      },
+      {
+        "element": "Address implications and risks specific to the wine styles and likely price points, e.g. the high residual sugar level, and treatments required for bottled-at-source vs bulk-shipped-then-bottled wines",
+        "quote": "What are the implications and risks for those specific wine styles (high level of residual sugar etc.) and likely price points? ... Highlight what treatments are required for a wine bottled at source and then shipped in bottle and a wine shipped in bulk and prepared for bottling at destination.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Included factual and practical detail",
+        "quote": "Good answers included factual and practical detail."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Talked about quality control in general or offered a list of wine treatments rather than considering what needs to be in a specification and why",
+        "quote": "Weak answers again talked about quality control in general or offered a list of wine treatments rather than considering what needs to be in a specification and why."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Assuming a technical specification is always necessary regardless of volume/premium status",
+        "quote": "Note that many purchasers may not even consider a technical specification necessary for smaller volumes of a (likely) premium sweet wine bottled at source."
+      }
+    ],
+    "performance_note": "This was not a popular question but should have been straightforward as it was quite simply about product specifications.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q1",
+    "year": 2019,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "Why does a growing number of large retailers prefer to focus on own and exclusive labels over third-party brands? Is this good for the wine category?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Is this good for the wine category",
+    "command_word_demand": "The second half of the question is subjective and requires a structured, well-argued opinion, not just facts; strong analysis (e.g. a SWOT-style structure) was required for the second half.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Support the first half (why retailers focus on own/exclusive labels) with accurate data on growth, margins etc.",
+        "quote": "The arguments as to why retailers are focusing more on own and exclusive labels were covered well and candidates who had good data concerning growth, margins etc. did well in the first half of the answer.",
+        "weight": "core"
+      },
+      {
+        "element": "Only cite statistics the candidate is confident are correct; avoid inaccuracies that betray a lack of market understanding",
+        "quote": "The examiners did find a lot of inaccuracies or errors on statistics though - some of which betrayed a lack of understanding of the market. Better to not quote a fact if you cannot be sure it is correct.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Give a structured, well-argued opinion on whether this trend is good for the wine category (e.g. a SWOT-style approach)",
+        "quote": "The second half of the question is more subjective and requires a structured and well-argued opinion. Perhaps a SWOT is one way of doing this?",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strong analysis led to good scores",
+        "quote": "strong analysis led to good scores, lack of insight and too much generalisation led to lower scores"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lack of insight and too much generalisation",
+        "quote": "lack of insight and too much generalisation led to lower scores"
+      },
+      {
+        "signal": "Statistical inaccuracies/errors betraying lack of market understanding",
+        "quote": "The examiners did find a lot of inaccuracies or errors on statistics though - some of which betrayed a lack of understanding of the market."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "No right or wrong answer to the second, subjective half of the question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q2",
+    "year": 2019,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "How do wine consumers in mainland China decide what wine to buy and what are the implications of their choices for producers and distributors?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "what are the implications",
+    "command_word_demand": "The second part requires analysis, possibly with comparisons to producer/distributor choices in other more established markets - examiners were looking for a thoughtful assessment, not generalisation, and just knowing the facts is not enough.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Have good working knowledge of the Chinese market",
+        "quote": "Candidates without a good working knowledge of the Chinese market would have been well advised to avoid this question.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover both parts: fact-based consumer behaviour, then analysis of implications, possibly with comparison to other more established markets",
+        "quote": "this is fundamentally a question with two parts. The first is fact based - around consumer behaviour. The second requires more analysis and possibly brings in comparisons with producer and distributor choices in other more established markets.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate a thoughtful assessment rather than generalising; facts alone are not enough",
+        "quote": "Examiners were looking for the ability to be able to demonstrate a thoughtful assessment of the situation and not to generalise. Just knowing the facts is not enough.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "The pass rate on this question was low, and it was attempted by a small percentage of candidates.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q3",
+    "year": 2019,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Consider the growth in demand for vegan, organic and sustainable wines. What can and should the wine industry be doing in response?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Consider",
+    "command_word_demand": "A broad question requiring careful thought on how to structure the answer; the examiners suggested a PESTLE approach to facilitate comparisons across markets, supply chain elements, consumer priorities and industry approaches; vineyard/winery practices should be discussed only in the context of commercial implications since it is a Paper 4 question.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Structure the answer carefully for a broad topic, e.g. using a PESTLE approach to compare different markets, supply-chain elements, consumer priorities and industry approaches",
+        "quote": "This is a broad question which requires careful thought on how to structure the answer. The examiners thought a PESTLE approach could be good, and this ought to facilitate comparisons of different markets, different elements in the supply chain, different consumer priorities and different approaches by the wine industry.",
+        "weight": "core"
+      },
+      {
+        "element": "Keep vineyard/winery practices discussion in the context of commercial implications, since this is a Paper 4 (business) question",
+        "quote": "Candidates definitely need to remember that this is a Paper 4 question, so although some mention may be made of vineyard and winery practices, this should be dealt with in the context of the commercial implications.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate understanding of commercial scenarios across multiple markets internationally, with analysis of pros and cons",
+        "quote": "Good answers demonstrated an understanding of commerical scenarios in a number of markets internationally and were able to analyse the pros and cons well.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Analysed commercial scenarios across multiple international markets with pros and cons",
+        "quote": "Good answers demonstrated an understanding of commerical scenarios in a number of markets internationally and were able to analyse the pros and cons well."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked analysis, spoke solely to facts, concentrated on one market",
+        "quote": "Those less good answers lacked analysis, spoke solely to facts and tended to concentrate on one market."
+      },
+      {
+        "signal": "Flooded the answer with too much content, losing clarity",
+        "quote": "not to flood the answer with too much content and therefore lose clarity"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "global/international examples across multiple markets, not a single market",
+      "named_in_report": [],
+      "quote": "It showed the need for global understanding and examples"
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing vineyard/winery practices for their own sake rather than for their commercial implications",
+        "quote": "although some mention may be made of vineyard and winery practices, this should be dealt with in the context of the commercial implications"
+      }
+    ],
+    "performance_note": "A \"hot\" topic and a very popular question which candidates who considered their approach carefully answered well.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q4",
+    "year": 2019,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Can social media drive brand loyalty in the wine category?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Can",
+    "command_word_demand": "Concentrate on the concept of brand loyalty itself, not simply list successful social media campaigns; the question implies a focus on community-building and sustained customer engagement.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Focus on the concept of brand loyalty, not just list social media campaigns",
+        "quote": "The angle here is to concentrate on the concept of brand loyalty - it's no good to simply list a series of successful social media campaigns.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the idea of wine brands building a community and encouraging sustained customer engagement",
+        "quote": "The question alludes to wine brands building a community, encouraging their customers to become more engaged with their business and to continue to do this.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a few good, relevant, differentiated examples from different markets with clarity of analytical thought",
+        "quote": "It's important to remember that a few good, relevant examples from different markets and a clarity of analytical thought go a long way.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Showed great and differentiated examples of the commercial success of social media engagement",
+        "quote": "There were some very good answers demonstrating that candidates could show great and differentiated examples of the commercial success of social media engagement."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "\"Identikit\", safe answers without evidence of analytical thinking",
+        "quote": "there were many \"identikit\" answers - somewhat safe answers without evidence of analytical thinking which did not achieve high marks"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "a few good, relevant, differentiated examples from different markets",
+      "named_in_report": [],
+      "quote": "a few good, relevant examples from different markets and a clarity of analytical thought go a long way"
+    },
+    "scope_traps": [
+      {
+        "trap": "Simply listing successful social media campaigns instead of analysing brand loyalty",
+        "quote": "it's no good to simply list a series of successful social media campaigns"
+      }
+    ],
+    "performance_note": "Many candidates attempted this question, which is understandable.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q5",
+    "year": 2019,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "How can the fortified wine category evolve to address current consumer trends?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "evolve to address",
+    "command_word_demand": "Approach from either the consumer angle or the production angle and apply consumer trends to existing or future product and proposition developments; picking out consumer trends and applying them was described as the optimal approach.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Quote data on market growth or decline",
+        "quote": "There is a need to quote some data in terms of market growth or decline",
+        "weight": "core"
+      },
+      {
+        "element": "Cover key consumer-trend themes: experiential/tourism opportunity, lighter drinking (cocktails), heritage/authenticity engagement",
+        "quote": "Definitely a need to tick a few boxes around increase experiential/tourism opportunity, lighter drinking (cocktails), heritage/authenticity engagement. Miss too many of these out and it becomes difficult to pass.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider both sides of the issue rather than a one-sided/patronising view",
+        "quote": "there were some answers which showed a patronising or slightly flippant approach - assumptions around old fashioned businesses unable to adapt themselves to the \"modern\" consumer. Such generalisations do not indicate that both sides of an issue have been considered.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Covered a lot of the expected content",
+        "quote": "A good number of candidates did cover a lot of the content."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Patronising or flippant generalisations about traditional producers being unable to adapt",
+        "quote": "there were some answers which showed a patronising or slightly flippant approach - assumptions around old fashioned businesses unable to adapt themselves to the \"modern\" consumer"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "A generally well-understood subject that would not have needed a complicated structure to answer strongly.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p4_q6",
+    "year": 2019,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Outline the key changes in the fine wine investment market over the past decade. How do you see this developing over the next ten years?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Outline / How do you see this developing",
+    "command_word_demand": "Concentrate specifically on the 'investment' market, not fine wine in general, and answer both the retrospective (past decade) and forward-looking (next ten years) halves of the question, the latter substantiated with evidence/analysis, not unsubstantiated claims.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Concentrate on the investment market specifically, not fine wine in general",
+        "quote": "In order to be successful in this question it was important to have concentrated on the \"investment\" market and not talked about fine wine in general.",
+        "weight": "core"
+      },
+      {
+        "element": "Quote statistics on market size (2009 vs 2019) and identify which areas of the global market (production and destination) changed most radically over the decade",
+        "quote": "Therefore it was essential to be able to quote statistics (size of market in 2009 and 2019) and areas of the global market (both from a production and destination perspective) which have changed most radically in the past decade.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the second half of the question (the next ten years) with substantiated analysis, not just the first half",
+        "quote": "Some essays failed to address the second half of the question at all.",
+        "weight": "core"
+      },
+      {
+        "element": "Substantiate claims about the future direction of the market with evidence or analysis",
+        "quote": "Where some candidates fell short was mostly when claims about the future direction of the market were unsubstantiated with any evidence or analysis, or if the candidate simply could not demonstrate enough knowledge.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Good, in-depth knowledge that addressed the question correctly",
+        "quote": "There were some excellent answers here, candidates with good, in-depth knowledge who addressed the question correctly."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Failed to address the second half of the question at all",
+        "quote": "Some essays failed to address the second half of the question at all."
+      },
+      {
+        "signal": "Unsubstantiated claims about the future direction of the market",
+        "quote": "claims about the future direction of the market were unsubstantiated with any evidence or analysis"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "specific regions/markets relevant to fine wine investment, e.g. whether Bordeaux remains key, whether Burgundy retains importance, what other regions might become investment opportunities",
+      "named_in_report": [
+        "Bordeaux",
+        "Burgundy"
+      ],
+      "quote": "Some things to consider would have been whether Bordeaux remains a key element for investment, will Burgundy retain its importance, what other regions might become investment opportunities?"
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about fine wine in general instead of the investment market specifically",
+        "quote": "it was important to have concentrated on the \"investment\" market and not talked about fine wine in general"
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p5_q1",
+    "year": 2019,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "What is the greatest threat currently facing the wine industry and how should this be addressed?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "how should this be addressed",
+    "command_word_demand": "Demonstrate awareness of the range of potential threats, select and justify the greatest one, and give sufficient depth on solutions, not just description of the threat; the question specified 'the wine industry' so the entire supply chain needed to be considered.",
+    "definitions_required": [
+      {
+        "term": "the wine industry",
+        "quote": "The question specified 'the wine industry' so the entire supply chain needed to be considered."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Show awareness of various potential threats (climate change is an obvious contender and omitting it was a serious omission) and justify the selection of the greatest one",
+        "quote": "awareness of various potential threats needed to be shown (climate change is an obvious contender and not to mention it was a serious omission) and a justification given for selecting which one was the greatest",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the entire supply chain, as specified by 'the wine industry', not just one aspect e.g. viticulture",
+        "quote": "The question specified 'the wine industry' so the entire supply chain needed to be considered. ... To concentrate just on one aspect e.g. viticulture led to an incomplete answer.",
+        "weight": "core"
+      },
+      {
+        "element": "Give sufficient detail on the identified key threat, and leave enough space to discuss solutions, not just description",
+        "quote": "there does need to be sufficient detail on the identified key threat. ... Some answers spent too much time on identifying and describing the threat and did not leave enough to talk about solutions, which was an important part of the essay.",
+        "weight": "core"
+      },
+      {
+        "element": "Back up arguments with evidence and examples, not solely opinion or sweeping statements",
+        "quote": "Arguments needed to be backed up by evidence and examples and not rely solely on opinion or sweeping statements.",
+        "weight": "core"
+      },
+      {
+        "element": "Give a broad, balanced perspective, recognising that some threats can also be opportunities, and reference other threat areas for perspective",
+        "quote": "A broad, balanced perspective was required and a recognition that some threats can also be opportunities. ... They also referenced other threat areas which communicated a good perspective.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Provided depth with good examples and understanding, referenced other threat areas for perspective",
+        "quote": "successful passes provided depth with good examples and understanding. They also referenced other threat areas which communicated a good perspective."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Too narrow, failing to grasp the key range and nature of challenges",
+        "quote": "Weak candidates were too narrow and failed to provide enough grasp of the key range and nature of challenges."
+      },
+      {
+        "signal": "Reverted to pre-prepared climate change material and lost focus on the actual question",
+        "quote": "Many people selected climate change here and the temptation to revert to pre-prepared material sometimes meant the focus was not retained on the actual question."
+      },
+      {
+        "signal": "Spent too much time describing the threat, not enough on solutions",
+        "quote": "Some answers spent too much time on identifying and describing the threat and did not leave enough to talk about solutions"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "successful passes provided depth with good examples and understanding"
+    },
+    "scope_traps": [
+      {
+        "trap": "Concentrating on just one aspect, e.g. viticulture, rather than the entire supply chain",
+        "quote": "To concentrate just on one aspect e.g. viticulture led to an incomplete answer."
+      },
+      {
+        "trap": "Falling back on a pre-prepared climate-change essay rather than answering the actual question set",
+        "quote": "the temptation to revert to pre-prepared material sometimes meant the focus was not retained on the actual question"
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p5_q2",
+    "year": 2019,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Does a changing climate place greater emphasis on terroir or on choice of grape variety?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Does... place greater emphasis",
+    "command_word_demand": "Present a direct answer and strong argument in conclusion, justifying the choice (terroir vs grape variety) via analysis of the full range of challenges and opportunities, not description.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show that climate is changing, not just warming, giving rise to both predictable and unpredictable consequences",
+        "quote": "Candidates needed to demonstrate the understanding that the climate is changing, not just warming, giving rise to both predictable and unpredictable consequences.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider both aspects (terroir and grape variety) but present a direct answer and strong argument in conclusion",
+        "quote": "The question required consideration of both aspects but the candidate needed to present a direct answer and strong argument in conclusion, justifying their choice via an analysis of the full range of challenges and opportunities.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse rather than describe",
+        "quote": "Answers that fell short of the mark generally did so for failing to answer the question posed i.e. there was too much temptation to describe rather than analyse.",
+        "weight": "core"
+      },
+      {
+        "element": "Use specific examples with depth and detailed analysis, not theoretical generalities",
+        "quote": "Some answers lacked specific examples and were too theoretical, lacking depth and detailed analysis.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Described rather than analysed",
+        "quote": "there was too much temptation to describe rather than analyse"
+      },
+      {
+        "signal": "Lacked specific examples and were too theoretical",
+        "quote": "Some answers lacked specific examples and were too theoretical, lacking depth and detailed analysis."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "specific examples (unspecified further)",
+      "named_in_report": [],
+      "quote": "Some answers lacked specific examples and were too theoretical, lacking depth and detailed analysis."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p5_q3",
+    "year": 2019,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Does wine have a significant role to play in a healthy lifestyle?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Does... have a significant role",
+    "command_word_demand": "Take a nuanced, considered, balanced perspective across different groups and circumstances rather than sweeping or unsubstantiated statements; examiners explicitly criticised superficial, rambling answers.",
+    "definitions_required": [
+      {
+        "term": "healthy lifestyle",
+        "quote": "Defining a healthy lifestyle was very important."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'a healthy lifestyle'",
+        "quote": "Defining a healthy lifestyle was very important.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a nuanced approach, considering a wide range of different groups and circumstances",
+        "quote": "A nuanced approach was needed, considering a wide range of different groups and circumstances.",
+        "weight": "core"
+      },
+      {
+        "element": "Show knowledge of medical reports/research both for and against wine consumption, from a global perspective",
+        "quote": "Answers needed to show knowledge of medical reports and research both for and against wine consumption in a global perspective.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss what constitutes moderation",
+        "quote": "A discussion of what constitutes moderation was needed.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider wine in the context of all alcoholic drinks, not in isolation",
+        "quote": "Wine should have been considered within the context of all alcoholic drinks.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Showed nuance and tackled conflicting perspectives in a clear, well-structured format",
+        "quote": "Good answers showed nuance and tackled the conflicting perspectives in a clear and well-structured format."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Superficial, lacking in detail, rambling",
+        "quote": "examiners' comments are peppered with comments such as 'superficial', 'lacking in detail', 'rambling'"
+      },
+      {
+        "signal": "Unsubstantiated, sweeping/wild statements that did not reflect a considered, balanced perspective",
+        "quote": "There were several unsubstantiated, sweeping statements that did not reflect a considered, balanced perspective. ... There were some unsubstantiated, wild claims."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "This should have been quite a straightforward question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p5_q4",
+    "year": 2019,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "How responsible is the wine industry?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How responsible",
+    "command_word_demand": "Define 'responsible', consider all aspects of the supply chain, and identify the main ways the industry could be challenged on its responsibility, putting wine in context with other similar industries.",
+    "definitions_required": [
+      {
+        "term": "responsible",
+        "quote": "A definition of 'responsible' was key as well as a consideration of all aspects of the supply chain."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'responsible'",
+        "quote": "A definition of 'responsible' was key as well as a consideration of all aspects of the supply chain.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider all aspects of the supply chain",
+        "quote": "A definition of 'responsible' was key as well as a consideration of all aspects of the supply chain.",
+        "weight": "core"
+      },
+      {
+        "element": "Identify the main ways the industry could be challenged on its responsibility, and put wine into context with other similar industries",
+        "quote": "Good answers looked at the main ways the industry could be challenged on its responsibility and put wine into context with other similar industries.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover social, ethical and environmental issues with original examples from all over the world, showing a global perspective",
+        "quote": "Social, ethical and environmental issues should have been covered with original examples from all over the world to show a global perspective.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Lacked depth or concentrated on one main topic",
+        "quote": "Many answers lacked depth or concentrated on one main topic."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "original examples from all over the world, showing a global perspective",
+      "named_in_report": [],
+      "quote": "Social, ethical and environmental issues should have been covered with original examples from all over the world to show a global perspective."
+    },
+    "scope_traps": [],
+    "performance_note": "This question elicited relatively few responses.",
+    "extraction_notes": "The report's discussion of the following question ('What makes wine authentic?', th_2019_p5_q5) is textually appended immediately after this question's commentary in the segmented report (no distinct anchor was found for q5, so the segmenter's char range for q4 runs into q5's text). That text was NOT used here or moved into this row; it was left for th_2019_p5_q5, which per instruction is being emitted as coverage:none. See extraction_notes on th_2019_p5_q5 for detail and a flag for human review of the segmentation."
+  },
+  {
+    "id": "th_2019_p5_q5",
+    "year": 2019,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "What makes wine authentic?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What makes",
+    "command_word_demand": "There was a necessity to have a broad perspective but also strong views and to back up one's position strongly with key arguments, critical analysis and a rigorous approach.",
+    "definitions_required": [
+      {
+        "term": "authentic",
+        "quote": "Defining 'authentic' was very important."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Take a broad perspective while also holding and defending a strong position with key arguments, critical analysis and a rigorous approach",
+        "quote": "There was a necessity to have a broad perspective but also strong views and to back up one's position strongly with key arguments, critical analysis and a rigorous approach.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'authentic' rather than assuming a single, narrow meaning",
+        "quote": "Defining 'authentic' was very important.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Encompassed all elements of the supply chain and engaged fully with the different aspects of the topic",
+        "quote": "Good answers encompassed all elements of the supply chain and had fun discussing the different aspects."
+      },
+      {
+        "signal": "Considered why authenticity matters and to whom — a sense of place, a style, a mode of production, someone's vision, or a brand identity",
+        "quote": "Good answers considered why authenticity matters and to whom: authentic to a sense of place, or a style, or a mode of production, to someone's vision, or to a brand identity?"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Too few answers took a robust, analytical approach — many were overly descriptive or lacking in depth",
+        "quote": "Too few answers took this robust approach and were overly descriptive or lacking in depth."
+      },
+      {
+        "signal": "Waffled whimsically rather than arguing a clear position, or took too narrow a focus",
+        "quote": "This question led some people to waffle whimsically, while others had too narrow a focus."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Paper-wide expectation to give original, balanced examples from around the world; this question's own commentary lists the range of angles a good answer could cover (single vineyards vs regional blends, natural/organic/biodynamic production, amphorae, counterfeits, price and consumer perception) rather than naming specific wines or regions",
+      "named_in_report": [],
+      "quote": "Give a balanced perspective, show that you have considered all sides and give original examples from around the world."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as being about natural wine only",
+        "quote": "Some people focused solely on natural wines but the question was much broader than this."
+      },
+      {
+        "trap": "Taking too narrow a focus on the topic generally, rather than the broad perspective required",
+        "quote": "This question led some people to waffle whimsically, while others had too narrow a focus."
+      }
+    ],
+    "performance_note": "This proved a thought-provoking question and the best answers were very interesting to read. ... Too few answers took this robust approach and were overly descriptive or lacking in depth.",
+    "extraction_notes": "Segmenter bug fix re-extraction. The report restates the question verbatim as 'Q5. What makes wine authentic?', matching the corpus question exactly. The examples_expected.quote is drawn from the Paper 5 Chair's General Comments (paper_preamble), since the question's own commentary lists candidate angles/topics rather than stating the examples requirement directly; that question-specific list of angles is preserved in the specificity field rather than in named_in_report, since none of them are concrete named wines/regions of the kind that field is meant to hold."
+  }
+]

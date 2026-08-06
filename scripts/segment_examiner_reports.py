@@ -58,8 +58,40 @@ QUESTIONS = ROOT / "data" / "theory" / "theory_questions.json"
 OUT_SEGMENTS = ROOT / "data" / "theory" / "report_segments.json"
 OUT_COVERAGE = ROOT / "data" / "theory" / "report_coverage.json"
 
+# Where each year's examiners' report lives. Two sources, because the reports arrived by
+# two routes: `source/imw_pdfs/` is populated by scripts/fetch_imw_pdfs.py from the public
+# IMW site (gitignored, copyrighted), while `docs/examiners reports/` holds the
+# student-area reports the user downloaded manually — these are the only source for 2017,
+# 2019 and 2021-2025, which the IMW does not publish openly. Paths are listed rather than
+# copied so neither store is duplicated.
+#
+# From 2019 on the IMW splits theory and practical into separate report files; 2016-2018
+# are combined documents. The segmenter handles both, since it bounds the theory section
+# by question anchors rather than by assuming a practical section exists.
+REPORT_SOURCES: dict[int, list[str]] = {
+    2016: ["source/imw_pdfs/examiners_report_2016.pdf",
+           "docs/examiners reports/imw_2016_examiners_report.pdf"],
+    2017: ["docs/examiners reports/imw_2017_theory_examiners_report.pdf"],
+    2018: ["source/imw_pdfs/examiners_report_2018.pdf",
+           "docs/examiners reports/imw_2018_examiners_report.pdf"],
+    2019: ["docs/examiners reports/imw_theory_exam_report_2019.pdf"],
+    2023: ["docs/examiners reports/2023-Theory-Examiners-Report.pdf"],
+    2024: ["docs/examiners reports/2024-Theory-Examiners-Report.pdf"],
+    2025: ["docs/examiners reports/Theory-Examiners-Report-2025.pdf"],
+}
+
 # Reports whose questions live in the five-paper theory corpus and can be anchored.
-ANCHORABLE_YEARS = [2016, 2018]
+ANCHORABLE_YEARS = [2016, 2017, 2018, 2019, 2023, 2024, 2025]
+
+# 2021 and 2022 theory reports exist in docs/examiners reports/ but are IMAGE SCANS with
+# no text layer (75 and 48 extractable characters across 24 and 23 pages). They need OCR,
+# or page-render transcription like the 2021-2023 exam papers, before they can be
+# segmented. Listing them here so their absence is a recorded decision, not an oversight.
+IMAGE_SCAN_YEARS = {
+    2021: "docs/examiners reports/2021-Theory-Exam-Report.pdf",
+    2022: "docs/examiners reports/Theory-Examiners-Report-2022-1.pdf",
+}
+
 # Reports covering the four-paper era: no corpus questions to anchor, principles only.
 PRINCIPLES_ONLY_YEARS = [2010, 2011, 2012, 2013, 2014]
 
@@ -81,6 +113,26 @@ SECTION_TERMINATORS = [
     r"\d+[ivx]*[.)]\s*(?:Practical|Research\s+Paper)s?\s+(?:Panel|Paper|Chair)",
     r"Research\s+Paper\s+Chair",
 ]
+
+
+def resolve_report(year: int) -> Path:
+    """First existing candidate path for a year's examiners' report."""
+    if year in IMAGE_SCAN_YEARS:
+        raise SystemExit(
+            f"FAIL: the {year} theory report ({IMAGE_SCAN_YEARS[year]}) is an image scan "
+            f"with no text layer. It needs OCR or page-render transcription before it can "
+            f"be segmented."
+        )
+    for cand in REPORT_SOURCES.get(year, [f"source/imw_pdfs/examiners_report_{year}.pdf"]):
+        p = ROOT / cand
+        if p.exists():
+            return p
+    raise SystemExit(
+        f"FAIL: no examiners' report found for {year}. Tried: "
+        f"{', '.join(REPORT_SOURCES.get(year, []))}. Public reports come from "
+        f"scripts/fetch_imw_pdfs.py; 2017, 2019 and 2021-2025 are IMW student-area only "
+        f"and must be added to 'docs/examiners reports/' by hand."
+    )
 
 
 def read_pdf_text(path: Path) -> str:
@@ -177,7 +229,11 @@ def find_marker_fallback(report: str, number: int, lo: int, hi: int) -> int | No
     if lo >= hi:
         return None
     window = report[lo:hi]
-    for pat in (rf"Question\s+{number}\s*[:.]", rf"(?<![\d.]){number}[.)]\s+[A-Z(]"):
+    for pat in (
+        rf"Question\s+{number}\s*[:.]",
+        rf"\bQ\s*{number}\s*[.:)]",              # 2019 paper 5 writes "Q5. What makes wine..."
+        rf"(?<![\d.]){number}[.)]\s+[A-Z(]",
+    ):
         m = re.search(pat, window)
         if m:
             return lo + m.start()
@@ -212,6 +268,11 @@ def find_paper_heading(report: str, paper: int, lo: int, hi: int,
         rf"\d+[ivx]*[.)]\s*Theory\s+Paper\s+(?:{word}|{paper})\b",
         rf"Theory\s+(?:Exam\s+)?Paper\s+(?:{word}|{paper})\b",
         rf"\d{{4}}\s+MW\s+Theory\s+Exam\s+Paper\s+(?:{word}|{paper})\b",
+        # 2019-onward theory-only reports title their sections "Paper one report 2024:
+        # Paper chair, Rhys Pender MW" / "Paper One Report: Paper Chair, ...". Specific
+        # enough to stay safe in prefer_last mode: the practical sections of the combined
+        # 2016-2018 reports say "Practical Panel Chair report", never "Paper N report".
+        rf"Paper\s+(?:{word}|{paper})\s+[Rr]eport\b",
     ]
     if not prefer_last:
         patterns.append(rf"(?:Theory\s+)?Paper\s+(?:{word}|{paper})\b")
@@ -245,7 +306,10 @@ def find_theory_chair_report(report: str, before: int) -> str:
     to Domaine Dujac") — so it must travel with the segments or a valid extracted quote
     will fail the quote gate for lack of a haystack.
     """
-    pat = r"Theory\s+(?:Panel\s+)?Chair(?:'s)?\s+Report"
+    # Naming drifts by year: "Theory Chair Report" (2016), "Theory Panel Chair Report"
+    # (2018), "Theory Exam Chair Report, Beverley Blanning MW" (2024), and a bare
+    # "Theory Chair: Beverley Blanning MW" under an Introduction heading (2025).
+    pat = r"Theory\s+(?:Panel\s+|Exam\s+)?Chair(?:'s)?(?:\s+Report|\s*:)"
     starts = [m.start() for m in re.finditer(pat, report, re.I) if m.start() < before]
     if not starts:
         return ""
@@ -269,10 +333,7 @@ def find_theory_end(report: str, after: int) -> int:
 
 
 def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
-    pdf = PDF_DIR / f"examiners_report_{year}.pdf"
-    if not pdf.exists():
-        raise SystemExit(f"FAIL: {pdf} not found — run scripts/fetch_imw_pdfs.py")
-
+    pdf = resolve_report(year)
     raw = read_pdf_text(pdf)
     report = normalise(raw)
     if len(report) < 5000:
@@ -304,12 +365,17 @@ def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
         recovered: list[dict] = []
         for u in list(unlocated):
             q = next(x for x in yq if x["id"] == u["id"])
-            prev_off = by_key.get((q["paper"], q["question"] - 1))
-            nxt_off = by_key.get((q["paper"], q["question"] + 1))
-            lo = prev_off if prev_off is not None else None
-            hi = nxt_off if nxt_off is not None else None
-            if lo is None or hi is None:
+            lo = by_key.get((q["paper"], q["question"] - 1))
+            if lo is None:
                 continue
+            # The upper bound is the next question in this paper; when there is none —
+            # i.e. this is the LAST question of its paper, which is exactly where the
+            # recovery is most needed (2017 p3q4, 2019 p5q5) — fall back to the first
+            # anchor of any later paper, then to the end of the report.
+            hi = by_key.get((q["paper"], q["question"] + 1))
+            if hi is None:
+                later = [off for (p, _), off in by_key.items() if p > q["paper"]]
+                hi = min(later) if later else len(report)
             off = find_marker_fallback(report, q["question"], lo + 1, hi)
             if off is not None:
                 located.append((q, off, -1.0))  # -1 marks a number-marker recovery

@@ -1,0 +1,1015 @@
+[
+  {
+    "id": "th_2017_p3_q1",
+    "year": 2017,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Outline the most important quality control checks during bottling and why each is necessary.",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Outline",
+    "command_word_demand": "A lot of candidates missed the critical \"why\" part of the question, and without considering this, their answers were too superficial and lacked analytical depth.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Consider quality checks on both the wine itself and on the packaging process/dry goods, plus compliance with product specification",
+        "quote": "Candidates needed to consider both quality checks on wine and checks on the packaging process and dry goods, as well as compliance with product specification.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain why each check is necessary, not just describe the bottling process",
+        "quote": "Too many candidates simply described the bottling process and failed to consider the quality control part of the question, showing lack of awareness of key QC analyses for wine and why they are carried out - essential knowledge for potential MWs.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider a HACCP framework",
+        "quote": "Consideration of HACCP is always useful in a question that mentions bottling.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Show awareness of EU legislation and ISO requirements as part of the quality assurance framework",
+        "quote": "Quality control is part of the overall quality assurance process and wine is a food stuff which must comply with legislative and regulatory standards (so an awareness of EU legislation and ISO requirements is helpful).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Cover staff safety risks (broken glass, noise, heavy lifting, health exposure) and wine/business risks (quality loss, consumer disappointment, brand damage, recall costs)",
+        "quote": "The safety of staff handling the liquid and the packaging is critical (risks like broken glass, noise, heavy lifting and exposure to health risks). Issues for the wine itself include loss of quality, consumer disappointment, damage to brand, and costs attached to issuing recalls or being unable to sell the wine.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Lack of focus, missed too many key issues",
+        "quote": "There were few really strong answers to this question and lots of candidates lacked focus or missed too many key issues."
+      },
+      {
+        "signal": "Described the bottling process rather than addressing quality control",
+        "quote": "Too many candidates simply described the bottling process and failed to consider the quality control part of the question, showing lack of awareness of key QC analyses for wine and why they are carried out - essential knowledge for potential MWs."
+      },
+      {
+        "signal": "Omitted the analytical \"why\"",
+        "quote": "A lot of candidates missed the critical \"why\" part of the question, and without considering this, their answers were too superficial and lacked analytical depth."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "actual numbers (e.g. EU SO2 limits, pH values, additive usage levels, filtration pore sizes), not vague statements — a paper-wide expectation from the Chair's General Comments",
+      "named_in_report": [],
+      "quote": "Vague comments like \"lower levels of SO2\" are not sufficient - actual numbers are required."
+    },
+    "scope_traps": [],
+    "performance_note": "There were few really strong answers to this question and lots of candidates lacked focus or missed too many key issues.",
+    "extraction_notes": "The numeric-precision/examples expectation is drawn from the Paper 3 Chair's General Comments (paper-wide), not stated specifically for this question."
+  },
+  {
+    "id": "th_2017_p3_q2",
+    "year": 2017,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What analyses should be carried out at the winery pre- and post-bottling to ensure that a wine is in good condition and conforms to legal requirements for sale?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What analyses should be carried out",
+    "command_word_demand": "Specifically, the question asked \"what analyses\" yet there were disappointingly few answers which listed and explained the key QC analyses and their importance in ensuring the wine's good condition and conformation to legal requirements.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "List and explain the key QC analyses required, not just discuss issues that might arise",
+        "quote": "Several candidates simply discussed issues that might arise and not what QC checks were required.",
+        "weight": "core"
+      },
+      {
+        "element": "Know legal limits (EU or other key markets) for key wine constituents, additives, and allergens",
+        "quote": "Candidates also needed to know legal limits (EU or other key markets) for key wine constituents and additives, plus allergens.",
+        "weight": "core"
+      },
+      {
+        "element": "Know labelling requirements (e.g. sweetness declarations, allergens, sulphite declarations, alcohol tolerances)",
+        "quote": "Knowledge of labelling requirements was also required (e.g. sweetness declarations such as medium-dry or halbtrocken, allergens, sulphite declarations, alcohol tolerances).",
+        "weight": "core"
+      },
+      {
+        "element": "Support the answer with supporting examples",
+        "quote": "Supporting examples would be helpful too.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Overall lack of technical information and analytical reasoning",
+        "quote": "Here again the key problem was the overall lack of technical information and analytical reasoning in many of the answers."
+      },
+      {
+        "signal": "Answers judged \"too qualitative\"",
+        "quote": "The comment \"too qualitative\" was used by examiners for many of the scripts."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "Supporting examples would be helpful too."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing potential wine faults/issues that might arise instead of naming the QC analyses required",
+        "quote": "Several candidates simply discussed issues that might arise and not what QC checks were required."
+      }
+    ],
+    "performance_note": "This question had the highest pass rate at 50%, indicating that it was straightforward for candidates with good levels of technical knowledge.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p3_q3",
+    "year": 2017,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Many winemakers are reducing the levels of free and total sulphites in wine. Consider the role of sulphites at bottling and until the wine reaches the end consumer. What are the implications of reduced levels of free sulphites?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Consider / What are the implications",
+    "command_word_demand": "The \"implications\" part of the question required a definition of what \"reduced levels\" of free SO2 mean.",
+    "definitions_required": [
+      {
+        "term": "reduced levels [of free SO2]",
+        "quote": "The \"implications\" part of the question required a definition of what \"reduced levels\" of free SO2 mean."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Cover the four properties of SO2: anti-oxidant, anti-microbial, anti-oxidasic, and (less important) binding with acetaldehyde",
+        "quote": "The four distinct properties of SO2 - anti-oxidant, anti-microbial, anti-oxidasic and (less important) binding with acetaldehyde.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Know current EU levels for total SO2, typical levels of free SO2 in different wine styles, and what constitutes \"lower levels\" in actual numbers",
+        "quote": "It is still surprising how many candidates do not know current EU levels for total SO2, nor typical levels of free SO2 in different styles of wine, nor what constitutes lower levels in actual numbers. It is really important to have these facts committed to memory.",
+        "weight": "core"
+      },
+      {
+        "element": "Be clear about the difference between free and total SO2",
+        "quote": "Clarity about the difference between free and total SO2 is also important.",
+        "weight": "core"
+      },
+      {
+        "element": "Address both parts of the question directly: the role of sulphites, and the implications of reduced free SO2 levels",
+        "quote": "There were, however, lots of very good scripts which did address (both parts of) the question directly and met the standard to pass.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Addressed both parts of the question directly (role of sulphites AND implications of reduced free SO2)",
+        "quote": "There were, however, lots of very good scripts which did address (both parts of) the question directly and met the standard to pass."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Misread the question as being about how to reduce sulphites / achieve low-sulphite winemaking, treating it as a Paper 2 question",
+        "quote": "It was clear that quite a number of otherwise good candidates misread the question: instead of addressing the \"implications of reduced levels of free sulphites\", they wrote about the implications for the winemaker of reducing free sulphites/how to achieve low sulphite wines. Their essays thus focused on adjustments to be made in the winemaking process, so treating it substantially as a Paper 2 question."
+      },
+      {
+        "signal": "Rolled out a pre-prepared essay on the use of SO2 with disregard for the exam question's focus",
+        "quote": "there were many candidates who appeared either to have pre-prepared an essay on the use of SO2 and who rolled it out with disregard for the focus of the exam question or who mis-read the question; consequently there were a number of candidates who, in the abstract, appear technically knowledgeable but who have not attained a pass mark."
+      },
+      {
+        "signal": "Did not know current EU/typical SO2 numeric levels",
+        "quote": "It is still surprising how many candidates do not know current EU levels for total SO2, nor typical levels of free SO2 in different styles of wine, nor what constitutes lower levels in actual numbers."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "actual numeric facts — current EU total SO2 levels, typical free SO2 levels by wine style, and what \"lower levels\" means in real numbers",
+      "named_in_report": [],
+      "quote": "It is still surprising how many candidates do not know current EU levels for total SO2, nor typical levels of free SO2 in different styles of wine, nor what constitutes lower levels in actual numbers. It is really important to have these facts committed to memory."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering as if the question asked how to reduce sulphites / achieve low-sulphite winemaking (a Paper 2-style question), rather than the implications of already-reduced free SO2 levels",
+        "quote": "instead of addressing the \"implications of reduced levels of free sulphites\", they wrote about the implications for the winemaker of reducing free sulphites/how to achieve low sulphite wines. Their essays thus focused on adjustments to be made in the winemaking process, so treating it substantially as a Paper 2 question."
+      }
+    ],
+    "performance_note": "These essays would typically score in the late 50s/early 60s but would not pass.",
+    "extraction_notes": "The report segment for this question runs on (in report_segments.json) into a paragraph beginning \"4. Write concise short notes on 3 of the following topics...\" — that paragraph belongs to Q4 (see th_2017_p3_q4) and has been excluded from this rubric."
+  },
+  {
+    "id": "th_2017_p3_q4",
+    "year": 2017,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Briefly discuss three of the following showing their importance to the handling of wine:\n\na) Preservatives in wine\nb) Preventing deposits in bottled wine\nc) Inert storage\nd) Pre-bottling filtration",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "discuss",
+    "command_word_demand": "Writing 'short notes' still has to evidence sufficient knowledge and understanding for MW level and use supporting examples. ... Those candidates who failed this question usually did so because their answers were insufficiently wide and/or deep in scope in addressing the chosen topic.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover the chosen topic with sufficient breadth and depth for MW level and use supporting examples, not a narrow technical listing",
+        "quote": "Writing 'short notes' still has to evidence sufficient knowledge and understanding for MW level and use supporting examples.",
+        "weight": "core"
+      },
+      {
+        "element": "If discussing preservatives, cover more than sulphites — alcohol's own preservative action, plus ascorbic acid and potassium sorbate",
+        "quote": "Preservatives in wine needed to cover more than simply sulphites. Alcohol itself is significant for its preservative action and other preservatives like ascorbic acid and potassium sorbate also needed to be covered.",
+        "weight": "core"
+      },
+      {
+        "element": "If discussing deposits in bottled wine, cover more than tartrate crystals — also protein, metal casse and microbial hazes",
+        "quote": "Deposits in bottled wine was often taken to mean tartrate crystals only. Other deposits such as protein, metal casse and microbial hazes needed to be mentioned.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Mentioning lysozyme and Velcorin for their preservative action",
+        "quote": "Mention could be made of lysozyme and Velcorin for their preservative action too."
+      },
+      {
+        "signal": "Some answers were outstanding and a joy to read",
+        "quote": "One examiner commented, \"in contrast, there were some outstanding answers, which were a joy to read.\""
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Confused the action of ascorbic acid and sorbic acid",
+        "quote": "The action of ascorbic acid and sorbic acid was muddled by several candidates"
+      },
+      {
+        "signal": "Filtration answers were anecdotal, too general, or covered only pre-bottling membrane filtration",
+        "quote": "Filtration was well answered by some, but anecdotal and too general by others and often failed to cover anything but pre-bottling membrane filtration."
+      },
+      {
+        "signal": "Left this question until the end of the exam and may not have had time to do it justice",
+        "quote": "Quite a number appear to have left this question until the end of the exam and may not have left themselves enough time to do justice to it."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Actual numbers/technical detail rather than vague generalities — e.g. EU SO2 limits, typical free SO2 levels, pH values, additive usage levels, filtration pore sizes (paper-wide expectation from the Chair's General Comments, reflected in this question's own preservatives/deposits commentary)",
+      "named_in_report": [
+        "ascorbic acid",
+        "potassium sorbate",
+        "lysozyme",
+        "Velcorin",
+        "protein",
+        "metal casse",
+        "microbial hazes"
+      ],
+      "quote": "Vague comments like \"lower levels of SO2\" are not sufficient - actual numbers are required."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating 'deposits in bottled wine' as meaning tartrate crystals only",
+        "quote": "Deposits in bottled wine was often taken to mean tartrate crystals only."
+      },
+      {
+        "trap": "Treating 'pre-bottling filtration' as covering only pre-bottling membrane filtration",
+        "quote": "Filtration was well answered by some, but anecdotal and too general by others and often failed to cover anything but pre-bottling membrane filtration."
+      }
+    ],
+    "performance_note": "Those candidates who failed this question usually did so because their answers were insufficiently wide and/or deep in scope in addressing the chosen topic. ... Inert storage answers were generally sound.",
+    "extraction_notes": "Segmenter bug fix re-extraction. The report restates the question as '4. Write concise short notes on 3 of the following topics' with the same four sub-topics (a-d) as the corpus question ('Briefly discuss three of the following... showing their importance to the handling of wine'); confirmed as the same question via the matching topic list. The examples_expected quote and part of its specificity text are drawn from the Paper 3 Chair's General Comments (paper_preamble), which state the paper-wide expectation for numeric/technical precision that this question's own commentary on preservatives/deposits also embodies."
+  },
+  {
+    "id": "th_2017_p4_q1",
+    "year": 2017,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "How can the role of the intermediaries between producer and consumer be justified? How is it changing? Use examples from several different wine markets.",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "justified",
+    "command_word_demand": "Candidates who scored well provided well-structured answers with concise analysis from a number of markets. Those that didn't fare so well were generally long on describing the market and the intermediaries that act in it, but missed out on analysis of the causes and outcomes of the changes that are taking place.",
+    "definitions_required": [
+      {
+        "term": "intermediary",
+        "quote": "An accurate definition of key terms, particularly 'intermediary': (agents, distributors, wholesalers, sole traders, brokers)."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Provide well-structured, analytical answers with concise analysis from a number of markets, not just description",
+        "quote": "Candidates who scored well provided well-structured answers with concise analysis from a number of markets. Those that didn't fare so well were generally long on describing the market and the intermediaries that act in it, but missed out on analysis of the causes and outcomes of the changes that are taking place.",
+        "weight": "core"
+      },
+      {
+        "element": "Show more than superficial knowledge of several different wine markets and routes to market, not just one market known intimately",
+        "quote": "One key factor which requires attention in preparing for the exam is ensuring more than a superficial knowledge of a number of different markets and routes to market around the globe. There was a large percentage of candidates who knew one market intimately, but this was not sufficient for a pass.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider emerging 'direct to consumer' routes to market, especially online channels, as part of how the role is changing",
+        "quote": "The title indirectly questions the role of retailers and thus leads candidates to consider 'direct to consumer' as a route to market and thus an exploration of such emerging models (this helps to explain how routes to market are changing) especially through on-line channels.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best answers referenced or explored the theory that intermediaries are becoming less relevant in an economic/financial sense",
+        "quote": "It was also felt by the examiners that, although there is no one \"correct\" answer to this question, there is a general move towards intermediaries becoming less relevant in an economic/financial sense, so the best answers made reference or explored this theory."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Long on describing the market/intermediaries, missed analysis of causes and outcomes of change",
+        "quote": "Those that didn't fare so well were generally long on describing the market and the intermediaries that act in it, but missed out on analysis of the causes and outcomes of the changes that are taking place."
+      },
+      {
+        "signal": "Knew only one market intimately",
+        "quote": "There was a large percentage of candidates who knew one market intimately, but this was not sufficient for a pass."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "examples from several distinct wine markets in real depth, not superficial single-market knowledge",
+      "named_in_report": [
+        "Clos 19"
+      ],
+      "quote": "(Examples might include drop-ship, market place, set up by LVMH of 'Clos 19', Chateau Margaux opening wine bar)."
+    },
+    "scope_traps": [],
+    "performance_note": "Overall, a good pass rate of 41%.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p4_q2",
+    "year": 2017,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "Can small independent wine retailers compete with large chains on price? How else can they compete effectively?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "compete effectively",
+    "command_word_demand": "This proved to be a good MW question for assessing whether candidates had a depth as well as breadth of understanding.",
+    "definitions_required": [
+      {
+        "term": "key terms in the question (not individually named)",
+        "quote": "If the basics were covered when defining the key terms in the question and laying out a structure then it proved fairly straightforward."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define the key terms in the question and lay out a clear structure",
+        "quote": "If the basics were covered when defining the key terms in the question and laying out a structure then it proved fairly straightforward.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a range of examples from several markets",
+        "quote": "The best answers again had a range of examples from several markets, explored the financial aspects of managing suppliers and margin expectations, as well as looking at the non-empirical elements of running an independent retail outlet.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Explore the financial aspects (managing suppliers, margin expectations) as well as non-empirical elements of running an independent retail outlet",
+        "quote": "The best answers again had a range of examples from several markets, explored the financial aspects of managing suppliers and margin expectations, as well as looking at the non-empirical elements of running an independent retail outlet.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best answers had a range of examples from several markets and covered both financial and non-empirical elements of running an independent retailer",
+        "quote": "The best answers again had a range of examples from several markets, explored the financial aspects of managing suppliers and margin expectations, as well as looking at the non-empirical elements of running an independent retail outlet."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Superficial examples and conclusions; understanding limited to one marketplace",
+        "quote": "The main weaknesses were superficiality of examples and conclusions and, as with most of the questions in this paper, a lack of understanding of more than one marketplace."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "a range of examples from several different markets, not superficial or single-market",
+      "named_in_report": [],
+      "quote": "The main weaknesses were superficiality of examples and conclusions and, as with most of the questions in this paper, a lack of understanding of more than one marketplace."
+    },
+    "scope_traps": [],
+    "performance_note": "This was not a complicated question and it was generally well answered with more than half of those that attempted it achieving a pass mark.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p4_q3",
+    "year": 2017,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "You inherit the equivalent of US$ 10 million and want to invest in the wine industry. How would you spend your money to attract the greatest return on investment? Explain your logic.",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain your logic",
+    "command_word_demand": "It therefore required a strong, supportive structure to avoid drifting.",
+    "definitions_required": [
+      {
+        "term": "return on investment (ROI)",
+        "quote": "Return on investment (ROI) needed a clear definition and a consideration of short, medium and long term horizons for accurate assessment."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Provide a strong, supportive structure (e.g. supply-chain walkthrough or SWOT) to avoid drifting off-topic",
+        "quote": "It therefore required a strong, supportive structure to avoid drifting.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider short, medium and long term investment horizons when assessing ROI",
+        "quote": "Return on investment (ROI) needed a clear definition and a consideration of short, medium and long term horizons for accurate assessment.",
+        "weight": "core"
+      },
+      {
+        "element": "Give broader perspective/context even when ultimately concluding on one opportunity",
+        "quote": "(Fine to ultimately conclude on one opportunity but some broader perspective should have been given).",
+        "weight": "core"
+      },
+      {
+        "element": "Back the argument with accurate financial numbers (this is a Paper 4 financial question, not a Paper 5 speculative one)",
+        "quote": "It's also worth noting that this is a Paper 4 question, not Paper 5, so those candidates who were too dreamy and imaginative, without the financial numbers to back up their argument, were the least successful.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Successful candidates demonstrated understanding of financial choices in the wine industry",
+        "quote": "It was designed to test understanding of financial choices in the wine industry and there's no doubt that those candidates who were able to demonstrate that understanding were the successful ones."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Drifted, wrote too much, or veered off subject onto a specific opportunity without wider context",
+        "quote": "The risk was that candidates drifted and wrote too much, or veered off subject and wrote about a specific opportunity without considering wider options and context."
+      },
+      {
+        "signal": "Too dreamy and imaginative without financial numbers to back up the argument",
+        "quote": "so those candidates who were too dreamy and imaginative, without the financial numbers to back up their argument, were the least successful."
+      },
+      {
+        "signal": "Numerical inaccuracy of examples used",
+        "quote": "One further point to make is the numerical inaccuracy of examples used in many answers."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "accurate financial figures/numbers, held to the same precision as technical numbers on Paper 1/2 (e.g. g/l RS, yields per hectare)",
+      "named_in_report": [],
+      "quote": "If this was Paper 1 or 2 then the technical aspects of wine production (maybe g/l of RS or yields per hectare) would absolutely need to be quoted accurately - the same applies to this paper for financial details."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating this as a creative/opportunity-driven question (Paper 5 style) rather than a financially rigorous ROI question",
+        "quote": "It's also worth noting that this is a Paper 4 question, not Paper 5, so those candidates who were too dreamy and imaginative, without the financial numbers to back up their argument, were the least successful."
+      }
+    ],
+    "performance_note": "Answers to this question achieved the lowest pass rate at below 20%.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p4_q4",
+    "year": 2017,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "In what ways have social media changed the marketing of wine brands over the past 10 years?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "In what ways",
+    "command_word_demand": "This was not a question which asked for a list of social media outcomes, but specifically how social media has impacted wine brand marketing over a period of time.",
+    "definitions_required": [
+      {
+        "term": "social media",
+        "quote": "This is a broad question that would require as a starting point a strong definition of social media."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define social media as a starting point",
+        "quote": "This is a broad question that would require as a starting point a strong definition of social media.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide analysis and insight in a well-structured, focused answer, not a list of social media outcomes",
+        "quote": "This was not a question which asked for a list of social media outcomes, but specifically how social media has impacted wine brand marketing over a period of time.",
+        "weight": "core"
+      },
+      {
+        "element": "Back all relevant points with empirical evidence",
+        "quote": "From there, it was important to ensure that all the relevant points are covered and backed up with empirical evidence.",
+        "weight": "core"
+      },
+      {
+        "element": "Use an evidence-based framework (e.g. industry studies such as Wine Intelligence) to avoid over-subjectivity",
+        "quote": "Strong candidates will recognise that there are industry studies e.g. from 'Wine Intelligence', looking at the role of social media in wine. This could help provide an evidence-based framework for answers which may have the potential to be too subjective.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider whether classic/traditional marketing tools still prevail alongside social media",
+        "quote": "A key element of this question is to consider the overall marketing of wine brands and how social media has assisted (or not) and whether more classic marketing tools still prevail.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best candidates provided analysis and insight in a well-structured, focused answer",
+        "quote": "The comments from the examiners praised candidates who were able to provide analysis and insight in a well-structured and focused answer whilst condemning those whose arguments were hard to follow, too long and rambling."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Arguments hard to follow, too long and rambling",
+        "quote": "whilst condemning those whose arguments were hard to follow, too long and rambling."
+      },
+      {
+        "signal": "Treated the question as asking for a list of social-media outcomes",
+        "quote": "This was not a question which asked for a list of social media outcomes, but specifically how social media has impacted wine brand marketing over a period of time."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "backed with empirical evidence, e.g. industry studies such as Wine Intelligence",
+      "named_in_report": [
+        "Wine Intelligence"
+      ],
+      "quote": "Strong candidates will recognise that there are industry studies e.g. from 'Wine Intelligence', looking at the role of social media in wine."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as asking for a list of social-media outcomes rather than an analysis of impact on wine brand marketing over the past 10 years",
+        "quote": "This was not a question which asked for a list of social media outcomes, but specifically how social media has impacted wine brand marketing over a period of time."
+      }
+    ],
+    "performance_note": "this was answered by many candidates, but the pass rate was fairly low - just under a third.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p4_q5",
+    "year": 2017,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "You are Export Director of an established large wine company producing in excess of one million nine litre cases. How would you seek to capitalise on the potential of the growing Chinese market for imported wine? What are the risks and how can they be managed?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "capitalise",
+    "command_word_demand": "This question couldn't be answered well unless the candidate had a good knowledge of the Chinese market, the trends/developments in the market and crucially the risks associated.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Demonstrate detailed, in-depth knowledge of the Chinese wine market, its trends/developments and the associated risks, not superficial knowledge",
+        "quote": "This question couldn't be answered well unless the candidate had a good knowledge of the Chinese market, the trends/developments in the market and crucially the risks associated. There was little point attempting to answer this without that depth of understanding and yet still quite a few gave it a stab.",
+        "weight": "core"
+      },
+      {
+        "element": "Address key risk factors: credit risk, counterfeiting, price control, distribution channels, language barrier",
+        "quote": "Credit risk, Counterfeiting, Price control, Distribution channels, Language barrier.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Use good, detailed examples; the strongest answers add different channels/routes to market",
+        "quote": "Good answers covered the bases with good examples. Great answers added in elements of the different channels/routes to market.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Good answers covered the bases with good examples; great answers added different channels/routes to market",
+        "quote": "Good answers covered the bases with good examples. Great answers added in elements of the different channels/routes to market."
+      },
+      {
+        "signal": "The more detailed the knowledge, the more successful the answer",
+        "quote": "In general, the more detailed the knowledge, the more successful the answer."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Attempted the question without the necessary depth of Chinese market knowledge",
+        "quote": "There was little point attempting to answer this without that depth of understanding and yet still quite a few gave it a stab."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "good, specific examples of the Chinese market, escalating to different distribution channels/routes to market for the strongest answers",
+      "named_in_report": [],
+      "quote": "Good answers covered the bases with good examples. Great answers added in elements of the different channels/routes to market."
+    },
+    "scope_traps": [],
+    "performance_note": "A fairly well answered paper - just over 40% passing.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p4_q6",
+    "year": 2017,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "As the owner of a Bordeaux Classified Growth from the Left Bank, what options are available to you today to present your wine to the market? Evaluate these options from commercial and brand-building standpoints.",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "Also a lot of answers focused on either one or other of the commercial and brand building standpoints, but not both.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Evaluate options from BOTH the commercial and the brand-building standpoints, not just one",
+        "quote": "Also a lot of answers focused on either one or other of the commercial and brand building standpoints, but not both.",
+        "weight": "core"
+      },
+      {
+        "element": "Address \"today\" — the contemporary situation, compared with the past (e.g. the changing en primeur landscape)",
+        "quote": "The word \"today\" in the question implied that you should consider the contemporary issues, comparing them with the situation in the past.",
+        "weight": "core"
+      },
+      {
+        "element": "Show deep knowledge of the mechanics of the market and the options available, with numbers-based evidence",
+        "quote": "Again, successful questions showed deep knowledge of the mechanics of the market, the options available, with numbers-based evidence.",
+        "weight": "core"
+      },
+      {
+        "element": "Use numbers to illustrate brand-building success or failure",
+        "quote": "Brand building also needed some numbers to illustrate success or failure.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Lack of awareness of the changing environment around en primeur, or of the detail of the workings of the prevailing system",
+        "quote": "Sadly, a pass rate less than 30%, with most of the lower marks showing a lack of awareness either of the changing environment around en primeur or of the detail of the workings of the prevailing system."
+      },
+      {
+        "signal": "Focused on only one of the commercial or brand-building standpoints",
+        "quote": "Also a lot of answers focused on either one or other of the commercial and brand building standpoints, but not both."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "numbers-based evidence on market mechanics and brand-building success/failure",
+      "named_in_report": [
+        "Latour"
+      ],
+      "quote": "Withdrawal from the en primeur market, e.g. Latour, releasing stock at a much later date."
+    },
+    "scope_traps": [
+      {
+        "trap": "Addressing only one of 'commercial' or 'brand-building' standpoints instead of both, as the question requires",
+        "quote": "Also a lot of answers focused on either one or other of the commercial and brand building standpoints, but not both."
+      }
+    ],
+    "performance_note": "A classic question about the most established wine market. Sadly, a pass rate less than 30%.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p5_q1",
+    "year": 2017,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "What is the importance of alcohol in wine?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "importance",
+    "command_word_demand": "We look for analysis, not description.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Take a broad and discursive approach",
+        "quote": "A broad and discursive approach was needed and candidates failing to take this approach were unlikely to achieve a pass.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover alcohol's importance for microbial stability, preservation and longevity",
+        "quote": "We were expecting to see evidence of understanding alcohol's importance for microbial stability, preservation and longevity, the legal and tax implications, and the control of alcohol consumption by governments.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the legal and tax implications, and government control of alcohol consumption",
+        "quote": "We were expecting to see evidence of understanding alcohol's importance for microbial stability, preservation and longevity, the legal and tax implications, and the control of alcohol consumption by governments.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss alcohol's contribution to structure, balance and style, and its interaction with other elements in wine",
+        "quote": "Awareness and discussion of alcohol's contribution to structure, balance and style, and the importance of its interaction with other elements in wine were also essential components of a good essay.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover more than just the health aspects of alcohol",
+        "quote": "A number of candidates focused almost exclusively on the health aspects of alcohol in wine, which could certainly form part of a good answer, but would have been insufficient to ensure a pass.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Bland, over-general answers lacking critical thinking and breadth",
+        "quote": "There were many bland and over-general answers that showed neither critical thinking nor the breadth of knowledge we were looking for."
+      },
+      {
+        "signal": "Focused almost exclusively on health aspects of alcohol",
+        "quote": "A number of candidates focused almost exclusively on the health aspects of alcohol in wine, which could certainly form part of a good answer, but would have been insufficient to ensure a pass."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Focusing almost exclusively on the health aspects of alcohol, neglecting structure/balance/legal/preservation angles",
+        "quote": "A number of candidates focused almost exclusively on the health aspects of alcohol in wine, which could certainly form part of a good answer, but would have been insufficient to ensure a pass."
+      }
+    ],
+    "performance_note": "This was probably the most straightforward question on the paper, so it was surprising that the pass rate was not higher.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p5_q2",
+    "year": 2017,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Has science taken away the romance of wine?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Has...taken away",
+    "command_word_demand": "It was imperative to consider both sides of the question, rather than present a one-sided argument.",
+    "definitions_required": [
+      {
+        "term": "romance",
+        "quote": "Very few candidates considered a broad definition of romance and struggled to come up with sufficient material for a convincing argument."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Consider both sides of the argument, not present a one-sided case",
+        "quote": "It was imperative to consider both sides of the question, rather than present a one-sided argument. The latter approach was taken by quite a number of unsuccessful candidates.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider for whom science may or may not have taken away the romance (producers, consumers, distributors, etc.)",
+        "quote": "Candidates needed to consider for whom science may or may not have taken away the romance of wine: producers, consumers, distributors, etc.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a broad definition of 'romance' (mystical origins, glamour/exoticism, artisanal attitudes, unpredictability of harvests, etc.)",
+        "quote": "Very few candidates considered a broad definition of romance and struggled to come up with sufficient material for a convincing argument.",
+        "weight": "core"
+      },
+      {
+        "element": "Structure the essay well; headings/bullet points rarely work in candidates' favour on this paper",
+        "quote": "Many answers lacked structure. Some candidates used headings and bullet points, which rarely work in candidates' favour on this paper.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Presented a one-sided argument",
+        "quote": "It was imperative to consider both sides of the question, rather than present a one-sided argument. The latter approach was taken by quite a number of unsuccessful candidates."
+      },
+      {
+        "signal": "Narrow definition of romance, insufficient material for a convincing argument",
+        "quote": "Very few candidates considered a broad definition of romance and struggled to come up with sufficient material for a convincing argument."
+      },
+      {
+        "signal": "Lack of structure; use of headings and bullet points",
+        "quote": "Many answers lacked structure. Some candidates used headings and bullet points, which rarely work in candidates' favour on this paper."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Presenting a one-sided argument rather than weighing both sides of whether science has taken away the romance of wine",
+        "quote": "It was imperative to consider both sides of the question, rather than present a one-sided argument."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p5_q3",
+    "year": 2017,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "How relevant is blind tasting in assessing wine?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "relevant",
+    "command_word_demand": "This was another straightforward question that nevertheless tripped up a good portion of candidates who neglected to discuss the relevance of blind tasting, and instead simply listed the pros and cons.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Discuss the relevance of blind tasting, not just list pros and cons",
+        "quote": "This was another straightforward question that nevertheless tripped up a good portion of candidates who neglected to discuss the relevance of blind tasting, and instead simply listed the pros and cons.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider relevance to different groups: consumers, buyers, other wine professionals, producers, journalists, judges, etc.",
+        "quote": "The relevance of blind tasting to different groups: consumers, buyers, other wine professionals, producers, journalists, judges, etc.",
+        "weight": "core"
+      },
+      {
+        "element": "Give a thorough exploration of the practice, usefulness and limitations of blind tasting",
+        "quote": "We were looking for a thorough exploration of the practice, usefulness and limitations of blind tasting, and many candidates provided this",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Those who answered the question (rather than just listing pros/cons) generally scored well; highest pass rate of the paper",
+        "quote": "Those who did answer the question, however, generally scored well, and this question had the highest pass rate of the paper."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Simply listed pros and cons instead of discussing relevance",
+        "quote": "neglected to discuss the relevance of blind tasting, and instead simply listed the pros and cons."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "surprisingly few candidates used their own recent MW practical exam experience to illustrate the answer",
+      "named_in_report": [],
+      "quote": "many candidates provided this, although surprisingly few used the example of their recent experience of the MW practical exam to illustrate their answer."
+    },
+    "scope_traps": [
+      {
+        "trap": "Listing the pros and cons of blind tasting instead of directly discussing its relevance",
+        "quote": "neglected to discuss the relevance of blind tasting, and instead simply listed the pros and cons."
+      }
+    ],
+    "performance_note": "this question had the highest pass rate of the paper.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p5_q4",
+    "year": 2017,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "What are the causes for optimism in the wine world today?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "causes for optimism",
+    "command_word_demand": "A number of candidates failed because they did not answer the question and gave reasons for pessimism instead of optimism.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Give reasons for optimism, not pessimism",
+        "quote": "A number of candidates failed because they did not answer the question and gave reasons for pessimism instead of optimism.",
+        "weight": "core"
+      },
+      {
+        "element": "Show personal insight and speculate on current trends/events/possibilities generating positive outcomes",
+        "quote": "This question gave candidates the opportunity to show personal insights and speculate on current trends, events and possibilities that might generate positive outcomes for any area of the wine world.",
+        "weight": "core"
+      },
+      {
+        "element": "Avoid simplistic arguments and factual errors",
+        "quote": "The candidates who fell down usually did so because of simplistic arguments that were considered below MW standard, or factual errors.",
+        "weight": "core"
+      },
+      {
+        "element": "If arguing there are zero causes for optimism, that position must be justified within the context of the question",
+        "quote": "While it could have been a valid approach to the question to argue that there are zero causes for optimism in the wine world, this would have been a position that needed justification within the context of the question.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Plenty of scope for choice of material was reflected in a good number of sound passes",
+        "quote": "There was plenty of scope for choice of material here and this was reflected in a good number of sound passes."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Simplistic arguments below MW standard, or factual errors",
+        "quote": "The candidates who fell down usually did so because of simplistic arguments that were considered below MW standard, or factual errors."
+      },
+      {
+        "signal": "Gave reasons for pessimism instead of optimism (did not answer the question)",
+        "quote": "A number of candidates failed because they did not answer the question and gave reasons for pessimism instead of optimism."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "wide-ranging, current examples of positive trends across the wine world",
+      "named_in_report": [],
+      "quote": "Examples of causes for optimism could be: people drinking less, but better; booming wine education; a new generation valuing authenticity, thus encouraging greater sustainability in farming; greater awareness of the effects of agrochemicals, leading to cleaner wines and less polluted vineyards; the boom in craft beer with positive knock-on effects for the wine industry; new and untapped markets to exploit; positive research into wine's health benefits; the huge variety of wine available world-wide; the benefits of technology in creating reliable, high-quality product on a large scale; the possibility of growing vines in new places; the internet shifting power of information distribution to the end user, making for better informed consumers; new marketing possibilities in the digital age; wine preservation inventions increasing by-the-glass offerings; and many more."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering with reasons for pessimism instead of optimism",
+        "quote": "A number of candidates failed because they did not answer the question and gave reasons for pessimism instead of optimism."
+      }
+    ],
+    "performance_note": "There was plenty of scope for choice of material here and this was reflected in a good number of sound passes.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2017_p5_q5",
+    "year": 2017,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Does great wine need a great story?",
+    "source_report": "imw_2017_theory_examiners_report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "need",
+    "command_word_demand": "there needed to be some definition and an underlying logic supported by examples.",
+    "definitions_required": [
+      {
+        "term": "great wine",
+        "quote": "Most candidates appeared to be unsure how to define 'great wine', so avoided doing so, which led to muddled answers that failed to reach a clear conclusion."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'great wine' before arguing whether it needs a great story",
+        "quote": "Most candidates appeared to be unsure how to define 'great wine', so avoided doing so, which led to muddled answers that failed to reach a clear conclusion.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide an underlying logic supported by examples, whatever definition of 'great' is chosen",
+        "quote": "While there was scope for differing definitions of 'great' (from high-end fine wine to globally successful brands), there needed to be some definition and an underlying logic supported by examples.",
+        "weight": "core"
+      },
+      {
+        "element": "Reach a clear conclusion, rather than treating any wine as 'great'",
+        "quote": "Some essays appeared to consider any wine to be 'great', which made it difficult to then come up with a convincing argument that answered the question.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best answers showed clarity and focus, using examples to good effect",
+        "quote": "The best answers showed clarity and focus, using examples to good effect."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Unsure how to define 'great wine', avoided doing so, leading to muddled answers without a clear conclusion",
+        "quote": "Most candidates appeared to be unsure how to define 'great wine', so avoided doing so, which led to muddled answers that failed to reach a clear conclusion."
+      },
+      {
+        "signal": "Essay style let many candidates down",
+        "quote": "The examiners commented that essay style let many candidates down."
+      },
+      {
+        "signal": "Treated any wine as 'great', undermining a convincing argument",
+        "quote": "Some essays appeared to consider any wine to be 'great', which made it difficult to then come up with a convincing argument that answered the question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "supported by examples once 'great' is defined; best answers used examples to good effect",
+      "named_in_report": [],
+      "quote": "there needed to be some definition and an underlying logic supported by examples."
+    },
+    "scope_traps": [],
+    "performance_note": "This was not a popular question and the least well answered on the paper.",
+    "extraction_notes": ""
+  }
+]

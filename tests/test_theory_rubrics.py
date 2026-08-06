@@ -18,9 +18,11 @@ SEGMENTS = {s["id"]: s for s in
 QUESTIONS = {q["id"]: q for q in
              json.loads(Path("data/theory/theory_questions.json").read_text(encoding="utf-8"))}
 
-# Only 2016 and 2018 of the seven public examiners' reports fall inside the five-paper
-# theory corpus, so only those years can carry rubrics today.
-EXPECTED_YEARS = {2016, 2018}
+# Years with a text-extractable theory examiners' report inside the five-paper corpus.
+# 2016/2018 come from the public IMW site; 2017, 2019, 2023, 2024, 2025 are student-area
+# reports held in docs/examiners reports/. 2021 and 2022 exist but are image scans with no
+# text layer, and 2015/2026 have no report available at all.
+EXPECTED_YEARS = {2016, 2017, 2018, 2019, 2023, 2024, 2025}
 VALID_COVERAGE = {"full", "none"}
 VALID_QUALITY = {"rich", "moderate", "thin"}
 VALID_WEIGHT = {"core", "differentiator"}

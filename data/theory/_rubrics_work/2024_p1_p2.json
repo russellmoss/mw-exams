@@ -1,0 +1,942 @@
+[
+  {
+    "id": "th_2024_p1_q1",
+    "year": 2024,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "How can vineyard practices minimise the need for must adjustments in the winery?\n\n[Note: answers may cover the syllabuses of papers 1 and 2]",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How can",
+    "command_word_demand": "It was important to consider many areas of vineyard management for this question, and this was often the difference between a pass or fail.",
+    "definitions_required": [
+      {
+        "term": "must adjustments",
+        "quote": "The best essays considered a wide range of vineyard activities, defined the key must adjustments and linked the two together showing an interesting range of examples to support their position."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Cover many/wide areas of vineyard management, not just a few practices",
+        "quote": "It was important to consider many areas of vineyard management for this question, and this was often the difference between a pass or fail.",
+        "weight": "core"
+      },
+      {
+        "element": "Link vineyard practices to must adjustments, rather than writing about must adjustments/additives in isolation",
+        "quote": "A number of students ended up writing essays on must adjustments and additives without linking to vineyard practices.",
+        "weight": "core"
+      },
+      {
+        "element": "Define the key must adjustments and link them to the vineyard activities discussed",
+        "quote": "The best essays considered a wide range of vineyard activities, defined the key must adjustments and linked the two together showing an interesting range of examples to support their position.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Considered a wide range of vineyard activities, defined key must adjustments, and linked the two with an interesting range of examples",
+        "quote": "The best essays considered a wide range of vineyard activities, defined the key must adjustments and linked the two together showing an interesting range of examples to support their position."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Listed only a few practices, leaving out far too many important areas of vineyard work",
+        "quote": "Some candidates listed only a few practices and linked them suitably to the need for must adjustments, but left out far too many important areas of vineyard work that should have been considered."
+      },
+      {
+        "signal": "Unable to demonstrate a deep enough understanding of viticulture as a tool for shaping must and wine",
+        "quote": "Many who were unsuccessful were unable to demonstrate in their essay a deep enough understanding of how viticulture can be used as a tool in shaping must and wine."
+      },
+      {
+        "signal": "Weakness in knowledge of the nuances of vineyard practices, with misconceptions and over-generalisations",
+        "quote": "This question also seemed to expose some weakness in knowledge of the nuances of vineyard practices as evidenced by misconceptions, misunderstandings and over generalisations."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "The best essays considered a wide range of vineyard activities, defined the key must adjustments and linked the two together showing an interesting range of examples to support their position."
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about must adjustments and additives themselves rather than the vineyard practices that reduce the need for them",
+        "quote": "A number of students ended up writing essays on must adjustments and additives without linking to vineyard practices."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": "No numeric pass/attempt rate given for this question; the 'pass or fail' link to breadth of coverage is qualitative only."
+  },
+  {
+    "id": "th_2024_p1_q2",
+    "year": 2024,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Does manual work in the vineyard deliver better quality wine than mechanised alternatives?",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Does",
+    "command_word_demand": "The best papers considered both manual and mechanised alternatives and analysed the pros and cons of each with interesting examples along the way, clearly linking them to a well-defined idea of \"better quality wine\".",
+    "definitions_required": [
+      {
+        "term": "better quality wine",
+        "quote": "clearly linking them to a well-defined idea of \"better quality wine\""
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Consider both manual and mechanised alternatives, not just be one-sided towards manual work",
+        "quote": "The unsuccessful papers either didn't arrive at any conclusion, were overly one-sided towards manual work without considering benefits of mechanisation, or didn't explain sufficiently well the link to better quality wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Reach a conclusion",
+        "quote": "The unsuccessful papers either didn't arrive at any conclusion, were overly one-sided towards manual work without considering benefits of mechanisation, or didn't explain sufficiently well the link to better quality wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the reality of labour availability, cost, and wine style and price",
+        "quote": "The reality of labour availability, cost and wine style and price needed to be considered.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover vineyard work broadly, not just manual versus machine harvesting",
+        "quote": "Many seemed to read the question as manual versus machine harvesting to the exclusion of other vineyard work.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Considered both manual and mechanised alternatives and analysed pros and cons of each with interesting examples, clearly linked to a well-defined idea of better quality wine",
+        "quote": "The best papers considered both manual and mechanised alternatives and analysed the pros and cons of each with interesting examples along the way, clearly linking them to a well-defined idea of \"better quality wine\"."
+      },
+      {
+        "signal": "Gave interesting insights into creative and advanced technologies being trialled in vineyard mechanisation",
+        "quote": "There were some interesting insights into some of the very creative and advanced technologies being trialled in vineyard mechanisation."
+      },
+      {
+        "signal": "Was practical in weighing pros and cons rather than dogmatic",
+        "quote": "Being practical in the pros and cons of each rather than dogmatic made for the most compelling papers."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Only looked through the lens of expensive wine where production costs aren't an issue, rather than the reality of the greater wine world",
+        "quote": "A common issue is candidates only looking through the lens of expensive wine where production costs aren't such an issue, rather than the reality of the greater wine world."
+      },
+      {
+        "signal": "Glaring over-simplifications and stereotyping of entire countries showing a lack of global wine knowledge",
+        "quote": "There were some glaring over- simplifications and stereotyping of entire countries that showed a lack of global wine knowledge."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Should span price and quality levels of the wine world, not only expensive/premium wine",
+      "named_in_report": [],
+      "quote": "A common issue is candidates only looking through the lens of expensive wine where production costs aren't such an issue, rather than the reality of the greater wine world."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as manual versus machine harvesting only, excluding other vineyard work",
+        "quote": "Many seemed to read the question as manual versus machine harvesting to the exclusion of other vineyard work."
+      }
+    ],
+    "performance_note": "more than a third of those who attempted it passed.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p1_q3",
+    "year": 2024,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "'Controlling yields to maintain quality is no longer necessary.' Discuss.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Discuss",
+    "command_word_demand": "regurgitating information from a textbook didn't answer the question, which was looking instead for a discussion of which is better in each situation, too few or too many.",
+    "definitions_required": [
+      {
+        "term": "quality",
+        "quote": "This question required a well laid out definition of quality."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Provide a well laid out definition of quality",
+        "quote": "This question required a well laid out definition of quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Look at quality from various perspectives rather than a limited scope",
+        "quote": "It was important to look at quality from various perspectives, with less successful candidates limiting their scope.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover legal controls on yield in some regions and a historical perspective given the 'no longer' wording",
+        "quote": "There were some key areas that needed to be included such as legal controls on yield in some regions and also a historical perspective given the \"no longer\" wording of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Clearly explain the concept of balance and that lower yields are not always better, with good examples",
+        "quote": "The concept of balance and lower yields not always being better needed to be clearly explained with good examples.",
+        "weight": "core"
+      },
+      {
+        "element": "Reach a clear conclusion rather than rambling",
+        "quote": "Without a clear definition and layout, it was an easy question to start rambling on and, unfortunately, many essays did just that without any clear conclusions.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Looked at different grape varieties, desired styles, scale of production, vine age, etc.",
+        "quote": "The best essays looked at different grape varieties, desired styles, scale of production, vine age, etc."
+      },
+      {
+        "signal": "Showed various scenarios where controlling for lower or higher yields was suitable for maintaining quality",
+        "quote": "The best candidates showed various scenarios where controlling for lower or higher yields was suitable for maintaining quality."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Less successful candidates limited the scope of perspectives on quality considered",
+        "quote": "It was important to look at quality from various perspectives, with less successful candidates limiting their scope."
+      },
+      {
+        "signal": "Many essays rambled without any clear conclusions",
+        "quote": "Without a clear definition and layout, it was an easy question to start rambling on and, unfortunately, many essays did just that without any clear conclusions."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "The concept of balance and lower yields not always being better needed to be clearly explained with good examples."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p1_q4",
+    "year": 2024,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "How can slopes in vineyards influence grape quality?",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How can",
+    "command_word_demand": "Answers needed to cover all the key influences of slopes, and to keep the discussion tightly linked to the influence of slopes on grape quality.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover all key influences of slopes, tightly linked to the effect on grape quality (not the practicality of working slopes or grower advantages/disadvantages)",
+        "quote": "Some candidates got sidetracked and focused more on the practicality of working on slopes, or the advantages and disadvantages of slopes to grape growers, rather than tying their answers closely to the effect on grape quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Go beyond the basics (sun, air drainage, aspect) to explore soils, desired styles, water, disease, etc. with sufficient depth for MW level",
+        "quote": "These essays merely mentioned a few basics such as sun, air drainage and aspect but didn't explore other areas such as soils, desired styles, water, disease, etc., and often in insufficient depth to display the insight required for a passing grade.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Covered all key relevant features of slopes with strong analysis in various scenarios, showing insight beyond the basics",
+        "quote": "The best papers covered all the key relevant features of slopes with strong analysis in various scenarios, showing insight beyond the basics and demonstrating clearly their understanding."
+      },
+      {
+        "signal": "Went beyond slopes' role in ripening in cooler northern hemisphere climates to also cover soil, desired wine style, with a broad range of supporting examples",
+        "quote": "These were not just limited to slopes' ability to help ripening in cooler northern hemisphere climates, but also looked at everything from soil to desired wine style, with a broad range of supporting examples."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Essays similar to WSET Level 3 standard rather than showing MW-level analysis and depth",
+        "quote": "This question also highlighted a lack of depth of understanding of grape growing in many candidates' answers, where essays were similar to a WSET Level 3 standard rather than showing the analysis and depth of understanding for MW level."
+      },
+      {
+        "signal": "Merely mentioned a few basics without exploring other areas, in insufficient depth for a passing grade",
+        "quote": "These essays merely mentioned a few basics such as sun, air drainage and aspect but didn't explore other areas such as soils, desired styles, water, disease, etc., and often in insufficient depth to display the insight required for a passing grade."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A broad range of supporting examples across factors, not limited to slopes aiding ripening in cool northern-hemisphere climates",
+      "named_in_report": [],
+      "quote": "These were not just limited to slopes' ability to help ripening in cooler northern hemisphere climates, but also looked at everything from soil to desired wine style, with a broad range of supporting examples."
+    },
+    "scope_traps": [
+      {
+        "trap": "Focusing on the practicality of working on slopes, or the advantages/disadvantages to grape growers, rather than the effect on grape quality",
+        "quote": "Some candidates got sidetracked and focused more on the practicality of working on slopes, or the advantages and disadvantages of slopes to grape growers, rather than tying their answers closely to the effect on grape quality."
+      },
+      {
+        "trap": "Limiting discussion to slopes helping ripening in cooler northern hemisphere climates only",
+        "quote": "These were not just limited to slopes' ability to help ripening in cooler northern hemisphere climates, but also looked at everything from soil to desired wine style, with a broad range of supporting examples."
+      }
+    ],
+    "performance_note": "This was the most popular question on the exam.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p1_q5",
+    "year": 2024,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Assess the relative merits of high- and low-density planting in vineyards.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "There was potentially lots to write about for this question, so an organised approach was needed. A good definition was required of low versus high density and then relevant examples covering different wine styles and quality levels were needed to make for a complete essay.",
+    "definitions_required": [
+      {
+        "term": "high-density / low-density planting",
+        "quote": "A good definition was required of low versus high density and then relevant examples covering different wine styles and quality levels were needed to make for a complete essay."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define high versus low density",
+        "quote": "A good definition was required of low versus high density and then relevant examples covering different wine styles and quality levels were needed to make for a complete essay.",
+        "weight": "core"
+      },
+      {
+        "element": "Use relevant examples covering different wine styles and quality levels",
+        "quote": "A good definition was required of low versus high density and then relevant examples covering different wine styles and quality levels were needed to make for a complete essay.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide sufficient discussion/analysis of the relative merits, not just list examples",
+        "quote": "Some candidates listed many examples without sufficient discussion on the relative merits, therefore not properly addressing the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider a wide range of factors (history/tradition, climate, soils, water, vine age, equipment, vigour, yield, disease, wine style, quality, economics) and discuss not just what but how and why",
+        "quote": "The best essays used examples from around the world for different scenarios, defined high versus low density well, considered things like history and tradition, climate, soils, water, vine age, equipment, vigour, yield, disease, wine style, quality, economics, and discussed not just what but also how and why.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Used examples from around the world for different scenarios, defined high versus low density well, considered a broad range of factors, and discussed not just what but how and why",
+        "quote": "The best essays used examples from around the world for different scenarios, defined high versus low density well, considered things like history and tradition, climate, soils, water, vine age, equipment, vigour, yield, disease, wine style, quality, economics, and discussed not just what but also how and why."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Listed many examples without sufficient discussion of relative merits, not properly addressing the question",
+        "quote": "Some candidates listed many examples without sufficient discussion on the relative merits, therefore not properly addressing the question."
+      },
+      {
+        "signal": "Listing examples without analysis led candidates to contradict themselves",
+        "quote": "On occasion, by simply listing examples of what people do without analysis, candidates ended up contradicting themselves."
+      },
+      {
+        "signal": "Many students used the same examples",
+        "quote": "Many students seemed to use the same examples."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Relevant examples from around the world covering different wine styles and quality levels, for different scenarios",
+      "named_in_report": [],
+      "quote": "A good definition was required of low versus high density and then relevant examples covering different wine styles and quality levels were needed to make for a complete essay."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p1_q6",
+    "year": 2024,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "'It is better to have too few nutrients in vineyard soils than too many.' Discuss.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Discuss",
+    "command_word_demand": "regurgitating information from a textbook didn't answer the question, which was looking instead for a discussion of which is better in each situation, too few or too many.",
+    "definitions_required": [
+      {
+        "term": "better",
+        "quote": "\"Better\" needed to be discussed and defined for the context of each situation - potentially linking to yield, style, health, wine type, price, ease of correction and cost."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Discuss which is better (too few vs too many nutrients) in each situation, not just describe nutrients and their effects",
+        "quote": "It was easy to get sidetracked into a long description listing different nutrients, what a vine needs and each nutrient's effect on the plant, but regurgitating information from a textbook didn't answer the question, which was looking instead for a discussion of which is better in each situation, too few or too many.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'better' in context, potentially linking to yield, style, health, wine type, price, ease of correction and cost",
+        "quote": "\"Better\" needed to be discussed and defined for the context of each situation - potentially linking to yield, style, health, wine type, price, ease of correction and cost.",
+        "weight": "core"
+      },
+      {
+        "element": "Start the discussion from nutrients in vineyard soils specifically, then focus on key nutrients and the merits/challenges of too much or too little of each",
+        "quote": "The question also clearly talked about nutrients in \"vineyard soils\", so the discussion needed to start there and then focus on the key nutrients and the merits or challenges of too much or too little of each.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss what can be done to correct the nutrient imbalance, leading to a considered opinion",
+        "quote": "A key area was discussing what you could do to correct the nutrient imbalance, as this would often lead to coming down with a considered opinion on which is better.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Got sidetracked into a long, textbook-style description of nutrients instead of discussing which is better in each situation",
+        "quote": "It was easy to get sidetracked into a long description listing different nutrients, what a vine needs and each nutrient's effect on the plant, but regurgitating information from a textbook didn't answer the question, which was looking instead for a discussion of which is better in each situation, too few or too many."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing a textbook-style listing description of nutrients and their effects rather than a discussion of which is better in each situation",
+        "quote": "It was easy to get sidetracked into a long description listing different nutrients, what a vine needs and each nutrient's effect on the plant, but regurgitating information from a textbook didn't answer the question, which was looking instead for a discussion of which is better in each situation, too few or too many."
+      }
+    ],
+    "performance_note": "This was the least popular question on the paper 1 exam, perhaps seeming to have a more scientific slant.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p2_q1",
+    "year": 2024,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Why would a winemaker choose to filter wine, and what are the advantages and disadvantages of doing so?",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Why would...choose, and what are the advantages and disadvantages",
+    "command_word_demand": "This question gauged candidates' understanding of filtration as a vital winemaking process. It required them to go beyond listing advantages and disadvantages and demonstrate a nuanced understanding of why a winemaker might choose to filter, considering specific winemaking objectives.",
+    "definitions_required": [
+      {
+        "term": "filtration",
+        "quote": "More robust answers started with defining filtration and its purpose."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define filtration and its purpose",
+        "quote": "More robust answers started with defining filtration and its purpose.",
+        "weight": "core"
+      },
+      {
+        "element": "Outline the different filtration methods (earth, pad, membrane, crossflow) and their application at various winemaking stages",
+        "quote": "It was important to outline the different filtration methods - earth filtration, pad filtration, membrane filtration, and crossflow filtration - highlighting their application at various winemaking stages.",
+        "weight": "core"
+      },
+      {
+        "element": "Explore advantages: improved clarity, enhanced stability, consistency across batches, speed to market",
+        "quote": "Candidates should have explored the advantages, such as improved clarity, enhanced stability, consistency across batches, and speed to market.",
+        "weight": "core"
+      },
+      {
+        "element": "Critically evaluate drawbacks: loss of sensory qualities, risks of oxygen exposure, cost and environmental impact",
+        "quote": "Conversely, candidates should have critically evaluated potential drawbacks like the loss of sensory qualities, risks of oxygen exposure, and the cost and environmental impact",
+        "weight": "core"
+      },
+      {
+        "element": "Acknowledge the trade-off between achieving clarity and preserving the wine's character",
+        "quote": "It was necessary to acknowledge the trade-off between achieving clarity and preserving a wine's character to do justice to the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Address why a winemaker chooses to filter, not just list advantages and disadvantages",
+        "quote": "Most answers focused too heavily on the advantages and disadvantages without fully addressing why a winemaker chooses to filter.",
+        "weight": "core"
+      },
+      {
+        "element": "Know specifics on pore sizes for different filtration targets and their implications for microbial stability and sensory attributes",
+        "quote": "It would have been beneficial to know specifics on pore sizes for different filtration targets and their implications for microbial stability and sensory attributes.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss alternatives to filtration (fining, cold stabilisation) alongside recent technological innovations",
+        "quote": "Finally, discussing alternatives like fining or cold stabilisation alongside recent innovations in filtration technology would have shown a comprehensive understanding.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Presented an excellent understanding of filtration, supported by technical details about filtration systems and the relationship between micron size and wine style",
+        "quote": "Some presented an excellent understanding of filtration, supported by technical details about filtration systems, their use, and the relationship between micron size and wine style."
+      },
+      {
+        "signal": "Considered the winemaker's intentions and impact on results, with convincing examples",
+        "quote": "The better answers also considered the winemaker's intentions and the impact on results and provided convincing examples."
+      },
+      {
+        "signal": "Avoided a purely philosophical debate on filtration and acknowledged both sides",
+        "quote": "On a positive note, many candidates avoided a purely philosophical debate on filtration and acknowledged both sides."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Responses ended up poorly structured, lacking substance, or offering overly general descriptions of filtration",
+        "quote": "However, many responses ended up poorly structured, lacking substance, or offering overly general descriptions of filtration without showing a clear understanding of its application."
+      },
+      {
+        "signal": "Lacked insightful understanding of the different filtration types and their specific applications",
+        "quote": "While most candidates could identify some advantages and disadvantages, many lacked a more insightful understanding of the different filtration types and their specific applications, indicating gaps in technical knowledge."
+      },
+      {
+        "signal": "Generalised that wines without MLF or with residual sugar always require filtration, without considering alternatives",
+        "quote": "Some candidates generalised that wines that eschewed malolactic fermentation or contained residual sugar always require filtration, without considering alternatives."
+      },
+      {
+        "signal": "Confused stabilisation processes with filtration and expressed a dogmatic view of filtration as detrimental to wine quality",
+        "quote": "There were also instances of candidates confusing stabilisation processes with filtration and expressing a dogmatic view of filtration as detrimental to wine quality."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "The better answers also considered the winemaker's intentions and the impact on results and provided convincing examples."
+    },
+    "scope_traps": [],
+    "performance_note": "This question was the most popular in Section A, with over two-thirds of candidates choosing it, likely because they saw it as more straightforward... the pass rate fell below the average.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p2_q2",
+    "year": 2024,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Discuss how and why acidity is adjusted in musts and wine.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "This question tested candidates' grasp of acidity's importance in wine balance, flavour, stability, and ageing. It required a theoretical and practical understanding of acid adjustments across various wine styles and regions, including legal implications.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Outline how acidity contributes to overall balance, flavour profile, microbial stability, and ageing capacity",
+        "quote": "A comprehensive response would have outlined how acidity contributes to the wine's overall balance, flavour profile, microbial stability, and ageing capacity.",
+        "weight": "core"
+      },
+      {
+        "element": "Delineate the standard methods of acidity adjustment (tartaric/malic/citric acid additions to raise; MLF or potassium bicarbonate/calcium carbonate to reduce)",
+        "quote": "The answer should have delineated the standard methods of acidity adjustment: adding tartaric, malic, or citric acid to elevate acidity and employing malolactic fermentation (MLF) or potassium bicarbonate/calcium carbonate to reduce it.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss the characteristics, implications and typical use cases of each acid/method, and the factors influencing the decision (climate, desired wine style, grape variety, regional wine laws)",
+        "quote": "The characteristics, implications, and typical use cases of each acid and method should have been discussed, along with the factors influencing these decisions: climate, desired wine style, grape variety, and regional wine laws.",
+        "weight": "core"
+      },
+      {
+        "element": "Specify techniques and optimal timing for acidity adjustments from must to pre-bottling stages",
+        "quote": "Candidates should also have specified techniques and optimal timing for acidity adjustments from must to pre-bottling stages.",
+        "weight": "core"
+      },
+      {
+        "element": "Give specific detail on legal implications and regulations surrounding acidity adjustment",
+        "quote": "The discussion of legal implications and regulations surrounding acidity adjustment was often superficial, lacking specific details.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Identified acid adjustments for stylistic purposes and explored acidity's influence on taste, microbial stability, and SO2 efficiency, including pH's connection to Brettanomyces and MLF's role",
+        "quote": "More robust scripts identified acid adjustments for stylistic purposes and explored acidity's influence on taste, microbial stability, and SO2 efficiency, including pH's connection to Brettanomyces and MLF's role."
+      },
+      {
+        "signal": "Identified the impact of climate on acidity",
+        "quote": "They also identified the impact of climate on acidity."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Many candidates demonstrated only a basic understanding of acidity adjustment, lacking depth especially in explaining the 'how' and 'why'",
+        "quote": "The question seemed polarizing as many candidates demonstrated only a basic understanding of acidity adjustment, lacking depth, especially in explaining the \"how\" and \"why\"."
+      },
+      {
+        "signal": "Poorly addressed deacidification, the pH-acidity relationship, technical insight (e.g. calculating tartaric acid's effect on pH), pH's impact on colour/longevity, and scope beyond red and white wines",
+        "quote": "Areas that were poorly addressed included deacidification, the crucial relationship between pH and acidity, technical insight (e.g., calculating tartaric acid's effect on pH) , pH's impact on color and longevity, and the scope beyond red and white wines."
+      },
+      {
+        "signal": "Legal implications and regulations discussion often superficial, lacking specific details",
+        "quote": "The discussion of legal implications and regulations surrounding acidity adjustment was often superficial, lacking specific details."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "Despite these problems, this question had the second-highest pass rate.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p2_q3",
+    "year": 2024,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "What are the key factors for a winemaker to consider when choosing an appropriate fermentation vessel for wine production?",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What are the key factors...to consider",
+    "command_word_demand": "It required candidates to focus on technical and stylistic considerations when selecting a suitable vessel for specific winemaking goals.",
+    "definitions_required": [
+      {
+        "term": "fermentation vessel",
+        "quote": "Strong answers defined fermentation vessels and explained their role in achieving the desired wine quality and style and the rationale behind selecting a specific type of vessel based on the intended outcome for the wine, considering both traditional practices and modern innovations in winemaking."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Discuss the pros and cons of commonly used materials (stainless steel, oak, concrete, clay-based vessels, breathable plastic, fibreglass), evaluating influence on flavour, aroma, texture, ageing potential",
+        "quote": "Candidates should have discussed the pros and cons of commonly used materials, such as stainless steel, oak, concrete, clay-based vessels, breathable plastic, and fibreglass, evaluating how the choice of vessel influences flavour, aroma, texture, and ageing potential.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover vessel size and shape, temperature control, fermentation kinetics, logistical management, cleaning and maintenance, oxygen exposure, and cost",
+        "quote": "Also relevant to discuss were vessel size and shape, temperature control, fermentation kinetics, logistical management, cleaning and maintenance, oxygen exposure, and cost.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider labour requirements and potential for automation (e.g. cap management)",
+        "quote": "Other areas for consideration were labour requirements and potential for automation, especially for tasks like cap management.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Explore sustainability and longevity of different vessels (environmental impact, durability, reuse potential)",
+        "quote": "Candidates might have explored the sustainability and longevity of different vessels, including their environmental impact, durability, and reuse potential.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Effectively discussed how vessel material influences temperature control, oxygen exposure, and fermentation kinetics; well organised, using varied examples and balancing technical and stylistic considerations, and covering practical aspects like ease of cleaning",
+        "quote": "Stronger candidates effectively discussed how vessel material influences temperature control, oxygen exposure, and fermentation kinetics. These answers were well organised, addressing key winemaking stages about vessel choice, using varied examples, and balancing technical and stylistic considerations. Successful candidates also covered practical aspects such as ease of cleaning."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Most answers focused heavily on stainless steel and oak, often neglecting other materials, resulting in an incomplete evaluation",
+        "quote": "Most answers focused heavily on stainless steel and oak, often neglecting other materials, resulting in an incomplete evaluation of the full range of vessel options."
+      },
+      {
+        "signal": "Provided general descriptions of fermentation vessels without linking them adequately to their impact on wine style or the winemaking process",
+        "quote": "They often provided general descriptions of fermentation vessels without linking them adequately to their impact on wine style or the winemaking process."
+      },
+      {
+        "signal": "Overly descriptive, with little explanation of the technical reasoning or chemical processes involved; oxygen management or extraction methods frequently overlooked or only superficially mentioned",
+        "quote": "However, many answers were overly descriptive, with little explanation of the technical reasoning behind vessel choices or assessment of the chemical processes involved. Poorer responses often included simplistic definitions, vague statements, or incomplete examples, failing to demonstrate a deep understanding of the topic. Areas such as oxygen management or extraction methods were frequently overlooked or only superficially mentioned."
+      },
+      {
+        "signal": "Struggled with the proper use of abbreviations and referred to winemakers by their first names, detracting from professionalism",
+        "quote": "Several candidates struggled with the proper use of abbreviations and referred to winemakers by their first names, detracting from their professionalism."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Varied examples balancing technical and stylistic considerations across the range of vessel materials, not concentrated on stainless steel and oak alone",
+      "named_in_report": [],
+      "quote": "Most answers focused heavily on stainless steel and oak, often neglecting other materials, resulting in an incomplete evaluation of the full range of vessel options."
+    },
+    "scope_traps": [],
+    "performance_note": "This question was the second most popular, but the pass rate was the second lowest.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p2_q4",
+    "year": 2024,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Compare and contrast the key production methods for the following fortified wines: aged Tawny Port; Bual Madeira; Marsala Superiore; Rutherglen Muscat.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Compare and contrast",
+    "command_word_demand": "We expected candidates to go beyond basic descriptions and critically evaluate how regional differences and traditional practices shape the style and quality of these wines.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Methodically compare production methods for each wine, linking specific techniques (barrel types, spirit additions, ageing conditions) to their sensory outcomes",
+        "quote": "Strong answers methodically compared the production methods for each wine, linking specific techniques- such as barrel types, spirit additions, and ageing conditions-to their sensory outcomes.",
+        "weight": "core"
+      },
+      {
+        "element": "Compare production methods rather than merely describing the wines",
+        "quote": "Weak answers needed more critical analysis, focusing too much on describing the wines rather than comparing their production methods.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide specific details on fermentation, fortification, and ageing for each wine",
+        "quote": "Some candidates failed to provide specific details on fermentation, fortification, or ageing, which undermined their ability to evaluate how these processes influence the final wine style.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate accurate knowledge of Marsala Superiore's sweetening methods and solera system",
+        "quote": "However, many candidates struggled, particularly with Marsala Superiore, often displaying incomplete or inaccurate knowledge of its sweetening methods or solera system.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a structured, step-by-step approach comparing production methods across the wines for each key stage (region/climate, grape type, fermentation, fortification, ageing)",
+        "quote": "The best answers took a step-by-step approach, comparing production methods across the wines for each key stage (region/climate, grape type, fermentation, fortification, ageing).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Incorporate specific data (Baumé at picking, residual sugar, ABV, ageing times)",
+        "quote": "High-scoring answers incorporated relevant examples and data, including Baumé at picking, residual sugar (RS) levels, alcohol by volume (ABV), and ageing times, demonstrating a deep understanding of technical and sensory aspects.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Demonstrated thorough knowledge of climate and grape variety choices, highlighted shared characteristics (e.g. all four wines grown in hot climates), and connected production methods to sensory qualities and ageing potential",
+        "quote": "They demonstrated thorough knowledge, particularly in discussing climate and grape variety choices, which are crucial in fortified wine production. These candidates often highlighted shared characteristics, such as the growth of all four wines in hot climates, and connected production methods to the wines' sensory qualities and ageing potential."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Vague descriptions, particularly in explaining the solera system for Marsala and providing correct RS values",
+        "quote": "Common shortcomings included vague descriptions, particularly in explaining the solera system for Marsala and providing correct RS values."
+      },
+      {
+        "signal": "Lower-scoring responses were descriptive rather than analytical, with little explanation of technical reasoning or comparisons between the wines",
+        "quote": "Furthermore, lower-scoring responses tended to be descriptive rather than analytical, offering little explanation of the technical reasoning behind winemaking choices or comparisons between the wines."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific technical data points (Baumé at picking, RS, ABV, ageing times) for each of the four named wines",
+      "named_in_report": [],
+      "quote": "High-scoring answers incorporated relevant examples and data, including Baumé at picking, residual sugar (RS) levels, alcohol by volume (ABV), and ageing times, demonstrating a deep understanding of technical and sensory aspects."
+    },
+    "scope_traps": [],
+    "performance_note": "This question was the least popular and had the lowest pass rate.",
+    "extraction_notes": "The report notes a broader lesson beyond this specific question: 'specific questions on lesser-known styles are likely to continue to appear in future examinations,' cited here as context, not as a rubric requirement of this question."
+  },
+  {
+    "id": "th_2024_p2_q5",
+    "year": 2024,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "What is Brettanomyces and how can the factors that influence it be controlled?",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What is...and how can...be controlled",
+    "command_word_demand": "Candidates needed to demonstrate knowledge of the conditions promoting its growth and practical winemaking techniques to manage it.",
+    "definitions_required": [
+      {
+        "term": "Brettanomyces",
+        "quote": "Examiners expected candidates to clearly define Brettanomyces as a yeast genus, referencing the volatile phenols it produces-particularly 4- ethylphenol (4-EP) and 4-ethylguaiacol (4-EG)- which create aromas like barnyard and medicinal notes."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Clearly define Brettanomyces as a yeast genus, referencing 4-ethylphenol (4-EP) and 4-ethylguaiacol (4-EG) and the resulting barnyard/medicinal aromas",
+        "quote": "Examiners expected candidates to clearly define Brettanomyces as a yeast genus, referencing the volatile phenols it produces-particularly 4- ethylphenol (4-EP) and 4-ethylguaiacol (4-EG)- which create aromas like barnyard and medicinal notes.",
+        "weight": "core"
+      },
+      {
+        "element": "Note that Brett can affect white wines as well as red, not just red wines",
+        "quote": "While Brett is commonly associated with red wines, candidates should have known that it can also affect white wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Include the ways Brett can influence wine positively in small amounts (complexity) and negatively when it dominates the sensory profile",
+        "quote": "Notably, the examiners expected candidates to include the characteristics and specific ways it can be considered to influence wine positively in small amounts for complexity and negatively when it dominates the sensory profile.",
+        "weight": "core"
+      },
+      {
+        "element": "Detail factors encouraging Brettanomyces growth: residual sugar, pH (particularly above 3.6), fermentation temperature, oxygen presence",
+        "quote": "A strong response would have detailed how factors like residual sugar, pH (particularly above 3.6), fermentation temperature, and oxygen presence encourage Brettanomyces growth.",
+        "weight": "core"
+      },
+      {
+        "element": "Include practical winemaking solutions: sanitation, adjustments to wine composition (pH, sugar, alcohol), barrel management, treatments (SO2, filtration, chitosan)",
+        "quote": "Candidates should have included practical winemaking solutions, such as sanitation practices, adjustments to wine composition (managing pH, sugar, and alcohol), barrel management, and treatments like sulphur dioxide (SO2), filtration, or chemical interventions like chitosan.",
+        "weight": "core"
+      },
+      {
+        "element": "Offer specific examples and technical values rather than generalisations",
+        "quote": "Instead of relying on generalisations, answers were expected to offer specific examples and technical values demonstrating effective Brettanomyces management.",
+        "weight": "core"
+      },
+      {
+        "element": "Mention early detection methods (sensory and lab analysis)",
+        "quote": "Additionally, few candidates mentioned early detection methods like sensory and lab analysis, which are crucial in managing Brett before it causes significant spoilage.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Provided practical winemaking insight, e.g. controlling fermentation temperatures or using reverse osmosis to prevent/mitigate Brett; showed a comprehensive understanding of both proactive and reactive approaches with accurate technical values",
+        "quote": "More robust responses provided practical winemaking insight, explaining specific strategies like controlling fermentation temperatures or using reverse osmosis to prevent or mitigate Brett. These candidates also showed a comprehensive understanding of both proactive and reactive approaches, balancing sanitation, detection, and treatment methods with accurate technical values."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Focused on reactive measures like SO2 additions without discussing proactive strategies such as sanitation or oxygen management",
+        "quote": "Common issues included focusing on reactive measures like SO2 additions without discussing proactive strategies such as sanitation or oxygen management."
+      },
+      {
+        "signal": "Offered inconsistent values for pH control and insufficient discussion of the role of oxygen in Brett's development",
+        "quote": "Many answers needed more detailed explanations of how these methods work, with candidates offering inconsistent values for pH control and insufficient discussion of the role of oxygen in Brett's development."
+      },
+      {
+        "signal": "Mentioned barrel hygiene but often lacked detail, rarely explored ozone or advanced barrel sanitation, and frequently overlooked filtration",
+        "quote": "Many candidates mentioned barrel hygiene, but they often lacked detail and rarely explored techniques like ozone or advanced barrel sanitation. They also frequently overlooked filtration, a critical method for removing Brett cells before bottling."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific technical values (e.g. pH thresholds, control values) rather than generalisations",
+      "named_in_report": [],
+      "quote": "Instead of relying on generalisations, answers were expected to offer specific examples and technical values demonstrating effective Brettanomyces management."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating Brettanomyces as a red-wine-only issue",
+        "quote": "While Brett is commonly associated with red wines, candidates should have known that it can also affect white wines."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2024_p2_q6",
+    "year": 2024,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Blending is a useful tool in winemaking. Discuss how, and in what circumstances, a winemaker would choose to employ it.",
+    "source_report": "2024-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "This question assessed understanding of blending as both a corrective measure and a strategic tool in winemaking. The examiners expected candidates to thoroughly discuss the objectives of blending, decision-making processes, and practical outcomes.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Explore blending approaches (varietal combinations, vineyard selections, barrel management techniques) and explain how winemakers apply these methods in different contexts",
+        "quote": "Candidates needed to explore blending approaches, such as varietal combinations, vineyard selections, and barrel management techniques, explaining how winemakers apply these methods in different contexts.",
+        "weight": "core"
+      },
+      {
+        "element": "Clearly define the purpose of blending: enhancing balance, increasing complexity, adjusting sensory attributes, ensuring consistency across vintages",
+        "quote": "The more robust responses clearly defined the purpose of blending-enhancing balance, increasing complexity, adjusting sensory attributes (aroma, flavour, texture), and ensuring consistency across vintages.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss how legal or regulatory requirements influence blending decisions (e.g. non-vintage Champagne, the solera system in Sherry)",
+        "quote": "They also discussed how legal or regulatory requirements influence blending decisions, with examples like non-vintage Champagne or the solera system used in Sherry.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain the strategic reasons and techniques behind blending ('how' and 'why'), not just mention it superficially",
+        "quote": "A common issue was superficial discussions of blending techniques without fully explaining the \"how\" and \"why\" behind their use. For instance, candidates would mention Bordeaux varietal blending or Champagne blending for consistency without exploring the strategic reasons or the techniques employed.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover blending's role in large-scale commercial winemaking, not only premium wine production",
+        "quote": "Additionally, many focused too much on premium wine production, neglecting blending's crucial role in large-scale commercial winemaking, where consistency and efficiency are key.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss practical steps of blending: conducting trials, tasting and analysing components, benchmarking against competitors or market demands, sensory/lab analysis",
+        "quote": "Essays frequently needed more discussions on how winemakers conduct blending trials, taste and analyse components, and benchmark their blends against competitors or market demands. Few mentioned the role of sensory and laboratory analysis or the process of adjusting blends to meet stylistic or commercial goals.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss the blending of oak types and its influence on the final product",
+        "quote": "Additionally, the blending of oak types and its influence on the final product was often overlooked, despite being an important aspect of barrel management.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Used specific examples to illustrate how blending addresses challenges like vintage variation and elevates wine quality, particularly in large-scale commercial production",
+        "quote": "High-scoring candidates moved beyond general statements, using specific examples to illustrate how blending addresses challenges like vintage variation and elevating wine quality, particularly in large-scale commercial production."
+      },
+      {
+        "signal": "Combined theoretical knowledge with practical insight, covering a range of winemaking contexts and offering detailed explanations of the decision-making process",
+        "quote": "Strong responses combined theoretical knowledge with practical insight, covering a range of winemaking contexts and offering detailed explanations of the decision-making process."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Superficial discussions of blending techniques without fully explaining the 'how' and 'why'",
+        "quote": "A common issue was superficial discussions of blending techniques without fully explaining the \"how\" and \"why\" behind their use."
+      },
+      {
+        "signal": "Focused too much on premium wine production, neglecting blending's role in large-scale commercial winemaking",
+        "quote": "Additionally, many focused too much on premium wine production, neglecting blending's crucial role in large-scale commercial winemaking, where consistency and efficiency are key."
+      },
+      {
+        "signal": "Dived into responses without defining the scope or arranging points logically, resulting in meandering answers",
+        "quote": "Several candidates dived into their responses without defining the scope or arranging their points logically, resulting in meandering answers."
+      },
+      {
+        "signal": "Neglected critical areas such as regulatory considerations or the practical steps involved in large-scale blending",
+        "quote": "Others neglected critical areas, such as regulatory considerations or the practical steps involved in large- scale blending."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific examples illustrating how blending addresses vintage variation and elevates quality, spanning both premium and large-scale commercial winemaking, not just premium examples",
+      "named_in_report": [
+        "non-vintage Champagne",
+        "the solera system used in Sherry",
+        "Bordeaux varietal blending"
+      ],
+      "quote": "High-scoring candidates moved beyond general statements, using specific examples to illustrate how blending addresses challenges like vintage variation and elevating wine quality, particularly in large-scale commercial production."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating blending as primarily a premium-wine topic, neglecting its role in large-scale commercial winemaking",
+        "quote": "Additionally, many focused too much on premium wine production, neglecting blending's crucial role in large-scale commercial winemaking, where consistency and efficiency are key."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  }
+]

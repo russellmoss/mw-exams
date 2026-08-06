@@ -1,0 +1,1033 @@
+[
+  {
+    "id": "th_2025_p3_q1",
+    "year": 2025,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "As a producer of a dry white wine that may age in bottle for up to five years, you are considering changing from natural cork stoppers to an alternative closure. What technical factors should you consider?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "consider",
+    "command_word_demand": "Candidates needed to understand that the closure must provide an effective seal - for at least 5 years, in this case - and could have taken the view that an inert closure to reduce change was preferred, or a clo sure that allowed some bottle development.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "The alternative closure must provide an effective seal for the full ageing period (at least 5 years in this scenario)",
+        "quote": "Candidates needed to understand that the closure must provide an effective seal - for at least 5 years, in this case - and could have taken the view that an inert closure to reduce change was preferred, or a clo sure that allowed some bottle development.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the core technical considerations: suitability to avoid taints/detrimental changes and leaks, handling and fitting, effective life span, and implications for handling the wine including headspace management",
+        "quote": "Technical considerations include: suitability of closure to avoid taints or detrimental changes and avoid leaks; handling and fitting; effective life span; and implications for handling of the wine itself, including managing headspace.",
+        "weight": "core"
+      },
+      {
+        "element": "Give OTR (oxygen transmission rate) figures with correct units (amount per volume per unit of time), and cover the larger picture of wine handling and headspace management",
+        "quote": "poor understanding of technical details such as OTR (correct units showing amount/per volume/per unit of time must be given, or numbers are m eaningless) and failed to cover the larger picture of wine handling and headspace management.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "A good number of high-quality scripts were produced on this question",
+        "quote": "Examiners reported a good number of high - quality scripts."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Weak candidates showed poor understanding of OTR technical detail and failed to cover the larger picture of wine handling and headspace management",
+        "quote": "Where candidates did not do well, they were let down by poor understanding of technical details such as OTR (correct units showing amount/per volume/per unit of time must be given, or numbers are m eaningless) and failed to cover the larger picture of wine handling and headspace management."
+      },
+      {
+        "signal": "Descriptive answers without real analysis were disappointing",
+        "quote": "Descriptive answers without real analysis were also disappointing."
+      },
+      {
+        "signal": "Examples were too thin - just 'X does Y' - without enough detail for context",
+        "quote": "And examples needed to be more than X does Y and give enough detail that the context is clear."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples needed to be more than a bald 'X does Y' statement and give enough detail that the context is clear",
+      "named_in_report": [],
+      "quote": "And examples needed to be more than X does Y and give enough detail that the context is clear."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing marketing or end-user closure preferences instead of technical factors",
+        "quote": "The question did not require answers to cover marketing or end user preferences."
+      }
+    ],
+    "performance_note": "There was a solid pass rate on this question indicating that closures are well understood. Examiners reported a good number of high-quality scripts.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'm eaningless', 'clo sure') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p3_q2",
+    "year": 2025,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Write concise notes on three of the following:\n\na. Mousiness.\nb. Light strike in bottled wine.\nc. Elevated volatile acidity in bottled wine.\nd. Management of a tank of rosé with free sulphur dioxide well above its ideal level.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Write concise notes",
+    "command_word_demand": "This question required candidates to have a strong understanding of 3 of the 4 topics. It was also specific that the answer needed to be concise.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Strong, specific understanding of 3 of the 4 named topics, written concisely",
+        "quote": "This question required candidates to have a strong understanding of 3 of the 4 topics. It was also specific that the answer needed to be concise.",
+        "weight": "core"
+      },
+      {
+        "element": "For the volatile acidity topic, address VA specifically 'in a bottled wine' - the QC investigation into how VA arose in the bottled wine and how to prevent recurrence - not VA in general",
+        "quote": "The answer on volatile acidity was probably the most varied - some excellent answers but weak answers failed to address 'in a bottled wine'. If they wrot e on VA in general, they missed the key aspect of the QC investigation to establish how VA arose in bottled wine and could usefully have referred to how to prevent its future occurrence.",
+        "weight": "core"
+      },
+      {
+        "element": "Understanding of the implications of riboflavin levels and sulphur-containing amino acids for mousiness/light-strike",
+        "quote": "a number of candidates were not aware of implications of riboflavin levels and sulphur - containing amino acids.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Providing relevant examples to support explanations often helped candidates into a pass",
+        "quote": "Those that provided relevant examples to support their explanations scored well, often helping those into a pass versus those that fell short."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Candidates lacking knowledge were shown up quickly and tended to write around the subject rather than answer the question asked",
+        "quote": "Those lacking in knowledge were shown up very quickly and often candidates tended to write around the subject rather than answer the question asked."
+      },
+      {
+        "signal": "The rosé/high FSO2 management topic was the weakest answered, showing many candidates lack a strong grasp of winemaking practices outside standard processes",
+        "quote": "The question of managing high FSO2 in a ros� was probably the weakest in terms of answers, showing that many candidates just do not have a strong grasp of winemaking practices outside of the standard proce sses implemented by winemakers."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Relevant, supporting examples for each topic chosen",
+      "named_in_report": [],
+      "quote": "Those that provided relevant examples to support their explanations scored well, often helping those into a pass versus those that fell short."
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about volatile acidity in general rather than specifically addressing VA in a bottled wine and the QC investigation into its cause",
+        "quote": "If they wrot e on VA in general, they missed the key aspect of the QC investigation to establish how VA arose in bottled wine and could usefully have referred to how to prevent its future occurrence."
+      }
+    ],
+    "performance_note": "The topics mousiness and light-strike were probably the two best answered questions... The answer on volatile acidity was probably the most varied... The question of managing high FSO2 in a rosé was probably the weakest in terms of answers.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'wrot e', 'proce sses') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p3_q3",
+    "year": 2025,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What are the key factors to consider when deciding whether to cold stabilise white and red wines? What quality control measures are required to test that wine is stable?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "consider",
+    "command_word_demand": "candidates who did not address the second part of the question did lose marks... Overall, the first part of the question (factors to consider in decid ing whether to cold stabilise) was answered much better than the second (QC measures relevant to tartrate stability), but many candidates appeared not to have real breadth or depth of understanding on either aspect.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Address the second part of the question - QC measures/tests for tartrate stability - not just the decision factors",
+        "quote": "A lot of answers did not address the second part of the question about tests for tartrate stability, and this was important to cover for good marks.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain why tartrate stabilisation is less important for red wine than for white or rosé wine",
+        "quote": "Many candidates did not explain why tartrate stabilisation is less important for red than for white or ros� wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss the trade-offs and quality implications of cold stabilisation methods, not just describe methods (especially chill filtering)",
+        "quote": "Weaker answers were descriptive about methods for cold stabilising often with strong emphasis on chill filtering, rather than providing sufficient analysis about why it might be done and the trade - offs and implications for wine quality of the methods avail able.",
+        "weight": "core"
+      },
+      {
+        "element": "Ground the discussion in wine chemistry rather than only practical or economic factors",
+        "quote": "Better answers looked at wine chemistry rather than just focusing on practical or economic factors, b ut several who did attempt to do this were unable to explain it properly.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "This question had the lowest pass mark on the paper",
+        "quote": "This question had the lowest pass mark on this paper."
+      },
+      {
+        "signal": "Candidates appeared to repeat something told to them by a producer but struggled to justify it analytically",
+        "quote": "It looks as though candidates had been told something by a producer but struggled to justify it in their essays."
+      },
+      {
+        "signal": "Many candidates appeared not to have real breadth or depth of understanding on either part of the question",
+        "quote": "many candidates appeared not to have real breadth or depth of understanding on either aspect."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must explain 'why', not just assert a fact - e.g. a bald claim that a retailer requires a producer to cold stabilise is of limited value unless it covers the underlying reason",
+      "named_in_report": [],
+      "quote": "a bald statement that '[Supermarket X] requires [Winery Y] to cold stabilise its wines' is of limited value as an example - it needs to cover why ( e .g. transport in cold temperatures, likely customer responses etc)."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating cold stabilisation as simply chill filtering",
+        "quote": "It is not simply about chill filtering the wine."
+      },
+      {
+        "trap": "Interpreting the second part of the question as covering QC measures for wine stability generally, rather than specifically measures for testing cold/tartrate stability",
+        "quote": "Several candidates interpreted the second part of this question as covering quality control measures generally addressing wine stability, not just measures for testing for cold stability, as was expecte d in setting the question. This was allowed for."
+      }
+    ],
+    "performance_note": "This question had the lowest pass mark on this paper. Overall, the first part of the question was answered much better than the second (QC measures relevant to tartrate stability).",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'expecte d', 'avail able', 'b ut') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p3_q4",
+    "year": 2025,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Why are fining agents used in winemaking? For each of the following wines, explain which factors might influence the choice of fining agent used:\n\na. Entry-level South African Chenin Blanc;\nb. DOCG Barolo; and\nc. Vegan AOC Côtes de Provence rosé.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "explain",
+    "command_word_demand": "The question was broken into two parts and both required addressing, which a number of candidates failed to do.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "State clearly that the purposes of fining are clarification and stabilisation, and that it may also modify colour and adjust astringency/tannin levels",
+        "quote": "Answers needed to be clear that the purposes of fining are clar ification and stabilisation, and that it may also be used to modify colour and adjust astringency/ tannin levels.",
+        "weight": "core"
+      },
+      {
+        "element": "Note that fining is speedier than natural settling, saving cost for producer and consumer, with possible logistical benefits",
+        "quote": "It is also important to be aware that it is speedier than a natural settling process, so saves money for producer and ultimately, consumer, an d may have logistical benefits.",
+        "weight": "core"
+      },
+      {
+        "element": "Only address the post-fermentation stage of winemaking (paper three's default scope) rather than pre-fermentation fining choices",
+        "quote": "A number of candidates also wasted time addressing pre - fermentation fining choices, whereas they should be aware that p aper three addresses only the post - fermentation stage of winemaking unless otherwise stated.",
+        "weight": "core"
+      },
+      {
+        "element": "Show basic winemaking knowledge of which fining agent is most applicable to each wine style",
+        "quote": "Where many came unstuck was their basic winemaking knowledge of factors influencing the choice of fining agent and which fining agent is most applicable to the wine style in question. Those that could do this, scored well.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider cost of the fining agent and the cost implications of the time fining takes with each option",
+        "quote": "cost of the fining agent chosen and cost implications of the time fining would take with each option",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Show awareness of labelling/allergen considerations",
+        "quote": "labelling/allergen considerations - thou gh not essential to cover, it would have been useful to show awareness.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Providing relevant examples to support the explanation scored well",
+        "quote": "Those that provided relevant examples to support their explanation scored well."
+      },
+      {
+        "signal": "The DOCG Barolo answer was the best answered part, likely because it is a more traditional, familiar wine style",
+        "quote": "The answer to the DOCG Barolo was the best answered part of the question, perhaps because it is a more traditional wine style with which everyone is familiar."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Many candidates were unable to use relevant producer examples to critically discuss alternative fining practices",
+        "quote": "Many candidates were unable to use relevant producer examples to discuss critically alternative fining practices, suggesting that they need to travel/speak to visiting winemakers more than they have done to date."
+      },
+      {
+        "signal": "Examples were often not well thought through and showed little association with the point being supported",
+        "quote": "Most candidates supported their answer with exampl es but often the examples were not well thought through and showed little association with the points they should have been supporting."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Producer examples relevant to the specific fining choice, well thought through and clearly tied to the point being made",
+      "named_in_report": [],
+      "quote": "Most candidates supported their answer with exampl es but often the examples were not well thought through and showed little association with the points they should have been supporting."
+    },
+    "scope_traps": [
+      {
+        "trap": "Addressing pre-fermentation fining choices when paper three questions default to the post-fermentation stage unless otherwise stated",
+        "quote": "A number of candidates also wasted time addressing pre - fermentation fining choices, whereas they should be aware that p aper three addresses only the post - fermentation stage of winemaking unless otherwise stated."
+      }
+    ],
+    "performance_note": "This was, in general, a better answered question than the one on cold stability. The answer to the DOCG Barolo was the best answered part of the question.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'clar ification', 'thou gh', 'exampl es') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p4_q1",
+    "year": 2025,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "How has Champagne maintained its primacy in the world of sparkling wine?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How has... maintained",
+    "command_word_demand": "This was a broad question that invited candidates to consider legal, historical, financial and economic reasons that help explain the continued success of Champagne.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Consider legal, historical, financial and economic reasons for Champagne's continued success",
+        "quote": "This was a broad question that invited candidates to consider legal, historical, financial and economic reasons that help explain the continued success of Champagne.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the role of the CIVC in organising the industry and the importance of branding allied to Champagne's luxury positioning",
+        "quote": "Those essays that succeeded covered the important r ole of the CIVC in organising the industry along with the importance of branding allied to Champagne's luxury positioning.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Link branding to distribution across sales channels (on-trade, off-trade, export)",
+        "quote": "The role of branding could have been linked and discussed in relation to the importance of distribution points across different sales channels (on - trade, off - trade, and export).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Critically examine the role of competition, e.g. how Champagne has seen off the threat from Prosecco",
+        "quote": "More could have been written about the role of competition, critically examining how Champagne has arguably succeeded and seen off a strong threat from Prosecco.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Overall, the question was answered quite poorly",
+        "quote": "Overall, it was answered quite poorly."
+      },
+      {
+        "signal": "Weaker essays were descriptive or anecdotal and lacked critical thinking",
+        "quote": "Weaker essays were descriptive or anecdotal and lacked critical thinking."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Quantitative data on pricing (cost per bottle, grape pricing, retail and promotional price architecture) and on how yield limits manage supply and quality",
+      "named_in_report": ["Prosecco"],
+      "quote": "Examiners would like to have seen more data relating to pricing (cost per bottle and grape pricing as well as retail and promotional price architecture), along with data on how yield limits can be used to help manage supply and qu ality."
+    },
+    "scope_traps": [],
+    "performance_note": "Overall, it was answered quite poorly.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'r ole', 'qu ality') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p4_q2",
+    "year": 2025,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "Do sustainability initiatives inevitably compromise profitability?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Do... inevitably compromise",
+    "command_word_demand": "Many candidates struggled with this essay due to a lack of incisive structure and narrow focus, often concentrating solely on vineyard production while neglecting broader commercial and global considerations.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Address broader commercial and global considerations, not only vineyard production",
+        "quote": "Many candidates struggled with this essay due to a lack of incisive structure and narrow focus, often concentrating solely on vineyard production while neglecting broader commercial and global considerations.",
+        "weight": "core"
+      },
+      {
+        "element": "Present balanced arguments weighing upfront costs against long-term gains",
+        "quote": "Stronger essays stood out by presenting balance d arguments - such as weighing upfront costs against long - term gains",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Demonstrate nuanced understanding of sustainability's commercial impact across the value chain, including ROI modelling complexity and profitability implications for different stakeholders",
+        "quote": "High - s coring responses also demonstrated a nuanced understanding of sustainability's commercial impact across the value chain, acknowledging the complexity of ROI modelling and profitability implications for different stakeholders.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Lead with clear arguments supported by examples, rather than letting examples drive the narrative",
+        "quote": "Importantly, these essays led with clear arguments supported by examples, rather than relying on examples to drive the narrative.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Critically evaluate source material rather than accepting producer claims at face value, and consider consumer willingness to pay and the role of government support",
+        "quote": "Candidates who critically evaluated source material, rather than accepting producer claims at face value, and who considered consumer willingness to pay, al ong with the role of government support, offered a more lateral and insightful perspective.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Weaker essays were often overly US- or Scandinavia-centric, relied heavily on micro-level sustainability practices, and lacked macro-level analysis of who benefits and why",
+        "quote": "In contrast, weaker essays were often overly US - or Scandinavia - centric, relied heavily on micro - level sustainability practices, and lacked the macro - level analysis of who benefits and why."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Diverse, well-chosen examples from various countries and models (e.g. bulk shipping, glass weight, labour costs, accreditation schemes)",
+      "named_in_report": ["Ecocert"],
+      "quote": "incorporating diverse, well - chosen examples from various countries and models, including bulk shipping, glass weight, labour costs, and accreditation schemes like Ecocert."
+    },
+    "scope_traps": [],
+    "performance_note": "Many candidates struggled with this essay due to a lack of incisive structure and narrow focus.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'balance d', 'High - s coring') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p4_q3",
+    "year": 2025,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "How can the wine industry best address the issues of overproduction and falling consumption?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How can... best address",
+    "command_word_demand": "This question was generally well answered, with stronger responses demonstrating a clear, logical structure, global scope, and analytical depth.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Assess both mature and emerging markets across New and Old World regions, incorporating producer and consumer perspectives",
+        "quote": "Candidates who excelled showed an ability to assess both mature and emerging markets across New and Old World r egions, incorporating producer and consumer perspectives to offer a comprehensive view.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address key themes such as profitability, long-term viability, vine-pull schemes, market segmentation, and generational shifts in consumption to explore systemic supply and demand dynamics",
+        "quote": "Successful essays addressed key themes such as profitability, long - term viability, vine - pull schemes, market segmentation, and generational shifts in consumption, using these to explore systemic supply and demand dynamics.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Question the interdependence of overproduction and falling consumption rather than relying on binary solutions, supported by relevant data",
+        "quote": "Rather than relying on binary solutions like reducing overproduction or increasing consumption, 16 top - performing candidates questioned the interdependence of these issues and supported their arguments with relevant data, such as OIV statistics.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Favour balanced arguments over ideological or polarising views, particularly on health-related consumption trends",
+        "quote": "Importantly, in the better essays balanced arguments were favoured over ideological or polarising views - particularly regarding health - related consumption trends.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Some essays relied on anecdotal claims or descriptive marketing examples rather than maintaining a critical lens",
+        "quote": "While some relied on anecdotal claims or descriptive marketing examples, stronger responses maintained a crit ical lens and cohesive narrative."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Arguments supported by relevant data such as OIV statistics",
+      "named_in_report": ["OIV statistics"],
+      "quote": "questioned the interdependence of these issues and supported their arguments with relevant data, such as OIV statistics."
+    },
+    "scope_traps": [],
+    "performance_note": "This question was generally well answered, with stronger responses demonstrating a clear, logical structure, global scope, and analytical depth.",
+    "extraction_notes": "Page-break artifact '16' embedded mid-sentence in the source ('these issues 16 top - performing candidates'); reproduced verbatim in the quote."
+  },
+  {
+    "id": "th_2025_p4_q4",
+    "year": 2025,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "To what extent can government wine monopolies benefit producers, retailers and consumers?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "Pass-level essays showed solid knowledge of key issues, including pricing mechanisms, sustainability and public health, the tender process, monopoly dynamics and distribution and logistics.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show solid knowledge of pricing mechanisms, sustainability and public health, the tender process, monopoly dynamics, and distribution and logistics",
+        "quote": "Pass - level essays showed solid knowledge of key issues, including pricing mechanisms, sustainability and public health, the tender process, monopoly dynamics and distribution and logistics.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss the role of quality assurance a monopoly structure can offer a producer",
+        "quote": "It w as good to see some essays refer to the role of quality assurance that a monopoly structure can indirectly (or directly) offer a producer.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Focus critical analysis on producer and retailer implications of monopoly, consumer choice and quality, and the balance between restriction and efficiency",
+        "quote": "Those essays that were strongest focused critical analysis on the producer and retailer implications of monopoly and the question of consumer choice and quality, along with the balance between restriction and efficiency.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address the debate over whether monopolies help or hinder small/niche producers, grounded in definition and evidence",
+        "quote": "The best essays were well structured, nuanced, and grou nded in definition and evidence, addressing, for example, the debate over whether monopolies help or hinder small/niche producers.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Weaker essays focused on one side of the argument with superficial analysis or insufficient depth, e.g. on variation in monopoly structures across jurisdictions",
+        "quote": "Weaker essays tended to focus on one side of the argument with more superficial analysis or insufficient depth, for example, the variation in monopoly s tructures across jurisdictions."
+      },
+      {
+        "signal": "US control states were frequently omitted or underexplored",
+        "quote": "Often, there was an over - reliance on Canada and Scandinavia as example markets, and the examiners noted that US control states were frequently omitted or underexplored."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Should not over-rely on Canada and Scandinavia as example markets; US control states should also be covered",
+      "named_in_report": ["Canada", "Scandinavia", "US control states"],
+      "quote": "Often, there was an over - reliance on Canada and Scandinavia as example markets, and the examiners noted that US control states were frequently omitted or underexplored."
+    },
+    "scope_traps": [],
+    "performance_note": "This was a reasonably well-answered, if unpopular, question.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'It w as', 'grou nded', 's tructures') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p4_q5",
+    "year": 2025,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Wineries are increasingly selling direct to consumers. Evaluate the strengths and weaknesses of this approach compared to other routes to market.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "The best essays defined DTC clearly and placed it within the wider RTM context, treating DTC as one of several options, not an isolated strategy.",
+    "definitions_required": [
+      {
+        "term": "DTC (direct to consumer)",
+        "quote": "The best essays defined DTC clearly and placed it within the wider RTM context, treating DTC as one of several options, not an isolated strategy."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Discuss alternative routes to market (e.g. traditional wholesale, e-commerce partnerships) to genuinely compare DTC against, as the question requires",
+        "quote": "However, many essays lacked adequate discussion of alternative RTMs, such as traditional wholesale and e - commerce partnerships.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the benefits of DTC: control over customer experience, higher margins, brand building, and data capture via loyalty schemes",
+        "quote": "Examiners noted that strong essays demonstrated a solid understanding of the benefits of direct to consumer (DTC), including control over the customer experience, higher margins , brand building, and the role of data capture (loyalty schemes such as Wine Clubs).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Acknowledge the complexity of hybrid routes to market and that DTC is not a one-size-fits-all model",
+        "quote": "The best responses acknowledged the complexity of hybr id Routes to Market ( RTM ) s and recognised that DTC is not a one - size - fits - all model, discussing DTC in the context of a broader, multi - channel strategy.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider the high costs of running DTC and the upfront capital investment required",
+        "quote": "Also lacking in many essays was consideration of the high costs of running DTC and the upfront capital investment often required.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strong essays showed frequent use of real-world examples across different producer scales and geographic markets, e.g. the nascent English wine industry",
+        "quote": "Strong essays showed frequent use of r eal - world examples, showing awareness of different producer scales and geographic markets, including, for example, references to the nascent English wine industry and the associated development of DTC."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "There was a heavy US and Canada bias, with Europe and other global markets underrepresented",
+        "quote": "Generally, there was a heavy US and Canada bias, with Europe and other global markets underrepresented."
+      },
+      {
+        "signal": "Little comparative analysis of how DTC plays out in rural compared to urban locations",
+        "quote": "Examiners also noted t hat there was little comparative analysis of how DTC plays out in rural compared to urban locations."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Real-world examples spanning different producer scales and geographic markets, not concentrated in the US and Canada",
+      "named_in_report": ["English wine industry"],
+      "quote": "Strong essays showed frequent use of r eal - world examples, showing awareness of different producer scales and geographic markets, including, for example, references to the nascent English wine industry and the associated development of DTC."
+    },
+    "scope_traps": [],
+    "performance_note": "This was the most popular essay on the paper and there were many good answers.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'r eal - world', 't hat', 'hybr id') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p4_q6",
+    "year": 2025,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Discuss the evolution of the négociant business format in Burgundy over the last 15 years, explaining the contributing factors. Are current conditions financially sustainable?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "This question, which required specific knowledge of the Burgundy market, was not at all popular, but those who attempted it answered reasonably well.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show accurate understanding of the role and scope of négociants, not confusing them with brokers or wine domaines, and not misdating their origin to the 1980s",
+        "quote": "Some candidates demonstrated confusion about the role and scope of n�gociants, often misrepresenting them as merely brokers, or confusing them with wine domaines, and sometimes incorrectly stating that n�gociants began as recently as the 1980s.",
+        "weight": "core"
+      },
+      {
+        "element": "Reference historically successful négociant examples (e.g. Drouhin or Bichot), not only new négociants",
+        "quote": "Some candidates only referred to new n�gociants, not thinking of historically successful examples such as Drouhin or Bichot.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide full-length, developed analysis rather than an incomplete or very brief essay",
+        "quote": "Several essays were incomplete or very brief, limiting depth of analysis.",
+        "weight": "core"
+      },
+      {
+        "element": "Include thoughtful writing, clear structure, and attention to recent financial aspects of the négociant business",
+        "quote": "Stronger candidates included thoughtful writing, clear structure, and attention t o recent financial aspects.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Introductions were generally strong, with good parameter setting and relevant examples",
+        "quote": "While introductions were generally strong, with good paramet er setting and relevant examples, candidates often showed gaps in knowledge, for example believing all growers make their own wine or that n�gociants are declining in number."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Candidates often showed gaps in knowledge, e.g. believing all growers make their own wine or that négociants are declining in number",
+        "quote": "candidates often showed gaps in knowledge, for example believing all growers make their own wine or that n�gociants are declining in number."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Négociant-specific examples, including historic ones such as Drouhin or Bichot, not Domaine cases",
+      "named_in_report": ["Drouhin", "Bichot"],
+      "quote": "Examples used were sometimes inappropriate, such as using Domaine cases in what is a n�gociant - focused question."
+    },
+    "scope_traps": [
+      {
+        "trap": "Using Domaine (grower/estate) case examples for what is a négociant-focused question",
+        "quote": "Examples used were sometimes inappropriate, such as using Domaine cases in what is a n�gociant - focused question."
+      }
+    ],
+    "performance_note": "This question, which required specific knowledge of the Burgundy market, was not at all popular, but those who attempted it answered reasonably well.",
+    "extraction_notes": "Source PDF has spacing artifacts and mojibake for accented characters (e.g. 'n�gociant' for 'négociant', 'attention t o', 'paramet er') reproduced verbatim in quotes per instructions; the accented characters render correctly (é) in the underlying JSON, the mojibake shown in tool output is a display artifact of the extraction process, not present in the source data."
+  },
+  {
+    "id": "th_2025_p5_q1",
+    "year": 2025,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "What will be the likely impact on the global wine industry if health warnings about cancer risks become increasingly mandatory on wine labels? Discuss the implications of such changes for producers, marketers and consumers.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss the implications",
+    "command_word_demand": "Pass-level candidates avoided most of these pitfalls and applied their knowledge evenly across the three areas mentioned in the question, supported by global examples.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Apply knowledge evenly across all three named areas - producers, marketers and consumers - rather than favouring one",
+        "quote": "Pass - level candidates avoided most of these pitfalls and applied their knowledge evenly across the three areas mentioned in the question, supported by global examples.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a global view of the industry, reflecting its global nature",
+        "quote": "A global perspective is essential to a high - quality p aper five response, and candidates must ensure they reflect the global nature of the industry.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider potential benefits to all three groups, thinking holistically and critically",
+        "quote": "They also considered potential benefits to all three groups - demonstrating an ability to think holistically an d critically about the situation.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Engage with the wider commercial and regulatory context - market positioning, brand equity, consumer trust, long-term category growth - beyond packaging implications",
+        "quote": "Few candidates explored how mandatory health warnings could affect market positioning, brand equity, consumer trust, or long - term category grow th, beyond the immediate packaging implications.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Stronger candidates considered the issue in greater depth and breadth, with balanced arguments and diverse regional examples",
+        "quote": "Stronger candidates considered the issue in greater depth and breadth, presenting more b alanced arguments, better supported by more diverse examples from different regions, and engaged with current health discourse in a nuanced way."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Dr Laura Catena's position on this issue was very frequently misrepresented",
+        "quote": "Dr Laura Catena 's position on this issue was very frequently misrepresented."
+      },
+      {
+        "signal": "Consumers were rarely treated with any global or demographic resolution",
+        "quote": "Consumers were rarely treated with any global or demographic resolution."
+      },
+      {
+        "signal": "Candidates spent too much time outlining background detail before delivering substantive discussion of implications",
+        "quote": "Often, candidates spent too much time outlining the background with unnecessary detail before getting around to delivering substantive discussion on the implications for producers, marketers and consumers."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global examples, not concentrated solely on the UK, USA or EU",
+      "named_in_report": [],
+      "quote": "Another common weakness was the lack of supporting evidence and examples - or examples concentrated solely on the UK, USA or EU."
+    },
+    "scope_traps": [
+      {
+        "trap": "Narrowing the answer to label changes and costs only, missing wider implications such as sales impact, global over-supply, premiumisation opportunity, or pressure to reduce alcohol levels",
+        "quote": "Many other weaker answers had an overly narrow focus entirely on label changes and costs, rather tha n on wider implications such as the impact on sales and global over - supply, the potential opportunity for premiumisation, or the pressure to reduce alcohol levels."
+      }
+    ],
+    "performance_note": "This is a 'hot topic' and it was clear that many candidates had researched it well in advance of the exam; however, many answers failed to fully address all parts of the question, or were too descriptive and simplistic.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'grow th', 'rathe r tha n', 'b alanced', 'an d') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p5_q2",
+    "year": 2025,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "How is the global wine industry adapting to changing societal attitudes towards alcohol consumption, and how should it respond to the challenges and opportunities these changes present?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How is... adapting, and how should it respond",
+    "command_word_demand": "Stronger answers tackled both parts of the question clearly, defined key terms and showed a comprehensive understanding of the varied impacts across the wine supply chain.",
+    "definitions_required": [
+      {
+        "term": "key terms of the question (e.g. moderation, No/Lo)",
+        "quote": "Stronger answers tackled both parts of the question clearly, defined key terms and showed a comprehensive understanding of the varied impacts across the wine supply chain."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Tackle both parts of the question - how the industry is adapting, and how it should respond",
+        "quote": "Stronger answers tackled both parts of the question clearly, defined key terms and showed a comprehensive understanding of the varied impacts across the wine supply chain.",
+        "weight": "core"
+      },
+      {
+        "element": "Critically interrogate the limitations of No/Lo wines rather than treating them as a panacea",
+        "quote": "No/Lo \"wines\" were often uncritically embraced as a panacea wi thout any real interrogation of their limitations, with some candidates devoting too much of their answer to these products.",
+        "weight": "core"
+      },
+      {
+        "element": "Explore alternative strategic responses beyond product reformulation - marketing, distribution, portfolio management, consumer engagement",
+        "quote": "Few candidates explored alternative strategic responses beyond product reformulation - such as changes in marketing, distribu tion, portfolio management, or consumer engagement.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Examine how different supply chain segments (small estate producers to multinational brand owners) experience and respond to societal shifts differently",
+        "quote": "There was little examination of how different segments of the supply chain (from small estate producers to multinational brand owners) might experience and respond to societal shifts in consumption differ ently, or how policy interventions and health - authority messaging could shape long - term demand.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Identify tensions between goals, e.g. energy-intensive alcohol removal processes versus sustainability targets",
+        "quote": "Equally, realistic tensions between goals - for example, between energy - intensive alcohol removal processes and sustainability targets - were rarely mentioned.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best candidates interrogated the limitations of the No/Lo category, e.g. noting that even bullish growth projections would not offset overall wine market decline, and the lack of success in red No/Lo wines",
+        "quote": "The best candidates demonstrated genuine critical thinking - particularly in interro gating the limitations of the No/Lo category (including the facts that even the most bullish current growth projections would not offset the overall decline in the wine market, and the persistent lack of real success in producing red wines in this category , which excludes a whole swathe of consumers)."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Weaker responses were descriptive, repetitive or overly focused on one area (e.g. product innovation), with limited attention to broader strategic response or regulatory implications",
+        "quote": "Weaker responses tended to be descriptive, repetitive or overly focused on one area (e.g. product innovation), with limited attention to a broader strategic response or regulatory implications."
+      },
+      {
+        "signal": "Many neglected to discuss developing markets or failed to give sufficient global examples",
+        "quote": "Many neglected to discuss developing markets or failed to give sufficient global examples."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Sufficient global examples, including developing markets",
+      "named_in_report": [],
+      "quote": "Many neglected to discuss developing markets or failed to give sufficient global examples."
+    },
+    "scope_traps": [
+      {
+        "trap": "Devoting too much of the answer to No/Lo wines as an uncritical panacea",
+        "quote": "No/Lo \"wines\" were often uncritically embraced as a panacea wi thout any real interrogation of their limitations, with some candidates devoting too much of their answer to these products."
+      }
+    ],
+    "performance_note": "This was the most attempted question this year. Marks clustered below and around the pass mark, with relatively few excellent performances.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'wi thout', 'differ ently', 'interro gating') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p5_q3",
+    "year": 2025,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "You are tasked with creating a wine blend that represents the essence of humanity's wine culture. Which grapes or regions would you include, and which winemaking style and packaging would you use, and why?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "creating... would you include... would you use, and why",
+    "command_word_demand": "Successful answers began with a clear definition, and then maintained a consistent rationale on how this would be delivered through their proposed blend, winemaking and packaging decisions.",
+    "definitions_required": [
+      {
+        "term": "the essence of humanity's wine culture",
+        "quote": "Weaker answers lacked any clear definition of what 'the essence of humanity's wine culture' meant, omitted a clear blend proposal, or defaulted to historical surveys of grape varieties which had very limited relevance to answering the question."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Begin with a clear definition of 'the essence of humanity's wine culture' and carry a consistent rationale through the blend, winemaking and packaging decisions",
+        "quote": "Successful answers began with a clear definition, and then maintained a consistent rationale on how this would be delivered through their proposed blend, winemaking and packaging decisions.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide a clear, specific blend proposal (grapes/regions), not a historical survey of varieties",
+        "quote": "Weaker answers lacked any clear definition of what 'the essence of humanity's wine culture' meant, omitted a clear blend proposal, or defaulted to historical surveys of grape varieties which had very limited relevance to answering the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Address packaging substantively - not only glass bottles, or only bottles and closures",
+        "quote": "Packaging was an area where marks were frequently lost - many candidates overlooked this entirely or discussed only glass bottles, or only bottles and closures.",
+        "weight": "core"
+      },
+      {
+        "element": "Integrate specific thoughts on label design, sustainability impacts, messaging and cultural cues in the packaging discussion",
+        "quote": "Higher - scoring ans wers integrated specific thoughts on label design, sustainability impacts, messaging and cultural cues.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Take a truly global perspective and consider cultural symbolism, accessibility and inclusivity in the winemaking and packaging choices",
+        "quote": "Missed opportunities included integrating a truly global perspective - many blends defaulted to well - known European classics - and considering how cultural symbolism, accessibility, and inclusivity could be expressed through winemaking and packaging choice s.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Explore tensions between authenticity and innovation, or between cultural heritage and commercial popularity",
+        "quote": "Few candidates explored the potential tensions between authenticity and innovation, or between cultural heritage and commercial popularity.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "The best answers created a persuasive, memorable, globally-minded proposal that linked every decision back to the core definition",
+        "quote": "The strongest essays presented a thoughtful, cohesive narrative that linked every decision back to the core definition they had set out, cr eating a persuasive and memorable proposal with a global view that very directly answered the question."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A number of answers failed to answer the specific question asked, getting lost in a rabbit hole of thought",
+        "quote": "quite a number of answers failed to answer the specific question asked, getting lost in a rabbit hole of thought."
+      },
+      {
+        "signal": "Some essays were conceptually rich but technically thin, or technically complex but lacking creativity or cultural analysis",
+        "quote": "Some essays were conceptually rich in ideas but technically thin, or vice versa - technically complex, 20 but lacking creativity or any detailed unpicking of cultural considerations."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A genuinely global set of grapes/regions rather than defaulting to well-known European classics",
+      "named_in_report": [],
+      "quote": "many blends defaulted to well - known European classics"
+    },
+    "scope_traps": [
+      {
+        "trap": "Defaulting to a historical survey of grape varieties instead of a defined, targeted blend proposal",
+        "quote": "defaulted to historical surveys of grape varieties which had very limited relevance to answering the question."
+      }
+    ],
+    "performance_note": "Many engaged very enthusiastically with the task and the pass rate was the strongest overall. There were several outstanding papers.",
+    "extraction_notes": "Page-break artifact '20' embedded mid-sentence in the source ('technically complex, 20 but lacking creativity'); reproduced verbatim in the quote. Source PDF also has spacing artifacts (e.g. 'ans wers', 'cr eating', 'choice s') reproduced verbatim."
+  },
+  {
+    "id": "th_2025_p5_q4",
+    "year": 2025,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Analyse the major ethical concerns in the production of wine.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Analyse",
+    "command_word_demand": "Many candidates lacked the confidence to answer the question directly and to argue convincingly which were the 'm ajor' concerns, preferring instead to describe a selection of issues, without assessing their relative importance or exploring the dilemmas they pose.",
+    "definitions_required": [
+      {
+        "term": "ethical concerns",
+        "quote": "Weaker responses, however, often lacked a clear definition of 'ethical concerns' or failed to clarify what they meant by 'production of wine.'"
+      },
+      {
+        "term": "production of wine",
+        "quote": "Weaker responses, however, often lacked a clear definition of 'ethical concerns' or failed to clarify what they meant by 'production of wine.'"
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Argue convincingly which concerns are the 'major' ones, assessing relative importance rather than merely describing a selection of issues",
+        "quote": "Many candidates lacked the confidence to answer the question directly and to argue convincingly which were the 'm ajor' concerns, preferring instead to describe a selection of issues, without assessing their relative importance or exploring the dilemmas they pose.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'ethical concerns' and clarify the scope of 'production of wine'",
+        "quote": "Weaker responses, however, often lacked a clear definition of 'ethical concerns' or failed to clarify what they meant by 'production of wine.'",
+        "weight": "core"
+      },
+      {
+        "element": "Explore trade-offs between competing priorities (sustainability vs. cost, mechanisation vs. employment), consumer perceptions/greenwashing, and transparency/certification schemes",
+        "quote": "Common omissions included the trade - offs between competing priorities (e.g. sustainability vs. cost, mech anisation vs. employment), the influence of consumer perceptions and greenwashing, and the role of transparency and certification schemes.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Examine how ethical challenges vary by scale/model of production and by region (labour laws, environmental regulations, cultural expectations)",
+        "quote": "Missed opportunities included examining how ethical challenges vary between different scales and models of production, or between regions with different employment/labour laws, environmental regulations, and cultural expectations.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address the role of technology in both solving and creating ethical problems, e.g. automation reducing chemical exposure at the cost of jobs",
+        "quote": "Few candidates addressed the role of technology in both solving and creating ethical problems, such as the adoption of automation to reduce chemical exposure, but at the cost of jobs.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "The strongest answers prioritised the most pressing concerns by scale of impact and urgency, and explored dilemmas and unintended consequences",
+        "quote": "The strongest answers defined 'ethics' within the context of production and prioritised the most pressing concerns based on their potential scale of impact and urgency. They drew on well - chosen, up - to - date examples from different regions and scales of prod uction, and explored the dilemmas and unintended consequences of various solutions."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Some candidates drifted into discussions of health and marketing without clearly linking those issues to production, diluting their focus",
+        "quote": "A few candidates drifted into discussions of health and marketing without clearly linking those issues to production, which diluted their focus."
+      },
+      {
+        "signal": "Systemic inequalities in land ownership, supply chain power, and access to sustainability resources were rarely explored",
+        "quote": "Similarly, systemic inequalities in land ownership, supply chain power, and access to sustainabil ity resources were rarely explored."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Well-chosen, up-to-date examples from different regions and scales of production",
+      "named_in_report": [],
+      "quote": "They drew on well - chosen, up - to - date examples from different regions and scales of prod uction, and explored the dilemmas and unintended consequences of various solutions."
+    },
+    "scope_traps": [
+      {
+        "trap": "Drifting into health and marketing discussion without linking clearly back to wine production",
+        "quote": "A few candidates drifted into discussions of health and marketing without clearly linking those issues to production, which diluted their focus."
+      }
+    ],
+    "performance_note": "This timely and relevant question attracted a good number of articulate answers, and many candidates demonstrated awareness of headline issues such as labour rights, environmental sustainability, and agrochemical use.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'm ajor', 'mech anisation', 'prod uction', 'sustainabil ity') reproduced verbatim in quotes per instructions."
+  },
+  {
+    "id": "th_2025_p5_q5",
+    "year": 2025,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "To what extent does wine's cultural heritage remain relevant to younger consumers around the globe?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "Some essays avoided directly addressing the 'to what extent' part of the question, offering no clear conclusion.",
+    "definitions_required": [
+      {
+        "term": "wine's cultural heritage",
+        "quote": "Many of those who attempted it appeared unprepared for the topic and struggled to define key terms such as 'wine's cultural heritage' or to explain what this might mean to 'yo unger consumers' around the globe today."
+      },
+      {
+        "term": "younger consumers",
+        "quote": "Many of those who attempted it appeared unprepared for the topic and struggled to define key terms such as 'wine's cultural heritage' or to explain what this might mean to 'yo unger consumers' around the globe today."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Directly address the 'to what extent' part of the question with a clear conclusion",
+        "quote": "Some essays avoided directly addressing the 'to what extent' part of the question, offering no clear conclusion.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'wine's cultural heritage' and 'younger consumers' rather than assuming shared meaning",
+        "quote": "Many of those who attempted it appeared unprepared for the topic and struggled to define key terms such as 'wine's cultural heritage' or to explain what this might mean to 'yo unger consumers' around the globe today.",
+        "weight": "core"
+      },
+      {
+        "element": "Treat 'younger consumers' with nuance rather than as a single homogeneous group, accounting for variation in socio-economic background, culture, values and engagement",
+        "quote": "Others clumsily treated 'younger consumers' as a single, homogeneous group, ignoring variations in socio - econ omic background, culture, values, and engagement levels - making unconvincing sweeping conclusions and assertions.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse the needs, interests and motivations of younger consumer segments globally, exploring segmentation and contradictions, before assessing heritage's relevance",
+        "quote": "The strongest answers started by analysing the needs, interests, and motivations of younger consumer segments globally (exploring some of the segmentation and contradictions), then built on this to assess how aspects of wine's cultural heritage remained re levant and aligned with, or conflicted with, these.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Draw parallels to how younger consumers engage with heritage in other cultural sectors (food, music, fashion)",
+        "quote": "Missed opportunities included analysing how younger consumers discover, engage with, and value heritage in other cultural sectors (such as food, music, or fashion), and drawing parallels to wine.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider how heritage can be reframed to align with sustainability, inclusivity and novelty, and address the competitive set including alternative drinks categories",
+        "quote": "Few candidates examined how heritage can be reframed to alig n with values such as sustainability, inclusivity, and novelty, or considered how different marketing and communication channels might bridge the gap between tradition and contemporary lifestyles. The competitive set - including alternative drinks categori es - was also rarely addressed.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "The best candidates gave a balanced view identifying both enduring points of connection and areas needing adaptation, with global, specific, current examples",
+        "quote": "The best candidates provided a balanced view, identifying both enduring points of connection and areas where adaptation or reinterpretation are needed. Their examples were global, specific, and current, a nd their conclusions were well - supported by evidence and critical reasoning."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Weaker answers were lengthy descriptions of wine heritage with little or no analysis of relevance to younger audiences",
+        "quote": "Weaker answers frequently took the form of lengthy descriptions of wine heritage with little or no analysis of its relevance to younger audiences."
+      },
+      {
+        "signal": "Many responses were overly Eurocentric or North American in focus, with few examples from emerging markets or diverse cultural contexts",
+        "quote": "Many responses were overly Eurocentric or North American in focus, with few examples drawn from emerging markets or diverse cultural contexts ."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global, specific and current examples, not overly Eurocentric or North American",
+      "named_in_report": [],
+      "quote": "Their examples were global, specific, and current, a nd their conclusions were well - supported by evidence and critical reasoning."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating 'younger consumers' as a single homogeneous global group",
+        "quote": "Others clumsily treated 'younger consumers' as a single, homogeneous group, ignoring variations in socio - econ omic background, culture, values, and engagement levels - making unconvincing sweeping conclusions and assertions."
+      }
+    ],
+    "performance_note": "This was the least attempted question on the paper and had the lowest pass rate.",
+    "extraction_notes": "Source PDF has spacing artifacts (e.g. 'yo unger', 'socio - econ omic', 'alig n', 'categori es', 'a nd') reproduced verbatim in quotes per instructions."
+  }
+]

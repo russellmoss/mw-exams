@@ -69,7 +69,8 @@ Files:
   copyrighted). Encodes the hotlink workaround: the PDFs 403 without a browser User-Agent **and**
   `Referer: https://www.mastersofwine.org/mw-exam`.
 - `outputs/theory_corpus/inventory.md` — what exists per year, including which examiner reports are
-  public (2010–2014, 2016, 2018) versus student-area only (2015, 2017, 2019, 2021–2026).
+  public (2010–2014, 2016, 2018) versus student-area only (2017, 2019, 2021–2025), and which are
+  image scans.
 
 The **2000–2014 four-paper era** is downloaded but not compiled; it needs its own era grammar, and
 the parser hard-fails on any year outside 2015–2026 to prevent silent mixing.
@@ -107,10 +108,18 @@ Three things to know before touching it:
   Chair's General Comments (`paper_preamble`), and the Theory Panel Chair's cross-paper report
   (`theory_chair_report`). Prefer question-specific evidence where they overlap.
 
-**Coverage today: 2016 and 2018 only** (54 rubrics, 246 core requirements). Those are the only two
-public examiners' reports that fall inside the five-paper era. Getting the student-area reports for
-2015, 2017, 2019 and 2021–2025 would roughly quadruple rubric coverage; that is the single highest-value
-manual step available for theory grading.
+**Coverage today: 189 of 297 questions (64%)** — 2016, 2017, 2018, 2019, 2023, 2024, 2025, with
+667 core requirements and 1,910 verified quotes. Reports come from two stores, both wired into
+`REPORT_SOURCES` in the segmenter: `source/imw_pdfs/` (public IMW site, gitignored) and
+`docs/examiners reports/` (student-area reports, committed).
+
+The remaining gaps and what each needs:
+
+- **2021, 2022** — reports exist in `docs/examiners reports/` but are **image scans** with no text
+  layer (75 and 48 extractable characters). They need OCR or page-render transcription. Listed in
+  `IMAGE_SCAN_YEARS` so their absence is a recorded decision rather than an oversight. Worth ~54
+  questions.
+- **2015, 2026** — no examiners' report available in either store. Worth ~54 questions.
 
 ## Data sources (read these, don't duplicate them)
 
