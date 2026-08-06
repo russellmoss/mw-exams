@@ -11,8 +11,11 @@ import {
   buildByoGuidance,
   FAMILY_TO_ARCHETYPE,
   BYO_FAMILIES,
+  anchorVarietiesForPaper,
+  anchorRegionsForPaper,
   type ArchetypeId,
 } from "./live-tasting-engine";
+import { detectPrimaryVariety } from "./question-rules.mjs";
 import type { ProgressEmitter } from "./thinking-stream";
 
 /**
@@ -56,8 +59,24 @@ export async function createPaper(opts: {
   if (opts.mode === "byo") {
     try {
       const sections: string[] = [];
+      // Anchors drawn WITHOUT replacement so flights can never share a variety/region spine —
+      // the first real BYO paper had Nebbiolo anchoring two of three flights because briefs
+      // were written blind to each other.
+      const varietyPool = shuffleInPlace(anchorVarietiesForPaper(opts.paper));
+      const regionPool = shuffleInPlace(anchorRegionsForPaper(opts.paper));
+      const used: string[] = [];
       for (const c of composition) {
         const fam = BYO_FAMILIES[c.family] ?? BYO_FAMILIES.F1;
+        // F1/F7 anchor on a variety; F2 anchors on a region; F3/F4/F5/F6 get no pin but the
+        // avoid list still steers them off earlier anchors.
+        const anchor =
+          c.family === "F1" || c.family === "F7"
+            ? { variety: varietyPool.pop() }
+            : c.family === "F2"
+              ? { region: regionPool.pop() }
+              : null;
+        if (anchor?.variety) used.push(anchor.variety);
+        if (anchor?.region) used.push(anchor.region);
         sections.push(
           await buildByoGuidance({
             paper: opts.paper,
@@ -69,6 +88,9 @@ export async function createPaper(opts: {
             country: opts.country,
             apiKey: opts.apiKey,
             userId: opts.userId,
+            anchor,
+            avoid: used.filter((u) => u !== anchor?.variety && u !== anchor?.region).join(", ") || null,
+            omitTitle: true,
           }).then((g) => `## Flight ${c.position} — ${fam.label} (${c.flightSize} wines)\n\n${g}`)
         );
       }
@@ -108,10 +130,26 @@ function exclusionsFrom(sessions: LiveTastingSession[]): {
   const keys = new Set<string>();
   const varieties = new Set<string>();
   for (const s of sessions) {
-    const avail = (s.availability ?? {}) as { slots?: { wineKey?: string }[] };
-    for (const slot of avail.slots ?? []) if (slot.wineKey) keys.add(slot.wineKey);
+    const avail = (s.availability ?? {}) as {
+      slots?: { wineKey?: string; label?: string; region?: string; country?: string }[];
+    };
+    for (const slot of avail.slots ?? []) {
+      if (slot.wineKey) keys.add(slot.wineKey);
+      // The variety set was created-but-never-populated (caught reviewing the first real BYO
+      // paper): resolve each used wine's dominant grape so later flights can't re-anchor on it.
+      const v = detectPrimaryVariety(`${slot.label ?? ""}. ${slot.region ?? ""}, ${slot.country ?? ""}.`);
+      if (v && v !== "unknown" && !v.endsWith("blend")) varieties.add(v);
+    }
   }
   return { excludeWineKeys: keys, excludeVarieties: varieties };
+}
+
+function shuffleInPlace<T>(a: T[]): T[] {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /**

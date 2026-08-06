@@ -661,6 +661,17 @@ export const BYO_FAMILIES: Record<string, { label: string; description: string }
   F7: { label: "Quality Hierarchy", description: "Wines at different tiers within a legal classification system" },
 };
 
+/** Benchmark anchor varieties per paper for multi-flight papers — drawn without replacement so
+ *  flights can't collide. Same pools the pick-for-me candidate picker uses. */
+export function anchorVarietiesForPaper(paper: number): string[] {
+  return Object.keys(paper === 1 ? P1_VARIETIES : P2_VARIETIES);
+}
+
+export function anchorRegionsForPaper(paper: number): string[] {
+  return LADDER_REGIONS.filter((l) => l.paper === paper).map((l) => l.region)
+    .concat(paper === 1 ? ["Alsace", "Loire Valley", "Mosel"] : ["Rhône Valley", "Tuscany", "Rioja"]);
+}
+
 /** BYO sessions store the F-code in the archetype column; resolve either vocabulary to a family. */
 export function resolveFamily(archetypeOrFamily: string | null | undefined): string {
   const v = (archetypeOrFamily ?? "").trim();
@@ -687,9 +698,27 @@ export async function buildByoGuidance(opts: {
   country: string;
   apiKey: string;
   userId: number;
+  /** Paper flights (Phase D): pin the anchor so parallel flights can't collide, and name what
+   *  earlier flights already used. E2E of the first real BYO paper: two all-Nebbiolo-adjacent
+   *  flights out of three — briefs written blind to each other are not a paper. */
+  anchor?: { variety?: string; region?: string } | null;
+  avoid?: string | null;
+  /** Part of a multi-flight paper brief: skip the restatement/title, the composer adds headings. */
+  omitTitle?: boolean;
 }): Promise<string> {
   const { paper, family, flightSize, budgetAmount, budgetCurrency, city, country, apiKey, userId } = opts;
   const fam = BYO_FAMILIES[family] ?? BYO_FAMILIES.F1;
+  const anchorLine = opts.anchor?.variety
+    ? `\nANCHOR (non-negotiable): this flight is built on ${opts.anchor.variety}. Do not offer a choice of anchor varieties.`
+    : opts.anchor?.region
+      ? `\nANCHOR (non-negotiable): this flight's shared origin is ${opts.anchor.region}. Do not offer a choice of regions.`
+      : "";
+  const avoidLine = opts.avoid
+    ? `\nCROSS-FLIGHT RULE: earlier flights in this SAME paper already use ${opts.avoid}. Do not anchor on or feature these — a real paper spreads its varieties and regions.`
+    : "";
+  const titleLine = opts.omitTitle
+    ? `\nDo NOT write a title or exercise-restatement line — start directly at the per-wine slots (the paper document adds its own headings).`
+    : "";
   const client = new Anthropic({ apiKey });
   const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
   const budgetLine = budgetAmount
@@ -706,7 +735,7 @@ Format (markdown, ~250-400 words):
 2. Per slot (Wine 1..N): the profile to buy — variety/style, 2-3 example regions ranked by availability, what QUALITY tier to aim for, and 3-4 example producers spanning price points. Never demand one exact wine.
 3. "Avoid" line: what would break this flight (wrong styles, ringers, wines that contradict the question type).
 4. One line on price expectations.
-The candidate shops near ${city}, ${country}. ${budgetLine}`,
+The candidate shops near ${city}, ${country}. ${budgetLine}${anchorLine}${avoidLine}${titleLine}`,
     messages: [{
       role: "user",
       content: `Paper ${paper} (${paper === 1 ? "white still wines" : paper === 2 ? "red still wines" : "sparkling/fortified/sweet and other special styles"}). Question family: ${family} — ${fam.label} (${fam.description}). Flight size: ${flightSize} wines.`,

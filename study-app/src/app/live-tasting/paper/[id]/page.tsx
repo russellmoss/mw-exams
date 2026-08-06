@@ -443,7 +443,12 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
 
       {/* Feedback — bottom-left, like the study surfaces (user-1 request). */}
       <div className="fixed bottom-4 left-4 z-40">
-        <FeedbackButton attemptId={null} questionId={firstQuestionId} step={`paper-${paper.id}`} />
+        <FeedbackButton
+          attemptId={null}
+          questionId={firstQuestionId}
+          step={`paper-${paper.id}`}
+          fallbackEndpoint={`/api/live-tasting/paper/${id}/feedback`}
+        />
       </div>
     </div>
   );

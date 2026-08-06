@@ -7,6 +7,9 @@ import { MicButton } from "./MicButton";
 
 interface FeedbackButtonProps {
   attemptId: number | null;
+  /** POST {text} here when there is no attempt AND no question to anchor to (e.g. a BYO paper
+   *  in prep — the exact moment paper-generation feedback happens). */
+  fallbackEndpoint?: string | null;
   step: string;
   // When there's no attempt yet (e.g. the user wants to flag a problem with the
   // question BEFORE submitting an answer), pass the current question so we can
@@ -15,7 +18,7 @@ interface FeedbackButtonProps {
   userId?: number | null;
 }
 
-export function FeedbackButton({ attemptId, step, questionId = null, userId = null }: FeedbackButtonProps) {
+export function FeedbackButton({ attemptId, step, questionId = null, userId = null, fallbackEndpoint = null }: FeedbackButtonProps) {
   const [open, setOpen] = useState(false);
   // Unsent feedback survives closing the modal, moving through the question's
   // steps, and reloading — scoped to the question (or the attempt, when that's
@@ -59,7 +62,7 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
     setSent(false);
   }
 
-  const canSubmit = Boolean(attemptId || questionId);
+  const canSubmit = Boolean(attemptId || questionId || fallbackEndpoint);
 
   const handleSubmit = async () => {
     const text = feedback.trim();
@@ -67,6 +70,20 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
     setSaving(true);
 
     try {
+      // No attempt and no question to anchor to → the caller-provided fallback endpoint owns
+      // storage + routing (paper-level feedback, migration 047).
+      if (!attemptId && !questionId && fallbackEndpoint) {
+        const res = await fetch(fallbackEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: `[${step}] ${text}` }),
+        });
+        if (!res.ok) throw new Error("fallback feedback failed");
+        setSent(true);
+        clearFeedback();
+        setTimeout(() => { setOpen(false); setSent(false); }, 2500);
+        return;
+      }
       // If the user is leaving feedback BEFORE submitting an answer there's no
       // attempt yet — create one for the current question so the feedback has a
       // home (and gets analyzed). This is exactly how a "this question is broken,
