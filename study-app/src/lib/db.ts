@@ -2184,7 +2184,8 @@ export async function getBinRowsForMining(
     paper: number;
     reason_tags: string[] | null;
     reason_note: string | null;
-    binned_at: string;
+    // string in JSON call paths, Date in direct ones — the map below normalises (see its comment).
+    binned_at: string | Date;
     question_text: string | null;
   }[];
   return rows.map((r) => ({
