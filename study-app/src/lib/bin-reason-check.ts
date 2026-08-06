@@ -123,9 +123,11 @@ export async function runBinReasonCheck(opts: {
     const client = new Anthropic({ apiKey });
     const { model, abGroup } = await selectModel("bin_reason_check", apiKey, "sonnet");
     const t0 = Date.now();
+    // Current models think by default and max_tokens caps thinking + text together — a tight cap
+    // can be consumed entirely by thinking, returning empty text (which degrades to 'uncertain').
     const message = await client.messages.create({
       model,
-      max_tokens: 700,
+      max_tokens: 4000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });

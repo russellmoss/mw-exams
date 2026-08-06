@@ -109,9 +109,11 @@ export async function mineBinFixProposals(opts: {
     const client = new Anthropic({ apiKey });
     const { model, abGroup } = await selectModel("bin_fix_mining", apiKey, "opus");
     const t0 = Date.now();
+    // On current Opus-tier models thinking is ON by default and max_tokens caps thinking + text
+    // TOGETHER — 4000 was consumed entirely by thinking over a 60-row ledger, returning zero text.
     const message = await client.messages.create({
       model,
-      max_tokens: 4000,
+      max_tokens: 16000,
       system: prompt.system,
       messages: [{ role: "user", content: prompt.user }],
     });
