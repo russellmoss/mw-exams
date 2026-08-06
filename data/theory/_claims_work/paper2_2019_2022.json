@@ -1,0 +1,1316 @@
+[
+  {
+    "claim_id": "th_2019_p2_q1#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Gas adjustment",
+      "quote": "The saturation point of oxygen in wine is 8 mg/L at 20ºC but its solubility increases to 14 mg/L in wine held at 0ºC."
+    },
+    "corrected_claim": "one saturation of must or wine is roughly 8 mg/L at 20C, rising further as temperature falls (up to ~14 mg/L near 0C)",
+    "corrected_sentence": "The winemaker's levers are the same throughout – temperature, sulphur dioxide, inert gas, vessel choice, movement, and measurement – and one saturation of must or wine is roughly 8 mg/l at 20C, rising further at cooler cellar temperatures (toward 14 mg/l near 0C), which is why cumulative small pickups matter more than any single event.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI gives 8 mg/L at 20C and 14 mg/L at 0C; solubility rises as temperature falls, so 'roughly 6 mg/l at cellar temperature' both understates the figure and gets the direction of the temperature effect backwards."
+  },
+  {
+    "claim_id": "th_2019_p2_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "How much wine to expect per tonne of grapes?",
+      "quote": "The main allowable gain, if required, is through limited water additions to dilute high-sugar grape juice or must prior to fermentation (to a minimum of 13.5 degrees Baumé)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "AWRI confirms the 13.5 Baume floor for water dilution of high-sugar must in Australia; degrees Baume is used interchangeably with potential-alcohol framing in Australian practice, so the claim as written is supported."
+  },
+  {
+    "claim_id": "th_2019_p2_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Lowering wine alcohol content by reverse osmosis and spinning cone columns",
+      "quote": "Beverages obtained from the partial dealcoholisation of wines have an alcoholic strength...equal to or above 0.5 % (v/v) and less than the applicable minimum alcoholic strength of wine...Beverages obtained from the total dealcoholisation of wine are those produced from wine which has been dealcoholised to an alcoholic strength of below 0.5 % (v/v)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p2_q3#0",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU)",
+      "tier": 1,
+      "ref": "Oregon Wine Advisory Board Research Progress Report",
+      "quote": "the laccase enzymes are highly resistant to S02 and even the addition of 150 mg/L will reduce the enzyme activity by only about 20%. Complete inactivation requires heating the juice or must to 60 C."
+    },
+    "corrected_claim": "heating must to about 60C (140F), held briefly, denatures laccase",
+    "corrected_sentence": "Heating must to about 60C for a short hold denatures laccase, and higher-temperature red processes do the same more emphatically.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Two tier-1 sources (OSU 1988 progress report; WSU 'Late Ripening' note) both give 60C/140F (20 min) or a brief flash to ~85-90C as the temperature needed for laccase inactivation, not 45-50C."
+  },
+  {
+    "claim_id": "th_2019_p2_q3#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Pre-fermentation heat treatment: a multitool technique to keep the pot boiling",
+      "quote": "Heating conducted at a temperature of between 70 °C and 85 °C allows phenolic compounds - mainly anthocyanins and to a lesser extent hydrophobic tannins - to be rapidly extracted in the aqueous phase."
+    },
+    "corrected_claim": "thermovinification heats destemmed red fruit to roughly 70-85C",
+    "corrected_sentence": "Thermovinification heats destemmed red fruit to roughly 70-85C, holds it, then cools and either presses for a white-style ferment or ferments the heated must: it denatures laccase completely, extracts anthocyanin fast, and is standard practice for salvaging rot-affected reds in Bordeaux, Beaujolais and elsewhere.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "IVES gives 70-85C as the standard thermovinification range; the claimed 60-75C overlaps only at the low end. Other tier-1 sources describe laccase inactivation specifically at 60C, so the lower end of the claimed range is defensible but the upper end (75C) is below the commonly cited ceiling."
+  },
+  {
+    "claim_id": "th_2019_p2_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "OENO One (peer-reviewed)",
+      "tier": 1,
+      "ref": "Addition of wood chips in red wine during and after alcoholic fermentation",
+      "quote": "in Europe the use of oak wood pieces in winemaking was not approved until 2006 (Council Regulation EC No. 2165/2005) and since then the addition of oak chips has been generalized."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Regulation (EC) 2165/2005 was adopted 20 Dec 2005 (OJ 28.12.2005) with implementing detail in Reg 1507/2006 (Oct 2006); tier-1 academic sources (OENO One, PMC review) both describe the authorisation as taking effect in 2006, matching the claim as commonly stated."
+  },
+  {
+    "claim_id": "th_2019_p2_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "Le pressurage",
+      "quote": "Le rendement est limité à 102 litres de moût pour 160 kg de raisins pressurés."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched KB for 'pentose', 'unfermentable sugar' residual sugar in dry wine; found only general residual-sugar figures, none isolating the pentose fraction specifically at 1-2 g/L. Plausible but not sourced."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex XIV Part B",
+      "tier": 1,
+      "ref": "consolidated text (also carried into Delegated Reg (EU) 2019/33 Annex III Part B)",
+      "quote": "If its sugar content does not exceed: — 4 grams per litre, or — 9 grams per litre, provided that the total acidity expressed as grams of tartaric acid per litre is not more than 2 grams below the residual sugar content."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q1#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Official Journal C 248/2021 (PDO wine specification notice, citing Reg 2019/33 Annex III Part B)",
+      "quote": "Depending on the sugar content, the wines may be: 'dry', if the sugar content is less than or equal to 4 grams per litre; 'medium dry', if it is greater than 4..."
+    },
+    "corrected_claim": "medium dry roughly 4-12 g/L (or 4-18 g/L under the acidity derogation), medium roughly 12-45 g/L and sweet above 45 g/L",
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Confirmed the 'dry'/'medium dry' cut at 4 g/L directly from an EU Official Journal notice referencing Annex III Part B of Reg 2019/33; the upper cut points for medium dry/medium/sweet (12 g/L, 45 g/L) follow the same OIV-derived scale used throughout EU labelling law but the full table text for those two thresholds was not directly quoted in the sources found this session."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex XIV Part A",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "brut nature...If its sugar content is less than 3 grams per litre...extra brut...If its sugar content is between 0 and 6 grams per litre. brut...If its sugar content is less than 12 grams per litre. extra dry...If its sugar content is between 12 and 17 grams per litre. sec...between 17 and 32 grams per litre. demi-sec...between 32 and 50 grams per litre. doux...greater than 50 grams per litre."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q1#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "AWRI drought response advice 070214 / Winery nutrient management in a DAP-limited world",
+      "quote": "a 'typical fermentation' to approximately 13% v/v alcohol will need a minimum of 150 mg/L as YAN...Recent AWRI research suggests that a YAN of 250-350 mg/L can result in lower reductive off-flavours"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Tier-1 sources bracket 'normal must' YAN targets from ~140-150 mg/L (minimum, older guidance) up to 250-350 mg/L (current AWRI research for reductive-risk reduction). 200 mg/L sits inside that band as a reasonable single figure but is not itself the number any one source states."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Chilling to halt fermentation (used for Mosel Kabinett/Loire demi-sec) is a standard technique; searched KB for specific temperature range and found none giving 0-4C explicitly for this application."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Asti method figures (chilled/filtered at ~7% abv) not found in KB or confirmed via web search this session; commonly cited industry figure but unsourced here."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex XIV Part A",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "extra dry...If its sugar content is between 12 and 17 grams per litre."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Prosecco DOC's 'Extra Dry' category uses the same EU-wide sparkling sugar bands verified for th_2021_p2_q1#3; 12-17 g/L is the correct EU-law range for that term."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#8",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Port fortification abv and resulting RS were not directly sourced in the KB or via web this session (IVDP source not queried for this specific figure); the numbers given are in the plausible range commonly cited for Port but unconfirmed here."
+  },
+  {
+    "claim_id": "th_2021_p2_q1#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Microbiological stability of wine packaging in Australia and New Zealand",
+      "quote": "what is generally termed 'sterile filtration' in the wine industry (filtration using 0.45μm membrane filters) does not necessarily always exclude bacteria or yeast spores."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q1#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex I A point 11",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "Use of sorbic acid in potassium sorbate form. Maximum sorbic acid content in the product so treated and placed on the market: 200 mg/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q1#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex I A point 34",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "Addition of dimethyldicarbonate (DMDC) to wine for microbiological stabilisation...No more than 200 mg/l with no detectable residues in the wine placed on the market"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q2#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Illustrative example chosen to make a pedagogical point (a village vs premier cru Gevrey-Chambertin both exist), not a specific checkable factual assertion beyond trivial regional geography."
+  },
+  {
+    "claim_id": "th_2021_p2_q2#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Winemaking treatment – Cold soak",
+      "quote": "Cold soaking temperatures typically range from 5 to 10 degrees Celsius."
+    },
+    "corrected_claim": "Cold soak works because anthocyanins are water-soluble and extract at roughly 5-10C",
+    "corrected_sentence": "Cold soak works because anthocyanins are water-soluble and extract at 5-10C before alcohol appears to dissolve seed tannin: it gives colour and primary aroma with little grip, which is exactly the early-drinking profile, so a three-day soak there is a colour tool.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's typical range is 5-10C; the claimed 8-12C overlaps only at the low end and extends 2C above what AWRI cites as typical."
+  },
+  {
+    "claim_id": "th_2021_p2_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Whole-bunch/stem contact raising potassium (and thus pH) is standard, widely taught enological mechanism; not specifically re-confirmed with a tier-1 quote this session, but it is qualitative rather than a risky precise figure."
+  },
+  {
+    "claim_id": "th_2021_p2_q2#3",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "A stylistic elevage recommendation for a hypothetical early-drinking Pinot Noir, not an externally checkable fact."
+  },
+  {
+    "claim_id": "th_2021_p2_q2#4",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "A stylistic elevage recommendation for a hypothetical age-worthy Pinot Noir, not an externally checkable fact."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "OSU Extension",
+      "tier": 1,
+      "ref": "Impact of Smoke Exposure on Wine",
+      "quote": "guaiacol, 4-methylguaiacol, 4-ethylguaiacol, 4-ethylphenol, eugeneol, o-cresol, p-cresol, furfural and syringol are suspected to contribute [to smoky wine character]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "OSU/WSU sources list guaiacol, 4-methylguaiacol, syringol, o-cresol and p-cresol as the compounds; m-cresol specifically is not separately named in the extracted passages, so the claim is close but not verbatim on the full cresol set."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "OSU/WSU sources discuss smoke-taint volatile phenols and note thresholds are hard to pin down due to matrix effects, but no specific 'low micrograms per litre' figure was quoted; plausible order-of-magnitude claim."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "symb (Technical Review No.143, April 2003)",
+      "quote": "In the European Community, the maximum limit for red wines is 1.2 g/L, for white wines it is 1.08 g/L and for sweet botrytis infected wines 1.5 g/L"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "1.2 g/L = 20 meq/L acetic acid; 1.08 g/L = 18 meq/L, matching the claim's meq figures for red and white/rose exactly."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#3",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "US TTB / eCFR",
+      "tier": 1,
+      "ref": "27 CFR 4.21(a)(3) and parallel provisions",
+      "quote": "The maximum volatile acidity, calculated as acetic acid and exclusive of sulfur dioxide is 0.14 gram per 100 mL (20 degrees Celsius) for red wine and 0.12 gram per 100 mL (20 degrees Celsius) for other grape wine"
+    },
+    "corrected_claim": "the US limit is 1.4 g/L for red and 1.2 g/L for white",
+    "corrected_sentence": "EU caps total VA at 20 milliequivalents per litre for red, 1.2 g/L as acetic acid, and 18 for white and rosé, with derogations upwards for botrytised and long-aged styles; the US TTB limit is 1.4 g/L for red and 1.2 g/L for white.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "27 CFR 4.21 sets 0.14 g/100mL (1.4 g/L) for red and 0.12 g/100mL (1.2 g/L) for other (white) wine — the candidate's figures (1.2 red / 1.1 white) are both wrong and effectively reversed in magnitude relative to the true red/white gap. A tier-1 KB source (Virginia Tech Enology) independently states the same TTB figures (1.40 g/L red / 1.20 g/L white), corroborating eCFR."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Acetic acid sensory detection threshold range not located in a tier-1 source this session; plausible commonly-cited figure."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Ethyl acetate 'solventy' threshold (150-200 mg/L) not located in a tier-1 KB source this session; a commonly cited figure in enology teaching but unconfirmed here."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#6",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Cold stabilisation",
+      "quote": "Metatartaric acid is a mixture of polymers with different molecular weights formed by esterification of tartaric acid (Marchal and Jeandet 2009)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI confirms the polyester/esterification chemistry; the 'made by heating under vacuum' manufacturing detail is standard (Ribereau-Gayon et al. cited by AWRI for related figures) but not separately quoted verbatim."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex I A point 27",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "Addition of metatartaric acid...No more than 100 mg/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The 100 mg/L EU cap is exact; 'typically dosed at that rate' is a reasonable practice inference not separately verified."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#8",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Cold stabilisation",
+      "quote": "metatartaric acid can be considered effective for the following time periods, depending on temperature: Several years at 0°C; Over two years at 10-12°C; One year to eighteen months...10-18C; Three months at 20°C; One month at 25°C; One week at 30°C; A few hours between 35 and 40°C."
+    },
+    "corrected_claim": "protection lasts roughly a year to eighteen months in a cool cellar (10-18C) but only about a month at 25C and days at 30C+",
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's own table (citing Ribereau-Gayon et al. 2006) gives materially shorter high-temperature persistence (one month at 25C, one week at 30C) than the claim's 'weeks at 25-30C', though the cool-cellar figure (12-18 months) matches closely."
+  },
+  {
+    "claim_id": "th_2021_p2_q3#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Delegated Regulation (EU) 2019/934, Annex VIII Section E",
+      "quote": "The alcohol content may be reduced by a maximum of 20% and the total alcoholic strength by volume of the final product must comply with that defined in point (a) of the second paragraph of point (1) of Part II of Annex VII to Regulation (EU) No 1308/2013."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI / OSU / Purdue Extension (consistent across sources)",
+      "tier": 1,
+      "ref": "Fact Sheet: Avoiding spoilage caused by lactic acid bacteria; Purdue FS-52-W",
+      "quote": "a molecular SO2 concentration of 0.8 mg/L will inhibit their growth [LAB]...MLF strains inhibited around 0.5 mg/L for reds is the standard industry target."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "0.5 (red) / 0.8 (white) mg/L molecular SO2 targets are corroborated by multiple tier-1 and reputable extension sources (AWRI, Purdue, DGWinemaking citing standard enology references)."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by direct calculation from the Henderson-Hasselbalch relationship for SO2 (pKa1 ~1.81): at pH 3.0 the molecular fraction is ~6.1%, at pH 3.5 ~2.0%, at pH 4.0 ~0.64% — matching the claim closely. This is standard, deterministic wine chemistry reproduced consistently across enology extension sources (Purdue, Oklahoma State, ACCUVIN) though no single tier-1 KB chunk tabulates all three points verbatim."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex I B",
+      "tier": 1,
+      "ref": "consolidated text",
+      "quote": "The total sulphur dioxide content of wines, other than sparkling wines and liqueur wines...may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rosé wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q4#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "EUR-Lex / Commission Regulation (EC) No 606/2009, Annex I B and amendments",
+      "tier": 1,
+      "ref": "consolidated text / Reg (EU) 2011/19",
+      "quote": "the maximum sulphur dioxide content shall be raised, as regards wines with a sugar content...not less than five grams per litre, to...300 milligrams per litre for [listed PDO whites]...A maximum sulphur dioxide content of 350 milligrams per litre should be authorised for [Késői szüretelésű bor]."
+    },
+    "corrected_claim": "300-400 mg/L depending on the specific botrytised PDO (the EU table escalates in named derogations up to 350-400 mg/L for the sweetest styles, e.g. Sauternes)",
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "The general EU sweet-wine SO2 tier tops out at 300-350 mg/L in the sources retrieved this session; 400 mg/L is commonly cited for Sauternes/Barsac-type derogations in enology literature but was not directly quoted from EUR-Lex this session."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU) / AWRI",
+      "tier": 1,
+      "ref": "Oregon Wine Advisory Board Research Progress Report; Fact Sheet WINEMAKING (Botrytis-infected fruit)",
+      "quote": "the addition 25 to 50 mg/L to the must at crushing or to the juice at settling will deactivate the enzymes...Add more sulfur dioxide (SO2) than usual (in the range of 60-100 mg/L depending on severity) [for Botrytis-affected fruit]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Tier-1 sources bracket clean-fruit crush additions at 25-50 mg/L (close to the claimed 20-30 mg/L) and rot-affected fruit at 60-100 mg/L (higher than the claimed '50 mg/L or more', though directionally consistent as a floor)."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Juice-settling SO2 addition rate (30-50 mg/L) not specifically located in a tier-1 KB source this session, though broadly consistent with general winemaking practice figures found for related stages."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Post-MLF SO2 addition rate not specifically sourced this session; plausible standard figure."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Barrel-topping free SO2 target not specifically sourced this session; plausible standard figure, broadly consistent with the premature-oxidation racking target found for th_2022_p2_q6#3."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#8",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Bottling free SO2 targets (30-40 white / 25-35 red) not directly quoted from a tier-1 source this session, though consistent in order of magnitude with molecular-SO2 target conversions found elsewhere (0.5-0.8 mg/L molecular at typical wine pH implies free SO2 in this general range)."
+  },
+  {
+    "claim_id": "th_2021_p2_q4#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Removal and addition of sulfur dioxide)",
+      "quote": "The most commonly used salt form is potassium metabisulfite (K2S2O5...). The proportion of SO2 yielded from PMS is 57% w/w."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q4#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "CDC/NIOSH",
+      "tier": 1,
+      "ref": "Sulfur dioxide - IDLH | NIOSH | CDC",
+      "quote": "Original (SCP) IDLH: 100 ppm...Revised IDLH: 100 ppm [Unchanged]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q5#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Candidate's own working definition of 'small-scale' for the purposes of structuring the answer, not an external factual claim."
+  },
+  {
+    "claim_id": "th_2021_p2_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The Barolo traditionalist/modernist stylistic divide (long submerged-cap maceration in large Slavonian botti vs shorter rotofermenter maceration + French barriques) is well documented in wine literature generally, but no tier-1 source in the KB (which does not hold Barolo-specific technique history) or a tier-1 web source was located this session to confirm the specific technical description. Low risk as a broadly accurate characterisation rather than a precise number."
+  },
+  {
+    "claim_id": "th_2021_p2_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Whole-bunch inclusion with small co-fermented Viognier is a well-known feature of Cote-Rotie, but the KB holds no Cote-Rotie-specific appellation document and no tier-1 web source was queried this session to confirm the specific practice as 'long-standing'. Low risk, widely accepted regional fact."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Internally consistent with the standard chaptalisation conversion factor of ~17 g/L sugar per 1% potential alcohol (see th_2021_p2_q6#2, sourced to WSU/AWRI-consistent figures): 8% x ~17 g/L = ~136 g/L, matching 'roughly 135 g/L' closely. Verified by calculation using a separately-sourced conversion factor rather than a direct quote for this specific figure."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Regulation (EU) No 1308/2013, Annex VIII Part I Section A",
+      "quote": "The increase in natural alcoholic strength by volume shall be achieved by means of the oenological practices referred to in Section B and shall not exceed the following limits: 3 % volume in wine-growing zone A"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "England/Wales sit in EU wine-growing zone A (also carried forward in UK domestic wine regulations post-Brexit)."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "17 g/L of sugar per 1% potential alcohol is the standard chaptalisation conversion factor used across AWRI/WSU/enology teaching materials (consistent with, e.g., WSU's general sugar-to-alcohol conversion guidance); 3% x 17 g/L = 51 g/L, matching 'roughly 50 g/L'."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "WSU Viticulture & Enology",
+      "tier": 1,
+      "ref": "Managing High Acidity in Grape Must and Wine",
+      "quote": "CaCO3: 0.67 g/L reduces TA by 1 g/L"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Inverting WSU's stated ratio (0.67 g/L CaCO3 per 1 g/L TA removed) gives ~1.49 g/L tartaric acid removed per 1 g/L CaCO3 added, matching the claimed ~1.5 g/L almost exactly."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#4",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "WSU Viticulture & Enology / AWRI",
+      "tier": 1,
+      "ref": "Managing High Acidity in Grape Must and Wine; Deacidification (AWRI)",
+      "quote": "KHCO3 potassium bicarbonate: 0.673 g/L removes 1 g/L tartrate...[AWRI table] the average TA decrease was about 1.1 g/L for each 1 g/L addition of KHCO3"
+    },
+    "corrected_claim": "removing roughly 1.1-1.5 g/L per gram added (broadly similar potency to calcium carbonate; the practical difference is that KHCO3 is used only for small corrections while CaCO3's double-salt method handles larger reductions)",
+    "corrected_sentence": "Potassium bicarbonate is gentler in practice only because it is limited to small corrections, removing roughly 1.1-1.5 g/L of acidity per gram added — similar potency per gram to calcium carbonate — but it forms bitartrate that must then be cold-stabilised out and is impractical beyond about 2 g/L.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "WSU's stoichiometric ratio inverts to ~1.49 g/L tartrate removed per 1 g/L KHCO3 added; AWRI's own empirical dosing table shows an average ~1.1 g/L TA decrease per 1 g/L KHCO3 addition. Both sources give a materially higher removal rate than the claimed 0.75 g/L, and both show KHCO3 is not meaningfully less potent per gram than CaCO3 — the real practical distinction is dosing range, not per-gram power."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU) / AWRI",
+      "tier": 1,
+      "ref": "Viticulture & Enology Technical Newsletter; Deacidification fact sheets",
+      "quote": "Below pH 3.0, the bacteria will struggle to grow [O. oeni]...[AWRI MLF table] pH <3.1 = Harsh/Unfavourable"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "OSU states O. oeni struggles below pH 3.0; AWRI's favourable/unfavourable table places <3.1 in the harsh/unfavourable band. Both closely support 'struggles below about pH 3.1'."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by stoichiometric calculation: converting 1 g/L malic acid (MW 134.09, diprotic) to lactic acid (MW 90.08, monoprotic) removes a net ~0.0075 equivalents of acidity per litre, equal to ~0.56 g/L expressed as tartaric acid equivalent (MW 150.09, using the standard eq-weight of 75.05 g/eq) — closely matching the claimed 'roughly 0.5 g/L'. This is deterministic acid-base chemistry, not a memorised figure."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by calculation from the Henderson-Hasselbalch relationship for SO2 (pKa1 ~1.81): at pH 2.8, molecular fraction = 1/(1+10^(2.8-1.81)) ≈ 9.3%, matching the claimed 'some 9%' almost exactly."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by calculation: at pH 4.2, molecular SO2 fraction = 1/(1+10^(4.2-1.81)) ≈ 0.41%, matching the claimed 'around 0.4%' almost exactly."
+  },
+  {
+    "claim_id": "th_2021_p2_q6#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "How much wine to expect per tonne of grapes?",
+      "quote": "The main allowable gain, if required, is through limited water additions to dilute high-sugar grape juice or must prior to fermentation (to a minimum of 13.5 degrees Baumé)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p2_q6#10",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "low",
+    "source": {
+      "kind": "kb",
+      "publisher": "WSU Viticulture & Enology",
+      "tier": 1,
+      "ref": "Viticulture and Enology Extension News (Adjusting Acidity in a Hot Vintage)",
+      "quote": "The pH of purified organic acids in water from 1 g/L to 10 g/L can be found in Table 1...at 5 g/L tartaric acid the pH would be 2.24."
+    },
+    "corrected_claim": "the pH response to tartaric acid additions is concentration- and matrix-dependent and not a fixed 0.1 pH per g/L rule; WSU's own titration table for pure tartaric acid in water shows the slope shallows markedly at higher concentrations (e.g. only ~0.02-0.04 pH per g/L between 5 and 10 g/L)",
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The 'roughly 0.1 pH per g/L' figure is a common practical rule of thumb used in real wine (which is buffered very differently from an isolated acid-in-water titration), but WSU's own tartaric-acid-in-water table shows a much shallower slope at the higher end of the range, so the fixed ratio should be presented as an approximation valid mainly in typical wine pH ranges rather than a universal constant."
+  },
+  {
+    "claim_id": "th_2022_p2_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with the stoichiometric verification for th_2021_p2_q6#6 (malic-to-lactic conversion of 1 g/L malic acid drops TA by ~0.56 g/L as tartaric equivalent, so 'commonly 1-2 g/L where malic acid is high' during a full MLF is a reasonable scaled-up figure); the pH rise of 0.1-0.3 units during MLF is a standard, widely corroborated textbook figure across the enology sources reviewed."
+  },
+  {
+    "claim_id": "th_2022_p2_q1#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Achieving successful malolactic fermentation)",
+      "quote": "Table 1. Favourable and unfavourable wine conditions for the conduct of MLF...pH 3.3-3.5 [Favourable]; <3.1 [Unfavourable]"
+    },
+    "corrected_claim": "below roughly 3.1, MLF is slow/unreliable (harsh conditions); 3.1-3.3 is a moderate/difficult zone",
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's table places the clear unfavourable cutoff at <3.1 rather than <3.2; the claim's 3.2 threshold is close but slightly conservative relative to the AWRI table."
+  },
+  {
+    "claim_id": "th_2022_p2_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Achieving successful malolactic fermentation)",
+      "quote": "Table 1...pH 3.3 - 3.5 [Favourable]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "MLF in red wine",
+      "quote": "in wines with an ethanol content of 15-16% v/v or more, the choice of strain becomes restricted to those with high alcohol tolerance."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Achieving successful malolactic fermentation)",
+      "quote": "Table 1. Favourable and unfavourable wine conditions... Temperature (°C) 18 – 22 [Favourable]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q1#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Achieving successful malolactic fermentation)",
+      "quote": "Table 1...Temperature (°C) <16, >25 [Unfavourable]"
+    },
+    "corrected_claim": "below about 16C MLF stalls",
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's cutoff is <16C rather than <15C; a minor (1C) discrepancy."
+  },
+  {
+    "claim_id": "th_2022_p2_q1#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "MLF in red wine",
+      "quote": "Temperatures above 25°C slow the MLF and increase the risk of bacterial spoilage and increased volatile acidity."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q1#7",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet (Malolactic fermentation in white and sparkling wines)",
+      "quote": "0.3-0.5 mg/L molecular SO2 being a lethal concentration for wine bacteria."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's cited lethal range (0.3-0.5 mg/L) brackets the claimed 0.5 mg/L threshold at its upper edge, supporting the claim as a reasonable working figure."
+  },
+  {
+    "claim_id": "th_2022_p2_q1#8",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "'A few g/L' is a qualitative hedge rather than a specific checkable figure; the underlying mechanism (heterofermentative LAB metabolising residual sugar to acetic acid) is standard microbiology corroborated by AWRI spoilage-avoidance guidance."
+  },
+  {
+    "claim_id": "th_2022_p2_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "Le Terroir champenois, un patrimoine vivant / Le vieillissement sur lies",
+      "quote": "les vins de Champagne doivent rester au minimum quinze mois en cave. Cette durée est portée à trois ans pour les millésimes."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "Le vieillissement sur lies",
+      "quote": "des réactions biochimiques importantes...interviennent à ce stade. Elles se produisent même après la mort des cellules (qui survient en général dans les 5 mois qui suivent la fin de la prise de mousse) par la mise en jeu de phénomènes d'autolyse"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Yeast cell death (and hence bulk autolysis) typically begins ~5 months after tirage per this source, supporting 'autolysis takes months to begin releasing material in quantity'."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Winemaking treatment – Cold soak",
+      "quote": "Cold soaking temperatures typically range from 5 to 10 degrees Celsius. The time for the maceration can be quite variable – from as little as 5 to 10 hours to as much as 10 days"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Standard carbonic maceration temperature/duration (25-30C, 5-20 days) is widely cited in wine literature but not directly confirmed by a tier-1 source this session; one KB source (WBI Freiburg trial) recorded carbonic maceration held at 15C, a lower experimental variant, so the general 25-30C figure should be treated as a common but unconfirmed industry range."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "low",
+    "source": {
+      "kind": "kb",
+      "publisher": "WSU Viticulture & Enology",
+      "tier": 1,
+      "ref": "A Note on Atypical Aging in White Wine",
+      "quote": "Some skin contact can help extract the small amount of fruit flavor from under-ripe fruit; 4 to 24 hours at 5°C (41°F) is likely enough."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "WSU's figure (4-24 hours at 5C) supports the lower end of the claimed range (a few hours to a day, 5-15C) but does not confirm the upper temperature bound (15C) specifically."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Rose maceration duration (2-6 hours) not specifically sourced this session; plausible standard figure for Provence-style production."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Pre-fermentation heat treatment: a multitool technique to keep the pot boiling",
+      "quote": "Heating conducted at a temperature of between 70 °C and 85 °C allows phenolic compounds...to be rapidly extracted"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q3#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Extended maceration temperature (20-28C) not specifically quoted in the AWRI extended-maceration sources reviewed this session (which discuss duration and sensory outcomes but not a specific temperature band); plausible standard ambient fermentation-cellar range."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#6",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "222 Technical Review June 2016",
+      "quote": "Extended maceration is a technique where cap contact is held for longer than the usual short period during which alcoholic fermentation occurs (5–10 days) and instead extends up to 50 days."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's 'up to 50 days' figure comfortably encompasses the claimed 'few days to two to four weeks' range."
+  },
+  {
+    "claim_id": "th_2022_p2_q3#7",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "222 Technical Review June 2016",
+      "quote": "Extended maceration is a technique where cap contact is held for longer than the usual short period...and instead extends up to 50 days."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's cited outer bound (up to 50 days, ~7 weeks) is consistent with 'a month or more' for the longest submerged-cap traditions."
+  },
+  {
+    "claim_id": "th_2022_p2_q4#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (general recollection of EU vintage-labelling rule) / US TTB",
+      "tier": 1,
+      "ref": "Regulation (EU) 2019/33, vintage-year labelling provisions; 27 CFR 4.27",
+      "quote": "the EU permits blending in of a minority proportion (commonly cited as up to 15%) of another vintage for a wine to still carry a single vintage year on the label; the US TTB requires at least 95% of a single vintage for AVA wines and effectively less flexibility outside an AVA."
+    },
+    "corrected_claim": "jurisdictions vary considerably — the EU allows up to roughly 15% of another vintage in a vintage-labelled PDO/PGI wine, while the US TTB requires at least 95% of the stated vintage for AVA-labelled wines (i.e. only about 5% blending headroom)",
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "Not directly quoted from a primary source this session (search budget spent elsewhere); the EU 15% figure is a commonly cited industry figure, but 'most jurisdictions...commonly around 15%' risks overgeneralising, since the comparable US rule allows only ~5% blending for AVA wines."
+  },
+  {
+    "claim_id": "th_2022_p2_q5#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Working definition used to distinguish stuck fermentation from a merely sluggish one; a reasonable operational threshold rather than a specific regulatory or scientific figure."
+  },
+  {
+    "claim_id": "th_2022_p2_q5#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "175 Technical Review June 2008",
+      "quote": "Yeast are particularly heat sensitive in their growth phase and when the temperature is greater than approximately 30°C they become stressed; their viability is affected"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's cited stress threshold is ~30C, somewhat below the claimed 32-35C range, though directionally consistent (yeast stress escalating through the low-to-mid 30s)."
+  },
+  {
+    "claim_id": "th_2022_p2_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The 'restore to 20-25C' remedy temperature is standard practical advice but not specifically quoted from a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2022_p2_q5#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU) / AWRI",
+      "tier": 1,
+      "ref": "Viticulture & Enology Technical Newsletter (Brettanomyces); Spoilage issues in Pinot Noir",
+      "quote": "most strains are controlled at 0.65 mg/L molecular SO2...The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines to inhibit the growth of bacteria and yeast"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p2_q5#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU)",
+      "tier": 1,
+      "ref": "VITICULTURE & ENOLOGY (Effective microbial monitoring)",
+      "quote": "if your goal is to completely remove microbes from your wine you must use sterile membrane filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "0.45 micron is the standard pore size for sterile membrane filtration confirmed separately for th_2021_p2_q1#9 (AWRI)."
+  },
+  {
+    "claim_id": "th_2022_p2_q6#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "A definitional framing of premature oxidation for the purposes of the answer (typical onset window relative to expected longevity), rather than an externally sourced statistic."
+  },
+  {
+    "claim_id": "th_2022_p2_q6#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Revisiting sulfur dioxide use",
+      "quote": "Boulton et al. (1996) indicate that, theoretically, 1 mg/L of oxygen can consume 4 mg/L of SO2"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Independently corroborated by a second tier-1 source (Virginia Tech Enology): 'Four mg of sulfur dioxide are needed to neutralize the effects of one mg of oxygen.'"
+  },
+  {
+    "claim_id": "th_2022_p2_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by calculation from the Henderson-Hasselbalch relationship (pKa1 ~1.81): since molecular fraction scales as 10^-pH in the dilute-fraction regime, a 0.3 pH increase changes the fraction by a factor of 10^0.3 ≈ 2, i.e. it roughly halves — consistent with the table values found for th_2021_p2_q4#1 (6.1% at pH 3.0 vs ~3.1% at pH 3.3, ~2.0% at pH 3.5)."
+  },
+  {
+    "claim_id": "th_2022_p2_q6#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Racking-time free SO2 restoration target (25-35 mg/L) not specifically quoted from a tier-1 source this session; consistent in order of magnitude with other bottling/racking SO2 figures found elsewhere in this batch."
+  },
+  {
+    "claim_id": "th_2022_p2_q6#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Matches the 0.5 (red) / 0.8 (white) mg/L molecular SO2 pre-bottling targets corroborated by multiple sources for th_2021_p2_q4#0 and th_2022_p2_q5#3."
+  },
+  {
+    "claim_id": "th_2022_p2_q6#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Juice turbidity target for fermentation (100-250 NTU) not directly quoted; a related IVES source on thermovinified must clarification cites '<100 NTU' for a different context (post-clarification, not fermentation-ready juice), so the figure was not confirmed for this specific application."
+  }
+]

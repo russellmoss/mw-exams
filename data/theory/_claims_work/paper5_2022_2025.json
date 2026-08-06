@@ -1,0 +1,1682 @@
+[
+  {
+    "claim_id": "th_2022_p5_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / Vin Méthode Nature syndicat (DGCCRF-recognised charter)",
+      "tier": 1,
+      "ref": "https://www.decanter.com/wine-news/natural-wine-receives-formal-recognition-vin-methode-nature-435358 ; https://vinmethodenature.org/faq",
+      "quote": "A formal charter for natural wine has launched in France under the name 'vin méthode nature'. The Institute for Origins and Quality (INAO), the French Ministry for Agriculture and the French Fraud Control Office all recognise the new denomination."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Charter drawn up by Syndicat de Défense des Vins Nature'L, validated by DGCCRF March 2020."
+  },
+  {
+    "claim_id": "th_2022_p5_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Vin Méthode Nature (syndicat official FAQ)",
+      "tier": 1,
+      "ref": "https://vinmethodenature.org/faq",
+      "quote": "conçu sans aucun intrant (à l'exception possible mais pas encouragée d'une éventuelle addition de sulfites, après la fermentation, dont le résultat devra impérativement être inférieur à 30 mg/L au total et indiqué sur le pourtour du logo le cas échéant)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Two logos confirmed: 'sans sulfites ajoutés' and 'avec moins de 30 mg/l de sulfites ajoutés'."
+  },
+  {
+    "claim_id": "th_2022_p5_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched Vini Veri / VinNatur charter details but did not reach a tier-1 primary source confirming the ~50 mg/L SO2 cap or the pesticide-residue lab-testing programme within budget. The organisations are real and known for strict self-regulation, but the specific figure is unconfirmed against a tier-1 source."
+  },
+  {
+    "claim_id": "th_2022_p5_q1#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "RAW Wine is a real fair with SO2 declaration requirements for exhibitors, but a tier-1 source confirming the specific ~70 mg/L ceiling was not found within budget."
+  },
+  {
+    "claim_id": "th_2022_p5_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "CERES / IFOAM EU (organic certification bodies, citing EU Reg 2018/848 and 606/2009)",
+      "tier": 1,
+      "ref": "https://www.ceres-cert.de/docs/transfer/3-2-737_EN.pdf ; https://www.organicseurope.bio/content/uploads/2021/02/ifoameu_regulation_eu_rules_for_organic_wine_production_2013_compressed.pdf",
+      "quote": "Sulfur dioxide content for red wine with a residual sugar content below 2 g/l: maximum 100 mg/l ... white wine and rosé wine with a residual sugar content of less than 2 g/l: maximum 150 mg/l ... the maximum sulfur dioxide content permitted for conventional viticulture must be reduced"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Conventional ceilings for dry red/white-rosé under EU CMO Reg 606/2009 are 150/200 mg/L respectively; organic reduces these to 100/150 mg/L. Exact match to the claim."
+  },
+  {
+    "claim_id": "th_2022_p5_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "WSET (official)",
+      "tier": 1,
+      "ref": "https://www.wsetglobal.com/about-us/our-story ; https://www.wsetglobal.com/news-events/news/2019/wset-reports-record-annual-candidate-figures-in-50th-year",
+      "quote": "In 1969, the year we were established, we had less than two thousand candidates in the UK – fifty years on we have over 100,000 candidates across 75 countries."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q2#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "WSET (official) / Grape Wall of China / Decanter",
+      "tier": 1,
+      "ref": "https://www.wsetglobal.com/news-events/news/2022/january/04/wset-to-resume-operations-in-chinese-mainland ; https://www.grapewallofchina.com/2022/07/18/course-correction-wset-restarts-in-mainland-china/amp",
+      "quote": "WSET had to suspend business in the Chinese Mainland at the end of January 2021... Classes were suspended in January 2021, with WSET stating that 'due to administrative issues, we have put our activities in China temporarily on hold.'"
+    },
+    "corrected_claim": "The suspension of WSET course delivery in mainland China at the end of January 2021 is confirmed, and WSET needed a year to re-register as an overseas NGO with a Shanghai office before resuming in 2022 -- but WSET's own public statements attribute it only to unspecified 'administrative issues', not explicitly to a 'regulatory review of foreign-linked private education'.",
+    "corrected_sentence": "The reported suspension of WSET course delivery in mainland China from January 2021, which WSET itself attributed only to unspecified administrative issues and which required WSET to re-register as an overseas NGO before resuming in 2022, showed how quickly a market can close for reasons nothing to do with wine.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "Suspension date and re-registration process verified; the specific causal attribution to a 'regulatory review of foreign-linked private education' is the candidate's own inference, not confirmed by WSET or press sources found."
+  },
+  {
+    "claim_id": "th_2022_p5_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "drugsandalcohol.ie (Health Research Board, Ireland) / WHO",
+      "tier": 1,
+      "ref": "https://www.drugsandalcohol.ie/39492",
+      "quote": "Public Health (Alcohol) (Labelling) Regulations 2023 signed into law ... alcohol warning labels are already present in a number of countries, including ... France, Mexico ..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Ireland's Public Health (Alcohol) Act 2018 legislated for warnings before this 2022 answer was written; full labelling regulations followed in 2023."
+  },
+  {
+    "claim_id": "th_2022_p5_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "WHO/Europe",
+      "tier": 1,
+      "ref": "https://www.who.int/europe/news/item/14-02-2025-alcohol-labels-should-warn-of-cancer-risk--says-new-who-europe-report",
+      "quote": "the Global Alcohol Action Plan 2022-2030 and the European Framework for Action on Alcohol 2022-2025, endorsed and adopted respectively by all WHO Member States, propose priority actions to address alcohol-related harms"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "WHO's European regional programme (predecessor plan ran 2012-2020, current framework 2022-2025) treats reduced alcohol consumption/harm as an explicit policy target; general framing verified even though the precise plan cited may have been the 2012-2020 predecessor at the time of writing."
+  },
+  {
+    "claim_id": "th_2022_p5_q2#4",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Citation of a named WSET report title used to support an argument; not an independently checkable factual assertion beyond the report existing."
+  },
+  {
+    "claim_id": "th_2022_p5_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Naïo Technologies (company primary source) / The Robot Report",
+      "tier": 1,
+      "ref": "https://www.naio-technologies.com/en/ted-robot ; https://www.therobotreport.com/ted-weeding-robot-naio-technologies-rolls-out-new-version",
+      "quote": "TED: The only autonomous straddler for vineyards ... Naïo Technologies SAS announced ... its Ted robot, which is designed to weed vineyards ... for long-time partners Jas Hennessy & Co. and Bernard Magrez Grands Vignobles."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Monarch Tractor is a real company producing driver-optional electric tractors trialled with California growers; not specifically re-verified this session, low risk as a named-example claim."
+  },
+  {
+    "claim_id": "th_2022_p5_q3#2",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Hedged superlative ('probably the largest') about Vivino's dataset; not a precise checkable figure."
+  },
+  {
+    "claim_id": "th_2022_p5_q3#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Tastry is a real California company doing sensory/chemistry-based wine matching for producers and buyers; not independently re-verified this session, low risk as a named-example claim."
+  },
+  {
+    "claim_id": "th_2022_p5_q3#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "COVID-era border closures causing vineyard/cellar labour shortages in UK, NZ and Australia during 2020-2021 is widely reported in trade press; not verified against a tier-1 source this session, but low-risk general claim."
+  },
+  {
+    "claim_id": "th_2022_p5_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission JRC / EU Regulation 2018/1981",
+      "tier": 1,
+      "ref": "https://esdac.jrc.ec.europa.eu/themes/copper-topsoils",
+      "quote": "The European Commission has adopted the regulation (EU) 2018/1981 to restrict copper use in agricultural soils ... a maximum application rate of 28 kg ha-1 of copper over a period of 7 years (i.e. on average 4 kg ha-1 year-1)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Demeter USA / Demeter International (official biodynamic certifiers)",
+      "tier": 1,
+      "ref": "https://demeter-usa.org/frequently-asked-questions ; https://demeter.net/certification/conversion",
+      "quote": "In order for a farm to refer to itself as Biodynamic, it must have achieved certification through Demeter by adhering to the Demeter Farm Standard for a minimum of three years if conventionally farmed... a minimum of ten percent of the total farm acreage be set-aside as a biodiversity preserve."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q4#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Emiliana Organic Vineyards (company) / Boutinot / Wikipedia cross-check",
+      "tier": 2,
+      "ref": "https://boutinot.com/producers/emiliana-organic-biodynamic ; https://www.organicwinenz.com/post/the-largest-organic-winery-on-the-planet",
+      "quote": "Emiliana... producing award-winning wines from almost 1,000 hectares of vineyards... Emiliana is the largest organic and biodynamic winery on the planet ... which incorporates 1,550ha of farmland"
+    },
+    "corrected_claim": "Emiliana farms roughly 1,000-1,200 hectares organically (its whole estate), with a substantial but smaller Demeter-certified biodynamic component within that, rather than the full 'well over a thousand hectares' being biodynamic specifically.",
+    "corrected_sentence": "Scale is not an absolute barrier: Emiliana in Chile farms its roughly 1,000-hectare estate organically, with a substantial biodynamic-certified component, showing the model can operate well beyond boutique scale.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Sources are company/trade sites (tier 2), not tier-1; the organic-vs-biodynamic hectarage split is inconsistently reported across sources (800-1,550 ha depending on source and year)."
+  },
+  {
+    "claim_id": "th_2022_p5_q4#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / The Wine Cellar Insider / Pontet-Canet (estate)",
+      "tier": 2,
+      "ref": "https://www.decanter.com/premium/chateau-pontet-canet-tasting-10-years-of-biodynamics-465972 ; https://www.pontet-canet.com/en/from-the-vineyard-to-the-cellars-the-same-sensitive-approach",
+      "quote": "2004 - trials on 14 hectares of Merlot... 2010 - Pontet Canet wines certified organic by Ecocert and biodynamic by Biodyvin... 2014 - certified biodynamic by Demeter"
+    },
+    "corrected_claim": "Pontet-Canet began biodynamic trials in 2004 and farmed the whole estate biodynamically from around 2005-2008 (with a 2007 mildew-driven interruption), gaining Ecocert/Biodyvin organic-biodynamic certification in 2010 and Demeter certification in 2014 -- so 'since around 2010' understates how early the practice actually began.",
+    "corrected_sentence": "Château Pontet-Canet has farmed biodynamically in Pauillac since the mid-2000s, gaining formal organic and biodynamic certification in 2010, and the quality trajectory is not disputed -- but the honest reading is that meticulous, well-capitalised farming explains it at least as well as the horn silica.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Practice pre-dates the certification date; trade press sources (tier 2), not primary regulatory/tier-1 source."
+  },
+  {
+    "claim_id": "th_2022_p5_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia (LCA report) / academic LCA literature",
+      "tier": 1,
+      "ref": "https://www.wineaustralia.com/getmedia/5996a3e5-3cbd-40d8-bbb9-8d632f443652/AWR-2201-LCA-Final-Report.pdf",
+      "quote": "the indicative cradle-to-grave carbon footprint of Australian still wine is 1.05 kg CO2e per L... hotspots... included glass packaging, winery electricity, vineyard diesel use and product distribution"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Multiple independent LCA studies converge on packaging/glass being the largest single contributor, typically 35-55% of total footprint."
+  },
+  {
+    "claim_id": "th_2022_p5_q4#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "WineMaker Magazine / Wine Economist (trade sources)",
+      "tier": 2,
+      "ref": "https://winemakermag.com/wine-wizard/reducing-water-consumption-in-your-winery ; https://wineeconomist.com/2008/11/27/turning-water-into-wine",
+      "quote": "It generally takes about 6 gal. (23 L) of water to make one gallon (3.8 L) of wine though estimates vary from as little as 2 gallons (7.6 L) all the way up to 20 gallons (76 L)."
+    },
+    "corrected_claim": "Industry estimates for cellar water use range roughly 2-20 litres per litre of wine, with a commonly cited average closer to 6 L/L rather than 3-5 L/L; the claim understates the typical figure slightly.",
+    "corrected_sentence": "So does water: wineries typically consume of the order of three to six litres of water for every litre of wine (with efficient operations closer to three and the industry average nearer six), and wastewater treatment is a serious cost and a serious pollution risk.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 (regulator/research-institute) figure found; trade-press estimates vary widely by source and don't include vineyard irrigation."
+  },
+  {
+    "claim_id": "th_2022_p5_q4#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Sustainable Winegrowing New Zealand's coverage share was not specifically verified against a tier-1 source this session; SWNZ is a real, long-established scheme and the qualitative claim ('overwhelming majority') is a low-risk, non-numeric assertion."
+  },
+  {
+    "claim_id": "th_2022_p5_q5#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia cross-checked against Mitchell Beazley / Jancis Robinson shop (publisher)",
+      "tier": 1,
+      "ref": "https://shop.jancis.com/products/the-world-atlas-of-wine-9th-edition",
+      "quote": "Since the first edition appeared in 1971 The World Atlas of Wine ... has been a must-have wine reference."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q5#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Oxford University Press (Oxford Reference, official publisher)",
+      "tier": 1,
+      "ref": "https://www.oxfordreference.com/abstract/10.1093/acref/9780198609902.001.0001/acref-9780198609902",
+      "quote": "Published in 1994 to worldwide acclaim, the first edition of Jancis Robinson's seminal work immediately attained legendary status..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q5#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Robert Parker Wine Advocate (publisher's own account) / Wikipedia cross-check",
+      "tier": 1,
+      "ref": "https://winejournal.robertparker.com/the-truth-about-parkerization",
+      "quote": "In 1978, Parker launched his publication ... The Baltimore-Washington Wine Advocate, which was later renamed The Wine Advocate."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "100-point scale introduced with the publication from the outset, popularised through the 1980s."
+  },
+  {
+    "claim_id": "th_2022_p5_q5#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Spectator / Comics Beat / Anime News Network (specialist press, cross-corroborated)",
+      "tier": 2,
+      "ref": "https://www.winespectator.com/articles/beloved-drops-of-god-wine-manga-gets-english-translation ; https://www.comicsbeat.com/kodanshas-wine-manga-the-drops-of-god-is-finally-complete-in-english",
+      "quote": "Kami no Shizuku, written by sister-brother team Yuko and Shin Kibayashi... the unexpected smash-hit manga series that enraptured Japanese readers for its 10-year run, from 2004 to 2014... A hit in Japan, South Korea, and Taiwan, it apparently created a surge in demand for le vin"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "No single tier-1 (government/regulator) source for a pop-culture fact; multiple independent trade-press sources converge, so treated as reliable despite tier-2 sourcing."
+  },
+  {
+    "claim_id": "th_2022_p5_q5#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "The New York Times (primary source)",
+      "tier": 1,
+      "ref": "https://www.nytimes.com/2020/10/29/dining/drinks/court-of-master-sommeliers-sexual-harassment-wine.html",
+      "quote": "The Court of Master Sommeliers Has a Sexual Harassment Problem",
+      "quote_extra": "published Oct 29, 2020"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p5_q5#5",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named example of a well-documented real case (Kurniawan convicted 2014); used illustratively, not a specific checkable figure or date."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Sustainable Wine Roundtable / International Wine Challenge / EFTA Surveillance Authority filing",
+      "tier": 2,
+      "ref": "https://swroundtable.org/action-areas/the-bottle-weight-accord ; https://www.internationalwinechallenge.com/iwc-insight/sustainability/bottle-weight-accord-explained.html",
+      "quote": "Systembolaget... a signatory to this Accord... The 'SWR Bottle Weight Accord' will see the companies... reduce their average bottle to weigh less than 420 grams by the end of 2026... Systembolaget notes the Swedish wine monopoly has already reduced its average bottle weight to 477g"
+    },
+    "corrected_claim": "420g is the 2026 target of the industry-wide SWR Bottle Weight Accord that Systembolaget co-funded and signed, not (as of the answer's 2023 writing) a maximum weight Systembolaget was already enforcing in its tenders -- Systembolaget's own average was 477g at that point, moving toward a 'ban on the heaviest bottles' from March 2024. It is Norway's Vinmonopolet that has an explicit, dated 420g maximum-weight tender requirement (effective 1 January 2026).",
+    "corrected_sentence": "Systembolaget, Sweden's retail monopoly, has committed -- alongside Norway's Vinmonopolet, which enforces an explicit maximum -- to bringing average still-wine bottle weights down to 420 g under the industry-wide Bottle Weight Accord.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "Sources are trade press / retailer's own materials (tier 2), not government regulation; the 420g figure is real but its status (target vs. enforced tender cap, and which of the two Nordic monopolies) needs correction."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Flexitank capacity advantage over glass-in-container shipping is a commonly cited bulk-shipping fact but was not verified against a tier-1 source this session; the precise 2.5x multiplier is unconfirmed."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Aluminium recyclability and >90% collection rates in deposit-return markets is plausible and widely cited but not verified against a tier-1 (industry-body/regulator) source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Bag-in-box being the majority of still-wine volume in Sweden/Norway is a commonly repeated trade claim but was not checked against Systembolaget/Vinmonopolet sales statistics this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#4",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-known named example (Jancis Robinson publishing bottle weights) used illustratively; low risk."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Agriculture and Rural Development, official)",
+      "tier": 1,
+      "ref": "https://agriculture.ec.europa.eu/media/news/new-rules-wine-labelling-enter-application-2023-12-07_en",
+      "quote": "In the framework of the last reform of the Common Agricultural Policy (CAP) adopted in December 2021, the European Parliament and the Council introduced new labelling rules for wine... From the December 8 2023, the full list of ingredients and the nutritional declaration... is mandatory"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q1#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Alsace AOC's requirement to bottle in the flûte d'Alsace, and Franken's exclusive right to the Bocksbeutel, are both well-established appellation facts but were not checked against the cahier des charges/German wine law this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q1#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "WineWiki / Robb Report / New Zealand screwcap trade sources (cross-corroborated)",
+      "tier": 2,
+      "ref": "https://robbreport.com/food-drink/wine/screw-cap-fine-wine-ditch-cork-1234812520 ; https://www.wineanorak.com/new_zealand_screwcap_initiative.htm",
+      "quote": "New Zealand screwcap adoption grew from roughly 1% of production in 2001 to approximately 70% by 2004; today an estimated 99% of New Zealand wines use aluminium screwcap closures... The Screwcap Wine Seal Initiative was established in New Zealand in 2001"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Multiple independent trade sources converge on rapid, near-total NZ adoption within a few years of the 2001 initiative."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb_web",
+      "publisher": "OIV (Organisation Internationale de la Vigne et du Vin, official)",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-oenological-codex/part-i-definitions",
+      "quote": "Wine is the beverage resulting exclusively from the partial or complete alcoholic fermentation of fresh grapes... Its actual alcohol content shall not be less than 8.5% vol... the minimum total alcohol content may be able to be reduced to 7% vol. by legislation particular to the region considered."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "EU wine definition (CMO Reg 1308/2013 Annex VII) mirrors the OIV floor; not separately re-verified against EUR-Lex text this session but consistent with OIV standard."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (Regulation (EU) 2021/2117, official) / OIV Code Sheet",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg/2021/2117/2021-12-06/eng ; https://www.oiv.int/public/medias/8672/code-2022-en.pdf",
+      "quote": "Regulation (EU) 2021/2117... Beverage obtained by partial dealcoholisation of wine is a beverage... with an alcoholic strength by volume equal or above 0.5% vol. and less than the applicable minimum alcoholic strength of wine"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "GOV.UK (HMRC, official)",
+      "tier": 1,
+      "ref": "https://www.gov.uk/government/statistics/quality-report-alcohol-bulletin/quality-report-alcohol-bulletin",
+      "quote": "Alcohol Duty reforms were introduced in August 2023... Alcohol Duty rates are now based on the strength of the product (ABV)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q2#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Mosel Kabinett Riesling's typical 7.5-8% ABV range is standard trade knowledge but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Moscato d'Asti's ~5.5% ABV is standard trade knowledge (and near the OIV-permitted floor for sweet/special wines) but was not checked against the DOCG disciplinare this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb_web",
+      "publisher": "OIV (official)",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-i-definitions/special-wines",
+      "quote": "Icewine - eiswein... The minimal alcoholic strength acquired should be 5.5% by volume."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirms eiswein can legally finish well below 8%; TBA follows the same low-alcohol-through-fermentation-stall logic."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Port at 19-20% and fino Sherry at ~15% fortified strength are standard, widely-taught figures but were not checked against a tier-1 (IVDP/Consejo Regulador) source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q2#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The claim that ethanol is only antimicrobial well above table-wine concentrations (with pH and SO2 as the real preservative mechanisms) is standard oenological understanding but was not checked against a specific microbiology source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb_web",
+      "publisher": "OIV (International Standard for the Labelling of Wines, official)",
+      "tier": 1,
+      "ref": "https://www.oiv.int/sites/default/files/publication/2023-04/Norme%20%C3%A9tiquetage%20Vin%20complet%202023%20EN.pdf",
+      "quote": "'Single Field of Vision': All parts of the surface of the package... which may be seen at the same time without having to turn the package"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "General EU mandatory-elements list (sales denomination, ABV, volume, provenance, bottler/importer, sulphite allergen, lot code) matches standard EU wine labelling law; single-field-of-vision concept independently confirmed via OIV standard."
+  },
+  {
+    "claim_id": "th_2023_p5_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB (Alcohol and Tobacco Tax and Trade Bureau, US government, official)",
+      "tier": 1,
+      "ref": "https://www.ttb.gov/regulated-commodities/beverage-alcohol/beer/labeling/malt-beverage-health-warning",
+      "quote": "Under the Alcoholic Beverage Labeling Act (ABLA) of 1988... the following health warning statement must appear on all alcohol beverages... GOVERNMENT WARNING..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "ABLA enacted Nov 1988, effective Nov 1989 -- 'since the late 1980s' is accurate."
+  },
+  {
+    "claim_id": "th_2023_p5_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (official)",
+      "tier": 1,
+      "ref": "https://agriculture.ec.europa.eu/media/news/new-rules-wine-labelling-enter-application-2023-12-07_en",
+      "quote": "From the December 8 2023, the full list of ingredients and the nutritional declaration (calories, etc.) is mandatory for all wine products sold in the EU."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q3#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "American Association of Wine Economists / TTB (official)",
+      "tier": 1,
+      "ref": "https://www.ttb.gov/regulated-commodities/beverage-alcohol/wine/labeling-wine/wine-labeling-alcohol-content",
+      "quote": "Plus or minus 1.5 percentage points for wines containing 14% or less alcohol by volume... Plus or minus 1 percentage point for wines containing over 14% alcohol by volume. --- The EU's tolerance range is +/- 0.5% --- but it grants +/- 0.8% to Australia"
+    },
+    "corrected_claim": "The US tolerance (1.5 points up to 14% ABV, 1 point above) is exactly right. The EU general tolerance is 0.5%, but the 0.8% widened tolerance is specifically an exception granted to Australian wine under a bilateral agreement, not a general 'some categories' widening.",
+    "corrected_sentence": "The EU tolerance on declared alcoholic strength is generally 0.5% by volume, widening to 0.8% specifically for imports from Australia under a bilateral wine agreement, while the United States permits 1.5% below 14% and 1% at or above it.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "US figures confirmed exactly via TTB; EU 0.8% figure confirmed via AAWE but tied to Australia specifically rather than a general 'some categories' rule."
+  },
+  {
+    "claim_id": "th_2023_p5_q3#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "drugsandalcohol.ie (Health Research Board, Ireland)",
+      "tier": 1,
+      "ref": "https://www.drugsandalcohol.ie/39492",
+      "quote": "Public Health (Alcohol) (Labelling) Regulations 2023 signed into law."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "MDPI Beverages (peer-reviewed, Parr, Maltman, Easton & Ballester 2018)",
+      "tier": 1,
+      "ref": "https://www.mdpi.com/2306-5710/4/4/77",
+      "quote": "geologist Alex Maltman detailed the arguments... There have been attempts to establish human detection thresholds for these dissolved inorganic elements... the values are subjective and debatable, but they are generally higher than the concentrations found in wine."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Sensory-panel studies finding little taster consensus on 'mineral' wines in Chablis/Loire are referenced in the minerality literature but a specific tier-1 study citation was not located this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q4#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "A podcast source suggests 'minerality' gained traction in wine writing in the 1980s and became common in the 1990s-2000s, consistent with the claim, but this is not a tier-1 source; corpus-linguistics evidence was not located."
+  },
+  {
+    "claim_id": "th_2023_p5_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Succinic acid as a normal fermentation product with a salty-bitter character is standard oenology but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q4#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Benzenemethanethiol (benzyl mercaptan) associated with flint/smoke and reductive, low-oxygen/lees-contact winemaking is consistent with known thiol chemistry but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "PMC (peer-reviewed, 'The science of minerality')",
+      "tier": 1,
+      "ref": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12542900",
+      "quote": "Table 1. Perception thresholds of minerals in water and wines as well as mineral concentration ranges in wines around the world... NaCl... Range in wine (mg L-1) 2.94-310"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirms sodium/chloride are measurably present and variable in wine, consistent with coastal/saline sites showing elevated levels; the specific coastal-vineyard claim itself was not independently re-checked."
+  },
+  {
+    "claim_id": "th_2023_p5_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Widely repeated industry statistic (often cited as ~90% of wine consumed within a day or two of purchase, e.g. by market-research firms) but not verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p5_q5#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "rioja.uk (trade body-affiliated) cross-checked against reglamento summaries",
+      "tier": 2,
+      "ref": "https://www.rioja.uk/rioja-wine/gran-reserva",
+      "quote": "For a red wine to be labelled Rioja Gran Reserva, it must be aged for: A minimum of five years in total; At least two years in oak barrels; At least three years ageing in bottle."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent across multiple independent trade sources; not the Consejo Regulador's own site but matches known DOCa Rioja reglamento."
+  },
+  {
+    "claim_id": "th_2023_p5_q5#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Disciplinare di Produzione (Italian Ministry of Agriculture, official, via eno.news/italianwinecentral summary)",
+      "tier": 1,
+      "ref": "https://eno.news/appellations/barolo-docg",
+      "quote": "Barolo: Total Minimum Aging 38 months; Wood Aging Minimum 18 months. Source: Disciplinare di Produzione, Art. 5"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q5#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Consorzio del Vino Brunello di Montalcino (official)",
+      "tier": 1,
+      "ref": "https://www.consorziobrunellodimontalcino.it/en/583/wines",
+      "quote": "cannot be released for consumption before 1 January of the year following the end of the fifth year calculated in consideration of the year of harvest"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Total ageing is widely described as 'five years' (2 years min. in oak + release in the fifth year after harvest); precise figure is closer to 4 years 4 months minimum, but 'five years' is the consortium's own shorthand."
+  },
+  {
+    "claim_id": "th_2023_p5_q5#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Champagne.fr / Comité Champagne (official appellation body)",
+      "tier": 1,
+      "ref": "https://www.champagne.fr/en/about-champagne/how-champagne-is-made/maturation",
+      "quote": "All genuine Champagnes must spend at least 15 months maturing in the winemaker's cellars before release. Vintage cuvées are matured for at least three years."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q5#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IVDP special-categories page (official) / WineWiki cross-check",
+      "tier": 1,
+      "ref": "https://www.ivdp.pt/en/wines/port-wines/special-categories",
+      "quote": "Vintage Port... governed by the IVDP... Wines must spend a minimum of two years aging in wood before bottling; bottling takes place in Portugal, and wines are bottled unfiltered and unfined"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p5_q5#6",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Vague comparative judgment ('very small share') rather than a specific checkable figure."
+  },
+  {
+    "claim_id": "th_2024_p5_q1#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Interpretive judgment about the persistence of 1855 pricing hierarchy over time; the underlying classification facts are separately verified (see th_2024_p5_q3#0), but the pricing-persistence claim itself is not a single checkable figure."
+  },
+  {
+    "claim_id": "th_2024_p5_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Sassicaia's rise from unclassified Vino da Tavola to its own denomination (Bolgheri Sassicaia DOC, 1994) is well-known wine history but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Copernicus Climate Change Service / IPCC (official)",
+      "tier": 1,
+      "ref": "https://climate.copernicus.eu/why-do-we-keep-talking-about-15degc-and-2degc-above-pre-industrial-era",
+      "quote": "The current human-induced warming, estimated at about 1.2°C, 'has already caused multiple observed changes in the climate system'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Figure is a moving target (2024 annual mean was ~1.3-1.5C in some datasets); 1.2C matches the mid-2020s IPCC/Copernicus consensus range for anthropogenic warming at the time this 2024 answer was written."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Growing-season temperature rise of 1.5-2C in European wine regions since the early 1980s is a commonly cited figure in climate-and-wine literature but was not checked against a specific tier-1 (IPCC/national met service) source this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Harvest-date advancement of roughly 2-3 weeks in Bordeaux/Burgundy over four decades is widely reported in viticultural climate literature but not independently re-verified this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "A roughly one-degree rise in typical dry red wine alcohol over recent decades is a commonly cited industry figure but not independently re-verified this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "CIVB (Bordeaux Wine Council, official press release) / Decanter",
+      "tier": 1,
+      "ref": "https://static1.squarespace.com/static/59960ab6ebbd1a2a65fb4543/t/601013c2d4a03173cab0e950/1611666370730/NewVarieties_January_2021_CIVB_FINAL.pdf ; https://www.decanter.com/learn/new-bordeaux-grapes-wines-420290",
+      "quote": "BORDEAUX RECEIVES NATIONAL APPROVAL TO INTRODUCE SIX NEW RED AND WHITE GRAPE VARIETIES IN 2021... four reds – Arinarnoa, Castets, Marselan and Touriga Nacional – and two whites – Alvarinho and Liliorila"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Checked against the known corpus error (Petit Manseng was proposed but rejected, not part of the final six): the claim correctly names only Touriga Nacional and Marselan and does not include Petit Manseng, so it is accurate."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The April 2021 spring frost causing severe French crop losses is extremely well documented in the wine trade press (widely reported as one of the costliest frost events in decades, roughly EUR 2bn), but a tier-1 (government/insurer) figure was not pulled this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q2#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "2020 US West Coast wildfire smoke taint, with several producers declining to release vintage wines, is extremely well documented in wine trade press; not independently re-verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Bordeaux.com (Bordeaux Wine Council, official)",
+      "tier": 1,
+      "ref": "https://www.bordeaux.com/en/classifications/classifications-1855",
+      "quote": "Napoleon III... asked Bordeaux's brokers to produce a clear classification of their finest wines. He even stipulated the assessment criteria: the reputation of each estate; the market prices fetched by their most recent vintages... focuses exclusively on the red wines of the Médoc... and the sweet white wines of Sauternes & Barsac"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Christie's (founded 1766) holding wine sales from the eighteenth century is plausible given the house's founding date but was not independently confirmed this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Robert Parker Wine Advocate (publisher's own account)",
+      "tier": 1,
+      "ref": "https://winejournal.robertparker.com/the-truth-about-parkerization",
+      "quote": "In 1978, Parker launched his publication ... The Baltimore-Washington Wine Advocate"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q3#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Liv-ex was founded in 1999/2000 ('turn of the millennium' is directionally correct per general knowledge) but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q3#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Bordeaux's declining share of secondary-market trade since a circa-2011 peak is a commonly cited Liv-ex-derived trend but was not independently verified against Liv-ex data this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q3#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The specific Sotheby's statistic (~30% of 2022 wine/spirits clientele under 40) is a risky precise figure that was not located against a tier-1 (Sotheby's own reporting) source this session."
+  },
+  {
+    "claim_id": "th_2024_p5_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Cambridge University Press (peer-reviewed) / adintime.com (legal summary)",
+      "tier": 1,
+      "ref": "https://www.cambridge.org/core/journals/journal-of-law-medicine-and-ethics/article/regulation-of-alcohol-marketing-in-france-the-loi-evin-at-thirty/9BC60AEF3214427EEFF834970606E551",
+      "quote": "When adopted in 1991, the French Loi Evin was pioneering as one of the first in the world to regulate alcohol marketing as extensively."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "gov.scot (Scottish Government, official)",
+      "tier": 1,
+      "ref": "https://www.gov.scot/policies/alcohol-and-drugs/minimum-unit-pricing",
+      "quote": "Minimum unit pricing was introduced in 2018. In April 2024, the Scottish Parliament voted to keep minimum unit pricing and increase the minimum unit price from 50p to 65p per unit."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Implementation of the raised price took effect 30 September 2024, per SGF/gov.scot sources."
+  },
+  {
+    "claim_id": "th_2024_p5_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "GOV.UK (HMRC, official)",
+      "tier": 1,
+      "ref": "https://www.gov.uk/government/statistics/quality-report-alcohol-bulletin/quality-report-alcohol-bulletin",
+      "quote": "Alcohol Duty reforms were introduced in August 2023... Alcohol Duty rates are now based on the strength of the product (ABV)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "WHO/Europe (official) / AJMC",
+      "tier": 1,
+      "ref": "https://www.who.int/europe/news/item/14-02-2025-alcohol-labels-should-warn-of-cancer-risk--says-new-who-europe-report",
+      "quote": "Ireland has enacted a new law requiring cancer warning labels on alcohol-containing products starting in 2026, making Ireland the first country in the EU and the second country worldwide (after South Korea)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "NIAAA / NHTSA (US federal agencies, official)",
+      "tier": 1,
+      "ref": "https://alcoholpolicy.niaaa.nih.gov/the-1984-national-minimum-drinking-age-act",
+      "quote": "The 1984 National Minimum Drinking Age Act ... requires that States prohibit persons under 21 years of age from purchasing or publicly possessing alcoholic beverages as a condition of receiving State highway funds."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Technically an indirect federal incentive via highway funding rather than a direct federal law, but functions as and is universally described as the federal minimum purchase age of 21."
+  },
+  {
+    "claim_id": "th_2024_p5_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "China Ministry of Commerce (via ABC News / BBC / Reuters reporting)",
+      "tier": 2,
+      "ref": "https://www.abc.net.au/news/2024-03-28/china-government-officially-abolishes-heavy-tariffs-on-wine/103644884",
+      "quote": "China's government has officially abolished heavy tariffs on Australian wine... Beijing agreed to review the tariffs... as it gradually unwinds the trade barriers it placed on around $20 billion of Australian exports in 2020 and 2021"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Tariffs of 116.2-218.4% imposed March 2021 (following provisional duties from Nov 2020), removed effective 29 March 2024; matches 'imposed in 2020, removed in 2024' at the level of general accuracy claimed."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia / winewithseth cross-checked against Portuguese wine history sources",
+      "tier": 2,
+      "ref": "https://en.wikipedia.org/wiki/History_of_Portuguese_wine",
+      "quote": "the Marquis of Pombal established boundaries and regulations for the production of authentic Port from the Douro in 1756... This 1756 declaration made the Douro region... one of the world's oldest established appellations."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Corroborated consistently across multiple independent sources including Douro producer sites."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Union des Maisons de Champagne (official appellation body) / Wikipedia cross-check",
+      "tier": 1,
+      "ref": "https://maisons-champagne.com/en/appellation/definition-and-protection/definition/article/definition-and-law",
+      "quote": "The delimitation process took nearly a quarter of a century, from 1905 to 1930... From 1927 to 1930, committees identified all of the areas that were set aside for Champagne vines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Riots occurred mainly in 1911; the boundary law revision including Aube dates to 1927, matching the claim."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "INAO (Institut National de l'Origine et de la Qualité, official)",
+      "tier": 1,
+      "ref": "https://www.inao.gouv.fr/en/history-1905-1935",
+      "quote": "1905-1935: the beginnings of appellations d'origine: a response to the food and wine crises"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The founding decree-law establishing the AOC framework and the predecessor of INAO dates from 30 July 1935."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Consorzio di Tutela Barolo Barbaresco Alba Langhe e Dogliani (official, via BaroloWorld summary)",
+      "tier": 1,
+      "ref": "https://baroloworld.com/blogs/approfondimenti/le-menzioni-geografiche-aggiuntive-il-barolo-e-i-suoi-crus",
+      "quote": "a partire dalla campagna vendemmiale 2010-2011 la produzione del Barolo DOCG si attiene alle nuove disposizioni in vigore con il DM 30.09.2010... con cui sono state approvate 181 Menzioni Geografiche Aggiuntive"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p5_q5#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Chianti Classico Consorzio (official)",
+      "tier": 1,
+      "ref": "https://www.chianticlassico.com/progetti/le-unita-geografiche-aggiuntive-uga",
+      "quote": "l'approvazione a larghissima maggioranza dell'Assemblea dei Soci nel giugno 2021... [legally in force from July 2023, per cluboenologique.com corroboration]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "UGA project approved by the Consorzio assembly in 2021; became legally usable on Gran Selezione labels from July 2023."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia / multiple trade sources cross-checked",
+      "tier": 2,
+      "ref": "https://en.wikipedia.org/wiki/Glera_(grape)",
+      "quote": "in the EU was renamed 'Glera' in 2009 to make room for the protection of 'Prosecco' as the name of the Italian geographically protected wine."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Corroborated by Forbes, BKWine and multiple independent wine-trade sources; DOC created and grape renamed simultaneously in 2009."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Union des Maisons de Champagne (official appellation body)",
+      "tier": 1,
+      "ref": "https://maisons-champagne.com/en/appellation/stages-in-winemaking/from-grapevine-to-grapes-and-must/article/pressing",
+      "quote": "Press yields are set at 102 litres of must per 160kg of pressed grapes."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Reserve system (VCI) also confirmed via multiple sources (BKWine, Vine & Bubble)."
+  },
+  {
+    "claim_id": "th_2024_p5_q5#7",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Agriculture and Rural Development, official)",
+      "tier": 1,
+      "ref": "https://agriculture.ec.europa.eu/media/news/eu-japan-additional-42-geographical-indications-protected-both-sides-2023-09-27_en",
+      "quote": "Until today's addition, 263 EU GIs and 112 Japanese GIs were protected by both sides, representing a total of 375 registered food and drink products."
+    },
+    "corrected_claim": "By 2023 the EU-Japan EPA (in force since Feb 2019) protected 263 EU geographical indications but only 112 Japanese GIs -- 'several hundred on each side' overstates the Japanese side, which is just over a hundred.",
+    "corrected_sentence": "This is central to the regulator and trade negotiator: geographical indications are now standard currency in trade agreements -- the EU-Japan Economic Partnership Agreement, in force since 2019, protects several hundred EU geographical indications and just over a hundred Japanese GIs.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "At entry into force in Feb 2019 the initial lists were smaller (roughly 200 EU / 29 Japan) and have since grown via successive additions; 'several hundred on each side' is accurate for neither the 2019 baseline nor the 2023 total on the Japanese side."
+  },
+  {
+    "claim_id": "th_2025_p5_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "JSAD (peer-reviewed) / Movendi International citing WHO data",
+      "tier": 1,
+      "ref": "https://www.jsad.com/doi/10.15288/jsad.2020.81.284 ; https://movendi.ngo/wp-content/uploads/2022/04/Science-policy_alcohol-labeling.pdf",
+      "quote": "Of 47 WHO member countries with alcohol warning labels, only South Korea requires cancer warnings on alcohol containers."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q1#1",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "General reference to Ireland's legislative process and the EU's Beating Cancer Plan as examples of industry resistance to labelling; not a single precise checkable figure beyond facts verified elsewhere in this batch (Ireland's 2026 law, WHO/Europe context)."
+  },
+  {
+    "claim_id": "th_2025_p5_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "drugsandalcohol.ie (Health Research Board, Ireland)",
+      "tier": 1,
+      "ref": "https://www.drugsandalcohol.ie/39492",
+      "quote": "alcohol warning labels are already present in a number of countries, including Australia, Brazil, Canada, Colombia, France, Mexico, Russia, South Africa, South Korea, Taiwan, Thailand, and the United States"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / Wine Spectator / Le Monde",
+      "tier": 2,
+      "ref": "https://www.decanter.com/wine-news/france-will-uproot-27500-hectares-of-vineyards-to-combat-oversupply-crisis-544097 ; https://www.winespectator.com/articles/desperate-bordeaux-grapegrowers-get-aid-to-pull-up-vines",
+      "quote": "Bordeaux grapegrowers are planning to tear out almost 23,500 acres of vines... the Bordeaux Wine Council (CIVB) reached an agreement with... France's minister of agriculture and food sovereignty, for financing the vine pull."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "CIVB/French government vine-pull (arrachage) schemes for Bordeaux confirmed across multiple independent trade-press sources from 2023 onward."
+  },
+  {
+    "claim_id": "th_2025_p5_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (Regulation (EU) 2021/2117, official)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg/2021/2117/2021-12-06/eng",
+      "quote": "Regulation (EU) 2021/2117 of the European Parliament and of the Council of 2 December 2021 amending Regulations (EU) No 1308/2013... on the definition, description, presentation and labelling of aromatised wine products"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Same 2021 CAP reform that created the dealcoholised/partially dealcoholised wine categories."
+  },
+  {
+    "claim_id": "th_2025_p5_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / Wine Spectator / Le Monde",
+      "tier": 2,
+      "ref": "https://www.decanter.com/wine-news/france-will-uproot-27500-hectares-of-vineyards-to-combat-oversupply-crisis-544097",
+      "quote": "Last month, France's agriculture ministry unveiled a plan to pull up 30,000 hectares in a bid to tackle a significant supply-demand imbalance."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Bordeaux vine-pull confirmed directly; South Australia, Chile and South African area reduction under commercial pressure not independently re-checked this session but consistent with widely reported industry oversupply trends."
+  },
+  {
+    "claim_id": "th_2025_p5_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No/low category growth being concentrated in beer (vs wine/spirits) is a commonly cited market-research finding (e.g. IWSR) but was not checked against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UNESCO (official, Intangible Cultural Heritage list)",
+      "tier": 1,
+      "ref": "https://ich.unesco.org/en/RL/ancient-georgian-traditional-qvevri-wine-making-method-00870",
+      "quote": "Inscribed in 2013 (8.COM) on the Representative List of the Intangible Cultural Heritage of Humanity"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The Areni-1 cave complex in Armenia (excavated from 2007, winery evidence published 2010-2011, dated to c. 4100 BCE) is widely described as the oldest known winery site, but was not independently re-verified against a tier-1 archaeological source this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "South Africa's Old Vine Project and its 35-year certification threshold for heritage vineyards is a real, well-known scheme but was not checked against its own published criteria this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q3#3",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Interpretive/judgment claim about Marselan's cultural adoption in China rather than a single checkable figure; Marselan's popularity in China is well documented in trade press."
+  },
+  {
+    "claim_id": "th_2025_p5_q3#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine-Elabels / Scantrust (compliance guides citing Regulation (EU) 2021/2117)",
+      "tier": 2,
+      "ref": "https://wine-elabels.eu/en",
+      "quote": "Regulation (EU) 2021/2117... allows the transfer of this information in digital form via QR Code"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q3#5",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "General/comparative claim about the age of Chile's País vines rather than a single checkable figure; País's presence in Chile since the 16th century is well documented."
+  },
+  {
+    "claim_id": "th_2025_p5_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "The Guardian / Le Monde / BBC / France24 (cross-corroborated news reporting on the 2025 trial)",
+      "tier": 2,
+      "ref": "https://www.theguardian.com/world/2025/jun/19/grape-pickers-trial-human-trafficking-france ; https://www.bbc.com/news/articles/cz7lj59ne8jo",
+      "quote": "Three employees of a firm that provided workers to pick grapes for champagne has gone on trial for human trafficking... during the 2023 grape harvest... in a region recognised as a Unesco world heritage site."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Multiple independent, high-quality news organisations corroborate the case; not a government/regulator primary source but very well documented."
+  },
+  {
+    "claim_id": "th_2025_p5_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "ScienceDirect (peer-reviewed, London 1999)",
+      "tier": 1,
+      "ref": "https://www.sciencedirect.com/science/article/abs/pii/S0277953698004456",
+      "quote": "A particular feature of South African agriculture has been the payment of farm workers with alcohol in lieu of wages, known as the infamous 'tot' or 'dop' [system]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission JRC / EU Regulation 2018/1981",
+      "tier": 1,
+      "ref": "https://esdac.jrc.ec.europa.eu/themes/copper-topsoils",
+      "quote": "regulation (EU) 2018/1981 to restrict copper use in agricultural soils... a maximum application rate of 28 kg ha-1 of copper over a period of 7 years (i.e. on average 4 kg ha-1 year-1)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "A specific Bordeaux case where schoolchildren were affected during vineyard spraying (which raised public awareness and prompted buffer-zone rules) was not identified against a tier-1 news/regulatory source this session; this is a risky, very specific claim."
+  },
+  {
+    "claim_id": "th_2025_p5_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "General knowledge of NZ immigration policy, not independently re-searched this session",
+      "tier": 2,
+      "ref": "New Zealand Immigration (RSE scheme, established 2007)",
+      "quote": ""
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Downgraded confidence: this was not specifically searched in this session; the RSE scheme is a well-documented, real, government-run programme for Pacific seasonal workers in NZ horticulture/viticulture."
+  },
+  {
+    "claim_id": "th_2025_p5_q4#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "California's Sustainable Groundwater Management Act (2014) and the Murray-Darling Basin Plan are real, well-known regulatory responses to over-allocated water resources, but were not independently re-verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q4#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "WIETA (Wine and Agricultural Ethical Trade Association, South Africa) and Fairtrade certification are real, well-known ethical-trade schemes; not independently re-verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q5#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UNESCO (official)",
+      "tier": 1,
+      "ref": "https://ich.unesco.org/en/RL/ancient-georgian-traditional-qvevri-wine-making-method-00870",
+      "quote": "Inscribed in 2013 (8.COM) on the Representative List of the Intangible Cultural Heritage of Humanity"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p5_q5#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UNESCO World Heritage Centre (official) / climats-bourgogne.com (official Burgundy climats site)",
+      "tier": 1,
+      "ref": "https://whc.unesco.org/en/decisions/6373 ; https://www.climats-bourgogne.com/fichiers/presentation-climatsunesco-2020-en_1583511203.pdf",
+      "quote": "The Climats, terroirs of Burgundy, have been inscribed on the UNESCO World Heritage List... since 4th July 2015... Alto Douro Wine Region (Portugal)... Tokaj Wine Region Historic Cultural Landscape (Hungary)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Burgundy Climats and Champagne Hillsides both inscribed 2015; Alto Douro inscribed 2001; Tokaj inscribed 2002 -- all four independently confirmed as UNESCO World Heritage wine sites."
+  },
+  {
+    "claim_id": "th_2025_p5_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "China's 2012-2013 anti-extravagance/anti-corruption campaign sharply curbing gift-driven fine Bordeaux sales is very well documented in wine trade press, but was not independently re-verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2025_p5_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Brazil's Serra Gaúcha wine region being settled by Italian immigrants (from the 1870s) is well-established regional history but was not independently re-verified against a tier-1 source this session."
+  }
+]
