@@ -6,7 +6,13 @@
 // the resolved answer key (AuditWine) into the shared rules and derives ok + the scoring model.
 // No rule logic lives here anymore — change rules in question-rules.mjs and both stages get them.
 
-import { applyQuestionRules, stemSniperScoringModel as _stemSniperScoringModel } from "./question-rules.mjs";
+import {
+  applyQuestionRules,
+  stemSniperScoringModel as _stemSniperScoringModel,
+  canonVariety,
+  norm,
+  normStem,
+} from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
 
 export type StemSniperScoringModel = "per-wine" | "set";
@@ -130,6 +136,104 @@ export function stemPreannouncesDiscriminator(questionText: string): Violation[]
   return violations;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// STEM-FACT CROSS-CHECK — validate the stem's factual claims against the flight's own wines.
+//
+// A recurring reviewer bin: the stem asserts a variety/blend fact that contradicts the actual flight
+// (a "same variety" stem over Barolo + Mencía; an "each a different variety" stem with two Chenin
+// Blancs; a "single grape variety" stem over a Châteauneuf/Beaucastel or Port, which are blends). The
+// shared rule layer trusts the model's framing; here we parse the stem's claims and check them against
+// the resolved wine records, hard-rejecting any contradiction and naming the offending wine + clause.
+// ---------------------------------------------------------------------------------------------------
+
+// Appellations that are, by convention, multi-variety blends. A singular "single grape variety" stem
+// over one of these is misleading — the reviewer's bin says such a stem should read
+// "grape variety or varieties". Patterns run against norm()'d text (lower-case, accents stripped).
+const MULTI_VARIETY_APPELLATIONS: { name: string; re: RegExp }[] = [
+  { name: "Châteauneuf-du-Pape", re: /chateauneuf[- ]du[- ]pape/ },
+  // "Port" as a wine style — guarded against the Australian region "Port Phillip".
+  { name: "Port", re: /\bport\b(?!\s*phillip)/ },
+  { name: "Rioja", re: /\brioja\b/ },
+  { name: "Bordeaux", re: /\bbordeaux\b/ },
+  { name: "Chianti", re: /\bchianti\b/ },
+];
+
+// The dominant grape of a resolved wine, canonicalised so synonyms and accents don't read as different
+// grapes (Shiraz=Syrah, Garnacha/Cannonau=Grenache, Spätburgunder=Pinot Noir, …). "" when unresolved.
+function primaryVariety(w: AuditWine): string {
+  return canonVariety(w.varieties?.[0] || "");
+}
+
+// Why this wine reads as a blend (or null). Three signals, cheapest first: an explicit key flag, a
+// variety field listing 2+ grapes, or a label/region/style naming a conventionally-blended appellation.
+function blendSignal(w: AuditWine): string | null {
+  if (w.is_blend) return "keyed as a blend";
+  if ((w.varieties?.length || 0) >= 2)
+    return `varieties list ${w.varieties.length} grapes (${w.varieties.join("/")})`;
+  const hay = norm([w.fullText, w.region, w.style, ...(w.varieties || [])].filter(Boolean).join(" "));
+  const hit = MULTI_VARIETY_APPELLATIONS.find((a) => a.re.test(hay));
+  return hit ? `${hit.name} is a multi-variety appellation` : null;
+}
+
+export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
+  const v: Violation[] = [];
+  const stem = normStem(q.questionText);
+  const wines = q.wines || [];
+
+  // (1) "the same (single) grape variety" — every resolved primary variety must be identical.
+  if (wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
+    const known = wines.filter((w) => primaryVariety(w));
+    if (known.length >= 2) {
+      const base = primaryVariety(known[0]);
+      const offender = known.find((w) => primaryVariety(w) !== base);
+      if (offender)
+        v.push({
+          rule: "stem-fact-same-variety",
+          severity: "hard",
+          detail: `stem claims "the same single grape variety", but wine ${offender.slot} is ${primaryVariety(
+            offender
+          )} while wine ${known[0].slot} is ${base}`,
+        });
+    }
+  }
+
+  // (2) "a different (single) grape variety" / "different grape varieties" — primaries pairwise distinct.
+  if (/different (?:single )?grape variet(?:y|ies)/.test(stem)) {
+    const seen = new Map<string, number>();
+    for (const w of wines) {
+      const pv = primaryVariety(w);
+      if (!pv) continue;
+      const prior = seen.get(pv);
+      if (prior !== undefined)
+        v.push({
+          rule: "stem-fact-distinct-variety",
+          severity: "hard",
+          detail: `stem claims each wine is "a different grape variety", but wine ${w.slot} and wine ${prior} are both ${pv}`,
+        });
+      else seen.set(pv, w.slot);
+    }
+  }
+
+  // (3) A singular variety claim ("single grape variety", or "predominantly … grape variety") must not
+  // sit over a blend. Skipped when the stem already hedges as "grape variety or varieties" / "variety(ies)".
+  const hedged = /variety or varieties|variety ies\b/.test(stem);
+  const singularClaim =
+    /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
+  if (!hedged && singularClaim) {
+    for (const w of wines) {
+      const why = blendSignal(w);
+      if (why)
+        v.push({
+          rule: "stem-fact-singular-variety-blend",
+          severity: "hard",
+          detail: `stem asserts a single grape variety, but wine ${w.slot} is a blend (${why}); the stem should read "grape variety or varieties"`,
+        });
+    }
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -151,6 +255,7 @@ export function validateQuestion(q: QuestionForAudit): {
       }) as Violation[])
     );
   }
+  violations.push(...crossCheckStemFacts(q));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,
