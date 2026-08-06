@@ -1,0 +1,57 @@
+{
+  "anchorable_years": [
+    2016,
+    2018
+  ],
+  "principles_only_years": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014
+  ],
+  "note": "Reports for 2010-2014 cover four-paper-era questions that are not in the five-paper theory corpus, so they cannot be anchored per question. They are read whole by the cross-cutting principles pass instead.",
+  "per_year": [
+    {
+      "year": 2016,
+      "source_report": "examiners_report_2016.pdf",
+      "report_chars": 68121,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2095,
+      "flagged": []
+    },
+    {
+      "year": 2018,
+      "source_report": "examiners_report_2018.pdf",
+      "report_chars": 74470,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2660,
+      "flagged": [
+        {
+          "id": "th_2018_p3_q2",
+          "flags": [
+            "anchored by question number, not text — the report abbreviated the restatement; verify the commentary belongs to this question"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1125 @@
+[
+  {
+    "id": "th_2018_p1_q1",
+    "year": 2018,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Many wine regions can produce wines at a wide range of price points. Referencing at least two of such regions, compare and contrast methods of managing vineyards for high priced wines and low priced wines.",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "compare and contrast",
+    "command_word_demand": "Comparing and contrasting meant analysing the relative value of the approaches from the high-price vs low-price perspective, not describing practices: \"A number of responses simply described viticultural practices without actually doing the analyses the question requires.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "A relatively detailed treatment of at least two regions, not a survey of many",
+        "quote": "The question required a relatively detailed look at least two regions; some papers provided a scatter- shot of many regions' approaches, but did not address the relative value of these approaches from the question's perspective of addressing high and low value wine production.",
+        "weight": "core"
+      },
+      {
+        "element": "Address between five and seven distinct issues of vineyard management, rather than over-developing a few",
+        "quote": "While the question allowed for many issues to be compared and contrasted, the Examiners felt that there were between five and seven that specifically needed to be addressed.",
+        "weight": "core"
+      },
+      {
+        "element": "Yield vs. quality and price as one of the compared issues",
+        "quote": "It was frustrating, as one Examiner noted, to see much written well about yield vs. quality and price, but then nothing on the implications of harvesting for high vs. low priced wines.",
+        "weight": "core"
+      },
+      {
+        "element": "The implications of harvesting (hand vs machine, timing, selection) for high vs low priced wines",
+        "quote": "It was frustrating, as one Examiner noted, to see much written well about yield vs. quality and price, but then nothing on the implications of harvesting for high vs. low priced wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Examine the financial implications and costs of the vineyard decisions taken, with facts and figures",
+        "quote": "there is a lack of in-depth knowledge, facts and figures relating to the costs of viticulture and wine.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clear organisation with an explicit region-by-region comparison and analysis at estate as well as regional level",
+        "quote": "Passing papers were well organised, with clearly defined comparison of the regions and with good analyses comparing methods used by different estates and different regions."
+      },
+      {
+        "signal": "Going beyond viticultural description to the financial consequences of each decision — even passing papers were weak here",
+        "quote": "Even here, however, it was often noted that many papers failed to more closely examine the financial implications of some decisions taken."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Describing viticultural practices instead of analysing them against the price-point question",
+        "quote": "A number of responses simply described viticultural practices without actually doing the analyses the question requires."
+      },
+      {
+        "signal": "Scatter-shot coverage of many regions without addressing the relative value of their approaches",
+        "quote": "some papers provided a scatter- shot of many regions' approaches, but did not address the relative value of these approaches from the question's perspective of addressing high and low value wine production."
+      },
+      {
+        "signal": "Understanding present but examples absent or generic",
+        "quote": "In other instances, there was clear understanding, but virtually no examples to make the discussion complete, or with generic ones at best."
+      },
+      {
+        "signal": "Over-developing some issues at the cost of omitting a key one — a near-miss failure mode",
+        "quote": "Too many papers, sadly, were 'close' but missed because of omitting a key issue at the expense of too much discussion about some of the others."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Named regions treated in detail (at least two) plus named estates within them; generic examples were explicitly marked down",
+      "named_in_report": [],
+      "quote": "In other instances, there was clear understanding, but virtually no examples to make the discussion complete, or with generic ones at best."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as a broad tour of global viticulture rather than a detailed comparison anchored in at least two regions",
+        "quote": "The question required a relatively detailed look at least two regions; some papers provided a scatter- shot of many regions' approaches…"
+      }
+    ],
+    "performance_note": "\"Unfortunately, this was the least well answered question on Paper 1.\" Passing papers were well organised with clearly defined regional comparison, but even they under-examined financial implications.",
+    "extraction_notes": "The examiners state that \"between five and seven\" issues specifically needed addressing but never enumerate the full list — only yield vs. quality/price and harvesting implications are named. A grader cannot check the remaining three-to-five against the report, so the five-to-seven requirement should be applied as a breadth expectation, not an itemised checklist. Also note: the paper_preamble for 2018 Paper 1 is mis-segmented in report_segments.json — it opens with the PRACTICAL exam papers' commentary (Chardonnay, Kumeu River, Brunello etc.) and only reaches the actual Theory Paper 1 General Comments at the very end. Nothing was extracted from the practical portion."
+  },
+  {
+    "id": "th_2018_p1_q2",
+    "year": 2018,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Referencing at least three wine regions, discuss how climate change is influencing grape growers' viticultural practices.",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "discuss",
+    "command_word_demand": "\"The question required comparative analyses, not simply a litany of issues climate change is causing globally.\" The discussion had to reach real-world solutions: \"This question asked for real-world solutions to the challenges across different climates/regions.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Reference at least three wine regions",
+        "quote": "Referencing at least three wine regions, discuss how climate change is influencing grape growers' viticultural practices.",
+        "weight": "core"
+      },
+      {
+        "element": "Water management and canopy management",
+        "quote": "Certainly, it was critical to include discussion of issues such as water and canopy management, disease and pest control, frost/hail pressure, legal aspects resulting from appellation … rules and economic pressures.",
+        "weight": "core"
+      },
+      {
+        "element": "Disease and pest control",
+        "quote": "Certainly, it was critical to include discussion of issues such as water and canopy management, disease and pest control, frost/hail pressure, legal aspects resulting from appellation … rules and economic pressures.",
+        "weight": "core"
+      },
+      {
+        "element": "Frost and hail pressure",
+        "quote": "Certainly, it was critical to include discussion of issues such as water and canopy management, disease and pest control, frost/hail pressure, legal aspects resulting from appellation … rules and economic pressures.",
+        "weight": "core"
+      },
+      {
+        "element": "Legal aspects arising from appellation rules",
+        "quote": "Certainly, it was critical to include discussion of issues such as water and canopy management, disease and pest control, frost/hail pressure, legal aspects resulting from appellation … rules and economic pressures.",
+        "weight": "core"
+      },
+      {
+        "element": "Economic pressures",
+        "quote": "Certainly, it was critical to include discussion of issues such as water and canopy management, disease and pest control, frost/hail pressure, legal aspects resulting from appellation … rules and economic pressures.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover cool-climate regions as well as warm ones",
+        "quote": "Some papers only considered warm climates, without an adequate discussion of climate change in cooler ones.",
+        "weight": "core"
+      },
+      {
+        "element": "Technical explanation of how each viticultural practice itself must change (e.g. pruning/canopy management), not just what climate change is doing",
+        "quote": "The question required a solid technical understanding of key viticultural practices that would need to change as the climate does. A number of papers showed an understanding and general knowledge about a specific issue, but then failed to note, for example, how important pruning/canopy management practices would need to change in compensation for climate change.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Organising the answer by region rather than by practice — almost nobody did this",
+        "quote": "Responses to this question may have been organised by region, or practices; only two did the former!"
+      },
+      {
+        "signal": "Writing from authority with factually accurate geography and producer placement",
+        "quote": "Candidates need to write from authority, and given that a question such as this and many others on Paper 1 ask about generally concrete issues, factual errors are inexcusable."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A litany of global climate-change impacts in place of comparative analysis",
+        "quote": "The question required comparative analyses, not simply a litany of issues climate change is causing globally."
+      },
+      {
+        "signal": "Considering only warm climates",
+        "quote": "Some papers only considered warm climates, without an adequate discussion of climate change in cooler ones."
+      },
+      {
+        "signal": "Knowing an issue but failing to connect it to the change required in practice",
+        "quote": "A number of papers showed an understanding and general knowledge about a specific issue, but then failed to note, for example, how important pruning/canopy management practices would need to change in compensation for climate change."
+      },
+      {
+        "signal": "Factual/geographical errors, which discredit the whole script",
+        "quote": "Where a response shows a clear error, such as placing Katnook Estate in Barossa Valley rather than properly in Coonawarra, it will undermine credibility of the rest of the paper's discussion."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "At least three named regions, handled accurately — a misplaced producer was treated as discrediting the whole answer",
+      "named_in_report": [],
+      "quote": "As has been repeatedly noted, Paper 1 requires a sound knowledge, technical understanding and practical application of that knowledge with appropriate examples in order to pass."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as 'what is climate change doing to vineyards' rather than 'how is it changing what growers do'",
+        "quote": "The question required a solid technical understanding of key viticultural practices that would need to change as the climate does."
+      }
+    ],
+    "performance_note": "\"This question highlighted for Examiners a significant problem seen across all of Paper 1; factual errors.\" Only two papers organised the answer by region.",
+    "extraction_notes": "The only specific place-names in the commentary (Katnook Estate, Barossa Valley, Coonawarra) appear as an illustration of a factual ERROR, not as praised examples, so named_in_report is deliberately empty. The examples_expected quote is drawn from the Paper 1 General Comments (paper_preamble), not from the question commentary. A page number ('10') intruded into the PDF text mid-sentence in the 'critical to include' quote and has been trimmed with an ellipsis; the original reads 'appellation 10 rules'."
+  },
+  {
+    "id": "th_2018_p1_q3",
+    "year": 2018,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Identify the most important trunk diseases in vineyards around the world. How can they be best controlled and managed?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "identify … how can they be best controlled and managed",
+    "command_word_demand": "A two-part question where both parts had to be answered in depth: \"Critical to success here was answering both parts of this question. Less successful papers did well on identifying the most important trunk diseases, but failed to consider in depth control and management.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Answer both parts — identification AND control/management",
+        "quote": "Critical to success here was answering both parts of this question.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover at least three of the four to five key global trunk diseases — not just Esca and Eutypa",
+        "quote": "A passing paper had to include at least three of the four to five key diseases noted globally. Many papers discussed Esca and Eutypa, but left out Botryosphaeria and Phomopsis.",
+        "weight": "core"
+      },
+      {
+        "element": "Acknowledge the global reach of these diseases — regional differences, varietal susceptibility, differing treatments",
+        "quote": "Key to a successful answer was an acknowledgement of the global reach of these diseases: differences, varieties, treatments.",
+        "weight": "core"
+      },
+      {
+        "element": "Compare and contrast control techniques according to location and climate",
+        "quote": "Examiners commented that many papers simply didn't do an adequate job of comparing and contrasting various techniques to deal with these diseases depending on location and climate.",
+        "weight": "core"
+      },
+      {
+        "element": "Highlight diseases that specifically affect younger vines, such as Petri disease or black foot",
+        "quote": "The best papers highlighted diseases affecting younger vines specifically, like Petri disease or black foot disease.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clear essay architecture plus critical analysis with globally-ranged comparative examples",
+        "quote": "Answers the question and answers key points. Good introduction, conclusion and structure. Includes good critical analysis with good comparative examples to support analysis, with a global range. Good writing style- A+"
+      },
+      {
+        "signal": "Coverage of young-vine trunk diseases beyond the standard Esca/Eutypa pair",
+        "quote": "The best papers highlighted diseases affecting younger vines specifically, like Petri disease or black foot disease."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Identifying diseases well but treating control and management superficially",
+        "quote": "Less successful papers did well on identifying the most important trunk diseases, but failed to consider in depth control and management."
+      },
+      {
+        "signal": "Factual errors about vine age or disease aetiology",
+        "quote": "Factual errors, such as claiming that five to seven year old vines are middle-aged, or that GTD's are caused by viruses, not fungi, reflected poorly on candidates' knowledge and weakened their argument significantly."
+      },
+      {
+        "signal": "Relying on one or two examples traceable to a single textbook or article",
+        "quote": "Examiners noted a strong dependence on one or two particular examples that are indicative of the same 'textbook' source, or an article."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Comparative examples with genuine global range; drawing all examples from a single textbook source was criticised",
+      "named_in_report": [
+        "Esca",
+        "Eutypa",
+        "Botryosphaeria",
+        "Phomopsis",
+        "Petri disease",
+        "black foot disease"
+      ],
+      "quote": "Includes good critical analysis with good comparative examples to support analysis, with a global range."
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing at length about phylloxera or flavescence dorée, which are not trunk diseases",
+        "quote": "A few papers got into long discussions about phylloxera and/or flavescence dorée; these are not trunk diseases!"
+      }
+    ],
+    "performance_note": "\"This technically demanding question was answered relatively well, given the precise knowledge required.\"",
+    "extraction_notes": "named_in_report here lists the trunk diseases the report itself names (four expected, plus two young-vine diseases praised in the best papers), not geographic examples — the commentary names no regions. The report says 'four to five key diseases noted globally' but names only four (Esca, Eutypa, Botryosphaeria, Phomopsis), so the identity of a possible fifth is not recoverable from the report."
+  },
+  {
+    "id": "th_2018_p1_q4",
+    "year": 2018,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Is the use of cover crops worthwhile in viticulture?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "is … worthwhile",
+    "command_word_demand": "An opinion question requiring a judgement of effectiveness, evidenced: \"Perhaps because the question had a certain \"Op-Ed\" aspect, requiring a candidate to express an opinion (based upon sound factual examples and knowledge, however), this made for more fluid discussion.\" The analysis had to place cover crops in a wider viticultural context and judge them: \"The question as set was asking for an analysis that looked at cover crops as one component of viticulture, perhaps in relation to climate change, or to the unique challenge of a particular terroir, but also considered the effectiveness of a given approach.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Demonstrate what cover crops actually do, differentiated by climate and by water availability",
+        "quote": "This question demanded clear understanding of what cover crops do, in different climates, and depending on availability of water.",
+        "weight": "core"
+      },
+      {
+        "element": "Judge utility against intended purpose rather than listing where cover crops are or are not used",
+        "quote": "It was not enough to list examples of where cover crops are used or not; it was necessary to discuss their utility … in the context of their intended purpose.",
+        "weight": "core"
+      },
+      {
+        "element": "Address both advantages and disadvantages, with examples showing where they are 'worthwhile'",
+        "quote": "Advantages and disadvantages needed to be addressed, and examples used to demonstrate where the use of cover crops may be considered 'worthwhile'.",
+        "weight": "core"
+      },
+      {
+        "element": "Develop four to six positive or negative reasons, each properly discussed",
+        "quote": "Good candidates used four to six positive or negative reasons, each discussed well.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Site-specific nuance — slope, site vigour, frost potential, organic certification",
+        "quote": "Good answers were attuned to the particular uniqueness of various sites relative to slope, site vigor and frost potential or certification for organic viticulture.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Economic utility — the extra cost of planting and cultivating cover crops relative to wine type and value",
+        "quote": "It was also useful to consider the economic utility of cover crops, considering the extra cost entailed in planting/cultivating cover crops relative to the wine type and value produced.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Nuanced, site-specific utility arguments — e.g. erosion control and water penetration in the Douro",
+        "quote": "Good papers noted more nuanced utility; for example, cover crops used to prevent erosion and help with water penetration in the harsh Douro climate."
+      },
+      {
+        "signal": "Framing cover crops as one component of a viticultural system, e.g. against climate change or a particular terroir challenge",
+        "quote": "The question as set was asking for an analysis that looked at cover crops as one component of viticulture, perhaps in relation to climate change, or to the unique challenge of a particular terroir, but also considered the effectiveness of a given approach."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Sweeping unqualified generalisations in place of evidenced opinion",
+        "quote": "In a few papers, however this led to sweeping generalizations, such as \"Cover crops are very necessary for viticulture\"."
+      },
+      {
+        "signal": "Descriptive answers, however well exampled, that answer 'what do cover crops do?' rather than 'are they worthwhile?'",
+        "quote": "A number of papers, Examiners noted, were overly descriptive, though studded with examples. These generally answered a different question than posed, i.e. What do cover crops do?"
+      },
+      {
+        "signal": "Narrow argument resting on only one or two reasons",
+        "quote": "Those that did not focused narrowly on fewer ones such as soaking up excess rainfall in cooler humid areas, or not using them in more arid climates."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Site-specific examples tied to a stated purpose (slope, vigour, frost, erosion, certification) — a list of places using cover crops was explicitly insufficient",
+      "named_in_report": [
+        "Douro"
+      ],
+      "quote": "It was not enough to list examples of where cover crops are used or not; it was necessary to discuss their utility … in the context of their intended purpose."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering the descriptive question 'What do cover crops do?' instead of the evaluative one set",
+        "quote": "These generally answered a different question than posed, i.e. What do cover crops do?"
+      }
+    ],
+    "performance_note": "\"This was the most successfully answered question on this year's Paper 1.\"",
+    "extraction_notes": "A page number ('11') intruded into the PDF text mid-sentence in the 'utility in the context of their intended purpose' quote and has been trimmed with an ellipsis; the original reads 'their utility 11 in the context'."
+  },
+  {
+    "id": "th_2018_p1_q5",
+    "year": 2018,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "What is the role of pruning when managing an established vineyard?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what is the role",
+    "command_word_demand": "The question asked for the FUNCTION of pruning, not its techniques: \"The question was about how pruning a vine affects vineyard growth, quality and economic value and not about describing pruning techniques.\"",
+    "definitions_required": [
+      {
+        "term": "pruning (in the context of an established, functioning vineyard)",
+        "quote": "This was a question that needed a definition of pruning, relative to working in a functioning vineyard."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define and explain the key purposes of pruning, kept in the context of the question",
+        "quote": "A good answer had to define and explain the key purposes of pruning, but always in the context of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Establishing yield as the primary purpose, with method varying by wine style",
+        "quote": "A passing paper had to deal with the primary purpose of pruning, establishing yield, with comparison and methodology depending on wine style; e.g. short cane pruning with densely planted Pinot noir in Gevrey Chambertin vs. high-trained quadrilateral cordon with low density spacing in the Central Valley of California.",
+        "weight": "core"
+      },
+      {
+        "element": "Pruning relative to specific grape varieties and wine styles",
+        "quote": "It was critical for a passing paper to address the issue of pruning relative to specific varieties and wine styles, and the timing of pruning and treatments for pruning wounds (at least in passing).",
+        "weight": "core"
+      },
+      {
+        "element": "Timing of pruning and treatment of pruning wounds — at least in passing",
+        "quote": "It was critical for a passing paper to address the issue of pruning relative to specific varieties and wine styles, and the timing of pruning and treatments for pruning wounds (at least in passing).",
+        "weight": "core"
+      },
+      {
+        "element": "How WINTER pruning affects ventilation, ease of harvest, disease control and frost alleviation as well as yield",
+        "quote": "It was clear to Examiners that too many answers lacked understanding of how winter pruning can strongly affect aspects of ventilation, ease of harvest, disease control or frost alleviation as well as yield.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the full pruning calendar — winter, spring/summer (hedging, sucker thinning) and green pruning of clusters",
+        "quote": "Smart answers addressed winter pruning, spring/summer pruning (hedging, sucker thinning), and where appropriate, 'green' pruning of less mature clusters to even out maturation or remove deficient fruit (under-ripe, raisined, or rotten berries).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Advantages and disadvantages of hand vs mechanical pruning, especially economic cost and wine style",
+        "quote": "Good papers addressed both the advantages and disadvantages of hand-pruning vs. mechanical, especially with regard to the economic costs and style of wine being produced.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Concrete paired contrasts of pruning regime against density and wine style",
+        "quote": "e.g. short cane pruning with densely planted Pinot noir in Gevrey Chambertin vs. high-trained quadrilateral cordon with low density spacing in the Central Valley of California."
+      },
+      {
+        "signal": "Linking pruning to economic value, not only to growth and quality",
+        "quote": "The question was about how pruning a vine affects vineyard growth, quality and economic value and not about describing pruning techniques."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Writing about the mechanics of pruning rather than the role it plays",
+        "quote": "Too many non-passing papers were \"more concerned with the mechanics of pruning than the role it plays\", as one Examiner commented."
+      },
+      {
+        "signal": "Treating the winter-pruning benefits only through summer pruning or general canopy management",
+        "quote": "More answers addressed these issues from the perspective of summer pruning and/or simple canopy management."
+      },
+      {
+        "signal": "Generic arguments and generic examples that fail to demonstrate real understanding",
+        "quote": "Again, this question saw several papers that used generic arguments or examples, without showing more concrete ones that illustrated the writer's real understanding and consideration of the question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Concrete variety + place + training/pruning-system combinations (e.g. cane-pruned Pinot Noir in Gevrey Chambertin vs quadrilateral cordon in California's Central Valley); generic examples were criticised",
+      "named_in_report": [
+        "Gevrey Chambertin",
+        "Central Valley of California"
+      ],
+      "quote": "Again, this question saw several papers that used generic arguments or examples, without showing more concrete ones that illustrated the writer's real understanding and consideration of the question."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as 'describe pruning techniques' rather than 'what does pruning achieve'",
+        "quote": "The question was about how pruning a vine affects vineyard growth, quality and economic value and not about describing pruning techniques."
+      }
+    ],
+    "performance_note": "No attempt or pass rate is given. \"Too many non-passing papers were \"more concerned with the mechanics of pruning than the role it plays\", as one Examiner commented.\"",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2018_p1_q6",
+    "year": 2018,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Old vines have a mystique to them. What are the practical challenges and solutions to maintaining vineyards of old vines?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what are the practical challenges and solutions",
+    "command_word_demand": "The question was about the viticultural difficulty of keeping old vineyards alive, not about the merits of old-vine wine: \"But this question was all about the unique viticultural challenges old vines present in order to continue their existence.\" Both halves — challenges AND maintenance solutions — were required: \"The issue of 'maintenance' had to be addressed.\"",
+    "definitions_required": [
+      {
+        "term": "old vines",
+        "quote": "It was important to define old vines; Examiners saw everything from 15 to 20 years old as a minimum age, to 60 years. Considering that the average lifespan today globally for vines is in the 20 to 30 year range, a passing paper had to consider old vines in the context of the location being … discussed, and be clear about how this definition is often conditioned by regulations (e.g. the Barossa Charter), the historical nature of a vineyard region, or its modernity."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define old vines in the context of the location discussed, referencing regulation, regional history or modernity — any defensible definition was accepted if the examples matched it",
+        "quote": "Provided examples were given which accorded with the writer's premise, different definitions for old vines were allowed.",
+        "weight": "core"
+      },
+      {
+        "element": "The problems confronting older vines: poor vigour, declining productivity, disease susceptibility (especially trunk diseases and pruning wounds)",
+        "quote": "This question required a substantial knowledge about what problems confront older vines; whether these are related to poor vigour, decrease in productivity, susceptibility to disease, especially trunk diseases or pruning wounds.",
+        "weight": "core"
+      },
+      {
+        "element": "Explicitly address 'maintenance' — the solutions half of the question",
+        "quote": "The issue of 'maintenance' had to be addressed.",
+        "weight": "core"
+      },
+      {
+        "element": "The economics of maintaining an old vineyard: rising mechanisation and lower costs elsewhere vs the expensive manual labour old vines demand",
+        "quote": "The economics of maintaining an old vineyard had also to be considered, particularly in light of increasing mechanization in vineyards with lower costs, vs. the expensive manual labour that old vines almost always require.",
+        "weight": "core"
+      },
+      {
+        "element": "The difficulty or impossibility of mechanising the care of old vineyards",
+        "quote": "A key challenge for maintaining old vineyards is the difficulty/inability to use more mechanization for their care. This was certainly something that a passing paper had to address; a number of papers did not do so, or only with a minor reference.",
+        "weight": "core"
+      },
+      {
+        "element": "Weigh over-fertilisation of old vines against soil or rootstock vigour",
+        "quote": "Over-fertilization of old vines, in the hope of keeping them healthier, had to be weighed in relation to soil or rootstock vigour, as this can stress and overtax an old vine's system.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Depth over breadth — fewer issues, thoroughly argued, scored higher than a catalogue",
+        "quote": "Answers that focussed on fewer issues relative to the question, but did so thoroughly, generally achieved higher marks than those which tried to throw in as much as possible, without the appropriate depth of knowledge or examples to support the argument."
+      },
+      {
+        "signal": "Anchoring the old-vine definition to a codified regional standard",
+        "quote": "be clear about how this definition is often conditioned by regulations (e.g. the Barossa Charter), the historical nature of a vineyard region, or its modernity."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Arguing the subjective superiority of old-vine wine instead of examining the practical challenges — an outright fail",
+        "quote": "Not addressing these issues and focussing mainly on the potentially higher quality from a subjective belief in old vines making the best wines, without the critical examination dictated by the question, resulted in failure."
+      },
+      {
+        "signal": "Factual error: claiming old vines are MORE susceptible to drought or water stress",
+        "quote": "Several papers made the mistake of saying that old vines are more susceptible to drought/water stress. As the Examiners noted repeatedly the opposite is true, as evidenced by their longevity under diverse, often harsh conditions, in places like South Africa, Australia, Santorini and elsewhere."
+      },
+      {
+        "signal": "Omitting or barely mentioning the mechanisation problem",
+        "quote": "This was certainly something that a passing paper had to address; a number of papers did not do so, or only with a minor reference."
+      },
+      {
+        "signal": "Breadth without the depth of knowledge or examples to support it",
+        "quote": "those which tried to throw in as much as possible, without the appropriate depth of knowledge or examples to support the argument."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must be consistent with the candidate's own stated definition of 'old vines'; old-vine regions cited by the report are South Africa, Australia and Santorini, and the Barossa Charter as a regulatory definition",
+      "named_in_report": [
+        "Barossa Charter",
+        "South Africa",
+        "Australia",
+        "Santorini"
+      ],
+      "quote": "Provided examples were given which accorded with the writer's premise, different definitions for old vines were allowed."
+    },
+    "scope_traps": [
+      {
+        "trap": "Taking the 'mystique' framing as an invitation to argue that old-vine wines are superior",
+        "quote": "The topic of this question is one which fascinates anyone interested in wine, everyone has an opinion about the superiority of old vine wine! But this question was all about the unique viticultural challenges old vines present in order to continue their existence."
+      }
+    ],
+    "performance_note": "No attempt or pass rate is given. Failure is explicitly attributed to writing about old-vine quality rather than practical challenges, and to omitting the mechanisation issue.",
+    "extraction_notes": "A page number ('12') intruded into the PDF text mid-sentence in the definition quote and has been trimmed with an ellipsis; the original reads 'in the context of the location being 12 discussed'. Note the report asserts a factual position — that old vines are LESS susceptible to drought stress — which a grader should apply as an examiner expectation."
+  },
+  {
+    "id": "th_2018_p2_q1",
+    "year": 2018,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Examine the advantages and disadvantages of deliberate stem inclusion, or additions, during the winemaking process.",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "examine the advantages and disadvantages",
+    "command_word_demand": "Both sides had to be argued, across the whole process: \"Students needed to demonstrate an understanding of why and how stems are used in the winemaking process and then discuss the advantages and disadvantages of their inclusion.\" The Paper 2 General Comments reinforce this: \"If the words 'advantages and disadvantages' are in the question they need to be addressed and discussed.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover the entire winemaking process, not just fermentation",
+        "quote": "We expected candidates to cover the entire winemaking process, within the scope of Paper 2, not just fermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover white, rosé and red table wine, with sparkling and fortified at least mentioned",
+        "quote": "We also expected students to cover white, rosé and red table winemaking as well as mentioning sparkling and fortified wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain WHY and HOW stems are used before evaluating them",
+        "quote": "Students needed to demonstrate an understanding of why and how stems are used in the winemaking process and then discuss the advantages and disadvantages of their inclusion.",
+        "weight": "core"
+      },
+      {
+        "element": "Argue the case AGAINST stem inclusion, given that most wine is destemmed",
+        "quote": "Whilst the argument for stems was often good, the argument against the use of stems was often lacking. Given most wines are destemmed, this could have been argued better.",
+        "weight": "core"
+      },
+      {
+        "element": "Locate stem inclusion in the process — where it may be warranted and what the outcome is, both good and bad",
+        "quote": "Candidates are reminded to think about winemaking as a process and to consider where stem inclusion may be warranted and what the outcome of that would be - both advantageous and disadvantageous.",
+        "weight": "core"
+      },
+      {
+        "element": "Varietal contrast: stems favour Grenache, Syrah and Pinot Noir; cite varieties such as Cabernet Sauvignon or Merlot as less appropriate",
+        "quote": "Advantages for stems tend to be concentrated in the three varieties: Grenache, Syrah and Pinot Noir. Given comparisons were needed, varieties like Cabernet Sauvignon or Merlot could have been cited as varieties that may be less appropriate for stem inclusion.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss stems in white wine, including natural and qvevri styles",
+        "quote": "Students tended to disregard stems within white wines with alarming regularity. Given the amount of natural wines, qvevri style wines, etc, more could have been discussed.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Staying with the question across all styles and the whole process rather than surveying practice",
+        "quote": "Candidates who did well focussed on the question at hand - the advantages and disadvantages of deliberate stem inclusion across all wine styles and the whole winemaking process."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A list of who uses stems, with examples standing in for the argument",
+        "quote": "Too many candidates just gave us a list of who is doing what with stems. Examples should be used to support an argument, not be the argument themselves."
+      },
+      {
+        "signal": "Ignoring stems in white wine",
+        "quote": "Students tended to disregard stems within white wines with alarming regularity."
+      },
+      {
+        "signal": "Leaning on the same widely-circulated seminar reference as everyone else",
+        "quote": "On theory paper 2, one examiner noted 21 out of 56 papers using the same reference to Domaine Dujac."
+      },
+      {
+        "signal": "Over-familiar tone when citing producers by first name",
+        "quote": "when using examples over-familiarity, even if those individuals being cited are well-known to the candidate, does not strike a suitable tone: \"At Churton in Marlborough, Sam will decide to include stems…\""
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must support the argument, not constitute it; the report warns against the mass-cited seminar reference and against over-familiar naming of producers",
+      "named_in_report": [
+        "Grenache",
+        "Syrah",
+        "Pinot Noir",
+        "Cabernet Sauvignon",
+        "Merlot"
+      ],
+      "quote": "Examples should be used to support an argument, not be the argument themselves."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as red-wine (and fermentation-stage) only",
+        "quote": "We expected candidates to cover the entire winemaking process, within the scope of Paper 2, not just fermentation. We also expected students to cover white, rosé and red table winemaking as well as mentioning sparkling and fortified wines."
+      }
+    ],
+    "performance_note": "No attempt or pass rate is given for this question. \"Candidates who did well focussed on the question at hand…\"; the argument against stems was widely weak.",
+    "extraction_notes": "Two penalty signals (the Domaine Dujac over-citation and the over-familiar 'Sam'/'Mike' tone) come from the Theory Panel Chair's overall report rather than this question's commentary, but both explicitly concern Theory Paper 2 and quote stem-inclusion answers, so they are treated as evidence for this question. Provenance caveat: in report_segments.json that Panel Chair text is stored inside the PAPER 1 paper_preamble field, not Paper 2's, so an automated check of these two quotes against this row's own commentary/preamble will report a miss — both were verified verbatim against th_2018_p1_q1.paper_preamble. named_in_report lists grape varieties the report itself flags as the right comparative material — the commentary names no regions or producers approvingly."
+  },
+  {
+    "id": "th_2018_p2_q2",
+    "year": 2018,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Compare and contrast winemaking techniques for \"high end\" and \"entry level\" Chardonnay in at least two regions.",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "compare and contrast",
+    "command_word_demand": "The examiners treat 'compare and contrast' as an instruction to filter and apply, not to recite: \"Terms like 'compare and contrast' are put in to the question for a reason. It is unlikely we will ever ask 'tell us everything you know about winemaking for high end and entry level Chardonnay'. We want to see the ability to filter information and apply that knowledge.\"",
+    "definitions_required": [
+      {
+        "term": "high end",
+        "quote": "The ability to define 'high end' and 'entry level' was also key."
+      },
+      {
+        "term": "entry level",
+        "quote": "The ability to define 'high end' and 'entry level' was also key."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Identify tangible, specific differences in winemaking practice between high-end and entry-level Chardonnay",
+        "quote": "The key understanding was that the identification of tangible differences in winemaking practices between what is considered high and low entry Chardonnay.",
+        "weight": "core"
+      },
+      {
+        "element": "Define both 'high end' and 'entry level'",
+        "quote": "The ability to define 'high end' and 'entry level' was also key.",
+        "weight": "core"
+      },
+      {
+        "element": "Work through the winemaking process in logical sequence as the structure for the comparison",
+        "quote": "Again, a logical run through of the winemaking process would have helped students and allowed them the ability to compare and contrast the styles and regions.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the entire winemaking process — few candidates did",
+        "quote": "This question allowed candidates to cover the entire winemaking process, but few did.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Reference at least two regions and contrast across them as well as across price tiers",
+        "quote": "Compare and contrast winemaking techniques for 'high end' and 'entry level' Chardonnay in at least two regions.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Evidence of critical thinking and applied knowledge rather than recall",
+        "quote": "Critical thinking and application of knowledge are key."
+      },
+      {
+        "signal": "Planning the essay before writing, so that everything on the page is relevant",
+        "quote": "In these open-ended questions, it is important for students to plan, as we saw many scripts with irrelevant information."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A winemaking list with no comparison and no depth — the examiners' repeated refrain",
+        "quote": "Sadly, the examiners' comments were a constant refrain of 'a winemaking list', 'failed to compare and contrast', 'shows lack of depth'."
+      },
+      {
+        "signal": "Irrelevant material wasting exam time",
+        "quote": "we saw many scripts with irrelevant information. This is time and energy wasted in an exam situation."
+      },
+      {
+        "signal": "Telling the examiners everything known about Chardonnay winemaking",
+        "quote": "It is unlikely we will ever ask 'tell us everything you know about winemaking for high end and entry level Chardonnay'."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "At least two named regions, used to drive the comparison between tiers; the report names none itself",
+      "named_in_report": [],
+      "quote": "Compare and contrast winemaking techniques for 'high end' and 'entry level' Chardonnay in at least two regions."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as a request for everything known about Chardonnay winemaking",
+        "quote": "It is unlikely we will ever ask 'tell us everything you know about winemaking for high end and entry level Chardonnay'. We want to see the ability to filter information and apply that knowledge."
+      }
+    ],
+    "performance_note": "\"Unfortunately, there was a lack of depth in many cases and a lack of contrast and comparison.\" No attempt or pass rate is given.",
+    "extraction_notes": "A large share of this commentary is generic Paper 2 advice about the 'compare and contrast' command word rather than Chardonnay-specific requirements — the report names no regions, no techniques and no producers for this question, so the rubric can only test structure, definition and the presence of genuine contrast. Weighted 'moderate' for that reason. The examples_expected and 'at least two regions' quotes are the report's own restatement of the question stem. A page number ('14') intruded into the PDF text between the 'Critical thinking' sentence and the 'logical run through' sentence."
+  },
+  {
+    "id": "th_2018_p2_q3",
+    "year": 2018,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Write concise notes on four of the following:\n\n- Lysozyme\n- Mannoprotein\n- CMC - Carboxymethyl cellulose\n- Copper sulphate\n- Ascorbic acid\n- YAN – Yeast assimilable nitrogen",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "write concise notes on four of the following",
+    "command_word_demand": "A short-answer format, deliberately not an essay: \"The answers to these questions do not have to be long - in fact, a concise response covering off the major points is all that is required. … These types of questions do not follow the essay format which means no introduction or conclusion is required.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Technical detail with accurate terminology and meaning, plus the effect of the practice or addition",
+        "quote": "We expect technical detail in these answers with accuracy in terminology and meaning, along with consideration of the effects of practices/additions.",
+        "weight": "core"
+      },
+      {
+        "element": "Dose rates and legal limits for each item",
+        "quote": "Dose rates and legal limits should be mentioned.",
+        "weight": "core"
+      },
+      {
+        "element": "A structured, accurate short answer — the failure mode was being unable to organise one",
+        "quote": "Most candidates who failed were missing basic technical detail, for example dosing and legal limits, which are easily obtainable, and seemed unable to structure an accurate short answer.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer four of the six listed items",
+        "quote": "Write concise notes on four of the following: • Lysozyme • Mannoprotein • CMC - carboxymethyl cellulose • Copper sulphate • Ascorbic acid • YAN - yeast assimilable nitrogen",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Genuine technical depth — the discriminator on this question",
+        "quote": "Few candidates attempted this question but those that had technical depth did well."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Waffle in place of technical detail",
+        "quote": "Candidates who did not do well with this question tended to waffle and did not provide enough technical detail."
+      },
+      {
+        "signal": "Writing an introduction and conclusion, wasting time the format does not reward",
+        "quote": "These types of questions do not follow the essay format which means no introduction or conclusion is required. A few students wasted valuable time on these."
+      },
+      {
+        "signal": "Missing basic, easily obtainable technical facts such as dosing and legal limits",
+        "quote": "Most candidates who failed were missing basic technical detail, for example dosing and legal limits, which are easily obtainable"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "Examples are optional support for a statement, not a requirement of the format",
+      "named_in_report": [],
+      "quote": "Examples can be used to support the statements."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating a short-notes question as an essay",
+        "quote": "These types of questions do not follow the essay format which means no introduction or conclusion is required."
+      }
+    ],
+    "performance_note": "\"Few candidates attempted this question but those that had technical depth did well.\"",
+    "extraction_notes": "The report gives no item-specific content for any of the six substances — no dose rate, legal limit or mechanism is stated for Lysozyme, Mannoprotein, CMC, copper sulphate, ascorbic acid or YAN. The rubric can therefore only test format and the PRESENCE of dose rates, legal limits and effects; a grader cannot verify the candidate's technical figures against the report and must not invent them. The bullet list in the required_element quote is the report's restatement of the stem and uses '•' where the corpus question_text uses '-'."
+  },
+  {
+    "id": "th_2018_p2_q4",
+    "year": 2018,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "What are the critical winemaking considerations for a producer of inexpensive off-dry still white wines?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what are the critical winemaking considerations",
+    "command_word_demand": "A commercial, real-world winemaking question demanding technical understanding and applied judgement, not description: \"This is a question about commercial winemaking in the real world.\" … \"This was a technical paper and lack of technical understanding was displayed in many responses. We are looking for critical thinking and application of knowledge.\"",
+    "definitions_required": [
+      {
+        "term": "inexpensive",
+        "quote": "Candidates needed to define inexpensive (using local or international currency) and off-dry."
+      },
+      {
+        "term": "off-dry",
+        "quote": "Legal limits set by the OIV should have been mentioned to support the argument. Sugar levels could be defined in terms of perception, but it was important candidates demonstrated an understanding of the legal definition of off-dry."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Focus on the range of options for achieving an off-dry style",
+        "quote": "Successful candidates focussed on the various options for achieving an off-dry wine style.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'inexpensive' in a stated currency and 'off-dry' against the OIV legal limits",
+        "quote": "Candidates needed to define inexpensive (using local or international currency) and off-dry. Legal limits set by the OIV should have been mentioned to support the argument.",
+        "weight": "core"
+      },
+      {
+        "element": "Fruit ripeness",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Sugar concentration options in the winery",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "The absolute need for hygiene",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Options for stopping fermentation",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Options for adding back sweetness",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Additions to prevent refermentation",
+        "quote": "Candidates should have covered fruit ripeness, sugar concentration options in the winery, absolute need for hygiene, options for stopping fermentation, options for adding back sweetness and additions to prevent refermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the whole winemaking process",
+        "quote": "This was another question covering the whole winemaking process.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Sterile filtration at bottling — creditable but explicitly NOT penalised if omitted",
+        "quote": "Sterile filtration at bottling could have been mentioned but candidates who failed to do so were not penalised."
+      },
+      {
+        "signal": "Defining sweetness by perception as well as by the legal threshold",
+        "quote": "Sugar levels could be defined in terms of perception, but it was important candidates demonstrated an understanding of the legal definition of off-dry."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A derisive or condescending tone towards inexpensive wine styles",
+        "quote": "Students are reminded to be polite - inexpensive does not equal poor quality. Many students were derisive of these wine styles."
+      },
+      {
+        "signal": "Examples used as the argument instead of supporting it",
+        "quote": "Examples should only be used to support the argument, not be the argument … themselves."
+      },
+      {
+        "signal": "Lack of technical understanding on a technical paper",
+        "quote": "This was a technical paper and lack of technical understanding was displayed in many responses."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples are subordinate to the argument; the report names none for this question",
+      "named_in_report": [],
+      "quote": "Examples should only be used to support the argument, not be the argument … themselves."
+    },
+    "scope_traps": [
+      {
+        "trap": "Equating 'inexpensive' with poor quality, or answering only from a premium-wine frame of reference",
+        "quote": "This acts as a reminder to students that they need to cover ALL wine styles in their studies - not just focus on premium wine production."
+      }
+    ],
+    "performance_note": "\"This question was answered by many candidates, but few passed.\"",
+    "extraction_notes": "The report requires the OIV legal definition of off-dry but does not state the threshold, so a grader cannot verify a candidate's figure against the report. A page number ('15') intruded into the PDF text in the 'not be the argument themselves' sentence and has been trimmed with an ellipsis."
+  },
+  {
+    "id": "th_2018_p2_q5",
+    "year": 2018,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Which winemaking decisions affect the ageing potential of a finished wine?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "which winemaking decisions affect",
+    "command_word_demand": "The answer had to explain causation, not list decisions: \"Students should have discussed why a particular process affects the ageing potential of a wine.\" … \"failure to discuss the \"whys and wherefores\" were the most common errors.\"",
+    "definitions_required": [
+      {
+        "term": "the scope of winemaking",
+        "quote": "The candidate needed to provide a sensible definition of the scope of winemaking - some limited consideration of the vineyard processes was allowed but the primary focus should have been on the vinification process."
+      },
+      {
+        "term": "ageing potential",
+        "quote": "Ageing potential needed to be defined, finished wine needed to be defined."
+      },
+      {
+        "term": "finished wine",
+        "quote": "Ageing potential needed to be defined, finished wine needed to be defined."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Keep the primary focus on vinification and post-fermentation maturation; limited vineyard discussion was allowed but not the centre",
+        "quote": "The candidate needed to provide a sensible definition of the scope of winemaking - some limited consideration of the vineyard processes was allowed but the primary focus should have been on the vinification process.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain WHY each process affects ageing potential",
+        "quote": "Students should have discussed why a particular process affects the ageing potential of a wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss still, sparkling AND fortified wine",
+        "quote": "As always, still wine, sparkling and fortified wine should have been discussed, as well as entry level through to ultra-premium wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Span entry level through to ultra-premium wines",
+        "quote": "As always, still wine, sparkling and fortified wine should have been discussed, as well as entry level through to ultra-premium wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Sound essay structure",
+        "quote": "Lack of essay structure, no definition, limited scope and failure to discuss the \"whys and wherefores\" were the most common errors.",
+        "weight": "core"
+      },
+      {
+        "element": "Meaningful producer-level examples of what winemakers choose to do, why, and the effect on ageing potential",
+        "quote": "There should have been plenty of scope for candidates to provide meaningful examples of what certain winemakers choose to do, why, and the impact on ageing potential.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Examples that carry an argument about mechanism and consequence rather than standing alone",
+        "quote": "There should have been plenty of scope for candidates to provide meaningful examples of what certain winemakers choose to do, why, and the impact on ageing potential."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A list of examples offered in place of an argument",
+        "quote": "One examiner asked: \"How do some candidates think a list of examples is enough to pass?\""
+      },
+      {
+        "signal": "Discussing only the premium end of the market",
+        "quote": "Too many candidates focussed solely on the premium end of the market and neglected entry level wines."
+      },
+      {
+        "signal": "Discussing only red wine",
+        "quote": "Interestingly, too many candidates only discussed red wines."
+      },
+      {
+        "signal": "Misspelling well-known wines and regions",
+        "quote": "We also urge students that, if they quote a well-known wine or region, they must spell it correctly."
+      },
+      {
+        "signal": "No definitions, limited scope, no essay structure",
+        "quote": "Lack of essay structure, no definition, limited scope and failure to discuss the \"whys and wherefores\" were the most common errors."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Producer-level choices with a stated reason and consequence; correctly spelled wine and region names",
+      "named_in_report": [],
+      "quote": "Examples, as always, needed to be supportive of arguments."
+    },
+    "scope_traps": [
+      {
+        "trap": "Drifting into viticulture — the vineyard was allowed only in limited measure",
+        "quote": "some limited consideration of the vineyard processes was allowed but the primary focus should have been on the vinification process."
+      },
+      {
+        "trap": "Reading 'ageing potential' as a premium red-wine topic",
+        "quote": "Too many candidates focussed solely on the premium end of the market and neglected entry level wines. Interestingly, too many candidates only discussed red wines."
+      }
+    ],
+    "performance_note": "\"This was another popular question which was focussed on the processes and choices made during winemaking and post-fermentation maturation.\" No pass rate is given.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2018_p2_q6",
+    "year": 2018,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "How and to what extent can a winemaker influence the textural profile of a wine?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "how and to what extent",
+    "command_word_demand": "The commentary treats this as a scoping-and-explanation question: \"This question required candidates to define textural profile and the scope of the essay\" and \"explaining why a particular process would influence wine texture\". The examiners do not separately gloss what 'to what extent' demanded.",
+    "definitions_required": [
+      {
+        "term": "textural profile / texture",
+        "quote": "This question required candidates to define textural profile and the scope of the essay."
+      },
+      {
+        "term": "the scope of the essay",
+        "quote": "Again, a proper definition of texture would have opened up the scope of the essay to the students."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define textural profile, and use that definition to set the scope of the essay",
+        "quote": "This question required candidates to define textural profile and the scope of the essay.",
+        "weight": "core"
+      },
+      {
+        "element": "Focus on vinification and maturation practices; some viticulture was permissible",
+        "quote": "Some viticulture could have been covered but the focus should have been on winemaking, on practices during vinification and maturation that influence the textural profile of the wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain why each process influences texture, rather than listing processes",
+        "quote": "Too many responses were just a winemaking list, covering only one or two wine styles without explaining why a particular process would influence wine texture.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover still, fortified and sparkling wine",
+        "quote": "We were looking for information on still, fortified and sparkling wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Well-structured, precise and concise writing, given the breadth of possible material",
+        "quote": "As there was a great range of topics that could be considered, the responses needed to be well- structured, precise and concise. This was where most candidates failed.",
+        "weight": "core"
+      },
+      {
+        "element": "Work through the entire winemaking process and select the stages that bear on texture",
+        "quote": "Again, candidates are advised to think about the entire winemaking process and think about which of the processes may influence texture.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "A proper definition of texture used deliberately to widen the range of material available",
+        "quote": "Again, a proper definition of texture would have opened up the scope of the essay to the students."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "A winemaking list covering only one or two styles with no causal explanation",
+        "quote": "Too many responses were just a winemaking list, covering only one or two wine styles without explaining why a particular process would influence wine texture."
+      },
+      {
+        "signal": "Concentrating on a single wine style, with a marked default to red wine",
+        "quote": "Quite a few candidates focussed on a particular wine style without giving thought to all wine styles. We were looking for information on still, fortified and sparkling wine. It was interesting to note a particular focus on red wines."
+      },
+      {
+        "signal": "Examples standing in for the argument",
+        "quote": "As always, examples should be used to support the argument, not be the argument themselves."
+      },
+      {
+        "signal": "Poor structure under a broad topic — the principal cause of failure here",
+        "quote": "the responses needed to be well- structured, precise and concise. This was where most candidates failed."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples subordinate to the argument; the report names none for this question",
+      "named_in_report": [],
+      "quote": "As always, examples should be used to support the argument, not be the argument themselves."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering from red still wine alone rather than across still, fortified and sparkling",
+        "quote": "It was interesting to note a particular focus on red wines."
+      },
+      {
+        "trap": "Drifting into viticulture rather than vinification and maturation",
+        "quote": "Some viticulture could have been covered but the focus should have been on winemaking, on practices during vinification and maturation that influence the textural profile of the wine."
+      }
+    ],
+    "performance_note": "\"This was where most candidates failed\" — attributed to structure and breadth rather than knowledge. No attempt or pass rate is given.",
+    "extraction_notes": "The commentary never addresses the 'to what extent' half of the command word — it says nothing about the LIMITS of a winemaker's influence on texture, so command_word_demand is deliberately partial and a grader should not treat 'assessed the limits of winemaker influence' as an examiner-backed requirement. The report also names no specific textural components, techniques or producers, so the rubric tests scope, definition and causal explanation only; hence 'moderate'."
+  }
+]

@@ -1,0 +1,508 @@
+[
+  {
+    "id": "th_2018_p5_q1",
+    "year": 2018,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Can wine be considered a social good?",
+
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "Can wine be considered",
+    "command_word_demand": "A definitional, two-sided evaluation ending in a defended position — not a verdict that wine is beneficial. The examiners: \"We were looking for a clear definition of a social good from the outset as being something that benefits society as a whole\", and \"It is always advisable to consider both sides of the question, in other words, the arguments for and against.\" Answers that slid into \"wine is 'a good thing'\" had answered a different question.",
+
+    "definitions_required": [
+      {
+        "term": "social good",
+        "quote": "We were looking for a clear definition of a social good from the outset as being something that benefits society as a whole (it might have been helpful to cite examples of social goods, such as clean air, healthcare, literacy, and so on). Many candidates stumbled at this first hurdle: either they failed to define the term, or their essays showed that they had not grasped the meaning of the question."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Define 'social good' at the outset as something that benefits society as a whole, and reason from that definition",
+        "quote": "We were looking for a clear definition of a social good from the outset as being something that benefits society as a whole… Many candidates stumbled at this first hurdle: either they failed to define the term, or their essays showed that they had not grasped the meaning of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Argue both sides — the case for wine as a social good and the case against",
+        "quote": "It is always advisable to consider both sides of the question, in other words, the arguments for and against.",
+        "weight": "core"
+      },
+      {
+        "element": "Supply supporting arguments for: cultural, religious and historical importance; support of small agricultural economies; social cohesion and well-being; tax income; associations with longevity and good health",
+        "quote": "Arguments that might support the idea of wine being a social good might include: its cultural, religious and historical importance; it supports small agricultural economies; it facilitates social cohesion and well-being; it generates tax income; it has certain associations with longevity and good health.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Supply counter-arguments: social and health problems; religious objections; legislation and taxation; costs to society",
+        "quote": "Arguments against could include: social and health problems; religious objections; legislation and taxation; costs to society.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Genuinely entertain a 'no' conclusion — that much of society would not regard wine as a social good",
+        "quote": "It was remarkable that, while the answer to the question would undoubtedly be a firm 'no' from many (if not most) in society, hardly any candidates considered this possibility, with 21 of the 24 answers concluding that wine was a social good.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Engage with the contentious issues surrounding wine rather than avoiding them",
+        "quote": "This was a question that invited examination of the many contentious issues surrounding wine.",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Anchor the definition with concrete examples of recognised social goods",
+        "quote": "it might have been helpful to cite examples of social goods, such as clean air, healthcare, literacy, and so on"
+      },
+      {
+        "signal": "Where wine is claimed to be different from other alcohol, support the claim with strong evidence",
+        "quote": "The examiners noted that some candidates persist in giving wine special status within the alcohol sector, implying that wine drinkers are never binge drinkers nor alcoholics. Such a line of argument would require strong supporting evidence to be taken seriously."
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Concluding simply that wine is 'a good thing'",
+        "quote": "This led to simplistic answers with the inevitable conclusion that wine is 'a good thing', which is not what we were asking."
+      },
+      {
+        "signal": "Superficial, narrow, one-sided essays with no examples",
+        "quote": "Many answers were superficial, limited in scope, one-sided and lacking in examples."
+      },
+      {
+        "signal": "Filling the essay with responsible-drinking material",
+        "quote": "There was a lot of content about responsible drinking, which is not really relevant to this question."
+      },
+      {
+        "signal": "Asserting wine's special status within the alcohol sector without evidence",
+        "quote": "some candidates persist in giving wine special status within the alcohol sector, implying that wine drinkers are never binge drinkers nor alcoholics. Such a line of argument would require strong supporting evidence to be taken seriously."
+      }
+    ],
+
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples are needed on two levels: examples of recognised social goods to fix the definition (clean air, healthcare, literacy), and supporting examples throughout — answers 'lacking in examples' were marked down.",
+      "named_in_report": ["clean air", "healthcare", "literacy"],
+      "quote": "it might have been helpful to cite examples of social goods, such as clean air, healthcare, literacy, and so on… Many answers were superficial, limited in scope, one-sided and lacking in examples."
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Reading the question as 'is wine a good thing?' rather than 'does wine benefit society as a whole?'",
+        "quote": "This led to simplistic answers with the inevitable conclusion that wine is 'a good thing', which is not what we were asking."
+      },
+      {
+        "trap": "Assuming the answer must be yes and never testing the negative case",
+        "quote": "It was remarkable that, while the answer to the question would undoubtedly be a firm 'no' from many (if not most) in society, hardly any candidates considered this possibility, with 21 of the 24 answers concluding that wine was a social good."
+      },
+      {
+        "trap": "Treating the question as being about responsible drinking",
+        "quote": "There was a lot of content about responsible drinking, which is not really relevant to this question."
+      }
+    ],
+
+    "performance_note": "24 answers were submitted. Many failed at the definition stage — \"Many candidates stumbled at this first hurdle\" — and 21 of the 24 concluded that wine was a social good, which the examiners found \"remarkable\".",
+    "extraction_notes": "Commentary matches the corpus question verbatim. Evidence is rich: the report supplies both an explicit definition and two named lists of for/against arguments. Note that the for/against lists are phrased permissively (\"might include\", \"could include\"), so they are recorded as differentiators rather than a mandatory checklist — a grader should not penalise an answer that argues both sides with different content."
+  },
+  {
+    "id": "th_2018_p5_q2",
+    "year": 2018,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "How can the wine industry attract new consumers?",
+
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "How can",
+    "command_word_demand": "The examiners wanted proposed strategy plus original thinking, not a report on current practice: \"This question was set in the hope of eliciting original thought and innovative ideas from the candidates\", and \"it is important in a question like this to present one's own ideas, and not just regurgitate what is happening right now. We expect candidates to show they have an informed point of view and innovative ideas are always welcome.\" The scope had to be broader than a Paper 4 answer.",
+
+    "definitions_required": [
+      {
+        "term": "new consumers (as distinct from existing consumers)",
+        "quote": "Perhaps the single biggest mistake was candidates' failure to distinguish between new consumers and existing consumers. Some essays were entirely based on how to increase sales among existing consumers. Others wrote solely of Millennials, ignoring every other type of potential new consumer. 'New' is not necessarily 'young'."
+      },
+      {
+        "term": "the wine industry",
+        "quote": "Equally, when discussing 'the wine industry', candidates needed to break this down into producers, retailers, importers, opinion leaders, and so on."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Distinguish new consumers from existing consumers and address the former",
+        "quote": "Perhaps the single biggest mistake was candidates' failure to distinguish between new consumers and existing consumers. Some essays were entirely based on how to increase sales among existing consumers.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the full range of potential new consumers, not only Millennials — 'new' is not the same as 'young'",
+        "quote": "Others wrote solely of Millennials, ignoring every other type of potential new consumer. 'New' is not necessarily 'young'.",
+        "weight": "core"
+      },
+      {
+        "element": "Break 'the wine industry' down into its actors — producers, retailers, importers, opinion leaders — rather than treating it as one agent",
+        "quote": "Equally, when discussing 'the wine industry', candidates needed to break this down into producers, retailers, importers, opinion leaders, and so on.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer at Paper 5 breadth, not Paper 4 breadth",
+        "quote": "It must be stressed that this is not a paper 4 question, so the scope of enquiry was expected to be wider.",
+        "weight": "core"
+      },
+      {
+        "element": "Advance the candidate's own informed point of view and original ideas, not a description of current activity",
+        "quote": "At the same time, it is important in a question like this to present one's own ideas, and not just regurgitate what is happening right now. We expect candidates to show they have an informed point of view and innovative ideas are always welcome.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of current global wine consumption patterns and match different strategies to different potential consumers and different markets",
+        "quote": "Successful answers showed understanding of current global wine consumption patterns and identified different strategies that could be adopted for different potential consumers and different markets.",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Draw on learnings from recent successes in attracting new consumers, or from other (non-wine) markets",
+        "quote": "Candidates could have looked at learnings from recent successes in attracting new consumers, or from other markets."
+      },
+      {
+        "signal": "Discuss the obstacles as well as the tactics — product complexity, taste prejudices, cultural/religious/generational perceptions, competing products",
+        "quote": "They could have discussed the challenges of attracting new consumers, such as the complexity of the product, taste prejudices, cultural, religious, generational perceptions, presence of competing products, etc."
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Writing about increasing sales among existing consumers",
+        "quote": "Some essays were entirely based on how to increase sales among existing consumers."
+      },
+      {
+        "signal": "Equating new consumers with Millennials",
+        "quote": "Others wrote solely of Millennials, ignoring every other type of potential new consumer."
+      },
+      {
+        "signal": "Reporting what the industry currently does instead of proposing ideas",
+        "quote": "it is important in a question like this to present one's own ideas, and not just regurgitate what is happening right now"
+      },
+      {
+        "signal": "Treating a straightforward, popular question as easy — the pass rate was low",
+        "quote": "It was a straightforward and popular question, but the examiners reported few good answers and the pass rate was quite low."
+      }
+    ],
+
+    "examples_expected": {
+      "required": false,
+      "specificity": "The commentary does not state an explicit example requirement; it points instead to evidence drawn from recent successes and from other markets, and to understanding of global consumption patterns.",
+      "named_in_report": [],
+      "quote": "Candidates could have looked at learnings from recent successes in attracting new consumers, or from other markets."
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Reading 'new consumers' as 'existing consumers buying more'",
+        "quote": "Perhaps the single biggest mistake was candidates' failure to distinguish between new consumers and existing consumers."
+      },
+      {
+        "trap": "Reading 'new' as 'young' / Millennials",
+        "quote": "'New' is not necessarily 'young'."
+      },
+      {
+        "trap": "Answering it as a Paper 4 (commercial/business) question with narrow scope",
+        "quote": "It must be stressed that this is not a paper 4 question, so the scope of enquiry was expected to be wider."
+      }
+    ],
+
+    "performance_note": "Popular and apparently straightforward, but few good answers and a low pass rate: \"It was a straightforward and popular question, but the examiners reported few good answers and the pass rate was quite low. What happened?\"",
+    "extraction_notes": "Commentary matches the corpus question verbatim. The report frames almost everything as a failure diagnosis, so several required_elements are the inverse of a stated mistake — each still carries the examiners' own words. examples_expected.required is set false because no example requirement is stated for this question specifically; the Paper 5 preamble does ask candidates generally to \"Reference key facts, especially those that sound unlikely\", which a grader may apply paper-wide."
+  },
+  {
+    "id": "th_2018_p5_q3",
+    "year": 2018,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "If a global disease were destroying all known grape varieties and you had the chance to preserve only two varieties - one white and one black - for humanity, which would you choose to save, and why?",
+
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "which would you choose to save, and why",
+    "command_word_demand": "The 'why' carried the marks: the choice itself was worth little, the stated selection criteria and the persuasive case were everything. \"Candidates needed to explain the criteria for their choices\", and the choice had to be made on behalf of others — \"We were asking candidates to choose wines for humanity, not for themselves, so we were looking for a clear consideration of what was most essential to preserve for others.\"",
+
+    "definitions_required": [],
+
+    "required_elements": [
+      {
+        "element": "State and justify the criteria used to choose — economic weight, general popularity, viticultural and vinification characteristics, disease resistance, adaptability to different climates and soils, longevity and quality of the wines",
+        "quote": "Candidates needed to explain the criteria for their choices - economic, general popularity, viticultural and vinification characteristics, disease resistance, adaptability to different climates and soils, the longevity and quality of the wines, and so on. Many answers failed to do this and simply chose personal favourites.",
+        "weight": "core"
+      },
+      {
+        "element": "Choose on behalf of humanity, not on personal preference — reason about what is most essential to preserve for others",
+        "quote": "We were asking candidates to choose wines for humanity, not for themselves, so we were looking for a clear consideration of what was most essential to preserve for others.",
+        "weight": "core"
+      },
+      {
+        "element": "Compare and contrast the rejected candidate varieties, not just advocate the two chosen",
+        "quote": "Stronger answers compared and contrasted different potential choices and were balanced in taking a broad, global view and considering the impacts for various parts of the quality/price spectrum.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Take a broad, global view and consider impacts across the whole quality/price spectrum",
+        "quote": "Stronger answers compared and contrasted different potential choices and were balanced in taking a broad, global view and considering the impacts for various parts of the quality/price spectrum.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Give equal weight to the white and the black variety",
+        "quote": "They gave relevant and diverse supporting examples and equal weight to each of the varieties chosen.",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Originality and demonstrated breadth of wine knowledge, with evident passion",
+        "quote": "There were, however, some very interesting and original essays, where candidates demonstrated their passion, but also their wide knowledge of the complex world of wine. This was a wide-ranging question, with scope for the best candidates to shine."
+      },
+      {
+        "signal": "Arguing for classic varieties on proven style, history, global plantings and consumer popularity — these cases landed better than cases for unusual varieties",
+        "quote": "Arguments for classic varieties were almost always stronger than those for more unusual ones, as they have proven styles, history, global plantings, consumer popularity, etc."
+      },
+      {
+        "signal": "Relevant and diverse supporting examples",
+        "quote": "They gave relevant and diverse supporting examples and equal weight to each of the varieties chosen."
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "A flippant answer lacking precision and depth, on the assumption this was a fun, easy question",
+        "quote": "This appeared to be regarded as a fun and easy question, and unfortunately the approach taken by many reflected this. There were some flippant answers that lacked precision and depth."
+      },
+      {
+        "signal": "Choosing personal favourites with no stated criteria",
+        "quote": "Many answers failed to do this and simply chose personal favourites. From this narrow starting point, it was an uphill struggle for them to achieve sufficient marks for a pass when so much that could have been said was missing."
+      },
+      {
+        "signal": "Florid tasting-style description of the wines instead of argument",
+        "quote": "Some candidates spent too much time on florid descriptions of wines at the expense of making a persuasive argument."
+      }
+    ],
+
+    "examples_expected": {
+      "required": true,
+      "specificity": "Relevant and diverse supporting examples, spread evenly across both chosen varieties; the report names no specific varieties or regions of its own.",
+      "named_in_report": [],
+      "quote": "They gave relevant and diverse supporting examples and equal weight to each of the varieties chosen."
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Treating the hypothetical as a light-hearted 'pick your favourite' exercise",
+        "quote": "This appeared to be regarded as a fun and easy question, and unfortunately the approach taken by many reflected this."
+      },
+      {
+        "trap": "Choosing for oneself rather than for humanity",
+        "quote": "We were asking candidates to choose wines for humanity, not for themselves."
+      }
+    ],
+
+    "performance_note": "Widely regarded as fun and easy, and answered accordingly; candidates who started from personal favourites faced \"an uphill struggle… to achieve sufficient marks for a pass\". The examiners nonetheless saw \"some very interesting and original essays\" and call it a question \"with scope for the best candidates to shine\".",
+    "extraction_notes": "Wording discrepancy to check: the corpus question reads \"If a global disease were destroying all known grape varieties…\" while the report's restatement reads \"a global wine disease\". The corpus is authoritative; extraction was done against the corpus wording and the difference is immaterial to the rubric. This is also where the 2018 Paper 5 chair switches from \"Question N:\" headings to bare \"3.\" / \"4.\" / \"5.\" — the segment's commentary begins mid-restatement (\"a global wine disease were destroying all known grape varieties…\"), which confirms it belongs to this question."
+  },
+  {
+    "id": "th_2018_p5_q4",
+    "year": 2018,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Is elitism an inherent problem in the world of wine?",
+
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+
+    "command_word": "Is … an inherent problem",
+    "command_word_demand": "Success turned on the definition, then on testing whether the problem is inherent to wine rather than general: \"Critical to success was understanding the meaning of elitism\", and \"Whether or not elitism is considered an inherent problem requires candidates to examine whether this is a perceived problem somehow related to wine more than other goods\". A historical-to-present comparison was part of the demand.",
+
+    "definitions_required": [
+      {
+        "term": "elitism",
+        "quote": "Critical to success was understanding the meaning of elitism. This proved problematic for some, who confused elitism with inequality and even sexism."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Correctly define elitism and hold that definition apart from inequality and sexism",
+        "quote": "Critical to success was understanding the meaning of elitism. This proved problematic for some, who confused elitism with inequality and even sexism.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a historical perspective and compare it with present-day attitudes",
+        "quote": "An historical perspective was needed, with comparison to present day attitudes.",
+        "weight": "core"
+      },
+      {
+        "element": "Test whether elitism is a problem perceived as attaching to wine more than to other goods",
+        "quote": "Whether or not elitism is considered an inherent problem requires candidates to examine whether this is a perceived problem somehow related to wine more than other goods, so reference to other markets would have been helpful also.",
+        "weight": "core"
+      },
+      {
+        "element": "Reference other (non-wine) markets as the comparison case",
+        "quote": "so reference to other markets would have been helpful also",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Distinguish actual from perceived elitism",
+        "quote": "Other areas that could have been addressed include: actual or perceived elitism; wine classification systems; the role of wine qualifications; sales channels and changes in the way wine is bought and sold; whether elitism is a problem, or a positive in some markets or circles; who suffers from elitism and who benefits?"
+      },
+      {
+        "signal": "Bring in wine classification systems, the role of wine qualifications, and sales channels / changes in how wine is bought and sold",
+        "quote": "Other areas that could have been addressed include: actual or perceived elitism; wine classification systems; the role of wine qualifications; sales channels and changes in the way wine is bought and sold…"
+      },
+      {
+        "signal": "Argue the positive case — that elitism may be a benefit in some markets or circles — and identify who suffers and who benefits",
+        "quote": "…whether elitism is a problem, or a positive in some markets or circles; who suffers from elitism and who benefits?"
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Conflating elitism with inequality or sexism",
+        "quote": "This proved problematic for some, who confused elitism with inequality and even sexism."
+      }
+    ],
+
+    "examples_expected": {
+      "required": false,
+      "specificity": "No example requirement is stated for this question; the report asks instead for reference to other markets as a comparator.",
+      "named_in_report": [],
+      "quote": "so reference to other markets would have been helpful also"
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Writing about inequality or sexism in wine instead of elitism",
+        "quote": "Critical to success was understanding the meaning of elitism. This proved problematic for some, who confused elitism with inequality and even sexism."
+      },
+      {
+        "trap": "Assuming elitism is necessarily a problem rather than asking whether it is one, and for whom",
+        "quote": "whether elitism is a problem, or a positive in some markets or circles; who suffers from elitism and who benefits?"
+      }
+    ],
+
+    "performance_note": "\"This was not a popular question, but most of those who chose to tackle it did well.\"",
+    "extraction_notes": "Commentary matches the corpus question verbatim. Shorter than the other Paper 5 segments and mostly a list of avenues \"that could have been addressed\", so most content is recorded as credit_signals rather than requirements; only the definition, the historical comparison and the wine-versus-other-goods test are stated as needed. Only one penalty signal appears because the question was answered well."
+  },
+  {
+    "id": "th_2018_p5_q5",
+    "year": 2018,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Do wine consumers need wine experts?",
+
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+
+    "command_word": "Do … need",
+    "command_word_demand": "The question could not be answered globally in one direction: both sides of the relation had to be segmented first. The examiners wanted \"a really clear and broad definition of 'experts'\" and, on the other side, that candidates \"distinguish between different types of wine consumer, as there will be different requirements of expertise for different types of consumer\", together with \"an understanding of the dynamic nature of how and why consumers might need wine experts.\"",
+
+    "definitions_required": [
+      {
+        "term": "experts",
+        "quote": "The question needed a really clear and broad definition of 'experts', including media commentators, auctioneers, MWs, buyers, retailers, winemakers, consultants, educators etc, and understanding of the varying and different types of wine expertise."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Define 'experts' broadly — media commentators, auctioneers, MWs, buyers, retailers, winemakers, consultants, educators — and recognise the different types of expertise",
+        "quote": "The question needed a really clear and broad definition of 'experts', including media commentators, auctioneers, MWs, buyers, retailers, winemakers, consultants, educators etc, and understanding of the varying and different types of wine expertise.",
+        "weight": "core"
+      },
+      {
+        "element": "Include the experts involved in the production of wine",
+        "quote": "Most also missed the opportunity to talk about the importance of experts involved in the production of wine, which was a significant omission.",
+        "weight": "core"
+      },
+      {
+        "element": "Segment consumers — generational, geographical, socio-economic, education level — and match different expertise needs to each",
+        "quote": "Also important was to distinguish between different types of wine consumer, as there will be different requirements of expertise for different types of consumer (generational, geographical, socio-economic, education level, etc).",
+        "weight": "core"
+      },
+      {
+        "element": "Take a global perspective and show the relationship is dynamic — how and why the need for experts changes",
+        "quote": "As always, we were looking for a global perspective, and for candidates to demonstrate an understanding of the dynamic nature of how and why consumers might need wine experts.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the changing perception of experts and the rising importance of peer reviews",
+        "quote": "An appreciation of the changing perception of experts and the rise in importance of peer reviews was also an area to explore.",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Explore the shift in how experts are perceived and the rise of peer review as an alternative source of authority",
+        "quote": "An appreciation of the changing perception of experts and the rise in importance of peer reviews was also an area to explore."
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Restricting 'experts' to wine journalists",
+        "quote": "A large number of candidates restricted their definition to journalists and therefore gave very incomplete answers."
+      },
+      {
+        "signal": "Omitting production-side expertise",
+        "quote": "Most also missed the opportunity to talk about the importance of experts involved in the production of wine, which was a significant omission."
+      },
+      {
+        "signal": "Treating 'consumers' as one undifferentiated group",
+        "quote": "Also important was to distinguish between different types of wine consumer, as there will be different requirements of expertise for different types of consumer."
+      }
+    ],
+
+    "examples_expected": {
+      "required": false,
+      "specificity": "No example requirement is stated; the report's demand is for breadth of expert categories and consumer segments, and for a global rather than a single-market perspective.",
+      "named_in_report": [],
+      "quote": "As always, we were looking for a global perspective…"
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Reading 'wine experts' as 'wine critics/journalists'",
+        "quote": "A large number of candidates restricted their definition to journalists and therefore gave very incomplete answers."
+      },
+      {
+        "trap": "Reading 'experts' as consumer-facing communicators only, excluding those who make the wine",
+        "quote": "Most also missed the opportunity to talk about the importance of experts involved in the production of wine, which was a significant omission."
+      }
+    ],
+
+    "performance_note": "\"This was another popular question. Sadly, it was poorly answered by most candidates.\"",
+    "extraction_notes": "Commentary matches the corpus question verbatim. The whole segment is a definitional post-mortem — every requirement here traces to a scoping failure the examiners named, so a grader should weight the two definitional axes (types of expert, types of consumer) heavily and expect little else to be evidenced."
+  }
+]
