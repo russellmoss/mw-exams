@@ -313,7 +313,7 @@ jobs:
           if echo "$CHANGED" | grep -qE 'stem_proprietary_blends|stem_style_lexicon|variety_lexicon|appellation_varieties|build-stem-answer-keys'; then
             echo "Rebuilding stem_answer_keys…"; node scripts/build-stem-answer-keys.mjs || echo "::warning title=key rebuild failed::stem_answer_keys not rebuilt"
           fi
-          if echo "$CHANGED" | grep -qE 'question-validator|audit-questions|question-generation-prompt|get-question'; then
+          if echo "$CHANGED" | grep -qE 'question-rules|question-validator|audit-questions|question-generation-prompt|get-question'; then
             echo "Re-auditing corpus…"; node scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
           fi
 

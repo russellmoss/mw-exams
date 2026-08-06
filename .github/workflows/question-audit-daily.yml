@@ -1,0 +1,53 @@
+# question-audit-daily.yml — daily corpus sweep of the hard question validator, with quarantine.
+#
+# The generation engine now audits + quarantines every NEW question the moment its stem answer key
+# lands (src/lib/question-audit.ts, chained in question-engine.ts). This sweep is the backstop for
+# everything that path cannot reach:
+#   - questions whose enrichment failed, so no key ever landed (unkeyed rows escape the per-question
+#     audit entirely — the join finds nothing);
+#   - re-verdicts after a RULE change (a new synonym or country canonicalisation changes what counts
+#     as a violation across the whole corpus, not just new rows);
+#   - clearing stale flags: audit-questions.mjs --apply un-quarantines questions that a rule fix has
+#     made clean again, which the set-only per-question audit deliberately never does.
+#
+# Runs daily; also on demand via workflow_dispatch. Read-modify on the live DB, no git writes, no
+# deploy — so no [skip ci] concerns and no interaction with the Vercel cron budget (this is exactly
+# the "GitHub Actions, not Vercel crons" pattern CLAUDE.md prescribes for scheduled work).
+
+name: question-audit-daily
+
+on:
+  schedule:
+    - cron: "40 6 * * *" # daily, 06:40 UTC — after the overnight bank batches settle
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: question-audit-daily
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install app dependencies
+        working-directory: study-app
+        run: npm ci
+
+      - name: Audit + quarantine (hard violations → invalid_reasons)
+        working-directory: study-app
+        run: node scripts/audit-questions.mjs --apply

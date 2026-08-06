@@ -67,8 +67,23 @@ describe("synonyms that used to disagree between tables", () => {
     ["Primitivo", "Zinfandel"],
     ["Viura", "Macabeo"],
     ["Muscadet", "Melon de Bourgogne"],
+    // 2026-08-05 audit noise: the key resolver emits "Grenache Noir" verbatim off some labels, and
+    // a correct same-variety Grenache flight audited as two varieties.
+    ["Grenache Noir", "Grenache"],
   ])("%s === %s", (a, b) => {
     expect(canonVariety(a)).toBe(canonVariety(b));
+  });
+
+  it("no longer flags a same-variety flight keyed as grenache + grenache noir", () => {
+    const violations = applyQuestionRules({
+      paper: 3,
+      questionText: "Wines 1-2 are fortified wines made from the same grape variety.",
+      wines: [
+        { slot: 1, varieties: ["grenache"], region: "Banyuls", country: "France" },
+        { slot: 2, varieties: ["grenache noir"], region: "Maury", country: "France" },
+      ],
+    });
+    expect(violations.filter((v) => v.rule === "same-variety")).toEqual([]);
   });
 
   it("keeps genuinely different grapes apart", () => {

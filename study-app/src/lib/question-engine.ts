@@ -27,6 +27,7 @@ import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
 import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
+import { auditAndQuarantineQuestion } from "@/lib/question-audit";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
 // the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
 import "@/lib/appellation-resolver";
@@ -1310,11 +1311,25 @@ export async function generateFreshQuestion(
 
   const stemKey = enrichment
     .then(() => buildStemKeyForQuestion(questionId))
-    .then((res) => {
-      if ("error" in res) console.error(`Stem key for ${questionId} not built: ${res.error}`);
-      else if (!res.ok) console.warn(`Stem key for ${questionId} validated=false: ${res.problems.join("; ")}`);
+    .then(async (res) => {
+      if ("error" in res) {
+        // No key ⇒ no verdict; the daily corpus audit (question-audit-daily.yml) is the backstop.
+        console.error(`Stem key for ${questionId} not built: ${res.error}`);
+        return;
+      }
+      if (!res.ok) console.warn(`Stem key for ${questionId} validated=false: ${res.problems.join("; ")}`);
+      // Key-stage audit + auto-quarantine, the moment the key exists. The text-stage validators above
+      // ran on raw labels; this re-checks against the RESOLVED key (richer lexicon — the stage that
+      // catches Cannonau = Garnacha), and hard violations set invalid_reasons so the question never
+      // serves from the bank. Previously this verdict was only computed when someone ran the corpus
+      // audit by hand, so key-stage defects stayed servable until the next manual run.
+      const audit = await auditAndQuarantineQuestion(questionId);
+      if (audit.audited && audit.hard.length > 0)
+        console.warn(
+          `Question ${questionId} quarantined at generation: ${audit.hard.map((v) => `${v.rule}: ${v.detail}`).join(" | ")}`
+        );
     })
-    .catch((err) => console.error("Stem key background error:", err));
+    .catch((err) => console.error("Stem key / audit background error:", err));
 
   // CHAINED off enrichment, not fired alongside it. These two used to start on the same tick, so the
   // model answer could not have used the researched profiles even once the parameter existed — the

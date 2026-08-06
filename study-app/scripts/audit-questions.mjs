@@ -58,8 +58,14 @@ for (const r of rows) {
       quarantined++;
     }
   } else if (apply) {
-    // clean now — clear any stale flag so a fixed/regenerated question returns to service
-    await sql`UPDATE generated_questions SET invalid_reasons = NULL WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL`;
+    // Clean now — clear any stale VALIDATOR flag so a fixed/regenerated question returns to service.
+    // Feedback quarantines (rule 'feedback-question', set by apply-change.ts) are preserved: they
+    // encode defects the rules can't see, and this script now runs nightly (question-audit-daily.yml)
+    // — clearing them here would silently un-quarantine every user-reported bad question each night.
+    await sql`
+      UPDATE generated_questions SET invalid_reasons = NULL
+      WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
+        AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
   }
   if (!hard.length && res.violations.length) softCount++;
 }

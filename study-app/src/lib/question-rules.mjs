@@ -53,6 +53,10 @@ export const VARIETY_SYNONYMS = {
   garnacha: "grenache",
   "garnacha tinta": "grenache",
   cannonau: "grenache",
+  // "Grenache Noir" is the full French name for plain Grenache. The answer-key resolver emits it
+  // verbatim off some labels, so without this entry a correct same-variety Grenache flight audited
+  // as two varieties ("grenache, grenache noir") and was queued for quarantine.
+  "grenache noir": "grenache",
   "garnacha blanca": "grenache blanc",
 
   // ── Tempranillo ──
@@ -214,12 +218,26 @@ const COUNTRY_ANCHOR_EXTRAS = [
 ];
 
 // Built on first use, not at module load: COUNTRY_NAMES is declared below (TDZ at init).
+// Group 1 captures WHICH country anchored the string, for canonCountry below.
 let _countryAnchorRe = null;
 const countryAnchorRe = () =>
   (_countryAnchorRe ??= new RegExp(
-    `(?:^|[\\s,.\\-])(?:${[...COUNTRY_NAMES, ...COUNTRY_ANCHOR_EXTRAS].join("|")})$`,
+    `(?:^|[\\s,.\\-])(${[...COUNTRY_NAMES, ...COUNTRY_ANCHOR_EXTRAS].join("|")})$`,
     "i"
   ));
+
+// Canonicalise a resolved country. The answer-key resolver sometimes emits a region-qualified value
+// ("South West France") where a plain country belongs, and the diversity rules compared those as
+// strings — so a correct same-country flight audited as two countries ("france, south west france")
+// and was queued for quarantine. A value that ENDS on a known country collapses to that country
+// ("united states" further folds to "usa", matching detectCountryName); anything else passes through
+// norm()'d, so two unknown-but-equal values still compare equal.
+export const canonCountry = (s) => {
+  const n = norm(s);
+  if (!n) return n;
+  const m = n.match(countryAnchorRe());
+  return m ? m[1].replace("united states", "usa") : n;
+};
 
 // Tells that the string is the model reasoning rather than naming a wine. Each pattern is chosen to be
 // impossible on a real label — no wine is called "wait", carries a ✓, or asks a question.
@@ -285,7 +303,7 @@ export function applyQuestionRules(q, opts = {}) {
   const wines = q.wines || [];
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
-  const distinctCountry = new Set(wines.map((w) => norm(w.country)).filter(Boolean));
+  const distinctCountry = new Set(wines.map((w) => canonCountry(w.country)).filter(Boolean));
   const predominantly = /\bpredominantly\b/.test(stem); // explicitly permits blends / dominant grape
   const subsetSplit = isSubsetSplit(stem);
   // Detection-gap guard for the TEXT stage only (engine passes countryRequireAllKnown). When a wine's

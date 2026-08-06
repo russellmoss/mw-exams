@@ -504,13 +504,20 @@ export async function getQuestionsByFilter(
   paper: number,
   family?: string
 ): Promise<GeneratedQuestion[]> {
-  // NOTE: badness is gated solely by `invalid_reasons IS NULL` (the quarantine flag set by the
-  // validator/audit and the "question" feedback kind). We intentionally do NOT exclude questions
-  // merely because some attempt has feedback_status='accepted': accepting a UX complaint (e.g.
-  // "you repeated this") or an answer-key fix must not silently delete an otherwise-valid question
-  // from everyone's bank. Per-user repetition is handled at the serve layer, not here.
+  // NOTE: badness is gated by `invalid_reasons IS NULL` (the quarantine flag set by the
+  // validator/audit and the "question" feedback kind) plus the failed-answer-key gate below. We
+  // intentionally do NOT exclude questions merely because some attempt has
+  // feedback_status='accepted': accepting a UX complaint (e.g. "you repeated this") or an
+  // answer-key fix must not silently delete an otherwise-valid question from everyone's bank.
+  // Per-user repetition is handled at the serve layer, not here.
   // status = 'approved' (migration 022): pending/rejected bank questions must never reach a
   // candidate, and this is a serve path (the study producer's stale tier + generation fallback).
+  //
+  // Failed-key gate: a question whose stem_answer_key derived with validated=false could not resolve
+  // a consistent variety+origin per wine — usually a mangled or unresolvable wine label. The drills
+  // (stem-sniper next/produce) already require validated=true; the main flow kept serving these, so
+  // a wine the key resolver could not make sense of still reached candidates. A missing key row does
+  // NOT exclude (keys derive asynchronously ~30s after generation; unkeyed ≠ known-bad).
   const sql = getDb();
   if (family && family !== "any") {
     return (await sql`
@@ -518,6 +525,10 @@ export async function getQuestionsByFilter(
       WHERE paper = ${paper} AND family = ${family}
         AND invalid_reasons IS NULL
         AND review_state = 'kept'
+        AND NOT EXISTS (
+          SELECT 1 FROM stem_answer_keys k
+          WHERE k.question_id = generated_questions.question_id AND k.validated = false
+        )
       ORDER BY created_at DESC
     `) as GeneratedQuestion[];
   }
@@ -526,6 +537,10 @@ export async function getQuestionsByFilter(
     WHERE paper = ${paper}
       AND invalid_reasons IS NULL
       AND review_state = 'kept'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = generated_questions.question_id AND k.validated = false
+      )
     ORDER BY created_at DESC
   `) as GeneratedQuestion[];
 }
@@ -561,6 +576,10 @@ export async function getUnansweredQuestions(
         AND q.family = ${family}
         AND q.invalid_reasons IS NULL
         AND q.review_state = 'kept'
+        AND NOT EXISTS (
+          SELECT 1 FROM stem_answer_keys k
+          WHERE k.question_id = q.question_id AND k.validated = false
+        )
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
@@ -575,6 +594,10 @@ export async function getUnansweredQuestions(
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
@@ -632,7 +655,8 @@ export async function incrementTimesServed(questionId: string): Promise<void> {
 
 // How many banked questions this user has NEVER seen, for a paper (+ optional family). Gated on
 // both retirement flags: is_retired (soft switch) and invalid_reasons (validator/feedback
-// quarantine). family 'any'/empty means "any family in this paper".
+// quarantine), plus the failed-answer-key gate (validated=false ⇒ unresolvable wines — see
+// getQuestionsByFilter). family 'any'/empty means "any family in this paper".
 export async function getBankCount(
   userId: number,
   paper: number,
@@ -648,6 +672,10 @@ export async function getBankCount(
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
         WHERE v.question_id = q.question_id AND v.user_id = ${userId}
@@ -674,6 +702,10 @@ export async function getEligibleBankedQuestions(
       AND q.invalid_reasons IS NULL
       AND q.review_state = 'kept'
       AND q.is_retired IS NOT TRUE
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
       AND NOT EXISTS (
         SELECT 1 FROM question_views v
         WHERE v.question_id = q.question_id AND v.user_id = ${userId}
@@ -2102,8 +2134,10 @@ export async function getBankPerQuestionAvgCost(): Promise<number> {
 // free-text-dependent slices (grape/region coverage, mark focus, over-representation) read a lite
 // projection and derive in TypeScript. The whole payload is cached for 60s by the route.
 
-// A servable banked question is kept, not quarantined, not retired. This is the SAME gate the
-// candidate-facing bank reads use, so Bank Health counts exactly what could be served.
+// A servable banked question is kept, not quarantined, not retired. The candidate-facing bank reads
+// additionally exclude questions whose stem_answer_key failed validation (k.validated = false, an
+// unresolvable-wine signal — see getQuestionsByFilter), so Bank Health may count a handful more rows
+// than are actually servable; the analytics deliberately keep the cheaper three-flag gate.
 const KEPT_BANK_SQL_WHERE = "review_state = 'kept' AND invalid_reasons IS NULL AND is_retired IS NOT TRUE";
 
 export interface BankHealthLiteRow {
