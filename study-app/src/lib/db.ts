@@ -3809,7 +3809,11 @@ export async function updateFeatureRequest(
 export interface LiveTastingSession {
   id: string;
   user_id: number;
-  question_id: string;
+  /** NULL while a BYO session is in tasting prep (migration 043). */
+  question_id: string | null;
+  mode: "pick-for-me" | "byo";
+  prep_guidance: string | null;
+  entered_wines: unknown;
   paper: number;
   flight_size: number;
   archetype: string;
@@ -3982,6 +3986,56 @@ export async function clearLiveTastingShareToken(sessionId: string): Promise<voi
     UPDATE live_tasting_sessions SET share_token_hash = NULL, share_expires_at = NULL
     WHERE id = ${sessionId}
   `;
+}
+
+// BYO prep session (migration 043): exists before any question does — the shopping brief is the
+// whole payload. question_id stays NULL until the wines are entered and generation succeeds.
+export async function createLiveTastingPrepSession(s: {
+  id: string;
+  userId: number;
+  paper: number;
+  flightSize: number;
+  archetype: string;
+  city: string;
+  country: string;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  prepGuidance: string;
+}): Promise<LiveTastingSession> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO live_tasting_sessions (
+      id, user_id, paper, flight_size, archetype, city, country,
+      budget_amount, budget_currency, mode, prep_guidance
+    ) VALUES (
+      ${s.id}, ${s.userId}, ${s.paper}, ${s.flightSize}, ${s.archetype}, ${s.city}, ${s.country},
+      ${s.budgetAmount}, ${s.budgetCurrency}, 'byo', ${s.prepGuidance}
+    )
+    RETURNING *
+  `;
+  return rows[0] as LiveTastingSession;
+}
+
+// Attach the generated question to a BYO session once the entered wines produced a validated
+// key. Guarded on question_id IS NULL so a double-submit (partner + candidate racing) can't
+// clobber a generated session.
+export async function attachByoQuestion(
+  sessionId: string,
+  questionId: string,
+  enteredWines: unknown,
+  vintages: Record<string, string>
+): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE live_tasting_sessions
+    SET question_id = ${questionId},
+        entered_wines = ${JSON.stringify(enteredWines)}::jsonb,
+        vintages_bought = ${JSON.stringify(vintages)}::jsonb,
+        availability = ${JSON.stringify({ byo: true })}::jsonb
+    WHERE id = ${sessionId} AND question_id IS NULL
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 // Rate limit (plan §5.3): sessions created by this user in the last 24h.

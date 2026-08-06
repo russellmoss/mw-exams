@@ -4,11 +4,16 @@ import type { ProgressEmitter } from "./thinking-stream";
 import { getAvailability, fitsBudget, confidentCount, minSameCurrencyPrice, type Stockist } from "./retail-availability";
 import {
   createLiveTastingSession,
+  createLiveTastingPrepSession,
+  attachByoQuestion,
   repointLiveTastingSession,
   clearLiveTastingShareToken,
   setLiveTastingVintages,
   type LiveTastingSession,
 } from "./db";
+import Anthropic from "@anthropic-ai/sdk";
+import { selectModel } from "./model-selector";
+import { logClaudeUsage } from "./usage-log";
 import { liveTastingSessionId } from "./live-tasting";
 
 /**
@@ -559,5 +564,179 @@ export async function replaceWine(opts: {
   await setLiveTastingVintages(session.id, vintages);
   // Rotate: any link a partner holds now describes the wrong flight.
   await clearLiveTastingShareToken(session.id);
+  return { ok: true };
+}
+
+
+// ── BYO ("I'll choose wines") mode — migration 043 ──────────────────────────────────────────────
+//
+// The user picks paper + question type FIRST; an LLM writes a shopping brief; the session sits in
+// 'prep' until the wines are entered (by the candidate behind the reveal gate, or blind via the
+// partner share page). Generation then pins the entered wines — Tavily enrichment researches
+// their tasting notes exactly as it does for bank wines, feeding the key and model answer.
+
+export const ARCHETYPE_LABEL: Record<ArchetypeId, string> = {
+  "same-variety": "Same variety, different origins",
+  "quality-ladder": "Quality ladder (one region)",
+  "mixed-variety": "Mixed varieties, classic origins",
+  "p3-styles": "Contrasting Paper 3 styles",
+};
+
+export type EnteredWine = {
+  producer: string;
+  wineName: string;
+  vintage: string;        // year or "NV"
+  country: string;
+  region?: string;
+  price?: number | null;
+};
+
+export async function buildByoGuidance(opts: {
+  paper: number;
+  archetype: ArchetypeId;
+  flightSize: number;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  city: string;
+  country: string;
+  apiKey: string;
+  userId: number;
+}): Promise<string> {
+  const { paper, archetype, flightSize, budgetAmount, budgetCurrency, city, country, apiKey, userId } = opts;
+  const client = new Anthropic({ apiKey });
+  const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
+  const budgetLine = budgetAmount
+    ? `Budget: about ${budgetAmount} ${budgetCurrency ?? ""} per bottle.`
+    : "No fixed budget, but favour widely available benchmarks over trophies.";
+  const t0 = Date.now();
+  const msg = await client.messages.create({
+    model,
+    max_tokens: 1200,
+    system: `You are a Master of Wine exam coach writing a SHOPPING BRIEF for a candidate practising at home. They will buy real bottles matching your brief, a partner will bag them, and they will taste blind against a generated MW-style question. Write practical, buyable guidance — benchmark wines a decent wine shop or mail-order carries, not unicorns.
+
+Format (markdown, ~250-400 words):
+1. One line restating the exercise (paper, question type, flight size).
+2. Per slot (Wine 1..N): the profile to buy — variety/style, 2-3 example regions ranked by availability, what QUALITY tier to aim for, and 3-4 example producers spanning price points. Never demand one exact wine.
+3. "Avoid" line: what would break this flight (wrong styles, ringers, wines that contradict the question type).
+4. One line on price expectations.
+The candidate shops near ${city}, ${country}. ${budgetLine}`,
+    messages: [{
+      role: "user",
+      content: `Paper ${paper} (${paper === 1 ? "white still wines" : paper === 2 ? "red still wines" : "sparkling/fortified/sweet and other special styles"}). Question type: ${ARCHETYPE_LABEL[archetype]}. Flight size: ${flightSize} wines.`,
+    }],
+  });
+  logClaudeUsage(
+    { taskType: "question_generation", model, source: "user", userId, abGroup },
+    msg.usage,
+    { latencyMs: Date.now() - t0 }
+  );
+  return msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+}
+
+export async function createByoPrep(opts: {
+  userId: number;
+  apiKey: string;
+  paper: number;
+  archetype: ArchetypeId;
+  flightSize: number;
+  city: string;
+  country: string;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  emit?: ProgressEmitter;
+}): Promise<{ session: LiveTastingSession } | { error: string }> {
+  opts.emit?.({ type: "status", label: "Writing your shopping brief…" });
+  let guidance: string;
+  try {
+    guidance = await buildByoGuidance(opts);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Could not write the shopping brief." };
+  }
+  if (!guidance || guidance.length < 100) return { error: "The shopping brief came back empty — try again." };
+  const session = await createLiveTastingPrepSession({
+    id: liveTastingSessionId(),
+    userId: opts.userId,
+    paper: opts.paper,
+    flightSize: opts.flightSize,
+    archetype: opts.archetype,
+    city: opts.city,
+    country: opts.country,
+    budgetAmount: opts.budgetAmount,
+    budgetCurrency: opts.budgetCurrency,
+    prepGuidance: guidance,
+  });
+  return { session };
+}
+
+/** "Producer, Name Vintage. Region, Country." — the corpus reference shape the validators expect. */
+export function byoFullText(w: EnteredWine): string {
+  const vintagePart = w.vintage && w.vintage.trim().toUpperCase() !== "NV" ? w.vintage.trim() : "";
+  const name = [w.wineName?.trim(), vintagePart].filter(Boolean).join(" ");
+  const head = name ? `${w.producer.trim()}, ${name}` : w.producer.trim();
+  const origin = [w.region?.trim(), w.country.trim()].filter(Boolean).join(", ");
+  return `${head}. ${origin}.`;
+}
+
+export function validateEnteredWines(raw: unknown): { ok: true; wines: EnteredWine[] } | { ok: false; error: string } {
+  if (!Array.isArray(raw)) return { ok: false, error: "wines must be an array" };
+  if (raw.length < 2 || raw.length > 4) return { ok: false, error: "Enter 2-4 wines" };
+  const wines: EnteredWine[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const w = raw[i] as Record<string, unknown>;
+    const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+    const producer = str(w.producer), wineName = str(w.wineName), country = str(w.country);
+    const vintage = (str(w.vintage) || "NV").toUpperCase();
+    if (!producer || producer.length < 2) return { ok: false, error: `Wine ${i + 1}: producer is required` };
+    if (!country) return { ok: false, error: `Wine ${i + 1}: country is required` };
+    if (!/^(19|20)\d{2}$|^NV$/.test(vintage)) return { ok: false, error: `Wine ${i + 1}: vintage must be a year or NV` };
+    const priceNum = Number(w.price);
+    wines.push({
+      producer, wineName, vintage, country,
+      region: str(w.region) || undefined,
+      price: Number.isFinite(priceNum) && priceNum > 0 ? priceNum : null,
+    });
+  }
+  return { ok: true, wines };
+}
+
+export async function attachByoWines(opts: {
+  session: LiveTastingSession;
+  wines: EnteredWine[];
+  apiKey: string;
+  emit?: ProgressEmitter;
+  keepAlive?: (work: Promise<unknown>) => void;
+}): Promise<{ ok: true } | { error: string }> {
+  const { session, wines, apiKey, emit, keepAlive } = opts;
+  if (session.question_id) return { error: "This session already has its question." };
+
+  const pinnedWines = wines.map((w, i) => ({ slot: i + 1, fullText: byoFullText(w) }));
+  emit?.({ type: "status", label: "Researching your wines and writing the question…" });
+  const result = await generateFreshQuestion(
+    session.paper,
+    ARCHETYPE_FAMILY[(session.archetype as ArchetypeId) ?? "mixed-variety"] ?? "F4",
+    apiKey,
+    { source: "user", userId: session.user_id },
+    undefined,
+    undefined, // no emit — streamed calls escape the timeout cap (see createLiveTasting)
+    {
+      scope: "live-tasting",
+      pinnedWines,
+      status: "approved",
+      awaitKeyOnly: true,
+      onBackgroundWork: keepAlive,
+      budgetMs: 190_000,
+      callTimeoutMs: 95_000,
+    }
+  );
+  if ("error" in result) return { error: result.error ?? "Generation failed." };
+  if (!("question" in result) || !result.question) return { error: "Generation failed." };
+  const qid = result.question.question_id as string;
+  if (!(await verifyQuestionServable(qid))) {
+    return { error: "The generated question failed validation — please try again." };
+  }
+  const vintages: Record<string, string> = {};
+  wines.forEach((w, i) => { vintages[String(i + 1)] = w.vintage; });
+  const attached = await attachByoQuestion(session.id, qid, wines, vintages);
+  if (!attached) return { error: "Someone already attached wines to this session." };
   return { ok: true };
 }

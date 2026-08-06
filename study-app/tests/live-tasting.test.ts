@@ -8,6 +8,8 @@ import {
   splitPinnedReference,
 } from "@/lib/live-tasting-validators";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
+import { byoFullText, validateEnteredWines } from "@/lib/live-tasting-engine";
+import { checkWineReferenceShape } from "@/lib/question-rules.mjs";
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -104,6 +106,10 @@ describe("deriveSessionState / deriveBlindIntegrity", () => {
     expect(deriveSessionState(base)).toBe("shopping");
     expect(deriveSessionState({ ...base, graded_at: "2026-08-05" })).toBe("tasted");
     expect(deriveSessionState({ ...base, abandoned_at: "2026-08-05" })).toBe("abandoned");
+    // BYO (migration 043): no question yet = tasting prep; grading/abandonment still win.
+    expect(deriveSessionState({ ...base, question_id: null })).toBe("prep");
+    expect(deriveSessionState({ ...base, question_id: "gen_x" })).toBe("shopping");
+    expect(deriveSessionState({ ...base, question_id: null, abandoned_at: "2026-08-06" })).toBe("abandoned");
   });
 
   it("the badge can only downgrade: self-reveal beats partner share", () => {
@@ -176,5 +182,41 @@ describe("pre-reveal payload redaction (source guard)", () => {
     // The reveal block exists and is only reachable post-graded_at.
     expect(src).toContain('if (state !== "tasted") return Response.json(base)');
     expect(src).toContain("reveal: {");
+  });
+});
+
+// ── BYO wine entry (migration 043) ──────────────────────────────────────────────────────────────
+
+describe("byoFullText — entered wines become valid corpus references", () => {
+  it("produces the reference shape the validators demand", () => {
+    const refs = [
+      byoFullText({ producer: "Louis Jadot", wineName: "Pouilly-Fuissé", vintage: "2022", country: "France", region: "Burgundy" }),
+      byoFullText({ producer: "Billecart-Salmon", wineName: "Brut Réserve", vintage: "NV", country: "France", region: "Champagne" }),
+      byoFullText({ producer: "Penfolds", wineName: "Bin 28 Shiraz", vintage: "2021", country: "Australia" }),
+    ];
+    expect(refs[0]).toBe("Louis Jadot, Pouilly-Fuissé 2022. Burgundy, France.");
+    expect(refs[1]).toBe("Billecart-Salmon, Brut Réserve. Champagne, France."); // NV: no year in the label
+    for (const r of refs) {
+      expect(checkWineReferenceShape(r).ok, r).toBe(true);
+    }
+  });
+});
+
+describe("validateEnteredWines", () => {
+  const good = { producer: "Louis Jadot", wineName: "Mâcon-Villages", vintage: "2022", country: "France" };
+  it("accepts 2-4 well-formed wines and normalizes vintage/price", () => {
+    const r = validateEnteredWines([good, { ...good, vintage: "nv", price: "23.99" }]);
+    expect(r.ok).toBe(true);
+    if (r.ok) {
+      expect(r.wines[1].vintage).toBe("NV");
+      expect(r.wines[1].price).toBe(23.99);
+    }
+  });
+  it("rejects missing producer/country, bad vintages, and wrong counts", () => {
+    expect(validateEnteredWines([good]).ok).toBe(false);
+    expect(validateEnteredWines([good, { ...good, producer: "" }]).ok).toBe(false);
+    expect(validateEnteredWines([good, { ...good, country: "" }]).ok).toBe(false);
+    expect(validateEnteredWines([good, { ...good, vintage: "202" }]).ok).toBe(false);
+    expect(validateEnteredWines("nope").ok).toBe(false);
   });
 });

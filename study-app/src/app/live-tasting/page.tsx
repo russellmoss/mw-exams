@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 
 type SessionSummary = {
   id: string;
-  state: "shopping" | "tasted" | "abandoned";
+  state: "prep" | "shopping" | "tasted" | "abandoned";
   blindIntegrity: "partner" | "self" | "unopened";
   paper: number;
   flightSize: number;
@@ -19,6 +19,7 @@ type SessionSummary = {
 type Prefs = { city: string | null; country: string | null; budgetAmount: number | null; budgetCurrency: string | null };
 
 const STATE_CHIP: Record<string, { label: string; cls: string }> = {
+  prep: { label: "Tasting prep", cls: "text-borderline border-borderline/40 bg-borderline/10" },
   shopping: { label: "Shopping", cls: "text-accent border-accent/40 bg-accent/10" },
   tasted: { label: "Tasted", cls: "text-success border-success/40 bg-success/10" },
   abandoned: { label: "Abandoned", cls: "text-muted border-border bg-card" },
@@ -31,6 +32,8 @@ export default function LiveTastingPage() {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [paper, setPaper] = useState(1);
   const [flightSize, setFlightSize] = useState(3);
+  const [mode, setMode] = useState<"pick-for-me" | "byo">("pick-for-me");
+  const [archetype, setArchetype] = useState("same-variety");
   const [budgetOverride, setBudgetOverride] = useState("");
   const [creating, setCreating] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -65,6 +68,8 @@ export default function LiveTastingPage() {
         body: JSON.stringify({
           paper,
           flightSize,
+          mode,
+          ...(mode === "byo" ? { archetype } : {}),
           ...(budgetOverride.trim() ? { budgetAmount: Number(budgetOverride) } : {}),
         }),
       });
@@ -163,6 +168,40 @@ export default function LiveTastingPage() {
                   <p className="text-sm text-fail">{error}</p>
                 </div>
               )}
+              {!creating && (
+                <div className="mb-5">
+                  <span className="block text-sm font-medium text-foreground mb-1.5">Who picks the wines?</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setMode("pick-for-me")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        mode === "pick-for-me"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      Pick my wines
+                    </button>
+                    <button
+                      onClick={() => setMode("byo")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        mode === "byo"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      I&apos;ll choose wines
+                    </button>
+                  </div>
+                  {mode === "byo" && (
+                    <p className="text-xs text-muted mt-2">
+                      You get a shopping brief for your paper and question type; buy whatever fits
+                      (or hand the brief to a partner), enter the bottles, and the question is
+                      built around them.
+                    </p>
+                  )}
+                </div>
+              )}
               {creating ? (
                 <div className="flex items-center gap-3 text-muted py-4">
                   <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
@@ -194,6 +233,31 @@ export default function LiveTastingPage() {
                       ))}
                     </div>
                   </div>
+                  {mode === "byo" && (
+                    <div>
+                      <span className="block text-sm font-medium text-foreground mb-1.5">Question type</span>
+                      <div className="flex flex-wrap gap-2">
+                        {[
+                          { id: "same-variety", label: "Same variety" },
+                          { id: "quality-ladder", label: "Quality ladder" },
+                          { id: "mixed-variety", label: "Mixed varieties" },
+                          ...(paper === 3 ? [{ id: "p3-styles", label: "Contrasting styles" }] : []),
+                        ].map((a) => (
+                          <button
+                            key={a.id}
+                            onClick={() => setArchetype(a.id)}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                              archetype === a.id
+                                ? "border-accent text-accent bg-accent/10"
+                                : "border-border text-muted hover:text-foreground hover:border-muted"
+                            }`}
+                          >
+                            {a.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-6">
                     <div>
                       <span className="block text-sm font-medium text-foreground mb-1.5">Wines</span>
@@ -236,7 +300,7 @@ export default function LiveTastingPage() {
                     onClick={createSession}
                     className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
                   >
-                    Build my flight
+                    {mode === "byo" ? "Get my shopping brief" : "Build my flight"}
                   </button>
                 </div>
               )}

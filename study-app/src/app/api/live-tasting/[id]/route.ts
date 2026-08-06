@@ -23,6 +23,28 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!session) return Response.json({ error: "Not found" }, { status: 404 });
 
   const state = deriveSessionState(session);
+
+  // BYO tasting prep (migration 043): no question exists yet — the payload is the shopping
+  // brief. Wine identity can't leak because none has been chosen.
+  if (state === "prep" || session.question_id == null) {
+    return Response.json({
+      id: session.id,
+      state: "prep",
+      mode: session.mode,
+      blindIntegrity: deriveBlindIntegrity(session),
+      paper: session.paper,
+      flightSize: session.flight_size,
+      archetype: session.archetype,
+      city: session.city,
+      country: session.country,
+      budgetAmount: session.budget_amount,
+      budgetCurrency: session.budget_currency,
+      createdAt: session.created_at,
+      shareActive: Boolean(session.share_token_hash && !session.graded_at && !session.abandoned_at),
+      prepGuidance: session.prep_guidance,
+    });
+  }
+
   const question = await getQuestionById(session.question_id);
   if (!question) return Response.json({ error: "Question missing" }, { status: 500 });
 
@@ -32,6 +54,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const base = {
     id: session.id,
     state,
+    mode: session.mode,
     blindIntegrity: deriveBlindIntegrity(session),
     paper: session.paper,
     flightSize: session.flight_size,

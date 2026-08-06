@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import { getUser } from "@/lib/auth";
 import { sseStream } from "@/lib/thinking-stream";
-import { createLiveTasting } from "@/lib/live-tasting-engine";
+import { createLiveTasting, createByoPrep, ARCHETYPE_FAMILY, type ArchetypeId } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
@@ -23,6 +23,7 @@ export async function GET(request: Request) {
     sessions: sessions.map((s) => ({
       id: s.id,
       state: deriveSessionState(s),
+      mode: s.mode,
       blindIntegrity: deriveBlindIntegrity(s),
       paper: s.paper,
       flightSize: s.flight_size,
@@ -70,6 +71,31 @@ export async function POST(request: Request) {
     typeof body.budgetCurrency === "string" && body.budgetCurrency.trim()
       ? body.budgetCurrency.trim().toUpperCase()
       : prefs.budgetCurrency;
+
+  // BYO ("I'll choose wines", migration 043): paper + question type in, shopping brief out —
+  // the session sits in 'prep' until the wines are entered.
+  if (body.mode === "byo") {
+    const archetype = (typeof body.archetype === "string" && body.archetype in ARCHETYPE_FAMILY
+      ? body.archetype
+      : "same-variety") as ArchetypeId;
+    return sseStream(async (emit) => {
+      const outcome = await createByoPrep({
+        userId,
+        apiKey: keyResult.apiKey,
+        paper,
+        archetype,
+        flightSize,
+        city: prefs.city!,
+        country: prefs.country!,
+        budgetAmount,
+        budgetCurrency,
+        emit,
+      });
+      if ("error" in outcome) throw new Error(outcome.error);
+      emit({ type: "status", label: "Shopping brief ready." });
+      return { sessionId: outcome.session.id };
+    });
+  }
 
   return sseStream(async (emit) => {
     const outcome = await createLiveTasting({

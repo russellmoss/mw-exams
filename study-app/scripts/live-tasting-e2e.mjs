@@ -330,6 +330,83 @@ async function gradeSession(ctx, answerStyle, label) {
   return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null, feedbackSnippet };
 }
 
+// ── BYO leg (migration 043): prep → share → PARTNER enters wines via token → blind kept ────────
+
+const BYO_WINES = {
+  1: [
+    { producer: "Louis Jadot", wineName: "Pouilly-Fuissé", vintage: "2022", country: "France", region: "Burgundy", price: 32 },
+    { producer: "Catena", wineName: "Chardonnay", vintage: "2022", country: "Argentina", region: "Mendoza", price: 20 },
+  ],
+  2: [
+    { producer: "Penfolds", wineName: "Bin 28 Shiraz", vintage: "2021", country: "Australia", region: "South Australia", price: 30 },
+    { producer: "E. Guigal", wineName: "Crozes-Hermitage", vintage: "2020", country: "France", region: "Rhône", price: 28 },
+  ],
+  3: [
+    { producer: "Billecart-Salmon", wineName: "Brut Réserve", vintage: "NV", country: "France", region: "Champagne", price: 55 },
+    { producer: "Graham's", wineName: "Six Grapes Reserve Port", vintage: "NV", country: "Portugal", region: "Douro", price: 25 },
+  ],
+};
+
+async function runByoSession(paper) {
+  const label = "C/byo";
+  const res = await api("/api/live-tasting", {
+    method: "POST",
+    body: JSON.stringify({ paper, flightSize: 2, mode: "byo", archetype: paper === 3 ? "p3-styles" : "same-variety" }),
+  });
+  if (!res.ok) {
+    check(`${label} prep create`, false, `status ${res.status}`);
+    return;
+  }
+  const sse = await readSse(res);
+  const sessionId = sse.result?.sessionId;
+  check(`${label} prep create`, Boolean(sessionId), sse.error || sessionId || "no sessionId");
+  if (!sessionId) return;
+
+  const prep = await api(`/api/live-tasting/${sessionId}`).then((r) => r.json());
+  check(`${label}: state=prep with a real brief`, prep.state === "prep" && (prep.prepGuidance?.length ?? 0) > 200);
+
+  const share = await api(`/api/live-tasting/${sessionId}/share`, { method: "POST" }).then((r) => r.json());
+  check(`${label}: share mints in prep`, Boolean(share.url));
+  if (!share.url) return;
+  const token = share.url.split("/shop/")[1];
+
+  // Partner opens the brief page (stamps partner badge), then enters the wines — NO auth cookie.
+  const briefPage = await fetch(share.url);
+  check(`${label}: partner brief page serves`, briefPage.ok);
+  const winesRes = await fetch(`${BASE_URL}/api/shop/${token}/wines`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ wines: BYO_WINES[paper] ?? BYO_WINES[1] }),
+  });
+  if (!winesRes.ok) {
+    const b = await winesRes.json().catch(() => ({}));
+    check(`${label}: partner wine entry`, false, b.error || `status ${winesRes.status}`);
+    return;
+  }
+  const winesSse = await readSse(winesRes);
+  check(`${label}: partner wine entry generates`, !winesSse.error && winesSse.result?.ok === true, winesSse.error || "");
+
+  const session = await dbSession(sessionId);
+  check(`${label}: question attached`, Boolean(session?.question_id));
+  if (!session?.question_id) return;
+  const q = await dbWines(session.question_id);
+  check(`${label}: scope=live-tasting`, q?.scope === "live-tasting");
+  const keyRows = await sql`SELECT validated FROM stem_answer_keys WHERE question_id = ${session.question_id}`;
+  check(`${label}: key validated`, keyRows[0]?.validated === true);
+
+  // The candidate stayed blind: partner entry must NOT stamp a reveal; badge stays partner.
+  const detail = await api(`/api/live-tasting/${sessionId}`).then((r) => r.json());
+  check(`${label}: blind kept (badge=partner)`, detail.blindIntegrity === "partner", detail.blindIntegrity);
+  const payload = fold(JSON.stringify(detail));
+  const leaks = [];
+  for (const w of BYO_WINES[paper] ?? BYO_WINES[1]) {
+    for (const tok of fold(w.producer).split(/\s+/).filter((t) => t.length >= 4 && t !== "wine")) {
+      if (payload.includes(tok)) leaks.push(tok);
+    }
+  }
+  check(`${label}: pre-reveal redaction`, leaks.length === 0 && !detail.reveal, leaks.join(",") || "clean");
+}
+
 // ── main ────────────────────────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -366,6 +443,9 @@ async function main() {
 
   const ctxB = await runSession(paper, "B");
   if (ctxB) bad = await gradeSession(ctxB, "bad", "B/bad");
+
+  // Session C: the BYO partner flow (prep → brief → token wine entry → blind question).
+  await runByoSession(paper);
 
   // Grading discrimination — the only regression test the grader itself has.
   if (good && bad) {
