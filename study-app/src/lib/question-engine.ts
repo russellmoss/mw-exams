@@ -891,6 +891,17 @@ export async function generateFreshQuestion(
     if (producerBlock) prompt.system += producerBlock;
   }
 
+  // Live Tasting pinned flight: asserted at BOTH ends of the system prompt. The base prompt's
+  // flight-size guidance (3-5 wines) was reliably beating a tail-only pin block — E2E run 4
+  // drafted 3 wines against a 2-wine pin — so the mode declaration now leads the prompt, where
+  // it outranks everything below, and the full wine list still anchors the tail.
+  if (pinned) {
+    prompt.system = `## PINNED-FLIGHT MODE (LIVE TASTING) — READ FIRST
+This task uses EXACTLY ${pinned.length} wine${pinned.length === 1 ? "" : "s"} (slots 1 through ${pinned.length}), already chosen and listed at the end of this prompt. Every instruction below about choosing wines, flight sizes, or wine counts is OVERRIDDEN by that list. Total marks = ${pinned.length * 25}.
+
+` + prompt.system;
+  }
+
   // Live Tasting pinned flight: a HARD block, appended last so nothing later can soften it. The
   // wines were availability-confirmed against the user's retail market; any substitution breaks
   // the session (the answer key would describe a bottle the user isn't buying). Enforced by

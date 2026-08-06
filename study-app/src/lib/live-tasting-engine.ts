@@ -365,8 +365,8 @@ export async function createLiveTasting(opts: {
         onBackgroundWork: keepAlive,
         // Sized so TWO generation attempts fit inside the route's 300s platform ceiling alongside
         // the availability phase (E2E run 1 + the pilot's first create both died at that wall).
-        budgetMs: 200_000,
-        callTimeoutMs: 110_000,
+        budgetMs: 190_000,
+        callTimeoutMs: 95_000,
       }
     );
   };
@@ -498,8 +498,8 @@ export async function replaceWine(opts: {
       status: "approved",
       awaitKeyOnly: true,
       onBackgroundWork: keepAlive,
-      budgetMs: 200_000,
-      callTimeoutMs: 110_000,
+      budgetMs: 190_000,
+      callTimeoutMs: 95_000,
     }
   );
   if ("error" in result) return { error: result.error ?? "Regeneration failed." };
