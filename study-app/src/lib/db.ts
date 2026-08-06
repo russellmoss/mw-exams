@@ -4182,6 +4182,51 @@ export async function linkSessionToPaper(sessionId: string, paperId: string, pos
   `;
 }
 
+// Paper-level brief routing + partner token (Phase D follow-up; columns from migration 046).
+export async function setPaperShareToken(paperId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_papers
+    SET share_token_hash = ${tokenHash}, share_expires_at = ${expiresAt.toISOString()}
+    WHERE id = ${paperId}
+  `;
+}
+
+export async function setPaperBriefSentTo(paperId: string, email: string): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE live_tasting_papers SET brief_sent_to = ${email} WHERE id = ${paperId}`;
+}
+
+export async function stampPaperBriefSelfOpened(paperId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_papers
+    SET brief_self_opened_at = COALESCE(brief_self_opened_at, now())
+    WHERE id = ${paperId}
+  `;
+}
+
+export async function stampPaperTokenFirstUsed(paperId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_papers
+    SET token_first_used_at = COALESCE(token_first_used_at, now())
+    WHERE id = ${paperId}
+  `;
+}
+
+export async function getLiveTastingPaperByTokenHash(tokenHash: string): Promise<LiveTastingPaper | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM live_tasting_papers
+    WHERE share_token_hash = ${tokenHash}
+      AND share_expires_at > now()
+      AND abandoned_at IS NULL
+    LIMIT 1
+  `;
+  return (rows[0] as LiveTastingPaper) ?? null;
+}
+
 // Exam-conditions clock: set-once start + deadline.
 export async function startPaperExam(paperId: string, deadline: Date): Promise<void> {
   const sql = getDb();

@@ -32,6 +32,8 @@ type PaperDetail = {
   examStartedAt: string | null;
   examDeadlineAt: string | null;
   prepGuidance?: string | null;
+  briefSentTo?: string | null;
+  briefSelfOpened?: boolean;
   flights: Flight[];
   report: {
     awarded: number; possible: number; pct: number; passLine: number;
@@ -67,6 +69,9 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
   const [notFound, setNotFound] = useState(false);
   const [genProgress, setGenProgress] = useState<string | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
+  const [partnerEmail, setPartnerEmail] = useState("");
+  const [sendBusy, setSendBusy] = useState(false);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
   const generating = useRef(false);
 
   useEffect(() => {
@@ -260,10 +265,123 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
             </section>
           )}
 
-          {/* BYO paper: the multi-flight shopping brief + per-flight wine entry. v1 is
-              self-service (partner-emailed paper briefs are a follow-up) — the copy button lets
-              you hand the brief to a buyer manually. */}
-          {paper.mode === "byo" && paper.prepGuidance && (
+          {/* BYO paper brief routing: chooser first — the candidate only sees the brief if
+              they choose to be their own buyer. Partner path emails brief + entry page. */}
+          {paper.mode === "byo" && !paper.briefSelfOpened && !paper.briefSentTo && (
+            <section className="bg-card rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2 font-display">
+                Who should get the shopping brief?
+              </h2>
+              <p className="text-sm text-muted mb-5">
+                The brief covers all {paper.flights.length} flights ({wineWord}). Send it to a
+                partner and you stay fully blind — they buy flight by flight, enter the bottles,
+                and you get one email when the whole paper is ready.
+              </p>
+              {sendMsg && (
+                <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-fail">{sendMsg}</p>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 bg-background rounded-lg border border-border p-4">
+                  <p className="text-sm font-medium text-foreground mb-1">A partner (stay blind)</p>
+                  <p className="text-xs text-muted mb-3">They get the brief + per-flight entry page by email.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={partnerEmail}
+                      onChange={(e) => setPartnerEmail(e.target.value)}
+                      placeholder="partner@email.com"
+                      className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent text-sm"
+                    />
+                    <button
+                      onClick={async () => {
+                        setSendMsg(null);
+                        setSendBusy(true);
+                        try {
+                          const res = await fetch(`/api/live-tasting/paper/${id}/send-brief`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: partnerEmail }),
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (!res.ok) setSendMsg(data.error || "Could not send the brief.");
+                          else await load();
+                        } catch {
+                          setSendMsg("Network error — try again.");
+                        } finally {
+                          setSendBusy(false);
+                        }
+                      }}
+                      disabled={sendBusy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail.trim())}
+                      className="shrink-0 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendBusy ? "Sending…" : "Email it"}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 bg-background rounded-lg border border-border p-4">
+                  <p className="text-sm font-medium text-foreground mb-1">Me (shopping solo)</p>
+                  <p className="text-xs text-muted mb-3">You&apos;ll see all the target styles — results will note it.</p>
+                  <button
+                    onClick={async () => {
+                      await fetch(`/api/live-tasting/paper/${id}/open-brief`, { method: "POST" });
+                      await load();
+                    }}
+                    className="px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                  >
+                    Show me the brief
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {paper.mode === "byo" && !paper.briefSelfOpened && paper.briefSentTo && (
+            <section className="bg-card rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2 font-display">
+                Brief sent — you&apos;re blind until the wines are in
+              </h2>
+              <p className="text-sm text-muted mb-4">
+                The full-paper brief went to <strong className="text-foreground">{paper.briefSentTo}</strong>.
+                Flights below flip to <span className="text-success">Ready to taste</span> as they
+                enter each one; you&apos;ll get an email when the whole paper is ready.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={async () => {
+                    setSendBusy(true);
+                    try {
+                      await fetch(`/api/live-tasting/paper/${id}/send-brief`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: paper.briefSentTo }),
+                      });
+                    } finally {
+                      setSendBusy(false);
+                    }
+                  }}
+                  disabled={sendBusy}
+                  className="px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {sendBusy ? "Resending…" : "Resend the email"}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (window.confirm("This shows you the full brief — your blind is then compromised. Continue?")) {
+                      await fetch(`/api/live-tasting/paper/${id}/open-brief`, { method: "POST" });
+                      await load();
+                    }
+                  }}
+                  className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Show it to me anyway
+                </button>
+              </div>
+            </section>
+          )}
+
+          {paper.mode === "byo" && paper.briefSelfOpened && paper.prepGuidance && (
             <BriefCard title="Shopping brief — all flights" markdown={paper.prepGuidance} />
           )}
 
@@ -288,7 +406,7 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
                     {f.questionText}
                   </p>
                 )}
-                {!f.sessionId && paper.mode === "byo" && (
+                {!f.sessionId && paper.mode === "byo" && paper.briefSelfOpened && (
                   <div className="mt-2 pt-3 border-t border-border">
                     <p className="text-xs text-muted mb-3">
                       Enter the {f.flightSize} bottles bought for this flight (see the brief above).

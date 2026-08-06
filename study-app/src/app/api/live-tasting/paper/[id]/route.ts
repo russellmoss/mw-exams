@@ -81,7 +81,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     createdAt: paper.created_at,
     examStartedAt: paper.exam_started_at,
     examDeadlineAt: paper.exam_deadline_at,
-    prepGuidance: paper.mode === "byo" ? paper.prep_guidance : null,
+    // BLIND AT THE API (paper-level twin of the session rule): the multi-flight brief reaches
+    // the candidate only after an explicit open-brief; a partner-routed brief never does.
+    prepGuidance: paper.mode === "byo" && paper.brief_self_opened_at ? paper.prep_guidance : null,
+    briefSentTo: paper.brief_sent_to,
+    briefSelfOpened: Boolean(paper.brief_self_opened_at),
     flights,
     report: complete
       ? {
