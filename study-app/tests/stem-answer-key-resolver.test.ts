@@ -24,7 +24,14 @@ const DATA = {
   mock_wine_bank: [],
 };
 
-const builder = createAnswerKeyBuilder(DATA);
+// The .mjs factory's return type is inferred loosely; type the slice these tests read.
+interface BuiltKey {
+  ground: { slot: number; varieties: string[]; region: string; country: string }[];
+  source: Record<number, string>;
+  ok: boolean;
+  problems: string[];
+}
+const builder = createAnswerKeyBuilder(DATA) as unknown as { buildKeyForRow: (r: unknown) => BuiltKey };
 
 const row = (paper: number, fullText: string, profileGrapes: string[] | null) => ({
   paper,

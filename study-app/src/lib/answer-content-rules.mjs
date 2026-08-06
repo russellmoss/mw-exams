@@ -272,8 +272,11 @@ export function applyAnswerContentRules({ questionText, answerText, wines }) {
   // on ~15% of the bank, all of them otherwise-fine answers, so it must not flag.
   const stemLetters = [...new Set([...(questionText || "").matchAll(/(?:^|\n)\s*\(?([a-f])\)\s+/g)].map((m) => m[1]))];
   if (stemLetters.length >= 2) {
+    // A sub-part reference may sit mid-heading — real answers merge parts ("## a) Region … and b)
+    // Grape variety"), which is addressing b), not skipping it. So accept the letter after any
+    // space/paren as well as at line starts.
     const hasLetter = (letter) =>
-      new RegExp(`(?:^|\\n)[#*\\s>]*\\(?${letter}\\)|\\(${letter}\\)`, "i").test(body);
+      new RegExp(`(?:^|[\\s(>#*])\\(?${letter}\\)`, "im").test(body);
     const missingLetters = stemLetters.filter((l) => !hasLetter(l));
     if (missingLetters.length > 0 && missingLetters.length < stemLetters.length)
       v.push({
