@@ -518,6 +518,7 @@ ${ctx.sourcingGuide}
 ${ctx.wineCompositionAnalysis}
 
 ## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper} — match this voice exactly)
+Match the VOICE and structure, NOT the mark values: several examples predate the modern mark shape, and older papers used identification parts worth 13-15+ marks that are now illegal — your marks must follow the IDENTIFICATION MARK BUDGET above (no identification part over 10 marks per instance, ever, even where an example below shows one).
 ${exampleText}
 
 ${(() => {
@@ -632,7 +633,7 @@ Every wine in the question MUST receive exactly 25 marks total across all sub-qu
 - 5-wine question = 125 marks total
 - 6-wine question = 150 marks total
 
-Some marks may be allocated to "all wines" sub-questions (e.g., "Identify the country of origin" worth 15 marks shared across the flight). Divide these equally across wines when calculating. The per-wine total must still equal 25.
+Some marks may be allocated to "all wines" sub-questions (e.g., "Identify the country of origin" worth 10 marks shared across the flight — never more; see the identification mark budget below). Divide these equally across wines when calculating. The per-wine total must still equal 25.
 
 ## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
 **THE TOTAL IS FIXED: exactly 25 marks per wine.** This ${targetFlightSize}-wine question is worth EXACTLY **${targetFlightSize * 25} marks**. Before you output, ADD UP every printed sub-question mark value and confirm the sum is EXACTLY ${targetFlightSize * 25} — a question whose printed marks do not total ${targetFlightSize * 25} is automatically rejected. Do the arithmetic; do not estimate.
@@ -651,6 +652,22 @@ Typical per-wine mark ranges for written sub-questions:
 - Commercial position: 5-10 marks
 - Style: 5-10 marks (often combined with quality)
 
+## IDENTIFICATION MARK BUDGET (non-negotiable — a blocking validator auto-rejects every violation)
+Three rules govern every lettered sub-part that asks the candidate to identify the grape variety, country, region or any other origin attribute. They are enforced verbatim by a hard validator; a draft breaking any one is rejected and costs a full redraft.
+1. **No single identification sub-part may carry more than 10 marks per instance.** The per-wine multiplier counts as the per-wine value: "(4 x 10 marks)" is legal (10 per wine); "(13 marks)" on one identification part is illegal — including a flat, flight-wide part.
+2. **Never bundle two or more origin attributes into one sub-part.** If an identification part asks for more than one attribute (e.g. "Identify the grape variety and country of origin"), split it into separate lettered parts, each individually within the 10-mark cap.
+3. **Put each attribute where it varies.** An attribute the stem states as shared belongs in the flight-wide "With reference to all N wines:" part. An attribute that varies across the flight — typically region when the stem fixes the country, or origin when only the variety is shared — is asked per-wine under "For each wine:", never bundled into the shared part.
+
+WORKED LEGAL SHAPE (same-variety flight of 2 — shared variety flight-wide, varying origin per-wine, every part within cap):
+With reference to both wines:
+a) Identify the grape variety. (10 marks)
+For each wine:
+b) Identify the origin as closely as possible. (2 x 8 marks)
+
+WORKED ILLEGAL SHAPES (each is auto-rejected — do not emit them):
+- "a) Identify the country of origin. (13 marks)" — 13 marks on a single identification part breaches the 10-mark cap.
+- "a) Identify the grape variety and country of origin. (15 marks)" — bundles two attributes into one 15-mark part; write "a) Identify the grape variety. (8 marks)" and "b) Identify the country of origin. (8 marks)" instead.
+
 **CURVEBALL FLIGHTS SHIFT MARKS OFF IDENTIFICATION.** When the flight is curveball-heavy (obscure varieties or origins few candidates could name), the real exam does not stake 10 marks per wine on identification the examiner knows will mostly fail — it drops identification to ~5-6 marks per wine (sometimes skipping the variety ask entirely) and moves the weight onto style, method of production and quality, which a strong candidate CAN earn on an unfamiliar wine. Reviewer-attested pattern (2026-08 review corpus): a mostly-curveball flight carrying 10/25 per wine on identification reads as unrealistic and gets binned. Banker-anchored flights keep the normal 8-15 identification weighting.
 
 ## SHARED-ATTRIBUTE SCAFFOLDING (same-variety / same-country / same-region flights — violation = automatic failure)
@@ -664,7 +681,7 @@ c) Comment on quality and commercial position. (2 x 7 marks)
 
 - The shared part carries a FLAT mark value (no "N x" multiplier); per-wine parts keep the "(N x M marks)" form under a "For each wine:" line.
 - NEVER write "a) Identify the grape variety and region of origin. (2 x 10 marks)" on a same-variety flight — that pays the candidate twice for one shared answer. No real stem does this, and a blocking validator rejects it.
-- If you combine the shared attribute with per-wine asks in one part, the whole part must be flight-wide with a flat mark (real example: "For both wines: a) Identify the country of origin and grape variety. (25 marks)").
+- Do NOT combine the shared attribute with per-wine attributes in one part. The historical corpus occasionally did ("For both wines: a) Identify the country of origin and grape variety. (25 marks)") but a single 25-mark identification part breaches the 10-mark cap above and is auto-rejected — keep the shared attribute in its own flat part and ask the varying attributes per-wine.
 - Marks must still total 25 per wine — the flat shared marks divide equally across the flight.
 
 ## ASKS THE EXAM NEVER MAKES (reviewer-binned phrasings — do not use)

@@ -60,6 +60,50 @@ f) Comment on the style, method of production and quality of each wine. (75 mark
   });
 });
 
+// Two banker wines (Sancerre + Marlborough Sauvignon) → 0 curveballs → the 50% share cap never
+// fires at these totals, so these cases isolate the per-part cap.
+const TWO_BANKERS: AuditWine[] = [
+  { slot: 1, varieties: ["Sauvignon Blanc"], region: "Sancerre", country: "France" },
+  { slot: 2, varieties: ["Sauvignon Blanc"], region: "Marlborough", country: "New Zealand" },
+];
+
+describe("idMarkAllocationViolations — bundled attributes and the per-part cap (bin-fix proposal 9)", () => {
+  // The exact shape from the 2026-08 bin pair (byte-identical stems, both quoting this validator).
+  it("rejects a 13-mark 'Identify the country' part — the multiplier-free bin case", () => {
+    const text = `Wines 1 and 2 are made from the same single grape variety.
+a) Identify the country of origin. (13 marks)
+b) Comment on the style, method of production and quality of each wine. (2 x 18 marks)
+c) Identify the grape variety. (1 marks)`;
+    const v = idMarkAllocationViolations(q(text, TWO_BANKERS, 50));
+    expect(v.some((x) => x.rule === "id-mark-allocation" && x.severity === "hard")).toBe(true);
+    expect(v.find((x) => x.rule === "id-mark-allocation")!.detail).toMatch(/13 marks/);
+  });
+
+  it("rejects a bundled 'grape variety and country of origin' part at 15 marks", () => {
+    const text = `Wines 1 and 2 are dry white wines.
+a) Identify the grape variety and country of origin. (15 marks)
+b) Comment on the style, method of production and quality of each wine. (2 x 17 marks)`;
+    const v = idMarkAllocationViolations(q(text, TWO_BANKERS, 50));
+    expect(v.some((x) => x.rule === "id-mark-allocation" && x.severity === "hard")).toBe(true);
+    expect(v.find((x) => x.rule === "id-mark-allocation")!.detail).toMatch(/15 marks/);
+  });
+
+  it("passes the same content split into two 8-mark parts", () => {
+    const text = `Wines 1 and 2 are dry white wines.
+a) Identify the grape variety. (8 marks)
+b) Identify the country of origin. (8 marks)
+c) Comment on the style, method of production and quality of each wine. (2 x 17 marks)`;
+    expect(idMarkAllocationViolations(q(text, TWO_BANKERS, 50))).toEqual([]);
+  });
+
+  it("treats the per-wine multiplier as the per-wine value — '(2 x 10 marks)' is legal", () => {
+    const text = `Wines 1 and 2 are dry white wines.
+a) Identify the grape variety and origin of each wine as closely as possible. (2 x 10 marks)
+b) Comment on the style, method of production and quality of each wine. (2 x 15 marks)`;
+    expect(idMarkAllocationViolations(q(text, TWO_BANKERS, 50))).toEqual([]);
+  });
+});
+
 describe("idMarkAllocationViolations — single-part cap", () => {
   it("rejects a two-wine question with a single 20-mark 'identify the grape variety' part", () => {
     const text = `Wines 1 and 2 are made from the same single grape variety, from different countries.
