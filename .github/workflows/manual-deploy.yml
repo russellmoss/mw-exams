@@ -30,6 +30,13 @@ name: manual-deploy
 # outages (see CLAUDE.md, "Only PRODUCTION deploys migrate the database"). Building server-side
 # keeps migrations where they belong: in a real production deploy, with VERCEL_ENV=production and
 # the real, decrypted DATABASE_URL.
+#
+# That fix was in fact attempted (f505698, reverted here) — it substituted the repo's DATABASE_URL
+# Actions secret into the pulled env file. Beyond the hazard above, it gets the ORDERING wrong in
+# the one situation this workflow exists for. Local build migrates production first, THEN uploads;
+# so when the upload is refused — quota exhaustion, the very thing that starves auto-deploy — the
+# database has moved and the code has not. Server-side, a refused deploy never builds, so nothing
+# migrates: schema and code land together or not at all.
 
 on:
   workflow_dispatch:
