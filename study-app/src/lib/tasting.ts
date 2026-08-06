@@ -105,7 +105,7 @@ export async function generateSanitizedTastingNotes(opts: {
     // Thinking config only when someone is watching, only on models that accept it, and only while
     // the admin reasoning toggle is on. max_tokens caps thinking + notes together, so it grows with
     // the extra reasoning budget.
-    const extra = emit ? await resolveThinking(model) : {};
+    const extra = emit ? await resolveThinking(model, "low", userId) : {};
     const thinkingOn = Object.keys(extra).length > 0;
     const params = {
       model,

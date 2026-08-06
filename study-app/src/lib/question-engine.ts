@@ -667,12 +667,14 @@ async function callGenerationModel(
   model: string,
   prompt: { system: string; user: string },
   callOpts: { timeout: number; maxRetries: number },
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  userId?: number | null
 ) {
-  // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
-  // Note this governs only whether the reasoning is VISIBLE; it does not control whether it happens.
-  // When it does return params it carries GENERATION_EFFORT with them.
-  const extra = emit ? await resolveThinking(model, GENERATION_EFFORT) : {};
+  // `{}` when the model can't take adaptive thinking, when an admin has switched reasoning off, or
+  // when THIS user's reasoning default is off (their onboarding cost choice — those thinking tokens
+  // bill to their own key). Note this governs only whether the reasoning is VISIBLE; it does not
+  // control whether it happens. When it does return params it carries GENERATION_EFFORT with them.
+  const extra = emit ? await resolveThinking(model, GENERATION_EFFORT, userId) : {};
   // Effort has to be applied whether or not the reasoning is VISIBLE, so this cannot key on `emit`:
   // resolveThinking returns `{}` when the admin reasoning toggle is off, and without this the
   // streaming path would silently fall back to the API default (`high`) — a measured 164s call — the
@@ -1199,7 +1201,7 @@ ${repairContext.draft}`,
       label: attempt === 1 ? "Drafting the flight…" : `Redrafting the flight (attempt ${attempt})…`,
     });
     try {
-      message = await callGenerationModel(client, model, attemptPrompt, callOpts, emit);
+      message = await callGenerationModel(client, model, attemptPrompt, callOpts, emit, meta?.userId);
       callMs = Date.now() - t0;
       logClaudeUsage(
         { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId,
@@ -1231,7 +1233,7 @@ ${repairContext.draft}`,
         const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
         const tRetry = Date.now();
         try {
-          message = await callGenerationModel(client, "claude-sonnet-4-6", attemptPrompt, fallbackOpts, emit);
+          message = await callGenerationModel(client, "claude-sonnet-4-6", attemptPrompt, fallbackOpts, emit, meta?.userId);
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
           callMs = Date.now() - tRetry;

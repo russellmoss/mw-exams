@@ -111,7 +111,8 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Registration failed"); setSubmitting(false); return; }
-      window.location.href = "/";
+      // New accounts pick their study defaults (banked vs fresh, reasoning stream) before landing.
+      window.location.href = "/onboarding";
     } catch {
       setError("Network error. Please try again.");
       setSubmitting(false);

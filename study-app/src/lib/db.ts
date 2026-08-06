@@ -167,6 +167,32 @@ export async function setUserStemDetailDefault(userId: number, level: string): P
   await sql`UPDATE users SET stem_detail_default = ${level} WHERE id = ${userId}`;
 }
 
+// Study defaults (migration 047): the onboarding-screen choices. questionSource picks which acquire
+// path the study flow leads with ('banked' is free, 'fresh' generates on the user's key);
+// reasoningStream is the per-user visible-reasoning switch consumed by lib/thinking-stream.ts.
+export type StudyDefaults = { questionSource: "banked" | "fresh"; reasoningStream: boolean };
+
+export async function getUserStudyDefaults(userId: number): Promise<StudyDefaults> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT question_source_default, reasoning_stream_default FROM users WHERE id = ${userId}
+  `;
+  return {
+    questionSource: rows[0]?.question_source_default === "banked" ? "banked" : "fresh",
+    reasoningStream: rows[0]?.reasoning_stream_default !== false,
+  };
+}
+
+export async function setUserStudyDefaults(userId: number, d: StudyDefaults): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users
+    SET question_source_default = ${d.questionSource},
+        reasoning_stream_default = ${d.reasoningStream}
+    WHERE id = ${userId}
+  `;
+}
+
 // Pace (migration 021): per-user default pace + Speed Notes length. Falls back to the system
 // default (Exam Pace / 8 min) for legacy rows or unrecognised values.
 export async function getUserPacePreference(userId: number): Promise<PacePreference> {
