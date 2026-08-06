@@ -154,7 +154,7 @@ def main() -> None:
     for cid, v in verdicts.items():
         by_answer.setdefault(queue[cid]["answer_id"], []).append({**v, "_q": queue[cid]})
 
-    applied = skipped = 0
+    applied = skipped = already = 0
     unmatched: list[str] = []
     collided: list[tuple[str, str]] = []
     touched: list[str] = []
@@ -177,6 +177,13 @@ def main() -> None:
         edits: list[tuple[int, int, str, str]] = []
         for r in rows:
             if r["verdict"] not in CORRECTABLE:
+                continue
+            # Idempotence: once a correction has been applied and committed, its original
+            # claim text no longer exists in the body. That is success, not failure — so
+            # check for the REPLACEMENT before reporting a miss, or every re-run floods the
+            # output with false alarms for work already done.
+            if norm(r["corrected_sentence"]) in norm(body):
+                already += 1
                 continue
             target = norm(r["_q"]["claim"])
             sent = find_sentence_containing(body, target) if target else None
@@ -291,6 +298,7 @@ def main() -> None:
         "coverage_pct": round(100 * len(verdicts) / max(len(queue), 1), 1),
         "verdicts": dict(counts),
         "corrections_applied": applied,
+        "corrections_already_present": already,
         "corrections_unmatched": unmatched,
         "corrections_collided": [list(c) for c in collided],
         "downgraded_malformed": [list(d) for d in downgraded],
@@ -321,6 +329,8 @@ def main() -> None:
         if counts.get(k):
             print(f"     {counts[k]:4d}  {k}")
     print(f"OK: {applied} correction(s) applied to {len(touched)} answer(s)")
+    if already:
+        print(f"OK: {already} correction(s) already present from an earlier run (idempotent)")
     if unmatched:
         print(f"WARN: {len(unmatched)} correction(s) could not be located verbatim and were "
               f"NOT applied — fix by hand: {', '.join(unmatched[:8])}")
