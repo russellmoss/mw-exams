@@ -25,6 +25,7 @@ export const AB_TASKS: { task: string; label: string; defaultTier: ModelTier }[]
   { task: "reasoning_grading", label: "Pre-glass grading", defaultTier: "opus" },
   { task: "full_debrief", label: "Full debrief grading", defaultTier: "opus" },
   { task: "answer_grading", label: "Answer grading", defaultTier: "sonnet" },
+  { task: "theory_grading", label: "Theory essay grading", defaultTier: "sonnet" },
   { task: "tasting_generation", label: "Tasting notes", defaultTier: "sonnet" },
   { task: "wine_enrichment", label: "Wine enrichment", defaultTier: "sonnet" },
   { task: "question_appearance", label: "P3 appearance notes", defaultTier: "sonnet" },
