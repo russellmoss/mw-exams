@@ -1858,6 +1858,7 @@ export async function getRecentBinReasons(
     WHERE paper = ${paper}
       AND (reason_tags IS NOT NULL OR reason_note IS NOT NULL)
       AND (check_verdict IS NULL OR check_verdict <> 'invalid')
+      AND codified_by IS NULL
     ORDER BY binned_at DESC
     LIMIT ${limit}
   `) as { reason_tags: string[] | null; reason_note: string | null; binned_at: string }[];
@@ -2005,6 +2006,7 @@ export async function getRecentBinReasonRows(
     FROM bank_bin_reasons
     WHERE (reason_tags IS NOT NULL OR reason_note IS NOT NULL)
       AND (check_verdict IS NULL OR check_verdict <> 'invalid')
+      AND codified_by IS NULL
     ORDER BY binned_at DESC
     LIMIT ${limit}
   `) as { reason_tags: string[] | null; reason_note: string | null; paper: number }[];
@@ -2071,6 +2073,161 @@ export async function upholdBinReason(itemId: string): Promise<boolean> {
     RETURNING item_id
   `;
   return rows.length > 0;
+}
+
+// ── Bin root-cause miner + codify-and-retire (migration 042) ─────────────────────────────────────
+
+// Ledger rows the miner may cluster: reasoned, not challenged-invalid, not already codified into a
+// shipped fix. Joined to the (soft-deleted) question row for the stem so clusters can be grounded.
+export async function getBinRowsForMining(
+  limit = 150
+): Promise<{ itemId: string; paper: number; tags: string[]; note: string | null; stem: string | null; binnedAt: string }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT b.item_id, b.paper, b.reason_tags, b.reason_note, b.binned_at, g.question_text
+    FROM bank_bin_reasons b
+    LEFT JOIN generated_questions g ON g.question_id = b.item_id
+    WHERE (b.reason_tags IS NOT NULL OR b.reason_note IS NOT NULL)
+      AND (b.check_verdict IS NULL OR b.check_verdict <> 'invalid')
+      AND b.codified_by IS NULL
+    ORDER BY b.binned_at DESC
+    LIMIT ${limit}
+  `) as {
+    item_id: string;
+    paper: number;
+    reason_tags: string[] | null;
+    reason_note: string | null;
+    binned_at: string;
+    question_text: string | null;
+  }[];
+  return rows.map((r) => ({
+    itemId: r.item_id,
+    paper: r.paper,
+    tags: Array.isArray(r.reason_tags) ? r.reason_tags : [],
+    note: r.reason_note ?? null,
+    stem: r.question_text ?? null,
+    binnedAt: r.binned_at,
+  }));
+}
+
+export interface BinFixProposal {
+  id: number;
+  theme: string;
+  kind: string;
+  paper: number | null;
+  evidenceItemIds: string[];
+  proposal: string;
+  status: string;
+  workBranch: string | null;
+  prUrl: string | null;
+  applyError: string | null;
+  retiredAt: string | null;
+  createdAt: string;
+}
+
+function mapBinFixProposal(r: Record<string, unknown>): BinFixProposal {
+  return {
+    id: r.id as number,
+    theme: r.theme as string,
+    kind: r.kind as string,
+    paper: (r.paper as number | null) ?? null,
+    evidenceItemIds: Array.isArray(r.evidence_item_ids) ? (r.evidence_item_ids as string[]) : [],
+    proposal: r.proposal as string,
+    status: r.status as string,
+    workBranch: (r.work_branch as string | null) ?? null,
+    prUrl: (r.pr_url as string | null) ?? null,
+    applyError: (r.apply_error as string | null) ?? null,
+    retiredAt: (r.retired_at as string | null) ?? null,
+    createdAt: r.created_at as string,
+  };
+}
+
+export async function getBinFixProposals(limit = 50): Promise<BinFixProposal[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT * FROM bin_fix_proposals ORDER BY created_at DESC LIMIT ${limit}
+  `) as Record<string, unknown>[];
+  return rows.map(mapBinFixProposal);
+}
+
+export async function getBinFixProposal(id: number): Promise<BinFixProposal | null> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT * FROM bin_fix_proposals WHERE id = ${id}
+  `) as Record<string, unknown>[];
+  return rows[0] ? mapBinFixProposal(rows[0]) : null;
+}
+
+export async function insertBinFixProposal(p: {
+  theme: string;
+  kind: string;
+  paper: number | null;
+  evidenceItemIds: string[];
+  proposal: string;
+}): Promise<BinFixProposal> {
+  const sql = getDb();
+  const rows = (await sql`
+    INSERT INTO bin_fix_proposals (theme, kind, paper, evidence_item_ids, proposal)
+    VALUES (${p.theme}, ${p.kind}, ${p.paper}, ${p.evidenceItemIds}, ${p.proposal})
+    RETURNING *
+  `) as Record<string, unknown>[];
+  return mapBinFixProposal(rows[0]);
+}
+
+// Status transitions are SCOPED to the states they may leave from, so a replayed click or a stale
+// reconcile can't drag a proposal backwards (e.g. shipped → dispatched).
+export async function markBinFixDispatched(
+  id: number,
+  workBranch: string,
+  decidedBy: number
+): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bin_fix_proposals SET
+      status = 'dispatched', work_branch = ${workBranch}, decided_by = ${decidedBy}, updated_at = NOW()
+    WHERE id = ${id} AND status IN ('proposed', 'failed', 'pr_closed')
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+export async function markBinFixRejected(id: number, decidedBy: number): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bin_fix_proposals SET status = 'rejected', decided_by = ${decidedBy}, updated_at = NOW()
+    WHERE id = ${id} AND status = 'proposed'
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+export async function markBinFixPrState(id: number, state: "merged" | "pr_closed"): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE bin_fix_proposals SET status = ${state}, updated_at = NOW()
+    WHERE id = ${id} AND status IN ('dispatched', 'pr_opened')
+  `;
+}
+
+// Codify-and-retire: the fix is merged, so the cluster's ledger rows leave the digest/lessons
+// prompt feeds permanently and the proposal closes as 'shipped'. Idempotent — a re-run finds
+// status already 'shipped' and does nothing.
+export async function retireBinFixEvidence(id: number): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bin_fix_proposals SET status = 'shipped', retired_at = NOW(), updated_at = NOW()
+    WHERE id = ${id} AND status = 'merged'
+    RETURNING evidence_item_ids
+  `;
+  if (rows.length === 0) return 0;
+  const evidence = (rows[0].evidence_item_ids as string[]) ?? [];
+  if (evidence.length === 0) return 0;
+  const retired = await sql`
+    UPDATE bank_bin_reasons SET codified_by = ${id}
+    WHERE item_id = ANY(${evidence}) AND codified_by IS NULL
+    RETURNING item_id
+  `;
+  return retired.length;
 }
 
 // ── "Why wines get binned" (spec: learning loop) ─────────────────────────────────────────────────

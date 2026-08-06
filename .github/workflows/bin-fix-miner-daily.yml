@@ -1,0 +1,72 @@
+name: bin-fix-miner-daily
+
+# Daily heartbeat of the bin codify-and-retire loop (migration 042), run from GitHub Actions rather
+# than Vercel Cron (the Hobby plan's 2-crons-max budget stays with bank-worker — see CLAUDE.md and
+# bank-worker-hourly.yml for the full rationale).
+#
+# WHAT IT DOES: GETs /api/cron/bin-miner, which (1) reconciles in-flight bin-fix PRs against GitHub —
+# a merged fix retires its cluster's bin reasons from the generation-prompt feeds — and (2) mines the
+# live bin-reason ledger for new recurring-fault clusters, storing PR-gated fix proposals for the
+# admin. Both steps are idempotent; a day with nothing to do is a green no-op run.
+#
+# SETUP: CRON_SECRET must exist in BOTH this repo's Actions secrets and the Vercel project env
+# (Production) with the same value; mining additionally needs ANTHROPIC_API_KEY in the Vercel env
+# (already required by the feedback sweeper).
+
+on:
+  schedule:
+    # Daily 07:10 UTC — after question-audit-daily (06:40) so the ledger the miner reads is post-audit.
+    - cron: "10 7 * * *"
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+# Nothing in this workflow touches the repo.
+permissions: {}
+
+concurrency:
+  group: bin-fix-miner-daily
+  cancel-in-progress: false
+
+jobs:
+  mine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Reconcile fix PRs + mine bin-reason clusters
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL || 'https://study-app-blond-nine.vercel.app' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET is not set in this repository's Actions secrets. Add it there AND in the Vercel project env (Production) with the same value, then re-run."
+            exit 1
+          fi
+
+          BODY="$(mktemp)"
+          # The route declares maxDuration = 300s; allow a little headroom past that.
+          CODE="$(curl -sS -o "$BODY" -w '%{http_code}' --max-time 330 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/bin-miner")" || CODE="000"
+
+          echo "HTTP $CODE"
+          # Response is {ok, reconciled, mining} or {error} — no secrets, safe to log.
+          cat "$BODY"; echo
+
+          case "$CODE" in
+            2*)
+              exit 0
+              ;;
+            401)
+              echo "::error::401 from /api/cron/bin-miner. The CRON_SECRET in this repo's Actions secrets does not match the one in the Vercel project env (or Vercel has none set at all)."
+              exit 1
+              ;;
+            000)
+              echo "::error::No response from $APP_URL within 330s — the app is down, or mining exceeded the route's 300s budget."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected HTTP $CODE from /api/cron/bin-miner."
+              exit 1
+              ;;
+          esac

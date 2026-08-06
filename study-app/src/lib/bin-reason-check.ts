@@ -39,11 +39,14 @@ export function binReasonFingerprint(tags: string[] | null, note: string | null)
   return JSON.stringify([[...(tags ?? [])].sort(), (note ?? "").trim()]);
 }
 
-// Parse the strict first-line verdict; anything malformed degrades to 'uncertain' (which feeds
-// forward, i.e. behaves exactly like today) rather than ever fabricating a challenge.
+// Parse the verdict line; anything malformed degrades to 'uncertain' (which feeds forward, i.e.
+// behaves exactly like today) rather than ever fabricating a challenge. The verdict is emitted LAST
+// (after the reasoning — a verdict-first format produced a stamp that contradicted its own
+// analysis), so when several matches exist the final one is authoritative.
 export function parseBinReasonVerdict(text: string): "valid" | "invalid" | "uncertain" {
-  const m = text.match(/verdict:\s*\**(valid|invalid|uncertain)\**/i);
-  return (m?.[1]?.toLowerCase() as "valid" | "invalid" | "uncertain") ?? "uncertain";
+  const matches = [...text.matchAll(/verdict:\s*\**(valid|invalid|uncertain)\**/gi)];
+  const last = matches[matches.length - 1];
+  return (last?.[1]?.toLowerCase() as "valid" | "invalid" | "uncertain") ?? "uncertain";
 }
 
 export async function runBinReasonCheck(opts: {
@@ -130,7 +133,7 @@ export async function runBinReasonCheck(opts: {
       .join("")
       .trim();
     const verdict = parseBinReasonVerdict(text);
-    const analysis = text.replace(/^\s*verdict:.*$/im, "").trim().slice(0, 4000);
+    const analysis = text.replace(/^\s*verdict:.*$/gim, "").trim().slice(0, 4000);
 
     // Guard against a chip tap that changed the reason while this check was in flight: only store a
     // verdict for the exact (tags, note) it was computed on. A superseding reason arrives with its

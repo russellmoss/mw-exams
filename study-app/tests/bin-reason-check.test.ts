@@ -37,6 +37,15 @@ describe("parseBinReasonVerdict", () => {
     expect(parseBinReasonVerdict("The reason seems wrong to me.")).toBe("uncertain");
     expect(parseBinReasonVerdict("")).toBe("uncertain");
   });
+
+  it("takes the LAST verdict when several appear (verdict-last format is authoritative)", () => {
+    // The verdict is emitted after the reasoning; an earlier echo of the format must not win.
+    expect(
+      parseBinReasonVerdict(
+        "The format asks for Verdict: VALID or invalid.\nThe claim fails against 2019 P3.\nVerdict: INVALID"
+      )
+    ).toBe("invalid");
+  });
 });
 
 describe("buildBinReasonCheckPrompt", () => {

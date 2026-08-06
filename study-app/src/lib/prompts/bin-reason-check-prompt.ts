@@ -80,10 +80,12 @@ respectful pushback card; it never reverses their decision.
   applies to this question.
 
 ## Output format (STRICT)
-First line exactly: \`Verdict: VALID\` or \`Verdict: INVALID\` or \`Verdict: UNCERTAIN\`
-Then a blank line, then 2–5 sentences of plain-language analysis. Cite real past exams by
-year/paper/question where they carry the argument. No markdown headings, no internal codes or file
-paths — the admin reads this text verbatim.
+First 2–5 sentences of plain-language analysis. Cite real past exams by year/paper/question where
+they carry the argument. No markdown headings, no internal codes or file paths — the admin reads
+this text verbatim. Then, on the FINAL line, after the analysis, exactly one of:
+\`Verdict: VALID\` or \`Verdict: INVALID\` or \`Verdict: UNCERTAIN\`
+The verdict comes LAST so it follows from the reasoning — it must agree with the analysis's
+conclusion.
 
 ## Reference Data
 ${params.empiricalKnowledge ? `### Accumulated Empirical Knowledge (evidence-cited rulings and rules)

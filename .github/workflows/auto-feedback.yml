@@ -47,6 +47,9 @@ jobs:
     env:
       ATTEMPT_ID: ${{ github.event.client_payload.attemptId }}
       ANALYSIS_ID: ${{ github.event.client_payload.analysisId }}
+      # Set (instead of ANALYSIS_ID) when the dispatch came from the bin-fix miner: results are
+      # recorded to bin_fix_proposals, and the feedback-only steps (EK sync) skip on empty ANALYSIS_ID.
+      BIN_PROPOSAL_ID: ${{ github.event.client_payload.binProposalId }}
       WORK_BRANCH: ${{ github.event.client_payload.workBranch }}
       APPLIED_BY: ${{ github.event.client_payload.appliedBy }}
       ALLOWED_PATHS: ${{ github.event.client_payload.allowedPaths }}
@@ -377,8 +380,13 @@ jobs:
             echo "master and production were **not** touched."
           } > /tmp/af/pr-body.md
           cat /tmp/af/pr-body.md
+          if [ -n "${BIN_PROPOSAL_ID:-}" ]; then
+            PR_TITLE="[bin-fix] proposal ${BIN_PROPOSAL_ID}: needs review"
+          else
+            PR_TITLE="[auto-feedback] attempt ${ATTEMPT_ID}: needs review"
+          fi
           PR_URL=$(gh pr create --base master --head "$WORK_BRANCH" \
-            --title "[auto-feedback] attempt ${ATTEMPT_ID}: needs review" \
+            --title "$PR_TITLE" \
             --body-file /tmp/af/pr-body.md 2>&1) || true
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
           echo "$PR_URL"
