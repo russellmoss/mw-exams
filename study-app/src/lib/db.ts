@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { BUNDLED_TASTING_LEXICON, type TastingLexicon } from "./prompts/tasting-lexicon";
-import { classifyP3Category } from "./p3-category.mjs";
+import { classifyP3Category, classifyWineStyle } from "./p3-category.mjs";
+import { detectPrimaryVariety } from "./question-rules.mjs";
 import {
   deriveQuestionType,
   deriveCurveball,
@@ -622,6 +623,187 @@ export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQ
     ORDER BY created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
+}
+
+// ── Duplicate-wine cooldown + flight-signature dedup ─────────────────────────────────────────────
+//
+// Feedback (recurring bin cluster "same wine reused across recently generated questions"): the
+// generator kept re-serving the same specific bottle — and the same (region, variety, style) flight
+// SHAPE — within a short window of one paper's questions. Two guards close that, both keyed off a
+// cheap created_at-ordered read of the paper's most recent rows:
+//
+//   1. EXACT-WINE cooldown  — a specific bottle may not reappear inside the last RECENT_WINE_WINDOW
+//      questions for a paper (getRecentWineIds).
+//   2. FLIGHT-SIGNATURE dedup — the sorted SET of (region, variety, style) triples may not match any
+//      of the last RECENT_FLIGHT_WINDOW questions (getRecentFlightSignatures). This catches the
+//      admin's "rated vs non-rated white Burgundy again" and same-region/same-variety repeats even
+//      when the exact bottles differ.
+//
+// The signature is persisted on each row's metadata at save time (metadata.flightSignature), so the
+// lookup is a read of a stored value rather than a re-derivation — with a compute-on-the-fly fallback
+// for rows generated before this feature.
+
+export const RECENT_WINE_WINDOW = 20;
+export const RECENT_FLIGHT_WINDOW = 50;
+
+function normLowerText(s: string): string {
+  return (s || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[''`]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Specific place tokens, most-specific first, so "meursault" wins over the "burgundy" umbrella. Kept
+// as plain substrings matched against the normalised descriptor — a wine descriptor in this codebase
+// names its appellation/region in full, so this is enough to fingerprint the flight's SHAPE. Anything
+// not on the list falls back to the country (detectCountryToken), which still groups a same-country
+// same-variety repeat without ever inventing a finer distinction than the text supports.
+const REGION_KEYWORDS: string[] = [
+  // Burgundy — specific appellations before the umbrella term
+  "puligny-montrachet", "chassagne-montrachet", "gevrey-chambertin", "nuits-saint-georges",
+  "pouilly-fuisse", "meursault", "chablis", "macon", "cote de beaune", "cote de nuits",
+  "cote d'or", "bourgogne", "burgundy",
+  // Loire
+  "pouilly-fume", "sancerre", "vouvray", "chinon", "bourgueil", "muscadet", "savennieres",
+  // Bordeaux & SW France
+  "sauternes", "barsac", "pomerol", "saint-emilion", "pessac-leognan", "pauillac", "margaux",
+  "saint-julien", "medoc", "graves", "bordeaux", "madiran", "cahors",
+  // Champagne / Alsace / Beaujolais / Jura
+  "champagne", "alsace", "beaujolais", "jura", "arbois", "chateau-chalon",
+  // Rhone
+  "chateauneuf-du-pape", "cote-rotie", "cote rotie", "crozes-hermitage", "hermitage", "cornas",
+  "condrieu", "gigondas", "vacqueyras", "rhone",
+  // Spain
+  "rioja", "ribera del duero", "priorat", "rias baixas", "rueda", "toro", "jerez", "montilla",
+  // Portugal
+  "douro", "dao", "bairrada", "vinho verde", "madeira", "porto", "setubal",
+  // Italy
+  "barolo", "barbaresco", "brunello di montalcino", "montalcino", "chianti", "bolgheri",
+  "amarone", "valpolicella", "soave", "etna", "piedmont", "piemonte", "tuscany", "toscana", "veneto",
+  // Germany / Austria
+  "mosel", "rheingau", "rheinhessen", "pfalz", "nahe", "wachau", "kamptal", "kremstal", "burgenland",
+  // Greece / Hungary
+  "santorini", "nemea", "naoussa", "tokaj", "tokaji",
+  // Australia
+  "barossa", "mclaren vale", "clare valley", "eden valley", "hunter valley", "yarra valley",
+  "margaret river", "coonawarra", "adelaide hills", "rutherglen", "tasmania",
+  // New Zealand
+  "marlborough", "central otago", "hawke's bay", "martinborough",
+  // USA
+  "napa", "sonoma", "russian river", "willamette", "santa barbara", "paso robles", "finger lakes",
+  // South America
+  "mendoza", "uco valley", "maipo", "colchagua", "casablanca",
+  // South Africa
+  "stellenbosch", "swartland", "hemel-en-aarde", "constantia", "franschhoek",
+];
+
+const COUNTRY_KEYWORDS: string[] = [
+  "south africa", "new zealand", "united states", "usa", "france", "italy", "spain", "portugal",
+  "germany", "austria", "greece", "hungary", "australia", "argentina", "chile", "canada", "england",
+  "georgia", "lebanon", "switzerland", "croatia", "slovenia", "israel",
+];
+
+function detectCountryToken(t: string): string {
+  for (const c of COUNTRY_KEYWORDS) {
+    if (t.includes(c)) return c === "united states" ? "usa" : c;
+  }
+  return "unknown";
+}
+
+// The region component of a wine's signature triple: the most specific place named in the descriptor,
+// falling back to its country, then "unknown".
+export function wineRegionToken(fullText: string): string {
+  const t = normLowerText(fullText);
+  for (const k of REGION_KEYWORDS) {
+    if (t.includes(k)) return k;
+  }
+  return detectCountryToken(t);
+}
+
+// Reduce a wine descriptor to a stable identity for the exact-wine cooldown: strip diacritics, the
+// vintage year and the ABV parenthetical, and collapse punctuation, so "Domaine X, 2019. …" and the
+// 2020 of the same bottle read as ONE wine.
+export function wineCooldownId(fullText: string): string {
+  return (fullText || "")
+    .toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/\(\s*\d+(?:\.\d+)?\s*%\s*\)/g, " ")
+    .replace(/\b(?:19|20)\d{2}\b/g, " ")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// The (region, variety, style) triple for a single wine.
+export function wineSignatureTriple(fullText: string): string {
+  const region = wineRegionToken(fullText);
+  const variety = detectPrimaryVariety(fullText) || "unknown";
+  const style = classifyWineStyle(fullText).style || "other";
+  return `${region}|${variety}|${style}`;
+}
+
+// The flight signature: the SORTED SET of its wines' (region, variety, style) triples, joined. Two
+// flights with the same set of triples share a signature even when the exact bottles differ.
+export function flightSignature(wines: { fullText: string }[] | null | undefined): string {
+  const set = new Set((wines || []).filter((w) => w && w.fullText).map((w) => wineSignatureTriple(w.fullText)));
+  return [...set].sort().join("; ");
+}
+
+function parseWinesLoose(raw: unknown): { fullText: string }[] {
+  const wines = typeof raw === "string" ? (() => { try { return JSON.parse(raw); } catch { return null; } })() : raw;
+  return Array.isArray(wines) ? (wines as { fullText: string }[]) : [];
+}
+
+// The set of wine identities used across the last `limit` questions for a paper — the exact-wine
+// cooldown pool. scope='pool' only; ordered by recency so it is the paper's freshest window.
+export async function getRecentWineIds(paper: number, limit = RECENT_WINE_WINDOW): Promise<Set<string>> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `) as { wines: unknown }[];
+  const ids = new Set<string>();
+  for (const r of rows) {
+    for (const w of parseWinesLoose(r.wines)) {
+      if (w && typeof w.fullText === "string") {
+        const id = wineCooldownId(w.fullText);
+        if (id) ids.add(id);
+      }
+    }
+  }
+  return ids;
+}
+
+// The set of flight signatures over the last `limit` questions for a paper. Prefers the value stored
+// on the row's metadata at generation time; re-derives from the wines for any older row that has none.
+export async function getRecentFlightSignatures(
+  paper: number,
+  limit = RECENT_FLIGHT_WINDOW
+): Promise<Set<string>> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines, metadata FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `) as { wines: unknown; metadata: Record<string, unknown> | null }[];
+  const sigs = new Set<string>();
+  for (const r of rows) {
+    const stored = r.metadata && typeof r.metadata.flightSignature === "string"
+      ? (r.metadata.flightSignature as string)
+      : null;
+    if (stored) {
+      sigs.add(stored);
+      continue;
+    }
+    const wines = parseWinesLoose(r.wines);
+    if (wines.length > 0) sigs.add(flightSignature(wines));
+  }
+  return sigs;
 }
 
 export async function getUnansweredQuestions(
