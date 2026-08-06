@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  minSameCurrencyPrice,
   normalizeKeyPart,
   availabilityCacheKey,
   wineSearcherLink,
@@ -144,6 +145,21 @@ describe("coerceStockists — LLM output validation", () => {
     expect(coerceStockists(many).length).toBeLessThanOrEqual(8);
     expect(coerceStockists({ not: "an array" })).toEqual([]);
     expect(coerceStockists(undefined)).toEqual([]);
+  });
+});
+
+describe("minSameCurrencyPrice — the snippet-price eviction input (plan §2.2)", () => {
+  const st = (price: number | null, currency: string | null) =>
+    ({ name: "x", kind: "mail" as const, url: "https://x.com", price, currency, confidence: "listed" as const });
+
+  it("returns the cheapest same-currency listed price", () => {
+    expect(minSameCurrencyPrice([st(57.99, "USD"), st(53.99, "USD"), st(45, "EUR")], "USD")).toBe(53.99);
+  });
+
+  it("ignores cross-currency and unpriced rows; null when nothing matches", () => {
+    expect(minSameCurrencyPrice([st(null, "USD"), st(45, "EUR")], "USD")).toBeNull();
+    expect(minSameCurrencyPrice([], "USD")).toBeNull();
+    expect(minSameCurrencyPrice([st(30, "USD")], null)).toBeNull();
   });
 });
 

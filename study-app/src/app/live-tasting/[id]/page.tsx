@@ -12,7 +12,7 @@ import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
 type SlotSummary = { slot: number; stockistCount: number; thin: boolean };
 type SlotAvail = {
   slot: number; label: string; region: string; country: string;
-  stockists: Stockist[]; thin: boolean;
+  stockists: Stockist[]; thin: boolean; overBudget?: boolean;
 };
 type SessionDetail = {
   id: string;
@@ -328,6 +328,11 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                             <span className="text-muted tabular-nums mr-2">#{slot.slot}</span>
                             {slot.label}
                             <span className="text-muted font-normal"> — {slot.region}, {slot.country}</span>
+                            {slot.overBudget && (
+                              <span className="block text-xs text-borderline font-normal mt-0.5">
+                                Listed prices run over your budget — this was the cheapest confirmed option; Replace tries another wine.
+                              </span>
+                            )}
                           </span>
                           <button
                             onClick={() => replaceSlotWine(slot.slot)}

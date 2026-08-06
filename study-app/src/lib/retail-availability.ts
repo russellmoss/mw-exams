@@ -118,6 +118,16 @@ export function mailOrderDomains(country: string): string[] {
   return MAIL_ORDER_DOMAINS[country.trim().toLowerCase()] ?? [];
 }
 
+/** Cheapest concrete listed price among stockists in the given currency, or null when none. */
+export function minSameCurrencyPrice(stockists: Stockist[], currency: string | null | undefined): number | null {
+  if (!currency) return null;
+  const cur = currency.trim().toUpperCase();
+  const prices = stockists
+    .filter((s) => s.price != null && s.price > 0 && (s.currency ?? "") === cur)
+    .map((s) => s.price as number);
+  return prices.length ? Math.min(...prices) : null;
+}
+
 export function confidentCount(stockists: Stockist[]): number {
   return stockists.filter((s) => s.confidence === "listed" || s.confidence === "likely").length;
 }

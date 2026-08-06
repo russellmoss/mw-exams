@@ -192,12 +192,18 @@ async function runSession(paper, label) {
   const session = await dbSession(sessionId);
   const q = await dbWines(session.question_id);
 
-  // 1. Invariants the pipeline promised.
+  // 1. Invariants the pipeline promised. The key is awaited at create time; the model answer
+  // and audit land ASYNC (awaitKeyOnly) — poll up to 3 minutes before judging them missing.
   check(`${label}: question scope`, q?.scope === "live-tasting", `scope=${q?.scope}`);
-  check(`${label}: not quarantined`, q && q.invalid_reasons == null);
   const keyRows = await sql`SELECT validated FROM stem_answer_keys WHERE question_id = ${session.question_id}`;
   check(`${label}: key exists+validated`, keyRows[0]?.validated === true);
-  check(`${label}: model answer present`, (q?.model_answer?.length ?? 0) > 100);
+  let qFresh = q;
+  for (let i = 0; i < 18 && (qFresh?.model_answer?.length ?? 0) <= 100; i++) {
+    await new Promise((r) => setTimeout(r, 10_000));
+    qFresh = await dbWines(session.question_id);
+  }
+  check(`${label}: model answer lands (async)`, (qFresh?.model_answer?.length ?? 0) > 100);
+  check(`${label}: not quarantined (post-audit)`, qFresh && qFresh.invalid_reasons == null);
 
   // 2. Redaction probe on the pre-reveal payload.
   const detailRes = await api(`/api/live-tasting/${sessionId}`);
@@ -254,7 +260,7 @@ async function runSession(paper, label) {
     `You are auditing an auto-generated Master of Wine practice flight for a user in ${CITY}, ${COUNTRY} with a $${BUDGET}/bottle budget. Answer with one JSON object only:
 {"archetype_coherent": true/false, "blind_safe": true/false, "stockists_plausible": true/false, "budget_sane": true/false, "notes": "one sentence per false verdict"}
 - archetype_coherent: is this a coherent MW-style flight (a real pedagogical contrast, not an inventory accident)?
-- blind_safe: does the question stem avoid naming/hinting any producer or cuvée?
+- blind_safe: judge the QUESTION STEM TEXT ALONE. The WINES list below is shown to YOU for context only — the candidate never sees it, so its producer names do NOT make the stem unsafe. Fail this ONLY if the stem text itself contains a producer or cuvée name.
 - stockists_plausible: are these real merchants that plausibly serve that user (PLCB "Fine Wine & Good Spirits", Bucks County / Lambertville NJ / Philadelphia-area shops, national US mail order = plausible; a shop on another continent = not)?
 - budget_sane: do the listed prices (where present) respect the budget?`,
     `QUESTION STEM:\n${q.question_text}\n\nWINES:\n${q.wines.map((w) => `${w.slot}. ${w.fullText}`).join("\n")}\n\nSTOCKISTS:\n${JSON.stringify(slots.map((s) => ({ slot: s.slot, stockists: (s.stockists ?? []).map((x) => ({ name: x.name, kind: x.kind, price: x.price })) })), null, 1)}`

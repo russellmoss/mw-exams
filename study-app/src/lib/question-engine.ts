@@ -725,6 +725,12 @@ export async function generateFreshQuestion(
     // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
     scope?: string;
     pinnedWines?: { slot: number; fullText: string }[] | null;
+    // Live Tasting's lighter await: block on the enrichment→key chain only (the gradability
+    // core), letting the model answer (Opus, ~60-90s) and audit finish in background. The first
+    // E2E run proved the full awaitBackgroundWork chain can push session creation past the
+    // route's 300s platform ceiling on a cold availability cache; the caller re-checks
+    // quarantine at serve/grade time instead.
+    awaitKeyOnly?: boolean;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -1470,6 +1476,8 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
   let modelAnswerSaved = false;
   if (saveOpts?.awaitBackgroundWork) {
     [, modelAnswerSaved] = await Promise.all([backgroundAudit, modelAnswer]);
+  } else if (saveOpts?.awaitKeyOnly) {
+    await stemKey;
   }
 
   return {

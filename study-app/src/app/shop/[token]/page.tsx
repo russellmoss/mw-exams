@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 type SlotAvail = {
   slot: number; label: string; region: string; country: string;
-  stockists: Stockist[]; thin: boolean;
+  stockists: Stockist[]; thin: boolean; overBudget?: boolean;
 };
 
 const KIND_LABEL: Record<string, string> = {
@@ -73,6 +73,7 @@ export default async function ShopPage({ params }: { params: Promise<{ token: st
               <p className="text-xs text-muted mb-3">
                 {slot.region}, {slot.country}
                 {slot.thin ? " · local availability is thin — mail order may be your best bet" : ""}
+                {slot.overBudget ? " · listed prices run slightly over the stated budget" : ""}
               </p>
               <div className="space-y-2">
                 {slot.stockists.map((s, i) => (

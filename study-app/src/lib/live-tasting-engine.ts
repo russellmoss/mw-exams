@@ -1,7 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { generateFreshQuestion } from "./question-engine";
 import type { ProgressEmitter } from "./thinking-stream";
-import { getAvailability, fitsBudget, confidentCount, type Stockist } from "./retail-availability";
+import { getAvailability, fitsBudget, confidentCount, minSameCurrencyPrice, type Stockist } from "./retail-availability";
 import {
   createLiveTastingSession,
   repointLiveTastingSession,
@@ -17,7 +17,7 @@ import { liveTastingSessionId } from "./live-tasting";
  *   ARCHETYPE FIRST → per-slot candidates from wine_bank (deterministic price-band budget gate)
  *   → availability confirms/prunes WITHIN the archetype (candidate #2/#3 only on a miss)
  *   → generateFreshQuestion with the confirmed flight PINNED (scope='live-tasting',
- *     awaitBackgroundWork so the key + audit land before the session exists)
+ *     awaitKeyOnly so the validated key lands before the session exists)
  *   → session row created only after the key validated.
  *
  * Availability never defines the flight shape; it only prunes within slot constraints. A slot
@@ -37,6 +37,9 @@ export type SlotAvailability = {
   stockists: Stockist[];
   /** true when no confident stockist was found — mail-order/deep-link framing in the UI. */
   thin: boolean;
+  /** true when every confirmed listing priced this slot above the session budget (plan §2.2:
+   *  snippet prices refine the band — this is the eviction the first E2E proved was missing). */
+  overBudget?: boolean;
 };
 
 type BankRow = {
@@ -246,26 +249,44 @@ export async function confirmSlots(
   country: string,
   apiKey: string,
   userId: number,
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  budget?: { amount: number | null; currency: string | null }
 ): Promise<SlotAvailability[]> {
   const out: SlotAvailability[] = [];
+  const budgetAmount = budget?.amount ?? null;
   for (let i = 0; i < slots.length; i++) {
     const slotNo = i + 1;
     const candidates = [slots[i].row, ...slots[i].alternates];
-    let chosen: { row: BankRow; stockists: Stockist[] } | null = null;
+    type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null };
+    let chosen: Cand | null = null;       // confident AND within budget
+    let overBudgetBest: Cand | null = null; // confident but every listed price exceeds budget
+    let fallback: Cand | null = null;     // nothing confident anywhere
     for (const row of candidates) {
       emit?.({ type: "status", label: `Checking availability near ${city}: ${row.producer}…` });
       const res = await getAvailability(
         { producer: row.producer, wineName: row.wine_name, wineKey: row.id },
         city, country, apiKey, { userId }
       );
+      const minListed = minSameCurrencyPrice(res.stockists, budget?.currency ?? null);
+      const cand: Cand = { row, stockists: res.stockists, minListed };
+      if (!fallback) fallback = cand;
       if (confidentCount(res.stockists) >= 1) {
-        chosen = { row, stockists: res.stockists };
-        break;
+        // Snippet-price refinement (plan §2.2): a concrete listed price over budget EVICTS this
+        // candidate — the price band admitted it, the shelf disagrees. First E2E run: a $40
+        // budget produced a $53.99 Barolo because this eviction was specified but not built.
+        if (budgetAmount == null || minListed == null || minListed <= budgetAmount) {
+          chosen = cand;
+          break;
+        }
+        if (!overBudgetBest || (minListed ?? Infinity) < (overBudgetBest.minListed ?? Infinity)) {
+          overBudgetBest = cand;
+        }
       }
-      if (!chosen) chosen = { row, stockists: res.stockists }; // best-effort fallback: primary + deep link
     }
-    const { row, stockists } = chosen!;
+    // Preference order: affordable+confident → cheapest confident-but-over-budget (flagged,
+    // honest UI note) → best-effort fallback (deep-link only).
+    const pick = chosen ?? overBudgetBest ?? fallback!;
+    const { row, stockists } = pick;
     out.push({
       slot: slotNo,
       wineKey: row.id,
@@ -277,6 +298,7 @@ export async function confirmSlots(
       priceBand: row.price_band,
       stockists,
       thin: confidentCount(stockists) === 0,
+      ...(chosen == null && overBudgetBest != null ? { overBudget: true } : {}),
     });
   }
   return out;
@@ -308,7 +330,8 @@ export async function createLiveTasting(opts: {
     return { error: err instanceof Error ? err.message : "No suitable wines found." };
   }
 
-  const availability = await confirmSlots(picked.slots, city, country, apiKey, userId, emit);
+  const availability = await confirmSlots(picked.slots, city, country, apiKey, userId, emit,
+    { amount: budgetAmount, currency: budgetCurrency });
 
   const generateOnce = async (slotsAvail: SlotAvailability[]) => {
     const pinnedWines = slotsAvail.map((s) => {
@@ -332,7 +355,7 @@ export async function createLiveTasting(opts: {
         status: "approved",
         // Session creation must block until the key + audit land (plan §4): shopping for an
         // ungradable flight is the failure mode this flag exists to prevent.
-        awaitBackgroundWork: true,
+        awaitKeyOnly: true,
         // Background work (enrichment → key → model answer → audit) dominates; give the whole
         // chain room. The create route runs maxDuration=300 with an SSE keepalive.
         budgetMs: 150_000,
@@ -353,7 +376,8 @@ export async function createLiveTasting(opts: {
     if (alternate) {
       emit?.({ type: "status", label: "Swapping the trickiest wine and retrying…" });
       const swapped = await confirmSlots(
-        [{ row: alternate, alternates: [] }], city, country, apiKey, userId, emit
+        [{ row: alternate, alternates: [] }], city, country, apiKey, userId, emit,
+        { amount: budgetAmount, currency: budgetCurrency }
       );
       availability[weakest.slot - 1] = { ...swapped[0], slot: weakest.slot };
       result = await generateOnce(availability);
@@ -450,7 +474,9 @@ export async function replaceWine(opts: {
   emit?.({ type: "status", label: "Checking availability for the replacement…" });
   const confirmed = await confirmSlots(
     [{ row: candidates[0], alternates: candidates.slice(1) }],
-    session.city, session.country, apiKey, session.user_id, emit
+    session.city, session.country, apiKey, session.user_id, emit,
+    { amount: session.budget_amount != null ? Number(session.budget_amount) : null,
+      currency: session.budget_currency }
   );
   slots[slots.findIndex((s) => s.slot === slot)] = { ...confirmed[0], slot };
 
@@ -474,7 +500,7 @@ export async function replaceWine(opts: {
       scope: "live-tasting",
       pinnedWines,
       status: "approved",
-      awaitBackgroundWork: true,
+      awaitKeyOnly: true,
       budgetMs: 150_000,
       callTimeoutMs: 130_000,
     }
