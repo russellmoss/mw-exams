@@ -42,6 +42,11 @@ export function WhyBinnedSection() {
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [challenged, setChallenged] = useState<ChallengedRow[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // Rebuttal (migration 043): which card has its rebuttal box open, its draft text, and the
+  // one-line outcome note shown after a re-adjudication that did NOT withdraw the challenge.
+  const [rebutId, setRebutId] = useState<string | null>(null);
+  const [rebutText, setRebutText] = useState("");
+  const [rebutNotes, setRebutNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let alive = true;
@@ -72,6 +77,46 @@ export function WhyBinnedSection() {
         method: "DELETE",
       });
       if (res.ok) setChallenged((cur) => cur.filter((c) => c.itemId !== itemId));
+    } catch {
+      /* leave the card; the admin can retry */
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Answer the challenge with clarifying information: the system re-adjudicates. A verdict of
+  // valid/uncertain withdraws the challenge (card disappears — the reason feeds forward again);
+  // invalid keeps the card with the fresh analysis so the admin can still restore or uphold.
+  const rebut = async (itemId: string) => {
+    const text = rebutText.trim();
+    if (!text) return;
+    setBusyId(itemId);
+    try {
+      const res = await fetch("/api/admin/bin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, action: "rebut", rebuttal: text }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.changed) {
+        if (data.withdrawn) {
+          setChallenged((cur) => cur.filter((c) => c.itemId !== itemId));
+          setRebutNotes((cur) => ({ ...cur, [itemId]: "" }));
+        } else {
+          setChallenged((cur) =>
+            cur.map((c) => (c.itemId === itemId && data.analysis ? { ...c, analysis: data.analysis } : c))
+          );
+          setRebutNotes((cur) => ({
+            ...cur,
+            [itemId]: "Re-reviewed with your rebuttal — the challenge still stands (updated analysis above).",
+          }));
+        }
+        setRebutId(null);
+        setRebutText("");
+      } else if (res.ok) {
+        // Row left 'invalid' some other way (restored/upheld elsewhere) — just drop the card.
+        setChallenged((cur) => cur.filter((c) => c.itemId !== itemId));
+      }
     } catch {
       /* leave the card; the admin can retry */
     } finally {
@@ -160,7 +205,10 @@ export function WhyBinnedSection() {
                 {c.analysis && (
                   <p className="text-xs text-muted leading-relaxed mb-2.5">{c.analysis}</p>
                 )}
-                <div className="flex items-center gap-2">
+                {rebutNotes[c.itemId] && (
+                  <p className="text-xs text-borderline leading-relaxed mb-2.5">{rebutNotes[c.itemId]}</p>
+                )}
+                <div className="flex items-center gap-2 flex-wrap">
                   <button
                     onClick={() => restore(c.itemId)}
                     disabled={busyId === c.itemId}
@@ -175,7 +223,41 @@ export function WhyBinnedSection() {
                   >
                     Uphold bin
                   </button>
+                  <button
+                    onClick={() => {
+                      setRebutId(rebutId === c.itemId ? null : c.itemId);
+                      setRebutText("");
+                    }}
+                    disabled={busyId === c.itemId}
+                    className="text-xs px-2.5 py-1 rounded-md border border-border text-muted hover:bg-card-hover disabled:opacity-50"
+                  >
+                    Rebut
+                  </button>
                 </div>
+                {rebutId === c.itemId && (
+                  <div className="mt-2.5">
+                    <textarea
+                      value={rebutText}
+                      onChange={(e) => setRebutText(e.target.value)}
+                      maxLength={1000}
+                      rows={3}
+                      placeholder="Add the clarifying information the review missed — it will re-adjudicate with this in hand."
+                      className="w-full text-sm bg-background border border-border rounded-md p-2 text-foreground placeholder:text-muted focus:outline-none focus:border-accent"
+                    />
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <button
+                        onClick={() => rebut(c.itemId)}
+                        disabled={busyId === c.itemId || !rebutText.trim()}
+                        className="text-xs px-2.5 py-1 rounded-md border border-border text-accent hover:bg-card-hover disabled:opacity-50"
+                      >
+                        {busyId === c.itemId ? "Re-reviewing…" : "Send rebuttal"}
+                      </button>
+                      <span className="text-xs text-muted">
+                        If it answers the challenge, the reason is reinstated automatically.
+                      </span>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

@@ -1833,7 +1833,8 @@ export async function applyBinReasons(
   // prompt feeds nor show against a reason the admin has since rewritten.
   const rows = await sql`
     UPDATE bank_bin_reasons SET reason_tags = ${tagsVal}, reason_note = ${note},
-      check_verdict = NULL, check_analysis = NULL, check_fingerprint = NULL, checked_at = NULL
+      check_verdict = NULL, check_analysis = NULL, check_fingerprint = NULL, checked_at = NULL,
+      rebuttal = NULL
     WHERE item_id = ANY(${itemIds})
     RETURNING item_id
   `;
@@ -2069,6 +2070,19 @@ export async function upholdBinReason(itemId: string): Promise<boolean> {
   const sql = getDb();
   const rows = await sql`
     UPDATE bank_bin_reasons SET check_verdict = 'upheld'
+    WHERE item_id = ${itemId} AND check_verdict = 'invalid'
+    RETURNING item_id
+  `;
+  return rows.length > 0;
+}
+
+// Store the admin's rebuttal to a challenge (migration 043). Scoped to rows currently at 'invalid' —
+// a rebuttal is an answer to a live challenge, nothing else. The caller re-runs the check afterwards;
+// the changed fingerprint (which includes the rebuttal) is what lets it run.
+export async function setBinReasonRebuttal(itemId: string, rebuttal: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_bin_reasons SET rebuttal = ${rebuttal}
     WHERE item_id = ${itemId} AND check_verdict = 'invalid'
     RETURNING item_id
   `;
