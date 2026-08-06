@@ -174,6 +174,13 @@ function dominantGrapeIs(r: BankRow, variety: string): boolean {
   return g.length > 0 && norm(g[0]) === norm(variety);
 }
 
+// Same-variety flights demand PURE varietals: a multi-grape row keyed as a blend under a
+// "single grape variety" stem is a hard stem-fact contradiction (audit rule
+// stem-fact-singular-variety-blend — E2E 2026-08-06 quarantined exactly this).
+function isPureVarietal(r: BankRow): boolean {
+  return grapeList(r).length === 1;
+}
+
 function nameContradictsVariety(wineName: string, variety: string): boolean {
   const name = norm(wineName);
   const target = norm(variety);
@@ -221,16 +228,57 @@ export function pickArchetype(
   };
 
   if (paper === 3) {
-    // Style contrast: one wine per wide-distribution P3 category, padding with a second country
-    // of an earlier category when flightSize exceeds available categories.
-    const byCat = P3_CATEGORIES.map((c) => bank.filter((r) => r.style_category === c));
-    const nonEmpty = byCat.filter((g) => g.length > 0);
-    if (nonEmpty.length === 0) throw new Error("No Paper 3 wines with a price band in the bank yet — run the price-band backfill.");
-    const groups: BankRow[][] = [];
-    for (let i = 0; i < flightSize; i++) groups.push(nonEmpty[i % nonEmpty.length]);
-    const slots = bySlot(groups);
-    if (!slots) throw new Error("Could not assemble a Paper 3 style flight within budget.");
-    return { archetype: "p3-styles", label: "Contrasting P3 styles", slots };
+    // ONE style category per flight, contrast WITHIN it. The axis must be more than geography:
+    // paper-QA round 3 died on a flight of two LATE-HARVEST wines from different countries —
+    // no method/style contrast for the stem to ask about. Prefer distinct SUBTYPES (botrytized
+    // vs icewine vs passito vs late-harvest; port vs sherry vs madeira; champagne vs cava vs
+    // prosecco), then distinct countries.
+    const subtypeOf = (r: BankRow): string => {
+      const t = norm(`${r.wine_name} ${r.region} ${r.producer}`);
+      if (r.style_category === "still_sweet") {
+        if (/(sauternes|barsac|aszu|tokaji|beerenauslese|trockenbeeren|botrytis|quarts de chaume|noble)/.test(t)) return "botrytized";
+        if (/(icewine|ice wine|eiswein)/.test(t)) return "icewine";
+        if (/(passito|recioto|straw|vin santo|santo)/.test(t)) return "dried";
+        if (/(rutherglen|muscat|moscatel|constance)/.test(t)) return "muscat";
+        return "late-harvest";
+      }
+      if (r.style_category === "fortified") {
+        if (/(port|porto|douro)/.test(t)) return "port";
+        if (/(sherry|jerez|fino|oloroso|amontillado|palo cortado|manzanilla|pedro ximenez|px)/.test(t)) return "sherry";
+        if (/(madeira|sercial|bual|malmsey|verdelho)/.test(t)) return "madeira";
+        if (/(banyuls|maury|rivesaltes|muscat)/.test(t)) return "vdn";
+        return "other-fortified";
+      }
+      if (r.style_category === "sparkling") {
+        if (/(champagne)/.test(t)) return "champagne";
+        if (/(cava)/.test(t)) return "cava";
+        if (/(prosecco|glera)/.test(t)) return "prosecco";
+        if (/(cremant|sekt|franciacorta|trento)/.test(t)) return "other-trad";
+        return "other-sparkling";
+      }
+      return norm(r.country);
+    };
+    const cats = shuffle([...P3_CATEGORIES]);
+    for (const cat of cats) {
+      const pool = bank.filter((r) => r.style_category === cat);
+      if (pool.length < flightSize) continue;
+      const bySubtype = new Map<string, BankRow[]>();
+      for (const r of pool) bySubtype.set(subtypeOf(r), [...(bySubtype.get(subtypeOf(r)) ?? []), r]);
+      let groups: BankRow[][];
+      if (bySubtype.size >= flightSize) {
+        groups = shuffle([...bySubtype.values()]).slice(0, flightSize);
+      } else {
+        const byCountry = new Map<string, BankRow[]>();
+        for (const r of pool) byCountry.set(norm(r.country), [...(byCountry.get(norm(r.country)) ?? []), r]);
+        if (byCountry.size < flightSize && bySubtype.size < 2) continue; // no real axis — try another category
+        groups = byCountry.size >= flightSize
+          ? shuffle([...byCountry.values()]).slice(0, flightSize)
+          : Array.from({ length: flightSize }, () => pool);
+      }
+      const slots = bySlot(groups);
+      if (slots) return { archetype: "p3-styles", label: `${cat.replace("_", " ")} styles compared`, slots };
+    }
+    throw new Error("No Paper 3 category has enough banked wines within budget — run the price-band backfill or widen the budget.");
   }
 
   const varieties = paper === 1 ? P1_VARIETIES : P2_VARIETIES;
@@ -268,7 +316,7 @@ export function pickArchetype(
       for (const [variety, origins] of shuffle(Object.entries(varieties))) {
         if (opts?.excludeVarieties?.has(norm(variety))) continue;
         const pool = stillDry.filter(
-          (r) => dominantGrapeIs(r, variety) && !nameContradictsVariety(r.wine_name, variety)
+          (r) => dominantGrapeIs(r, variety) && isPureVarietal(r) && !nameContradictsVariety(r.wine_name, variety)
         );
         const byOrigin = shuffle(origins)
           .map((o) => pool.filter((r) => norm(r.country) === norm(o)))
@@ -424,6 +472,8 @@ export async function createLiveTasting(opts: {
   keepAlive?: (work: Promise<unknown>) => void;
   /** Paper flights (Phase D): pin the archetype the sampled family demands. */
   requireArchetype?: ArchetypeId;
+  /** Paper flights: earlier questions' stems for scaffold variety (threaded into the prompt). */
+  paperStemsContext?: string | null;
   /** Paper flights: cross-flight dedup — never reuse a wine or (for variety-led picks) a variety. */
   excludeWineKeys?: Set<string>;
   excludeVarieties?: Set<string>;
@@ -474,6 +524,7 @@ export async function createLiveTasting(opts: {
         // detached, kept alive past the response via onBackgroundWork → after().
         awaitKeyOnly: true,
         onBackgroundWork: keepAlive,
+        paperStemsContext: opts.paperStemsContext,
         // Sized so TWO generation attempts fit inside the route's 300s platform ceiling alongside
         // the availability phase (E2E run 1 + the pilot's first create both died at that wall).
         budgetMs: 190_000,

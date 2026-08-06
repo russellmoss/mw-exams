@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildPreGlassSystemPrompt } from "@/lib/prompts/pre-glass-prompt";
+import { masterTreeForPaper } from "@/lib/master-trees";
 import { requireApiKey } from "@/lib/api-key";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
     const systemPrompt = buildPreGlassSystemPrompt(
       paper,
       decisionMatrixContent,
-      wineAppearances
+      wineAppearances,
+      masterTreeForPaper(paper)
     );
 
     const { model, abGroup } = await selectModel("reasoning_grading", keyResult.apiKey, "opus");
@@ -40,7 +42,7 @@ export async function POST(request: Request) {
     const stream = await client.messages.stream({
       model,
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
-      ...(await withThinking(model, 1500)),
+      ...(await withThinking(model, 1500, keyResult.user.id)),
       messages: [
         {
           role: "user",

@@ -92,7 +92,7 @@ Please evaluate this candidate's answer against the model answer. Assess identif
       model,
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
       messages: [{ role: "user", content: userMessage }],
-      ...(await withThinking(model, 2000)),
+      ...(await withThinking(model, 2000, keyResult.user.id)),
     } as Parameters<typeof client.messages.stream>[0]);
 
     const encoder = new TextEncoder();

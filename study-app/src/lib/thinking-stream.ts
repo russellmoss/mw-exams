@@ -13,6 +13,7 @@
 // Callers that don't pass an emitter keep the exact non-streaming behaviour they had before.
 
 import type Anthropic from "@anthropic-ai/sdk";
+import { neon } from "@neondatabase/serverless";
 import { isReasoningEnabled } from "@/lib/settings";
 import { supportsAdaptiveThinking } from "@/lib/model-capabilities";
 
@@ -63,6 +64,14 @@ export function thinkingParams(
  * `Message` a non-streaming call would give, so call sites parse it identically. Thinking config is
  * NOT added here — the caller adds `thinkingParams(model)` itself, because it also has to size
  * `max_tokens` for the extra thinking tokens (max_tokens caps thinking + response together).
+ *
+ * `options.timeout` is enforced as a WALL-CLOCK deadline on the whole call, via an explicit abort.
+ * The SDK's own `timeout` does not do that for a stream: it covers reaching the response, and a
+ * response that keeps streaming is never late by that measure. That loophole is exactly where the
+ * 2026-08-05/06 incident lived — Sonnet 4.6 thinking spirals streamed deltas continuously for
+ * ~280s under a 130s "timeout", each one eating a whole generation budget that was sized on the
+ * assumption a bad call costs at most callTimeoutMs. Aborting at the deadline restores that
+ * arithmetic: the caller's attempt loop sees an ordinary model error with budget left for a retry.
  */
 export async function streamWithThinking(
   client: Anthropic,
@@ -70,13 +79,33 @@ export async function streamWithThinking(
   options: { timeout?: number; maxRetries?: number },
   emit: ProgressEmitter
 ): Promise<Anthropic.Message> {
-  const stream = client.messages.stream(params, options);
-  for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "thinking_delta") {
-      emit({ type: "thinking", delta: event.delta.thinking });
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer =
+    options.timeout != null
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, options.timeout)
+      : null;
+  try {
+    const stream = client.messages.stream(params, { ...options, signal: controller.signal });
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "thinking_delta") {
+        emit({ type: "thinking", delta: event.delta.thinking });
+      }
     }
+    return await stream.finalMessage();
+  } catch (err) {
+    if (timedOut) {
+      // Replace the SDK's generic abort error with one that says WHY, so telemetry
+      // (generation_attempts.model_error) records a timeout rather than a mystery abort.
+      throw new Error(`Streaming call exceeded its ${options.timeout}ms call timeout and was aborted`);
+    }
+    throw err;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
-  return stream.finalMessage();
 }
 
 // Short in-memory cache so the hot generation path doesn't read app_settings on every model call.
@@ -110,8 +139,41 @@ export async function reasoningEnabled(): Promise<boolean> {
   }
 }
 
+// Per-user visible-reasoning default (migration 047, users.reasoning_stream_default) — the BYOK
+// cost switch chosen at onboarding. Same cache shape as the admin toggle above: short TTL so a
+// Settings save propagates within seconds; the instance that handled the save invalidates
+// immediately via invalidateUserReasoningCache.
+const userReasoningCache = new Map<number, { enabled: boolean; at: number }>();
+
+export function invalidateUserReasoningCache(userId: number): void {
+  userReasoningCache.delete(userId);
+}
+
 /**
- * `thinkingParams`, gated by the admin toggle. Returns `{}` when reasoning is switched off.
+ * Whether visible reasoning should be requested for this user's calls: the admin toggle must be on
+ * AND the user's own default must be on. No userId (server jobs, token-authenticated flows) keeps
+ * the admin-global behaviour. Fails open to the user's last known value, like the admin toggle —
+ * a database blip must not change how questions are generated.
+ */
+export async function reasoningEnabledForUser(userId?: number | null): Promise<boolean> {
+  if (!(await reasoningEnabled())) return false;
+  if (userId == null) return true;
+  const hit = userReasoningCache.get(userId);
+  if (hit && Date.now() - hit.at < REASONING_TTL_MS) return hit.enabled;
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`SELECT reasoning_stream_default FROM users WHERE id = ${userId}`;
+    const enabled = rows[0]?.reasoning_stream_default !== false;
+    userReasoningCache.set(userId, { enabled, at: Date.now() });
+    return enabled;
+  } catch {
+    return userReasoningCache.get(userId)?.enabled ?? true;
+  }
+}
+
+/**
+ * `thinkingParams`, gated by the admin toggle — and, when a userId is passed, by that user's own
+ * reasoning default. Returns `{}` when reasoning is switched off at either level.
  *
  * Note what that empty return means for a caller that relies on the `effort` inside: switching
  * reasoning off also drops the effort, restoring the API default of `high`. A caller for whom that
@@ -119,9 +181,10 @@ export async function reasoningEnabled(): Promise<boolean> {
  */
 export async function resolveThinking(
   model: string,
-  effort: ReasoningEffort = "low"
+  effort: ReasoningEffort = "low",
+  userId?: number | null
 ): Promise<Record<string, unknown>> {
-  if (!(await reasoningEnabled())) return {};
+  if (!(await reasoningEnabledForUser(userId))) return {};
   return thinkingParams(model, effort);
 }
 
@@ -135,9 +198,10 @@ export async function resolveThinking(
  */
 export async function withThinking(
   model: string,
-  maxTokens: number
+  maxTokens: number,
+  userId?: number | null
 ): Promise<Record<string, unknown>> {
-  const params = await resolveThinking(model);
+  const params = await resolveThinking(model, "low", userId);
   if (!Object.keys(params).length) return { max_tokens: maxTokens };
   // Doubling is right for the prose graders, whose budgets (1500-4000) leave ample room either
   // way. A route with a *small* budget should NOT use this helper — see flash-notes/grade, where

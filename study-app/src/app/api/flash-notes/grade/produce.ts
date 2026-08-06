@@ -139,7 +139,7 @@ Grade only the ${prompt.label} dimension. Return the JSON object only.`;
   // headroom would leave reasoning only 400 tokens before it started eating the JSON — and a
   // truncated JSON grader is a hard parse failure, not a slightly short reply. Hence an explicit,
   // generous reasoning budget. `{}` when the model can't take thinking, or reasoning is off.
-  const extra = emit ? await resolveThinking(model) : {};
+  const extra = emit ? await resolveThinking(model, "low", userId) : {};
   const thinkingOn = Object.keys(extra).length > 0;
   const params = {
     model,

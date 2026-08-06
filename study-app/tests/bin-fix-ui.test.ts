@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { binFixActionErrorMessage, binFixMineErrorMessage } from "@/lib/bin-fix-ui";
+import { binFixActionErrorMessage, binFixMineErrorMessage, parseProposalId } from "@/lib/bin-fix-ui";
 
 /**
  * The "Root-cause fixes" card used to swallow dispatch/reject failures entirely — a 500 from a
@@ -38,6 +38,29 @@ describe("binFixActionErrorMessage", () => {
     expect(binFixActionErrorMessage("dispatch", "")).toBe("Dispatch failed — try again.");
     expect(binFixActionErrorMessage("reject", { weird: true })).toBe("Reject failed — try again.");
     expect(binFixActionErrorMessage("dispatch", null)).toBe("Dispatch failed — try again.");
+  });
+});
+
+describe("parseProposalId", () => {
+  it("accepts a number and the neon int8-as-string shape alike", () => {
+    // bin_fix_proposals.id is BIGSERIAL; the neon driver serialises int8 as a string, so the
+    // client round-trips {proposalId: "8"} — the strict typeof check 400'd it ("Missing
+    // proposalId"), which was the actual dead Dispatch button.
+    expect(parseProposalId(8)).toBe(8);
+    expect(parseProposalId("8")).toBe(8);
+  });
+
+  it("rejects everything that is not a positive integer id", () => {
+    expect(parseProposalId(undefined)).toBeNull();
+    expect(parseProposalId(null)).toBeNull();
+    expect(parseProposalId("")).toBeNull();
+    expect(parseProposalId("abc")).toBeNull();
+    expect(parseProposalId("8; DROP TABLE")).toBeNull();
+    expect(parseProposalId(0)).toBeNull();
+    expect(parseProposalId(-3)).toBeNull();
+    expect(parseProposalId(2.5)).toBeNull();
+    expect(parseProposalId(true)).toBeNull();
+    expect(parseProposalId({})).toBeNull();
   });
 });
 

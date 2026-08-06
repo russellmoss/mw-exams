@@ -110,6 +110,7 @@ import {
   supportsAdaptiveThinking,
   type ProgressEmitter,
 } from "@/lib/thinking-stream";
+import { reasonsByDefault } from "@/lib/model-capabilities";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -662,17 +663,43 @@ const GENERATION_EFFORT = "medium";
  *     when streaming, on its own when not — and never by spread-order accident. Both are gated on the
  *     same capability list, because `output_config.effort` is a 400 on models that don't take it.
  */
+/**
+ * Whether a generation call may REQUEST visible thinking for this model.
+ *
+ * supportsAdaptiveThinking is the wrong gate here: it also matches Opus 4.6 / Sonnet 4.6, which
+ * reason ONLY when asked — and asking is what caused the 2026-08-05/06 incident. On this prompt,
+ * Sonnet 4.6 with the thinking request would sometimes spiral: the entire 16,000-token output
+ * budget spent on thinking, zero text, ~280s per call (11 generation_attempts rows, every one
+ * `stop_reason=max_tokens blocks=[thinking]`). One such call outlived the whole generation budget,
+ * so the user saw a 5-minute wait ending in a timeout instead of a question.
+ *
+ * On a model that reasons by default the request is free — it only makes visible what is already
+ * happening. On a request-only reasoner it CHANGES the model's behaviour, and the observed change
+ * is a spiral risk with no measured quality gain (Sonnet averages ~950 output tokens on this
+ * prompt without it). So: ask only where asking is display-only. The study page still gets status
+ * events either way, and GENERATION_EFFORT is still applied below via output_config.
+ */
+export function generationThinkingEligible(model: string): boolean {
+  return reasonsByDefault(model);
+}
+
 async function callGenerationModel(
   client: Anthropic,
   model: string,
   prompt: { system: string; user: string },
   callOpts: { timeout: number; maxRetries: number },
-  emit?: ProgressEmitter
+  emit?: ProgressEmitter,
+  userId?: number | null
 ) {
-  // `{}` when the model can't take adaptive thinking, or when an admin has switched reasoning off.
-  // Note this governs only whether the reasoning is VISIBLE; it does not control whether it happens.
-  // When it does return params it carries GENERATION_EFFORT with them.
-  const extra = emit ? await resolveThinking(model, GENERATION_EFFORT) : {};
+  // `{}` when the model reasons only on request (see generationThinkingEligible), when the model
+  // can't take adaptive thinking at all, when an admin has switched reasoning off, or when THIS
+  // user's reasoning default is off (their onboarding cost choice — those thinking tokens bill to
+  // their own key). On a default reasoner this governs only whether the reasoning is VISIBLE; it
+  // does not control whether it happens. When it does return params it carries GENERATION_EFFORT.
+  const extra =
+    emit && generationThinkingEligible(model)
+      ? await resolveThinking(model, GENERATION_EFFORT, userId)
+      : {};
   // Effort has to be applied whether or not the reasoning is VISIBLE, so this cannot key on `emit`:
   // resolveThinking returns `{}` when the admin reasoning toggle is off, and without this the
   // streaming path would silently fall back to the API default (`high`) — a measured 164s call — the
@@ -785,6 +812,10 @@ export async function generateFreshQuestion(
     // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
     scope?: string;
     pinnedWines?: { slot: number; fullText: string }[] | null;
+    // Paper flights: earlier questions' stems, so this flight VARIES its scaffold. The paper-QA
+    // examiner judge failed identical a/b/c scaffolds repeated across a paper, and flagged the
+    // absence of POOLED identification marks — both are stem-construction habits, steered here.
+    paperStemsContext?: string | null;
     // Live Tasting's lighter await: block on the enrichment→key chain only (the gradability
     // core), letting the model answer (Opus, ~60-90s) and audit finish in background. The first
     // E2E run proved the full awaitBackgroundWork chain can push session creation past the
@@ -926,7 +957,14 @@ The flight is EXACTLY ${pinned.length} wines — no more, no fewer. Your output 
 ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
-The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
+The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.
+Mark-structure realism (paper-QA examiner conventions, verified against the 2023-24 corpus):
+- Identification is ONE BUNDLED sub-question — "identify the grape variety (or varieties) and origin as closely as possible" — never split variety and origin into separate sub-questions, and never omit origin. Weight it 13-18 marks per question.
+- MIX pooled sub-questions ("For both wines: … (14 marks)") with per-wine ones — no rigidly symmetric allocations.
+- Where natural, include an integrative comparative sub-question ("With reference to all the wines, …").
+- Paper 3 only: real papers routinely include a discrete 2-3 mark micro-question on a technical attribute (residual sugar level, alcohol, method) — include one where it fits.${saveOpts?.paperStemsContext ? `
+This question is part of a FULL PAPER. Earlier questions used these stems — VARY your sub-question lettering, structure and phrasing (real papers never repeat an identical scaffold):
+${saveOpts.paperStemsContext}` : ""}`;
   }
 
   // SOFT feed-forward (spec §4): fold the most recent bin reasons for this paper into the prompt so
@@ -1192,7 +1230,7 @@ ${repairContext.draft}`,
       label: attempt === 1 ? "Drafting the flight…" : `Redrafting the flight (attempt ${attempt})…`,
     });
     try {
-      message = await callGenerationModel(client, model, attemptPrompt, callOpts, emit);
+      message = await callGenerationModel(client, model, attemptPrompt, callOpts, emit, meta?.userId);
       callMs = Date.now() - t0;
       logClaudeUsage(
         { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId,
@@ -1224,7 +1262,7 @@ ${repairContext.draft}`,
         const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
         const tRetry = Date.now();
         try {
-          message = await callGenerationModel(client, "claude-sonnet-4-6", attemptPrompt, fallbackOpts, emit);
+          message = await callGenerationModel(client, "claude-sonnet-4-6", attemptPrompt, fallbackOpts, emit, meta?.userId);
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
           callMs = Date.now() - tRetry;

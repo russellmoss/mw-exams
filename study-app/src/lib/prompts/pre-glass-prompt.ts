@@ -3,7 +3,8 @@
 export function buildPreGlassSystemPrompt(
   paper: number,
   decisionMatrixContent?: string,
-  wineAppearances?: { slot: number; appearance: string }[]
+  wineAppearances?: { slot: number; appearance: string }[],
+  masterTreeContent?: string
 ): string {
   const paperName =
     paper === 1 ? "Paper 1 (White Wines)" : paper === 2 ? "Paper 2 (Red Wines)" : "Paper 3 (Special -- sparkling, fortified, sweet, rose, oxidative)";
@@ -18,6 +19,22 @@ The following is a decision matrix that maps the question stem signals to likely
 <decision_matrix>
 ${decisionMatrixContent}
 </decision_matrix>
+`;
+  }
+
+  // The living master tree for this paper — the canonical Layer A stem-routing logic, including
+  // dated corrections learned from backtests (e.g. the 2018 P1 Q3 maturity-pair Riesling fix).
+  // Authoritative over the model's own recall of exam patterns; the per-question matrix above
+  // (when present) is a stem-only snapshot and may predate tree corrections.
+  if (masterTreeContent) {
+    treeSection += `
+
+## Master decision tree for ${paperName}
+This is the candidate's canonical pre-tasting routing logic for this paper. When evaluating their stem analysis, route the stem through Layer A yourself and compare: which branch and leaf does this stem match, and what does the tree tier as STRONG SIGNAL / PLAUSIBLE / CURVEBALL? Honour the tree's dated correction notes — they exist because the tree itself once missed (e.g. excluding a variety a leaf's small evidence set happened not to contain), and a candidate who reasons past a stale leaf using the stem's own signals (mark weighting, "state of maturity" phrasing, slot position) deserves credit, not correction:
+
+<master_tree>
+${masterTreeContent}
+</master_tree>
 `;
   }
 

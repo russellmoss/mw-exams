@@ -39,6 +39,11 @@ export default function SettingsPage() {
   const [paceMode, setPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
   const [paceSpeedSeconds, setPaceSpeedSeconds] = useState<SpeedSeconds>(DEFAULT_PACE_PREFERENCE.speedSeconds);
   const [paceSaving, setPaceSaving] = useState(false);
+  const [studyDefaults, setStudyDefaults] = useState<{
+    questionSource: "banked" | "fresh";
+    reasoningStream: boolean;
+  } | null>(null);
+  const [studySaving, setStudySaving] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState<string | null>(null);
@@ -51,6 +56,10 @@ export default function SettingsPage() {
   const [liveRadius, setLiveRadius] = useState("30");
   const [liveSaving, setLiveSaving] = useState(false);
   const [liveMsg, setLiveMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [accountDeleting, setAccountDeleting] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -106,6 +115,16 @@ export default function SettingsPage() {
           if (d.budgetAmount != null) setLiveBudget(String(d.budgetAmount));
           if (d.budgetCurrency) setLiveCurrency(d.budgetCurrency);
           if (d.radiusMinutes) setLiveRadius(String(d.radiusMinutes));
+        })
+        .catch(() => {});
+      fetch("/api/user/study-defaults")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          setStudyDefaults({
+            questionSource: d.questionSource === "banked" ? "banked" : "fresh",
+            reasoningStream: d.reasoningStream !== false,
+          });
         })
         .catch(() => {});
       fetch("/api/user/api-key?provider=tavily")
@@ -209,6 +228,54 @@ export default function SettingsPage() {
       setTavilyError("Failed to remove key");
     } finally {
       setTavilyDeleting(false);
+    }
+  };
+
+  const saveStudyDefaults = useCallback(
+    async (next: { questionSource: "banked" | "fresh"; reasoningStream: boolean }) => {
+      setStudySaving(true);
+      // Optimistic — reflect the choice immediately; the PATCH persists it.
+      setStudyDefaults(next);
+      try {
+        await fetch("/api/user/study-defaults", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(next),
+        });
+        // The landing page reads questionSourceDefault from auth-context — refresh so the new
+        // default applies without a reload.
+        await refresh();
+      } catch {
+        // ignore — the optimistic state stays; a reload re-reads the server value
+      } finally {
+        setStudySaving(false);
+      }
+    },
+    [refresh]
+  );
+
+  const DELETE_CONFIRMATION_PHRASE = "I want to delete my account";
+
+  const handleDeleteAccount = async () => {
+    setDeleteAccountError(null);
+    setAccountDeleting(true);
+    try {
+      const res = await fetch("/api/user/account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: deleteConfirmText }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteAccountError(data.error || "Failed to delete account");
+        setAccountDeleting(false);
+        return;
+      }
+      // Full reload — the session cookie is gone and every piece of client auth state with it.
+      window.location.href = "/login";
+    } catch {
+      setDeleteAccountError("Network error");
+      setAccountDeleting(false);
     }
   };
 
@@ -573,6 +640,112 @@ export default function SettingsPage() {
             </form>
           </section>
 
+          {/* Study Defaults — the onboarding choices: question source + reasoning stream */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Study Defaults</h2>
+            <p className="text-sm text-muted mb-5">
+              How the app spends your API credits. Banked questions and reasoning off are the
+              money-savers; fresh generation and the reasoning stream are the premium experience.
+            </p>
+
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-foreground mb-1">Question source</h3>
+              <p className="text-xs text-muted mb-3">
+                Which path the study flow leads with — the other stays one click away.
+              </p>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => studyDefaults && saveStudyDefaults({ ...studyDefaults, questionSource: "banked" })}
+                  disabled={studySaving || !studyDefaults}
+                  className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                    studyDefaults?.questionSource === "banked"
+                      ? "border-accent bg-accent/10"
+                      : "border-border hover:border-muted"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${studyDefaults?.questionSource === "banked" ? "border-accent" : "border-muted"}`}>
+                    {studyDefaults?.questionSource === "banked" && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  </span>
+                  <span className="flex-1">
+                    <span className={`block text-sm font-medium ${studyDefaults?.questionSource === "banked" ? "text-accent" : "text-foreground"}`}>
+                      Banked questions
+                    </span>
+                    <span className="block text-xs text-muted mt-0.5">
+                      Instant, from the reviewed pool — no model call, free on your key.
+                    </span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => studyDefaults && saveStudyDefaults({ ...studyDefaults, questionSource: "fresh" })}
+                  disabled={studySaving || !studyDefaults}
+                  className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                    studyDefaults?.questionSource === "fresh"
+                      ? "border-accent bg-accent/10"
+                      : "border-border hover:border-muted"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${studyDefaults?.questionSource === "fresh" ? "border-accent" : "border-muted"}`}>
+                    {studyDefaults?.questionSource === "fresh" && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  </span>
+                  <span className="flex-1">
+                    <span className={`block text-sm font-medium ${studyDefaults?.questionSource === "fresh" ? "text-accent" : "text-foreground"}`}>
+                      Freshly generated
+                    </span>
+                    <span className="block text-xs text-muted mt-0.5">
+                      Written on the spot, never runs out — a real generation call on your key each time.
+                    </span>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-1">Reasoning stream</h3>
+              <p className="text-xs text-muted mb-3">
+                Watch the model reason like an examiner while it generates and grades — the thinking
+                tokens bill to your key. Off still shows free progress updates.
+              </p>
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => studyDefaults && saveStudyDefaults({ ...studyDefaults, reasoningStream: false })}
+                  disabled={studySaving || !studyDefaults}
+                  className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                    studyDefaults && !studyDefaults.reasoningStream
+                      ? "border-accent bg-accent/10"
+                      : "border-border hover:border-muted"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${studyDefaults && !studyDefaults.reasoningStream ? "border-accent" : "border-muted"}`}>
+                    {studyDefaults && !studyDefaults.reasoningStream && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  </span>
+                  <span className={`text-sm font-medium ${studyDefaults && !studyDefaults.reasoningStream ? "text-accent" : "text-foreground"}`}>
+                    Off — save credits
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => studyDefaults && saveStudyDefaults({ ...studyDefaults, reasoningStream: true })}
+                  disabled={studySaving || !studyDefaults}
+                  className={`w-full flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer disabled:opacity-60 ${
+                    studyDefaults?.reasoningStream
+                      ? "border-accent bg-accent/10"
+                      : "border-border hover:border-muted"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${studyDefaults?.reasoningStream ? "border-accent" : "border-muted"}`}>
+                    {studyDefaults?.reasoningStream && <span className="w-2 h-2 rounded-full bg-accent" />}
+                  </span>
+                  <span className={`text-sm font-medium ${studyDefaults?.reasoningStream ? "text-accent" : "text-foreground"}`}>
+                    On — watch the examiner think
+                  </span>
+                </button>
+              </div>
+            </div>
+          </section>
+
           {/* Notification Sound */}
           <section className="bg-card rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-foreground mb-2">Notification Sound</h2>
@@ -821,8 +994,80 @@ export default function SettingsPage() {
               )}
             </div>
           </section>
+
+          {/* Danger Zone — delete account */}
+          <section className="bg-card rounded-xl border border-fail/30 p-6">
+            <h2 className="text-lg font-semibold text-fail mb-2">Danger Zone</h2>
+            <p className="text-sm text-muted mb-4">
+              Permanently delete your account, including your attempt history, feedback, and Live
+              Tasting sessions. This cannot be undone.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteConfirmText("");
+                setDeleteAccountError(null);
+                setShowDeleteModal(true);
+              }}
+              className="px-6 py-2.5 bg-fail hover:bg-fail/85 text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+            >
+              Delete account
+            </button>
+          </section>
         </div>
       </main>
+
+      {/* Delete-account confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-background/70 backdrop-blur-sm"
+            onClick={() => { if (!accountDeleting) setShowDeleteModal(false); }}
+          />
+          <div className="relative w-full max-w-md bg-card rounded-xl border border-fail/30 shadow-2xl p-6">
+            <h3 className="text-lg font-semibold text-fail mb-2">Delete your account?</h3>
+            <p className="text-sm text-muted mb-4">
+              This permanently deletes your account and everything attached to it — attempt
+              history, feedback, saved keys, and Live Tasting sessions. There is no undo.
+            </p>
+            {deleteAccountError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{deleteAccountError}</p>
+              </div>
+            )}
+            <label htmlFor="deleteConfirm" className="block text-sm font-medium text-foreground mb-1.5">
+              Type <span className="font-semibold text-fail">{DELETE_CONFIRMATION_PHRASE}</span> to confirm
+            </label>
+            <input
+              id="deleteConfirm"
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder={DELETE_CONFIRMATION_PHRASE}
+              autoComplete="off"
+              className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-fail focus:ring-1 focus:ring-fail transition-colors text-sm mb-6"
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={accountDeleting}
+                className="px-6 py-2.5 rounded-lg border border-border text-muted hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer font-medium disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={accountDeleting || deleteConfirmText !== DELETE_CONFIRMATION_PHRASE}
+                className="px-6 py-2.5 rounded-lg bg-fail hover:bg-fail/85 text-background font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {accountDeleting ? "Deleting..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

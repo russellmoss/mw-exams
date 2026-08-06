@@ -364,7 +364,12 @@ async function runByoSession(paper) {
   if (!sessionId) return;
 
   const prep = await api(`/api/live-tasting/${sessionId}`).then((r) => r.json());
-  check(`${label}: state=prep with a real brief`, prep.state === "prep" && (prep.prepGuidance?.length ?? 0) > 200);
+  // Brief routing (migration 044/045): the candidate's payload WITHHOLDS the brief until they
+  // explicitly choose "Me" — null here is the blind working, not a failure. The real brief is
+  // verified server-side.
+  check(`${label}: state=prep, brief withheld from candidate`, prep.state === "prep" && prep.prepGuidance == null);
+  const briefRow = await sql`SELECT prep_guidance FROM live_tasting_sessions WHERE id = ${sessionId}`;
+  check(`${label}: a real brief exists server-side`, (briefRow[0]?.prep_guidance?.length ?? 0) > 200);
 
   const share = await api(`/api/live-tasting/${sessionId}/share`, { method: "POST" }).then((r) => r.json());
   check(`${label}: share mints in prep`, Boolean(share.url));

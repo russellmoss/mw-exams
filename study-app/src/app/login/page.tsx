@@ -55,7 +55,10 @@ export default function LoginPage() {
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
-  const [regAddress, setRegAddress] = useState("");
+  const [regStreet, setRegStreet] = useState("");
+  const [regCity, setRegCity] = useState("");
+  const [regState, setRegState] = useState("");
+  const [regCountry, setRegCountry] = useState("");
   const [regBusiness, setRegBusiness] = useState("");
   const [regJobTitle, setRegJobTitle] = useState("");
   const [regApiKey, setRegApiKey] = useState("");
@@ -102,7 +105,10 @@ export default function LoginPage() {
           name: regName,
           email: regEmail,
           password: regPassword,
-          address: regAddress,
+          streetAddress: regStreet,
+          city: regCity,
+          state: regState || undefined,
+          country: regCountry,
           business: regBusiness || undefined,
           jobTitle: regJobTitle || undefined,
           apiKey: regApiKey || undefined,
@@ -111,7 +117,8 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Registration failed"); setSubmitting(false); return; }
-      window.location.href = "/";
+      // New accounts pick their study defaults (banked vs fresh, reasoning stream) before landing.
+      window.location.href = "/onboarding";
     } catch {
       setError("Network error. Please try again.");
       setSubmitting(false);
@@ -268,13 +275,46 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {/* Structured address — city/state/country also seed the Live Tasting market, so the
+                buy-local flow works from day one without a second setup step in Settings. */}
             <div>
-              <label htmlFor="reg-address" className="block text-sm font-medium text-foreground mb-1.5">
-                Address <span className="text-fail">*</span>
+              <label htmlFor="reg-street" className="block text-sm font-medium text-foreground mb-1.5">
+                Street address <span className="text-fail">*</span>
               </label>
-              <input id="reg-address" type="text" value={regAddress} onChange={(e) => setRegAddress(e.target.value)} required
+              <input id="reg-street" type="text" value={regStreet} onChange={(e) => setRegStreet(e.target.value)} required autoComplete="street-address"
                 className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-                placeholder="City, Country" />
+                placeholder="123 Main St" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="reg-city" className="block text-sm font-medium text-foreground mb-1.5">
+                  City / town <span className="text-fail">*</span>
+                </label>
+                <input id="reg-city" type="text" value={regCity} onChange={(e) => setRegCity(e.target.value)} required autoComplete="address-level2"
+                  className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  placeholder="e.g. New Hope" />
+              </div>
+              <div>
+                <label htmlFor="reg-state" className="block text-sm font-medium text-foreground mb-1.5">
+                  State / region <span className="text-muted font-normal">(optional)</span>
+                </label>
+                <input id="reg-state" type="text" value={regState} onChange={(e) => setRegState(e.target.value)} autoComplete="address-level1"
+                  className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                  placeholder="e.g. Pennsylvania" />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="reg-country" className="block text-sm font-medium text-foreground mb-1.5">
+                Country <span className="text-fail">*</span>
+              </label>
+              <input id="reg-country" type="text" value={regCountry} onChange={(e) => setRegCountry(e.target.value)} required autoComplete="country-name"
+                className="w-full px-3 py-2.5 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="e.g. United States" />
+              <p className="text-xs text-muted mt-1.5">
+                Your city and country set up Live Tasting — blind flights built from wines you can actually buy near you.
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

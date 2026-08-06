@@ -28,6 +28,9 @@ flowchart TD
 
 ```mermaid
 flowchart LR
+    STEM{"Only 2 wines AND<br/>'state of maturity'<br/>marked in the stem?"} -->|Yes| MATPAIR["Development-arc whites FIRST:<br/>RIESLING & Chenin (strong)<br/>Chardonnay & Semillon (plausible)<br/>Expect young-vs-mature pair,<br/>possibly same country + dry-vs-sweet<br/>(2018 P1 Q3: Rheingau GG 2016<br/>vs Mosel Auslese 2007)"]
+    STEM -->|No| LOCK
+    MATPAIR --> LOCK
     LOCK["Lock the grape<br/>on the cleanest wine"] --> AROMA{"Aroma family?"}
     AROMA -->|"Citrus/apple<br/>chalk/restraint"| CHARD["Chardonnay"]
     AROMA -->|"Lime/petrol<br/>electric acid"| RIES["Riesling"]

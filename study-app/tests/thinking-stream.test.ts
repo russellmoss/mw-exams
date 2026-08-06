@@ -9,6 +9,7 @@
  *      multi-line frame shows up as a drill that never loads, not as an error.
  */
 import { describe, it, expect } from "vitest";
+import type Anthropic from "@anthropic-ai/sdk";
 import {
   supportsAdaptiveThinking,
   thinkingParams,
@@ -18,7 +19,9 @@ import {
   reasoningEnabled,
   resolveThinking,
   invalidateReasoningCache,
+  streamWithThinking,
 } from "../src/lib/thinking-stream";
+import { reasonsByDefault } from "../src/lib/model-capabilities";
 
 async function readSse(res: Response): Promise<string[]> {
   const text = await res.text();
@@ -54,6 +57,31 @@ describe("supportsAdaptiveThinking", () => {
       "claude-3-5-sonnet-20241022",
     ]) {
       expect(supportsAdaptiveThinking(m), m).toBe(false);
+    }
+  });
+});
+
+describe("reasonsByDefault", () => {
+  it("is a strict subset of supportsAdaptiveThinking: the models that reason unprompted", () => {
+    for (const m of ["claude-opus-4-7", "claude-opus-4-8", "claude-opus-5", "claude-sonnet-5", "claude-fable-5"]) {
+      expect(reasonsByDefault(m), m).toBe(true);
+      expect(supportsAdaptiveThinking(m), m).toBe(true);
+    }
+  });
+
+  it("excludes the request-only reasoners, where asking changes the model's behaviour", () => {
+    // Opus 4.6 / Sonnet 4.6 accept adaptive thinking but reason only when asked. On the generation
+    // prompt, asking Sonnet 4.6 produced thinking spirals that consumed the entire 16k output
+    // budget with no text (2026-08-05/06). Callers deciding whether to REQUEST thinking gate here.
+    for (const m of ["claude-opus-4-6", "claude-sonnet-4-6"]) {
+      expect(reasonsByDefault(m), m).toBe(false);
+      expect(supportsAdaptiveThinking(m), m).toBe(true);
+    }
+  });
+
+  it("rejects models with no adaptive thinking at all", () => {
+    for (const m of ["claude-haiku-4-5-20251001", "claude-opus-4-5", "claude-3-5-sonnet-20241022"]) {
+      expect(reasonsByDefault(m), m).toBe(false);
     }
   });
 });
@@ -167,5 +195,106 @@ describe("sseStream", () => {
     const frames = await readSse(res);
     expect(JSON.parse(frames[0])).toEqual({ type: "status", label: "line one\nline two" });
     expect(frames).toHaveLength(3); // status, result, [DONE]
+  });
+});
+
+describe("streamWithThinking call-timeout enforcement", () => {
+  // The SDK's `timeout` option does not bound an already-open stream: a response that keeps
+  // streaming deltas is never "late" by its measure. That loophole let Sonnet 4.6 thinking spirals
+  // run ~280s under a 130s timeout (2026-08-05/06), each eating a whole generation budget. These
+  // tests pin the fix: the timeout is a wall-clock deadline enforced by an abort.
+
+  /** A client whose stream never yields — it only fails when the abort signal fires. */
+  function hangingClient(): Anthropic {
+    return {
+      messages: {
+        stream(_params: unknown, opts?: { signal?: AbortSignal }) {
+          const signal = opts?.signal;
+          const hang = new Promise<never>((_, reject) => {
+            const fail = () =>
+              reject(Object.assign(new Error("Request was aborted."), { name: "APIUserAbortError" }));
+            if (signal?.aborted) fail();
+            else signal?.addEventListener("abort", fail);
+          });
+          return {
+            [Symbol.asyncIterator]: () => ({ next: () => hang }),
+            finalMessage: () => hang,
+          };
+        },
+      },
+    } as unknown as Anthropic;
+  }
+
+  /** A healthy client: yields the given events, then resolves finalMessage. */
+  function fastClient(events: unknown[], final: unknown): Anthropic {
+    return {
+      messages: {
+        stream() {
+          return {
+            async *[Symbol.asyncIterator]() {
+              yield* events;
+            },
+            finalMessage: async () => final,
+          };
+        },
+      },
+    } as unknown as Anthropic;
+  }
+
+  const params = {} as Parameters<typeof streamWithThinking>[1];
+
+  it("aborts a stream that outlives its timeout, instead of waiting for token exhaustion", async () => {
+    const t0 = Date.now();
+    await expect(
+      streamWithThinking(hangingClient(), params, { timeout: 60, maxRetries: 0 }, () => {})
+    ).rejects.toThrow(/60ms call timeout/);
+    // The whole point: the failure arrives at ~the timeout, not minutes later. Generous bound so a
+    // slow CI box can't flake it.
+    expect(Date.now() - t0).toBeLessThan(5_000);
+  });
+
+  it("names the timeout in the error so telemetry records a deadline, not a mystery abort", async () => {
+    await expect(
+      streamWithThinking(hangingClient(), params, { timeout: 40, maxRetries: 0 }, () => {})
+    ).rejects.toThrow("Streaming call exceeded its 40ms call timeout and was aborted");
+  });
+
+  it("leaves a healthy stream untouched: deltas forwarded, final message returned", async () => {
+    const deltas: string[] = [];
+    const final = { content: [{ type: "text", text: "the flight" }] };
+    const message = await streamWithThinking(
+      fastClient(
+        [
+          { type: "content_block_delta", delta: { type: "thinking_delta", thinking: "Riesling?" } },
+          { type: "content_block_delta", delta: { type: "text_delta", text: "ignored" } },
+        ],
+        final
+      ),
+      params,
+      { timeout: 60_000, maxRetries: 0 },
+      (e) => {
+        if (e.type === "thinking") deltas.push(e.delta);
+      }
+    );
+    expect(message).toBe(final);
+    expect(deltas).toEqual(["Riesling?"]);
+  });
+
+  it("does not translate an unrelated stream failure into a timeout error", async () => {
+    const broken = {
+      messages: {
+        stream() {
+          return {
+            async *[Symbol.asyncIterator]() {
+              throw new Error("overloaded_error");
+            },
+            finalMessage: async () => ({}),
+          };
+        },
+      },
+    } as unknown as Anthropic;
+    await expect(
+      streamWithThinking(broken, params, { timeout: 60_000, maxRetries: 0 }, () => {})
+    ).rejects.toThrow("overloaded_error");
   });
 });
