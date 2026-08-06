@@ -10,12 +10,16 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, address, business, jobTitle, apiKey, tavilyKey } =
+    const { name, email, password, streetAddress, city, state, country, address, business, jobTitle, apiKey, tavilyKey } =
       await request.json();
 
-    if (!name || !email || !password || !address) {
+    // Structured address (street/city/state/country). city+country double as the user's Live
+    // Tasting market so the buy-local flow works from day one. The legacy single `address` field
+    // is still accepted so an old client (or the admin create-user path) keeps working.
+    const structured = !!(streetAddress?.trim() && city?.trim() && country?.trim());
+    if (!name || !email || !password || (!structured && !address)) {
       return Response.json(
-        { error: "Name, email, password, and address are required" },
+        { error: "Name, email, password, street address, city, and country are required" },
         { status: 400 }
       );
     }
@@ -87,17 +91,28 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const fullAddress = structured
+      ? [streetAddress.trim(), city.trim(), state?.trim() || null, country.trim()]
+          .filter(Boolean)
+          .join(", ")
+      : address.trim();
     const rows = await sql`
-      INSERT INTO users (email, name, password_hash, address, business, job_title, is_admin, is_active)
+      INSERT INTO users (
+        email, name, password_hash, address, business, job_title, is_admin, is_active,
+        live_city, live_state, live_country
+      )
       VALUES (
         ${email.toLowerCase().trim()},
         ${name.trim()},
         ${passwordHash},
-        ${address.trim()},
+        ${fullAddress},
         ${business?.trim() || null},
         ${jobTitle?.trim() || null},
         false,
-        true
+        true,
+        ${structured ? city.trim() : null},
+        ${structured ? state?.trim() || null : null},
+        ${structured ? country.trim() : null}
       )
       RETURNING id, email, name, is_admin
     `;
