@@ -487,6 +487,25 @@ export async function createLiveTasting(opts: {
 
   emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });
   const bank = await loadBudgetedBank(budgetAmount, budgetCurrency);
+  // Paper-QA round 5: the examiner judge failed stems with no shared-constraint framing — real MW
+  // stems open by declaring the flight's axis. Each archetype IS such an axis; spell it out so the
+  // pinned prompt can require the stem to declare it. Named regions/categories are withheld except
+  // the P3 style category, which real P3 stems routinely announce ("The following wines are all
+  // sparkling…").
+  const flightThemeFor = (archetype: ArchetypeId, label: string, n: number): string => {
+    switch (archetype) {
+      case "same-variety":
+        return `All ${n} wines are made from the same single grape variety, from different origins.`;
+      case "same-origin":
+        return `All ${n} wines are from the same origin, made from different grape varieties.`;
+      case "quality-ladder":
+        return `All ${n} wines are from the same region, presented at different quality and price levels.`;
+      case "p3-styles":
+        return `The wines share one broad style category, contrasting in sub-style and/or origin (${label}).`;
+      default:
+        return `The ${n} wines are of different grape varieties and origins.`;
+    }
+  };
   let picked: ReturnType<typeof pickArchetype>;
   try {
     picked = pickArchetype(bank, paper, flightSize, pickOpts);
@@ -525,6 +544,7 @@ export async function createLiveTasting(opts: {
         awaitKeyOnly: true,
         onBackgroundWork: keepAlive,
         paperStemsContext: opts.paperStemsContext,
+        flightTheme: flightThemeFor(picked.archetype, picked.label, slotsAvail.length),
         // Sized so TWO generation attempts fit inside the route's 300s platform ceiling alongside
         // the availability phase (E2E run 1 + the pilot's first create both died at that wall).
         budgetMs: 190_000,

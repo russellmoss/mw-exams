@@ -816,6 +816,11 @@ export async function generateFreshQuestion(
     // examiner judge failed identical a/b/c scaffolds repeated across a paper, and flagged the
     // absence of POOLED identification marks — both are stem-construction habits, steered here.
     paperStemsContext?: string | null;
+    // Flight organizing fact (paper-QA round 5): the examiner judge failed stems that read as
+    // stand-alone triplets with no shared-constraint framing — real stems OPEN by declaring the
+    // flight's axis ("Wines 1–3 are made from the same grape variety…"). Each archetype IS such
+    // an axis; the engine spells it out here so the stem can declare it.
+    flightTheme?: string | null;
     // Live Tasting's lighter await: block on the enrichment→key chain only (the gradability
     // core), letting the model answer (Opus, ~60-90s) and audit finish in background. The first
     // E2E run proved the full awaitBackgroundWork chain can push session creation past the
@@ -957,13 +962,15 @@ The flight is EXACTLY ${pinned.length} wines — no more, no fewer. Your output 
 ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
-The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.
+The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.${saveOpts?.flightTheme ? `
+The flight's organizing fact: ${saveOpts.flightTheme}
+REQUIRED: the stem MUST OPEN by declaring this shared fact to the candidate ("Wines 1–${pinned.length} are …") — real MW stems always state the flight's constraint up front, then set tasks against it. Declare only the fact itself; never leak producer, cuvée, or specific origin beyond what the fact states.` : ""}
 Mark-structure realism (paper-QA examiner conventions, verified against the 2023-24 corpus):
 - Identification is ONE BUNDLED sub-question — "identify the grape variety (or varieties) and origin as closely as possible" — never split variety and origin into separate sub-questions, and never omit origin. Weight it 13-18 marks per question.
 - MIX pooled sub-questions ("For both wines: … (14 marks)") with per-wine ones — no rigidly symmetric allocations.
-- Where natural, include an integrative comparative sub-question ("With reference to all the wines, …").
+- REQUIRED: at least ONE sub-question must be integrative across the whole flight ("With reference to both/all the wines, compare/discuss …" — quality, style, winemaking or commercial position). A question made only of stand-alone per-wine parts is NOT a real MW question.
 - Paper 3 only: real papers routinely include a discrete 2-3 mark micro-question on a technical attribute (residual sugar level, alcohol, method) — include one where it fits.${saveOpts?.paperStemsContext ? `
-This question is part of a FULL PAPER. Earlier questions used these stems — VARY your sub-question lettering, structure and phrasing (real papers never repeat an identical scaffold):
+This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part count, mark split AND phrasing must all differ from every one of them (two near-identical a/b/c triplets fail QA).
 ${saveOpts.paperStemsContext}` : ""}`;
   }
 
