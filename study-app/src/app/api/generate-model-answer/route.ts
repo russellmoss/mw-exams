@@ -90,7 +90,9 @@ export async function POST(request: Request) {
     // Citations go on AFTER parsing and after the length gate, never before: parseModelAnswerSections
     // slices on headers, and a source list inserted earlier would be swallowed into whichever section
     // preceded it.
-    const modelAnswer = lengthOutcome.modelAnswer + buildCitationBlock(kbPassages);
+    const modelAnswer =
+      lengthOutcome.modelAnswer +
+      buildCitationBlock(kbPassages, `${questionText} ${wines.map((w: { fullText?: string }) => w.fullText ?? "").join(" ")}`);
 
     // Update the question in Neon
     const updated = await saveGeneratedQuestion({

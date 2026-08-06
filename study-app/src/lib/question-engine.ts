@@ -291,8 +291,11 @@ function generateModelAnswerInBackground(
         questionId,
         questionText,
       });
-      // Same as the standalone route: append the source list after section extraction.
-      const modelAnswer = lengthOutcome.modelAnswer + buildCitationBlock(kbPassages);
+      // Same as the standalone route: append the source list after section extraction. The stem +
+      // wine labels are the relevance context — the citation gate drops docs about other wines.
+      const modelAnswer =
+        lengthOutcome.modelAnswer +
+        buildCitationBlock(kbPassages, `${questionText} ${wines.map((w) => w.fullText).join(" ")}`);
       const proposedAnnotation = sections.proposedAnnotation;
       const reasoningTrace = sections.reasoningTrace;
       const studyDiagramAssist = sections.studyDiagramAssist;

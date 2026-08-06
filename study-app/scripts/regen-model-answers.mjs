@@ -318,7 +318,9 @@ async function regenOne(row) {
   // Append the source list exactly as the live routes do. Without this a bulk regeneration would
   // silently strip citations from every exemplar it touched — the same offline/production drift the
   // header of this file warns about, and the second time it has bitten in this feature.
-  s.modelAnswer = lengthOutcome.modelAnswer + buildCitationBlock(passages);
+  s.modelAnswer =
+    lengthOutcome.modelAnswer +
+    buildCitationBlock(passages, `${row.question_text} ${wines.map((w) => w.fullText).join(" ")}`);
   const newLen = s.modelAnswer.length;
   const budget = answerWordBudget(marks);
   const kb = `${passages.length} passage(s) [${reason}]`;
