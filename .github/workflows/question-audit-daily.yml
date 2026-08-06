@@ -10,6 +10,14 @@
 #   - clearing stale flags: audit-questions.mjs --apply un-quarantines questions that a rule fix has
 #     made clean again, which the set-only per-question audit deliberately never does.
 #
+# A second sweep runs the wine-bank cuvée audit. That gate lives in matchScore (wine-bank-lookup.ts)
+# and is correct in the deployed build, but it only governs the code that is *running*. Generation is
+# routinely driven from developer worktrees against this same production database, and a worktree on a
+# branch older than the gate writes wrong-cuvée provenance no matter what production is serving — a
+# Pinot Noir question fed a Pinotage profile, a Tokaji Aszú fed a dry Furmint. Nineteen such slots
+# accumulated unnoticed because the audit only ever ran by hand. It is cheap and idempotent, so it
+# belongs on a schedule.
+#
 # Runs daily; also on demand via workflow_dispatch. Read-modify on the live DB, no git writes, no
 # deploy — so no [skip ci] concerns and no interaction with the Vercel cron budget (this is exactly
 # the "GitHub Actions, not Vercel crons" pattern CLAUDE.md prescribes for scheduled work).
@@ -51,3 +59,26 @@ jobs:
       - name: Audit + quarantine (hard violations → invalid_reasons)
         working-directory: study-app
         run: node scripts/audit-questions.mjs --apply
+
+      # Runs even if the step above fails: the two audits are independent, and a question-validator
+      # problem should not leave wrong-wine profiles being served. ts-loader is the repo's existing
+      # way to run a .mts that imports the app's extensionless .ts libs — no tsx dependency needed.
+      # The script self-loads .env.local only when DATABASE_URL is unset, so the secret above wins.
+      - name: Audit + clear wrong-cuvée bank matches
+        if: always()
+        working-directory: study-app
+        run: node --import ./scripts/ts-loader.mjs scripts/audit-bank-matches.mts --apply
+
+      # --apply backs up every profile it replaces before clearing it. This workflow makes no git
+      # writes, so without this the backup for anything cleared *today* would die with the runner and
+      # a wrongly-cleared slot could not be restored. The glob also picks up the backups already
+      # committed to data/ — redundant but harmless, and it keeps the step from depending on the
+      # runner's date matching the filename the script chose.
+      - name: Keep the cleared profiles recoverable
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wrong-cuvee-cleared-profiles
+          path: data/wine_profiles_wrong_cuvee_backup_*.json
+          if-no-files-found: ignore
+          retention-days: 90
