@@ -70,7 +70,14 @@
     "Xinomavro",
     "Zinfandel",
     "Muscat Blanc à Petits Grains",
-    "Muscat of Alexandria"
+    "Muscat of Alexandria",
+    "Lagrein",
+    "Blauer Wildbacher",
+    "Treixadura",
+    "Romorantin",
+    "Mauzac",
+    "Rosenmuskateller",
+    "Carménère"
   ],
   "synonyms": {
     "spatburgunder": "Pinot Noir",
@@ -80,6 +87,7 @@
     "mazuelo": "Carignan",
     "tinta de toro": "Tempranillo",
     "tinto fino": "Tempranillo",
+    "tinta fina": "Tempranillo",
     "spanna": "Nebbiolo",
     "pinot nero": "Pinot Noir",
     "grauburgunder": "Pinot Gris",
