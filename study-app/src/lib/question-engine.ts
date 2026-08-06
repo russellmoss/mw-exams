@@ -55,6 +55,7 @@ import {
   winesFromText,
   detectPrimaryVariety,
   canonVariety,
+  stemDisclosureViolations,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -1164,6 +1165,11 @@ export async function generateFreshQuestion(
       banker: bankerCheck,
       flightSize: flightSizeCheck,
       novelty: noveltyCheck,
+      // Stem-disclosure (rule R10, shared with the audit where it is a soft flag): a stem that
+      // announces the discriminator ("made using contrasting approaches in the winery") BLOCKS here
+      // and never relaxes — the model is rewording its own text, so convergence is not at risk, and
+      // this was the largest stem-quality class in Mike's bin-reason corpus.
+      stemDisclosure: { violations: stemDisclosureViolations(candidate.questionText).map((x) => x.detail) },
     };
     const violationsByRule: Record<string, string[]> = {};
     for (const [name, check] of Object.entries(checks)) {
