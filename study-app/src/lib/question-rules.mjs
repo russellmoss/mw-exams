@@ -536,6 +536,45 @@ export function applyQuestionRules(q, opts = {}) {
     }
   }
 
+  // R11 — shared-variety flights ask the variety ONCE, flight-wide. Every real same-variety stem
+  // either scaffolds the shared part ("With reference to both wines: a) Identify the grape variety.
+  // (10 marks) … For each wine: b) …") or combines variety+origin under a single FLAT flight-wide
+  // mark ("For both wines: a) Identify the country of origin and grape variety. (25 marks)"). None
+  // marks the shared variety per wine: an "Identify the … variety" sub-part carrying "(N x M marks)"
+  // with N = the wine count pays the candidate N times for one shared answer and gives the Split
+  // Sections renderer (question-sections.ts) nothing to group on (ledger: attempt #344,
+  // gen_p2_F5_1786023511251). HARD. Pair-split flights ("each pair is made from the same single
+  // grape variety") are exempt — there the multiplier counts pairs, not wines, and the varieties
+  // genuinely differ across pairs (real format: 2019 P2 Q1, "(3 x 10 marks)" over 6 wines).
+  if (
+    wines.length >= 2 &&
+    (/\bsame (?:single )?grape variety\b|\bsame variety\b/.test(stem)) &&
+    !/\beach pair\b|\bpairs?\b/.test(stem)
+  ) {
+    // Break inline sub-part markers onto their own lines (mirrors question-sections.ts) so each
+    // lettered part can be inspected with its own trailing mark token.
+    const lined = (q.questionText || "").replace(/\s+\(?([a-h])\)\s+/gi, "\n$1) ");
+    for (const line of lined.split("\n")) {
+      const sub = line.match(/^\(?([a-h])\)\s*(.*)$/i);
+      if (!sub) continue;
+      const text = sub[2];
+      // The identify clause must TARGET the variety ("Identify the [common/single] grape variety…"),
+      // not merely mention it downstream — "Identify the region of origin … and comment on how the
+      // character of the variety is expressed" is a legitimate per-wine origin ask (real false
+      // positive: gen_p1_F1_1786016636975, whose flat flight-wide variety part is corpus-correct).
+      if (!/identify\s+(?:the\s+|its\s+)?(?:common\s+|primary\s+|predominant\s+|single\s+)*(?:grape\s+)?variet/i.test(text)) continue;
+      const mk = text.match(/\(\s*(\d+)\s*[x×]\s*\d+\s*marks?\s*\)/i);
+      if (mk && Number(mk[1]) === wines.length) {
+        v.push({
+          rule: "shared-variety-marked-per-wine",
+          severity: "hard",
+          detail: `stem says same grape variety but sub-part ${sub[1].toLowerCase()}) marks variety identification per wine ("${mk[0].trim()}") — ask the variety once, flight-wide, with a flat mark ("With reference to both wines: … (10 marks)"), then per-wine parts under "For each wine:"`,
+        });
+        break; // one verdict per stem — the first offending part is the one to fix
+      }
+    }
+  }
+
   // R10 — stem discloses the discriminator (Mike's bin corpus, Class 1). SOFT: answerable, but the
   // stem hands over the axis the marks are for. Blocking at generation via the engine's check.
   for (const d of stemDisclosureViolations(q.questionText)) v.push(d);
