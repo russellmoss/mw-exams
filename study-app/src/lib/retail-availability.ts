@@ -279,12 +279,16 @@ export async function getAvailability(
       if (!Array.isArray(raw)) {
         const arr = (raw as { stockists?: unknown })?.stockists;
         const typ = (raw as { typicalPriceUsd?: unknown })?.typicalPriceUsd;
-        return {
-          stockists: coerceStockists(arr),
-          typicalPriceUsd: typeof typ === "number" && typ > 0 ? typ : null,
-          fromCache: true,
-          degraded: false,
-        };
+        // A null estimate can't arbitrate a budget (E2E run 9: an unpriced Meursault rode a
+        // null-estimate cache row past a $40 budget) — fall through and refresh.
+        if (typeof typ === "number" && typ > 0) {
+          return {
+            stockists: coerceStockists(arr),
+            typicalPriceUsd: typ,
+            fromCache: true,
+            degraded: false,
+          };
+        }
       }
     }
   } catch (err) {
@@ -424,7 +428,7 @@ async function parseStockists(
 ${STOCKIST_JSON_SHAPE}
 
 Rules:
-- Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, producers' own sites (unless they sell direct), or encyclopedic pages.
+- Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, or encyclopedic pages. A producer's OWN website counts only when the producer is in the user's country AND sells direct; a French domaine's site is useless to a US buyer — exclude it.
 - kind: "local" = a physical shop the user could drive to (${radiusText}; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
 - url: the result URL for that merchant (the listing page if that's what was found).
 - price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP, else null. Never guess a price.

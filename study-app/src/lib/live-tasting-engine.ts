@@ -214,11 +214,21 @@ export function pickArchetype(
       }
     } else if (arch === "quality-ladder") {
       for (const ladder of shuffle(LADDER_REGIONS.filter((l) => l.paper === paper))) {
-        const pool = stillDry.filter(
+        const broad = stillDry.filter(
           (r) => norm(r.region).includes(norm(ladder.region)) &&
                  grapeList(r).some((g) => norm(g) === norm(ladder.variety)) &&
                  !nameContradictsVariety(r.wine_name, ladder.variety)
         );
+        // Same EXACT region string only: "Burgundy" broadly matched Chablis + Meursault, and the
+        // stem's "same region of origin" premise read as pedagogically false to the E2E judge
+        // (they are distinct sub-regions). Group by the row's own region and ladder within the
+        // largest group — a Meursault ladder, a Chablis ladder, never a mongrel.
+        const byExact = new Map<string, BankRow[]>();
+        for (const r of broad) {
+          const k = norm(r.region);
+          byExact.set(k, [...(byExact.get(k) ?? []), r]);
+        }
+        const pool = [...byExact.values()].sort((a, b) => b.length - a.length)[0] ?? [];
         const bands = new Set(pool.map((r) => r.price_band));
         if (pool.length >= flightSize && bands.size >= 2) {
           // Order the flight cheap→dear so the ladder reads as a ladder.

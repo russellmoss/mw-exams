@@ -97,14 +97,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     userAnswer,
     vintagesBought: vintages,
     onComplete: async (finalText) => {
-      await updateAttempt(finalAttemptId, { answer_feedback: finalText });
-      // Deliberately loose: the debrief's exact bolding/casing varies (E2E run 2 parsed
-      // null/null with the strict forms). Anchor on the labels, tolerate any markdown around.
+      // ONE updateAttempt call: the answer_feedback branch writes feedback + estimates together
+      // (and nulls estimates not passed with it), while a bare {pass_estimate} call matches no
+      // branch at all — E2E runs 2-9 recorded null estimates because of exactly that split.
+      // Loose parsing on purpose; pass_estimate is lowercase per the UserAttempt type.
       const passMatch = finalText.match(/Result\s*:?[\s*[]*?(PASS|BORDERLINE|FAIL)/i);
-      if (passMatch) await updateAttempt(finalAttemptId, { pass_estimate: passMatch[1].toUpperCase() });
       const marksMatch = finalText.match(/Estimated\s+marks\s*:?[\s*[]*([^\n*\]]+)/i);
-      if (marksMatch) await updateAttempt(finalAttemptId, { marks_estimate: marksMatch[1].trim().slice(0, 60) });
-      await updateAttempt(finalAttemptId, { completed_at: new Date().toISOString() });
+      await updateAttempt(finalAttemptId, {
+        answer_feedback: finalText,
+        ...(passMatch ? { pass_estimate: passMatch[1].toLowerCase() } : {}),
+        ...(marksMatch ? { marks_estimate: marksMatch[1].trim().slice(0, 60) } : {}),
+      });
       // Stamped LAST: graded_at is the fact "a debrief exists and was saved".
       await stampLiveTastingEvent(session.id, "graded_at");
     },
