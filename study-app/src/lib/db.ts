@@ -3469,6 +3469,16 @@ export async function repointLiveTastingSession(
   `;
 }
 
+// Token rotation (plan §2.5): clearing the hash 404s every previously-shared link. Used by
+// replace-wine so a partner can never buy from a stale list; the user re-mints to share again.
+export async function clearLiveTastingShareToken(sessionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions SET share_token_hash = NULL, share_expires_at = NULL
+    WHERE id = ${sessionId}
+  `;
+}
+
 // Rate limit (plan §5.3): sessions created by this user in the last 24h.
 export async function countRecentLiveTastingSessions(userId: number): Promise<number> {
   const sql = getDb();

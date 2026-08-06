@@ -859,8 +859,8 @@ interface Filters {
 }
 
 const attemptMode = (a: AttemptDetail): string =>
-  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" || a.mode === "flash" ? a.mode : "full";
-const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes", flash: "Flash Notes" };
+  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" || a.mode === "flash" || a.mode === "live-tasting" ? a.mode : "full";
+const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes", flash: "Flash Notes", "live-tasting": "Live Tasting" };
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);

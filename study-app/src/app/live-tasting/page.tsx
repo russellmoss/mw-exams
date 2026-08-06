@@ -40,21 +40,18 @@ export default function LiveTastingPage() {
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, user, router]);
 
-  const load = useCallback(async () => {
-    try {
-      const [sRes, pRes] = await Promise.all([
-        fetch("/api/live-tasting"),
-        fetch("/api/user/live-tasting-prefs"),
-      ]);
-      if (sRes.ok) setSessions((await sRes.json()).sessions);
-      if (pRes.ok) setPrefs(await pRes.json());
-    } catch {
-      setSessions([]);
-    }
+  const load = useCallback(() => {
+    return Promise.all([fetch("/api/live-tasting"), fetch("/api/user/live-tasting-prefs")])
+      .then(async ([sRes, pRes]) => {
+        if (sRes.ok) setSessions((await sRes.json()).sessions);
+        if (pRes.ok) setPrefs(await pRes.json());
+      })
+      .catch(() => setSessions([]));
   }, []);
 
   useEffect(() => {
-    if (user) load();
+    if (!user) return;
+    load();
   }, [user, load]);
 
   const createSession = async () => {

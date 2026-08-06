@@ -2,7 +2,13 @@ import { neon } from "@neondatabase/serverless";
 import { generateFreshQuestion } from "./question-engine";
 import type { ProgressEmitter } from "./thinking-stream";
 import { getAvailability, fitsBudget, confidentCount, type Stockist } from "./retail-availability";
-import { createLiveTastingSession, type LiveTastingSession } from "./db";
+import {
+  createLiveTastingSession,
+  repointLiveTastingSession,
+  clearLiveTastingShareToken,
+  setLiveTastingVintages,
+  type LiveTastingSession,
+} from "./db";
 import { liveTastingSessionId } from "./live-tasting";
 
 /**
@@ -359,16 +365,9 @@ export async function createLiveTasting(opts: {
 
   // The engine awaited key derivation + audit. Verify the outcome before the session exists:
   // a quarantined or key-failed question must never become a shopping list.
-  const sql = neon(process.env.DATABASE_URL!);
   const qid = result.question.question_id as string;
-  const check = await sql`
-    SELECT q.invalid_reasons, k.validated
-    FROM generated_questions q
-    LEFT JOIN stem_answer_keys k ON k.question_id = q.question_id
-    WHERE q.question_id = ${qid}
-  `;
-  const row = check[0];
-  if (!row || row.invalid_reasons != null || row.validated === false) {
+  const verified = await verifyQuestionServable(qid);
+  if (!verified) {
     return { error: "The generated question failed validation — please try again." };
   }
 
@@ -387,4 +386,113 @@ export async function createLiveTasting(opts: {
     availability: { archetypeLabel: picked.label, slots: availability },
   });
   return { session };
+}
+
+/** Key validated + not quarantined — the invariant every session repoint/create must hold. */
+async function verifyQuestionServable(questionId: string): Promise<boolean> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const check = await sql`
+    SELECT q.invalid_reasons, k.validated
+    FROM generated_questions q
+    LEFT JOIN stem_answer_keys k ON k.question_id = q.question_id
+    WHERE q.question_id = ${questionId}
+  `;
+  const row = check[0];
+  return Boolean(row && row.invalid_reasons == null && row.validated !== false);
+}
+
+/**
+ * Replace one slot's wine (live_tasting_plan.md §2.1): the swap must satisfy the DEPARTING wine's
+ * slot role — same country plus a shared grape variety (or same region) — so the flight keeps its
+ * archetype and the repair loop isn't handed a thematically broken flight (council: Gemini #4).
+ * Substitution is a generation event: new question row, key re-derived, session repointed, share
+ * token rotated (stale partner lists must die, not drift).
+ */
+export async function replaceWine(opts: {
+  session: LiveTastingSession;
+  slot: number;
+  apiKey: string;
+  emit?: ProgressEmitter;
+}): Promise<{ ok: true } | { error: string }> {
+  const { session, slot, apiKey, emit } = opts;
+  const avail = (session.availability ?? {}) as { archetypeLabel?: string; slots?: SlotAvailability[] };
+  const slots = Array.isArray(avail.slots) ? [...avail.slots] : [];
+  const departing = slots.find((s) => s.slot === slot);
+  if (!departing) return { error: "No such slot" };
+
+  const sql = neon(process.env.DATABASE_URL!);
+  const departingRow = (await sql`
+    SELECT id, producer, wine_name, country, region, grape_varieties, style_category, price_band
+    FROM wine_bank WHERE id = ${departing.wineKey}
+  `) as BankRow[];
+  const departingGrapes = departingRow[0] ? grapeList(departingRow[0]).map(norm) : [];
+  const inFlight = new Set(slots.map((s) => s.wineKey));
+
+  const bank = await loadBudgetedBank(
+    session.budget_amount != null ? Number(session.budget_amount) : null,
+    session.budget_currency
+  );
+  const candidates = shuffle(
+    bank.filter(
+      (r) =>
+        !inFlight.has(r.id) &&
+        norm(r.country) === norm(departing.country) &&
+        (departingGrapes.length === 0 ||
+          grapeList(r).some((g) => departingGrapes.includes(norm(g))) ||
+          norm(r.region) === norm(departing.region)) &&
+        (session.paper === 3 || r.style_category === "still_dry")
+    )
+  ).slice(0, 3);
+  if (!candidates.length) {
+    return { error: "No archetype-compatible replacement available within budget — try abandoning and regenerating." };
+  }
+
+  emit?.({ type: "status", label: "Checking availability for the replacement…" });
+  const confirmed = await confirmSlots(
+    [{ row: candidates[0], alternates: candidates.slice(1) }],
+    session.city, session.country, apiKey, session.user_id, emit
+  );
+  slots[slots.findIndex((s) => s.slot === slot)] = { ...confirmed[0], slot };
+
+  const pinnedWines = slots.map((s) => ({
+    slot: s.slot,
+    fullText: pinnedText({
+      id: s.wineKey, producer: s.producer, wine_name: s.wineName,
+      country: s.country, region: s.region, grape_varieties: [], style_category: "", price_band: s.priceBand,
+    }),
+  }));
+
+  emit?.({ type: "status", label: "Rewriting the question for the new flight…" });
+  const result = await generateFreshQuestion(
+    session.paper,
+    ARCHETYPE_FAMILY[(session.archetype as ArchetypeId) ?? "mixed-variety"] ?? "F4",
+    apiKey,
+    { source: "user", userId: session.user_id },
+    undefined,
+    emit,
+    {
+      scope: "live-tasting",
+      pinnedWines,
+      status: "approved",
+      awaitBackgroundWork: true,
+      budgetMs: 150_000,
+      callTimeoutMs: 130_000,
+    }
+  );
+  if ("error" in result) return { error: result.error ?? "Regeneration failed." };
+  if (!("question" in result) || !result.question) return { error: "Regeneration failed." };
+
+  const qid = result.question.question_id as string;
+  if (!(await verifyQuestionServable(qid))) {
+    return { error: "The regenerated question failed validation — the original flight is unchanged." };
+  }
+
+  await repointLiveTastingSession(session.id, qid, { ...avail, slots });
+  // The replaced slot's recorded vintage no longer describes the bottle; drop it.
+  const vintages = { ...((session.vintages_bought ?? {}) as Record<string, string>) };
+  delete vintages[String(slot)];
+  await setLiveTastingVintages(session.id, vintages);
+  // Rotate: any link a partner holds now describes the wrong flight.
+  await clearLiveTastingShareToken(session.id);
+  return { ok: true };
 }

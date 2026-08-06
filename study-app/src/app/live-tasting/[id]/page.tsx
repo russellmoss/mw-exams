@@ -87,6 +87,7 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
   const [tasting, setTasting] = useState(false);
+  const [replacingSlot, setReplacingSlot] = useState<number | null>(null);
   const [preGlass, setPreGlass, clearPreGlass] = useDraft(`lt-preglass:${id}`);
   const [answer, setAnswer, clearAnswer] = useDraft(`lt-answer:${id}`);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -96,16 +97,18 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, user, router]);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/live-tasting/${id}`);
-      if (res.status === 404) { setNotFound(true); return; }
-      if (res.ok) setSession(await res.json());
-    } catch { /* transient — user can reload */ }
+  const load = useCallback(() => {
+    return fetch(`/api/live-tasting/${id}`)
+      .then(async (res) => {
+        if (res.status === 404) { setNotFound(true); return; }
+        if (res.ok) setSession(await res.json());
+      })
+      .catch(() => { /* transient — user can reload */ });
   }, [id]);
 
   useEffect(() => {
-    if (user) load();
+    if (!user) return;
+    load();
   }, [user, load]);
 
   const revealShoppingList = async () => {
@@ -134,6 +137,45 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
       }
     } finally {
       setShareBusy(false);
+    }
+  };
+
+  const replaceSlotWine = async (slot: number) => {
+    let confirm = false;
+    for (;;) {
+      setReplacingSlot(slot);
+      try {
+        const res = await fetch(`/api/live-tasting/${id}/replace-wine`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slot, ...(confirm ? { confirm: true } : {}) }),
+        });
+        if (res.status === 409) {
+          const data = await res.json().catch(() => ({}));
+          if (data.needsConfirm && !confirm) {
+            const go = window.confirm(
+              "Your partner may already be shopping from the shared list. Replacing this wine kills the old link — they'll need a fresh one. Continue?"
+            );
+            if (!go) return;
+            confirm = true;
+            continue;
+          }
+          setSubmitError(data.error || "Could not replace the wine.");
+          return;
+        }
+        if (!res.ok || !res.body) {
+          const data = await res.json().catch(() => ({}));
+          setSubmitError(data.error || "Could not replace the wine.");
+          return;
+        }
+        await res.text(); // drain the SSE progress stream
+        setShopping(null); // stale list — force a fresh reveal
+        setShareUrl(null);
+        await load();
+        return;
+      } finally {
+        setReplacingSlot(null);
+      }
     }
   };
 
@@ -281,10 +323,19 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                   <div className="space-y-5">
                     {shopping.slots.map((slot) => (
                       <div key={slot.slot}>
-                        <p className="text-sm font-medium text-foreground mb-2">
-                          <span className="text-muted tabular-nums mr-2">#{slot.slot}</span>
-                          {slot.label}
-                          <span className="text-muted font-normal"> — {slot.region}, {slot.country}</span>
+                        <p className="text-sm font-medium text-foreground mb-2 flex items-center justify-between gap-3">
+                          <span>
+                            <span className="text-muted tabular-nums mr-2">#{slot.slot}</span>
+                            {slot.label}
+                            <span className="text-muted font-normal"> — {slot.region}, {slot.country}</span>
+                          </span>
+                          <button
+                            onClick={() => replaceSlotWine(slot.slot)}
+                            disabled={replacingSlot !== null}
+                            className="shrink-0 text-xs text-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            {replacingSlot === slot.slot ? "Replacing…" : "Can't find it? Replace"}
+                          </button>
                         </p>
                         <div className="space-y-2">
                           {slot.stockists.map((s, i) => (

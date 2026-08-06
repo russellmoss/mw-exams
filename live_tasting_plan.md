@@ -1,6 +1,11 @@
 # Live Tasting — Implementation Plan
 
-**Status: v2 — COUNCIL-HARDENED (Codex gpt-5.4 + Gemini 3.1 Pro adversarial review, 2026-08-05)**
+**Status: v2.1 IMPLEMENTED (2026-08-05) — all three phases built on branch
+`claude/local-wine-tavily-search-3c8f8a`; council-hardened (Codex gpt-5.4 + Gemini 3.1 Pro).**
+**Deploy runbook: merge to master (migration 041 applies on the production build) → run
+`node study-app/scripts/backfill-price-bands.mjs` once (candidates need bands) → set the
+`LT_E2E_PASSWORD` Actions secret → trigger `live-tasting-e2e-weekly` via workflow_dispatch →
+user-1 pilot (§9.4) → remove the `user.isAdmin` gate in NavBar.tsx to open to everyone.**
 **Changelog from v1 at the bottom (§13).**
 
 ## 1. What this feature is
