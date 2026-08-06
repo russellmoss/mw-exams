@@ -253,11 +253,13 @@ export async function confirmSlots(
   budget?: { amount: number | null; currency: string | null },
   radiusMinutes?: number | null
 ): Promise<SlotAvailability[]> {
-  const out: SlotAvailability[] = [];
   const budgetAmount = budget?.amount ?? null;
-  for (let i = 0; i < slots.length; i++) {
+  // Slots run IN PARALLEL: sequential per-slot laddering cost the pilot's cold create ~100s of
+  // wall clock before generation even started, and the whole route must fit inside 300s. Each
+  // slot's candidate ladder stays sequential internally (alternates only on a miss).
+  const out = await Promise.all(slots.map(async (slotPick, i) => {
     const slotNo = i + 1;
-    const candidates = [slots[i].row, ...slots[i].alternates];
+    const candidates = [slotPick.row, ...slotPick.alternates];
     type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null };
     let chosen: Cand | null = null;       // confident AND within budget
     let overBudgetBest: Cand | null = null; // confident but every listed price exceeds budget
@@ -288,7 +290,7 @@ export async function confirmSlots(
     // honest UI note) → best-effort fallback (deep-link only).
     const pick = chosen ?? overBudgetBest ?? fallback!;
     const { row, stockists } = pick;
-    out.push({
+    return {
       slot: slotNo,
       wineKey: row.id,
       producer: row.producer,
@@ -300,8 +302,8 @@ export async function confirmSlots(
       stockists,
       thin: confidentCount(stockists) === 0,
       ...(chosen == null && overBudgetBest != null ? { overBudget: true } : {}),
-    });
-  }
+    };
+  }));
   return out;
 }
 

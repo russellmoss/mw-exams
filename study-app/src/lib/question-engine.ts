@@ -1320,7 +1320,10 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     // unreachable: slow calls meant generation fell back to a banked question having never once
     // been allowed to skip it. Two drafts of pressure toward the corpus mix, then let it through.
     const relaxMarkMix = attempt >= 3;
-    const markMixCheck = relaxMarkMix
+    // Pinned mode skips markMix outright: it is a bank-composition nudge that trips ~40% of REAL
+    // MW questions (see its own relaxation note), and on a 2-wine home flight it cost the pilot a
+    // whole 157s Opus attempt — the budget only fits two.
+    const markMixCheck = pinned || relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText);
     const compositionCheck = pinned || relaxImportant
