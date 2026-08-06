@@ -18,6 +18,9 @@ import {
   wineCooldownId,
   RECENT_WINE_WINDOW,
   RECENT_FLIGHT_WINDOW,
+  getProducerTally,
+  getRecentProducerKeys,
+  getPaperWineTextsByQuestion,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -27,6 +30,9 @@ import {
   extractProducerDisplay,
   normaliseProducer,
   producerKeyIsExcluded,
+  buildExclusionList,
+  REVIEWER_EXCLUDED_PRODUCERS,
+  type ProducerStatus,
 } from "@/lib/bank-health/producer";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
@@ -36,6 +42,7 @@ import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import {
   buildQuestionGenerationPrompt,
   buildProducerExclusionBlock,
+  buildStyleExclusionBlock,
 } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
@@ -828,21 +835,41 @@ export async function generateFreshQuestion(
       : undefined
   );
 
-  // PRODUCER EXCLUSION (hard, every generation path): the reviewer's standing bans plus the paper's
-  // over-used producers by the review pane's own thresholds, counting retired evidence (see
-  // getOverusedProducers). The soft nudge below demonstrably did not stop the repeats — the reviewer
-  // binned Weinbach flights three separate times ("I have told you this at least three times",
-  // bank_bin_reasons) — so the offenders are banned outright in the prompt AND rejected by
-  // validateProducerExclusion, which never relaxes. A tally outage degrades to the reviewer bans
-  // never being fetched at all — no exclusion rather than failed generation.
-  let excludedProducers: { key: string; display: string }[] = [];
+  // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
+  // three UNCONDITIONAL caps computed from the paper's live bank — (1) the hard 5% frequency cap with
+  // NO floor count, (2) the last-PRODUCER_RECENT_WINDOW-questions window, and (3) the same caps at the
+  // niche wine-STYLE level (vin jaune / sous voile Jura, Seppeltsfield-style aged tawny, Alsace
+  // Gewurztraminer). The soft nudge below demonstrably did not stop the repeats — the reviewer binned
+  // the same houses AND the same categories again and again ("I keep telling you this") — so offenders
+  // are banned outright in the prompt AND (producers) rejected by validateProducerExclusion, which
+  // never relaxes. Every fired cap is logged so the admin can see it. A data outage degrades to no
+  // exclusion rather than a failed generation.
+  let excludedProducers: ExcludedProducer[] = [];
+  let excludedStyles: ExcludedStyle[] = [];
   try {
-    excludedProducers = await getOverusedProducers(paper, PRODUCER_EXCLUDE_TOP);
+    const [tally, recentProducers, winesByQuestion] = await Promise.all([
+      getProducerTally(paper, { includeRetiredEvidence: true }),
+      getRecentProducerKeys(paper, PRODUCER_RECENT_WINDOW),
+      getPaperWineTextsByQuestion(paper),
+    ]);
+    excludedProducers = buildGenerationProducerExclusion(tally.rows, recentProducers);
+    excludedStyles = selectExcludedNicheStyles(winesByQuestion);
   } catch (err) {
     console.error("[producer-exclusion] fetch failed (non-fatal):", err);
   }
   if (excludedProducers.length > 0) {
+    console.log(
+      `[producer-exclusion] paper ${paper}: excluding ${excludedProducers.length} producer(s): ` +
+        excludedProducers.map((p) => `${p.display} [${p.reasons.join(",")}]`).join("; ")
+    );
     prompt.system += buildProducerExclusionBlock(excludedProducers.map((p) => p.display));
+  }
+  if (excludedStyles.length > 0) {
+    console.log(
+      `[producer-exclusion] paper ${paper}: excluding ${excludedStyles.length} niche style(s): ` +
+        excludedStyles.map((s) => `${s.label} [${s.reasons.join(",")}]`).join("; ")
+    );
+    prompt.system += buildStyleExclusionBlock(excludedStyles.map((s) => s.label));
   }
   const excludedProducerKeys = new Set(excludedProducers.map((p) => p.key));
 
@@ -1653,6 +1680,145 @@ export function validateVarietyFilter(
     );
   }
   return { valid: violations.length === 0, violations };
+}
+
+// ── Generation-time producer & wine-style frequency caps ─────────────────────────────────────────
+// The soft "spread" nudge and the over-used STATUS (which needs a floor count) both let recurring
+// signatures slip through on a small or freshly-swept bank — the reviewer binned the same producers
+// AND the same niche categories (Weinbach Gewurztraminer, Seppeltsfield tawny, Jura vin jaune) again
+// and again ("I keep telling you this"). These caps are UNCONDITIONAL:
+//   • hard frequency cap — any producer/style over PRODUCER_SHARE_CAP of the paper's live bank is
+//     excluded, with NO floor count (unlike 'over-used'), so a tiny-but-dominant signature is caught.
+//   • last-N window — any producer/style used in the last PRODUCER_RECENT_WINDOW questions for the
+//     paper is excluded outright, independent of its share. This rule is NEVER relaxed.
+// If exclusion would leave nothing buildable the prompt asks the model to widen by region/grape first,
+// but the caps themselves are computed here and never softened at the call site.
+export const PRODUCER_SHARE_CAP = 0.05;
+export const PRODUCER_RECENT_WINDOW = 10;
+
+export type ExclusionReason = "reviewer-ban" | "over-used" | "share-cap" | "recent-window";
+
+export interface ExcludedProducer {
+  key: string;
+  display: string;
+  reasons: ExclusionReason[];
+}
+
+// Assemble the full generation-time producer exclusion for a paper from the producer tally (rows sorted
+// count-desc, each carrying its share of the paper's live bank) and the producer keys used in the last
+// PRODUCER_RECENT_WINDOW questions. Pure so the caps are testable without a database. A producer caught
+// by several rules lists every reason it fired (the log shows why): reviewer bans and tally over-use
+// first (buildExclusionList), then the hard share cap, then the last-N window.
+export function buildGenerationProducerExclusion(
+  tallyRows: { producer_key: string; producer_display: string; share: number; status: ProducerStatus }[],
+  recentProducers: { key: string; display: string }[],
+  opts?: { cap?: number; overuseLimit?: number }
+): ExcludedProducer[] {
+  const cap = opts?.cap ?? PRODUCER_SHARE_CAP;
+  const limit = opts?.overuseLimit ?? PRODUCER_EXCLUDE_TOP;
+  const byKey = new Map<string, ExcludedProducer>();
+  const add = (key: string, display: string, reason: ExclusionReason) => {
+    if (!key) return;
+    const existing = byKey.get(key);
+    if (existing) {
+      if (!existing.reasons.includes(reason)) existing.reasons.push(reason);
+    } else {
+      byKey.set(key, { key, display: display || key, reasons: [reason] });
+    }
+  };
+
+  const reviewerKeys = new Set(REVIEWER_EXCLUDED_PRODUCERS.map((d) => normaliseProducer(d)));
+  for (const p of buildExclusionList(tallyRows, limit)) {
+    add(p.key, p.display, reviewerKeys.has(p.key) ? "reviewer-ban" : "over-used");
+  }
+  for (const r of tallyRows) {
+    if (r.share > cap) add(r.producer_key, r.producer_display, "share-cap");
+  }
+  for (const p of recentProducers) add(p.key, p.display, "recent-window");
+
+  return [...byKey.values()];
+}
+
+// The signature niche wine STYLES the reviewer keeps flagging, keyed on region+style so the CATEGORY —
+// not just the label — is capped. Each test runs against a single wine descriptor (its fullText).
+export interface NicheStyle {
+  id: string;
+  label: string;
+  test: (wineText: string) => boolean;
+}
+
+export const NICHE_WINE_STYLES: NicheStyle[] = [
+  {
+    id: "jura-sous-voile",
+    label: "Jura vin jaune / sous voile Savagnin",
+    test: (t) =>
+      /\bvin\s*jaune\b/i.test(t) ||
+      /ch[aâ]teau[-\s]?chalon/i.test(t) ||
+      /sous[-\s]?voile/i.test(t) ||
+      (/\bsavagnin\b/i.test(t) && /\bjura\b/i.test(t)),
+  },
+  {
+    id: "aged-tawny",
+    label: "Seppeltsfield-style aged tawny",
+    test: (t) =>
+      /\bseppeltsfield\b/i.test(t) ||
+      (/\btawny\b/i.test(t) && /\b(rare|grand|aged|para|\d{2,3}\s*year)\b/i.test(t)),
+  },
+  {
+    id: "alsace-gewurz",
+    label: "Alsace Gewurztraminer",
+    // Region + style: Gewurztraminer specifically from Alsace, since the complaint is Alsace Gewurz.
+    test: (t) => /gew[uü]rztraminer/i.test(t) && /\balsace\b/i.test(t),
+  },
+];
+
+// The niche style ids a single wine descriptor matches (usually 0 or 1).
+export function detectNicheStyles(wineText: string): string[] {
+  const out: string[] = [];
+  for (const s of NICHE_WINE_STYLES) if (s.test(wineText)) out.push(s.id);
+  return out;
+}
+
+export interface ExcludedStyle {
+  id: string;
+  label: string;
+  reasons: ExclusionReason[];
+}
+
+// Niche styles to exclude for a paper, from its live wines grouped by question (newest first): a style
+// over the share cap (its matching wines / all wines), or present anywhere in the last `recentWindow`
+// questions. Pure and DB-free so the caps are testable. Only 'share-cap' / 'recent-window' apply here.
+export function selectExcludedNicheStyles(
+  winesByQuestion: string[][],
+  recentWindow: number = PRODUCER_RECENT_WINDOW,
+  cap: number = PRODUCER_SHARE_CAP
+): ExcludedStyle[] {
+  const labelById = new Map(NICHE_WINE_STYLES.map((s) => [s.id, s.label]));
+  const byId = new Map<string, ExcludedStyle>();
+  const add = (id: string, reason: ExclusionReason) => {
+    const existing = byId.get(id);
+    if (existing) {
+      if (!existing.reasons.includes(reason)) existing.reasons.push(reason);
+    } else {
+      byId.set(id, { id, label: labelById.get(id) ?? id, reasons: [reason] });
+    }
+  };
+
+  let totalWines = 0;
+  const counts = new Map<string, number>();
+  winesByQuestion.forEach((wines, qi) => {
+    for (const text of wines) {
+      totalWines += 1;
+      for (const id of detectNicheStyles(text)) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+        if (qi < recentWindow) add(id, "recent-window");
+      }
+    }
+  });
+  if (totalWines > 0) {
+    for (const [id, c] of counts) if (c / totalWines > cap) add(id, "share-cap");
+  }
+  return [...byId.values()];
 }
 
 /**

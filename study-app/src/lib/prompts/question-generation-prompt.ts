@@ -347,6 +347,22 @@ This is a hard ban, not a preference — a validator rejects any flight naming o
 Apply this silently: the wine list and stem must never mention that a producer was excluded, banned or replaced.`;
 }
 
+// WINE-STYLE EXCLUSION (hard) — the block generateFreshQuestion appends when a signature niche STYLE
+// (vin jaune / sous voile Jura, Seppeltsfield-style aged tawny, Alsace Gewurztraminer) is over the
+// frequency cap or was used in the paper's last few questions. The reviewer's complaint is about the
+// CATEGORY recurring as much as any one label ("we are overindexing on vin jaune", "way overindexed on
+// this seppeltsfield wine", "we keep overusing … gewurztraminer"), so swapping producers within the
+// same style does NOT satisfy it. Kept pure (labels in, text out) so it is testable without a database.
+export function buildStyleExclusionBlock(styles: string[]): string {
+  if (styles.length === 0) return "";
+  return `
+
+## WINE-STYLE EXCLUSION (HARD RULE — over-used niche categories)
+These niche wine STYLES are already over-represented in this paper's recent questions and bank: ${styles.join(" · ")}.
+Do NOT build this flight around any of them. The complaint is the CATEGORY recurring, not just one label, so choosing a different producer of the SAME style does NOT satisfy this rule — pick a genuinely different style/region for this question. If avoiding the style leaves the flight hard to complete, widen the region or grape choice rather than falling back on the banned category.
+Apply this silently: the wine list and stem must never mention that a style was excluded or replaced.`;
+}
+
 // Exam Mix (migration 034): per-flight category + curveball guidance. Human-readable "how to build
 // this category" cues so the model can actually deliver the required, coherent flight the validators
 // then check. Returns "" (no injection) when Exam Mix is inactive.
