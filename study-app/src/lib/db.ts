@@ -3841,6 +3841,8 @@ export interface LiveTastingSession {
   mode: "pick-for-me" | "byo";
   prep_guidance: string | null;
   entered_wines: unknown;
+  brief_sent_to: string | null;
+  brief_self_opened_at: string | null;
   paper: number;
   flight_size: number;
   archetype: string;
@@ -4003,6 +4005,27 @@ export async function repointLiveTastingSession(
     SET question_id = ${questionId}, availability = ${JSON.stringify(availability)}::jsonb
     WHERE id = ${sessionId}
   `;
+}
+
+// Brief routing (migration 044): who the shopping brief went to.
+export async function setBriefSentTo(sessionId: string, email: string): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE live_tasting_sessions SET brief_sent_to = ${email} WHERE id = ${sessionId}`;
+}
+
+export async function stampBriefSelfOpened(sessionId: string): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions
+    SET brief_self_opened_at = COALESCE(brief_self_opened_at, now())
+    WHERE id = ${sessionId}
+  `;
+}
+
+export async function getUserEmailById(userId: number): Promise<{ email: string; name: string | null } | null> {
+  const sql = getDb();
+  const rows = await sql`SELECT email, name FROM users WHERE id = ${userId}`;
+  return rows[0] ? { email: rows[0].email as string, name: (rows[0].name as string) ?? null } : null;
 }
 
 // Token rotation (plan §2.5): clearing the hash 404s every previously-shared link. Used by

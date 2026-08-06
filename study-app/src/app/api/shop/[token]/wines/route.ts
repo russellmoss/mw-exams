@@ -1,5 +1,6 @@
 import { after } from "next/server";
-import { getLiveTastingSessionByTokenHash } from "@/lib/db";
+import { getLiveTastingSessionByTokenHash, getUserEmailById } from "@/lib/db";
+import { sendQuestionReadyEmail } from "@/lib/live-tasting-mail";
 import { hashShareToken, looksLikeShareToken } from "@/lib/share-token";
 import { attachByoWines, validateEnteredWines } from "@/lib/live-tasting-engine";
 import { getApiKeyForUserId } from "@/lib/api-key";
@@ -47,6 +48,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       keepAlive: (work) => after(() => work.catch(() => {})),
     });
     if ("error" in outcome) throw new Error(outcome.error);
+    // Tell the candidate their question is live (best-effort; the badge flips regardless).
+    const owner = await getUserEmailById(session.user_id).catch(() => null);
+    if (owner?.email) {
+      const origin = new URL(request.url).origin;
+      sendQuestionReadyEmail({
+        to: owner.email,
+        toName: owner.name ?? undefined,
+        sessionUrl: `${origin}/live-tasting/${session.id}`,
+      }).catch(() => {});
+    }
     emit({ type: "status", label: "All set — bag and number the bottles; they can taste when ready." });
     return { ok: true };
   });

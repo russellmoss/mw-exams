@@ -22,6 +22,8 @@ type SessionDetail = {
   state: "prep" | "shopping" | "tasted" | "abandoned";
   mode?: "pick-for-me" | "byo";
   prepGuidance?: string | null;
+  briefSentTo?: string | null;
+  briefSelfOpened?: boolean;
   blindIntegrity: "partner" | "self" | "unopened";
   paper: number;
   flightSize: number;
@@ -90,7 +92,9 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
   const [session, setSession] = useState<SessionDetail | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [interstitial, setInterstitial] = useState(false);
-  const [byoEntryOpen, setByoEntryOpen] = useState(false);
+  const [partnerEmail, setPartnerEmail] = useState("");
+  const [sendBusy, setSendBusy] = useState(false);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
   const [shopping, setShopping] = useState<{ archetypeLabel: string | null; slots: SlotAvail[]; bagging: string } | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
@@ -275,59 +279,140 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
             </section>
           )}
 
-          {/* BYO tasting prep: the shopping brief + two ways to enter the wines */}
-          {session.state === "prep" && (
+          {/* BYO tasting prep (migration 044): route the brief FIRST — the candidate only sees
+              it if they explicitly choose to be their own buyer. */}
+          {session.state === "prep" && !session.briefSelfOpened && !session.briefSentTo && (
+            <section className="bg-card rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2 font-display">
+                Who should get the shopping brief?
+              </h2>
+              <p className="text-sm text-muted mb-5">
+                The brief describes the wines to buy. Send it to a partner and you stay fully
+                blind — they buy, enter the bottles, and you get an email when your question is
+                live. Or take it yourself if you&apos;re shopping solo.
+              </p>
+              {sendMsg && (
+                <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-fail">{sendMsg}</p>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 bg-background rounded-lg border border-border p-4">
+                  <p className="text-sm font-medium text-foreground mb-1">A partner (stay blind)</p>
+                  <p className="text-xs text-muted mb-3">They get the brief + entry link by email.</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={partnerEmail}
+                      onChange={(e) => setPartnerEmail(e.target.value)}
+                      placeholder="partner@email.com"
+                      className="flex-1 px-3 py-2 bg-card border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent text-sm"
+                    />
+                    <button
+                      onClick={async () => {
+                        setSendMsg(null);
+                        setSendBusy(true);
+                        try {
+                          const res = await fetch(`/api/live-tasting/${id}/send-brief`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ email: partnerEmail }),
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (!res.ok) setSendMsg(data.error || "Could not send the brief.");
+                          else await load();
+                        } catch {
+                          setSendMsg("Network error — try again.");
+                        } finally {
+                          setSendBusy(false);
+                        }
+                      }}
+                      disabled={sendBusy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(partnerEmail.trim())}
+                      className="shrink-0 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {sendBusy ? "Sending…" : "Email it"}
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 bg-background rounded-lg border border-border p-4">
+                  <p className="text-sm font-medium text-foreground mb-1">Me (shopping solo)</p>
+                  <p className="text-xs text-muted mb-3">
+                    You&apos;ll see the target styles — your results will note it.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      await fetch(`/api/live-tasting/${id}/open-brief`, { method: "POST" });
+                      await load();
+                    }}
+                    className="px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                  >
+                    Show me the brief
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Partner-routed: the candidate waits blind. */}
+          {session.state === "prep" && !session.briefSelfOpened && session.briefSentTo && (
+            <section className="bg-card rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-2 font-display">
+                Brief sent — you&apos;re blind until the wines are in
+              </h2>
+              <p className="text-sm text-muted mb-4">
+                The shopping brief went to <strong className="text-foreground">{session.briefSentTo}</strong>.
+                When they enter the bottles, this session flips to <span className="text-success">Question
+                ready</span> and you&apos;ll get an email. Nothing to do until then.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={async () => {
+                    setSendBusy(true);
+                    try {
+                      await fetch(`/api/live-tasting/${id}/send-brief`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: session.briefSentTo }),
+                      });
+                      setSendMsg(null);
+                    } finally {
+                      setSendBusy(false);
+                    }
+                  }}
+                  disabled={sendBusy}
+                  className="px-4 py-2 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg text-sm font-medium transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {sendBusy ? "Resending…" : "Resend the email"}
+                </button>
+                <button
+                  onClick={async () => {
+                    if (window.confirm("This shows you the brief — your blind is then compromised. Continue?")) {
+                      await fetch(`/api/live-tasting/${id}/open-brief`, { method: "POST" });
+                      await load();
+                    }
+                  }}
+                  className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Show it to me anyway
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* Self-routed: brief + entry form. */}
+          {session.state === "prep" && session.briefSelfOpened && (
             <>
               <BriefCard title="Your shopping brief" markdown={session.prepGuidance ?? ""} />
               <section className="bg-card rounded-xl border border-border p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Got the wines?</h2>
                 <p className="text-sm text-muted mb-4">
-                  Best blind: share this brief with a partner — they buy the bottles, enter them on
-                  the shared page, and you never see a label. Or enter them yourself (your results
-                  will note the blind was broken).
+                  Enter exactly what you bought — the question is built around your bottles.
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    onClick={mintShareLink}
-                    disabled={shareBusy}
-                    className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50"
-                  >
-                    {shareBusy ? "Creating link…" : "Share brief with a partner"}
-                  </button>
-                  {!byoEntryOpen && (
-                    <button
-                      onClick={() => setInterstitial(true)}
-                      className="px-5 py-2.5 border border-border text-muted hover:text-foreground hover:border-muted font-medium rounded-lg transition-colors cursor-pointer"
-                    >
-                      Enter the wines myself
-                    </button>
-                  )}
-                </div>
-                {shareUrl && (
-                  <div className="mt-4 bg-background rounded-lg border border-border p-3">
-                    <p className="text-xs text-muted mb-1.5">
-                      Your partner sees the brief and an entry form — never the question.
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <code className="text-xs text-foreground font-mono truncate flex-1">{shareUrl}</code>
-                      <button
-                        onClick={() => navigator.clipboard?.writeText(shareUrl)}
-                        className="shrink-0 text-xs text-accent hover:text-accent-hover cursor-pointer"
-                      >
-                        Copy
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {byoEntryOpen && (
-                  <div className="mt-5 pt-5 border-t border-border">
-                    <ByoWineForm
-                      endpoint={`/api/live-tasting/${id}/wines`}
-                      defaultCount={session.flightSize}
-                      onDone={() => { setByoEntryOpen(false); load(); }}
-                    />
-                  </div>
-                )}
+                <ByoWineForm
+                  endpoint={`/api/live-tasting/${id}/wines`}
+                  defaultCount={session.flightSize}
+                  onDone={() => load()}
+                />
               </section>
             </>
           )}
@@ -568,17 +653,10 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  if (session.state === "prep") {
-                    setInterstitial(false);
-                    setByoEntryOpen(true);
-                  } else {
-                    revealShoppingList();
-                  }
-                }}
+                onClick={revealShoppingList}
                 className="px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg text-sm font-semibold transition-colors cursor-pointer"
               >
-                {session.state === "prep" ? "I understand — enter the wines" : "Reveal the list"}
+                Reveal the list
               </button>
             </div>
           </div>
