@@ -147,6 +147,14 @@ const LABEL_VARIETIES = [
   "pinot noir", "cabernet sauvignon", "syrah", "shiraz", "merlot", "grenache", "malbec",
   "tempranillo", "sangiovese", "nebbiolo", "zinfandel", "gamay", "viognier", "semillon",
 ];
+// Variety-driven slots demand the DOMINANT grape (first in the list): a field blend that merely
+// CONTAINS the target sneaks a duplicate resolved variety into a "different varieties" flight
+// (E2E run 10: two slots both keyed to Riesling).
+function dominantGrapeIs(r: BankRow, variety: string): boolean {
+  const g = grapeList(r);
+  return g.length > 0 && norm(g[0]) === norm(variety);
+}
+
 function nameContradictsVariety(wineName: string, variety: string): boolean {
   const name = norm(wineName);
   const target = norm(variety);
@@ -200,8 +208,7 @@ export function pickArchetype(
     if (arch === "same-variety") {
       for (const [variety, origins] of shuffle(Object.entries(varieties))) {
         const pool = stillDry.filter(
-          (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
-                 !nameContradictsVariety(r.wine_name, variety)
+          (r) => dominantGrapeIs(r, variety) && !nameContradictsVariety(r.wine_name, variety)
         );
         const byOrigin = shuffle(origins)
           .map((o) => pool.filter((r) => norm(r.country) === norm(o)))
@@ -216,7 +223,7 @@ export function pickArchetype(
       for (const ladder of shuffle(LADDER_REGIONS.filter((l) => l.paper === paper))) {
         const broad = stillDry.filter(
           (r) => norm(r.region).includes(norm(ladder.region)) &&
-                 grapeList(r).some((g) => norm(g) === norm(ladder.variety)) &&
+                 dominantGrapeIs(r, ladder.variety) &&
                  !nameContradictsVariety(r.wine_name, ladder.variety)
         );
         // Same EXACT region string only: "Burgundy" broadly matched Chablis + Meursault, and the
@@ -251,7 +258,7 @@ export function pickArchetype(
       for (const [variety, origins] of entries) {
         if (groups.length >= flightSize) break;
         const pool = stillDry.filter(
-          (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
+          (r) => dominantGrapeIs(r, variety) &&
                  origins.some((o) => norm(r.country) === norm(o)) &&
                  !nameContradictsVariety(r.wine_name, variety)
         );

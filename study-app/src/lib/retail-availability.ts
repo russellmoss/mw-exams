@@ -130,7 +130,10 @@ export function minSameCurrencyPrice(stockists: Stockist[], currency: string | n
   if (!currency) return null;
   const cur = currency.trim().toUpperCase();
   const prices = stockists
-    .filter((s) => s.price != null && s.price > 0 && (s.currency ?? "") === cur)
+    // A price with NO currency counts as the budget currency: in-market scrapes are near-always
+    // local currency, and null-currency rows were bypassing budget eviction (E2E run 10:
+    // unflagged $41.99/$49.99 listings on a $40 budget).
+    .filter((s) => s.price != null && s.price > 0 && (s.currency == null || s.currency === cur))
     .map((s) => s.price as number);
   return prices.length ? Math.min(...prices) : null;
 }
@@ -431,7 +434,8 @@ Rules:
 - Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, or encyclopedic pages. A producer's OWN website counts only when the producer is in the user's country AND sells direct; a French domaine's site is useless to a US buyer — exclude it.
 - kind: "local" = a physical shop the user could drive to (${radiusText}; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
 - url: the result URL for that merchant (the listing page if that's what was found).
-- price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP, else null. Never guess a price.
+- price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP — when a price is shown with a bare symbol, infer the merchant's home currency (a $ price at a US merchant is USD). Never guess a price.
+- Sanity: exclude merchants whose obvious specialization rules the wine out (an Italian-only shop does not stock Alsace Pinot Gris) and names that don't read as real wine merchants.
 - confidence: "listed" = the snippet explicitly shows this wine at this merchant. "likely" = the merchant clearly stocks this producer/category and probably this wine. "unverified" = weaker.
 - typical_price_usd: your estimate of this wine's TYPICAL retail price in USD for a 750ml bottle (any recent vintage), from your market knowledge — always include it, even when no snippet shows a price. Round number.
 - Prefer local before mail. At most 6 stockist entries. If nothing qualifies, use "stockists": [].`,
