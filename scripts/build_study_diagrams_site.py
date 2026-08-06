@@ -1000,23 +1000,435 @@ p {
 """
 
 
-# The diagrams app pages are embedded (via an iframe) inside the React route /diagrams, which already
-# renders the real app NavBar (logo, Study, Stem Sniper, Diagrams, History, Methodology, Settings,
-# Admin, the notification bell, the signed-in user's name, and Sign out). A second, static, partial nav
-# here would duplicate it and show stale/incomplete links, so the embedded pages carry NO app nav.
+# The diagrams app pages are embedded (via an iframe) inside the React route /library, which already
+# renders the real app NavBar (logo, Theory, Practical, Library, History, the notification bell, the
+# signed-in user's name, and Sign out). A second, static, partial nav here would duplicate it and show
+# stale/incomplete links, so the embedded pages carry NO app nav.
 APP_NAV_HTML = ""
+
+# Theme sync for the embedded app pages. The iframe is same-origin with the app, so it reads the
+# app's own localStorage theme key ('mw-theme', see study-app/src/lib/theme.ts) and follows the
+# in-app toggle live via 'storage' events (which fire in every OTHER same-origin document when the
+# parent writes the key). Unset/unknown falls back to light — the app's first-visit default since
+# 2026-08-06. Synchronous and in <head>, so the palette lands before first paint.
+APP_THEME_SCRIPT = (
+    "<script>(function(){var k='mw-theme';"
+    "function apply(t){document.documentElement.dataset.theme=(t==='dark')?'dark':'light';}"
+    "var s=null;try{s=localStorage.getItem(k);}catch(e){}apply(s);"
+    "window.addEventListener('storage',function(e){if(e.key===k)apply(e.newValue);});"
+    "})();</script>"
+)
+
+# Themed stylesheet for the embedded app pages: the Cellar token set in both themes (DESIGN.md),
+# selected by <html data-theme> which APP_THEME_SCRIPT keeps in step with the app. Light is the
+# no-attribute default. Regenerated on every build — this file is no longer hand-edited.
+APP_CSS_THEMED = """* {
+  box-sizing: border-box;
+}
+
+:root,
+html[data-theme="light"] {
+  --bg: #fafaf9;
+  --paper: #ffffff;
+  --ink: #1c1917;
+  --muted: #78716c;
+  --line: #d6d3d1;
+  --line-soft: #e7e5e4;
+  --accent: #b45309;
+  --accent-hover: #92400e;
+  --card-raised: #f5f5f4;
+  --card-deep: #fafaf9;
+  --card-hover-bg: #e7e5e4;
+  --shadow: 0 18px 40px rgba(50, 31, 16, 0.08);
+}
+
+html[data-theme="dark"] {
+  --bg: #0c0a09;
+  --paper: #1c1917;
+  --ink: #e7e5e4;
+  --muted: #78716c;
+  --line: #44403c;
+  --line-soft: #3a3632;
+  --accent: #d97706;
+  --accent-hover: #f59e0b;
+  --card-raised: #292524;
+  --card-deep: #171412;
+  --card-hover-bg: #44403c;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
+html {
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.site-header,
+.page-shell,
+.index-shell {
+  width: min(1200px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.site-header {
+  padding: 20px 0 0;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.home-link,
+.toc-item,
+.index-card {
+  text-decoration: none;
+}
+
+.home-link {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.print-button {
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.print-button:hover {
+  background: var(--card-raised);
+  border-color: var(--accent);
+}
+
+.content-card,
+.hero-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.page-shell {
+  padding: 18px 0 40px;
+}
+
+.content-card {
+  padding: 28px;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.toc-item {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  background: var(--card-raised);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.toc-item:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.toc-item.toc-level-3 {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+  border-color: var(--line-soft);
+  background: var(--paper);
+}
+
+h1, h2, h3 {
+  line-height: 1.15;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+h2 {
+  font-size: clamp(1.45rem, 2.5vw, 2rem);
+  margin: 28px 0 14px;
+  color: var(--ink);
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 22px 0 10px;
+  color: var(--accent);
+}
+
+p {
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+
+.diagram-card {
+  margin: 18px 0 28px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--card-deep);
+}
+
+.diagram-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.zoom-button {
+  border: 1px solid var(--line);
+  background: var(--card-raised);
+  color: var(--ink);
+  border-radius: 12px;
+  min-width: 48px;
+  min-height: 44px;
+  padding: 0 14px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.zoom-button:hover {
+  border-color: var(--accent);
+  background: var(--card-hover-bg);
+}
+
+.diagram-scroll {
+  overflow: auto;
+  touch-action: pan-x pan-y;
+  border-radius: 14px;
+  cursor: grab;
+  user-select: none;
+}
+
+.diagram-stage {
+  width: fit-content;
+  min-width: 900px;
+  transform-origin: top left;
+  transition: transform 120ms ease-out;
+}
+
+.diagram-scroll.is-dragging {
+  cursor: grabbing;
+}
+
+.diagram-scroll.is-dragging .diagram-stage {
+  pointer-events: none;
+}
+
+.diagram-stage .mermaid {
+  width: fit-content;
+}
+
+.diagram-note {
+  margin-top: 10px;
+  font-size: 0.98rem;
+  color: var(--muted);
+}
+
+.print-diagram {
+  display: none;
+}
+
+.index-shell {
+  padding: 36px 0 48px;
+}
+
+.hero-card {
+  padding: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.hero-copy {
+  max-width: 54rem;
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.index-card {
+  display: block;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card-raised);
+  color: var(--ink);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.index-card:hover {
+  border-color: var(--accent);
+  background: var(--card-hover-bg);
+}
+
+.index-card h2 {
+  font-size: 1.35rem;
+  margin: 0 0 8px;
+}
+
+.index-card p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .content-card,
+  .hero-card {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .diagram-card {
+    padding: 10px;
+  }
+
+  .diagram-stage {
+    min-width: 760px;
+  }
+
+  .header-inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .site-header,
+  .toc,
+  .no-print {
+    display: none !important;
+  }
+
+  .page-shell,
+  .index-shell {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .content-card,
+  .hero-card,
+  .diagram-card,
+  .index-card {
+    box-shadow: none;
+    border-color: #888;
+    break-inside: avoid;
+    background: #fff;
+    color: #000;
+  }
+
+  .content-card {
+    border: 0;
+    padding: 0;
+  }
+
+  .diagram-card {
+    margin: 0 0 12px;
+    padding: 8px;
+    break-before: page;
+    break-inside: avoid;
+    background: #fff;
+  }
+
+  h1, h2, h3 {
+    color: #000;
+  }
+
+  h2, h3 {
+    break-after: avoid;
+  }
+
+  .diagram-scroll,
+  .diagram-stage,
+  .diagram-note {
+    display: none !important;
+  }
+
+  .print-diagram {
+    display: block;
+    overflow: hidden;
+  }
+
+  .print-diagram svg {
+    display: block;
+    height: auto !important;
+    max-width: 100% !important;
+    margin: 0 auto;
+  }
+}
+"""
 
 
 def app_page_template(title: str, content: str, print_filename: str) -> str:
-    """Dark-themed version of page_template for the Vercel app."""
+    """App-themed version of page_template for the Vercel app (follows the in-app light/dark toggle)."""
     base = page_template(title, content, print_filename)
-    # Remove Google Fonts, use absolute CSS path
+    # Remove Google Fonts, use absolute CSS path, and sync the theme with the parent app
     base = base.replace(
         '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
         '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
         "  <link href=\"https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap\" rel=\"stylesheet\">\n"
         '  <link rel="stylesheet" href="./assets/site.css">',
-        '<link rel="stylesheet" href="/diagrams/assets/site.css">\n'
+        f'{APP_THEME_SCRIPT}\n'
+        '  <link rel="stylesheet" href="/diagrams/assets/site.css">\n'
         '  <link rel="icon" href="/favicon.ico">',
     )
     # Replace the old header with the app nav + diagram sub-header
@@ -1066,6 +1478,7 @@ def app_index_template(cards: list[tuple[str, str]]) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Study Diagrams — MW Study App</title>
+  {APP_THEME_SCRIPT}
   <link rel="stylesheet" href="/diagrams/assets/site.css">
   <link rel="icon" href="/favicon.ico">
 </head>
@@ -1140,12 +1553,10 @@ Use the `*-print.html` pages for PDF or paper.
 
     (SITE_DIR / "index.html").write_text(index_template(cards), encoding="utf-8")
 
-    # --- Also build dark-themed copy for the Vercel app ---
+    # --- Also build the app copy for Vercel (theme-aware: follows the in-app light/dark toggle) ---
     app_assets = APP_DIR / "assets"
     app_assets.mkdir(parents=True, exist_ok=True)
-    # Preserve the hand-edited dark CSS if it exists; otherwise skip
-    if not (app_assets / "site.css").exists():
-        (app_assets / "site.css").write_text(SITE_CSS, encoding="utf-8")
+    (app_assets / "site.css").write_text(APP_CSS_THEMED, encoding="utf-8")
 
     # Reset counter so diagram IDs are consistent
     global DIAGRAM_COUNTER
