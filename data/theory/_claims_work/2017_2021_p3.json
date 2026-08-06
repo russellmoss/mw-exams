@@ -1,0 +1,1679 @@
+[
+  {
+    "claim_id": "th_2017_p3_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir, https://www.awri.com.au/wp-content/uploads/2019/08/s2105.pdf",
+      "quote": "The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines to inhibit the growth of bacteria and yeast (and the concentration of molecular SO2 is dependent on wine pH)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI recommends 0.6 mg/L molecular SO2 in reds; 0.8 mg/L is the level AWRI cites as inhibiting lactic acid bacteria, which is the correct target where fermentable sugar remains."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The Virginia Tech/Zoecklein equation gives ~2.0% of free SO2 as molecular at pH 3.5, so 25-30 mg/L free = 0.49-0.59 mg/L molecular. AWRI independently states 'at least 30 mg/L free at pH 3.5' for >0.6 mg/L molecular."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The total sulphur dioxide content of wines... may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rose wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "400 milligrams per litre for: wines entitled to the descriptions 'Beerenauslese', 'Ausbruch', 'Ausbruchwein', 'Trockenbeerenauslese', 'Strohwein', 'Schilfwein' and 'Eiswein'... white wines entitled to one of the following protected designations of origin: Sauternes, Barsac..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "400 mg/L applies to BA/TBA/Eiswein/Strohwein and named sweet PDOs (Sauternes, Barsac, Monbazillac etc.); the intermediate steps are 200/250 (>=5 g/L sugar) and 300 (Spaetlese and certain PDOs)."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "Surface filters such as membrane filters are used as a final filter to remove smaller microorganisms... The 'bubble point' is the gas pressure at which the surface tension of water in the pores of a saturated filter is overcome... 0.65 um membrane: 20.3 psig (140 kPa); 0.45 um membrane: 26.1 psig (180 kPa). Most cross-flow membranes are only nominally rated at 0.2 um which is theoretically tight enough for sterile filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "Surface filters such as membrane filters are used as a final filter to remove smaller microorganisms... The 'bubble point' is the gas pressure at which the surface tension of water in the pores of a saturated filter is overcome... 0.65 um membrane: 20.3 psig (140 kPa); 0.45 um membrane: 26.1 psig (180 kPa). Most cross-flow membranes are only nominally rated at 0.2 um which is theoretically tight enough for sterile filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI gives 0.65 um as the pre-final membrane stage ahead of 0.45 um and publishes its bubble point (140 kPa)."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched AWRI gas adjustment, AWRI SO2 pages and the KB for a total-package-oxygen (TPO) action threshold; found none. AWRI publishes DISSOLVED oxygen figures instead (<0.5 mg/L pre-bottling target; 0.5 mg/L pick-up at bottling under best practice, 1.0-1.5 mg/L when conditions are poor). DO and TPO are different quantities (TPO = dissolved + headspace), so a candidate stating '1 mg/L TPO' as a line-stop rule is asserting an unsourced number. Recommend hedging to 'around 1 mg/L dissolved oxygen at the filler' or citing TPO without a hard figure."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#7",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Commission Delegated Regulation (EU) 2019/33, Article 44",
+      "tier": 1,
+      "ref": "https://www.legislation.gov.uk/eur/2019/33/article/44",
+      "quote": "the strength shown may not differ by more than 0,5 % vol from that given by analysis. However, the alcoholic strength of grapevine products with protected designations of origin or geographical indications stored in bottles for more than three years, sparkling wines, quality sparkling wines,... liqueur wines and wines of overripe grapes... may not differ by more than 0,8 % vol"
+    },
+    "corrected_claim": "the EU label tolerance of 0.5% abv, which widens to 0.8% abv for sparkling and quality sparkling wines, liqueur wines, wines of overripe grapes and PDO/PGI wines bottle-aged more than three years",
+    "corrected_sentence": "Alcohol must sit within the EU label tolerance - 0.5% abv for most still wines, but 0.8% abv for sparkling, liqueur and overripe-grape wines - or the label is wrong.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Article 44 of Reg (EU) 2019/33 sets two tolerances. The 0.8% band covers exactly the Paper 3 styles (sparkling, fortified, sweet), so the flat '0.5%' is the wrong figure for this answer's subject matter."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The volatile acid content may not exceed: ... (b) 18 milliequivalents per litre for white and rose wines; or (c) 20 milliequivalents per litre for red wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "20 meq/L acetic acid = 20 x 0.06005 = 1.20 g/L for red wine."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Regulation (EU) No 1169/2011, Annex II point 12",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:304:0018:0063:en:PDF",
+      "quote": "12. Sulphur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/litre in terms of the total SO2 which are to be calculated for products as proposed ready for consumption"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q1#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Regulation (EU) 2023/915, Annex I 1.2.20",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg/2023/915/oj/eng",
+      "quote": "1.2.20 Wine (7) and fruit wine 2,0 [ug/kg] ... Including semi-sparkling and sparkling wines, excluding liqueur wine and wine with an alcoholic strength of not less than 15 % vol."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "2.0 ug/kg confirmed in Reg (EU) 2023/915 (which replaced 1881/2006). Note the exclusion of liqueur wine and wine of >=15% abv - relevant in a Paper 3 fortified context."
+  },
+  {
+    "claim_id": "th_2017_p3_q1#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Wine flavours, faults and taints, https://www.awri.com.au/industry_support/winemaking_resources/sensory_assessment/recognition-of-wine-faults-and-taints/wine_faults",
+      "quote": "One study determined the aroma threshold of TCA in a Pinot Noir wine as 1.4 ng/L... Prescott et al. (2005) reported that the consumer rejection threshold for TCA was 3.1 ng/L whilst the consumer detection threshold was 2.1 ng/L. Some tasters at the AWRI are able to detect TCA present in wines at less that 1 ng/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities, https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance ; MLF in red wine fact sheet",
+      "quote": "Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid... it is best to aim for a malic acid result of 'not detected', which is usually <0.05 g/L by enzymatic analysis. However, a result of 0.1 g/L or less is low enough for the MLF to be considered complete."
+    },
+    "corrected_claim": "glucose plus fructose below the enzymatic detection limit of 0.1 g/L",
+    "corrected_sentence": "Sugar and malic set the microbial risk: glucose plus fructose below the 0.1 g/L enzymatic detection limit and malic acid not detected (below 0.05 g/L) mean the wine cannot referment or complete a bottle malolactic, and can be filtered less tightly.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI is explicit that any measurable sugar is a potential substrate and that the target is below the enzymatic detection limit of 0.1 g/L. 0.5 g/L is five times looser and would not, on AWRI's advice, justify relaxing the filtration specification."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities, https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance ; MLF in red wine fact sheet",
+      "quote": "Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid... it is best to aim for a malic acid result of 'not detected', which is usually <0.05 g/L by enzymatic analysis. However, a result of 0.1 g/L or less is low enough for the MLF to be considered complete."
+    },
+    "corrected_claim": "malic acid at or below 0.1 g/L, ideally 'not detected' (<0.05 g/L by enzymatic assay)",
+    "corrected_sentence": "Sugar and malic set the microbial risk: glucose plus fructose below 0.1 g/L and malic acid at or below 0.1 g/L - ideally 'not detected', under the 0.05 g/L enzymatic detection limit - mean the wine cannot referment or complete a bottle malolactic.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "This is the flagged 'MLF complete' error class. AWRI: aim for 'not detected', usually <0.05 g/L; 0.1 g/L or less is acceptable as complete. The claim's upper bound of 0.3 g/L is six times the detection limit and would leave a real bottle-MLF risk."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir, https://www.awri.com.au/wp-content/uploads/2019/08/s2105.pdf",
+      "quote": "The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines to inhibit the growth of bacteria and yeast (and the concentration of molecular SO2 is dependent on wine pH)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#4",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Measuring heat stability of wine, https://www.awri.com.au/industry_support/winemaking_resources/laboratory_methods/chemical/heat_stab",
+      "quote": "Heat the sample at 80 C for two hours. While six hours has been typical industry practice for the heat test, recent research has shown that two hours of [heating is sufficient]... | White wine | 2 hours | 3 hours | < 2.0 NTU |"
+    },
+    "corrected_claim": "protein stability by heat test at 80 degrees C for two hours followed by three hours cooling at 20 degrees C, with a turbidity rise of 2 NTU or more counting as a fail",
+    "corrected_sentence": "**Protein stability** by heat test at 80 degrees C for two hours, cooled for three hours at 20 degrees C, with a turbidity rise above about 2 NTU counting as a fail.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI explicitly supersedes the six-hour protocol: 'While six hours has been typical industry practice for the heat test, recent research has shown that two hours...'. The current published method table gives 2 h heating / 3 h cooling / <2.0 NTU for white, rose and red. The 2 NTU criterion in the claim is right; the duration is not."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "A commonly used threshold for bottling is <1.0 NTU... Correspondence between turbidity measurements (NTU) and appearance... White wine Brilliant <1.1 Turbid >4.0"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched the KB (AWRI hazes and deposits, metals) and awri.com.au for an iron threshold for ferric casse; found market legal limits only (AWRI Technical Review 226: no EU iron limit; China 8 mg/L, Russia 10 mg/L) and no institute-published casse threshold. The ~7 mg/L figure is standard textbook (Ribereau-Gayon) but I could not source it from a tier-1 body. Recommend hedging to 'elevated iron' or attributing to the textbook."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI (Technical Review 226, metal limits table)",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/wp-content/uploads/2011/07/Technical_Review_Issue_226_Loveridge.pdf",
+      "quote": "Table 1. The maximum concentration allowed in wine for five different metals in five different markets... European Union - - - Copper 1 mg/L Lead 0.2 mg/kg"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The total sulphur dioxide content of wines... may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rose wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "400 milligrams per litre for: wines entitled to the descriptions 'Beerenauslese', 'Ausbruch', 'Ausbruchwein', 'Trockenbeerenauslese', 'Strohwein', 'Schilfwein' and 'Eiswein'... white wines entitled to one of the following protected designations of origin: Sauternes, Barsac..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A table (2.6 L-ascorbic acid)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "L ascorbic acid E 300 ... Maximum content in wine thus treated and placed on the market: 250 mg/l. Maximum 250 mg/l for each treatment."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Ascorbic acid 250 mg/L confirmed in Reg (EU) 2019/934 Annex I. Sorbic acid 200 mg/L confirmed by AWRI ('the legal limit of 200 mg/L') and by the ANZ Food Standards Code additive table; the EU limit is the same 200 mg/L."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices II.3.4.13",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-ii-oenological-treatments-and-practices/wines",
+      "quote": "The dosage should be no more than 200 mg/l expressed as dimethyl dicarbonate... The wine should not be placed on the market as long as dimethyl dicarbonate is detectable."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "DMDC 200 mg/L per OIV II.3.4.13 (and 27 CFR 24.246 for the US); lysozyme 500 mg/L per the OIV maximum-acceptable-limits annex and 27 CFR 24.246."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#12",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The volatile acid content may not exceed: ... (b) 18 milliequivalents per litre for white and rose wines; or (c) 20 milliequivalents per litre for red wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exact: 20 meq/L red = 1.201 g/L acetic acid; 18 meq/L white and rose = 1.081 g/L. Note the exceptional-vintage derogation to 25 meq/L (and up to 34 meq/L) in the same article."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#13",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices, Annex: Maximum Acceptable Limits",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/annexes/maximum-acceptable-limits",
+      "quote": "Lysozyme 500 mg/l ... Metatartaric acid 10 g/hl ... Methanol 400 mg/l for wines rouges; 250 mg/l for white wines and roses ... Copper 1 mg/l; 2 mg/l for liqueur wines ... Polyvinylpolypyrrolidone 80 g/hl"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#14",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Regulation (EU) 2023/915, Annex I 1.2.20",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg/2023/915/oj/eng",
+      "quote": "1.2.20 Wine (7) and fruit wine 2,0 [ug/kg] ... Including semi-sparkling and sparkling wines, excluding liqueur wine and wine with an alcoholic strength of not less than 15 % vol."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#15",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Read Reg (EU) 579/2012 (the wine egg/milk fining labelling rule). It does NOT set a numeric threshold: the duty to label is triggered where presence 'can be detected in the final product using the analysis methods referred to in Article 120g'. The 0.25 mg/L figure is the practical limit of the OIV ELISA method, but I could not confirm it in a tier-1 text. Recommend rewording to 'unless the prescribed OIV method cannot detect them' rather than quoting a figure."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#16",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Regulation (EU) No 1169/2011, Annex II point 12",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:304:0018:0063:en:PDF",
+      "quote": "12. Sulphur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/litre in terms of the total SO2 which are to be calculated for products as proposed ready for consumption"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#17",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (EU-Australia wine agreement annex reproducing the EU sweetness terms of Reg (EU) 2019/33 Annex III)",
+      "tier": 1,
+      "ref": "https://webgate.ec.europa.eu/circabc-ewpp/d/d/workspace/SpacesStore/9be35fe5-97e4-4504-8825-7ebf7d2ade93/download",
+      "quote": "Dry < 4 g/l, or < 9 g/l if total acidity...; Medium dry between 4 and 12 g/l or < 18 g/l, if total acidity expressed as grams of tartaric acid per litre is < 10 g below the residual sugar content; Medium sweet between 12 and 45 g/l; Sweet > 45 g/l. Brut nature < 3 g/l; Extra brut between 0 and 6 g/l; Brut between 0 and 12 g/l; Extra dry between 12 and 17 g/l; Dry between 17 and 32 g/l; Medium dry between 32 and 50 g/l; Sweet > 50 g/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The 12-45 g/L band is labelled 'medium' or 'medium sweet' in the regulation; 'sweet' is >45 g/L. The claim's boundaries are exactly right."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#18",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (EU-Australia wine agreement annex reproducing the EU sweetness terms of Reg (EU) 2019/33 Annex III)",
+      "tier": 1,
+      "ref": "https://webgate.ec.europa.eu/circabc-ewpp/d/d/workspace/SpacesStore/9be35fe5-97e4-4504-8825-7ebf7d2ade93/download",
+      "quote": "Dry < 4 g/l, or < 9 g/l if total acidity...; Medium dry between 4 and 12 g/l or < 18 g/l, if total acidity expressed as grams of tartaric acid per litre is < 10 g below the residual sugar content; Medium sweet between 12 and 45 g/l; Sweet > 45 g/l. Brut nature < 3 g/l; Extra brut between 0 and 6 g/l; Brut between 0 and 12 g/l; Extra dry between 12 and 17 g/l; Dry between 17 and 32 g/l; Medium dry between 32 and 50 g/l; Sweet > 50 g/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correct as to the figure, but the derogation is generic (any wine where total acidity is less than 10 g/L below the residual sugar), not Riesling- or German-specific; 'halbtrocken' is simply the German equivalent of 'medium dry'."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#19",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (EU-Australia wine agreement annex reproducing the EU sweetness terms of Reg (EU) 2019/33 Annex III)",
+      "tier": 1,
+      "ref": "https://webgate.ec.europa.eu/circabc-ewpp/d/d/workspace/SpacesStore/9be35fe5-97e4-4504-8825-7ebf7d2ade93/download",
+      "quote": "Dry < 4 g/l, or < 9 g/l if total acidity...; Medium dry between 4 and 12 g/l or < 18 g/l, if total acidity expressed as grams of tartaric acid per litre is < 10 g below the residual sugar content; Medium sweet between 12 and 45 g/l; Sweet > 45 g/l. Brut nature < 3 g/l; Extra brut between 0 and 6 g/l; Brut between 0 and 12 g/l; Extra dry between 12 and 17 g/l; Dry between 17 and 32 g/l; Medium dry between 32 and 50 g/l; Sweet > 50 g/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#20",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Commission Delegated Regulation (EU) 2019/33, Article 44",
+      "tier": 1,
+      "ref": "https://www.legislation.gov.uk/eur/2019/33/article/44",
+      "quote": "the strength shown may not differ by more than 0,5 % vol from that given by analysis. However, the alcoholic strength of grapevine products with protected designations of origin or geographical indications stored in bottles for more than three years, sparkling wines, quality sparkling wines,... liqueur wines and wines of overripe grapes... may not differ by more than 0,8 % vol"
+    },
+    "corrected_claim": "in the EU the tolerance is 0.5% abv for still wines and 0.8% abv for sparkling, liqueur and overripe-grape wines",
+    "corrected_sentence": "Actual alcohol determines the declared strength; in the EU the tolerance is 0.5% abv (0.8% for sparkling, liqueur and overripe-grape wines), whereas the United States allows 1.5% for wines at or below 14% abv and 1.0% above it - a difference that matters for a single global label.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Same issue as th_2017_p3_q1#7."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#21",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / 27 CFR 4.36(b)(1)",
+      "tier": 1,
+      "ref": "https://www.law.cornell.edu/cfr/text/27/4.36",
+      "quote": "a tolerance of 1.5 percent, in the case of wines containing 14 percent or less of alcohol by volume... a tolerance of 1 percent, in the case of wines containing more than 14 percent of alcohol by volume"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q2#22",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same TPO issue as th_2017_p3_q1#6 - AWRI publishes dissolved-oxygen targets (<0.5 mg/L pre-bottling), not a total-package-oxygen figure. Do not conflate the two."
+  },
+  {
+    "claim_id": "th_2017_p3_q2#23",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched AWRI microbiological stabilisation, AWRI microbial monitoring and OSU/WSU extension for a published retained-bottle sterility incubation protocol; found only AWRI's general advice to 'check the wine for any viable microorganisms a couple of weeks after bottling by plating on appropriate media'. The 25-30 C / 5-7 day incubation is common commercial QC practice but is not published by a tier-1 body that I could find."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The total sulphur dioxide content of wines... may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rose wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "400 milligrams per litre for: wines entitled to the descriptions 'Beerenauslese', 'Ausbruch', 'Ausbruchwein', 'Trockenbeerenauslese', 'Strohwein', 'Schilfwein' and 'Eiswein'... white wines entitled to one of the following protected designations of origin: Sauternes, Barsac..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / CERES (Reg (EU) 2018/848 and implementing acts); corroborated by Wine Australia Organic Export Requirements",
+      "tier": 1,
+      "ref": "https://www.ceres-cert.de/docs/transfer/3-2-737_EN.pdf ; https://www.wineaustralia.com/getmedia/58cdb09b-3dff-4b46-83ce-e69d2723f90d/Wine-Australia-Organic-Export-Requirements-122025.pdf",
+      "quote": "a. Sulfur dioxide content for red wine with a residual sugar content below 2 g/l: maximum 100 mg/l; b. Sulphur dioxide content for white wine and rose wine with a residual sugar content of less than 2 g/l: maximum 150 mg/l; c. Red wine, white wine and rose wine from 2 g residual sugar per liter and all other wines...: the maximum sulfur dioxide content permitted for conventional viticulture must be reduced by at least 30 [mg/l]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correct - but note the organic sugar threshold is 2 g/L (not the conventional 5 g/L), and above it the reduction is 'at least 30 mg/L' from the conventional ceiling rather than a fixed 100/150."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Computed from the tier-1 equation [MSO2] = [FSO2]/(1+10^(pH-1.8)): 5.9% at pH 3.0, 2.0% at pH 3.5, 0.63% at pH 4.0. The claim's rounding is accurate."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding spoilage caused by lactic acid bacteria (AWRI fact sheet), https://www.awri.com.au/wp-content/uploads/2011/06/Avoiding-spoilage-from-LAB.pdf",
+      "quote": "Lactic acid bacteria are more sensitive to SO2 than yeast and a molecular SO2 concentration of 0.8 mg/L will inhibit their growth... if a winemaker does not want to sterile filter... >0.6 mg/L of molecular SO2 is present in the wine just after bottling. For example, if the pH is 3.5, then the free SO2 concentration should be at least 30 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q3#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI (Rankine 1989, reproduced by AWRI)",
+      "tier": 1,
+      "ref": "Revisiting sulfur dioxide use (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance/sulfur_dioxide",
+      "quote": "White table wines pH 3.21 to 3.40: 20 to 30 mg/L free SO2; pH 3.41 to 3.50: 30 to 50 mg/L free SO2; pH > 3.50: 50 plus mg/L free SO2. Red table wines pH 3.40 to 3.60: 10 to 20 mg/L 'apparent' free SO2 or 50 to 150 mg/L total SO2"
+    },
+    "corrected_claim": "conventional free SO2 at bottling is set by pH rather than by colour: roughly 20-30 mg/L for a white at pH 3.2-3.4 and 30-50 mg/L at pH 3.4-3.5",
+    "corrected_sentence": "Conventional free SO2 at bottling is set by pH rather than by colour: roughly 20-30 mg/L in a white at pH 3.2-3.4, 30-50 mg/L at pH 3.4-3.5, and higher again above pH 3.5.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI's published (Rankine) table keys free SO2 to pH, not to wine colour, and warns that 'apparent' free SO2 in reds is largely bound to anthocyanins and has little chemical significance. Quoting fixed red/white bands invites the examiner's objection that the molecular target, not the colour, sets the figure."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 40-50 mg/L free SO2 bottling band specific to off-dry/sweet whites. The defensible framing is the molecular target (0.8 mg/L where fermentable sugar remains) converted at the wine's actual pH."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#7",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "This is the author's own stipulative definition of what he means by 'reduced levels' in the essay, signposted as such ('By reduced levels I therefore mean...'). It is a framing device, not a factual assertion to be checked."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#8",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / USDA AMS National Organic Program",
+      "tier": 1,
+      "ref": "https://www.ttb.gov/system/files/images/pdfs/organic-wine.pdf ; https://www.ams.usda.gov/sites/default/files/media/NOP-PM-10-2-SulferDioxideinWine.pdf",
+      "quote": "Added sulfites allowed? No, only naturally occurring (less than 10 parts per million (ppm))... wine 'made with organic grapes' may contain up to 100 ppm of sulfur dioxide... Sulfur dioxide - for use only in wine labeled 'made with organic grapes', Provided, That, total sulfite concentration does not exceed 100 ppm."
+    },
+    "corrected_claim": "no-added-sulphite wines still carry sulphites generated by fermentation itself, which the US organic rule caps at under 10 mg/L",
+    "corrected_sentence": "...with 'no added sulphite' wines at the extreme, which still carry fermentation-generated sulphites - under 10 mg/L, the ceiling the US organic rule sets for naturally occurring sulphites.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The USDA/TTB organic rule confirms 10 ppm as the CEILING for naturally occurring sulphites in a wine labelled 'organic', not a typical value; producers routinely report 0-5 ppm. Stating ~10 mg/L as what such wines 'carry' overstates the typical figure."
+  },
+  {
+    "claim_id": "th_2017_p3_q3#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Regulation (EU) No 1169/2011, Annex II point 12",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:304:0018:0063:en:PDF",
+      "quote": "12. Sulphur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/litre in terms of the total SO2 which are to be calculated for products as proposed ready for consumption"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q3#10",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Gas adjustment, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/gas-adjustment",
+      "quote": "As 1 mg/L of oxygen can indirectly result in the loss of up to 4 mg/L free sulfur dioxide, it is important to minimise both the dissolved and headspace oxygen... The dissolved oxygen levels in wine are often reduced to acceptable levels before bottling (generally < 0.5 mg/L) using inert gas sparging techniques."
+    },
+    "corrected_claim": "roughly 4 mg/L of free SO2 is lost for every 1 mg/L of dissolved oxygen",
+    "corrected_sentence": "Every milligram per litre of oxygen picked up costs roughly 4 mg/L of free SO2, so oxygen management at the filler is inseparable from the sulphite decision.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "THE RATIO IS INVERTED. AWRI: 'As 1 mg/L of oxygen can indirectly result in the loss of up to 4 mg/L free sulfur dioxide'; Zoecklein (Virginia Tech): '4 mg of SO2 is needed to neutralize the effects of 1 mg of oxygen'. The stoichiometry (2SO2 + O2, MW 64 vs 32) requires 4 mg SO2 per mg O2. As written, the claim understates the SO2 cost of oxygen pick-up sixteen-fold and would be recognised instantly by an examiner."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 15-16% abv inhibition threshold across spoilage yeasts and LAB generally. The nearest tier-1 evidence is AWRI's MLF condition tables, which rate >14% abv as 'harsh' for Oenococcus oeni, and WSU work on Brettanomyces which controls with temperature and molecular SO2 rather than alcohol. Recommend hedging or attributing."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IVDP (Instituto dos Vinhos do Douro e Porto)",
+      "tier": 1,
+      "ref": "https://www.ivdp.pt/en/wines/port-wines/introduction",
+      "quote": "Port Wine stands out from ordinary wines due to its unique characteristics:... a high alcohol content (usually between 19 and 22% vol.)"
+    },
+    "corrected_claim": "Port is fortified to between 19 and 22% abv",
+    "corrected_sentence": "...which is the whole principle of fortification: Port is fortified to between 19 and 22% abv and is microbially secure despite substantial residual sugar.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "IVDP gives 19-22% vol as the usual range. '19 to 20' truncates the top of the legal band and would read as imprecise to a Douro-literate examiner."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The total sulphur dioxide content of wines... may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rose wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir, https://www.awri.com.au/wp-content/uploads/2019/08/s2105.pdf",
+      "quote": "The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines to inhibit the growth of bacteria and yeast (and the concentration of molecular SO2 is dependent on wine pH)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A table (2.6 L-ascorbic acid)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "L ascorbic acid E 300 ... Maximum content in wine thus treated and placed on the market: 250 mg/l. Maximum 250 mg/l for each treatment."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Chemical options for microbiological stabilisation (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/microbiological-stabilisation/",
+      "quote": "Tromp and Agenbach (1981) reported that the threshold for sorbic acid is much higher than the legal limit of 200 mg/L... These authors recommend that 200 mg/L be used regardless of the yeast cell numbers."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices II.3.4.12",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-ii-oenological-treatments-and-practices/wines",
+      "quote": "According to experiments, the maximum dose of 500 mg/l appears to be sufficient to control the growth and the activity of the bacteria responsible for malolactic fermentation... the cumulative dose must not exceed 500 mg/l."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices II.3.4.13",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-ii-oenological-treatments-and-practices/wines",
+      "quote": "The dosage should be no more than 200 mg/l expressed as dimethyl dicarbonate... The wine should not be placed on the market as long as dimethyl dicarbonate is detectable."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#8",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Carboxymethylcellulose FAQ / Measurement of cold stability of wine (AWRI)",
+      "quote": "The AWRI recommends that cold stability be determined by storing a filtered 150 mL aliquot of wine at -4 C for three days, and then examining it for the presence of a crystalline deposit."
+    },
+    "corrected_claim": "cold stabilisation near minus 4 degrees C, which with contact seeding drops the tartrate in hours to a few days rather than the weeks unseeded chilling takes",
+    "corrected_sentence": "**Tartrate crystals**, potassium bitartrate and calcium tartrate, are prevented by cold stabilisation near minus 4 degrees C - hours to a few days with contact seeding, weeks without it - by electrodialysis or cation exchange, or by additives.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "-4 C is confirmed as the AWRI cold-stability TEST temperature (three days, filtered 150 mL aliquot) and the Union des Maisons de Champagne independently identifies '-4 degrees centigrade' as where tartrate precipitation triggers. AWRI describes cellar practice as chilling for several weeks unseeded, or 'hours to a few days' with contact seeding - so 'several days with seeding' overstates the seeded time and understates the unseeded."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI (citing Ribereau-Gayon et al. 2006)",
+      "tier": 1,
+      "ref": "Cold stabilisation (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/cold-stabilisation/",
+      "quote": "metatartaric acid can be considered effective for the following time periods, depending on temperature: Several years at 0 C; Over two years at 10-12 C; One year to eighteen months at temperatures varying between 10 C in winter and 18 C in summer; Three months at 20 C..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exactly matches AWRI/Ribereau-Gayon: 'One year to eighteen months at temperatures varying between 10 C in winter and 18 C in summer' - and the same source shows the figure collapses to three months at 20 C and a week at 30 C, which strengthens the point being made."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#10",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same as th_2017_p3_q2#6: no tier-1 source found for an iron threshold for ferric casse."
+  },
+  {
+    "claim_id": "th_2017_p3_q4#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Understanding copper hazes in wine, https://www.awri.com.au/wp-content/uploads/2023/07/s2362-Copper-hazes.pdf ; Removal of volatile sulfur compounds (AWRI)",
+      "quote": "The AWRI suggests a copper concentration of 0.5 mg/L or more is likely to lead to potential copper instability in white wine... While there is no specified maximum limit for copper in wine in Australia, there are limits in many of Australia's export markets (e.g. USA 0.5 mg/L)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p3_q4#12",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "Surface filters such as membrane filters are used as a final filter to remove smaller microorganisms... The 'bubble point' is the gas pressure at which the surface tension of water in the pores of a saturated filter is overcome... 0.65 um membrane: 20.3 psig (140 kPa); 0.45 um membrane: 26.1 psig (180 kPa). Most cross-flow membranes are only nominally rated at 0.2 um which is theoretically tight enough for sterile filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Checked against the tier-1 equation: at pH 3.4 the molecular fraction is 2.4%, so 30 mg/L free = 0.74 mg/L molecular; at pH 3.8 it is 0.99%, so 75 mg/L free = 0.74 mg/L. Both sit inside the stated 0.5-0.8 target."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The total sulphur dioxide content of wines... may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rose wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "400 milligrams per litre for: wines entitled to the descriptions 'Beerenauslese', 'Ausbruch', 'Ausbruchwein', 'Trockenbeerenauslese', 'Strohwein', 'Schilfwein' and 'Eiswein'... white wines entitled to one of the following protected designations of origin: Sauternes, Barsac..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / CERES (Reg (EU) 2018/848 and implementing acts); corroborated by Wine Australia Organic Export Requirements",
+      "tier": 1,
+      "ref": "https://www.ceres-cert.de/docs/transfer/3-2-737_EN.pdf ; https://www.wineaustralia.com/getmedia/58cdb09b-3dff-4b46-83ce-e69d2723f90d/Wine-Australia-Organic-Export-Requirements-122025.pdf",
+      "quote": "a. Sulfur dioxide content for red wine with a residual sugar content below 2 g/l: maximum 100 mg/l; b. Sulphur dioxide content for white wine and rose wine with a residual sugar content of less than 2 g/l: maximum 150 mg/l; c. Red wine, white wine and rose wine from 2 g residual sugar per liter and all other wines...: the maximum sulfur dioxide content permitted for conventional viticulture must be reduced by at least 30 [mg/l]"
+    },
+    "corrected_claim": "EU organic ceilings sit 50 mg/L below the conventional ones for dry wines (100 red, 150 white and rose below 2 g/L sugar) and at least 30 mg/L below for everything above 2 g/L sugar",
+    "corrected_sentence": "EU organic ceilings sit 50 mg/L below the conventional ones for dry wines - 100 mg/L red and 150 mg/L white and rose below 2 g/L residual sugar - and at least 30 mg/L below for all sweeter categories.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The flat '50 mg/L below' is right only for dry wines. Above 2 g/L residual sugar the organic rule is a reduction of at least 30 mg/L from the conventional ceiling; note also that the organic sugar break is 2 g/L, not the conventional 5 g/L."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / 27 CFR 4.22(b)(1)",
+      "tier": 1,
+      "ref": "https://www.law.cornell.edu/cfr/text/27/4.22",
+      "quote": "the presence in finished wine of not more than 350 parts per million of total sulfur dioxide, or sulphites expressed as sulfur dioxide"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia (ANZ Food Standards Code Standard 4.5.1)",
+      "tier": 1,
+      "ref": "https://www.wineaustralia.com/labelling/additives-and-processing-aids ; https://www.wineaustralia.com/news/articles/know-your-sulphite-limits",
+      "quote": "Wine, sparkling wine and fortifieds containing under 35g/L residual sugar are permitted up to 250mg/L total sulphites, while wines with sugars higher than 35g/L are permitted a slightly increased level of 300mg/L total sulphites."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The pro-oxidant mechanism (ascorbic acid generating hydrogen peroxide, requiring SO2 alongside) is well established, but no tier-1 source gives a specific '30 mg/L free SO2' minimum for co-dosing. Recommend stating the mechanism without the number."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Chemical options for microbiological stabilisation (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/microbiological-stabilisation/",
+      "quote": "Tromp and Agenbach (1981) reported that the threshold for sorbic acid is much higher than the legal limit of 200 mg/L... These authors recommend that 200 mg/L be used regardless of the yeast cell numbers."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Cap confirmed at 200 mg/L, and AWRI's cited authorities (Boulton et al.; Tromp and Agenbach) recommend using 200 mg/L regardless of yeast cell numbers - which supports the 'used close to the cap' half of the claim as well."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#9",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Commission Delegated Regulation (EU) 2019/934, Annex I Part A table (2.6 L-ascorbic acid)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "L ascorbic acid E 300 ... Maximum content in wine thus treated and placed on the market: 250 mg/l. Maximum 250 mg/l for each treatment."
+    },
+    "corrected_claim": "ascorbic acid is capped at 250 mg/L",
+    "corrected_sentence": "Ascorbic acid is capped at 250 mg/L and is added in-line immediately before the filler.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The 250 mg/L cap is confirmed. The '50-100 mg/L typical' usage figure is not sourced by any tier-1 body I could find; drop it or hedge it rather than state it as fact."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices II.3.4.13",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-ii-oenological-treatments-and-practices/wines",
+      "quote": "The dosage should be no more than 200 mg/l expressed as dimethyl dicarbonate... The wine should not be placed on the market as long as dimethyl dicarbonate is detectable."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q1#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices II.3.4.12",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/part-ii-oenological-treatments-and-practices/wines",
+      "quote": "According to experiments, the maximum dose of 500 mg/l appears to be sufficient to control the growth and the activity of the bacteria responsible for malolactic fermentation... the cumulative dose must not exceed 500 mg/l."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "OIV states 500 mg/L 'appears to be sufficient to control the growth and activity' of MLF bacteria, which supports both the cap and the practice of dosing at or near it."
+  },
+  {
+    "claim_id": "th_2021_p3_q1#12",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Regulation (EU) No 1169/2011, Annex II point 12",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2011:304:0018:0063:en:PDF",
+      "quote": "12. Sulphur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/litre in terms of the total SO2 which are to be calculated for products as proposed ready for consumption"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified for the EU (Reg 1169/2011 Annex II point 12). The parallel US requirement (TTB 'CONTAINS SULFITES' at 10 or more ppm) is corroborated only indirectly here, via USDA/TTB organic-wine guidance stating that any US organic wine over 10 ppm must be labelled 'contains sulfites'. Australia's FSANZ threshold is also 10 mg/kg."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched the KB and awri.com.au for plant-protein (pea/potato) fining rates; AWRI's fining table covers gelatine, isinglass, casein, egg albumen, bentonite, carbon and PVPP but not plant proteins. The nearest KB datum is an IVES/INRAE trial using a yeast protein extract at 10 g/hL. The 10-30 g/hL band is plausible and matches supplier literature but is not tier-1 sourced."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fining Agents FAQ (AWRI), Table 2 'Typical rates of additions of fining agents in white and red wine'; Conducting a bentonite fining trial (AWRI)",
+      "quote": "Bentonite 200 - 1000 [mg/L]... PVPP 100 - 800 [mg/L]... Typical bentonite addition rates trialled are between 0.1 and 1.0 g/L (100-1000 mg/L)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI trials bentonite at 100-1000 mg/L (10-100 g/hL) for white wine, so 20-60 g/hL sits comfortably inside the published range; AWRI also insists the rate be set by bench trial, which is the claim's own point."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fining Agents FAQ (AWRI), Table 2 'Typical rates of additions of fining agents in white and red wine'; Conducting a bentonite fining trial (AWRI)",
+      "quote": "Bentonite 200 - 1000 [mg/L]... PVPP 100 - 800 [mg/L]... Typical bentonite addition rates trialled are between 0.1 and 1.0 g/L (100-1000 mg/L)."
+    },
+    "corrected_claim": "PVPP at 10-80 g/hL, within the OIV ceiling of 80 g/hL",
+    "corrected_sentence": "For browning and phenolic pinking in whites, PVPP - trialled anywhere from 10 to 80 g/hL, within the OIV ceiling of 80 g/hL - is synthetic and compliant.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI's typical range is 100-800 mg/L (10-80 g/hL) and the OIV ceiling is 80 g/hL. 10-30 g/hL is only the bottom third of the working range."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The mechanism (skin contact extracting potassium, raising pH) is standard, but no tier-1 source found quantifying orange-wine pH at 3.5-3.8. Recommend 'often above 3.5' rather than a band."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": "a molecular SO2 of 0.5-0.8 mg/L needs roughly 25-40 mg/L free at pH 3.5 but 50-80 mg/L at pH 3.8",
+    "corrected_sentence": "First, skin contact extracts potassium and pushes pH up, so a molecular SO2 of 0.5-0.8 mg/L that needs only 25-40 mg/L free at pH 3.5 needs 50-80 mg/L at pH 3.8 - an uncomfortable figure for a category whose buyers expect low sulphur.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "60-80 mg/L free is correct at pH 3.8 (0.99% molecular) but roughly double what is needed at pH 3.5 (1.96% molecular gives 0.5-0.8 mg/L from just 25-40 mg/L free). Attaching one number to a 3.5-3.8 span misstates the low end by about 2x - and the point of the sentence is precisely the pH sensitivity, so it is worth getting right."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / CERES (Reg (EU) 2018/848 and implementing acts); corroborated by Wine Australia Organic Export Requirements",
+      "tier": 1,
+      "ref": "https://www.ceres-cert.de/docs/transfer/3-2-737_EN.pdf ; https://www.wineaustralia.com/getmedia/58cdb09b-3dff-4b46-83ce-e69d2723f90d/Wine-Australia-Organic-Export-Requirements-122025.pdf",
+      "quote": "a. Sulfur dioxide content for red wine with a residual sugar content below 2 g/l: maximum 100 mg/l; b. Sulphur dioxide content for white wine and rose wine with a residual sugar content of less than 2 g/l: maximum 150 mg/l; c. Red wine, white wine and rose wine from 2 g residual sugar per liter and all other wines...: the maximum sulfur dioxide content permitted for conventional viticulture must be reduced by at least 30 [mg/l]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correct. Note the organic sugar break is 2 g/L, and above it the reduction is at least 30 mg/L rather than 50."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / USDA AMS National Organic Program",
+      "tier": 1,
+      "ref": "https://www.ttb.gov/system/files/images/pdfs/organic-wine.pdf ; https://www.ams.usda.gov/sites/default/files/media/NOP-PM-10-2-SulferDioxideinWine.pdf",
+      "quote": "Added sulfites allowed? No, only naturally occurring (less than 10 parts per million (ppm))... wine 'made with organic grapes' may contain up to 100 ppm of sulfur dioxide... Sulfur dioxide - for use only in wine labeled 'made with organic grapes', Provided, That, total sulfite concentration does not exceed 100 ppm."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q2#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / USDA AMS National Organic Program",
+      "tier": 1,
+      "ref": "https://www.ttb.gov/system/files/images/pdfs/organic-wine.pdf ; https://www.ams.usda.gov/sites/default/files/media/NOP-PM-10-2-SulferDioxideinWine.pdf",
+      "quote": "Added sulfites allowed? No, only naturally occurring (less than 10 parts per million (ppm))... wine 'made with organic grapes' may contain up to 100 ppm of sulfur dioxide... Sulfur dioxide - for use only in wine labeled 'made with organic grapes', Provided, That, total sulfite concentration does not exceed 100 ppm."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q2#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Reg (EU) 2018/848 Annex II Part VI; Reg (EU) 2021/1165)",
+      "tier": 1,
+      "ref": "https://competition-policy.ec.europa.eu/document/download/86f5a339-ee2d-430f-8e29-5fb56770ba14_en (2025 EC opinion, French wine sector); CERES summary of Reg (EU) 2018/848",
+      "quote": "Some practices are allowed with strict conditions, including heat treatment (up to 75 C), centrifugation/filtration (pore size >= 0.2 micrometres)... the following practices are prohibited in organic production: partial concentration by cooling, physical removal of sulphur dioxide, electrodialysis..., alcohol content correction, and cation exchanger treatments"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirmed: pore size for centrifuging and filtration in EU organic wine must be not smaller than 0.2 micrometres."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#9",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Reg (EU) 2018/848 Annex II Part VI; Reg (EU) 2021/1165)",
+      "tier": 1,
+      "ref": "https://competition-policy.ec.europa.eu/document/download/86f5a339-ee2d-430f-8e29-5fb56770ba14_en (2025 EC opinion, French wine sector); CERES summary of Reg (EU) 2018/848",
+      "quote": "Some practices are allowed with strict conditions, including heat treatment (up to 75 C), centrifugation/filtration (pore size >= 0.2 micrometres)... the following practices are prohibited in organic production: partial concentration by cooling, physical removal of sulphur dioxide, electrodialysis..., alcohol content correction, and cation exchanger treatments"
+    },
+    "corrected_claim": "heat treatment above 75 degrees C",
+    "corrected_sentence": "Several stabilisation routes are excluded, notably electrodialysis and cation exchange for tartrate stability, dealcoholisation, physical SO2 removal, filtration below about 0.2 micrometres and heat treatment above 75 degrees C.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "70 degrees C was the limit under Article 29d(3) of Reg (EC) 889/2008 and was correct when this question was set in 2021. Since Regulation (EU) 2018/848 took effect on 1 January 2022 the limit is 75 degrees C - stated as such by the European Commission's own 2025 opinion ('heat treatment (up to 75 C)') and by certifier summaries of Annex II Part VI. A candidate sitting today who writes 70 C is quoting a repealed rule."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Cold stabilisation (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/cold-stabilisation/",
+      "quote": "Key points for CMC use: ... Maximum dosage of 100 mg/L... Tends not to work on wines that are grossly unstable."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "5-10 g/hL = 50-100 mg/L, and AWRI's published maximum dosage is 100 mg/L (the EU limit is likewise 100 mg/L). AWRI's caveat is worth carrying: CMC only works on wines that are marginally unstable, must follow protein stabilisation, and is unsuitable for reds - all of which the answer already says."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV - International Code of Oenological Practices, Annex: Maximum Acceptable Limits",
+      "tier": 1,
+      "ref": "https://www.oiv.int/standards/international-code-of-oenological-practices/annexes/maximum-acceptable-limits",
+      "quote": "Lysozyme 500 mg/l ... Metatartaric acid 10 g/hl ... Methanol 400 mg/l for wines rouges; 250 mg/l for white wines and roses ... Copper 1 mg/l; 2 mg/l for liqueur wines ... Polyvinylpolypyrrolidone 80 g/hl"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "10 g/hL is exactly the OIV maximum acceptable treatment rate for metatartaric acid (and the EU limit)."
+  },
+  {
+    "claim_id": "th_2021_p3_q2#12",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "Surface filters such as membrane filters are used as a final filter to remove smaller microorganisms... The 'bubble point' is the gas pressure at which the surface tension of water in the pores of a saturated filter is overcome... 0.65 um membrane: 20.3 psig (140 kPa); 0.45 um membrane: 26.1 psig (180 kPa). Most cross-flow membranes are only nominally rated at 0.2 um which is theoretically tight enough for sterile filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q2#13",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 35-40 mg/L free SO2 bottling figure for orange wine specifically. The molecular-target route (0.5-0.8 mg/L converted at the wine's pH) is the defensible way to state it."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p3_q3#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Virginia Tech Enology (Zoecklein)",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/downloads/wm_issues/Sulfur%20Dioxide.pdf",
+      "quote": "[M SO2] = [FSO2] / (1 + 10^(pH-1.8)) ... this adjustment may be calculated to yield free molecular SO2 levels of 0.5 to 0.8 mg/L. In pH range 3.2 to 3.5, this corresponds to additions of 20 to 40 mg/L."
+    },
+    "corrected_claim": "typically 20-40 mg/L free at pH 3.2-3.5",
+    "corrected_sentence": "The targets I write into the specification are a molecular SO2 of 0.5-0.8 mg/L, typically 20-40 mg/L free at pH 3.2-3.5 and more above that;",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Zoecklein gives 20-40 mg/L free across pH 3.2-3.5 for a 0.5-0.8 mg/L molecular target. The claim's 30-45 mg/L is shifted about 10 mg/L high at both ends; at pH 3.2 (3.7% molecular) 30 mg/L free already gives 1.1 mg/L molecular, well above the stated target."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Gas adjustment, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/gas-adjustment",
+      "quote": "As 1 mg/L of oxygen can indirectly result in the loss of up to 4 mg/L free sulfur dioxide, it is important to minimise both the dissolved and headspace oxygen... The dissolved oxygen levels in wine are often reduced to acceptable levels before bottling (generally < 0.5 mg/L) using inert gas sparging techniques."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "0.5 mg/L is AWRI's published dissolved-oxygen target, given for pre-bottling rather than for bulk loading; the figure is right, the application is an extension."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities, https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance ; MLF in red wine fact sheet",
+      "quote": "Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid... it is best to aim for a malic acid result of 'not detected', which is usually <0.05 g/L by enzymatic analysis. However, a result of 0.1 g/L or less is low enough for the MLF to be considered complete."
+    },
+    "corrected_claim": "malic acid at or below 0.1 g/L, ideally 'not detected' (<0.05 g/L)",
+    "corrected_sentence": "...malic acid at or below 0.1 g/L - ideally 'not detected', under the 0.05 g/L enzymatic detection limit - where malolactic fermentation is complete;",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Flagged error class. AWRI's threshold for 'MLF complete' is <=0.1 g/L and preferably below the 0.05 g/L detection limit. 0.2 g/L is four times the detection limit and is not a safe bulk-shipping specification - a shipment sitting warm at sea is exactly where a residual 0.2 g/L would finish fermenting in-tank."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities, https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance ; MLF in red wine fact sheet",
+      "quote": "Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid... it is best to aim for a malic acid result of 'not detected', which is usually <0.05 g/L by enzymatic analysis. However, a result of 0.1 g/L or less is low enough for the MLF to be considered complete."
+    },
+    "corrected_claim": "residual sugar below the 0.1 g/L enzymatic detection limit",
+    "corrected_sentence": "...residual sugar below the 0.1 g/L enzymatic detection limit unless the wine is sterile-filtered and dosed;",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI: 'any measurable level of these nutrients can have the potential to act as a substrate for microbial growth', with the enzymatic detection limit at 0.1 g/L for glucose + fructose. 2 g/L is a commercial dryness convention, not a microbial-safety threshold, and would be indefensible as a bulk-shipping spec."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Gas adjustment, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/gas-adjustment",
+      "quote": "White table wines are generally sparged to reduce dissolved carbon dioxide until they contain between 0.8 and 1.3 g/L... Red table wines are generally sparged until they contain <0.5 g/L of dissolved carbon dioxide."
+    },
+    "corrected_claim": "roughly 800-1,300 mg/L in a white and below 500 mg/L in a red",
+    "corrected_sentence": "...and CO2 to style, roughly 800-1,300 mg/L in a white and below 500 mg/L in a red.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI publishes 0.8-1.3 g/L for white table wines and <0.5 g/L for reds. The claim's white band runs 100 mg/L high at the top and its red band (300-600) straddles a ceiling AWRI puts at 500."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#6",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration - physical removal of microorganisms, https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms",
+      "quote": "Surface filters such as membrane filters are used as a final filter to remove smaller microorganisms... The 'bubble point' is the gas pressure at which the surface tension of water in the pores of a saturated filter is overcome... 0.65 um membrane: 20.3 psig (140 kPa); 0.45 um membrane: 26.1 psig (180 kPa). Most cross-flow membranes are only nominally rated at 0.2 um which is theoretically tight enough for sterile filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Both routes are recognised by AWRI; note its caveat that cross-flow membranes are only NOMINALLY rated at 0.2 um and cannot be integrity-tested, so a nominal cross-flow pass is not equivalent to an absolute-rated sterile membrane."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Measuring heat stability of wine, https://www.awri.com.au/industry_support/winemaking_resources/laboratory_methods/chemical/heat_stab",
+      "quote": "Heat the sample at 80 C for two hours. While six hours has been typical industry practice for the heat test, recent research has shown that two hours of [heating is sufficient]... | White wine | 2 hours | 3 hours | < 2.0 NTU |"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "80 degrees C is correct and the claim wisely omits a duration - AWRI's current protocol is 2 hours heating and 3 hours cooling, not the older 6 hours."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Carboxymethylcellulose FAQ / Measurement of cold stability of wine (AWRI)",
+      "quote": "The AWRI recommends that cold stability be determined by storing a filtered 150 mL aliquot of wine at -4 C for three days, and then examining it for the presence of a crystalline deposit."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exact match to AWRI's recommended brine/cold test: -4 degrees C for three days (72 hours) on a filtered 150 mL aliquot."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#9",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI's 15 degrees C is a bottling/sparging compromise temperature, and WSU reports <15 degrees C limits Brettanomyces growth in combination with molecular SO2 - neither is a published bulk-loading specification. The figure is defensible by analogy but not sourced as written."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#10",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Hillebrand Gori (bulk-wine logistics provider - supplier primary source, not a tier-1 regulator/institute)",
+      "tier": 2,
+      "ref": "https://www.hillebrandgori.com/media/publication/choosing-an-iso-or-flexitank-for-bulk-liquids-3-factors-to-consider",
+      "quote": "ISO tanks usually hold around 26,000L... Standard flexitanks hold 24,000L but our XL Flexitank can hold up to 27,000L, yet still fits into a single 20ft container."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirmed by the dominant bulk-wine logistics provider's own product literature (standard flexitank 24,000 L; XL 27,000 L; ISO tank ~26,000 L), which is a supplier primary source rather than a tier-1 regulator or research institute. The contrast the answer draws - flexitank brim-full and unsamplable versus ISO tank blanketable and samplable - is likewise supplier-documented, not institute-published."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#11",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for an expected 5-15 mg/L free SO2 loss over a bulk voyage. AWRI does document that 1 mg/L O2 costs up to 4 mg/L free SO2, which makes a loss of that order mechanistically plausible, but the band itself is unsourced."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#12",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 0.1 g/L VA rise as a microbiological action threshold. It is a reasonable internal specification; present it as your own spec rather than as an established figure."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#13",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Revisiting sulfur dioxide use (AWRI), https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance/sulfur_dioxide",
+      "quote": "the concentration of DO in wine increases by about 0.5 mg/L during bottling under ideal, industry best practice conditions, and will commonly be in the range of 1.0 to 1.5 mg/L when conditions are less than ideal. Boulton et al. (1996) indicate that, theoretically, 1 mg/L of oxygen can consume 4 mg/L of SO2"
+    },
+    "corrected_claim": "dissolved oxygen above roughly 1 mg/L, the level AWRI associates with less-than-ideal handling",
+    "corrected_sentence": "...dissolved oxygen above roughly 1 mg/L - the level AWRI associates with less-than-ideal handling - as an oxidation risk;",
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI reports DO at 1.0-1.5 mg/L 'when conditions are less than ideal' against a best-practice pick-up of 0.5 mg/L, which supports ~1 mg/L as an action level, though AWRI does not state it as a threshold."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#14",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI (Technical Review 226, metal limits table)",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/wp-content/uploads/2011/07/Technical_Review_Issue_226_Loveridge.pdf",
+      "quote": "Table 1. The maximum concentration allowed in wine for five different metals in five different markets... European Union - - - Copper 1 mg/L Lead 0.2 mg/kg"
+    },
+    "corrected_claim": "copper is limited to 1 mg/L residual in the EU and under the OIV limits, and to 0.5 mg/L in the United States",
+    "corrected_sentence": "Reduction is treated by racking or splash-transfer and, if needed, a trace copper addition, remembering that copper is limited to 1 mg/L residual in the EU and under OIV limits - and to 0.5 mg/L in the United States.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "1 mg/L is right for the EU, Argentina, Ontario and China and is the OIV limit, but the US limit is 0.5 mg/L (AWRI flags it explicitly as an export trap) - and 0.5 mg/L is also the level at which AWRI expects copper instability, so it is the operative number for anyone shipping to the US."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#15",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 12-15 degrees C bulk holding specification. WSU reports storage below 15 degrees C limits Brettanomyces when combined with >0.4 mg/L molecular SO2, which supports the upper bound only."
+  },
+  {
+    "claim_id": "th_2021_p3_q3#16",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same TPO problem as th_2017_p3_q1#6 and #22: no tier-1 total-package-oxygen figure found. AWRI publishes dissolved-oxygen pick-up at bottling (0.5 mg/L best practice, 1.0-1.5 mg/L otherwise), which is not the same quantity."
+  },
+  {
+    "claim_id": "th_2021_p3_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex - Regulation (EC) No 178/2002 (General Food Law), Articles 18-19",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg/2002/178/oj/eng",
+      "quote": "The traceability of food, feed, food-producing animals, and any other substance intended to be... incorporated into a food or feed shall be established at all stages of production, processing and distribution... [operators] shall immediately initiate procedures to withdraw the food in question from the market"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Regulation (EC) No 178/2002 (the General Food Law) is correctly cited: Article 18 imposes traceability at all stages, Article 19 requires immediate withdrawal and notification of the competent authority where food may be unsafe. Both obligations are exactly what a glass-in-bottle complaint triggers."
+  }
+]
