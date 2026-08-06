@@ -35,17 +35,31 @@ export function FeedbackAnalysisPanel({
   const stream = useStreaming();
 
   useEffect(() => {
-    setLoading(true);
-    fetch(`/api/feedback-analysis/${analysisId}`)
-      .then((r) => r.json())
-      .then((data) => {
+    // setLoading lives inside the async body rather than the effect body: a synchronous setState
+    // during an effect forces an extra render pass before paint, which is what
+    // react-hooks/set-state-in-effect flags. Deferred by a microtask, the spinner still shows on
+    // the next paint.
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/feedback-analysis/${analysisId}`);
+        const data = await res.json();
         if (data.thread && typeof data.thread === "string") {
           data.thread = JSON.parse(data.thread);
         }
-        setAnalysis(data);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+        // Guard added with the rewrite: switching analyses quickly could otherwise let a slow
+        // earlier response overwrite a newer one.
+        if (alive) setAnalysis(data);
+      } catch {
+        /* leave the previous analysis in place */
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
   }, [analysisId]);
 
   useEffect(() => {

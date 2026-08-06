@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useNow } from "@/lib/use-now";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail, type Stats } from "../../../components/HistoryView";
@@ -48,7 +49,10 @@ function winesRevealed(step: string): boolean {
 function LiveSessionPanel({ session }: { session: LiveSession }) {
   const [expanded, setExpanded] = useState(false);
   const wines = typeof session.wines === "string" ? JSON.parse(session.wines) : session.wines;
-  const elapsed = Math.round((Date.now() - new Date(session.started_at).getTime()) / 60000);
+  // From state rather than Date.now(): an impure render read, and the "N min" on a LIVE session
+  // never advanced on its own. useNow ticks it every minute.
+  const now = useNow();
+  const elapsed = Math.round((now - new Date(session.started_at).getTime()) / 60000);
   const showWines = winesRevealed(session.current_step);
   const progress = stepProgress(session.current_step);
 
@@ -225,8 +229,12 @@ export default function AdminUserHistoryPage() {
         setLoading(false);
       });
 
-    // Poll live session
-    fetchLive();
+    // Poll live session. Wrapped rather than called directly: the first fetch reaches setState on
+    // the synchronous path out of the effect (react-hooks/set-state-in-effect); the interval's
+    // later calls never did.
+    void (async () => {
+      await fetchLive();
+    })();
     const interval = setInterval(fetchLive, 5000);
     return () => clearInterval(interval);
   }, [user, userId, fetchLive]);

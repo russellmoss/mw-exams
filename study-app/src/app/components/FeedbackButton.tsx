@@ -47,10 +47,17 @@ export function FeedbackButton({ attemptId, step, questionId = null, userId = nu
     }
   }, [open]);
 
-  // Reset sent state when step changes
-  useEffect(() => {
+  // Reset sent state when step changes.
+  //
+  // Adjusted DURING RENDER rather than in an effect. An effect would paint the stale "sent" state
+  // once and then re-render, and it is what react-hooks/set-state-in-effect flags. This is React's
+  // documented pattern for deriving state from a changed prop: compare against the previous value
+  // and set both in the same render pass, which React restarts immediately without painting.
+  const [prevStep, setPrevStep] = useState(step);
+  if (prevStep !== step) {
+    setPrevStep(step);
     setSent(false);
-  }, [step]);
+  }
 
   const canSubmit = Boolean(attemptId || questionId);
 

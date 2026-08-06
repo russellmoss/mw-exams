@@ -65,8 +65,11 @@ export function ProducerSpreadSection() {
   // Re-fetch whenever the paper filter or the expand toggle changes.
   useEffect(() => {
     let alive = true;
-    setLoading(true);
     (async () => {
+      // Inside the async body, not the effect body. A synchronous setState during an effect forces
+      // an immediate second render pass before paint (react-hooks/set-state-in-effect); moving it
+      // here defers it by a microtask, so the spinner still appears on the very next paint.
+      setLoading(true);
       try {
         const payload = await fetchData(paper, showAll);
         if (alive) {

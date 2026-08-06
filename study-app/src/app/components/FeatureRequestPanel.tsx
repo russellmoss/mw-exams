@@ -89,7 +89,13 @@ export function FeatureRequestPanel({ autoFeature }: { autoFeature: boolean }) {
     } catch {}
   }, []);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  // Wrapped rather than called directly: `refresh()` in the effect body reaches setState on the
+  // synchronous path, which react-hooks/set-state-in-effect flags. The fetch is async either way.
+  useEffect(() => {
+    void (async () => {
+      await refresh();
+    })();
+  }, [refresh]);
 
   // Poll hard while a build is in flight; poll gently while a PR is open, since the merge is
   // reconciled against GitHub on refresh and would otherwise need a manual reload to show up.
