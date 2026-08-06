@@ -234,6 +234,123 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// FLIGHT COMPOSITION — banker / curveball balance (Mike's recurring bin cluster).
+//
+// A recurring reviewer verdict across 14 binned flights (papers 1–3) was, in the reviewer's own
+// framing, "a flight like this would likely have a banker" and "three out of the four wines are
+// curveballs, normally in a flight like this you would see one curveball, two at best". The banker —
+// a classic benchmark expression of a mainstream variety in its home region — is what gives the
+// candidate a route to the country; a flight that is all curveballs (obscure varieties/regions with
+// no anchoring wine) is unfairly hard and reads as un-MW.
+//
+// There is no stored banker/curveball flag on the answer key, so we DERIVE one: a wine is a BANKER
+// when its resolved region (+ variety, where the pairing matters) matches a small lookup of
+// textbook benchmark expressions; every other wine — including any whose origin we cannot place — is
+// a CURVEBALL, so the rule fails SAFE (an unrecognised wine counts against the flight, never for it).
+//
+// Rule: a flight of 2+ wines must contain at least one banker, and the number of curveballs must not
+// exceed min(2, ceil(n/2)) — 2-wine flights allow 1 curveball, 3–6 wine flights allow 2. Rejections
+// name the curveball wines so the admin can see (and overrule) the call.
+// ---------------------------------------------------------------------------------------------------
+
+// Each signal is a classic benchmark expression: a region that (optionally paired with its
+// mainstream variety) unambiguously routes a candidate to a country. Deliberately compact — the
+// fail-safe default is "curveball", so the list only needs the wines a reasonable examiner would
+// call a banker. `region` is tested against the wine's region + country + raw label; `variety`,
+// when present, against the resolved (canonicalised) varieties.
+type BankerSignal = { region: RegExp; variety?: RegExp };
+const BANKER_SIGNALS: BankerSignal[] = [
+  // ── France ──
+  { region: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/ },
+  { region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/, variety: /pinot noir/ },
+  { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
+  { region: /chateauneuf/ },
+  { region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/, variety: /syrah|shiraz/ },
+  { region: /\bchampagne\b/ },
+  { region: /\bsauternes\b|\bbarsac\b/ },
+  { region: /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bbordeaux\b/ },
+  { region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent/, variety: /gamay/ },
+  { region: /vouvray|savennieres|\bmontlouis\b/, variety: /chenin/ },
+  { region: /\balsace\b/, variety: /riesling|gewurztraminer|pinot gris|muscat|pinot blanc/ },
+  // ── Italy ──
+  { region: /\bbarolo\b|barbaresco|\bbarbera\b\s*d/, variety: /nebbiolo/ },
+  { region: /chianti|brunello|montalcino|vino nobile/, variety: /sangiovese/ },
+  { region: /\bsoave\b/ },
+  { region: /valpolicella|amarone/ },
+  { region: /\bprosecco\b/ },
+  // ── Spain / Portugal ──
+  { region: /\brioja\b/, variety: /tempranillo|grenache/ },
+  { region: /ribera del duero/, variety: /tempranillo/ },
+  { region: /rias baixas/, variety: /albarino/ },
+  { region: /\bjerez\b|\bsherry\b|manzanilla|montilla/ },
+  { region: /\bdouro\b|\bport\b|\bporto\b/ },
+  // ── Germany / Austria ──
+  { region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen/, variety: /riesling/ },
+  { region: /\bwachau\b|kamptal|kremstal/, variety: /gruner|riesling/ },
+  // ── New World ──
+  { region: /marlborough/, variety: /sauvignon/ },
+  { region: /central otago|martinborough/, variety: /pinot noir/ },
+  { region: /barossa|mclaren vale/, variety: /shiraz|syrah|grenache/ },
+  { region: /coonawarra/, variety: /cabernet/ },
+  { region: /clare valley|eden valley/, variety: /riesling/ },
+  { region: /hunter valley/, variety: /semillon|shiraz/ },
+  { region: /margaret river|\byarra\b/ },
+  { region: /rutherglen/, variety: /muscat|muscadelle|topaque|tokay/ },
+  { region: /\bnapa\b|sonoma|russian river|carneros/ },
+  { region: /willamette/, variety: /pinot noir/ },
+  { region: /\bmendoza\b|\buco\b/, variety: /malbec/ },
+  { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
+  { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
+];
+
+/** Derive whether a resolved wine reads as a BANKER (true) or a CURVEBALL (false, incl. unknowns). */
+export function isBanker(w: AuditWine): boolean {
+  const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+  const variety = norm((w.varieties || []).map(canonVariety).join(" "));
+  return BANKER_SIGNALS.some((s) => s.region.test(origin) && (!s.variety || s.variety.test(variety)));
+}
+
+function wineLabel(w: AuditWine): string {
+  const label = [((w.varieties || []).join("/")), w.region, w.country].filter(Boolean).join(", ");
+  if (label) return `wine ${w.slot} (${label})`;
+  if (w.fullText) return `wine ${w.slot} (${w.fullText.length > 60 ? `${w.fullText.slice(0, 60)}…` : w.fullText})`;
+  return `wine ${w.slot}`;
+}
+
+/**
+ * Flight-composition rule. Every flight of 2+ wines must have at least one banker, and the number of
+ * curveballs must not exceed min(2, ceil(n/2)). Returns hard violations naming the curveball wines.
+ */
+export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
+  const flight = wines || [];
+  const n = flight.length;
+  if (n < 2) return []; // a single-wine question has no flight balance to judge
+
+  const curveballs = flight.filter((w) => !isBanker(w));
+  const list = curveballs.map(wineLabel).join("; ");
+  const v: Violation[] = [];
+
+  if (curveballs.length === n) {
+    v.push({
+      rule: "flight-composition",
+      severity: "hard",
+      detail: `flight of ${n} wines has no banker — every wine reads as a curveball (${list}). An MW flight needs at least one banker (a classic benchmark expression) to give the candidate a route to the country.`,
+    });
+  }
+
+  const maxCurveballs = Math.min(2, Math.ceil(n / 2));
+  if (curveballs.length > maxCurveballs) {
+    v.push({
+      rule: "flight-composition",
+      severity: "hard",
+      detail: `flight of ${n} wines has ${curveballs.length} curveballs but at most ${maxCurveballs} is expected (one, two at best): ${list}.`,
+    });
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -246,6 +363,7 @@ export function validateQuestion(q: QuestionForAudit): {
     wines: q.wines,
   }) as Violation[];
   violations.push(...stemPreannouncesDiscriminator(q.questionText));
+  violations.push(...flightCompositionViolations(q.wines));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
