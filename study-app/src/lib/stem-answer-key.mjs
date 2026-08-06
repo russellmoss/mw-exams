@@ -231,6 +231,10 @@ export function createAnswerKeyBuilder(data) {
     const wines = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
     const wp = typeof r.wine_profiles === "string" ? JSON.parse(r.wine_profiles) : r.wine_profiles;
     const ground = [];
+    // Annotated because this module is .mjs and TypeScript infers its exports for the .ts callers.
+    // A bare `{}` infers as the empty type, so `key.source[slot]` in a TS consumer is TS7053
+    // ("expression of type '1' can't be used to index type '{}'"). Keyed by wine slot.
+    /** @type {Record<number, string>} */
     const source = {};
     const problems = [];
     const curatedConfusables = [];
