@@ -300,12 +300,102 @@ export function checkWineReferenceShape(fullText) {
   return { ok: true, problem: null };
 }
 
+// ---------------------------------------------------------------------------------------------------
+// METHOD CLASS — the granularity at which "method of production" contrast is judged (rule R9).
+//
+// Style LABELS are too fine (Trentodoc vs Blanc de Blancs: different labels, identical traditional
+// method) and style CATEGORIES too coarse (Fino vs Oloroso: same "Sherry" category, biological vs
+// oxidative ageing — a genuinely contrasting pair). This maps a keyed wine's style/category from the
+// stem_style_lexicon onto the axis an examiner would call "the method". Returns null when the method
+// cannot be positively determined (generic labels like bare "Port"/"Sherry", or no style at all) —
+// null wines are excluded from the R9 comparison rather than guessed.
+// ---------------------------------------------------------------------------------------------------
+export function methodClass(style, styleCategory) {
+  const label = norm(style);
+  const cat = norm(styleCategory);
+  // Label-level splits inside ambiguous categories.
+  if (/^(fino|manzanilla|manzanilla pasada)$/.test(label)) return "biological-ageing";
+  if (/^(amontillado|palo cortado)$/.test(label)) return "biological-then-oxidative";
+  if (/^(oloroso|east india solera|cream sherry|pedro ximenez)$/.test(label)) return "oxidative-ageing";
+  if (/^(vintage port|lbv port|ruby port|crusted port)$/.test(label)) return "reductive-port";
+  if (/^(tawny port|colheita port)$/.test(label)) return "oxidative-port";
+  if (/^vin jaune$/.test(label) || /oxidative \(jura\)/.test(cat)) return "biological-ageing";
+  // Category-level classes where the category IS the method.
+  if (/traditional.method sparkling/.test(cat)) return "traditional-sparkling";
+  if (/tank.method sparkling/.test(cat)) return "tank-sparkling";
+  if (/^madeira$/.test(cat)) return "oxidative-madeira";
+  if (/^fortified muscat$/.test(cat)) return "fortified-muscat";
+  if (/vin doux naturel/.test(cat)) return "vdn-mutage";
+  if (/botrytis sweet/.test(cat)) return "botrytis";
+  if (/late.harvest sweet/.test(cat)) return "late-harvest";
+  if (/^icewine$/.test(cat)) return "icewine";
+  if (/appassimento sweet|straw/.test(cat)) return "dried-grape";
+  return null; // generic "Sherry"/"Port"/"Sparkling"/"Madeira" labels, still wines, unknowns
+}
+
+// ---------------------------------------------------------------------------------------------------
+// STEM DISCLOSURE — rule R10. A stem may constrain the universe ("four different countries", "same
+// single grape variety") but must not name the discriminator the marks are for. Every pattern below
+// comes from a question Mike binned for exactly this ("the candidate should be able to discern
+// contrasting approaches in the winery WITHOUT BEING TOLD"), and every pattern was verified to fire
+// on ZERO of the 162 historical stems in data/exams.json. The near-misses that anchored that check:
+// real stems DO say "made using different METHODS OF PRODUCTION" (2021 P3 Q2, 2023 P3 Q2) — a
+// defined, style-level constraint — so "methods of production" is deliberately absent from the
+// object lists here; the tells are the vaguer winery-decision variants.
+// ---------------------------------------------------------------------------------------------------
+const STEM_DISCLOSURE_PATTERNS = [
+  {
+    re: /(?:made|been made|produced|handled) (?:using|with|by|via) (?:a |very |all )?(?:different|differing|contrasting) (?:approach|approaches|route|routes|technique|techniques|production technique|winemaking)/,
+    why: "the stem announces the wines were made differently ('different approaches/techniques') — the candidate is meant to discern that from the glass",
+  },
+  {
+    re: /different approach(?:es)? to (?:fermentation|maturation|winemaking|vinification)/,
+    why: "the stem names the winemaking axis ('a different approach to fermentation/maturation') the marks are for",
+  },
+  {
+    re: /contrasting (?:approaches|decisions|production techniques|winemaking)/,
+    why: "the stem discloses that winery decisions contrast — that is the deduction being examined",
+  },
+  { re: /handled (?:very )?differently in the (?:cellar|winery)/, why: "the stem announces differing cellar treatment" },
+  { re: /by (?:a )?(?:very )?different route/, why: "the stem discloses the wines took different routes in the winery" },
+  {
+    re: /(?:belong to|from|of|in) (?:two |three |four )?different (?:official )?quality (?:categor|designation|level|tier)/,
+    why: "the stem discloses a quality-tier difference the candidate is expected to discern and state",
+  },
+  {
+    re: /relative roles? of/,
+    why: "the stem names the mechanism pair ('the relative roles of X and Y') the comparison should discover",
+  },
+];
+
+/**
+ * Stem-only disclosure check (rule R10) — shared verbatim between the generation engine (where it
+ * BLOCKS a draft, since the model can always reword its own stem) and the audit (where it is a SOFT
+ * flag: an already-banked question is answerable, just less exam-realistic than it should be).
+ * @param {string} questionText
+ * @returns {Array<{ rule: string, severity: "soft", detail: string }>}
+ */
+export function stemDisclosureViolations(questionText) {
+  const stem = normStem(questionText || "");
+  const v = [];
+  for (const p of STEM_DISCLOSURE_PATTERNS) {
+    const m = stem.match(p.re);
+    if (m) {
+      v.push({ rule: "stem-discloses-discriminator", severity: "soft", detail: `${p.why} (matched: "${m[0]}")` });
+      break; // one disclosure verdict per stem — the first match is the clearest to act on
+    }
+  }
+  return v;
+}
+
 /**
  * Run the shared contradiction rules against a (normalized) question.
  * @param {{ paper: number, questionText: string, totalMarks?: number,
  *           wines: Array<{ slot: number, varieties: string[], region?: string, country?: string,
- *                          is_blend?: boolean, style?: string, fullText?: string }> }} q
+ *                          is_blend?: boolean, style?: string, style_category?: string,
+ *                          fullText?: string }> }} q
  * `fullText` is the raw generated label; supply it to enable R8 (wine-reference-shape).
+ * `style`/`style_category` come from the P3 answer key; they enable R9 (contrast-without-contrast).
  * @returns {Array<{ rule: string, severity: "hard"|"soft", detail: string }>}
  * hard = stem contradicts its own wines/key (unanswerable as framed); soft = worth flagging.
  */
@@ -390,6 +480,41 @@ export function applyQuestionRules(q, opts = {}) {
       severity: "soft",
       detail: `stem says single grape variety; a wine is a blend (${wines.filter((w) => w.is_blend).map((w) => w.varieties.join("/")).join("; ")})`,
     });
+
+  // R9 — contrast-without-contrast (Mike's bin corpus, Class 3). Two triggers, both method-shaped:
+  // a stem that PROMISES "different methods of production" must not key duplicate methods (same
+  // family as R3's distinct-variety — 2021 P3 Q2 and 2023 P3 Q2 are real stems making this promise),
+  // and a stem that ASKS to compare/contrast the method of production over wines whose methods are
+  // all identical has marks that cannot be earned ("the method of production to make these two wines
+  // is identical so there's no compare and contrast… 16 marks"). Method is judged by METHOD CLASS,
+  // not style label or category: Fino vs Oloroso share the category "Sherry" but are biological vs
+  // oxidative ageing — a great compare question — while Trentodoc vs Blanc de Blancs are different
+  // labels with the identical traditional method. Wines whose method class is unknown (generic
+  // labels like bare "Port", or non-P3 wines with no style at all) are SKIPPED, so the rule can
+  // only fire on positive evidence.
+  if (!subsetSplit && wines.length >= 2) {
+    const classes = wines.map((w) => methodClass(w.style, w.style_category)).filter(Boolean);
+    const promised = /(?:made|produced|crafted|vinified)[a-z ]{0,20}\bdifferent methods? of production\b/.test(stem);
+    const asked = /compare (?:and contrast )?the methods? of production\b/.test(stem);
+    if (promised && classes.length >= 2) {
+      if (new Set(classes).size < classes.length)
+        v.push({
+          rule: "contrast-without-contrast",
+          severity: "hard",
+          detail: `stem promises different methods of production; keyed methods duplicate (${classes.join(", ")})`,
+        });
+    } else if (asked && classes.length >= 2 && new Set(classes).size === 1) {
+      v.push({
+        rule: "contrast-without-contrast",
+        severity: "hard",
+        detail: `stem asks to compare methods of production, but every keyed wine shares one method (${classes[0]}) — there is no contrast to earn the marks with`,
+      });
+    }
+  }
+
+  // R10 — stem discloses the discriminator (Mike's bin corpus, Class 1). SOFT: answerable, but the
+  // stem hands over the axis the marks are for. Blocking at generation via the engine's check.
+  for (const d of stemDisclosureViolations(q.questionText)) v.push(d);
 
   // R8 — every wine slot must hold a wine REFERENCE, not the generator's reasoning about which wine to
   // pick. HARD: an unparseable entry is enriched (a Tavily search on the reasoning text), banked as a
