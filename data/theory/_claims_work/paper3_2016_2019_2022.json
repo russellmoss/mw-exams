@@ -1,0 +1,1238 @@
+[
+  {
+    "claim_id": "th_2016_p3_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "symb (AWRI Technical Review No.143, April 2003) — \"The relationship between acetic acid and volatile acidity\"",
+      "quote": "In the European Community, the maximum limit for red wines is 1.2 g/L, for white wines it is 1.08 g/L and for sweet botrytis infected wines 1.5 g/L"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Wine flavours, faults and taints (AWRI) — Oxidation-type faults",
+      "quote": "Ethyl acetate ... has a reported sensory threshold of 12 mg/L ... The concentration of ethyl acetate ranges from about 30 – 60 mg/L in 'normal' wines, to about 150 – 200 mg/L in defective wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Detection threshold is much lower (12 mg/L) but AWRI's own 'defective wine' range begins ~150 mg/L, matching the claim's framing of 'obtrusive from roughly 150 mg/L'."
+  },
+  {
+    "claim_id": "th_2016_p3_q1#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir (AWRI); Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines... A molecular SO2 concentration of 0.8 mg/L will inhibit their growth [LAB]."
+    },
+    "corrected_claim": "The 0.5-0.8 mg/L molecular SO2 target is correct (AWRI cites 0.6-0.8 mg/L), but the free-SO2 figures are overstated. Using the standard Henderson-Hasselbalch relationship (pKa ~1.81) at pH 3.4, 0.5-0.8 mg/L molecular corresponds to roughly 20-32 mg/L free SO2 (not 25-40 mg/L); at pH 3.7 the equivalent range is roughly 39-63 mg/L (the 'roughly double' relationship does hold, just from a lower base).",
+    "corrected_sentence": "Maintain molecular SO2 of 0.5 to 0.8 mg/L, which at pH 3.4 means about 20 to 32 mg/L free SO2 and at pH 3.7 roughly double that — a reminder that pH control is a microbiological measure.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Verified the 0.5-0.8 mg/L molecular target against AWRI, then recomputed the free-SO2 conversion via Henderson-Hasselbalch (pKa=1.81): at pH 3.4 the molecular fraction is ~2.5%, giving 20-32 mg/L free SO2 for 0.5-0.8 mg/L molecular, not 25-40 mg/L as stated."
+  },
+  {
+    "claim_id": "th_2016_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "Virginia Tech Enology",
+      "tier": 1,
+      "ref": "Virginia Tech Enology Notes — lysozyme",
+      "quote": "Commercial lysozyme ... is usually added to juice or wines at a rate of 100-500 mg/L or 10-50 g/hL."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The claimed 250-500 mg/L is a subset of the documented 100-500 mg/L typical range (consistent with using the upper half for full MLF blocking)."
+  },
+  {
+    "claim_id": "th_2016_p3_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI); Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI explicitly treats 0.45 micron as the sterile grade."
+  },
+  {
+    "claim_id": "th_2016_p3_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities (AWRI)",
+      "quote": "The ideal pH range for dry red table wines is 3.3 to 3.6 and for dry white table wines is 3.0 to 3.4 (Rankine, 1989)... high pH conditions favour the growth of spoilage microorganisms."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI does not cite a single '3.5' cut-off, but its stated ideal ranges (up to 3.6 red / 3.4 white) bracket 3.5 closely enough that the claim is a reasonable single-figure simplification."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 606/2009, Annex I B (as amended, consolidated in Reg (EU) 2019/934)",
+      "quote": "The total sulphur dioxide content of wines...may not exceed: (a) 150 milligrams per litre for red wines; (b) 200 milligrams per litre for white and rosé wines...the maximum sulphur dioxide content shall be raised, as regards wines with a sugar content...of not less than five grams per litre, to: (a) 200 mg/l for red wines; (b) 250 mg/l for white and rosé wines; (c) 300 mg/l for [certain PDOs]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "400 mg/L applies only to specific derogations (e.g. Douro 'colheita tardia'); 300 mg/L is the more common ceiling for sweet PDO categories, but '300-400 depending on category' is accurate. EU noted these limits could be revisited to reduce sulphite intake."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB (Alcohol and Tobacco Tax and Trade Bureau)",
+      "tier": 1,
+      "ref": "TTB Wine Beverage Alcohol Manual, 27 CFR 4.22",
+      "quote": "Treatment with sulfur dioxide May not exceed 350 parts per million (ppm) in the finished wine."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) No 203/2012, amending organic wine SO2 rules",
+      "quote": "The maximum sulphur dioxide content shall not exceed 100 mg/l for red wines...and 150 mg/l for white and rosé wines...with a residual sugar level lower than 2 g/l; For all other wines, the maximum sulphur dioxide content...shall be reduced by 30 milligrams per litre."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Exact match: -50 mg/L for dry wines (below 2 g/L RS), -30 mg/L for all other (higher-sugar) wines."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir (AWRI); Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "A molecular SO2 concentration of 0.6mg/L be achieved in red wines...A molecular SO2 concentration of 0.8 mg/L will inhibit their growth [LAB]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Doubling-per-0.3-pH rule verified by calculation: 10^0.3 = 1.995 ≈ 2, so free SO2 required for a fixed molecular target roughly doubles for each +0.3 pH."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities (AWRI)",
+      "quote": "Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid."
+    },
+    "corrected_claim": "AWRI's recommended thresholds are below 0.1 g/L residual sugar (glucose+fructose) and below 0.05 g/L malic acid, both tighter than the 0.3 g/L and 0.1 g/L cited.",
+    "corrected_sentence": "That means confirming it is dry and that malolactic fermentation is either complete or securely blocked — below the enzymatic detection limits of roughly 0.1 g/L of residual sugar and 0.05 g/L of malic acid — and then deciding the filtration specification.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "This matches the known error class of overstated MLF-complete malic thresholds. Virginia Tech independently states wines are MLF-stable below 30 mg/L (0.03 g/L) malic acid, reinforcing that 0.1 g/L is loose."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q2#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 606/2009, Annex I A, points 11 and 34",
+      "quote": "Use of sorbic acid in potassium sorbate form...Maximum sorbic acid content...200 mg/l. ... Addition of dimethyldicarbonate (DMDC) to wine for microbiological stabilisation...No more than 200 mg/l with no detectable residues in the wine placed on the market."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exact match for both figures."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 606/2009, Annex I A, points 27 and 31",
+      "quote": "Use of copper sulphate or cupric citrate...No more than 1 g/hl, provided that the copper content of the product so treated does not exceed 1 mg/l. ... Addition of metatartaric acid...No more than 100 mg/l."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exact match for both figures."
+  },
+  {
+    "claim_id": "th_2016_p3_q2#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "symb (AWRI Technical Review No.143, April 2003)",
+      "quote": "In the European Community, the maximum limit for red wines is 1.2 g/L"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q2#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Delegated Regulation (EU) 2019/33, Article 44 (alcohol labelling tolerance)",
+      "quote": "the actual alcoholic strength shown on the label may not differ by more than 0,5 % (or 0,8 %) vol. from that given by [analysis]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Base tolerance is 0.5% vol (0.8% applies to certain categories such as aged/PDO wines)."
+  },
+  {
+    "claim_id": "th_2016_p3_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "General chemistry (Arrhenius/Q10 heuristic)",
+      "tier": 1,
+      "ref": "Standard Arrhenius/Q10 approximation, widely used in food and wine ageing science",
+      "quote": "Reaction rate roughly doubles for each 10°C increase in temperature, for typical activation energies encountered in food chemistry."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "This is a standard textbook rule-of-thumb approximation of the Arrhenius equation, not a strict law; treated as verified deterministic chemistry per the stated allowance."
+  },
+  {
+    "claim_id": "th_2016_p3_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched KB (AWRI storage-temperature trial data, which used 15.1°C 'cellar' vs 21.5°C 'office' but did not state a formal 12-15°C recommendation) and consumer/retail wine-storage sites (not tier-1: WineFolly, WineCellarAuthority, etc., which do converge on 12-15°C/55-59°F). No tier-1 regulator or research-institute source found stating this range explicitly for commercial bulk storage."
+  },
+  {
+    "claim_id": "th_2016_p3_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 60-75% RH storage target; only non-tier-1 retail/enthusiast sources converge on a similar (50-80%) range."
+  },
+  {
+    "claim_id": "th_2016_p3_q3#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "GGWM_July 2018 FINAL (AWRI, Grapegrower & Winemaker) — lightstruck character",
+      "quote": "Riboflavin becomes activated on exposure to light of wavelengths 370 and 440 nm and can oxidise the sulfur-containing amino acids...formation of...methanethiol and dimethyldisulfide."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "370-440 nm spans the near-UV/blue boundary, matching the claim."
+  },
+  {
+    "claim_id": "th_2016_p3_q4#0",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "ask the — 'Not so pretty in pink' (AWRI), citing Iland et al. (2004)",
+      "quote": "Measure 40 mL of the same wine into the 'test' bottle and add 0.5 mL of 0.3% w/v hydrogen peroxide...spectral measures of the 'test' and 'control' wine at 520 nm can be quantified and compared."
+    },
+    "corrected_claim": "The pinking susceptibility test (Iland et al. 2004, used by AWRI) reads absorbance at 520 nm, not 500 nm.",
+    "corrected_sentence": "Beyond that: maintain adequate free SO2 after fermentation to keep the precursor reduced, avoid ascorbic acid, which is a documented aggravating factor, minimise oxygen pick-up at bottling, and screen the wine before bottling with a pinking susceptibility test, in which a small hydrogen peroxide addition is followed by an absorbance reading at 520 nm.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fining Agents (AWRI), Table 2; Virginia Tech Enology Notes (PVPP)",
+      "quote": "PVPP 100 – 800 [mg/L, white]... PVPP 100 – 450 [mg/L, red]... Recommended use levels are from 12 to 72 g/hL (VT)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "10-50 g/hL (=100-500 mg/L) sits within both AWRI's and Virginia Tech's documented ranges."
+  },
+  {
+    "claim_id": "th_2016_p3_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "symb (AWRI Technical Review No.143, April 2003)",
+      "quote": "the maximum limit for red wines is 1.2 g/L"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p3_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Wine flavours, faults and taints (AWRI)",
+      "quote": "the concentration at which the acid is regarded as detrimental is usually greater than 0.7 g/L."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI confirms the 0.7 g/L lower bound; it does not explicitly cite a 0.9 g/L upper bound, but the range is a reasonable extension."
+  },
+  {
+    "claim_id": "th_2016_p3_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Wine flavours, faults and taints (AWRI)",
+      "quote": "The concentration of ethyl acetate ranges from about 30 – 60 mg/L in 'normal' wines, to about 150 – 200 mg/L in defective wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Same source as th_2016_p3_q1#1."
+  },
+  {
+    "claim_id": "th_2016_p3_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir (AWRI); Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "A molecular SO2 concentration of 0.6mg/L be achieved in red wines...0.8 mg/L will inhibit their growth [LAB]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) No 203/2012",
+      "quote": "The maximum sulphur dioxide content shall not exceed 100 mg/l for red wines...and 150 mg/l for white and rosé wines...with a residual sugar level lower than 2 g/l"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Matches exactly for dry wines (-50 mg/L from the 150/200 mg/L conventional limits)."
+  },
+  {
+    "claim_id": "th_2019_p3_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) No 203/2012",
+      "quote": "no more than 100 milligrams per litre for red wines...150 milligrams per litre for white and rosé wines...with a residual sugar level lower than 2 grams per litre"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Exact figure match."
+  },
+  {
+    "claim_id": "th_2019_p3_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) No 203/2012",
+      "quote": "For all other wines, the maximum sulphur dioxide content applied...shall be reduced by 30 milligrams per litre."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "USDA Agricultural Marketing Service / TTB",
+      "tier": 1,
+      "ref": "USDA AMS 'Labeling Organic Wine'; TTB Alcohol FAQs",
+      "quote": "Added sulfites allowed? No, only naturally occurring (less than 10 parts per million (ppm))."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "USDA Agricultural Marketing Service",
+      "tier": 1,
+      "ref": "USDA AMS 'Labeling Organic Wine'",
+      "quote": "wine 'made with organic grapes' may contain up to 100 ppm of sulfur dioxide."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "PMC / peer-reviewed (citing OIV Resolution 427-2010 / OIV-COMEX 502-2012, adopted into EU law)",
+      "tier": 1,
+      "ref": "Allergenic Proteins in Enology: A Review on Technological Applications and Safety Aspects (PMC6332064)",
+      "quote": "wine clarified with such products tested negative for the presence of residues using techniques with a detection and quantification limits of 0.25 mg/L and 0.5 mg/L, respectively."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q1#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB",
+      "tier": 1,
+      "ref": "TTB — Wine Labeling: Declaration of Sulfites",
+      "quote": "A sulfite declaration is a statement on labels of wine...required where sulfur dioxide or a sulfiting agent is detected at a level of 10 or more parts per million (ppm)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Same threshold confirmed for both US and EU regimes."
+  },
+  {
+    "claim_id": "th_2019_p3_q1#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Calculation (Henderson-Hasselbalch, pKa=1.81)",
+      "tier": 1,
+      "ref": "Deterministic chemistry calculation",
+      "quote": "At pH 3.4: molecular fraction = 1/(1+10^(3.4-1.81)) = 2.56%; 25 mg/L x 0.0256 = 0.64 mg/L ≈ 0.6. At pH 3.6: fraction = 1.63%; 25 mg/L x 0.0163 = 0.41 mg/L ≈ 0.4."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Verified by explicit calculation; both stated figures match closely."
+  },
+  {
+    "claim_id": "th_2019_p3_q1#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI)",
+      "quote": "0.65 µm and 0.45 µm or 'sterile' filtration"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (AWRI); Spoilage issues in Pinot Noir (AWRI)",
+      "quote": "Free SO2 [target] mg/L 28-32 [white/red table wine]... a concentration of 0.6-0.8mg/L of molecular SO2 [is protective]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "25-35 mg/L free SO2 brackets AWRI's 28-32 mg/L pre-bottling target and, at typical dry-wine pH (~3.3-3.45), is consistent with reaching ~0.8 mg/L molecular."
+  },
+  {
+    "claim_id": "th_2019_p3_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found stating 40 mg/L specifically as a defensible ceiling for bulk/dessert wine free SO2 at bottling."
+  },
+  {
+    "claim_id": "th_2019_p3_q2#2",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Calculation (Henderson-Hasselbalch, pKa=1.81)",
+      "tier": 1,
+      "ref": "Deterministic chemistry calculation",
+      "quote": "At pH 3.2: fraction = 1/(1+10^(3.2-1.81)) = 3.91%; 25 mg/L x 0.0391 = 0.98 mg/L (≈1.0, not 0.8). At pH 3.6: fraction = 1.60%; 50 mg/L x 0.0160 = 0.80 mg/L (matches)."
+    },
+    "corrected_claim": "At pH 3.2, 25 mg/L free SO2 gives close to 1.0 mg/L molecular (not 0.8 mg/L); the pH 3.6 figure (~50 mg/L free for 0.8 mg/L molecular) is correct.",
+    "corrected_sentence": "Molecular SO2 is the antimicrobial fraction and it is a function of pH, so the free figure alone is meaningless without the pH: at pH 3.2 around 20 mg/L free gives close to 0.8 mg/L molecular, while at pH 3.6 it takes nearer 50 mg/L to reach the same protection.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Half of this paired claim checks out exactly (pH 3.6); the pH 3.2 half overstates the free SO2 needed by about 25%."
+  },
+  {
+    "claim_id": "th_2019_p3_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q2#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI); AWRI Practices Survey - Final Report",
+      "quote": "It is a long-held belief in the wine industry that tight surface filtration such as membrane or sterile filtration below 0.45 μm will strip the aroma and colour from 'big' red wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "0.65 micron is documented as the coarser grade used to avoid stripping big reds."
+  },
+  {
+    "claim_id": "th_2019_p3_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Brettanomyces (AWRI); OSU Wine and Grape Research and Extension Newsletter",
+      "quote": "'Brett' only needs 0.3 g/L sugar to produce 1000 µg/L 4-EP...as little as 275 mg/L of sugar was sufficient to support the growth of the yeast."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q2#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (AWRI); Gas adjustment (AWRI)",
+      "quote": "Dissolved oxygen mg/L <1.0 [white table wine target]...dissolved oxygen levels in wine are often reduced to acceptable levels before bottling (generally < 0.5 mg/L)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q2#7",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Generic description of a standard CIP (caustic-rinse-acid-rinse-sanitise) sequence with no specific checkable figure."
+  },
+  {
+    "claim_id": "th_2019_p3_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "BRCGS (official standard text, hosted by SCS Global Services)",
+      "tier": 1,
+      "ref": "BRCGS Global Standard for Food Safety, Issue 8/9, Clause 3.9.3",
+      "quote": "The traceability test shall include the reconciliation of quantities of product received by the company for the chosen batch or product lot...Traceability should be achievable within 4 hours (1 day when information is required from external parties)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Sourced from the official standard text; BRCGS clause numbering can shift between issues, but the 4-hour benchmark is stable across recent issues."
+  },
+  {
+    "claim_id": "th_2019_p3_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "BRCGS",
+      "tier": 1,
+      "ref": "BRCGS Global Standard for Packaging Materials (real, current certification scheme)",
+      "quote": "n/a — standard name confirmed as an active BRCGS certification scheme for packaging suppliers"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correctly named real standard; low-risk factual claim."
+  },
+  {
+    "claim_id": "th_2019_p3_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "BRCGS",
+      "tier": 1,
+      "ref": "BRC historical naming",
+      "quote": "BRC = British Retail Consortium (BRC's original full name, now branded BRCGS)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q3#3",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "ISO",
+      "tier": 1,
+      "ref": "ISO 2859 — Sampling procedures for inspection by attributes (real, current standard)",
+      "quote": "n/a — standard existence and applicability confirmed"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correctly named, correctly applied to attribute sampling plans for goods receipt."
+  },
+  {
+    "claim_id": "th_2019_p3_q3#4",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Generic QC practice description, no specific checkable figure or frequency stated."
+  },
+  {
+    "claim_id": "th_2019_p3_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 606/2009, Annex I B, and subsequent derogations (Reg (EU) 2011/53 etc.)",
+      "quote": "300 milligrams per litre for [Spätlese, various sweet PDO whites]...A maximum sulphur dioxide content of 400 milligrams per litre should be authorised [for Douro 'colheita tardia']"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (AWRI)",
+      "quote": "Free SO2 [target] mg/L 28-32 [white/red table wine]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "30-35 mg/L closely brackets AWRI's 28-32 mg/L pre-bottling target range."
+  },
+  {
+    "claim_id": "th_2019_p3_q4#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a specific 2 g/L 'fermentable sugar' threshold; plausible but unsourced."
+  },
+  {
+    "claim_id": "th_2019_p3_q4#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI; Virginia Tech Enology",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities (AWRI); Virginia Tech Enology Notes",
+      "quote": "These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid [AWRI]... wines are generally stable with regard to MLF if the malic acid content is less than 30 mg/L [VT]."
+    },
+    "corrected_claim": "AWRI and Virginia Tech place the practical malic-acid stability/detection threshold at 0.03-0.05 g/L, well below the 0.2 g/L cited.",
+    "corrected_sentence": "The classic bulk failure is an incomplete malolactic conversion restarting in a warm container, so I would specify malic acid below 0.05 g/L at loading, with microbiological counts to match.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "0.2 g/L is roughly 4-6x looser than the AWRI/VT thresholds — the more serious instance of the recurring malic-acid error class in this batch."
+  },
+  {
+    "claim_id": "th_2019_p3_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Delegated Regulation (EU) 2019/33, Article 44",
+      "quote": "the actual alcoholic strength shown on the label may not differ by more than 0,5 % (or 0,8 %) vol."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (AWRI)",
+      "quote": "Copper mg/L <0.50 [all wine styles]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q4#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 1881/2006 (now Reg (EU) 2023/915), wine/grape must category",
+      "quote": "grape must as reconstituted, intended for direct human consumption...2,0 [µg/kg]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p3_q4#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "PMC / peer-reviewed (OIV Resolution 427-2010 / OIV-COMEX 502-2012)",
+      "tier": 1,
+      "ref": "Allergenic Proteins in Enology: A Review on Technological Applications and Safety Aspects (PMC6332064)",
+      "quote": "detection and quantification limits of 0.25 mg/L and 0.5 mg/L, respectively [for egg and milk fining residues]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found giving a specific Southern Hemisphere-to-Europe transit time; plausible but not sourced."
+  },
+  {
+    "claim_id": "th_2022_p3_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OENO One (peer-reviewed, IVES/OIV-affiliated journal); ANZRSAI conference paper",
+      "tier": 1,
+      "ref": "Effects of transport conditions on the stability and sensory quality of wines (OENO One); A Study of Container Temperatures in Australian Wine Shipments",
+      "quote": "Walther et al. (2018)...found that temperatures ranged from 4 to 47°C inside the containers... If the outside temperature reaches 40°C...the inside of an uninsulated container can rise as high as 60°C."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir (AWRI); Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "0.6mg/L of molecular SO2...0.8 mg/L will inhibit their growth [LAB]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Gas adjustment (AWRI)",
+      "quote": "The dissolved oxygen levels in wine are often reduced to acceptable levels before bottling (generally < 0.5 mg/L) using inert gas sparging techniques."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q1#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "No tier-1 (regulator/research-institute) source, but the 24,000-litre flexitank figure is corroborated by numerous independent logistics/industry sources (Austwine, SIA Flexitanks, TIBA, Hillebrand Gori, Kan-Haul) as the standard capacity — low risk of error despite lacking a tier-1 citation."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (AWRI)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "AWRI KB confirms lenticular sheets exist as a polishing-grade filtration medium but no chunk retrieved gives the specific 5-1 micron range."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Fact Sheet — Avoiding spoilage caused by lactic acid bacteria (AWRI)",
+      "quote": "Lactic acid bacteria are more sensitive to SO2 than yeast and a molecular SO2 concentration of 0.8 mg/L will inhibit their growth."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q2#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "IVDP search did not surface a specific fortification-ABV figure; the 19-20% abv range is standard oenology knowledge but not confirmed against a tier-1 source in this pass."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a specific ruby Port residual sugar figure; plausible but a memorable number a candidate might over-rely on."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "INAO search did not surface a specific barrel-ageing duration for Bourgogne rouge; 10-16 months is plausible for typical practice but not sourced."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "This is a general 'dry wine' convention rather than the specific MLF/detection-limit threshold checked elsewhere in this batch; no tier-1 source found for the 2 g/L cut-off in this context."
+  },
+  {
+    "claim_id": "th_2022_p3_q2#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found for a 1.2 micron 'polishing' filtration grade specifically."
+  },
+  {
+    "claim_id": "th_2022_p3_q3#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Cold stabilisation (AWRI), citing Ribéreau-Gayon et al. (2006)",
+      "quote": "metatartaric acid can be considered effective for the following time periods, depending on temperature: Several years at 0°C; Over two years at 10-12°C; One year to eighteen months at temperatures varying between 10°C in winter and 18°C in summer; Three months at 20°C; One month at 25°C; One week at 30°C; A few hours between 35 and 40°C."
+    },
+    "corrected_claim": "Protection duration is highly temperature-dependent: roughly one year to eighteen months at typical cool cellar temperatures (10-18°C), but only about three months at true room temperature (20°C), and mere weeks to days above that.",
+    "corrected_sentence": "Contact-process cold stabilisation over a day or two; electrodialysis where the volume justifies the plant; or an inhibitor dosed at bottling — metatartaric acid, cheap but hydrolysing, giving protection for a year to eighteen months at cool cellar temperature but only around three months at true room temperature (20°C), which is perfect for a wine drunk that fast and useless for one that is cellared; or carboxymethylcellulose in whites and sparkling.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "'A year or so at ambient temperature' matches AWRI's 10-18°C figure but overstates protection if 'ambient' is read as true room temperature (~20°C), where AWRI cites only ~3 months — a 4x difference that could mislead a candidate who doesn't specify which 'ambient'."
+  },
+  {
+    "claim_id": "th_2022_p3_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No tier-1 source found quantifying typical bentonite lees losses as a wine-volume percentage; plausible given typical bentonite dose rates (200-1000 mg/L, AWRI) but not directly sourced."
+  },
+  {
+    "claim_id": "th_2022_p3_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Calculation, from AWRI-confirmed g/L limits",
+      "tier": 1,
+      "ref": "symb (AWRI Technical Review No.143) 1.08 g/L white / 1.2 g/L red, converted via acetic acid MW 60.05 g/mol",
+      "quote": "1.08 g/L / 60.05 g/mol = 17.99 mmol/L ≈ 18 meq/L (white/rosé); 1.2 g/L / 60.05 g/mol = 19.98 mmol/L ≈ 20 meq/L (red)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Since acetic acid is monoprotic, mmol/L = meq/L; the conversion from the AWRI-confirmed g/L limits lands almost exactly on 18/20 meq/L."
+  },
+  {
+    "claim_id": "th_2022_p3_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Regulation (EC) No 606/2009, Annex I B",
+      "quote": "150 milligrams per litre for red wines; 200 milligrams per litre for white and rosé wines"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Regulation (EU) No 1308/2013, Annex VII, Part II",
+      "quote": "have...an actual alcoholic strength of not less than 8,5 % volume provided that the wine derives exclusively from grapes harvested in wine-growing zones A and B...and of not less than 9 % volume in other wine-growing zones"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "8.5% applies to zones A/B (most of northern/central EU); zone C (southern Europe) requires 9%. The claim's 'around 8.5%' hedging keeps it accurate."
+  },
+  {
+    "claim_id": "th_2022_p3_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Delegated Regulation (EU) 2019/33, Article 44",
+      "quote": "the actual alcoholic strength shown on the label may not differ by more than 0,5 % (or 0,8 %) vol."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "TTB / EU Directive 2003/89/EC",
+      "tier": 1,
+      "ref": "TTB Portugal country guide, citing Directive 2003/89/EC",
+      "quote": "Alcoholic beverages containing sulfur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/liter must be labeled 'Contains sulphites'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p3_q4#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex / European Commission",
+      "tier": 1,
+      "ref": "Regulation (EU) 2021/2117, amending Regulation (EU) No 1308/2013",
+      "quote": "Since 8 December 2023...all wines produced and sold within the European Union...must declare allergens, ingredients, and nutritional information on their labels."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Confirmed date and both new particulars (ingredients list, nutrition declaration)."
+  },
+  {
+    "claim_id": "th_2022_p3_q4#6",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "ISO",
+      "tier": 1,
+      "ref": "ISO/IEC 17025 — General requirements for the competence of testing and calibration laboratories (real, current standard)",
+      "quote": "n/a — standard existence and applicability to analytical/testing laboratories confirmed"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correctly named and correctly applied to accredited analytical laboratories."
+  }
+]
