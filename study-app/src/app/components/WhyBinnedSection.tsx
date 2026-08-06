@@ -9,7 +9,12 @@ import { useEffect, useState } from "react";
 // thin amber bar sized to its share of the top reason (relative volume), then the most recent reviewer
 // notes quoted in muted italic, and a caption. Reads the aggregation the /api/admin/bin/lessons GET
 // route now returns (reason_codes counts + 3 recent notes over the last N batches). Renders nothing
-// until there is at least one reason or note, so a fresh install shows no empty card.
+// until there is at least one reason, note, or challenge, so a fresh install shows no empty card.
+//
+// Pushback (migration 041): reasoned bins the adjudication check judged INVALID surface here as
+// challenge cards — the reason is being withheld from generation guidance until the admin decides:
+// "Restore question" (agree with the challenge → unbin, back to the review queue) or "Uphold bin"
+// (override it → the bin stands and the reason feeds forward again).
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface ReasonRow {
@@ -22,10 +27,21 @@ interface NoteRow {
   paper: number;
   binnedAt: string;
 }
+interface ChallengedRow {
+  itemId: string;
+  paper: number;
+  stem: string;
+  reasonLabels: string[];
+  note: string | null;
+  analysis: string | null;
+  binnedAt: string;
+}
 
 export function WhyBinnedSection() {
   const [reasons, setReasons] = useState<ReasonRow[]>([]);
   const [notes, setNotes] = useState<NoteRow[]>([]);
+  const [challenged, setChallenged] = useState<ChallengedRow[]>([]);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -37,6 +53,7 @@ export function WhyBinnedSection() {
         if (!alive) return;
         setReasons(Array.isArray(data.reasons) ? data.reasons : []);
         setNotes(Array.isArray(data.notes) ? data.notes : []);
+        setChallenged(Array.isArray(data.challenged) ? data.challenged : []);
       } catch {
         /* transient — the card just stays hidden */
       }
@@ -46,7 +63,40 @@ export function WhyBinnedSection() {
     };
   }, []);
 
-  if (reasons.length === 0 && notes.length === 0) return null;
+  // Agree with the challenge: unbin — the question returns to the review queue, the ledger row (and
+  // with it the challenged reason) is dropped.
+  const restore = async (itemId: string) => {
+    setBusyId(itemId);
+    try {
+      const res = await fetch(`/api/admin/bank/item/${encodeURIComponent(itemId)}/bin`, {
+        method: "DELETE",
+      });
+      if (res.ok) setChallenged((cur) => cur.filter((c) => c.itemId !== itemId));
+    } catch {
+      /* leave the card; the admin can retry */
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  // Override the challenge: the bin stands and the reason re-enters the prompt feeds.
+  const uphold = async (itemId: string) => {
+    setBusyId(itemId);
+    try {
+      const res = await fetch("/api/admin/bin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ itemId, action: "uphold" }),
+      });
+      if (res.ok) setChallenged((cur) => cur.filter((c) => c.itemId !== itemId));
+    } catch {
+      /* leave the card; the admin can retry */
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  if (reasons.length === 0 && notes.length === 0 && challenged.length === 0) return null;
 
   const max = reasons.reduce((m, r) => Math.max(m, r.count), 0) || 1;
 
@@ -83,6 +133,54 @@ export function WhyBinnedSection() {
       )}
 
       <p className="text-xs text-muted mt-4">Applied to the last 3 batches</p>
+
+      {challenged.length > 0 && (
+        <div className="mt-5 pt-5 border-t border-border">
+          <h3 className="text-sm font-medium text-foreground mb-1">Pushback</h3>
+          <p className="text-xs text-muted mb-3">
+            These bin reasons were checked against the past papers and didn&apos;t hold up. The bins
+            stand, but the reasons are held out of question-generation guidance until you decide.
+          </p>
+          <ul className="space-y-3">
+            {challenged.map((c) => (
+              <li key={c.itemId} className="rounded-lg border border-border p-3">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-xs text-borderline font-medium shrink-0">Reason challenged</span>
+                  <span className="text-xs text-muted shrink-0">Paper {c.paper}</span>
+                  {c.reasonLabels.length > 0 && (
+                    <span className="text-xs text-muted truncate">{c.reasonLabels.join(", ")}</span>
+                  )}
+                </div>
+                {c.stem && (
+                  <p className="text-sm text-foreground leading-relaxed line-clamp-2 mb-1.5">{c.stem}</p>
+                )}
+                {c.note && (
+                  <p className="text-sm italic text-muted leading-relaxed mb-1.5">“{c.note}”</p>
+                )}
+                {c.analysis && (
+                  <p className="text-xs text-muted leading-relaxed mb-2.5">{c.analysis}</p>
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => restore(c.itemId)}
+                    disabled={busyId === c.itemId}
+                    className="text-xs px-2.5 py-1 rounded-md border border-border text-foreground hover:bg-card-hover disabled:opacity-50"
+                  >
+                    Restore question
+                  </button>
+                  <button
+                    onClick={() => uphold(c.itemId)}
+                    disabled={busyId === c.itemId}
+                    className="text-xs px-2.5 py-1 rounded-md border border-border text-muted hover:bg-card-hover disabled:opacity-50"
+                  >
+                    Uphold bin
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

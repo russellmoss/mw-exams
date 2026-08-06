@@ -21,6 +21,7 @@ import type { ProducerFlag } from "@/lib/bank-health/producer";
 import { runBankBatch } from "@/lib/bank-worker";
 import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
 import { sanitizeBinTags, sanitizeBinNote, VALIDATOR_LINKED_TAGS } from "@/lib/bin-reasons";
+import { runBinReasonCheck } from "@/lib/bin-reason-check";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -425,6 +426,16 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, changed: false });
   }
 
+  // Bin-reason pushback (migration 041): adjudicate an inline reason against the corpus/EK past the
+  // response. Best-effort and non-blocking — the bin itself already stands.
+  if (action === "bin" && (tags || note)) {
+    const apiKey = keyResult.apiKey;
+    const userId = keyResult.user.id;
+    after(async () => {
+      await runBinReasonCheck({ itemId: id, apiKey, userId, source: "user" });
+    });
+  }
+
   // Remaining pending count for the batch, so the client can reconcile its optimistic removal.
   const remaining = result.batchId
     ? (await getBatchPendingQuestions(result.batchId)).length
@@ -498,6 +509,19 @@ export async function PATCH(request: Request) {
         }`
       );
     }
+  }
+
+  // Bin-reason pushback (migration 041): adjudicate the (re)applied reason past the response. This
+  // fires per chip tap, but check_fingerprint makes a repeat call on an unchanged (tags, note) pair a
+  // no-op, and a superseded reason is guarded at the write. No Claude key rides on this session-gated
+  // route, so the check falls back to the server ANTHROPIC_API_KEY (and silently skips without one).
+  if (tags || cleanNote) {
+    const userId = user.id;
+    after(async () => {
+      for (const id of ids) {
+        await runBinReasonCheck({ itemId: id, userId, source: "user" });
+      }
+    });
   }
 
   return Response.json({ ok: true, updated });

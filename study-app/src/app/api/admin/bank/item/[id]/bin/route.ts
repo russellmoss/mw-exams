@@ -11,6 +11,7 @@ import {
 import { runBankBatch } from "@/lib/bank-worker";
 import { sanitizeBinTags, sanitizeBinNote } from "@/lib/bin-reasons";
 import { regenerateBinLessons } from "@/lib/bin-lessons";
+import { runBinReasonCheck } from "@/lib/bin-reason-check";
 
 export const runtime = "nodejs";
 // A binned item can enqueue one replacement generation, driven in after() past the response.
@@ -48,12 +49,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return Response.json({ ok: true, changed: false });
   }
 
-  // Bin with Reason (spec §4): a reasoned bin refreshes the distilled "Lessons for new questions"
-  // summary. Debounced-by-write and best-effort — run past the response so it never delays the bin.
+  // Bin with Reason (spec §4): a reasoned bin is first ADJUDICATED against the corpus/EK (pushback —
+  // an invalid reason is withheld from the prompt feeds and surfaces on /admin), then refreshes the
+  // distilled "Lessons for new questions" summary. The check runs before the regenerate so the
+  // summary is distilled from already-gated rows. Best-effort — run past the response so neither
+  // step ever delays the bin.
   if (tags || note) {
     const apiKey = keyResult.apiKey;
     const userId = keyResult.user.id;
     after(async () => {
+      await runBinReasonCheck({ itemId: id, apiKey, userId, source: "user" });
       try {
         await regenerateBinLessons(apiKey, userId);
       } catch (err) {

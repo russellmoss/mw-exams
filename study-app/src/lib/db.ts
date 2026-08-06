@@ -1828,8 +1828,12 @@ export async function applyBinReasons(
   if (itemIds.length === 0) return 0;
   const sql = getDb();
   const tagsVal = tags && tags.length > 0 ? tags : null;
+  // A changed reason invalidates any stored adjudication (migration 041) — the pushback verdict was
+  // computed for the OLD (tags, note) pair. Cleared here so a stale challenge can neither gate the
+  // prompt feeds nor show against a reason the admin has since rewritten.
   const rows = await sql`
-    UPDATE bank_bin_reasons SET reason_tags = ${tagsVal}, reason_note = ${note}
+    UPDATE bank_bin_reasons SET reason_tags = ${tagsVal}, reason_note = ${note},
+      check_verdict = NULL, check_analysis = NULL, check_fingerprint = NULL, checked_at = NULL
     WHERE item_id = ANY(${itemIds})
     RETURNING item_id
   `;
@@ -1840,7 +1844,9 @@ export async function applyBinReasons(
 
 // The most recent bin reasons for a paper — SOFT feed-forward. Deduped tag+note rows, newest first,
 // so the generation prompt can list "previously rejected — avoid these faults" for that paper. Rows
-// with neither a tag nor a note carry no signal and are excluded.
+// with neither a tag nor a note carry no signal and are excluded. A reason the pushback check
+// adjudicated INVALID (migration 041) is withheld — it would mis-train the generator; every other
+// verdict (NULL = unchecked, valid, uncertain, upheld) feeds exactly as before.
 export async function getRecentBinReasons(
   paper: number,
   limit = 20
@@ -1851,6 +1857,7 @@ export async function getRecentBinReasons(
     FROM bank_bin_reasons
     WHERE paper = ${paper}
       AND (reason_tags IS NOT NULL OR reason_note IS NOT NULL)
+      AND (check_verdict IS NULL OR check_verdict <> 'invalid')
     ORDER BY binned_at DESC
     LIMIT ${limit}
   `) as { reason_tags: string[] | null; reason_note: string | null; binned_at: string }[];
@@ -1988,7 +1995,7 @@ export async function getBinPapers(): Promise<number[]> {
 
 // The most recent bins ACROSS ALL PAPERS (tags + note + paper), newest first — the raw material the
 // LLM distils into the "Lessons for new questions" summary. Rows carrying neither a tag nor a note hold
-// no signal and are skipped.
+// no signal and are skipped, as is any reason the pushback check adjudicated INVALID (migration 041).
 export async function getRecentBinReasonRows(
   limit = 50
 ): Promise<{ tags: string[]; note: string | null; paper: number }[]> {
@@ -1996,7 +2003,8 @@ export async function getRecentBinReasonRows(
   const rows = (await sql`
     SELECT reason_tags, reason_note, paper
     FROM bank_bin_reasons
-    WHERE reason_tags IS NOT NULL OR reason_note IS NOT NULL
+    WHERE (reason_tags IS NOT NULL OR reason_note IS NOT NULL)
+      AND (check_verdict IS NULL OR check_verdict <> 'invalid')
     ORDER BY binned_at DESC
     LIMIT ${limit}
   `) as { reason_tags: string[] | null; reason_note: string | null; paper: number }[];
@@ -2005,6 +2013,64 @@ export async function getRecentBinReasonRows(
     note: r.reason_note ?? null,
     paper: r.paper,
   }));
+}
+
+// ── Bin-reason pushback (migration 041) ───────────────────────────────────────────────────────────
+
+export interface ChallengedBin {
+  itemId: string;
+  paper: number;
+  stem: string;
+  reasons: string[];
+  note: string | null;
+  analysis: string | null;
+  binnedAt: string;
+}
+
+// Reasoned bins the adjudication check judged INVALID and the admin has not yet acted on — the
+// "Pushback" strip on /admin. Newest first. Restoring the question (unbin) or upholding the bin both
+// remove a row from this set (unbin drops the ledger row; uphold flips the verdict to 'upheld').
+export async function getChallengedBins(limit = 12): Promise<ChallengedBin[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT b.item_id, b.paper, b.reason_tags, b.reason_note, b.check_analysis, b.binned_at,
+           g.question_text
+    FROM bank_bin_reasons b
+    LEFT JOIN generated_questions g ON g.question_id = b.item_id
+    WHERE b.check_verdict = 'invalid'
+    ORDER BY b.binned_at DESC
+    LIMIT ${limit}
+  `) as {
+    item_id: string;
+    paper: number;
+    reason_tags: string[] | null;
+    reason_note: string | null;
+    check_analysis: string | null;
+    binned_at: string;
+    question_text: string | null;
+  }[];
+  return rows.map((r) => ({
+    itemId: r.item_id,
+    paper: r.paper,
+    stem: r.question_text ?? "",
+    reasons: Array.isArray(r.reason_tags) ? r.reason_tags : [],
+    note: r.reason_note ?? null,
+    analysis: r.check_analysis ?? null,
+    binnedAt: r.binned_at,
+  }));
+}
+
+// The admin's override of a challenge: the bin stays binned AND the reason re-enters the prompt
+// feeds ('upheld' passes the digest/lessons gate). Scoped to 'invalid' so a replayed click can't
+// stamp over a verdict that has since been recomputed for a new reason.
+export async function upholdBinReason(itemId: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE bank_bin_reasons SET check_verdict = 'upheld'
+    WHERE item_id = ${itemId} AND check_verdict = 'invalid'
+    RETURNING item_id
+  `;
+  return rows.length > 0;
 }
 
 // ── "Why wines get binned" (spec: learning loop) ─────────────────────────────────────────────────
