@@ -542,6 +542,61 @@ export async function getOverusedProducers(
   return buildExclusionList(tally.rows, limit);
 }
 
+// Producers used in the last `limit` generated questions for a paper — the unconditional last-N
+// exclusion window (question-engine PRODUCER_RECENT_WINDOW). Reads each question's wines JSON directly
+// (not the bank_wine_producer tally) so a just-generated draft still blocks its producers before it is
+// tallied; deduped on the normalised producer key, newest question first.
+export async function getRecentProducerKeys(
+  paper: number,
+  limit = 10
+): Promise<{ key: string; display: string }[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines FROM generated_questions
+    WHERE paper = ${paper}
+      AND scope = 'pool'
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `) as { wines: unknown }[];
+  const byKey = new Map<string, { key: string; display: string }>();
+  for (const r of rows) {
+    for (const p of extractFlightProducers(r.wines)) {
+      if (!byKey.has(p.key)) byKey.set(p.key, { key: p.key, display: p.display });
+    }
+  }
+  return [...byKey.values()];
+}
+
+// Wine descriptors for a paper's live (kept, pool, valid) questions, one string[] per question, newest
+// first — feeds the generation-time niche wine-STYLE cap (detection + share/last-N logic run in
+// question-engine so they stay DB-free and testable). Reads wines JSON directly.
+export async function getPaperWineTextsByQuestion(paper: number): Promise<string[][]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines FROM generated_questions
+    WHERE paper = ${paper}
+      AND scope = 'pool'
+      AND review_state = 'kept'
+      AND invalid_reasons IS NULL
+    ORDER BY created_at DESC
+  `) as { wines: unknown }[];
+  return rows.map((r) => {
+    let list: { fullText?: string }[] = [];
+    const w = r.wines;
+    if (typeof w === "string") {
+      try {
+        const parsed = JSON.parse(w);
+        if (Array.isArray(parsed)) list = parsed as { fullText?: string }[];
+      } catch {
+        list = [];
+      }
+    } else if (Array.isArray(w)) {
+      list = w as { fullText?: string }[];
+    }
+    return list.map((x) => (typeof x?.fullText === "string" ? x.fullText : "")).filter(Boolean);
+  });
+}
+
 // How many pending items awaiting review carry a producer flag (paper-scoped, or all papers). Feeds the
 // Bank Health "N flagged items awaiting review" deep-link + count.
 export async function getFlaggedPendingCount(paper: number | "all"): Promise<number> {
