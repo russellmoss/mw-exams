@@ -9,6 +9,11 @@
 // TS route imports it too (tsconfig allowJs + bundler resolution). The answer key is a DERIVED
 // artifact read off the wine_profiles the engine already produces — not a parallel source of truth.
 
+// Grape colour classification for the colour-conflict veto below. question-rules.mjs is the app's
+// single source of truth for grape-name detection and is itself pure (no fs / no DB), so importing
+// it keeps this module's contract intact.
+import { WHITE_GRAPE_INDICATORS, RED_GRAPE_INDICATORS } from "./question-rules.mjs";
+
 // ---------- normalization (pure, data-free) ----------
 export const norm = (s) =>
   (s || "")
@@ -43,6 +48,25 @@ function conflictsWithLabel(candidateVarieties, explicit) {
   if (!explicit.length || !candidateVarieties?.length) return false;
   const cand = new Set(candidateVarieties.map(norm));
   return !explicit.some((v) => cand.has(norm(v)));
+}
+
+// True when EVERY candidate grape is positively the wrong colour for the wine — all-red grapes on a
+// white wine or all-white on a red. Enrichment writes wrong grapes surprisingly often (a "Saumur
+// Blanc" profiled as Cabernet Franc, a Lagrein Riserva as Pinot Grigio, a red Rioja Reserva as
+// Viura) and nothing checked; every such profile keyed a wine as a grape of the wrong colour, and
+// the corpus audit then read correct model answers as "never names the variety". Unknown colours
+// (either side) never veto — a co-ferment with one white grape in a red, or a grape the indicator
+// regexes don't know, must pass through.
+export function conflictsWithColour(candidateVarieties, col) {
+  if ((col !== "white" && col !== "red") || !candidateVarieties?.length) return false;
+  const colours = candidateVarieties.map((v) => {
+    const n = norm(v);
+    if (WHITE_GRAPE_INDICATORS.test(n)) return "white";
+    if (RED_GRAPE_INDICATORS.test(n)) return "red";
+    return "unknown";
+  });
+  if (colours.some((c) => c === "unknown" || c === col)) return false;
+  return true; // every grape resolved, and every one is the opposite colour
 }
 
 function resolveOrigin(ft) {
@@ -141,19 +165,34 @@ export function createAnswerKeyBuilder(data) {
     return [...found];
   }
 
-  function resolveVariety(wp, ft, col) {
+  function resolveVariety(wp, ft, col, colTrusted) {
     const explicit = explicitVarietiesFromText(ft);
+    // Bank/profile candidates are vetoed when they contradict the LABEL (a fuzzy bank match to the
+    // wrong wine) or the COLOUR (enrichment wrote a red grape for a white wine, or vice versa).
+    // Bank/profile stay first because when consistent they carry richer blend data than the label —
+    // a field blend labelled by its dominant grape keeps its full variety list.
+    //
+    // The colour veto fires only when the colour is TRUSTED — derived from the paper (P1 = white,
+    // P2 = red), not guessed from label words. The label guess reads producer names as colour:
+    // "Domaine du Mas Blanc" made a Banyuls "white", vetoed its correct Grenache Noir resolution,
+    // and un-keyed the wine entirely.
+    const wrongColour = (vars) => colTrusted && conflictsWithColour(vars, col);
+    const usable = (vars) => (vars || []).length && !conflictsWithLabel(vars, explicit) && !wrongColour(vars);
     const e = wp.bank_match ? bankById[wp.bank_match] : null;
-    if (e && (e.grape_varieties || []).length && !conflictsWithLabel(e.grape_varieties, explicit))
-      return { v: e.grape_varieties, src: "bank" };
-    if ((wp.grape_varieties || []).length && !conflictsWithLabel(wp.grape_varieties, explicit))
-      return { v: wp.grape_varieties, src: "profile" };
+    if (e && usable(e.grape_varieties)) return { v: e.grape_varieties, src: "bank" };
+    if (usable(wp.grape_varieties)) return { v: wp.grape_varieties, src: "profile" };
+    // The label's own grape names outrank everything below: when a "Lagrein Riserva" profile said
+    // Pinot Grigio, the old order fell through to the Alto Adige appellation default instead of
+    // reading the grape printed on the label.
+    if (explicit.length) return { v: explicit, src: "label" };
     const nf = pad(ft);
     for (const [m, entry] of propList) if (norm(ft).includes(m)) return { v: entry.varieties, src: "proprietary" };
     for (const [t, entry] of appList) {
       if (nf.includes(t)) {
         const v = appResolve(entry, col);
-        if (v && v.length) return { v, src: "appellation" };
+        // Colour-vetoed like bank/profile: a white "Hermitage Blanc" must not take the flat red
+        // "hermitage" entry — it keeps scanning for a colour-consistent (or colour-neutral) match.
+        if (v && v.length && !wrongColour(v)) return { v, src: "appellation" };
       }
     }
     for (const [t, c] of lexList) if (nf.includes(t)) return { v: [c], src: "lexicon" };
@@ -198,7 +237,10 @@ export function createAnswerKeyBuilder(data) {
     for (const w of wines) {
       const prof = wp[String(w.slot)] || {};
       const col = colour(w.fullText, r.paper);
-      const { v, src } = resolveVariety(prof, w.fullText, col);
+      // Paper-derived colours are certain; a P3 colour is guessed from label words (which can be a
+      // producer name — "Mas Blanc") and must never veto, only pick among byColor entries.
+      const colTrusted = r.paper === 1 || r.paper === 2;
+      const { v, src } = resolveVariety(prof, w.fullText, col, colTrusted);
       const o = resolveOrigin(w.fullText);
       source[w.slot] = src;
       const pm = proprietaryMatch(w.fullText);
@@ -211,7 +253,14 @@ export function createAnswerKeyBuilder(data) {
       const explicit = explicitVarietiesFromText(w.fullText);
       if (!v.length) problems.push(`W${w.slot} no-variety`);
       if (!o.ok) problems.push(`W${w.slot} no-origin`);
-      if (v.length && (prof.grape_varieties || []).length && !conflictsWithLabel(prof.grape_varieties, explicit)) {
+      // A profile that was VETOED (contradicts the label's grape or the wine's colour) is the thing
+      // being corrected, not a second opinion — disagreeing with it must not invalidate the key.
+      if (
+        v.length &&
+        (prof.grape_varieties || []).length &&
+        !conflictsWithLabel(prof.grape_varieties, explicit) &&
+        !(colTrusted && conflictsWithColour(prof.grape_varieties, col))
+      ) {
         const profSet = new Set(prof.grape_varieties.map(norm));
         if (!v.some((x) => profSet.has(norm(x)))) problems.push(`W${w.slot} variety/profile mismatch`);
       }

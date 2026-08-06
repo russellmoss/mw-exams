@@ -142,13 +142,23 @@ function serialize(q: GeneratedQuestion) {
 }
 
 function violationsFor(q: GeneratedQuestion, groundTruth: unknown[]): Violation[] {
+  // Zip the raw label onto each resolved key wine by slot (same shape as the corpus audit): the
+  // wine-reference-shape rule and the answer rules' label-derived origin needles both need the
+  // original string the key derivation threw away.
+  const raw = (typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines) as
+    | { slot: number; fullText?: string }[]
+    | null;
+  const bySlot = new Map((Array.isArray(raw) ? raw : []).map((w) => [w.slot, w.fullText]));
+  const wines = (groundTruth as AuditWine[]).map((w) =>
+    bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w
+  );
   return validateQuestion({
     questionId: q.question_id,
     paper: q.paper,
     family: q.family,
     questionText: q.question_text,
     totalMarks: q.total_marks,
-    wines: groundTruth as AuditWine[],
+    wines,
     // Answer-content verdicts too (answer-content-rules.mjs): the reviewer deciding keep/bin should
     // see a truncated or wine-skipping model answer, not just stem<->wine contradictions.
     modelAnswer: q.model_answer ?? null,

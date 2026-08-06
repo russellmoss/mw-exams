@@ -86,6 +86,15 @@ const regionTokens = (region) =>
     .split(/\s+/)
     .filter((t) => t.length >= 4 && !REGION_STOPWORDS.has(t));
 
+// Wine-label terms that appear in ANY exemplar's prose regardless of the wine under discussion —
+// as label-derived origin needles they would suppress genuine missing-origin flags.
+const LABEL_GENERIC_TOKENS = new Set([
+  "reserva", "riserva", "reserve", "gran", "grande", "vieilles", "vignes", "vigne", "brut", "extra",
+  "vintage", "blanc", "blanco", "bianco", "rosso", "rouge", "tinto", "rose", "rosado", "rosato",
+  "noir", "superiore", "superieur", "classico", "cuvee", "year", "years", "aged", "solera", "single",
+  "estate", "late", "harvest", "botrytis", "sparkling", "fortified", "sweet", "sec", "seco", "dry",
+]);
+
 // Reverse synonym index: canonical grape -> every label that means it. "Pinot Noir" in the key must
 // match an answer that says "Spätburgunder", and vice versa.
 let _synonymsByCanon = null;
@@ -112,7 +121,7 @@ function varietyNeedles(varieties) {
   return [...needles];
 }
 
-function originNeedles(region, country) {
+function originNeedles(region, country, fullText) {
   const needles = new Set(regionTokens(region));
   const c = norm(country);
   if (c) {
@@ -122,6 +131,16 @@ function originNeedles(region, country) {
       needles.add("united states");
       needles.add("america");
     }
+  }
+  // The key's region is often COARSER than the answer's call: the key says "Burgundy" while a
+  // correct exemplar argues "Puligny-Montrachet, Côte de Beaune" and never writes the word
+  // Burgundy. The raw label carries the appellation the answer will actually name (Puligny,
+  // Muscadet, Sauternes, Prosecco…), so its distinctive tokens count as origin evidence too —
+  // minus generic wine terms (Reserva, Brut…), which appear in ANY answer's prose and would
+  // suppress genuine flags. Producer names stay: a blind exemplar never writes them, so they are
+  // inert. Calibration: this one addition cleared 11 of 14 origin-side false positives.
+  for (const t of regionTokens(fullText || "")) {
+    if (!/^\d/.test(t) && !LABEL_GENERIC_TOKENS.has(t)) needles.add(t);
   }
   needles.delete("");
   return [...needles];
@@ -216,7 +235,7 @@ export function applyAnswerContentRules({ questionText, answerText, wines }) {
   for (const w of wineList) {
     if (!wantVariety && !wantOrigin) break;
     const vNeedles = wantVariety ? varietyNeedles(w.varieties) : [];
-    const oNeedles = wantOrigin ? originNeedles(w.region, w.country) : [];
+    const oNeedles = wantOrigin ? originNeedles(w.region, w.country, w.fullText) : [];
     const varietyHit = vNeedles.some((n) => textNorm.includes(n));
     const originHit = oNeedles.some((n) => textNorm.includes(n));
 
