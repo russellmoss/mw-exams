@@ -89,6 +89,27 @@ async function pickFlightSizeFromDistribution(
   }
 }
 
+// The appellations the single-variety validator actually REJECTS, in readable form.
+//
+// The prompt used to give illustrative examples ("Tawny Port, Champagne, Bordeaux blends…") rather
+// than the enforced set, and the gap showed: a Paper 2 batch lost 7 attempts to Gigondas and
+// Saint-Estephe, both already in the validator's list and neither named here. The model cannot avoid
+// a rule it has not been shown.
+//
+// Mirrors KNOWN_BLEND_INDICATORS (question-engine.ts, duplicated in question-rules.mjs). It cannot
+// be imported from there — question-engine imports THIS module, so the dependency would be circular —
+// so tests/blend-list-sync.test.ts asserts every name below is genuinely detected by isLikelyBlend.
+// That pins the direction that matters: the prompt must never promise something the validator does
+// not enforce.
+export const BLEND_APPELLATIONS = [
+  "Tawny Port", "Ruby Port", "LBV", "Vintage Port", "Porto", "Port DOC/DOP",
+  "Champagne", "Cremant", "Cava", "Franciacorta", "Prosecco",
+  "Chateauneuf-du-Pape", "Gigondas", "Vacqueyras", "Cotes du Rhone", "Cotes de Provence",
+  "Bordeaux", "Medoc", "Haut-Medoc", "Pauillac", "Margaux", "Saint-Julien", "Saint-Estephe",
+  "Saint-Emilion", "Pomerol", "Pessac-Leognan", "Graves",
+  "Rioja", "Tokaji", "GSM", "Meritage", "Ripasso", "Amarone", "Valpolicella",
+];
+
 // P3 wine style category distribution from 49-question corpus.
 //
 // still_dry is deliberately ABSENT, though 17.8% of real P3 wines are still dry. It is a component
@@ -516,7 +537,9 @@ If you want two wines from the same country, the stem must either:
 
 ## SINGLE-VARIETY STEM CONSTRAINT
 When the stem says "each from a different, single grape variety" or "each is made predominantly from a different, single grape variety" or similar per-wine single-variety language, EVERY wine must genuinely be a single-varietal wine. Do NOT include known blend categories:
-- BAD: Tawny Port (always a multi-variety Douro blend), Champagne (typically Chardonnay/Pinot Noir/Meunier), Bordeaux blends, Chateauneuf-du-Pape (GSM blend), Amarone/Valpolicella (Corvina blend), Cava (Xarel-lo/Macabeo/Parellada)
+- REJECTED AUTOMATICALLY — every one of these is treated as a blend, so a wine from any of them fails a single-variety stem outright:
+  ${BLEND_APPELLATIONS.join(" · ")}
+  (Accents and suffixes do not help: "Chateauneuf-du-Pape AOC", "DOCa Rioja" and "Porto DOP" all match.)
 - GOOD: Rutherglen Muscat (100% Muscat), Amontillado (100% Palomino), Banyuls (predominantly Grenache), single-varietal Riesling, Nebbiolo (Barolo/Barbaresco)
 If you want to include a blend, remove the "single grape variety" language from the stem, or say "predominantly from a different grape variety" without the word "single."
 
