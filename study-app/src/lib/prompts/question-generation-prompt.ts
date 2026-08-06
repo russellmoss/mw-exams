@@ -347,6 +347,22 @@ This is a hard ban, not a preference — a validator rejects any flight naming o
 Apply this silently: the wine list and stem must never mention that a producer was excluded, banned or replaced.`;
 }
 
+// WINE-STYLE EXCLUSION (hard) — the block generateFreshQuestion appends when a signature niche STYLE
+// (vin jaune / sous voile Jura, Seppeltsfield-style aged tawny, Alsace Gewurztraminer) is over the
+// frequency cap or was used in the paper's last few questions. The reviewer's complaint is about the
+// CATEGORY recurring as much as any one label ("we are overindexing on vin jaune", "way overindexed on
+// this seppeltsfield wine", "we keep overusing … gewurztraminer"), so swapping producers within the
+// same style does NOT satisfy it. Kept pure (labels in, text out) so it is testable without a database.
+export function buildStyleExclusionBlock(styles: string[]): string {
+  if (styles.length === 0) return "";
+  return `
+
+## WINE-STYLE EXCLUSION (HARD RULE — over-used niche categories)
+These niche wine STYLES are already over-represented in this paper's recent questions and bank: ${styles.join(" · ")}.
+Do NOT build this flight around any of them. The complaint is the CATEGORY recurring, not just one label, so choosing a different producer of the SAME style does NOT satisfy this rule — pick a genuinely different style/region for this question. If avoiding the style leaves the flight hard to complete, widen the region or grape choice rather than falling back on the banned category.
+Apply this silently: the wine list and stem must never mention that a style was excluded or replaced.`;
+}
+
 // Exam Mix (migration 034): per-flight category + curveball guidance. Human-readable "how to build
 // this category" cues so the model can actually deliver the required, coherent flight the validators
 // then check. Returns "" (no injection) when Exam Mix is inactive.
@@ -714,7 +730,7 @@ Weight recent exam years (2021-2025) more heavily when designing sub-questions. 
 ## FINAL SELF-CHECK (run this before output; if any check fails, FIX the wines and output the corrected version)
 Work these silently, or write them out under ## Paper Scope Check if you need them on the page. They must NEVER be written into the ## Wines block — a wine line that reads "Spain ✓" or "Sparkling ✓" is a self-check verdict standing where a wine should be, and the flight is unusable.
 - If the stem says "N different countries": list each wine's country — they MUST be N genuinely DISTINCT countries (two wines from the USA do NOT satisfy "four different countries").
-- If the stem says "same single grape variety": every wine's dominant grape MUST be identical (no blends of a different grape, no second variety).
+- If the stem says "same single grape variety": every wine MUST be genuinely single-varietal — the same one grape, not merely the dominant grape. A Cabernet-dominant Pauillac, a Châteauneuf-du-Pape, a Super Tuscan or any other blend-normed wine is NOT single-varietal and will be rejected. Additionally, every wine's variety must be identifiable from its name or appellation: write the variety into the wine name where the producer labels it that way (e.g. "Henschke, Hill of Grace Shiraz", "Torbreck, The Struie Shiraz"), or use a varietal appellation (Barolo, Chablis, Sancerre, Chinon).
 - If the stem says "different grape varieties" (and not "predominantly"): every wine's dominant grape MUST be distinct — no repeats.
 - If the stem says "same country": every wine MUST be from that one country.
 - Marks MUST total 25 per wine.

@@ -37,6 +37,7 @@ export default function SettingsPage() {
   const [liveCountry, setLiveCountry] = useState("");
   const [liveBudget, setLiveBudget] = useState("");
   const [liveCurrency, setLiveCurrency] = useState("USD");
+  const [liveRadius, setLiveRadius] = useState("30");
   const [liveSaving, setLiveSaving] = useState(false);
   const [liveMsg, setLiveMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
@@ -80,6 +81,7 @@ export default function SettingsPage() {
           if (d.country) setLiveCountry(d.country);
           if (d.budgetAmount != null) setLiveBudget(String(d.budgetAmount));
           if (d.budgetCurrency) setLiveCurrency(d.budgetCurrency);
+          if (d.radiusMinutes) setLiveRadius(String(d.radiusMinutes));
         })
         .catch(() => {});
       fetch("/api/user/api-key")
@@ -451,6 +453,7 @@ export default function SettingsPage() {
                       country: liveCountry,
                       budgetAmount: liveBudget.trim() ? Number(liveBudget) : null,
                       budgetCurrency: liveCurrency,
+                      radiusMinutes: Number(liveRadius),
                     }),
                   });
                   const data = await res.json();
@@ -493,7 +496,23 @@ export default function SettingsPage() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 max-w-sm">
+              <div className="grid grid-cols-3 gap-4 max-w-lg">
+                <div>
+                  <label htmlFor="liveRadius" className="block text-sm font-medium text-foreground mb-1.5">
+                    Willing to drive
+                  </label>
+                  <select
+                    id="liveRadius"
+                    value={liveRadius}
+                    onChange={(e) => setLiveRadius(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm cursor-pointer"
+                  >
+                    <option value="15">~15 min</option>
+                    <option value="30">~30 min</option>
+                    <option value="60">~1 hour</option>
+                    <option value="90">~1.5 hours</option>
+                  </select>
+                </div>
                 <div>
                   <label htmlFor="liveBudget" className="block text-sm font-medium text-foreground mb-1.5">
                     Budget per bottle

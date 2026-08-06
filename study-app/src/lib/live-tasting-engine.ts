@@ -250,13 +250,16 @@ export async function confirmSlots(
   apiKey: string,
   userId: number,
   emit?: ProgressEmitter,
-  budget?: { amount: number | null; currency: string | null }
+  budget?: { amount: number | null; currency: string | null },
+  radiusMinutes?: number | null
 ): Promise<SlotAvailability[]> {
-  const out: SlotAvailability[] = [];
   const budgetAmount = budget?.amount ?? null;
-  for (let i = 0; i < slots.length; i++) {
+  // Slots run IN PARALLEL: sequential per-slot laddering cost the pilot's cold create ~100s of
+  // wall clock before generation even started, and the whole route must fit inside 300s. Each
+  // slot's candidate ladder stays sequential internally (alternates only on a miss).
+  const out = await Promise.all(slots.map(async (slotPick, i) => {
     const slotNo = i + 1;
-    const candidates = [slots[i].row, ...slots[i].alternates];
+    const candidates = [slotPick.row, ...slotPick.alternates];
     type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null };
     let chosen: Cand | null = null;       // confident AND within budget
     let overBudgetBest: Cand | null = null; // confident but every listed price exceeds budget
@@ -265,7 +268,7 @@ export async function confirmSlots(
       emit?.({ type: "status", label: `Checking availability near ${city}: ${row.producer}…` });
       const res = await getAvailability(
         { producer: row.producer, wineName: row.wine_name, wineKey: row.id },
-        city, country, apiKey, { userId }
+        city, country, apiKey, { userId }, radiusMinutes ?? null
       );
       const minListed = minSameCurrencyPrice(res.stockists, budget?.currency ?? null);
       const cand: Cand = { row, stockists: res.stockists, minListed };
@@ -287,7 +290,7 @@ export async function confirmSlots(
     // honest UI note) → best-effort fallback (deep-link only).
     const pick = chosen ?? overBudgetBest ?? fallback!;
     const { row, stockists } = pick;
-    out.push({
+    return {
       slot: slotNo,
       wineKey: row.id,
       producer: row.producer,
@@ -299,8 +302,8 @@ export async function confirmSlots(
       stockists,
       thin: confidentCount(stockists) === 0,
       ...(chosen == null && overBudgetBest != null ? { overBudget: true } : {}),
-    });
-  }
+    };
+  }));
   return out;
 }
 
@@ -317,9 +320,12 @@ export async function createLiveTasting(opts: {
   country: string;
   budgetAmount: number | null;
   budgetCurrency: string | null;
+  radiusMinutes?: number | null;
   emit?: ProgressEmitter;
+  /** Route passes next/server after() so detached model-answer/audit work survives the response. */
+  keepAlive?: (work: Promise<unknown>) => void;
 }): Promise<CreateLiveTastingResult> {
-  const { userId, apiKey, paper, flightSize, city, country, budgetAmount, budgetCurrency, emit } = opts;
+  const { userId, apiKey, paper, flightSize, city, country, budgetAmount, budgetCurrency, radiusMinutes, emit, keepAlive } = opts;
 
   emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });
   const bank = await loadBudgetedBank(budgetAmount, budgetCurrency);
@@ -331,7 +337,7 @@ export async function createLiveTasting(opts: {
   }
 
   const availability = await confirmSlots(picked.slots, city, country, apiKey, userId, emit,
-    { amount: budgetAmount, currency: budgetCurrency });
+    { amount: budgetAmount, currency: budgetCurrency }, radiusMinutes ?? null);
 
   const generateOnce = async (slotsAvail: SlotAvailability[]) => {
     const pinnedWines = slotsAvail.map((s) => {
@@ -353,37 +359,24 @@ export async function createLiveTasting(opts: {
         scope: "live-tasting",
         pinnedWines,
         status: "approved",
-        // Session creation must block until the key + audit land (plan §4): shopping for an
-        // ungradable flight is the failure mode this flag exists to prevent.
+        // Block on the validated key only (the gradability core); the model answer + audit run
+        // detached, kept alive past the response via onBackgroundWork → after().
         awaitKeyOnly: true,
-        // Background work (enrichment → key → model answer → audit) dominates; give the whole
-        // chain room. The create route runs maxDuration=300 with an SSE keepalive.
-        budgetMs: 150_000,
-        callTimeoutMs: 130_000,
+        onBackgroundWork: keepAlive,
+        // Sized so TWO generation attempts fit inside the route's 300s platform ceiling alongside
+        // the availability phase (E2E run 1 + the pilot's first create both died at that wall).
+        budgetMs: 190_000,
+        callTimeoutMs: 95_000,
       }
     );
   };
 
-  let result = await generateOnce(availability);
+  const result = await generateOnce(availability);
 
-  // One retry with the weakest slot swapped to its alternate (plan §4.1): pinned-flight
-  // generation can fail on a wine the model refuses to write coherently — usually the most
-  // obscure one. Swap the thinnest slot's wine for its first alternate and try once more.
-  if ("error" in result) {
-    const weakest = [...availability].sort((a, b) => Number(b.thin) - Number(a.thin))[0];
-    const pick = picked.slots[weakest.slot - 1];
-    const alternate = pick.alternates.find((a) => a.id !== weakest.wineKey);
-    if (alternate) {
-      emit?.({ type: "status", label: "Swapping the trickiest wine and retrying…" });
-      const swapped = await confirmSlots(
-        [{ row: alternate, alternates: [] }], city, country, apiKey, userId, emit,
-        { amount: budgetAmount, currency: budgetCurrency }
-      );
-      availability[weakest.slot - 1] = { ...swapped[0], slot: weakest.slot };
-      result = await generateOnce(availability);
-    }
-  }
-
+  // No in-route swap-retry: a second full generation cannot fit inside the 300s platform
+  // ceiling (that wall, not the error path, is what ate the pilot's first create). The engine's
+  // own attempt loop already retries within its budget; past that we surface a fast, honest
+  // error and the user's retry gets the warm availability cache for free.
   if ("error" in result) return { error: result.error ?? "Generation failed." };
   if (!("question" in result) || !result.question) return { error: "Generation failed." };
 
@@ -436,9 +429,11 @@ export async function replaceWine(opts: {
   session: LiveTastingSession;
   slot: number;
   apiKey: string;
+  radiusMinutes?: number | null;
   emit?: ProgressEmitter;
+  keepAlive?: (work: Promise<unknown>) => void;
 }): Promise<{ ok: true } | { error: string }> {
-  const { session, slot, apiKey, emit } = opts;
+  const { session, slot, apiKey, radiusMinutes, emit, keepAlive } = opts;
   const avail = (session.availability ?? {}) as { archetypeLabel?: string; slots?: SlotAvailability[] };
   const slots = Array.isArray(avail.slots) ? [...avail.slots] : [];
   const departing = slots.find((s) => s.slot === slot);
@@ -476,7 +471,8 @@ export async function replaceWine(opts: {
     [{ row: candidates[0], alternates: candidates.slice(1) }],
     session.city, session.country, apiKey, session.user_id, emit,
     { amount: session.budget_amount != null ? Number(session.budget_amount) : null,
-      currency: session.budget_currency }
+      currency: session.budget_currency },
+    radiusMinutes ?? null
   );
   slots[slots.findIndex((s) => s.slot === slot)] = { ...confirmed[0], slot };
 
@@ -501,8 +497,9 @@ export async function replaceWine(opts: {
       pinnedWines,
       status: "approved",
       awaitKeyOnly: true,
-      budgetMs: 150_000,
-      callTimeoutMs: 130_000,
+      onBackgroundWork: keepAlive,
+      budgetMs: 190_000,
+      callTimeoutMs: 95_000,
     }
   );
   if ("error" in result) return { error: result.error ?? "Regeneration failed." };

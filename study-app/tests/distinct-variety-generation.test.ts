@@ -61,6 +61,65 @@ describe("no false positives", () => {
   });
 });
 
+// Bank batch c3276590 (2026-08-06, Paper 2 F1 fill): ~65 failed attempts, most on the same-variety
+// rule. Two failure shapes drove the loops, both fixed here:
+//   1. Blend-appellation wines (Pauillac second wines, Châteauneuf, Bolgheri) reported as "variety
+//      undetectable" — the repair model, never told the appellation was the problem, swapped one
+//      Bordeaux for another for 8 straight attempts.
+//   2. Genuinely 100%-varietal wines (Hill of Grace, The Struie) rejected because the label names no
+//      grape and the region maps to none — the message now says how to comply.
+describe("same-variety flight messaging (batch c3276590 repair loops)", () => {
+  const SAME_VARIETY_STEM = "Wines 1 and 2 are made from the same single grape variety.";
+
+  it("names the blend category for a Pauillac in a single-variety flight, not 'undetectable'", () => {
+    const r = validateVarietyConsistency(SAME_VARIETY_STEM, [
+      wine(1, "Château Pichon-Longueville Comtesse de Lalande, Réserve de la Comtesse, 2018. Pauillac, Bordeaux, France. (13.5%)"),
+      wine(2, "Viña Cobos, Bramare Cabernet Sauvignon, 2019. Mendoza, Argentina. (14.5%)"),
+    ]);
+    expect(r.valid).toBe(false);
+    const wine1Violations = r.violations.filter((v) => v.includes("Wine 1"));
+    expect(wine1Violations.join(" ")).toMatch(/blend-normed/);
+    expect(wine1Violations.join(" ")).not.toMatch(/undetectable/);
+  });
+
+  it("tells the model how to fix a varietal wine whose label names no grape", () => {
+    const r = validateVarietyConsistency(SAME_VARIETY_STEM, [
+      wine(1, "Henschke, Hill of Grace, 2018. Eden Valley, South Australia, Australia. (14.5%)"),
+      wine(2, "Torbreck, RunRig Shiraz, 2019. Barossa Valley, South Australia, Australia. (15%)"),
+    ]);
+    expect(r.valid).toBe(false);
+    expect(r.violations.join(" ")).toMatch(/write the variety into the wine name/);
+  });
+
+  it("accepts the compliant version of the same flight", () => {
+    const r = validateVarietyConsistency(SAME_VARIETY_STEM, [
+      wine(1, "Henschke, Hill of Grace Shiraz, 2018. Eden Valley, South Australia, Australia. (14.5%)"),
+      wine(2, "Torbreck, RunRig Shiraz, 2019. Barossa Valley, South Australia, Australia. (15%)"),
+    ]);
+    expect(r.valid).toBe(true);
+  });
+
+  it("still accepts Rioja in a same-variety Tempranillo flight (detected, blend-normed by convention)", () => {
+    // Real MW same-variety flights use Rioja for Tempranillo. The blend message must only replace
+    // the undetectable message, never reject wines whose variety detection already succeeds.
+    const r = validateVarietyConsistency(SAME_VARIETY_STEM, [
+      wine(1, "La Rioja Alta, Viña Ardanza Reserva, 2016. Rioja, Spain. (14%)"),
+      wine(2, "Vega Sicilia, Valbuena 5º, 2018. Ribera del Duero, Spain. (14.5%)"),
+    ]);
+    expect(r.valid).toBe(true);
+  });
+});
+
+describe("Gigondas resolves to a variety (typo regression)", () => {
+  // APPELLATION_TO_PRIMARY_VARIETY read "gigalondas" — Gigondas wines never matched, so every
+  // Gigondas in a same-variety flight fired the undetectable rule (batch c3276590, id 2850).
+  it("detects Gigondas as grenache blend", () => {
+    expect(
+      detectPrimaryVariety("Domaine Santa Duc, Les Hautes Garrigues, 2021. Gigondas, Rhône Valley, France. (14.5%)")
+    ).toBe("grenache blend");
+  });
+});
+
 describe("Montepulciano is two different things", () => {
   // The appellation table matched the bare town name, sending every Abruzzese red to Sangiovese.
   // Harmless while this rule only ran post-hoc; a false-positive generator once it gates generation.

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import { getUser } from "@/lib/auth";
 import { sseStream } from "@/lib/thinking-stream";
@@ -86,7 +87,11 @@ export async function POST(request: Request) {
       country: prefs.country!,
       budgetAmount,
       budgetCurrency,
+      radiusMinutes: prefs.radiusMinutes,
       emit,
+      // Keep the invocation alive until the detached model-answer/audit chain settles — on
+      // serverless, detached promises die with the response (E2E run 2, session B).
+      keepAlive: (work) => after(() => work.catch(() => {})),
     });
     if ("error" in outcome) throw new Error(outcome.error);
     emit({ type: "status", label: "Session ready — time to go shopping." });

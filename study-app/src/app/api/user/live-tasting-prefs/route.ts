@@ -7,6 +7,7 @@ export const runtime = "nodejs";
 // pace-preference precedent of one route owning multiple coupled columns.
 
 const CURRENCIES = new Set(["USD", "EUR", "GBP"]);
+const RADII = new Set([15, 30, 60, 90]);
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
     if (!user) return Response.json({ error: "Auth required" }, { status: 401 });
     return Response.json(await getUserLiveTastingPrefs(user.id));
   } catch {
-    return Response.json({ city: null, country: null, budgetAmount: null, budgetCurrency: null });
+    return Response.json({ city: null, country: null, budgetAmount: null, budgetCurrency: null, radiusMinutes: null });
   }
 }
 
@@ -39,7 +40,9 @@ export async function PATCH(request: Request) {
       return Response.json({ error: "Budget needs a currency (USD, EUR or GBP)" }, { status: 400 });
     }
 
-    const prefs = { city, country, budgetAmount, budgetCurrency };
+    const radiusMinutes = RADII.has(Number(body.radiusMinutes)) ? Number(body.radiusMinutes) : null;
+
+    const prefs = { city, country, budgetAmount, budgetCurrency, radiusMinutes };
     await setUserLiveTastingPrefs(user.id, prefs);
     return Response.json(prefs);
   } catch {

@@ -51,6 +51,7 @@ logs/
 
 # Generated Neon corpus sync SQL (~1MB, rebuild with scripts/gen_neon_corpus_sql.py)
 data/structured/_neon_statements.json
+study-app/.tmp/
 
 # Raw IMW source PDFs — copyrighted IMW material, ~14MB of binaries.
 # Reproduce with: python scripts/fetch_imw_pdfs.py

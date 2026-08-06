@@ -12,6 +12,15 @@ import {
   getRecentBinReasons,
   getProducerNudge,
   getOverusedProducers,
+  getRecentWineIds,
+  getRecentFlightSignatures,
+  flightSignature,
+  wineCooldownId,
+  RECENT_WINE_WINDOW,
+  RECENT_FLIGHT_WINDOW,
+  getProducerTally,
+  getRecentProducerKeys,
+  getPaperWineTextsByQuestion,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -21,6 +30,9 @@ import {
   extractProducerDisplay,
   normaliseProducer,
   producerKeyIsExcluded,
+  buildExclusionList,
+  REVIEWER_EXCLUDED_PRODUCERS,
+  type ProducerStatus,
 } from "@/lib/bank-health/producer";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
@@ -30,6 +42,7 @@ import { logGenerationAttempt } from "@/lib/generation-telemetry";
 import {
   buildQuestionGenerationPrompt,
   buildProducerExclusionBlock,
+  buildStyleExclusionBlock,
 } from "@/lib/prompts/question-generation-prompt";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targets";
@@ -669,6 +682,39 @@ async function callGenerationModel(
   return streamWithThinking(client, params, callOpts, emit);
 }
 
+// Duplicate-wine cooldown + flight-signature dedup (feedback: "same wine reused across recently
+// generated questions"). On a collision the flight is REGENERATED up to this many times before the
+// generation fails with a clear error rather than emitting a bottle / shape the candidate just saw.
+export const MAX_DEDUP_REGENERATIONS = 3;
+
+/**
+ * Regenerate a flight until it is novel against BOTH dedup guards — the exact-wine cooldown and the
+ * flight-signature dedup — or fail. Pure orchestration around a `generate` callback, so the dedup
+ * policy is pinned by a unit test without a model call or a database, and it mirrors the inline
+ * policy generateFreshQuestion runs: up to MAX_DEDUP_REGENERATIONS redraws on collision, then throw
+ * rather than serve a duplicate. `regenerations` is how many redraws it took (0 = the first draft was
+ * already novel).
+ */
+export function selectNovelFlight(
+  generate: (attempt: number) => { fullText: string }[],
+  recentWineIds: Set<string>,
+  recentSignatures: Set<string>
+): { wines: { fullText: string }[]; signature: string; regenerations: number } {
+  let lastReason = "duplicate flight";
+  for (let attempt = 0; attempt <= MAX_DEDUP_REGENERATIONS; attempt++) {
+    const wines = generate(attempt);
+    const reusedWine =
+      wines.map((w) => wineCooldownId(w.fullText)).find((id) => id && recentWineIds.has(id)) || null;
+    const signature = flightSignature(wines);
+    const sigCollision = recentSignatures.has(signature);
+    if (!reusedWine && !sigCollision) return { wines, signature, regenerations: attempt };
+    lastReason = reusedWine ? "reuses a recently used wine" : "repeats a recent flight signature";
+  }
+  throw new Error(
+    `Could not select a non-duplicate flight after ${MAX_DEDUP_REGENERATIONS} regenerations: ${lastReason}`
+  );
+}
+
 export async function generateFreshQuestion(
   paper: number,
   family: string | undefined,
@@ -731,6 +777,11 @@ export async function generateFreshQuestion(
     // route's 300s platform ceiling on a cold availability cache; the caller re-checks
     // quarantine at serve/grade time instead.
     awaitKeyOnly?: boolean;
+    // With awaitKeyOnly the model answer + audit promises are DETACHED — on serverless they die
+    // when the invocation freezes after the response (the exact failure E2E run 2 caught: session
+    // B's model answer never landed). The route passes next/server's after() through this hook so
+    // the platform keeps the invocation alive until the background chain settles.
+    onBackgroundWork?: (work: Promise<unknown>) => void;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -784,21 +835,41 @@ export async function generateFreshQuestion(
       : undefined
   );
 
-  // PRODUCER EXCLUSION (hard, every generation path): the reviewer's standing bans plus the paper's
-  // over-used producers by the review pane's own thresholds, counting retired evidence (see
-  // getOverusedProducers). The soft nudge below demonstrably did not stop the repeats — the reviewer
-  // binned Weinbach flights three separate times ("I have told you this at least three times",
-  // bank_bin_reasons) — so the offenders are banned outright in the prompt AND rejected by
-  // validateProducerExclusion, which never relaxes. A tally outage degrades to the reviewer bans
-  // never being fetched at all — no exclusion rather than failed generation.
-  let excludedProducers: { key: string; display: string }[] = [];
+  // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
+  // three UNCONDITIONAL caps computed from the paper's live bank — (1) the hard 5% frequency cap with
+  // NO floor count, (2) the last-PRODUCER_RECENT_WINDOW-questions window, and (3) the same caps at the
+  // niche wine-STYLE level (vin jaune / sous voile Jura, Seppeltsfield-style aged tawny, Alsace
+  // Gewurztraminer). The soft nudge below demonstrably did not stop the repeats — the reviewer binned
+  // the same houses AND the same categories again and again ("I keep telling you this") — so offenders
+  // are banned outright in the prompt AND (producers) rejected by validateProducerExclusion, which
+  // never relaxes. Every fired cap is logged so the admin can see it. A data outage degrades to no
+  // exclusion rather than a failed generation.
+  let excludedProducers: ExcludedProducer[] = [];
+  let excludedStyles: ExcludedStyle[] = [];
   try {
-    excludedProducers = await getOverusedProducers(paper, PRODUCER_EXCLUDE_TOP);
+    const [tally, recentProducers, winesByQuestion] = await Promise.all([
+      getProducerTally(paper, { includeRetiredEvidence: true }),
+      getRecentProducerKeys(paper, PRODUCER_RECENT_WINDOW),
+      getPaperWineTextsByQuestion(paper),
+    ]);
+    excludedProducers = buildGenerationProducerExclusion(tally.rows, recentProducers);
+    excludedStyles = selectExcludedNicheStyles(winesByQuestion);
   } catch (err) {
     console.error("[producer-exclusion] fetch failed (non-fatal):", err);
   }
   if (excludedProducers.length > 0) {
+    console.log(
+      `[producer-exclusion] paper ${paper}: excluding ${excludedProducers.length} producer(s): ` +
+        excludedProducers.map((p) => `${p.display} [${p.reasons.join(",")}]`).join("; ")
+    );
     prompt.system += buildProducerExclusionBlock(excludedProducers.map((p) => p.display));
+  }
+  if (excludedStyles.length > 0) {
+    console.log(
+      `[producer-exclusion] paper ${paper}: excluding ${excludedStyles.length} niche style(s): ` +
+        excludedStyles.map((s) => `${s.label} [${s.reasons.join(",")}]`).join("; ")
+    );
+    prompt.system += buildStyleExclusionBlock(excludedStyles.map((s) => s.label));
   }
   const excludedProducerKeys = new Set(excludedProducers.map((p) => p.key));
 
@@ -820,13 +891,24 @@ export async function generateFreshQuestion(
     if (producerBlock) prompt.system += producerBlock;
   }
 
+  // Live Tasting pinned flight: asserted at BOTH ends of the system prompt. The base prompt's
+  // flight-size guidance (3-5 wines) was reliably beating a tail-only pin block — E2E run 4
+  // drafted 3 wines against a 2-wine pin — so the mode declaration now leads the prompt, where
+  // it outranks everything below, and the full wine list still anchors the tail.
+  if (pinned) {
+    prompt.system = `## PINNED-FLIGHT MODE (LIVE TASTING) — READ FIRST
+This task uses EXACTLY ${pinned.length} wine${pinned.length === 1 ? "" : "s"} (slots 1 through ${pinned.length}), already chosen and listed at the end of this prompt. Every instruction below about choosing wines, flight sizes, or wine counts is OVERRIDDEN by that list. Total marks = ${pinned.length * 25}.
+
+` + prompt.system;
+  }
+
   // Live Tasting pinned flight: a HARD block, appended last so nothing later can soften it. The
   // wines were availability-confirmed against the user's retail market; any substitution breaks
   // the session (the answer key would describe a bottle the user isn't buying). Enforced by
   // validatePinnedFlight below — this block is the instruction, that check is the guarantee.
   if (pinned) {
     prompt.system += `\n\n## PINNED FLIGHT (LIVE TASTING) — ABSOLUTE CONSTRAINT
-The flight is EXACTLY these ${pinned.length} wines in these slots. Do not add, remove, reorder, or substitute any wine. Reproduce each reference verbatim as the slot's wine:
+The flight is EXACTLY ${pinned.length} wines — no more, no fewer. Your output MUST contain ${pinned.length} wine entries, slots 1 through ${pinned.length}, one per slot. Do not add, remove, merge, reorder, or substitute any wine. Reproduce each reference verbatim as the slot's wine:
 ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
@@ -1005,6 +1087,29 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       modelError: f.modelError ?? null,
     });
 
+  // Duplicate-wine cooldown + flight-signature dedup (feedback). Fetched ONCE before the attempt
+  // loop: the exact-wine cooldown pool (bottles used in the last RECENT_WINE_WINDOW questions for
+  // this paper) and the flight signatures of the last RECENT_FLIGHT_WINDOW. Skipped in pinned mode —
+  // a Live Tasting flight is fixed upstream and deliberately reuses its bottles, and there is no
+  // redraft to converge to. A lookup outage degrades to empty sets (no dedup) rather than failing
+  // generation.
+  let recentWineIds = new Set<string>();
+  let recentFlightSignatures = new Set<string>();
+  if (!pinned) {
+    try {
+      [recentWineIds, recentFlightSignatures] = await Promise.all([
+        getRecentWineIds(paper, RECENT_WINE_WINDOW),
+        getRecentFlightSignatures(paper, RECENT_FLIGHT_WINDOW),
+      ]);
+    } catch (err) {
+      console.error("[dedup] recent wine/signature fetch failed (non-fatal):", err);
+    }
+  }
+  // How many drafts have collided with a recent wine / flight signature, and the flag that fails the
+  // whole generation once that exceeds MAX_DEDUP_REGENERATIONS (rather than emitting a duplicate).
+  let dedupCollisions = 0;
+  let dedupFailed = false;
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -1147,6 +1252,46 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       continue;
     }
 
+    // Duplicate-wine cooldown + flight-signature dedup (feedback). BEFORE the examiner validators —
+    // a flight that reuses a bottle from the last RECENT_WINE_WINDOW questions, or repeats the
+    // (region, variety, style) signature of the last RECENT_FLIGHT_WINDOW, is redrafted rather than
+    // graded. This is what stops "same wine reused across recently generated questions" and the
+    // admin's "rated vs non-rated white Burgundy again". Pinned mode skips it (see the fetch above).
+    // After MAX_DEDUP_REGENERATIONS collisions we FAIL the generation with a clear error instead of
+    // emitting a duplicate.
+    if (!pinned) {
+      const reusedWine =
+        candidate.wines.map((w) => wineCooldownId(w.fullText)).find((id) => id && recentWineIds.has(id)) ||
+        null;
+      const candidateSignature = flightSignature(candidate.wines);
+      const signatureCollision = recentFlightSignatures.has(candidateSignature);
+      if (reusedWine || signatureCollision) {
+        dedupCollisions++;
+        const ruleName = reusedWine ? "dedupWine" : "dedupSignature";
+        const reason = reusedWine
+          ? `reuses a wine seen within the last ${RECENT_WINE_WINDOW} questions for paper ${paper}`
+          : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
+        lastViolations = [`Duplicate flight: ${reason}`];
+        console.error(
+          `Generation attempt ${attempt}/${MAX_ATTEMPTS} duplicate flight (${dedupCollisions}/${MAX_DEDUP_REGENERATIONS} regenerations): ${reason}`
+        );
+        recordAttempt(attempt, {
+          model: producedModel,
+          abGroup: producedAb,
+          passed: false,
+          rulesFired: [ruleName],
+          violations: { [ruleName]: lastViolations },
+          latencyMs: callMs,
+        });
+        if (dedupCollisions > MAX_DEDUP_REGENERATIONS) {
+          dedupFailed = true;
+          break;
+        }
+        emit?.({ type: "status", label: "Flight duplicated a recent one — redrafting…" });
+        continue;
+      }
+    }
+
     emit?.({ type: "status", label: "Running the examiner validators…" });
 
     // Critical validators (always run)
@@ -1186,7 +1331,10 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     // unreachable: slow calls meant generation fell back to a banked question having never once
     // been allowed to skip it. Two drafts of pressure toward the corpus mix, then let it through.
     const relaxMarkMix = attempt >= 3;
-    const markMixCheck = relaxMarkMix
+    // Pinned mode skips markMix outright: it is a bank-composition nudge that trips ~40% of REAL
+    // MW questions (see its own relaxation note), and on a 2-wine home flight it cost the pilot a
+    // whole 157s Opus attempt — the budget only fits two.
+    const markMixCheck = pinned || relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText);
     const compositionCheck = pinned || relaxImportant
@@ -1297,6 +1445,18 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
   // never one this user was just served (that was a silent repeat vector). Only drop the per-user
   // filter as an absolute last resort below, when excluding seen questions would leave nothing.
   if (!parsed || !validation) {
+    // Duplicate-wine cooldown / flight-signature dedup exhausted (feedback): the model kept redrawing
+    // the same bottle or the same (region, variety, style) shape. Fail with a clear error rather than
+    // fall through to a banked question — the whole point is to NOT put a just-seen flight in front of
+    // the candidate, and a banked fallback here would risk exactly that.
+    if (dedupFailed) {
+      const msg =
+        `Generation could not produce a non-duplicate flight after ${MAX_DEDUP_REGENERATIONS} regenerations ` +
+        `for paper ${paper}: ${lastViolations[0] ?? "duplicate flight"}`;
+      console.error(msg);
+      emit?.({ type: "status", label: "Couldn't produce a fresh flight — please try again." });
+      return { error: msg };
+    }
     // Pinned mode: a banked question is NOT a substitute for the availability-confirmed flight —
     // the caller (live-tasting-engine) handles failure by swapping a candidate wine and retrying.
     if (pinned) {
@@ -1353,6 +1513,9 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,
+      // Flight-signature dedup (feedback): persist the (region, variety, style) signature so the
+      // recent-signatures lookup for the next generation is a stored read, not a re-derivation.
+      flightSignature: flightSignature(parsed.wines),
       wineShapeCheck: validation.wineShapeCheck,
       paperScopeCheck: validation.paperScopeCheck,
       varietyCheck: validation.varietyCheck,
@@ -1478,6 +1641,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     [, modelAnswerSaved] = await Promise.all([backgroundAudit, modelAnswer]);
   } else if (saveOpts?.awaitKeyOnly) {
     await stemKey;
+    saveOpts.onBackgroundWork?.(Promise.all([backgroundAudit, modelAnswer]));
   }
 
   return {
@@ -1530,6 +1694,145 @@ export function validateVarietyFilter(
     );
   }
   return { valid: violations.length === 0, violations };
+}
+
+// ── Generation-time producer & wine-style frequency caps ─────────────────────────────────────────
+// The soft "spread" nudge and the over-used STATUS (which needs a floor count) both let recurring
+// signatures slip through on a small or freshly-swept bank — the reviewer binned the same producers
+// AND the same niche categories (Weinbach Gewurztraminer, Seppeltsfield tawny, Jura vin jaune) again
+// and again ("I keep telling you this"). These caps are UNCONDITIONAL:
+//   • hard frequency cap — any producer/style over PRODUCER_SHARE_CAP of the paper's live bank is
+//     excluded, with NO floor count (unlike 'over-used'), so a tiny-but-dominant signature is caught.
+//   • last-N window — any producer/style used in the last PRODUCER_RECENT_WINDOW questions for the
+//     paper is excluded outright, independent of its share. This rule is NEVER relaxed.
+// If exclusion would leave nothing buildable the prompt asks the model to widen by region/grape first,
+// but the caps themselves are computed here and never softened at the call site.
+export const PRODUCER_SHARE_CAP = 0.05;
+export const PRODUCER_RECENT_WINDOW = 10;
+
+export type ExclusionReason = "reviewer-ban" | "over-used" | "share-cap" | "recent-window";
+
+export interface ExcludedProducer {
+  key: string;
+  display: string;
+  reasons: ExclusionReason[];
+}
+
+// Assemble the full generation-time producer exclusion for a paper from the producer tally (rows sorted
+// count-desc, each carrying its share of the paper's live bank) and the producer keys used in the last
+// PRODUCER_RECENT_WINDOW questions. Pure so the caps are testable without a database. A producer caught
+// by several rules lists every reason it fired (the log shows why): reviewer bans and tally over-use
+// first (buildExclusionList), then the hard share cap, then the last-N window.
+export function buildGenerationProducerExclusion(
+  tallyRows: { producer_key: string; producer_display: string; share: number; status: ProducerStatus }[],
+  recentProducers: { key: string; display: string }[],
+  opts?: { cap?: number; overuseLimit?: number }
+): ExcludedProducer[] {
+  const cap = opts?.cap ?? PRODUCER_SHARE_CAP;
+  const limit = opts?.overuseLimit ?? PRODUCER_EXCLUDE_TOP;
+  const byKey = new Map<string, ExcludedProducer>();
+  const add = (key: string, display: string, reason: ExclusionReason) => {
+    if (!key) return;
+    const existing = byKey.get(key);
+    if (existing) {
+      if (!existing.reasons.includes(reason)) existing.reasons.push(reason);
+    } else {
+      byKey.set(key, { key, display: display || key, reasons: [reason] });
+    }
+  };
+
+  const reviewerKeys = new Set(REVIEWER_EXCLUDED_PRODUCERS.map((d) => normaliseProducer(d)));
+  for (const p of buildExclusionList(tallyRows, limit)) {
+    add(p.key, p.display, reviewerKeys.has(p.key) ? "reviewer-ban" : "over-used");
+  }
+  for (const r of tallyRows) {
+    if (r.share > cap) add(r.producer_key, r.producer_display, "share-cap");
+  }
+  for (const p of recentProducers) add(p.key, p.display, "recent-window");
+
+  return [...byKey.values()];
+}
+
+// The signature niche wine STYLES the reviewer keeps flagging, keyed on region+style so the CATEGORY —
+// not just the label — is capped. Each test runs against a single wine descriptor (its fullText).
+export interface NicheStyle {
+  id: string;
+  label: string;
+  test: (wineText: string) => boolean;
+}
+
+export const NICHE_WINE_STYLES: NicheStyle[] = [
+  {
+    id: "jura-sous-voile",
+    label: "Jura vin jaune / sous voile Savagnin",
+    test: (t) =>
+      /\bvin\s*jaune\b/i.test(t) ||
+      /ch[aâ]teau[-\s]?chalon/i.test(t) ||
+      /sous[-\s]?voile/i.test(t) ||
+      (/\bsavagnin\b/i.test(t) && /\bjura\b/i.test(t)),
+  },
+  {
+    id: "aged-tawny",
+    label: "Seppeltsfield-style aged tawny",
+    test: (t) =>
+      /\bseppeltsfield\b/i.test(t) ||
+      (/\btawny\b/i.test(t) && /\b(rare|grand|aged|para|\d{2,3}\s*year)\b/i.test(t)),
+  },
+  {
+    id: "alsace-gewurz",
+    label: "Alsace Gewurztraminer",
+    // Region + style: Gewurztraminer specifically from Alsace, since the complaint is Alsace Gewurz.
+    test: (t) => /gew[uü]rztraminer/i.test(t) && /\balsace\b/i.test(t),
+  },
+];
+
+// The niche style ids a single wine descriptor matches (usually 0 or 1).
+export function detectNicheStyles(wineText: string): string[] {
+  const out: string[] = [];
+  for (const s of NICHE_WINE_STYLES) if (s.test(wineText)) out.push(s.id);
+  return out;
+}
+
+export interface ExcludedStyle {
+  id: string;
+  label: string;
+  reasons: ExclusionReason[];
+}
+
+// Niche styles to exclude for a paper, from its live wines grouped by question (newest first): a style
+// over the share cap (its matching wines / all wines), or present anywhere in the last `recentWindow`
+// questions. Pure and DB-free so the caps are testable. Only 'share-cap' / 'recent-window' apply here.
+export function selectExcludedNicheStyles(
+  winesByQuestion: string[][],
+  recentWindow: number = PRODUCER_RECENT_WINDOW,
+  cap: number = PRODUCER_SHARE_CAP
+): ExcludedStyle[] {
+  const labelById = new Map(NICHE_WINE_STYLES.map((s) => [s.id, s.label]));
+  const byId = new Map<string, ExcludedStyle>();
+  const add = (id: string, reason: ExclusionReason) => {
+    const existing = byId.get(id);
+    if (existing) {
+      if (!existing.reasons.includes(reason)) existing.reasons.push(reason);
+    } else {
+      byId.set(id, { id, label: labelById.get(id) ?? id, reasons: [reason] });
+    }
+  };
+
+  let totalWines = 0;
+  const counts = new Map<string, number>();
+  winesByQuestion.forEach((wines, qi) => {
+    for (const text of wines) {
+      totalWines += 1;
+      for (const id of detectNicheStyles(text)) {
+        counts.set(id, (counts.get(id) ?? 0) + 1);
+        if (qi < recentWindow) add(id, "recent-window");
+      }
+    }
+  });
+  if (totalWines > 0) {
+    for (const [id, c] of counts) if (c / totalWines > cap) add(id, "share-cap");
+  }
+  return [...byId.values()];
 }
 
 /**
@@ -1774,11 +2077,26 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
       violations.push(det.detail);
     }
 
-    // Flag wines where variety cannot be detected — suspicious in a same-variety flight
+    // Flag wines where variety cannot be detected — suspicious in a same-variety flight.
+    //
+    // Both messages here are repair-loop instructions as much as they are diagnostics. The old single
+    // "variety undetectable" message reported a blend-appellation wine (Pauillac resolves to no
+    // single grape) identically to a merely-unmapped varietal wine, which told the repair loop
+    // nothing about the actual defect — in bank batch c3276590 (2026-08-06) the model answered it by
+    // swapping one Pauillac second wine for another, eight attempts in a row, until the failure
+    // breaker killed the bucket. Only wines ALREADY undetected get the blend message: a detected
+    // blend-normed label (Rioja → tempranillo) still passes, because real MW same-variety flights do
+    // use Rioja in Tempranillo flights — rejecting those would trade one false-fire loop for another.
     for (const w of undetected) {
-      violations.push(
-        `Wine ${w.slot} ("${w.text}") — variety undetectable in a same-variety flight. Every wine's name or appellation must clearly map to the declared variety.`
-      );
+      if (isLikelyBlend(w.text)) {
+        violations.push(
+          `Stem says same single grape variety, but Wine ${w.slot} ("${w.text}") is from a blend-normed category (Bordeaux/Médoc communes, Châteauneuf, Gigondas, etc.). Variety-dominant is not single-varietal — replace it with a genuinely 100% varietal wine whose label or appellation names the grape.`
+        );
+      } else {
+        violations.push(
+          `Wine ${w.slot} ("${w.text}") — variety undetectable in a same-variety flight. Every wine's name or appellation must clearly map to the declared variety: write the variety into the wine name where the producer labels it that way (e.g. "Henschke, Hill of Grace Shiraz"), or use a varietal appellation (Barolo, Chablis, Sancerre).`
+        );
+      }
     }
 
     // Name-label cross-check: scan each wine's text for ANY grape name that contradicts the flight variety

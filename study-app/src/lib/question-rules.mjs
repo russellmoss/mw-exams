@@ -629,7 +629,7 @@ const APPELLATION_TO_PRIMARY_VARIETY = [
   { pattern: /\b(burgundy|bourgogne|gevrey|chambolle|vosne|pommard|volnay)\b/i, variety: "pinot noir" },
   { pattern: /\b(rioja|ribera\s+del\s+duero)\b/i, variety: "tempranillo" },
   { pattern: /\b(cote-rotie|cornas|hermitage|crozes-hermitage|saint-joseph)\b/i, variety: "syrah" },
-  { pattern: /\b(chateauneuf-du-pape|gigalondas|vacqueyras)\b/i, variety: "grenache blend" },
+  { pattern: /\b(chateauneuf-du-pape|gigondas|vacqueyras)\b/i, variety: "grenache blend" },
 ];
 
 // Canonicalise a detected label through the one shared table. This used to be a hand-rolled chain of
