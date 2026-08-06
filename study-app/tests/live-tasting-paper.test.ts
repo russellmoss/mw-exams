@@ -55,6 +55,33 @@ describe("samplePaperComposition — corpus-shaped papers", () => {
   });
 });
 
+describe("sampled distribution matches the corpus (the QA contract)", () => {
+  it("family shares over 2000 papers sit within 8pp of the measured corpus weights", () => {
+    const CORPUS: Record<number, Record<string, number>> = {
+      1: { F1: 0.31, F2: 0.25, F4: 0.25, F3: 0.07, F7: 0.07, F5: 0.04 },
+      2: { F4: 0.4, F2: 0.29, F1: 0.24, F3: 0.04, F7: 0.04 },
+      3: { F4: 0.33, F5: 0.19, F2: 0.17, F6: 0.15, F1: 0.08, F7: 0.08 },
+    };
+    for (const paper of [1, 2, 3]) {
+      const counts: Record<string, number> = {};
+      let total = 0;
+      for (let seed = 1; seed <= 2000; seed++) {
+        const comp = samplePaperComposition({ paper, size: "full", totalBudget: null, rng: seeded(seed * 13 + paper) });
+        for (const c of comp) {
+          counts[c.family] = (counts[c.family] ?? 0) + 1;
+          total++;
+        }
+      }
+      for (const [fam, want] of Object.entries(CORPUS[paper])) {
+        const got = (counts[fam] ?? 0) / total;
+        // The per-paper cap (max 2 per family) + anchor rule legitimately compress the extremes,
+        // so the tolerance is generous — this catches a broken sampler, not a 2pp drift.
+        expect(Math.abs(got - want), `P${paper} ${fam}: got ${got.toFixed(2)} want ${want}`).toBeLessThan(0.08);
+      }
+    }
+  });
+});
+
 describe("examDurationMinutes — the real clock", () => {
   it("2h15 for a full paper, pro-rata for half", () => {
     expect(examDurationMinutes("full")).toBe(135);
