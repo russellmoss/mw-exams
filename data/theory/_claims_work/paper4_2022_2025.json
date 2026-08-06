@@ -1,0 +1,1620 @@
+[
+  {
+    "claim_id": "th_2022_p4_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV",
+      "tier": 1,
+      "ref": "OIV State of the World Vitivinicultural Sector in 2020",
+      "quote": "World wine consumption in 2020 is estimated at 234 mhl, marking a 3% decrease compared to 2019."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p4_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Answer already attributes this to 'Nielsen data reported by the WSTA' rather than asserting it flatly; could not independently confirm the exact 'roughly a fifth' figure via a tier-1 WSTA/Nielsen release this session, but the attribution already discharges the hedging requirement."
+  },
+  {
+    "claim_id": "th_2022_p4_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Already attributed to 'the Sovos ShipCompliant and Wines Vines Analytics report' in the text; could not independently pull that report this session, but the named-source attribution already satisfies the hedging bar."
+  },
+  {
+    "claim_id": "th_2022_p4_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Uber Investor Relations / SEC filing",
+      "tier": 1,
+      "ref": "Uber to Acquire Drizly (press release, Feb 2, 2021)",
+      "quote": "Uber Technologies, Inc. (NYSE: UBER) and Drizly today announced that they have reached an agreement for Uber to acquire Drizly for approximately $1.1 billion in stock and cash."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Deal announced Feb 2021, closed Oct 2021 — both within 2021 as the answer states. (Uber later shut Drizly down in 2024, unrelated to this claim.)"
+  },
+  {
+    "claim_id": "th_2022_p4_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "thedrinksbusiness.com (CIVC data)",
+      "tier": 1,
+      "ref": "Champagne shipments could total 320 million bottles for 2021",
+      "quote": "Champagne shipments (bottles) 2021-1999: 2021: est. 320m; 2020: 245m"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p4_q1#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Already attributed to 'China Customs figures' rather than asserted flatly; plausible given the well-documented decline in China's bottled-wine imports post-2018, but not independently re-verified this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q2#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Forbes / Casella Family Brands",
+      "tier": 1,
+      "ref": "Yellow Tail Celebrates 20 Years Of Growth And Innovation (Forbes, Dec 2021)",
+      "quote": "the brand has grown to achieve sales of 13.5 million cases annually in 60 countries around the globe."
+    },
+    "corrected_claim": "Yellow Tail sells on the order of thirteen to fourteen million cases a year worldwide (13.5 million reported for 2021), not ten million.",
+    "corrected_sentence": "Yellow Tail — launched in the US market in 2001 and now selling on the order of thirteen to fourteen million cases a year worldwide — is properly judged on share, penetration, distribution points and average selling price.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "Ten million undersells the brand by nearly a third at the time the answer would have been written; note also that Casella/Yellow Tail sales have since fallen sharply (2025 loss reported amid US tariffs and softer imported-wine demand), so any figure here needs a vintage attached."
+  },
+  {
+    "claim_id": "th_2022_p4_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Forbes / Casella Family Brands",
+      "tier": 1,
+      "ref": "Yellow Tail Celebrates 20 Years Of Growth And Innovation",
+      "quote": "Yellow Tail, the family-owned Australian wine brand ... is celebrating its 20th anniversary in 2021."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p4_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "A large share of branded wine volume in the UK grocery multiples is widely reported to sell on promotion, and the mechanism is a ratchet: each deeper deal resets the consumer's reference price, so the next promotion must be deeper to move the same volume.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Directionally well known (UK multiples' reliance on promotional wine pricing is a long-standing trade complaint, e.g. via the WSTA), but I could not pin the 'large majority' figure to a tier-1 release this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Vivino (company data, corroborated by contemporaneous press)",
+      "tier": 1,
+      "ref": "Vivino user-count reporting, 2022",
+      "quote": "As of 2022, Vivino had a wine database containing more than 15.8 million different wines and nearly 61 million users."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Company's own current 'About' page now cites 74 million+ users, consistent with growth from ~61 million in 2022 — the figure needs a year attached for a candidate reusing it."
+  },
+  {
+    "claim_id": "th_2022_p4_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "gov.scot",
+      "tier": 1,
+      "ref": "Alcohol (Minimum Pricing) (Scotland) Act 2012 — operation and effect 2018 to 2023",
+      "quote": "The Alcohol (Minimum Price per Unit) (Scotland) Order 2018 set the minimum unit price of alcohol at 50p. The legislation came fully into force on 1 May 2018."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Correct for the period the answer describes, but MUP was raised to 65p per unit from 2024 — a candidate must flag that the rate has since moved."
+  },
+  {
+    "claim_id": "th_2022_p4_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "SevenFifty Daily / Decanter China",
+      "tier": 1,
+      "ref": "Wine Is Getting Serious in China's Ningxia Region",
+      "quote": "Ningxia is home to hundreds of wineries and nearly 39,000 hectares of vines"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Cross-checked against Decanter China's 2023 regional table (Helan Mountain East / Ningxia: 40,000 ha) — consistent with the claimed 35,000–40,000 ha range."
+  },
+  {
+    "claim_id": "th_2022_p4_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "LVMH",
+      "tier": 1,
+      "ref": "Ao Yun / Chandon China maison pages",
+      "quote": "Ao Yun is part of Moët Hennessy... Chandon China ... DATE OF FOUNDATION OF CHANDON CHINA: 2013 ... Headquarters ... Yong Ning, Ningxia"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p4_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Eurostat / OIV via Romanian wine sector literature",
+      "tier": 1,
+      "ref": "Geographical distribution and valuation possibilities of new... (2024) / Eurostat Vineyards in the EU",
+      "quote": "Romania ... 188,000 ha (5th place at the European level in terms of wine-growing area)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "180,000 ha 'of the order of' is a close match to Romania's ~187–191k ha (OIV/Eurostat, various recent years); Romania is indeed among the EU's largest vineyard areas (5th–6th)."
+  },
+  {
+    "claim_id": "th_2022_p4_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / WineGB",
+      "tier": 1,
+      "ref": "British wine industry increased plantings by 74% over the past five years",
+      "quote": "There are now 943 vineyards spread across Great Britain, accounting for 3,928 hectares under vine ... England has 3,855ha under vine, while 70.3ha of Wales"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Correct for 2022 data (England+Wales ≈3,925 ha); by 2023 WineGB reported the UK total had passed 4,000 ha (4,209 ha), so the 'under 4,000' framing has since dated."
+  },
+  {
+    "claim_id": "th_2022_p4_q4#4",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "RICS Modus / WineGB trade catalogue",
+      "tier": 1,
+      "ref": "Getting fizzy with it: valuing viticulture in England",
+      "quote": "'After the Taittinger acquisition, people became very interested in wine making in England' ... the vineyard, since named Domaine Evremond"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Also corroborated by WineGB's own 2022 trade tasting catalogue listing 'Louis Pommery England Sparkling NV' from Vranken-Pommery."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The answer explicitly states this is a self-chosen working definition ('There is no agreed threshold, so I set one and use it consistently'), not an asserted fact."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV",
+      "tier": 1,
+      "ref": "State of the World Vine and Wine Sector in 2022",
+      "quote": "the international trade of wine is dominated by three EU countries - Italy, Spain, and France ... In terms of value, France remains the first exporter at world level in 2022 with 12.3 bn EUR ... followed by Italy (7.8 bn EUR)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "France leads by export value with Italy second, consistent with the claim; production leadership between Italy and France varies year to year (Italy usually largest by volume, though France briefly retook the top spot in the poor 2023 harvest)."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible and consistent with general trade knowledge (Germany, USA and UK are consistently Italy's top volume markets) but not independently confirmed against ISTAT/OIV export tables this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "Italy supplies a substantial share of US wine imports by volume — commonly cited as around a third — and is the leading imported origin, but the point is the mix rather than the volume.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Directionally consistent with long-standing US Census/TTB import data showing Italy as the top import origin by volume, but the precise 'a third' figure not re-verified this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "A substantial share of Italian production — commonly put at around half — is consumed within Italy, and the Italian on-trade sells premium domestic wine with no import duty, no importer margin, no freight, no label compliance and no need to explain the appellation.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Plausible given Italy's large domestic market and per-capita consumption, but the precise 'roughly half' fraction not independently sourced this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q5#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "Switzerland is reported to record one of the highest average prices per litre of any Italian export market.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Plausible (Switzerland is consistently a high-value, low-volume market for Italian wine) but not independently sourced against ISTAT data this session."
+  },
+  {
+    "claim_id": "th_2022_p4_q6#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "This is simple unit arithmetic on the hypothetical scenario given in the question itself (a 'one million-case winery' × 12 bottles/case = 12 million bottles), not an external factual assertion."
+  },
+  {
+    "claim_id": "th_2022_p4_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Directionally well supported by published winery/appellation carbon-footprint breakdowns (e.g. Champagne's own reporting shows packaging as the largest single line), and the answer already hedges with 'typically... of the order of a third to a half' rather than a bare figure."
+  },
+  {
+    "claim_id": "th_2022_p4_q6#2",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Internally consistent arithmetic on the hypothetical scenario's own numbers: (550g−400g)×12,000,000 bottles = 1,800,000,000g = 1,800 tonnes. The bottle-weight figures themselves are plausible (see th_2024_p4_q4#0 / th_2025_p4_q2#0 for the underlying weight claims) but this specific entry is the math, not a new external fact."
+  },
+  {
+    "claim_id": "th_2022_p4_q6#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IPCC AR5 / national GHG inventory guidance (Canada.ca, Clean Energy Regulator)",
+      "tier": 1,
+      "ref": "Global warming potentials, IPCC Fifth Assessment Report",
+      "quote": "Nitrous oxide | N2O | 298 (AR4) | 265 (AR5)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Exact match: N2O's 100-year GWP under the IPCC's current (AR5) methodology is 265."
+  },
+  {
+    "claim_id": "th_2022_p4_q6#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent, frequently-repeated trade figure (a 20ft flexitank ≈24,000L vs ≈9,000–10,000L in cased bottles) that recurs identically across three separate answers in this batch (also th_2024_p4_q4#1, th_2025_p4_q2#1), suggesting it is stable industry knowledge, but I did not locate a tier-1 primary source (e.g. a shipping-line or OIV spec sheet) this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Standard viticultural fact (own-rooted/grafted vines typically reach commercial cropping in year 3–4) — low risk, widely taught."
+  },
+  {
+    "claim_id": "th_2023_p4_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "A Bordeaux classed growth or a Burgundian grand cru domaine earns very large margins, but on assets that are extraordinarily expensive: prime land on the Côte des Blancs or the Napa benchland is reported to trade well in excess of a million per hectare in the best sites.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Directionally correct (Champagne grand cru and Napa benchland are both among the world's most expensive vineyard land, commonly reported north of €1m/ha for the best Côte des Blancs parcels) but the precise threshold not sourced to a tier-1 land-price report this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "Removing an importer, a distributor and a retailer from the chain means a bottle sold at the cellar door or through a wine club can return meaningfully more — commonly cited as two to three times — the ex-cellar price of the same wine sold into the trade.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Directionally sound (DTC economics are well understood to strip out multiple trade margins) but the precise multiple is an estimate, not sourced to a specific study this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Systembolaget (omsystembolaget.se)",
+      "tier": 1,
+      "ref": "Promoting human rights / Response from Systembolaget",
+      "quote": "According to our General Terms and Conditions, all suppliers must comply with the requirements in Systembolaget's Code of Conduct... based on amfori BSCI... All of our suppliers, including Swedish importers and producers, must approve and follow the principles of our code of conduct."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q2#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Jackson Family Wines / Familia Torres (torres.es)",
+      "tier": 1,
+      "ref": "International Wineries for Climate Action (IWCA)",
+      "quote": "In February 2019, Familia Torres of Spain and Jackson Family Wines of California co-founded IWCA..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Human Rights Watch / WIETA",
+      "tier": 1,
+      "ref": "Ripe with Abuse: Human Rights Conditions in South Africa's Fruit and Wine Industries",
+      "quote": "The various stakeholders that formed the Wine Industry Ethical Trade Association (WIETA) in 2002 have elaborated a Code of Conduct focused on employment standards."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "New Zealand Wine (nzwine.com)",
+      "tier": 1,
+      "ref": "Sustainable Winegrowing New Zealand",
+      "quote": "Today, 98% of New Zealand's vineyard producing area is SWNZ certified. Over 90% of the wine produced in New Zealand is processed in SWNZ certified facilities."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "98% is well above 'the large majority' claimed, so if anything the answer understates the figure."
+  },
+  {
+    "claim_id": "th_2023_p4_q2#4",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "aviewfrommytable.substack.com (reporting CIVC/SGV statements) / thedrinksbusiness.com",
+      "tier": 1,
+      "ref": "The fight to take the chemicals out of Champagne / What's fuelling the Champagne herbicide debate?",
+      "quote": "in April 2022, the CIVC walked back that decision: Toubart commented lamely that 'while it is easy to say, it is maybe not a good idea'. He was keen to emphasise that a ban on herbicides was 'not an obligation' for growers and was not going to become part of Champagne's Cahier des charges"
+    },
+    "corrected_claim": "The Comité Champagne set a voluntary target (announced 2018) to eliminate herbicide use by 2025, but reversed course on making it binding in April 2022 — it was never written into the appellation's cahier des charges and remains non-obligatory for growers.",
+    "corrected_sentence": "The Comité Champagne has committed the appellation to a collective carbon reduction target, and separately set a voluntary target to phase out herbicide use by 2025 — though in 2022 it stepped back from making that a binding obligation, so on herbicides this is aspiration rather than enforcement.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "The carbon-target half of the sentence is solid, but 'banned herbicides across the region' is contradicted by trade reporting: Champagne set a voluntary 2025 herbicide-elimination goal in 2018 and then explicitly walked back turning it into a rule in April 2022. As of the 2025 CIVC target deadline there is still no regional herbicide ban in the appellation's binding regulations."
+  },
+  {
+    "claim_id": "th_2023_p4_q2#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Directionally uncontroversial (bulk shipping + lightweight glass are well-established levers for reducing a bottle's carbon footprint, and are exactly what Champagne's own sustainability reporting and Systembolaget/UK multiples' tender specs push) but stated as a general mechanism rather than a specific checkable figure."
+  },
+  {
+    "claim_id": "th_2023_p4_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Champagne.fr (Comité Champagne)",
+      "tier": 1,
+      "ref": "The Champagne region",
+      "quote": "The production zone of the Champagne appellation d'origine contrôlée... covers some 34,300 hectares... 34 200 ha across 280,000 plots"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Comité Champagne / thefinestbubble.com (CIVC shipment data)",
+      "tier": 1,
+      "ref": "Champagne ships 326 million bottles in 2022",
+      "quote": "2022 | 326m ... 2019 | 297.5m ... 2018 | 301.9m"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "'Of the order of 300 million bottles a year' is a reasonable rounding for shipments across the years surrounding this 2023 answer (297–326m); note shipments have since fallen further (271m in 2024, 266m in 2025)."
+  },
+  {
+    "claim_id": "th_2023_p4_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible given the grape-price data found this session (Champagne grapes trading at €6–8+/kg, with roughly 1.2kg per bottle implying fruit alone can cost €7-10/bottle before any other production cost), but 'largest single line in cost base' specifically wasn't sourced to a house-level cost breakdown this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q4#0",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named brand examples illustrating a judgement ('have solved recognition at scale') rather than a checkable factual assertion."
+  },
+  {
+    "claim_id": "th_2023_p4_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "19 Crimes is widely credited in trade press with recruiting younger drinkers largely through packaging and an augmented-reality app, and the lesson is instructive — novelty mechanics recruit but rarely retain.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Well-known industry case study (19 Crimes' AR-label app was widely covered on launch) but not re-verified against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q4#2",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named example illustrating a judgement ('shows the opposite risk') rather than a specific checkable fact."
+  },
+  {
+    "claim_id": "th_2023_p4_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible and low-risk (large UK supermarkets are commonly reported to list several hundred wine SKUs) but not tied to a specific retailer's disclosed range size this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established feature of US alcohol regulation (state franchise/dealer-termination laws for beer and, in some states, wine/spirits distribution are a standard trade-press topic), low risk."
+  },
+  {
+    "claim_id": "th_2023_p4_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-known mechanism of Nordic alcohol monopolies (Systembolaget/Vinmonopolet/Alko listings are awarded via published tender processes), low risk."
+  },
+  {
+    "claim_id": "th_2023_p4_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Generic trade-credit knowledge, plausible and low risk; not tied to a specific market survey this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Institute",
+      "tier": 1,
+      "ref": "California & U.S. Wine Production",
+      "quote": "2022 | California 605,500,158 | U.S. 763,444,733"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "605.5M/763.4M = 79.3% for 2022 (the year closest to this 2023 answer), squarely 'of the order of four-fifths'. Note the share has since slipped to 78.5% in 2024 as California output fell faster than the rest of the country."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well established (California's Central Valley/interior accounts for the large majority of the state's crush tonnage, supplying the bulk/entry-level tier) but not tied to a specific CDFA crush-report percentage this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Napa Valley Focus (citing Wine Institute data)",
+      "tier": 1,
+      "ref": "Special Report: California Wine Production Plummets",
+      "quote": "Napa Valley produces only about 4% of California's wine by volume, yet it commands a disproportionate share of the state's retail value."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q6#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia citing Wine Institute (corroborated by freethegrapes.org)",
+      "tier": 1,
+      "ref": "Granholm v. Heald",
+      "quote": "According to the Wine Institute... 47 states permitted at least some form of direct shipping from wineries to consumers, as of August 2021."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Granholm v. Heald, 544 U.S. 460 (2005) decided May 16, 2005 — year is correct. 47 of 50 states is indeed 'the large majority'."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "California Proposition 64 (the Adult Use of Marijuana Act), passed by voters in November 2016, is extremely well documented public record; low risk even though not re-confirmed against a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Rural Migration News (UC Davis) / National Agricultural Law Center",
+      "tier": 1,
+      "ref": "Overtime and California Farm Workers / AB 1066 phase-in schedule",
+      "quote": "AB 1066, the Phase-In Overtime for Agricultural Workers Act enacted in 2016, requires large farm employers to pay overtime wages to workers after eight hours a day or 40 hours a week by 2022."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Phase-in schedule confirmed: 40-hour/8-hour threshold reached for employers of 26+ in 2022, and for smaller employers by 2025."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "California DWR / Wikipedia summarising SGMA text",
+      "tier": 1,
+      "ref": "Sustainable Groundwater Management Act",
+      "quote": "signed into California state law by Governor Jerry Brown in September 2014... seeks to achieve sustainable groundwater management throughout California by 2042... COD basins... by 2040."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "'Early 2040s' correctly captures the 2040/2042 dual deadline structure."
+  },
+  {
+    "claim_id": "th_2023_p4_q6#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Choices Magazine / Downey Brand LLP legal analysis",
+      "tier": 1,
+      "ref": "2020 Winegrape Rejections",
+      "quote": "it is estimated that 165,000–325,000 tons of wine grapes went unharvested in 2020 because of smoke-taint concerns in California alone"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q6#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IWSR / United States Studies Centre",
+      "tier": 1,
+      "ref": "How China's tariffs on Australian wine changed the market landscape",
+      "quote": "producers have turned to other markets in an effort to offset China's losses, targeting a number of countries across Asia, as well as the category's more established Western markets [US, UK, Canada]."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p4_q6#9",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with widely reported 2023–24 California grape-surplus coverage (growers' associations calling for vineyard removal, unpicked fruit, dropped contracts) but not tied to a specific named body/figure this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Already attributed to 'OIV and IWSR data' rather than asserted flatly; plausible given documented post-2021 rosé softening in the US, but the specific France/US framing not independently re-verified this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible Provence rosé retail range and already hedged with 'roughly'/'well over'; not tied to a specific price survey this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#2",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named brand examples supporting a judgement about brand premium rather than a specific checkable figure."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with documented post-2021 US rosé softening; low risk directional claim."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Sutter Home Family Vineyards (company history)",
+      "tier": 1,
+      "ref": "Our Roots",
+      "quote": "In 1975, Bob's 1974 vintage White Zinfandel suffered a stuck fermentation, leaving the wine with a light pink color and about 2 percent residual sugar. Sutter Home's customers loved this delicious new wine style"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The very first White Zinfandel (dry-style) was made in 1972; the pink, stuck-fermentation version that created the style as we know it — which is what the claim describes — dates to the 1975 vintage, squarely 'mid-1970s'."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Sutter Home Winery (Wikipedia, citing SF Chronicle/Wine Spectator)",
+      "tier": 1,
+      "ref": "Sutter Home Winery",
+      "quote": "By 1987, Sutter Home White Zinfandel had become the best-selling premium wine in the United States."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with the claimed late-1980s/early-1990s peak (best-seller by 1987, with the category's broader sales boom continuing into the early '90s before Chardonnay overtook consumer attention)."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#6",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "SevenFifty Daily",
+      "tier": 1,
+      "ref": "Prosecco",
+      "quote": "on August 11, 2020, the Consortium set forth another new change to Prosecco: The introduction of the Prosecco DOC Rosé to the Prosecco DOC production regulation... Prosecco DOC Rosé is a combination of a minimum of 85 percent Glera and 10 to 15 percent Pinot Noir grapes vinified as red."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Vintage-dating requirement ('Millesimato' + year) also confirmed."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Laurent-Perrier Cuvée Rosé is well documented as created in 1968, which is indeed 'more than fifty years' as of a 2024 answer; not re-sourced to a tier-1 citation this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q1#8",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named example (Croft Pink is a real fortified rosé product) used illustratively, with no specific checkable duration or figure attached in this instance."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established historical fact about the Port trade and the London market (British merchant houses such as Croft, Taylor's, Graham's etc. have English/Scottish origins); low risk."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established historical fact: Krug (Johann-Joseph Krug), Deutz, Heidsieck (Florens-Louis Heidsieck) and Mumm all trace to German founders, and Bollinger was co-founded by German-born Joseph Bollinger; low risk, not re-sourced to a tier-1 citation this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Domaine Drouhin Oregon / Maison Joseph Drouhin",
+      "tier": 1,
+      "ref": "News / Pioneers in Oregon",
+      "quote": "Created in 1987 on Oregon's Dundee Hills by Robert Drouhin... it is also in the United States, in Oregon, that the House embarked on a brilliant chapter in July 1987."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Domaine Chandon California / LVMH",
+      "tier": 1,
+      "ref": "Domaine Chandon California, sparkling wines",
+      "quote": "CHANDON California was founded in 1973... DATE OF FOUNDATION OF CHANDON CALIFORNIA: 1973"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q2#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Baron Philippe de Rothschild S.A. / Opus One Winery",
+      "tier": 1,
+      "ref": "Opus One Winery",
+      "quote": "Opus One was created in 1978 by Baron Philippe de Rothschild... The first vintage was made in 1979."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "'End of the 1970s' correctly captures both the 1978 joint-venture founding and 1979 first vintage."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "RICS Modus / WineGB trade catalogue",
+      "tier": 1,
+      "ref": "Getting fizzy with it: valuing viticulture in England",
+      "quote": "After the Taittinger acquisition, people became very interested in wine making in England... the vineyard, since named Domaine Evremond"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Vranken-Pommery's English venture (Louis Pommery England) independently corroborated via WineGB's 2022 trade tasting catalogue."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#6",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "LVMH",
+      "tier": 1,
+      "ref": "Chandon China maison page",
+      "quote": "Chandon China ... DATE OF FOUNDATION OF CHANDON CHINA: 2013 ... Ningxia"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "LVMH's Ningxia investment (Chandon China, 2013) is firmly confirmed; Pernod Ricard's Helan Mountain winery in Ningxia is widely reported in trade press but was not independently re-sourced to a tier-1 citation this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Widely reported (Alejandro Bulgheroni is the publicly known owner behind Bodega Garzón in Uruguay) but not re-sourced to a tier-1 citation this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q2#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia citing contemporaneous reporting / Eurasianet",
+      "tier": 1,
+      "ref": "2006 Russian ban of Moldovan and Georgian wines",
+      "quote": "The 2006 Russian import ban of Moldovan and Georgian wines began in late March 2006... Russia accounted for 80% of Georgian wine sales, and the ban was a major blow to the industry."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q2#9",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Cloudy Bay Vineyards (Wikipedia, corroborated by multiple winery histories)",
+      "tier": 1,
+      "ref": "Cloudy Bay Vineyards",
+      "quote": "Veuve Clicquot took a controlling stake in 1990 and acquired the remaining shares from David Hohnen in 2003; Cloudy Bay now sits fully inside LVMH Moët Hennessy."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "By the time LVMH/Veuve Clicquot took its stake (1990) and full ownership (2003), Cloudy Bay (founded 1985) had already made Marlborough Sauvignon Blanc world-famous, supporting the 'after Marlborough was already proven' framing."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "Two margins stack — an importer typically takes a meaningful cut, commonly cited in the order of a quarter to a third, and a distributor a similar margin again — so my ex-cellar price can roughly triple by the time it reaches a restaurant list, before the restaurant applies its own multiple.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Directionally standard trade knowledge about three-tier margin stacking, but the precise 25–30% importer figure is a plausible estimate rather than a sourced statistic this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": "Restaurants commonly price a bottle at a multiple of their wholesale cost, often cited as two and a half to three times.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Widely repeated trade rule of thumb; not tied to a specific tier-1 survey this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Generic trade-credit knowledge, plausible and low risk."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Hong Kong Customs and Excise Department / Singapore Customs",
+      "tier": 1,
+      "ref": "Types and Duty Rates / List of Dutiable Goods",
+      "quote": "Wine | 0% [duty rate, Hong Kong] ... Wine [Singapore] 55.11 / 69.30 [S$ per litre of alcohol, i.e. levied per litre of pure alcohol content]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Hong Kong abolished wine duty in February 2008 (0% today); Singapore's excise on wine is charged per litre of alcohol × ABV, i.e. levied by alcohol volume as claimed."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#4",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named UK importer examples, no specific checkable assertion attached."
+  },
+  {
+    "claim_id": "th_2024_p4_q3#5",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named US importer examples, no specific checkable assertion attached."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible bottle-weight range (standard 750ml glass commonly falls in the 400–550g band, lightweight formats nearer 300–400g) and low risk; note other answers in this batch cite different reference points (550g and 700g+ as 'standard heavy' bottles) — these are not strictly inconsistent since bottle weights vary widely by style/producer, but a candidate should treat any single figure as illustrative rather than a fixed standard."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Same recurring flexitank figure as th_2022_p4_q6#4 — internally consistent across three answers in this batch but not independently sourced to a tier-1 primary source this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "medium",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Multiple converging secondary/consumer sources (retailer FAQs, Food & Wine's own shelf-life test) consistently cite bag-in-box wine as holding condition for roughly four to six weeks after opening once refrigerated, which corroborates the claim, though none of these is a tier-1 source under this project's rubric."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Directionally plausible given the UK duty figures found this session (duty on a ~12.5% ABV bottle was ~£2.67 as of Aug 2023, plus VAT, plus glass/packaging cost) — on a £6 shelf price, duty+VAT+packaging together plausibly exceed half the retail price, though the precise 'great majority' framing wasn't independently tested against a WSTA breakdown this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with well-known Nordic monopoly tender practice (Systembolaget's own sustainability/climate scoring criteria are public) but not independently re-sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q4#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible (bag-in-box is well known to be a large share of Nordic monopoly and French supermarket volume) but the specific share figures not sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well known that UK supermarket own-label represents a substantial share of off-trade wine volume, but the specific figure not tied to a Nielsen/IWSR release this session."
+  },
+  {
+    "claim_id": "th_2024_p4_q5#1",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Descriptive/illustrative statement about a general retail practice, no specific checkable figure."
+  },
+  {
+    "claim_id": "th_2024_p4_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Consistent with widely reported 2023 Catalonia drought impacting Penedès grape supply; low risk."
+  },
+  {
+    "claim_id": "th_2024_p4_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established EU 'wine lake' policy history (vine-pull schemes and crisis distillation in Bordeaux and the Languedoc are extensively documented CAP-era interventions); low risk."
+  },
+  {
+    "claim_id": "th_2024_p4_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Standard viticultural fact, low risk."
+  },
+  {
+    "claim_id": "th_2024_p4_q6#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Champagne.fr (Comité Champagne)",
+      "tier": 1,
+      "ref": "FAQ / Maturation on lees",
+      "quote": "non-vintage wines must be aged in a cellar for at least 15 months and vintage wines for at least 3 years"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "BBC / Reuters",
+      "tier": 1,
+      "ref": "China removes tariffs on Australian wine as relations improve",
+      "quote": "Beijing imposed taxes of more than 200% in 2020... China's government has officially abolished heavy tariffs on Australian wine [28 March 2024]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q6#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Gallet Dreyer & Berkey / USTR",
+      "tier": 1,
+      "ref": "The Tariff Wars: You're Going to Need a Drink",
+      "quote": "Since October 18, 2019, wine, Scotch, and other alcoholic beverages from the EU are now subject to a 25% tariff at US ports."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q6#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "GOV.UK",
+      "tier": 1,
+      "ref": "Alcohol Duty: rate changes",
+      "quote": "Wine between 11.5% and 14.5% ABV will be treated as if it is 12.5% ABV for the purposes of calculating the charge to Alcohol Duty from 1 August 2023"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p4_q6#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Pinsent Masons / hillebrandgori.com",
+      "tier": 1,
+      "ref": "Alcohol duty in the UK",
+      "quote": "there are new measures that could help [small producers]: New UK draught relief and Small Producer Relief"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "UK Small Producer Relief confirmed alongside the 2023 duty reform; the US Craft Beverage Modernization Act similarly provides reduced federal excise tax rates/credits for small wine producers."
+  },
+  {
+    "claim_id": "th_2024_p4_q6#6",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Illustrative description of a general industry practice (custom-crush/contract-crush facilities exist in these regions) rather than a specific checkable figure."
+  },
+  {
+    "claim_id": "th_2024_p4_q6#7",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established EU CAP wine-sector support (the wine Common Market Organisation funds vineyard restructuring, promotion, investment) — low risk, not re-sourced to a specific EU regulation this session."
+  },
+  {
+    "claim_id": "th_2025_p4_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wikipedia citing CJEU judgment / wein.plus",
+      "tier": 1,
+      "ref": "Champagne / Crémant",
+      "quote": "Even the terms méthode champenoise and Champagne method were forbidden by an EU court decision in 1994... 'the description most often used for sparkling wines using the second fermentation in the bottle process, but not from the Champagne region, is méthode traditionnelle.'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "EU restriction on 'méthode champenoise' for non-Champagne wine traces to Council Regulation 3309/85 and was reaffirmed by the CJEU in 1994 — both land squarely in 'the 1990s' as the answer states (with the regulatory groundwork slightly earlier, in the mid-1980s)."
+  },
+  {
+    "claim_id": "th_2025_p4_q1#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "thedrinksbusiness.com",
+      "tier": 1,
+      "ref": "Has Champagne become too expensive?",
+      "quote": "the price of grapes, which are now averaging over €7 per kilogram, with each bottle needing at least 1.2kg of grapes."
+    },
+    "corrected_claim": "By 2024–2025, Champagne grape prices had risen to average over €7/kg (with premium Grand Cru fruit higher still), not €6/kg.",
+    "corrected_sentence": "Grapes trade at of the order of €7 or more per kilogramme, and the pressing rules imply roughly 1.2 kilogrammes of fruit per 75cl bottle, so fruit alone costs somewhere around €8–9 a bottle before base wine, tirage, a legal minimum of fifteen months on lees for a non-vintage wine.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "€6/kg was accurate for the average Grand Cru price around 2022, but grape prices rose further into 2023–2025 (Avize grower prices went from €7.87/kg in 2022 to €8.66/kg in 2023, and thedrinksbusiness reported an average over €7/kg by early 2025) — a candidate quoting €6/kg for a 2025-dated answer understates the current cost base."
+  },
+  {
+    "claim_id": "th_2025_p4_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Champagne.fr (Comité Champagne)",
+      "tier": 1,
+      "ref": "FAQ",
+      "quote": "1.2kg of grapes are required to make one bottle of Champagne."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Champagne.fr (Comité Champagne)",
+      "tier": 1,
+      "ref": "FAQ",
+      "quote": "Under the regulations, non-vintage wines must be aged in a cellar for at least 15 months"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q1#4",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "thefinestbubble.com (CIVC shipment series) / Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "Champagne ships 326 million bottles in 2022 / Shipments since 1844",
+      "quote": "2007 | 338.7m [the all-time record] ... 2023 314m ... 2024 271m ... 2025 266m"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "338.7m rounds comfortably to 'roughly 340 million', and shipments in every year since have remained below that 2007 peak."
+  },
+  {
+    "claim_id": "th_2025_p4_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "The Guardian",
+      "tier": 1,
+      "ref": "Prosecco topples champagne as top sparkling tipple",
+      "quote": "prosecco had overtaken champagne as its customers' favourite sparkling tipple [Dec 2013]... Since 2013, Prosecco's production has consistently been much higher than Champagne's."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Prosecco DOC now ships roughly double Champagne's volume; the 2013 overtaking date is over a decade before this 2025 answer, matching 'more than a decade ago'."
+  },
+  {
+    "claim_id": "th_2025_p4_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Plausible bottle-weight range for a 'heavy' standard bottle moving to a lightweight one; low risk."
+  },
+  {
+    "claim_id": "th_2025_p4_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Same recurring flexitank figure as th_2022_p4_q6#4 and th_2024_p4_q4#1."
+  },
+  {
+    "claim_id": "th_2025_p4_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV",
+      "tier": 1,
+      "ref": "World Wine Production Outlook 2023 / State of the World Vine and Wine Sector in 2024",
+      "quote": "In 2023, world wine production is expected to be the smallest in the last 60 years... In 2024, the total output fell to 225.8 million hectolitres - the lowest in over 60 years"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV / Wine Data Researcher summary",
+      "tier": 1,
+      "ref": "STATE OF THE WORLD VINE AND WINE SECTOR IN 2023",
+      "quote": "this decline will signify a consistent downward trend since 2018, culminating in the lowest consumption volume since 1996."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "2024 consumption fell further still, to its lowest since 1961 per OIV — 'around where it stood in the mid-1990s' remains a fair characterisation of the general order of magnitude."
+  },
+  {
+    "claim_id": "th_2025_p4_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "NABCA",
+      "tier": 1,
+      "ref": "Control State Directory and Info",
+      "quote": "Seventeen states and jurisdictions in Alaska, Maryland, Minnesota and South Dakota adopted forms of the 'Control' model. They control the sale of distilled spirits and, in some cases, wine and beer through government agencies at the wholesale level."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "NABCA / koronapos.com summary of NABCA data",
+      "tier": 1,
+      "ref": "Control State Directory and Info / What are Alcohol Control States?",
+      "quote": "These states include Alabama, Idaho, New Hampshire, North Carolina, Pennsylvania, Utah, Virginia, and Washington [state-run retail]... 17 alcohol control states: ... Mississippi ..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Pennsylvania, Utah and New Hampshire are confirmed state-run-retail control states; Mississippi is confirmed as one of the 17 control jurisdictions (wholesale control), consistent with the claim's 'among them' framing."
+  },
+  {
+    "claim_id": "th_2025_p4_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Fraser Institute / Reason Foundation, Washington OFM",
+      "tier": 1,
+      "ref": "Success of Alberta's liquor store privatization / State Liquor Privatization Update",
+      "quote": "In early September 1993, Alberta announced it would privatize its government liquor stores... On June 1, 2012, Washington State became the first state since the end of Prohibition... to dissolve its state-run monopoly on the distribution and sale of distilled spirits"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Bouchard Père & Fils / Maison Joseph Drouhin / Wikipedia (Maison Joseph Drouhin)",
+      "tier": 1,
+      "ref": "The domaine — Bouchard Pere & Fils / Founding years in Beaune",
+      "quote": "1731: Founding years in Beaune. Michel Bouchard (1692–1755) settled in Beaune... founded in Beaune in 1880 [Joseph Drouhin]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Bouchard Père & Fils (1731) and Champy (long cited industry-wide as Burgundy's oldest négociant house, founded 1720) both fall in the 18th century; Albert Bichot (1831) and Joseph Drouhin (1880) both fall in the 19th century, matching the claim's structure."
+  },
+  {
+    "claim_id": "th_2025_p4_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Both the April 2016 and April 2021 Burgundy/Chablis frost events are extremely well documented in trade and general press (widely covered as some of the most damaging spring frosts in a generation); low risk despite not being re-sourced to a tier-1 citation this session."
+  },
+  {
+    "claim_id": "th_2025_p4_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Spectator / Artémis Domaines press release (bourgogne-wines.com)",
+      "tier": 1,
+      "ref": "Château Latour Owner Artémis Domaines Buys Majority Stake in Henriot / press release",
+      "quote": "This transaction is effective as of September 30, 2022... Artémis Domaines and Maisons & Domaines Henriot unite their wine estates [including Bouchard Père & Fils]"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p4_q6#3",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Named micro-négociant examples (Benjamin Leroux, Lucien Le Moine) illustrating a category of Burgundy business model, not a specific checkable assertion."
+  }
+]

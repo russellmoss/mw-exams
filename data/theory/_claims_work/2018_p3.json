@@ -1,0 +1,679 @@
+[
+  {
+    "claim_id": "th_2018_p3_q1#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Spoilage issues in Pinot Noir (https://www.awri.com.au/wp-content/uploads/2019/08/s2105.pdf) and Avoiding spoilage caused by lactic acid bacteria (https://www.awri.com.au/wp-content/uploads/2011/06/Avoiding-spoilage-from-LAB.pdf)",
+      "quote": "The AWRI generally recommends that a concentration of 0.6mg/L of molecular SO2 be achieved in red wines to inhibit the growth of bacteria and yeast ... Lactic acid bacteria are more sensitive to SO2 than yeast and a molecular SO2 concentration of 0.8 mg/L will inhibit their growth."
+    },
+    "corrected_claim": "a molecular SO2 target of about 0.6 mg/L for a dry red, rising to 0.8 mg/L where microbial risk is higher, including wines holding residual sugar",
+    "corrected_sentence": "The target is molecular SO2 of about 0.6 mg/L for a dry red — the AWRI's standard recommendation — rising to the 0.8 mg/L that inhibits lactic acid bacteria where risk is higher, as in a wine holding residual sugar.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The two figures are real and tier-1 sourced, but the answer attaches 0.8 mg/L to 'where sugar is present'. AWRI attaches 0.8 mg/L to inhibition of lactic acid bacteria generally, and gives 0.6 (not 0.5-0.6) as the red-wine recommendation. An examiner who knows the AWRI position would mark the attribution, not the number."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding spoilage caused by lactic acid bacteria (https://www.awri.com.au/wp-content/uploads/2011/06/Avoiding-spoilage-from-LAB.pdf)",
+      "quote": "the pH and SO2 concentration should be such that >0.6 mg/L of molecular SO2 is present in the wine just after bottling. For example, if the pH is 3.5, then the free SO2 concentration should be at least 30 mg/L."
+    },
+    "corrected_claim": "at pH 3.4 that is roughly 25 mg/L free, at pH 3.5 about 30 mg/L, and at pH 3.8 nearer 60 mg/L",
+    "corrected_sentence": "The target is molecular SO2 of about 0.6 mg/L for a dry red; at pH 3.4 that is roughly 25 mg/L free, at pH 3.5 about 30 mg/L, and at pH 3.8 nearer 60 mg/L.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The AWRI's own anchor point is pH 3.5 = 30 mg/L free for 0.6 mg/L molecular. On the same dissociation relationship (pKa 1.81) 0.6 molecular needs ~24 mg/L at pH 3.4 and ~59 mg/L at pH 3.8. The answer's figures (30 and 75) correspond to about 0.75 mg/L molecular, so they are internally inconsistent with the 0.5-0.6 target stated in the same sentence, and ~25% high. This is exactly the sort of pair a candidate memorises together and gets caught on."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV (reproducing Commission Delegated Regulation (EU) 2019/934) and EUR-Lex",
+      "tier": 1,
+      "ref": "https://www.oiv.int/public/medias/7840/oiv-collective-expertise-document-so2-and-wine-a-review.pdf ; https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "EU White/Rosé < 5g/L sugars 200 ... Red < 5g/L sugars 150 ... Commission Delegated Regulation (EU) 2019/934"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Also confirmed: those ceilings apply below 5 g/L sugar; at or above 5 g/L they rise to 200 (red) and 250 (white/rosé). Flagged time_sensitive because the 2019/934 recital explicitly says the limits 'could be re-examined at a later date with a view to further reducing them'."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (Commission Delegated Regulation (EU) 2019/934, Annex I Part B, A.2(e))",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32019R0934",
+      "quote": "400 milligrams per litre for: — wines entitled to the descriptions 'Beerenauslese', 'Ausbruch', 'Ausbruchwein', 'Trockenbeerenauslese', 'Strohwein', 'Schilfwein' and 'Eiswein' ... — white wines entitled to one of the following protected designations of origin: Sauternes, Barsac, Cadillac, Cérons, Loupiac, Sainte-Croix-du-Mont, Monbazillac, Bonnezeaux, Quarts de Chaume, Coteaux du Layon..."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "The 400 mg/L tier is a named-category derogation (BA/TBA/Eiswein/Ausbruch/Strohwein plus a closed list of sweet white PDOs), not a general 'sweetest categories' allowance; a 300 mg/L tier sits below it. The answer's wording is loose but not wrong."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Avoiding microbiological instabilities (https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance/)",
+      "quote": "It is our experience that any measurable level of these nutrients can have the potential to act as a substrate for microbial growth. Winemakers should therefore be aiming to achieve concentrations below the detection limits for these nutrients, by enzymatic assay. These levels are 0.1 g/L for Glucose + Fructose, and 0.05 g/L for malic acid."
+    },
+    "corrected_claim": "below about 0.1 g/L confirms it is finished — the AWRI target is under the enzymatic detection limit of 0.05 g/L",
+    "corrected_sentence": "Malic acid tells whether malolactic fermentation is complete or was blocked: below about 0.1 g/L confirms it is finished, with the AWRI target being under the enzymatic detection limit of 0.05 g/L; a wine deliberately holding malic must be bottled sterile.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The upper bound of the stated range is the problem. AWRI's position is that any measurable malic is a substrate, with 0.05 g/L the enzymatic detection limit; Cornell and OSU protocols both use <0.1 g/L (<50 mg/L) as 'MLF complete'. No tier-1 source treats 0.3 g/L residual malic as safe, and a candidate writing 0.3 g/L would be stating the opposite of best practice."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms/)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration. ... It is a long-held belief in the wine industry that tight surface filtration such as membrane or sterile filtration below 0.45 μm will strip the aroma and colour from 'big' red wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI notes the stripping concern is a 'long-held belief' and that modern non-polar membrane materials cause minimal colour adsorption, so the phenolic-stripping rationale for choosing 0.65 µm is industry practice rather than demonstrated fact."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#6",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Measuring heat stability of wine (https://www.awri.com.au/industry_support/winemaking_resources/laboratory_methods/chemical/heat_stab/)",
+      "quote": "Heat the sample at 80°C for two hours. While six hours has been typical industry practice for the heat test, recent research has shown that two hours of heating time is sufficient."
+    },
+    "corrected_claim": "Protein instability is assessed by a heat test at 80°C — two hours on current AWRI method, six on the older industry practice",
+    "corrected_sentence": "Protein instability is assessed by a heat test at 80°C — two hours on the current AWRI method, six on the older industry practice — with a turbidity rise above about 2 NTU calling for a bentonite trial and addition.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "Temperature is right, duration is the superseded protocol. AWRI now specifies 2 hours heating and 3 hours cooling for white, rosé and red, and explicitly labels six hours as what 'has been typical industry practice'. A candidate quoting six hours is quoting the old method."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Measuring heat stability of wine (https://www.awri.com.au/industry_support/winemaking_resources/laboratory_methods/chemical/heat_stab/)",
+      "quote": "| White wine | 2 hours | 3 hours | < 2.0 NTU | ... *Some laboratories require turbidity differences of <0.5 NTU for a pass result."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's pass criterion is a turbidity difference <2.0 NTU across all three matrices, so a rise above 2 NTU is a fail and triggers bentonite. Worth knowing that some labs tighten this to <0.5 NTU."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/pre-bottling-wine-adjustments-and-specifications/) and Filtration – physical removal of microorganisms",
+      "quote": "| **Turbidity** | NTU | <1.0 | <1.0 | <1.0 | <1.0 | – | ... A commonly used threshold for bottling is <1.0 NTU however an NTU reading of <1.0 is not necessarily a guarantee that the filter medium will not block up"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's pre-bottling target table gives <1.0 NTU for white, red and cask wines alike, so the figure is not specific to whites — but it is not wrong as written."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#9",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI; Virginia Tech Enology; EUR-Lex Reg (EU) 2019/934",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/pre-bottling-wine-adjustments-and-specifications/ ; https://enology.fst.vt.edu/EN/85.html ; https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "AWRI pre-bottling target: '| **Copper** | mg/L | <0.50 |' ; Virginia Tech: 'yeast fining is a practical means of removing excess copper (greater than 0.5 mg/L)' ; Reg 2019/934 (copper sulphate / copper citrate treatment): 'the copper content of the product so treated does not exceed 1 mg/l'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Both halves check out. One nuance: the EU 1 mg/l is written as a condition attached to copper sulphate/copper citrate treatment (with 2 mg/l allowed for certain liqueur wines), rather than as a free-standing product limit — accurate enough for exam purposes."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#10",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/pre-bottling-wine-adjustments-and-specifications/) and Revisiting sulfur dioxide use (https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/microbiological/avoidance/sulfur_dioxide)",
+      "quote": "| **Dissolved oxygen** | mg/L | <1.0 | ... the concentration of DO in wine increases by about 0.5 mg/L during bottling under ideal, industry best practice conditions, and will commonly be in the range of 1.0 to 1.5 mg/L when conditions are less than ideal."
+    },
+    "corrected_claim": "dissolved oxygen held below about 1 mg/L for an age-worthy white, with total package oxygen — dissolved plus headspace — specified separately and higher",
+    "corrected_sentence": "Dissolved oxygen and total package oxygen are measured on filled bottles off the line, with dissolved oxygen held below about 1 mg/L for an age-worthy white and total package oxygen specified separately; a high reading stops the line and sends the operator to the filler bowl inerting and the vacuum-jetting step.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "AWRI's <1.0 mg/L target is for dissolved oxygen. Total package oxygen is DO plus headspace oxygen and is by definition the larger number, so applying a single 1 mg/L ceiling to both conflates two different measurements. The sentence is right in spirit and wrong in the detail an examiner in this subject would notice."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#11",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (Commission Delegated Regulation (EU) 2019/934, Annex I Part C)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/eli/reg_del/2019/934/oj/eng",
+      "quote": "The volatile acid content may not exceed: (a) 18 milliequivalents per litre for partially fermented grape must; (b) 18 milliequivalents per litre for white and rosé wines; or (c) 20 milliequivalents per litre for red wines."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "20 meq/L x 60.05 mg/mmol = 1.20 g/L acetic acid, so 1.2 g/L is exactly the red-wine ceiling. Whites and rosés are tighter at 18 meq/L (1.08 g/L), and derogations exist for certain PDO and overripe-grape wines. The answer's hedge 'of the order of' carries it."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#12",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "DEFRA / UK legislation explanatory memorandum, citing Commission Delegated Regulation (EU) 2019/33 Article 44",
+      "tier": 1,
+      "ref": "https://www.legislation.gov.uk/ukdsi/2023/9780348243598/pdfs/ukdsiem_9780348243598_en.pdf ; EUR-Lex OJ C_202400694",
+      "quote": "All labelling of wine will continue to be subject to the application of the 0.5% or 0.8% analytical tolerance provided for in Article 44 (Actual Alcoholic Strength) of Regulation (EU) No 2019/33."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "0.5% vol is the standard tolerance and correct for a young still wine at bottling, which is the context. A wider 0.8% vol tolerance applies to certain categories (sparkling, liqueur, overripe-grape wines and wines stored in bottle for more than three years). I could not open Article 44's own text — the figure is confirmed via UK government and EUR-Lex documents quoting it, hence medium rather than high confidence."
+  },
+  {
+    "claim_id": "th_2018_p3_q1#13",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex (Commission Regulation (EC) No 1881/2006, Annex, point 2.2; now recast as Commission Regulation (EU) 2023/915)",
+      "tier": 1,
+      "ref": "https://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ%3AL%3A2006%3A364%3A0005%3A0024%3AEN%3APDF",
+      "quote": "maximum level of 2 µg/kg for wine (including sparkling wine) and grape juice"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Correct, including the fact that the limit is expressed per kilogram rather than per litre. Reg 1881/2006 was repealed and replaced by Reg (EU) 2023/915 in 2023, which carries the maximum levels forward — cite the current instrument if the answer names a regulation."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched the KB (no bulk-transport or intermodal-container content at all) and tier-1 web (wineaustralia.com, oiv.int, nzwine.com, wosa.co.za, ec.europa.eu). The only sources carrying ISO tank capacities and compartment counts for wine are freight forwarders and flexitank manufacturers (Hillebrand Gori, SIA Flexitanks, Savino Del Bene, Bertling), which are commercial suppliers, not tier-1. Note also that 24,000 L is the figure those sources attach most often to flexitanks; for ISO tanks they give ranges without a single typical value. Recommend hedging to 'of the order of 24,000 litres'."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same search as q2#0. Commercial sources cluster on 'typically 16,000 to 24,000 litres', with 24,000 L the most-cited maximum (Hillebrand Gori's LCA is built on a 24,000-litre flexitank); I found nothing supporting a 26,000 L upper bound, tier-1 or otherwise. The lower bound and the general order of magnitude are consistent across sources. Suggest 'usually 16,000 to 24,000 litres'."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Only source found is a flexitank manufacturer's CEO quoted in FreightWaves: 'You'll get 9,000 bottles of wine into a 20-foot container.' That is a supplier with an interest in the comparison, not tier-1, and 9,000 x 0.75 L = 6,750 L which rounds to the answer's 7,000 L. The arithmetic is self-consistent; the source is not one a verdict can rest on."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Follows arithmetically from q2#2 on the same non-tier-1 source (24,000 L bulk vs ~6,750 L packaged = ~3.5x). Defensible as an order-of-magnitude point; not sourceable to a regulator, research institute or trade body."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "This is the riskiest number in the answer because it is precise, quotable and attributed to nobody. Searched Wine Australia (including the AWR-2201 LCA final report and the Emissions Reduction Roadmap), NZ Wine, OIV and ec.europa.eu. The Wine Australia LCA reports absolute kg CO2e/L by scenario rather than a bulk-versus-bottled percentage, and I could not extract the bulk-export module cleanly from the PDF. NZ Wine's LCA attributes 35% of emissions to packaging and 22% to shipping, which does not yield a 30-40% transport figure. The answer's own hedge 'a commonly cited saving' is honest and should be kept; do not harden it."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#5",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia",
+      "tier": 1,
+      "ref": "Cost, climate, consumers: influences on changes in wine packaging, Market Bulletin issue 297 (https://www.wineaustralia.com/news/market-bulletin/issue-297)",
+      "quote": "Packaging is estimated to contributed 44 per cent of these emissions, with heavy glass bottles being the main contributor (34.4 per cent of total emissions)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Corroborated by NZ Wine's food-miles LCA (packaging 35% of total emissions for a Marlborough Sauvignon Blanc, larger than shipping at 22%, 'namely due to embodied emissions of glass bottles'). Time-sensitive because lightweighting and higher cullet rates are actively moving the number down."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The principle is tier-1 supported — Bragato Research Institute: 'Free SO2 levels consistently decline during shipping as oxygen is absorbed and bound. The rate of this decline varies widely ... reinforcing the importance of conservative setpoints at dispatch' — but no source gives 35-45 mg/L. For context, AWRI's normal pre-bottling target for white table wine is 28-32 mg/L free and its survey of 3,167 Australian wines put the white median at 32 mg/L, so 35-45 is a plausible uplift but an unsourced one. AWRI's bulk-transport trial report is behind a levy-payer password."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#7",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "OENO One (IVES open science) review of transport conditions; AWRI Technical Note TN09",
+      "tier": 1,
+      "ref": "https://oeno-one.eu/article/view/4524 ; https://www.awri.com.au/wp-content/uploads/TN09.pdf",
+      "quote": "high variations in temperature (from -10°C to 67°C) in a shipping container; this can include a steady increase in temperature affecting wines shipped from winter temperatures to equator temperatures ... The most extreme shipping temperatures are experienced during the trans-shipment phase, since relay ports are often located close to the equator."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Comfortably supported — the documented ceiling in shipping containers (67°C) is well above the 40°C the answer claims. Same review records that wines exposed to over 40°C 'even for a short time, showed visual and sensory changes'. Medium rather than high only because the studies cited are of bottled, not bulk, shipments."
+  },
+  {
+    "claim_id": "th_2018_p3_q2#8",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Consejo Regulador DOCa Rioja",
+      "tier": 1,
+      "ref": "Estatutos / Reglamento DOCa Rioja, Artículo 32 (https://riojawine.com/wp-content/uploads/2018/08/Estatutos.pdf); corroborated by the Pliego de Condiciones 2021, b.10.5 'Embotellado en origen'",
+      "quote": "El embotellado de vinos amparados por la denominación de origen calificada Rioja deberá ser realizado exclusivamente en las bodegas inscritas autorizadas por el Consejo Regulador, perdiendo el vino en otro caso el derecho al uso de la denominación."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": "Registered bottling bodegas must be 'situadas en la zona de producción' (Art. 23), so the rule is a bottling-in-region rule in substance. Priorat's pliego carries an identical requirement, which would make a second example if one is wanted. Flagged time_sensitive because in-region bottling rules have repeatedly been litigated at EU level."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "CETIE (GME finish data sheets, citing EN 12726); AWRI",
+      "tier": 1,
+      "ref": "https://www.cetie.org/en/finish-data-sheets-gme_125.html ; https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/packaging-operations/applying-cylindrical-closures",
+      "quote": "CETIE: 'refer to the standard EN 12726 - PACKAGING - CORK MOUTH FINISH WITH A BORE DIAMETER OF 18,5 mm FOR CORKS AND TAMPER EVIDENT CAPSULES'. AWRI closure table lists lengths x diameters of 38 x 24, 44 x 24 and 49 x 24 mm."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Both numbers check out: EN 12726 is the 18.5 mm cork mouth finish, and every closure size in AWRI's own extraction-force table is 24 mm diameter. Note the CETIE internal-diameter spec is a taper (18-19 mm at 3 mm depth, 19-21 mm at 45 mm depth), so '18.5 mm bore' is the nominal entry, not a constant."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Comité Champagne (champagne.fr); Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "https://www.champagne.fr/en/champagne-frequently-asked-questions ; https://maisons-champagne.com/en/appellation/stages-in-winemaking/from-grape-must-to-still-wines/article/tirage-or-bottling-the-blended-wine",
+      "quote": "Comité Champagne: 'The pressure inside a Champagne bottle is within the range of 5 to 6 bar.' UMC: 'the addition of the liqueur de tirage is precisely calculated to produce an increase in pressure of 6 kg/cm2 by the end of fermentation.'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "'Up to 6 bar' is the right way to put it — the Comité Champagne gives 5-6 bar as the range and UMC gives 6 kg/cm2 as the tirage target. The '20°C' qualifier is also correct practice: OIV's method of analysis expresses sparkling-wine overpressure as Paph20, i.e. at 20°C."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#2",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "CETIE (GME13.08 finish data sheet)",
+      "tier": 1,
+      "ref": "https://www.cetie.org/en/finish-data-sheets-gme_102.html",
+      "quote": "GME13.08 — Traditional Method Sparkling Wine Finishes: diameters 26 mm, 29 mm and 36 mm, for 'sparkling wine produced by the Traditional method', designed to take a crown cap and cork stopper combination."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "26 mm is one of three standardised traditional-method crown finishes; 29 mm is the other common one (CETIE also publishes a dedicated 29 mm Spumante crown finish). Writing '26 mm' as if it were the only option is slightly narrow but is a real CETIE specification, so I would not correct it — a candidate could safely write 'a 26 or 29 mm crown cap'."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#3",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI (reproducing CE.T.I.E 2008 and McMahon 1994)",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/packaging-operations/applying-cylindrical-closures",
+      "quote": "Closure length (mm) 38 x 24: McMahon 230–400 N, CE.T.I.E 120–350 N; 44 x 24: McMahon 250–450 N, CE.T.I.E 120–400 N, synthetic 100–450 N; 49 x 24: McMahon 270–480 N."
+    },
+    "corrected_claim": "cork extraction force is specified in the region of 12-45 daN depending on closure length and the standard applied",
+    "corrected_sentence": "Extraction force is a specification, not an accident: cork is specified in the region of 12-45 daN depending on closure length and standard, and a cork above that range is a consumer problem and a restaurant one.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "20-40 daN sits inside the real envelope but is narrower than any published spec. CETIE 2008 as reproduced by AWRI runs 12-40 daN; McMahon 1994 runs 23-48 daN; the Cork Quality Council's ISO 9727-5 specification for a 45 x 24 mm cork is 15-45 daN. The point the answer is making — that it is a purchased specification with a defined window — survives; the window is wider than stated."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#4",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Applying screw cap closures (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/packaging-operations/applying-screw-cap-closures)",
+      "quote": "The oxygen transmission rate (OTR) of Saran Tin liners is typically 0.00005-0.0005 cc O2/day, with the Saranex liner an order of magnitude higher at around 0.0001-0.001 cc O2/day."
+    },
+    "corrected_claim": "a tin-Saran lined screwcap admits very little — roughly 0.02-0.2 cc, of the order of 0.03-0.3 mg, of oxygen a year — with a Saranex liner about an order of magnitude higher, nearer 0.5 mg a year",
+    "corrected_sentence": "A tin-Saran lined screwcap admits very little, of the order of 0.05 mg of oxygen a year, with a Saranex liner roughly an order of magnitude higher at around 0.5 mg; natural cork admits roughly 0.5 to more than 4 mg a year; a technical micro-agglomerate cork is manufactured to a declared OTR class; and a co-extruded synthetic sits at the top of that range.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The figure is misattributed to the wrong liner by roughly a factor of ten. AWRI's tin-Saran range of 0.00005-0.0005 cc O2/day works out at about 0.02-0.18 cc/year, i.e. roughly 0.03-0.26 mg O2/year. 0.5 mg/year is the Saranex number — the peer-reviewed closure trial in PMC9505717 specifies '30 × 60 mm ROPP Stelvin capsules with Saranex liners ... with an average OTR of 0.5 mg/year'. This matters in the answer's own argument, because the tin-Saran/Saranex gap is precisely why European producers choose Saranex to avoid reduction, a point the answer makes elsewhere."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI (qualitative); Oliveira et al. 2013, Amorim / University of Bordeaux (quantitative, reached via a Vinventions technical article)",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/wp-content/uploads/2019/03/oxygen-transmission-rate.pdf ; https://eu.vinventions.com/en/challenges/technical-article/review-of-closure-technologies-and-oxygen-management",
+      "quote": "AWRI: 'Natural corks can show high levels of variability in their permeability, depending on the grade of cork used.' Oliveira et al.: a population of 600 corks tubed from only 2 planks varied 'from 0.5 to more than 4 mg of oxygen over 1 year'."
+    },
+    "corrected_claim": "natural cork admits roughly 0.5 to more than 4 mg a year, and the variability between individual corks is itself the defining problem",
+    "corrected_sentence": "A tin-Saran lined screwcap admits very little; natural cork admits roughly 0.5 to more than 4 mg a year, with the spread between individual corks from the same plank the defining problem; a technical micro-agglomerate cork is manufactured to a declared OTR class; and a co-extruded synthetic sits at the top of the range.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The lower bound is right and the upper bound truncates the tail that makes cork's case difficult. AWRI (tier-1) confirms high variability qualitatively but its fact sheet publishes the values only as a bar chart with no readable numbers; the 0.5-to->4 mg spread comes from an Amorim/University of Bordeaux study that I could only reach through a closure company's technical article, hence medium confidence. Correcting to '>4 mg' actually strengthens the answer's own argument for technical corks."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#6",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "AWRI; Nomacorc specifications as reported in a peer-reviewed closure trial (PMC9505717)",
+      "tier": 1,
+      "ref": "https://www.awri.com.au/wp-content/uploads/2019/03/oxygen-transmission-rate.pdf ; https://pmc.ncbi.nlm.nih.gov/articles/PMC9505717",
+      "quote": "AWRI: 'Synthetic closures typically possess values within the moderate to high OTR range, but there is significant variability among the products available.' Nomacorc Select 300 specification: '1.7 mg of O2 per year after the first year'."
+    },
+    "corrected_claim": "a co-extruded synthetic sits in the moderate-to-high band, overlapping the upper end of natural cork rather than exceeding it several-fold",
+    "corrected_sentence": "...and a co-extruded synthetic sits in the moderate-to-high band, overlapping the upper end of natural cork rather than exceeding it several times over.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "'Several times more again' overstates the gap. AWRI puts synthetics in the moderate-to-high range and natural cork in a wide, variable range that reaches the same territory; Nomacorc's own published steady-state figure of 1.7 mg O2/year sits inside natural cork's 0.5-to->4 mg envelope, not several times above it. The ordering of closure types is right; the multiplier is not supportable."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Wine flavours, faults and taints — Cork-type taints (https://www.awri.com.au/industry_support/winemaking_resources/sensory_assessment/recognition-of-wine-faults-and-taints/wine_faults/)",
+      "quote": "One study determined the aroma threshold of TCA in a Pinot Noir wine as 1.4 ng/L ... the aroma threshold might be lower in dry, white wines or higher in full-bodied red wines. Prescott et al. (2005) reported that the consumer rejection threshold for TCA was 3.1 ng/L whilst the consumer detection threhsold was 2.1 ng/L ... the presence of TCA at a concentration as low as 1 ng/L suppressed the ratings for overall aroma intensity and of positive fruit-derived characters"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "All three parts of this sentence are supported by one AWRI page: the detection band (1.4-3.1 ng/L across aroma, consumer detection and consumer rejection thresholds), the lower threshold in delicate whites, and the fruit suppression at 1 ng/L, below recognition as a fault. The strongest-sourced claim in the answer."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#8",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "The 1990s half is roughly supported — Virginia Tech Enology reports US cork-taint incidence 'to range from 0.5% to more than 2%', and AWRI's 2005 Advanced Wine Assessment Course found 16 of 470-odd bottles (3.4%) TCA-tainted. The 'well under 1% today' half I could not source anywhere tier-1: AWRI's recent annual reports discuss taint investigations as a share of helpdesk cases, not as a market incidence rate, and the sub-1% figures in circulation come from cork producers and their trade bodies. This is a number a candidate should attribute or soften, not assert."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#9",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "CETIE (GME30.15 BVP and BVS minimum through bore); peer-reviewed closure trial PMC9505717",
+      "tier": 1,
+      "ref": "https://www.cetie.org/en/finish-data-sheets-gme_102.html ; https://pmc.ncbi.nlm.nih.gov/articles/PMC9505717",
+      "quote": "CETIE GME30.15: 'This data sheet specifies the values of the minimum through bore for BVP and BVS finishes.' PMC9505717 methods: 'Screw caps donated from Amcor were 30 × 60 mm ROPP Stelvin capsules'."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "BVS is a CETIE-standardised finish family and 30 x 60 is the format actually specified in the closure literature for wine screwcaps. Medium confidence because I confirmed the two halves separately (CETIE for BVS as a standard finish, the trial paper for the 30 x 60 dimension) rather than finding one document stating 'BVS 30 x 60'. The load-bearing point — that cork and screwcap need different glass, decided at bottle order — is not in doubt."
+  },
+  {
+    "claim_id": "th_2018_p3_q3#10",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Pre-bottling wine adjustments and specifications (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/pre-bottling-wine-adjustments-and-specifications/); corroborated by A snapshot of SO2 concentrations in Australian wines, Technical Review 236",
+      "quote": "| **Free SO2** | mg/L | 28-32 [white table wine] | 28-32 [red table wine] | ... Free sulfur dioxide concentration should be considered based on wine pH"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "AWRI's pre-bottling target is 28-32 mg/L free for white table wine, and its survey of 3,167 commercial Australian wines gives a white median of 32 mg/L (mean 31.0). The answer's 25-35 mg/L brackets that correctly. AWRI's caveat that the figure must be read against pH is the same point the answer makes elsewhere."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms/)",
+      "quote": "Wines between 100 and 200 NTU may undergo macro-filtration steps from coarse metal screens to earth filtration, with a finer earth filtration conducted between 60 and 100 NTU. Once a wine is below 60 NTU, particulate matter is much smaller in size and pad filters (often in conjunction with earth filtration) or cross-flow filtration can be used"
+    },
+    "corrected_claim": "grades run from coarse to fine, taking a wine from 100-200 NTU down towards cellar-bright, with pads or cross-flow rather than earth doing the final cut to 1-3 NTU",
+    "corrected_sentence": "Grades run from coarse to fine, taking a wine of 60-200 NTU down towards cellar-bright, with pads or cross-flow rather than earth making the final cut to 1-3 NTU.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "Earth filtration's working band per AWRI is 60-200 NTU, above the 50-100 NTU stated, and AWRI's own filter-grade table assigns 'final filtration for dry wines' at 1.0-3.0 NTU to sheets, not earth. Claiming earth filtration reaches 1-2 NTU overstates what a depth filter does and blurs the answer's own distinction between parts (a) and (b) of the question."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The closest tier-1 figure is Wine Australia's winery wastewater survey: 'DE use averaged 1.5 kg/tonne equivalent crush with a range of 0.0 to 8.2 kg/tonne', which is a whole-winery annual figure across all filtration steps and a different denominator from kg per 1,000 litres filtered. Same order of magnitude, but it does not verify the claim. No tier-1 source gives precoat/body-feed dosing rates per volume filtered."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IARC / WHO (Monographs Vol. 68 and Vol. 100C); corroborated by NIOSH",
+      "tier": 1,
+      "ref": "https://publications.iarc.who.int/Book-And-Report-Series/Iarc-Monographs-On-The-Identification-Of-Carcinogenic-Hazards-To-Humans/Silica-Some-Silicates-Coal-Dust-And-Em-Para-Em--Aramid-Fibrils-1997 ; https://monographs.iarc.who.int/wp-content/uploads/2024/11/AGP_Report_2025-2029.pdf",
+      "quote": "Silica dust (crystalline, in the form of quartz or cristobalite) was previously classified by IARC as carcinogenic to humans (Group 1) in IARC Monographs Volume 100C in 2009 ... There is sufficient evidence that crystalline silica dust exposure causes lung cancer."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Correct as written, and worth one clarifying detail if space allows: IARC's Group 1 classification is for crystalline silica (quartz/cristobalite); amorphous silica 'could not be classified'. Diatomite as mined is largely amorphous, but the flux-calcined grades used as filter aids contain cristobalite, which is exactly why the winery exposure is a crystalline-silica hazard. AWRI's practices survey independently records eliminating DE as a health-and-safety driver for cross-flow adoption."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms, 'What level of filtration do I need?' table (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms/)",
+      "quote": "Coarse filtration / First racking | 35-100 NTU | ... Final filtration for dry wines | 1.0-3.0 | 50H (0.8 µm), 60H (0.5 µm) ... Filtration for sweet wines, higher risk wines or final polish pre-membrane filtration | <1.0 | KS50 (0.5 µm), EK (0.4 µm) | Z7 (0.6 µm), Z8 (0.4 µm)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The grade ladder and the EK rating both check out against AWRI's supplier-collated table: EK is rated 0.4 µm, with the neighbouring tightest grades at 0.4-0.6 µm, and sheet grades run from coarse (35-100 NTU duty) through polishing to that final band. The answer's '0.4-0.6 microns' is a fair reading of the table."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Searched AWRI, Wine Australia, Virginia Tech and OSU for sheet-filtration throughput per unit area. All describe plate-and-frame pad filtration and the 40 x 40 cm format is a real industry standard, but none publishes a litres-per-sheet dosing figure, so the 100-200 L per sheet cannot be verified either way. The surrounding assertions in the same sentence — single use, wine hold-up, blinding, and pre-flushing a new sheet to waste — are standard practice but likewise unsourced in the tier-1 corpus."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#5",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms (https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms/)",
+      "quote": "Surface filters are generally absolute filters with precisely defined maximum pore sizes and these include 0.65 µm and 0.45 µm or 'sterile' filtration. ... Most cross-flow membranes are only nominally rated at 0.2 µm which is theoretically tight enough for sterile filtration ... but as it is only a nominal rating, and can't be pressure tested for integrity before use, this means that wineries will still need to use a membrane filter if they want to achieve a sterile filtration."
+    },
+    "corrected_claim": "the standard sizes are 0.65 microns as a prefilter and 0.45 microns for sterile filtration, which retains yeast and the great majority of spoilage bacteria; 0.2 microns is the nominal cross-flow rating and is used where absolute assurance is wanted",
+    "corrected_sentence": "The standard sizes are 0.65 microns as a prefilter and 0.45 microns for sterile filtration, which retains yeast and the great majority of spoilage bacteria, with 0.2 microns — the nominal cross-flow rating — used where absolute assurance is wanted.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "0.65 and 0.45 are exactly right. The imprecision is in demoting 0.45 µm to 'microbiological stability' and reserving 'sterility' for 0.2 µm: AWRI treats 0.45 µm as the sterile grade in wine, and introduces 0.2 µm as the nominal cross-flow membrane rating, which it explicitly says cannot be relied on for sterile filtration because it is nominal and not integrity-testable."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#6",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms; Microbiological hazes and deposits; Classification of Particles (https://www.awri.com.au/industry_support/winemaking_resources/fining-stabilities/hazes_and_deposits/microbiological/)",
+      "quote": "The human eye can detect large particulate matter >100 µm but not yeast and bacteria that are much smaller in size, around 0.5-5 µm in diameter. ... [lactic acid bacteria] Generally, their dimensions are approximately (0.5 – 1) x (1-2) µm"
+    },
+    "corrected_claim": "yeast and wine bacteria are roughly 0.5-5 microns across, with lactic acid bacteria around (0.5-1) x (1-2) microns",
+    "corrected_sentence": "The standard sizes are 0.65 microns as a prefilter and 0.45 microns for sterile filtration, since yeast and wine bacteria are roughly 0.5-5 microns across, with lactic acid bacteria around (0.5-1) x (1-2) microns.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The bacteria half is well supported — AWRI gives LAB as (0.5-1) x (1-2) µm, matching the claim. The yeast half is not: AWRI's stated range for yeast and bacteria together is 0.5-5 µm, so 8 µm exceeds it, and Virginia Tech's filtration notes put the average Saccharomyces diameter far lower still. I found no tier-1 source for 3-8 µm (the widely quoted 5-10 µm figure traces to Wikipedia, which is not admissible here). Safer to give the combined AWRI range."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#7",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Virginia Tech Enology (Zoecklein); AWRI",
+      "tier": 1,
+      "ref": "https://enology.fst.vt.edu/EN/67.html ; https://www.awri.com.au/industry_support/winemaking_resources/storage-and-packaging/pre-packaging-preparation/filtration-physical-removal-of-microorganisms/",
+      "quote": "Virginia Tech: 'membrane filters must be bubble tested, before, (possibly during) and after each day's run. If the membrane fails the integrity or bubble test, everything produced between that time and the previous test is suspect.' AWRI: 'The bubble point test can be conducted at the start of a bottling run before any wine is run through the filter and it shows the integrity of the filter being used and if any leaks are present.'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Both the practice and the reason the answer gives for it — documented release of a bottling run — are supported. Virginia Tech states the pre- and post-run testing explicitly and draws exactly the traceability consequence the answer draws. AWRI also publishes the pass pressures (0.65 µm membrane 140 kPa, 0.45 µm 180 kPa, on water with air)."
+  },
+  {
+    "claim_id": "th_2018_p3_q4#8",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "AWRI",
+      "tier": 1,
+      "ref": "Filtration – physical removal of microorganisms; AWRI Practices Survey Final Report (https://www.awri.com.au/wp-content/uploads/2019/05/AWRI_Practices_Survey_Final_Report.pdf)",
+      "quote": "Once a wine is below 60 NTU ... pad filters (often in conjunction with earth filtration) or cross-flow filtration can be used ... These filters have gradually been replaced by centrifuge and cross-flow filtration alternatives, mainly to avoid the use of diatomaceous earth. ... Cross-flow filtration was by far the most commonly nominated new practice to have a positive impact in the last five years"
+    },
+    "corrected_claim": "crossflow handles a turbid feed and delivers wine bright enough to bottle, displacing earth and pads, though a membrane filter is still required for a sterile fill",
+    "corrected_sentence": "Crossflow handles a turbid feed and delivers wine bright enough to bottle, displacing earth and pads together, though a membrane filter is still required if the fill is to be sterile.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": "The substance — cross-flow replacing earth and pads, and delivering bottle-bright wine — is strongly supported by AWRI, including winemakers calling it the biggest quality advance in 25 years. Two refinements: AWRI places wine cross-flow in the sub-60 NTU band rather than at 100 NTU or higher (wide-bore cross-flow on lees is a different duty), and AWRI is explicit that a cross-flow membrane's 0.2 µm rating is nominal and not integrity-testable, so it does not remove the need for a membrane filter on a sterile line."
+  }
+]

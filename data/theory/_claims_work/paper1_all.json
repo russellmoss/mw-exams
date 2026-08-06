@@ -1,0 +1,1600 @@
+[
+  {
+    "claim_id": "th_2016_p1_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) 2018/1981; food.ec.europa.eu pesticides SUD evaluation",
+      "quote": "a maximum application rate of 28 kg/ha of copper over a period of 7 years (i.e. on average 4 kg/ha/year)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2016_p1_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "EU regulation 2016/2031 confirms flavescence doree is a regulated EU quarantine pest with compulsory containment measures in demarcated zones (EUR-Lex 32019R2072, EPPO PRA), so the 'compulsory insecticide treatment in designated zones' half is well supported. Could not confirm tier-1 that pyrethrum is literally the organic grower's *only* permitted option against the vector Scaphoideus titanus."
+  },
+  {
+    "claim_id": "th_2016_p1_q2#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Study of the fruity aroma of red wines made from late-ripening grape varieties potentially suited to the Bordeaux vineyards (IVES)",
+      "quote": "four new red grape varieties—Arinarnoa, Castet, Marselan, and the Portuguese variety Touriga Nacional—are now authorized in these appellations... (INAO, 2021)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Touriga Nacional and Marselan confirmed via KB tier-1 IVES source citing INAO 2021 authorization. Alvarinho's inclusion as one of the two approved white varieties (with Liliorila) is consistently corroborated by multiple independent trade sources (Decanter, Wine Spectator, Food & Wine) though not directly in the KB chunk retrieved."
+  },
+  {
+    "claim_id": "th_2016_p1_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Could not find a tier-1 source confirming hail netting is specifically restricted/prohibited under named appellation rules; plausible but unsourced this session."
+  },
+  {
+    "claim_id": "th_2016_p1_q4#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Steepest Mosel vineyard gradients (e.g. Bremmer Calmont) are widely cited around 65-70% but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2016_p1_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Marlborough row spacing figure not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2016_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "41B and Fercal are standard lime-tolerant rootstocks in viticulture teaching; KB search (WBI Freiburg trial data) shows Fercal used in a calcareous-soil rootstock trial consistent with this role but does not state the tolerance claim explicitly. No clean tier-1 citation found this session."
+  },
+  {
+    "claim_id": "th_2016_p1_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Regional cloud-seeding programmes in Mendoza, France and Alberta not sourced to tier-1 this session."
+  },
+  {
+    "claim_id": "th_2016_p1_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same as th_2016_p1_q2#1 (netting restrictions) - not sourced tier-1 this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "10C base temperature for GDD accumulation / shoot growth threshold is standard viticulture teaching but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session; multiple precise thresholds bundled in one claim, higher risk if memorised verbatim."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q1#6",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Rainfall figures for the named regions not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "La Mancha bush-vine density figure not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q2#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "California's Sustainable Groundwater Management Act is real legislation (2014) but not directly sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "La définition et la législation de l'appellation - Union des Maisons de Champagne",
+      "quote": "les vins doivent être vinifiés, conformément aux usages locaux, à partir de raisins transportés entiers jusqu'aux installations de pressurage... Cette mesure a été prise en 1979 à la demande des professionnels champenois, en vue d'exclure l'usage de la machine à vendanger"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p1_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "New Zealand's Recognised Seasonal Employer scheme is real, well-documented government policy, but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "H-2A visa cost/administrative burden not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q4#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Deutsches Weininstitut / Austrian Wine / Ice Wine regulatory summaries",
+      "tier": 1,
+      "ref": "deutscheweine.de Eiswein glossary; oesterreichwein.at wine law PDF",
+      "quote": "Mindestmostgewicht festgelegt... 110 bis 128 Grad Oechsle (Germany, minimum must weight standard, not a temperature threshold)"
+    },
+    "corrected_claim": "Icewine/Eiswein law in Germany, Austria and Canada defines the category by a minimum must weight (e.g. 110-128 Oechsle in Germany, 25 KMW/127 Oechsle in Austria, 35 Brix in Canada) reached by grapes that freeze naturally on the vine, not by a specific harvest/press temperature; -7C to -8C is the commonly cited practical temperature at which sufficient water is frozen out to reach that concentration.",
+    "corrected_sentence": "Icewine requires a reliable, sharp winter freeze after a long enough autumn to leave sound fruit on the vine, and in Germany, Austria and Canada the law defines it by a minimum must weight reached only once the grapes have frozen naturally -- in practice usually at about -7C or below -- rather than by a specific legal temperature threshold.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p1_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Pedro Ximenez sun-drying on esparto mats in Montilla-Moriles is well documented industry practice; not independently re-sourced this session but low risk / not a precise number."
+  },
+  {
+    "claim_id": "th_2017_p1_q4#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Kabinett-weight residual sugar figure not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Sauternes/Tokaji Eszencia RS ranges not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Lime mobility rate in soil not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Well-established enology relationship (K+ raises must/wine pH, destabilising red colour) but not re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) 2018/1981",
+      "quote": "a maximum application rate of 28 kg/ha of copper over a period of 7 years (i.e. on average 4 kg/ha/year)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2017_p1_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "No free water requirement and 20-27C optimum matches the textbook description of powdery mildew (Erysiphe necator) as distinct from downy mildew, which does need free water; could not confirm which disease the passage names, or re-source the temperature figures, to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2017_p1_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex / EPPO",
+      "tier": 1,
+      "ref": "Regulation (EU) 2016/2031; Implementing Regulation (EU) 2019/2072 as amended; EPPO PRA on Grapevine flavescence doree",
+      "quote": "Grapevine flavescence doree phytoplasma is a pest relevant for those plants for planting, listed in Part B, section F of the EU regulated pest list, with EU containment/demarcated-area measures and compulsory insecticide/rogueing regimes in member states including France and Italy"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q1#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "INAO — cahiers des charges (AOC)",
+      "tier": 1,
+      "ref": "CDC-Bordeaux.pdf",
+      "quote": "Le rendement... est fixé, pour les vins rouges, à 60 hectolitres par hectare... Le rendement butoir... est fixé, pour les vins rouges, à 68 hectolitres par hectare (densité >= 4000 pieds/ha)"
+    },
+    "corrected_claim": "The base authorised yield (rendement) for generic AOC Bordeaux is 60 hl/ha for red, 67 hl/ha for white and 62 hl/ha for rosé, with an absolute ceiling (rendement butoir) of up to 68 hl/ha for reds and 77 hl/ha for whites.",
+    "corrected_sentence": "The generic Bordeaux base yield sits at 60 hectolitres per hectare for red wine (67 for white), with an absolute ceiling (rendement butoir) as high as 68 hectolitres per hectare, and growers aim at it, because at commodity grape prices the only route to a viable return is the full crop.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Classed-growth Medoc yield range (35-45 hl/ha) is a commonly cited figure in wine trade literature but not sourced to a tier-1 document (INAO cahier des charges for individual communal appellations was not retrieved) this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "kb",
+      "publisher": "INAO — cahiers des charges (AOC)",
+      "tier": 1,
+      "ref": "CDC-Bordeaux.pdf / CDC-Chablis / Meursault cahiers",
+      "quote": "3°- Irrigation L'irrigation est interdite."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirmed as the general rule across multiple INAO cahiers des charges consulted; derogation exists in some appellations (e.g. Saint-Peray permits irrigation), consistent with 'other than by derogation'."
+  },
+  {
+    "claim_id": "th_2018_p1_q1#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia / Barossa Grape & Wine Association",
+      "tier": 1,
+      "ref": "wineaustralia.com Barossa Old Vine Charter facilitator guide; barossa.com Barossa Old Vine Charter",
+      "quote": "Old Vines are fully mature vines that are 35 years of age or older."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q1#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "8,000-10,000 vines/ha figure for the Medoc is widely cited but not sourced to a tier-1 document this session (INAO Pauillac/Margaux/St-Julien/St-Estephe cahiers were not found in KB)."
+  },
+  {
+    "claim_id": "th_2018_p1_q2#0",
+    "verdict": "WRONG",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Decanter / Wine Spectator / Food & Wine (converging trade reporting on the official INAO/CIVB decision)",
+      "tier": 2,
+      "ref": "Multiple 2021 trade reports on INAO's January 2021 approval of six new Bordeaux/Bordeaux Superieur varieties",
+      "quote": "A seventh proposed variety, Petit Manseng, didn't make the final list."
+    },
+    "corrected_claim": "Petit Manseng was one of seven varieties proposed by the Bordeaux/Bordeaux Superieur growers' syndicate in 2019, but INAO rejected it in the January 2021 approval (to protect its Pyrenees-Atlantiques typicity); the varieties actually admitted were four reds (Arinarnoa, Castets, Marselan, Touriga Nacional) and two whites (Alvarinho, Liliorila).",
+    "corrected_sentence": "Faced with alcohols that its style cannot carry, Bordeaux moved to admit a short list of additional varieties, including Touriga Nacional, Marselan and Alvarinho.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "Tier-1 confirmation for the admitted list rests on the KB IVES source (th_2016_p1_q2#0), which names the four approved reds; the exclusion of Petit Manseng is corroborated by multiple independent trade sources though not found in a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Chaptalisation history in Chablis not sourced this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia / Barossa Grape & Wine Association",
+      "tier": 1,
+      "ref": "wineaustralia.com Barossa Old Vine Charter facilitator guide",
+      "quote": "The Barossa Old Vine Charter classifies old vines by age into four categories"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q3#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Research & Innovation)",
+      "tier": 1,
+      "ref": "ec.europa.eu \"collection of winegrowers' practices\"",
+      "quote": "sodium arsenite that was forbidden in Europe in 2003"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "EFSA confirms a related but distinct protocol for a different pathogen (Xylella fastidiosa): hot water treatment of dormant plants submerged 45 minutes at 50C. Could not confirm the specific '50C for ~30 minutes' figure commonly used against Petri disease/black foot in nursery material to a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Trichoderma-based wound-protection biocontrol products (e.g. Vintec) are a real, well-documented commercial category; not independently re-sourced this session but not a risky precise figure."
+  },
+  {
+    "claim_id": "th_2018_p1_q3#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Ugni Blanc susceptibility to esca in Cognac not sourced this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q3#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Simonit & Sirch's respect-the-sap-flow pruning method is a well-documented real consultancy/technique; not independently re-sourced this session but low risk (named practitioners, not a number)."
+  },
+  {
+    "claim_id": "th_2018_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Basal-bud infertility in Nebbiolo/Sultana requiring cane pruning is standard viticulture teaching but not re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Australian minimal/mechanical pruning self-regulation trials not sourced this session (AWRI is in the KB but a targeted search was not run for this specific claim)."
+  },
+  {
+    "claim_id": "th_2018_p1_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Average commercial vine economic-replacement age not sourced this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q6#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Wine Australia / Barossa Grape & Wine Association",
+      "tier": 1,
+      "ref": "wineaustralia.com Barossa Old Vine Charter facilitator guide; barossa.com charter PDF",
+      "quote": "Old Vines 35+, Survivor Vines 70+, Centenarian Vines (pre-phylloxera) 100+, Ancestor Vines 125+"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2018_p1_q6#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "South Africa's Old Vine Project 35-year threshold and seal is real and well documented publicly but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2018_p1_q6#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Santorini's ungrafted, basket-trained (kouloura) vines are a very well-established fact about the region; not independently re-sourced this session but not a risky number."
+  },
+  {
+    "claim_id": "th_2019_p1_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Medoc vs Australian/Chilean vine-density comparison not sourced this session."
+  },
+  {
+    "claim_id": "th_2019_p1_q3#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Rootstock drought-tolerance groupings (110R/140Ru/1103P deep-rooting vs Riparia Gloire/101-14 shallow) are standard viticulture teaching but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2019_p1_q3#1",
+    "verdict": "VERIFIED",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Study of the fruity aroma of red wines made from late-ripening grape varieties potentially suited to the Bordeaux vineyards",
+      "quote": "the Bordeaux region is introducing grape varieties that ripen later than Merlot... four new red grape varieties... are now authorized (INAO, 2021)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "KB source confirms INRAE/ISVV research (VitAdapt-type trials referenced in trade press) underpinned the admission of Touriga Nacional and Marselan; the specific INRAE trial framing is not itself in the KB chunk retrieved."
+  },
+  {
+    "claim_id": "th_2019_p1_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / EUR-Lex",
+      "tier": 1,
+      "ref": "Commission Implementing Regulation (EU) 2018/1981",
+      "quote": "a maximum application rate of 28 kg/ha of copper over a period of 7 years (i.e. on average 4 kg/ha/year)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2019_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Same as th_2016_p1_q5#0; not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2019_p1_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Xiphinema index as fanleaf virus vector is textbook plant pathology; not independently re-sourced to a tier-1 document this session but very low risk of being wrong."
+  },
+  {
+    "claim_id": "th_2019_p1_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "~10,000 vines/ha for Medoc/Burgundy/Champagne not sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Growing-season mean temperature range for viticulture (13-21C) not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q1#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Mosel single-stake (Einzelpfahl) training on steepest slopes is well established regional fact; not independently re-sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q2#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "Deutsches Weininstitut / Austrian Wine",
+      "tier": 1,
+      "ref": "deutscheweine.de Eiswein glossary; oesterreichwein.at wine law PDF",
+      "quote": "Mindestmostgewicht... 110 bis 128 Grad Oechsle"
+    },
+    "corrected_claim": "The legal definition of Eiswein/icewine in Germany, Austria and Canada rests on a minimum must weight reached by grapes that froze naturally on the vine, not a specific mandated harvest temperature; -7 to -8C is the conventional practical threshold at which enough water is frozen out to concentrate the must sufficiently.",
+    "corrected_sentence": "Eiswein and icewine must be picked with the fruit frozen naturally on the vine -- in Germany and Canada this practically means waiting for temperatures around -7 to -8C -- which can mean waiting until midwinter and accepting the loss of the crop to birds and rot.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p1_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Champagne base wine potential alcohol at harvest not sourced this session (Union des Maisons de Champagne KB chunks retrieved covered harvest/pressing logistics, not target ripeness)."
+  },
+  {
+    "claim_id": "th_2021_p1_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Deutsches Weininstitut",
+      "tier": 1,
+      "ref": "deutscheweine.de Eiswein glossary",
+      "quote": "Mit einer Novellierung des deutschen Weingesetzes 1982 wurde der 'Eiswein' zu einer eigenständigen Pradikatsstufe erhoben und ein Mindestmostgewicht festgelegt... je nach Anbaugebiet 110 bis 128 Grad Oechsle"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Confirms Predikat levels are defined by minimum must weight in degrees Oechsle."
+  },
+  {
+    "claim_id": "th_2021_p1_q3#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "General soil pH range for quality grapes not sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q3#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q3#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Solaris and Cabernet Cortis originating from German (Freiburg) breeding programmes is widely stated but not independently re-sourced to a tier-1 document this session (KB holds WBI Freiburg trial reports but a targeted confirmation was not retrieved)."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "INRAE ResDur releases (Artaban, Floreal, Vidoc, Voltis) are real varieties but the specific late-2010s release-date bundling was not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "University of Minnesota cold-hardy releases (Marquette, Frontenac) are well documented public facts; not independently re-sourced this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "Confirmed that Regulation (EU) 2021/2117 amended the CMO wine regime in Dec 2021, but did not find explicit tier-1 confirmation that this specifically 'opened PDO wines to interspecific hybrids for the first time'."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#4",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "IVES Technical Reviews",
+      "tier": 1,
+      "ref": "Study of the fruity aroma of red wines made from late-ripening grape varieties potentially suited to the Bordeaux vineyards",
+      "quote": "four new red grape varieties... are now authorized... These varieties may be planted up to 5% in Bordeaux vineyards"
+    },
+    "corrected_claim": "Bordeaux's 2021 additional-variety list (Arinarnoa, Castets, Marselan, Touriga Nacional, Alvarinho, Liliorila) is composed of conventional Vitis vinifera varieties selected mainly for late ripening/drought and heat tolerance, not disease-resistant interspecific (PIWI) hybrids; the fungus-resistant-hybrid trial referred to for Champagne (Voltis) is a separate, genuinely resistant variety.",
+    "corrected_sentence": "Regulation has begun to follow: the EU reform of 2021 opened PDO wines to interspecific hybrids for the first time, Bordeaux admitted a short list of climate-adapted (not primarily disease-resistant) varieties, and Champagne admitted the fungus-resistant hybrid Voltis on a trial basis.",
+    "time_sensitive": true,
+    "recommend": "correct",
+    "note": "The KB IVES source confirms the Bordeaux variety list and its purpose (late-ripening, hydric stress adaptation) but does not describe them as fungus-resistant; the Voltis/Champagne trial claim was not independently re-verified to a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q4#5",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "UC Davis Pierce's-disease-resistant varieties bred from Vitis arizonica (the Walker lab programme) are real but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2021_p1_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "OIV",
+      "tier": 1,
+      "ref": "Resolution OIV/VITI 333/2010",
+      "quote": "Vitivinicultural 'terroir' is a concept which refers to an area in which collective knowledge of the interactions between the identifiable physical and biological environment and applied vitivinicultural practices develops"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Answer's paraphrase ('viticultural and oenological practices') is a close rendering of 'vitivinicultural practices' as used in the resolution."
+  },
+  {
+    "claim_id": "th_2021_p1_q6#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "maisons-champagne.com \"Definition and law\" and \"Between the Wars\"",
+      "quote": "From 1927 to 1930, committees identified all of the areas that were set aside for Champagne vines... the Law of the 22 July 1927... finally provided a satisfactory solution... following the 1911 grower riots"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2021_p1_q6#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "Consorzio Tutela Prosecco DOC",
+      "tier": 1,
+      "ref": "prosecco.wine \"History\"",
+      "quote": "On 17 July 2009 the reorganization of the 'Prosecco System' took place, with the establishment of the DOCG... and the DOC 'Prosecco'"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Grape renamed to Glera and denomination extended across Veneto/Friuli Venezia Giulia (9 provinces) as part of the same 2009 reorganisation."
+  },
+  {
+    "claim_id": "th_2021_p1_q6#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UNESCO World Heritage Centre",
+      "tier": 1,
+      "ref": "whc.unesco.org/en/list/1571",
+      "quote": "Le Colline del Prosecco di Conegliano e Valdobbiadene... Cultural property inscribed on the World Heritage List (2019)"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Research & Innovation)",
+      "tier": 1,
+      "ref": "ec.europa.eu \"collection of winegrowers' practices\"",
+      "quote": "sodium arsenite that was forbidden in Europe in 2003"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EFSA / EPPO",
+      "tier": 1,
+      "ref": "efsa.europa.eu Xylella fastidiosa topic page; eppo.int Xylella fastidiosa in the EPPO region",
+      "quote": "X. fastidiosa was detected on olive trees in Italy's southern Puglia region in October 2013, the first time the bacterium was reported in the European Union"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q1#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EUR-Lex / EPPO",
+      "tier": 1,
+      "ref": "Regulation (EU) 2016/2031; Implementing Regulation (EU) 2019/2072 pest list",
+      "quote": "Grapevine flavescence doree phytoplasma [listed as an EU regulated/quarantine pest], subject to containment measures in demarcated areas"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Lobesia botrana's quarantine-pest status in Chile (SAG) not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2022_p1_q2#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Multicoloured Asian lady beetle taint in Ontario/US Midwest is a well-documented real phenomenon in enology literature; not independently re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2022_p1_q4#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "IARC (WHO)",
+      "tier": 1,
+      "ref": "iarc.who.int \"IARC Monograph on Glyphosate\"",
+      "quote": "In March 2015, IARC classified glyphosate as 'probably carcinogenic to humans' (Group 2A)."
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q4#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EFSA",
+      "tier": 1,
+      "ref": "efsa.europa.eu \"Glyphosate: EFSA updates toxicological profile\"",
+      "quote": "The report concludes that glyphosate is unlikely to pose a carcinogenic hazard to humans"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q4#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission",
+      "tier": 1,
+      "ref": "food.ec.europa.eu Glyphosate status page; ec.europa.eu presscorner Q&A on glyphosate renewal",
+      "quote": "Glyphosate is currently approved as an active substance in the EU until 15 December 2033... renewed the approval of glyphosate for a period... 10 years"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Renewal vote/adoption occurred in November 2023, matching 'late 2023'."
+  },
+  {
+    "claim_id": "th_2022_p1_q4#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "DRAAF Hauts-de-France / ANSES (French government)",
+      "tier": 1,
+      "ref": "draaf.hauts-de-france.agriculture.gouv.fr glyphosate regulatory summary; anses.fr",
+      "quote": "l'utilisation est autorisee dans les situations ou le desherbage mecanique n'est pas realisable: vignes en forte pente ou en terrasses, sols caillouteux"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2022_p1_q4#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Glyphosate-resistant annual ryegrass in Australian cropping is real and well documented (AHRI/GRDC), but not sourced to a tier-1 document this session, and the specific inference to adjacent vineyards is an extrapolation."
+  },
+  {
+    "claim_id": "th_2022_p1_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Winter burial of vines in Ningxia is a widely reported practice; not independently re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2022_p1_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Two grape crops per year in parts of Brazil (Sao Francisco Valley) is real but not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2022_p1_q6#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "1-2 week budbreak delay from late pruning not sourced this session."
+  },
+  {
+    "claim_id": "th_2023_p1_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session (duplicate topic of th_2017_p1_q1 temperature-threshold claims)."
+  },
+  {
+    "claim_id": "th_2023_p1_q1#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "INAO — cahiers des charges (AOC)",
+      "tier": 1,
+      "ref": "CDC-Bordeaux.pdf",
+      "quote": "3 - Irrigation L'irrigation est interdite."
+    },
+    "corrected_claim": "Irrigation restriction under Bordeaux/Champagne appellation rules is confirmed; the historical claim that 'irrigation was prohibited across much of the EU until the 1990s' was not independently verified this session.",
+    "corrected_sentence": "It may be legally restricted: irrigation remains restricted or banned in appellations such as Champagne and much of Bordeaux without derogation.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "The Bordeaux/Champagne restriction is confirmed via INAO cahiers; the EU-wide pre-1990s history was not sourced this session."
+  },
+  {
+    "claim_id": "th_2023_p1_q4#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "YAN threshold of ~140 mg/L not sourced to a tier-1 document this session (AWRI is in the KB but a targeted YAN query returned no direct hit)."
+  },
+  {
+    "claim_id": "th_2023_p1_q5#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UC Davis / American Vineyard Foundation",
+      "tier": 1,
+      "ref": "avf.org California Rootstock report; cail.ucdavis.edu \"We Are Both Hosts\"",
+      "quote": "The first documented case of failure of a California vineyard grafted on AXR#1 occurred in the Napa Valley in 1983... a new strain of phylloxera, designated type B, in 1985"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2023_p1_q6#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Leaf photosynthesis light-saturation fraction not sourced this session."
+  },
+  {
+    "claim_id": "th_2023_p1_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Not sourced this session; duplicate topic of anthocyanin-inhibition-temperature claims elsewhere in the batch."
+  },
+  {
+    "claim_id": "th_2024_p1_q1#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "YAN 150 mg/L threshold not sourced this session; note the corpus also uses 140 mg/L elsewhere (th_2023_p1_q4#0) for what reads as the same concept -- worth reconciling even though neither figure could be sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p1_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Relative cost of hand-picking vs machine harvesting not sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p1_q3#0",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "kb",
+      "publisher": "Union des Maisons de Champagne",
+      "tier": 1,
+      "ref": "La definition et la legislation de l'appellation - Union des Maisons de Champagne",
+      "quote": "le droit a l'appellation d'origine champagne ne peut etre confere qu'aux vins obtenus dans la limite du rendement fixe chaque annee en fonction de la qualite et de la quantite de la recolte. Il ne peut toutefois etre superieur a 15 500 kg/ha"
+    },
+    "corrected_claim": "Champagne's yield is confirmed to be set annually (via the interprofession's proposal to INAO) rather than fixed; the comparative claim that this makes it 'among the highest of any classic appellation' was not independently verified against other high-yield French AOCs this session.",
+    "corrected_sentence": "Champagne is the standing counter-example: its permitted yield is set annually, based on the quality and quantity of the harvest, through a process led by its interprofession, because the style needs high acidity, moderate potential alcohol and delicacy, and a bigger crop delivers all three.",
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2024_p1_q3#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "low",
+    "source": {
+      "kind": "kb",
+      "publisher": "Oregon Wine Research Institute (OSU)",
+      "tier": 1,
+      "ref": "\"Effects of Crop Level on Fruit Composition of Pinot noir Grapes\"; \"Manipulating Soil Moisture and Nitrogen Availability...\"",
+      "quote": "the ratio of crop weight to pruning weight, or, the Ravaz Index (OSU cool-climate Pinot Noir trial data show typical values in the roughly 3.5-5 range, not 5-10)"
+    },
+    "corrected_claim": "The Ravaz Index (crop weight : pruning weight) 'balanced vine' range of roughly 5-10 is commonly cited for warm-climate vinifera in the literature, but cool-climate research (e.g. Oregon Pinot Noir) reports typical/target values closer to 3.5-5, so the single 5-10 rule of thumb given may overstate the target for cool-climate varieties.",
+    "corrected_sentence": "A common rule of thumb is a ratio of crop weight to pruning weight -- the Ravaz Index -- often cited around 5 to 10 for warm-climate vinifera (lower, around 3.5 to 5, in cooler regions), and the point of that measure is that it is a ratio -- the correct crop for a large, vigorous vine is large.",
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "OSU trial tables give Ravaz Index values of roughly 3.5-5 for Oregon Pinot Noir; this doesn't contradict a 5-10 range as a general/warm-climate rule of thumb but is a reason to hedge the single figure."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Low-density threshold (<2,500 vines/ha) not sourced this session; density-band definitions vary across textbooks."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "High-density threshold (>5,000 vines/ha) not sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "8,000-10,000 vines/ha for Burgundy/Champagne/Medoc classed growths not sourced this session; consistent with a Beaujolais INAO cahier reference to '>8000 pieds par hectare' as a real French density bracket, but that is not Medoc/Burgundy/Champagne-specific confirmation."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "~1m x 1m spacing figure not sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#4",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "1,000-2,000 vines/ha for Barossa/Swartland bush vines and irrigated Australia/California not sourced this session."
+  },
+  {
+    "claim_id": "th_2024_p1_q5#5",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "General canopy-management principle (canopy height should not much exceed row width to avoid mutual shading), not a specific checkable fact/figure."
+  },
+  {
+    "claim_id": "th_2025_p1_q1#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission / ESDAC (JRC)",
+      "tier": 1,
+      "ref": "esdac.jrc.ec.europa.eu \"Copper in topsoils\"",
+      "quote": "restrict the use of plant protection products containing copper compounds to a maximum application rate of 28 kg ha-1 of copper over a period of 7 years... in order to minimise the potential accumulation in soil"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p1_q1#1",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Research & Innovation)",
+      "tier": 1,
+      "ref": "ec.europa.eu \"collection of winegrowers' practices\"",
+      "quote": "sodium arsenite that was forbidden in Europe in 2003"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p1_q1#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "2018 was a widely reported severe downy-mildew year in Bordeaux/France in trade press, but the specific 'lost a large share of the crop even while spraying copper' framing was not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q1#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Risky compound claim: Solaris and most INRAE Resdur varieties draw resistance primarily from American Vitis species (riparia/rupestris/lincecumii) rather than from Muscadinia rotundifolia or 'Asian Vitis species', which is more characteristic of separate US (Pierce's disease) or specific Russian/Chinese breeding lineages. Could not confirm or fully correct this to a tier-1 source this session, but the genetic-source framing looks likely to be imprecise or conflated -- flagging as higher risk than a typical UNVERIFIED."
+  },
+  {
+    "claim_id": "th_2025_p1_q2#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Pierce's disease excluding vinifera from the humid south-eastern US is well-established viticultural history; not independently re-sourced to a tier-1 document this session (CDFA/UC Davis sources found this session focused on the California/GWSS side, not the SE US framing specifically)."
+  },
+  {
+    "claim_id": "th_2025_p1_q2#1",
+    "verdict": "VERIFIED_IMPRECISE",
+    "confidence": "medium",
+    "source": {
+      "kind": "web",
+      "publisher": "CDFA / UC Davis",
+      "tier": 1,
+      "ref": "cdfa.ca.gov Pierce's Disease Control Program annual/legislative reports; vinecon.ucdavis.edu costs of Pierce's disease report",
+      "quote": "The glassy-winged sharpshooter was first reported in California in 1994 but probably arrived in the state in the late 1980s... California's first indication of the severe threat... occurred in Temecula, Riverside County in August of 1999"
+    },
+    "corrected_claim": "The glassy-winged sharpshooter was introduced to Southern California in the late 1980s/early 1990s (first officially reported 1994); it was the resulting Pierce's disease epidemic at Temecula in 1999 that converted a contained problem into a regional emergency, rather than the insect's 'arrival' itself occurring in the late 1990s.",
+    "corrected_sentence": "Its establishment in Southern California in the early-to-mid 1990s, with the glassy-winged sharpshooter, culminated in the Temecula Pierce's disease epidemic of 1999 and showed how fast a new and more mobile vector converts a contained problem into a regional emergency.",
+    "time_sensitive": false,
+    "recommend": "correct",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p1_q2#2",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "EFSA / EPPO",
+      "tier": 1,
+      "ref": "efsa.europa.eu Xylella fastidiosa topic page",
+      "quote": "X. fastidiosa was detected on olive trees in Italy's southern Puglia region in October 2013, the first time the bacterium was reported in the European Union"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p1_q2#3",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "European Commission (Research & Innovation)",
+      "tier": 1,
+      "ref": "ec.europa.eu \"collection of winegrowers' practices\"",
+      "quote": "sodium arsenite that was forbidden in Europe in 2003"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": ""
+  },
+  {
+    "claim_id": "th_2025_p1_q3#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Very plausibly refers to ESA Sentinel-2 (free, 10m resolution, ~5-day revisit) but this was not independently confirmed to a tier-1 source this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q3#1",
+    "verdict": "NOT_A_CLAIM",
+    "confidence": "high",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Describes a general modelling methodology (crop water stress index from thermal imagery) rather than asserting a specific checkable fact, date or figure."
+  },
+  {
+    "claim_id": "th_2025_p1_q5#0",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The Western Cape 'Day Zero' drought (c.2015-2018) is a widely documented real event; not independently re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q5#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": true,
+    "recommend": "hedge",
+    "note": "Central Chile's multi-year 'megadrought' is real and well documented, but the specific 'well over a decade' framing (as of the 2025 exam) was not independently sourced this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q5#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Duplicate of th_2025_p1_q1#2; not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q5#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "The 2019-20 Australian bushfire season and 2020 California wildfires causing smoke taint far from the fire front are widely documented real events; not independently re-sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q6#0",
+    "verdict": "VERIFIED",
+    "confidence": "high",
+    "source": {
+      "kind": "web",
+      "publisher": "UC Davis / American Vineyard Foundation",
+      "tier": 1,
+      "ref": "avf.org California Rootstock report; cail.ucdavis.edu \"We Are Both Hosts\"",
+      "quote": "The first documented case of failure of a California vineyard grafted on AXR#1 occurred in the Napa Valley in 1983... AxR1 had been recommended by the university and had been widely planted throughout California"
+    },
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "keep",
+    "note": "Cost/replanting scale corroborated (non-tier-1 trade sources cite $1-3 billion) but the core AXR#1/1980s/California claim is tier-1 confirmed."
+  },
+  {
+    "claim_id": "th_2025_p1_q6#1",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "110R/140 Ruggeri/1103 Paulsen drought tolerance and Ramsey vigour/nematode tolerance not sourced to a tier-1 document this session."
+  },
+  {
+    "claim_id": "th_2025_p1_q6#2",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "41B/Fercal/140 Ruggeri lime tolerance not sourced to a tier-1 document this session (same topic as th_2016_p1_q5#0)."
+  },
+  {
+    "claim_id": "th_2025_p1_q6#3",
+    "verdict": "UNVERIFIED",
+    "confidence": "low",
+    "source": null,
+    "corrected_claim": null,
+    "corrected_sentence": null,
+    "time_sensitive": false,
+    "recommend": "hedge",
+    "note": "Ramsey/1103P as chloride excluders vs Riparia Gloire as poor excluder not sourced to a tier-1 document this session."
+  }
+]

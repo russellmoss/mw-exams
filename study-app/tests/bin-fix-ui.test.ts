@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { binFixActionErrorMessage, binFixMineErrorMessage, parseProposalId } from "@/lib/bin-fix-ui";
+import { binFixActionErrorMessage, binFixMineErrorMessage, evidenceMixLabel, parseProposalId } from "@/lib/bin-fix-ui";
 
 /**
  * The "Root-cause fixes" card used to swallow dispatch/reject failures entirely — a 500 from a
@@ -61,6 +61,15 @@ describe("parseProposalId", () => {
     expect(parseProposalId(2.5)).toBeNull();
     expect(parseProposalId(true)).toBeNull();
     expect(parseProposalId({})).toBeNull();
+  });
+});
+
+describe("evidenceMixLabel", () => {
+  it("labels pure-bin, pure-feedback and mixed evidence", () => {
+    expect(evidenceMixLabel(["gen_p1_F2_1", "gen_p2_F1_2", "gen_p3_F5_3"])).toBe("3 bins");
+    expect(evidenceMixLabel(["fb_1", "fb_2", "fb_3"])).toBe("3 feedback");
+    expect(evidenceMixLabel(["gen_p1_F2_1", "fb_2"])).toBe("1 bin · 1 feedback");
+    expect(evidenceMixLabel([])).toBe("no evidence");
   });
 });
 

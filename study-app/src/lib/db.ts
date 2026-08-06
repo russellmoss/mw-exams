@@ -2494,6 +2494,62 @@ export async function getBinRowsForMining(
   }));
 }
 
+// The miner's second signal stream: user feedback the analysis loop ACCEPTED (or partially
+// accepted) on served questions and drills. Each accepted feedback already got its own point fix —
+// what the miner adds is noticing when the same class of complaint keeps being accepted, which is
+// evidence the point fixes did not generalize. Item ids are namespaced `fb_<attemptId>` so they can
+// never collide with bin item_ids in a proposal's evidence list; "codified" for these rows is
+// derived from shipped proposals' evidence (no column — see codifiedFeedbackIds in bin-fix-miner).
+export async function getFeedbackRowsForMining(
+  limit = 150
+): Promise<
+  {
+    itemId: string;
+    paper: number | null;
+    feedbackStatus: "accepted" | "partial";
+    note: string | null;
+    stem: string | null;
+    mode: string | null;
+    submittedAt: string;
+  }[]
+> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT a.id, a.question_id, a.mode, a.user_feedback, a.feedback_status,
+           COALESCE(a.feedback_submitted_at, a.completed_at, a.started_at) AS submitted_at,
+           g.paper, g.question_text
+    FROM user_attempts a
+    LEFT JOIN generated_questions g ON g.question_id = a.question_id
+    WHERE a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+      AND a.feedback_status IN ('accepted', 'partial')
+    ORDER BY COALESCE(a.feedback_submitted_at, a.completed_at, a.started_at) DESC
+    LIMIT ${limit}
+  `) as {
+    id: number | string;
+    question_id: string | null;
+    mode: string | null;
+    user_feedback: string;
+    feedback_status: "accepted" | "partial";
+    submitted_at: string | Date | null;
+    paper: number | null;
+    question_text: string | null;
+  }[];
+  return rows.map((r) => {
+    // Historical questions ("2019_p2_q1") have no generated_questions row — recover paper from the id.
+    const idPaper = r.question_id?.match(/_p([123])_/)?.[1];
+    return {
+      itemId: `fb_${r.id}`,
+      paper: r.paper ?? (idPaper ? parseInt(idPaper, 10) : null),
+      feedbackStatus: r.feedback_status,
+      note: r.user_feedback,
+      stem: r.question_text ?? null,
+      mode: r.mode ?? null,
+      submittedAt:
+        r.submitted_at instanceof Date ? r.submitted_at.toISOString() : String(r.submitted_at ?? ""),
+    };
+  });
+}
+
 export interface BinFixProposal {
   id: number;
   theme: string;
