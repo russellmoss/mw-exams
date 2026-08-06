@@ -680,7 +680,7 @@ export function detectPrimaryVariety(fullText) {
 // Sangiovese). Listing those would reject correct single-variety flights.
 //
 // NOTE: duplicated verbatim in question-engine.ts. Change both or they drift.
-const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|porto|port\s*(doc|dop)|champagne|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|cotes\s*de\s*provence|rioja|tokaji|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
+const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|porto|port\s*(doc|dop)|champagne|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|cotes\s*de\s*provence|rioja|chianti|tokaji|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
 
 export function isLikelyBlend(fullText) {
   // Strip diacritics first — see the note in question-engine.ts. "Châteauneuf" never matched
