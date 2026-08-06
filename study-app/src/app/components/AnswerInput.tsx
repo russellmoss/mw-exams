@@ -7,8 +7,6 @@ import { useDraft } from "@/lib/use-draft";
 import { MicButton } from "./MicButton";
 import ReactMarkdown from "react-markdown";
 
-const DICTATING_KEY = "answer-input-method-voice";
-
 interface AnswerInputProps {
   question: Question;
   /** `inputMethod` tells the grader whether to score spelling (see marking-principles). */
@@ -42,23 +40,31 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
     [NOTES_KEY]
   );
   const [showConfirm, setShowConfirm] = useState(false);
-  // How the candidate writes is a stable habit, not a per-question choice — remember it. Read
-  // lazily so the checkbox renders in the right state on first paint.
-  const [dictating, setDictatingState] = useState<boolean>(
-    () => typeof window !== "undefined" && window.localStorage.getItem(DICTATING_KEY) === "true"
+  // Whether the mic actually contributed text to THIS answer. Detected, not declared — nobody
+  // remembers a checkbox mid-dictation. Persisted alongside the draft so a reload doesn't turn a
+  // dictated answer back into a "typed" one, and forgotten on submit with the draft itself.
+  const VOICE_KEY = `mw-voice:${question.id}:${mode}`;
+  const [voiceUsed, setVoiceUsedState] = useState<boolean>(
+    () => typeof window !== "undefined" && window.localStorage.getItem(VOICE_KEY) === "true"
   );
-  const setDictating = useCallback((next: boolean) => {
-    setDictatingState(next);
-    if (typeof window !== "undefined") window.localStorage.setItem(DICTATING_KEY, String(next));
-  }, []);
+  const setVoiceUsed = useCallback(
+    (next: boolean) => {
+      setVoiceUsedState(next);
+      if (typeof window === "undefined") return;
+      if (next) window.localStorage.setItem(VOICE_KEY, "true");
+      else window.localStorage.removeItem(VOICE_KEY);
+    },
+    [VOICE_KEY]
+  );
 
   const handleTranscript = useCallback((text: string) => {
+    setVoiceUsed(true);
     setAnswer((prev) => {
       const trimmed = prev.trim();
       if (trimmed.length === 0) return text;
       return trimmed + " " + text;
     });
-  }, [setAnswer]);
+  }, [setAnswer, setVoiceUsed]);
 
   const speech = useSpeech(handleTranscript);
 
@@ -93,7 +99,11 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
         <div className="flex-1 relative min-w-0">
           <textarea
             value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
+            onChange={(e) => {
+              // Wiping the box and starting over is a fresh answer — stop treating it as dictated.
+              if (e.target.value.trim().length === 0 && voiceUsed) setVoiceUsed(false);
+              setAnswer(e.target.value);
+            }}
             placeholder="Type or speak your exam answer..."
             className={`w-full min-h-[300px] bg-card border rounded-xl p-4 pr-14 text-foreground text-[15px] leading-relaxed resize-y placeholder:text-muted/50 focus:outline-none transition-colors ${
               speech.isListening
@@ -162,25 +172,18 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
         )}
       </div>
 
-      {/* Dictation declaration. MW examiners do deduct for blatant/repeated misspellings, so the
-          grader is right to flag them — but on a dictated answer that penalty lands on the
-          transcription engine rather than on what the candidate knows. Declaring it keeps the
-          spelling critique visible while taking it out of the mark. */}
-      <label className="flex items-start gap-2 mt-3 cursor-pointer select-none">
-        <input
-          type="checkbox"
-          checked={dictating}
-          onChange={(e) => setDictating(e.target.checked)}
-          className="mt-0.5 accent-[var(--accent)] cursor-pointer"
-        />
-        <span className="text-xs text-muted leading-relaxed">
-          I&rsquo;m dictating this answer
+      {/* Dictation is detected from mic use, not declared. MW examiners do deduct for
+          blatant/repeated misspellings, so the grader is right to flag them — but on a dictated
+          answer that penalty lands on the transcription engine rather than on what the candidate
+          knows. The note keeps the spelling critique visible while it's taken out of the mark. */}
+      {voiceUsed && (
+        <p className="text-xs text-muted leading-relaxed mt-3">
+          Dictation detected — misspellings will be shown but won&rsquo;t cost marks.
           <span className="block text-[11px] text-muted/70">
-            Misspellings will still be shown, but won&rsquo;t cost marks. The real exam is handwritten, so
-            spelling counts there.
+            The real exam is handwritten, so spelling counts there.
           </span>
-        </span>
-      </label>
+        </p>
+      )}
 
       {/* Word count + status + submit */}
       <div className="flex items-center justify-between mt-4">
@@ -231,7 +234,9 @@ export function AnswerInput({ question, onSubmit, tastingNotes, mode = "full" }:
                 onClick={() => {
                   setShowConfirm(false);
                   clearAnswer();
-                  onSubmit(answer, dictating ? "voice" : "typed");
+                  const inputMethod = voiceUsed ? "voice" : "typed";
+                  setVoiceUsed(false);
+                  onSubmit(answer, inputMethod);
                 }}
                 className="px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-background transition-colors cursor-pointer font-semibold"
               >

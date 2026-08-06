@@ -48,8 +48,8 @@ Reserve the highest marks for answers that get "under the skin of the wine" (202
 Grade to the examiner-faithful standard above — INCLUDING tipping a borderline to FAIL on a clear howler and zeroing fabricated/cascade answers — but keep the WRITTEN feedback constructive and coaching: lead with what worked, be specific and actionable, and frame each gap as the path to the next band. The verdict is honest; the voice is encouraging.`;
 
 /**
- * Spelling guidance for a DICTATED answer. Appended to a grader prompt only when the candidate
- * marked themselves as dictating.
+ * Spelling guidance for a DICTATED answer. Appended to a grader prompt only when the app detected
+ * that the answer was dictated (the in-app mic contributed text to it).
  *
  * The Professionalism rule above deducts for misspelled appellation, variety and producer names,
  * which is faithful to the IMW. It stops measuring the CANDIDATE when the words came out of a
