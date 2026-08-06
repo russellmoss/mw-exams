@@ -203,7 +203,11 @@ async function runSession(paper, label) {
     qFresh = await dbWines(session.question_id);
   }
   check(`${label}: model answer lands (async)`, (qFresh?.model_answer?.length ?? 0) > 100);
-  check(`${label}: not quarantined (post-audit)`, qFresh && qFresh.invalid_reasons == null);
+  check(
+    `${label}: not quarantined (post-audit)`,
+    qFresh && qFresh.invalid_reasons == null,
+    qFresh?.invalid_reasons ? JSON.stringify(qFresh.invalid_reasons).slice(0, 400) : ""
+  );
 
   // 2. Redaction probe on the pre-reveal payload.
   const detailRes = await api(`/api/live-tasting/${sessionId}`);
@@ -303,7 +307,12 @@ async function gradeSession(ctx, answerStyle, label) {
     ? (await sql`SELECT pass_estimate, marks_estimate, answer_feedback FROM user_attempts WHERE id = ${after.attempt_id}`)[0]
     : null;
   check(`${label}: feedback persisted server-side`, (attempt?.answer_feedback?.length ?? 0) > 200);
-  return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null };
+  const fb = attempt?.answer_feedback || "";
+  const ri = fb.search(/result/i);
+  const feedbackSnippet = ri >= 0 ? fb.slice(Math.max(0, ri - 20), ri + 120).replace(/
+/g, " ") : fb.slice(0, 140).replace(/
+/g, " ");
+  return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null, feedbackSnippet };
 }
 
 // ── main ────────────────────────────────────────────────────────────────────────────────────────
@@ -354,7 +363,8 @@ async function main() {
     } else if (gm != null && bm != null) {
       check("grading discriminates (marks)", gm > bm, `good=${gm} bad=${bm}`);
     } else {
-      warn("grading discrimination", `unparseable estimates: good=${good.pass}/${good.marks} bad=${bad.pass}/${bad.marks}`);
+      warn("grading discrimination", `unparseable estimates: good=${good.pass}/${good.marks} bad=${bad.pass}/${bad.marks}` +
+        ` | good feedback around 'Result': ${(good.feedbackSnippet || "n/a")}`);
     }
   }
 
