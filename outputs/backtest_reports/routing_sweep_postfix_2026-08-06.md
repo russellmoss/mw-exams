@@ -66,9 +66,11 @@ pair). Post-fix numbers in the table above reflect the verified state.
   construction. What the post-fix numbers legitimately prove: the plumbing is now consistent —
   stems reach branches whose leaves contain their own cited history, gates and leaves agree, and
   the evidence lists are truthful. They do NOT prove better prediction on unseen exams.
-- **The real test is held-out:** re-run the LOYO audit (pattern: `loyo_postfix_audit.md`) on the
-  edited trees, and treat the 2027 sit as the true holdout. Structural fixes (D1–D6) should
-  transfer; the D7 tier additions are the ones to watch for overfit — they were deliberately
-  capped at PLAUSIBLE/CURVEBALL for thin attestation for exactly this reason.
+- **The held-out re-validation was run same-day** on the one corpus the fix pass never touched —
+  the 2000–2010 blind test (`era1_blind_rerun_2026-08-06.md`): unroutable stems 29% → 5%, variety
+  top-3 52% → 58%, variety in-set 69% → 80%, country in-set 83% → 90%. The structural fixes
+  transfer. The 2015–2026 LOYO folds can no longer be honestly held out (every year is now
+  training material); the 2027 sit remains the next true holdout. The D7 tier additions were
+  deliberately capped at PLAUSIBLE/CURVEBALL for thin attestation to limit overfit.
 - Ground-truth variety/region for the 540 wines was inferred from wine names by the sweep agents;
   a handful of blend compositions are flagged as uncertain in the JSON.

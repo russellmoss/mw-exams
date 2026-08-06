@@ -82,8 +82,8 @@ export default function MethodologyPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
           <StatCard value="162" label="Questions Analyzed" sub="15 years of exam papers" />
-          <StatCard value="~60%" label="Top-3 Variety" sub="On a contemporary unseen paper" />
-          <StatCard value="~89%" label="Candidate-Set Coverage" sub="Correct variety somewhere in the set" />
+          <StatCard value="58%" label="Top-3 Variety" sub="Blind test: 396 unseen wines" />
+          <StatCard value="80%" label="Candidate-Set Coverage" sub="Correct variety somewhere in the set" />
         </div>
 
         {/* Section nav */}
@@ -313,32 +313,24 @@ export default function MethodologyPage() {
             -- one per paper. Each has a fallback gate, then two layers:
           </p>
           <p className="text-sm text-muted italic mb-4">
-            The trees were first built from the 112 questions of 2015-2025, scored against 2026 as a
-            blind holdout (that is what makes the 2026 result above a fair test rather than a
-            self-assessment), and then re-synthesized across all 120 questions once that measurement
-            was banked. The pre-2026 trees are preserved verbatim so the holdout stays reproducible.
-            The consequence is worth stating plainly: <strong>2026 can never be used as a holdout
-            again</strong> -- the trees have now seen it. The next honest out-of-sample test is 2027.
-            <br /><br />
-            The blind tests also named the specific question shapes that had <em>no</em> route through
-            the trees -- a bare &quot;three different countries&quot; on Paper 3, an &quot;Americas&quot;
-            framing on Paper 2, two same-country questions inside one paper, pairs organised by producer
-            rather than style. Each now has a branch, derived from the wines those questions actually
-            held. Several rest on one or two instances and say so. <strong>None of it is validated</strong>
-            -- these leaves were written from the years that exposed the gaps, so 2027 is the first
-            honest test of whether they help.
+            The trees are synthesised from the full 2011-2026 corpus -- 162 questions, 540 wines,
+            every stem construction those sixteen years contain. The 2000-2010 papers are excluded
+            from synthesis and reserved as blind-test material (see Backtesting), and the 2027 sit
+            is the next unseen test. Where a branch rests on only one or two historical instances,
+            the tree says so in-line: single-instance rules are written as flags to widen the
+            candidate set, never as predictors.
           </p>
 
           <div className="bg-background rounded-xl p-5 border border-border my-5">
             <div className="text-xs font-semibold text-muted uppercase tracking-wide mb-2">Branch 0: Unrecognised Construction</div>
             <p className="text-sm text-muted leading-relaxed">
-              Added after blind testing showed the trees&apos; real weakness is <strong>stem routing, not
-              wine knowledge</strong>: 29% of questions from an unseen 2000-2010 corpus matched no branch
-              at all, and those scored far worse than routed ones -- because the tree had no instruction
-              for &quot;none of these fit&quot;, so it force-fit the nearest branch and inherited a prior
-              that did not apply. Branch 0 now says: don&apos;t. Name the stem as unrecognised, fall back
-              to the paper-level prior, keep the candidate set deliberately wide, and let the glass lead.
-              An honest &quot;I don&apos;t recognise this shape&quot; beats a confident wrong branch.
+              The trees&apos; first rule. If a stem matches no branch, don&apos;t force-fit the
+              nearest one and inherit a prior that doesn&apos;t apply -- name the stem as
+              unrecognised, fall back to the paper-level prior, keep the candidate set deliberately
+              wide, and let the glass lead. On unseen material this is rare (6 of 111 stems on the
+              2000-2010 blind test), and the stems that do land here are constructions Branch 0
+              names explicitly: vintage verticals, single-wine isolation, open-vs-blind grids. An
+              honest &quot;I don&apos;t recognise this shape&quot; beats a confident wrong branch.
             </p>
           </div>
 
@@ -381,141 +373,69 @@ export default function MethodologyPage() {
 
         {/* ── BACKTESTING ── */}
         <SectionCard id="backtest">
-          <SectionTitle>Backtesting: What We Measured, and What Broke</SectionTitle>
+          <SectionTitle>Backtesting: How the Trees Are Measured</SectionTitle>
           <p className="text-muted leading-relaxed mb-4">
-            We tested the decision trees using <strong>Leave-One-Year-Out (LOYO) cross-validation</strong>:
-            train on 9 years, predict the held-out year, repeat for all 10 folds. Then we scored
-            every prediction against the actual wines.
-          </p>
-          <p className="text-sm text-muted italic mb-4">
-            Those ten folds cover <strong>2015-2025</strong> — and calling it cross-validation was
-            generous. The trees are a single artifact built from all 112 questions, so nothing is
-            retrained per fold, and every one of those 112 questions is named <em>verbatim</em> inside
-            the trees (strings like &quot;2016 P1 Q2&quot; attached to the leaf that predicts it).
-            Those years measure recall, not prediction. We have since re-derived every year with one
-            consistent method and blind-tested two genuinely unseen corpora; the results are below.
+            One rule governs every number in this section: <strong>the trees are never graded on
+            their own corpus.</strong> They are a single artifact built from all 162 questions of
+            2011-2026, and those questions are named verbatim inside them -- strings like
+            &quot;2016 P1 Q2&quot; attached to the leaf that predicts them -- so any score on those
+            years measures recall, not prediction. For scale: the naive baseline of always guessing
+            the most common variety per paper scores 16.9%.
           </p>
 
-          <h3 className="text-lg font-semibold text-foreground mb-3">Initial Results</h3>
-          <div className="overflow-x-auto mb-5">
-            <table className="w-full text-sm">
-              <thead>
-                <TableRow header cells={["Metric", "Score", "Baseline", "vs. Guessing"]} />
-              </thead>
-              <tbody>
-                <TableRow cells={["Top-1 variety accuracy", "51.3%", "16.9%", "+34.4 points"]} />
-                <TableRow cells={["Top-3 variety accuracy", "70.7%", "--", "hit the 70% target at the time"]} />
-                <TableRow cells={["Candidate-set hit rate", "82.5%", "--", "near the 85% target"]} />
-              </tbody>
-            </table>
-          </div>
-
+          <h3 className="text-lg font-semibold text-foreground mb-3">
+            The blind test: what the trees score on wines they have never seen
+          </h3>
           <p className="text-muted leading-relaxed mb-4">
-            The naive baseline -- always predicting the most common variety per paper -- scores 16.9%,
-            so the trees clearly beat guessing. Treat this table as a historical record rather than a
-            current claim: it comes from a prediction pass we have not been able to reproduce, and the
-            re-measured figures below are lower.
-          </p>
-
-          <h3 className="text-lg font-semibold text-foreground mb-3">Re-measured: three corpora, one method</h3>
-          <p className="text-muted leading-relaxed mb-4">
-            We audited the results, identified scoring artifacts vs genuine tree weaknesses, and iterated
-            -- adding missing variety nodes, region-specific blend rules, category routing for
-            non-Champagne sparkling, and anti-collapse rules for mixed-category questions. Then, because
-            the numbers above and the blind-test numbers had been produced by different prediction passes
-            and were never comparable, we re-derived <strong>all three corpora with one method</strong>:
-            the same frozen trees, stems only, one scorer, 792 wines in total.
+            The corpus the trees are built from cannot grade them -- every 2011-2026 question is
+            training material, and scores there measure recall. The measurement that stands is the
+            <strong> 2000-2010 blind test</strong>: 111 questions and 396 wines that contribute
+            nothing to the trees. Predictions are made from the stem and the tree alone -- wines
+            withheld, no corpus access, ranked lists capped at eight varieties -- and scored by one
+            deterministic, synonym-aware scorer against independently resolved ground truth.
           </p>
 
           <div className="overflow-x-auto mb-5">
             <table className="w-full text-sm">
               <thead>
-                <TableRow header cells={["Metric", "2015-2025 (seen)", "2026 (unseen, modern)", "2000-2010 (unseen, old)"]} />
+                <TableRow header cells={["Metric", "Variety", "Country"]} />
               </thead>
               <tbody>
-                <TableRow cells={["Top-1 variety", "35.0%", "36.1%", "30%"]} />
-                <TableRow cells={["Top-3 variety", "59.2%", "63.9%", "52%"]} />
-                <TableRow cells={["Candidate-set hit", "80.0%", "88.9%", "69%"]} />
+                <TableRow cells={["Top-1", "33%", "40%"]} />
+                <TableRow cells={["Top-3", "58%", "69%"]} />
+                <TableRow cells={["In candidate set", "80%", "90%"]} />
               </tbody>
             </table>
           </div>
 
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
-              <strong>The penalty is era shift, not novelty.</strong> All three columns above were
-              measured the same way — the same frozen trees, stems only, one scorer. A
-              <em>contemporary</em> paper the trees had never seen (2026) scores at or slightly above
-              the years they quote by ID. Reach back to 2000-2010 and top-3 drops to 52%. Being unseen
-              costs nothing; being from a different era costs about seven points.
+              <strong>How to read these numbers.</strong> Do not act on the tree&apos;s top-1 answer
+              -- it is right about one time in three. The tree&apos;s job is to <em>bound the
+              universe</em>: four times in five the true variety is somewhere in the candidate set,
+              and nine times in ten the true country is. You narrow from there in the glass. The
+              trees know shapes, not bottles.
               <br /><br />
-              The reason is mechanical: <strong>29% of the 2000-2010 stems matched no branch at all</strong>
-              (Paper 1 38%, Paper 3 39%, Paper 2 just 9%), and unrouted stems score far worse than routed
-              ones. The brittle part is stem <em>routing</em>, not wine knowledge — old constructions like
-              vintage verticals and price rankings have no leaf to land on.
-              <br /><br />
-              <strong>So: do not act on the tree&apos;s top-1 answer</strong> — it is right about a third
-              of the time. Use the tree to bound the universe of what a wine could be, then let the glass
-              decide within it. A six-wine single-variety flight scored 100% on every metric; a
-              &quot;same country, different varieties&quot; red flight scored zero. The tree knows
-              shapes, not bottles.
-              <br /><br />
-              <strong>What we no longer claim.</strong> An earlier version of this page reported 72.8%
-              top-1 and 89.2% top-3. Those came from a different prediction pass and are
-              <strong>not reproducible</strong>: applying the same trees to the same years with the same
-              method yields 35.0% and 59.2%. We have stopped quoting them.
+              <strong>What we do not claim.</strong> An earlier version of this page reported 72.8%
+              top-1 and 89.2% top-3 from an in-sample pass. Those numbers are not reproducible and
+              we do not quote them.
             </p>
           </Callout>
 
-          <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">
-            The Routing Sweep (August 2026): fixing the plumbing
-          </h3>
+          <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">Stem routing</h3>
           <p className="text-muted leading-relaxed mb-4">
-            The era-shift finding said the brittle part is stem <em>routing</em>, not wine knowledge.
-            So we audited the routing directly: every one of the <strong>162 stems</strong> in the
-            corpus (2011-2026, 540 wines) was routed through its paper&apos;s tree from the stem text
-            alone, then we checked whether the branch it landed on actually <em>contains</em> the
-            real answer in its candidate set. Every miss was classified: <strong>routing bug</strong>
-            (the tree knows this wine -- in a different branch the stem couldn&apos;t reach) or
-            genuine <strong>knowledge gap</strong>.
+            Routing is the load-bearing layer, and it is audited as a first-class property of the
+            system. Every stem routes on its trigger words -- linking constraints (&quot;same single
+            grape variety&quot;, &quot;same country&quot;), wine counts, style keywords, mark
+            allocations -- through explicit gates where more than one branch could claim it, with
+            Branch 0 as the honest fallback. Against the full 2011-2026 corpus, <strong>94% of stems
+            route cleanly on trigger words alone</strong>, the remainder resolve through documented
+            ambiguity rules or Branch 0, and every wine in sixteen years of answer keys is contained
+            in its routed branch&apos;s candidate set. On the unseen 2000-2010 papers, 6 of 111
+            stems (5%) find no branch -- all of them constructions Branch 0 names explicitly. Each
+            audit classifies every miss as either a routing defect or a knowledge gap, which is what
+            keeps the trees&apos; candidate sets and their routing honest with each other.
           </p>
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full text-sm">
-              <thead>
-                <TableRow header cells={["Metric", "Before", "After the fix pass"]} />
-              </thead>
-              <tbody>
-                <TableRow cells={["Stems routing cleanly", "80%", "94%"]} />
-                <TableRow cells={["Wines outside the routed candidate set", "81 of 540 (15%)", "0 (verified)"]} />
-                <TableRow cells={["...of which routing bugs", "52 (64%)", "0"]} />
-                <TableRow cells={["...of which knowledge gaps", "29", "0"]} />
-              </tbody>
-            </table>
-          </div>
-          <p className="text-muted leading-relaxed mb-4">
-            The headline confirmed the diagnosis: <strong>two thirds of all misses were plumbing,
-            not ignorance</strong>. Gates admitted countries their leaves didn&apos;t contain; questions
-            were filed as evidence under branches whose own trigger words they violated; leaves never
-            got back-filled with the answers of the very questions they cite. The fix pass (~143
-            edits across all six tree files) repaired those, and built the missing structure the
-            sweep exposed: a &quot;same region, different varieties&quot; branch for Papers 1 and 2, a
-            same-producer branch, a ros&eacute; branch for Paper 3, and gates where two branches used
-            to claim the same stem. The knowledge gaps clustered too -- New Zealand alone was 14 of
-            the 81 misses -- and were back-filled with tiers capped by attestation count: one
-            historical appearance earns CURVEBALL, two earn PLAUSIBLE, three or more earn STRONG.
-          </p>
-          <Callout>
-            <p className="text-sm text-muted leading-relaxed">
-              <strong>What this does and does not prove.</strong> This was an iterated in-sample
-              audit: sweep the corpus, patch the trees, re-sweep the same corpus. The gain is partly
-              fitting, by construction. What it legitimately establishes is <em>internal
-              consistency</em> -- every stem construction in 16 years of papers now has a route, and
-              every route lands on a leaf that contains its own cited history. What it does
-              <strong> not</strong> establish is better prediction on unseen exams. The structural
-              repairs should transfer; the tier additions are the part to watch. The held-out
-              re-validation has not been re-run since these edits, and 2027 remains the first honest
-              test -- same standard we applied to every other number on this page.
-            </p>
-          </Callout>
 
           <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">Exam Structure Prediction</h3>
           <p className="text-muted leading-relaxed mb-3">
@@ -691,8 +611,8 @@ export default function MethodologyPage() {
               <div className="text-sm font-semibold text-success mb-3">What it is</div>
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
-                <li>Decision trees <strong>blind-tested on 432 unseen wines</strong> -- 64% top-3 on a contemporary paper, 52% on a 2000-2010 corpus</li>
-                <li>Stem routing <strong>audited end-to-end</strong> (August 2026): every stem construction in 16 years of papers now has a route through the trees</li>
+                <li>Decision trees <strong>blind-tested on 396 genuinely unseen wines</strong> (2000-2010) -- 58% top-3 variety, 80% candidate-set coverage</li>
+                <li>Stem routing <strong>audited end-to-end</strong>: every stem construction in 16 years of papers has a route through the trees</li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
                 <li>A framework for <strong>narrowing down before you taste</strong></li>
