@@ -6,7 +6,6 @@ import { createLiveTasting } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
-  countRecentLiveTastingSessions,
 } from "@/lib/db";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
 
@@ -60,14 +59,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // Rate limit (plan §5.3): each generation is a bounded but real Tavily + LLM spend.
-  const recent = await countRecentLiveTastingSessions(userId);
-  if (recent >= 2) {
-    return Response.json(
-      { error: "Live Tasting is limited to 2 new sessions per day — your cellar can only drink so fast." },
-      { status: 429 }
-    );
-  }
+  // No per-day session cap (owner's call, 2026-08-06): each generation is a bounded Tavily +
+  // LLM spend, users bring their own Anthropic keys, and the availability cache absorbs repeat
+  // markets. The cost dashboard + tavily_usage attribution remain the watchdogs.
 
   const overrideAmount = Number(body.budgetAmount);
   const budgetAmount =
