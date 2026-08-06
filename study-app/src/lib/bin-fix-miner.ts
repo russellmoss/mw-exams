@@ -22,6 +22,7 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import {
   getBinRowsForMining,
+  getFeedbackRowsForMining,
   getBinFixProposals,
   getBinFixProposal,
   insertBinFixProposal,
@@ -30,6 +31,7 @@ import {
   retireBinFixEvidence,
   type BinFixProposal,
 } from "@/lib/db";
+import type { MinableBinRow } from "@/lib/prompts/bin-fix-miner-prompt";
 import { buildBinFixMinerPrompt } from "@/lib/prompts/bin-fix-miner-prompt";
 import { dispatchRepositoryEvent } from "@/lib/github-dispatch";
 import { GEN_PATHS, VALIDATOR_PATHS } from "@/lib/apply-change";
@@ -83,6 +85,54 @@ export function parseMinedClusters(text: string, knownItemIds: Set<string>): Min
   return out;
 }
 
+// Feedback rows have no codified_by column (they live in user_attempts, not the bin ledger); a
+// feedback signal counts as codified once it appears in the evidence of a SHIPPED proposal — that
+// is the moment its root cause became code. Derived, not stored, so no migration and no drift.
+export function codifiedFeedbackIds(
+  proposals: { status: string; evidenceItemIds: string[] }[]
+): Set<string> {
+  const out = new Set<string>();
+  for (const p of proposals) {
+    if (p.status !== "shipped") continue;
+    for (const id of p.evidenceItemIds) if (id.startsWith("fb_")) out.add(id);
+  }
+  return out;
+}
+
+type FeedbackMiningRow = Awaited<ReturnType<typeof getFeedbackRowsForMining>>[number];
+
+function mapFeedbackRow(r: FeedbackMiningRow): MinableBinRow {
+  return {
+    itemId: r.itemId,
+    paper: r.paper,
+    tags: r.mode && r.mode !== "full" ? [`drill: ${r.mode}`] : [],
+    note: r.note,
+    stem: r.stem,
+    binnedAt: r.submittedAt,
+    source: "feedback",
+    feedbackStatus: r.feedbackStatus,
+  };
+}
+
+// Both signal streams in the one shape the miner prompt takes. Feedback rows carry their source
+// label and use the feedback-submitted timestamp where the bin rows use binned_at. Exported for
+// the offline mining dry-run harness; app code goes through mineBinFixProposals.
+export async function getSignalRowsForMining(): Promise<MinableBinRow[]> {
+  const [binRows, feedbackRows, proposals] = await Promise.all([
+    getBinRowsForMining(),
+    getFeedbackRowsForMining(),
+    getBinFixProposals(),
+  ]);
+  const codified = codifiedFeedbackIds(proposals);
+  const binMapped = binRows.map((r) => ({ ...r, source: "bin" as const }));
+  const fbMapped = feedbackRows.filter((r) => !codified.has(r.itemId)).map(mapFeedbackRow);
+  // The mining routes run under Vercel's 300s maxDuration and a 43-row ledger already measured
+  // ~270s of Opus thinking — cap the combined ledger so latency cannot grow unboundedly with
+  // feedback volume. Admin bins always make the cut; newest feedback fills what remains.
+  const MAX_MINING_ROWS = 100;
+  return [...binMapped, ...fbMapped.slice(0, Math.max(0, MAX_MINING_ROWS - binMapped.length))];
+}
+
 export interface MineResult {
   status: "mined" | "nothing_to_mine" | "no_api_key" | "error";
   created: BinFixProposal[];
@@ -97,7 +147,7 @@ export async function mineBinFixProposals(opts: {
     const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return { status: "no_api_key", created: [] };
 
-    const rows = await getBinRowsForMining();
+    const rows = await getSignalRowsForMining();
     if (rows.length < MIN_CLUSTER_SIZE) return { status: "nothing_to_mine", created: [] };
     const existing = await getBinFixProposals();
 
@@ -170,13 +220,26 @@ export async function dispatchBinFixProposal(opts: {
   }
 
   // Ground the build brief in the actual evidence: the reasons (and stems) the cluster is made of.
-  const evidence = (await getBinRowsForMining(500)).filter((r) => p.evidenceItemIds.includes(r.itemId));
+  // A cluster's evidence may span both streams (admin bins + accepted user feedback).
+  const [binRows, feedbackRows] = await Promise.all([
+    getBinRowsForMining(500),
+    getFeedbackRowsForMining(500),
+  ]);
+  const allRows: MinableBinRow[] = [
+    ...binRows.map((r) => ({ ...r, source: "bin" as const })),
+    ...feedbackRows.map(mapFeedbackRow),
+  ];
+  const evidence = allRows.filter((r) => p.evidenceItemIds.includes(r.itemId));
   const evidenceBlock = evidence
     .map((r) => {
       const tagLabels = r.tags.map((t) => BIN_REASON_LABELS[t] || t).join(", ");
+      const noteLabel =
+        r.source === "feedback"
+          ? `user feedback (${r.feedbackStatus ?? "accepted"} by the analysis loop)`
+          : "reviewer note";
       return [
-        `- ${r.itemId} (paper ${r.paper})${tagLabels ? ` — ${tagLabels}` : ""}`,
-        r.note ? `  reviewer note: "${r.note}"` : null,
+        `- ${r.itemId} (paper ${r.paper ?? "?"})${tagLabels ? ` — ${tagLabels}` : ""}`,
+        r.note ? `  ${noteLabel}: "${r.note}"` : null,
         r.stem ? `  stem: ${r.stem.slice(0, 180)}` : null,
       ]
         .filter(Boolean)
@@ -185,10 +248,10 @@ export async function dispatchBinFixProposal(opts: {
     .join("\n");
 
   const context = [
-    `Recurring bin-reason cluster: ${p.theme}`,
-    `Scope: ${p.paper ? `Paper ${p.paper}` : "cross-paper"} — ${p.evidenceItemIds.length} reasoned bins by the admin reviewer`,
+    `Recurring fault cluster: ${p.theme}`,
+    `Scope: ${p.paper ? `Paper ${p.paper}` : "cross-paper"} — ${p.evidenceItemIds.length} validated signals (admin bins and/or accepted user feedback)`,
     ``,
-    `## Evidence (the binned questions and the reviewer's stated reasons)`,
+    `## Evidence (the flagged questions and the stated reasons)`,
     evidenceBlock || "(evidence rows no longer readable — see proposal)",
   ].join("\n");
 

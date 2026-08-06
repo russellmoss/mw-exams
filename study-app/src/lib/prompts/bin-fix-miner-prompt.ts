@@ -10,11 +10,16 @@ import { BIN_REASON_LABELS } from "@/lib/bin-reasons";
 
 export interface MinableBinRow {
   itemId: string;
-  paper: number;
+  paper: number | null;
   tags: string[];
   note: string | null;
   stem: string | null;
   binnedAt: string;
+  // Which signal stream the row came from. Omitted = 'bin' (the original stream), so existing
+  // callers and tests keep working. 'feedback' rows are user feedback the analysis loop accepted;
+  // feedbackStatus distinguishes fully accepted from partially accepted.
+  source?: "bin" | "feedback";
+  feedbackStatus?: "accepted" | "partial";
 }
 
 export interface ExistingProposalSummary {
@@ -29,16 +34,26 @@ export function buildBinFixMinerPrompt(params: {
   const system = `You are the bin ROOT-CAUSE MINER for the MW Practical Exam Study System.
 
 ## Context
-An expert admin reviews generated practice questions and bins the bad ones with a reason. Those
-reasons currently feed generation prompts as a bounded rolling nudge — which means a RECURRING fault
-keeps recurring: the same complaint appears in the ledger three, four, six times. Your job is to find
-those recurring clusters and propose ONE mechanical fix per cluster, so the fault is enforced in code
-permanently instead of re-whispered to the model forever.
+The ledger below carries TWO validated human signal streams, labeled per row:
+- "admin bin": an expert admin reviewed a generated practice question and binned it with a reason.
+- "user feedback (accepted)" / "user feedback (partial)": a user complained about a served question
+  or drill, and the feedback-analysis loop judged the complaint valid (fully or partially). Raw
+  unvetted feedback never reaches you.
+Both streams feed prompts only as bounded rolling nudges — which means a RECURRING fault keeps
+recurring: the same complaint appears three, four, six times. Your job is to find those recurring
+clusters and propose ONE mechanical fix per cluster, so the fault is enforced in code permanently
+instead of re-whispered to the model forever.
 
 ## What qualifies as a cluster
 - At least 3 ledger rows expressing the SAME underlying fault (same root cause, not merely the same
   tag — "too_obscure because no banker in the flight" and "too_obscure because the producer is
   obscure" are DIFFERENT clusters).
+- Clusters MAY mix sources — the same fault surfacing in admin bins AND accepted user feedback is
+  STRONGER evidence than either stream alone, so prefer forming the cross-source cluster over two
+  smaller single-source ones.
+- Weight repeat-accepted feedback specially: every accepted feedback already triggered its own
+  one-off point fix when it was accepted, so a fault that KEEPS being accepted over time is proof
+  the point fixes did not generalize — exactly what a root-cause fix is for.
 - The fault must be fixable MECHANICALLY — as a validator rule, a generation-prompt constraint, a
   selection/query rule, or a data cap. If the only fix is "tell the model to try harder", it is not a
   cluster; leave it to the rolling digest.
@@ -76,8 +91,10 @@ Raw JSON only — no markdown fences, no prose before or after:
   const rowsBlock = params.rows
     .map((r) => {
       const tagLabels = r.tags.map((t) => BIN_REASON_LABELS[t] || t).join(", ");
+      const source =
+        r.source === "feedback" ? `user feedback (${r.feedbackStatus ?? "accepted"})` : "admin bin";
       return [
-        `- item_id: ${r.itemId} | paper ${r.paper} | ${r.binnedAt.slice(0, 10)}`,
+        `- item_id: ${r.itemId} | paper ${r.paper ?? "?"} | ${r.binnedAt.slice(0, 10)} | source: ${source}`,
         `  tags: ${tagLabels || "(none)"}`,
         r.note ? `  note: "${r.note}"` : null,
         r.stem ? `  stem: ${r.stem.slice(0, 200)}` : null,
@@ -92,7 +109,7 @@ Raw JSON only — no markdown fences, no prose before or after:
       ? params.existingProposals.map((p) => `- [${p.status}] ${p.theme}`).join("\n")
       : "(none)";
 
-  const user = `## Bin ledger — reasoned bins still live in the prompt feeds
+  const user = `## Signal ledger — reasoned bins + accepted user feedback still live in the prompt feeds
 ${rowsBlock}
 
 ## Existing proposals (do not duplicate; 'rejected' means declined — do not re-propose)
