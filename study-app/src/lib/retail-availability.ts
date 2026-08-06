@@ -18,17 +18,10 @@ import { selectModel } from "./model-selector";
  * next step, and UI copy must say "call ahead", never "in stock".
  */
 
-export type StockistKind = "local" | "state_store" | "mail";
-export type StockistConfidence = "listed" | "likely" | "unverified";
-
-export type Stockist = {
-  name: string;
-  kind: StockistKind;
-  url: string;
-  price: number | null;
-  currency: string | null;
-  confidence: StockistConfidence;
-};
+// Types are defined in the client-safe live-tasting.ts (client components render stockist cards
+// and must not import this server module); re-exported here for server-side consumers.
+export type { Stockist, StockistKind, StockistConfidence } from "./live-tasting";
+import type { Stockist, StockistKind, StockistConfidence } from "./live-tasting";
 
 export type AvailabilityResult = {
   stockists: Stockist[];

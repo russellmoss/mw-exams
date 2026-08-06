@@ -28,6 +28,8 @@ export async function GET(request: Request) {
     FROM generated_questions q
     JOIN stem_answer_keys k ON k.question_id = q.question_id
     WHERE k.validated = true
+      -- Live Tasting questions (migration 041) belong to one user's session, never the drill pool.
+      AND q.scope = 'pool'
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
     ORDER BY random()

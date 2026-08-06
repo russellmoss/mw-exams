@@ -1,0 +1,390 @@
+import { neon } from "@neondatabase/serverless";
+import { generateFreshQuestion } from "./question-engine";
+import type { ProgressEmitter } from "./thinking-stream";
+import { getAvailability, fitsBudget, confidentCount, type Stockist } from "./retail-availability";
+import { createLiveTastingSession, type LiveTastingSession } from "./db";
+import { liveTastingSessionId } from "./live-tasting";
+
+/**
+ * Live Tasting generation pipeline (live_tasting_plan.md §2.1, §4):
+ *
+ *   ARCHETYPE FIRST → per-slot candidates from wine_bank (deterministic price-band budget gate)
+ *   → availability confirms/prunes WITHIN the archetype (candidate #2/#3 only on a miss)
+ *   → generateFreshQuestion with the confirmed flight PINNED (scope='live-tasting',
+ *     awaitBackgroundWork so the key + audit land before the session exists)
+ *   → session row created only after the key validated.
+ *
+ * Availability never defines the flight shape; it only prunes within slot constraints. A slot
+ * whose candidates all miss is accepted with mail-order-thin availability (the wine-searcher
+ * deep link keeps the user unblocked) rather than bending the archetype to inventory.
+ */
+
+export type SlotAvailability = {
+  slot: number;
+  wineKey: string;
+  producer: string;
+  wineName: string;
+  label: string;
+  region: string;
+  country: string;
+  priceBand: string | null;
+  stockists: Stockist[];
+  /** true when no confident stockist was found — mail-order/deep-link framing in the UI. */
+  thin: boolean;
+};
+
+type BankRow = {
+  id: string;
+  producer: string;
+  wine_name: string;
+  country: string;
+  region: string;
+  grape_varieties: unknown;
+  style_category: string;
+  price_band: string | null;
+};
+
+type SlotPick = { row: BankRow; alternates: BankRow[] };
+
+// Benchmark varieties per paper with the origins a same-variety flight can draw on. Origin labels
+// are matched against wine_bank.country. Deliberately the wide-distribution classics — the P3 long
+// tail and curveball styles are out of v1 scope (plan §4.2).
+const P1_VARIETIES: Record<string, string[]> = {
+  Chardonnay: ["France", "Australia", "United States", "USA", "New Zealand", "South Africa", "Chile", "Argentina"],
+  Riesling: ["Germany", "France", "Australia", "Austria", "United States", "USA"],
+  "Sauvignon Blanc": ["France", "New Zealand", "South Africa", "Chile", "United States", "USA"],
+  "Chenin Blanc": ["France", "South Africa"],
+  "Pinot Gris": ["France", "Italy", "New Zealand", "United States", "USA"],
+};
+
+const P2_VARIETIES: Record<string, string[]> = {
+  "Pinot Noir": ["France", "New Zealand", "United States", "USA", "Germany", "Australia", "Chile"],
+  "Cabernet Sauvignon": ["France", "United States", "USA", "Australia", "Chile", "South Africa"],
+  Syrah: ["France", "Australia", "United States", "USA", "South Africa", "Chile"],
+  Merlot: ["France", "United States", "USA", "Chile"],
+  Grenache: ["France", "Spain", "Australia"],
+  Malbec: ["Argentina", "France"],
+};
+
+// Quality-ladder regions: same region, tiers separated by price band. Variety anchors the color.
+const LADDER_REGIONS: { region: string; paper: number; variety: string }[] = [
+  { region: "Burgundy", paper: 1, variety: "Chardonnay" },
+  { region: "Burgundy", paper: 2, variety: "Pinot Noir" },
+  { region: "Rioja", paper: 2, variety: "Tempranillo" },
+  { region: "Tuscany", paper: 2, variety: "Sangiovese" },
+  { region: "Piedmont", paper: 2, variety: "Nebbiolo" },
+];
+
+// P3 style-contrast pools by wine_bank.style_category (wide-distribution categories only).
+const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet"];
+
+export type ArchetypeId = "same-variety" | "quality-ladder" | "mixed-variety" | "p3-styles";
+
+export const ARCHETYPE_FAMILY: Record<ArchetypeId, string> = {
+  "same-variety": "F1",
+  "quality-ladder": "F7",
+  "mixed-variety": "F4",
+  "p3-styles": "F6",
+};
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pinnedText(row: BankRow): string {
+  const name = (row.wine_name || "").trim();
+  const head = name ? `${row.producer.trim()}, ${name}` : row.producer.trim();
+  return `${head}. ${row.region.trim()}, ${row.country.trim()}.`;
+}
+
+function usableRow(r: BankRow): boolean {
+  return Boolean(
+    r.producer && r.producer.trim().length > 2 &&
+    r.country && r.country.trim() &&
+    r.region && r.region.trim() &&
+    r.price_band
+  );
+}
+
+function grapeList(r: BankRow): string[] {
+  const g = typeof r.grape_varieties === "string" ? JSON.parse(r.grape_varieties) : r.grape_varieties;
+  return Array.isArray(g) ? g.filter((x): x is string => typeof x === "string") : [];
+}
+
+async function loadBudgetedBank(budgetAmount: number | null, budgetCurrency: string | null): Promise<BankRow[]> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = (await sql`
+    SELECT id, producer, wine_name, country, region, grape_varieties, style_category, price_band
+    FROM wine_bank
+    WHERE price_band IS NOT NULL
+  `) as BankRow[];
+  return rows.filter(
+    (r) => usableRow(r) && fitsBudget({ priceBand: r.price_band, budgetAmount, budgetCurrency })
+  );
+}
+
+const norm = (s: string) => (s || "").toLowerCase().trim();
+
+/**
+ * Pick an archetype and per-slot candidate lists (primary + up to 2 alternates per slot) from the
+ * budget-filtered bank. Tries archetypes in shuffled preference order and returns the first that
+ * the bank can satisfy; throws with a user-facing message when none can.
+ */
+export function pickArchetype(
+  bank: BankRow[],
+  paper: number,
+  flightSize: number
+): { archetype: ArchetypeId; label: string; slots: SlotPick[] } {
+  const stillDry = bank.filter((r) => r.style_category === "still_dry");
+
+  const bySlot = (groups: BankRow[][]): SlotPick[] | null => {
+    if (groups.some((g) => g.length === 0)) return null;
+    const used = new Set<string>();
+    const slots: SlotPick[] = [];
+    for (const g of groups) {
+      const fresh = g.filter((r) => !used.has(r.id));
+      if (!fresh.length) return null;
+      const ordered = shuffle(fresh);
+      const pick = ordered[0];
+      used.add(pick.id);
+      slots.push({ row: pick, alternates: ordered.slice(1, 3) });
+    }
+    return slots;
+  };
+
+  if (paper === 3) {
+    // Style contrast: one wine per wide-distribution P3 category, padding with a second country
+    // of an earlier category when flightSize exceeds available categories.
+    const byCat = P3_CATEGORIES.map((c) => bank.filter((r) => r.style_category === c));
+    const nonEmpty = byCat.filter((g) => g.length > 0);
+    if (nonEmpty.length === 0) throw new Error("No Paper 3 wines with a price band in the bank yet — run the price-band backfill.");
+    const groups: BankRow[][] = [];
+    for (let i = 0; i < flightSize; i++) groups.push(nonEmpty[i % nonEmpty.length]);
+    const slots = bySlot(groups);
+    if (!slots) throw new Error("Could not assemble a Paper 3 style flight within budget.");
+    return { archetype: "p3-styles", label: "Contrasting P3 styles", slots };
+  }
+
+  const varieties = paper === 1 ? P1_VARIETIES : P2_VARIETIES;
+  const tryOrder = shuffle(["same-variety", "quality-ladder", "mixed-variety"] as const);
+
+  for (const arch of tryOrder) {
+    if (arch === "same-variety") {
+      for (const [variety, origins] of shuffle(Object.entries(varieties))) {
+        const pool = stillDry.filter((r) => grapeList(r).some((g) => norm(g) === norm(variety)));
+        const byOrigin = shuffle(origins)
+          .map((o) => pool.filter((r) => norm(r.country) === norm(o)))
+          .filter((g) => g.length > 0);
+        // Distinct origins only — a same-variety flight's whole point is origin contrast.
+        if (byOrigin.length >= flightSize) {
+          const slots = bySlot(byOrigin.slice(0, flightSize));
+          if (slots) return { archetype: "same-variety", label: `Same variety (${variety}), different origins`, slots };
+        }
+      }
+    } else if (arch === "quality-ladder") {
+      for (const ladder of shuffle(LADDER_REGIONS.filter((l) => l.paper === paper))) {
+        const pool = stillDry.filter(
+          (r) => norm(r.region).includes(norm(ladder.region)) &&
+                 grapeList(r).some((g) => norm(g) === norm(ladder.variety))
+        );
+        const bands = new Set(pool.map((r) => r.price_band));
+        if (pool.length >= flightSize && bands.size >= 2) {
+          // Order the flight cheap→dear so the ladder reads as a ladder.
+          const bandRank: Record<string, number> = { value: 0, premium: 1, super_premium: 2, icon: 3 };
+          const sorted = [...pool].sort((a, b) => (bandRank[a.price_band!] ?? 9) - (bandRank[b.price_band!] ?? 9));
+          const step = Math.max(1, Math.floor(sorted.length / flightSize));
+          const groups: BankRow[][] = [];
+          for (let i = 0; i < flightSize; i++) {
+            const start = i * step;
+            groups.push(sorted.slice(start, Math.max(start + 1, start + step)));
+          }
+          const slots = bySlot(groups);
+          if (slots) return { archetype: "quality-ladder", label: `${ladder.region} quality ladder`, slots };
+        }
+      }
+    } else {
+      // mixed-variety: flightSize distinct varieties, each from a classic origin for that grape.
+      const entries = shuffle(Object.entries(varieties));
+      const groups: BankRow[][] = [];
+      for (const [variety, origins] of entries) {
+        if (groups.length >= flightSize) break;
+        const pool = stillDry.filter(
+          (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
+                 origins.some((o) => norm(r.country) === norm(o))
+        );
+        if (pool.length > 0) groups.push(pool);
+      }
+      if (groups.length >= flightSize) {
+        const slots = bySlot(groups);
+        if (slots) return { archetype: "mixed-variety", label: "Mixed varieties, classic origins", slots };
+      }
+    }
+  }
+  throw new Error(
+    "The wine bank can't fill this flight within your budget yet — try a wider budget, a smaller flight, or a different paper."
+  );
+}
+
+/**
+ * Confirm availability per slot: primary candidate first, alternates only on a miss (bounded
+ * fan-out — worst case 3 searches per slot, typical 1, and the 30-day cache absorbs repeats).
+ */
+export async function confirmSlots(
+  slots: SlotPick[],
+  city: string,
+  country: string,
+  apiKey: string,
+  userId: number,
+  emit?: ProgressEmitter
+): Promise<SlotAvailability[]> {
+  const out: SlotAvailability[] = [];
+  for (let i = 0; i < slots.length; i++) {
+    const slotNo = i + 1;
+    const candidates = [slots[i].row, ...slots[i].alternates];
+    let chosen: { row: BankRow; stockists: Stockist[] } | null = null;
+    for (const row of candidates) {
+      emit?.({ type: "status", label: `Checking availability near ${city}: ${row.producer}…` });
+      const res = await getAvailability(
+        { producer: row.producer, wineName: row.wine_name, wineKey: row.id },
+        city, country, apiKey, { userId }
+      );
+      if (confidentCount(res.stockists) >= 1) {
+        chosen = { row, stockists: res.stockists };
+        break;
+      }
+      if (!chosen) chosen = { row, stockists: res.stockists }; // best-effort fallback: primary + deep link
+    }
+    const { row, stockists } = chosen!;
+    out.push({
+      slot: slotNo,
+      wineKey: row.id,
+      producer: row.producer,
+      wineName: row.wine_name,
+      label: `${row.producer} ${row.wine_name}`.trim(),
+      region: row.region,
+      country: row.country,
+      priceBand: row.price_band,
+      stockists,
+      thin: confidentCount(stockists) === 0,
+    });
+  }
+  return out;
+}
+
+export type CreateLiveTastingResult =
+  | { session: LiveTastingSession }
+  | { error: string };
+
+export async function createLiveTasting(opts: {
+  userId: number;
+  apiKey: string;
+  paper: number;
+  flightSize: number;
+  city: string;
+  country: string;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  emit?: ProgressEmitter;
+}): Promise<CreateLiveTastingResult> {
+  const { userId, apiKey, paper, flightSize, city, country, budgetAmount, budgetCurrency, emit } = opts;
+
+  emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });
+  const bank = await loadBudgetedBank(budgetAmount, budgetCurrency);
+  let picked: ReturnType<typeof pickArchetype>;
+  try {
+    picked = pickArchetype(bank, paper, flightSize);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "No suitable wines found." };
+  }
+
+  const availability = await confirmSlots(picked.slots, city, country, apiKey, userId, emit);
+
+  const generateOnce = async (slotsAvail: SlotAvailability[]) => {
+    const pinnedWines = slotsAvail.map((s) => {
+      const row: BankRow = {
+        id: s.wineKey, producer: s.producer, wine_name: s.wineName,
+        country: s.country, region: s.region, grape_varieties: [], style_category: "", price_band: s.priceBand,
+      };
+      return { slot: s.slot, fullText: pinnedText(row) };
+    });
+    emit?.({ type: "status", label: "Writing the question around your confirmed flight…" });
+    return generateFreshQuestion(
+      paper,
+      ARCHETYPE_FAMILY[picked.archetype],
+      apiKey,
+      { source: "user", userId },
+      undefined,
+      emit,
+      {
+        scope: "live-tasting",
+        pinnedWines,
+        status: "approved",
+        // Session creation must block until the key + audit land (plan §4): shopping for an
+        // ungradable flight is the failure mode this flag exists to prevent.
+        awaitBackgroundWork: true,
+        // Background work (enrichment → key → model answer → audit) dominates; give the whole
+        // chain room. The create route runs maxDuration=300 with an SSE keepalive.
+        budgetMs: 150_000,
+        callTimeoutMs: 130_000,
+      }
+    );
+  };
+
+  let result = await generateOnce(availability);
+
+  // One retry with the weakest slot swapped to its alternate (plan §4.1): pinned-flight
+  // generation can fail on a wine the model refuses to write coherently — usually the most
+  // obscure one. Swap the thinnest slot's wine for its first alternate and try once more.
+  if ("error" in result) {
+    const weakest = [...availability].sort((a, b) => Number(b.thin) - Number(a.thin))[0];
+    const pick = picked.slots[weakest.slot - 1];
+    const alternate = pick.alternates.find((a) => a.id !== weakest.wineKey);
+    if (alternate) {
+      emit?.({ type: "status", label: "Swapping the trickiest wine and retrying…" });
+      const swapped = await confirmSlots(
+        [{ row: alternate, alternates: [] }], city, country, apiKey, userId, emit
+      );
+      availability[weakest.slot - 1] = { ...swapped[0], slot: weakest.slot };
+      result = await generateOnce(availability);
+    }
+  }
+
+  if ("error" in result) return { error: result.error ?? "Generation failed." };
+  if (!("question" in result) || !result.question) return { error: "Generation failed." };
+
+  // The engine awaited key derivation + audit. Verify the outcome before the session exists:
+  // a quarantined or key-failed question must never become a shopping list.
+  const sql = neon(process.env.DATABASE_URL!);
+  const qid = result.question.question_id as string;
+  const check = await sql`
+    SELECT q.invalid_reasons, k.validated
+    FROM generated_questions q
+    LEFT JOIN stem_answer_keys k ON k.question_id = q.question_id
+    WHERE q.question_id = ${qid}
+  `;
+  const row = check[0];
+  if (!row || row.invalid_reasons != null || row.validated === false) {
+    return { error: "The generated question failed validation — please try again." };
+  }
+
+  emit?.({ type: "status", label: "Saving your Live Tasting session…" });
+  const session = await createLiveTastingSession({
+    id: liveTastingSessionId(),
+    userId,
+    questionId: qid,
+    paper,
+    flightSize,
+    archetype: picked.archetype,
+    city,
+    country,
+    budgetAmount,
+    budgetCurrency,
+    availability: { archetypeLabel: picked.label, slots: availability },
+  });
+  return { session };
+}
