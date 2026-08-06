@@ -1,0 +1,1752 @@
+[
+  {
+    "question_id": "gen_p2_F1_1785975111646",
+    "slot": 3,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "south_africa_stellenbosch_lievland_vineyards_bushvine_pinotage",
+      "confidence": "high",
+      "enriched_at": "2026-08-06T00:13:10.995Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Pinotage"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://lievland.co.za/wp-content/uploads/2024/07/ll_fact_pinotage_22.pdf",
+            "type": "web",
+            "title": "Bushvine Pinotage 2022",
+            "publisher": "lievland.co.za"
+          },
+          {
+            "url": "https://www.championwinecellars.com/products/2022-lievland-vineyards-bushvine-pinotage-paarl-south-africa",
+            "type": "web",
+            "title": "2022 Lievland Vineyards Bushvine Pinotage, Paarl, South Africa",
+            "publisher": "championwinecellars.com"
+          },
+          {
+            "url": "https://www.vineyardbrands.com/producer.aspx?id=129",
+            "type": "web",
+            "title": "VB | Lievland Vineyards",
+            "publisher": "vineyardbrands.com"
+          },
+          {
+            "url": "https://www.decanter.com/premium/south-africa-cape-red-pinotage-blends-panel-tasting-results-557967",
+            "type": "critic",
+            "title": "South Africa Cape red Pinotage blends: Panel tasting results | Decanter",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews-tastings/pinotage-change-mind-305854",
+            "type": "critic",
+            "title": "What Pinotage tastes like: Wines to change your mind | Decanter",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.decanter.com/premium/top-stellenbosch-cabernet-sauvignon-panel-tasting-results-402002",
+            "type": "critic",
+            "title": "Top Stellenbosch Cabernet Sauvignon: Panel tasting results | Decanter",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://wineanorak.com/2022/12/07/scions-of-sinai-the-wines-of-bernhard-bredell",
+            "type": "critic",
+            "title": "Scions of Sinai: the wines of Bernhard Bredell – wineanorak.com",
+            "publisher": "Wine Anorak"
+          },
+          {
+            "url": "https://wineanorak.com/2022/11/01/on-the-chenin-blanc-trail-in-stellenbosch-visiting-four-old-vineyards-and-tasting-the-wines",
+            "type": "critic",
+            "title": "On the Chenin Blanc trail in Stellenbosch, visiting four old vineyards and tasting the wines – wineanorak.com",
+            "publisher": "Wine Anorak"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [
+            0
+          ],
+          "palate_body": [
+            0,
+            1
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [
+            0
+          ],
+          "nose_descriptors": [],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            0,
+            1
+          ]
+        },
+        "appearance": "ruby, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. ripe red cherry, blackberry, plum, violet, dark chocolate, subtle smoky/earthy notes, light vanilla oak",
+        "palate_summary": "red berries, ripe plums, savoury notes, dark chocolate, vanilla, juicy dark red fruit. Finish: medium(+).",
+        "structural_summary": "style=still_dry, grape=Pinotage"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p2_F1_1785975111646",
+    "slot": 4,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "germany_pfalz_koehler_ruprecht_kallstadter_saumagen_riesling_beerenauslese",
+      "confidence": "high",
+      "enriched_at": "2026-08-06T00:13:11.003Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://vinous.com/wines/koehler-ruprecht-2015-riesling-kallstadter-saumagen-beerenauslese",
+            "type": "critic",
+            "title": "2015 Riesling Kallstadter Saumagen Beerenauslese",
+            "publisher": "Vinous"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=2702512",
+            "type": "web",
+            "title": "2015 Koehler-Ruprecht Kallstadter Saumagen Riesling Auslese trocken",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.grapeguru.de/en/knowledge/wineries/koehler-ruprecht",
+            "type": "web",
+            "title": "Koehler-Ruprecht: Saumagen, Style & Wines from the Pfalz | Grape Guru",
+            "publisher": "grapeguru.de"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/alphabetical-guide-to-germany-083120",
+            "type": "critic",
+            "title": "Alphabetical Guide to Germany",
+            "publisher": "Wine Spectator"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": []
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "pronounced intensity. botrytis-derived honey, dried apricot, candied orange peel, peach conserve, mango, beeswax, saffron, ginger, petrol nuance, white flower",
+        "palate_summary": "concentrated apricot jam, dried mango, candied citrus peel, marmalade, honey, noble rot complexity, botrytis spice, balanced by vibrant acidity, minimal oak influence (estate style is unoaked for BA), very long sugar-acid tension. Finish: long.",
+        "structural_summary": "style=still_sweet, grape=Riesling"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F1_1785965022576",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "germany_mosel_weingut_reinhold_haart_piesporter_goldtr_pfchen_riesling_kabinett",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:24:48.648Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_off_dry",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=5396296",
+            "type": "web",
+            "title": "2024 Weingut Reinhold Haart Piesporter Goldtröpfchen ...",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://thegwc.com/haart",
+            "type": "web",
+            "title": "Haart - The GWC",
+            "publisher": "thegwc.com"
+          },
+          {
+            "url": "https://vinify.app/wine-profile/2971201",
+            "type": "web",
+            "title": "Julian Haart Piesporter Goldtropfchen Riesling Kabinett ...",
+            "publisher": "vinify.app"
+          },
+          {
+            "url": "https://iheartwine.com.au/2023-julian-haart-piesporter-goldtropfchen-kabinett-riesling",
+            "type": "critic",
+            "title": "iHeartWine | Shop Wine Online | 2023 Julian Haart Piesporter Goldtropfchen Kabinett Riesling",
+            "publisher": "iheartwine.com.au"
+          },
+          {
+            "url": "https://www.winerambler.net/wine/reinhold-haart-piesporter-goldtroepfchen-riesling-kabinett-2008.html",
+            "type": "critic",
+            "title": "Reinhold Haart, Piesporter Goldtröpfchen, Riesling Kabinett ...",
+            "publisher": "winerambler.net"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/11-top-mosel-valley-kabinett-riesling-wine-values-to-drink-now-new-reviews",
+            "type": "critic",
+            "title": "11 Off-Dry Rieslings that Capture the Magic of the Mosel Valley",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://www.leonardkreuschwines.com/media/f9cc9e4c-82da-4e15-a0eb-d428251857b7/05-Product-Review-Ratings-bernkasteler-kursfuerstlay-riesling-kabinett.pdf",
+            "type": "critic",
+            "title": "Most recent ratings & reviews",
+            "publisher": "leonardkreuschwines.com"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=4286234",
+            "type": "critic",
+            "title": "2021 Julian Haart Piesporter Goldtröpfchen Riesling Kabinett",
+            "publisher": "CellarTracker"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            3,
+            6
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            3,
+            7,
+            0
+          ],
+          "palate_sweetness": [
+            3,
+            5,
+            6
+          ],
+          "quality_assessment": [
+            3,
+            5,
+            6
+          ],
+          "palate_flavor_descriptors": [
+            3,
+            6,
+            0
+          ]
+        },
+        "appearance": "lemon-green, clear, low viscosity",
+        "nose_summary": "medium intensity. lime blossom, green apple, jasmine, crushed slate, floral, berry aromas, elderflower/elder syrup-like",
+        "palate_summary": "citrus peel, white peach, saline mineral finish; natural CO2 spritz accentuating lightness; fruity and vibrant; flint and crushed slate backbone. Finish: long.",
+        "structural_summary": "style=still_off_dry, grape=Riesling"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F7_1785964980721",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "germany_nahe_weingut_emrich_sch_nleber_monzinger_halenberg_riesling_grosses_gew_chs",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:24:31.369Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://vinous.com/wines/emrich-schonleber-2022-riesling-monzinger-halenberg-grosses-gewachs",
+            "type": "critic",
+            "title": "2022 Riesling Monzinger Halenberg Grosses Gewächs",
+            "publisher": "Vinous"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/emrich+schonleber+halenberg+riesling+grosses+gewachs+monzingen+nahe+germany/2022",
+            "type": "web",
+            "title": "2022 Weingut Emrich-Schonleber Monzinger Halenberg ...",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.winekeller.com/blog/nahe-wine-region-emrich-schoenleber",
+            "type": "web",
+            "title": "Nahe Riesling | German Rieslings | German Riesling wine | Best Nahe wine | Emrich Schönleber Riesling | Emrich Schönleber Halenberg | Emrich Schönleber Monzinger | Monzingen Germany — Winekeller -Tailored wine tours and wine travel",
+            "publisher": "winekeller.com"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=4615603",
+            "type": "critic",
+            "title": "2022 Emrich-Schönleber Halenberg Riesling Großes ...",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/emrich+schonleber+halenberg+riesling+grosses+gewachs+monzingen+nahe+germany",
+            "type": "critic",
+            "title": "Weingut Emrich-Schonleber Monzinger Halenberg ...",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=3916138",
+            "type": "critic",
+            "title": "2020 Emrich-Schönleber Halenberg Riesling Großes ...",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.justerinis.com/fine-wines/germany/nahe/emrich-schonleber/halenberg-riesling-grosses-gewachs/2023",
+            "type": "critic",
+            "title": "Halenberg, Riesling, Grosses Gewächs, 2023",
+            "publisher": "justerinis.com"
+          },
+          {
+            "url": "https://www.vomboden.com/emrich-schonleber-gg-and-1g-lightness-incarnate-this-is-2022",
+            "type": "critic",
+            "title": "Emrich-Schönleber GG and 1G: Lightness Incarnate, this is ...",
+            "publisher": "vomboden.com"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/emrich+schonleber+halenberg+riesling+grosses+gewachs+monzingen+nahe+germany/1/usa-tx-y",
+            "type": "web",
+            "title": "Weingut Emrich-Schonleber Monzinger Halenberg Riesling ...",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.wineberserkers.com/t/tn-2019-emrich-schonleber-halenberg-riesling-grosses-gewachs/170502",
+            "type": "web",
+            "title": "TN: 2019 Emrich-Schönleber Halenberg Riesling Großes Gewächs - WINE TALK - WineBerserkers",
+            "publisher": "wineberserkers.com"
+          },
+          {
+            "url": "https://www.reddit.com/r/wine/comments/1j599to/emrichsch%C3%B6nleber_halenberg_riesling_gg_2020",
+            "type": "web",
+            "title": "Emrich-Schönleber Halenberg Riesling GG 2020 : r/wine",
+            "publisher": "reddit.com"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [
+            3
+          ],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            3,
+            10
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [
+            7
+          ],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            2,
+            3,
+            6,
+            7
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            2,
+            4,
+            9
+          ],
+          "palate_flavor_descriptors": [
+            2,
+            5,
+            7,
+            10
+          ]
+        },
+        "appearance": "lemon-green, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. bone dry character with elegance and subtle savouriness; green citrus, green herbs, minerals; petrol, mint, cream, florals; iodine notes; ripe white peach, apricot, citrus, delicate floral; flinty minerality; crystalline purity",
+        "palate_summary": "green citrus, green herbs, minerals; saline, piercing acidity, pure stony minerality; bone-dry, razor-sharp, lean and linear; coating and expansive, broader and fierce; characteristic flinty minerality, mouthwatering salty finish; petrol, apricot, grapefruit, orange blossom. Finish: long.",
+        "structural_summary": "style=still_dry, grape=Riesling"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F7_1785964980721",
+    "slot": 5,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "india_nashik_sula_vineyards_late_harvest_riesling",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:24:31.420Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://sulavineyards.com/sula-classics/riesling.php",
+            "type": "web",
+            "title": "Sula Riesling - White Wine",
+            "publisher": "sulavineyards.com"
+          },
+          {
+            "url": "https://www.reddit.com/r/wine/comments/1k29rq4/at_sula_vineyards_nashik",
+            "type": "web",
+            "title": "At Sula Vineyards, Nashik 🍇🍷 : r/wine",
+            "publisher": "reddit.com"
+          },
+          {
+            "url": "https://sulavineyards.com/sula-classics/dessert-wine.php",
+            "type": "web",
+            "title": "Sula Late Harvest Chenin Blanc | Dessert Wine",
+            "publisher": "sulavineyards.com"
+          },
+          {
+            "url": "https://www.decanter.com/premium/an-introduction-to-indian-wine-533603",
+            "type": "critic",
+            "title": "An introduction to Indian wine",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.decanter.com/premium/straight-to-the-source-the-rise-of-indias-sula-vineyards-536542",
+            "type": "critic",
+            "title": "Straight to the source: The rise of India's Sula Vineyards",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://88bamboo.co/blogs/wine-reviews/taste-testing-rating-sula-vineyards-indian-wines-across-the-range-classic-sula-the-source-dindori-rasa",
+            "type": "web",
+            "title": "Taste Testing & Rating Sula Vineyards' Indian Wines Across The Range",
+            "publisher": "88bamboo.co"
+          },
+          {
+            "url": "https://winefolly.com/tips/late-harvest-wines-and-why-theyre-awesome",
+            "type": "web",
+            "title": "Late Harvest Wines and Why They're Awesome",
+            "publisher": "winefolly.com"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=iRL7BbOpBNQ",
+            "type": "web",
+            "title": "Tasting the Sula Late Harvest Chenin Blanc with Winemaker Karan Vasani",
+            "publisher": "youtube.com"
+          },
+          {
+            "url": "https://www.instagram.com/p/DW9Cei2RCHe",
+            "type": "web",
+            "title": "Sula wines explained In this quick video I take your through the ...",
+            "publisher": "instagram.com"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            2,
+            4
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            0,
+            4
+          ]
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "medium(+) intensity. lime, grapefruit, apricot, mango, raisin, honey, lemon",
+        "palate_summary": "lime, grapefruit, crisp citrus, lemon, honey; purity and balance noted. Finish: medium(+).",
+        "structural_summary": "style=still_sweet, grape=Riesling"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F1_1785965098017",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "germany_mosel_weingut_reinhold_haart_piesporter_goldtr_pfchen_riesling_kabinett",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:25:48.124Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_off_dry",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=5396296",
+            "type": "web",
+            "title": "2024 Weingut Reinhold Haart Piesporter Goldtröpfchen ...",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://thegwc.com/haart",
+            "type": "web",
+            "title": "Haart - The GWC",
+            "publisher": "thegwc.com"
+          },
+          {
+            "url": "https://vinify.app/wine-profile/2971201",
+            "type": "web",
+            "title": "Julian Haart Piesporter Goldtropfchen Riesling Kabinett ...",
+            "publisher": "vinify.app"
+          },
+          {
+            "url": "https://iheartwine.com.au/2023-julian-haart-piesporter-goldtropfchen-kabinett-riesling",
+            "type": "critic",
+            "title": "iHeartWine | Shop Wine Online | 2023 Julian Haart Piesporter Goldtropfchen Kabinett Riesling",
+            "publisher": "iheartwine.com.au"
+          },
+          {
+            "url": "https://www.winerambler.net/wine/reinhold-haart-piesporter-goldtroepfchen-riesling-kabinett-2008.html",
+            "type": "critic",
+            "title": "Reinhold Haart, Piesporter Goldtröpfchen, Riesling Kabinett ...",
+            "publisher": "winerambler.net"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/11-top-mosel-valley-kabinett-riesling-wine-values-to-drink-now-new-reviews",
+            "type": "critic",
+            "title": "11 Off-Dry Rieslings that Capture the Magic of the Mosel Valley",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://www.leonardkreuschwines.com/media/f9cc9e4c-82da-4e15-a0eb-d428251857b7/05-Product-Review-Ratings-bernkasteler-kursfuerstlay-riesling-kabinett.pdf",
+            "type": "critic",
+            "title": "Most recent ratings & reviews",
+            "publisher": "leonardkreuschwines.com"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=4286234",
+            "type": "critic",
+            "title": "2021 Julian Haart Piesporter Goldtröpfchen Riesling Kabinett",
+            "publisher": "CellarTracker"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            3,
+            6
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            3,
+            7,
+            0
+          ],
+          "palate_sweetness": [
+            3,
+            5,
+            6
+          ],
+          "quality_assessment": [
+            3,
+            5,
+            6
+          ],
+          "palate_flavor_descriptors": [
+            3,
+            6,
+            0
+          ]
+        },
+        "appearance": "lemon-green, clear, low viscosity",
+        "nose_summary": "medium intensity. lime blossom, green apple, jasmine, crushed slate, floral, berry aromas, elderflower/elder syrup-like",
+        "palate_summary": "citrus peel, white peach, saline mineral finish; natural CO2 spritz accentuating lightness; fruity and vibrant; flint and crushed slate backbone. Finish: long.",
+        "structural_summary": "style=still_off_dry, grape=Riesling"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p2_F1_1785975379877",
+    "slot": 2,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "australia_geelong_bannockburn_vineyards_srh_pinot_noir",
+      "confidence": "high",
+      "enriched_at": "2026-08-06T00:17:56.081Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Pinot Noir"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.nicks.com.au/products/2022-bannockburn-pinot-noir",
+            "type": "web",
+            "title": "2022 Bannockburn Pinot Noir",
+            "publisher": "nicks.com.au"
+          },
+          {
+            "url": "https://www.getwinesdirect.com/red-wines/Bannockburn-Geelong-Pinot-Noir-2022",
+            "type": "web",
+            "title": "Bannockburn Geelong Pinot Noir 2022",
+            "publisher": "getwinesdirect.com"
+          },
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=4633446",
+            "type": "web",
+            "title": "2022 Bannockburn Pinot Noir",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.jancisrobinson.com/tasting-notes/bannockburn-chardonnay-2020-geelong",
+            "type": "critic",
+            "title": "Wine review: Bannockburn Chardonnay 2020 Geelong",
+            "publisher": "JancisRobinson.com"
+          },
+          {
+            "url": "/goto?url=CAESbAHuR6pNzETfxQFneTI7jfqQy4ePaEXVwh1kmpxIAEFUbkwWcnWQ2Xkb04cw6XsGVNge7s_nx3TZwmKE7UVhTAP_ioZgn057ynA9sii3AuFYWK0Hb4BHDW20KhtTKPoNbTy14pmFgQfE7LFKAA%3D%3D",
+            "type": "web",
+            "title": "2022 Bannockburn Pinot Noir",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESigEB7keqTee4n5NdoPmrWpsSvlF1McjE496ASrQnVgKQYJAYr8eMYG7C8xQfKJjXHFk-vMWW773YVkLxpnNcXpu5dJLTHVegcBKVhmXqGKtwA7689TQQnFTBKZ-Kdd5TgGfLIK6ynv9hIGT7R4MNatElHk5tYN3KJ-vkdKxvyzWn3Uxx6_81rDTP7Gg%3D",
+            "type": "web",
+            "title": "Valli Bannockburn Vineyard Pinot Noir",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAES3AEB7keqTQNt7PaztXyPF6ZX2764KuNcrNIY_8ajIz74xMx3GxLiU-DkslXwhIQEAcOrWu8BYTIT-GLEJNpAemgZn9VRX2ajPm10gLoGgIP-VQZNuuqoCcOA4w5ORMYsFrPmgvXy3_zKCTUf5MMxyNOi9e_1dmS1HnqjtZx774eLECmSu3nw8l9RfDX7eMve_itF4v10Os4coIxYHDDbDiBHuzQ1C7TW3v_XXHRx1jckAwGbN7lH1aV2JBT5K7QqsTWpPtbhTo-3ECSa5XLILhq90LvKcJFLSbkdhA7X",
+            "type": "web",
+            "title": "Best local price for Bannockburn Vineyards Pinot Noir",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESdgHuR6pN9qX31g1dRSbQh-TMo-cQVuig6z70-RP6q-So0K4KZLtLK5vCyd23dbdKk-lZ57ASLOps-IlXy7vrhw34boZunJ-cHdjz2dLOPt84eHclHuF0yzoi31AQYm84sLaGtN7jG_0UuBFQZ-EsMtFt3I65PmU%3D",
+            "type": "web",
+            "title": "Bannockburn Vineyards's scorecard",
+            "publisher": ""
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [
+            4
+          ],
+          "viscosity": [
+            4
+          ],
+          "palate_acid": [
+            5
+          ],
+          "palate_body": [
+            4
+          ],
+          "palate_finish": [],
+          "palate_tannin": [
+            5
+          ],
+          "nose_intensity": [
+            1,
+            2
+          ],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            1,
+            2,
+            4
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            1,
+            2,
+            5
+          ],
+          "palate_flavor_descriptors": [
+            2,
+            5
+          ]
+        },
+        "appearance": "ruby, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. cherry, rhubarb, strawberry, raspberry, dried herb, forest floor, game, spicy cedar, five-spice, sous bois, earthiness, toasty, floral",
+        "palate_summary": "cherry, blackcurrant, raspberry, red/black fruits including mulberries, dried herbal spices, Chinese five-spice, cardamom, savoury undertones. Finish: long.",
+        "structural_summary": "style=still_dry, grape=Pinot Noir"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F2_1785965552309",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "hungary_tokaj_ch_teau_pajzos_furmint_tokaj",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:33:07.485Z",
+      "quality_tier": null,
+      "evidence_tier": "web",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Furmint"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://hudsonvalleywinegoddess.com/wine-of-the-week-pajzos-2022-t-furmint-a-dry-taste-of-hungary",
+            "type": "web",
+            "title": "Wine of the Week: Pajzos 2022 T-Furmint – A Dry Taste of Hungary - Hudson Valley Wine Goddess",
+            "publisher": "hudsonvalleywinegoddess.com"
+          },
+          {
+            "url": "https://www.elliswines.co.uk/node/1782",
+            "type": "web",
+            "title": "Chateau Pajzos Dry Furmint T 2022 | Ellis Wines",
+            "publisher": "elliswines.co.uk"
+          },
+          {
+            "url": "https://thewinepairpodcast.com/episode/wtf-is-furmint-the-white-wine-from-hungary",
+            "type": "web",
+            "title": "WTF is Furmint? (THE white wine from Hungary) | The Wine Pair Podcast - Find Great Wines Without Breaking the Bank",
+            "publisher": "thewinepairpodcast.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            0
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            1,
+            2
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            1,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            0,
+            1,
+            2
+          ]
+        },
+        "appearance": "pale straw, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. white peach, citrus, tropical fruit, ripe peaches, pears, pineapple, lemon blossom, orange rind, yellow peach, apricot, mint, lime, nuts, minerals, spice",
+        "palate_summary": "stone fruit, tropical fruit, peaches, lychee, grapefruit acidity, apricot, nuts, minerals, spice, bright and fresh, zesty, sleek, fruity, crisp. Finish: long.",
+        "structural_summary": "style=still_dry, grape=Furmint"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p2_F7_1785974979417",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "france_c_te_r_tie_st_phane_ogier_c_te_r_tie_lancement",
+      "confidence": "high",
+      "enriched_at": "2026-08-06T00:10:55.538Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Syrah"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.thewinecellarinsider.com/rhone-wines-cote-rotie-hermitage-chateauneuf-du-pape/rhone-wine-cote-rotie-producer-profiles/ogier-cote-rotie",
+            "type": "critic",
+            "title": "Domaine Stephane Ogier Cote Rotie Rhone Wine Complete Guide",
+            "publisher": "The Wine Cellar Insider"
+          },
+          {
+            "url": "https://winespecific.com/2019/05/23/the-whirlwind-at-domaine-stephane-ogier-tasting-cote-rotie-lieu-dits",
+            "type": "web",
+            "title": "The Whirlwind at Domaine Stephane Ogier: Tasting Cote Rotie lieu-dits | Lewin on Wine",
+            "publisher": "winespecific.com"
+          },
+          {
+            "url": "https://www.decanter.com/wine/rhone-valley/why-wait-a-decade-for-cote-rotie-stephane-ogiers-done-it-for-you",
+            "type": "critic",
+            "title": "Stéphane Ogier Côte-Rôtie Mes Grands Lieux: 2007 to 2022 | Decanter",
+            "publisher": "Decanter"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [
+            1
+          ],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            1
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            1
+          ]
+        },
+        "appearance": "deep ruby, clear, medium viscosity",
+        "nose_summary": "medium(-) intensity. tight/closed on nose, delicate, less floral than Boudin, savory direction",
+        "palate_summary": "tight impression, precise, most Burgundian character among the lieu-dits, lingering savory finish; aged in 1- to 6-year-old barriques (no obvious oak noted for this cuvée). Finish: long (described as 'most lingering finish' among the lieu-dits).",
+        "structural_summary": "style=still_dry, grape=Syrah"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F4_1785965265008",
+    "slot": 4,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "usa_paso_robles_tablas_creek_vineyard_esprit_de_tablas_blanc",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:29:38.579Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Grenache Blanc",
+        "Roussanne",
+        "Picpoul Blanc"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.reddit.com/r/wine/comments/1he69qu/tablas_creek_vineyard_esprit_de_tablas_blanc_2022",
+            "type": "web",
+            "title": "r/wine - Tablas Creek Vineyard Esprit de Tablas Blanc 2022, Paso Robles",
+            "publisher": "reddit.com"
+          },
+          {
+            "url": "https://tablascreek.com/wines/2022_esprit_de_tablas_blanc",
+            "type": "web",
+            "title": "2022 Esprit de Tablas Blanc",
+            "publisher": "tablascreek.com"
+          },
+          {
+            "url": "https://tablascreek.com/wines/2023_esprit_de_tablas_blanc",
+            "type": "web",
+            "title": "2023 Esprit de Tablas Blanc",
+            "publisher": "tablascreek.com"
+          },
+          {
+            "url": "https://tablascreek.com/wines/2022_esprit_de_tablas",
+            "type": "critic",
+            "title": "2022 Esprit de Tablas",
+            "publisher": "tablascreek.com"
+          },
+          {
+            "url": "https://www.reversewinesnob.com/tablas-creek-patelin-de-tablas-blanc-box-wine",
+            "type": "critic",
+            "title": "Tablas Creek Patelin de Tablas Blanc 3L Box Wine Review • Reverse Wine Snob",
+            "publisher": "reversewinesnob.com"
+          },
+          {
+            "url": "https://tablascreek.com/wines/2023_esprit_de_tablas",
+            "type": "critic",
+            "title": "2023 Esprit de Tablas",
+            "publisher": "tablascreek.com"
+          },
+          {
+            "url": "https://yianniswinery.com/products/tablas-creek-vineyard-esprit-de-tablas-blanc-2020-750ml",
+            "type": "web",
+            "title": "Tablas Creek Esprit de Tablas Blanc Paso Robles 2022 (750ML)",
+            "publisher": "yianniswinery.com"
+          },
+          {
+            "url": "https://tablascreek.com/wines/2024_esprit_de_tablas_blanc",
+            "type": "web",
+            "title": "2024 Esprit de Tablas Blanc",
+            "publisher": "tablascreek.com"
+          },
+          {
+            "url": "https://owenbargreen.com/blog/2025/2/25/tablas-creek-esprit-blanc-vertical-tasting",
+            "type": "web",
+            "title": "Tablas Creek 'Esprit Blanc' Vertical Tasting",
+            "publisher": "owenbargreen.com"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/tablas+creek+patelin+de+blanc+paso+robles+st+luis+obispo+county+central+coast+california+usa",
+            "type": "web",
+            "title": "Best local price for Tablas Creek Vineyards Patelin de Tablas Blanc",
+            "publisher": "Wine-Searcher"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            1
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            1
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            0,
+            1
+          ]
+        },
+        "appearance": "gold, clear, medium(+) viscosity",
+        "nose_summary": "medium(+) intensity. honeycomb, baked pear, white flowers, lemongrass, vanilla bean, key lime pie, citrus, light earth, light honey, sea salt, herbs, white pepper, spices",
+        "palate_summary": "vanilla custard, fresh apricot, citrus pith, marmalade, green herbs, lemon, oak. Finish: long.",
+        "structural_summary": "style=still_dry, grape=Grenache Blanc+Roussanne+Picpoul Blanc"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F4_1785964790479",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "spain_pened_s_gramona_iii_lustros_gran_reserva_brut_nature",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:20:31.059Z",
+      "quality_tier": null,
+      "evidence_tier": "web",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "sparkling",
+      "grape_varieties": [
+        "Xarel·lo",
+        "Macabeo"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.b-21.com/2015-Gramona-Gran-Reserva-Brut-Nature-III-Lustros/productinfo/ESGRCV15CE",
+            "type": "web",
+            "title": "2015 Gramona Gran Reserva Brut Nature III Lustros | www.b-21.com",
+            "publisher": "b-21.com"
+          },
+          {
+            "url": "https://www.bowlerwine.com/wine-or-spirit/corpinnat-iii-lustros/2015",
+            "type": "web",
+            "title": "Corpinnat III Lustros | Bowler Wine",
+            "publisher": "bowlerwine.com"
+          },
+          {
+            "url": "https://www.enterwine.com/en/gramona-iii-lustros-brut-nature-2017",
+            "type": "web",
+            "title": "Gramona III Lustros Gran Reserva Brut Nature 2017 - Enterwine",
+            "publisher": "enterwine.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            2
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            1,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            2
+          ],
+          "palate_flavor_descriptors": [
+            1
+          ]
+        },
+        "appearance": "medium straw with golden tinges, clear, medium viscosity",
+        "nose_summary": "pronounced intensity. dry fruit, toast, quince, lime, laurel, Mediterranean underbrush, flowers, mineral, smoke, honey, oyster, fenugreek-like spice",
+        "palate_summary": "apple tart, cooked lemon, honey, oyster, fenugreek-like spice, subtle smoke, toast. Finish: long.",
+        "structural_summary": "style=sparkling, grape=Xarel·lo+Macabeo"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785965140973",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "france_tavel_domaine_de_la_mordor_e_tavel_ros",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:26:20.109Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "rose",
+      "grape_varieties": [
+        "Grenache",
+        "Syrah",
+        "Mourvèdre",
+        "Cinsault"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.openingabottle.com/its-tavel-time-domaine-de-la-mordoree",
+            "type": "web",
+            "title": "It's Tavel Time: Domaine de la Mordorée",
+            "publisher": "openingabottle.com"
+          },
+          {
+            "url": "https://www.domaine-mordoree.com/en/wines/tavel",
+            "type": "web",
+            "title": "Tavel - Domaine de la Mordorée",
+            "publisher": "domaine-mordoree.com"
+          },
+          {
+            "url": "https://www.timelesswines.com/mordoree-tavel-rose-dame-rousse-2024",
+            "type": "web",
+            "title": "Mordoree Tavel Rose Dame Rousse 2024",
+            "publisher": "timelesswines.com"
+          },
+          {
+            "url": "https://familiamorgan.com/learn/glossary/domaine",
+            "type": "critic",
+            "title": "Domaine - French wine estate",
+            "publisher": "familiamorgan.com"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/whats-the-difference-between-a-domaine-and-a-chateau-5013",
+            "type": "critic",
+            "title": "What's the difference between a domaine and a château?",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://www.linkedin.com/company/domaine-worldwide",
+            "type": "critic",
+            "title": "Domaine",
+            "publisher": "linkedin.com"
+          },
+          {
+            "url": "https://www.burgundywine.com/blog/domaine-or-chateau-2",
+            "type": "critic",
+            "title": "Domaine or Chateau?",
+            "publisher": "burgundywine.com"
+          },
+          {
+            "url": "https://domaineanderson.com",
+            "type": "critic",
+            "title": "Domaine Anderson – Pinot Noir & Chardonnay in Anderson ...",
+            "publisher": "domaineanderson.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            0,
+            2
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [
+            2
+          ],
+          "palate_body": [
+            0,
+            1,
+            2
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [
+            0,
+            2
+          ],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            1,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            0,
+            2
+          ],
+          "palate_flavor_descriptors": [
+            0,
+            1,
+            2
+          ]
+        },
+        "appearance": "electric watermelon with tinges of orange-rose on the edges / deep rosé, clear, medium(+) viscosity",
+        "nose_summary": "pronounced intensity. ripe peach, crushed hazelnuts, honeysuckle, honeyed floral quality, strawberry, white flowers, red fruits, tangerine, floral",
+        "palate_summary": "strawberry, peach, silky smooth texture, rounded and fresh, elegant; oak influence not mentioned. Finish: long.",
+        "structural_summary": "style=rose, grape=Grenache+Syrah+Mourvèdre+Cinsault"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F4_1785965676694",
+    "slot": 2,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "austria_burgenland_feiler_artinger_ruster_ausbruch_pinot_cuv_e",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:35:00.178Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_sweet",
+      "grape_varieties": [
+        "Pinot Noir",
+        "Pinot Gris",
+        "Pinot Blanc"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "/goto?url=CAESUQHuR6pNLR28jQcPIWWZ4-LZuuOF5XtLiNlRRAiXpQ3arRvKRYMrJBGJGluxPsUWgNr03AuInCxr5hMMX0qwZGAlU2SmcvrBhN17DCCNcSq60g%3D%3D",
+            "type": "web",
+            "title": "FEILER Home",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESXAHuR6pNTyGO0Npp73gVEq-puCM5OJLlGW4j35Nw-6Bvm1V8q8ecSXp6eTJI-zQ5YjePXpp5M2IBhhPOaGxx9UxThrHY0yVbkcmYEI5YSJQJiMWERouZQ5hgplNk",
+            "type": "web",
+            "title": "Feiler",
+            "publisher": ""
+          },
+          {
+            "url": "/goto?url=CAESpAEB7keqTZL1GxQy8vt3RWiXD73zlp4vlXXbP1sZRUr_acd47KQRYQ5h8D5R5jUL2Tje9JPfcIMzH4CA0p978FBUMqyj9P9KMkDiO7HL9VEGXOMYPHDMjBsFWyVTiv1L8qlOWxdsRSy6kCHtkYmQk6gNa8Bke0VPt1VvZUa8bZZtY4s-o5-tK3jO2CPvTpFabFKnb7ifzU3diAO6qr7k9WX5kWqzxg%3D%3D",
+            "type": "web",
+            "title": "About FEILER - Kiko Liebelle",
+            "publisher": ""
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews/austria/burgenland/feiler-artinger-zweigelt-burgenland-austria-2020-62824",
+            "type": "critic",
+            "title": "Feiler-Artinger, Zweigelt, Burgenland, Austria, 2020",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2002-gustav",
+            "type": "critic",
+            "title": "Weingut Feiler-Artinger - 2002 Gustav",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2015-neuburger",
+            "type": "critic",
+            "title": "2015 Neuburger - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2009-neuburger",
+            "type": "critic",
+            "title": "2009 Neuburger - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews/austria/neusiedlersee/muenzenrieder-johannes-cuvee-beerenauslese-2017-47632",
+            "type": "critic",
+            "title": "Münzenrieder Johannes, Cuvee Beerenauslese, Neusiedlersee, ...",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.falstaff.com/en/wines/weingut-feiler-artinger-2017-ruster-ausbruch",
+            "type": "critic",
+            "title": "2017 Ruster Ausbruch - Weingut Feiler-Artinger",
+            "publisher": "Falstaff"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/feiler+artinger+pinot+cuvee+dac+rust+ausbruch+burgenland+austria/1/usa-ok",
+            "type": "web",
+            "title": "Best local price for Feiler-Artinger Pinot Cuvee",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.vinography.com/2012/03/the_sweet_taste_of_freedom_the",
+            "type": "web",
+            "title": "The Sweet Taste of Freedom: Austria's Ruster Ausbruch Wines : Vinography",
+            "publisher": "vinography.com"
+          },
+          {
+            "url": "https://winemonger.com/collections/feiler-artinger",
+            "type": "web",
+            "title": "Feiler-Artinger\n\n    \n\n    \n\n    \n      – Winemonger",
+            "publisher": "winemonger.com"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            9
+          ],
+          "palate_sweetness": [
+            8,
+            9
+          ],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            9
+          ]
+        },
+        "appearance": "gold, clear, high viscosity",
+        "nose_summary": "medium(+) intensity. marzipan, fresh fig, bread-like botrytis nuances, hints of yellow tropical fruit",
+        "palate_summary": "complex, juicy, well-integrated sweetness, hints of yellow tropical fruit, fine (note truncated in source). Finish: long.",
+        "structural_summary": "style=still_sweet, grape=Pinot Noir+Pinot Gris+Pinot Blanc"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F1_1785965820381",
+    "slot": 2,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "france_limoux_domaine_j_laurens_cr_mant_de_limoux_no_3_blanc_de_blancs_brut",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:38:33.274Z",
+      "quality_tier": null,
+      "evidence_tier": "web",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "sparkling",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.vivino.com/en/domaine-j-laurens-cremant-de-limoux-blanc-de-blancs-brut/w/2875992",
+            "type": "web",
+            "title": "N.V. Domaine J. Laurens Crémant de Limoux Blanc de Blancs Brut | Vivino English",
+            "publisher": "vivino.com"
+          },
+          {
+            "url": "https://www.jlaurens.fr/en/home",
+            "type": "web",
+            "title": "Domaine J.Laurens",
+            "publisher": "jlaurens.fr"
+          },
+          {
+            "url": "https://les5duvin.wordpress.com/2019/04/08/the-lesson-of-three-ls-laurens-limoux-and-languedoc",
+            "type": "web",
+            "title": "A sparkling lesson from three Ls: Laurens, Limoux and Languedoc – Les 5 du Vin",
+            "publisher": "les5duvin.wordpress.com"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [
+            0
+          ],
+          "nose_descriptors": [],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": []
+        },
+        "appearance": "lemon-green, clear, medium viscosity",
+        "nose_summary": "medium intensity. green apple, white pear, lemon zest, white blossom, brioche, light toasty notes, fine autolytic complexity",
+        "palate_summary": "crisp green apple, lemon curd, white peach, chalky minerality, subtle brioche and yeast autolysis, clean citrus finish. Finish: medium.",
+        "structural_summary": "style=sparkling, grape=Chardonnay"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785965820410",
+    "slot": 1,
+    "profile": {
+      "rs_level": "dry (trocken; <9 g/L per VDP GG)",
+      "bank_match": "de_rheingau_robert_weil_kiedrich_grafenberg_gg",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:38:35.839Z",
+      "quality_tier": "iconic",
+      "evidence_tier": "web",
+      "oak_signature": "neutral_large_german_oak_doppelstuckfass",
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Riesling"
+      ],
+      "structural_tags": [
+        "high_acid",
+        "medium_plus_body",
+        "stony_minerality",
+        "flint",
+        "yellow_apple",
+        "white_peach",
+        "spice",
+        "phyllite_drive",
+        "long_finish",
+        "decades_of_age_potential"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "Vinous / Anne Krebiehl MW (96 pts, 2022 vintage: detailed tasting)",
+            "type": "web"
+          },
+          {
+            "url": "Wine Enthusiast (2021 vintage: nectarine, quince, elderflower, wild hops)",
+            "type": "web"
+          },
+          {
+            "url": "Wine Advocate (97 pts, 2024 vintage)",
+            "type": "web"
+          },
+          {
+            "url": "CellarTracker community (2021 vintage: white fruit, cool, spicy, bright acidity)",
+            "type": "web"
+          },
+          {
+            "url": "Bibendum Wine Co / Decantalo (producer notes and multiple vintage reviews)",
+            "type": "web"
+          }
+        ],
+        "appearance": "Medium straw-gold; brilliant clarity; moderate viscosity reflecting fuller body and higher alcohol for a dry German Riesling; slight green-gold tints",
+        "nose_summary": "Complex and enticing with ripe apple, juicy pear and citrus fruits; nectarine, quince and elderflower; tangerine and yellow plum with citrus peel; honey and green apple; white peach, pomelo and touch of petrol; dense and reductive with sesame and corn flake notes in youth; fine mineral notes of slate and flint; subtle wild hops",
+        "palate_summary": "Juicy and almost bouncy with Reine Claude (greengage) vividness; zesty ripe lemon resting on gentle yeast layer; concentrated with glimpses of tropical fruit within a frame of citric freshness; lime juice and green apple on the palate; cool and dynamic; vivid structure with brilliant citrus and orchard fruit; wet stone and saline nuance; creamy acidity with savory length",
+        "structural_summary": "style=still_dry, structure=high_acid/medium_plus_body/stony_minerality/flint/yellow_apple/white_peach/spice/phyllite_drive/long_finish/decades_of_age_potential, oak=neutral_large_german_oak_doppelstuckfass, rs=dry (trocken; <9 g/L per VDP GG), grape=Riesling, quality=iconic, price=super_premium"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785965820410",
+    "slot": 4,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "italy_valpolicella_classico_masi_costasera_amarone_della_valpolicella_classico",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:38:35.883Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Corvina",
+        "Rondinella",
+        "Molinara"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.cellartracker.com/wine.asp?iWine=3425952",
+            "type": "web",
+            "title": "2018 Masi Amarone della Valpolicella Classico Costasera",
+            "publisher": "CellarTracker"
+          },
+          {
+            "url": "https://www.reversewinesnob.com/masi-costasera-amarone",
+            "type": "web",
+            "title": "Masi Costasera Amarone - A Smooth, Savory and ...",
+            "publisher": "reversewinesnob.com"
+          },
+          {
+            "url": "https://www.masi.it/en/wines/costasera-amarone-valpolicella-classico-docg",
+            "type": "web",
+            "title": "Wine | Costasera Amarone della Valpolicella Classico DOCG",
+            "publisher": "masi.it"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=G1eaSgKcB78",
+            "type": "critic",
+            "title": "Wine Review: Masi Costasera Amarone della Valpolicella Classico 2018",
+            "publisher": "youtube.com"
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=o2KkymPMrI4",
+            "type": "critic",
+            "title": "Masi - Costasera 2018 - Amarone della Valpolicella Classico",
+            "publisher": "youtube.com"
+          },
+          {
+            "url": "https://www.vintagewinecellars.net/masi-costasera-amarone-classico-riserva-2018.html",
+            "type": "critic",
+            "title": "Masi Costasera Amarone Classico Riserva 2018| 750ml",
+            "publisher": "vintagewinecellars.net"
+          },
+          {
+            "url": "https://www.openingabottle.com/masi-riserva-costasera-amarone-this-years-tree-trimming-wine",
+            "type": "critic",
+            "title": "Masi Riserva Costasera Amarone | Wine Review",
+            "publisher": "openingabottle.com"
+          },
+          {
+            "url": "https://buywinesonline.com/products/masi-costasera-amarone-classico-2020-750-ml",
+            "type": "critic",
+            "title": "Masi Costasera Amarone della Valpolicella Classico 2020 (750 ml)",
+            "publisher": "buywinesonline.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            2
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            2,
+            3,
+            4,
+            6
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            3,
+            5
+          ],
+          "palate_flavor_descriptors": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "appearance": "very dark ruby red, clear, high viscosity",
+        "nose_summary": "pronounced intensity. baked fruit, plums, cherries, red cherries, dried fruit, prune, sweet cherry, raspberry, mushroom, licorice, smoked wood, wet earth, spices, cinnamon, clove, nutmeg, tobacco, truffle, forest floor, hints of vanilla oak",
+        "palate_summary": "baked cherry, plum, black raisins, dried fruit, sweet fruit, coffee, cocoa, chocolate, cinnamon, charcoal, leather, forest floor, hints of vanilla, espresso, bacon, wet earth; well-integrated oak. Finish: long.",
+        "structural_summary": "style=still_dry, grape=Corvina+Rondinella+Molinara"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F7_1785965022222",
+    "slot": 5,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "south_africa_swartland_mullineux_kloof_street_white",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:24:56.118Z",
+      "quality_tier": null,
+      "evidence_tier": "critic",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "still_dry",
+      "grape_varieties": [
+        "Chenin Blanc",
+        "Viognier",
+        "Grenache Blanc"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://shop.klwines.com/products/details/1798025",
+            "type": "web",
+            "title": "2023 Kloof Street (Mullineux) Old Vine Chenin Blanc Swartland",
+            "publisher": "shop.klwines.com"
+          },
+          {
+            "url": "https://www.hitimewine.net/kloof-street-2023-olf-vine-chenin-blanc-mullineux-family-wines-swartland-387258",
+            "type": "web",
+            "title": "KLOOF STREET 2023 OLF VINE CHENIN BLANC MULLINEUX ...",
+            "publisher": "hitimewine.net"
+          },
+          {
+            "url": "https://www.wine-searcher.com/find/mullineux+kloof+st+old+vines+chenin+blanc+swartland+coastal+western+cape+south+africa",
+            "type": "web",
+            "title": "Best local price for Mullineux 'Kloof Street' Old Vine Chenin Blanc",
+            "publisher": "Wine-Searcher"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/south-africa-wines-alphabetical-chart-093026",
+            "type": "critic",
+            "title": "Outstanding South African Wines: Over 200 Bottles Reviewed",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://timatkin.com/back-to-the-revolution",
+            "type": "critic",
+            "title": "Back to the Revolution – Tim Atkin – Master of Wine",
+            "publisher": "Tim Atkin MW"
+          },
+          {
+            "url": "https://www.decanter.com/wine-reviews-tastings/wine-panel-tastings/south-african-red-blends-panel-tasting-results",
+            "type": "critic",
+            "title": "We recommend the best of South Africa's red blends",
+            "publisher": "Decanter"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/south-africa-alpha-073121",
+            "type": "critic",
+            "title": "Alphabetical Guide to South African Wines",
+            "publisher": "Wine Spectator"
+          },
+          {
+            "url": "https://www.winespectator.com/articles/alphabetical-guide-to-the-wines-of-south-africa-073123",
+            "type": "critic",
+            "title": "Alphabetical Guide to the Wines of South Africa",
+            "publisher": "Wine Spectator"
+          }
+        ],
+        "citations": {
+          "color": [],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            0,
+            1
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            0,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [],
+          "palate_flavor_descriptors": [
+            0,
+            1
+          ]
+        },
+        "appearance": "gold, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. nectarine, sliced apple, crushed stones, honeysuckle, lemon rind, white grapefruit, baked apple",
+        "palate_summary": "creamy texture, medium- to full-bodied character; old vine Chenin Blanc from granite soils (Paardeberg) and shale/schist soils. Finish: medium(+).",
+        "structural_summary": "style=still_dry, grape=Chenin Blanc+Viognier+Grenache Blanc"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F6_1785965919037",
+    "slot": 3,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "spain_pened_s_gramona_iii_lustros_gran_reserva_brut_nature",
+      "confidence": "medium",
+      "enriched_at": "2026-08-05T21:39:13.198Z",
+      "quality_tier": null,
+      "evidence_tier": "web",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "sparkling",
+      "grape_varieties": [
+        "Xarel·lo",
+        "Macabeo"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://www.b-21.com/2015-Gramona-Gran-Reserva-Brut-Nature-III-Lustros/productinfo/ESGRCV15CE",
+            "type": "web",
+            "title": "2015 Gramona Gran Reserva Brut Nature III Lustros | www.b-21.com",
+            "publisher": "b-21.com"
+          },
+          {
+            "url": "https://www.bowlerwine.com/wine-or-spirit/corpinnat-iii-lustros/2015",
+            "type": "web",
+            "title": "Corpinnat III Lustros | Bowler Wine",
+            "publisher": "bowlerwine.com"
+          },
+          {
+            "url": "https://www.enterwine.com/en/gramona-iii-lustros-brut-nature-2017",
+            "type": "web",
+            "title": "Gramona III Lustros Gran Reserva Brut Nature 2017 - Enterwine",
+            "publisher": "enterwine.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            2
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [],
+          "nose_descriptors": [
+            1,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            2
+          ],
+          "palate_flavor_descriptors": [
+            1
+          ]
+        },
+        "appearance": "medium straw with golden tinges, clear, medium viscosity",
+        "nose_summary": "pronounced intensity. dry fruit, toast, quince, lime, laurel, Mediterranean underbrush, flowers, mineral, smoke, honey, oyster, fenugreek-like spice",
+        "palate_summary": "apple tart, cooked lemon, honey, oyster, fenugreek-like spice, subtle smoke, toast. Finish: long.",
+        "structural_summary": "style=sparkling, grape=Xarel·lo+Macabeo"
+      }
+    }
+  },
+  {
+    "question_id": "gen_p3_F5_1785966403767",
+    "slot": 1,
+    "profile": {
+      "rs_level": null,
+      "bank_match": "france_champagne_agrapart_fils_terroirs_blanc_de_blancs_grand_cru_extra_brut",
+      "confidence": "high",
+      "enriched_at": "2026-08-05T21:47:05.328Z",
+      "quality_tier": null,
+      "evidence_tier": "web",
+      "oak_signature": null,
+      "source_method": "bank_lookup",
+      "style_category": "sparkling",
+      "grape_varieties": [
+        "Chardonnay"
+      ],
+      "tasting_profile": {
+        "sources": [
+          {
+            "url": "https://enofylzwineblog.com/2023/08/13/wine-of-the-week-champagne-agrapart-fils-terroirs-extra-brut-blanc-de-blancs",
+            "type": "web",
+            "title": "Wine of the Week: Champagne Agrapart & Fils “Terroirs” Extra Brut Blanc de Blancs – ENOFYLZ Wine Blog",
+            "publisher": "enofylzwineblog.com"
+          },
+          {
+            "url": "https://www.depanneurwines.com/products/champagne-agrapart-fils-terroirs-grand-cru-extra-brut-blanc-de-blancs-magnum-1-5l-12-5-abv",
+            "type": "web",
+            "title": "Champagne Agrapart & Fils - TERROIRS Grand Cru Extra Brut ...",
+            "publisher": "depanneurwines.com"
+          },
+          {
+            "url": "https://shop.klwines.com/products/details/1057772",
+            "type": "web",
+            "title": "Agrapart \"Terroirs\" Extra Brut Blanc de Blancs Champagne - SKU 1057772",
+            "publisher": "shop.klwines.com"
+          }
+        ],
+        "citations": {
+          "color": [
+            0
+          ],
+          "clarity": [],
+          "viscosity": [],
+          "palate_acid": [],
+          "palate_body": [
+            0,
+            1
+          ],
+          "palate_finish": [],
+          "palate_tannin": [],
+          "nose_intensity": [],
+          "palate_alcohol": [
+            0
+          ],
+          "nose_descriptors": [
+            0,
+            2
+          ],
+          "palate_sweetness": [],
+          "quality_assessment": [
+            0
+          ],
+          "palate_flavor_descriptors": [
+            0,
+            1,
+            2
+          ]
+        },
+        "appearance": "pale straw, clear, medium viscosity",
+        "nose_summary": "medium(+) intensity. green apple, yellow apple, lemon oil, white flower, subtle spice, patisserie, hazelnut, chalk, white pepper, sage, mint",
+        "palate_summary": "lemon peel, crushed rocks, citrus oil, buttered toast, zesty citrus, chalky, slightly saline; natural fermentation, 100% malolactic fermentation, four years lees ageing, dosage 5g/L. Finish: long.",
+        "structural_summary": "style=sparkling, grape=Chardonnay"
+      }
+    }
+  }
+]
