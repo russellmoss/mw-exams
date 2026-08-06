@@ -10,8 +10,26 @@ name: manual-deploy
 # account is hard rate-limited, this fails with the same message and nothing ships anywhere.
 #
 # The .vercel link is written inline (the directory is gitignored); project/org ids are the ones
-# documented in CLAUDE.md. `vercel pull` fetches the real project settings (Root Directory
-# study-app, env), `vercel build` builds locally in CI, `deploy --prebuilt` uploads the artifact.
+# documented in CLAUDE.md. `vercel deploy --prod` uploads the SOURCE and lets Vercel build it
+# server-side, exactly as a git deploy would.
+#
+# NEVER build locally here (`vercel pull` + `vercel build` + `deploy --prebuilt`). That was the
+# original shape of this workflow and it could not deploy at all:
+#
+#   1. `vercel build` runs `npm run build`, whose `prebuild` runs scripts/migrate.mjs.
+#   2. shouldRunMigrations() sees no VERCEL_ENV in the runner and returns
+#      {run: true, "not a Vercel build"} — the "a human is driving" case. There is a force-on
+#      escape hatch (MIGRATE_ALLOW_NON_PRODUCTION=1) but no force-off.
+#   3. DATABASE_URL is marked Sensitive in the Vercel project, so `vercel pull` cannot decrypt it
+#      and writes the literal string `[SENSITIVE]` into .vercel/.env.production.local.
+#   4. migrate.mjs hands `[SENSITIVE]` to neon() → "not a valid URL" → prebuild fails the build.
+#
+# It only failed SAFELY because the secret was undecryptable. Do not "fix" that by putting
+# DATABASE_URL in this workflow's env: that makes CI migrate the production database on every
+# break-glass deploy — the exact hazard ci.yml's header warns about, and the cause of three prior
+# outages (see CLAUDE.md, "Only PRODUCTION deploys migrate the database"). Building server-side
+# keeps migrations where they belong: in a real production deploy, with VERCEL_ENV=production and
+# the real, decrypted DATABASE_URL.
 
 on:
   workflow_dispatch:
@@ -32,10 +50,7 @@ jobs:
           mkdir -p .vercel
           echo '{"projectId":"prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM","orgId":"team_UMX0qBzZ61GaCUri4A9hydvQ"}' > .vercel/project.json
 
-      - name: Pull settings, build, deploy
+      - name: Deploy (Vercel builds server-side)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-          npx vercel build --prod --token="$VERCEL_TOKEN"
-          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
