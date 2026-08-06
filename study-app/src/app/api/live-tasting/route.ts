@@ -2,10 +2,12 @@ import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import { getUser } from "@/lib/auth";
 import { sseStream } from "@/lib/thinking-stream";
-import { createLiveTasting } from "@/lib/live-tasting-engine";
+import { geoFromHeaders } from "@/lib/geo";
+import { createLiveTasting, createByoPrep, BYO_FAMILIES } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
+  liveTastingMarketCity,
 } from "@/lib/db";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
 
@@ -23,6 +25,7 @@ export async function GET(request: Request) {
     sessions: sessions.map((s) => ({
       id: s.id,
       state: deriveSessionState(s),
+      mode: s.mode,
       blindIntegrity: deriveBlindIntegrity(s),
       paper: s.paper,
       flightSize: s.flight_size,
@@ -52,11 +55,22 @@ export async function POST(request: Request) {
   }
 
   const prefs = await getUserLiveTastingPrefs(userId);
-  if (!prefs.city || !prefs.country) {
-    return Response.json(
-      { error: "Set your city and country in Settings → Live Tasting first." },
-      { status: 400 }
-    );
+  // No saved market → fall back to the request's IP-derived location (Vercel geo headers).
+  // Per-session only, never written to the profile: IP geo lies under VPNs and travel, so the
+  // UI labels it approximate and points at Settings for the real thing.
+  let marketCity = liveTastingMarketCity(prefs);
+  let marketCountry = prefs.country;
+  if (!marketCity || !marketCountry) {
+    const detected = geoFromHeaders(request.headers);
+    if (detected) {
+      marketCity = detected.city;
+      marketCountry = detected.country;
+    } else {
+      return Response.json(
+        { error: "Set your city and country in Settings → Live Tasting first." },
+        { status: 400 }
+      );
+    }
   }
 
   // No per-day session cap (owner's call, 2026-08-06): each generation is a bounded Tavily +
@@ -71,14 +85,38 @@ export async function POST(request: Request) {
       ? body.budgetCurrency.trim().toUpperCase()
       : prefs.budgetCurrency;
 
+  // BYO ("I'll choose wines", migration 043): paper + question type in, shopping brief out —
+  // the session sits in 'prep' until the wines are entered.
+  if (body.mode === "byo") {
+    // Question type = the STUDY taxonomy (F1-F7), same families as the Study tab.
+    const family = typeof body.family === "string" && body.family in BYO_FAMILIES ? body.family : "F1";
+    return sseStream(async (emit) => {
+      const outcome = await createByoPrep({
+        userId,
+        apiKey: keyResult.apiKey,
+        paper,
+        family,
+        flightSize,
+        city: marketCity,
+        country: marketCountry,
+        budgetAmount,
+        budgetCurrency,
+        emit,
+      });
+      if ("error" in outcome) throw new Error(outcome.error);
+      emit({ type: "status", label: "Shopping brief ready." });
+      return { sessionId: outcome.session.id };
+    });
+  }
+
   return sseStream(async (emit) => {
     const outcome = await createLiveTasting({
       userId,
       apiKey: keyResult.apiKey,
       paper,
       flightSize,
-      city: prefs.city!,
-      country: prefs.country!,
+      city: marketCity,
+      country: marketCountry,
       budgetAmount,
       budgetCurrency,
       radiusMinutes: prefs.radiusMinutes,

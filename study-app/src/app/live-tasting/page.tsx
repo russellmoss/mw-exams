@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 
 type SessionSummary = {
   id: string;
-  state: "shopping" | "tasted" | "abandoned";
+  state: "prep" | "shopping" | "tasted" | "abandoned";
   blindIntegrity: "partner" | "self" | "unopened";
   paper: number;
   flightSize: number;
@@ -16,9 +16,13 @@ type SessionSummary = {
   gradedAt: string | null;
 };
 
-type Prefs = { city: string | null; country: string | null; budgetAmount: number | null; budgetCurrency: string | null };
+type Prefs = {
+  city: string | null; country: string | null; budgetAmount: number | null; budgetCurrency: string | null;
+  detected?: { city: string; country: string } | null;
+};
 
 const STATE_CHIP: Record<string, { label: string; cls: string }> = {
+  prep: { label: "Tasting prep", cls: "text-borderline border-borderline/40 bg-borderline/10" },
   shopping: { label: "Shopping", cls: "text-accent border-accent/40 bg-accent/10" },
   tasted: { label: "Tasted", cls: "text-success border-success/40 bg-success/10" },
   abandoned: { label: "Abandoned", cls: "text-muted border-border bg-card" },
@@ -31,6 +35,8 @@ export default function LiveTastingPage() {
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [paper, setPaper] = useState(1);
   const [flightSize, setFlightSize] = useState(3);
+  const [mode, setMode] = useState<"pick-for-me" | "byo">("pick-for-me");
+  const [family, setFamily] = useState("F1");
   const [budgetOverride, setBudgetOverride] = useState("");
   const [creating, setCreating] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -65,6 +71,8 @@ export default function LiveTastingPage() {
         body: JSON.stringify({
           paper,
           flightSize,
+          mode,
+          ...(mode === "byo" ? { family } : {}),
           ...(budgetOverride.trim() ? { budgetAmount: Number(budgetOverride) } : {}),
         }),
       });
@@ -118,6 +126,9 @@ export default function LiveTastingPage() {
   }
 
   const marketSet = Boolean(prefs?.city && prefs?.country);
+  const detected = prefs?.detected ?? null;
+  const canCreate = marketSet || Boolean(detected);
+  const marketLabel = marketSet ? prefs!.city : detected ? detected.city : null;
   const active = sessions.filter((s) => s.state !== "abandoned");
 
   return (
@@ -126,7 +137,7 @@ export default function LiveTastingPage() {
         <div className="max-w-2xl mx-auto px-6 py-6">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Live Tasting</h1>
           <p className="text-sm text-muted mt-1">
-            A real blind flight from wines you can actually buy near {prefs?.city || "you"} — shop,
+            A real blind flight from wines you can actually buy near {marketLabel || "you"} — shop,
             bag, taste blind, get graded.
           </p>
         </div>
@@ -134,7 +145,7 @@ export default function LiveTastingPage() {
 
       <main className="flex-1">
         <div className="max-w-2xl mx-auto px-6 py-8 space-y-8">
-          {!marketSet && (
+          {!canCreate && (
             <section className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Set your market first</h2>
               <p className="text-sm text-muted mb-4">
@@ -150,17 +161,60 @@ export default function LiveTastingPage() {
             </section>
           )}
 
-          {marketSet && (
+          {canCreate && (
             <section className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-foreground mb-2 font-display">New Live Tasting</h2>
+              {!marketSet && detected && (
+                <div className="bg-borderline/10 border border-borderline/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-foreground">
+                    Using your approximate location: <strong>{detected.city}, {detected.country}</strong> (from
+                    your connection). <Link href="/settings" className="text-accent hover:text-accent-hover">Set
+                    your market in Settings</Link> for precise shop matching and a travel radius.
+                  </p>
+                </div>
+              )}
               <p className="text-sm text-muted mb-5">
-                We&apos;ll pick a coherent MW-style flight available near {prefs!.city}, write the
+                We&apos;ll pick a coherent MW-style flight available near {marketLabel}, write the
                 question around it, and keep the wines hidden from you. Have a partner buy and bag
                 the bottles to keep the blind honest.
               </p>
               {error && (
                 <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
                   <p className="text-sm text-fail">{error}</p>
+                </div>
+              )}
+              {!creating && (
+                <div className="mb-5">
+                  <span className="block text-sm font-medium text-foreground mb-1.5">Who picks the wines?</span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setMode("pick-for-me")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        mode === "pick-for-me"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      Pick my wines
+                    </button>
+                    <button
+                      onClick={() => setMode("byo")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        mode === "byo"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      I&apos;ll choose wines
+                    </button>
+                  </div>
+                  {mode === "byo" && (
+                    <p className="text-xs text-muted mt-2">
+                      You get a shopping brief for your paper and question type; buy whatever fits
+                      (or hand the brief to a partner), enter the bottles, and the question is
+                      built around them.
+                    </p>
+                  )}
                 </div>
               )}
               {creating ? (
@@ -194,6 +248,35 @@ export default function LiveTastingPage() {
                       ))}
                     </div>
                   </div>
+                  {mode === "byo" && (
+                    <div>
+                      <span className="block text-sm font-medium text-foreground mb-1.5">Question family</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {[
+                          { id: "F1", label: "F1 · Same Variety", desc: "One grape across different origins or styles" },
+                          { id: "F2", label: "F2 · Same Origin", desc: "One country or region, testing internal diversity" },
+                          { id: "F3", label: "F3 · Blend Logic", desc: "Blends — composition and component roles" },
+                          { id: "F4", label: "F4 · Mixed Breadth", desc: "Independent wines — breadth of identification" },
+                          { id: "F5", label: "F5 · Method / Production", desc: "How it was made: sparkling, fortified, sweet" },
+                          { id: "F6", label: "F6 · Style Mechanism", desc: "A structural axis: maturity, sweetness, style" },
+                          { id: "F7", label: "F7 · Quality Hierarchy", desc: "Tiers within a legal classification" },
+                        ].map((f) => (
+                          <button
+                            key={f.id}
+                            onClick={() => setFamily(f.id)}
+                            className={`px-3 py-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                              family === f.id
+                                ? "border-accent bg-accent/10"
+                                : "border-border hover:border-muted"
+                            }`}
+                          >
+                            <span className={`block text-sm font-medium ${family === f.id ? "text-accent" : "text-foreground"}`}>{f.label}</span>
+                            <span className="block text-xs text-muted mt-0.5">{f.desc}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex gap-6">
                     <div>
                       <span className="block text-sm font-medium text-foreground mb-1.5">Wines</span>
@@ -236,7 +319,7 @@ export default function LiveTastingPage() {
                     onClick={createSession}
                     className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
                   >
-                    Build my flight
+                    {mode === "byo" ? "Get my shopping brief" : "Build my flight"}
                   </button>
                 </div>
               )}

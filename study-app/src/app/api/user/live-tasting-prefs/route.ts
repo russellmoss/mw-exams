@@ -1,5 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { getUserLiveTastingPrefs, setUserLiveTastingPrefs } from "@/lib/db";
+import { geoFromHeaders } from "@/lib/geo";
 
 export const runtime = "nodejs";
 
@@ -13,9 +14,12 @@ export async function GET(request: Request) {
   try {
     const user = await getUser(request);
     if (!user) return Response.json({ error: "Auth required" }, { status: 401 });
-    return Response.json(await getUserLiveTastingPrefs(user.id));
+    const prefs = await getUserLiveTastingPrefs(user.id);
+    // detected = the IP-derived approximation (Vercel geo headers) — the create flow's fallback
+    // when no market is saved. Advisory only; never persisted.
+    return Response.json({ ...prefs, detected: geoFromHeaders(request.headers) });
   } catch {
-    return Response.json({ city: null, country: null, budgetAmount: null, budgetCurrency: null, radiusMinutes: null });
+    return Response.json({ city: null, state: null, country: null, budgetAmount: null, budgetCurrency: null, radiusMinutes: null });
   }
 }
 
@@ -26,6 +30,7 @@ export async function PATCH(request: Request) {
 
     const body = await request.json();
     const city = typeof body.city === "string" ? body.city.trim().slice(0, 120) : "";
+    const state = typeof body.state === "string" ? body.state.trim().slice(0, 80) : "";
     const country = typeof body.country === "string" ? body.country.trim().slice(0, 80) : "";
     if (!city || !country) {
       return Response.json({ error: "City and country are required" }, { status: 400 });
@@ -42,7 +47,7 @@ export async function PATCH(request: Request) {
 
     const radiusMinutes = RADII.has(Number(body.radiusMinutes)) ? Number(body.radiusMinutes) : null;
 
-    const prefs = { city, country, budgetAmount, budgetCurrency, radiusMinutes };
+    const prefs = { city, state: state || null, country, budgetAmount, budgetCurrency, radiusMinutes };
     await setUserLiveTastingPrefs(user.id, prefs);
     return Response.json(prefs);
   } catch {

@@ -2,7 +2,6 @@ import { requireApiKey } from "@/lib/api-key";
 import {
   getLiveTastingSession,
   getQuestionById,
-  getAttemptById,
   createAttemptWithUser,
   updateAttempt,
   casClaimSessionAttempt,
@@ -41,6 +40,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const state = deriveSessionState(session);
   if (state === "tasted") return Response.json({ error: "Already graded" }, { status: 409 });
   if (state === "abandoned") return Response.json({ error: "Session abandoned" }, { status: 409 });
+  if (state === "prep" || session.question_id == null) {
+    return Response.json({ error: "Enter the wines first — this session is still in tasting prep" }, { status: 409 });
+  }
+  const questionId: string = session.question_id;
 
   const body = await request.json();
   const userAnswer = typeof body.userAnswer === "string" ? body.userAnswer.trim() : "";
@@ -49,7 +52,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     typeof body.preGlassReasoning === "string" ? body.preGlassReasoning : null;
   const inputMethod: "typed" | "voice" = body.inputMethod === "voice" ? "voice" : "typed";
 
-  const question = await getQuestionById(session.question_id);
+  const question = await getQuestionById(questionId);
   if (!question) return Response.json({ error: "Question missing" }, { status: 500 });
   const wines: { slot: number; fullText: string; appearance?: string }[] =
     typeof question.wines === "string" ? JSON.parse(question.wines) : question.wines;
@@ -57,7 +60,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   // Attempt: reuse the one a dropped stream left behind, else create + CAS-claim.
   let attemptId = session.attempt_id;
   if (attemptId == null) {
-    const attempt = await createAttemptWithUser(session.question_id, userId, "live-tasting", undefined);
+    const attempt = await createAttemptWithUser(questionId, userId, "live-tasting", undefined);
     const claimed = await casClaimSessionAttempt(session.id, attempt.id);
     if (!claimed) {
       // Lost a race with a concurrent submit — reattach to the winner's attempt.
@@ -74,8 +77,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (preGlassReasoning) await updateAttempt(attemptId, { pre_glass_reasoning: preGlassReasoning });
 
   // Exposure bookkeeping, same as every serve path.
-  recordQuestionView(userId, session.question_id).catch(() => {});
-  incrementTimesServed(session.question_id).catch(() => {});
+  recordQuestionView(userId, questionId).catch(() => {});
+  incrementTimesServed(questionId).catch(() => {});
 
   const vintages = (session.vintages_bought ?? null) as Record<string, string> | null;
   const finalAttemptId = attemptId;

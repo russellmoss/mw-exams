@@ -8,7 +8,7 @@
  * stored enum to go stale.
  */
 
-export type LiveTastingState = "shopping" | "tasted" | "abandoned";
+export type LiveTastingState = "prep" | "shopping" | "tasted" | "abandoned";
 export type BlindIntegrity = "partner" | "self" | "unopened";
 
 // Stockist types live HERE (not in retail-availability.ts) because client components render
@@ -31,11 +31,14 @@ type SessionEvents = {
   token_first_used_at: string | null;
   graded_at: string | null;
   abandoned_at: string | null;
+  /** BYO sessions (migration 043) have no question while in tasting prep. */
+  question_id?: string | null;
 };
 
 export function deriveSessionState(s: SessionEvents): LiveTastingState {
   if (s.abandoned_at) return "abandoned";
   if (s.graded_at) return "tasted";
+  if (s.question_id === null) return "prep";
   return "shopping";
 }
 
@@ -51,6 +54,13 @@ export function deriveBlindIntegrity(s: SessionEvents): BlindIntegrity {
   if (s.token_first_used_at) return "partner";
   return "unopened";
 }
+
+export const STATE_LABEL: Record<LiveTastingState, string> = {
+  prep: "Tasting prep",
+  shopping: "Shopping",
+  tasted: "Tasted",
+  abandoned: "Abandoned",
+};
 
 export const BLIND_INTEGRITY_LABEL: Record<BlindIntegrity, string> = {
   partner: "Blind kept — a partner handled the wines",

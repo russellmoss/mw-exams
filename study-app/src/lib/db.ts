@@ -192,6 +192,7 @@ export async function setUserPacePreference(userId: number, pref: PacePreference
 // Currency whitelist is enforced app-side (the route), not by a DB CHECK.
 export type LiveTastingPrefs = {
   city: string | null;
+  state: string | null;
   country: string | null;
   budgetAmount: number | null;
   budgetCurrency: string | null;
@@ -201,7 +202,7 @@ export type LiveTastingPrefs = {
 export async function getUserLiveTastingPrefs(userId: number): Promise<LiveTastingPrefs> {
   const sql = getDb();
   const rows = await sql`
-    SELECT live_city, live_country, live_budget_amount, live_budget_currency, live_radius_minutes
+    SELECT live_city, live_state, live_country, live_budget_amount, live_budget_currency, live_radius_minutes
     FROM users WHERE id = ${userId}
   `;
   const r = rows[0];
@@ -209,6 +210,7 @@ export async function getUserLiveTastingPrefs(userId: number): Promise<LiveTasti
   const radius = r?.live_radius_minutes != null ? Number(r.live_radius_minutes) : null;
   return {
     city: r?.live_city ?? null,
+    state: r?.live_state ?? null,
     country: r?.live_country ?? null,
     budgetAmount: Number.isFinite(amount as number) && (amount as number) > 0 ? amount : null,
     budgetCurrency: r?.live_budget_currency ?? null,
@@ -221,12 +223,19 @@ export async function setUserLiveTastingPrefs(userId: number, prefs: LiveTasting
   await sql`
     UPDATE users SET
       live_city = ${prefs.city},
+      live_state = ${prefs.state},
       live_country = ${prefs.country},
       live_budget_amount = ${prefs.budgetAmount},
       live_budget_currency = ${prefs.budgetCurrency},
       live_radius_minutes = ${prefs.radiusMinutes}
     WHERE id = ${userId}
   `;
+}
+
+/** The market string retail lookups key on: "City" or "City, State" when a state is set. */
+export function liveTastingMarketCity(prefs: Pick<LiveTastingPrefs, "city" | "state">): string | null {
+  if (!prefs.city) return null;
+  return prefs.state ? `${prefs.city}, ${prefs.state}` : prefs.city;
 }
 
 export async function saveGeneratedQuestion(q: {
@@ -917,15 +926,33 @@ export async function getUnansweredQuestions(
   `) as GeneratedQuestion[];
 }
 
-export async function getQuestionCounts(): Promise<
-  { paper: number; family: string; count: number }[]
-> {
+// Per-slice counts for the landing/family cards. Must stay in lockstep with getBankCount() below —
+// the card advertises what the acquire screen's "Banked Question" button will actually find, so a
+// raw COUNT(*) here (the pre-2026-08-06 behavior) showed quarantined/binned/already-seen rows and
+// the card said "41 in bank" while the acquire screen said "No banked questions yet".
+// With a userId, questions that user has already seen are excluded too.
+export async function getQuestionCounts(
+  userId?: number
+): Promise<{ paper: number; family: string; count: number }[]> {
   const sql = getDb();
+  const uid = userId ?? null;
   return (await sql`
-    SELECT paper, family, COUNT(*)::int as count
-    FROM generated_questions
-    GROUP BY paper, family
-    ORDER BY paper, family
+    SELECT q.paper, q.family, COUNT(*)::int as count
+    FROM generated_questions q
+    WHERE q.invalid_reasons IS NULL
+      AND q.review_state = 'kept'
+      AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
+      AND (${uid}::int IS NULL OR NOT EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${uid}
+      ))
+    GROUP BY q.paper, q.family
+    ORDER BY q.paper, q.family
   `) as { paper: number; family: string; count: number }[];
 }
 
@@ -3809,7 +3836,11 @@ export async function updateFeatureRequest(
 export interface LiveTastingSession {
   id: string;
   user_id: number;
-  question_id: string;
+  /** NULL while a BYO session is in tasting prep (migration 043). */
+  question_id: string | null;
+  mode: "pick-for-me" | "byo";
+  prep_guidance: string | null;
+  entered_wines: unknown;
   paper: number;
   flight_size: number;
   archetype: string;
@@ -3982,6 +4013,56 @@ export async function clearLiveTastingShareToken(sessionId: string): Promise<voi
     UPDATE live_tasting_sessions SET share_token_hash = NULL, share_expires_at = NULL
     WHERE id = ${sessionId}
   `;
+}
+
+// BYO prep session (migration 043): exists before any question does — the shopping brief is the
+// whole payload. question_id stays NULL until the wines are entered and generation succeeds.
+export async function createLiveTastingPrepSession(s: {
+  id: string;
+  userId: number;
+  paper: number;
+  flightSize: number;
+  archetype: string;
+  city: string;
+  country: string;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+  prepGuidance: string;
+}): Promise<LiveTastingSession> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO live_tasting_sessions (
+      id, user_id, paper, flight_size, archetype, city, country,
+      budget_amount, budget_currency, mode, prep_guidance
+    ) VALUES (
+      ${s.id}, ${s.userId}, ${s.paper}, ${s.flightSize}, ${s.archetype}, ${s.city}, ${s.country},
+      ${s.budgetAmount}, ${s.budgetCurrency}, 'byo', ${s.prepGuidance}
+    )
+    RETURNING *
+  `;
+  return rows[0] as LiveTastingSession;
+}
+
+// Attach the generated question to a BYO session once the entered wines produced a validated
+// key. Guarded on question_id IS NULL so a double-submit (partner + candidate racing) can't
+// clobber a generated session.
+export async function attachByoQuestion(
+  sessionId: string,
+  questionId: string,
+  enteredWines: unknown,
+  vintages: Record<string, string>
+): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    UPDATE live_tasting_sessions
+    SET question_id = ${questionId},
+        entered_wines = ${JSON.stringify(enteredWines)}::jsonb,
+        vintages_bought = ${JSON.stringify(vintages)}::jsonb,
+        availability = ${JSON.stringify({ byo: true })}::jsonb
+    WHERE id = ${sessionId} AND question_id IS NULL
+    RETURNING id
+  `;
+  return rows.length > 0;
 }
 
 // Rate limit (plan §5.3): sessions created by this user in the last 24h.

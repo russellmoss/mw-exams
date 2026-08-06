@@ -34,6 +34,7 @@ export default function SettingsPage() {
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwSuccess, setPwSuccess] = useState<string | null>(null);
   const [liveCity, setLiveCity] = useState("");
+  const [liveState, setLiveState] = useState("");
   const [liveCountry, setLiveCountry] = useState("");
   const [liveBudget, setLiveBudget] = useState("");
   const [liveCurrency, setLiveCurrency] = useState("USD");
@@ -78,6 +79,7 @@ export default function SettingsPage() {
         .then((d) => {
           if (!d) return;
           if (d.city) setLiveCity(d.city);
+          if (d.state) setLiveState(d.state);
           if (d.country) setLiveCountry(d.country);
           if (d.budgetAmount != null) setLiveBudget(String(d.budgetAmount));
           if (d.budgetCurrency) setLiveCurrency(d.budgetCurrency);
@@ -450,6 +452,7 @@ export default function SettingsPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       city: liveCity,
+                      state: liveState.trim() || null,
                       country: liveCountry,
                       budgetAmount: liveBudget.trim() ? Number(liveBudget) : null,
                       budgetCurrency: liveCurrency,
@@ -467,7 +470,7 @@ export default function SettingsPage() {
               }}
               className="space-y-4"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="liveCity" className="block text-sm font-medium text-foreground mb-1.5">
                     City / town
@@ -477,10 +480,23 @@ export default function SettingsPage() {
                     type="text"
                     value={liveCity}
                     onChange={(e) => setLiveCity(e.target.value)}
-                    placeholder="e.g. New Hope, Pennsylvania"
+                    placeholder="e.g. New Hope"
                     className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
                   />
-                  <p className="text-xs text-muted mt-1.5">Include the state or region if outside a major city.</p>
+                </div>
+                <div>
+                  <label htmlFor="liveState" className="block text-sm font-medium text-foreground mb-1.5">
+                    State / region <span className="text-muted font-normal">(optional)</span>
+                  </label>
+                  <input
+                    id="liveState"
+                    type="text"
+                    value={liveState}
+                    onChange={(e) => setLiveState(e.target.value)}
+                    placeholder="e.g. Pennsylvania"
+                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors text-sm"
+                  />
+                  <p className="text-xs text-muted mt-1.5">Helps if you&rsquo;re outside a major city.</p>
                 </div>
                 <div>
                   <label htmlFor="liveCountry" className="block text-sm font-medium text-foreground mb-1.5">

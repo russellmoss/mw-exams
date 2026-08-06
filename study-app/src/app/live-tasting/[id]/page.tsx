@@ -8,6 +8,8 @@ import { useStreaming } from "@/lib/use-streaming";
 import { StreamingFeedback } from "@/app/components/StreamingFeedback";
 import { useDraft } from "@/lib/use-draft";
 import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
+import { ByoWineForm } from "@/app/components/ByoWineForm";
+import { BriefCard } from "@/app/components/BriefCard";
 
 type SlotSummary = { slot: number; stockistCount: number; thin: boolean };
 type SlotAvail = {
@@ -16,7 +18,9 @@ type SlotAvail = {
 };
 type SessionDetail = {
   id: string;
-  state: "shopping" | "tasted" | "abandoned";
+  state: "prep" | "shopping" | "tasted" | "abandoned";
+  mode?: "pick-for-me" | "byo";
+  prepGuidance?: string | null;
   blindIntegrity: "partner" | "self" | "unopened";
   paper: number;
   flightSize: number;
@@ -25,8 +29,9 @@ type SessionDetail = {
   budgetAmount: number | null;
   budgetCurrency: string | null;
   shareActive: boolean;
-  question: { questionText: string; totalMarks: number };
-  slotSummaries: SlotSummary[];
+  /** Absent while a BYO session is in tasting prep — no question exists yet. */
+  question?: { questionText: string; totalMarks: number };
+  slotSummaries?: SlotSummary[];
   reveal?: {
     wines: { slot: number; fullText: string }[];
     modelAnswer: string | null;
@@ -83,6 +88,7 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
   const [session, setSession] = useState<SessionDetail | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [interstitial, setInterstitial] = useState(false);
+  const [byoEntryOpen, setByoEntryOpen] = useState(false);
   const [shopping, setShopping] = useState<{ archetypeLabel: string | null; slots: SlotAvail[]; bagging: string } | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareBusy, setShareBusy] = useState(false);
@@ -234,11 +240,12 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
               Live Tasting · Paper {session.paper}
             </h1>
             <p className="text-sm text-muted mt-1">
-              {session.flightSize} wines · {session.city} · {session.question.totalMarks} marks
+              {session.flightSize} wines · {session.city}
+              {session.question ? ` · ${session.question.totalMarks} marks` : " · tasting prep"}
               {session.state === "tasted" && ` · ${BLIND_INTEGRITY_LABEL[session.blindIntegrity]}`}
             </p>
           </div>
-          {session.state === "shopping" && (
+          {(session.state === "shopping" || session.state === "prep") && (
             <button
               onClick={async () => {
                 if (window.confirm("Abandon this session? The shopping list link stops working.")) {
@@ -256,23 +263,83 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
 
       <main className="flex-1">
         <div className="max-w-2xl mx-auto px-6 py-8 space-y-6">
-          {/* The question stem — visible in every state; it never names the wines. */}
-          <section className="bg-card rounded-xl border border-border p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-3 font-display">The question</h2>
-            <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-              {session.question.questionText}
-            </div>
-          </section>
+          {/* The question stem — visible in every post-prep state; it never names the wines. */}
+          {session.state !== "prep" && (
+            <section className="bg-card rounded-xl border border-border p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-3 font-display">The question</h2>
+              <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+                {session.question?.questionText}
+              </div>
+            </section>
+          )}
+
+          {/* BYO tasting prep: the shopping brief + two ways to enter the wines */}
+          {session.state === "prep" && (
+            <>
+              <BriefCard title="Your shopping brief" markdown={session.prepGuidance ?? ""} />
+              <section className="bg-card rounded-xl border border-border p-6">
+                <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Got the wines?</h2>
+                <p className="text-sm text-muted mb-4">
+                  Best blind: share this brief with a partner — they buy the bottles, enter them on
+                  the shared page, and you never see a label. Or enter them yourself (your results
+                  will note the blind was broken).
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={mintShareLink}
+                    disabled={shareBusy}
+                    className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50"
+                  >
+                    {shareBusy ? "Creating link…" : "Share brief with a partner"}
+                  </button>
+                  {!byoEntryOpen && (
+                    <button
+                      onClick={() => setInterstitial(true)}
+                      className="px-5 py-2.5 border border-border text-muted hover:text-foreground hover:border-muted font-medium rounded-lg transition-colors cursor-pointer"
+                    >
+                      Enter the wines myself
+                    </button>
+                  )}
+                </div>
+                {shareUrl && (
+                  <div className="mt-4 bg-background rounded-lg border border-border p-3">
+                    <p className="text-xs text-muted mb-1.5">
+                      Your partner sees the brief and an entry form — never the question.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <code className="text-xs text-foreground font-mono truncate flex-1">{shareUrl}</code>
+                      <button
+                        onClick={() => navigator.clipboard?.writeText(shareUrl)}
+                        className="shrink-0 text-xs text-accent hover:text-accent-hover cursor-pointer"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {byoEntryOpen && (
+                  <div className="mt-5 pt-5 border-t border-border">
+                    <ByoWineForm
+                      endpoint={`/api/live-tasting/${id}/wines`}
+                      defaultCount={session.flightSize}
+                      onDone={() => { setByoEntryOpen(false); load(); }}
+                    />
+                  </div>
+                )}
+              </section>
+            </>
+          )}
 
           {session.state === "shopping" && !grading && !gradeStream.text && (
             <>
-              {/* Getting the wines */}
+              {/* Getting the wines (pick-for-me only — BYO wines are already in hand) */}
+              {session.mode !== "byo" && (
               <section className="bg-card rounded-xl border border-border p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Get the wines</h2>
                 <p className="text-sm text-muted mb-4">
-                  {session.slotSummaries.length} wines are picked and checked against shops near{" "}
+                  {(session.slotSummaries ?? []).length} wines are picked and checked against shops near{" "}
                   {session.city}
-                  {session.slotSummaries.some((s) => s.thin)
+                  {(session.slotSummaries ?? []).some((s) => s.thin)
                     ? " (some only by mail order)"
                     : ""}
                   . The list names the wines — so opening it yourself breaks the blind.
@@ -312,6 +379,17 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                   </div>
                 )}
               </section>
+              )}
+              {session.mode === "byo" && (
+                <section className="bg-card rounded-xl border border-border p-6">
+                  <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Wines are in</h2>
+                  <p className="text-sm text-muted">
+                    The bottles are entered and the question is ready. Have them bagged and
+                    numbered 1–{session.flightSize} (ideally by someone else), pour in order, and
+                    write your answer below when you&apos;re tasting.
+                  </p>
+                </section>
+              )}
 
               {/* The revealed shopping list (self-shop path) */}
               {shopping && (
@@ -485,10 +563,17 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                 Cancel
               </button>
               <button
-                onClick={revealShoppingList}
+                onClick={() => {
+                  if (session.state === "prep") {
+                    setInterstitial(false);
+                    setByoEntryOpen(true);
+                  } else {
+                    revealShoppingList();
+                  }
+                }}
                 className="px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg text-sm font-semibold transition-colors cursor-pointer"
               >
-                Reveal the list
+                {session.state === "prep" ? "I understand — enter the wines" : "Reveal the list"}
               </button>
             </div>
           </div>

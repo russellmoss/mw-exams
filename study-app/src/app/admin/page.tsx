@@ -10,6 +10,7 @@ import { FillTheBankRows } from "../components/FillTheBankCard";
 import { BankHealthSection } from "../components/BankHealthSection";
 import { WhyBinnedSection } from "../components/WhyBinnedSection";
 import { BinFixProposalsSection } from "../components/BinFixProposalsSection";
+import { AdminUserModal } from "../components/AdminUserModal";
 
 interface UserRow {
   id: number;
@@ -48,6 +49,18 @@ export default function AdminPage() {
 
   // Live sessions
   const [liveUserIds, setLiveUserIds] = useState<Set<number>>(new Set());
+
+  // User management modal
+  const [manageUserId, setManageUserId] = useState<number | null>(null);
+
+  const refreshUsers = () => {
+    fetch("/api/admin/users", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.users) setUsers(data.users);
+      })
+      .catch(() => {});
+  };
 
   // Feedback
   const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, partial: 0, rejected: 0 });
@@ -595,10 +608,14 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* User rows */}
+            {/* User rows — click a row to open the management modal */}
             <div className="divide-y divide-border">
               {users.map((u) => (
-                <div key={u.id} className={`px-6 py-4 flex items-center gap-4 ${!u.is_active ? "opacity-50" : ""}`}>
+                <div
+                  key={u.id}
+                  onClick={() => setManageUserId(u.id)}
+                  className={`px-6 py-4 flex items-center gap-4 cursor-pointer hover:bg-background/40 transition-colors ${!u.is_active ? "opacity-50" : ""}`}
+                >
                   {/* Status dot */}
                   <div className={`w-2 h-2 rounded-full shrink-0 ${
                     u.has_own_key ? "bg-success" : u.is_admin ? "bg-accent" : "bg-fail"
@@ -609,6 +626,7 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/users/${u.id}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="text-sm font-medium text-foreground hover:text-accent transition-colors"
                       >
                         {u.name}
@@ -654,13 +672,13 @@ export default function AdminPage() {
                   {u.id !== user?.id && (
                     <div className="flex items-center gap-2 shrink-0">
                       <button
-                        onClick={() => toggleAdmin(u.id, u.is_admin)}
+                        onClick={(e) => { e.stopPropagation(); toggleAdmin(u.id, u.is_admin); }}
                         className="text-xs px-2 py-1 rounded border border-border hover:border-accent text-muted hover:text-foreground transition-colors cursor-pointer"
                       >
                         {u.is_admin ? "Demote" : "Make admin"}
                       </button>
                       <button
-                        onClick={() => toggleActive(u.id, u.is_active)}
+                        onClick={(e) => { e.stopPropagation(); toggleActive(u.id, u.is_active); }}
                         className={`text-xs px-2 py-1 rounded border transition-colors cursor-pointer ${
                           u.is_active
                             ? "border-border hover:border-fail text-muted hover:text-fail"
@@ -676,9 +694,19 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* User management modal */}
+          {manageUserId !== null && user && (
+            <AdminUserModal
+              userId={manageUserId}
+              currentUserId={user.id}
+              onClose={() => setManageUserId(null)}
+              onChanged={refreshUsers}
+            />
+          )}
+
           {/* Build stamp — hardcoded, unconditional. If this line is missing from a deployed /admin,
               the browser is serving a stale bundle (the whole point of the v3 verifiability gate). */}
-          <p className="text-xs text-muted/60 text-center mt-10">Admin build 6 · Fill the Bank: inline</p>
+          <p className="text-xs text-muted/60 text-center mt-10">Admin build 7 · User modal</p>
         </div>
       </main>
     </div>

@@ -46,6 +46,28 @@ export async function getUserApiKey(
 }
 
 /**
+ * Resolve a user's API key by id, with no request in hand — the Live Tasting partner flow
+ * (token-authenticated, no session) generates on the session OWNER's key. Same resolution
+ * order as getUserApiKey: stored key first, admin server-fallback second, else null.
+ */
+export async function getApiKeyForUserId(userId: number): Promise<string | null> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = await sql`
+    SELECT k.encrypted_key, u.is_admin
+    FROM users u
+    LEFT JOIN user_api_keys k ON k.user_id = u.id AND k.provider = 'anthropic'
+    WHERE u.id = ${userId}
+  `;
+  const r = rows[0];
+  if (!r) return null;
+  if (r.encrypted_key) {
+    try { return decrypt(r.encrypted_key as string); } catch { /* corrupt — fall through */ }
+  }
+  if (r.is_admin && process.env.ANTHROPIC_API_KEY) return process.env.ANTHROPIC_API_KEY;
+  return null;
+}
+
+/**
  * Helper for API routes: resolves key or returns an error Response.
  * Use: const result = await requireApiKey(request); if (result instanceof Response) return result;
  */

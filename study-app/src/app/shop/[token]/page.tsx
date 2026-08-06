@@ -4,6 +4,8 @@ import { getLiveTastingSessionByTokenHash, stampLiveTastingEvent } from "@/lib/d
 import { hashShareToken, looksLikeShareToken } from "@/lib/share-token";
 import type { Stockist } from "@/lib/live-tasting";
 import { VintageForm } from "./VintageForm";
+import { PartnerWineEntry } from "./PartnerWineEntry";
+import { BriefCard } from "@/app/components/BriefCard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,6 +45,32 @@ export default async function ShopPage({ params }: { params: Promise<{ token: st
   if (!session) notFound();
 
   await stampLiveTastingEvent(session.id, "token_first_used_at");
+
+  // BYO tasting prep (migration 043): the partner sees the shopping BRIEF and a wine-entry form
+  // instead of a stockist list — they buy per the brief and enter what they bought. The candidate
+  // stays blind throughout.
+  if (session.question_id == null) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="max-w-2xl mx-auto px-6 py-10">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Wine shopping brief</h1>
+          <p className="text-sm text-muted mt-2 mb-6">
+            You&apos;re buying wines for someone&apos;s blind tasting practice —
+            <strong className="text-foreground"> don&apos;t tell them what you buy.</strong>{" "}
+            Pick bottles matching the brief below, then enter exactly what you bought and the
+            practice question gets built around your bottles.
+          </p>
+          <div className="mb-6">
+            <BriefCard title="The brief" markdown={session.prep_guidance ?? ""} />
+          </div>
+          <section className="bg-card rounded-xl border border-border p-5">
+            <h2 className="text-lg font-semibold text-foreground mb-3">Enter what you bought</h2>
+            <PartnerWineEntry token={token} defaultCount={session.flight_size} />
+          </section>
+        </div>
+      </div>
+    );
+  }
 
   const avail = (session.availability ?? {}) as { archetypeLabel?: string; slots?: SlotAvail[] };
   const slots = Array.isArray(avail.slots) ? avail.slots : [];

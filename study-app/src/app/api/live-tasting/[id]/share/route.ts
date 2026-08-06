@@ -23,8 +23,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const session = await getLiveTastingSession(id, user.id);
   if (!session) return Response.json({ error: "Not found" }, { status: 404 });
-  if (deriveSessionState(session) !== "shopping") {
-    return Response.json({ error: "This session is no longer in shopping" }, { status: 409 });
+  const state = deriveSessionState(session);
+  if (state !== "shopping" && state !== "prep") {
+    return Response.json({ error: "This session is no longer shareable" }, { status: 409 });
   }
 
   const token = randomBytes(24).toString("base64url"); // 192 bits

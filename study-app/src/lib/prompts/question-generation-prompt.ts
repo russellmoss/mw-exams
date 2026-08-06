@@ -107,7 +107,7 @@ export const BLEND_APPELLATIONS = [
   "Chateauneuf-du-Pape", "Gigondas", "Vacqueyras", "Cotes du Rhone", "Cotes de Provence",
   "Bordeaux", "Medoc", "Haut-Medoc", "Pauillac", "Margaux", "Saint-Julien", "Saint-Estephe",
   "Saint-Emilion", "Pomerol", "Pessac-Leognan", "Graves",
-  "Rioja", "Tokaji", "GSM", "Meritage", "Ripasso", "Amarone", "Valpolicella",
+  "Rioja", "Chianti", "Tokaji", "GSM", "Meritage", "Ripasso", "Amarone", "Valpolicella",
 ];
 
 // P3 wine style category distribution from 49-question corpus.
@@ -574,7 +574,7 @@ When the stem says "each from a different, single grape variety" or "each is mad
   ${BLEND_APPELLATIONS.join(" · ")}
   (Accents and suffixes do not help: "Chateauneuf-du-Pape AOC", "DOCa Rioja" and "Porto DOP" all match.)
 - GOOD: Rutherglen Muscat (100% Muscat), Amontillado (100% Palomino), Banyuls (predominantly Grenache), single-varietal Riesling, Nebbiolo (Barolo/Barbaresco)
-If you want to include a blend, remove the "single grape variety" language from the stem, or say "predominantly from a different grape variety" without the word "single."
+If you want to include a blend, remove the "single grape variety" language from the stem and hedge as "grape variety or varieties" (the exam's own wording). Do NOT reach for "predominantly from a … grape variety" as the fallback — the audit treats "predominantly … grape variety" as a singular-variety claim too, and it fails the same check over any blend.
 
 ## BANKER MINIMUM RULE (mandatory for flights of 3+ wines)
 Every flight of 3 or more wines MUST include at least one "banker" — a benchmark or iconic wine that any well-prepared MW candidate should identify confidently. The MW exam always does this. In 6 examined France same-country P1 flights (2012-2025), EVERY flight had at least 1 benchmark/iconic wine. Most had 2+.
@@ -636,7 +636,7 @@ Some marks may be allocated to "all wines" sub-questions (e.g., "Identify the co
 
 ## MARK ALLOCATION RULES (CRITICAL — violation = automatic failure)
 **THE TOTAL IS FIXED: exactly 25 marks per wine.** This ${targetFlightSize}-wine question is worth EXACTLY **${targetFlightSize * 25} marks**. Before you output, ADD UP every printed sub-question mark value and confirm the sum is EXACTLY ${targetFlightSize * 25} — a question whose printed marks do not total ${targetFlightSize * 25} is automatically rejected. Do the arithmetic; do not estimate.
-Reliable allocation that always sums correctly (use it unless the question family needs another shape): (a) variety + origin = ${targetFlightSize} × 10 = ${targetFlightSize * 10}; (b) winemaking / production = ${targetFlightSize} × 8 = ${targetFlightSize * 8}; (c) quality, maturity & commercial = ${targetFlightSize} × 7 = ${targetFlightSize * 7}; → total ${targetFlightSize * 25}.${targetFlightSize === 1 ? " (For a single wine, write the marks as plain values, e.g. \"(10 marks)\".)" : ` (Per-wine sub-questions are written "${targetFlightSize} × M marks".)`} If you use a different shape — e.g. a single shared "identify the variety" part for a same-variety flight, or two parts instead of three — re-add the numbers: they must STILL total ${targetFlightSize * 25}, weighted per the mark emphasis below.
+Reliable allocation that always sums correctly (use it unless the question family needs another shape): (a) variety + origin = ${targetFlightSize} × 8 = ${targetFlightSize * 8}; (b) winemaking / production = ${targetFlightSize} × 9 = ${targetFlightSize * 9}; (c) quality, maturity & commercial = ${targetFlightSize} × 8 = ${targetFlightSize * 8}; → total ${targetFlightSize * 25}.${targetFlightSize === 1 ? " (For a single wine, write the marks as plain values, e.g. \"(10 marks)\".)" : ` (Per-wine sub-questions are written "${targetFlightSize} × M marks".)`} If you use a different shape — e.g. a single shared "identify the variety" part for a same-variety flight, or two parts instead of three — re-add the numbers: they must STILL total ${targetFlightSize * 25}, weighted per the mark emphasis below.
 
 Minimum marks per written sub-question: **5 marks**.
 The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:
@@ -645,7 +645,7 @@ The MW exam ONLY uses 2-3 mark sub-questions for numerical "state" answers:
 NEVER allocate 2-4 marks for written answers like "Comment on commercial position" or "Discuss winemaking." These require sentences and always get 5+ marks.
 
 Typical per-wine mark ranges for written sub-questions:
-- Identification (variety + origin): 8-15 marks
+- Identification (variety + origin): 8 marks standard — NEVER more than 10 on any single "Identify the …" part (hard validator cap)
 - Winemaking / method of production: 5-10 marks
 - Quality / maturity: 5-10 marks
 - Commercial position: 5-10 marks
@@ -684,7 +684,16 @@ Eden Valley Riesling against the Mosel. This is checked and a single-world fligh
 
 ## MARK EMPHASIS FOR THIS PAPER (match the modern 2018–2025 shape — EK-0098)
 ${markEmphasis}
-Across any paper: keep IDENTIFICATION at most ~46–55% of total marks (modern papers run ~46% ID, down from ~60% pre-2014); commercial should appear in most questions (never 0% of marks); include a compare/contrast item (20–36 marks) where the flight invites it.
+Across any paper: identification parts (any sub-question whose text says "Identify the grape variety /
+region / country / origin") are HARD-CAPPED by a blocking validator, and the caps are tight:
+- No single identification part may exceed **10 marks** per instance.
+- Identification parts may total at most **50% of the paper's marks when every wine is a mainstream
+  benchmark**, and only **35% the moment the flight contains even ONE curveball or hard-to-place
+  wine**. You cannot reliably predict which wines the auditor will class as curveballs, so treat
+  **35% as the working ceiling**: the safe shape is **8 identification marks per wine (32%)**, which
+  passes both caps in every flight composition.
+Commercial should appear in most questions (never 0% of marks); include a compare/contrast item
+(20–36 marks) where the flight invites it.
 
 HOW THAT PERCENTAGE IS COUNTED — read this before allocating marks. A sub-question is scored as
 identification if it mentions identification AT ALL, and then ALL of its marks count as ID. There is
@@ -692,11 +701,12 @@ no partial credit for a sub-question that asks for other things too. So this fai
   a) Identify the variety and region, and assess the quality and commercial appeal. (2 x 25 marks)
 even though it looks half-and-half. Put identification in its OWN sub-question and give the other
 assessments their own, so the split is visible in the mark allocation:
-  a) Identify the grape variety and region of origin as closely as possible. (2 x 12 marks)
-  b) Comment on the style and the key winemaking decisions behind each wine. (2 x 8 marks)
-  c) Assess quality, maturity and commercial position. (2 x 5 marks)
-That is 48% ID and passes. Merging identification into every sub-question is the single most common
-reason a draft is rejected.
+  a) Identify the grape variety and region of origin as closely as possible. (2 x 8 marks)
+  b) Comment on the style and the key winemaking decisions behind each wine. (2 x 9 marks)
+  c) Assess quality, maturity and commercial position. (2 x 8 marks)
+That is 32% ID and passes both caps. Merging identification into every sub-question, or pouring more
+than a third of the paper into "Identify the …" parts, is the single most common reason a draft is
+rejected.
 
 ## CURVEBALL DENSITY BY FAMILY (EK-0100)
 - F1 (same variety): keep it banker-clean — every wine should be a confidently identifiable benchmark of the stated variety; no curveballs.

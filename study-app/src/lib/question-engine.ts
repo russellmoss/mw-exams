@@ -67,7 +67,21 @@ import { logClaudeUsage } from "@/lib/usage-log";
 import { enforceLengthCheck } from "@/lib/length-check";
 import { marksForWineCount } from "@/lib/answer-length";
 import { enforceAnswerLength } from "@/lib/answer-length-gate";
-import { stemSniperScoringModel } from "@/lib/question-validator";
+// Key-stage audit rules, ALSO run here at generation time on text-derived wine records — the same
+// rules the post-save audit (question-audit.ts) quarantines on. Before this, generation validated
+// with its own divergent heuristics (e.g. validateBankerMinimum's regex vs the audit's isBanker),
+// so drafts passed generation and were then quarantined minutes later at ~85% per bank batch.
+// Running the audit's own functions inside the redraft loop lets the model fix the violation
+// BEFORE the row is banked. Text-derived records resolve slightly less than the answer key
+// (fail-safe: unknown wines read as curveballs), so this is strictly more conservative.
+import {
+  stemSniperScoringModel,
+  flightCompositionViolations,
+  idMarkAllocationViolations,
+  crossCheckStemFacts,
+  stemPreannouncesDiscriminator,
+  contrastIntegrityViolations,
+} from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
 // (undetectable-variety, name-cross-check, blend-hard, P3 fullText scope, banker, flight-size,
@@ -942,12 +956,19 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
         markCheck: ReturnType<typeof validateMarkAllocation>;
         originDiversityCheck: ReturnType<typeof validateOriginDiversity>;
         countryDiversityCheck: ReturnType<typeof validateCountryDiversity>;
-        bankerCheck: ReturnType<typeof validateBankerMinimum>;
+        bankerCheck: { valid: boolean; violations: string[] };
         flightSizeCheck: ReturnType<typeof validateFlightSize>;
         noveltyCheck: ReturnType<typeof validateNoveltyAgainstLatest>;
       }
     | null = null;
   let lastViolations: string[] = [];
+  // Repair context for the next attempt: the last VALIDATOR-rejected draft plus its blocking
+  // violations. When set, the next attempt gets a repair prompt (base prompt + rejected draft +
+  // violations to fix) instead of a blind identical redraw — before this, every retry was an
+  // independent draw with the same prompt, so the model happily repeated the same mark-allocation
+  // mistake eight times. Set only on a validator failure (a parse failure has no usable draft, and
+  // a dedup collision needs a genuinely FRESH flight, so both clear/skip it).
+  let repairContext: { draft: string; violations: string[] } | null = null;
 
   // A/B model arm for question generation. Picked once: attempt 1 uses the selected arm
   // (Opus by default); retries always fall back to Sonnet (not part of the experiment).
@@ -1064,6 +1085,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       parseFailed?: boolean;
       parseFailureSample?: string | null;
       modelError?: string | null;
+      isRepair?: boolean;
     }
   ) =>
     logGenerationAttempt({
@@ -1073,7 +1095,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       userId: meta?.userId ?? null,
       questionId,
       attempt,
-      isRepair: false,
+      isRepair: f.isRepair ?? false,
       callTimeoutMs: CALL_TIMEOUT_MS,
       budgetMs: BUDGET_MS,
       model: f.model ?? null,
@@ -1135,6 +1157,29 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       attemptAb = null;
     }
     const callOpts = { timeout: Math.min(CALL_TIMEOUT_MS, remaining), maxRetries: 0 } as const;
+    // Repair attempt: append the rejected draft + its violations so the model FIXES rather than
+    // re-rolls. Appended to the USER message only — the system prompt stays byte-identical as the
+    // cacheable prefix.
+    const usedRepair = repairContext !== null;
+    const attemptPrompt = repairContext
+      ? {
+          system: prompt.system,
+          user: `${prompt.user}
+
+## YOUR PREVIOUS DRAFT WAS REJECTED — REPAIR IT
+Your previous draft (below) failed the blocking validator rules listed. Output a corrected draft in
+the SAME output format as instructed above. Keep everything that was valid; change ONLY what the
+violations require. If a violation names mark values, re-do the arithmetic until it passes; if it
+names a wine, replace that wine (keeping the flight coherent); if it names stem wording, reword the
+stem. Do not introduce new violations while fixing these.
+
+### Violations to fix
+${repairContext.violations.map((v) => `- ${v}`).join("\n")}
+
+### Previous draft
+${repairContext.draft}`,
+        }
+      : prompt;
     let message;
     let producedModel = model;
     let producedAb = attemptAb;
@@ -1147,7 +1192,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       label: attempt === 1 ? "Drafting the flight…" : `Redrafting the flight (attempt ${attempt})…`,
     });
     try {
-      message = await callGenerationModel(client, model, prompt, callOpts, emit);
+      message = await callGenerationModel(client, model, attemptPrompt, callOpts, emit);
       callMs = Date.now() - t0;
       logClaudeUsage(
         { taskType: "question_generation", model, source: meta?.source, userId: meta?.userId,
@@ -1172,13 +1217,14 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
             passed: false,
             modelError: lastViolations[0],
             latencyMs: Date.now() - t0,
+            isRepair: usedRepair,
           });
           break;
         }
         const fallbackOpts = { timeout: Math.min(CALL_TIMEOUT_MS, fallbackRemaining), maxRetries: 0 } as const;
         const tRetry = Date.now();
         try {
-          message = await callGenerationModel(client, "claude-sonnet-4-6", prompt, fallbackOpts, emit);
+          message = await callGenerationModel(client, "claude-sonnet-4-6", attemptPrompt, fallbackOpts, emit);
           producedModel = "claude-sonnet-4-6";
           producedAb = null;
           callMs = Date.now() - tRetry;
@@ -1196,6 +1242,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
             passed: false,
             modelError: lastViolations[0],
             latencyMs: Date.now() - tRetry,
+            isRepair: usedRepair,
           });
           continue;
         }
@@ -1210,6 +1257,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
           passed: false,
           modelError: msg,
           latencyMs: Date.now() - t0,
+          isRepair: usedRepair,
         });
         continue;
       }
@@ -1248,6 +1296,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
             `input_tokens=${message.usage?.input_tokens ?? "?"} ` +
             `blocks=[${message.content.map((b) => b.type).join(",")}]`,
         latencyMs: callMs,
+        isRepair: usedRepair,
       });
       continue;
     }
@@ -1282,7 +1331,11 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
           rulesFired: [ruleName],
           violations: { [ruleName]: lastViolations },
           latencyMs: callMs,
+          isRepair: usedRepair,
         });
+        // A duplicated flight needs a genuinely FRESH draw — repairing the rejected draft would
+        // anchor the model on the very flight the dedup just refused.
+        repairContext = null;
         if (dedupCollisions > MAX_DEDUP_REGENERATIONS) {
           dedupFailed = true;
           break;
@@ -1293,6 +1346,37 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     }
 
     emit?.({ type: "status", label: "Running the examiner validators…" });
+
+    // Audit-grade rules (question-validator.ts), run at generation on TEXT-derived wine records so
+    // the redraft loop can fix what the post-save audit would otherwise quarantine. The audit later
+    // re-runs the same functions against the resolved answer key (richer lexicon); these four rule
+    // families were 84% of all quarantines (id-mark-allocation 422q, flight-composition 144q,
+    // stem-fact 88q, stem-preannounce/contrast 38q — Neon, 2026-08-06).
+    // AuditWine requires `region`; the text stage has no resolved region, but isBanker & friends
+    // test region+country+fullText together, and fullText carries the appellation, so "" is safe.
+    const auditWines = winesFromText(candidate.wines).map((w) => ({ ...w, region: "" }));
+    const auditDraft = {
+      questionId: "draft",
+      paper,
+      family: candidate.family,
+      questionText: candidate.questionText,
+      totalMarks: candidate.wines.length * 25,
+      wines: auditWines,
+    };
+    // Pinned (Live Tasting) skips the mark-split cap, mirroring the audit's BANK_COMPOSITION_RULES
+    // exemption for live-tasting scope — it is a pool-quality standard, not a home-flight one.
+    const idMarkCheck = {
+      violations: pinned ? [] : idMarkAllocationViolations(auditDraft).map((v) => v.detail),
+    };
+    const stemFactsCheck = {
+      violations: [
+        ...crossCheckStemFacts(auditDraft),
+        ...stemPreannouncesDiscriminator(candidate.questionText),
+      ].map((v) => v.detail),
+    };
+    const contrastCheck = {
+      violations: contrastIntegrityViolations(auditDraft).map((v) => v.detail),
+    };
 
     // Critical validators (always run)
     // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
@@ -1356,9 +1440,16 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     // relaxation and the advisory demotion because a user is waiting on the spinner. Pinned mode
     // (Live Tasting) skips banker outright — the flight was chosen upstream by the archetype picker.
     const bankPath = Boolean(saveOpts?.batchId);
-    const bankerCheck = pinned || shouldRelaxBanker(attempt, bankPath)
-      ? { valid: true, violations: [] }
-      : validateBankerMinimum(candidate.wines);
+    // The banker verdict now comes from the AUDIT's own flight-composition rule (isBanker +
+    // curveball cap) rather than validateBankerMinimum's divergent regex — the two heuristics
+    // disagreeing is how 144 bankerless/curveball-heavy flights passed generation and were then
+    // quarantined post-save. Same relaxation policy as before (advisory interactive, blocking on
+    // the bank path via BANK_BLOCKING_RULES).
+    const bankerViolations =
+      pinned || shouldRelaxBanker(attempt, bankPath)
+        ? []
+        : flightCompositionViolations(auditWines).map((v) => v.detail);
+    const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
@@ -1409,6 +1500,14 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       // and never relaxes — the model is rewording its own text, so convergence is not at risk, and
       // this was the largest stem-quality class in Mike's bin-reason corpus.
       stemDisclosure: { violations: stemDisclosureViolations(candidate.questionText).map((x) => x.detail) },
+      // Audit-grade rules (see auditDraft above). All three BLOCK on every path and never relax:
+      // they are exactly what auditAndQuarantineQuestion will quarantine on minutes after the save,
+      // so letting a draft through on them just converts a redraft into a dead banked row. idMark
+      // and stemFacts are deterministic text fixes the repair prompt converges on quickly;
+      // contrastIntegrity fails safe (skips wines whose mechanism can't be resolved from text).
+      idMarkAllocation: idMarkCheck,
+      stemFacts: stemFactsCheck,
+      contrastIntegrity: contrastCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
     };
@@ -1425,6 +1524,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       rulesFired: Object.keys(violationsByRule),
       violations: violationsByRule,
       latencyMs: callMs,
+      isRepair: usedRepair,
     });
 
     if (lastViolations.length === 0) {
@@ -1438,6 +1538,8 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     }
 
     console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed:`, JSON.stringify(lastViolations));
+    // Arm the next attempt as a REPAIR of this draft (see repairContext above).
+    repairContext = { draft: text, violations: lastViolations };
     // Only the COUNT, never the violation text: violations quote wine names and varieties, and
     // status labels are shown un-gated (the spoiler gate covers thinking, not status).
     emit?.({
@@ -1627,14 +1729,21 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
   // Hard violations set invalid_reasons so the question never serves from the bank. It must wait for
   // the model answer, not just the key: auditing before the answer lands would validate a NULL
   // answer and miss every answer defect on the generation path.
+  // Whether the key-stage audit quarantined this question. Only meaningful to callers that await
+  // the background work (the bank worker): on the detached study path it is still false at return
+  // time by construction. The worker uses it to stop counting a quarantined row as a banked
+  // success — before this, a batch reported "generated" for rows the audit had already killed.
+  let quarantinedAtGeneration = false;
   const backgroundAudit = Promise.all([stemKey, modelAnswer])
     .then(async ([keyBuilt]) => {
       if (!keyBuilt) return; // no key ⇒ no verdict; the daily sweep audits it once the key exists
       const audit = await auditAndQuarantineQuestion(questionId);
-      if (audit.audited && audit.hard.length > 0)
+      if (audit.audited && audit.hard.length > 0) {
+        quarantinedAtGeneration = true;
         console.warn(
           `Question ${questionId} quarantined at generation: ${audit.hard.map((v) => `${v.rule}: ${v.detail}`).join(" | ")}`
         );
+      }
     })
     .catch((err) => console.error("Question audit background error:", err));
 
@@ -1655,6 +1764,8 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     // the row — false on the study path, where the answer is still in flight by design.
     question: sanitizeQuestionMetadata(saved),
     hasModelAnswer: modelAnswerSaved,
+    // See quarantinedAtGeneration above — settled only when awaitBackgroundWork was requested.
+    quarantined: quarantinedAtGeneration,
   };
 }
 
@@ -2287,30 +2398,11 @@ export function matchesBenchmarkAppellation(fullText: string): boolean {
   return BENCHMARK_APPELLATIONS.test(normalized);
 }
 
-function validateBankerMinimum(
-  wines: { slot: number; fullText: string }[]
-): { valid: boolean; violations: string[] } {
-  const violations: string[] = [];
-  if (wines.length < 3) return { valid: true, violations };
-
-  let bankerCount = 0;
-  for (const wine of wines) {
-    if (matchesBenchmarkAppellation(wine.fullText)) {
-      bankerCount++;
-    }
-  }
-
-  if (bankerCount === 0) {
-    violations.push(
-      `Flight of ${wines.length} wines has no recognizable benchmark appellation. ` +
-      `Every flight of 3+ wines must include at least one banker — a wine from a benchmark ` +
-      `appellation (e.g., Premier Cru Burgundy, classified Bordeaux, Barolo, Marlborough, Sancerre) ` +
-      `that any MW candidate should identify confidently.`
-    );
-  }
-
-  return { valid: violations.length === 0, violations };
-}
+// validateBankerMinimum used to live here — its own BENCHMARK_APPELLATIONS heuristic disagreed
+// with the audit's isBanker/flightCompositionViolations (question-validator.ts), which is how
+// bankerless flights passed generation and were quarantined post-save. The generation loop now
+// calls flightCompositionViolations directly; matchesBenchmarkAppellation stays for the curveball
+// counters below.
 
 function validateMarkAllocation(questionText: string, wineCount?: number): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
