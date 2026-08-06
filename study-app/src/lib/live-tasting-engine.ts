@@ -228,19 +228,53 @@ export function pickArchetype(
   };
 
   if (paper === 3) {
-    // ONE style category per flight, contrast WITHIN it (different countries/styles of the same
-    // category). Recent real P3 papers don't pair a sparkling with a fortified under one stem —
-    // the paper-QA examiner judge failed the first generated P3 paper on exactly that.
+    // ONE style category per flight, contrast WITHIN it. The axis must be more than geography:
+    // paper-QA round 3 died on a flight of two LATE-HARVEST wines from different countries —
+    // no method/style contrast for the stem to ask about. Prefer distinct SUBTYPES (botrytized
+    // vs icewine vs passito vs late-harvest; port vs sherry vs madeira; champagne vs cava vs
+    // prosecco), then distinct countries.
+    const subtypeOf = (r: BankRow): string => {
+      const t = norm(`${r.wine_name} ${r.region} ${r.producer}`);
+      if (r.style_category === "still_sweet") {
+        if (/(sauternes|barsac|aszu|tokaji|beerenauslese|trockenbeeren|botrytis|quarts de chaume|noble)/.test(t)) return "botrytized";
+        if (/(icewine|ice wine|eiswein)/.test(t)) return "icewine";
+        if (/(passito|recioto|straw|vin santo|santo)/.test(t)) return "dried";
+        if (/(rutherglen|muscat|moscatel|constance)/.test(t)) return "muscat";
+        return "late-harvest";
+      }
+      if (r.style_category === "fortified") {
+        if (/(port|porto|douro)/.test(t)) return "port";
+        if (/(sherry|jerez|fino|oloroso|amontillado|palo cortado|manzanilla|pedro ximenez|px)/.test(t)) return "sherry";
+        if (/(madeira|sercial|bual|malmsey|verdelho)/.test(t)) return "madeira";
+        if (/(banyuls|maury|rivesaltes|muscat)/.test(t)) return "vdn";
+        return "other-fortified";
+      }
+      if (r.style_category === "sparkling") {
+        if (/(champagne)/.test(t)) return "champagne";
+        if (/(cava)/.test(t)) return "cava";
+        if (/(prosecco|glera)/.test(t)) return "prosecco";
+        if (/(cremant|sekt|franciacorta|trento)/.test(t)) return "other-trad";
+        return "other-sparkling";
+      }
+      return norm(r.country);
+    };
     const cats = shuffle([...P3_CATEGORIES]);
     for (const cat of cats) {
       const pool = bank.filter((r) => r.style_category === cat);
       if (pool.length < flightSize) continue;
-      // Prefer distinct countries within the category so the flight has a real axis.
-      const byCountry = new Map<string, BankRow[]>();
-      for (const r of pool) byCountry.set(norm(r.country), [...(byCountry.get(norm(r.country)) ?? []), r]);
-      const groups = byCountry.size >= flightSize
-        ? shuffle([...byCountry.values()]).slice(0, flightSize)
-        : Array.from({ length: flightSize }, () => pool);
+      const bySubtype = new Map<string, BankRow[]>();
+      for (const r of pool) bySubtype.set(subtypeOf(r), [...(bySubtype.get(subtypeOf(r)) ?? []), r]);
+      let groups: BankRow[][];
+      if (bySubtype.size >= flightSize) {
+        groups = shuffle([...bySubtype.values()]).slice(0, flightSize);
+      } else {
+        const byCountry = new Map<string, BankRow[]>();
+        for (const r of pool) byCountry.set(norm(r.country), [...(byCountry.get(norm(r.country)) ?? []), r]);
+        if (byCountry.size < flightSize && bySubtype.size < 2) continue; // no real axis — try another category
+        groups = byCountry.size >= flightSize
+          ? shuffle([...byCountry.values()]).slice(0, flightSize)
+          : Array.from({ length: flightSize }, () => pool);
+      }
       const slots = bySlot(groups);
       if (slots) return { archetype: "p3-styles", label: `${cat.replace("_", " ")} styles compared`, slots };
     }
