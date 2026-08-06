@@ -3843,6 +3843,8 @@ export interface LiveTastingSession {
   entered_wines: unknown;
   brief_sent_to: string | null;
   brief_self_opened_at: string | null;
+  paper_id: string | null;
+  paper_position: number | null;
   paper: number;
   flight_size: number;
   archetype: string;
@@ -4086,6 +4088,109 @@ export async function attachByoQuestion(
     RETURNING id
   `;
   return rows.length > 0;
+}
+
+// ── Live Tasting full papers (migration 046, Phase D) ───────────────────────────────────────────
+
+export interface LiveTastingPaper {
+  id: string;
+  user_id: number;
+  paper: number;
+  size: "half" | "full";
+  mode: "pick-for-me" | "byo";
+  pacing: "flight-by-flight" | "exam-conditions";
+  total_budget: number | null;
+  budget_currency: string | null;
+  city: string;
+  country: string;
+  composition: unknown;
+  prep_guidance: string | null;
+  brief_sent_to: string | null;
+  brief_self_opened_at: string | null;
+  paper_id: string | null;
+  paper_position: number | null;
+  share_token_hash: string | null;
+  share_expires_at: string | null;
+  token_first_used_at: string | null;
+  user_revealed_at: string | null;
+  exam_started_at: string | null;
+  exam_deadline_at: string | null;
+  abandoned_at: string | null;
+  created_at: string;
+}
+
+export async function createLiveTastingPaper(r: {
+  id: string;
+  userId: number;
+  paper: number;
+  size: string;
+  mode: string;
+  pacing: string;
+  totalBudget: number | null;
+  budgetCurrency: string | null;
+  city: string;
+  country: string;
+  composition: unknown;
+  prepGuidance?: string | null;
+}): Promise<LiveTastingPaper> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO live_tasting_papers (
+      id, user_id, paper, size, mode, pacing, total_budget, budget_currency,
+      city, country, composition, prep_guidance
+    ) VALUES (
+      ${r.id}, ${r.userId}, ${r.paper}, ${r.size}, ${r.mode}, ${r.pacing},
+      ${r.totalBudget}, ${r.budgetCurrency}, ${r.city}, ${r.country},
+      ${JSON.stringify(r.composition)}::jsonb, ${r.prepGuidance ?? null}
+    )
+    RETURNING *
+  `;
+  return rows[0] as LiveTastingPaper;
+}
+
+export async function getLiveTastingPaper(id: string, userId: number): Promise<LiveTastingPaper | null> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT * FROM live_tasting_papers WHERE id = ${id} AND user_id = ${userId} LIMIT 1
+  `;
+  return (rows[0] as LiveTastingPaper) ?? null;
+}
+
+export async function getLiveTastingPapersForUser(userId: number): Promise<LiveTastingPaper[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM live_tasting_papers
+    WHERE user_id = ${userId} AND abandoned_at IS NULL
+    ORDER BY created_at DESC LIMIT 25
+  `) as LiveTastingPaper[];
+}
+
+export async function getPaperSessions(paperId: string): Promise<LiveTastingSession[]> {
+  const sql = getDb();
+  return (await sql`
+    SELECT * FROM live_tasting_sessions
+    WHERE paper_id = ${paperId}
+    ORDER BY paper_position ASC
+  `) as LiveTastingSession[];
+}
+
+export async function linkSessionToPaper(sessionId: string, paperId: string, position: number): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_sessions SET paper_id = ${paperId}, paper_position = ${position}
+    WHERE id = ${sessionId}
+  `;
+}
+
+// Exam-conditions clock: set-once start + deadline.
+export async function startPaperExam(paperId: string, deadline: Date): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_papers
+    SET exam_started_at = COALESCE(exam_started_at, now()),
+        exam_deadline_at = COALESCE(exam_deadline_at, ${deadline.toISOString()})
+    WHERE id = ${paperId}
+  `;
 }
 
 // Rate limit (plan §5.3): sessions created by this user in the last 24h.

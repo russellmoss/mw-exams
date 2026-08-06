@@ -92,13 +92,27 @@ const LADDER_REGIONS: { region: string; paper: number; variety: string }[] = [
 // P3 style-contrast pools by wine_bank.style_category (wide-distribution categories only).
 const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet"];
 
-export type ArchetypeId = "same-variety" | "quality-ladder" | "mixed-variety" | "p3-styles";
+export type ArchetypeId = "same-variety" | "quality-ladder" | "mixed-variety" | "same-origin" | "p3-styles";
 
 export const ARCHETYPE_FAMILY: Record<ArchetypeId, string> = {
   "same-variety": "F1",
   "quality-ladder": "F7",
   "mixed-variety": "F4",
+  "same-origin": "F2",
   "p3-styles": "F6",
+};
+
+// Paper composition (Phase D) samples the CORPUS families; the pick-for-me candidate picker
+// works in archetypes. F3 (blend logic) maps to mixed-breadth for wine-picking purposes — its
+// stem logic is generation's job, not the picker's; F5/F6 are the P3 style pickers.
+export const FAMILY_TO_ARCHETYPE: Record<string, ArchetypeId> = {
+  F1: "same-variety",
+  F2: "same-origin",
+  F3: "mixed-variety",
+  F4: "mixed-variety",
+  F5: "p3-styles",
+  F6: "p3-styles",
+  F7: "quality-ladder",
 };
 
 function shuffle<T>(arr: T[]): T[] {
@@ -174,8 +188,21 @@ function nameContradictsVariety(wineName: string, variety: string): boolean {
 export function pickArchetype(
   bank: BankRow[],
   paper: number,
-  flightSize: number
+  flightSize: number,
+  opts?: {
+    /** Pin the archetype (paper composition demands a family) instead of shuffled preference. */
+    require?: ArchetypeId;
+    /** Cross-flight dedup for papers: bank ids and dominant varieties already used. */
+    excludeWineKeys?: Set<string>;
+    excludeVarieties?: Set<string>;
+  }
 ): { archetype: ArchetypeId; label: string; slots: SlotPick[] } {
+  const excludedKey = (r: BankRow) => opts?.excludeWineKeys?.has(r.id) ?? false;
+  const excludedVariety = (r: BankRow) => {
+    const g = grapeList(r);
+    return g.length > 0 && (opts?.excludeVarieties?.has(norm(g[0])) ?? false);
+  };
+  bank = bank.filter((r) => !excludedKey(r));
   const stillDry = bank.filter((r) => r.style_category === "still_dry");
 
   const bySlot = (groups: BankRow[][]): SlotPick[] | null => {
@@ -207,11 +234,39 @@ export function pickArchetype(
   }
 
   const varieties = paper === 1 ? P1_VARIETIES : P2_VARIETIES;
-  const tryOrder = shuffle(["same-variety", "quality-ladder", "mixed-variety"] as const);
+  const tryOrder: ArchetypeId[] = opts?.require
+    ? [opts.require, ...shuffle(["same-variety", "quality-ladder", "mixed-variety", "same-origin"] as ArchetypeId[]).filter((a) => a !== opts.require)]
+    : shuffle(["same-variety", "quality-ladder", "mixed-variety"] as ArchetypeId[]);
 
   for (const arch of tryOrder) {
+    if (arch === "p3-styles") continue;
+    if (arch === "same-origin") {
+      // F2: one country, DISTINCT dominant varieties — the corpus's same-origin comparative set.
+      const byCountry = new Map<string, BankRow[]>();
+      for (const r of stillDry) {
+        if (excludedVariety(r)) continue;
+        const k = norm(r.country);
+        byCountry.set(k, [...(byCountry.get(k) ?? []), r]);
+      }
+      for (const [, pool] of shuffle([...byCountry.entries()])) {
+        const byVariety = new Map<string, BankRow[]>();
+        for (const r of pool) {
+          const g = grapeList(r);
+          if (!g.length) continue;
+          const k = norm(g[0]);
+          byVariety.set(k, [...(byVariety.get(k) ?? []), r]);
+        }
+        if (byVariety.size >= flightSize) {
+          const groups = shuffle([...byVariety.values()]).slice(0, flightSize);
+          const slots = bySlot(groups);
+          if (slots) return { archetype: "same-origin", label: `Same origin (${groups[0][0].country}), different varieties`, slots };
+        }
+      }
+      continue;
+    }
     if (arch === "same-variety") {
       for (const [variety, origins] of shuffle(Object.entries(varieties))) {
+        if (opts?.excludeVarieties?.has(norm(variety))) continue;
         const pool = stillDry.filter(
           (r) => dominantGrapeIs(r, variety) && !nameContradictsVariety(r.wine_name, variety)
         );
@@ -367,14 +422,24 @@ export async function createLiveTasting(opts: {
   emit?: ProgressEmitter;
   /** Route passes next/server after() so detached model-answer/audit work survives the response. */
   keepAlive?: (work: Promise<unknown>) => void;
+  /** Paper flights (Phase D): pin the archetype the sampled family demands. */
+  requireArchetype?: ArchetypeId;
+  /** Paper flights: cross-flight dedup — never reuse a wine or (for variety-led picks) a variety. */
+  excludeWineKeys?: Set<string>;
+  excludeVarieties?: Set<string>;
 }): Promise<CreateLiveTastingResult> {
   const { userId, apiKey, paper, flightSize, city, country, budgetAmount, budgetCurrency, radiusMinutes, emit, keepAlive } = opts;
+  const pickOpts = {
+    require: opts.requireArchetype,
+    excludeWineKeys: opts.excludeWineKeys,
+    excludeVarieties: opts.excludeVarieties,
+  };
 
   emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });
   const bank = await loadBudgetedBank(budgetAmount, budgetCurrency);
   let picked: ReturnType<typeof pickArchetype>;
   try {
-    picked = pickArchetype(bank, paper, flightSize);
+    picked = pickArchetype(bank, paper, flightSize, pickOpts);
   } catch (err) {
     return { error: err instanceof Error ? err.message : "No suitable wines found." };
   }
@@ -579,6 +644,7 @@ export const ARCHETYPE_LABEL: Record<ArchetypeId, string> = {
   "same-variety": "Same variety, different origins",
   "quality-ladder": "Quality ladder (one region)",
   "mixed-variety": "Mixed varieties, classic origins",
+  "same-origin": "Same origin, different varieties",
   "p3-styles": "Contrasting Paper 3 styles",
 };
 
