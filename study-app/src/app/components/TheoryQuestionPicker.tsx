@@ -1,5 +1,9 @@
 "use client";
 
+// Theory question browser (docs/design/2026-08-06-shell-redesign/ §7): a table led by paper
+// filter pills and an "Unattempted only" toggle. Every row is rubric-backed by construction —
+// the 54 questions without an examiners' report never reach this component.
+
 import { useMemo, useState } from "react";
 
 export interface TheoryQuestionSummary {
@@ -18,112 +22,125 @@ export interface TheoryQuestionSummary {
   searchText: string;
 }
 
-function label(value: string) {
-  return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
+const PAPER_PILLS = [
+  { paper: 0, label: "All papers" },
+  { paper: 1, label: "P1 Viticulture" },
+  { paper: 2, label: "P2 Vinification" },
+  { paper: 3, label: "P3 Handling of wine" },
+  { paper: 4, label: "P4 Business of wine" },
+  { paper: 5, label: "P5 Contemporary issues" },
+];
 
 export function TheoryQuestionPicker({
   questions,
+  attemptedIds,
   onSelect,
 }: {
   questions: TheoryQuestionSummary[];
+  attemptedIds: Set<string>;
   onSelect: (question: TheoryQuestionSummary) => void;
 }) {
-  const [year, setYear] = useState("all");
-  const [paper, setPaper] = useState("all");
-  const [domain, setDomain] = useState("all");
+  const [paper, setPaper] = useState(0);
+  const [unattemptedOnly, setUnattemptedOnly] = useState(false);
   const [theme, setTheme] = useState("");
-  const years = useMemo(() => [...new Set(questions.map((question) => question.year))].sort(), [questions]);
-  const domains = useMemo(() => [...new Set(questions.map((question) => question.domain))].sort(), [questions]);
+
   const filtered = useMemo(() => {
     const needle = theme.trim().toLocaleLowerCase("en");
     return questions.filter((question) => {
-      if (year !== "all" && question.year !== Number(year)) return false;
-      if (paper !== "all" && question.paper !== Number(paper)) return false;
-      if (domain !== "all" && question.domain !== domain) return false;
-      if (!needle) return true;
-      return question.searchText.toLocaleLowerCase("en").includes(needle);
+      if (paper !== 0 && question.paper !== paper) return false;
+      if (unattemptedOnly && attemptedIds.has(question.id)) return false;
+      if (needle && !question.searchText.toLocaleLowerCase("en").includes(needle)) return false;
+      return true;
     });
-  }, [questions, year, paper, domain, theme]);
-
-  const control = "w-full bg-background border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-accent";
+  }, [questions, paper, unattemptedOnly, attemptedIds, theme]);
 
   return (
-    <section className="bg-card rounded-xl border border-border p-5 sm:p-6" aria-labelledby="theory-picker-title">
-      <div className="flex items-start justify-between gap-4 mb-5">
-        <div>
-          <h2 id="theory-picker-title" className="text-lg font-semibold text-foreground">Choose a past question</h2>
-          <p className="text-xs text-muted mt-1">{filtered.length} examiner-rubric-backed questions match</p>
+    <div className="space-y-4">
+      {/* Filter row */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {PAPER_PILLS.map((pill) => (
+            <button
+              key={pill.paper}
+              type="button"
+              onClick={() => setPaper(pill.paper)}
+              className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                paper === pill.paper
+                  ? "bg-accent text-background"
+                  : "border border-border text-muted hover:text-foreground hover:border-muted"
+              }`}
+            >
+              {pill.label}
+            </button>
+          ))}
         </div>
         <button
           type="button"
-          disabled={!filtered.length}
-          onClick={() => onSelect(filtered[Math.floor(Math.random() * filtered.length)])}
-          className="shrink-0 rounded-lg border border-border px-3 py-2 text-xs text-muted hover:text-foreground hover:border-muted disabled:opacity-40 cursor-pointer"
+          onClick={() => setUnattemptedOnly((value) => !value)}
+          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+            unattemptedOnly
+              ? "border border-accent/60 text-accent bg-accent/10"
+              : "border border-border text-muted hover:text-foreground hover:border-muted"
+          }`}
         >
-          Pick at random
+          Unattempted only
         </button>
       </div>
+      <input
+        value={theme}
+        onChange={(event) => setTheme(event.target.value)}
+        placeholder="Filter by theme — e.g. sustainability, SO2, luxury, climate"
+        className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted/60 focus:outline-none focus:border-accent"
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-        <label className="text-xs text-muted">
-          Year
-          <select value={year} onChange={(event) => setYear(event.target.value)} className={`${control} mt-1`}>
-            <option value="all">All years</option>
-            {years.map((value) => <option key={value} value={value}>{value}</option>)}
-          </select>
-        </label>
-        <label className="text-xs text-muted">
-          Paper
-          <select value={paper} onChange={(event) => setPaper(event.target.value)} className={`${control} mt-1`}>
-            <option value="all">All papers</option>
-            {[1, 2, 3, 4, 5].map((value) => <option key={value} value={value}>Paper {value}</option>)}
-          </select>
-        </label>
-        <label className="text-xs text-muted">
-          Domain
-          <select value={domain} onChange={(event) => setDomain(event.target.value)} className={`${control} mt-1`}>
-            <option value="all">All domains</option>
-            {domains.map((value) => <option key={value} value={value}>{label(value)}</option>)}
-          </select>
-        </label>
+      {/* Table card */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="hidden sm:grid grid-cols-[64px_170px_1fr_90px_70px] gap-3 px-5 py-3 border-b border-border">
+          {["Year", "Paper", "Question", "Budget", "Status"].map((heading) => (
+            <span key={heading} className="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted">
+              {heading}
+            </span>
+          ))}
+        </div>
+        <div className="max-h-[34rem] overflow-y-auto">
+          {filtered.map((question) => {
+            const attempted = attemptedIds.has(question.id);
+            return (
+              <button
+                key={question.id}
+                type="button"
+                onClick={() => onSelect(question)}
+                className="w-full text-left grid sm:grid-cols-[64px_170px_1fr_90px_70px] grid-cols-1 gap-x-3 gap-y-1 px-5 py-3 border-b border-border last:border-b-0 hover:bg-card-hover transition-colors duration-[60ms] cursor-pointer items-baseline"
+              >
+                <span className="text-xs text-muted tabular-nums">{question.year}</span>
+                <span className="text-xs text-muted truncate">
+                  P{question.paper}{question.paperTitle ? ` · ${question.paperTitle}` : ""}
+                </span>
+                <span className="text-sm text-foreground leading-snug line-clamp-2">{question.questionText}</span>
+                <span className="text-xs text-muted tabular-nums">{question.timeMinutes} min</span>
+                <span>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[0.625rem] font-bold ${
+                      attempted ? "text-muted bg-card-hover" : "text-accent bg-accent/12"
+                    }`}
+                  >
+                    {attempted ? "Attempted" : "New"}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+          {!filtered.length && (
+            <div className="p-8 text-center text-sm text-muted">No questions match those filters.</div>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-border">
+          <span className="text-xs text-muted tabular-nums">
+            Showing {filtered.length} of {questions.length}
+          </span>
+          <span className="text-xs text-muted">Papers 1&ndash;4: 60 min · Paper 5: 90 min</span>
+        </div>
       </div>
-      <label className="text-xs text-muted block mb-5">
-        Theme
-        <input
-          value={theme}
-          onChange={(event) => setTheme(event.target.value)}
-          placeholder="e.g. sustainability, SO2, luxury, climate"
-          className={`${control} mt-1`}
-        />
-      </label>
-
-      <div className="max-h-[32rem] overflow-y-auto space-y-2 pr-1">
-        {filtered.map((question) => (
-          <button
-            key={question.id}
-            type="button"
-            onClick={() => onSelect(question)}
-            className="w-full text-left rounded-lg border border-border bg-background/30 p-4 hover:border-accent/50 hover:bg-card-hover transition-colors cursor-pointer group"
-          >
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="font-mono text-[10px] rounded bg-accent/15 px-1.5 py-0.5 text-accent">
-                {question.year} · P{question.paper} · Q{question.question}
-              </span>
-              <span className="text-[10px] text-muted uppercase tracking-wide">{label(question.domain)}</span>
-              <span className="ml-auto text-[10px] text-muted tabular-nums">{question.timeMinutes} min</span>
-            </div>
-            <p className="text-sm leading-relaxed text-foreground group-hover:text-accent transition-colors">
-              {question.questionText}
-            </p>
-          </button>
-        ))}
-        {!filtered.length && (
-          <div className="rounded-lg border border-border p-6 text-center text-sm text-muted">
-            No questions match those filters.
-          </div>
-        )}
-      </div>
-    </section>
+    </div>
   );
 }

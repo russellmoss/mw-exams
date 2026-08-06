@@ -243,7 +243,7 @@ function TheoryWorkspace({
               <h2 className="text-lg font-semibold text-foreground">Write your answer</h2>
               <p className="text-xs text-muted mt-1">The examiner rubric stays hidden until submission.</p>
             </div>
-            <div className={`font-mono text-lg font-semibold tabular-nums ${remaining < 0 ? "text-fail" : remaining < 600 ? "text-borderline" : "text-foreground"}`}>
+            <div className={`font-mono text-lg font-semibold tabular-nums ${remaining < 300 ? "text-fail" : remaining < 600 ? "text-borderline" : "text-foreground"}`}>
               {formatClock(remaining)}
               <span className="block text-[10px] text-muted text-right font-sans font-normal">{remaining < 0 ? "over time" : "remaining"}</span>
             </div>
@@ -252,7 +252,7 @@ function TheoryWorkspace({
             <textarea
               value={answer}
               onChange={(event) => setAnswer(event.target.value)}
-              placeholder="Plan, argue, support, conclude…"
+              placeholder="Plan first. Examiners reward structure — a clear line of argument beats a list of facts."
               rows={24}
               className={`w-full min-h-[34rem] resize-y rounded-xl border bg-background p-4 pr-14 text-[15px] leading-relaxed text-foreground placeholder:text-muted/50 focus:outline-none ${speech.isListening ? "border-fail/60" : "border-border focus:border-accent"}`}
             />
@@ -364,6 +364,7 @@ export default function TheoryPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [questions, setQuestions] = useState<TheoryQuestionSummary[]>([]);
+  const [attemptedIds, setAttemptedIds] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<TheoryQuestionSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -387,6 +388,15 @@ export default function TheoryPage() {
       })
       .catch((caught) => setError(caught instanceof Error ? caught.message : "Theory questions could not be loaded"))
       .finally(() => setLoading(false));
+    // Attempted state for the browse table's Status column — best-effort; a failed fetch just
+    // renders every row as New.
+    fetch("/api/history")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((payload) => {
+        const attempts = (payload?.attempts ?? []) as { mode: string | null; question_id: string }[];
+        setAttemptedIds(new Set(attempts.filter((attempt) => attempt.mode === "theory").map((attempt) => attempt.question_id)));
+      })
+      .catch(() => {});
   }, [user]);
 
   const selectQuestion = useCallback((question: TheoryQuestionSummary) => {
@@ -413,15 +423,41 @@ export default function TheoryPage() {
     }
     if (error) return <div className="rounded-xl border border-fail/30 bg-fail/10 p-5 text-sm text-fail">{error}</div>;
     if (selected) return <TheoryWorkspace key={selected.id} question={selected} onExit={exitQuestion} />;
-    return <TheoryQuestionPicker questions={questions} onSelect={selectQuestion} />;
-  }, [authLoading, error, exitQuestion, loading, questions, selectQuestion, selected, user]);
+    return <TheoryQuestionPicker questions={questions} attemptedIds={attemptedIds} onSelect={selectQuestion} />;
+  }, [attemptedIds, authLoading, error, exitQuestion, loading, questions, selectQuestion, selected, user]);
+
+  // "Give me a question" (§7): a random unattempted question, falling back to any question once
+  // the corpus is exhausted.
+  const giveMeAQuestion = useCallback(() => {
+    const pool = questions.filter((question) => !attemptedIds.has(question.id));
+    const candidates = pool.length ? pool : questions;
+    if (!candidates.length) return;
+    selectQuestion(candidates[Math.floor(Math.random() * candidates.length)]);
+  }, [questions, attemptedIds, selectQuestion]);
+
+  const yearMin = questions.length ? Math.min(...questions.map((question) => question.year)) : null;
+  const yearMax = questions.length ? Math.max(...questions.map((question) => question.year)) : null;
 
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 py-6">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Theory</h1>
-          <p className="text-sm text-muted mt-1">Past-paper writing, examiner-derived rubrics, and temporally aware feedback</p>
+        <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Theory</h1>
+            <p className="text-sm text-muted mt-1">
+              {questions.length ? `${questions.length} past questions` : "Past questions"}
+              {yearMin !== null && <>, {yearMin}&ndash;{yearMax}</>}
+              {" · graded against the examiners’ reports"}
+            </p>
+          </div>
+          {!selected && !loading && questions.length > 0 && (
+            <button
+              onClick={giveMeAQuestion}
+              className="rounded-lg bg-accent hover:bg-accent-hover px-5 py-2.5 text-sm font-medium text-background transition-colors cursor-pointer"
+            >
+              Give me a question
+            </button>
+          )}
         </div>
       </header>
       <main className="flex-1">

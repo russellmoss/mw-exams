@@ -517,7 +517,7 @@ export default function Home() {
           )}
 
           {step === "select-mode" && (
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-2xl mx-auto">
               <button
                 onClick={() => setStep("select-family")}
                 className="text-sm text-muted hover:text-foreground mb-6 flex items-center gap-1 cursor-pointer"
@@ -529,7 +529,7 @@ export default function Home() {
               {/* Paper 3 only: optional Focus override. It sits above the mode list because it
                   changes WHICH question gets fetched, and every mode below fetches one. */}
               {selectedPaper === 3 && <FocusSelector value={focus} onChange={setFocus} />}
-              <div className="space-y-3">
+              <div className="grid sm:grid-cols-2 gap-3">
                 <button
                   onClick={() => handleModeSelect("full")}
                   className="w-full text-left bg-card rounded-xl border border-border hover:border-accent/50 p-5 transition-colors cursor-pointer group"
