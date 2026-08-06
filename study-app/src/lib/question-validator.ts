@@ -351,6 +351,97 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// IDENTIFICATION MARK ALLOCATION — cap variety/origin ID marks against flight difficulty.
+//
+// A recurring reviewer bin cluster (cross-paper, 5 reasoned bins): flights that are fine to *set* —
+// "obscure wines are fine" — but that then pour too many marks into naming the grape variety and
+// region of origin. The reviewer's repeated point is that when the wines are curveballs the real
+// exam weights the OTHER parts (style, method, quality) and "perhaps might not even ask for the
+// variety at all", so a question that awards, say, 20 marks just to identify the grape variety, or
+// half the paper to variety+origin over a five-curveball flight, is mis-weighted.
+//
+// The rule parses each sub-question's mark value, tags any part naming an identification task
+// (/identify the (grape variety|region|country|origin)/i) and sums those as idMarks. It then compares
+// idMarks against the question total, scaling the ceiling by flight difficulty (reusing the
+// curveball classifier — !isBanker — from the flight-composition rule): idMarks may not exceed 50%
+// of the total when the flight has NO curveballs, and 35% once the flight has one or more. It also
+// caps any SINGLE identification part at 10 marks (catching "20 marks for identify the grape
+// variety"). Rejections state idMarks, the total, the applicable cap and the curveball count, so the
+// obvious fix is to move marks to the style/method/quality parts.
+// ---------------------------------------------------------------------------------------------------
+
+// A part naming an identification task. Matched case-insensitively against the sub-question text.
+const ID_PART_RE = /identify the (grape variety|region|country|origin)/i;
+// Any one identification sub-question is capped at this per-instance mark value.
+const ID_SINGLE_PART_CAP = 10;
+
+// Parse the mark-carrying sub-questions from a question's text. Each "(N marks)" or "(A x B marks)"
+// annotation closes a part; `text` is everything since the previous annotation (so it holds the part's
+// prompt), `marks` is the part's total (A×B or N), and `perUnit` is the per-instance value (B, or N).
+function parseMarkedParts(questionText: string): { text: string; marks: number; perUnit: number }[] {
+  const text = questionText || "";
+  const re = /\((?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\)/gi;
+  const parts: { text: string; marks: number; perUnit: number }[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const mult = m[1] ? parseInt(m[1], 10) : 1;
+    const base = parseInt(m[2], 10);
+    parts.push({ text: text.slice(lastIndex, m.index), marks: mult * base, perUnit: base });
+    lastIndex = re.lastIndex;
+  }
+  return parts;
+}
+
+/**
+ * Identification-mark-allocation rule. Sums the marks on variety/region/origin ID parts and rejects
+ * (hard) when they exceed the difficulty-scaled ceiling (50% with no curveballs, 35% with one or
+ * more) or when any single ID part is worth more than 10 marks.
+ */
+export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
+  const parts = parseMarkedParts(q.questionText);
+  if (parts.length === 0) return [];
+  const idParts = parts.filter((p) => ID_PART_RE.test(p.text));
+  if (idParts.length === 0) return [];
+
+  const idMarks = idParts.reduce((s, p) => s + p.marks, 0);
+  const total =
+    q.totalMarks && q.totalMarks > 0 ? q.totalMarks : parts.reduce((s, p) => s + p.marks, 0);
+  const curveballs = (q.wines || []).filter((w) => !isBanker(w)).length;
+  const v: Violation[] = [];
+
+  // (a) No single identification part may exceed the per-part cap (catches "20 marks for the variety").
+  const oversized = idParts.find((p) => p.perUnit > ID_SINGLE_PART_CAP);
+  if (oversized) {
+    const label = oversized.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+    v.push({
+      rule: "id-mark-allocation",
+      severity: "hard",
+      detail: `"${label}" is worth ${oversized.perUnit} marks, over the ${ID_SINGLE_PART_CAP}-mark cap on any single variety/region/origin identification part. Move the balance to the style/method/quality parts.`,
+    });
+  }
+
+  // (b) The identification total must sit under the difficulty-scaled share of the paper.
+  if (total > 0) {
+    const capFraction = curveballs >= 1 ? 0.35 : 0.5;
+    const capMarks = Math.floor(total * capFraction);
+    if (idMarks > capMarks) {
+      v.push({
+        rule: "id-mark-allocation",
+        severity: "hard",
+        detail: `identification marks total ${idMarks} of ${total} — over the ${Math.round(
+          capFraction * 100
+        )}% cap (${capMarks} marks) for a flight with ${curveballs} curveball${
+          curveballs === 1 ? "" : "s"
+        }. Obscure wines are fine, but the exam then weights the other parts (it may not even ask for the variety); move marks to the style/method/quality parts.`,
+      });
+    }
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -364,6 +455,7 @@ export function validateQuestion(q: QuestionForAudit): {
   }) as Violation[];
   violations.push(...stemPreannouncesDiscriminator(q.questionText));
   violations.push(...flightCompositionViolations(q.wines));
+  violations.push(...idMarkAllocationViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
