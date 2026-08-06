@@ -770,6 +770,11 @@ export async function generateFreshQuestion(
     // route's 300s platform ceiling on a cold availability cache; the caller re-checks
     // quarantine at serve/grade time instead.
     awaitKeyOnly?: boolean;
+    // With awaitKeyOnly the model answer + audit promises are DETACHED — on serverless they die
+    // when the invocation freezes after the response (the exact failure E2E run 2 caught: session
+    // B's model answer never landed). The route passes next/server's after() through this hook so
+    // the platform keeps the invocation alive until the background chain settles.
+    onBackgroundWork?: (work: Promise<unknown>) => void;
   },
   // Stem Sniper's variety drill filter (see produceDrill). Undefined for every other caller.
   variety?: string | null,
@@ -865,7 +870,7 @@ export async function generateFreshQuestion(
   // validatePinnedFlight below — this block is the instruction, that check is the guarantee.
   if (pinned) {
     prompt.system += `\n\n## PINNED FLIGHT (LIVE TASTING) — ABSOLUTE CONSTRAINT
-The flight is EXACTLY these ${pinned.length} wines in these slots. Do not add, remove, reorder, or substitute any wine. Reproduce each reference verbatim as the slot's wine:
+The flight is EXACTLY ${pinned.length} wines — no more, no fewer. Your output MUST contain ${pinned.length} wine entries, slots 1 through ${pinned.length}, one per slot. Do not add, remove, merge, reorder, or substitute any wine. Reproduce each reference verbatim as the slot's wine:
 ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
@@ -1595,6 +1600,7 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     [, modelAnswerSaved] = await Promise.all([backgroundAudit, modelAnswer]);
   } else if (saveOpts?.awaitKeyOnly) {
     await stemKey;
+    saveOpts.onBackgroundWork?.(Promise.all([backgroundAudit, modelAnswer]));
   }
 
   return {

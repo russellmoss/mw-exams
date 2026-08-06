@@ -98,9 +98,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     vintagesBought: vintages,
     onComplete: async (finalText) => {
       await updateAttempt(finalAttemptId, { answer_feedback: finalText });
-      const passMatch = finalText.match(/\*\*Result:\s*\[?\s*(PASS|BORDERLINE|FAIL)/i);
+      // Deliberately loose: the debrief's exact bolding/casing varies (E2E run 2 parsed
+      // null/null with the strict forms). Anchor on the labels, tolerate any markdown around.
+      const passMatch = finalText.match(/Result\s*:?[\s*[]*?(PASS|BORDERLINE|FAIL)/i);
       if (passMatch) await updateAttempt(finalAttemptId, { pass_estimate: passMatch[1].toUpperCase() });
-      const marksMatch = finalText.match(/\*\*Estimated marks:\s*\[?([^\]\n*]+?)\s*\]?\s*(?:\*\*|$)/im);
+      const marksMatch = finalText.match(/Estimated\s+marks\s*:?[\s*[]*([^\n*\]]+)/i);
       if (marksMatch) await updateAttempt(finalAttemptId, { marks_estimate: marksMatch[1].trim().slice(0, 60) });
       await updateAttempt(finalAttemptId, { completed_at: new Date().toISOString() });
       // Stamped LAST: graded_at is the fact "a debrief exists and was saved".

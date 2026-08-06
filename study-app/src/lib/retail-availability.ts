@@ -81,8 +81,11 @@ export function normalizeKeyPart(s: string): string {
     .replace(/^_+|_+$/g, "");
 }
 
-export function availabilityCacheKey(wineKey: string, city: string, country: string): string {
-  return `${normalizeKeyPart(wineKey)}|${normalizeKeyPart(city)}|${normalizeKeyPart(country)}`;
+export function availabilityCacheKey(wineKey: string, city: string, country: string, radiusMinutes?: number | null): string {
+  // Radius participates in the key: a 60-minute search legitimately returns different shops
+  // than a 15-minute one, and a cache hit must not smuggle the wrong catchment across users.
+  const r = radiusMinutes && radiusMinutes > 0 ? `|r${radiusMinutes}` : "";
+  return `${normalizeKeyPart(wineKey)}|${normalizeKeyPart(city)}|${normalizeKeyPart(country)}${r}`;
 }
 
 export function wineSearcherLink(producer: string, wineName: string): string {
@@ -244,11 +247,12 @@ export async function getAvailability(
   city: string,
   country: string,
   apiKey: string,
-  meta?: Meta
+  meta?: Meta,
+  radiusMinutes?: number | null
 ): Promise<AvailabilityResult> {
   const label = `${wine.producer} ${wine.wineName}`.trim();
   const wineKey = wine.wineKey || label;
-  const cacheKey = availabilityCacheKey(wineKey, city, country);
+  const cacheKey = availabilityCacheKey(wineKey, city, country, radiusMinutes);
   const sql = getSql();
   const fallback = wineSearcherFallbackRow(wine.producer, wine.wineName);
 
@@ -308,10 +312,13 @@ export async function getAvailability(
     push(await searchTavily(`"${label}"`, tavilyMeta,
       { includeDomains: [stateStore], maxResults: 4, taskType: "retail_availability" }));
   }
-  push(await searchTavily(`buy "${label}" wine shop OR store "${city}"`, tavilyMeta,
+  const nearPhrase = radiusMinutes && radiusMinutes > 0
+    ? `within ${radiusMinutes} minutes of "${city}"`
+    : `near "${city}"`;
+  push(await searchTavily(`buy "${label}" wine shop OR store ${nearPhrase}`, tavilyMeta,
     { maxResults: 6, taskType: "retail_availability" }));
 
-  let stockists = await parseStockists(collected, label, city, country, apiKey, meta);
+  let stockists = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
 
   if (confidentCount(stockists) < ENOUGH_STOCKISTS && !isTavilyQuotaExhausted()) {
     push(await searchTavily(`"${label}" ${city} OR ${country}`, tavilyMeta,
@@ -321,7 +328,7 @@ export async function getAvailability(
       push(await searchTavily(`"${label}"`, tavilyMeta,
         { includeDomains: mailDomains, maxResults: 5, taskType: "retail_availability" }));
     }
-    stockists = await parseStockists(collected, label, city, country, apiKey, meta);
+    stockists = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
   }
 
   // Tavily flipped to 432 mid-ladder → persist the latch for every other instance.
@@ -351,9 +358,13 @@ async function parseStockists(
   city: string,
   country: string,
   apiKey: string,
-  meta?: Meta
+  meta?: Meta,
+  radiusMinutes?: number | null
 ): Promise<Stockist[]> {
   if (!results.length) return [];
+  const radiusText = radiusMinutes && radiusMinutes > 0
+    ? `within about ${radiusMinutes} minutes' drive of ${city}`
+    : `in or near ${city}`;
   const docs = results.slice(0, 12).map((r, i) =>
     `[${i + 1}] ${r.title}\nURL: ${r.url}\n${r.content.slice(0, 600)}`).join("\n\n");
   try {
@@ -368,7 +379,7 @@ ${STOCKIST_JSON_SHAPE}
 
 Rules:
 - Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, producers' own sites (unless they sell direct), or encyclopedic pages.
-- kind: "local" = a physical shop in or near ${city} (metro area; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
+- kind: "local" = a physical shop the user could drive to (${radiusText}; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
 - url: the result URL for that merchant (the listing page if that's what was found).
 - price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP, else null. Never guess a price.
 - confidence: "listed" = the snippet explicitly shows this wine at this merchant. "likely" = the merchant clearly stocks this producer/category and probably this wine. "unverified" = weaker.
