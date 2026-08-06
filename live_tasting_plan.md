@@ -479,6 +479,20 @@ the pilot (9.4) proves the *shopping reality* the agents can only judge, not exp
 11. **Vintage capture** added as optional per-slot field feeding the grading prompt.
 12. **users CHECK constraint** moved to app-layer validation (migration simplicity).
 
+## 13.5 Named follow-ups (open)
+
+- **BYO paper partner-emailing** (task chip `task_259816c5`, 2026-08-06): full papers'
+  multi-flight brief currently shows directly to the candidate with only a copy button — the
+  blind-preserving chooser (Me / A partner), send-brief email, API-withheld brief, no-auth
+  per-flight partner entry page, and last-flight-ready notification all exist for single
+  questions and need the paper-level equivalents. Columns already exist on
+  live_tasting_papers (migration 046); no new migration needed.
+- **Full three-paper exam mode**: three papers + the aggregate real pass rule (65% average
+  across papers + per-paper floor, EK-0116). Deliberately sequenced after single papers prove
+  out in real use.
+- **Member picker for partner emails**: deliberately omitted (privacy — exposing user emails
+  cross-user); needs an opt-in "discoverable as tasting partner" flag if ever wanted.
+
 ## 14. Changelog v2 → v2.1 (agentic testing + pilot)
 
 1. **§9 rebuilt as three layers**: deterministic unit/regression tests; an **agentic E2E

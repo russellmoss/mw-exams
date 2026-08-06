@@ -16,10 +16,13 @@ export function ByoWineForm({
   endpoint,
   defaultCount,
   onDone,
+  extraBody,
 }: {
   endpoint: string;
   defaultCount: number;
   onDone: () => void;
+  /** Merged into the POST body (e.g. { position } for paper flights). */
+  extraBody?: Record<string, unknown>;
 }) {
   const [rows, setRows] = useState<WineRow[]>(
     Array.from({ length: Math.min(4, Math.max(2, defaultCount)) }, () => ({ ...EMPTY }))
@@ -45,6 +48,7 @@ export function ByoWineForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(extraBody ?? {}),
           wines: rows.map((r) => ({
             producer: r.producer,
             wineName: r.wineName,

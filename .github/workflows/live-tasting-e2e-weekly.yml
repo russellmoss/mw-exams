@@ -65,3 +65,34 @@ jobs:
           name: live-tasting-e2e-report
           path: outputs/live_tasting_e2e/*.md
           if-no-files-found: ignore
+
+  # Phase D3 (user-1 requirement): generate a REAL half paper against production every week and
+  # verify composition contract, per-flight EK invariants, cross-flight dedup, and an examiner
+  # judge's would-pass-as-real verdict against two real corpus papers. Papers rotate weekly.
+  paper-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: study-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: study-app/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Run Paper QA
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LT_E2E_PASSWORD: ${{ secrets.LT_E2E_PASSWORD }}
+        run: node scripts/live-tasting-paper-qa.mjs
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-tasting-paper-qa-report
+          path: outputs/live_tasting_paper_qa/*.md
+          if-no-files-found: ignore

@@ -1,6 +1,7 @@
 import { requireApiKey } from "@/lib/api-key";
 import {
   getLiveTastingSession,
+  getLiveTastingPaper,
   getQuestionById,
   createAttemptWithUser,
   updateAttempt,
@@ -44,6 +45,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return Response.json({ error: "Enter the wines first — this session is still in tasting prep" }, { status: 409 });
   }
   const questionId: string = session.question_id;
+
+  // Exam-conditions papers (Phase D): grading requires a running clock, and the real rule
+  // applies at the deadline — an unanswered flight scores ZERO (the paper report enforces it);
+  // a late submission is refused here.
+  if (session.paper_id) {
+    const parent = await getLiveTastingPaper(session.paper_id, userId);
+    if (parent?.pacing === "exam-conditions") {
+      if (!parent.exam_started_at) {
+        return Response.json({ error: "Start the exam clock first — this paper runs under exam conditions" }, { status: 409 });
+      }
+      if (parent.exam_deadline_at && new Date(parent.exam_deadline_at).getTime() < Date.now()) {
+        return Response.json({ error: "Time is up — unanswered questions score zero, per the real exam" }, { status: 409 });
+      }
+    }
+  }
 
   const body = await request.json();
   const userAnswer = typeof body.userAnswer === "string" ? body.userAnswer.trim() : "";

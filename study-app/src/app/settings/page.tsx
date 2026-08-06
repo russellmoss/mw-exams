@@ -24,6 +24,16 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [tavilyKey, setTavilyKey] = useState("");
+  const [tavilyKeyInfo, setTavilyKeyInfo] = useState<{
+    hasKey: boolean;
+    keyHint: string | null;
+    usingServerKey: boolean;
+  } | null>(null);
+  const [tavilySaving, setTavilySaving] = useState(false);
+  const [tavilyDeleting, setTavilyDeleting] = useState(false);
+  const [tavilyError, setTavilyError] = useState<string | null>(null);
+  const [tavilySuccess, setTavilySuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
   const [paceMode, setPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
@@ -60,6 +70,18 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const loadTavilyKeyInfo = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/api-key?provider=tavily");
+      if (res.ok) {
+        const data = await res.json();
+        setTavilyKeyInfo(data);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetch("/api/user/sound-preference")
@@ -85,6 +107,10 @@ export default function SettingsPage() {
           if (d.budgetCurrency) setLiveCurrency(d.budgetCurrency);
           if (d.radiusMinutes) setLiveRadius(String(d.radiusMinutes));
         })
+        .catch(() => {});
+      fetch("/api/user/api-key?provider=tavily")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setTavilyKeyInfo(data); })
         .catch(() => {});
       fetch("/api/user/api-key")
         .then((r) => r.ok ? r.json() : null)
@@ -141,6 +167,51 @@ export default function SettingsPage() {
     }
   };
 
+  const handleTavilySave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTavilyError(null);
+    setTavilySuccess(null);
+    setTavilySaving(true);
+
+    try {
+      const res = await fetch("/api/user/api-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: tavilyKey, provider: "tavily" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setTavilyError(data.error || "Failed to save key");
+      } else {
+        setTavilySuccess("Tavily key saved and validated successfully.");
+        setTavilyKey("");
+        await loadTavilyKeyInfo();
+      }
+    } catch {
+      setTavilyError("Network error");
+    } finally {
+      setTavilySaving(false);
+    }
+  };
+
+  const handleTavilyDelete = async () => {
+    setTavilyError(null);
+    setTavilySuccess(null);
+    setTavilyDeleting(true);
+
+    try {
+      const res = await fetch("/api/user/api-key?provider=tavily", { method: "DELETE" });
+      if (res.ok) {
+        setTavilySuccess("Tavily key removed.");
+        await loadTavilyKeyInfo();
+      }
+    } catch {
+      setTavilyError("Failed to remove key");
+    } finally {
+      setTavilyDeleting(false);
+    }
+  };
+
   const savePace = useCallback(async (pace: PaceMode, speedSeconds: SpeedSeconds) => {
     setPaceSaving(true);
     // Optimistic — reflect the choice immediately; the PATCH persists the default.
@@ -177,7 +248,7 @@ export default function SettingsPage() {
       <header className="border-b border-border">
         <div className="max-w-2xl mx-auto px-6 py-6">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Settings</h1>
-          <p className="text-sm text-muted mt-1">Manage your account and API key</p>
+          <p className="text-sm text-muted mt-1">Manage your account and API keys</p>
         </div>
       </header>
 
@@ -382,6 +453,122 @@ export default function SettingsPage() {
                 className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? "Validating & saving..." : keyInfo?.hasKey ? "Replace key" : "Save key"}
+              </button>
+            </form>
+          </section>
+
+          {/* Tavily API Key section */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2">Tavily API Key</h2>
+            <p className="text-sm text-muted mb-6">
+              This app uses Tavily to research wines on the live web &mdash; producer tech sheets, critic
+              tasting notes, stockists, and fact-checking.
+              {tavilyKeyInfo?.usingServerKey || user?.isAdmin
+                ? " As an admin, the server key is used as a fallback if you don't set your own."
+                : " You must provide your own Tavily key for web research. Without one, AI features still work but skip live web sources."}
+            </p>
+
+            {/* Current key status */}
+            {tavilyKeyInfo && (
+              <div className={`rounded-lg p-4 mb-6 ${
+                tavilyKeyInfo.hasKey
+                  ? "bg-success/10 border border-success/30"
+                  : tavilyKeyInfo.usingServerKey
+                    ? "bg-accent/10 border border-accent/30"
+                    : "bg-fail/10 border border-fail/30"
+              }`}>
+                {tavilyKeyInfo.hasKey ? (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Personal key active</p>
+                      <p className="text-xs text-muted mt-0.5">Key ending in {tavilyKeyInfo.keyHint}</p>
+                    </div>
+                    <button
+                      onClick={handleTavilyDelete}
+                      disabled={tavilyDeleting}
+                      className="text-xs text-fail hover:text-fail/80 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {tavilyDeleting ? "Removing..." : "Remove key"}
+                    </button>
+                  </div>
+                ) : tavilyKeyInfo.usingServerKey ? (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Using server key (admin fallback)</p>
+                    <p className="text-xs text-muted mt-0.5">You can optionally set your own key below.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-fail">No Tavily key configured</p>
+                    <p className="text-xs text-muted mt-0.5">Add your Tavily API key below to enable live web research.</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tavilyError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{tavilyError}</p>
+              </div>
+            )}
+            {tavilySuccess && (
+              <div className="bg-success/10 border border-success/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-success">{tavilySuccess}</p>
+              </div>
+            )}
+
+            {/* How to get a key — show when user has no key */}
+            {tavilyKeyInfo && !tavilyKeyInfo.hasKey && !tavilyKeyInfo.usingServerKey && (
+              <div className="bg-background rounded-lg border border-border p-4 mb-6">
+                <h3 className="text-sm font-semibold text-foreground mb-3">How to get your Tavily API key</h3>
+                <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
+                  <li>
+                    Go to{" "}
+                    <a href="https://app.tavily.com/" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                      app.tavily.com
+                    </a>{" "}
+                    and create a free account (or sign in).
+                  </li>
+                  <li>
+                    Open your dashboard at{" "}
+                    <a href="https://app.tavily.com/home" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                      app.tavily.com/home
+                    </a>{" "}
+                    and find the <strong className="text-foreground">API Keys</strong> section on the front page.
+                  </li>
+                  <li>
+                    Click the <strong className="text-foreground">+</strong> button, give the key a name like &quot;MW Study App&quot;, and copy it.
+                  </li>
+                  <li>
+                    Paste the key (starts with <code className="text-xs bg-card px-1 py-0.5 rounded font-mono">tvly-...</code>) below.
+                  </li>
+                </ol>
+              </div>
+            )}
+
+            <form onSubmit={handleTavilySave} className="space-y-4">
+              <div>
+                <label htmlFor="tavilyKey" className="block text-sm font-medium text-foreground mb-1.5">
+                  {tavilyKeyInfo?.hasKey ? "Replace Tavily key" : "Tavily key"}
+                </label>
+                <input
+                  id="tavilyKey"
+                  type="password"
+                  value={tavilyKey}
+                  onChange={(e) => setTavilyKey(e.target.value)}
+                  placeholder="tvly-..."
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
+                />
+                <p className="text-xs text-muted mt-1.5">
+                  Your key is encrypted at rest and never exposed to other users. It is only used to run web research on your behalf.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={tavilySaving || !tavilyKey.trim()}
+                className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tavilySaving ? "Validating & saving..." : tavilyKeyInfo?.hasKey ? "Replace key" : "Save key"}
               </button>
             </form>
           </section>

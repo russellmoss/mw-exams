@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useStreaming } from "@/lib/use-streaming";
 import { StreamingFeedback } from "@/app/components/StreamingFeedback";
 import { useDraft } from "@/lib/use-draft";
+import { useSpeech } from "@/lib/use-speech";
+import { MicButton } from "@/app/components/MicButton";
 import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
 import { ByoWineForm } from "@/app/components/ByoWineForm";
 import { BriefCard } from "@/app/components/BriefCard";
@@ -105,6 +107,61 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
   const [submitError, setSubmitError] = useState<string | null>(null);
   const gradeStream = useStreaming();
 
+  // Dictation, same treatment as the study flow (AnswerInput): detected from mic use, never
+  // declared. Both boxes are on screen at once and the browser allows one recognition session,
+  // so a single speech hook feeds whichever box's mic was clicked last.
+  const [micTarget, setMicTarget] = useState<"preGlass" | "answer" | null>(null);
+  const micTargetRef = useRef<"preGlass" | "answer">("answer");
+  // Whether the mic contributed text to the ANSWER (the graded, spelling-sensitive text).
+  // Persisted alongside the draft so a reload doesn't turn a dictated answer back into a
+  // "typed" one; forgotten on submit with the draft itself.
+  const VOICE_KEY = `mw-voice:lt:${id}`;
+  const [voiceUsed, setVoiceUsedState] = useState<boolean>(
+    () => typeof window !== "undefined" && window.localStorage.getItem(VOICE_KEY) === "true"
+  );
+  const setVoiceUsed = useCallback(
+    (next: boolean) => {
+      setVoiceUsedState(next);
+      if (typeof window === "undefined") return;
+      if (next) window.localStorage.setItem(VOICE_KEY, "true");
+      else window.localStorage.removeItem(VOICE_KEY);
+    },
+    [VOICE_KEY]
+  );
+
+  const handleTranscript = useCallback(
+    (text: string) => {
+      const append = (prev: string) => {
+        const trimmed = prev.trim();
+        return trimmed.length === 0 ? text : trimmed + " " + text;
+      };
+      if (micTargetRef.current === "answer") {
+        setVoiceUsed(true);
+        setAnswer(append);
+      } else {
+        setPreGlass(append);
+      }
+    },
+    [setAnswer, setPreGlass, setVoiceUsed]
+  );
+
+  const speech = useSpeech(handleTranscript);
+
+  const toggleMic = useCallback(
+    (target: "preGlass" | "answer") => {
+      if (speech.isListening && micTarget === target) {
+        speech.stop();
+        setMicTarget(null);
+        return;
+      }
+      // Either starting fresh or redirecting a live session to the other box.
+      micTargetRef.current = target;
+      setMicTarget(target);
+      if (!speech.isListening) speech.start();
+    },
+    [speech, micTarget]
+  );
+
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, user, router]);
@@ -193,16 +250,21 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
 
   const submitForGrading = async () => {
     if (!answer.trim()) return;
+    speech.stop();
+    setMicTarget(null);
     setSubmitError(null);
     setTasting(true);
     try {
       await gradeStream.startStream(`/api/live-tasting/${id}/grade`, {
         userAnswer: answer,
         preGlassReasoning: preGlass || undefined,
-        inputMethod: "typed",
+        // Dictated answers get their spelling reported but not deducted (marking-principles),
+        // and mangled wine terms repaired server-side (dictation-normalizer).
+        inputMethod: voiceUsed ? "voice" : "typed",
       });
       clearAnswer();
       clearPreGlass();
+      setVoiceUsed(false);
       await load(); // → tasted state with the full reveal
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Grading failed — your answer is saved, try again.");
@@ -537,27 +599,71 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                     <label htmlFor="ltPreGlass" className="block text-sm font-medium text-foreground mb-1.5">
                       Before the glass — stem analysis
                     </label>
-                    <textarea
-                      id="ltPreGlass"
-                      value={preGlass}
-                      onChange={(e) => setPreGlass(e.target.value)}
-                      rows={5}
-                      placeholder="What does the stem tell you before tasting? Universe of candidates, ruling out, what to confirm in the glass…"
-                      className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent text-sm leading-relaxed resize-y"
-                    />
+                    <div className="relative">
+                      <textarea
+                        id="ltPreGlass"
+                        value={preGlass}
+                        onChange={(e) => setPreGlass(e.target.value)}
+                        rows={5}
+                        placeholder="What does the stem tell you before tasting? Universe of candidates, ruling out, what to confirm in the glass…"
+                        className={`w-full px-3 py-2.5 pr-14 bg-background border rounded-lg text-foreground placeholder-muted focus:outline-none text-sm leading-relaxed resize-y ${
+                          speech.isListening && micTarget === "preGlass"
+                            ? "border-fail/60 bg-fail/5"
+                            : "border-border focus:border-accent"
+                        }`}
+                      />
+                      <div className="absolute top-2 right-2">
+                        <MicButton
+                          isListening={speech.isListening && micTarget === "preGlass"}
+                          isSupported={speech.isSupported}
+                          onClick={() => toggleMic("preGlass")}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label htmlFor="ltAnswer" className="block text-sm font-medium text-foreground mb-1.5">
                       Your full answer
                     </label>
-                    <textarea
-                      id="ltAnswer"
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                      rows={14}
-                      placeholder="Write exactly as you would in the exam — per wine, against the printed sub-questions and marks."
-                      className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent text-sm leading-relaxed resize-y"
-                    />
+                    <div className="relative">
+                      <textarea
+                        id="ltAnswer"
+                        value={answer}
+                        onChange={(e) => {
+                          // Wiping the box and starting over is a fresh answer — stop treating it as dictated.
+                          if (e.target.value.trim().length === 0 && voiceUsed) setVoiceUsed(false);
+                          setAnswer(e.target.value);
+                        }}
+                        rows={14}
+                        placeholder="Write exactly as you would in the exam — per wine, against the printed sub-questions and marks."
+                        className={`w-full px-3 py-2.5 pr-14 bg-background border rounded-lg text-foreground placeholder-muted focus:outline-none text-sm leading-relaxed resize-y ${
+                          speech.isListening && micTarget === "answer"
+                            ? "border-fail/60 bg-fail/5"
+                            : "border-border focus:border-accent"
+                        }`}
+                      />
+                      <div className="absolute top-2 right-2">
+                        <MicButton
+                          isListening={speech.isListening && micTarget === "answer"}
+                          isSupported={speech.isSupported}
+                          onClick={() => toggleMic("answer")}
+                        />
+                      </div>
+                    </div>
+                    {speech.isListening && (
+                      <span className="text-xs text-fail flex items-center gap-1.5 mt-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-fail animate-pulse" />
+                        Listening...
+                      </span>
+                    )}
+                    {voiceUsed && (
+                      <p className="text-xs text-muted leading-relaxed mt-2">
+                        Dictation detected — misspellings will be shown but won&rsquo;t cost marks.
+                        <span className="block text-[11px] text-muted/70">
+                          The real exam is handwritten, so spelling counts there.
+                        </span>
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={submitForGrading}

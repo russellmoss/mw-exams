@@ -37,6 +37,14 @@ export default function LiveTastingPage() {
   const [paper, setPaper] = useState(1);
   const [flightSize, setFlightSize] = useState(3);
   const [mode, setMode] = useState<"pick-for-me" | "byo">("pick-for-me");
+  const [createType, setCreateType] = useState<"question" | "paper">("question");
+  const [paperSize, setPaperSize] = useState<"half" | "full">("half");
+  const [paperPacing, setPaperPacing] = useState<"flight-by-flight" | "exam-conditions">("flight-by-flight");
+  const [paperBudget, setPaperBudget] = useState("");
+  const [papers, setPapers] = useState<{
+    id: string; paper: number; size: string; pacing: string; city: string;
+    flights: number; generated: number; graded: number; createdAt: string;
+  }[]>([]);
   const [family, setFamily] = useState("F1");
   const [budgetOverride, setBudgetOverride] = useState("");
   const [creating, setCreating] = useState(false);
@@ -48,10 +56,11 @@ export default function LiveTastingPage() {
   }, [authLoading, user, router]);
 
   const load = useCallback(() => {
-    return Promise.all([fetch("/api/live-tasting"), fetch("/api/user/live-tasting-prefs")])
-      .then(async ([sRes, pRes]) => {
+    return Promise.all([fetch("/api/live-tasting"), fetch("/api/user/live-tasting-prefs"), fetch("/api/live-tasting/paper")])
+      .then(async ([sRes, pRes, ppRes]) => {
         if (sRes.ok) setSessions((await sRes.json()).sessions);
         if (pRes.ok) setPrefs(await pRes.json());
+        if (ppRes.ok) setPapers((await ppRes.json()).papers ?? []);
       })
       .catch(() => setSessions([]));
   }, []);
@@ -65,6 +74,32 @@ export default function LiveTastingPage() {
     setCreating(true);
     setError(null);
     setProgress("Starting…");
+    // Full paper: one POST samples the composition (and, for BYO, writes the multi-flight
+    // brief — up to a couple of minutes); flight generation then chains on the paper page.
+    if (createType === "paper") {
+      try {
+        setProgress(mode === "byo" ? "Sampling the paper & writing the shopping brief…" : "Sampling the paper composition…");
+        const res = await fetch("/api/live-tasting/paper", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paper,
+            size: paperSize,
+            mode,
+            pacing: paperPacing,
+            ...(paperBudget.trim() ? { totalBudget: Number(paperBudget) } : {}),
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Failed to create the paper");
+        router.push(`/live-tasting/paper/${data.paperId}`);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Something went wrong");
+        setCreating(false);
+        setProgress(null);
+      }
+      return;
+    }
     try {
       const res = await fetch("/api/live-tasting", {
         method: "POST",
@@ -186,6 +221,35 @@ export default function LiveTastingPage() {
               )}
               {!creating && (
                 <div className="mb-5">
+                  <span className="block text-sm font-medium text-foreground mb-1.5">What are you building?</span>
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => setCreateType("question")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        createType === "question"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      One question
+                    </button>
+                    <button
+                      onClick={() => setCreateType("paper")}
+                      className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                        createType === "paper"
+                          ? "border-accent text-accent bg-accent/10"
+                          : "border-border text-muted hover:text-foreground hover:border-muted"
+                      }`}
+                    >
+                      Full paper
+                    </button>
+                  </div>
+                  {createType === "paper" && (
+                    <p className="text-xs text-muted mb-4">
+                      A corpus-realistic paper: the question mix, flight sizes and wine spread
+                      mirror real exams — you don&apos;t pick families, just like the real thing.
+                    </p>
+                  )}
                   <span className="block text-sm font-medium text-foreground mb-1.5">Who picks the wines?</span>
                   <div className="flex gap-2">
                     <button
@@ -249,7 +313,72 @@ export default function LiveTastingPage() {
                       ))}
                     </div>
                   </div>
-                  {mode === "byo" && (
+                  {createType === "paper" && (
+                    <>
+                      <div>
+                        <span className="block text-sm font-medium text-foreground mb-1.5">Paper size</span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setPaperSize("half")}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                              paperSize === "half" ? "border-accent text-accent bg-accent/10" : "border-border text-muted hover:text-foreground hover:border-muted"
+                            }`}
+                          >
+                            Half — 6 bottles
+                          </button>
+                          <button
+                            onClick={() => setPaperSize("full")}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                              paperSize === "full" ? "border-accent text-accent bg-accent/10" : "border-border text-muted hover:text-foreground hover:border-muted"
+                            }`}
+                          >
+                            Full — 12 bottles
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="block text-sm font-medium text-foreground mb-1.5">How will you sit it?</span>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => setPaperPacing("flight-by-flight")}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                              paperPacing === "flight-by-flight" ? "border-accent text-accent bg-accent/10" : "border-border text-muted hover:text-foreground hover:border-muted"
+                            }`}
+                          >
+                            Flight by flight
+                          </button>
+                          <button
+                            onClick={() => setPaperPacing("exam-conditions")}
+                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
+                              paperPacing === "exam-conditions" ? "border-accent text-accent bg-accent/10" : "border-border text-muted hover:text-foreground hover:border-muted"
+                            }`}
+                          >
+                            Exam conditions ({paperSize === "full" ? "2h15" : "68 min"})
+                          </button>
+                        </div>
+                        {paperPacing === "exam-conditions" && (
+                          <p className="text-xs text-muted mt-1.5">
+                            One sitting, real clock — questions unanswered at the deadline score zero.
+                          </p>
+                        )}
+                      </div>
+                      <div className="max-w-48">
+                        <label htmlFor="ltPaperBudget" className="block text-sm font-medium text-foreground mb-1.5">
+                          Total budget
+                        </label>
+                        <input
+                          id="ltPaperBudget"
+                          type="number"
+                          min="1"
+                          value={paperBudget}
+                          onChange={(e) => setPaperBudget(e.target.value)}
+                          placeholder={paperSize === "full" ? "e.g. 350" : "e.g. 180"}
+                          className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent text-sm tabular-nums"
+                        />
+                      </div>
+                    </>
+                  )}
+                  {createType === "question" && mode === "byo" && (
                     <div>
                       <span className="block text-sm font-medium text-foreground mb-1.5">Question family</span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -278,6 +407,7 @@ export default function LiveTastingPage() {
                       </div>
                     </div>
                   )}
+                  {createType === "question" && (
                   <div className="flex gap-6">
                     <div>
                       <span className="block text-sm font-medium text-foreground mb-1.5">Wines</span>
@@ -316,14 +446,47 @@ export default function LiveTastingPage() {
                       />
                     </div>
                   </div>
+                  )}
                   <button
                     onClick={createSession}
                     className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
                   >
-                    {mode === "byo" ? "Get my shopping brief" : "Build my flight"}
+                    {createType === "paper"
+                      ? `Build my ${paperSize} paper`
+                      : mode === "byo" ? "Get my shopping brief" : "Build my flight"}
                   </button>
                 </div>
               )}
+            </section>
+          )}
+
+          {papers.length > 0 && (
+            <section>
+              <h2 className="text-lg font-semibold text-foreground mb-3 font-display">Your papers</h2>
+              <div className="space-y-3">
+                {papers.map((pp) => (
+                  <Link
+                    key={pp.id}
+                    href={`/live-tasting/paper/${pp.id}`}
+                    className="block bg-card rounded-xl border border-border p-4 hover:bg-card-hover transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {pp.size === "full" ? "Full" : "Half"} Paper {pp.paper} · {pp.flights} questions · {pp.city}
+                        </p>
+                        <p className="text-xs text-muted mt-0.5">
+                          {new Date(pp.createdAt).toLocaleDateString()} · {pp.graded}/{pp.flights} graded
+                          {pp.pacing === "exam-conditions" ? " · exam conditions" : ""}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-full border text-accent border-accent/40 bg-accent/10">
+                        {pp.generated < pp.flights ? "Generating" : pp.graded === pp.flights ? "Complete" : "In progress"}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </section>
           )}
 

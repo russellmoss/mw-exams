@@ -4,12 +4,13 @@ import { signToken, createSessionCookie } from "@/lib/auth";
 import { encrypt } from "@/lib/encryption";
 import Anthropic from "@anthropic-ai/sdk";
 import { logClaudeUsage } from "@/lib/usage-log";
+import { validateTavilyKey } from "@/lib/tavily-key";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, address, business, jobTitle, apiKey } =
+    const { name, email, password, address, business, jobTitle, apiKey, tavilyKey } =
       await request.json();
 
     if (!name || !email || !password || !address) {
@@ -70,6 +71,21 @@ export async function POST(request: Request) {
       }
     }
 
+    // Validate Tavily key if provided
+    if (tavilyKey && tavilyKey.trim()) {
+      const trimmedTavily = tavilyKey.trim();
+      if (!trimmedTavily.startsWith("tvly-")) {
+        return Response.json(
+          { error: "Invalid Tavily key format. Tavily keys start with tvly-" },
+          { status: 400 }
+        );
+      }
+      const tavilyError = await validateTavilyKey(trimmedTavily, null);
+      if (tavilyError) {
+        return Response.json({ error: tavilyError }, { status: 400 });
+      }
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const rows = await sql`
       INSERT INTO users (email, name, password_hash, address, business, job_title, is_admin, is_active)
@@ -96,6 +112,17 @@ export async function POST(request: Request) {
       await sql`
         INSERT INTO user_api_keys (user_id, provider, encrypted_key, key_hint)
         VALUES (${newUser.id}, 'anthropic', ${encryptedKey}, ${keyHint})
+      `;
+    }
+
+    // Save Tavily key if provided
+    if (tavilyKey && tavilyKey.trim()) {
+      const trimmedTavily = tavilyKey.trim();
+      const encryptedTavily = encrypt(trimmedTavily);
+      const tavilyHint = "..." + trimmedTavily.slice(-4);
+      await sql`
+        INSERT INTO user_api_keys (user_id, provider, encrypted_key, key_hint)
+        VALUES (${newUser.id}, 'tavily', ${encryptedTavily}, ${tavilyHint})
       `;
     }
 

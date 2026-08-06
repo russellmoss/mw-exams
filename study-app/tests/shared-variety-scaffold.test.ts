@@ -72,12 +72,12 @@ describe("R11 shared-variety-marked-per-wine", () => {
   it("exempts pair-split flights where the multiplier counts pairs, not wines", () => {
     // Real format (2019 P2): 6 wines, 3 pairs, variety identified per PAIR.
     const sixWines = [
-      { slot: 1, varieties: ["pinot noir"], country: "France" },
-      { slot: 2, varieties: ["pinot noir"], country: "USA" },
-      { slot: 3, varieties: ["syrah"], country: "France" },
-      { slot: 4, varieties: ["syrah"], country: "Australia" },
-      { slot: 5, varieties: ["nebbiolo"], country: "Italy" },
-      { slot: 6, varieties: ["nebbiolo"], country: "Australia" },
+      { slot: 1, varieties: ["pinot noir"], region: "", country: "France" },
+      { slot: 2, varieties: ["pinot noir"], region: "", country: "USA" },
+      { slot: 3, varieties: ["syrah"], region: "", country: "France" },
+      { slot: 4, varieties: ["syrah"], region: "", country: "Australia" },
+      { slot: 5, varieties: ["nebbiolo"], region: "", country: "Italy" },
+      { slot: 6, varieties: ["nebbiolo"], region: "", country: "Australia" },
     ];
     expect(
       r11(
@@ -115,9 +115,9 @@ describe("R11 shared-variety-marked-per-wine", () => {
         "b) Comment on the style and the key winemaking decisions behind each wine. (3 x 9 marks)\n" +
         "c) Assess the quality and the commercial position. (3 x 8 marks)",
       [
-        { slot: 1, varieties: ["grenache"], country: "France" },
-        { slot: 2, varieties: ["grenache"], country: "Spain" },
-        { slot: 3, varieties: ["grenache"], country: "Australia" },
+        { slot: 1, varieties: ["grenache"], region: "", country: "France" },
+        { slot: 2, varieties: ["grenache"], region: "", country: "Spain" },
+        { slot: 3, varieties: ["grenache"], region: "", country: "Australia" },
       ]
     );
     expect(violations).toHaveLength(1);

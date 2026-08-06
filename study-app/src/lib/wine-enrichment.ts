@@ -4,6 +4,7 @@ import { lookupWines, buildStructuralProfile, type WineProfile, type WineBankEnt
 import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage, logTavilyUsage } from "./usage-log";
 import { selectModel } from "./model-selector";
+import { resolveTavilyKey } from "./tavily-key";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 
@@ -80,11 +81,14 @@ export function isTavilyQuotaExhausted(): boolean {
 }
 
 async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; query: string; credits: number }, meta?: EnrichMeta): Promise<unknown | null> {
-  const tavilyKey = process.env.TAVILY_API_KEY;
-  if (!tavilyKey) {
-    console.warn("TAVILY_API_KEY not set — skipping web research");
+  // BYOK: resolve per-user (own key → admin env fallback) when a userId is in scope; server jobs
+  // with no user fall back to the env key. A non-admin with no Tavily key skips web research.
+  const resolved = await resolveTavilyKey(meta?.userId);
+  if (!resolved) {
+    console.warn("No Tavily API key available — skipping web research");
     return null;
   }
+  const tavilyKey = resolved.key;
   const log = (ok: boolean, n: number) =>
     logTavilyUsage({ taskType: ctx.taskType, query: ctx.query, resultsCount: n, credits: ctx.credits,
       userId: meta?.userId, batchId: meta?.batchId, questionId: meta?.questionId, success: ok });
@@ -101,7 +105,9 @@ async function tavilyFetch(url: string, body: unknown, ctx: { taskType: string; 
       const text = await res.text().catch(() => "");
       // 432 = plan usage limit reached. Latch it: every subsequent call will fail the same way, and a
       // batch job needs to know the difference between "this wine is obscure" and "we are blind".
-      if (res.status === 432) tavilyQuotaExhausted = true;
+      // Only the SERVER key latches — one user's exhausted personal key says nothing about anyone
+      // else's, and latching on it would silently blind every other account.
+      if (res.status === 432 && resolved.source === "server") tavilyQuotaExhausted = true;
       console.error(`Tavily ${ctx.taskType} error ${res.status}: ${text.slice(0, 200)}`);
       log(false, 0);
       return null;
