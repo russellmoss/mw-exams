@@ -217,6 +217,16 @@ describe("AC5 — sub-part coverage", () => {
     expect(sub[0].severity).toBe("soft");
   });
 
+  it("does NOT flag a merged heading — '## a) Region … and b) Grape variety' addresses b)", () => {
+    // Real case (gen_p1_F2_1779913929557): the regenerated answer merged two sub-parts into one
+    // heading and the line-start-only regex read b) as skipped.
+    const merged = GOOD_ANSWER
+      .replace(/## a\) Grape Variety \(10 marks\)/, "## a) Grape Variety (10 marks) and b) Region of Origin (2 x 13 marks)")
+      .replace(/## b\) Region of Origin \(2 x 13 marks\)\n/, "");
+    const v = applyAnswerContentRules({ questionText: STEM, answerText: merged, wines: PINOT_FLIGHT });
+    expect(v.filter((x) => x.rule === "answer-subpart-coverage")).toEqual([]);
+  });
+
   it("does NOT flag an answer organised without letter labels at all", () => {
     // Per-wine headings, no a)/b)/c) anywhere — calibration found this on ~15% of the bank, all
     // otherwise-fine answers. Structure variance is not missing content.
