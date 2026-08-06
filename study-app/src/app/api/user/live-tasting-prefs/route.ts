@@ -1,5 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { getUserLiveTastingPrefs, setUserLiveTastingPrefs } from "@/lib/db";
+import { geoFromHeaders } from "@/lib/geo";
 
 export const runtime = "nodejs";
 
@@ -13,7 +14,10 @@ export async function GET(request: Request) {
   try {
     const user = await getUser(request);
     if (!user) return Response.json({ error: "Auth required" }, { status: 401 });
-    return Response.json(await getUserLiveTastingPrefs(user.id));
+    const prefs = await getUserLiveTastingPrefs(user.id);
+    // detected = the IP-derived approximation (Vercel geo headers) — the create flow's fallback
+    // when no market is saved. Advisory only; never persisted.
+    return Response.json({ ...prefs, detected: geoFromHeaders(request.headers) });
   } catch {
     return Response.json({ city: null, state: null, country: null, budgetAmount: null, budgetCurrency: null, radiusMinutes: null });
   }

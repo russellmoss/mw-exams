@@ -2,6 +2,7 @@ import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import { getUser } from "@/lib/auth";
 import { sseStream } from "@/lib/thinking-stream";
+import { geoFromHeaders } from "@/lib/geo";
 import { createLiveTasting, createByoPrep, BYO_FAMILIES } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
@@ -54,11 +55,22 @@ export async function POST(request: Request) {
   }
 
   const prefs = await getUserLiveTastingPrefs(userId);
-  if (!prefs.city || !prefs.country) {
-    return Response.json(
-      { error: "Set your city and country in Settings → Live Tasting first." },
-      { status: 400 }
-    );
+  // No saved market → fall back to the request's IP-derived location (Vercel geo headers).
+  // Per-session only, never written to the profile: IP geo lies under VPNs and travel, so the
+  // UI labels it approximate and points at Settings for the real thing.
+  let marketCity = liveTastingMarketCity(prefs);
+  let marketCountry = prefs.country;
+  if (!marketCity || !marketCountry) {
+    const detected = geoFromHeaders(request.headers);
+    if (detected) {
+      marketCity = detected.city;
+      marketCountry = detected.country;
+    } else {
+      return Response.json(
+        { error: "Set your city and country in Settings → Live Tasting first." },
+        { status: 400 }
+      );
+    }
   }
 
   // No per-day session cap (owner's call, 2026-08-06): each generation is a bounded Tavily +
@@ -85,8 +97,8 @@ export async function POST(request: Request) {
         paper,
         family,
         flightSize,
-        city: prefs.city!,
-        country: prefs.country!,
+        city: marketCity,
+        country: marketCountry,
         budgetAmount,
         budgetCurrency,
         emit,
@@ -103,8 +115,8 @@ export async function POST(request: Request) {
       apiKey: keyResult.apiKey,
       paper,
       flightSize,
-      city: liveTastingMarketCity(prefs)!,
-      country: prefs.country!,
+      city: marketCity,
+      country: marketCountry,
       budgetAmount,
       budgetCurrency,
       radiusMinutes: prefs.radiusMinutes,

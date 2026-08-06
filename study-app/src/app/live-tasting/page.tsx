@@ -16,7 +16,10 @@ type SessionSummary = {
   gradedAt: string | null;
 };
 
-type Prefs = { city: string | null; country: string | null; budgetAmount: number | null; budgetCurrency: string | null };
+type Prefs = {
+  city: string | null; country: string | null; budgetAmount: number | null; budgetCurrency: string | null;
+  detected?: { city: string; country: string } | null;
+};
 
 const STATE_CHIP: Record<string, { label: string; cls: string }> = {
   prep: { label: "Tasting prep", cls: "text-borderline border-borderline/40 bg-borderline/10" },
@@ -123,6 +126,9 @@ export default function LiveTastingPage() {
   }
 
   const marketSet = Boolean(prefs?.city && prefs?.country);
+  const detected = prefs?.detected ?? null;
+  const canCreate = marketSet || Boolean(detected);
+  const marketLabel = marketSet ? prefs!.city : detected ? detected.city : null;
   const active = sessions.filter((s) => s.state !== "abandoned");
 
   return (
@@ -131,7 +137,7 @@ export default function LiveTastingPage() {
         <div className="max-w-2xl mx-auto px-6 py-6">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Live Tasting</h1>
           <p className="text-sm text-muted mt-1">
-            A real blind flight from wines you can actually buy near {prefs?.city || "you"} — shop,
+            A real blind flight from wines you can actually buy near {marketLabel || "you"} — shop,
             bag, taste blind, get graded.
           </p>
         </div>
@@ -139,7 +145,7 @@ export default function LiveTastingPage() {
 
       <main className="flex-1">
         <div className="max-w-2xl mx-auto px-6 py-8 space-y-8">
-          {!marketSet && (
+          {!canCreate && (
             <section className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Set your market first</h2>
               <p className="text-sm text-muted mb-4">
@@ -155,11 +161,20 @@ export default function LiveTastingPage() {
             </section>
           )}
 
-          {marketSet && (
+          {canCreate && (
             <section className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-foreground mb-2 font-display">New Live Tasting</h2>
+              {!marketSet && detected && (
+                <div className="bg-borderline/10 border border-borderline/30 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-foreground">
+                    Using your approximate location: <strong>{detected.city}, {detected.country}</strong> (from
+                    your connection). <Link href="/settings" className="text-accent hover:text-accent-hover">Set
+                    your market in Settings</Link> for precise shop matching and a travel radius.
+                  </p>
+                </div>
+              )}
               <p className="text-sm text-muted mb-5">
-                We&apos;ll pick a coherent MW-style flight available near {prefs!.city}, write the
+                We&apos;ll pick a coherent MW-style flight available near {marketLabel}, write the
                 question around it, and keep the wines hidden from you. Have a partner buy and bag
                 the bottles to keep the blind honest.
               </p>
