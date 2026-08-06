@@ -2,7 +2,7 @@
 paper: 2
 pack_name: P2 Family Tree Pack
 generated: 2026-05-26
-last_resynthesized: 2026-08-05
+last_resynthesized: 2026-08-06
 families_covered: [F1, F2, F3, F4, F7]
 accuracy_target: variety + region
 source_index: outputs/heuristics/question_taxonomy_index.md
@@ -33,7 +33,7 @@ There are no native P2 `F5` (production-dominant), `F6` (style-mechanism), or `F
 
 ## F3 Blend / Composition Logic Set (P2)
 
-Only two corpus questions (`2019_p2_q1 (F3c)` and `2022_p2_q1 (F3d)`) but this is the unbuilt high-leverage family flagged in the remaining-work doc, and the blend logic spreads into half of the F2 questions. Building a proper P2 F3 tree also helps `F2c` and `F2d` work in red.
+Only two corpus questions (`2019_p2_q1 (F3c)` and `2022_p2_q1 (F3d)`) but this is the unbuilt high-leverage family flagged in the remaining-work doc, and the blend logic spreads into half of the F2 questions. Building a proper P2 F3 tree also helps `F2c` and `F2d` work in red. A third, pre-2015-era attestation exists: `2012_p2_q1` ("Bordeaux varieties... 6 different countries") matches Branch 3.1 slot-for-slot, six wines for six — the family's stem grammar predates the tagged corpus. The master tree now routes here explicitly via its Branch 6.4 ("blend family fixed, origins open"), closing the gap where these stems used to be mis-filed under its same-country blend-language sub-branch.
 
 ### Pre-taste objective
 
@@ -168,12 +168,12 @@ Lock the grape family with confidence, then build a sub-tree for the comparative
 ### Default candidate universe by sub-form
 
 **F1b (cross-country)** — the dominant P2 form:
-- **STRONG SIGNAL:** Pinot Noir (Burgundy / Germany / New Zealand / Sonoma / Oregon / Canada), Syrah-Shiraz (Northern Rhône / Barossa / McLaren Vale / Chile / South Africa)
-- **PLAUSIBLE:** Cabernet Sauvignon (Bordeaux blends as benchmark, Napa, Coonawarra, Stellenbosch, Chile), Cabernet Franc (Loire, Hungary, Stellenbosch), Merlot (Bordeaux right bank, Chile, Ticino, Hawke's Bay)
-- **CURVEBALL:** Grenache cross-country (Spain / Southern Rhône / Australia / California), Malbec (Cahors vs Mendoza), Zinfandel/Primitivo (California vs Puglia)
+- **STRONG SIGNAL:** Pinot Noir (Burgundy / Germany / New Zealand / Sonoma / Oregon / Canada; PLAUSIBLE California Central Coast — `2019_p2_q2`, `2021_p2_q2`; CURVEBALL Australia — `2016_p2_q2` fielded a Hunter Valley Pinot, a flag to widen), Syrah-Shiraz (Northern Rhône / Barossa / McLaren Vale / Chile / South Africa; PLAUSIBLE California Central Coast / Santa Barbara — attested twice, `2012_p2_q3` and `2014_p2_q1`, previously absent from every Syrah region list in tree and pack)
+- **PLAUSIBLE:** Cabernet Sauvignon (Bordeaux blends as benchmark, Napa, Coonawarra, Stellenbosch, Chile), Cabernet Franc (Loire, Hungary, Stellenbosch; CURVEBALL Argentina/Mendoza and a Cabernet Franc-dominant Super Tuscan — both `2025_p2_q1`, single question, flags to widen when the stem hedges "or predominant"), Merlot (Bordeaux right bank, Chile, Ticino, Hawke's Bay; CURVEBALL California — `2011_p2_q5`)
+- **CURVEBALL:** Grenache cross-country (Spain / Southern Rhône / Australia / California — `2013_p2_q3` fielded a full four-country flight inside exactly this region list), Malbec (Cahors vs Mendoza), Zinfandel/Primitivo (California vs Puglia)
 
 **F1c (same region / producer)** — the second P2 form, especially recurrent in 2022:
-- **STRONG SIGNAL:** Pinot Noir within one fine-wine region (Burgundy village vs cru vs grand cru); Sangiovese within Chianti Classico tiers; Cabernet within Napa AVAs; Nebbiolo across Barolo communes
+- **STRONG SIGNAL:** Pinot Noir within one fine-wine region (Burgundy village vs cru vs grand cru); Sangiovese within Chianti Classico tiers; Cabernet within Napa AVAs; Nebbiolo across Barolo communes; the attested New World homes — Mendoza Malbec (`2022_p2_q4`), Dry Creek Zinfandel (`2022_p2_q5`), Hawke's Bay Syrah (`2018_p2_q3`)
 - **PLAUSIBLE:** Beaujolais cru ladder; Côte-Rôtie vs Hermitage Syrah; Rioja village-tier
 - **CURVEBALL:** Etna Rosso commune-level Nerello Mascalese
 
@@ -204,7 +204,7 @@ Decision aid: if marks heavily favour origin discrimination and quality, Pinot N
 
 Triggers: "same region", "same producer", paired or quad set with internal hierarchy.
 
-Working priors: Burgundy (Pinot Noir), Barolo (Nebbiolo), Chianti / Brunello (Sangiovese), Beaujolais cru, Côte-Rôtie or Hermitage.
+Working priors: Burgundy (Pinot Noir), Barolo (Nebbiolo), Chianti / Brunello (Sangiovese), Beaujolais cru, Côte-Rôtie or Hermitage. **Not Europe-only:** the corpus's actual F1c instances include Mendoza Malbec (`2022_p2_q4`), Dry Creek Zinfandel (`2022_p2_q5`), and Hawke's Bay Syrah (`2018_p2_q3`, both wines) — the prior list above previously omitted all three attested New World homes.
 
 #### Branch 1.3 — Same country, different regions (F1a, rare in P2)
 
@@ -267,9 +267,12 @@ Lock the origin family and then explain internal diversity via variety substitut
 
 **Same country (F2a):**
 - France: Pinot Noir + Cabernet + Syrah + Grenache spread across Burgundy, Bordeaux, Rhône, Loire
-- Italy: Nebbiolo + Sangiovese + Aglianico + Nerello Mascalese + Corvina-led blends
+- Italy: Nebbiolo + Sangiovese + Aglianico + Nerello Mascalese + Corvina-led blends; secondary Piedmont reds Barbera + Dolcetto (`2011_p2_q3` — the Piedmont variety tour); CURVEBALL Montepulciano (Abruzzo — `2017_p2_q2`, single instance, a flag to widen the Italy list past its flagship grapes)
 - Spain: Tempranillo + Garnacha + Monastrell + Mencía across Rioja, Ribera, Priorat, Jumilla, Bierzo
 - Portugal: Touriga Nacional / Tinta Roriz / Baga / Castelão across Douro, Dão, Bairrada, Alentejo
+- South Africa (attested `2011_p2_q1`): Stellenbosch Bordeaux-family blend + Stellenbosch Syrah + varietal Pinotage — note varietal Pinotage, not only Cape blends
+- New Zealand (attested `2013_p2_q2`): Central Otago Pinot Noir + Hawke's Bay Syrah + Gimblett Gravels Merlot-led Bordeaux blend
+- *(The two New World lines are each single pre-2015 attestations — the master tree's Branch 2 gate carries them at 1/9 base rate. They exist here so that when the gate keeps a New World country alive, the universe can actually deliver a variety+region set for it — before the 2026-08-06 sweep it could not.)*
 - **2026 addition — France, light-bodied/cool-climate single-varietal tour:** don't assume "same country, different varieties" always reaches for the big-name regional anchors above. `2026_p2_q1` fielded all-France, all light-bodied, cool-climate reds that a blind read would not reach for first: Saumur Les Plantagenêts (Loire Cabernet Franc, co-operative, entry tier ~£8.50–19), Régnié (Beaujolais cru Gamay, Domaine de la Margot), and Trousseau Singulier (Arbois Jura Trousseau, Bénédicte et Stéphane Tissot, biodynamic, ~£38–48). The country call was easy (France, confirmed by the blind check); the variety call was hard, missing entirely on the Jura wine — see the pale-red trap below.
 
 **Same region (F2b):**
@@ -324,13 +327,15 @@ Working priors: widen the France line-up beyond Burgundy/Bordeaux/Rhône anchors
 
 Working priors: Bordeaux left bank vs right bank vs Côtes; Burgundy village vs premier cru vs grand cru; Chianti Classico vs Rufina vs Brunello; Côte-Rôtie vs Hermitage vs Cornas.
 
+**Variety-spread form (added 2026-08-06):** when the stem says "different single grape varieties... same region", the spread is across a region's grape portfolio, not its appellation tiers — the priors above (all tier/sub-zone splits) never fired on it. Working prior: Piedmont variety tour — Nebbiolo + Barbera + Dolcetto (`2011_p2_q3`, the founding instance; all three of its wines missed under the old tier-split priors). PLAUSIBLE analogues: Rhône (Syrah appellation + Grenache-led blend), Tuscany (Sangiovese + international). n=1 for the full form — a flag to list each candidate region's top three varieties (including the workhorse third grape), not a Piedmont predictor. Mirrors the master tree's new Branch 3 sub-branch.
+
 #### Branch 2.3 — Same origin, different age / elevage (F2d)
 
 Working priors: Rioja classification ladder, Burgundy vintage stack, Brunello vs Riserva, Côte-Rôtie new vs old release.
 
 #### Branch 2.4 — Multi-pair same-region flight, three contrast axes (2026 addition)
 
-Triggers: several 2-wine pairs, each pair sharing a country + region, each pair drawn from a different country than the other pairs. Once the pair's region is locked, identify which of three contrast axes the examiner has built the pair around — this decides what to actually write in the style/quality comparison:
+Triggers: several 2-wine pairs, each pair sharing a country + region, each pair drawn from a different country (or region — `2021_p2_q4`'s wording was "each pair is from a different region") than the other pairs. The construction predates 2026: `2021_p2_q4` ran a Rhône pair (Châteauneuf-du-Pape vs Côtes du Rhône) against a Rioja pair (Garnacha-led La Montesa vs Castillo Ygay Gran Reserva) — its stale F4 tag in the taxonomy list is superseded by this branch (per the master tree's 6.3 rule, the stem wins). Once the pair's region is locked, identify which of three contrast axes the examiner has built the pair around — this decides what to actually write in the style/quality comparison:
 
 1. **Traditional vs modern winemaking within the same appellation** — same grapes, same region, deliberately different philosophy (extended ageing in old American oak and a classification-ladder wine, vs shorter time in large neutral French oak and a single-parcel "vin de terroir" bottling that ignores the ladder). Evidence: `2026_p2_q3` Rioja pair — La Rioja Alta Viña Ardanza Reserva 2019 (80/20 Tempranillo/Garnacha, American oak, 36/30 months, wears its Reserva classification) vs Artuke Paso Las Mañas 2021 (100% Tempranillo, single parcel El Chorro in Rioja Alavesa, large French foudre with ~15% new oak, deliberately unclassified).
 2. **Quality tier / classification within the same appellation** — same style envelope, different rung on the region's own quality ladder (large-volume commercial-house entry wine vs single-vineyard top cuvée). Evidence: `2026_p2_q3` Chianti Classico pair — Melini I Sassi 2021 (GIV-owned, ~4 million bottles, annata, ~$12–15) vs Castello di Ama Gran Selezione San Lorenzo 2021 (single-vineyard, 80/13/7 Sangiovese/Merlot/Malvasia Nera, ~$70–75).
@@ -357,7 +362,7 @@ Per wine (or pair):
 
 ## F4 Mixed Identification Breadth Set (P2)
 
-Sixteen P2 questions — the single biggest taxonomy bucket in P2. The anti-overlink discipline that the remaining-work doc asks for sits primarily here, including the indigenous-Europe and "different countries, different varieties" sub-forms. Tagged: `2015_p2_q2`, `2016_p2_q5 (F4c)`, `2017_p2_q1`, `2017_p2_q3`, `2018_p2_q1 (F4c)`, `2018_p2_q4`, `2019_p2_q2`, `2019_p2_q3 (F4c)`, `2021_p2_q2`, `2021_p2_q3`, `2021_p2_q4`, `2023_p2_q2`, `2023_p2_q3`, `2024_p2_q2 (F4c)`, `2025_p2_q3 (F4c)`, `2026_p2_q2 (F4a)`.
+Sixteen P2 questions — the single biggest taxonomy bucket in P2. The anti-overlink discipline that the remaining-work doc asks for sits primarily here, including the indigenous-Europe and "different countries, different varieties" sub-forms. Tagged: `2015_p2_q2`, `2016_p2_q5 (F4c)`, `2017_p2_q1`, `2017_p2_q3`, `2018_p2_q1 (F4c)`, `2018_p2_q4`, `2019_p2_q2`, `2019_p2_q3 (F4c)`, `2021_p2_q2`, `2021_p2_q3`, `2021_p2_q4` (stale tag — the stem is an explicit paired same-region flight; superseded by Branch 2.4, see F2), `2023_p2_q2`, `2023_p2_q3`, `2024_p2_q2 (F4c)`, `2025_p2_q3 (F4c)`, `2026_p2_q2 (F4a)`.
 
 ### Pre-taste objective
 
@@ -367,6 +372,7 @@ Treat each wine as an independent identification problem. The only safe linking 
 
 - "different countries"
 - "different varieties"
+- "a mixed bag" (verbatim examiner wording — `2023_p2_q2`; this trigger existed only in the master tree until the 2026-08-06 sweep, so a reader entering via this pack alone could not route that stem)
 - "from across Europe" (or analogous regional framing)
 - breadth-test secondary tag
 - the final question of the paper (recurring curveball slot)
@@ -374,9 +380,9 @@ Treat each wine as an independent identification problem. The only safe linking 
 ### Default candidate universe
 
 P2 F4 flights almost always include:
-- At least one benchmark international variety (Cabernet, Syrah, Pinot Noir)
+- At least one benchmark international variety (Cabernet, Syrah, Pinot Noir) — **with its benchmark ORIGIN named, not just the grape (2026-08-06 residual sweep: this line carried varieties with no origins, so classic wines inside mixed bags failed the variety+region target). Attested ≥2 times each in breadth flights: Bordeaux Cabernet-led blends incl. mature examples (Margaux — `2011_p2_q4`, `2023_p2_q2` mature 2005); Rioja Reserva/Gran Reserva Tempranillo-led blends (`2011_p2_q4`, `2015_p2_q2`, `2023_p2_q2`); Barossa Shiraz (`2015_p2_q2`, `2023_p2_q2`); Beaujolais Gamay, cru or Villages (`2013_p2_q4`, `2015_p2_q2` Fleurie)**
 - At least one indigenous variety (Cabernet Franc / Sangiovese / Tempranillo / Touriga Nacional / Nebbiolo / Xinomavro / Blaufränkisch / Pinotage)
-- Often one curveball variety (Zweigelt, Lagrein, Carmenère, Mencía, Saperavi)
+- Often one curveball variety (Zweigelt, Lagrein, Carmenère, Mencía, Saperavi — but note the attested breadth curveballs also include far more ordinary wines: varietal **Grenache** (Australia — Barossa/McLaren Vale; also Spain / S. France / California), attested twice (`2021_p2_q2`, `2023_p2_q2`) and previously absent from every breadth list; **Corvina-led Valpolicella** (Ripasso `2013_p2_q4`, Amarone `2026_p2_q2`) — a natural when method-of-production marks lead; and **Mendoza Malbec** (`2013_p2_q4`). The old curveball list skewed obscure and missed these workhorses.)
 
 For "Europe, but not France/Italy/Spain" stems (e.g. 2019 P2 Q3 template):
 - Portugal (Touriga Nacional), Austria (Blaufränkisch / Zweigelt), Greece (Xinomavro / Agiorgitiko), Hungary (Kékfrankos / Cabernet Franc), Germany (Spätburgunder), Croatia / Slovenia (Plavac Mali / Refošk)
@@ -442,10 +448,12 @@ Reset between wines.
 - **Translucent ruby + pure cherry / strawberry + delicate ⇒** Pinot Noir or Gamay. Burgundy / Germany / NZ Pinot; Beaujolais cru Gamay.
 - **Cassis + cedar + firm tannin ⇒** Bordeaux family from any reasonable origin. If the wine is a dense, structured New World Cabernet with extra layers of dark fruit or a softer mid-palate lift beyond typical pure-Cab texture, keep a Bordeaux-blend hedge alive even if the front label reads as a single varietal — see the varietally-labelled-but-actually-a-blend trap above (`2026_p2_q2`, Shafer TD-9).
 - **Pepper + meat + violets + savoury ⇒** Syrah, especially cool-climate.
+- **Strawberry/raspberry + white pepper + warm alcohol + soft ample tannin ⇒** Grenache (Barossa/McLaren Vale, Spain, Southern Rhône, California) — `2021_p2_q2`, `2023_p2_q2`.
+- **Dried-fruit richness + cherry liqueur + bitter-almond finish + high abv (or a fresher wine with a raisined mid-palate) ⇒** Corvina-led Valpolicella family — Amarone if fully appassimento-driven, Ripasso if part-way (`2013_p2_q4`, `2026_p2_q2`).
 - **Tomato leaf + savoury red fruit + firm acid ⇒** Cabernet Franc (Loire / Hungary / Stellenbosch).
 - **Blue-black fruit + alpine spice + structured tannin + freshness ⇒** Blaufränkisch / Zweigelt / Lagrein.
 - **Dried herb + meaty + dense + smoky ⇒** Xinomavro / Agiorgitiko / southern-Italian indigenous.
-- **Sour cherry + dust + savoury + medium body ⇒** Sangiovese / Tempranillo (climate cue separates).
+- **Sour cherry + dust + savoury + medium body ⇒** Sangiovese / Tempranillo (climate cue separates; for Tempranillo lead with Rioja Reserva/Gran Reserva — the attested breadth-flight form, `2011_p2_q4`, `2015_p2_q2`, `2023_p2_q2` — with coconut/dill American-oak notes as the confirming tell).
 - **Sweet plum + soft tannin + chocolate ⇒** Merlot-dominant from warmer climate.
 - **Dense smoky + tarry + cocoa + ferrous ⇒** Pinotage / Cape Bordeaux blend.
 
@@ -512,7 +520,7 @@ Working priors: Burgundy classification, Médoc 1855, Saint-Émilion classificat
 
 #### Branch 7.3 — Age / maturity ladder (F7d)
 
-Working priors: vintage stack of a single cuvée; Crianza / Reserva / Gran Reserva ladder.
+Working priors: vintage stack of a single cuvée; Crianza / Reserva / Gran Reserva ladder; a 2×2 estate-vintage grid — two producers from one region, two vintages each, "divide the wines into their respective pairs" (`2014_p2_q2`, pre-2015 era: Lynch-Bages 2006/2009 vs Nénin 2008/2010 — left-bank vs right-bank Bordeaux communes, fully contained by benchmark-Bordeaux priors). Anchored vintage constructions like these route; only a vertical with no region/producer anchor belongs on the master tree's Branch 0 unroutable list (reconciled 2026-08-06).
 
 ### Tasting branch order (F7)
 
@@ -556,4 +564,4 @@ Remaining (lower priority):
 
 ## Provenance
 
-All evidence citations are taxonomy-index questions (see `outputs/heuristics/question_taxonomy_index.md`). Working priors and anti-collapse rules are generalised from at least two corpus questions per family.
+All evidence citations are taxonomy-index questions (see `outputs/heuristics/question_taxonomy_index.md`). Working priors and anti-collapse rules are generalised from at least two corpus questions per family. The 2026-08-06 routing-sweep fix pass back-filled attested-but-absent candidates (California Syrah, Australian Grenache, Corvina Ripasso/Amarone, the F1c New World homes, the F2a South Africa/New Zealand lines, Piedmont's Barbera/Dolcetto/Montepulciano tail), added the "a mixed bag" F4 trigger and the F2b variety-spread form, and reconciled the stale `2021_p2_q4` F4 tag with Branch 2.4 — single-instance additions are marked as flags to widen, not predictors.
