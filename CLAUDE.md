@@ -44,6 +44,74 @@ for reasoning about the exam and for generating questions/answers.
 - Entries are cited (artifact path, corpus reference, backtest stat, or `user_attempts`/
   `feedback_analyses` ledger row) and tiered (STRONG SIGNAL / PLAUSIBLE / CURVEBALL / PROCESS).
 
+## The theory exam (separate corpus — don't mix it with the practical)
+
+The MW Stage 2 exam has a **theory** half as well as the practical: **five papers** of essay
+questions — 1 viticulture, 2 vinification & pre-bottling, 3 handling of wine, 4 the business of
+wine, 5 contemporary issues. It lives in its own corpus and must never be folded into practical
+statistics:
+
+- **"Paper" means a subject domain, not a wine colour.** Practical Paper 1 = whites; theory
+  Paper 1 = viticulture. They are unrelated axes.
+- **No wines, and no published per-question marks.** The practical publishes "(3 x 10 marks)";
+  the theory publishes only an answer-count rubric per paper ("Three questions to be answered, one
+  from Section A and two from Section B"). **Never synthesise theory marks.**
+- IDs are prefixed `th_` (e.g. `th_2024_p1_q3`) so they can't join against practical or S1A rows.
+
+Files:
+
+- `source/MW_Theory_Papers_Compilation.md` — authoritative question text, **2015–2026** (the
+  five-paper era; no 2020 exam — COVID). 297 questions, a uniform 6/6/4/6/5 per year.
+- `scripts/parse_theory_source.py` → `data/theory/theory_{exams,questions,annotations}.json`
+- `tests/test_theory_corpus.py` — structural gate; also fails if practical-style marks or wine
+  references leak into theory text.
+- `scripts/fetch_imw_pdfs.py` — re-downloads the raw IMW PDFs into `source/imw_pdfs/` (gitignored;
+  copyrighted). Encodes the hotlink workaround: the PDFs 403 without a browser User-Agent **and**
+  `Referer: https://www.mastersofwine.org/mw-exam`.
+- `outputs/theory_corpus/inventory.md` — what exists per year, including which examiner reports are
+  public (2010–2014, 2016, 2018) versus student-area only (2015, 2017, 2019, 2021–2026).
+
+The **2000–2014 four-paper era** is downloaded but not compiled; it needs its own era grammar, and
+the parser hard-fails on any year outside 2015–2026 to prevent silent mixing.
+
+**Examiner reports are the rubric source for theory.** The IMW publishes no model answers, but the
+reports give per-question commentary on what strong and weak candidates did — that is what theory
+grading anchors to, rather than to similarity against a generated model answer. A theory question
+admits many valid answers with different examples and different positions; anchoring on a model
+answer would penalise a good essay for choosing Rías Baixas where ours chose Marlborough.
+
+### The rubric extractor (three stages, only the middle one is an LLM)
+
+```
+scripts/segment_examiner_reports.py  →  data/theory/report_segments.json   deterministic
+.claude/agents/rubric-extractor.md   →  data/theory/_rubrics_work/*.json   LLM, per batch
+scripts/build_theory_rubrics.py      →  data/theory/theory_rubrics.json    deterministic
+```
+
+Run it with `/extract-rubrics <year> [paper]`. Schema: `outputs/theory_corpus/RUBRIC_SCHEMA.md`.
+Test: `tests/test_theory_rubrics.py`.
+
+Three things to know before touching it:
+
+- **The quote gate is the load-bearing constraint.** Every extracted requirement must carry a
+  verbatim quote from the report, re-verified at merge time against the segment it claims to come
+  from. A fabricated requirement would silently fail candidates for omitting something the examiners
+  never asked for, so a missing quote is a hard build failure. **Never hand-edit
+  `theory_rubrics.json` to make the build pass** — re-extract the offending rubric instead.
+- **Segmentation anchors on question TEXT, not on headings.** Each paper's section is written by a
+  different Panel Chair and the formats differ ("Question 1:", bare "1.", no marker at all) —
+  sometimes within one report. Since the corpus already holds authoritative question text, the
+  segmenter fuzzy-matches it into the report, with a question-number fallback for chairs who
+  abbreviate the restatement.
+- **Evidence has three tiers**, all legitimate backing: the question's own commentary, its paper
+  Chair's General Comments (`paper_preamble`), and the Theory Panel Chair's cross-paper report
+  (`theory_chair_report`). Prefer question-specific evidence where they overlap.
+
+**Coverage today: 2016 and 2018 only** (54 rubrics, 246 core requirements). Those are the only two
+public examiners' reports that fall inside the five-paper era. Getting the student-area reports for
+2015, 2017, 2019 and 2021–2025 would roughly quadruple rubric coverage; that is the single highest-value
+manual step available for theory grading.
+
 ## Data sources (read these, don't duplicate them)
 
 - `source/MW_Practical_Papers_Compilation.md` — the human-readable annotated source. **Authoritative for question text and wine names.** Do not modify.
@@ -207,7 +275,9 @@ The source MD is 2,500+ lines. Do NOT load it into context routinely. The struct
 ## Never modify (without explicit user consent)
 
 - `source/MW_Practical_Papers_Compilation.md`
+- `source/MW_Theory_Papers_Compilation.md`
 - `data/exams.json`, `data/wines.json` (parser outputs; regenerate by re-running `scripts/parse_source.py` instead)
+- `data/theory/*.json` (parser outputs; regenerate by re-running `scripts/parse_theory_source.py` instead)
 
 ## Modifiable
 

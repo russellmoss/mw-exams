@@ -1,0 +1,898 @@
+[
+  {
+    "id": "th_2018_p3_q1",
+    "year": 2018,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "How does a laboratory analysis of a wine help the quality control manager make decisions at bottling?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How does … help",
+    "command_word_demand": "An explanatory/analytical 'how', with an implied 'why' behind every analysis: \"A lot of candidates missed the critical \"why\" part which is implied in the question, and without considering this, their answers were too superficial and lacked any analytical depth.\" The answer had to be about quality control decisions, not a description of bottling: \"Too many candidates simply described the bottling process and failed to consider the quality control part of the question…\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "State the objective bottling QC serves — a wine that reaches the consumer palatable, typical, stable, fault- and contaminant-free, and legally compliant, with bottling as the last chance to adjust",
+        "quote": "To ensure that the wine reaches the consumer in a state which is palatable, typical and stable; free from faults and contaminants; and compliant with all relevant legislation and regulation. Bottling is a key step in ensuring this and is the last opportunity to make adjustments.",
+        "weight": "core"
+      },
+      {
+        "element": "Treat lab analysis as a decision tool and name the decisions it drives — final filtration, additives, microbial stability, hazes — saying why and what action follows",
+        "quote": "Lab analysis is a tool that provides relevant technical information to allow appropriate decisions about treatments and handling (candidates should show an understanding of what these might be - to cover final filtration, additives, microbial stability, hazes, why and what action might be taken).",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the packaging process and dry goods, and compliance with product specification, not just the wine itself",
+        "quote": "Candidates needed to consider both quality checks on wine and checks on the packaging process and dry goods, as well as … compliance with product specification.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer the implied 'why' each analysis is carried out, rather than listing analyses",
+        "quote": "A lot of candidates missed the critical \"why\" part which is implied in the question, and without considering this, their answers were too superficial and lacked any analytical depth.",
+        "weight": "core"
+      },
+      {
+        "element": "Address safety of staff handling liquid and packaging (broken glass, noise, heavy lifting, health risks)",
+        "quote": "The safety of staff handling the liquid and the packaging is also critical (with risks such as broken glass, noise, heavy lifting and exposure to health risks).",
+        "weight": "core"
+      },
+      {
+        "element": "Bring in HACCP and critical control points",
+        "quote": "Consideration of HACCP and critical control points is always useful in a question that mentions bottling.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Frame QC inside quality assurance and food-law compliance, showing awareness of EU legislation and ISO requirements",
+        "quote": "Quality control is part of the overall quality assurance process, and wine is a foodstuff which must comply with legislative and regulatory standards (so an awareness of EU legislation and ISO requirements is helpful).",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Spell out the consequences of getting it wrong — loss of quality, consumer disappointment, brand damage, recall or unsaleable-stock costs",
+        "quote": "Issues for the wine itself include loss of quality, consumer disappointment, damage to brand, and costs attached to issuing recalls or being unable to sell the wine.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Used many examples and quotes from industry leaders, and worked through the points analytically rather than descriptively (paper-level General Observations)",
+        "quote": "Good candidates used lots of examples and quotes from industry leaders. They worked through a logical list of the risks and benefits and demonstrated analysis of the points they were making, comparing and contrasting, and discussing."
+      },
+      {
+        "signal": "Opened with an introduction summarising the question and the ground to be covered (paper-level General Observations)",
+        "quote": "It has been said before, but it is worth repeating, that a good introduction should summarise understanding of the question and ground to be covered, as this will help candidates focus and would have improved answers in many cases."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Described the bottling process instead of addressing quality control, and showed no awareness of the key QC analyses or their purpose",
+        "quote": "Too many candidates simply described the bottling process and failed to consider the quality control part of the question and showed lack of awareness of key QC analyses for wine and why they are carried out."
+      },
+      {
+        "signal": "Unfocused answers that omitted too much of the expected content",
+        "quote": "A number of candidates lacked focus or simply missed too many key issues."
+      },
+      {
+        "signal": "WSET-style descriptive answers with no 'how' or 'why' and no analysis (paper-level)",
+        "quote": "One complaint from examiners was that many candidates were too simplistic in their answers, giving WSET-type descriptive answers and not explaining \"how\" or \"why\" nor showing any analysis."
+      },
+      {
+        "signal": "Vague quantities instead of actual figures; loose use of 'sulphur' for sulphites/SO2 (paper-level)",
+        "quote": "Vague comments like \"lower levels of SO2\" are not sufficient - actual numbers are required. Inaccurate use of \"sulphur\" instead of sulphites or sulphur dioxide still crops up regularly…"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Real numbers and real-world practical detail, not vague statements — the paper preamble names EU SO2 limits (and whether free or total), typical free SO2 levels by style, actual pH values, permitted and actual additive usage levels, and filtration pore sizes as the kind of factual/numerical knowledge expected. No question-specific examples were named by the report.",
+      "named_in_report": [],
+      "quote": "Paper 3 is a technical paper and it is expected that candidates will have a firm grasp of some key factual and numerical information. EU limits for SO2 use, being clear about the whether numbers refer to total or free SO2; typical levels of free SO2 for various styles; actual values for pH; permitted and actual usage levels for common wine additives; pore sizes for filtration and so on are key knowledge for MWs."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as 'describe bottling' rather than 'what does lab analysis let the QC manager decide'",
+        "quote": "Too many candidates simply described the bottling process and failed to consider the quality control part of the question…"
+      },
+      {
+        "trap": "Writing what you know about the topic instead of answering the question as set (paper-level)",
+        "quote": "Many candidates failed to answer at least part of the question as set and were tempted into simply writing what they knew about a topic."
+      }
+    ],
+    "performance_note": "No question-level attempt or pass figures given. Paper-level: \"Paper 3 had a relatively high pass rate of close to 50% in 2018…\". For this question, \"A number of candidates lacked focus or simply missed too many key issues.\"",
+    "extraction_notes": "Commentary is anchored on verbatim question text (match 1.0). The examiners' 'Key understanding' block supplied most required_elements; the prose below it supplied the penalty signals. Four items (two credit_signals, one penalty_signal, one scope_trap, and examples_expected) are drawn from the Paper 3 paper-level General Observations by Caroline Gilby MW, not from this question's own commentary — they apply paper-wide. An OCR page number ('17') sits inside the product-specification sentence and has been elided with '…'."
+  },
+  {
+    "id": "th_2018_p3_q2",
+    "year": 2018,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Describe the options available for bulk transport of wine. What are the risks and benefits for each option?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Describe … What are the risks and benefits for each option?",
+    "command_word_demand": "A two-part demand: describe the options, then analyse risks and benefits option by option — general discussion of the topic did not satisfy it. \"Another issue was candidates writing generalised and descriptive answers around the topic of bulk transport without specifically analysing each option.\" The examiners rewarded \"a logical list of the risks and benefits\" with \"analysis of the points they were making, comparing and contrasting and discussing.\"",
+    "definitions_required": [
+      {
+        "term": "bulk wine",
+        "quote": "They failed to define the key words in the question and therefore went \"off piste\" from the start. Interpretation of the phrase \"bulk wine\" should not have been difficult even for non-mother tongue English speakers."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Identify the two bulk-transport systems: ISO tanks and flexitanks",
+        "quote": "For the movement of bulk wine, two systems are available - ISO tanks and Flexitanks.",
+        "weight": "core"
+      },
+      {
+        "element": "Describe ISO tanks technically: stainless steel, fitting standard trucks, transferable to rail or sea, one large tank or 3–4 sectional tanks",
+        "quote": "ISO tanks: stainless steel vessels designed to fit directly onto standard trucks and also transferred to be transported by rail or sea. They can be constructed as one large tank or divided up into 3 or 4 sectional tanks.",
+        "weight": "core"
+      },
+      {
+        "element": "Describe flexitanks technically: flexible bags in a standard 20ft container, usually single use, polyethylene with an EVOH copolymer barrier against oxygen and taint",
+        "quote": "Flexitanks: flexible bags that are fitted into a standard 20ft container. Usually used once only. The latest systems are constructed of polyethylene with a barrier material of ethylene vinyl alcohol (EVOH) copolymer, creating an effective barrier to oxygen and to organic materials that can taint wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Work risks and benefits through option by option, comparing and contrasting rather than writing round the topic",
+        "quote": "They worked through a logical list of the risks and benefits and demonstrated analysis of the points they were making, comparing and contrasting and discussing.",
+        "weight": "core"
+      },
+      {
+        "element": "Keep the two systems distinct — do not conflate their properties",
+        "quote": "…it was surprising how many candidates did not have a basic understanding of the options and muddled up ISO tanks and flexitanks.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Supported the analysis with many examples and quotes from industry leaders",
+        "quote": "Good candidates used lots of examples and quotes from industry leaders."
+      },
+      {
+        "signal": "Structured the answer as a logical run through risks and benefits, with comparison and discussion",
+        "quote": "They worked through a logical list of the risks and benefits and demonstrated analysis of the points they were making, comparing and contrasting and discussing."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Muddled ISO tanks and flexitanks / lacked basic understanding of the options",
+        "quote": "Given that this is currently such a hot topic for the wine industry it was surprising how many candidates did not have a basic understanding of the options and muddled up ISO tanks and flexitanks."
+      },
+      {
+        "signal": "Failed to define the question's key words and drifted off topic from the opening",
+        "quote": "Several candidates misunderstood or misinterpreted the question. They failed to define the key words in the question and therefore went \"off piste\" from the start."
+      },
+      {
+        "signal": "Spent paragraphs on bottled wine — no marks, and time lost",
+        "quote": "The inclusion of paragraphs on bottled wine in several answers gained no points and wasted time."
+      },
+      {
+        "signal": "Generalised, descriptive coverage of bulk transport without analysing each option separately — knowledge without an answer to the question",
+        "quote": "Another issue was candidates writing generalised and descriptive answers around the topic of bulk transport without specifically analysing each option. It is particularly frustrating to see candidates who clearly knew a lot about bulk transport failing because they simply did not address the question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples and quotes from industry leaders; the paper preamble also demands real numbers and practical detail and criticises narrowness of examples. The report names no specific companies, routes or figures for this question.",
+      "named_in_report": [],
+      "quote": "Good candidates used lots of examples and quotes from industry leaders."
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about bottled wine / packaged-goods transport when the question is about bulk",
+        "quote": "The inclusion of paragraphs on bottled wine in several answers gained no points and wasted time."
+      },
+      {
+        "trap": "Treating it as 'write what you know about bulk transport' rather than describing the options and analysing each one's risks and benefits",
+        "quote": "It is particularly frustrating to see candidates who clearly knew a lot about bulk transport failing because they simply did not address the question."
+      }
+    ],
+    "performance_note": "No attempt or pass numbers given. The examiners record surprise at the weak grasp of a current industry topic: \"Given that this is currently such a hot topic for the wine industry it was surprising how many candidates did not have a basic understanding of the options…\"",
+    "extraction_notes": "VERIFIED against the flag 'anchored by question number, not text'. The report abbreviated the restatement to 'Question 2: each option?' (the tail of the corpus question's second sentence), but the commentary unambiguously discusses this corpus question: it opens 'For the movement of bulk wine, two systems are available - ISO tanks and Flexitanks', discusses 'bulk wine' as the phrase to be defined, and praises candidates who 'worked through a logical list of the risks and benefits'. Coverage set to 'full' on that basis. The truncated restatement also means the report never re-states 'Describe the options available for bulk transport of wine' — command_word is taken from the corpus question_text, which is authoritative. Two credit/penalty items overlap with the Paper 3 General Observations, which repeat the industry-leader-quotes and logical-list phrasing verbatim."
+  },
+  {
+    "id": "th_2018_p3_q3",
+    "year": 2018,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What technical factors influence the choice of a closure for wine bottles?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What technical factors influence…",
+    "command_word_demand": "The word doing the work is 'technical'. The examiners marked down answers that discussed closure choice in the round instead: \"candidates who did not do well often discussed issues around closure choice rather than considering technical factors.\" They state the boundary explicitly — \"Wine style, shelf life and intended ageing should be considered, but not marketing or image\" — and require the technical points to carry values: \"Candidates must apply the correct values, rates, measurements, etc. in relation to technical points.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Seal the bottle effectively",
+        "quote": "A closure should: • Seal the bottle effectively.",
+        "weight": "core"
+      },
+      {
+        "element": "Allow fairly easy removal",
+        "quote": "A closure should: … • Allow fairly easy removal.",
+        "weight": "core"
+      },
+      {
+        "element": "Allow sufficient oxygen migration into the wine for optimal maturation",
+        "quote": "A closure should: … • Allow sufficient oxygen to migrate into the wine for optimal wine maturation.",
+        "weight": "core"
+      },
+      {
+        "element": "Prevent excessive oxygen migration that would cause oxidation",
+        "quote": "A closure should: … • Prevent excessive oxygen migration which will cause oxidation.",
+        "weight": "core"
+      },
+      {
+        "element": "Not impart foreign flavours to the wine",
+        "quote": "A closure should: … • Not impart foreign flavours to the wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Relate closure choice to wine style, shelf life and intended ageing — and stay off marketing and image",
+        "quote": "Wine style, shelf life and intended ageing should be considered, but not marketing or image.",
+        "weight": "core"
+      },
+      {
+        "element": "Attach correct values, rates and measurements to every technical point made",
+        "quote": "Candidates must apply the correct values, rates, measurements, etc. in relation to technical points. This is a key requirement in proving that they have total understanding of what they are discussing.",
+        "weight": "core"
+      },
+      {
+        "element": "Mention availability of specialist bottling equipment",
+        "quote": "Mention may also be made of availability of specialist bottling equipment",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Essays that read well, covered the key points, and backed the argument with facts and examples",
+        "quote": "The best essays flowed and read well, covered the key points and supported the argument with facts and examples."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Discussed the general issues around choosing a closure instead of the technical factors asked for",
+        "quote": "It should have been a relatively straightforward question to answer but candidates who did not do well often discussed issues around closure choice rather than considering technical factors."
+      },
+      {
+        "signal": "Lack of examples — one of the biggest causes of failure on this question",
+        "quote": "A lack of examples was one of the bigger issues for those that failed."
+      },
+      {
+        "signal": "Points asserted without depth or detail, so the examiner could not see the candidate understood them",
+        "quote": "A considerable number of the essays merely made points without getting into any depth or giving sufficient detail to show to the examiner that they understood not just the question but the point that they were making."
+      },
+      {
+        "signal": "Rambling instead of succinct, to-the-point writing",
+        "quote": "As a result a number of the essays rambled when they needed to be more succinct and to the point."
+      },
+      {
+        "signal": "Near-miss answers had the key points but left too many of them out",
+        "quote": "Those essays that just failed to get a pass but came close, often presented some of the key points but tended to leave a reasonable number out. Leaving out a few points can be accepted if coverage and analysis is otherwise sufficient, but too many suggests an overall lack of real understanding."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Facts and examples carrying correct values, rates and measurements against each technical point. The report names no specific closures, brands or figures.",
+      "named_in_report": [],
+      "quote": "A lack of examples was one of the bigger issues for those that failed. Candidates must apply the correct values, rates, measurements, etc. in relation to technical points."
+    },
+    "scope_traps": [
+      {
+        "trap": "Drifting into marketing and image arguments for closure choice",
+        "quote": "Wine style, shelf life and intended ageing should be considered, but not marketing or image."
+      },
+      {
+        "trap": "Treating a popular-looking question as an easy one and answering it shallowly",
+        "quote": "This was a popular question choice and candidates may also have thought this was an easy question."
+      }
+    ],
+    "performance_note": "\"This was a popular question choice and candidates may also have thought this was an easy question.\" No attempt or pass numbers given. Near-miss profile described: answers that just failed \"often presented some of the key points but tended to leave a reasonable number out.\"",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0). The five bullet requirements come from the examiners' 'Key understanding' list; each quote reproduces the list's lead-in ('A closure should:') so the bullet is attributable, with '…' marking elision of the intervening bullets. An OCR page number ('18') sits between the Key understanding block and the prose commentary and has been excluded. Note the examiners forbid marketing/image here even though closure choice is commonly argued on those grounds — a grader should treat marketing content as off-scope, not as bonus."
+  },
+  {
+    "id": "th_2018_p3_q4",
+    "year": 2018,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Detail the advantages and disadvantages of the following methods of clarifying a wine:\n\na. Earth filtration\nb. Pad filtration\nc. Membrane filtration\nd. Crossflow filtration",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Detail the advantages and disadvantages",
+    "command_word_demand": "'Detail' meant a concise technical discussion of each process with its advantages and disadvantages — not bullet-style notes: \"Some candidates interpreted the question as a request to give \"notes on\" rather than provide a concise discussion of each technical process and its advantages and disadvantages.\" A parts question still required a framing introduction: \"Even a question in parts like this needs an introduction and definitions.\"",
+    "definitions_required": [
+      {
+        "term": "clarification",
+        "quote": "Define clarification and explain its role in winemaking process. … A number of candidates just launched into the advantages and disadvantages of each of the four methods without providing a definition on clarification nor explaining its role in the winemaking process. Even a question in parts like this needs an introduction and definitions."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Open with an introduction that defines clarification and explains its role in the winemaking process",
+        "quote": "Define clarification and explain its role in winemaking process.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain why filtration is used rather than simple settling, especially at large volume",
+        "quote": "Show why filtration is used rather than simply settling, especially for large volume production.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the potential quality loss, and therefore the importance of matching filtration method to wine style and quality — including the option not to filter",
+        "quote": "Address potential for loss of quality and thus importance of choosing optimal filtration method for the wine style and its quality, possibly involving decision not to filter.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide data and examples",
+        "quote": "Data and examples to be provided.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer at least three of the four parts adequately — do not attempt the question otherwise",
+        "quote": "If a candidate is going to attempt a question that requires discussion of a number of areas, in this case 4 different methods, they should only do so if they feel they can answer adequately at least ¾ of the question. Too many candidates would answer one section well, but the remaining sections were weak.",
+        "weight": "core"
+      },
+      {
+        "element": "Be clear and correct on each method, membrane filtration in particular",
+        "quote": "Less successful responses showed a lack of real understanding and knowledge, being unclear about the different clarification methods - in particular, membrane filtration.",
+        "weight": "core"
+      },
+      {
+        "element": "Give specific technical and numerical detail — correct terminology and pore sizes",
+        "quote": "Good answers provided specific technical and numerical detail such as using correct technical terminology and pore sizes.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Specific technical and numerical detail: correct terminology, pore sizes",
+        "quote": "Good answers provided specific technical and numerical detail such as using correct technical terminology and pore sizes."
+      },
+      {
+        "signal": "Strong practical examples, which the examiners say can carry an answer that is technically marginal",
+        "quote": "Strong practical examples can help cover/support those candidates whose answers are perhaps 'marginal' in terms of technical knowledge."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Launched straight into the four methods with no definition of clarification and no explanation of its role",
+        "quote": "A number of candidates just launched into the advantages and disadvantages of each of the four methods without providing a definition on clarification nor explaining its role in the winemaking process."
+      },
+      {
+        "signal": "No examples to support the argument",
+        "quote": "Many candidates also didn't include examples to support the argument. Relevant examples are so important in helping the marker confirm that the candidate understands the point being made."
+      },
+      {
+        "signal": "One part answered well, the rest weak",
+        "quote": "Too many candidates would answer one section well, but the remaining sections were weak."
+      },
+      {
+        "signal": "Unclear about the methods themselves, membrane filtration especially",
+        "quote": "Less successful responses showed a lack of real understanding and knowledge, being unclear about the different clarification methods - in particular, membrane filtration."
+      },
+      {
+        "signal": "Ran out of time, leaving the later parts thin",
+        "quote": "Undoubtedly some candidates were running out of time by this stage which may account for limited answers in the latter half of the question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Data plus practical examples, with correct technical terminology and pore sizes. The report names no specific producers, filters or numeric values.",
+      "named_in_report": [],
+      "quote": "Many candidates also didn't include examples to support the argument. Relevant examples are so important in helping the marker confirm that the candidate understands the point being made."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading 'Detail' as an invitation to write 'notes on' each method rather than a concise discussion",
+        "quote": "Some candidates interpreted the question as a request to give \"notes on\" rather than provide a concise discussion of each technical process and its advantages and disadvantages."
+      },
+      {
+        "trap": "Assuming a question in parts does not need an introduction and definitions",
+        "quote": "Even a question in parts like this needs an introduction and definitions."
+      }
+    ],
+    "performance_note": "\"This was a technical question that required thorough knowledge of the advantages and disadvantages of clarifying a wine.\" No attempt or pass figures given. Time pressure is flagged as a factor: \"Undoubtedly some candidates were running out of time by this stage…\"",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0). The examiners explicitly PERMIT (but do not require) a structure that pairs the methods: \"Candidates may consider depth filtration methods (a & b) as well as absolute filters (c &d) together.\" Recorded here rather than as a required_element because it is a permitted structure, not a demand — a grader should not penalise either structure. Note the '¾' threshold is the examiners' own stated attempt rule, so a grader can legitimately treat two or more weak parts as a fail signal. OCR page numbers ('19', '20') in the segment have been excluded."
+  },
+  {
+    "id": "th_2018_p4_q1",
+    "year": 2018,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "What have been the most important changes in global wine supply and demand in the past three years and what are their implications?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What have been … and what are their implications?",
+    "command_word_demand": "A two-part question requiring equal weight on both halves, and the second half is the analytical one: \"Finally, this is a two-part question and it is necessary to allocate equal time and energy to both parts.\" The differentiator is the 'so what': \"The most common shortcoming was in a lack of analysis of the implications of the changes in demand - the \"so what\" which is where an MW candidate can really stand out.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Accurate, researchable and replicable data on global supply and demand",
+        "quote": "Firstly, it must have accurate data - simple enough to research and replicate.",
+        "weight": "core"
+      },
+      {
+        "element": "International reach in the examples used",
+        "quote": "Secondly it must have an international reach in terms of the examples",
+        "weight": "core"
+      },
+      {
+        "element": "A structure strong enough to hold a broad subject together into a thoughtful, cohesive argument",
+        "quote": "thirdly it is quite a broad subject and therefore requires a good structure to convey a thoughtful and cohesive argument",
+        "weight": "core"
+      },
+      {
+        "element": "Equal time and energy on both parts — the changes AND their implications",
+        "quote": "Finally, this is a two-part question and it is necessary to allocate equal time and energy to both parts. Therefore a successful answer is one that covers all the above requirements and a less successful answer is one which falls down on one or more of the requirements.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse the implications — the 'so what' of the changes in demand",
+        "quote": "The most common shortcoming was in a lack of analysis of the implications of the changes in demand - the \"so what\" which is where an MW candidate can really stand out.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Analysis of implications — the examiners name this as where an MW candidate stands out",
+        "quote": "the \"so what\" which is where an MW candidate can really stand out."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "No analysis of what the demand changes imply — the most common failing",
+        "quote": "The most common shortcoming was in a lack of analysis of the implications of the changes in demand"
+      },
+      {
+        "signal": "Data inaccuracies, in volume",
+        "quote": "Also, perhaps due to pressure, there were a great deal of data inaccuracies."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Internationally spread examples, backed by accurate data that could be researched and replicated. The report names no specific markets, countries or figures.",
+      "named_in_report": [],
+      "quote": "Firstly, it must have accurate data - simple enough to research and replicate. Secondly it must have an international reach in terms of the examples"
+    },
+    "scope_traps": [],
+    "performance_note": "\"A good number of candidates attempted this question, but there were very few excellent answers.\" No numeric attempt or pass rate given.",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0). The Paper 4 paper_preamble contains no General Comments at all — just the Panel Chair's name ('3iv. Theory Paper Four Simon Thorpe MW Question 1:') — so unlike Paper 3 there is NO paper-wide evidence to draw on for any Paper 4 rubric; everything here is question-specific. The examiners frame this answer as four explicit requirements (data / international reach / structure / equal treatment of both parts) and say a less successful answer 'falls down on one or more of the requirements', which is why all four are weighted core."
+  },
+  {
+    "id": "th_2018_p4_q2",
+    "year": 2018,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "What are the advantages and disadvantages of private-label wines for wineries, distributors and retailers?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What are the advantages and disadvantages … for wineries, distributors and retailers?",
+    "command_word_demand": "The question dictates its own structure — advantages and disadvantages for each of the three actors: \"The structure of the answer here is strongly suggested by the question, so effectively this could have been answered in six paragraphs plus an introduction and conclusion.\" Meeting the structure was the floor; the best answers went past it: \"the really good answers were those which delivered some insight and analysis as well as the bare requirements as set out in the question.\"",
+    "definitions_required": [
+      {
+        "term": "private-label",
+        "quote": "It is imperative to define what is understood by the term \"private-label\" and there was quite some confusion around this."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'private-label' up front",
+        "quote": "It is imperative to define what is understood by the term \"private-label\" and there was quite some confusion around this.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover all six cells — advantages and disadvantages for each of wineries, distributors and retailers — plus introduction and conclusion",
+        "quote": "The structure of the answer here is strongly suggested by the question, so effectively this could have been answered in six paragraphs plus an introduction and conclusion.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate global knowledge of the supply chain and routes to market, beyond a superficial level",
+        "quote": "Again, the argument requires global knowledge of the supply chain and routes to market and it was felt that there was a great deal of purely superficial knowledge in this regard.",
+        "weight": "core"
+      },
+      {
+        "element": "Draw examples from more than one or two geographies",
+        "quote": "Examples tended to relate to one or two geographies, however it is important to demonstrate a broader knowledge.",
+        "weight": "core"
+      },
+      {
+        "element": "Use accurate examples — inaccuracy or fabrication destroys the examiner's confidence",
+        "quote": "Equally, the examples need to be accurate - an examiner's faith in the candidate is quickly lost by inaccurate or fabricated answers.",
+        "weight": "core"
+      },
+      {
+        "element": "Add insight and analysis on top of the question's bare requirements",
+        "quote": "It is perhaps interesting to note that the really good answers were those which delivered some insight and analysis as well as the bare requirements as set out in the question.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Insight and analysis beyond the six required blocks",
+        "quote": "the really good answers were those which delivered some insight and analysis as well as the bare requirements as set out in the question."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Superficial knowledge of the supply chain and routes to market",
+        "quote": "the argument requires global knowledge of the supply chain and routes to market and it was felt that there was a great deal of purely superficial knowledge in this regard."
+      },
+      {
+        "signal": "Examples confined to one or two geographies",
+        "quote": "Examples tended to relate to one or two geographies, however it is important to demonstrate a broader knowledge."
+      },
+      {
+        "signal": "Inaccurate or fabricated examples",
+        "quote": "an examiner's faith in the candidate is quickly lost by inaccurate or fabricated answers."
+      },
+      {
+        "signal": "Writing that did not read as authentic or credible — the stated reason the question went badly overall",
+        "quote": "Overall though this was not well answered due to a lack of authenticity or credibility in a lot of the writing."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Geographically broad and factually accurate — not concentrated in one or two markets, and never fabricated. The report names no specific retailers, brands or markets.",
+      "named_in_report": [],
+      "quote": "Examples tended to relate to one or two geographies, however it is important to demonstrate a broader knowledge. Equally, the examples need to be accurate - an examiner's faith in the candidate is quickly lost by inaccurate or fabricated answers."
+    },
+    "scope_traps": [],
+    "performance_note": "\"There were a few excellent answers on this question… Overall though this was not well answered due to a lack of authenticity or credibility in a lot of the writing.\" The examiners note a background effect: \"This question may have been relatively straightforward for those who work in more commercial roles in the industry but a lot more difficult for those who do not.\" No numeric attempt or pass rate given.",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0). The report does not say what definition of 'private-label' it wanted, only that one was imperative and that candidates were confused — a grader should credit any coherent stated definition rather than test against a particular one. scope_traps left empty: the confusion over the term is captured in definitions_required and the report describes no other misreading. No paper-level General Comments exist for Paper 4 (see th_2018_p4_q1 notes)."
+  },
+  {
+    "id": "th_2018_p4_q3",
+    "year": 2018,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "How important are environmental credentials in marketing wine?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How important are…",
+    "command_word_demand": "An assessment of importance, not an inventory: \"The key point for candidates to recognise is that this is a marketing question, asking them to assess the importance of environmental credentials, not just to list them.\" It also demands a stated position: \"It is also a question which requires an opinion, and argument - there is no right or wrong viewpoint, but it is difficult to argue against the growing consumer demand for wines with environmentally friendly credentials.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Answer it as a marketing question — not a winemaking or viticultural one",
+        "quote": "This is not a winemaking or viticultural question, it's about marketing.",
+        "weight": "core"
+      },
+      {
+        "element": "Examine and evaluate every aspect of the winery's environmental footprint: vineyard practices, energy use, container, closure, transport to market",
+        "quote": "They should examine and evaluate every aspect of a winery's environmental footprint (vineyard practices, use of energy, container used, closure used, transportation to market), and discuss to what extent this affects consumers' buying behaviour.",
+        "weight": "core"
+      },
+      {
+        "element": "Relate each credential back to what the consumer feels about it and to buying behaviour",
+        "quote": "it is no good simply listing ways in which wine can exhibit environmental friendliness if that isn't then related to what the consumer feels about it.",
+        "weight": "core"
+      },
+      {
+        "element": "Take and argue an opinion; either position is acceptable if argued",
+        "quote": "It is also a question which requires an opinion, and argument - there is no right or wrong viewpoint…",
+        "weight": "core"
+      },
+      {
+        "element": "Provide a clear structure; the marketer's viewpoint is a workable frame",
+        "quote": "A clear structure needed to be provided to this question - answering from the viewpoint of the marketeer could be quite successful",
+        "weight": "core"
+      },
+      {
+        "element": "Address geographical variation in demand from a market perspective, with empirical evidence",
+        "quote": "Geographical variations in demand from a market perspective was vital, especially where it was possible to give empirical evidence to support the point (such as the high and growing percentage of Scandinavian tenders which stipulate organic).",
+        "weight": "core"
+      },
+      {
+        "element": "Link credentials to willingness to spend more",
+        "quote": "those that provided clarity of thought process, good and interesting examples, relevant links between credentials and propensity to increase spend, consumer acceptance or demand for environmentally friendly wines…",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Set wine in the context of other food categories",
+        "quote": "…and an understanding of how wine sits in the context of other food categories.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clear thought process, interesting examples, credentials linked to spend and to consumer demand, and wine placed in the wider food-category context",
+        "quote": "There were a handful of excellent answers; those that provided clarity of thought process, good and interesting examples, relevant links between credentials and propensity to increase spend, consumer acceptance or demand for environmentally friendly wines and an understanding of how wine sits in the context of other food categories."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Did not address the marketing nature of the question",
+        "quote": "In general, the main areas of challenge for candidates lay in not addressing the marketing nature of the question, and in delivering sweeping statements not backed up by factual evidence."
+      },
+      {
+        "signal": "Sweeping statements without factual backing",
+        "quote": "…delivering sweeping statements not backed up by factual evidence."
+      },
+      {
+        "signal": "Listing environmental credentials without connecting them to consumer feeling",
+        "quote": "it is no good simply listing ways in which wine can exhibit environmental friendliness if that isn't then related to what the consumer feels about it."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Empirical, market-level evidence of geographical variation in demand — the report's own instance is the high and growing percentage of Scandinavian tenders stipulating organic.",
+      "named_in_report": [
+        "Scandinavian tenders which stipulate organic"
+      ],
+      "quote": "Geographical variations in demand from a market perspective was vital, especially where it was possible to give empirical evidence to support the point (such as the high and growing percentage of Scandinavian tenders which stipulate organic)."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering as a winemaking or viticulture question — describing sustainable practice rather than marketing it",
+        "quote": "This is not a winemaking or viticultural question, it's about marketing."
+      },
+      {
+        "trap": "Listing environmental credentials instead of assessing their importance",
+        "quote": "The key point for candidates to recognise is that this is a marketing question, asking them to assess the importance of environmental credentials, not just to list them."
+      }
+    ],
+    "performance_note": "\"There were a handful of excellent answers…\" No numeric attempt or pass rate given.",
+    "extraction_notes": "Unusually strong evidence: the report quotes the examiners' own indicative answer verbatim ('To quote from the examiners' indicative answer:'), so the required_elements drawn from that passage are effectively the mark scheme rather than post-hoc commentary. An OCR page number ('21') sits between the indicative answer and the prose commentary and has been excluded. No paper-level General Comments exist for Paper 4."
+  },
+  {
+    "id": "th_2018_p4_q4",
+    "year": 2018,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Where are direct to consumer wine sales increasing and why?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Where … and why?",
+    "command_word_demand": "A two-part where/why the examiners considered structurally simple — \"This is an uncomplicated question both in terms of subject and structure.\" The demand that caught people out was evidential rather than structural: \"It was also not enough simply to \"know the theory\" - there was a definite requirement for market data in relation to the costs and benefits of direct to consumer sales.\"",
+    "definitions_required": [
+      {
+        "term": "direct to consumer",
+        "quote": "However, there was some confusion over the definition of \"direct to consumer\"."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'direct to consumer' clearly",
+        "quote": "However, there was some confusion over the definition of \"direct to consumer\".",
+        "weight": "core"
+      },
+      {
+        "element": "Supply market data on the costs and benefits of DTC — theory alone was not enough",
+        "quote": "It was also not enough simply to \"know the theory\" - there was a definite requirement for market data in relation to the costs and benefits of direct to consumer sales.",
+        "weight": "core"
+      },
+      {
+        "element": "Show intimate knowledge of original examples of wineries running a DTC model",
+        "quote": "those who performed above this level were able to demonstrate an intimate knowledge of some original examples of wineries undertaking the direct to consumer model",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Understand and illustrate the constraints and costs that push producers away from DTC",
+        "quote": "also understanding and illustrating the constraints and costs which might lead away from the model.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Intimate knowledge of original (not stock) winery examples of the DTC model",
+        "quote": "those who performed above this level were able to demonstrate an intimate knowledge of some original examples of wineries undertaking the direct to consumer model"
+      },
+      {
+        "signal": "Illustrated the counter-case — the constraints and costs that lead away from DTC",
+        "quote": "also understanding and illustrating the constraints and costs which might lead away from the model."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Box-ticking coverage — the examiners state this alone was a narrow fail",
+        "quote": "Essentially this was a question where simply ticking the boxes would likely lead to a narrow fail"
+      },
+      {
+        "signal": "Confusion over what 'direct to consumer' means",
+        "quote": "However, there was some confusion over the definition of \"direct to consumer\"."
+      },
+      {
+        "signal": "Knowing the theory without market data",
+        "quote": "It was also not enough simply to \"know the theory\" - there was a definite requirement for market data…"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Original, individually-known wineries operating DTC, plus market data on costs and benefits. The report names no specific wineries or markets.",
+      "named_in_report": [],
+      "quote": "those who performed above this level were able to demonstrate an intimate knowledge of some original examples of wineries undertaking the direct to consumer model, also understanding and illustrating the constraints and costs which might lead away from the model."
+    },
+    "scope_traps": [],
+    "performance_note": "No attempt or pass figures given. The examiners define the pass edge explicitly: \"simply ticking the boxes would likely lead to a narrow fail\", with the pass margin coming from original examples and the costs/constraints counter-case.",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0) but is short (one paragraph) — evidence_quality 'moderate'. Notably the report gives no guidance at all on the 'Where' half (no markets named, no geographic expectations stated), so a grader has examiner backing for the 'why' and the evidence standard but NOT for judging which markets a candidate should have identified. Do not fill that gap. No paper-level General Comments exist for Paper 4."
+  },
+  {
+    "id": "th_2018_p4_q5",
+    "year": 2018,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "There has been a great deal of innovation in packaging design and formats in other alcoholic beverage categories. Why has the wine industry been slow to follow suit? Should it follow?",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Why has … been slow to follow suit? Should it follow?",
+    "command_word_demand": "An opinion question testing argument construction, with the weight on the second half: \"Quite a popular question which asked for an opinion and tested the candidates' ability to structure an argument and make a case.\" And: \"The examiners did feel that most time should have been spent on the \"Should it follow\" part of the question and what they certainly didn't want was simply a list of different packaging designs and formats.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Structure an argument and make a case, rather than survey the topic",
+        "quote": "Quite a popular question which asked for an opinion and tested the candidates' ability to structure an argument and make a case.",
+        "weight": "core"
+      },
+      {
+        "element": "Spend most of the answer on 'Should it follow?'",
+        "quote": "The examiners did feel that most time should have been spent on the \"Should it follow\" part of the question…",
+        "weight": "core"
+      },
+      {
+        "element": "Take a position — any position — and support it; the examiners did not penalise disagreement",
+        "quote": "There is no right or wrong answer to this question and candidates should feel comfortable that the examiners did not penalise anyone if they disagreed - in fact there was a range of different opinions which were successful.",
+        "weight": "core"
+      },
+      {
+        "element": "Support the case with examples",
+        "quote": "It is the argument and supporting examples which were important here.",
+        "weight": "core"
+      },
+      {
+        "element": "Show original thinking",
+        "quote": "In general, this was well answered and allowed candidates to demonstrate some original thinking.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Erudite, well-constructed essays — the examiners rate this as one of the better-answered questions",
+        "quote": "On the whole the challenge was taken up and this was well answered with some really good and erudite essays."
+      },
+      {
+        "signal": "Original thinking",
+        "quote": "In general, this was well answered and allowed candidates to demonstrate some original thinking."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Listing packaging designs and formats instead of arguing the case",
+        "quote": "what they certainly didn't want was simply a list of different packaging designs and formats."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Not specified beyond 'supporting examples' — the report names no packaging formats, categories or companies.",
+      "named_in_report": [],
+      "quote": "It is the argument and supporting examples which were important here."
+    },
+    "scope_traps": [
+      {
+        "trap": "Turning the answer into a catalogue of packaging innovations",
+        "quote": "what they certainly didn't want was simply a list of different packaging designs and formats."
+      },
+      {
+        "trap": "Front-loading the 'why has it been slow' half at the expense of 'should it follow'",
+        "quote": "The examiners did feel that most time should have been spent on the \"Should it follow\" part of the question…"
+      }
+    ],
+    "performance_note": "\"Quite a popular question…\" and \"On the whole the challenge was taken up and this was well answered with some really good and erudite essays.\" No numeric attempt or pass rate given.",
+    "extraction_notes": "Commentary anchored on verbatim question text (match 1.0). Important grading instruction: the examiners state explicitly that no viewpoint was penalised and that a range of opinions succeeded — a grader must score the quality of the argument, never the position taken. This was one of the paper's stronger-performing questions, so a rubric-based grade here should not be harsh by default. No paper-level General Comments exist for Paper 4."
+  },
+  {
+    "id": "th_2018_p4_q6",
+    "year": 2018,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Evaluate the extent to which scarcity/rarity is a positive attribute in wine marketing.",
+    "source_report": "examiners_report_2018.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Evaluate the extent to which",
+    "command_word_demand": "The examiners gloss the construction plainly: \"Perhaps the somewhat unusual structure of the question \"examine the extent to which\" put candidates off, but in effect it only means \"how much\".\" With a narrow subject, they required command of the key points plus explicit critical thinking: \"The subject matter was relatively narrow, which meant that a good understanding of the key points was essential, as was the need to deploy critical thinking skill.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Treat 'the extent to which' as 'how much' — deliver a graded judgement, not a yes/no",
+        "quote": "Perhaps the somewhat unusual structure of the question \"examine the extent to which\" put candidates off, but in effect it only means \"how much\".",
+        "weight": "core"
+      },
+      {
+        "element": "Address both perceived and real scarcity, and how scarcity can be managed",
+        "quote": "We are … really exploring both perceived and real scarcity - so how can this be managed?",
+        "weight": "core"
+      },
+      {
+        "element": "Ask whether there is a consumer benefit to scarcity",
+        "quote": "Is there a consumer benefit to scarcity?",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the downsides of scarcity, not only the upside",
+        "quote": "What are the downsides to scarcity?",
+        "weight": "core"
+      },
+      {
+        "element": "Look beyond price to other benefits, for producer and customer alike",
+        "quote": "it's important to look beyond just price as a benefit to both producer and customer.",
+        "weight": "core"
+      },
+      {
+        "element": "Command detailed production-volume knowledge for the classic 'icon' wines",
+        "quote": "Too many candidates couldn't demonstrate sufficient detailed knowledge on amounts of wine produced in the classic \"icon\" wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Deploy critical thinking, given the narrow subject matter",
+        "quote": "The subject matter was relatively narrow, which meant that a good understanding of the key points was essential, as was the need to deploy critical thinking skill.",
+        "weight": "core"
+      },
+      {
+        "element": "Choose the strongest examples rather than any examples",
+        "quote": "Which examples are best?",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Answers far off the mark — the examiners' overall verdict on the question",
+        "quote": "A question which many candidates found challenging with a lot of answers way off the mark."
+      },
+      {
+        "signal": "Could not quote production volumes for icon wines",
+        "quote": "Too many candidates couldn't demonstrate sufficient detailed knowledge on amounts of wine produced in the classic \"icon\" wines."
+      },
+      {
+        "signal": "Attempting the question without the detailed information and examples to support it",
+        "quote": "In the opinion of the examiners, if you are short of detailed information and examples on a subject then best to avoid it."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Quantified — production volumes for the classic 'icon' wines. The report names no individual icon wines or figures.",
+      "named_in_report": [],
+      "quote": "Too many candidates couldn't demonstrate sufficient detailed knowledge on amounts of wine produced in the classic \"icon\" wines. In the opinion of the examiners, if you are short of detailed information and examples on a subject then best to avoid it."
+    },
+    "scope_traps": [
+      {
+        "trap": "Being thrown by 'the extent to which' and not delivering a calibrated 'how much' judgement",
+        "quote": "Perhaps the somewhat unusual structure of the question \"examine the extent to which\" put candidates off, but in effect it only means \"how much\"."
+      },
+      {
+        "trap": "Arguing scarcity purely through price",
+        "quote": "it's important to look beyond just price as a benefit to both producer and customer."
+      }
+    ],
+    "performance_note": "The only hard numbers in the Paper 4 commentary: \"It was surprising that so many candidates (48) undertook this question and only a very small number passed.\" Also: \"A question which many candidates found challenging with a lot of answers way off the mark.\"",
+    "extraction_notes": "WORDING DISCREPANCY: the corpus question_text reads 'Evaluate the extent to which…' but the report's commentary quotes the question as 'examine the extent to which'. The corpus is authoritative (it comes from the paper); command_word is therefore recorded as 'Evaluate', with the report's gloss retained verbatim in command_word_demand since the examiners' explanation ('it only means \"how much\"') applies either way. credit_signals is empty because the report describes no successful answers on this question — it only records failure modes, consistent with '48 undertook this question and only a very small number passed'. Several required_elements derive from the examiners' rhetorical questions ('Is there a consumer benefit to scarcity?'); these are read as the content they expected covered, which is how the surrounding sentences frame them. An OCR page number ('22') sits inside the 'We are … really exploring' sentence and has been elided. No paper-level General Comments exist for Paper 4."
+  }
+]

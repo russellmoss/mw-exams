@@ -1,0 +1,455 @@
+[
+  {
+    "id": "th_2016_p5_q1",
+    "year": 2016,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "\"The consumer's limited knowledge is a blessing for the wine industry.\" Discuss.",
+
+    "source_report": "examiners_report_2016.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "Discuss",
+    "command_word_demand": "'Discuss' requires students to argue the proposition from both sides. A very one-sided approach is highly unlikely to provide enough convincing evidence for a pass grade.",
+
+    "definitions_required": [],
+
+    "required_elements": [
+      {
+        "element": "Argue the proposition from both sides rather than taking a single position",
+        "quote": "First, 'Discuss' requires students to argue the proposition from both sides. A very one-sided approach is highly unlikely to provide enough convincing evidence for a pass grade.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer from the point of view of the wine industry, not the consumer",
+        "quote": "Another problem was that a number of students failed to spot that the question asked for discussion of consumers' limited knowledge from the perspective of the wine industry and therefore needed to be answered from the point of view of the wine industry, not the consumer.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a broad approach across different sectors of the wine industry (producers, retailers, educators, journalists) and different types of consumer",
+        "quote": "There was plenty of material to cover, including analysis of different sectors of the wine industry (from producers to retailers, educators and journalists) and different types of consumer. Candidates needed to take a broad approach in order to show their understanding of the issues involved.",
+        "weight": "core"
+      },
+      {
+        "element": "Distinguish the long-term from the short-term effects of limited consumer knowledge",
+        "quote": "Candidates needed to show appreciation of the long- and short-term effects of limited consumer knowledge.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise the question as loaded — i.e. interrogate whether the industry actively uses limited consumer knowledge to its advantage, rather than accepting the proposition at face value",
+        "quote": "Good answers considered the effect of limited consumer knowledge on production, marketing and sales (including faulty, adulterated and fake wines), while recognising that this was a loaded question: does the wine industry use limited consumer knowledge to its advantage?",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Balance any argument made by demonstrating understanding of the opposing view (Paper 5 paper-level expectation)",
+        "quote": "As far as content goes, any argument made must be balanced by demonstrating understanding of the opposing view; personal opinion is often sought, but it needs to be backed up by credible arguments; and any question asking the student to 'discuss' requires a balanced consideration of both sides of the question.",
+        "weight": "core"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Traced the effect of limited consumer knowledge through production, marketing and sales — including faulty, adulterated and fake wines",
+        "quote": "Good answers considered the effect of limited consumer knowledge on production, marketing and sales (including faulty, adulterated and fake wines)…"
+      },
+      {
+        "signal": "Developed the flip side of limited knowledge as opportunity — scope for education, influence and marketing",
+        "quote": "Limited knowledge implies scope for education, influence and marketing"
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Failed to answer the actual question set, despite the topic being familiar",
+        "quote": "This was the more popular of the two questions in the first section, but many candidates were let down by their failure to answer the question."
+      },
+      {
+        "signal": "One-sided treatment of the proposition",
+        "quote": "A very one-sided approach is highly unlikely to provide enough convincing evidence for a pass grade."
+      },
+      {
+        "signal": "Wrote from the consumer's perspective instead of the industry's",
+        "quote": "…a number of students failed to spot that the question asked for discussion of consumers' limited knowledge from the perspective of the wine industry…"
+      },
+      {
+        "signal": "Wrote a good general essay on the topic instead of addressing the exact question (Paper 5 paper-level criticism)",
+        "quote": "Many more promising candidates failed to pass because they did not answer the specific question on the paper. The importance of this cannot be over stressed. Writing a good, or even very good, general essay on the topic will not pass if it fails to address the exact question asked."
+      }
+    ],
+
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Answering from the consumer's point of view rather than the wine industry's",
+        "quote": "…the question asked for discussion of consumers' limited knowledge from the perspective of the wine industry and therefore needed to be answered from the point of view of the wine industry, not the consumer."
+      },
+      {
+        "trap": "Treating the quoted proposition as a neutral statement rather than a loaded one to be tested",
+        "quote": "…while recognising that this was a loaded question: does the wine industry use limited consumer knowledge to its advantage?"
+      }
+    ],
+
+    "performance_note": "\"This was the more popular of the two questions in the first section, but many candidates were let down by their failure to answer the question.\" Paper-level: \"The general quality of essay writing was good, with very few poor candidates… Many more promising candidates failed to pass because they did not answer the specific question on the paper.\"",
+    "extraction_notes": "The report states no example requirement for this question, so examples_expected.required is false — this is an absence of evidence, not a statement that examples were unwanted. The commentary segment ends mid-sentence at 'Limited knowledge implies scope for education, influence and marketing' (no terminal punctuation in the source PDF text) and is followed by the stray numeral '2.' from the next question heading; quotes are trimmed accordingly. Two required_elements and one penalty_signal are drawn from the Paper 5 General Comments preamble and are labelled as paper-level."
+  },
+  {
+    "id": "th_2016_p5_q2",
+    "year": 2016,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "How much should a consumer trust the words of a wine commentator?",
+
+    "source_report": "examiners_report_2016.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "How much should",
+    "command_word_demand": "The wording of the question required an opinion from the candidate. This was another area that seemed problematic for many: either no opinion was forthcoming, or it was not convincingly argued. Any opinion needs to be supported, demonstrating understanding of alternative points of view and backed by facts wherever possible.",
+
+    "definitions_required": [
+      {
+        "term": "wine commentator",
+        "quote": "Candidates needed to identify that there are many different types of wine commentator (from bloggers and journalists to sommeliers, retail staff … and so on)… Many candidates defined these terms too narrowly, with the result that their answers were insufficiently comprehensive to warrant a pass."
+      },
+      {
+        "term": "consumer",
+        "quote": "…and also different types of consumer (from complete novice to trade professional). Many candidates defined these terms too narrowly, with the result that their answers were insufficiently comprehensive to warrant a pass."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Identify that there are many different types of wine commentator — bloggers, journalists, sommeliers, retail staff and so on",
+        "quote": "Candidates needed to identify that there are many different types of wine commentator (from bloggers and journalists to sommeliers, retail staff … and so on)…",
+        "weight": "core"
+      },
+      {
+        "element": "Identify different types of consumer, from complete novice to trade professional",
+        "quote": "…and also different types of consumer (from complete novice to trade professional).",
+        "weight": "core"
+      },
+      {
+        "element": "Give a nuanced account of trustworthiness grounded in specific criteria — reputation, financial incentives, who the commentator writes or speaks for, relevance to the consumer, links to producers",
+        "quote": "We were looking for a nuanced understanding of the trustworthiness of wine commentators based on, for example, their reputation, financial incentives, who they write or speak for, their relevance to the consumer, links to producers, etc.",
+        "weight": "core"
+      },
+      {
+        "element": "State a personal opinion and argue it convincingly, supported by facts and by acknowledgement of alternative points of view",
+        "quote": "The wording of the question required an opinion from the candidate… Any opinion needs to be supported, demonstrating understanding of alternative points of view and backed by facts wherever possible.",
+        "weight": "core"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Answers that were comprehensive in scope because the two key terms were defined broadly rather than narrowly",
+        "quote": "Many candidates defined these terms too narrowly, with the result that their answers were insufficiently comprehensive to warrant a pass."
+      },
+      {
+        "signal": "Took advantage of the room for individual interpretation and opinion while still hitting the key elements",
+        "quote": "This was a question that allowed plenty of room for individual interpretation and opinion. However, certain elements were key to a successful answer."
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Defined 'wine commentator' and/or 'consumer' too narrowly, producing an insufficiently comprehensive answer — explicitly below pass",
+        "quote": "Many candidates defined these terms too narrowly, with the result that their answers were insufficiently comprehensive to warrant a pass."
+      },
+      {
+        "signal": "No opinion offered at all",
+        "quote": "…either no opinion was forthcoming, or it was not convincingly argued."
+      },
+      {
+        "signal": "Opinion offered but not convincingly argued or supported",
+        "quote": "Any opinion needs to be supported, demonstrating understanding of alternative points of view and backed by facts wherever possible."
+      }
+    ],
+
+    "examples_expected": {
+      "required": true,
+      "specificity": "Types of commentator and types of consumer must be enumerated across the range (blogger through sommelier through retail staff; complete novice through trade professional); opinion must be 'backed by facts wherever possible'. The report names categories, not individual commentators.",
+      "named_in_report": ["bloggers", "journalists", "sommeliers", "retail staff", "complete novice", "trade professional"],
+      "quote": "Candidates needed to identify that there are many different types of wine commentator (from bloggers and journalists to sommeliers, retail staff … and so on) and also different types of consumer (from complete novice to trade professional)."
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Reading 'wine commentator' as meaning only critics/journalists, and 'consumer' as only the general public",
+        "quote": "Many candidates defined these terms too narrowly, with the result that their answers were insufficiently comprehensive to warrant a pass."
+      },
+      {
+        "trap": "Treating the open-endedness of the question as licence to write opinion without argument",
+        "quote": "This was a question that allowed plenty of room for individual interpretation and opinion. However, certain elements were key to a successful answer."
+      }
+    ],
+
+    "performance_note": "The report gives no attempt or pass rate for this question, only that it was the less popular of the two Section A questions by implication from Q1 (\"This was the more popular of the two questions in the first section\") and that narrow definitions and missing/unargued opinion were widespread failings.",
+    "extraction_notes": "named_in_report lists the commentator and consumer categories the report itself supplies as illustrations — these are the report's own words, not extractor-added examples, but they are category labels rather than praised named examples, so a grader should not require a candidate to use these exact words. The source text contains the stray page number '19' inside the commentator list ('retail staff 19 and so on'), removed with an ellipsis in the quotes."
+  },
+  {
+    "id": "th_2016_p5_q3",
+    "year": 2016,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Which is more important in wine: tradition or innovation?",
+
+    "source_report": "examiners_report_2016.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+
+    "command_word": "Which is more important",
+    "command_word_demand": "To answer the question successfully it was necessary to write about both tradition and innovation and not, as many students did, choose one (invariably innovation) at the expense of the other. This approach gave rather simplistic answers that lacked the information to address the nub of the question.",
+
+    "definitions_required": [
+      {
+        "term": "tradition",
+        "quote": "Candidates needed to show understanding of the definitions of and differences between tradition and innovation, and how they relate specifically to wine."
+      },
+      {
+        "term": "innovation",
+        "quote": "Candidates needed to show understanding of the definitions of and differences between tradition and innovation, and how they relate specifically to wine."
+      },
+      {
+        "term": "important",
+        "quote": "Discussion of 'important' could be considered in terms of wine styles, consumers, producers, cultural heritage, or uniqueness."
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Define tradition and innovation, state the differences between them, and relate both specifically to wine",
+        "quote": "Candidates needed to show understanding of the definitions of and differences between tradition and innovation, and how they relate specifically to wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Write substantively about BOTH tradition and innovation — do not champion one at the expense of the other",
+        "quote": "To answer the question successfully it was necessary to write about both tradition and innovation and not, as many students did, choose one (invariably innovation) at the expense of the other.",
+        "weight": "core"
+      },
+      {
+        "element": "Argue the dynamics and continuum between tradition and innovation, with historical context, using examples to show both matter",
+        "quote": "The best answers discussed the dynamics and continuum between tradition and innovation, showing an awareness of historical context and using examples to show that both are important for wine.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Frame the question across the whole chain from the land to the end user",
+        "quote": "The best papers examined the question in the context of the entire chain from the land to the end user.",
+        "weight": "differentiator"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Explored innovations becoming traditions, or a tradition in one region being adopted as an innovation in another",
+        "quote": "Candidates could have explored the notion of innovations becoming traditions, or traditions in one region being adopted as innovations in another."
+      },
+      {
+        "signal": "Unpacked 'important' along multiple axes — wine styles, consumers, producers, cultural heritage, uniqueness",
+        "quote": "Discussion of 'important' could be considered in terms of wine styles, consumers, producers, cultural heritage, or uniqueness."
+      },
+      {
+        "signal": "Showed awareness of historical context rather than treating the pair as a present-tense binary",
+        "quote": "The best answers discussed the dynamics and continuum between tradition and innovation, showing an awareness of historical context…"
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Picked a side — usually innovation — and neglected the other",
+        "quote": "…not, as many students did, choose one (invariably innovation) at the expense of the other."
+      },
+      {
+        "signal": "Simplistic answers lacking the information needed to reach the core of the question",
+        "quote": "This approach gave rather simplistic answers that lacked the information to address the nub of the question."
+      }
+    ],
+
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must be used to demonstrate that BOTH tradition and innovation are important for wine; the report names no specific regions or producers.",
+      "named_in_report": [],
+      "quote": "The best answers discussed the dynamics and continuum between tradition and innovation, showing an awareness of historical context and using examples to show that both are important for wine."
+    },
+
+    "scope_traps": [
+      {
+        "trap": "Reading 'which is more important' as an invitation to choose one and defend it, rather than to weigh both",
+        "quote": "To answer the question successfully it was necessary to write about both tradition and innovation and not, as many students did, choose one (invariably innovation) at the expense of the other."
+      },
+      {
+        "trap": "Treating tradition and innovation as a fixed opposition rather than a continuum in which one becomes the other",
+        "quote": "Candidates could have explored the notion of innovations becoming traditions, or traditions in one region being adopted as innovations in another."
+      }
+    ],
+
+    "performance_note": "\"This was by far the most popular question in section B.\" The report notes many students weakened their answers by choosing one side (invariably innovation) at the expense of the other.",
+    "extraction_notes": "The report frames the multi-axis reading of 'important' and the innovation-becomes-tradition move with 'could have', so they are recorded as credit_signals/definitions rather than core requirements. Only the both-sides coverage and the definitions/differences are treated as core."
+  },
+  {
+    "id": "th_2016_p5_q4",
+    "year": 2016,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "To what extent is wine just another commodity?",
+
+    "source_report": "examiners_report_2016.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+
+    "command_word": "To what extent",
+    "command_word_demand": "The question required a clear definition of what a commodity is and how this relates to wine in key segments, considering the ways in which wine may, or may not, be considered a commodity.",
+
+    "definitions_required": [
+      {
+        "term": "commodity",
+        "quote": "The question required a clear definition of what a commodity is and how this relates to wine in key segments…"
+      }
+    ],
+
+    "required_elements": [
+      {
+        "element": "Define clearly what a commodity is",
+        "quote": "The question required a clear definition of what a commodity is…",
+        "weight": "core"
+      },
+      {
+        "element": "Relate the commodity definition to wine in key market segments — not to 'wine' as an undifferentiated whole",
+        "quote": "The question required a clear definition of what a commodity is and how this relates to wine in key segments…",
+        "weight": "core"
+      },
+      {
+        "element": "Argue both directions of the 'to what extent' — the ways wine may, and the ways it may not, be considered a commodity",
+        "quote": "…considering the ways in which wine may, or may not, be considered a commodity.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate understanding of the global wine trade — bulk wine, grape contracts, high-volume brands and fine wine",
+        "quote": "Answers needed to show understanding of the global wine trade, including bulk wine, grape contracts, high-volume brands and fine wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Balance any argument made by demonstrating understanding of the opposing view (Paper 5 paper-level expectation)",
+        "quote": "As far as content goes, any argument made must be balanced by demonstrating understanding of the opposing view; personal opinion is often sought, but it needs to be backed up by credible arguments…",
+        "weight": "core"
+      }
+    ],
+
+    "credit_signals": [],
+
+    "penalty_signals": [
+      {
+        "signal": "Failing to address the exact question asked, however good the general essay (Paper 5 paper-level criticism)",
+        "quote": "Writing a good, or even very good, general essay on the topic will not pass if it fails to address the exact question asked."
+      }
+    ],
+
+    "examples_expected": {
+      "required": false,
+      "specificity": "The report specifies market segments to be covered (bulk wine, grape contracts, high-volume brands, fine wine) rather than requiring named regions, producers or brands.",
+      "named_in_report": [],
+      "quote": "Answers needed to show understanding of the global wine trade, including bulk wine, grape contracts, high-volume brands and fine wine."
+    },
+
+    "scope_traps": [],
+
+    "performance_note": "\"Though attempted by relatively few candidates (21) the overall standard of answers was high, suggesting a level of confidence and ability in those who answered it.\"",
+    "extraction_notes": "Short commentary. The report offers no question-specific praise of strong answers and no question-specific criticism of weak ones — because the standard was uniformly high — so credit_signals is empty and the single penalty_signal plus one required_element come from the Paper 5 General Comments preamble and are labelled as paper-level. A grader should weight the negative checks lightly for this question. The segment ends with the stray numeral '5.' from the next question heading, excluded from quotes."
+  },
+  {
+    "id": "th_2016_p5_q5",
+    "year": 2016,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Do government drinking guidelines make sense?",
+
+    "source_report": "examiners_report_2016.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+
+    "command_word": "Do … make sense?",
+    "command_word_demand": "…which required both critical analysis and a knowledge of government drinking guidelines.",
+
+    "definitions_required": [],
+
+    "required_elements": [
+      {
+        "element": "Bring actual knowledge of government drinking guidelines, not opinion alone",
+        "quote": "Few candidates attempted this question, which required both critical analysis and a knowledge of government drinking guidelines.",
+        "weight": "core"
+      },
+      {
+        "element": "Apply critical analysis rather than description",
+        "quote": "…which required both critical analysis and a knowledge of government drinking guidelines.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of the purpose and usefulness of government guidelines in general",
+        "quote": "Answers needed to show understanding of the purpose and usefulness of government guidelines in general, with specific examples from different geographies to support their arguments.",
+        "weight": "core"
+      },
+      {
+        "element": "Support the argument with specific examples drawn from different geographies",
+        "quote": "…with specific examples from different geographies to support their arguments.",
+        "weight": "core"
+      },
+      {
+        "element": "Examine the social aspects behind guidelines — comprehension, at-risk groups, the value of generalisations, currency of the underlying research, the force of non-statutory guidance, evidence of efficacy",
+        "quote": "Essays could have examined many of the social aspects behind guidelines, considering such questions as: Are guidelines well understood? Do they make sense for some at-risk groups, but not for others? How useful are generalisations? Do guidelines reflect the most up-to-date research? What is the usefulness of something not enshrined in law? Is there any evidence that guidelines work?",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Balance any argument made by demonstrating understanding of the opposing view; back personal opinion with credible arguments (Paper 5 paper-level expectation)",
+        "quote": "As far as content goes, any argument made must be balanced by demonstrating understanding of the opposing view; personal opinion is often sought, but it needs to be backed up by credible arguments…",
+        "weight": "core"
+      }
+    ],
+
+    "credit_signals": [
+      {
+        "signal": "Went beyond a competent grasp of the subject into genuine excellence — the discriminator the examiners found almost absent",
+        "quote": "Answers generally showed a good grasp of the subject, but few excelled."
+      },
+      {
+        "signal": "Interrogated whether guidelines are well understood, whether they work, and whether they suit at-risk groups differently from the general population",
+        "quote": "…considering such questions as: Are guidelines well understood? Do they make sense for some at-risk groups, but not for others? … Is there any evidence that guidelines work?"
+      }
+    ],
+
+    "penalty_signals": [
+      {
+        "signal": "Subject knowledge without distinction — a good grasp that stopped short of critical excellence",
+        "quote": "Answers generally showed a good grasp of the subject, but few excelled."
+      }
+    ],
+
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific examples from different geographies — i.e. more than one country's guidelines. The report names no particular countries.",
+      "named_in_report": [],
+      "quote": "Answers needed to show understanding of the purpose and usefulness of government guidelines in general, with specific examples from different geographies to support their arguments."
+    },
+
+    "scope_traps": [],
+
+    "performance_note": "\"Few candidates attempted this question… Answers generally showed a good grasp of the subject, but few excelled.\"",
+    "extraction_notes": "The list of social-aspect questions is introduced with 'could have', so it is recorded as a differentiator rather than core. 'Answers generally showed a good grasp of the subject, but few excelled' is used as both a credit and a penalty signal because it is the report's only statement discriminating strong from adequate answers here; a grader should read it as a ceiling marker rather than a hard negative check. One required_element and the framing of balance come from the Paper 5 General Comments preamble and are labelled as paper-level. The segment ends with the stray page number '20', excluded from quotes."
+  }
+]

@@ -1,0 +1,2048 @@
+[
+  {
+    "exam_type": "THEORY",
+    "year": 2015,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 1 – THE PRODUCTION OF WINE – PART 1 (VITICULTURE)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What are the causes of grapevine trunk diseases, such as Esca, and what are the best strategies to combat them?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What nutrients are important to the grapevine for the production of quality grapes, and why?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "When and how does frost pose a risk to grape production? Evaluate the different methods of frost protection available to the grape grower."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Which are the most suitable grape varieties for the production of high quality traditional method sparkling wines, and why?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Why does density of vine plantation vary from vineyard to vineyard? Assess the advantages of low and high density plantings."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "How might the costs of growing grapes and managing a vineyard affect the price of a bottle of wine?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 2 – THE PRODUCTION OF WINE – PART 2 (VINIFICATION AND PRE-BOTTLING PROCEDURES)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Why is it important to consider pH during the winemaking process?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What opportunities exist, as part of the winemaking process, for the winemaker to bring complexity to his or her wine?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How can sweetness be achieved in non-fortified wines through viticulture and vinification?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What contributions do yeasts make to wine, and how far can a winemaker control these?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Write short notes on how each of the following are managed in a winery:\n\n- Juice clarity and turbidity\n- Wine clarification\n- Wine stabilisation"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Discuss acid adjustment, chaptalisation and dealcoholisation with particular regard to balance in wine."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer TWO questions from the FOUR listed below.",
+        "source_heading": "THEORY PAPER 3 - THE PRODUCTION OF WINE – PART 3 (HANDLING OF WINES)",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "Outline the key technical considerations involved in the choice of final packaging for wine."
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "In the world of highly automated and computer controlled bottling lines, to what extent are quality control checks becoming obsolete?"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "How might protein and tartrate stability in wine be achieved, and managed?"
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Assess the various methods of transporting wine in bulk; what precautions should be taken from a QA perspective?"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Is consolidation among wine producers good or bad for consumers?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "As the brand manager of a 500,000 case wine brand, what five key statistics would you most closely monitor to gauge the performance of your brand, and why?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How can a sommelier or restaurant buying manager ensure he/she is delivering good value both to his/her customers and owner? How may sustainable profit in the on-trade be maximised?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Have supermarkets been a positive or negative force for mainstream wine consumers around the globe?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "You are a wine producer in Pommard. What are your main marketing strengths? How can you grow your business?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Assess successful approaches to social media by the wine industry."
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "TWO questions to be answered, ONE from Section A and ONE from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What are the most significant current trends in the fine wine market?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What are the key factors behind the current worldwide success of sparkling wines?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Is the \"natural wine\" movement losing momentum? What is its future?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Are wine competitions and the resulting awards they bestow important to establishing a successful brand?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Fortified wines are diverse in style; why are they not more popular?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2016,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 1 – THE PRODUCTION OF WINE – PART 1 (VITICULTURE)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Assess the effectiveness of the options available to organic and biodynamic grape growers to control pests and diseases."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What practical options does a viticulturist have at his or her disposal to address long term changes in climate in an established vineyard?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Can Cabernet Sauvignon and Riesling be successful in the same location?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Compare the main vine training systems used in the following wine regions:\n\na. Mosel\nb. Alsace\nc. Marlborough\nd. Châteauneuf-du-Pape"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What steps can a viticulturist take to provide and maintain proper vine nutrition?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "When and how can hail cause damage at various stages of vine growth? What methods are most effective for preventing or responding to such damage?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 2 – THE PRODUCTION OF WINE – PART 2 (VINIFICATION AND PRE-BOTTLING PROCEDURES)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "It is often noted that some wines are not perfectly clean, and have low levels of potentially faulty aromas, sometimes referred to as \"funky\". How can a winemaker best manage a desirable element of \"funkiness\" in his or her wine?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Shape, size and material of a vessel used for fermentation and maturation are important factors in determining style and quality. Discuss with particular reference to Cabernet Sauvignon and Chardonnay."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How can a wine's tannin profile be managed during vinification?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Discuss the impact of malolactic fermentation, or its absence, on wine style."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What are the winemaker's options and challenges in colour management for different wine styles?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Examine the pros and cons of skin contact during the winemaking process."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer TWO questions from the FOUR listed below.",
+        "source_heading": "THEORY PAPER 3 - THE PRODUCTION OF WINE – PART 3 (HANDLING OF WINES)",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "What are the most common causes of bacterial spoilage in wine? What effect do they each have, and what measures can be employed to guard against them? Your answer may consider the whole grape growing and winemaking process."
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "What should a winemaker's main considerations be when preparing a finished wine for bottling?"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "Consider the key issues for storage of wine after packing is complete."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Evaluate the prevention and correction of the following problems:\n\na. Pinking in a white wine made for drinking early\nb. Phenolic bitterness in a red wine\nc. High levels of volatile acidity in a full bodied red wine"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Who is making money in the wine industry and why? Discuss in detail three specific examples of profitable wine businesses from different parts of the wine industry supply chain."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "There is much talk of consolidation in the wine industry, but where is the industry fragmenting and why? Give examples of businesses that are succeeding as a result."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "What is a \"virtual winery\"? Discuss the strengths and weaknesses of this business model."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What are the most quantifiable signs that a wine brand is strong?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Do today's wine labels do a good job of communicating the most important information to consumers?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "What are the commercial advantages and disadvantages of packing/bottling wine in the local market of consumption? Is this trend a good thing for the wine industry?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "TWO questions to be answered, ONE from Section A and ONE from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "\"The consumer's limited knowledge is a blessing for the wine industry.\" Discuss."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How much should a consumer trust the words of a wine commentator?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Which is more important in wine: tradition or innovation?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "To what extent is wine just another commodity?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Do government drinking guidelines make sense?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2017,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 1 - THE PRODUCTION OF WINE - PART 1 (Viticulture)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Temperature is one of the most impactful environmental variables on wine grape growing. How does temperature affect viticulture?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Water availability is increasingly an issue in some wine producing regions. How can a viticulturist best ensure water sustainability when establishing and managing vineyards in drought-prone regions?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Labour supply for vineyard work is decreasing in many parts of the world. If this trend continues, how will this affect viticulture, and how can vineyard managers around the world best prepare for, and handle, a shortage of workers?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Discuss which vine varieties would be most suitable for the production of dessert wines. Explain your choice with specific reference to any climatic requirements."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Does soil preparation affect the potential yield and quality in a vineyard?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "What are the principal pests and diseases facing vine growers today, and how can they best be managed?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 2 - THE PRODUCTION OF WINE - PART 2 (Vinification and Pre-bottling Procedures)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "\"This wine has been bottled un-fined and unfiltered.\" Assess the implications for the winemaker."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Sauvignon Blanc appears in many styles throughout the world. Compare and contrast Sauvignon Blanc winemaking practices around the world."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Discuss the roles of enzymes in winemaking."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Compare and contrast winemaking techniques best employed for Syrah grown in Cornas, McLaren Vale and Hawke's Bay."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Temperature management is the key to modern winemaking. Discuss."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "How, and to what extent, can yeast influence the final style and quality of wines?"
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer TWO questions from the FOUR listed below.",
+        "source_heading": "THEORY PAPER 3 - THE PRODUCTION OF WINE – PART 3 (Handling of Wines)",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "Outline the most important quality control checks during bottling and why each is necessary."
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "What analyses should be carried out at the winery pre- and post-bottling to ensure that a wine is in good condition and conforms to legal requirements for sale?"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "Many winemakers are reducing the levels of free and total sulphites in wine. Consider the role of sulphites at bottling and until the wine reaches the end consumer. What are the implications of reduced levels of free sulphites?"
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Briefly discuss three of the following showing their importance to the handling of wine:\n\na) Preservatives in wine\nb) Preventing deposits in bottled wine\nc) Inert storage\nd) Pre-bottling filtration"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How can the role of the intermediaries between producer and consumer be justified? How is it changing? Use examples from several different wine markets."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Can small independent wine retailers compete with large chains on price? How else can they compete effectively?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "You inherit the equivalent of US$ 10 million and want to invest in the wine industry. How would you spend your money to attract the greatest return on investment? Explain your logic."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "In what ways have social media changed the marketing of wine brands over the past 10 years?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "You are Export Director of an established large wine company producing in excess of one million nine litre cases. How would you seek to capitalise on the potential of the growing Chinese market for imported wine? What are the risks and how can they be managed?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "As the owner of a Bordeaux Classified Growth from the Left Bank, what options are available to you today to present your wine to the market? Evaluate these options from commercial and brand-building standpoints."
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "TWO questions to be answered, ONE from Section A and ONE from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What is the importance of alcohol in wine?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Has science taken away the romance of wine?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How relevant is blind tasting in assessing wine?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What are the causes for optimism in the wine world today?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Does great wine need a great story?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2018,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 1 - Viticulture",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Many wine regions can produce wines at a wide range of price points. Referencing at least two of such regions, compare and contrast methods of managing vineyards for high priced wines and low priced wines."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Referencing at least three wine regions, discuss how climate change is influencing grape growers' viticultural practices."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Identify the most important trunk diseases in vineyards around the world. How can they be best controlled and managed?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Is the use of cover crops worthwhile in viticulture?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What is the role of pruning when managing an established vineyard?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Old vines have a mystique to them. What are the practical challenges and solutions to maintaining vineyards of old vines?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 2 - Vinification and Pre-bottling Procedures",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Examine the advantages and disadvantages of deliberate stem inclusion, or additions, during the winemaking process."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Compare and contrast winemaking techniques for \"high end\" and \"entry level\" Chardonnay in at least two regions."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Write concise notes on four of the following:\n\n- Lysozyme\n- Mannoprotein\n- CMC - Carboxymethyl cellulose\n- Copper sulphate\n- Ascorbic acid\n- YAN – Yeast assimilable nitrogen"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What are the critical winemaking considerations for a producer of inexpensive off-dry still white wines?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Which winemaking decisions affect the ageing potential of a finished wine?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "How and to what extent can a winemaker influence the textural profile of a wine?"
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer TWO questions from the FOUR listed below.",
+        "source_heading": "THEORY PAPER 3 - Handling of Wines",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "How does a laboratory analysis of a wine help the quality control manager make decisions at bottling?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Describe the options available for bulk transport of wine. What are the risks and benefits for each option?"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "What technical factors influence the choice of a closure for wine bottles?"
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Detail the advantages and disadvantages of the following methods of clarifying a wine:\n\na. Earth filtration\nb. Pad filtration\nc. Membrane filtration\nd. Crossflow filtration"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "THEORY PAPER 4 - THE BUSINESS OF WINE",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What have been the most important changes in global wine supply and demand in the past three years and what are their implications?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What are the advantages and disadvantages of private-label wines for wineries, distributors and retailers?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How important are environmental credentials in marketing wine?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Where are direct to consumer wine sales increasing and why?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "There has been a great deal of innovation in packaging design and formats in other alcoholic beverage categories. Why has the wine industry been slow to follow suit? Should it follow?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Evaluate the extent to which scarcity/rarity is a positive attribute in wine marketing."
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "TWO questions to be answered, ONE from Section A and ONE from Section B.",
+        "source_heading": "THEORY PAPER 5 - CONTEMPORARY ISSUES",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Can wine be considered a social good?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How can the wine industry attract new consumers?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "If a global disease were destroying all known grape varieties and you had the chance to preserve only two varieties - one white and one black - for humanity, which would you choose to save, and why?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Is elitism an inherent problem in the world of wine?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Do wine consumers need wine experts?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2019,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "Theory Paper 1 - Viticulture",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Are yield restrictions necessary to produce high-quality wine?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Your company has acquired a vineyard suitable for high-quality wine production that is currently producing grapes for bulk wine. Indicate what steps you would take to convert it."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Assess how drought tolerance can be achieved through viticulture."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Mildews continue to afflict vineyards. What strategies might a vineyard manager employ to reduce the risk?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What are the critical considerations for selecting rootstock when establishing a new vineyard?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Discuss the role of the following factors in the production of high-quality grapes:\n\n- Aspect\n- Vine density\n- Row orientation"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "Theory Paper 2 - Vinification and Pre-bottling Procedures",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How can a winemaker manage the impact of oxygen during the winemaking process?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Evaluate the options available to the winemaker wishing to make wine with a lower level of alcohol."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Explain the procedures that might be followed in the winery when dealing with rot-degraded fruit."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "With new French oak barrels becoming increasingly expensive, what alternative options and techniques are available to the winemaker wishing to make high-end wines?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Consider the impact of rosé winemaking techniques on wine quality. Are paler-coloured rosé wines better quality?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "To what extent is it possible for producers of tank method sparkling wines to match the style and quality of wines produced by the traditional method?"
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer TWO questions from the FOUR listed below.",
+        "source_heading": "Theory Paper 3 - Handling of Wines",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "Explain which pre-bottling treatments and QC analyses you would consider most important for an inexpensive, organic, vegan wine."
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "What steps should a winemaker take, in preparation for bottling and at bottling, to prevent microbial spoilage? Consider both red and white wines."
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "Describe a comprehensive QA and QC system a large winery should implement for the management of dry goods."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "What are the key factors to consider in drawing up a technical specification for:\n\na. a white dessert wine bottled at source with 150g/l of residual sugar; and\nb. an entry-level red wine imported in bulk with 4g/l of residual sugar"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "THREE questions to be answered, ONE from Section A and TWO from Section B.",
+        "source_heading": "Theory Paper 4 - The Business of Wine",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Why does a growing number of large retailers prefer to focus on own and exclusive labels over third-party brands? Is this good for the wine category?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How do wine consumers in mainland China decide what wine to buy and what are the implications of their choices for producers and distributors?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Consider the growth in demand for vegan, organic and sustainable wines. What can and should the wine industry be doing in response?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Can social media drive brand loyalty in the wine category?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How can the fortified wine category evolve to address current consumer trends?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Outline the key changes in the fine wine investment market over the past decade. How do you see this developing over the next ten years?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "TWO questions to be answered, ONE from Section A and ONE from Section B.",
+        "source_heading": "Theory Paper 5 - Contemporary Issues",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What is the greatest threat currently facing the wine industry and how should this be addressed?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Does a changing climate place greater emphasis on terroir or on choice of grape variety?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Does wine have a significant role to play in a healthy lifestyle?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "How responsible is the wine industry?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What makes wine authentic?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2021,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Evaluate the principal factors to consider when establishing a vineyard in a marginal climate."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Discuss the major factors that impact the timing of harvest in a vineyard."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "What is the importance of soil pH in viticulture? How can vine growers influence soil pH to obtain quality grapes for winemaking?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Discuss the current role and potential future use of hybrids in viticulture."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "To what extent can wineries control the quality of the grapes they purchase?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Is there an ideal terroir for the production of sparkling wines?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What options are available to control final sugar levels in wine?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Compare and contrast winemaking techniques for an early-drinking and an age-worthy Pinot Noir still red wine in a premium region."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Write concise notes on each of the following:\n\na) Smoke taint in grapes and wine\nb) Volatile acidity\nc) Metatartaric acid\nd) Spinning cone technology"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "When, how and why should sulphur dioxide be used in winemaking? Are winemakers playing it too safe with sulphur dioxide additions?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "To what extent are winemaking interventions desirable in a small-scale winery producing high-quality, dry red wine?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "What handling procedures could a winemaker implement to make mid-priced still wine from each of the following:\n\na) English Chardonnay: potential alcohol 8%; pH 2.8; total acidity 14.5; and\nb) Barossa Valley Grenache Noir: potential alcohol 16.5%; pH 4.2; total acidity 3.9."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two of the following four questions.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "Compare and contrast the options available as preservatives for addition to still wine."
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Outline the key considerations in deciding which pre-bottling treatments to use for each of the following:\n\na) A vegan wine;\nb) An orange wine;\nc) An organic wine; and\nd) A mass-market, inexpensive wine."
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "You are responsible for quality assurance (QA) and quality control (QC) for an importer of bulk wine. Explain the QA and QC procedures that you will need:\n\na) between the completion of winemaking and the start of the bulk transport process; and\nb) following receipt of the bulk wine at its destination."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "A winery has received a customer complaint for a piece of glass found in a bottle. Describe the QA and QC procedures best employed by the winery to investigate the issue."
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How has the market transparency facilitated by the internet and social media influenced the supply, demand and pricing of wine? Who benefits?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "With reference to Bordeaux and other regions, discuss the commercial viability of the en primeur model. Outline the pros and cons for all parties, from producer through to consumer."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "As export director of a 100,000-case winery in the New World, you have been asked to increase exports from 10% to 25% of total production volume. What are the factors that would be most relevant to your strategy?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Outline key changes in consumer taste preferences over the past decade. Which wine-producing regions have evolved their offer successfully to match these changes?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Identify and assess the financial considerations when planning an investment in planting a vineyard and building a winery."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "How important is it for wine producers to develop new products?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Two questions to be answered, one from Section A and one from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Who do you consider to be the real pioneers in today's wine industry, and why?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Wine is celebrated for its diversity of styles. Is this diversity under threat?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "To what extent is France's wine classification system a model for the rest of the world?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Can one wine ever be objectively better than another?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How relevant is tradition to 21st century wine consumers?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2022,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Which diseases of the vine are the greatest threat to vineyards around the world today, and why?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What effects do vineyard pests have on grape quality, and how do grape growers control them?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "To what extent does the geology of a vineyard affect the way it is managed?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Glyphosate use is coming under increasing scrutiny. Should it be banned in modern viticulture? What are the alternatives?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "As a viticulturist, what factors would influence your approach to growing cover crops in a vineyard?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "What factors affect the timing of pruning in vineyards around the world?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "Paper 2 (Vinification)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Explain the process of malolactic fermentation in winemaking. How, why and when is it employed?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Examine the role of yeast lees during wine maturation."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "What are the options available for pre- and post-fermentation maceration in winemaking? What factors determine their use?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "How can a winemaker ensure consistency in a wine's style over a number of years?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Describe what a winemaker can do when faced with each of the following situations:\n\na) Stuck fermentation\nb) Undesirable oxidative characters, including mouse taint\nc) Early-stage Brettanomyces infection"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Analyse the options available to producers of high-quality Chardonnay for reducing the risk of premature oxidation in bottle."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two of the following four questions.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "What are the main technical issues a wine producer should consider when evaluating a change from bottling still wines at source to shipping them in bulk for bottling in the destination market?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Outline the winemaker's key considerations when deciding whether or not to filter each of the following in preparation for bottling:\n\na) white wine with 180g/L residual sugar\nb) ruby port\nc) Bourgogne Pinot Noir"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "'Post-maturation wine stabilisation practices should be used only on low-end wines.' Discuss."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "You are a producer planning to sell your wine to countries in the European Union (EU). What requirements for analysis and labelling must be met to ensure compliance with EU law?"
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How has the global coronavirus pandemic impacted consumer wine purchasing behaviours? Use examples from at least three significant markets to illustrate your answer."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "What measures determine the strength of a wine brand? How can brand managers most effectively influence their brand's long-term performance?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Who or what are the most important influencers of consumer behaviour in today's world of wine?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Which emerging wine-producing countries or regions have the best chance of establishing themselves as a significant force on the international wine market, and why?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Which are the most attractive markets for premium Italian wines, and why?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "You are the production director of a one million-case winery which aspires to become carbon neutral by the end of the decade. What steps would you take to achieve this objective?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Two questions to be answered, one from Section A and one from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "'Natural wine does not need a legal definition.' Discuss."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Assess the main challenges and opportunities for the wine education industry around the globe in the next ten years."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How is artificial intelligence being used within the wine industry and what might its impact be in the coming decades?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Are biodynamic practices the key to more sustainable wine production?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Does anyone still need wine writers?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2023,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Extreme heat and drought threaten many wine regions. What steps can a vineyard manager take to mitigate their effects?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "To what extent is excessive precipitation during the growing season a threat in the vineyard? How can it be managed?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "A viticulturist has observed a decline in vineyard yield over the last five years. Discuss the possible causes and how the issue might be addressed."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What are the causes and effects of nitrogen deficiency in a vineyard? How can it be remedied?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Evaluate the potential risks and rewards of choosing to plant ungrafted vines."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Assess the role of sunlight in determining grape quality."
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "Paper 2 (Vinification)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Outline the techniques a winemaker can use to influence the colour of red wine, considering at least three different styles of wine."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Explain the methods winemakers use to influence the colour of rosé wines."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "When and why might inert gas be used in still winemaking?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Which laboratory analyses should a winemaker carry out prior to alcoholic fermentation, and why?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Write concise notes on four of the following additives:\n\na. Yeast nutrients\nb. Oenological tannins\nc. Bentonite\nd. Carbon\ne. Dimethyl dicarbonate"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Are wild ferments worth the risk? Assess the advantages and disadvantages of choosing not to use cultured yeasts for fermentation."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two of the following four questions.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "As a quality control (QC) manager for a large EU-based supermarket chain, you are auditing the QC and bottling procedures for one of your own-label suppliers for red and white wines. What would be your key areas of focus, and why?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Compare and contrast the technical implications of three non-glass packaging options available to a wine producer."
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "Compare and contrast how stability is achieved in the following white wines:\n\na. entry-level New Zealand Sauvignon Blanc;\nb. domaine-bottled Meursault; and\nc. Alsace *Sélection de Grains Nobles* Riesling."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "You are the head quality control (QC) manager for a major multiple retailer. Write a report detailing the implications of reducing post-fermentation sulphur dioxide additions in wine."
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Which sectors of the wine industry are currently delivering the best return on investment?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Which sectors of the wine industry are doing the most to advance the sustainability agenda?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "You are the global brand director for an internationally established, prestige Champagne house. You have an annual marketing budget of five million euros (approximately five million U.S. dollars), not including price promotions, and have been asked to present a three-year brand plan. What are your key areas of focus and expenditure?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "What are the biggest challenges facing wine brand managers looking to create and maintain a loyal customer base in today's competitive market?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What are the key elements of a successful relationship between a wine producer and their distributor?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Outline the challenges and opportunities facing wine producers in California. What is the long-term outlook for this region?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Two questions to be answered, one from Section A and one from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What is the future of traditional wine packaging?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Is alcohol an essential component of high-quality wine?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "In your opinion, what should be on a wine label, and why?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "\"Minerality is one of the most overused yet misunderstood words in the wine industry.\" Discuss."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Is a wine's ability to age important?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2024,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How can vineyard practices minimise the need for must adjustments in the winery?\n\n[Note: answers may cover the syllabuses of papers 1 and 2]"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Does manual work in the vineyard deliver better quality wine than mechanised alternatives?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "'Controlling yields to maintain quality is no longer necessary.' Discuss."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "How can slopes in vineyards influence grape quality?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Assess the relative merits of high- and low-density planting in vineyards."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "'It is better to have too few nutrients in vineyard soils than too many.' Discuss."
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "Paper 2 (Vinification)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Why would a winemaker choose to filter wine, and what are the advantages and disadvantages of doing so?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Discuss how and why acidity is adjusted in musts and wine."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "What are the key factors for a winemaker to consider when choosing an appropriate fermentation vessel for wine production?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Compare and contrast the key production methods for the following fortified wines: aged Tawny Port; Bual Madeira; Marsala Superiore; Rutherglen Muscat."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What is Brettanomyces and how can the factors that influence it be controlled?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Blending is a useful tool in winemaking. Discuss how, and in what circumstances, a winemaker would choose to employ it."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two of the following four questions.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "What are the risks of storing wine in wooden barrels and how can they be mitigated?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "What quality control measures should be considered when filling bag-in-box compared to traditional glass bottles?"
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "What is the difference between processing aids and ingredients in wine? Discuss with reference to recent changes to European Union labelling law for wine and assess the implications of these changes for consumers."
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Describe the steps a wine technician would take to confirm raised volatile acidity in a bottled red wine sample and to identify the source of the problem."
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Evaluate the commercial success of three different styles of rosé wine."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Do emerging wine regions need international investment to succeed on the global stage?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "As sales manager for a small, premium winery, outline your strategy to sell to the on-trade."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Examine the profitability of various wine packaging formats from both a production and a retail point of view."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Evaluate the strengths and weaknesses of own-label projects for a medium-sized winery."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "What are the financial barriers to success for a new wine producer and how can these be overcome?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Two questions to be answered, one from Section A and one from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "'Great wine is made in the vineyard.' Do you agree?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Could it be argued that recent climate change has been a good thing for wine lovers?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Propose and justify a contemporary definition of fine wine and discuss how perspectives on this may have changed over time."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "How and why should governments influence wine consumption?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How important is the concept of a defined wine region?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2025,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How effectively can vineyard pests and diseases be controlled without using agrochemicals?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "\"Bacterial and phytoplasma diseases are the greatest threats to vine health today.\" Discuss."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How can artificial intelligence ('AI') be used in viticulture to improve the quality of wine grapes?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "To what extent does soil management affect the quality of wine grapes?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How do changing rainfall and wind patterns affect viticulture?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "To what extent can rootstocks be used to mitigate the effects of climate change?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "Paper 2 (Vinification)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Critically assess the key techniques a winemaker can use to enhance complexity and texture in bottle-fermented sparkling wines."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Evaluate the different winemaking techniques that can enhance a wine's potential for extended bottle ageing."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Examine the roles of bacteria in winemaking. How can bacteria be managed to achieve desired outcomes?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Evaluate prevention and correction strategies for each of the following issues:\n\na. 0.9g/L volatile acidity in a Chablis wine (pH3.2, 12.5% ABV) intended for lees ageing;\nb. Strong reductive aromas post-malolactic fermentation in a premium Barossa Shiraz (pH 3.8, 15% ABV) destined for 24-month oak ageing;\nc. 180mg/L total sulphur dioxide in a Bordeaux blend (pH 3.6, 13.5% ABV) pre-bottling."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Considering a diversity of wine styles, critically evaluate the importance of blending to achieve consistency."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Assess how pH influences winemaking decisions at key stages from grape to finished wine."
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two of the following four questions.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "As a producer of a dry white wine that may age in bottle for up to five years, you are considering changing from natural cork stoppers to an alternative closure. What technical factors should you consider?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Write concise notes on three of the following:\n\na. Mousiness.\nb. Light strike in bottled wine.\nc. Elevated volatile acidity in bottled wine.\nd. Management of a tank of rosé with free sulphur dioxide well above its ideal level."
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "What are the key factors to consider when deciding whether to cold stabilise white and red wines? What quality control measures are required to test that wine is stable?"
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Why are fining agents used in winemaking? For each of the following wines, explain which factors might influence the choice of fining agent used:\n\na. Entry-level South African Chenin Blanc;\nb. DOCG Barolo; and\nc. Vegan AOC Côtes de Provence rosé."
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Three questions to be answered, one from Section A and two from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "How has Champagne maintained its primacy in the world of sparkling wine?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "Do sustainability initiatives inevitably compromise profitability?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "How can the wine industry best address the issues of overproduction and falling consumption?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "To what extent can government wine monopolies benefit producers, retailers and consumers?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Wineries are increasingly selling direct to consumers. Evaluate the strengths and weaknesses of this approach compared to other routes to market."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Discuss the evolution of the négociant business format in Burgundy over the last 15 years, explaining the contributing factors. Are current conditions financially sustainable?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Two questions to be answered, one from Section A and one from Section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What will be the likely impact on the global wine industry if health warnings about cancer risks become increasingly mandatory on wine labels? Discuss the implications of such changes for producers, marketers and consumers."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How is the global wine industry adapting to changing societal attitudes towards alcohol consumption, and how should it respond to the challenges and opportunities these changes present?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "You are tasked with creating a wine blend that represents the essence of humanity's wine culture. Which grapes or regions would you include, and which winemaking style and packaging would you use, and why?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Analyse the major ethical concerns in the production of wine."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "To what extent does wine's cultural heritage remain relevant to younger consumers around the globe?"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "exam_type": "THEORY",
+    "year": 2026,
+    "papers": [
+      {
+        "paper": 1,
+        "title": "Viticulture",
+        "domain": "viticulture",
+        "rubric": "Answer three questions, one from section A and two from section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "What is regenerative viticulture and how does it compare with other approaches to growing grapes?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How can viticulturists manage vineyards to produce fresher wines with lower levels of alcohol?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Assess the beneficial and detrimental effects of fungi and bacteria in viticulture."
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Compare the impact of different vine training methods on wine quality."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How do grape growers decide when to harvest?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Which do you consider to be more important: the physical or the chemical properties of vineyard soils?"
+          }
+        ]
+      },
+      {
+        "paper": 2,
+        "title": "Vinification and pre-bottling procedures",
+        "domain": "vinification_and_pre_bottling",
+        "rubric": "Answer three questions, one from section A and two from section B.",
+        "source_heading": "Theory paper 2 (vinification)",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Assess the key considerations for a winemaker when selecting an appropriate fining agent."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How can temperature control be used in the winery to influence wine style during winemaking and maturation?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Discuss the key causes of stuck fermentations. How can they be minimised or avoided?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Discuss how a winemaker can manage the risks of reducing or eliminating sulphur dioxide use in the winery."
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "Consider how winemakers in warmer winegrowing regions can achieve freshness and balance in their wines."
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "Outline the different types of stability problems that may present in a finished wine prior to bottling. How can these be mitigated?"
+          }
+        ]
+      },
+      {
+        "paper": 3,
+        "title": "Handling of wine",
+        "domain": "handling_of_wine",
+        "rubric": "Answer two questions.",
+        "source_heading": "Theory paper 3 (the production of wine) — the 2026 paper is titled \"the production of wine\" rather than the \"handling of wine\" used in 2015–2025, but its content (HACCP, bulk shipping, bottling-line contamination, oxygen at bottling) is the handling-of-wine syllabus.",
+        "questions": [
+          {
+            "n": 1,
+            "section": null,
+            "text": "What is the purpose of the HACCP (Hazard Analysis and Critical Control Points) system? How can it be useful for a winery handling and shipping bulk wine?"
+          },
+          {
+            "n": 2,
+            "section": null,
+            "text": "Evaluate the benefits and drawbacks of shipping wine in bottle compared to shipping it in bulk."
+          },
+          {
+            "n": 3,
+            "section": null,
+            "text": "As the quality assurance manager of a large winery, what actions would you take if microbial contamination were found in routine samples taken from the bottling line?"
+          },
+          {
+            "n": 4,
+            "section": null,
+            "text": "Consider how oxygen may be controlled during the preparation of finished wine for bottling."
+          }
+        ]
+      },
+      {
+        "paper": 4,
+        "title": "The business of wine",
+        "domain": "business_of_wine",
+        "rubric": "Answer three questions, one from section A and two from section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Discuss the factors that explain Prosecco's continued global success."
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "How are enduring luxury wine brands built?"
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "What are the main barriers to trade for producers wishing to export their wines to the USA? What strategies can they adopt to address them?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Is the current decline in global wine consumption merely cyclical, or a long-term trend?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "What are the commercial advantages and disadvantages of owning vineyards compared to buying in grapes?"
+          },
+          {
+            "n": 6,
+            "section": "B",
+            "text": "How important is public relations in the marketing mix for a medium-sized, premium wine producer?"
+          }
+        ]
+      },
+      {
+        "paper": 5,
+        "title": "Contemporary issues",
+        "domain": "contemporary_issues",
+        "rubric": "Answer two questions, one from section A and one from section B.",
+        "source_heading": "",
+        "questions": [
+          {
+            "n": 1,
+            "section": "A",
+            "text": "Does the language of wine connect or divide us?"
+          },
+          {
+            "n": 2,
+            "section": "A",
+            "text": "\"A little learning is a dangerous thing.\" (Alexander Pope). Discuss in relation to wine appreciation."
+          },
+          {
+            "n": 3,
+            "section": "B",
+            "text": "Artificial Intelligence is impacting all aspects of wine from production to consumption. Who will be the winners and losers by 2035?"
+          },
+          {
+            "n": 4,
+            "section": "B",
+            "text": "Which environmental certifications, if any, do you consider most helpful to those who make, sell and consume wine?"
+          },
+          {
+            "n": 5,
+            "section": "B",
+            "text": "How would you define a wine influencer in the contemporary media landscape? Consider the extent to which wine influencers help or hinder consumers and the wine trade today."
+          }
+        ]
+      }
+    ]
+  }
+]
