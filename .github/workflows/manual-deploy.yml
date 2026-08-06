@@ -35,7 +35,16 @@ jobs:
       - name: Pull settings, build, deploy
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          # DATABASE_URL is a Sensitive env var on Vercel, so `vercel pull` writes an unusable
+          # placeholder — prebuild (scripts/migrate.mjs) then crashes on "not a valid URL"
+          # (first three runs of this workflow, 2026-08-06). Substitute the repo Actions secret
+          # (already used by bank-fill.yml / auto-feedback.yml) into the pulled env file so the
+          # local CI build migrates against the real database, exactly as a Vercel build would.
+          grep -v '^DATABASE_URL=' .vercel/.env.production.local > .vercel/.env.tmp || true
+          mv .vercel/.env.tmp .vercel/.env.production.local
+          printf 'DATABASE_URL=%s\n' "$DATABASE_URL" >> .vercel/.env.production.local
           npx vercel build --prod --token="$VERCEL_TOKEN"
           npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
