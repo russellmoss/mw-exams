@@ -6,7 +6,12 @@
 // a mechanism to *comment on*), hard-rejects any banned phrase, and caps stem length at 40 words. The
 // neutral framings the exam genuinely uses are whitelisted so they never trip the scan.
 import { describe, it, expect } from "vitest";
-import { stemPreannouncesDiscriminator, validateQuestion } from "../src/lib/question-validator";
+import {
+  partTaskRepertoireViolations,
+  stemPreannouncesDiscriminator,
+  validateQuestion,
+} from "../src/lib/question-validator";
+import type { AuditWine } from "../src/lib/question-validator";
 
 describe("stemPreannouncesDiscriminator — one banned phrase per fixture rejects", () => {
   it.each([
@@ -62,6 +67,103 @@ describe("stemPreannouncesDiscriminator — clean stems pass", () => {
   });
 });
 
+// ── part-task-repertoire — fixtures built verbatim from the three binned questions ────────────────
+// (bin_fix_proposals id 8: gen_p3_F7_1785964017240, gen_p3_F2_1785964017222, gen_p2_F2_1785968458385)
+
+const sparklingWine = (slot: number, style: string): AuditWine => ({
+  slot,
+  varieties: [],
+  region: "",
+  style,
+  style_category: "Sparkling",
+});
+
+describe("partTaskRepertoireViolations", () => {
+  it("rejects the 'how the bubbles were created' rider (gen_p3_F7_1785964017240)", () => {
+    const v = partTaskRepertoireViolations({
+      questionId: "t-bubbles",
+      paper: 3,
+      family: "F7",
+      questionText:
+        "Wines 1-4 are all sparkling wines from four different countries.\n\nFor each wine:\n\n" +
+        "a) Identify the country and region of origin as closely as possible. (4 x 7 marks)\n\n" +
+        "b) Comment on the key production decisions evident in the wine, including how the bubbles were created. (4 x 8 marks)\n\n" +
+        "c) Assess the quality within the context of sparkling wine globally, citing any relevant official quality designation. (4 x 5 marks)\n\n" +
+        "d) Comment on the commercial position of the wine. (4 x 5 marks)",
+      wines: [1, 2, 3, 4].map((s) => sparklingWine(s, "Sparkling")),
+    });
+    const hits = v.filter((x) => x.rule === "part-task-repertoire");
+    expect(hits).toHaveLength(1);
+    expect(hits[0].severity).toBe("hard");
+    expect(hits[0].detail).toContain("how the bubbles were created");
+    // All-sparkling flight: the variety-ID template requirement is waived.
+    expect(v.some((x) => x.rule === "missing-variety-id-part")).toBe(false);
+  });
+
+  it("rejects the free-standing 'role of autolysis and dosage' part c (gen_p3_F2_1785964017222)", () => {
+    const v = partTaskRepertoireViolations({
+      questionId: "t-autolysis",
+      paper: 3,
+      family: "F2",
+      questionText:
+        "Wines 1 and 2 are from the same country.\n\nWith reference to both wines:\n" +
+        "a) Identify the country and the regions of origin as closely as possible. (2 x 8 marks)\n\n" +
+        "b) Compare the key winemaking decisions evident in each wine. (2 x 5 marks)\n\n" +
+        "c) Comment on the role of autolysis and dosage in each wine. (2 x 4 marks)\n\n" +
+        "d) Comment on the style and quality of each wine. (2 x 5 marks)\n\n" +
+        "e) Comment on the commercial position of each wine. (2 x 3 marks)",
+      wines: [sparklingWine(1, "Champagne"), sparklingWine(2, "Traditional-method sparkling")],
+    });
+    const hits = v.filter((x) => x.rule === "part-task-repertoire");
+    expect(hits).toHaveLength(1);
+    expect(hits[0].detail).toContain("part c");
+    expect(hits[0].detail).toContain("role of autolysis and dosage");
+  });
+
+  it("rejects the three-country flight that never asks for the variety (gen_p2_F2_1785968458385)", () => {
+    const v = partTaskRepertoireViolations({
+      questionId: "t-no-variety",
+      paper: 2,
+      family: "F2",
+      questionText:
+        "Wines 1 to 3 are from three different countries.\n\nFor all three wines:\n" +
+        "a) Identify the country and region of origin as closely as possible. (3 x 9 marks)\n\n" +
+        "For each wine:\n" +
+        "b) Comment on the style and key winemaking decisions. (3 x 8 marks)\n" +
+        "c) Assess the quality and commercial position. (3 x 8 marks)",
+      wines: [
+        { slot: 1, varieties: ["Tempranillo"], region: "Rioja", country: "Spain", style: "Red" },
+        { slot: 2, varieties: ["Syrah"], region: "Barossa", country: "Australia", style: "Red" },
+        { slot: 3, varieties: ["Cabernet Sauvignon"], region: "Napa Valley", country: "USA", style: "Red" },
+      ],
+    });
+    // Every part is a canonical task — the fault is the MISSING variety-ID part.
+    expect(v.filter((x) => x.rule === "part-task-repertoire")).toHaveLength(0);
+    const missing = v.filter((x) => x.rule === "missing-variety-id-part");
+    expect(missing).toHaveLength(1);
+    expect(missing[0].severity).toBe("hard");
+  });
+
+  it("passes the canonical template (guard against over-rejection)", () => {
+    const v = partTaskRepertoireViolations({
+      questionId: "t-canonical",
+      paper: 1,
+      family: "F1",
+      questionText:
+        "Wines 1 and 2 are from two different countries.\n\nFor each wine:\n" +
+        "a) Identify the grape variety and region of origin as closely as possible. (2 x 8 marks)\n" +
+        "b) Comment on the style and the key winemaking decisions behind each wine. (2 x 9 marks)\n" +
+        "c) Discuss the role of yeast in shaping the wine. (2 x 4 marks)\n" +
+        "d) Assess quality, maturity and commercial position. (2 x 8 marks)",
+      wines: [
+        { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", style: "White" },
+        { slot: 2, varieties: ["Chardonnay"], region: "Margaret River", country: "Australia", style: "White" },
+      ],
+    });
+    expect(v).toEqual([]);
+  });
+});
+
 describe("validateQuestion wiring", () => {
   it("marks a pre-announcing stem as not ok", () => {
     const res = validateQuestion({
@@ -73,5 +175,20 @@ describe("validateQuestion wiring", () => {
     });
     expect(res.ok).toBe(false);
     expect(res.violations.some((x) => x.rule === "stem-preannounces-discriminator")).toBe(true);
+  });
+
+  it("marks an off-repertoire part task as not ok", () => {
+    const res = validateQuestion({
+      questionId: "t2",
+      paper: 3,
+      family: "F7",
+      questionText:
+        "Wines 1 and 2 are from the same country.\n\n" +
+        "a) Identify the country and region of origin as closely as possible. (2 x 8 marks)\n" +
+        "b) Explain how the bubbles were created in each wine. (2 x 9 marks)",
+      wines: [],
+    });
+    expect(res.ok).toBe(false);
+    expect(res.violations.some((x) => x.rule === "part-task-repertoire")).toBe(true);
   });
 });
