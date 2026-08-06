@@ -1,0 +1,77 @@
+# CI gate — the three checks that each catch something the other two cannot.
+#
+# WHY ALL THREE. On 2026-08-05 a change shipped that was green locally and broke the production
+# build, and separately `tsc` sat red on master for a day while the suite passed. The checks have
+# genuinely disjoint blind spots:
+#
+#   tsc --noEmit   type errors, INCLUDING in tests/     — blind to bundling
+#   vitest         behaviour                            — blind to bundling AND to types
+#   next build     bundling: a server-only import (fs,   — blind to anything under tests/
+#                  neon) reachable from a "use client"
+#                  module fails only here
+#
+# The specific escape that motivated this: WineReveal (a client component) imported a helper from
+# wine-bank-lookup, which reads the seed bank with `fs`. tsc passed (it does not bundle), vitest
+# passed (it runs in Node, where `fs` resolves), and the Vercel build failed with
+# "Module not found: Can't resolve 'fs'".
+#
+# NEVER use `npm run build` here. Its `prebuild` runs scripts/migrate.mjs, and migrations are gated
+# on VERCEL_ENV — an off-Vercel run like this one is treated as "a human is driving" and WOULD
+# migrate the production database from CI. `npx next build` skips prebuild entirely. That is safe
+# because every artifact prebuild would generate (question-index.json, pipeline-context.json,
+# app-surface.json and the rest of public/data) is committed to the repo.
+#
+# No secrets are needed: the build compiles without DATABASE_URL, and nothing here touches the DB.
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "study-app/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "study-app/**"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+# A newer push to the same branch makes an in-flight run obsolete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: study-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: study-app/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      # Each check runs even if an earlier one failed, so one run reports every problem rather than
+      # only the first. The job still fails if any of them do.
+      - name: Typecheck (tsc --noEmit)
+        if: success() || failure()
+        run: npx tsc --noEmit
+
+      - name: Tests (vitest)
+        if: success() || failure()
+        run: npx vitest run
+
+      - name: Production build (next build, no prebuild — see header)
+        if: success() || failure()
+        run: npx next build
