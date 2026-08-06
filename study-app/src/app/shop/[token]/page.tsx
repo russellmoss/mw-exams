@@ -5,6 +5,7 @@ import { hashShareToken, looksLikeShareToken } from "@/lib/share-token";
 import type { Stockist } from "@/lib/live-tasting";
 import { VintageForm } from "./VintageForm";
 import { PartnerWineEntry } from "./PartnerWineEntry";
+import { BriefCard } from "@/app/components/BriefCard";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -59,11 +60,9 @@ export default async function ShopPage({ params }: { params: Promise<{ token: st
             Pick bottles matching the brief below, then enter exactly what you bought and the
             practice question gets built around your bottles.
           </p>
-          <section className="bg-card rounded-xl border border-border p-5 mb-6">
-            <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-              {session.prep_guidance}
-            </div>
-          </section>
+          <div className="mb-6">
+            <BriefCard title="The brief" markdown={session.prep_guidance ?? ""} />
+          </div>
           <section className="bg-card rounded-xl border border-border p-5">
             <h2 className="text-lg font-semibold text-foreground mb-3">Enter what you bought</h2>
             <PartnerWineEntry token={token} defaultCount={session.flight_size} />

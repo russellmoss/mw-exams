@@ -9,6 +9,7 @@ import { StreamingFeedback } from "@/app/components/StreamingFeedback";
 import { useDraft } from "@/lib/use-draft";
 import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
 import { ByoWineForm } from "@/app/components/ByoWineForm";
+import { BriefCard } from "@/app/components/BriefCard";
 
 type SlotSummary = { slot: number; stockistCount: number; thin: boolean };
 type SlotAvail = {
@@ -275,12 +276,7 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
           {/* BYO tasting prep: the shopping brief + two ways to enter the wines */}
           {session.state === "prep" && (
             <>
-              <section className="bg-card rounded-xl border border-border p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-3 font-display">Your shopping brief</h2>
-                <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                  {session.prepGuidance}
-                </div>
-              </section>
+              <BriefCard title="Your shopping brief" markdown={session.prepGuidance ?? ""} />
               <section className="bg-card rounded-xl border border-border p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Got the wines?</h2>
                 <p className="text-sm text-muted mb-4">
