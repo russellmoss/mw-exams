@@ -31,7 +31,7 @@ const DEFAULT_INSERT: TheoryAttemptInsert = {
     };
     const rows = await sql`
       INSERT INTO user_attempts (
-        question_id, user_id, mode, input_method, flagged, stem_detail,
+        theory_question_id, user_id, mode, input_method, flagged, stem_detail,
         user_answer, elapsed_seconds, drill_payload, submission_key, app_version
       ) VALUES (
         ${input.questionId}, ${input.userId}, 'theory', ${input.inputMethod}, false, 'none',
