@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root, :root[data-theme="dark"]{ color-scheme:dark;
+--background:#0c0a09; --foreground:#e7e5e4; --card:#1c1917; --card-hover:#292524;
+--border:#44403c; --accent:#d97706; --accent-hover:#f59e0b; --muted:#78716c;
+--success:#22c55e; --fail:#ef4444; --borderline:#eab308; }
+:root[data-theme="light"]{ color-scheme:light;
+--background:#fafaf9; --foreground:#1c1917; --card:#ffffff; --card-hover:#f5f5f4;
+--border:#d6d3d1; --accent:#b45309; --accent-hover:#92400e; --muted:#78716c;
+--success:#15803d; --fail:#dc2626; --borderline:#a16207; }
+html,body{ margin:0; padding:0; background:var(--background); color:var(--foreground);
+font-family:"Geist",system-ui,sans-serif; }
+a{ color:var(--accent); text-decoration:none; } a:hover{ color:var(--accent-hover); }
+textarea{ field-sizing:content; }
+@keyframes pulse-dot{ 0%,100%{opacity:.3} 50%{opacity:1} }
+@keyframes introFadeUp{ from{opacity:0; transform:translateY(24px)} to{opacity:1; transform:translateY(0)} }
+@keyframes introFade{ from{opacity:0} to{opacity:1} }
+@keyframes introBar{ from{width:0} to{width:100%} }
+::-webkit-scrollbar{ width:6px; height:6px; } ::-webkit-scrollbar-track{ background:var(--card); }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:3px; }
+</style>
+</helmet>
+
+<div style="min-height:100vh; display:flex; flex-direction:column; background:var(--background); color:var(--foreground); font-family:'Geist',system-ui,sans-serif;">
+
+<!-- ============ NAV SHELL ============ -->
+<nav data-screen-label="Nav shell" ref="{{ tourRefNav }}" style="border-bottom:1px solid var(--border); background:color-mix(in srgb, var(--card) 50%, transparent); position:relative; z-index:40;">
+  <div style="max-width:64rem; margin:0 auto; padding:10px 24px; display:flex; align-items:center; justify-content:space-between;">
+    <div style="display:flex; align-items:center; gap:24px;">
+      <a href="#" onClick="{{ goHome }}" style="flex-shrink:0; display:flex;"><img src="assets/logo.png" alt="BWC" width="28" height="28" style="display:block;"></a>
+      <div style="display:flex; align-items:center; gap:20px;">
+        <a href="#" onClick="{{ goTheory }}" style="{{ navTheoryStyle }}" style-hover="color:var(--foreground);">Theory</a>
+        <div style="position:relative; display:flex; align-items:center; gap:4px;">
+          <a href="#" onClick="{{ goPractice }}" style="{{ navPracticeStyle }}" style-hover="color:var(--foreground);">Practical</a>
+          <button onClick="{{ toggleFlyout }}" aria-label="Practice menu" style="{{ chevronStyle }}" style-hover="color:var(--foreground);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="{{ chevronSvgStyle }}"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
+          </button>
+          <sc-if value="{{ flyoutOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:0; top:100%; margin-top:10px; width:230px; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.45); padding:4px 0; z-index:50;">
+              <a href="#" onClick="{{ goFlights }}" style="display:block; padding:8px 16px; font-size:0.75rem; font-weight:500; color:var(--muted);" style-hover="color:var(--foreground); background:var(--card-hover);">Dry Flights<span style="display:block; font-weight:400; color:var(--muted); margin-top:1px;">Simulated exam flights — no wine</span></a>
+              <a href="#" onClick="{{ goLive }}" style="display:block; padding:8px 16px; font-size:0.75rem; font-weight:500; color:var(--muted);" style-hover="color:var(--foreground); background:var(--card-hover);">Live Tastings<span style="display:block; font-weight:400; color:var(--muted); margin-top:1px;">Real bottles, timed event</span></a>
+            </div>
+          </sc-if>
+        </div>
+        <a href="#" onClick="{{ goLibrary }}" style="{{ navLibraryStyle }}" style-hover="color:var(--foreground);">Library</a>
+        <a href="#" onClick="{{ goHistory }}" style="{{ navHistoryStyle }}" style-hover="color:var(--foreground);">History</a>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div ref="{{ tourRefBell }}" style="position:relative;">
+        <button onClick="{{ toggleBell }}" aria-label="Feedback notifications" style="position:relative; padding:6px; background:none; border:none; color:var(--muted); cursor:pointer; display:flex;" style-hover="color:var(--foreground);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path></svg>
+          <span style="position:absolute; top:0; right:0; width:16px; height:16px; border-radius:999px; background:var(--accent); color:var(--background); font-size:0.625rem; font-weight:700; display:flex; align-items:center; justify-content:center;">2</span>
+        </button>
+        <sc-if value="{{ bellOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; right:0; top:100%; margin-top:10px; width:320px; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.45); z-index:50; overflow:hidden;">
+            <div style="padding:12px 16px; border-bottom:1px solid var(--border);">
+              <p style="margin:0; font-size:0.875rem; font-weight:600;">Feedback Analysis</p>
+              <p style="margin:2px 0 0; font-size:0.75rem; color:var(--muted);">2 new</p>
+            </div>
+            <sc-for list="{{ bellItems }}" as="b" hint-placeholder-count="3">
+              <button style="{{ b.rowStyle }}" style-hover="background:var(--card-hover);">
+                <span style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px; min-width:0;">
+                  <span style="font-family:'Geist Mono',monospace; font-size:0.6875rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ b.context }}</span>
+                  <span style="{{ b.badgeStyle }}">{{ b.badge }}</span>
+                </span>
+                <span style="display:block; font-size:0.75rem; color:var(--foreground); opacity:0.85; line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ b.text }}</span>
+                <span style="display:block; font-size:0.625rem; color:var(--muted); margin-top:4px;">{{ b.when }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <button onClick="{{ toggleTheme }}" aria-label="Switch theme" style="padding:6px; background:none; border:none; color:var(--muted); cursor:pointer; display:flex;" style-hover="color:var(--foreground);">
+        <sc-if value="{{ isDark }}" hint-placeholder-val="{{ true }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"></path></svg>
+        </sc-if>
+        <sc-if value="{{ isLight }}" hint-placeholder-val="{{ false }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"></path></svg>
+        </sc-if>
+      </button>
+      <button style="display:flex; align-items:center; gap:6px; padding:4px 8px; border-radius:8px; background:none; border:none; font-size:0.75rem; font-weight:500; color:var(--muted); cursor:pointer; font-family:inherit;" style-hover="color:var(--foreground);">
+        Margaret<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<main data-screen-label="Home launcher" style="flex:1;">
+  <div style="max-width:64rem; margin:0 auto; padding:40px 24px;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Good evening, Margaret</h1>
+      <span style="font-size:0.75rem; color:var(--muted);">Wednesday 6 August · 34 days to Stage 2</span>
+    </div>
+
+    <div ref="{{ tourRefContinue }}" style="background:var(--card); border:1px solid var(--accent); border-radius:12px; padding:24px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
+      <div style="min-width:240px;">
+        <p style="margin:0 0 4px; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent);">Continue</p>
+        <p style="margin:0; font-size:0.875rem; font-weight:600;">Dry Flights · Paper 2 · Full Question</p>
+        <p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Your usual drill — same paper, family and mode as last night</p>
+      </div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button style="padding:8px 20px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--accent-hover);">Start same drill</button>
+        <button onClick="{{ goEssay }}" style="padding:8px 20px; background:none; color:var(--foreground); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--card-hover);">Resume essay draft · 32 min left</button>
+      </div>
+    </div>
+
+    <div ref="{{ tourRefNudge }}" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin:-8px 0 24px; padding:10px 24px; border:1px solid var(--border); border-radius:12px; background:none;">
+      <p style="margin:0; font-size:0.8125rem; color:var(--muted);"><span style="color:var(--foreground); font-weight:600;">Paper 3 is your gap</span> — 4 of your last 6 P3 flights failed, and it's 34 days out.</p>
+      <button onClick="{{ goPractice }}" style="padding:6px 14px; background:none; color:var(--accent); border:none; border-radius:8px; font-size:0.8125rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 150ms;" style-hover="color:var(--accent-hover);">Drill Paper 3 &rarr;</button>
+    </div>
+
+    <div ref="{{ tourRefPillars }}" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:32px;">
+      <button onClick="{{ goTheory }}" style="text-align:left; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; cursor:pointer; font-family:inherit; color:var(--foreground); transition:border-color 150ms, background 150ms;" style-hover="border-color:var(--muted); background:var(--card-hover);">
+        <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.25rem; font-weight:600; margin:0 0 6px;">Theory</h2>
+        <p style="margin:0 0 12px; font-size:0.875rem; color:var(--muted);">Timed essays graded against rubrics from the examiners&rsquo; reports.</p>
+        <p style="margin:0; font-size:0.75rem; color:var(--muted);"><span style="color:var(--accent); font-weight:600;">243 questions</span> · 5 papers · 2016&ndash;2025</p>
+      </button>
+      <button onClick="{{ goPractice }}" style="text-align:left; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; cursor:pointer; font-family:inherit; color:var(--foreground); transition:border-color 150ms, background 150ms;" style-hover="border-color:var(--muted); background:var(--card-hover);">
+        <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.25rem; font-weight:600; margin:0 0 6px;">Practical</h2>
+        <p style="margin:0 0 12px; font-size:0.875rem; color:var(--muted);">Blind-tasting drills for the three practical papers.</p>
+        <p style="margin:0; font-size:0.75rem; color:var(--muted);"><span style="color:var(--accent); font-weight:600;">2 drills</span> · Dry Flights · Live Tastings</p>
+      </button>
+    </div>
+
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;">
+      <h3 style="margin:0; font-size:0.75rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">Recent work</h3>
+      <a href="#" onClick="{{ goHistory }}" style="font-size:0.75rem; font-weight:500;">All history &rarr;</a>
+    </div>
+    <div ref="{{ tourRefRecent }}" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;">
+      <sc-for list="{{ recentWork }}" as="r" hint-placeholder-count="4">
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:0.6875rem; color:var(--muted);">{{ r.when }}</span>
+            <span style="{{ r.badgeStyle }}">{{ r.verdict }}</span>
+          </div>
+          <p style="margin:0; font-size:0.8125rem; font-weight:600; line-height:1.35;">{{ r.title }}</p>
+          <p style="margin:3px 0 0; font-size:0.6875rem; color:var(--muted);">{{ r.meta }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ PRACTICE HUB ============ -->
+<sc-if value="{{ isPractice }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Practical hub" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:64rem; margin:0 auto; padding:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Practical</h1>
+      <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">The practical exam: three papers of twelve wines, tasted blind.</p>
+    </div>
+  </header>
+  <div style="max-width:64rem; margin:0 auto; padding:32px 24px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; display:flex; flex-direction:column; transition:border-color 150ms;" style-hover="border-color:var(--muted);">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
+          <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.25rem; font-weight:600; margin:0;">Dry Flights</h2>
+          <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; flex-shrink:0;">2&ndash;30 min</span>
+        </div>
+        <p style="margin:0 0 16px; font-size:0.875rem; color:var(--muted); line-height:1.5;">Simulated exam flights — no wine required. A generated or banked exam question, a timed written answer, graded to MW standard with a full debrief.</p>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+          <sc-for list="{{ flightModes }}" as="m" hint-placeholder-count="4">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; border-top:1px solid var(--border); padding-top:8px;">
+              <div style="min-width:0;"><span style="display:block; font-size:0.8125rem; font-weight:600;">{{ m.name }}</span><span style="display:block; font-size:0.6875rem; color:var(--muted); margin-top:1px; line-height:1.45;">{{ m.desc }}</span></div>
+              <span style="font-size:0.6875rem; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; flex-shrink:0;">{{ m.time }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <button onClick="{{ goFlights }}" style="margin-top:auto; padding:8px 16px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--accent-hover);">Start a dry flight</button>
+      </div>
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; display:flex; flex-direction:column; transition:border-color 150ms;" style-hover="border-color:var(--muted);">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
+          <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.25rem; font-weight:600; margin:0;">Live Tastings</h2>
+          <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; flex-shrink:0;">2&frac14; hrs</span>
+        </div>
+        <p style="margin:0 0 16px; font-size:0.875rem; color:var(--muted); line-height:1.5;">The real thing: buy a curated flight of local wines, pour them blind, and sit a full timed paper against actual glasses.</p>
+        <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px;">
+          <p style="margin:0; font-size:0.6875rem; color:var(--muted); border-top:1px solid var(--border); padding-top:12px;">Next event: <span style="color:var(--foreground); font-weight:600;">Sat 9 Aug · Paper 1</span></p>
+          <button onClick="{{ goLive }}" style="padding:8px 16px; background:none; color:var(--foreground); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--card-hover);">Plan a tasting</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ THEORY LANDING ============ -->
+<sc-if value="{{ isTheory }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Theory landing" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:64rem; margin:0 auto; padding:24px; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Theory</h1>
+        <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">243 past questions, 2016&ndash;2025 · graded against the examiners&rsquo; reports</p>
+      </div>
+      <button onClick="{{ randomQuestion }}" style="padding:8px 20px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--accent-hover);">Give me a question</button>
+    </div>
+  </header>
+  <div style="max-width:64rem; margin:0 auto; padding:24px;">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+      <sc-for list="{{ paperPills }}" as="p" hint-placeholder-count="6">
+        <button onClick="{{ p.onClick }}" style="{{ p.style }}" style-hover="color:var(--foreground);">{{ p.label }}</button>
+      </sc-for>
+      <span style="flex:1;"></span>
+      <button onClick="{{ toggleUnattempted }}" style="{{ unattemptedPillStyle }}" style-hover="color:var(--foreground);">Unattempted only</button>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+      <div style="display:grid; grid-template-columns:64px 170px 1fr 90px 70px; gap:12px; padding:10px 20px; border-bottom:1px solid var(--border); font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);">
+        <span>Year</span><span>Paper</span><span>Question</span><span>Budget</span><span style="text-align:right;">Status</span>
+      </div>
+      <sc-for list="{{ questionRows }}" as="q" hint-placeholder-count="8">
+        <button onClick="{{ goEssay }}" style="display:grid; grid-template-columns:64px 170px 1fr 90px 70px; gap:12px; padding:12px 20px; border:none; border-bottom:1px solid var(--border); background:none; width:100%; text-align:left; cursor:pointer; font-family:inherit; color:var(--foreground); align-items:baseline; transition:background 60ms;" style-hover="background:var(--card-hover);">
+          <span style="font-size:0.8125rem; color:var(--muted); font-variant-numeric:tabular-nums;">{{ q.year }}</span>
+          <span style="font-size:0.75rem; color:var(--muted);">P{{ q.paper }} · {{ q.paperName }}</span>
+          <span style="font-size:0.875rem; line-height:1.45;">{{ q.text }}</span>
+          <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums;">{{ q.budget }}</span>
+          <span style="text-align:right;"><span style="{{ q.statusStyle }}">{{ q.status }}</span></span>
+        </button>
+      </sc-for>
+      <div style="padding:10px 20px; font-size:0.75rem; color:var(--muted); display:flex; justify-content:space-between;">
+        <span>Showing {{ shownCount }} of 243</span><span>Papers 1&ndash;4: 60 min · Paper 5: 90 min</span>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ THEORY ESSAY SURFACE ============ -->
+<sc-if value="{{ isEssay }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Theory essay surface" style="flex:1;">
+  <div style="max-width:46rem; margin:0 auto; padding:32px 24px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+      <a href="#" onClick="{{ goTheory }}" style="font-size:0.75rem; font-weight:500; color:var(--muted);" style-hover="color:var(--foreground);">&larr; Theory</a>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span style="font-size:0.75rem; color:var(--muted);">{{ autosaveLabel }}</span>
+        <span style="font-family:'Geist Mono',monospace; font-size:1.125rem; font-weight:500; font-variant-numeric:tabular-nums; color:{{ timerColor }};">{{ timerLabel }}</span>
+      </div>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <p style="margin:0 0 8px; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">2022 · Paper 4 · Business of wine · Q3 · 60 min</p>
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.375rem; font-weight:600; margin:0; line-height:1.4;">&ldquo;Is the three-tier distribution system in the USA fit for purpose?&rdquo; Discuss.</h1>
+    </div>
+    <textarea value="{{ essayText }}" onChange="{{ onEssayChange }}" placeholder="Plan first. Examiners reward structure — a clear line of argument beats a list of facts." style="width:100%; box-sizing:border-box; min-height:340px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; font-family:'Geist',system-ui,sans-serif; font-size:0.9375rem; line-height:1.7; color:var(--foreground); resize:vertical; outline:none;" style-focus="border-color:var(--accent);"></textarea>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px;">
+      <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums;">{{ wordCount }} words</span>
+      <div style="display:flex; gap:12px;">
+        <button onClick="{{ goTheory }}" style="padding:8px 16px; background:none; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--card-hover); color:var(--foreground);">Save &amp; exit</button>
+        <button onClick="{{ goEssayResult }}" style="padding:8px 20px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--accent-hover);">Submit for grading</button>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ DRY FLIGHTS WIZARD ============ -->
+<sc-if value="{{ isFlights }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Dry Flights wizard" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:56rem; margin:0 auto; padding:24px; display:flex; align-items:flex-end; justify-content:space-between; gap:16px;">
+      <div>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Dry Flights</h1>
+        <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">Simulated exam flights — no wine required</p>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <sc-for list="{{ wizCrumbs }}" as="c" hint-placeholder-count="2">
+          <span style="font-size:0.6875rem; font-weight:500; padding:4px 12px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">{{ c }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+  <div style="max-width:56rem; margin:0 auto; padding:32px 24px;">
+
+    <sc-if value="{{ wizIsPaper }}" hint-placeholder-val="{{ true }}">
+      <h2 style="margin:0 0 6px; font-size:1.25rem; font-weight:600;">Choose a paper</h2>
+      <p style="margin:0 0 24px; font-size:0.875rem; color:var(--muted);">Each paper mirrors one of the three practical exam papers.</p>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+        <sc-for list="{{ wizPapers }}" as="p" hint-placeholder-count="3">
+          <button onClick="{{ p.onClick }}" style="border-radius:12px; border:1px solid var(--border); background:var(--card); padding:32px; text-align:left; cursor:pointer; font-family:inherit; color:var(--foreground); transition:border-color 200ms, background 200ms;" style-hover="border-color:var(--muted); background:var(--card-hover);">
+            <div style="font-size:1.875rem; margin-bottom:16px;">{{ p.icon }}</div>
+            <h3 style="margin:0 0 4px; font-size:1.25rem; font-weight:600;">{{ p.title }}</h3>
+            <p style="margin:0 0 8px; font-size:0.9375rem; color:var(--accent); font-weight:500;">{{ p.subtitle }}</p>
+            <p style="margin:0; font-size:0.875rem; color:var(--muted);">{{ p.description }}</p>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ wizIsFamily }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+        <a href="#" onClick="{{ wizBackToPaper }}" style="font-size:0.875rem; color:var(--muted);" style-hover="color:var(--foreground);">&larr; Back</a>
+        <h2 style="margin:0; font-size:1.25rem; font-weight:600;">{{ wizPaperLabel }}</h2>
+      </div>
+      <p style="margin:0 0 24px; font-size:0.875rem; color:var(--muted);">Choose a question family to focus on, or pick &ldquo;Any&rdquo; for a random question.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <sc-for list="{{ wizFamilies }}" as="f" hint-placeholder-count="8">
+          <button onClick="{{ f.onClick }}" style="{{ f.style }}" style-hover="border-color:color-mix(in srgb, var(--accent) 60%, transparent); background:var(--card-hover);">
+            <span style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:0.875rem; font-weight:500;"><sc-if value="{{ f.code }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Geist Mono',monospace; font-size:0.75rem; color:var(--accent); margin-right:8px;">{{ f.code }}</span></sc-if>{{ f.label }}</span>
+              <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;">{{ f.count }}</span>
+            </span>
+            <span style="display:block; font-size:0.75rem; color:var(--muted); line-height:1.55;">{{ f.desc }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ wizIsMode }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+        <a href="#" onClick="{{ wizBackToFamily }}" style="font-size:0.875rem; color:var(--muted);" style-hover="color:var(--foreground);">&larr; Back</a>
+        <h2 style="margin:0; font-size:1.25rem; font-weight:600;">Choose a mode</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <sc-for list="{{ wizModes }}" as="m" hint-placeholder-count="4">
+          <button onClick="{{ m.onClick }}" style="text-align:left; border-radius:12px; border:1px solid var(--border); background:var(--card); padding:20px; cursor:pointer; font-family:inherit; color:var(--foreground); transition:border-color 200ms, background 200ms;" style-hover="border-color:color-mix(in srgb, var(--accent) 60%, transparent); background:var(--card-hover);">
+            <span style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:4px;">
+              <span style="font-size:0.9375rem; font-weight:600;">{{ m.name }}</span>
+              <span style="font-size:0.6875rem; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums;">{{ m.time }}</span>
+            </span>
+            <span style="display:block; font-size:0.75rem; color:var(--muted); line-height:1.55;">{{ m.desc }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ wizIsAcquire }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+        <a href="#" onClick="{{ wizBackToMode }}" style="font-size:0.875rem; color:var(--muted);" style-hover="color:var(--foreground);">&larr; Back</a>
+        <h2 style="margin:0; font-size:1.25rem; font-weight:600;">New or banked?</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:44rem;">
+        <button style="text-align:left; border-radius:12px; border:1px solid var(--accent); background:var(--card); padding:24px; cursor:pointer; font-family:inherit; color:var(--foreground); transition:background 200ms;" style-hover="background:var(--card-hover);">
+          <span style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:4px;">
+            <span style="font-size:1rem; font-weight:600;">Banked question</span>
+            <span style="font-size:0.6875rem; font-weight:600; padding:2px 8px; border-radius:999px; color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, transparent); white-space:nowrap;">14 unseen</span>
+          </span>
+          <span style="display:block; font-size:0.75rem; color:var(--muted); line-height:1.55;">Instant — a reviewed question from the bank you have never seen. No wait, no generation cost.</span>
+        </button>
+        <button style="text-align:left; border-radius:12px; border:1px solid var(--border); background:var(--card); padding:24px; cursor:pointer; font-family:inherit; color:var(--foreground); transition:border-color 200ms, background 200ms;" style-hover="border-color:var(--muted); background:var(--card-hover);">
+          <span style="display:block; font-size:1rem; font-weight:600; margin-bottom:4px;">New question</span>
+          <span style="display:block; font-size:0.75rem; color:var(--muted); line-height:1.55;">Generates a fresh exam question against the bank&rsquo;s coverage gaps. Takes 30&ndash;60 seconds.</span>
+        </button>
+      </div>
+      <p style="margin:16px 0 0; font-size:0.75rem; color:var(--muted);">Your default is banked-first — set in Settings.</p>
+    </sc-if>
+
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ LIVE TASTINGS ============ -->
+<sc-if value="{{ isLive }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Live Tastings" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:42rem; margin:0 auto; padding:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Live Tastings</h1>
+      <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">A real blind flight from wines you can actually buy near Toronto — shop, bag, taste blind, get graded.</p>
+    </div>
+  </header>
+  <div style="max-width:42rem; margin:0 auto; padding:32px 24px; display:flex; flex-direction:column; gap:32px;">
+
+    <section style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px;">
+      <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.125rem; font-weight:600; margin:0 0 8px;">New Live Tasting</h2>
+      <p style="margin:0 0 20px; font-size:0.875rem; color:var(--muted); line-height:1.6;">We&rsquo;ll pick a coherent MW-style flight available near Toronto, write the question around it, and keep the wines hidden from you. Have a partner buy and bag the bottles to keep the blind honest.</p>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">What are you building?</span>
+          <div style="display:flex; gap:8px;">
+            <sc-for list="{{ ltTypePills }}" as="s" hint-placeholder-count="2">
+              <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="color:var(--foreground);">{{ s.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ ltIsPaper }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:8px 0 0; font-size:0.75rem; color:var(--muted); line-height:1.55;">A corpus-realistic paper: the question mix, flight sizes and wine spread mirror real exams — you don&rsquo;t pick families, just like the real thing.</p>
+          </sc-if>
+        </div>
+        <div>
+          <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">Who picks the wines?</span>
+          <div style="display:flex; gap:8px;">
+            <sc-for list="{{ ltModePills }}" as="s" hint-placeholder-count="2">
+              <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="color:var(--foreground);">{{ s.label }}</button>
+            </sc-for>
+          </div>
+          <sc-if value="{{ ltIsByo }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:8px 0 0; font-size:0.75rem; color:var(--muted); line-height:1.55;">You get a shopping brief for your paper and question type; buy whatever fits (or hand the brief to a partner), enter the bottles, and the question is built around them.</p>
+          </sc-if>
+        </div>
+        <div>
+          <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">Paper</span>
+          <div style="display:flex; gap:8px;">
+            <sc-for list="{{ ltPaperPills }}" as="s" hint-placeholder-count="3">
+              <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="color:var(--foreground);">{{ s.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ ltIsQuestion }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex; gap:24px;">
+            <div>
+              <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">Wines</span>
+              <div style="display:flex; gap:8px;">
+                <sc-for list="{{ ltSizePills }}" as="s" hint-placeholder-count="3">
+                  <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="color:var(--foreground);">{{ s.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="flex:1; max-width:160px;">
+              <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">Budget / bottle</span>
+              <input type="number" placeholder="60 CAD" style="width:100%; box-sizing:border-box; padding:8px 12px; background:var(--background); border:1px solid var(--border); border-radius:8px; color:var(--foreground); font-size:0.875rem; font-family:inherit; font-variant-numeric:tabular-nums; outline:none;">
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ ltIsPaper }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <span style="display:block; font-size:0.875rem; font-weight:500; margin-bottom:6px;">Paper size</span>
+            <div style="display:flex; gap:8px;">
+              <sc-for list="{{ ltPaperSizePills }}" as="s" hint-placeholder-count="2">
+                <button onClick="{{ s.onClick }}" style="{{ s.style }}" style-hover="color:var(--foreground);">{{ s.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <div>
+          <button style="padding:10px 24px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 200ms;" style-hover="background:var(--accent-hover);">{{ ltButtonLabel }}</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.125rem; font-weight:600; margin:0 0 12px;">Your papers</h2>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <sc-for list="{{ ltPapers }}" as="pp" hint-placeholder-count="1">
+          <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px; transition:background 150ms;" style-hover="background:var(--card-hover);">
+            <div>
+              <p style="margin:0; font-size:0.875rem; font-weight:500;">{{ pp.title }}</p>
+              <p style="margin:2px 0 0; font-size:0.75rem; color:var(--muted);">{{ pp.meta }}</p>
+            </div>
+            <span style="{{ pp.chipStyle }}">{{ pp.chip }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section>
+      <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.125rem; font-weight:600; margin:0 0 12px;">Your sessions</h2>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <sc-for list="{{ ltSessions }}" as="s" hint-placeholder-count="3">
+          <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:16px; transition:background 150ms;" style-hover="background:var(--card-hover);">
+            <div>
+              <p style="margin:0; font-size:0.875rem; font-weight:500;">{{ s.title }}</p>
+              <p style="margin:2px 0 0; font-size:0.75rem; color:var(--muted);">{{ s.meta }}</p>
+            </div>
+            <span style="{{ s.chipStyle }}">{{ s.chip }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ GRADED ESSAY RESULT ============ -->
+<sc-if value="{{ isEssayResult }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Graded essay result" style="flex:1;">
+  <div style="max-width:46rem; margin:0 auto; padding:32px 24px;">
+    <a href="#" onClick="{{ goHistory }}" style="font-size:0.75rem; font-weight:500; color:var(--muted);" style-hover="color:var(--foreground);">&larr; History</a>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin:16px 0;">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px;">
+        <div>
+          <p style="margin:0 0 8px; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted);">2022 · Paper 4 · Business of wine · Q3 · 58 min</p>
+          <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.375rem; font-weight:600; margin:0; line-height:1.4;">&ldquo;Is the three-tier distribution system in the USA fit for purpose?&rdquo; Discuss.</h1>
+        </div>
+        <div style="text-align:right; flex-shrink:0;">
+          <p style="margin:0; font-size:2.25rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1; font-family:'Fraunces',Georgia,serif;">64</p>
+          <p style="margin:2px 0 8px; font-size:0.6875rem; color:var(--muted);">/ 100</p>
+          <span style="font-size:0.625rem; font-weight:700; letter-spacing:0.04em; padding:2px 10px; border-radius:999px; color:var(--success); background:color-mix(in srgb, var(--success) 12%, transparent);">PASS</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h2 style="margin:0; font-size:0.875rem; font-weight:600;">Rubric coverage</h2>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:120px; height:4px; background:var(--border); border-radius:2px; overflow:hidden;"><div style="height:100%; width:71%; background:var(--accent); border-radius:2px;"></div></div>
+          <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums;">71%</span>
+        </div>
+      </div>
+      <p style="margin:0 0 10px; font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);">Core requirements · 4 of 5</p>
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+        <sc-for list="{{ rubricCore }}" as="r" hint-placeholder-count="5">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="{{ r.markStyle }}">{{ r.mark }}</span>
+            <div style="min-width:0;">
+              <p style="margin:0; font-size:0.8125rem; line-height:1.5;">{{ r.text }}</p>
+              <sc-if value="{{ r.quote }}" hint-placeholder-val="{{ false }}">
+                <p style="margin:3px 0 0; font-size:0.75rem; font-style:italic; color:var(--muted); line-height:1.5; border-left:2px solid var(--border); padding-left:10px;">&ldquo;{{ r.quote }}&rdquo; — examiners&rsquo; report, 2022</p>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="margin:0 0 10px; font-size:0.6875rem; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted);">Differentiators · 1 of 2</p>
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;">
+        <sc-for list="{{ rubricDiff }}" as="r" hint-placeholder-count="2">
+          <div style="display:flex; gap:10px; align-items:flex-start;">
+            <span style="{{ r.markStyle }}">{{ r.mark }}</span>
+            <p style="margin:0; font-size:0.8125rem; line-height:1.5;">{{ r.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border-top:1px solid var(--border); padding-top:16px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="font-size:0.625rem; font-weight:700; padding:2px 8px; border-radius:999px; color:var(--success); background:color-mix(in srgb, var(--success) 12%, transparent); white-space:nowrap;">CREDIT</span>
+          <p style="margin:0; font-size:0.8125rem; color:var(--muted); line-height:1.5;">Named examples earned credit: Southern Glazer&rsquo;s consolidation, post-Granholm DtC carve-outs.</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="font-size:0.625rem; font-weight:700; padding:2px 8px; border-radius:999px; color:var(--borderline); background:color-mix(in srgb, var(--borderline) 12%, transparent); white-space:nowrap;">TRAP</span>
+          <p style="margin:0; font-size:0.8125rem; color:var(--muted); line-height:1.5;">Scope trap partially triggered: two paragraphs described the system&rsquo;s history without arguing fitness for purpose — the command word is <em>discuss</em>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <h2 style="margin:0 0 8px; font-size:0.875rem; font-weight:600;">Examiner-style summary</h2>
+      <p style="margin:0; font-size:0.875rem; color:var(--muted); line-height:1.7;">A competent pass. The argument structure was clear and both sides of the fitness question were addressed, with strong use of named market examples. What kept this out of the 70s: the counterfactual (what replaces three-tier?) was asserted rather than developed, and the regulatory-capture point — a differentiator the strongest answers made — was absent. Timing was good; the conclusion answered the question directly.</p>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 24px;">
+      <div>
+        <p style="margin:0; font-size:0.875rem; font-weight:600;">Model answer</p>
+        <p style="margin:2px 0 0; font-size:0.75rem; color:var(--muted);">A full-marks answer built from the rubric — compare after reading your debrief.</p>
+      </div>
+      <button style="padding:8px 16px; background:none; color:var(--accent); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 150ms;" style-hover="background:var(--card-hover);">Reveal</button>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ ATTEMPT DETAIL (from History) ============ -->
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Attempt detail" style="flex:1;">
+  <div style="max-width:46rem; margin:0 auto; padding:32px 24px;">
+    <a href="#" onClick="{{ goHistory }}" style="font-size:0.75rem; font-weight:500; color:var(--muted);" style-hover="color:var(--foreground);">&larr; History</a>
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin:16px 0;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:12px; flex-wrap:wrap;">
+        <p style="margin:0; font-size:0.75rem; color:var(--muted);">Dry Flights · Paper 2 · <span style="font-family:'Geist Mono',monospace; color:var(--accent);">F1</span> Common Variety · Full Question · 5 Aug, 21:40 · 27 min</p>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums;">31/45</span>
+          <span style="font-size:0.625rem; font-weight:700; letter-spacing:0.04em; padding:2px 10px; border-radius:999px; color:var(--success); background:color-mix(in srgb, var(--success) 12%, transparent);">PASS</span>
+        </div>
+      </div>
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.25rem; font-weight:600; margin:0; line-height:1.45;">Wines 1&ndash;3 are made from the same grape variety. Identify the variety, and for each wine identify its origin as closely as possible and assess its quality.</h1>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <h2 style="margin:0 0 12px; font-size:0.875rem; font-weight:600;">The flight <span style="font-weight:400; color:var(--muted);">(revealed after grading)</span></h2>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <sc-for list="{{ detailWines }}" as="w" hint-placeholder-count="3">
+          <div style="display:flex; gap:12px; align-items:baseline; border-top:1px solid var(--border); padding-top:8px;">
+            <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; color:var(--muted); flex-shrink:0;">Wine {{ w.slot }}</span>
+            <p style="margin:0; font-size:0.8125rem; line-height:1.5;">{{ w.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <h2 style="margin:0 0 12px; font-size:0.875rem; font-weight:600;">Your answer</h2>
+      <p style="margin:0 0 10px; font-size:0.8125rem; color:var(--muted); line-height:1.7;">The common variety is Syrah. Wine 1 shows white pepper, violet and a cool savoury mid-palate with fresh acid — Northern Rh&ocirc;ne, likely Crozes-Hermitage, very good quality with typicity and length&hellip;</p>
+      <p style="margin:0; font-size:0.8125rem; color:var(--muted); line-height:1.7;">Wine 3 is riper: American oak sweetness, eucalyptus lift, softer acid — Australian Shiraz, Barossa, good quality but less complexity than its weight suggests&hellip; <a href="#">Show full answer</a></p>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+        <h2 style="margin:0; font-size:0.875rem; font-weight:600;">Debrief</h2>
+        <div style="display:flex; gap:8px;">
+          <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums;">Identification 14/18</span>
+          <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums;">· Assessment 10/15</span>
+          <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums;">· Quality 7/12</span>
+        </div>
+      </div>
+      <p style="margin:0 0 10px; font-size:0.875rem; color:var(--muted); line-height:1.7;"><strong style="color:var(--emphasis, var(--accent)); font-weight:600;">Variety call: correct, well argued.</strong> Pepper + violet + savoury acid line is exactly the evidence chain examiners want for Syrah, stated before the conclusion — good funnelling discipline.</p>
+      <p style="margin:0; font-size:0.875rem; color:var(--muted); line-height:1.7;"><strong style="color:var(--emphasis, var(--accent)); font-weight:600;">Where marks were lost:</strong> Wine 2&rsquo;s origin was hedged (&ldquo;Rh&ocirc;ne or cooler New World&rdquo;) — commit and justify. Quality assessments leaned on scores without the <em>because</em>: balance, length, intensity, complexity need to be cited as evidence, not implied.</p>
+    </div>
+
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px;">
+      <h2 style="margin:0 0 4px; font-size:0.875rem; font-weight:600;">Your feedback on this question</h2>
+      <p style="margin:0 0 16px; font-size:0.75rem; color:var(--muted);">Submitted at the debrief step · analyzed by the system</p>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="border:1px solid var(--border); border-radius:8px; padding:12px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:0.6875rem; font-weight:600; color:var(--foreground);">You · 21:52</span>
+          </div>
+          <p style="margin:0; font-size:0.8125rem; color:var(--muted); line-height:1.6;">The debrief marked my volatile acidity note on wine 3 as a fault confusion, but at this ripeness level a touch of VA is a fair stylistic read for warm-climate Shiraz. Feels over-penalized.</p>
+        </div>
+        <div style="border:1px solid var(--border); border-radius:8px; padding:12px 16px; background:color-mix(in srgb, var(--accent) 4%, transparent);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <span style="font-size:0.6875rem; font-weight:600; color:var(--foreground);">System analysis · 22:10</span>
+            <span style="font-size:0.625rem; font-weight:700; padding:2px 10px; border-radius:999px; color:var(--success); background:color-mix(in srgb, var(--success) 12%, transparent);">ACCEPT</span>
+          </div>
+          <p style="margin:0 0 8px; font-size:0.8125rem; color:var(--muted); line-height:1.6;">You&rsquo;re right. The wine profile for slot 3 lists 0.7 g/L VA — within style for Barossa Shiraz — and the marking principles credit &ldquo;stylistically integrated VA noted without calling it a fault.&rdquo; Your note did exactly that. The grading prompt&rsquo;s fault-confusion check has been adjusted for this profile.</p>
+          <p style="margin:0; font-size:0.6875rem; color:var(--muted);">Accepted · fix applied to the question bank · reviewed 6 Aug</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ HISTORY ============ -->
+<sc-if value="{{ isHistory }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="History" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:64rem; margin:0 auto; padding:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">History</h1>
+      <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">Every attempt, theory and practical, newest first</p>
+    </div>
+  </header>
+  <div style="max-width:64rem; margin:0 auto; padding:24px;">
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px;"><p style="margin:0; font-size:1.875rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1;">148</p><p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Attempts</p></div>
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px;"><p style="margin:0; font-size:1.875rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1; color:var(--success);">61%</p><p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Pass rate, last 30 days</p></div>
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px;"><p style="margin:0; font-size:1.875rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1;">17</p><p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Theory essays graded</p></div>
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px;"><p style="margin:0; font-size:1.875rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.1;">12</p><p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Day streak</p></div>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:16px;">
+      <sc-for list="{{ historyPills }}" as="hp" hint-placeholder-count="3">
+        <button onClick="{{ hp.onClick }}" style="{{ hp.style }}" style-hover="color:var(--foreground);">{{ hp.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <sc-for list="{{ historyRows }}" as="h" hint-placeholder-count="5">
+        <div onClick="{{ h.onOpen }}" style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px; cursor:pointer; transition:border-color 150ms;" style-hover="border-color:var(--muted);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:6px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+              <span style="{{ h.kindStyle }}">{{ h.kind }}</span>
+              <span style="font-size:0.75rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ h.meta }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:0.75rem; color:var(--muted); font-variant-numeric:tabular-nums;">{{ h.score }}</span>
+              <span style="{{ h.badgeStyle }}">{{ h.verdict }}</span>
+            </div>
+          </div>
+          <p style="margin:0; font-size:0.875rem; font-weight:600; line-height:1.4;">{{ h.title }}</p>
+          <sc-if value="{{ h.coverage }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+              <div style="flex:1; height:4px; background:var(--border); border-radius:2px; overflow:hidden;"><div style="height:100%; width:{{ h.coveragePct }}; background:var(--accent); border-radius:2px;"></div></div>
+              <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;">rubric coverage {{ h.coveragePct }}</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ h.wines }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px; display:flex; gap:4px;">
+              <sc-for list="{{ h.wineDots }}" as="w" hint-placeholder-count="12">
+                <span style="{{ w.style }}" title="{{ w.label }}"></span>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ LIBRARY ============ -->
+<sc-if value="{{ isLibrary }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Library" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:64rem; margin:0 auto; padding:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Library</h1>
+      <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">Study diagrams and decision trees. Learning units coming soon.</p>
+    </div>
+  </header>
+  <div style="max-width:64rem; margin:0 auto; padding:32px 24px;">
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+      <sc-for list="{{ libraryItems }}" as="d" hint-placeholder-count="6">
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; cursor:pointer; transition:border-color 150ms;" style-hover="border-color:var(--muted);">
+          <p style="margin:0 0 4px; font-size:0.875rem; font-weight:600;">{{ d.title }}</p>
+          <p style="margin:0; font-size:0.75rem; color:var(--muted);">{{ d.meta }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ MOBILE MOCKUPS ============ -->
+<sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Mobile views" style="flex:1;">
+  <header style="border-bottom:1px solid var(--border);">
+    <div style="max-width:64rem; margin:0 auto; padding:24px;">
+      <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.5rem; font-weight:700; margin:0;">Mobile</h1>
+      <p style="margin:4px 0 0; font-size:0.875rem; color:var(--muted);">Phone width: bottom tab bar — Home · Theory · Practice · History · More</p>
+    </div>
+  </header>
+  <div style="max-width:64rem; margin:0 auto; padding:32px 24px; display:flex; gap:32px; justify-content:center; flex-wrap:wrap;">
+    <div style="width:320px; height:640px; border:1px solid var(--border); border-radius:28px; background:var(--background); overflow:hidden; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+      <div style="padding:14px 20px 10px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border);">
+        <img src="assets/logo.png" alt="BWC" width="22" height="22">
+        <span style="font-size:0.6875rem; color:var(--muted);">34 days to Stage 2</span>
+      </div>
+      <div style="flex:1; padding:16px; overflow:hidden; display:flex; flex-direction:column; gap:12px;">
+        <div style="background:var(--card); border:1px solid var(--accent); border-radius:12px; padding:16px;">
+          <p style="margin:0 0 2px; font-size:0.625rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent);">Continue</p>
+          <p style="margin:0 0 10px; font-size:0.8125rem; font-weight:600;">Flights · Paper 2 · Full Question</p>
+          <button style="width:100%; padding:10px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.8125rem; font-weight:600; font-family:inherit;">Start same drill</button>
+        </div>
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+          <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:1rem; font-weight:600;">Theory</p>
+          <p style="margin:2px 0 0; font-size:0.6875rem; color:var(--muted);">243 questions · 5 papers</p>
+        </div>
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px;">
+          <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:1rem; font-weight:600;">Practical</p>
+          <p style="margin:2px 0 0; font-size:0.6875rem; color:var(--muted);">Dry Flights · Live Tastings</p>
+        </div>
+        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 16px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--muted);">Last night</span>
+          <span style="font-size:0.625rem; font-weight:700; letter-spacing:0.04em; padding:2px 8px; border-radius:999px; color:var(--success); background:color-mix(in srgb, var(--success) 12%, transparent);">PASS</span>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border); background:var(--card); display:grid; grid-template-columns:repeat(5,1fr); padding:8px 4px 14px;">
+        <sc-for list="{{ mobileTabsHome }}" as="t" hint-placeholder-count="5">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px; min-height:44px; justify-content:center;">
+            <span style="{{ t.dotStyle }}"></span>
+            <span style="{{ t.labelStyle }}">{{ t.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="width:320px; height:640px; border:1px solid var(--border); border-radius:28px; background:var(--background); overflow:hidden; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.4);">
+      <div style="padding:14px 20px 10px; border-bottom:1px solid var(--border);">
+        <p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:1.125rem; font-weight:700;">Theory</p>
+        <p style="margin:2px 0 0; font-size:0.6875rem; color:var(--muted);">243 questions · 2016&ndash;2025</p>
+      </div>
+      <div style="padding:12px 16px; display:flex; gap:6px; overflow:hidden;">
+        <span style="font-size:0.6875rem; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--accent); color:var(--background); white-space:nowrap;">All</span>
+        <span style="font-size:0.6875rem; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">P1</span>
+        <span style="font-size:0.6875rem; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">P2</span>
+        <span style="font-size:0.6875rem; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">P3</span>
+        <span style="font-size:0.6875rem; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">P4</span>
+        <span style="font-size:0.6875rem; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--border); color:var(--muted); white-space:nowrap;">P5</span>
+      </div>
+      <div style="flex:1; padding:0 16px; display:flex; flex-direction:column; gap:8px; overflow:hidden;">
+        <sc-for list="{{ mobileTheoryRows }}" as="q" hint-placeholder-count="4">
+          <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px;">
+            <p style="margin:0 0 4px; font-size:0.625rem; color:var(--muted);">{{ q.meta }}</p>
+            <p style="margin:0; font-size:0.75rem; line-height:1.45;">{{ q.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border-top:1px solid var(--border); background:var(--card); display:grid; grid-template-columns:repeat(5,1fr); padding:8px 4px 14px;">
+        <sc-for list="{{ mobileTabsTheory }}" as="t" hint-placeholder-count="5">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:3px; min-height:44px; justify-content:center;">
+            <span style="{{ t.dotStyle }}"></span>
+            <span style="{{ t.labelStyle }}">{{ t.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</main>
+</sc-if>
+
+<sc-if value="{{ tourOpen }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="UI tour" style="position:fixed; inset:0; z-index:55;">
+    <div style="{{ tourSpotStyle }}"></div>
+    <div style="{{ tourCardStyle }}">
+      <p style="margin:0 0 4px; font-size:0.6875rem; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent);">{{ tourStepLabel }}</p>
+      <p style="margin:0 0 6px; font-size:0.9375rem; font-weight:600;">{{ tourTitle }}</p>
+      <p style="margin:0 0 16px; font-size:0.8125rem; color:var(--muted); line-height:1.6;">{{ tourText }}</p>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <button onClick="{{ tourSkip }}" style="padding:6px 0; background:none; border:none; color:var(--muted); cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:500; white-space:nowrap; transition:color 150ms;" style-hover="color:var(--foreground);">Skip tour</button>
+        <div style="display:flex; gap:8px;">
+          <sc-if value="{{ tourHasBack }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ tourBack }}" style="padding:7px 16px; background:none; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:0.8125rem; font-weight:500; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 150ms;" style-hover="color:var(--foreground);">&larr; Back</button>
+          </sc-if>
+          <button onClick="{{ tourNext }}" style="padding:7px 20px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.8125rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 150ms;" style-hover="background:var(--accent-hover);">{{ tourNextLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ introOpen }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Intro animation" style="position:fixed; inset:0; z-index:60; background:var(--background); display:flex; flex-direction:column; overflow:hidden;">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:20px 24px;">
+    <img src="assets/logo.png" alt="BWC" width="28" height="28" style="opacity:0.8;">
+    <span style="font-size:0.6875rem; color:var(--muted); font-variant-numeric:tabular-nums;">{{ introStepLabel }}</span>
+  </div>
+  <div style="flex:1; display:flex; align-items:center; justify-content:center; padding:24px;">
+    <div style="max-width:52rem; text-align:center;">
+
+      <sc-if value="{{ introIs1 }}" hint-placeholder-val="{{ true }}">
+        <p style="margin:0 0 20px; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); animation:introFade 800ms both;">Why this works</p>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:3.5rem; font-weight:700; margin:0 0 20px; line-height:1.1; animation:introFadeUp 700ms 200ms both;">The MW practical exam<br>is not random.</h1>
+        <p style="margin:0; font-size:1.125rem; color:var(--muted); line-height:1.6; animation:introFadeUp 700ms 600ms both;">It follows patterns — invisible in any single year,<br>unmistakable across a decade.</p>
+      </sc-if>
+
+      <sc-if value="{{ introIs2 }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0 0 20px; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); animation:introFade 600ms both;">Stem analysis</p>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:2.75rem; font-weight:700; margin:0 0 32px; line-height:1.15; animation:introFadeUp 700ms 100ms both;">We read the stem<br>before the glass.</h1>
+        <div style="display:flex; flex-direction:column; gap:10px; max-width:30rem; margin:0 auto; text-align:left;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; animation:introFadeUp 500ms 500ms both;"><span style="font-size:0.9375rem; color:var(--muted); white-space:nowrap;">The world of wine</span><span style="font-family:'Geist Mono',monospace; font-size:1.125rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;">10,000+</span></div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; animation:introFadeUp 500ms 900ms both;"><span style="font-size:0.9375rem; color:var(--muted); white-space:nowrap;">&ldquo;Paper 1&rdquo; — still whites only</span><span style="font-family:'Geist Mono',monospace; font-size:1.125rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;">~300</span></div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; animation:introFadeUp 500ms 1300ms both;"><span style="font-size:0.9375rem; color:var(--muted); white-space:nowrap;">&ldquo;Same single grape variety&rdquo;</span><span style="font-family:'Geist Mono',monospace; font-size:1.125rem; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap;">~40</span></div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:16px; border-top:1px solid var(--border); padding-top:10px; animation:introFadeUp 500ms 1800ms both;"><span style="font-size:1rem; font-weight:600; color:var(--foreground);">Your candidate set, before you smell a thing</span><span style="font-family:'Geist Mono',monospace; font-size:1.5rem; color:var(--accent); font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap;">8</span></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ introIs3 }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0 0 20px; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); animation:introFade 600ms both;">The corpus</p>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:2.75rem; font-weight:700; margin:0 0 36px; line-height:1.15; animation:introFadeUp 700ms 100ms both;">Built on every modern<br>exam. All of them.</h1>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:24px; max-width:44rem; margin:0 auto 28px;">
+          <div style="animation:introFadeUp 500ms 500ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:2.5rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;">540</p><p style="margin:6px 0 0; font-size:0.75rem; color:var(--muted);">wines researched</p></div>
+          <div style="animation:introFadeUp 500ms 700ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:2.5rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;">162</p><p style="margin:6px 0 0; font-size:0.75rem; color:var(--muted);">questions analyzed</p></div>
+          <div style="animation:introFadeUp 500ms 900ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:2.5rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;">13</p><p style="margin:6px 0 0; font-size:0.75rem; color:var(--muted);">examiner reports</p></div>
+          <div style="animation:introFadeUp 500ms 1100ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:2.5rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;">15</p><p style="margin:6px 0 0; font-size:0.75rem; color:var(--muted);">years of exams</p></div>
+        </div>
+        <p style="margin:0; font-size:1rem; color:var(--muted); line-height:1.6; animation:introFadeUp 600ms 1500ms both;">Every wine researched from tier-one sources — producer tech sheets,<br>Decanter, JancisRobinson, regional wine boards. <span style="color:var(--foreground); font-weight:500;">Not Reddit.</span></p>
+      </sc-if>
+
+      <sc-if value="{{ introIs4 }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0 0 20px; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); animation:introFade 600ms both;">Tested blind</p>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:2.75rem; font-weight:700; margin:0 0 36px; line-height:1.15; animation:introFadeUp 700ms 100ms both;">Measured against papers<br>it had never seen.</h1>
+        <div style="display:flex; gap:48px; justify-content:center; margin-bottom:28px;">
+          <div style="animation:introFadeUp 500ms 500ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:4rem; font-weight:700; color:var(--accent); font-variant-numeric:tabular-nums; line-height:1;">89%</p><p style="margin:8px 0 0; font-size:0.8125rem; color:var(--muted); max-width:14rem;">true variety in the candidate set — 2026 paper, predicted blind</p></div>
+          <div style="animation:introFadeUp 500ms 800ms both;"><p style="margin:0; font-family:'Fraunces',Georgia,serif; font-size:4rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1;">64%</p><p style="margin:8px 0 0; font-size:0.8125rem; color:var(--muted); max-width:14rem;">top-3 variety accuracy on the same unseen paper</p></div>
+        </div>
+        <p style="margin:0; font-size:1rem; color:var(--muted); line-height:1.6; animation:introFadeUp 600ms 1200ms both;">The trees don&rsquo;t tell you what the wine is. They bound the universe —<br>you narrow from there in the glass. <span style="color:var(--foreground); font-weight:500;">Honest numbers, blind-tested.</span></p>
+      </sc-if>
+
+      <sc-if value="{{ introIs5 }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0 0 20px; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); animation:introFade 600ms both;">Theory</p>
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:2.75rem; font-weight:700; margin:0 0 24px; line-height:1.15; animation:introFadeUp 700ms 100ms both;">Graded the way the<br>examiners grade.</h1>
+        <p style="margin:0 0 28px; font-size:1.125rem; color:var(--muted); line-height:1.7; animation:introFadeUp 600ms 500ms both;">Every theory essay is marked against a rubric derived from the<br>actual examiners&rsquo; reports — <span style="color:var(--foreground); font-weight:500;">243 rubrics, 2016&ndash;2025</span> —<br>with a model answer to compare against.</p>
+        <p style="margin:0; font-size:0.9375rem; color:var(--muted); animation:introFadeUp 600ms 1000ms both;">Real past questions. Real marking guidance. No invented standards.</p>
+      </sc-if>
+
+      <sc-if value="{{ introIs6 }}" hint-placeholder-val="{{ false }}">
+        <h1 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:3.5rem; font-weight:700; margin:0 0 20px; line-height:1.1; animation:introFadeUp 700ms both;">That&rsquo;s the edge.</h1>
+        <p style="margin:0 0 36px; font-size:1.125rem; color:var(--muted); animation:introFadeUp 600ms 400ms both;">Patterns, not guesswork. Now go taste.</p>
+        <div style="animation:introFadeUp 600ms 800ms both;">
+          <button onClick="{{ startStudying }}" style="padding:12px 32px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:1rem; font-weight:600; cursor:pointer; font-family:inherit; transition:background 150ms;" style-hover="background:var(--accent-hover);">Start studying</button>
+          <label style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:20px; font-size:0.8125rem; color:var(--muted); cursor:pointer;">
+            <input type="checkbox" checked="{{ introDontShow }}" onChange="{{ toggleDontShow }}" style="accent-color:var(--accent);">
+            Don&rsquo;t show this again
+          </label>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:20px; padding:0 24px 28px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <sc-if value="{{ introHasBack }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ introBack }}" style="padding:9px 20px; background:none; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 150ms, background 150ms;" style-hover="color:var(--foreground); background:var(--card);">&larr; Back</button>
+      </sc-if>
+      <sc-if value="{{ introNotLast }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ openIntroInfo }}" style="padding:9px 20px; background:none; color:var(--muted); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:500; cursor:pointer; font-family:inherit; white-space:nowrap; transition:color 150ms, background 150ms;" style-hover="color:var(--foreground); background:var(--card);">Learn more</button>
+        <button onClick="{{ introNext }}" style="padding:9px 28px; background:var(--accent); color:var(--background); border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 150ms;" style-hover="background:var(--accent-hover);">Next &rarr;</button>
+      </sc-if>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px;">
+      <sc-for list="{{ introDots }}" as="d" hint-placeholder-count="6">
+        <span style="{{ d.style }}"></span>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ introInfoOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:70; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div onClick="{{ closeIntroInfo }}" style="position:fixed; inset:0; background:color-mix(in srgb, var(--background) 70%, transparent); backdrop-filter:blur(4px);"></div>
+      <div style="position:relative; width:100%; max-width:34rem; max-height:80vh; overflow-y:auto; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 25px 50px rgba(0,0,0,0.5); padding:28px;">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:14px;">
+          <h2 style="font-family:'Fraunces',Georgia,serif; letter-spacing:-0.01em; font-size:1.375rem; font-weight:600; margin:0; line-height:1.3;">{{ introInfoTitle }}</h2>
+          <button onClick="{{ closeIntroInfo }}" aria-label="Close" style="padding:4px; background:none; border:none; color:var(--muted); cursor:pointer; display:flex; flex-shrink:0;" style-hover="color:var(--foreground);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ introInfoParas }}" as="para" hint-placeholder-count="3">
+            <p style="margin:0; font-size:0.875rem; color:var(--muted); line-height:1.7;">{{ para }}</p>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeIntroInfo }}" style="margin-top:20px; padding:8px 20px; background:none; color:var(--accent); border:1px solid var(--border); border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap; transition:background 150ms;" style-hover="background:var(--card-hover);">Back to the tour</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<button onClick="{{ openFeedback }}" title="Leave feedback on this question" style="position:fixed; bottom:20px; left:20px; z-index:40; display:flex; align-items:center; gap:6px; padding:8px 12px; border-radius:999px; background:var(--card); border:1px solid var(--border); color:var(--muted); cursor:pointer; font-family:inherit; font-size:0.75rem; font-weight:500; transition:color 150ms, border-color 150ms;" style-hover="color:var(--foreground); border-color:color-mix(in srgb, var(--accent) 40%, transparent);">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 011.037-.443 48.282 48.282 0 005.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path></svg>
+  Feedback
+</button>
+
+<sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div onClick="{{ closeFeedback }}" style="position:fixed; inset:0; background:color-mix(in srgb, var(--background) 60%, transparent); backdrop-filter:blur(4px);"></div>
+    <div style="position:relative; width:100%; max-width:28rem; background:var(--card); border:1px solid var(--border); border-radius:12px; box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <h3 style="margin:0; font-size:0.875rem; font-weight:600;">Leave Feedback</h3>
+        <button onClick="{{ closeFeedback }}" style="padding:4px; background:none; border:none; color:var(--muted); cursor:pointer; display:flex;" style-hover="color:var(--foreground);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div style="padding:20px;">
+        <sc-if value="{{ feedbackSent }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center; padding:16px 0;">
+            <p style="margin:0; font-size:0.875rem; font-weight:500; color:var(--accent);">Thanks! Feedback saved.</p>
+            <p style="margin:4px 0 0; font-size:0.75rem; color:var(--muted);">Analysis will appear in your notifications.</p>
+          </div>
+        </sc-if>
+        <sc-if value="{{ feedbackNotSent }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:0 0 12px; font-size:0.75rem; color:var(--muted);">Anything about the question, tasting notes, grading, or the app itself. This gets saved to your attempt record.</p>
+          <div style="position:relative;">
+            <textarea value="{{ feedbackText }}" onChange="{{ onFeedbackChange }}" placeholder="Type or speak your feedback..." style="width:100%; box-sizing:border-box; min-height:100px; background:var(--background); border:1px solid var(--border); border-radius:8px; padding:12px; padding-right:48px; font-size:0.875rem; font-family:inherit; color:var(--foreground); resize:vertical; outline:none;" style-focus="border-color:color-mix(in srgb, var(--accent) 60%, transparent);"></textarea>
+            <button title="Dictate" style="position:absolute; top:8px; right:8px; padding:6px; background:none; border:1px solid var(--border); border-radius:999px; color:var(--muted); cursor:pointer; display:flex;" style-hover="color:var(--foreground);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"></path></svg>
+            </button>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:12px;">
+            <button onClick="{{ sendFeedback }}" style="{{ sendFeedbackStyle }}" style-hover="background:var(--accent-hover);">Send Feedback</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<footer style="border-top:1px solid var(--border); margin-top:auto;">
+  <div style="max-width:64rem; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between;">
+    <p style="margin:0; font-size:0.75rem; color:var(--muted);">Built for MW Stage 2 preparation. Powered by Claude.</p>
+    <a href="#" onClick="{{ goMobile }}" style="font-size:0.75rem; color:var(--muted);" style-hover="color:var(--foreground);">View mobile mockups</a>
+  </div>
+</footer>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;startScreen&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;home&quot;, &quot;options&quot;: [&quot;home&quot;, &quot;practice&quot;, &quot;flights&quot;, &quot;live&quot;, &quot;theory&quot;, &quot;essay&quot;, &quot;essayResult&quot;, &quot;history&quot;, &quot;detail&quot;, &quot;library&quot;, &quot;mobile&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;View&quot; },
+  &quot;theme&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;dark&quot;, &quot;options&quot;: [&quot;dark&quot;, &quot;light&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;View&quot; },
+  &quot;showIntro&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;View&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    route: null, theme: null, flyoutOpen: false, bellOpen: false,
+    feedbackOpen: false, feedbackSent: false, feedbackText: "",
+    paperFilter: 0, unattemptedOnly: false, historyFilter: "All",
+    essayText: "", secondsLeft: 47 * 60 + 12, typedAt: null,
+    wizStep: "paper", wizPaper: 0, wizFamily: "", wizMode: "",
+    ltType: "question", ltMode: "pick-for-me", ltPaper: 1, ltSize: 3, ltPaperSize: "half",
+    introOpen: null, introScene: 0, introDontShow: false, introInfoOpen: false,
+    tourOpen: false, tourStep: 0, tourRect: null,
+  };
+
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      if (this.route() === "essay" && this.state.secondsLeft > 0) {
+        this.setState(s => ({ secondsLeft: s.secondsLeft - 1 }));
+      }
+    }, 1000);
+    this.applyTheme();
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  introIsOpen() { return this.state.introOpen ?? (this.props.showIntro ?? true); }
+  tourSteps() {
+    return [
+      { key: "nav", label: "1 of 6", title: "Two pillars, like the exam", text: "Theory and Practical mirror the two halves of Stage 2. Hover Practical\u2019s chevron for direct links to each drill; Library and History sit alongside." },
+      { key: "continue", label: "2 of 6", title: "One click back to work", text: "The Continue card repeats your last drill configuration \u2014 or resumes an unfinished essay exactly where you left it. Your fastest path in, every day." },
+      { key: "nudge", label: "3 of 6", title: "Your coach\u2019s nudge", text: "The app watches your verdicts and points at the gap most worth drilling, with the exam countdown attached. One line, one action \u2014 never a dashboard." },
+      { key: "pillars", label: "4 of 6", title: "Jump into either half", text: "Theory holds 243 real past essay questions graded against the examiners\u2019 reports. Practical gathers the tasting drills: Dry Flights and Live Tastings." },
+      { key: "recent", label: "5 of 6", title: "Your recent verdicts", text: "Momentum at a glance. Every card in History opens the full record \u2014 question, your answer, the debrief, and any feedback you filed." },
+      { key: "bell", label: "6 of 6", title: "Feedback comes back to you", text: "Report a bad question anywhere with the Feedback button, and the system\u2019s analysis \u2014 accepted or rejected, with reasons \u2014 lands here." },
+    ];
+  }
+  measureTour(attempt) {
+    const step = this.tourSteps()[this.state.tourStep];
+    const el = this.tourRefs && this.tourRefs[step.key];
+    if (el) {
+      const r = el.getBoundingClientRect();
+      this.setState({ tourRect: { top: r.top, left: r.left, width: r.width, height: r.height } });
+    } else if ((attempt || 0) < 5) {
+      setTimeout(() => this.measureTour((attempt || 0) + 1), 150);
+    }
+  }
+  tourGo(step) {
+    this.setState({ tourStep: step, tourRect: null });
+    setTimeout(() => this.measureTour(), 60);
+  }
+  componentDidUpdate() { this.applyTheme(); }
+
+  route() { return this.state.route ?? this.props.startScreen ?? "home"; }
+  theme() { return this.state.theme ?? this.props.theme ?? "dark"; }
+  applyTheme() { document.documentElement.dataset.theme = this.theme(); }
+
+  go(route) { return (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ route, flyoutOpen: false }); }; }
+
+  navStyle(active) {
+    return {
+      fontSize: "0.875rem", fontWeight: 500, transition: "color 150ms",
+      color: active ? "var(--accent)" : "var(--muted)",
+    };
+  }
+  pillStyle(active) {
+    return {
+      fontSize: "0.75rem", fontWeight: active ? 600 : 500, padding: "5px 14px", whiteSpace: "nowrap",
+      borderRadius: "999px", cursor: "pointer", fontFamily: "inherit", transition: "color 150ms, background 150ms",
+      background: active ? "var(--accent)" : "none",
+      color: active ? "var(--background)" : "var(--muted)",
+      border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
+    };
+  }
+  badge(kind) {
+    const color = kind === "PASS" ? "var(--success)" : kind === "FAIL" ? "var(--fail)" : kind === "BORDERLINE" ? "var(--borderline)" : "var(--muted)";
+    return {
+      fontSize: "0.625rem", fontWeight: 700, letterSpacing: "0.04em", padding: "2px 8px",
+      borderRadius: "999px", color, whiteSpace: "nowrap",
+      background: `color-mix(in srgb, ${color} 12%, transparent)`,
+    };
+  }
+  segStyle(active) {
+    return {
+      padding: "8px 16px", borderRadius: "8px", fontSize: "0.875rem", fontWeight: 500,
+      fontFamily: "inherit", cursor: "pointer", transition: "color 150ms, border-color 150ms", whiteSpace: "nowrap",
+      border: active ? "1px solid var(--accent)" : "1px solid var(--border)",
+      color: active ? "var(--accent)" : "var(--muted)",
+      background: active ? "color-mix(in srgb, var(--accent) 10%, transparent)" : "none",
+      fontVariantNumeric: "tabular-nums",
+    };
+  }
+  stateChip(color) {
+    return {
+      flexShrink: 0, fontSize: "0.75rem", fontWeight: 500, padding: "4px 10px", borderRadius: "999px",
+      whiteSpace: "nowrap", color,
+      border: `1px solid color-mix(in srgb, ${color} 40%, transparent)`,
+      background: `color-mix(in srgb, ${color} 10%, transparent)`,
+    };
+  }
+  bellRow(unread) {
+    return {
+      display: "block", width: "100%", textAlign: "left", padding: "12px 16px",
+      border: "none", borderBottom: "1px solid color-mix(in srgb, var(--border) 40%, transparent)",
+      cursor: "pointer", fontFamily: "inherit", transition: "background 60ms",
+      background: unread ? "color-mix(in srgb, var(--accent) 5%, transparent)" : "none",
+    };
+  }
+  kindTag(kind) {
+    return {
+      fontSize: "0.625rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase",
+      padding: "2px 8px", borderRadius: "4px", color: "var(--muted)",
+      border: "1px solid var(--border)",
+    };
+  }
+
+  renderVals() {
+    const route = this.route();
+    const theme = this.theme();
+    const p = this.state;
+
+    const papers = { 1: "Viticulture", 2: "Vinification", 3: "Handling of wine", 4: "Business of wine", 5: "Contemporary issues" };
+    const questions = [
+      { year: 2025, paper: 1, text: "Discuss the causes of, and remedies for, poor fruit set.", attempted: false },
+      { year: 2025, paper: 3, text: "What are the risks to wine quality during bulk shipping, and how can they be managed?", attempted: false },
+      { year: 2024, paper: 1, text: "How can grape growers respond to a warming climate without changing variety?", attempted: true },
+      { year: 2024, paper: 4, text: "\u201CDirect-to-consumer is the only profitable route for small producers.\u201D Discuss.", attempted: false },
+      { year: 2023, paper: 2, text: "Examine the choices available to a winemaker in managing oxygen during white winemaking.", attempted: true },
+      { year: 2023, paper: 5, text: "Does wine criticism still matter? Discuss with reference to changing media.", attempted: false },
+      { year: 2022, paper: 4, text: "\u201CIs the three-tier distribution system in the USA fit for purpose?\u201D Discuss.", attempted: true },
+      { year: 2022, paper: 2, text: "Assess the role of ambient yeast in shaping wine style and quality.", attempted: false },
+      { year: 2021, paper: 5, text: "\u201CSustainability certification is more about marketing than the environment.\u201D Discuss.", attempted: true },
+      { year: 2021, paper: 3, text: "Compare closure options for a premium still white wine intended for ten years of ageing.", attempted: false },
+      { year: 2020, paper: 1, text: "To what extent does irrigation regime determine wine quality in warm climates?", attempted: false },
+      { year: 2019, paper: 4, text: "What must a wine brand do to succeed in the on-trade? Use examples.", attempted: true },
+      { year: 2018, paper: 2, text: "Evaluate the winemaker\u2019s options for managing malolactic conversion.", attempted: false },
+      { year: 2017, paper: 5, text: "\u201CLow- and no-alcohol wine is a fad.\u201D Discuss.", attempted: false },
+    ];
+    const filtered = questions.filter(q =>
+      (p.paperFilter === 0 || q.paper === p.paperFilter) &&
+      (!p.unattemptedOnly || !q.attempted)
+    );
+    const questionRows = filtered.map(q => ({
+      ...q,
+      paperName: papers[q.paper],
+      budget: q.paper === 5 ? "90 min" : "60 min",
+      status: q.attempted ? "Attempted" : "New",
+      statusStyle: {
+        fontSize: "0.625rem", fontWeight: 600, letterSpacing: "0.04em", padding: "2px 8px", borderRadius: "999px",
+        color: q.attempted ? "var(--muted)" : "var(--accent)",
+        background: q.attempted ? "color-mix(in srgb, var(--muted) 12%, transparent)" : "color-mix(in srgb, var(--accent) 12%, transparent)",
+      },
+    }));
+
+    const paperPills = [{ label: "All papers", key: 0 }].concat(
+      Object.entries(papers).map(([n, name]) => ({ label: `P${n} ${name}`, key: Number(n) }))
+    ).map(pp => ({
+      label: pp.label,
+      style: this.pillStyle(p.paperFilter === pp.key),
+      onClick: () => this.setState({ paperFilter: pp.key }),
+    }));
+
+    const historyData = [
+      { kind: "Practical", meta: "Dry Flights · Paper 2 · Full Question · yesterday 21:40 · 27 min", title: "Q2: These three wines share a grape variety. Identify it, and compare quality.", score: "31/45", verdict: "PASS", wines: true, correct: [1,1,0,1,1,1,0,1,1,1,0,1] },
+      { kind: "Theory", meta: "Paper 4 · 2022 Q3 · yesterday 18:05 · 58 min", title: "\u201CIs the three-tier distribution system in the USA fit for purpose?\u201D Discuss.", score: "64/100", verdict: "PASS", coverage: true, coveragePct: "71%" },
+      { kind: "Practical", meta: "Dry Flights · Paper 1 · Stem Analysis Only · Tue 22:10 · 8 min", title: "Q1: Reasoned the flight from the stem \u2014 variety family called correctly.", score: "8/10", verdict: "PASS" },
+      { kind: "Theory", meta: "Paper 5 · 2021 Q1 · Mon 20:15 · 87 min", title: "\u201CSustainability certification is more about marketing than the environment.\u201D Discuss.", score: "48/100", verdict: "BORDERLINE", coverage: true, coveragePct: "52%" },
+      { kind: "Practical", meta: "Dry Flights · Paper 3 · Dry Notes · Mon 07:30 · 19 min", title: "Q3: Sparkling flight \u2014 method, origin and quality for wines 7\u20139.", score: "17/45", verdict: "FAIL", wines: true, correct: [0,1,0,0,1,0,1,0,0,1,0,0] },
+    ];
+    const historyRows = historyData
+      .filter(h => p.historyFilter === "All" || h.kind === p.historyFilter)
+      .map(h => ({
+        ...h,
+        onOpen: this.go(h.kind === "Theory" ? "essayResult" : "detail"),
+        kindStyle: this.kindTag(h.kind),
+        badgeStyle: this.badge(h.verdict),
+        wineDots: (h.correct || []).map((c, i) => ({
+          label: `Wine ${i + 1}: ${c ? "correct" : "missed"}`,
+          style: { width: "14px", height: "14px", borderRadius: "3px", display: "inline-block",
+            background: c ? "color-mix(in srgb, var(--success) 30%, transparent)" : "color-mix(in srgb, var(--fail) 25%, transparent)",
+            border: `1px solid ${c ? "var(--success)" : "var(--fail)"}` },
+        })),
+      }));
+
+    const historyPills = ["All", "Theory", "Practical"].map(label => ({
+      label, style: this.pillStyle(p.historyFilter === label),
+      onClick: () => this.setState({ historyFilter: label }),
+    }));
+
+    const mobileTabs = (active) => ["Home", "Theory", "Practical", "History", "More"].map(label => ({
+      label,
+      dotStyle: { width: "18px", height: "18px", borderRadius: "5px", background: label === active ? "var(--accent)" : "var(--border)" },
+      labelStyle: { fontSize: "0.5625rem", fontWeight: label === active ? 600 : 500, color: label === active ? "var(--accent)" : "var(--muted)" },
+    }));
+
+    const mins = Math.floor(p.secondsLeft / 60), secs = p.secondsLeft % 60;
+    const words = p.essayText.trim() ? p.essayText.trim().split(/\s+/).length : 0;
+
+    return {
+      isHome: route === "home", isPractice: route === "practice", isTheory: route === "theory",
+      isEssay: route === "essay", isHistory: route === "history", isLibrary: route === "library", isMobile: route === "mobile",
+      isFlights: route === "flights", isEssayResult: route === "essayResult", isDetail: route === "detail",
+      isLive: route === "live",
+      goLive: this.go("live"),
+      introOpen: this.introIsOpen(),
+      introIs1: p.introScene === 0, introIs2: p.introScene === 1, introIs3: p.introScene === 2,
+      introIs4: p.introScene === 3, introIs5: p.introScene === 4, introIs6: p.introScene === 5,
+      closeIntro: () => this.setState({ introOpen: false }),
+      startStudying: () => {
+        this.setState({ introOpen: false, tourOpen: true, tourStep: 0, tourRect: null, route: "home" });
+        setTimeout(() => this.measureTour(), 250);
+      },
+      introHasBack: p.introScene > 0,
+      introBack: () => this.setState(s => ({ introScene: Math.max(0, s.introScene - 1) })),
+      introNext: () => this.setState(s => ({ introScene: Math.min(5, s.introScene + 1) })),
+      introNotLast: p.introScene < 5,
+      introStepLabel: `${p.introScene + 1} / 6`,
+      introDontShow: p.introDontShow,
+      toggleDontShow: (e) => this.setState({ introDontShow: e.target.checked }),
+      introInfoOpen: p.introInfoOpen,
+      openIntroInfo: () => this.setState({ introInfoOpen: true }),
+      closeIntroInfo: () => this.setState({ introInfoOpen: false }),
+      introInfoTitle: [
+        "Why patterns matter",
+        "What is stem analysis?",
+        "What\u2019s actually in the corpus",
+        "How we measure honestly",
+        "How theory grading works",
+        "",
+      ][p.introScene],
+      introInfoParas: [
+        [
+          "Across any single exam year, wine selection looks arbitrary. Across fifteen years, it isn\u2019t: Paper 1 has included Chardonnay every single year, Riesling appears in 10 of 11, and Paper 3\u2019s first question has opened with sparkling wine every year since 2021.",
+          "Curveballs follow a \u201C1 in 4\u201D rule \u2014 in a multi-wine question, typically exactly one wine is significantly harder. The rest are anchors. Knowing that changes how you allocate confidence across a flight.",
+          "None of this tells you what\u2019s in the glass. It tells you what the examiners have historically reached for \u2014 which is exactly the prior you want before you taste.",
+        ],
+        [
+          "Stem analysis means reading the question text \u2014 the \u201Cstem\u201D \u2014 as evidence, before you smell or taste anything. The paper number constrains color and style. Phrases like \u201Csame single grape variety\u201D eliminate most of the wine world. Mark allocations signal what the examiner expects you to write about.",
+          "Every historical question falls into one of a small number of structural families \u2014 same variety, same origin, blends, mixed breadth \u2014 and each family has its own decision tree, built from every stem construction in sixteen years of papers.",
+          "The trees route your question to a small candidate set with explicit confidence tiers, and they\u2019re honest about their limits: a stem that matches no known construction is flagged as unrecognised rather than force-fit. You practice this skill directly in the Stem Analysis mode of Dry Flights.",
+        ],
+        [
+          "The complete text of every MW practical exam from 2011 to 2026 \u2014 15 years, 45 papers, 540 wines. Not a sample: the entire modern corpus.",
+          "Every one of the 540 wines was individually researched from authoritative sources \u2014 producer tech sheets, Decanter, Tim Atkin MW, JancisRobinson.com, regional wine board data. Each entry documents the tasting profile, technical specs, vintage character, and why the examiners likely chose it.",
+          "On top of that: 13 official examiner reports (2017\u20132025), systematically distilled into the marking principles the grading engine applies to your answers \u2014 reasoning over identification, quality in context, no shoehorning.",
+        ],
+        [
+          "The decision trees are never graded on questions they were built from \u2014 that would measure memory, not prediction. They\u2019re scored blind, against papers they\u2019ve never seen.",
+          "On the 2026 paper \u2014 predicted before the exam was sat \u2014 the true variety was in the candidate set for 89% of wines, and in the top three calls for 64%. On the 2000\u20132010 stress test (396 wines the trees never saw), those figures are 80% and 58%.",
+          "Just as important is what we don\u2019t claim: top-1 accuracy is about one in three, so the system never pretends to name the wine. It bounds the universe; you narrow from there in the glass.",
+        ],
+        [
+          "The theory library holds 243 real past essay questions from 2016\u20132025, across all five theory papers \u2014 viticulture, vinification, handling of wine, the business of wine, and contemporary issues.",
+          "Each question\u2019s grading rubric is derived from the actual examiners\u2019 report for that year: the core requirements they said were essential, the differentiators that separated strong answers, the traps that cost marks. Your essay is scored against that \u2014 not a generic AI opinion.",
+          "Every question also carries a model answer built from the rubric, so after grading you can compare your essay against what a full-marks answer actually looks like, point by point.",
+        ],
+        [],
+      ][p.introScene],
+      tourOpen: p.tourOpen,
+      tourRefNav: (el) => { (this.tourRefs = this.tourRefs || {}).nav = el; },
+      tourRefBell: (el) => { (this.tourRefs = this.tourRefs || {}).bell = el; },
+      tourRefContinue: (el) => { (this.tourRefs = this.tourRefs || {}).continue = el; },
+      tourRefNudge: (el) => { (this.tourRefs = this.tourRefs || {}).nudge = el; },
+      tourRefPillars: (el) => { (this.tourRefs = this.tourRefs || {}).pillars = el; },
+      tourRefRecent: (el) => { (this.tourRefs = this.tourRefs || {}).recent = el; },
+      tourStepLabel: this.tourSteps()[p.tourStep].label,
+      tourTitle: this.tourSteps()[p.tourStep].title,
+      tourText: this.tourSteps()[p.tourStep].text,
+      tourHasBack: p.tourStep > 0,
+      tourNextLabel: p.tourStep === 5 ? "Done" : "Next \u2192",
+      tourNext: () => { if (p.tourStep === 5) this.setState({ tourOpen: false }); else this.tourGo(p.tourStep + 1); },
+      tourBack: () => this.tourGo(Math.max(0, p.tourStep - 1)),
+      tourSkip: () => this.setState({ tourOpen: false }),
+      tourSpotStyle: p.tourRect ? {
+        position: "fixed", top: `${p.tourRect.top - 6}px`, left: `${p.tourRect.left - 6}px`,
+        width: `${p.tourRect.width + 12}px`, height: `${p.tourRect.height + 12}px`,
+        borderRadius: "12px", border: "1px solid var(--accent)", pointerEvents: "none",
+        boxShadow: "0 0 0 9999px color-mix(in srgb, var(--background) 75%, transparent)",
+        transition: "top 250ms, left 250ms, width 250ms, height 250ms",
+      } : { position: "fixed", inset: 0, background: "color-mix(in srgb, var(--background) 75%, transparent)" },
+      tourCardStyle: (() => {
+        const r = p.tourRect;
+        const below = !r || r.top + r.height + 220 < (typeof window !== "undefined" ? window.innerHeight : 800);
+        const top = r ? (below ? r.top + r.height + 18 : Math.max(16, r.top - 210)) : 120;
+        const left = r ? Math.min(Math.max(16, r.left), (typeof window !== "undefined" ? window.innerWidth : 1200) - 372) : 120;
+        return { position: "fixed", top: `${top}px`, left: `${left}px`, width: "356px", boxSizing: "border-box",
+          background: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", padding: "20px",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.5)", transition: "top 250ms, left 250ms" };
+      })(),
+      introDots: [0,1,2,3,4,5].map(i => ({
+        label: `Scene ${i + 1}`,
+        style: { display: "inline-block", width: i === p.introScene ? "24px" : "8px", height: "8px", borderRadius: "999px",
+          background: i === p.introScene ? "var(--accent)" : "var(--border)", transition: "width 250ms, background 250ms" },
+      })),
+      isDark: theme === "dark", isLight: theme === "light",
+      flyoutOpen: p.flyoutOpen,
+      goHome: this.go("home"), goTheory: this.go("theory"), goPractice: this.go("practice"),
+      goFlights: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ route: "flights", flyoutOpen: false, wizStep: "paper" }); },
+      goLibrary: this.go("library"), goHistory: this.go("history"),
+      goEssay: this.go("essay"), goMobile: this.go("mobile"),
+      goEssayResult: this.go("essayResult"),
+      randomQuestion: this.go("essay"),
+      toggleFlyout: (e) => { e.preventDefault(); this.setState(s => ({ flyoutOpen: !s.flyoutOpen, bellOpen: false })); },
+      bellOpen: p.bellOpen,
+      toggleBell: () => this.setState(s => ({ bellOpen: !s.bellOpen, flyoutOpen: false })),
+      bellItems: [
+        { context: "P2 / Faults & Winemaking", badge: "Accept", text: "The debrief marked my volatile acidity call as wrong, but at this level VA is a fair read on wine 5.", when: "18m ago",
+          badgeStyle: this.badge("PASS"), rowStyle: this.bellRow(true) },
+        { context: "P4 / 2022 Q3", badge: "Reject", text: "Rubric should credit franchise laws under the structure point \u2014 it already does, under differentiators.", when: "2h ago",
+          badgeStyle: { ...this.badge("FAIL"), textTransform: "none" }, rowStyle: this.bellRow(true) },
+        { context: "P3 / Sparkling", badge: "Analyzing\u2026", text: "Question stem says \u201Cthese wines\u201D but only two of the three are sparkling \u2014 possible bank error.", when: "just now",
+          badgeStyle: this.badge("BORDERLINE"), rowStyle: this.bellRow(false) },
+      ],
+      feedbackOpen: p.feedbackOpen, feedbackSent: p.feedbackSent, feedbackNotSent: !p.feedbackSent,
+      feedbackText: p.feedbackText,
+      openFeedback: () => this.setState({ feedbackOpen: true, feedbackSent: false }),
+      closeFeedback: () => this.setState({ feedbackOpen: false }),
+      onFeedbackChange: (e) => this.setState({ feedbackText: e.target.value }),
+      sendFeedback: () => {
+        if (!p.feedbackText.trim()) return;
+        this.setState({ feedbackSent: true, feedbackText: "" });
+        setTimeout(() => this.setState({ feedbackOpen: false, feedbackSent: false }), 2500);
+      },
+      sendFeedbackStyle: {
+        padding: "8px 20px", borderRadius: "8px", fontSize: "0.875rem", fontWeight: 600,
+        fontFamily: "inherit", border: "none", transition: "background 150ms",
+        cursor: p.feedbackText.trim() ? "pointer" : "not-allowed",
+        background: p.feedbackText.trim() ? "var(--accent)" : "var(--border)",
+        color: p.feedbackText.trim() ? "var(--background)" : "var(--muted)",
+      },
+      toggleTheme: () => this.setState({ theme: this.theme() === "dark" ? "light" : "dark" }),
+      navTheoryStyle: this.navStyle(route === "theory" || route === "essay" || route === "essayResult"),
+      navPracticeStyle: this.navStyle(route === "practice" || route === "flights" || route === "live"),
+      navLibraryStyle: this.navStyle(route === "library"),
+      navHistoryStyle: this.navStyle(route === "history" || route === "detail"),
+      chevronStyle: { padding: "2px", background: "none", border: "none", cursor: "pointer", display: "flex", color: p.flyoutOpen ? "var(--foreground)" : "var(--muted)" },
+      chevronSvgStyle: { transition: "transform 150ms", transform: p.flyoutOpen ? "rotate(180deg)" : "none" },
+      recentWork: [
+        { when: "Yesterday", verdict: "PASS", badgeStyle: this.badge("PASS"), title: "Dry Flights · P2 · Full Question", meta: "31/45 · 27 min" },
+        { when: "Yesterday", verdict: "PASS", badgeStyle: this.badge("PASS"), title: "Theory · P4 2022 Q3", meta: "64/100 · 58 min" },
+        { when: "Tuesday", verdict: "PASS", badgeStyle: this.badge("PASS"), title: "Dry Flights · P1 · Stem Analysis", meta: "8/10 · 8 min" },
+        { when: "Monday", verdict: "BORDERLINE", badgeStyle: this.badge("BORDERLINE"), title: "Theory · P5 2021 Q1", meta: "48/100 · 87 min" },
+      ],
+      flightModes: [
+        { name: "Full Question", desc: "The complete simulation: blind flight, identification and assessment", time: "20\u201330 min" },
+        { name: "Stem Analysis Only", desc: "Reason from the stem before tasting; coaching on the logic", time: "5\u201310 min" },
+        { name: "Dry Notes", desc: "Wines revealed up front \u2014 perfect the written note", time: "15\u201325 min" },
+        { name: "Flash Notes", desc: "Rapid single-prompt drills with pace tracking", time: "1\u20132 min/card" },
+      ],
+      paperPills, questionRows, shownCount: filtered.length,
+      unattemptedPillStyle: this.pillStyle(p.unattemptedOnly),
+      toggleUnattempted: () => this.setState(s => ({ unattemptedOnly: !s.unattemptedOnly })),
+      historyPills, historyRows,
+      libraryItems: [
+        { title: "White variety decision tree", meta: "Master tree · updated May" },
+        { title: "Red variety decision tree", meta: "Master tree · updated May" },
+        { title: "Sparkling method walkthrough", meta: "Paper 3 · 12 nodes" },
+        { title: "Fortified styles map", meta: "Paper 3 · 8 nodes" },
+        { title: "Oak & \u00E9levage cues", meta: "Diagram · Papers 1\u20132" },
+        { title: "Acidity / climate ladder", meta: "Diagram · all papers" },
+      ],
+      essayText: p.essayText,
+      onEssayChange: (e) => this.setState({ essayText: e.target.value, typedAt: Date.now() }),
+      wordCount: words,
+      autosaveLabel: p.typedAt ? "Saved just now" : "Draft restored",
+      timerLabel: `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`,
+      timerColor: p.secondsLeft < 300 ? "var(--fail)" : "var(--foreground)",
+      ltIsQuestion: p.ltType === "question", ltIsPaper: p.ltType === "paper", ltIsByo: p.ltMode === "byo",
+      ltTypePills: [
+        { label: "One question", key: "question" }, { label: "Full paper", key: "paper" },
+      ].map(s => ({ label: s.label, style: this.segStyle(p.ltType === s.key), onClick: () => this.setState({ ltType: s.key }) })),
+      ltModePills: [
+        { label: "Pick my wines", key: "pick-for-me" }, { label: "I\u2019ll choose wines", key: "byo" },
+      ].map(s => ({ label: s.label, style: this.segStyle(p.ltMode === s.key), onClick: () => this.setState({ ltMode: s.key }) })),
+      ltPaperPills: [
+        { label: "1 · Whites", key: 1 }, { label: "2 · Reds", key: 2 }, { label: "3 · Special", key: 3 },
+      ].map(s => ({ label: s.label, style: this.segStyle(p.ltPaper === s.key), onClick: () => this.setState({ ltPaper: s.key }) })),
+      ltSizePills: [2, 3, 4].map(n => ({ label: String(n), style: this.segStyle(p.ltSize === n), onClick: () => this.setState({ ltSize: n }) })),
+      ltPaperSizePills: [
+        { label: "Half — 6 bottles", key: "half" }, { label: "Full — 12 bottles", key: "full" },
+      ].map(s => ({ label: s.label, style: this.segStyle(p.ltPaperSize === s.key), onClick: () => this.setState({ ltPaperSize: s.key }) })),
+      ltButtonLabel: p.ltType === "paper" ? `Build my ${p.ltPaperSize} paper` : p.ltMode === "byo" ? "Get my shopping brief" : "Build my flight",
+      ltPapers: [
+        { title: "Half Paper 1 · 2 questions · Toronto", meta: "28 Jul 2026 · 2/2 graded · exam conditions", chip: "Complete", chipColor: "var(--success)" },
+      ].map(x => ({ ...x, chipStyle: this.stateChip(x.chipColor) })),
+      ltSessions: [
+        { title: "Paper 2 · 3 wines · Toronto", meta: "4 Aug 2026", chip: "Shopping", chipColor: "var(--accent)" },
+        { title: "Paper 3 · 3 wines · Toronto", meta: "27 Jul 2026 · blind kept via partner", chip: "Tasted", chipColor: "var(--success)" },
+        { title: "Paper 1 · 4 wines · Toronto", meta: "21 Jul 2026", chip: "Tasting prep", chipColor: "var(--borderline)" },
+      ].map(x => ({ ...x, chipStyle: this.stateChip(x.chipColor) })),
+      wizIsPaper: p.wizStep === "paper", wizIsFamily: p.wizStep === "family",
+      wizIsMode: p.wizStep === "mode", wizIsAcquire: p.wizStep === "acquire",
+      wizBackToPaper: (e) => { e.preventDefault(); this.setState({ wizStep: "paper" }); },
+      wizBackToFamily: (e) => { e.preventDefault(); this.setState({ wizStep: "family" }); },
+      wizBackToMode: (e) => { e.preventDefault(); this.setState({ wizStep: "mode" }); },
+      wizPaperLabel: p.wizPaper === 1 ? "Paper 1 — Whites" : p.wizPaper === 2 ? "Paper 2 — Reds" : "Paper 3 — Special",
+      wizCrumbs: [
+        p.wizPaper ? `Paper ${p.wizPaper}` : null,
+        p.wizFamily && p.wizStep !== "family" ? (p.wizFamily === "any" ? "Any family" : p.wizFamily) : null,
+        p.wizMode && p.wizStep === "acquire" ? p.wizMode : null,
+      ].filter(Boolean),
+      wizPapers: [
+        { paper: 1, title: "Paper 1", subtitle: "White Wines", description: "Still white wines from around the world", icon: "\u{1F7E1}" },
+        { paper: 2, title: "Paper 2", subtitle: "Red Wines", description: "Still red wines from around the world", icon: "\u{1F534}" },
+        { paper: 3, title: "Paper 3", subtitle: "Special", description: "Sparkling, fortified, sweet, rose, oxidative", icon: "\u{1F7E3}" },
+      ].map(wp => ({ ...wp, onClick: () => this.setState({ wizPaper: wp.paper, wizStep: "family" }) })),
+      wizFamilies: [
+        { code: null, label: "Any Family", desc: "Random across all question types", count: "31 in bank", any: true },
+        { code: "F1", label: "Common Variety", desc: "All wines share one grape variety across different origins or styles", count: "8 in bank" },
+        { code: "F2", label: "Regional Diversity", desc: "Wines from the same country or region, testing internal diversity", count: "5 in bank" },
+        { code: "F3", label: "Blends", desc: "Blended wines where composition and component roles are key", count: "4 in bank" },
+        { code: "F4", label: "Independent Wines", desc: "Each wine is independent — tests breadth of identification", count: "6 in bank" },
+        { code: "F5", label: "Winemaking Mechanism", desc: "Focus on how the wine was made: sparkling, fortified, or sweet mechanisms", count: "generates fresh" },
+        { code: "F6", label: "Structural Axis", desc: "Wines grouped by a structural axis: maturity, sweetness, or style", count: "3 in bank" },
+        { code: "F7", label: "Classification Tiers", desc: "Wines at different tiers within a legal classification system", count: "5 in bank" },
+      ].map(f => ({
+        ...f,
+        onClick: () => this.setState({ wizFamily: f.code || "any", wizStep: "mode" }),
+        style: {
+          textAlign: "left", borderRadius: "8px", padding: "16px", cursor: "pointer", fontFamily: "inherit",
+          color: "var(--foreground)", transition: "border-color 200ms, background 200ms",
+          border: f.any ? "1px solid color-mix(in srgb, var(--accent) 30%, transparent)" : "1px solid var(--border)",
+          background: f.any ? "var(--card-hover)" : "var(--card)",
+          gridColumn: f.any ? "1 / -1" : "auto",
+        },
+      })),
+      wizModes: [
+        { name: "Full Question", desc: "The complete simulation: blind flight, identification and assessment, graded with a full debrief.", time: "20\u201330 min" },
+        { name: "Stem Analysis Only", desc: "Reason from the stem before tasting; coaching on the pre-glass logic.", time: "5\u201310 min" },
+        { name: "Dry Notes", desc: "Wines revealed up front — perfect the written note without the identification gamble.", time: "15\u201325 min" },
+        { name: "Flash Notes", desc: "Rapid single-prompt drills with pace tracking. Build a deck or go infinite.", time: "1\u20132 min/card" },
+      ].map(m => ({ ...m, onClick: () => this.setState({ wizMode: m.name, wizStep: "acquire" }) })),
+      rubricCore: [
+        { hit: true, text: "Define the three tiers and the regulatory rationale (post-Prohibition temperance settlement)." },
+        { hit: true, text: "Argue both sides of \u201Cfit for purpose\u201D \u2014 efficiency and margin stacking vs. tax collection and orderly markets." },
+        { hit: true, text: "Named market evidence: distributor consolidation and its effect on small-producer access." },
+        { hit: false, text: "Develop the counterfactual: what a post-three-tier market would look like, with a jurisdictional example.", quote: "The strongest answers asked what would replace the system, not merely whether it creaks." },
+        { hit: true, text: "A conclusion that directly answers the question with a qualified position." },
+      ].map(r => ({
+        ...r,
+        mark: r.hit ? "\u2713" : "\u2717",
+        markStyle: { flexShrink: 0, width: "18px", height: "18px", borderRadius: "999px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6875rem", fontWeight: 700, marginTop: "1px",
+          color: r.hit ? "var(--success)" : "var(--fail)",
+          background: `color-mix(in srgb, ${r.hit ? "var(--success)" : "var(--fail)"} 12%, transparent)` },
+      })),
+      rubricDiff: [
+        { hit: true, text: "DtC growth quantified and connected to Granholm v. Heald." },
+        { hit: false, text: "Regulatory capture: distributors as the system\u2019s political defenders." },
+      ].map(r => ({
+        ...r,
+        mark: r.hit ? "\u2713" : "\u2717",
+        markStyle: { flexShrink: 0, width: "18px", height: "18px", borderRadius: "999px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6875rem", fontWeight: 700, marginTop: "1px",
+          color: r.hit ? "var(--success)" : "var(--fail)",
+          background: `color-mix(in srgb, ${r.hit ? "var(--success)" : "var(--fail)"} 12%, transparent)` },
+      })),
+      detailWines: [
+        { slot: 1, text: "Crozes-Hermitage, Domaine des Entrefaux 2021 \u2014 Northern Rh\u00F4ne Syrah, mid-weight, peppery, savoury acid line." },
+        { slot: 2, text: "Boekenhoutskloof Syrah 2019 \u2014 Franschhoek, wholecluster spice, between the two in weight." },
+        { slot: 3, text: "Elderton Command Shiraz 2018 \u2014 Barossa, powerful, American oak, ripe black fruit." },
+      ],
+      mobileTabsHome: mobileTabs("Home"),
+      mobileTabsTheory: mobileTabs("Theory"),
+      mobileTheoryRows: [
+        { meta: "2025 · P1 Viticulture · 60 min", text: "Discuss the causes of, and remedies for, poor fruit set." },
+        { meta: "2025 · P3 Handling of wine · 60 min", text: "What are the risks to wine quality during bulk shipping?" },
+        { meta: "2024 · P4 Business of wine · 60 min", text: "\u201CDirect-to-consumer is the only profitable route for small producers.\u201D Discuss." },
+        { meta: "2023 · P5 Contemporary issues · 90 min", text: "Does wine criticism still matter? Discuss." },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

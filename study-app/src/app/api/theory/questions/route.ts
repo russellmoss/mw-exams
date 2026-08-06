@@ -7,6 +7,19 @@ export async function GET(request: Request) {
   const user = await getUser(request);
   if (!user) return Response.json({ error: "Not authenticated" }, { status: 401 });
 
+  // Lightweight stat mode for the home launcher's Theory pillar tile: ?count=1 returns the corpus
+  // shape without serializing 243 full question rows.
+  if (new URL(request.url).searchParams.get("count") === "1") {
+    const rubrics = listTheoryRubrics();
+    const years = rubrics.map((rubric) => rubric.year);
+    return Response.json({
+      count: rubrics.length,
+      papers: new Set(rubrics.map((rubric) => rubric.paper)).size,
+      yearMin: Math.min(...years),
+      yearMax: Math.max(...years),
+    });
+  }
+
   // This list is rubric-backed by construction. The 54 questions from 2015/2026 never enter the
   // learner API, picker, appendix, or grading route.
   const questions = listTheoryRubrics().map((rubric) => ({

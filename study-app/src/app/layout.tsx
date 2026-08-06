@@ -4,6 +4,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
 import { NavBar } from "./components/NavBar";
+import { MobileTabBar } from "./components/MobileTabBar";
 import { DictationBanner } from "./components/DictationBanner";
 import "./globals.css";
 
@@ -70,6 +71,7 @@ export default function RootLayout({
             <DictationBanner />
             <NavBar />
             {children}
+            <MobileTabBar />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -175,7 +175,7 @@ export default function FlashNotesPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push("/login"); return; }
-    if (!setup) { router.push("/"); return; }
+    if (!setup) { router.push("/practical/dry-flights"); return; }
   }, [authLoading, user, router, setup]);
 
   // Choose the prompt for a given card index from the active pool.
@@ -366,7 +366,7 @@ export default function FlashNotesPage() {
       <header className="border-b border-border">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/practical/dry-flights")}
             className="text-sm text-muted hover:text-foreground transition-colors cursor-pointer"
           >
             &larr; Back to paper
@@ -727,7 +727,7 @@ export default function FlashNotesPage() {
 
                     <div className="flex justify-end gap-3">
                       <button
-                        onClick={() => router.push("/")}
+                        onClick={() => router.push("/practical/dry-flights")}
                         className="px-6 py-2.5 border border-border text-muted hover:text-foreground hover:border-muted rounded-lg transition-colors cursor-pointer"
                       >
                         Back to paper

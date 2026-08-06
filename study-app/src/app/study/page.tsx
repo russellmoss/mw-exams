@@ -193,10 +193,10 @@ export default function StudyPage() {
           modelAnswerReadyRef.current = true;
         }
       } catch {
-        router.push("/");
+        router.push("/practical/dry-flights");
       }
     } else {
-      router.push("/");
+      router.push("/practical/dry-flights");
     }
   }, [router]);
 
@@ -675,7 +675,7 @@ export default function StudyPage() {
     setPaceResult(null);
     if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
     dispatch({ type: "RESET" });
-    router.push("/");
+    router.push("/practical/dry-flights");
   }, [router, evalStream, timer]);
 
   // Flag Question (feature): after a candidate flags the question, auto-load the next one in the SAME
@@ -777,7 +777,7 @@ export default function StudyPage() {
     sessionStorage.removeItem("mw-current-question");
     sessionStorage.removeItem("mw-study-mode");
     dispatch({ type: "RESET" });
-    router.push("/");
+    router.push("/practical/dry-flights");
   }, [router]);
 
   return (
@@ -984,7 +984,7 @@ export default function StudyPage() {
                   onClick={() => {
                     sessionStorage.removeItem("mw-current-question");
                     sessionStorage.removeItem("mw-study-mode");
-                    router.push("/");
+                    router.push("/practical/dry-flights");
                   }}
                   className="px-8 py-3 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer"
                 >

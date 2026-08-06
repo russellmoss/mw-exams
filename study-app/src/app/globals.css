@@ -233,3 +233,14 @@ textarea {
 .streaming-dot {
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
+
+/* Intro presentation entrance animations (shell redesign, docs/design/2026-08-06-shell-redesign/).
+   Staggered fade-up per scene; the plain fade is for scene eyebrows. */
+@keyframes introFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes introFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

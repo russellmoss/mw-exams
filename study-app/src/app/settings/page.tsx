@@ -789,6 +789,47 @@ export default function SettingsPage() {
             </div>
           </section>
 
+          {/* Exam countdown + first-run intro/tour replay (shell redesign, migration 050) */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Exam &amp; Home</h2>
+            <p className="text-sm text-muted mb-5">
+              Your Stage 2 exam date drives the countdown on the home page and in the coaching
+              nudge. Leave it empty to hide the countdown.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mb-5">
+              <input
+                type="date"
+                defaultValue={user?.examDate ?? ""}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  fetch("/api/user/shell-prefs", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ examDate: value || null }),
+                  }).then(() => refresh()).catch(() => {});
+                }}
+                className="bg-background border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+              />
+              <span className="text-xs text-muted">Saved automatically</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border">
+              <button
+                onClick={() => {
+                  try { window.sessionStorage.removeItem("mw-intro-shown-this-session"); } catch {}
+                  fetch("/api/user/shell-prefs", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ introSeen: false, tourSeen: false }),
+                  }).then(() => refresh()).catch(() => {});
+                }}
+                className="rounded-lg border border-border px-4 py-2 text-sm text-muted hover:text-foreground hover:border-muted transition-colors cursor-pointer"
+              >
+                Replay the intro &amp; tour
+              </button>
+              <span className="text-xs text-muted">They&apos;ll run next time you open the home page.</span>
+            </div>
+          </section>
+
           {/* Live Tasting — where the user shops + per-bottle budget */}
           <section className="bg-card rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Live Tasting</h2>

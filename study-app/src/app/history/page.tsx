@@ -68,7 +68,7 @@ export default function HistoryPage() {
             stats={stats}
             isAdmin={user?.isAdmin}
             emptyAction={
-              <button onClick={() => router.push("/")} className="mt-4 px-6 py-2 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer">
+              <button onClick={() => router.push("/practical/dry-flights")} className="mt-4 px-6 py-2 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer">
                 Start Studying
               </button>
             }

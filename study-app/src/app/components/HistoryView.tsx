@@ -954,6 +954,8 @@ export function HistoryView({
   emptyAction?: React.ReactNode;
 }) {
   const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() });
+  // Pillar filter (shell redesign §10): one-click Theory/Practical split above the detail chips.
+  const [pillar, setPillar] = useState<"all" | "theory" | "practical">("all");
 
   const passOrBorderlineRate = stats && stats.completed_attempts > 0 ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100) : 0;
 
@@ -984,9 +986,9 @@ export function HistoryView({
               sub={stats.completed_attempts > 0 ? `${stats.pass_count}P + ${stats.borderline_count}B + ${stats.fail_count}F — borderlines are near-passes` : "No completed attempts"}
             />
             <StatCard
-              label="Papers Practiced"
-              value={stats.by_paper.length}
-              sub={stats.by_paper.map((p) => `P${p.paper}`).join(", ") || "None yet"}
+              label="Theory Essays"
+              value={attempts.filter((a) => a.mode === "theory" && a.completed_at).length}
+              sub="graded against examiner rubrics"
             />
             <StatCard
               label="Avg Time / Wine"
@@ -1098,7 +1100,10 @@ export function HistoryView({
               const presentModes = [...new Set(attempts.map(attemptMode))];
               const hasDrills = presentModes.some((m) => m !== "full");
               const hasPaces = attempts.some((a) => !!parsePace(a.pace));
-              const afterPaperAndResult = attempts.filter((a) => {
+              const pillarAttempts = attempts.filter((a) =>
+                pillar === "all" ? true : pillar === "theory" ? attemptMode(a) === "theory" : attemptMode(a) !== "theory"
+              );
+              const afterPaperAndResult = pillarAttempts.filter((a) => {
                 if (filters.results.size > 0) {
                   const result = !a.completed_at ? "in_progress" : (a.pass_estimate || "unknown");
                   if (!filters.results.has(result)) return false;
@@ -1108,10 +1113,29 @@ export function HistoryView({
               });
               const visibleFamilies = [...new Set(afterPaperAndResult.map((a) => a.family_label))].sort();
               const uniquePapers = [...new Set(attempts.map((a) => a.paper))].sort();
-              const filtered = applyFilters(attempts, filters);
+              const filtered = applyFilters(pillarAttempts, filters);
 
               return (
                 <>
+                  <div className="flex items-center gap-2 mb-4">
+                    {([
+                      ["all", "All"],
+                      ["theory", "Theory"],
+                      ["practical", "Practical"],
+                    ] as const).map(([value, label]) => (
+                      <button
+                        key={value}
+                        onClick={() => setPillar(value)}
+                        className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                          pillar === value
+                            ? "bg-accent text-background"
+                            : "border border-border text-muted hover:text-foreground hover:border-muted"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   <div className="bg-card rounded-xl border border-border p-4 mb-4 space-y-2.5">
                     <div className="flex flex-wrap items-center gap-4">
                       <div className="flex items-center gap-1.5">
