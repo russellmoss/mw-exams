@@ -94,6 +94,12 @@ export const VARIETY_SYNONYMS = {
   primitivo: "zinfandel",
   tribidrag: "zinfandel",
 
+  // ── Palomino ──
+  // The answer-key resolver emits "Palomino Fino" off Sherry keys; answers (and the indicator
+  // regexes) say plain "Palomino". Without this fold the two read as different grapes — 12 correct
+  // Sherry model answers audited as "never names the variety".
+  "palomino fino": "palomino",
+
   // ── Other reds ──
   cot: "malbec",
   durif: "petite sirah",
@@ -122,6 +128,9 @@ export const VARIETY_SYNONYMS = {
   "moscato bianco": "muscat blanc a petits grains",
   muscat: "muscat blanc a petits grains",
   "muscat blanc": "muscat blanc a petits grains",
+  // Colour mutations of the same variety — the key resolver emits the long qualified forms.
+  "muscat a petits grains": "muscat blanc a petits grains",
+  "muscat blanc a petits grains rouge": "muscat blanc a petits grains",
   "muscat de frontignan": "muscat blanc a petits grains",
   "moscatel de grano menudo": "muscat blanc a petits grains",
   muskateller: "muscat blanc a petits grains",

@@ -20,7 +20,8 @@ export async function auditAndQuarantineQuestion(
 ): Promise<{ audited: false; reason: string } | { audited: true; hard: Violation[] }> {
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, k.ground_truth
+    SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
+           k.ground_truth
     FROM generated_questions g
     JOIN stem_answer_keys k ON k.question_id = g.question_id
     WHERE g.question_id = ${questionId}`;
@@ -44,6 +45,10 @@ export async function auditAndQuarantineQuestion(
     questionText: r.question_text as string,
     totalMarks: r.total_marks as number,
     wines,
+    // Answer-content rules run when the model answer has landed. The engine sequences this call
+    // after BOTH background writes (stem key + model answer), so on the generation path the answer
+    // is normally present; if it failed to generate, the daily sweep re-audits once it exists.
+    modelAnswer: (r.model_answer as string | null) ?? null,
   });
   const hard = res.violations.filter((v) => v.severity === "hard");
   if (hard.length > 0) {

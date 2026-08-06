@@ -7,6 +7,7 @@
 // No rule logic lives here anymore — change rules in question-rules.mjs and both stages get them.
 
 import { applyQuestionRules, stemSniperScoringModel as _stemSniperScoringModel } from "./question-rules.mjs";
+import { applyAnswerContentRules } from "./answer-content-rules.mjs";
 
 export type StemSniperScoringModel = "per-wine" | "set";
 
@@ -34,6 +35,11 @@ export interface QuestionForAudit {
   questionText: string;
   totalMarks?: number;
   wines: AuditWine[];
+  // The stored model answer. Optional: when present and non-empty, the answer-content rules
+  // (answer-content-rules.mjs) run alongside the question rules, so every caller of this one entry
+  // point — the corpus audit, the per-question generation audit, the Fill-the-Bank review pane —
+  // gets the answer verdict for free. Absent/empty, behaviour is byte-identical to before.
+  modelAnswer?: string | null;
 }
 export interface Violation {
   rule: string;
@@ -52,6 +58,15 @@ export function validateQuestion(q: QuestionForAudit): {
     totalMarks: q.totalMarks,
     wines: q.wines,
   }) as Violation[];
+  if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
+    violations.push(
+      ...(applyAnswerContentRules({
+        questionText: q.questionText,
+        answerText: q.modelAnswer,
+        wines: q.wines,
+      }) as Violation[])
+    );
+  }
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

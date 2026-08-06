@@ -149,6 +149,9 @@ function violationsFor(q: GeneratedQuestion, groundTruth: unknown[]): Violation[
     questionText: q.question_text,
     totalMarks: q.total_marks,
     wines: groundTruth as AuditWine[],
+    // Answer-content verdicts too (answer-content-rules.mjs): the reviewer deciding keep/bin should
+    // see a truncated or wine-skipping model answer, not just stem<->wine contradictions.
+    modelAnswer: q.model_answer ?? null,
   }).violations;
 }
 

@@ -1311,25 +1311,19 @@ export async function generateFreshQuestion(
 
   const stemKey = enrichment
     .then(() => buildStemKeyForQuestion(questionId))
-    .then(async (res) => {
+    .then((res) => {
       if ("error" in res) {
         // No key ⇒ no verdict; the daily corpus audit (question-audit-daily.yml) is the backstop.
         console.error(`Stem key for ${questionId} not built: ${res.error}`);
-        return;
+        return false;
       }
       if (!res.ok) console.warn(`Stem key for ${questionId} validated=false: ${res.problems.join("; ")}`);
-      // Key-stage audit + auto-quarantine, the moment the key exists. The text-stage validators above
-      // ran on raw labels; this re-checks against the RESOLVED key (richer lexicon — the stage that
-      // catches Cannonau = Garnacha), and hard violations set invalid_reasons so the question never
-      // serves from the bank. Previously this verdict was only computed when someone ran the corpus
-      // audit by hand, so key-stage defects stayed servable until the next manual run.
-      const audit = await auditAndQuarantineQuestion(questionId);
-      if (audit.audited && audit.hard.length > 0)
-        console.warn(
-          `Question ${questionId} quarantined at generation: ${audit.hard.map((v) => `${v.rule}: ${v.detail}`).join(" | ")}`
-        );
+      return true;
     })
-    .catch((err) => console.error("Stem key / audit background error:", err));
+    .catch((err) => {
+      console.error("Stem key background error:", err);
+      return false;
+    });
 
   // CHAINED off enrichment, not fired alongside it. These two used to start on the same tick, so the
   // model answer could not have used the researched profiles even once the parameter existed — the
@@ -1353,11 +1347,30 @@ export async function generateFreshQuestion(
     )
   );
 
+  // Key-stage audit + auto-quarantine, sequenced after BOTH background writes. The text-stage
+  // validators above ran on raw labels; this re-checks against the RESOLVED key (richer lexicon —
+  // the stage that catches Cannonau = Garnacha) AND runs the answer-content rules over the saved
+  // model answer (missing wines, wrong/absent identities, placeholders — answer-content-rules.mjs).
+  // Hard violations set invalid_reasons so the question never serves from the bank. It must wait for
+  // the model answer, not just the key: auditing before the answer lands would validate a NULL
+  // answer and miss every answer defect on the generation path.
+  const backgroundAudit = Promise.all([stemKey, modelAnswer])
+    .then(async ([keyBuilt]) => {
+      if (!keyBuilt) return; // no key ⇒ no verdict; the daily sweep audits it once the key exists
+      const audit = await auditAndQuarantineQuestion(questionId);
+      if (audit.audited && audit.hard.length > 0)
+        console.warn(
+          `Question ${questionId} quarantined at generation: ${audit.hard.map((v) => `${v.rule}: ${v.detail}`).join(" | ")}`
+        );
+    })
+    .catch((err) => console.error("Question audit background error:", err));
+
   // The bulk worker asks for these to be finished, not merely started (see awaitBackgroundWork).
-  // Neither promise rejects, so this cannot turn a banked question into a thrown error.
+  // None of these promises reject, so this cannot turn a banked question into a thrown error.
+  // backgroundAudit transitively awaits stemKey, so listing it covers all three chains.
   let modelAnswerSaved = false;
   if (saveOpts?.awaitBackgroundWork) {
-    [, modelAnswerSaved] = await Promise.all([stemKey, modelAnswer]);
+    [, modelAnswerSaved] = await Promise.all([backgroundAudit, modelAnswer]);
   }
 
   return {
