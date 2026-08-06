@@ -92,7 +92,6 @@ body {
   border-color: var(--accent);
 }
 
-.content-card,
 .hero-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -100,12 +99,17 @@ body {
   box-shadow: var(--shadow);
 }
 
-.page-shell {
-  padding: 18px 0 40px;
+/* Content flows directly on the page — no framing card. Diagrams read as part of the
+   document, not as boxed widgets. */
+.content-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 12px 0 0;
 }
 
-.content-card {
-  padding: 28px;
+.page-shell {
+  padding: 18px 0 40px;
 }
 
 .toc {
@@ -174,29 +178,54 @@ p {
   margin: 0 0 14px;
 }
 
+/* Seamless diagrams: no frame, no scroll pane. The viewport is an invisible window sized to
+   the fitted diagram; pan/zoom happen via transform (see setupViewport in the page script). */
 .diagram-card {
-  margin: 18px 0 28px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--card-deep);
+  margin: 18px 0 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.diagram-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.diagram-viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .diagram-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 6px;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.diagram-viewport:hover .diagram-toolbar,
+.diagram-toolbar:focus-within {
+  opacity: 1;
 }
 
 .zoom-button {
   border: 1px solid var(--line);
   background: var(--card-raised);
   color: var(--ink);
-  border-radius: 12px;
-  min-width: 48px;
-  min-height: 44px;
-  padding: 0 14px;
+  border-radius: 10px;
+  min-width: 40px;
+  min-height: 36px;
+  padding: 0 10px;
   font: inherit;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -207,27 +236,9 @@ p {
   background: var(--card-hover-bg);
 }
 
-.diagram-scroll {
-  overflow: auto;
-  touch-action: pan-x pan-y;
-  border-radius: 14px;
-  cursor: grab;
-  user-select: none;
-}
-
 .diagram-stage {
   width: fit-content;
-  min-width: 900px;
-  transform-origin: top left;
-  transition: transform 120ms ease-out;
-}
-
-.diagram-scroll.is-dragging {
-  cursor: grabbing;
-}
-
-.diagram-scroll.is-dragging .diagram-stage {
-  pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .diagram-stage .mermaid {
@@ -235,8 +246,8 @@ p {
 }
 
 .diagram-note {
-  margin-top: 10px;
-  font-size: 0.98rem;
+  margin-top: 6px;
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -303,14 +314,6 @@ p {
     border-radius: 18px;
   }
 
-  .diagram-card {
-    padding: 10px;
-  }
-
-  .diagram-stage {
-    min-width: 760px;
-  }
-
   .header-inner {
     align-items: flex-start;
     flex-direction: column;
@@ -373,8 +376,7 @@ p {
     break-after: avoid;
   }
 
-  .diagram-scroll,
-  .diagram-stage,
+  .diagram-viewport,
   .diagram-note {
     display: none !important;
   }
