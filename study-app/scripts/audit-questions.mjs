@@ -22,7 +22,8 @@ if (apply) {
 // g.wines comes along for the ride so the raw label can be zipped back onto the resolved key below —
 // the wine-reference-shape rule needs the original string, which ground_truth has already thrown away.
 const rows = await sql`
-  SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, k.ground_truth, k.validated
+  SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
+         k.ground_truth, k.validated
   FROM generated_questions g JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
@@ -41,6 +42,9 @@ for (const r of rows) {
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines,
+    // Answer-content rules (answer-content-rules.mjs) run over the stored model answer when one
+    // exists — missing wines, absent identities, placeholders quarantine alongside the stem rules.
+    modelAnswer: r.model_answer ?? null,
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;
