@@ -309,9 +309,7 @@ async function gradeSession(ctx, answerStyle, label) {
   check(`${label}: feedback persisted server-side`, (attempt?.answer_feedback?.length ?? 0) > 200);
   const fb = attempt?.answer_feedback || "";
   const ri = fb.search(/result/i);
-  const feedbackSnippet = ri >= 0 ? fb.slice(Math.max(0, ri - 20), ri + 120).replace(/
-/g, " ") : fb.slice(0, 140).replace(/
-/g, " ");
+  const feedbackSnippet = (ri >= 0 ? fb.slice(Math.max(0, ri - 20), ri + 120) : fb.slice(0, 140)).replace(/\s+/g, " ");
   return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null, feedbackSnippet };
 }
 
