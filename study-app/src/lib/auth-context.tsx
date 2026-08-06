@@ -18,6 +18,16 @@ interface AuthUser {
   stemDetailDefault?: "guided" | "exam_real";
   questionSourceDefault?: "banked" | "fresh";
   reasoningStreamDefault?: boolean;
+  // Shell prefs (migration 050) — intro/tour flags, exam countdown, Continue card config.
+  introSeen?: boolean;
+  tourSeen?: boolean;
+  examDate?: string | null;
+  lastDrillConfig?: {
+    paper?: number;
+    family?: string;
+    mode?: string;
+    stemDetail?: string;
+  } | null;
 }
 
 interface AuthContextValue {
