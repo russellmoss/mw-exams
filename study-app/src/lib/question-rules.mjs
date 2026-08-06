@@ -366,6 +366,26 @@ const STEM_DISCLOSURE_PATTERNS = [
     re: /relative roles? of/,
     why: "the stem names the mechanism pair ('the relative roles of X and Y') the comparison should discover",
   },
+  // ── Class 5 additions (un-MW asks; each verified 0-hit on the 162 historical stems) ──
+  {
+    // "Comment on the role of autolysis and dosage in each wine" — naming the mechanism PAIR hands
+    // over the analysis. A single-topic ask ("discuss the role of yeast") is Mike's own suggested
+    // realistic phrasing and does not match.
+    re: /roles? of \w+(?:[ -]\w+)? and \w+/,
+    why: "the stem names a mechanism pair ('the role of X and Y') — the exam asks about one topic ('the role of yeast') or asks for the method and lets the candidate find the mechanisms",
+  },
+  {
+    // "including how the bubbles were created". No historical stem mentions bubbles, sparkle or
+    // mousse AT ALL (0/162) — real stems say "comment on the method of production".
+    re: /how the (?:bubbles?|sparkle|fizz|mousse) (?:were|was|is|are|has been|have been) (?:created|formed|produced|made|achieved|generated)/,
+    why: "the exam never asks how the bubbles were created — it asks for the method of production and expects the mechanism in the answer",
+  },
+  {
+    // "citing any relevant official quality designation" — the candidate is expected to KNOW and
+    // state the designation unprompted; asking for it hands over that it exists.
+    re: /(?:cit(?:e|ing)|stat(?:e|ing)|identify(?:ing)?|nam(?:e|ing)) (?:any relevant )?(?:official )?quality (?:designation|classification|category|level|tier)/,
+    why: "the exam never asks the candidate to cite an official quality designation — stating it unprompted is part of what earns the marks",
+  },
 ];
 
 /**
