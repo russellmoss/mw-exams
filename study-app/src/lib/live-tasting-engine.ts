@@ -260,7 +260,7 @@ export async function confirmSlots(
   const out = await Promise.all(slots.map(async (slotPick, i) => {
     const slotNo = i + 1;
     const candidates = [slotPick.row, ...slotPick.alternates];
-    type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null };
+    type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null; typical: number | null };
     let chosen: Cand | null = null;       // confident AND within budget
     let overBudgetBest: Cand | null = null; // confident but every listed price exceeds budget
     let fallback: Cand | null = null;     // nothing confident anywhere
@@ -271,13 +271,15 @@ export async function confirmSlots(
         city, country, apiKey, { userId }, radiusMinutes ?? null
       );
       const minListed = minSameCurrencyPrice(res.stockists, budget?.currency ?? null);
-      const cand: Cand = { row, stockists: res.stockists, minListed };
+      const cand: Cand = { row, stockists: res.stockists, minListed, typical: res.typicalPriceUsd };
       if (!fallback) fallback = cand;
       if (confidentCount(res.stockists) >= 1) {
         // Snippet-price refinement (plan §2.2): a concrete listed price over budget EVICTS this
-        // candidate — the price band admitted it, the shelf disagrees. First E2E run: a $40
-        // budget produced a $53.99 Barolo because this eviction was specified but not built.
-        if (budgetAmount == null || minListed == null || minListed <= budgetAmount) {
+        // candidate — the price band admitted it, the shelf disagrees. When NO price was listed,
+        // the parser's typical-retail ESTIMATE backstops with a 1.3x margin (E2E run 5: an
+        // unpriced Meursault VV sailed past a $40 budget on a mis-banded row).
+        const effective = minListed ?? (cand.typical != null ? cand.typical / 1.3 : null);
+        if (budgetAmount == null || effective == null || effective <= budgetAmount) {
           chosen = cand;
           break;
         }
@@ -354,7 +356,10 @@ export async function createLiveTasting(opts: {
       apiKey,
       { source: "user", userId },
       undefined,
-      emit,
+      // No emit: a streamed generation call is NOT capped by the SDK timeout (E2E run 5 measured
+      // 119s/162s attempts under a 95s cap), and an uncapped attempt is how creates hit the
+      // 300s wall. Non-streamed => the timeout binds and two attempts always fit.
+      undefined,
       {
         scope: "live-tasting",
         pinnedWines,
@@ -491,7 +496,8 @@ export async function replaceWine(opts: {
     apiKey,
     { source: "user", userId: session.user_id },
     undefined,
-    emit,
+    undefined, // no emit — see createLiveTasting: streamed calls escape the timeout cap
+
     {
       scope: "live-tasting",
       pinnedWines,
