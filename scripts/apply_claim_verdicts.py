@@ -41,8 +41,13 @@ WORK = ROOT / "data" / "theory" / "_claims_work"
 QUEUE = ROOT / "data" / "theory" / "claims_queue.json"
 LEDGER = ROOT / "data" / "theory" / "claim_verification.json"
 
-VERDICTS = {"VERIFIED", "VERIFIED_IMPRECISE", "WRONG", "UNVERIFIED", "NOT_A_CLAIM"}
-CORRECTABLE = {"VERIFIED_IMPRECISE", "WRONG"}
+VERDICTS = {"VERIFIED", "VERIFIED_IMPRECISE", "WRONG", "UNVERIFIED", "HEDGED", "NOT_A_CLAIM"}
+# HEDGED is the deliberate counterpart to UNVERIFIED. UNVERIFIED means "could not source, left
+# alone" and is never rewritten, because swapping a documented uncertainty for an undocumented
+# invention is a worse trade. HEDGED means "could not source, and the sentence has been
+# explicitly rewritten to stop asserting the unsupportable precision" — an intentional edit
+# with a recorded reason, which is why it IS applied.
+CORRECTABLE = {"VERIFIED_IMPRECISE", "WRONG", "HEDGED"}
 
 
 def norm(s: str) -> str:
@@ -84,6 +89,8 @@ def find_sentence_containing(body: str, target_norm: str) -> tuple[int, int] | N
 
 def main() -> None:
     dry = "--dry-run" in sys.argv
+    downgrade = "--downgrade-malformed" in sys.argv
+    downgraded: list[tuple[str, str]] = []
     if not WORK.exists():
         raise SystemExit(f"FAIL: {WORK} not found — run the claim-verifier batches first")
 
@@ -111,16 +118,29 @@ def main() -> None:
             if r.get("verdict") not in VERDICTS:
                 errors.append(f"{cid}: bad verdict {r.get('verdict')!r}")
                 continue
+            # Two structural requirements, both load-bearing:
+            #   * a correction must carry the sentence that replaces the old one;
+            #   * a VERIFIED verdict must cite something — an uncited "verified" is just an
+            #     assertion, the same failure the rubric quote gate exists to stop.
+            # Malformed rows hard-fail by default. With --downgrade-malformed they are
+            # demoted to UNVERIFIED instead, which is the honest reading: by our own
+            # standard a claim with no source has not been verified. The demotion is
+            # recorded in the ledger so it is never mistaken for a real UNVERIFIED.
+            malformed = None
             if r["verdict"] in CORRECTABLE and not r.get("corrected_sentence"):
-                errors.append(f"{cid}: {r['verdict']} with no corrected_sentence")
-                continue
-            # A VERIFIED verdict must cite something. This is the analogue of the rubric
-            # quote gate: an uncited "verified" is just an assertion.
-            if r["verdict"] in ("VERIFIED", "VERIFIED_IMPRECISE", "WRONG"):
+                malformed = f"{r['verdict']} with no corrected_sentence"
+            elif r["verdict"] in ("VERIFIED", "VERIFIED_IMPRECISE", "WRONG"):
                 src = r.get("source") or {}
                 if not (src.get("publisher") or src.get("ref")):
-                    errors.append(f"{cid}: {r['verdict']} with no source")
+                    malformed = f"{r['verdict']} with no source"
+            if malformed:
+                if not downgrade:
+                    errors.append(f"{cid}: {malformed}")
                     continue
+                downgraded.append((cid, malformed))
+                r = {**r, "verdict": "UNVERIFIED", "recommend": "hedge",
+                     "note": f"downgraded from {r['verdict']}: {malformed}. "
+                             f"{r.get('note', '')}".strip()}
             verdicts[cid] = r
 
     if errors:
@@ -273,6 +293,7 @@ def main() -> None:
         "corrections_applied": applied,
         "corrections_unmatched": unmatched,
         "corrections_collided": [list(c) for c in collided],
+        "downgraded_malformed": [list(d) for d in downgraded],
         "answers_edited": sorted(touched),
         "rows": [
             {
@@ -308,6 +329,9 @@ def main() -> None:
               f"rewrote, so only the first was applied. Merge these by hand:")
         for a, b in collided[:10]:
             print(f"       {a}  collides with  {b}")
+    if downgraded:
+        print(f"NOTE: {len(downgraded)} verdict(s) demoted to UNVERIFIED for missing a source or "
+              f"correction — by our own standard they were never verified.")
     ts = sum(1 for r in ledger["rows"] if r["time_sensitive"])
     print(f"OK: {ts} claim(s) flagged time-sensitive")
     if not dry:
