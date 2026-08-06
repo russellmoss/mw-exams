@@ -51,6 +51,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       flightSize: c.flightSize,
       state,
       sessionId: s.id,
+      questionId: s.question_id,
       questionText: q?.question_text ?? null,
       totalMarks: marksTotal,
       marksLow,
@@ -80,6 +81,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     createdAt: paper.created_at,
     examStartedAt: paper.exam_started_at,
     examDeadlineAt: paper.exam_deadline_at,
+    prepGuidance: paper.mode === "byo" ? paper.prep_guidance : null,
     flights,
     report: complete
       ? {
