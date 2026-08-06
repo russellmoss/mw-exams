@@ -27,9 +27,13 @@ on:
       paper:
         description: "Paper to test (1, 2 or 3; empty = weekly rotation)"
         required: false
+      only:
+        description: "Run a single job: e2e | paper-qa (empty = both)"
+        required: false
 
 jobs:
   e2e:
+    if: ${{ inputs.only == '' || inputs.only == 'e2e' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -70,6 +74,7 @@ jobs:
   # verify composition contract, per-flight EK invariants, cross-flight dedup, and an examiner
   # judge's would-pass-as-real verdict against two real corpus papers. Papers rotate weekly.
   paper-qa:
+    if: ${{ inputs.only == '' || inputs.only == 'paper-qa' || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

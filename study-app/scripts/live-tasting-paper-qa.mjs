@@ -42,7 +42,10 @@ function loadEnv() {
 loadEnv();
 
 const BASE_URL = process.env.BASE_URL || "https://study-app-blond-nine.vercel.app";
-const E2E_EMAIL = "live-tasting-e2e@bwc.test";
+// Own user, NOT the e2e job's: both jobs run in parallel in the weekly workflow and each
+// starts with a cleanup of its user's rows — sharing one user let the e2e job delete this
+// job's paper mid-run (observed on the first re-judge attempt, 2026-08-06).
+const E2E_EMAIL = "live-tasting-paper-qa@bwc.test";
 const E2E_PASSWORD = process.env.LT_E2E_PASSWORD;
 for (const k of ["LT_E2E_PASSWORD", "DATABASE_URL", "ANTHROPIC_API_KEY"]) {
   if (!process.env[k]) { console.error(`${k} is required`); process.exit(1); }
@@ -95,7 +98,7 @@ async function main() {
   const hash = bcrypt.hashSync(E2E_PASSWORD, 10);
   const u = await sql`
     INSERT INTO users (email, name, password_hash, is_admin, is_active, live_city, live_country, live_budget_amount, live_budget_currency)
-    VALUES (${E2E_EMAIL}, 'Live Tasting E2E', ${hash}, true, true, 'New Hope, Pennsylvania', 'United States', 40, 'USD')
+    VALUES (${E2E_EMAIL}, 'Live Tasting Paper QA', ${hash}, true, true, 'New Hope, Pennsylvania', 'United States', 40, 'USD')
     ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, is_active = true, is_admin = true
     RETURNING id`;
   const userId = u[0].id;
