@@ -193,7 +193,12 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 ## Deploying the study app
 
 **Deploys are GIT AUTO-DEPLOY, single-path (changed 2026-05-30).** Vercel git auto-deploy is
-**enabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": true}`). A push to `master`
+**enabled** via `study-app/vercel.json` (`"git": {"deploymentEnabled": {"claude/*": false}}` —
+unlisted branches default to enabled, so master deploys; **`claude/*` worktree branches create NO
+deployment at all**, preview or otherwise. That exclusion exists because on 2026-08-06 bot-branch
+preview deploys exhausted the Hobby plan's 100-deployments/day quota and production deploys of
+merged fixes were rate-limited for hours — see `.github/workflows/manual-deploy.yml` for the
+break-glass path. To preview a claude branch, rename it or merge to master). A push to `master`
 that touches `study-app/` is built and deployed by Vercel automatically — for **both** human pushes
 and the auto-feedback bot's merges. There is **one** deploy path (git); nothing runs an explicit
 `vercel --prod` in CI anymore.
