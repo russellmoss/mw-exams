@@ -231,10 +231,11 @@ async function runSession(paper, label) {
   // producer names ("X Wine Co") are not identity leaks — every stem contains "wine".
   const GENERIC = new Set(["wine", "wines", "domaine", "chateau", "estate", "estates", "cellars",
     "cellar", "weingut", "bodega", "bodegas", "vineyard", "vineyards", "winery", "vintners", "family"]);
+  const hasWord = (tok) => new RegExp(`\b${tok}\b`).test(payload); // "clos" must not match "closely"
   for (const w of q.wines) {
     const producer = fold(w.fullText.split(",")[0]).replace(/[^a-z ]/g, " ").trim().split(/\s+/)
       .filter((t) => t.length >= 4 && !GENERIC.has(t));
-    for (const tok of producer) if (payload.includes(tok)) leaks.push(tok);
+    for (const tok of producer) if (hasWord(tok)) leaks.push(tok);
   }
   check(`${label}: pre-reveal redaction`, leaks.length === 0 && !detail.reveal, leaks.join(",") || "clean");
   check(`${label}: stem present pre-reveal`, (detail.question?.questionText?.length ?? 0) > 50);
@@ -401,7 +402,7 @@ async function runByoSession(paper) {
   const leaks = [];
   for (const w of BYO_WINES[paper] ?? BYO_WINES[1]) {
     for (const tok of fold(w.producer).split(/\s+/).filter((t) => t.length >= 4 && t !== "wine")) {
-      if (payload.includes(tok)) leaks.push(tok);
+      if (new RegExp(`\b${tok}\b`).test(payload)) leaks.push(tok);
     }
   }
   check(`${label}: pre-reveal redaction`, leaks.length === 0 && !detail.reveal, leaks.join(",") || "clean");

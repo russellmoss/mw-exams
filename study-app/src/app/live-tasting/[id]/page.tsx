@@ -28,8 +28,9 @@ type SessionDetail = {
   budgetAmount: number | null;
   budgetCurrency: string | null;
   shareActive: boolean;
-  question: { questionText: string; totalMarks: number };
-  slotSummaries: SlotSummary[];
+  /** Absent while a BYO session is in tasting prep — no question exists yet. */
+  question?: { questionText: string; totalMarks: number };
+  slotSummaries?: SlotSummary[];
   reveal?: {
     wines: { slot: number; fullText: string }[];
     modelAnswer: string | null;
@@ -238,7 +239,8 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
               Live Tasting · Paper {session.paper}
             </h1>
             <p className="text-sm text-muted mt-1">
-              {session.flightSize} wines · {session.city} · {session.question.totalMarks} marks
+              {session.flightSize} wines · {session.city}
+              {session.question ? ` · ${session.question.totalMarks} marks` : " · tasting prep"}
               {session.state === "tasted" && ` · ${BLIND_INTEGRITY_LABEL[session.blindIntegrity]}`}
             </p>
           </div>
@@ -265,7 +267,7 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
             <section className="bg-card rounded-xl border border-border p-6">
               <h2 className="text-lg font-semibold text-foreground mb-3 font-display">The question</h2>
               <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                {session.question.questionText}
+                {session.question?.questionText}
               </div>
             </section>
           )}
@@ -339,9 +341,9 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
               <section className="bg-card rounded-xl border border-border p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Get the wines</h2>
                 <p className="text-sm text-muted mb-4">
-                  {session.slotSummaries.length} wines are picked and checked against shops near{" "}
+                  {(session.slotSummaries ?? []).length} wines are picked and checked against shops near{" "}
                   {session.city}
-                  {session.slotSummaries.some((s) => s.thin)
+                  {(session.slotSummaries ?? []).some((s) => s.thin)
                     ? " (some only by mail order)"
                     : ""}
                   . The list names the wines — so opening it yourself breaks the blind.
