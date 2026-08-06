@@ -6,6 +6,7 @@ import { createLiveTasting } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
+  liveTastingMarketCity,
 } from "@/lib/db";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
 
@@ -77,7 +78,7 @@ export async function POST(request: Request) {
       apiKey: keyResult.apiKey,
       paper,
       flightSize,
-      city: prefs.city!,
+      city: liveTastingMarketCity(prefs)!,
       country: prefs.country!,
       budgetAmount,
       budgetCurrency,
