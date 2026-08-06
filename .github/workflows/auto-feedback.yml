@@ -8,7 +8,9 @@ name: auto-feedback
 #   - RED    → opens a PR for review; master is never touched by an unverified change.
 # Results are written back to feedback_analyses for the admin UI.
 #
-# DEPLOY MODEL: git auto-deploy is ENABLED (study-app/vercel.json git.deploymentEnabled=true), so a
+# DEPLOY MODEL: git auto-deploy is ENABLED for master (study-app/vercel.json git.deploymentEnabled
+# is an object disabling only claude/* branches — no preview deploys for worktree bot branches,
+# they were exhausting the Hobby 100-deploys/day quota, 2026-08-06), so a
 # merge to master that touches study-app/ is built + deployed by Vercel automatically — the single
 # deploy path shared by human pushes and these bot merges. This workflow no longer runs an explicit
 # `vercel --prod`. The vercel.json ignoreCommand skips builds for [skip ci] commits (e.g. the

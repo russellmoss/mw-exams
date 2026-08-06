@@ -23,6 +23,7 @@ const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 type Cron = { path: string; schedule: string };
 const config = JSON.parse(fs.readFileSync(path.join(appDir, "vercel.json"), "utf8")) as {
   crons?: Cron[];
+  git?: { deploymentEnabled?: boolean | Record<string, boolean> };
 };
 const crons = config.crons ?? [];
 
@@ -46,5 +47,28 @@ describe("vercel.json crons (Hobby plan limits)", () => {
   it.each(crons)("$path resolves to a route handler", ({ path: cronPath }) => {
     const route = path.join(appDir, "src", "app", cronPath, "route.ts");
     expect(fs.existsSync(route), `no route handler at ${path.relative(appDir, route)}`).toBe(true);
+  });
+});
+
+describe("vercel.json git deploys (Hobby plan deployment quota)", () => {
+  // Worktree bot branches (claude/*) must NOT create deployments. Every branch push used to spawn
+  // a preview deployment; on 2026-08-06 that exhausted the Hobby plan's 100-deployments/day quota
+  // ("api-deployments-free-per-day") and production deploys of merged fixes were rate-limited for
+  // hours. Note an ignoreCommand skip does NOT save quota — the deployment is still created — so
+  // this must stay a deploymentEnabled exclusion, which stops creation entirely.
+  it("disables deployments for claude/* branches", () => {
+    const enabled = config.git?.deploymentEnabled;
+    expect(typeof enabled, "deploymentEnabled must be the per-branch object form").toBe("object");
+    expect((enabled as Record<string, boolean>)["claude/*"]).toBe(false);
+  });
+
+  it("does not disable master (git auto-deploy is the only production deploy path)", () => {
+    const enabled = config.git?.deploymentEnabled;
+    if (typeof enabled === "object" && enabled !== null) {
+      // Unlisted branches default to enabled; only an explicit false would break production.
+      expect(enabled["master"]).not.toBe(false);
+    } else {
+      expect(enabled).not.toBe(false);
+    }
   });
 });
