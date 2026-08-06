@@ -448,6 +448,249 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// PART-TASK REPERTOIRE — every lettered part must set a task the real exam actually sets (admin bin
+// cluster, cross-paper, 3 reasoned bins: gen_p2_F2_1785968458385, gen_p3_F7_1785964017240,
+// gen_p3_F2_1785964017222).
+//
+// The generator invents part tasks the real exam never sets ("… including how the bubbles were
+// created" — "the exam would never ask that"; a free-standing "Comment on the role of autolysis and
+// dosage" — "at best we would see 'discuss the role of yeast'") or omits a task the exam would always
+// set for the flight shape (a three-country red flight that never asks for the grape variety — "this
+// question would ask for variety identification"). Two arms, one rule family:
+//
+//   • part-task-repertoire — each lettered part is split into COMMAND CLAUSES (sentences, plus
+//     mechanism riders like ", including how …" and compound commands ", and explain …" split off so
+//     an off-repertoire rider can't hide behind a legitimate opening clause). Every clause must match
+//     an ALLOWED_PART_TASKS entry; a clause matching none is a hard reject quoting the clause.
+//   • missing-variety-id-part — a flight of 2+ wines with no part asking for grape-variety
+//     identification is a hard reject, EXCEPT when every wine is a fortified or sparkling style
+//     (where origin/method identification stands in — the corpus never asks Champagne's grapes).
+//
+// The registry is DATA-ONLY: new phrasings are added by editing the array, never the rule. Entries
+// are seeded from past-paper phrasings (the compilation + the canonical templates the generation
+// prompt quotes from real 2018–2025 papers). Regexes run on a cleaned clause: norm()'d (lower-case,
+// accents stripped) with punctuation flattened to spaces.
+// ---------------------------------------------------------------------------------------------------
+
+export interface AllowedPartTask {
+  id: string;
+  label: string;
+  re: RegExp;
+}
+
+// Verb stems the exam uses to open a task. Shared across entries so a new verb is one edit.
+const TASK_VERBS = "(?:identify|comment(?: briefly)? (?:on|upon)|describe|discuss|assess|evaluate|analyse|analyze|compare(?: and contrast)?|contrast|explain|state|estimate|account for)";
+
+export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
+  {
+    id: "identify-variety",
+    label: "identify the grape variety (or varieties)",
+    re: /\b(?:identify|comment(?: briefly)? on|discuss|state)\b[a-z0-9 ]{0,90}\bgrape variet(?:y|ies)\b/,
+  },
+  {
+    id: "identify-origin",
+    label: "identify the country and/or region of origin as closely as possible",
+    re: /\bidentify\b[a-z0-9 ]{0,90}\b(?:country|countries|region|regions|origin|origins|appellation)\b/,
+  },
+  {
+    id: "identify-wine",
+    label: "identify the wine as closely as possible",
+    // The object must be the WINE itself ("identify each wine as closely as possible") — an origin
+    // object ("identify the country … as closely as possible") belongs to identify-origin and must
+    // not satisfy this entry (it subsumes the variety ask; origin alone does not).
+    re: /\bidentify (?:the |each |both |all )?wines?\b[a-z0-9 ]{0,30}\bas closely as possible\b/,
+  },
+  {
+    id: "style",
+    label: "comment on the style and key characteristics",
+    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:styles?|key characteristics|character)\\b`),
+  },
+  {
+    id: "winemaking",
+    label: "comment on the key winemaking/production decisions and how they influenced style",
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:winemaking|wine making|vinification|maturation|elevage|viticultur[a-z]*|production (?:decisions?|methods?|techniques?)|methods? (?:of|used in|used for) (?:its )?production|production of|techniques?)\\b`
+    ),
+  },
+  {
+    id: "named-factor-role",
+    label: "discuss the role of <named factor> (yeast, oak, climate, …)",
+    re: /\b(?:discuss|comment on|assess|describe|explain)\b[a-z0-9 ]{0,40}\brole (?:played by |of )(?:the )?(?:yeast|oak|oxygen|climate|soil|terroir|acidity|human inputs?|natural factors?)\b/,
+  },
+  {
+    id: "sweetness-method",
+    label: "state/explain how the sweetness (residual sugar) has been achieved",
+    // Corpus-attested P3 staple ("State how the level of sweetness in each wine has been achieved").
+    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:sweetness|residual sugar|sugar)\\b`),
+  },
+  {
+    id: "blend-composition",
+    label: "comment on the blend and the role of its components",
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:blends?|blending|blended|assemblage|components? (?:of|in) the blend|role played by each component)\\b`
+    ),
+  },
+  {
+    id: "quality",
+    label: "comment on quality/faults",
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:quality|qualities|faults?|maturity|tier|classification|quality designation)\\b`
+    ),
+  },
+  {
+    id: "quality-ranking",
+    label: "rank/place the wines in order of quality",
+    re: /\b(?:rank|place|put|order|list)\b[a-z0-9 ]{0,50}\b(?:order of|by)\b[a-z0-9 ]{0,30}\b(?:quality|preference)\b/,
+  },
+  {
+    id: "readiness-ageing",
+    label: "comment on readiness for drinking and ageing potential",
+    // Keyword-only (no verb requirement): these phrases are unambiguous task markers, and real parts
+    // sometimes carry them in verb-less clauses ("… and how long each wine is likely to hold").
+    re: /\b(?:readiness for drinking|ready to drink|drink(?:ing)? window|drinkability|likely to hold|drink well|ag(?:e)?ing potential|potential for (?:further )?ag(?:e)?ing|ability to age|capacity to age|capacity for ag(?:e)?ing|future development)\b/,
+  },
+  {
+    id: "commercial",
+    label: "comment on the commercial position",
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:commercial|consumer appeal|market position|target market|price|pricing|value for money)\\b`
+    ),
+  },
+  {
+    id: "compare-wines",
+    label: "compare and contrast the wines (dimension carried by sibling clauses)",
+    re: /\bcompare(?: and contrast)?\b[a-z0-9 ]{0,40}\b(?:wines?|pairs?)\b/,
+  },
+  {
+    id: "differences",
+    label: "discuss how the wines differ",
+    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,50}\\bdiffer(?:s|ences?)?\\b`),
+  },
+  {
+    id: "how-made",
+    label: "discuss how the wine has been made",
+    re: /\bhow (?:the|this|each|these) wines? (?:has|have|was|were)(?: been)? made\b/,
+  },
+  {
+    id: "justify",
+    label: "justify your answer / give reasons",
+    re: /^(?:justify(?:ing)? your|give (?:your )?reasons?|support your|with reference to)\b/,
+  },
+  {
+    id: "state-analytic",
+    label: "state the residual sugar / sweetness (dosage) category / alcohol level",
+    re: /\b(?:state|estimate|identify)\b[a-z0-9 ]{0,40}\b(?:residual sugar|sweetness (?:level|category)|level of sweetness|dosage(?: category| level)?|abv|alcohol)\b/,
+  },
+];
+
+// Styles where the exam identifies by origin/method rather than grape — the variety-ID template
+// requirement is waived when EVERY wine in the flight reads as one of these. Matched on
+// norm(style + style_category + fullText).
+const NON_VARIETAL_STYLE_RE =
+  /sparkling|champagne|cremant|\bcava\b|prosecco|franciacorta|\bsekt\b|pet[- ]?nat|traditional method|tank method|fortified|sherry|jerez|\bfino\b|manzanilla|amontillado|oloroso|palo cortado|\bport\b(?!\s*phillip)|madeira|marsala|vin doux|\bvdn\b|banyuls|maury|rivesaltes|rutherglen|liqueur muscat|muscat de/;
+
+// The lettered parts of a question ("a) …" … up to the next label). Scaffolding before the first
+// label (the stem, "For each wine:") is excluded — the repertoire scan judges commands, not framing.
+function parseLetteredParts(questionText: string): { letter: string; text: string }[] {
+  const text = questionText || "";
+  const labels = [...text.matchAll(/(?:^|[^a-z0-9])([a-z])\)\s/gi)].map((m) => ({
+    letter: m[1].toLowerCase(),
+    labelAt: m.index ?? 0,
+    start: (m.index ?? 0) + m[0].length,
+  }));
+  return labels.map((l, i) => ({
+    letter: l.letter,
+    text: text.slice(l.start, i + 1 < labels.length ? labels[i + 1].labelAt : text.length),
+  }));
+}
+
+// Split a part into command clauses. Sentence boundaries first; then mechanism riders (", including
+// how …") and compound commands (", and explain …") are split off so each command is judged alone.
+function splitCommandClauses(partText: string): string[] {
+  const noMarks = (partText || "").replace(/\((?:\d+\s*[x×]\s*)?\d+\s*marks?\)/gi, " ");
+  const clauses: string[] = [];
+  for (const sentence of noMarks.split(/[.?!;:\n]+/)) {
+    for (const clause of sentence.split(
+      /,?\s+including\s+(?=(?:how|why|whether)\b)|,\s+and\s+(?=(?:identify|comment|describe|discuss|assess|evaluate|compare|contrast|explain|state|estimate)\b)/i
+    )) {
+      const cleaned = norm(clause).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+      // Skip fragments, mark-recap tables ("a 15 b 24 c 21 d 15 75", "3 x 8 24") and pure
+      // scaffolding ("for each wine:", "for wines 1 and 2:", "be as precise as possible").
+      const meaningful = cleaned
+        .split(" ")
+        .filter(
+          (t: string) =>
+            t &&
+            !/^\d+$/.test(t) &&
+            !/^[a-z]$/.test(t) &&
+            !["x", "mark", "marks", "total", "per", "wine", "wines", "each"].includes(t)
+        );
+      if (meaningful.length < 3) continue;
+      if (
+        /^(?:for (?:each|both|all|the)(?: \w+)? wines?(?: \d+(?: and \d+)*)?|with reference to (?:each|both|all)(?: \w+)? wines?|in each case|be as (?:precise|specific|accurate) as possible)$/.test(
+          cleaned
+        )
+      )
+        continue;
+      clauses.push(cleaned);
+    }
+  }
+  return clauses;
+}
+
+/**
+ * Part-task-repertoire rule. (a) Every command clause of every lettered part must match an
+ * ALLOWED_PART_TASKS entry — an unmatched clause is a hard reject quoting the clause. (b) A flight of
+ * 2+ wines must contain a grape-variety-identification part unless every wine is a fortified or
+ * sparkling style (missing-variety-id-part).
+ */
+export function partTaskRepertoireViolations(q: QuestionForAudit): Violation[] {
+  const v: Violation[] = [];
+  const parts = parseLetteredParts(q.questionText || "");
+
+  for (const part of parts) {
+    for (const clause of splitCommandClauses(part.text)) {
+      if (!ALLOWED_PART_TASKS.some((t) => t.re.test(clause))) {
+        v.push({
+          rule: "part-task-repertoire",
+          severity: "hard",
+          detail: `part ${part.letter} sets a task outside the real exam's repertoire: "${clause}". Each command must be one of the canonical past-paper tasks (identify variety/origin, comment on style, winemaking, quality, readiness, commercial, discuss the role of a named factor).`,
+        });
+      }
+    }
+  }
+
+  // Required-template arm: a flight of 2+ wines whose parts ask for ORIGIN identification but never
+  // for the grape variety. Origin-asked is the trigger (the binned shape — "asked only for origin and
+  // style, never for the grape variety"): a question with no identification parts at all is the
+  // exam's legitimate directed-away-from-ID shape and is left alone.
+  const wines = q.wines || [];
+  if (wines.length >= 2) {
+    const byId = new Map(ALLOWED_PART_TASKS.map((t) => [t.id, t.re]));
+    const wholeText = norm(q.questionText || "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ");
+    // "Identify the wine as closely as possible" subsumes the variety ask — it satisfies, not triggers.
+    const asksVariety =
+      (byId.get("identify-variety")?.test(wholeText) ?? false) ||
+      (byId.get("identify-wine")?.test(wholeText) ?? false);
+    const asksOrigin = byId.get("identify-origin")?.test(wholeText) ?? false;
+    const allNonVarietal =
+      wines.length > 0 &&
+      wines.every((w) =>
+        NON_VARIETAL_STYLE_RE.test(norm([w.style, w.style_category, w.fullText].filter(Boolean).join(" ")))
+      );
+    if (asksOrigin && !asksVariety && !allNonVarietal) {
+      v.push({
+        rule: "missing-variety-id-part",
+        severity: "hard",
+        detail: `flight of ${wines.length} wines asks for origin identification but no part asks for the grape variety — the real exam would always set one for this flight shape (only all-fortified or all-sparkling flights identify by origin/method instead).`,
+      });
+    }
+  }
+
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // CONTRAST INTEGRITY — a compare/contrast/explain ask must sit over wines that actually differ on the
 // dimension it names (admin bin cluster, Paper 3, 5 reasoned bins).
 //
@@ -628,6 +871,7 @@ export function validateQuestion(q: QuestionForAudit): {
   }
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
+  violations.push(...partTaskRepertoireViolations(q));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

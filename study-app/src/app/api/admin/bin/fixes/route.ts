@@ -63,11 +63,19 @@ export async function POST(request: Request) {
   }
 
   if (action === "dispatch") {
-    const result = await dispatchBinFixProposal({ proposalId: id, adminUserId: user.id });
-    if (!result.dispatched) {
-      return Response.json({ ok: false, error: result.error }, { status: 409 });
+    // dispatchRepositoryEvent throws on GitHub/config failures (missing GITHUB_TOKEN, API errors);
+    // unwrapped, that surfaces as an opaque 500 the UI cannot explain — return the message instead.
+    try {
+      const result = await dispatchBinFixProposal({ proposalId: id, adminUserId: user.id });
+      if (!result.dispatched) {
+        return Response.json({ ok: false, error: result.error }, { status: 409 });
+      }
+      return Response.json({ ok: true });
+    } catch (err) {
+      console.error("[bin-fixes] dispatch failed:", err);
+      const message = err instanceof Error ? err.message : "dispatch failed";
+      return Response.json({ ok: false, error: message }, { status: 500 });
     }
-    return Response.json({ ok: true });
   }
 
   if (action === "reject") {

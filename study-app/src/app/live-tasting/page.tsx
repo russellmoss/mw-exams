@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 type SessionSummary = {
   id: string;
   state: "prep" | "shopping" | "tasted" | "abandoned";
+  mode?: "pick-for-me" | "byo";
   blindIntegrity: "partner" | "self" | "unopened";
   paper: number;
   flightSize: number;
@@ -355,9 +356,18 @@ export default function LiveTastingPage() {
                           {s.state === "tasted" && s.blindIntegrity === "partner" && " · blind kept via partner"}
                         </p>
                       </div>
-                      <span className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full border ${STATE_CHIP[s.state].cls}`}>
-                        {STATE_CHIP[s.state].label}
-                      </span>
+                      {(() => {
+                        // BYO with its question attached: the wines are in — signal "ready to
+                        // taste", not "shopping" (there is nothing left to shop for).
+                        const chip = s.mode === "byo" && s.state === "shopping"
+                          ? { label: "Question ready", cls: "text-success border-success/40 bg-success/10" }
+                          : STATE_CHIP[s.state];
+                        return (
+                          <span className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full border ${chip.cls}`}>
+                            {chip.label}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </Link>
                 ))}

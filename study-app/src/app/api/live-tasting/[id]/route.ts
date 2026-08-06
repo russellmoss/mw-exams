@@ -41,7 +41,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       budgetCurrency: session.budget_currency,
       createdAt: session.created_at,
       shareActive: Boolean(session.share_token_hash && !session.graded_at && !session.abandoned_at),
-      prepGuidance: session.prep_guidance,
+      // BLIND AT THE API (migration 044): the brief is served to the candidate only after they
+      // explicitly chose "Me". A partner-routed brief never reaches this payload.
+      prepGuidance: session.brief_self_opened_at ? session.prep_guidance : null,
+      briefSentTo: session.brief_sent_to,
+      briefSelfOpened: Boolean(session.brief_self_opened_at),
     });
   }
 
@@ -83,6 +87,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return Response.json({
     ...base,
     reveal: {
+      attemptId: session.attempt_id,
       wines,
       modelAnswer: question.model_answer,
       availability: session.availability,
