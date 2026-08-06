@@ -3,8 +3,11 @@ import { validateProducerExclusion } from "../src/lib/question-engine";
 import { buildProducerExclusionBlock } from "../src/lib/prompts/question-generation-prompt";
 import {
   selectExcludedProducers,
+  buildExclusionList,
+  producerKeyIsExcluded,
   normaliseProducer,
   PRODUCER_EXCLUDE_TOP,
+  REVIEWER_EXCLUDED_PRODUCERS,
 } from "../src/lib/bank-health/producer";
 
 /**
@@ -42,6 +45,53 @@ describe("selectExcludedProducers", () => {
   it("returns [] for an empty or all-ok tally", () => {
     expect(selectExcludedProducers([], PRODUCER_EXCLUDE_TOP)).toEqual([]);
     expect(selectExcludedProducers([row("Hugel", "ok")], PRODUCER_EXCLUDE_TOP)).toEqual([]);
+  });
+});
+
+describe("buildExclusionList", () => {
+  it("always carries the reviewer's standing bans, even against an empty tally", () => {
+    // The 2026-08-05 sweep retired every kept Weinbach/Seppeltsfield question, zeroing the servable
+    // tally — a purely tally-derived ban would have disarmed itself right there.
+    const out = buildExclusionList([], PRODUCER_EXCLUDE_TOP);
+    expect(out.map((p) => p.key)).toEqual(
+      REVIEWER_EXCLUDED_PRODUCERS.map((d) => normaliseProducer(d))
+    );
+    expect(out.map((p) => p.key)).toContain("weinbach");
+    expect(out.map((p) => p.key)).toContain("seppeltsfield");
+  });
+
+  it("appends tally-derived over-used producers after the reviewer bans, deduped", () => {
+    const out = buildExclusionList(
+      [row("Domaine Weinbach", "over-used"), row("Torbreck", "over-used"), row("Hugel", "ok")],
+      PRODUCER_EXCLUDE_TOP
+    );
+    // Weinbach appears once (reviewer entry wins), Torbreck follows from the tally.
+    expect(out.filter((p) => p.key === "weinbach")).toHaveLength(1);
+    expect(out.map((p) => p.key)).toContain("torbreck");
+    expect(out.map((p) => p.key)).not.toContain("hugel");
+  });
+
+  it("never lets the cap cut a reviewer ban — the cap applies to the tally half only", () => {
+    const rows = Array.from({ length: 15 }, (_, i) => row(`Producer${i}`, "over-used"));
+    const out = buildExclusionList(rows, PRODUCER_EXCLUDE_TOP);
+    for (const d of REVIEWER_EXCLUDED_PRODUCERS) {
+      expect(out.map((p) => p.key)).toContain(normaliseProducer(d));
+    }
+  });
+});
+
+describe("producerKeyIsExcluded", () => {
+  const excluded = new Set(["weinbach", "seppeltsfield"]);
+
+  it("matches the exact key and a word-boundary prefix (cuvée glued into the head)", () => {
+    expect(producerKeyIsExcluded("weinbach", excluded)).toBe(true);
+    expect(producerKeyIsExcluded("weinbach cuve theo riesling", excluded)).toBe(true);
+  });
+
+  it("does not match a different name sharing the prefix without a boundary", () => {
+    expect(producerKeyIsExcluded("weinbacher", excluded)).toBe(false);
+    expect(producerKeyIsExcluded("", excluded)).toBe(false);
+    expect(producerKeyIsExcluded("trimbach", excluded)).toBe(false);
   });
 });
 
@@ -94,6 +144,17 @@ describe("validateProducerExclusion", () => {
     // the article, or with accents elsewhere in the line, must still hit it.
     const r = validateProducerExclusion(excluded, [
       w(1, "Weinbach, Cuvée Laurence Gewurztraminer, 2018. Alsace, France. (13.5%)"),
+    ]);
+    expect(r.valid).toBe(false);
+    expect(r.violations[0]).toContain("Wine 1");
+  });
+
+  it("catches a comma-less label that glues the cuvée into the producer head", () => {
+    // Real banked example: no comma before the vintage, so the head (and therefore the key) carries
+    // the whole cuvée. 20 kept Weinbach P1 wines were fragmented across such keys — exact matching
+    // would have let every one of them through.
+    const r = validateProducerExclusion(excluded, [
+      w(1, "Domaine Weinbach Cuvée Theo Riesling 2023. Alsace, France. (13.5%)"),
     ]);
     expect(r.valid).toBe(false);
     expect(r.violations[0]).toContain("Wine 1");

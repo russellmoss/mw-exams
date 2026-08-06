@@ -134,9 +134,24 @@ export interface ProducerFlag {
   paper: number;
 }
 
-// The over-used slice of a producer tally, capped — the generation-time HARD exclusion list. Pure so
-// the cap and the "status decides membership" rule are testable without a database; rows must arrive
-// count-sorted (getProducerTally's order) for the cap to keep the heaviest offenders.
+// Producers the reviewer has explicitly and repeatedly told the system to stop using
+// (outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md, Class 4: "please stop including
+// weinbach gewurztraminer - I have told you this at least three times"; "we are way overindexed on
+// this seppeltsfield wine"). These are ALWAYS on the generation exclusion list, independent of the
+// tally — necessarily so, for two measured reasons:
+//   1. Retiring a producer's kept questions zeroes its servable tally, so a purely tally-derived
+//      ban disarms itself the moment the bank is cleaned up (the 2026-08-05 sweep did exactly this).
+//   2. Comma-less wine labels glue the cuvée into the producer key ("Domaine Weinbach Cuvée Theo
+//      Riesling" → key "weinbach cuve theo riesling"), fragmenting one house across many keys so no
+//      single key ever clears the over-used share threshold — Weinbach had 20 kept P1 wines split
+//      across fragmented keys and still tallied under the bar.
+// Names are display forms; keys are derived via normaliseProducer at the union site.
+export const REVIEWER_EXCLUDED_PRODUCERS = ["Domaine Weinbach", "Seppeltsfield"];
+
+// The over-used slice of a producer tally, capped — the tally-derived half of the generation-time
+// HARD exclusion list. Pure so the cap and the "status decides membership" rule are testable without
+// a database; rows must arrive count-sorted (getProducerTally's order) for the cap to keep the
+// heaviest offenders.
 export function selectExcludedProducers(
   rows: { producer_key: string; producer_display: string; status: ProducerStatus }[],
   limit: number
@@ -145,4 +160,31 @@ export function selectExcludedProducers(
     .filter((r) => r.status === "over-used")
     .slice(0, limit)
     .map((r) => ({ key: r.producer_key, display: r.producer_display }));
+}
+
+// The full generation-time exclusion list: the reviewer's standing bans first (never subject to the
+// cap — a named complaint outranks a statistic), then the tally-derived over-used producers, deduped.
+export function buildExclusionList(
+  rows: { producer_key: string; producer_display: string; status: ProducerStatus }[],
+  limit: number
+): { key: string; display: string }[] {
+  const reviewer = REVIEWER_EXCLUDED_PRODUCERS.map((display) => ({
+    key: normaliseProducer(display),
+    display,
+  }));
+  const reviewerKeys = new Set(reviewer.map((p) => p.key));
+  const tallyDerived = selectExcludedProducers(rows, limit).filter((p) => !reviewerKeys.has(p.key));
+  return [...reviewer, ...tallyDerived];
+}
+
+// Does a wine's normalised producer key fall under an excluded key? Prefix matching at a word
+// boundary, not equality: comma-less labels glue the cuvée into the head, so the draft's key for a
+// banned house is often "weinbach cuve theo riesling" while the ban is "weinbach". A prefix +
+// boundary check catches every such variant without letting "weinbacher" (a different name) match.
+export function producerKeyIsExcluded(key: string, excludedKeys: ReadonlySet<string>): boolean {
+  if (!key) return false;
+  for (const excluded of excludedKeys) {
+    if (key === excluded || key.startsWith(`${excluded} `)) return true;
+  }
+  return false;
 }

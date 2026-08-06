@@ -20,6 +20,7 @@ import {
   PRODUCER_EXCLUDE_TOP,
   extractProducerDisplay,
   normaliseProducer,
+  producerKeyIsExcluded,
 } from "@/lib/bank-health/producer";
 import { buildBinReasonDigest } from "@/lib/prompts/bin-reason-digest";
 import { getBinLessonsBlock } from "@/lib/bin-lessons";
@@ -777,12 +778,13 @@ export async function generateFreshQuestion(
       : undefined
   );
 
-  // PRODUCER EXCLUSION (hard, every generation path): the paper's currently over-used producers,
-  // from the same tally + thresholds the review pane's producer flags use. The soft nudge below
-  // demonstrably did not stop the repeats — the reviewer binned Weinbach flights three separate
-  // times ("I have told you this at least three times", bank_bin_reasons) — so the heaviest
-  // offenders are now banned outright in the prompt AND rejected by validateProducerExclusion,
-  // which never relaxes. A tally outage degrades to no exclusion rather than failing generation.
+  // PRODUCER EXCLUSION (hard, every generation path): the reviewer's standing bans plus the paper's
+  // over-used producers by the review pane's own thresholds, counting retired evidence (see
+  // getOverusedProducers). The soft nudge below demonstrably did not stop the repeats — the reviewer
+  // binned Weinbach flights three separate times ("I have told you this at least three times",
+  // bank_bin_reasons) — so the offenders are banned outright in the prompt AND rejected by
+  // validateProducerExclusion, which never relaxes. A tally outage degrades to the reviewer bans
+  // never being fetched at all — no exclusion rather than failed generation.
   let excludedProducers: { key: string; display: string }[] = [];
   try {
     excludedProducers = await getOverusedProducers(paper, PRODUCER_EXCLUDE_TOP);
@@ -1527,9 +1529,12 @@ export function validateVarietyFilter(
  * over-used (the prompt's PRODUCER EXCLUSION block names the same list). Belt-and-suspenders with
  * that block — the reviewer's repeated Weinbach complaints prove the model does not reliably obey a
  * list it is merely shown. Matching runs through normaliseProducer, the same canonicalisation the
- * bank tally uses, so "Domaine Weinbach", "Weinbach" and accent variants all hit one key. Wines
- * whose descriptor yields no producer are skipped — a malformed line is validateWineReferenceShape's
- * problem, not a phantom match. CRITICAL tier, never relaxed.
+ * bank tally uses, so "Domaine Weinbach", "Weinbach" and accent variants all hit one key — and then
+ * through producerKeyIsExcluded's word-boundary prefix check, because a comma-less label glues the
+ * cuvée into the head ("Domaine Weinbach Cuvée Theo Riesling" → key "weinbach cuve theo riesling")
+ * and exact equality would let every such variant through. Wines whose descriptor yields no producer
+ * are skipped — a malformed line is validateWineReferenceShape's problem, not a phantom match.
+ * CRITICAL tier, never relaxed.
  */
 export function validateProducerExclusion(
   excludedKeys: ReadonlySet<string>,
@@ -1540,7 +1545,7 @@ export function validateProducerExclusion(
   for (const wine of wines) {
     const display = extractProducerDisplay(wine.fullText);
     if (!display) continue;
-    if (excludedKeys.has(normaliseProducer(display))) {
+    if (producerKeyIsExcluded(normaliseProducer(display), excludedKeys)) {
       violations.push(
         `Wine ${wine.slot}: producer "${display}" is on the over-used producer exclusion list for this paper — replace it with a different credible producer from the same region and price band`
       );

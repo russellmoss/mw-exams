@@ -10,7 +10,7 @@ import {
 import {
   extractFlightProducers,
   producerStatus,
-  selectExcludedProducers,
+  buildExclusionList,
   type ProducerFlag,
 } from "./bank-health/producer";
 import { getAppVersion } from "./app-version";
@@ -459,9 +459,19 @@ export interface ProducerTally {
 
 // The full producer tally for a paper (or all papers), sorted by count desc. Display / region / country
 // take the most frequent raw spelling per key (spec). status/share are computed in TS from the config.
-export async function getProducerTally(paper: number | "all"): Promise<ProducerTally> {
+//
+// includeRetiredEvidence: count kept rows even when retired or quarantined. The default (false) is
+// the SERVABLE tally the review pane and Producer Spread endpoint show. The generation exclusion
+// passes true, because retirement must not erase the evidence of over-use: retiring a producer's
+// questions (the 2026-08-05 Weinbach/Seppeltsfield sweep) zeroes the servable tally, and a ban
+// derived from it would disarm itself at exactly the moment the over-use was confirmed.
+export async function getProducerTally(
+  paper: number | "all",
+  opts?: { includeRetiredEvidence?: boolean }
+): Promise<ProducerTally> {
   const sql = getDb();
   const paperArg = paper === "all" ? null : paper;
+  const includeRetired = opts?.includeRetiredEvidence === true;
   const rows = (await sql`
     SELECT bwp.producer_key AS producer_key,
            COUNT(*)::int AS count,
@@ -471,9 +481,8 @@ export async function getProducerTally(paper: number | "all"): Promise<ProducerT
     FROM bank_wine_producer bwp
     JOIN generated_questions g ON g.question_id = bwp.item_id
     WHERE g.review_state = 'kept'
-      AND g.invalid_reasons IS NULL
-      AND g.is_retired IS NOT TRUE
       AND g.scope = 'pool'
+      AND (${includeRetired}::bool OR (g.invalid_reasons IS NULL AND g.is_retired IS NOT TRUE))
       AND (${paperArg}::int IS NULL OR bwp.paper = ${paperArg})
     GROUP BY bwp.producer_key
     ORDER BY count DESC, producer_display ASC
@@ -514,17 +523,18 @@ export async function getProducerNudge(
   };
 }
 
-// The producers generation must NOT use: every producer currently 'over-used' for the paper, count
-// desc, capped. Built from the same tally (and so the same producerStatus thresholds) as the review
-// pane's flags — the reviewer's "over-used" badge and the generation exclusion can never disagree.
-// Unlike getProducerNudge this is a HARD list: the prompt forbids these producers outright and
-// validateProducerExclusion rejects any draft that names one.
+// The producers generation must NOT use: the reviewer's standing bans (REVIEWER_EXCLUDED_PRODUCERS
+// — always listed, immune to tally state) plus every producer 'over-used' for the paper by the same
+// producerStatus thresholds the review pane's flags use, count desc, capped. The tally half counts
+// retired/quarantined kept rows as evidence (includeRetiredEvidence) so a clean-up sweep cannot
+// disarm a ban. Unlike getProducerNudge this is a HARD list: the prompt forbids these producers
+// outright and validateProducerExclusion rejects any draft that names one.
 export async function getOverusedProducers(
   paper: number,
   limit: number
 ): Promise<{ key: string; display: string }[]> {
-  const tally = await getProducerTally(paper);
-  return selectExcludedProducers(tally.rows, limit);
+  const tally = await getProducerTally(paper, { includeRetiredEvidence: true });
+  return buildExclusionList(tally.rows, limit);
 }
 
 // How many pending items awaiting review carry a producer flag (paper-scoped, or all papers). Feeds the
