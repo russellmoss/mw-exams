@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { binFixActionErrorMessage, binFixMineErrorMessage } from "@/lib/bin-fix-ui";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 // BinFixProposalsSection — the "Root-cause fixes" card on /admin (migration 042).
@@ -43,6 +44,9 @@ export function BinFixProposalsSection() {
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState<number | "mine" | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  // Transient per-proposal failure (dispatch/reject) — cleared on the next action attempt. Distinct
+  // from p.applyError, which is the persisted build failure coming back from the Action.
+  const [actError, setActError] = useState<{ id: number; message: string } | null>(null);
 
   const fetchProposals = async (): Promise<Proposal[] | null> => {
     try {
@@ -95,10 +99,10 @@ export function BinFixProposalsSection() {
         );
         await load();
       } else {
-        setNote("Mining failed — try again.");
+        setNote(binFixMineErrorMessage((data as { error?: unknown }).error));
       }
     } catch {
-      setNote("Mining failed — try again.");
+      setNote(binFixMineErrorMessage(null));
     } finally {
       setBusy(null);
     }
@@ -106,15 +110,24 @@ export function BinFixProposalsSection() {
 
   const act = async (proposalId: number, action: "dispatch" | "reject") => {
     setBusy(proposalId);
+    setActError(null);
     try {
       const res = await fetch("/api/admin/bin/fixes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, proposalId }),
       });
-      if (res.ok) await load();
+      if (res.ok) {
+        await load();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setActError({
+          id: proposalId,
+          message: binFixActionErrorMessage(action, (data as { error?: unknown }).error),
+        });
+      }
     } catch {
-      /* leave the card; the admin can retry */
+      setActError({ id: proposalId, message: binFixActionErrorMessage(action, null) });
     } finally {
       setBusy(null);
     }
@@ -163,6 +176,7 @@ export function BinFixProposalsSection() {
               </div>
               <p className="text-xs text-muted leading-relaxed line-clamp-3 mb-2">{p.proposal}</p>
               {p.applyError && <p className="text-xs text-fail mb-2">{p.applyError}</p>}
+              {actError?.id === p.id && <p className="text-xs text-fail mb-2">{actError.message}</p>}
               <div className="flex items-center gap-2">
                 {["proposed", "failed", "pr_closed"].includes(p.status) && (
                   <>
