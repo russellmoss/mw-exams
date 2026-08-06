@@ -12,7 +12,12 @@
 // anything added here stops blocking silently, and nothing about generation looks different
 // afterwards. So the membership itself is pinned.
 import { describe, it, expect } from "vitest";
-import { ADVISORY_RULES, blockingViolations } from "../src/lib/question-engine";
+import {
+  ADVISORY_RULES,
+  BANK_BLOCKING_RULES,
+  blockingViolations,
+  shouldRelaxBanker,
+} from "../src/lib/question-engine";
 
 describe("ADVISORY_RULES membership", () => {
   it("contains banker", () => {
@@ -65,5 +70,58 @@ describe("blockingViolations", () => {
     // lastViolations is user-visible in logs; keeping insertion order keeps those readable.
     const out = blockingViolations({ variety: ["a"], marks: ["b"], novelty: ["c"] });
     expect(out).toEqual(["a", "b", "c"]);
+  });
+});
+
+// The bank path (Fill-the-Bank worker, batchId set on saveOpts) is the one place where banker holds
+// the line: no user waits on it, its retry budget is long, and letting advisory/relaxed attempts
+// through is how the bank accumulated bankerless flights — 18 of 67 reasoned reviewer bins
+// (too_obscure) in outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md, Class 2.
+describe("bank path banker enforcement", () => {
+  it("pins BANK_BLOCKING_RULES membership to exactly banker", () => {
+    // Same discipline as ADVISORY_RULES: promoting a rule to bank-blocking changes what the bank
+    // will accept and must not ride along in an unrelated change.
+    expect([...BANK_BLOCKING_RULES].sort()).toEqual(["banker"]);
+  });
+
+  it("every bank-blocking rule is advisory — otherwise it already blocks everywhere", () => {
+    for (const rule of BANK_BLOCKING_RULES) {
+      expect(ADVISORY_RULES.has(rule)).toBe(true);
+    }
+  });
+
+  it("banker blocks on the bank path", () => {
+    const out = blockingViolations(
+      { banker: ["no recognizable benchmark appellation"] },
+      { bankPath: true }
+    );
+    expect(out).toEqual(["no recognizable benchmark appellation"]);
+  });
+
+  it("banker stays advisory off the bank path, explicitly and by default", () => {
+    const fired = { banker: ["no recognizable benchmark appellation"] };
+    expect(blockingViolations(fired, { bankPath: false })).toEqual([]);
+    expect(blockingViolations(fired)).toEqual([]);
+  });
+
+  it("non-advisory rules block identically on both paths", () => {
+    const fired = { variety: ["a"], banker: ["b"], marks: ["c"] };
+    expect(blockingViolations(fired, { bankPath: true })).toEqual(["a", "b", "c"]);
+    expect(blockingViolations(fired, { bankPath: false })).toEqual(["a", "c"]);
+  });
+
+  it("never relaxes the banker check on the bank path, at any attempt", () => {
+    // Blocking only works if the check RAN — a relaxed check reports no violations, and
+    // blockingViolations cannot gate on a verdict that was never produced.
+    for (const attempt of [1, 2, 3, 4, 5, 6, 10]) {
+      expect(shouldRelaxBanker(attempt, true)).toBe(false);
+    }
+  });
+
+  it("keeps the interactive attempt-4 relaxation", () => {
+    expect(shouldRelaxBanker(1, false)).toBe(false);
+    expect(shouldRelaxBanker(3, false)).toBe(false);
+    expect(shouldRelaxBanker(4, false)).toBe(true);
+    expect(shouldRelaxBanker(6, false)).toBe(true);
   });
 });

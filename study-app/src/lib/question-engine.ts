@@ -1128,7 +1128,11 @@ export async function generateFreshQuestion(
 
     // Nice-to-have validators (relax on attempt 4+)
     const relaxNiceToHave = attempt >= 4;
-    const bankerCheck = relaxNiceToHave
+    // Bank path (batchId present): banker never relaxes, and via BANK_BLOCKING_RULES it actually
+    // blocks — a bankerless flight must not be BANKED, whereas the interactive path keeps both the
+    // relaxation and the advisory demotion because a user is waiting on the spinner.
+    const bankPath = Boolean(saveOpts?.batchId);
+    const bankerCheck = shouldRelaxBanker(attempt, bankPath)
       ? { valid: true, violations: [] }
       : validateBankerMinimum(candidate.wines);
     const flightSizeCheck = relaxNiceToHave
@@ -1169,7 +1173,7 @@ export async function generateFreshQuestion(
     for (const [name, check] of Object.entries(checks)) {
       if (check.violations.length > 0) violationsByRule[name] = check.violations;
     }
-    lastViolations = blockingViolations(violationsByRule);
+    lastViolations = blockingViolations(violationsByRule, { bankPath });
 
     recordAttempt(attempt, {
       model: producedModel,
@@ -1787,13 +1791,37 @@ export const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cr
 // rules_fired, so if a better detector ever earns it a hard gate, the evidence is already accruing.
 export const ADVISORY_RULES = new Set(["banker"]);
 
+// Advisory rules that block anyway on the BANK path (batchId set — Fill-the-Bank / generate / cron
+// worker). The advisory demotion above is an interactive-latency trade: with a user watching the
+// spinner and ~2-5 attempts of budget, hard-rejecting on a coin-flip detector starved generation.
+// The bank worker has no spinner and a long retry budget, and letting relaxed/advisory attempts
+// through is how the bank accumulated bankerless flights — the single largest defect class in the
+// reviewer bin corpus (18 of 67 reasoned bins tagged too_obscure; see
+// outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md, Class 2). The detector's poor recall
+// (44.3% of real benchmarks) means it also rejects flights that DO carry a real banker the regex
+// misses — on the bank path that costs retries, not quality, which is the right side to err on.
+export const BANK_BLOCKING_RULES = new Set(["banker"]);
+
+/**
+ * Whether the banker check may be skipped on this attempt. Interactive generation relaxes it from
+ * attempt 4 (latency matters, and the rule is advisory there anyway); the bank path never skips it,
+ * so BANK_BLOCKING_RULES always has a real verdict to gate on.
+ */
+export function shouldRelaxBanker(attempt: number, bankPath: boolean): boolean {
+  return attempt >= 4 && !bankPath;
+}
+
 /**
  * The violations that actually fail an attempt. Advisory rules are filtered out here and nowhere
- * else, so telemetry keeps seeing every rule that fired.
+ * else, so telemetry keeps seeing every rule that fired. On the bank path, rules in
+ * BANK_BLOCKING_RULES escape the advisory filter and block like any other rule.
  */
-export function blockingViolations(violationsByRule: Record<string, string[]>): string[] {
+export function blockingViolations(
+  violationsByRule: Record<string, string[]>,
+  opts?: { bankPath?: boolean }
+): string[] {
   return Object.entries(violationsByRule)
-    .filter(([name]) => !ADVISORY_RULES.has(name))
+    .filter(([name]) => !ADVISORY_RULES.has(name) || (opts?.bankPath === true && BANK_BLOCKING_RULES.has(name)))
     .flatMap(([, v]) => v);
 }
 
