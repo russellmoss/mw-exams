@@ -2063,11 +2063,26 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
       violations.push(det.detail);
     }
 
-    // Flag wines where variety cannot be detected — suspicious in a same-variety flight
+    // Flag wines where variety cannot be detected — suspicious in a same-variety flight.
+    //
+    // Both messages here are repair-loop instructions as much as they are diagnostics. The old single
+    // "variety undetectable" message reported a blend-appellation wine (Pauillac resolves to no
+    // single grape) identically to a merely-unmapped varietal wine, which told the repair loop
+    // nothing about the actual defect — in bank batch c3276590 (2026-08-06) the model answered it by
+    // swapping one Pauillac second wine for another, eight attempts in a row, until the failure
+    // breaker killed the bucket. Only wines ALREADY undetected get the blend message: a detected
+    // blend-normed label (Rioja → tempranillo) still passes, because real MW same-variety flights do
+    // use Rioja in Tempranillo flights — rejecting those would trade one false-fire loop for another.
     for (const w of undetected) {
-      violations.push(
-        `Wine ${w.slot} ("${w.text}") — variety undetectable in a same-variety flight. Every wine's name or appellation must clearly map to the declared variety.`
-      );
+      if (isLikelyBlend(w.text)) {
+        violations.push(
+          `Stem says same single grape variety, but Wine ${w.slot} ("${w.text}") is from a blend-normed category (Bordeaux/Médoc communes, Châteauneuf, Gigondas, etc.). Variety-dominant is not single-varietal — replace it with a genuinely 100% varietal wine whose label or appellation names the grape.`
+        );
+      } else {
+        violations.push(
+          `Wine ${w.slot} ("${w.text}") — variety undetectable in a same-variety flight. Every wine's name or appellation must clearly map to the declared variety: write the variety into the wine name where the producer labels it that way (e.g. "Henschke, Hill of Grace Shiraz"), or use a varietal appellation (Barolo, Chablis, Sancerre).`
+        );
+      }
     }
 
     // Name-label cross-check: scan each wine's text for ANY grape name that contradicts the flight variety
