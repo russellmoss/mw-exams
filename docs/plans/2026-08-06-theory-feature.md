@@ -175,18 +175,31 @@ A retrieval failure must never quietly produce a normal band. Precisely:
 
 ## Implementation units
 
-### Unit 0 — temporal classification of rubric requirements  *(new; prerequisite)*
+### Unit 0 — temporal classification of rubric requirements  *(prerequisite)*
 Offline pass over all 243 rubrics tagging each requirement `evergreen` / `year_bound` / `superseded`,
-and each question optionally `ex_ante` (forecast). Output `data/theory/rubric_temporal.json`, gated
-like every other artefact here: a `superseded` tag must carry a reason and, where the world moved for
-a citable reason, a source. Seed from the 112 time-sensitive claim flags.
+and each question optionally `ex_ante` (forecast). Output `data/theory/rubric_temporal.json`. Seed
+from the 112 time-sensitive claim flags.
+
+**THE SUPERSEDED GATE (decided at eng review).** `superseded` is the only class that *removes* a
+requirement from grading, so it is the only one that can quietly lower the standard for every future
+candidate on that question. It therefore builds only if it carries a **tier-1 source showing the
+world actually changed**; `evergreen` and `year_bound` need none. `scripts/build_rubric_temporal.py`
+hard-fails on an uncited `superseded`, exactly as the quote gate fails an uncited requirement and the
+claim gate fails an uncited VERIFIED. Most requirements are structural and evergreen, so the source
+burden is small.
 **Why first:** without it §1a is grader discretion, and Units 2–3 cannot be written honestly.
 
-### Unit 0b — internal review console  *(new; moved early on council advice)*
-Both reviewers said the same thing: you cannot evaluate temporal adjudication from JSON payloads, and
-learner UI can wait but operator tooling cannot. A minimal internal page: pick a question, paste or
-load an essay, run old-grader vs new-grader side by side, show retrieved sources, rubric requirements
-with their temporal class, and the diff in verdict. This is how Units 1–3 get judged at all.
+### Unit 0b — grading diff harness  *(moved early on council advice; scoped down at eng review)*
+Both reviewers said you cannot evaluate temporal adjudication from JSON payloads, and that learner UI
+can wait but operator tooling cannot. **Scoped to two files rather than an admin page**, following
+the existing `tests/knowledge-retrieval.eval.test.ts` pattern:
+
+- `study-app/tests/theory-grading.eval.test.ts` — the six adversarial cases in Unit 2. `.eval.test.ts`
+  is already excluded from the build gate, which matters because these make live model calls.
+- `study-app/scripts/theory-grade-diff.mjs` — run one essay through old-grader and new-grader, print
+  verdicts, retrieved sources, and each rubric requirement with its temporal class, side by side.
+
+Version-controlled, rerunnable, CI-capable. Promote to an admin page only if it is used constantly.
 
 ### Unit 1 — theory retrieval gate
 `study-app/src/lib/theory/retrieval.ts`. Given a rubric, decide whether to retrieve, from which
@@ -248,8 +261,28 @@ Streamed feedback beside the rubric so the candidate sees *what they were marked
 annotated model answer with Unit 5's provenance. Verdict labelled indicative on every render.
 
 ### Unit 8 — persistence and history
-Reuse `save-attempt` / `/history`. Theory attempts sit alongside practical ones; store rubric id,
-band, word count, retrieval sources used.
+Reuse `save-attempt` / `/history`. **Verified at eng review: `user_attempts` fits theory almost
+unchanged** — `question_id` is text so `th_2024_p1_q3` fits, and `user_answer`, `answer_feedback`,
+`pass_estimate`, `elapsed_seconds`, `input_method` map directly. `drill_payload` (jsonb) carries the
+Unit 3 grading provenance. Likely no migration at all.
+
+**Two hard requirements, both found at eng review:**
+
+1. **Supply every NOT NULL column explicitly.** `mode`, `input_method`, `flagged` and `stem_detail`
+   are all NOT NULL, and `stem_detail` is a purely practical concept with no theory meaning
+   (use `mode='theory'`, `stem_detail='none'`). Project history records three production outages from
+   exactly this class of omission; any migration must be idempotent.
+
+2. **THE MODE GUARD — theory attempts must not pollute practical statistics.** Two readers aggregate
+   `user_attempts` with no `mode` filter today:
+   - `src/app/api/admin/users/route.ts:28` — `attempt_count` / `completed_count`
+   - `scripts/sync-empirical-knowledge.mjs:190` — selects attempts carrying feedback and feeds them
+     into `mw_exam_empirical_knowledge.md`, **the canonical reference for the PRACTICAL exam**
+
+   Unfiltered, a theory attempt with user feedback would start rewriting practical guidance. This is
+   the same failure the corpus separation prevents at the data layer (`th_` prefix, separate JSON,
+   collision tests) — the guard simply never extended to the attempts table. Fix every reader, then
+   **add a test that fails when a new unfiltered reader appears**, since the risk is recurrence.
 
 ### Unit 9 — the no-rubric years
 2015 and 2026 (54 questions). **Default to hiding them** — both reviewers independently argued that a
@@ -302,3 +335,143 @@ grading provenance storage, internal-console-first sequencing, hiding the rubric
 with reason: cutting tier-1 web retrieval (measured evidence contradicts it — Paper 5 reached 58%
 verified through exactly that path) and cutting unsourced figures from model answers (they are often
 load-bearing; hedging one answer already cost it 230 words and required a rebuild).
+
+---
+
+## ENG REVIEW (2026-08-06)
+
+### Decisions taken
+
+| # | Decision | Chosen |
+|---|---|---|
+| 1 | Theory attempt storage | Same `user_attempts` table, `mode='theory'`, **plus a mode guard and a test that fails on any new unfiltered reader** |
+| 2 | Unit 0b review console | **Eval test + CLI diff script**, not an admin page. Promote later only if used constantly |
+| 3 | `superseded` classification | **Must carry a tier-1 source** or the build fails, matching the quote/coverage/claim gates |
+
+### Architecture findings
+
+- **A1 (9/10)** `user_attempts` has four NOT NULL columns theory has no natural value for — `mode`,
+  `input_method`, `flagged`, `stem_detail` (purely practical). Supply all explicitly; any migration
+  idempotent. Three prior production outages came from this class.
+- **A2 (8/10)** Tavily is per-user BYOK, so **Papers 4-5 fact-checking silently vanishes for users
+  without a key**. Not addressed in the plan. Under §2a this must abstain on fact, grade structure,
+  and say so on the response — never a silent downgrade.
+- **A3 (7/10)** Nothing owns caching. Listed as a risk mitigation, assigned to no unit. The same
+  question is graded by many users; cache retrieval on `question_id` + a date bucket.
+  **Assign to Unit 1.**
+- **A4** Resolved by decision 3 above.
+
+### Code quality
+
+- **C1 (9/10) DRY, and it is about to get worse.** `api/theory/grade/route.ts` and
+  `api/evaluate-answer/route.ts` already duplicate 14 concerns apiece: `requireApiKey`,
+  `selectModel`, `withThinking`, `thinkingFrame`, the whole SSE `ReadableStream` scaffold,
+  `text_delta` / `thinking_delta` handling, `logClaudeUsage`, dictation normalisation. Unit 3 adds
+  `getKnowledgeContext`, `buildVerificationBlock` and `buildCitationBlock` to the theory route —
+  every one of which the practical route already has.
+  **Extract a shared `streamGradedResponse()` before Unit 3, not after.** Make the change easy, then
+  make the easy change. Refactoring after Unit 3 means unpicking two copies instead of one.
+- **C2 (7/10)** `theory-evaluation-prompt.ts` is 199 lines against `answer-evaluation-prompt.ts`'s
+  68, and Unit 2 adds the temporal section. Split the rubric renderer from the prompt assembler
+  before it becomes unreviewable.
+
+### Performance
+
+- **P1 (8/10)** `rubric.ts` parses and caches **985 KB of JSON per serverless instance** to serve a
+  single-row lookup. Acceptable today; it is a cold-start cost, not a per-request one. Revisit if
+  2015/2026 gain rubrics or the index passes ~2 MB — at which point move the lookup to Postgres,
+  where the KB already lives.
+- **P2 (8/10)** Retrieval sits on the user-blocking path: roughly 1-3 s for KB, 3-10 s for web, on
+  top of grading a 1,000-word essay. This is the council's 30-60 s pipeline. Streaming already
+  prevents the appearance of a hang; the submit-lock in Unit 3 prevents the double-submit that
+  doubles cost. A3's cache is the real fix.
+- **P3** No N+1 risk: one rubric lookup, one retrieval, one model call per grade.
+
+### Test coverage plan
+
+```
+UNIT 0 — temporal classification              build_rubric_temporal.py
+  |-- [GAP] superseded WITHOUT source        -> must FAIL the build      ** CRITICAL **
+  |-- [GAP] superseded WITH tier-1 source    -> builds
+  |-- [GAP] evergreen / year_bound no source -> builds (none needed)
+  \-- [GAP] class not in the enum            -> must FAIL
+
+UNIT 1 — retrieval gate                       theory/retrieval.ts
+  |-- [GAP] p3 SO2 question                  -> KB retrieval fires
+  |-- [GAP] p4 Prosecco-market question      -> KB NOT touched
+  |-- [GAP] p1 appellation-law question      -> KB fires
+  |-- [GAP] p1 vine-physiology question      -> abstains, no penalty
+  |-- [GAP] no Tavily key (A2)               -> abstain on fact, say so  ** CRITICAL **
+  \-- [GAP] cache hit on repeat question     -> no second call
+
+UNIT 2 — two-clock prompt                     theory-grading.eval.test.ts  [->EVAL]
+  |-- [GAP] currency credited                -> no mark lost, note added
+  |-- [GAP] TEMPORAL LAUNDERING              -> must still FAIL          ** CRITICAL **
+  |-- [GAP] trap essay + current facts       -> must still FAIL          ** CRITICAL **
+  |-- [GAP] unsourceable-but-standard claim  -> NOT marked down (§1c)    ** CRITICAL **
+  |-- [GAP] ex_ante forecast + hindsight     -> judged on reasoning
+  \-- [GAP] retrieval stubbed to fail        -> structure-only, stated
+
+UNIT 3 — route                                api/theory/grade
+  |-- [GAP] provenance persisted             -> retrieval snapshot stored
+  |-- [GAP] double submit                    -> second rejected
+  \-- [GAP] 404 on 2015/2026                 -> already covered
+
+UNIT 8 — persistence                          MODE GUARD
+  |-- [GAP] theory excluded from admin attempt_count            ** CRITICAL **
+  |-- [GAP] theory excluded from empirical-knowledge sync       ** CRITICAL **
+  \-- [GAP] a new unfiltered reader          -> test FAILS on it ** CRITICAL **
+-------------------------------------------------------------
+GAPS: 22 paths need tests. 8 critical. 1 needs an eval suite.
+```
+
+### Failure modes with no test and no handling today
+
+| Failure | Silent? | Covered by |
+|---|---|---|
+| Theory attempt rewrites practical empirical knowledge | **Yes — worst case here** | Unit 8 mode guard |
+| Uncited `superseded` lowers the bar permanently | **Yes** | Unit 0 gate |
+| Temporal laundering passes a hollow essay | **Yes** | Unit 2 case 2 |
+| Candidate penalised for an unsourceable-but-standard claim | No, visible | §1c + Unit 2 case 4 |
+| No Tavily key silently drops fact-checking | **Yes** | A2 -> §2a abstention |
+
+### NOT in scope
+
+- Theory question generation. 297 real questions exist; a candidate cannot exhaust them.
+- A calibrated numeric mark. No marked scripts exist; bands stay indicative permanently.
+- Rubrics for 2015 and 2026. No examiners' report exists to derive them from.
+- The admin review console as a page (decision 2). Script first.
+- Refreshing the temporal data on a schedule — still open, below.
+
+### Parallelisation
+
+| Lane | Units | Shared modules |
+|---|---|---|
+| A | 0 -> 0b | `scripts/`, `data/theory/` |
+| B | 1 -> 2 -> 3 | `study-app/src/lib/theory/`, `prompts/`, `api/theory/` |
+| C | 8 mode guard | `api/admin/`, `scripts/sync-empirical-knowledge.mjs` |
+
+**A and C are independent and can run in parallel. B depends on A** (Unit 2 renders Unit 0's
+classes). C is small, self-contained, and the one to do first regardless — the pollution risk exists
+the moment any theory attempt is written.
+
+### Still open
+
+**Who refreshes the temporal classification, and how often.** Unchanged from the plan. A 2027
+candidate marked against a 2025 "current" fact is this design's own failure one level up.
+
+## GSTACK REVIEW REPORT
+
+| Review | Trigger | Why | Runs | Status | Findings |
+|--------|---------|-----|------|--------|----------|
+| CEO Review | `/plan-ceo-review` | Scope & strategy | 0 | — | — |
+| Codex Review | `/codex review` | Independent 2nd opinion | 1 | issues_found | 3 design holes, all closed |
+| Eng Review | `/plan-eng-review` | Architecture & tests (required) | 1 | issues_open | 8 issues, 8 critical test gaps |
+| Design Review | `/plan-design-review` | UI/UX gaps | 0 | — | — |
+| DX Review | `/plan-devex-review` | Developer experience gaps | 0 | — | — |
+
+**CODEX/GEMINI:** two-clock premise failure, temporal laundering, paper-level routing, and the
+unverified-claims double standard. All folded into §1a-1c and §2.
+**UNRESOLVED:** 1 — the temporal-data refresh owner.
+**VERDICT:** ENG REVIEW COMPLETE — 3 decisions taken, 8 findings, 22 test paths specified (8
+critical). Lane C (mode guard) lands first. Ready to implement.
