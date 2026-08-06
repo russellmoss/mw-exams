@@ -20,7 +20,7 @@ flowchart TD
     G3 -->|"WHITE / AMBER<br/>spectrum"| WSPEC{"White-amber<br/>colour?"}
     G3 -->|"RED<br/>spectrum"| RSPEC{"Red<br/>colour?"}
 
-    WSPEC -->|"Pale lemon-straw<br/>+ thin tears"| DRYW["Dry still white (rare)<br/>or light off-dry<br/>often the anchor wine"]
+    WSPEC -->|"Pale lemon-straw<br/>+ thin tears"| DRYW["Dry still white (rare)<br/>or light off-dry.<br/>Can fill a WHOLE same-country<br/>flight, not just one anchor slot<br/>(2018 P3 Q2: 3x French whites)"]
     WSPEC -->|"Pale lemon-straw<br/>+ THICK tears"| ICEW["Icewine / Eiswein<br/>or young botrytis<br/>→ sweet sub-tree"]
     WSPEC -->|"Deep gold-amber<br/>+ thick tears<br/>NO bubbles"| AMBIG["AMBIGUOUS:<br/>sweet OR oxidative<br/>OR lighter fortified"]
     WSPEC -->|"Pale tawny /<br/>amber-orange"| TAWNY["Young Tawny, Amontillado,<br/>Palo Cortado, dry Madeira<br/>→ fortified sub-tree"]
@@ -69,6 +69,7 @@ flowchart TD
     V -->|Yes| F1["F1 Cross-Style<br/>(one grape across<br/>sparkling/still/sweet)"]
     V -->|No| O{"Same country<br/>or region?"}
     O -->|Yes| F2["F2 Same Origin<br/>(regional diversity)"]
+    F2 --> F2WARN["Do NOT assume a multi-style<br/>spread: a same-country P3 flight<br/>can be ALL still dry whites<br/>(2018 P3 Q2: Pessac-Leognan Blanc<br/>+ Chateauneuf Blanc + St-Romain).<br/>The GLASSES pick the categories,<br/>the stem only binds the country."]
     O -->|No| METHOD{"Method/production<br/>marks dominate?<br/>'winemaking techniques'<br/>'method of production'"}
     METHOD -->|Yes| F5_OR_6{"RS/alcohol axis<br/>explicitly tested?"}
     F5_OR_6 -->|"'State RS and alcohol'<br/>ladder language"| F6["F6 Style Axis<br/>(RS x alcohol matrix)"]
@@ -79,6 +80,7 @@ flowchart TD
 
     style F1 fill:#e8f5e9
     style F2 fill:#e3f2fd
+    style F2WARN fill:#fce4ec,stroke:#c62828
     style F4 fill:#fce4ec
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
