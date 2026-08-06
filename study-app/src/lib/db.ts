@@ -2183,7 +2183,9 @@ export async function getBinRowsForMining(
     tags: Array.isArray(r.reason_tags) ? r.reason_tags : [],
     note: r.reason_note ?? null,
     stem: r.question_text ?? null,
-    binnedAt: r.binned_at,
+    // The neon driver hands TIMESTAMPTZ back as a Date in direct (non-JSON) call paths — normalise
+    // to ISO here so consumers (the miner prompt slices a date prefix) always get a string.
+    binnedAt: r.binned_at instanceof Date ? r.binned_at.toISOString() : String(r.binned_at),
   }));
 }
 
