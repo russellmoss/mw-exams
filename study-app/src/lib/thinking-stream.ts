@@ -64,6 +64,14 @@ export function thinkingParams(
  * `Message` a non-streaming call would give, so call sites parse it identically. Thinking config is
  * NOT added here — the caller adds `thinkingParams(model)` itself, because it also has to size
  * `max_tokens` for the extra thinking tokens (max_tokens caps thinking + response together).
+ *
+ * `options.timeout` is enforced as a WALL-CLOCK deadline on the whole call, via an explicit abort.
+ * The SDK's own `timeout` does not do that for a stream: it covers reaching the response, and a
+ * response that keeps streaming is never late by that measure. That loophole is exactly where the
+ * 2026-08-05/06 incident lived — Sonnet 4.6 thinking spirals streamed deltas continuously for
+ * ~280s under a 130s "timeout", each one eating a whole generation budget that was sized on the
+ * assumption a bad call costs at most callTimeoutMs. Aborting at the deadline restores that
+ * arithmetic: the caller's attempt loop sees an ordinary model error with budget left for a retry.
  */
 export async function streamWithThinking(
   client: Anthropic,
@@ -71,13 +79,33 @@ export async function streamWithThinking(
   options: { timeout?: number; maxRetries?: number },
   emit: ProgressEmitter
 ): Promise<Anthropic.Message> {
-  const stream = client.messages.stream(params, options);
-  for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "thinking_delta") {
-      emit({ type: "thinking", delta: event.delta.thinking });
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer =
+    options.timeout != null
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, options.timeout)
+      : null;
+  try {
+    const stream = client.messages.stream(params, { ...options, signal: controller.signal });
+    for await (const event of stream) {
+      if (event.type === "content_block_delta" && event.delta.type === "thinking_delta") {
+        emit({ type: "thinking", delta: event.delta.thinking });
+      }
     }
+    return await stream.finalMessage();
+  } catch (err) {
+    if (timedOut) {
+      // Replace the SDK's generic abort error with one that says WHY, so telemetry
+      // (generation_attempts.model_error) records a timeout rather than a mystery abort.
+      throw new Error(`Streaming call exceeded its ${options.timeout}ms call timeout and was aborted`);
+    }
+    throw err;
+  } finally {
+    if (timer) clearTimeout(timer);
   }
-  return stream.finalMessage();
 }
 
 // Short in-memory cache so the hot generation path doesn't read app_settings on every model call.
