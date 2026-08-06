@@ -11,6 +11,7 @@ import { deriveStemKey } from "@/lib/stem-answer-key";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { deriveQuestion, markPhrase } from "@/lib/question-sections";
+import { masterTreeForPaper } from "@/lib/master-trees";
 
 /**
  * The full-debrief grading core, shared by two callers (flash-notes/grade/produce.ts precedent):
@@ -65,6 +66,9 @@ export async function produceFullEvaluation(input: FullEvaluationInput): Promise
         : "Paper 3 (Special)";
 
   const dislikedFound = scanDislikedWording(userAnswer);
+  // The paper's living master tree — before 2026-08-06 the debrief asked the model to "walk
+  // Layer A" from recall alone, so tree corrections never reached it (fail-soft: "" omits it).
+  const masterTree = masterTreeForPaper(paper);
   const systemPrompt = `You are a Master of Wine exam coach providing a two-part debrief for ${paperName}. The debrief is split into BEFORE THE GLASS (stem analysis) and IN THE GLASS (tasting and answer writing).
 
 ## Your coaching approach
@@ -79,7 +83,18 @@ ${FUNNELLING_PRINCIPLE}
 
 In the "In the Glass" section, explicitly assess the candidate's funnelling on identity/origin: did they read structure first, weigh plausible alternatives, commit to a variety+region anchor early, and land a decisive call? Reward a well-reasoned funnel (even to a wrong-but-plausible call) over a snap-call that names one wine outright, and call out shoehorning or hedging by name with the funnel they should have run.
 
-${buildLexiconCritiqueGuidance(dislikedFound)}
+${
+  masterTree
+    ? `## Master decision tree for ${paperName}
+This is the candidate's canonical Layer A stem-routing logic — use it (not your own recall of exam patterns) when walking the tree in the "How the decision tree routes this question" section. Honour its dated correction notes: they record real leaf misses (e.g. the 2-wine maturity-pair leaf once excluded Riesling entirely), and a candidate who reasons past a stale leaf from the stem's own signals deserves credit.
+
+<master_tree>
+${masterTree}
+</master_tree>
+
+`
+    : ""
+}${buildLexiconCritiqueGuidance(dislikedFound)}
 ${inputMethod === "voice" ? VOICE_INPUT_SPELLING : ""}
 ${
   transcriptionFixes.length
@@ -104,7 +119,7 @@ This section evaluates the candidate's pre-glass stem analysis only.
 [Signals they missed or underweighted, framed as coaching not criticism. Be specific about what the stem language implies.]
 
 ### How the decision tree routes this question
-[Walk through Layer A (stem routing) step by step. Name the specific tree nodes:
+[Walk through Layer A (stem routing) step by step, using the master tree provided above (fall back to general MW routing logic only if no tree was provided). Name the specific tree nodes:
 - START → which branch? → which leaf?
 - What does the tree predict as STRONG SIGNAL, PLAUSIBLE, CURVEBALL?
 - Which question family (F1-F7) does this stem map to?]
