@@ -466,6 +466,57 @@ export default function MethodologyPage() {
             </p>
           </Callout>
 
+          <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">
+            The Routing Sweep (August 2026): fixing the plumbing
+          </h3>
+          <p className="text-muted leading-relaxed mb-4">
+            The era-shift finding said the brittle part is stem <em>routing</em>, not wine knowledge.
+            So we audited the routing directly: every one of the <strong>162 stems</strong> in the
+            corpus (2011-2026, 540 wines) was routed through its paper&apos;s tree from the stem text
+            alone, then we checked whether the branch it landed on actually <em>contains</em> the
+            real answer in its candidate set. Every miss was classified: <strong>routing bug</strong>
+            (the tree knows this wine -- in a different branch the stem couldn&apos;t reach) or
+            genuine <strong>knowledge gap</strong>.
+          </p>
+          <div className="overflow-x-auto mb-4">
+            <table className="w-full text-sm">
+              <thead>
+                <TableRow header cells={["Metric", "Before", "After the fix pass"]} />
+              </thead>
+              <tbody>
+                <TableRow cells={["Stems routing cleanly", "80%", "94%"]} />
+                <TableRow cells={["Wines outside the routed candidate set", "81 of 540 (15%)", "0 (verified)"]} />
+                <TableRow cells={["...of which routing bugs", "52 (64%)", "0"]} />
+                <TableRow cells={["...of which knowledge gaps", "29", "0"]} />
+              </tbody>
+            </table>
+          </div>
+          <p className="text-muted leading-relaxed mb-4">
+            The headline confirmed the diagnosis: <strong>two thirds of all misses were plumbing,
+            not ignorance</strong>. Gates admitted countries their leaves didn&apos;t contain; questions
+            were filed as evidence under branches whose own trigger words they violated; leaves never
+            got back-filled with the answers of the very questions they cite. The fix pass (~143
+            edits across all six tree files) repaired those, and built the missing structure the
+            sweep exposed: a &quot;same region, different varieties&quot; branch for Papers 1 and 2, a
+            same-producer branch, a ros&eacute; branch for Paper 3, and gates where two branches used
+            to claim the same stem. The knowledge gaps clustered too -- New Zealand alone was 14 of
+            the 81 misses -- and were back-filled with tiers capped by attestation count: one
+            historical appearance earns CURVEBALL, two earn PLAUSIBLE, three or more earn STRONG.
+          </p>
+          <Callout>
+            <p className="text-sm text-muted leading-relaxed">
+              <strong>What this does and does not prove.</strong> This was an iterated in-sample
+              audit: sweep the corpus, patch the trees, re-sweep the same corpus. The gain is partly
+              fitting, by construction. What it legitimately establishes is <em>internal
+              consistency</em> -- every stem construction in 16 years of papers now has a route, and
+              every route lands on a leaf that contains its own cited history. What it does
+              <strong> not</strong> establish is better prediction on unseen exams. The structural
+              repairs should transfer; the tier additions are the part to watch. The held-out
+              re-validation has not been re-run since these edits, and 2027 remains the first honest
+              test -- same standard we applied to every other number on this page.
+            </p>
+          </Callout>
+
           <h3 className="text-lg font-semibold text-foreground mt-6 mb-3">Exam Structure Prediction</h3>
           <p className="text-muted leading-relaxed mb-3">
             A separate model predicts what question types, varieties, and regions will appear.
@@ -641,6 +692,7 @@ export default function MethodologyPage() {
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
                 <li>Decision trees <strong>blind-tested on 432 unseen wines</strong> -- 64% top-3 on a contemporary paper, 52% on a 2000-2010 corpus</li>
+                <li>Stem routing <strong>audited end-to-end</strong> (August 2026): every stem construction in 16 years of papers now has a route through the trees</li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
                 <li>A framework for <strong>narrowing down before you taste</strong></li>

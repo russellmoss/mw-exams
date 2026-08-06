@@ -2,7 +2,7 @@
 paper: 3
 pack_name: P3 Family Tree Pack
 generated: 2026-05-26
-last_resynthesized: 2026-08-05  # absorbed 2026_p3_q1 (F4a, 4-country all-sparkling breadth opener, zero Champagne) and 2026_p3_q2 (F6a, 8-wine/4-pair same-country-and-region flight with a lettering-restart per-wine ABV/RS block)
+last_resynthesized: 2026-08-06  # routing-sweep fix pass: F7 Branch 7.3 one-hierarchy rule corrected against its own founding question, F6 Branch 6.4 antecedents acknowledged (2011_p3_q1, 2021_p3_q3), F5 yeast-fork/rosé/NZ/Madeira-Tinta-Negra back-fills, F1 New World widening, F4a-vs-master-7.1 reconciliation. Prior resynthesis 2026-08-05 absorbed 2026_p3_q1 (F4a, 4-country all-sparkling breadth opener, zero Champagne) and 2026_p3_q2 (F6a, 8-wine/4-pair same-country-and-region flight with a lettering-restart per-wine ABV/RS block)
 families_covered: [F1, F2, F4, F5, F6, F7]
 accuracy_target: variety + region + style/method category
 source_index: outputs/heuristics/question_taxonomy_index.md
@@ -90,6 +90,8 @@ P3 F5 nearly always pulls from one of these six production families. Always carr
 - Treating fortified as a single bucket when stem asks for method ⇒ Port vs Sherry vs Madeira vs VDN each demand a different process answer
 - Spending marks on origin precision when the question only awards origin 5/30 and method 20/30
 - Forgetting that "commercial position" is a method-and-classification question, not a sales-channel essay
+- Reading "role of yeast" as flor-only: yeast = autolysis (traditional-method sparkling) as much as flor/voile. `2015_p3_q1` (F5b) spanned Champagne extra brut + Cornwall English sparkling rosé + Fino + Vin Jaune in one yeast-framed flight — keep sparkling candidates alive whenever yeast is the stated axis (corrected 2026-08-06; the old reading missed half that flight)
+- Assuming a "different methods" flight must be multi-colour: `2023_p3_q2` expressed three production methods entirely in rosé
 
 ### Pre-taste decision branches
 
@@ -98,9 +100,9 @@ P3 F5 nearly always pulls from one of these six production families. Always carr
 Triggers: "sparkling wines, neither from Champagne" / "traditional method sparkling wines from four different countries" / "all sparkling wines."
 
 Default universe:
-- **STRONG SIGNAL:** Cava (Xarel-lo / Macabeo / Parellada), English sparkling (Chardonnay / Pinot Noir / Pinot Meunier — West Sussex, Hampshire, Kent), Crémant d'Alsace (Pinot Blanc / Auxerrois / Pinot Gris), Crémant de Bourgogne (Chardonnay / Pinot Noir), Crémant de Loire (Chenin Blanc).
-- **PLAUSIBLE:** Franciacorta (Chardonnay / Pinot Nero), Cap Classique (Chardonnay / Pinot Noir, sometimes Pinotage), California prestige (Schramsberg, Roederer Estate), German Sekt (Riesling, Pinot Noir), Trento DOC.
-- **CURVEBALL:** Champagne when not explicitly excluded; Prosecco DOCG if "method" framing allows tank; Lambrusco if rosé/red sparkling is in the flight.
+- **STRONG SIGNAL:** Cava (Xarel-lo / Macabeo / Parellada), English sparkling (Chardonnay / Pinot Noir / Pinot Meunier — West Sussex, Hampshire, Kent, Cornwall `2015_p3_q1`), Crémant d'Alsace (Pinot Blanc / Auxerrois / Pinot Gris), Crémant de Bourgogne (Chardonnay / Pinot Noir), Crémant de Loire (Chenin Blanc).
+- **PLAUSIBLE:** Franciacorta (Chardonnay / Pinot Nero), Cap Classique (Chardonnay / Pinot Noir, sometimes Pinotage), California prestige (Schramsberg, Roederer Estate), German Sekt (Riesling, Pinot Noir), Trento DOC, New Zealand traditional method (Pinot Noir / Chardonnay, incl. sparkling rosé — `2017_p3_q1`; NZ previously appeared in no P3 sparkling list).
+- **CURVEBALL:** Champagne when not explicitly excluded; Prosecco DOCG if "method" framing allows tank; Lambrusco if rosé/red sparkling is in the flight; novelty sparkling varietals — Australian sparkling Shiraz, NZ sparkling Sauvignon Blanc, California sparkling Zinfandel rosé (`2012_p3_q2` ran all three in one flight; a "to whom will this wine most likely appeal" sub-question is the mass-market tell).
 
 When commercial framing is heavy (e.g. 2024 P3 Q1: two non-Champagne sparkling wines, commercial position weighted): collapse to California prestige + Cava, or English + Cava, as a working prior.
 
@@ -111,11 +113,12 @@ When commercial framing is heavy (e.g. 2024 P3 Q1: two non-Champagne sparkling w
 Triggers: "all have residual sugar" / "different methods of production… reference to residual sugar and alcohol" / four-to-five sweet wines.
 
 Mandatory candidate set — one slot reserved per mechanism:
-- Botrytis low-to-mid alcohol (Sauternes, Tokaji Aszú 5–6 puttonyos, German BA/TBA, Alsace SGN, Hungarian Aszú, Loire Quarts de Chaume)
+- Botrytis low-to-mid alcohol (Sauternes, Tokaji Aszú 5–6 puttonyos, German BA/TBA — Austrian BA typically Welschriesling or Welschriesling/Chardonnay cuvée, Burgenland (`2013_p3_q3`, `2024_p3_q4`) — Alsace SGN, Hungarian Aszú, Loire Quarts de Chaume; CURVEBALL single attestations: South African Noble Late Harvest Chenin, Stellenbosch (`2022_p3_q2`) and Tasmania botrytis Riesling (`2012_p3_q3`) — the botrytis slot can go New World)
 - Cryoextraction / frozen fruit (Canadian Vidal Icewine, German/Austrian Eiswein, BC Riesling Icewine)
-- Drying / passito (Vin Santo, Recioto di Soave, Recioto della Valpolicella, Tokaji Eszencia-adjacent, Pedro Ximenez sun-dried if non-fortified scope opens)
+- Drying / passito (Vin Santo, Recioto di Soave, Recioto della Valpolicella, Tokaji Eszencia-adjacent, Pantelleria Zibibbo passito — `2019_p3_q5`, `2012_p3_q4`, PLAUSIBLE — Pedro Ximenez sun-dried if non-fortified scope opens)
 - Fortified sweet (Port LBV/Vintage/Tawny, VDN Beaumes-de-Venise / Banyuls, Pedro Ximenez Sherry, Maury, Australian Rutherglen Muscat)
-- Late-harvest non-botrytis (Vouvray moelleux, Alsace VT, Mosel/Nahe Auslese, German Riesling Auslese off-dry — Nahe confirmed as a live German Prädikat region, not just Mosel/Rheingau, by `2026_p3_q2`)
+- Late-harvest non-botrytis (Vouvray moelleux, Alsace VT, Mosel/Nahe Auslese, German Riesling Auslese off-dry — Nahe confirmed as a live German Prädikat region, not just Mosel/Rheingau, by `2026_p3_q2`; CURVEBALL single attestations: Jurançon Petit Manseng passerillage (`2013_p3_q3`), Anderson Valley late-harvest Gewürztraminer (`2017_p3_q3`))
+- Dry/off-dry aromatic ANCHOR slot (STRONG — three corpus instances, every one missed by the old Euro-only lists): New Zealand Marlborough aromatic white — Riesling (`2017_p3_q3`, `2025_p3_q1`) or Gewürztraminer (`2022_p3_q2`). When a sweet flight carries a dry anchor, the examiner has repeatedly drawn it from Marlborough.
 
 Anti-collapse rule: even if two wines smell of honey and apricot, keep at least one in the non-botrytis lane until acid/alcohol/RS profile says otherwise.
 
@@ -127,8 +130,8 @@ Default universe — split by pathway:
 - Spirit-stopped sweet (Port across Tawny / Ruby / Vintage / LBV, VDN Banyuls / Maury / Rivesaltes, Mavrodaphne)
 - Biologically aged dry (Fino, Manzanilla)
 - Biologically then oxidatively aged (Amontillado, Palo Cortado)
-- Pure oxidatively aged (Oloroso, Madeira Sercial / Verdelho / Bual / Malmsey, Marsala Vergine, Vin Santo Reserva)
-- Unfortified oxidative / flor (Vin Jaune, Château-Chalon, Jura ouillé vs sous voile, Szamorodni száraz, qvevri whites)
+- Pure oxidatively aged (Oloroso, Madeira Sercial / Verdelho / Bual / Malmsey — plus workhorse Tinta Negra, the grape behind 3-5yo blends and many Colheitas, `2015_p3_q2`, `2021_p3_q3` — Marsala Vergine, Vin Santo Reserva)
+- Unfortified oxidative / flor (Vin Jaune, Château-Chalon, Jura ouillé vs sous voile — the attested Jura pair grape is Chardonnay (`2024_p3_q2`, `2019_p3_q4`), with Savagnin the Vin Jaune default — Szamorodni száraz, qvevri whites: Georgia Rkatsiteli, Kakheti (`2014_p3_q3`), skin-contact Sauvignon Blanc, Margaret River (`2017_p3_q2`))
 
 Practical rule: if the stem explicitly names "fortified" twice or asks for method on each wine, the trap is to over-cluster within one country. Spread predictions across at least three of {Spain, Portugal-Douro, Portugal-Madeira, France-Roussillon, Italy, Australia-Rutherglen}.
 
@@ -137,6 +140,8 @@ Practical rule: if the stem explicitly names "fortified" twice or asks for metho
 Triggers: "Wines X–Y are all made using different methods of production" (very common phrasing) without specifying sparkling/sweet/fortified.
 
 This is the broadest F5 stem and behaves as a category sampler. Assume every wine is a different production logic. Build the flight as a shopping list: one sparkling, one sweet, one fortified, one oxidative, one unusual elevage, one classic still where the method is the discussion point (e.g. extended skin contact, lees, MLF in white, etc.).
+
+Confirmed samplers to keep pre-loaded (back-filled 2026-08-06): dry appassimento red (Amarone, Corvina-led — `2021_p3_q2`), aromatic sweet sparkling red (Brachetto d'Acqui, ~5.5% — `2021_p3_q2`), and an all-rosé method spread — macerated sparkling vs oak-influenced still vs carbonated off-dry (`2023_p3_q2`). A method sampler can arrive entirely in one colour, and its Italian slots are not always sweet passito.
 
 ### Tasting branch order (F5)
 
@@ -207,7 +212,7 @@ Resist the urge to find a hidden theme. On P3 F4, the only safe theme is "this i
 ### Default candidate universe
 
 Treat each slot as drawing from a different category. P3 F4 flights typically include:
-- at least one rosé or unusual style
+- at least one rosé or unusual style (candidate rosés now live in the master tree's Branch 5 rosé leaf, built 2026-08-06: Provence blends STRONG; California Zinfandel and NZ Pinot Noir rosé PLAUSIBLE; Rioja rosado / Russian River / Baga-Rufete CURVEBALL — and note `2019_p3_q3` was an ENTIRELY rosé F4 flight)
 - at least one fortified or oxidative wine
 - at least one sweet wine
 - at least one classic still wine with a recognisable signature (Riesling, Chardonnay, Pinot Noir, Sangiovese)
@@ -226,6 +231,8 @@ Treat each slot as drawing from a different category. P3 F4 flights typically in
 - Hidden organising theme (F4c): there is usually a single subtle thread (e.g. "all share oxidative handling"), but it does not collapse the candidate set — it widens it
 - Final-question fatigue: the worst time to over-commit
 - "European but not France/Italy/Spain" style instructions that are intended to remove the easy candidates rather than identify a country
+- A bare "N different countries" stem is claimed by BOTH this family's sampler stance and the master tree's Branch 7.1 fortified-first default. Reconciliation (2026-08-06): fortified-first only for 3-4-wine bare-count sweeps with no variety/method language (`2015_p3_q2`, `2014_p3_q2`, `2022_p3_q3`); the sampler stance wins the moment the stem announces variety diversity or the flight is a pair — `2019_p3_q3` ("four different predominant varieties") was an ALL-ROSÉ flight that the fortified default missed 4/4. See the master tree's 7.1 guard for the full gate.
+- Tag vs stem: `2021_p3_q3` is tagged F4 here but its stem is an explicit two-pair same-region structure — route it via F6 Branch 6.4 / master Branch 6 (stem wins over tag; its Madeira pair was exactly what the old pair leaf missed).
 - Reading the family tag alone: an all-sparkling F4a flight can still score like F5 in its sub-questions. `2026_p3_q1` tags as `F4a` (pure breadth — no shared variety/origin/method language beyond "sparkling"), but its part (c), "identify the key winemaking decisions that have affected the wine's style," awards 7 of 25 marks per wine on exactly the F5 production-mechanism logic. Read the sub-questions, not just the family label, before deciding how much prep time goes to method vs origin — a candidate who treats this as pure identification under-serves nearly a third of the marks.
 
 ### Pre-taste decision branches
@@ -336,13 +343,13 @@ Build a tier-by-tier candidate list. For each wine, identify which tier of which
 
 Triggers: same producer or same house, different cuvées; "the producer and the classification."
 
-The frame is vertical within one house. Mentally map the famous producer ladders: Krug Grande Cuvée → Clos du Mesnil; Sandeman Ruby → Sandeman Vintage; Symington range; Royal Tokaji range; Henschke range; etc.
+The frame is vertical within one house. Mentally map the famous producer ladders: Krug Grande Cuvée → Clos du Mesnil; Sandeman Ruby → Sandeman Vintage; Symington range; Royal Tokaji range; Henschke range; etc. The one same-region-AND-producer answer actually attested in the corpus is a Valpolicella house's range: Ripasso vs Recioto della Valpolicella (`2016_p3_q4` — Corvina-led on both sides; keep Amarone in the same family).
 
 #### Branch 7.3 — Mixed-bag classification spread (F7a, modern style)
 
 Triggers: 2025 P3 Q3 template — six wines drawn from different categories, each chosen because their classification is the point.
 
-Allocate one classification system per wine. Do not let two wines come from the same hierarchy. Reserve a slot for Port (Ruby/Tawny/Vintage), one for Madeira (age-statement), one for Sherry, one for Tokaji or Sauternes, one for a classed dry wine (Grand Cru, Cru Classé), one for a prestige rosé or sparkling.
+Allocate one classification system per wine as the default sketch — but expect *mostly* distinct hierarchies, not strictly distinct: a within-hierarchy tier pair is live. (CORRECTED 2026-08-06: this branch's own founding question, `2025_p3_q3`, fielded BOTH a Ruby and a 40-Year Tawny Port; the old "do not let two wines come from the same hierarchy" rule contradicted its own evidence and would have talked a candidate out of the correct double-Port read.) Reserve a slot for Port (Ruby/Tawny/Vintage — possibly two tiers of it), one for Madeira (age-statement), one for Sherry, one for Tokaji or Sauternes, one for a classed dry wine (Grand Cru, Cru Classé), one for a prestige rosé or sparkling.
 
 ### Tasting branch order (F7)
 
@@ -378,7 +385,7 @@ Per wine:
 
 ## F1 Same Variety Comparative Set (P3)
 
-Four P3 questions, all `F1d` (same variety across radically different styles): `2016_p3_q1`, `2017_p3_q4`, `2023_p3_q4`, `2025_p3_q1`. This is a small but rich branch.
+Four P3 questions, all `F1d` (same variety across radically different styles): `2016_p3_q1`, `2017_p3_q4`, `2023_p3_q4`, `2025_p3_q1` — plus two era-1 antecedents that route here (`2012_p3_q3` Riesling, `2012_p3_q4` Muscat). This is a small but rich branch. **Master-tree mirror (2026-08-06): Layer A Branch 7.8** — previously these "same, single grape variety" stems had no master-tree route at all and only this family's trigger caught them.
 
 ### Pre-taste objective
 
@@ -393,7 +400,7 @@ Identify the *grape family* first, then work outward into the radically differen
 ### Default candidate universe
 
 Grapes that can plausibly appear across P3 categories:
-- **STRONG SIGNAL:** Riesling (dry / off-dry / sweet / Sekt), Chenin Blanc (dry / off-dry / sweet / Crémant), Chardonnay (still / sparkling / Vin Jaune-adjacent), Pinot Noir (still / sparkling / Sekt rosé), Grenache (still red / VDN / rosé), Muscat (dry / sweet still / VDN / sparkling Asti), Furmint (dry Tokaji / Szamorodni / Aszú), Sémillon (dry Hunter / Sauternes), Cabernet Franc (still Loire / Cabernet d'Anjou rosé / Saumur sparkling)
+- **STRONG SIGNAL:** Riesling (dry / off-dry / sweet / Sekt; the dry anchor slot has gone NZ Marlborough — `2025_p3_q1`; Tasmania botrytis in the sweet slot once — `2012_p3_q3`, CURVEBALL), Chenin Blanc (dry / off-dry / sweet / Crémant), Chardonnay (still / sparkling / Vin Jaune-adjacent; New World attested — Hawke's Bay NZ, `2016_p3_q1`), Pinot Noir (still / sparkling / Sekt rosé), Grenache (still red / VDN / rosé), Muscat (dry / sweet still / VDN / sparkling Asti / Pantelleria passito / commercial California Moscato — `2012_p3_q4`), Furmint (dry Tokaji / Szamorodni / Aszú), Sémillon (dry Hunter / Sauternes), Cabernet Franc (still Loire / Cabernet d'Anjou rosé / Saumur sparkling)
 - **PLAUSIBLE:** Tempranillo across red / rosado / fortified; Glera across still / sparkling; Sangiovese across dry / Vin Santo
 - **CURVEBALL:** Pinotage (still / fortified Cape "Coffee" / Cap Classique blend component); Aglianico (still / fortified rare)
 
@@ -414,13 +421,13 @@ Working answers: Riesling, Chenin Blanc, Chardonnay are the dominant 3.
 
 Triggers: fortified language alongside same-grape claim.
 
-Working answers: Grenache (still / VDN / Banyuls), Muscat (dry / VDN / fortified Asti), Tempranillo (still / fortified blend), Pinot Noir (still / Ruby/Tawny Port-style is implausible but Burgundy + Sekt rosé is plausible).
+Working answers: Grenache (still / VDN / Banyuls — cross-country still expressions attested: Maury VDN + Montsant + Napa, `2023_p3_q4`; the master tree's Grenache knowledge also sits in its 7.2 and 7.5 leaves, so cross-check all three), Muscat (dry / VDN / fortified Asti), Tempranillo (still / fortified blend), Pinot Noir (still / Ruby/Tawny Port-style is implausible but Burgundy + Sekt rosé is plausible).
 
 #### Branch 1.3 — One grape across radical regional styles
 
 Triggers: same grape, different countries, but in P3 context.
 
-Working answers: Pinot Noir (Burgundy still / English sparkling / NZ still / German Sekt); Sémillon (Hunter dry old / Sauternes sweet); Furmint (dry Tokaji / Aszú sweet).
+Working answers: Pinot Noir (Burgundy still / English sparkling / NZ still / German Sekt); Sémillon (Hunter dry old / Sauternes sweet — also the attested shared-lead-grape trio, master 7.2: Hunter + Graves + Sauternes, `2013_p3_q2`); Furmint (dry Tokaji / Aszú sweet); Chardonnay (Champagne / still Burgundy / NZ Hawke's Bay — `2016_p3_q1`); Riesling (German Sekt + Prädikat / NZ Marlborough dry / Tasmania botrytis — `2012_p3_q3`, `2025_p3_q1`).
 
 ### Tasting branch order (F1 in P3)
 
@@ -486,14 +493,14 @@ Working priors:
 - Spain ⇒ Cava + Garnacha or Tempranillo still + Sherry / VDN-style
 - France ⇒ Crémant + still + VDN / Sauternes, **or an all-still-white prestige tour** (Pessac-Léognan Blanc + Châteauneuf-du-Pape Blanc + lesser-village white Burgundy — `2018_p3_q2`; the category spread is not guaranteed)
 - Portugal ⇒ espumante / Vinho Verde + Douro still + Port or Madeira
-- Italy ⇒ Prosecco / Franciacorta + Tuscan or Piedmont still + Vin Santo / Marsala
+- Italy ⇒ Prosecco / Franciacorta + Tuscan or Piedmont still + Vin Santo / Marsala — or an all-sparkling trio: Prosecco Superiore DOCG + Lambrusco Grasparossa di Castelvetro + Franciacorta (`2013_p3_q1`, era-1; the same-country stem can be single-category, and the red-sparkling slot was Lambrusco)
 - Hungary ⇒ dry Furmint + Aszú + Szamorodni
 
 #### Branch 2.2 — Same region, internal sub-style (F2b)
 
 Triggers: named region; spread of style within that region.
 
-Working priors: Champagne tier ladder, Madeira ladder, Sherry ladder, Tokaji ladder, Alsace dry-to-sweet ladder.
+Working priors: Champagne tier ladder, Madeira ladder, Sherry ladder, Tokaji ladder, Alsace dry-to-sweet ladder, Jura ouillé-vs-sous-voile pair (the attested grape is Chardonnay — `2024_p3_q2`; attach Chardonnay/Savagnin to Jura rather than leaving it region-only).
 
 #### Branch 2.3 — Same origin, different elevage / sweetness / age (F2d)
 
@@ -522,7 +529,7 @@ Per wine:
 
 Five P3 questions, all `F6a` (sweetness / residual sugar axis): `2015_p3_q3`, `2017_p3_q3`, `2019_p3_q5`, `2024_p3_q4`, `2026_p3_q2`. The dividing line vs F5d is subtle: F6 is about *placing wines on a structural axis*; F5d is about *explaining the production mechanism behind each wine*. The same flight can be tagged either way depending on stem emphasis.
 
-`2026_p3_q2` is a structurally new sub-form within F6a: an 8-wine, 4-pair, 200-mark flight ("Wines 5-6, 7-8, 9-10, and 11-12 are pairs. Within each pair, the wines are from the same country and region") — the largest flight recorded in the P3 corpus, and one that restarts its sub-question lettering mid-question (pair-level a/b/c, then a fresh per-wine a/b). Treat it as a distinct branch (6.4 below), not a scaled-up version of the small four/five-wine sweetness ladder in Branches 6.1-6.3 — the organizing logic is different (see Default candidate universe below).
+`2026_p3_q2` is the largest instance of a recurring sub-form within F6a (antecedents acknowledged 2026-08-06: `2011_p3_q1` at six pairs / 12 wines, era-1, and `2021_p3_q3` at two pairs / 4 wines): an 8-wine, 4-pair, 200-mark flight ("Wines 5-6, 7-8, 9-10, and 11-12 are pairs. Within each pair, the wines are from the same country and region") that restarts its sub-question lettering mid-question (pair-level a/b/c, then a fresh per-wine a/b). Treat it as a distinct branch (6.4 below), not a scaled-up version of the small four/five-wine sweetness ladder in Branches 6.1-6.3 — the organizing logic is different (see Default candidate universe below).
 
 ### Pre-taste objective
 
@@ -576,13 +583,15 @@ Each pair is built around ONE named production fork within a shared origin, not 
 - **Dosage level within the same base wine and appellation** — Champagne: Brut Nature (0 g/L) vs standard Brut. *`2026_p3_q2` pair 1: Chavost Blanc de Chardonnay Brut Nature, 0 g/L, 12.5% vs Delacourt Brut (M&S own-label, ~£25), 12.5%.*
 - **Oxidative cask ageing vs reductive/bottle-then-filtered ageing** — Port: extended-cask Tawny vs Late Bottled Vintage. *`2026_p3_q2` pair 2: Kopke 20-Year-Old Tawny NV, 20%, RS 121 g/L, long oxidative cask ageing vs Taylor's LBV 2020, 19%, 4-6 years wood then filtered.*
 - **Classified/1er Cru vs unclassified/second-label within the same botrytis appellation** — Sauternes/Barsac. *`2026_p3_q2` pair 3: Château Coutet 2022 (Barsac, 1855 Premier Cru Classé, RS 158 g/L, 13.5%, 100% barrel-fermented 50% new oak) vs Château Delmond 2023 (Sauternes, unclassified second label, unoaked, ~125 g/L).*
-- **Dry (Trocken, top-vineyard/Grosse Lage) vs Prädikat-sweet (Spätlese), one grower, two vineyards, same region** — Nahe, not Mosel or Rheingau. *`2026_p3_q2` pair 4: Jakob Schneider Niederhäuser Hermannshöhle Trocken 2023 (VDP.GROSSE LAGE, ~2.6-3.8 g/L RS, 12.5%) vs Norheimer Kirschheck Spätlese 2022 (non-Grosse-Lage, ~73 g/L RS, 8.0%).*
+- **Dry (Trocken, top-vineyard/Grosse Lage) vs Prädikat-sweet (Spätlese), one grower, two vineyards, same region** — Nahe, not Mosel or Rheingau. *`2026_p3_q2` pair 4: Jakob Schneider Niederhäuser Hermannshöhle Trocken 2023 (VDP.GROSSE LAGE, ~2.6-3.8 g/L RS, 12.5%) vs Norheimer Kirschheck Spätlese 2022 (non-Grosse-Lage, ~73 g/L RS, 8.0%).* Usually one grower — but `2011_p3_q1`'s Mosel Kabinett/Spätlese pair ran two growers (Prüm vs Haag), so do not eliminate a Prädikat pair on a grower mismatch.
+- **Age-statement / blending-tier fork within Madeira** (back-filled 2026-08-06 — both antecedent Madeira pairs missed under the old fork list while Madeira was STRONG everywhere else): noble-vs-noble age statements (*`2011_p3_q1` pair 2: 15yo Verdelho vs 10yo Sercial*) or workhorse-vs-noble (*`2021_p3_q3` pair 2: 3yo Tinta Negra blend vs single-harvest Boal*). PLAUSIBLE tier — two attested pair-flights.
+- **Vintage-vs-NV / prestige-vs-standard within Champagne** (*`2011_p3_q1` pair 1: prestige vintage blanc de blancs vs NV brut*) and **satellite AOC vs classified estate in the Sauternes orbit** (*`2011_p3_q1` pair 6: Loupiac vs Sauternes 1er Cru*). CURVEBALL: a still dry red pair (*`2011_p3_q1`: Martinborough Pinot Noir x2, New Zealand* — one antecedent; a flag to widen, not a predictor).
 
 **Working priors for this branch:** when the stem tells you the pairs share country and region, do not spend time guessing geography per pair — spend it identifying the single production fork the examiner built the pair around. The canonical fork families to keep pre-loaded are dosage/style level (Champagne), oxidative-vs-reductive ageing (Port, and by extension Sherry), classified-vs-unclassified (Sauternes/Barsac, and by extension any classed-growth region), and dry-vs-Prädikat-sweet from one grower (German regions — confirmed Nahe in 2026; the same logic would apply equally to a Mosel or Rheingau grower-pair).
 
 **Lettering-restart rule:** when sub-question letters restart mid-question, read it as a hard scope change from pair-level to wine-level, and expect the new block to be low-effort, high-yield bare-fact marks (ABV, RS) rather than another round of prose analysis — collect those marks fast and do not over-write them.
 
-Evidence: `2026_p3_q2` (founding instance for this branch; watch for recurrence before treating the multi-pair same-region structure as a stable, repeating P3 form rather than a one-off scaling of the paper — see also `p3_special_tree.md` Layer A Branch 6).
+Evidence: `2026_p3_q2` (largest instance; founding evidence for this leaf), plus two antecedents acknowledged 2026-08-06: `2011_p3_q1` (six pairs / 12 wines, era-1, near-identical mark grammar — 8/14/20 marks per pair plus a per-wine ABV/RS block) and `2021_p3_q3` (two pairs / 4 wines). The multi-pair same-region structure IS a recurring P3 form, not a one-off scaling of the paper — see `p3_special_tree.md` Layer A Branch 6 for the corrected frequency claim and widened pair-family list.
 
 ### Tasting branch order (F6)
 
@@ -647,4 +656,4 @@ Remaining for P3 (deferred or lower priority):
 
 ## Provenance
 
-All evidence citations are taxonomy-index questions (see `outputs/heuristics/question_taxonomy_index.md`). Where the pack lists a working prior or anti-collapse rule, it is generalised from at least two corpus questions in that family; single-question patches have been avoided in line with the "do not overfit" guidance.
+All evidence citations are taxonomy-index questions (see `outputs/heuristics/question_taxonomy_index.md`), plus era-1 (2011-2014) questions cited inline where the 2026-08-06 routing sweep surfaced them as antecedents. Where the pack lists a working prior or anti-collapse rule, it is generalised from at least two corpus questions in that family; single-question patches have been avoided in line with the "do not overfit" guidance. Routing-sweep fix pass (2026-08-06): back-fills from `outputs/backtest_reports/routing_sweep_2026-08-06.md` are tiered by corpus attestation count (≥3 = STRONG-eligible, 2 = PLAUSIBLE, 1 = CURVEBALL flag), and every single-question addition is phrased as a flag to widen, not a predictor.
