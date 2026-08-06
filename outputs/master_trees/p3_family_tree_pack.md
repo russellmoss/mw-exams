@@ -449,7 +449,7 @@ Per wine:
 
 ## F2 Same Origin Comparative Set (P3)
 
-Eight P3 questions, evenly split between `F2a` (same country, different varieties), `F2b` (same region), and `F2d` (same origin, different sweetness/age/elevage expressions). Tagged: `2017_p3_q5`, `2018_p3_q2`, `2019_p3_q1 (F2d)`, `2019_p3_q2 (F2d)`, `2023_p3_q3 (F2d)`, `2024_p3_q2 (F2b)`, `2024_p3_q3 (F2d)`, `2025_p3_q2 (F2a)`.
+Eight P3 questions, evenly split between `F2a` (same country, different varieties), `F2b` (same region), and `F2d` (same origin, different sweetness/age/elevage expressions). Tagged: `2017_p3_q5`, `2018_p3_q2 (F2a — all-still-white France trio; see the single-category note below)`, `2019_p3_q1 (F2d)`, `2019_p3_q2 (F2d)`, `2023_p3_q3 (F2d)`, `2024_p3_q2 (F2b)`, `2024_p3_q3 (F2d)`, `2025_p3_q2 (F2a)`.
 
 ### Pre-taste objective
 
@@ -469,6 +469,7 @@ P3 same-origin questions tend to draw from regions with multi-style traditions:
 - **STRONG SIGNAL same-country:** Spain (Cava + Garnacha still + Sherry), France (Crémant + still + VDN), Portugal (Vinho Espumante + still + Port/Madeira), Hungary (dry Furmint + Aszú + Tokaji Szamorodni), Italy (Prosecco + still + Vin Santo).
 - **STRONG SIGNAL same-region:** Champagne (NV / vintage / blanc de blancs / rosé / prestige), Tokaj (dry + Szamorodni + Aszú), Madeira (Sercial → Malmsey ladder), Jerez (Fino → Amontillado → Oloroso → PX), Vouvray (sec / demi-sec / moelleux / pétillant).
 - **PLAUSIBLE:** Sauternes/Barsac, Banyuls/Maury, Rioja (red / blanco / fortified historically), Alsace (dry / VT / SGN / Crémant).
+- **PLAUSIBLE — single-category still-white tour (promoted from implicit-curveball 2026-08-06):** a same-country P3 flight can be **all still dry whites** — France's prestige whites from regions famous for other styles. Founding evidence: `2018_p3_q2` (Domaine de Chevalier Blanc, Pessac-Léognan / Châteauneuf-du-Pape Blanc, Bousquet des Papes / Saint-Romain, Olivier Leflaive). The "unusual style" P3 hook is the wines' still-white status itself, not a production mechanism. Do NOT assume a multi-style spread just because the paper is P3 — a stem asking only origin+variety / quality-in-context / maturity (no RS-alcohol numbers, no method marks, no vintage ID) is compatible with an all-still flight; let the visual triage decide.
 
 ### Default rule-outs
 
@@ -483,7 +484,7 @@ Triggers: country named or implied; spread of categories.
 
 Working priors:
 - Spain ⇒ Cava + Garnacha or Tempranillo still + Sherry / VDN-style
-- France ⇒ Crémant + still + VDN / Sauternes
+- France ⇒ Crémant + still + VDN / Sauternes, **or an all-still-white prestige tour** (Pessac-Léognan Blanc + Châteauneuf-du-Pape Blanc + lesser-village white Burgundy — `2018_p3_q2`; the category spread is not guaranteed)
 - Portugal ⇒ espumante / Vinho Verde + Douro still + Port or Madeira
 - Italy ⇒ Prosecco / Franciacorta + Tuscan or Piedmont still + Vin Santo / Marsala
 - Hungary ⇒ dry Furmint + Aszú + Szamorodni

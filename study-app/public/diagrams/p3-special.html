@@ -36,7 +36,7 @@
     G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
     G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
 
-    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry.&lt;br/&gt;Can fill a WHOLE same-country&lt;br/&gt;flight, not just one anchor slot&lt;br/&gt;(2018 P3 Q2: 3x French whites)&quot;]
     WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
     WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
     WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
@@ -71,7 +71,7 @@
     G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
     G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
 
-    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry.&lt;br/&gt;Can fill a WHOLE same-country&lt;br/&gt;flight, not just one anchor slot&lt;br/&gt;(2018 P3 Q2: 3x French whites)&quot;]
     WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
     WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
     WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
@@ -106,7 +106,7 @@
     G3 --&gt;|&quot;WHITE / AMBER&lt;br/&gt;spectrum&quot;| WSPEC{&quot;White-amber&lt;br/&gt;colour?&quot;}
     G3 --&gt;|&quot;RED&lt;br/&gt;spectrum&quot;| RSPEC{&quot;Red&lt;br/&gt;colour?&quot;}
 
-    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry&lt;br/&gt;often the anchor wine&quot;]
+    WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ thin tears&quot;| DRYW[&quot;Dry still white (rare)&lt;br/&gt;or light off-dry.&lt;br/&gt;Can fill a WHOLE same-country&lt;br/&gt;flight, not just one anchor slot&lt;br/&gt;(2018 P3 Q2: 3x French whites)&quot;]
     WSPEC --&gt;|&quot;Pale lemon-straw&lt;br/&gt;+ THICK tears&quot;| ICEW[&quot;Icewine / Eiswein&lt;br/&gt;or young botrytis&lt;br/&gt;→ sweet sub-tree&quot;]
     WSPEC --&gt;|&quot;Deep gold-amber&lt;br/&gt;+ thick tears&lt;br/&gt;NO bubbles&quot;| AMBIG[&quot;AMBIGUOUS:&lt;br/&gt;sweet OR oxidative&lt;br/&gt;OR lighter fortified&quot;]
     WSPEC --&gt;|&quot;Pale tawny /&lt;br/&gt;amber-orange&quot;| TAWNY[&quot;Young Tawny, Amontillado,&lt;br/&gt;Palo Cortado, dry Madeira&lt;br/&gt;→ fortified sub-tree&quot;]
@@ -162,6 +162,7 @@
     V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
     V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
     O --&gt;|Yes| F2[&quot;F2 Same Origin&lt;br/&gt;(regional diversity)&quot;]
+    F2 --&gt; F2WARN[&quot;Do NOT assume a multi-style&lt;br/&gt;spread: a same-country P3 flight&lt;br/&gt;can be ALL still dry whites&lt;br/&gt;(2018 P3 Q2: Pessac-Leognan Blanc&lt;br/&gt;+ Chateauneuf Blanc + St-Romain).&lt;br/&gt;The GLASSES pick the categories,&lt;br/&gt;the stem only binds the country.&quot;]
     O --&gt;|No| METHOD{&quot;Method/production&lt;br/&gt;marks dominate?&lt;br/&gt;&#x27;winemaking techniques&#x27;&lt;br/&gt;&#x27;method of production&#x27;&quot;}
     METHOD --&gt;|Yes| F5_OR_6{&quot;RS/alcohol axis&lt;br/&gt;explicitly tested?&quot;}
     F5_OR_6 --&gt;|&quot;&#x27;State RS and alcohol&#x27;&lt;br/&gt;ladder language&quot;| F6[&quot;F6 Style Axis&lt;br/&gt;(RS x alcohol matrix)&quot;]
@@ -172,6 +173,7 @@
 
     style F1 fill:#e8f5e9
     style F2 fill:#e3f2fd
+    style F2WARN fill:#fce4ec,stroke:#c62828
     style F4 fill:#fce4ec
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
@@ -180,6 +182,7 @@
     V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
     V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
     O --&gt;|Yes| F2[&quot;F2 Same Origin&lt;br/&gt;(regional diversity)&quot;]
+    F2 --&gt; F2WARN[&quot;Do NOT assume a multi-style&lt;br/&gt;spread: a same-country P3 flight&lt;br/&gt;can be ALL still dry whites&lt;br/&gt;(2018 P3 Q2: Pessac-Leognan Blanc&lt;br/&gt;+ Chateauneuf Blanc + St-Romain).&lt;br/&gt;The GLASSES pick the categories,&lt;br/&gt;the stem only binds the country.&quot;]
     O --&gt;|No| METHOD{&quot;Method/production&lt;br/&gt;marks dominate?&lt;br/&gt;&#x27;winemaking techniques&#x27;&lt;br/&gt;&#x27;method of production&#x27;&quot;}
     METHOD --&gt;|Yes| F5_OR_6{&quot;RS/alcohol axis&lt;br/&gt;explicitly tested?&quot;}
     F5_OR_6 --&gt;|&quot;&#x27;State RS and alcohol&#x27;&lt;br/&gt;ladder language&quot;| F6[&quot;F6 Style Axis&lt;br/&gt;(RS x alcohol matrix)&quot;]
@@ -190,6 +193,7 @@
 
     style F1 fill:#e8f5e9
     style F2 fill:#e3f2fd
+    style F2WARN fill:#fce4ec,stroke:#c62828
     style F4 fill:#fce4ec
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
@@ -198,6 +202,7 @@
     V --&gt;|Yes| F1[&quot;F1 Cross-Style&lt;br/&gt;(one grape across&lt;br/&gt;sparkling/still/sweet)&quot;]
     V --&gt;|No| O{&quot;Same country&lt;br/&gt;or region?&quot;}
     O --&gt;|Yes| F2[&quot;F2 Same Origin&lt;br/&gt;(regional diversity)&quot;]
+    F2 --&gt; F2WARN[&quot;Do NOT assume a multi-style&lt;br/&gt;spread: a same-country P3 flight&lt;br/&gt;can be ALL still dry whites&lt;br/&gt;(2018 P3 Q2: Pessac-Leognan Blanc&lt;br/&gt;+ Chateauneuf Blanc + St-Romain).&lt;br/&gt;The GLASSES pick the categories,&lt;br/&gt;the stem only binds the country.&quot;]
     O --&gt;|No| METHOD{&quot;Method/production&lt;br/&gt;marks dominate?&lt;br/&gt;&#x27;winemaking techniques&#x27;&lt;br/&gt;&#x27;method of production&#x27;&quot;}
     METHOD --&gt;|Yes| F5_OR_6{&quot;RS/alcohol axis&lt;br/&gt;explicitly tested?&quot;}
     F5_OR_6 --&gt;|&quot;&#x27;State RS and alcohol&#x27;&lt;br/&gt;ladder language&quot;| F6[&quot;F6 Style Axis&lt;br/&gt;(RS x alcohol matrix)&quot;]
@@ -208,6 +213,7 @@
 
     style F1 fill:#e8f5e9
     style F2 fill:#e3f2fd
+    style F2WARN fill:#fce4ec,stroke:#c62828
     style F4 fill:#fce4ec
     style F5 fill:#f3e5f5
     style F6 fill:#e0f7fa
