@@ -917,15 +917,33 @@ export async function getUnansweredQuestions(
   `) as GeneratedQuestion[];
 }
 
-export async function getQuestionCounts(): Promise<
-  { paper: number; family: string; count: number }[]
-> {
+// Per-slice counts for the landing/family cards. Must stay in lockstep with getBankCount() below —
+// the card advertises what the acquire screen's "Banked Question" button will actually find, so a
+// raw COUNT(*) here (the pre-2026-08-06 behavior) showed quarantined/binned/already-seen rows and
+// the card said "41 in bank" while the acquire screen said "No banked questions yet".
+// With a userId, questions that user has already seen are excluded too.
+export async function getQuestionCounts(
+  userId?: number
+): Promise<{ paper: number; family: string; count: number }[]> {
   const sql = getDb();
+  const uid = userId ?? null;
   return (await sql`
-    SELECT paper, family, COUNT(*)::int as count
-    FROM generated_questions
-    GROUP BY paper, family
-    ORDER BY paper, family
+    SELECT q.paper, q.family, COUNT(*)::int as count
+    FROM generated_questions q
+    WHERE q.invalid_reasons IS NULL
+      AND q.review_state = 'kept'
+      AND q.is_retired IS NOT TRUE
+      AND q.scope = 'pool'
+      AND NOT EXISTS (
+        SELECT 1 FROM stem_answer_keys k
+        WHERE k.question_id = q.question_id AND k.validated = false
+      )
+      AND (${uid}::int IS NULL OR NOT EXISTS (
+        SELECT 1 FROM question_views v
+        WHERE v.question_id = q.question_id AND v.user_id = ${uid}
+      ))
+    GROUP BY q.paper, q.family
+    ORDER BY q.paper, q.family
   `) as { paper: number; family: string; count: number }[];
 }
 
