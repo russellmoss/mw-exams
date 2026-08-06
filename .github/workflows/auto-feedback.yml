@@ -37,8 +37,12 @@ permissions:
   contents: write
   pull-requests: write
 
+# Group is per-attempt AND per-bin-proposal: GitHub keeps at most ONE pending run per group, so
+# three same-group dispatches in a row silently cancel the middle one (this bit bin-fix proposals
+# 1/2/3 on 2026-08-05 — #2's run was replaced in the queue). Bin dispatches all share attemptId 0,
+# so the proposal id must be part of the group for each to get its own slot.
 concurrency:
-  group: auto-feedback-${{ github.event.client_payload.attemptId }}
+  group: auto-feedback-${{ github.event.client_payload.attemptId }}-${{ github.event.client_payload.binProposalId }}
   cancel-in-progress: false
 
 jobs:
