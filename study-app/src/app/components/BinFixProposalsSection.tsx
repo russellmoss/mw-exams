@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { binFixActionErrorMessage, binFixMineErrorMessage } from "@/lib/bin-fix-ui";
+import { binFixActionErrorMessage, binFixMineErrorMessage, evidenceMixLabel } from "@/lib/bin-fix-ui";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 // BinFixProposalsSection — the "Root-cause fixes" card on /admin (migration 042).
@@ -153,8 +153,9 @@ export function BinFixProposalsSection() {
         </button>
       </div>
       <p className="text-xs text-muted mb-4">
-        Recurring bin reasons, clustered into one mechanical fix each. Dispatching opens a PR for your
-        review — when it merges, those reasons retire from generation guidance for good.
+        Recurring bin reasons and accepted user feedback, clustered into one mechanical fix each.
+        Dispatching opens a PR for your review — when it merges, those signals retire from generation
+        guidance for good.
       </p>
       {note && <p className="text-xs text-muted mb-3">{note}</p>}
 
@@ -170,7 +171,7 @@ export function BinFixProposalsSection() {
                 <span className="text-sm text-foreground font-medium">{p.theme}</span>
                 <span className="text-xs text-muted shrink-0">
                   {p.paper ? `Paper ${p.paper}` : "Cross-paper"} · {p.kind} ·{" "}
-                  <span className="tabular-nums">{p.evidenceItemIds.length}</span> bins
+                  <span className="tabular-nums">{evidenceMixLabel(p.evidenceItemIds)}</span>
                 </span>
                 <span className="text-xs text-borderline shrink-0">{STATUS_LABELS[p.status] || p.status}</span>
               </div>

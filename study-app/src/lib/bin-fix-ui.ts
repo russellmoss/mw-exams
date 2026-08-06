@@ -30,6 +30,17 @@ export function parseProposalId(value: unknown): number | null {
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+// Evidence ids are namespaced by stream: `fb_<attemptId>` rows are accepted user feedback, all
+// others are admin bins. Render the mix so the card says where a cluster's evidence came from.
+export function evidenceMixLabel(ids: string[]): string {
+  const feedback = ids.filter((i) => i.startsWith("fb_")).length;
+  const bins = ids.length - feedback;
+  const parts: string[] = [];
+  if (bins > 0) parts.push(`${bins} bin${bins === 1 ? "" : "s"}`);
+  if (feedback > 0) parts.push(`${feedback} feedback`);
+  return parts.join(" · ") || "no evidence";
+}
+
 export function binFixMineErrorMessage(error: unknown): string {
   return typeof error === "string" && error.length > 0
     ? `Mining failed: ${error}`
