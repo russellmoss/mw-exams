@@ -1,7 +1,12 @@
 {
   "anchorable_years": [
     2016,
-    2018
+    2017,
+    2018,
+    2019,
+    2023,
+    2024,
+    2025
   ],
   "principles_only_years": [
     2010,
@@ -30,6 +35,30 @@
       "flagged": []
     },
     {
+      "year": 2017,
+      "source_report": "imw_2017_theory_examiners_report.pdf",
+      "report_chars": 58008,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2212,
+      "flagged": [
+        {
+          "id": "th_2017_p3_q4",
+          "flags": [
+            "anchored by question number, not text — the report abbreviated the restatement; verify the commentary belongs to this question"
+          ]
+        }
+      ]
+    },
+    {
       "year": 2018,
       "source_report": "examiners_report_2018.pdf",
       "report_chars": 74470,
@@ -52,6 +81,87 @@
           ]
         }
       ]
+    },
+    {
+      "year": 2019,
+      "source_report": "imw_theory_exam_report_2019.pdf",
+      "report_chars": 48128,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2468,
+      "flagged": [
+        {
+          "id": "th_2019_p1_q2",
+          "flags": [
+            "anchored by question number, not text — the report abbreviated the restatement; verify the commentary belongs to this question"
+          ]
+        },
+        {
+          "id": "th_2019_p5_q5",
+          "flags": [
+            "anchored by question number, not text — the report abbreviated the restatement; verify the commentary belongs to this question"
+          ]
+        }
+      ]
+    },
+    {
+      "year": 2023,
+      "source_report": "2023-Theory-Examiners-Report.pdf",
+      "report_chars": 71035,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2648,
+      "flagged": []
+    },
+    {
+      "year": 2024,
+      "source_report": "2024-Theory-Examiners-Report.pdf",
+      "report_chars": 77242,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 3431,
+      "flagged": []
+    },
+    {
+      "year": 2025,
+      "source_report": "Theory-Examiners-Report-2025.pdf",
+      "report_chars": 68059,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2877,
+      "flagged": []
     }
   ]
 }

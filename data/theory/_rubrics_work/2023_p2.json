@@ -1,0 +1,516 @@
+[
+  {
+    "id": "th_2023_p2_q1",
+    "year": 2023,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Outline the techniques a winemaker can use to influence the colour of red wine, considering at least three different styles of wine.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Outline",
+    "command_word_demand": "Some candidates clearly possessed knowledge but struggled to apply it effectively. Some merely listed techniques without comprehending why a winemaker might choose a particular practice or the desired outcomes.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover colour extraction methods during maceration (cold soak, physical cap management, saignee, extended maceration, carbonic maceration, flash detente, thermovinification), maceration enzymes, pressing techniques, oxygen management during fermentation for colour stability, and the role of oak (chips and barrels) in colour stabilization",
+        "quote": "The main body of the answer should have covered colour extraction methods during maceration (including cold soak, physical cap management, saignée, extended maceration, carbonic maceration, flash détente, and thermovinification), the use of maceration enzymes, pressing techniques, oxygen management during fermentation for colour stability, and the role of oak (chips and barrels) in colour stabilization.",
+        "weight": "core"
+      },
+      {
+        "element": "Address pH's role in colour, methods for pH adjustment, the impact of SO2 on colour, and oxidation's effects on colour",
+        "quote": "Additionally, addressing pH's role in colour, methods for pH adjustment, the impact of SO2 on colour, and oxidation's effects on colour were expected.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider at least three different wine styles, not just a single generic red wine",
+        "quote": "with various approaches available to address it, including exploring diverse wine styles or adopting a chronological winemaking process perspective",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Mentioning thin- and thick-skinned grape varieties as a factor in colour",
+        "quote": "The question offered an opportunity to mention thin- and thick-skinned grape varieties, which some candidates did."
+      },
+      {
+        "signal": "Referencing non-acetylated anthocyanins present in Pinot Noir or Nebbiolo",
+        "quote": "However, none referenced non-acetylated anthocyanins present in Pinot Noir or Nebbiolo, which could have bolstered their arguments."
+      },
+      {
+        "signal": "Exploring the anthocyanin-tannin relationship for added depth",
+        "quote": "Candidates often failed to delve into anthocyanins, a crucial aspect of colour enhancement. Understanding the anthocyanin-tannin relationship could have added depth to their papers."
+      },
+      {
+        "signal": "Mentioning yeast's role in colour adsorption and blending different grape varieties with distinct colour profiles",
+        "quote": "Other relevant points could have included yeast's role in colour adsorption and blending different grape varieties with distinct colour profiles."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Muddled scripts from lacking introductions, definitions and a clear outline of approach",
+        "quote": "Many essays lacked adequate introductions, clear definitions, and a clear outline of their intended approach, resulting in muddled scripts."
+      },
+      {
+        "signal": "Listing techniques without explaining why a winemaker would choose them or the desired outcome",
+        "quote": "Some merely listed techniques without comprehending why a winemaker might choose a particular practice or the desired outcomes."
+      },
+      {
+        "signal": "Overlooking fundamental techniques such as cold soaking and extended maceration; omitting acidity and blending",
+        "quote": "Many candidates overlooked fundamental techniques such as cold soaking and extended maceration. Some scripts omitted key aspects like acidity and blending, while a few ventured into irrelevant topics, like rosé winemaking."
+      },
+      {
+        "signal": "Repetitive use of the same examples without substantiating the point",
+        "quote": "Repetitive use of the same examples without substantiating the point was common, detracting from the overall quality of responses."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Wandering into rose winemaking, which was off-topic for a question about red wine colour",
+        "quote": "a few ventured into irrelevant topics, like rosé winemaking"
+      }
+    ],
+    "performance_note": "The question garnered widespread attempts, with various approaches available to address it.",
+    "extraction_notes": "Source segment has encoding corruption for accented characters (e.g. 'saignée' renders as 'saign?e', 'détente' as 'd?tente', 'rosé' as 'ros?' in the raw report_segments.json); quotes above are reproduced with best-guess correct accents but a human should diff against the raw segment text if the quote-gate fails on character mismatch."
+  },
+  {
+    "id": "th_2023_p2_q2",
+    "year": 2023,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Explain the methods winemakers use to influence the colour of rosé wines.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain",
+    "command_word_demand": "The term 'explain' implies a focused breakdown of relevant procedures rather than a broader discussion of pros and cons.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Outline winemaking techniques influencing rose wine colour, including methods to produce various hues and maintain colour integrity",
+        "quote": "A strong answer should have outlined winemaking techniques influencing rosé wine colour, including methods to produce various hues and maintain colour integrity.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover grape variety selection, skin contact duration, temperature control during maceration, and explain direct pressing, saignee, and blending",
+        "quote": "Methods for influencing rosé colour include: grape variety selection, skin contact duration, and temperature control during maceration. Techniques such as direct pressing, saignée, and blending should have been explained.",
+        "weight": "core"
+      },
+      {
+        "element": "Address colour-integrity management: pH levels, oxidation control, additives, clarifying agents, filtration, and SO2 additions",
+        "quote": "Ensuring colour integrity involves managing pH levels, oxidation control, additives, clarifying agents, filtration, and SO2 additions.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Distinguishing hue (pink vs orange) from colour intensity (dark or pale)",
+        "quote": "Strong answers distinguished between hue (e.g., pink vs. orange) and colour intensity (dark or pale)."
+      },
+      {
+        "signal": "Differentiating direct pressing/maceration from saignee and explaining the reasons behind these choices",
+        "quote": "Quality answers differentiated between these methods, notably direct pressing and maceration versus saignée. These candidates explained the reasons behind these choices, while weaker responses merely described them without rationale."
+      },
+      {
+        "signal": "Exploring the relationship between colour extraction, phenolic structure and stability across maceration, fermentation and post-fermentation stages",
+        "quote": "In-depth responses explored the relationship between colour extraction, phenolic structure, and stability during maceration, fermentation, and post-fermentation stages."
+      },
+      {
+        "signal": "Mentioning light exposure effects on clear-glass bottled rose and the effect of oak aging on colour",
+        "quote": "Topics like the impact of light exposure on clear-glass bottled rosé (although technically paper 3) and the effect of oak aging on colour could also have been mentioned."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Overly focused on the pale Provence-style rose trend",
+        "quote": "Weaker answers overly focussed on the pale Provence-style rosé trend."
+      },
+      {
+        "signal": "Few considered grape selection as a primary colour influencer",
+        "quote": "Few responses considered grape selection as a primary colour influencer."
+      },
+      {
+        "signal": "Few explored why blending red and white wine is restricted, or that leached tannins from the red component can result in a harsher texture",
+        "quote": "few explored why this is restricted, apart from sparkling and even fewer mentioned that leached tannins from the red component may result in a harsher textured rosé"
+      },
+      {
+        "signal": "Fining mentioned as a blunt method to reduce colour but few proposed better alternatives",
+        "quote": "Fining was commonly mentioned as a rather blunt method to reduce a darker colour, but few proposed better alternatives."
+      },
+      {
+        "signal": "Temperature control, pH, SO2 management's impact on hue/intensity, and colour preservation during winemaking/aging often overlooked",
+        "quote": "Temperature control, pH, SO2 management's impact on hue and intensity, and colour preservation during winemaking and short to medium-term aging were often overlooked."
+      },
+      {
+        "signal": "Destemming's impact and colour loss from winemaking to bottling seldom acknowledged",
+        "quote": "Destemming's impact was not widely discussed, and colour loss from winemaking to bottling was seldom acknowledged."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about how to make different rose wines/styles generally, rather than specifically how colour is influenced and manipulated",
+        "quote": "The focus should not have been merely be on making different rosé wines but on understanding how colour is influenced and manipulated."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": "Source segment has encoding corruption for 'rosé' and 'saignée' (rendered with '?' in raw report_segments.json); quotes reproduced with best-guess correct accents, human should verify against raw segment for the quote gate."
+  },
+  {
+    "id": "th_2023_p2_q3",
+    "year": 2023,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "When and why might inert gas be used in still winemaking?",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "When and why",
+    "command_word_demand": "many students followed a descriptive essay of winemaking with examples of where inert gases were used rather than showing the critical analysis required by the question",
+    "definitions_required": [
+      {
+        "term": "inert gas",
+        "quote": "A definition of inert gas was required, and explanation of the characteristics and properties of the different inert gases, along with their principal uses in winemaking."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Explain the characteristics and properties of different inert gases and their principal uses in winemaking",
+        "quote": "A definition of inert gas was required, and explanation of the characteristics and properties of the different inert gases, along with their principal uses in winemaking.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the techniques and strategies involved in effectively applying inert gas",
+        "quote": "Answers should also have covered the techniques and strategies involved in effectively applying inert gas.",
+        "weight": "core"
+      },
+      {
+        "element": "Name Nitrogen and Argon, as well as Carbon Dioxide (noting CO2 is technically not inert but used as such)",
+        "quote": "Both Nitrogen and Argon needed mentioning, as did Carbon Dioxide (technically, CO2 is not an inert gas but is used as an inert gas within the winery).",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss effectiveness of different inert gases across grape transportation/receival, pressing, racking, sparging and purging, and selecting the correct gas for a given application",
+        "quote": "Answers should have discussed the effectiveness of different inert gases applied during grape transportation and receival, pressing, racking, sparging and purging regimens, and selecting the correct gas for a particular application.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Mentioning techniques such as dry ice bricks to stir tank lees and lower oxygen ingress, and use in flotation and carbonic maceration",
+        "quote": "Candidates should have mentioned techniques such as using dry ice bricks to stir up tank lees to lower oxygen ingress and referred to their use in flotation and carbonic maceration."
+      },
+      {
+        "signal": "Using precise terminology such as 'density' rather than 'lighter/heavier' when discussing gas properties",
+        "quote": "In the essays that delved more deeply into the gas properties, lighter and heavier was the more common terminology, but terminology such as density would have been more appropriate."
+      },
+      {
+        "signal": "Understanding dosage rates well enough to recognise Argon's high effectiveness at low dosage despite cost",
+        "quote": "If those students had understood dosage rates, etc., many would have realised that using gases such as Argon, admittedly in only a few wineries, has high effectiveness yet at low dosage rates."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Struggled with the concept of 'inert' and could not correctly identify an inert gas",
+        "quote": "Many candidates struggled with the concept of \"inert\" and could not identify an inert gas correctly."
+      },
+      {
+        "signal": "Incorrectly stated that the reactive gases SO2 and Ozone are inert",
+        "quote": "A few students incorrectly stated that the highly reactive gases SO2 and Ozone are inert."
+      },
+      {
+        "signal": "Could not state the properties of each inert gas, making it difficult to explain why they were used in each process",
+        "quote": "Further, students could not state the properties of each inert gas, making it difficult to describe why they were used in each process."
+      },
+      {
+        "signal": "Kept the essay narrow, confined to common examples (blanketing grapes, flushing tanks/ullages, bottling, carbonic maceration), missing flotation, adjusting dissolved gas levels, tank mixing",
+        "quote": "Unfortunately, many students kept the essay narrow and confined to the usual common examples of blanketing of grapes, flushing tanks and tank ullages, bottling and carbonic maceration. Less commonly mentioned were flotation, adjusting wine dissolved gas levels, tank mixing, etc."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Assuming Argon is prohibitively expensive and out of reach for most wineries, rather than considering its low dosage requirements",
+        "quote": "Examiners noted that virtually all the scripts assumed Argon was simply out of reach for most wineries."
+      }
+    ],
+    "performance_note": "Despite some of the shortcomings in inert gas understanding, it was still possible to pass if students covered most of its uses/scenarios and techniques.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p2_q4",
+    "year": 2023,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Which laboratory analyses should a winemaker carry out prior to alcoholic fermentation, and why?",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "should ... and why",
+    "command_word_demand": "Others mentioned the tests and their purposes but lacked critical thinking or elaboration on how the results influence winemaking decisions. This resulted in several candidates listing analyses without explaining why they were performed and the insights gained from the results for winemaking decisions.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Discuss the range of available analyses and how they are determined, from grape picking to clarification before fermentation",
+        "quote": "Candidates should have discussed the range of available analyses and, if possible, how these are determined, encompassing activities from grape picking to clarification before fermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover sugar levels (glucose/fructose) for ripeness, pH for optimal yeast growth, titratable acidity, nutrient status via YAN (and potassium), and sulphur dioxide to prevent oxidation/spontaneous fermentation",
+        "quote": "Answers should have included analyses such as sugar levels (including glucose and fructose analysis) to assess ripeness; pH analyses to ensure optimal pH for yeast growth; titratable acidity to determine acidity levels affecting wine taste; nutrient status using YAN (and potassium levels) to provide necessary nutrients for yeast and prevent fermentation issues; and sulphur dioxide to prevent oxidation and spontaneous fermentation during settling.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Mentioning further analyses: juice turbidity, total dissolved solids, microbial analysis, phenolic analysis, malic acid, smoke taint measurement, copper and iron",
+        "quote": "Other potential analyses could have included juice turbidity, total dissolved solids, microbial analysis, phenolic analysis, malic acid and, if applicable, smoke taint measurements, copper, and iron."
+      },
+      {
+        "signal": "Considering cost and practicality of analyses, with concise relevant examples and emphasis on taking a representative sample",
+        "quote": "Strong responses considered the cost and practicality of various analyses, providing concise, relevant examples and emphasising the importance of taking a representative sample."
+      },
+      {
+        "signal": "Drawing on winery experience or field trips rather than textbook knowledge alone",
+        "quote": "candidates with winery experience or immersive field trips did display a better grasp of the topic than those relying solely on textbooks"
+      },
+      {
+        "signal": "Showing how technical parameters vary between different wine styles rather than treating all wines generically",
+        "quote": "the question allows for demonstrating a deep understanding of different wine styles and how technical parameters vary between them, many candidates treated all wines generically, missing this opportunity"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked necessary technical knowledge, provided brief superficial responses",
+        "quote": "Some candidates lacked the necessary technical knowledge and provided brief, superficial responses."
+      },
+      {
+        "signal": "Listed analyses without explaining why they were performed or what insights the results give for winemaking decisions",
+        "quote": "This resulted in several candidates listing analyses without explaining why they were performed and the insights gained from the results for winemaking decisions."
+      },
+      {
+        "signal": "Careless use of abbreviations, missing units, and vague pH figures without context",
+        "quote": "such as the careful use of abbreviations (full name first, followed by the acronym in brackets), providing units when stating numbers (e.g., 100 g/hL or 100 mg/L), and providing specific figures when describing pH levels (e.g., pH of 3.8 is high for sparkling base but not for fortified Muscat)"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "Few students attempted this question, likely due to its technical nature. The pass rate for the question was low.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p2_q5",
+    "year": 2023,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Write concise notes on four of the following additives:\n\na. Yeast nutrients\nb. Oenological tannins\nc. Bentonite\nd. Carbon\ne. Dimethyl dicarbonate",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Write concise notes",
+    "command_word_demand": "The question stipulated 'concise notes', yet some candidates answered the question in an essay format, presumably more time-consuming to write and more confusing for the examiner to mark.",
+    "definitions_required": [
+      {
+        "term": "oenological tannins",
+        "quote": "A definition was important for oenological tannins and the available types."
+      },
+      {
+        "term": "bentonite (sodium vs calcium)",
+        "quote": "A definition of the two main types, sodium bentonites and calcium bentonites, and the rehydration process was helpful."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Cover function, application, source, and impact on wine quality for each additive, plus safety concerns and legal regulations across regions",
+        "quote": "Answers should have covered the function, application, source, and impact of each additive on the quality of wine, including a discussion of how these additives fit into the winemaking process, related safety concerns, the impact on wine quality and flavour, and legal regulations surrounding their usage in different regions.",
+        "weight": "core"
+      },
+      {
+        "element": "Yeast nutrients: role in supporting yeast growth/fermentation, measurement via YAN, when/why added, and types commonly used",
+        "quote": "Yeast nutrients required an answer that included its role in supporting yeast growth and fermentation to provide optimal flavour, its measurement through YAN, when and why it is added to the must or wine, and the different types of commonly used nutrients.",
+        "weight": "core"
+      },
+      {
+        "element": "Bentonite: role as a fining agent removing proteins/haze-forming compounds, the two main functions (clarification and removal of heat-unstable proteins), and characteristics like adsorption, dosage effects on flavour, and pH-dependent efficacy",
+        "quote": "Candidates then needed to identify the two main functions in winemaking: clarification and removal of haze-forming (heat-unstable) proteins. Details about its characteristics, like adsorption, how dosage can alter wine flavour, and its efficacy based on pH levels, were required.",
+        "weight": "core"
+      },
+      {
+        "element": "Carbon: role in removing unwanted odours/flavours and decolourising wine, how it works, and how it can be beneficial or detrimental if misused",
+        "quote": "An apt response for carbon would reflect understanding its role in removing unwanted odours/flavours and decolourising wines. It would also explain how carbon works in the wine and how it can be beneficial and detrimental to its quality if misused.",
+        "weight": "core"
+      },
+      {
+        "element": "DMDC: application as a sterilising agent protecting against refermentation/spoilage yeast, its mode of action, and usage considerations such as dosage and setup costs",
+        "quote": "A satisfactory response to dimethyl dicarbonate (DMDC) would include its application as a sterilising agent, recognising it as a protective measure against refermentation and spoilage yeasts. It would also contain the mode of DMDC action and important usage considerations such as correct dosage and setup costs.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer exactly four of the five additives, not all five",
+        "quote": "Reading the question is always essential and in this instance a few candidates wrote an answer for all five categories, thus wasting valuable time that could have been put to better use.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Combining chemical properties of the additive with when, how and why it is added",
+        "quote": "Better answers combined knowledge of the chemical properties of the ingredient, along with when, how, and why they are added."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked accuracy/technical knowledge, and few incorporated accurate addition rates and units of measurement",
+        "quote": "Many candidates lacked accuracy or technical knowledge in some aspects of the question, and few incorporated accurate addition rates for the different ingredients and their units of measurement."
+      },
+      {
+        "signal": "Very few answers covered four subjects in sufficient technical detail despite the frequency of such questions",
+        "quote": "Despite the frequency of such questions over the years, very few answers covered four subjects in sufficient technical detail."
+      },
+      {
+        "signal": "Students shared similar examples across questions regardless of relevance",
+        "quote": "This question also highlighted an ongoing issue of students sharing similar examples across questions, regardless of the question being answered."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "real-life, additive-specific examples rather than recycled generic ones from other essays",
+      "named_in_report": [],
+      "quote": "Having an armament of real-life examples (rather than just educational seminars) is invaluable when writing the exam."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering all five additives instead of the required four",
+        "quote": "a few candidates wrote an answer for all five categories, thus wasting valuable time that could have been put to better use"
+      },
+      {
+        "trap": "Writing full essay-format answers instead of concise notes as the question stipulated",
+        "quote": "The question stipulated 'concise notes', yet some candidates answered the question in an essay format, presumably more time-consuming to write and more confusing for the examiner to mark."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p2_q6",
+    "year": 2023,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Are wild ferments worth the risk? Assess the advantages and disadvantages of choosing not to use cultured yeasts for fermentation.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "The examiners expected a comprehensive analysis of the topic, including accurate definitions, an explanation of processes, and an assessment of the advantages and disadvantages associated with the choice of wild yeasts. Candidates were expected to support their points with relevant examples and conclude their report with an informed and reasoned viewpoint on the question asked.",
+    "definitions_required": [
+      {
+        "term": "wild fermentation / risk (introduction and conclusion terms)",
+        "quote": "Lastly, introductions seldom defined the terms in sufficient detail, whilst conclusions rarely related to the question."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Weigh the economic and logistical risks of wild fermentation against the sensory rewards it can bring",
+        "quote": "They seldom addressed the 'risk' aspect in detail, with very few candidates weighing up the economic and logistical risks associated with wild fermentation against the sensory rewards that wild fermentation can bring.",
+        "weight": "core"
+      },
+      {
+        "element": "Address both the advantages and disadvantages aspect of the question",
+        "quote": "Several candidates did not address the advantages and disadvantages aspect of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Understand the main species of yeast involved in wine fermentation and be able to name them accurately",
+        "quote": "this was a question that cried out for understanding the main species of yeasts involved in wine fermentation",
+        "weight": "core"
+      },
+      {
+        "element": "Grasp fermentation kinetics, what happens when wild yeasts take part, and the main hazards of using them",
+        "quote": "Breaking the answer down, one needs to grasp fermentation kinetics, what happens if wild yeasts take part and the main hazards of using them.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Understanding the sequential involvement of yeast types, with Saccharomyces cerevisiae primarily responsible for completing fermentation",
+        "quote": "The better answers understood the sequential involvement of yeast types, with Saccharomyces cerevisiae primarily responsible for completing the fermentation."
+      },
+      {
+        "signal": "Recognising that lower SO2 limits (e.g. natural/certified biodynamic wines) increase the propensity for bacterial spoilage",
+        "quote": "Concerning natural and certified biodynamic wines, the better candidates recognised that lower limits of SO2 increase the propensity for bacterial spoilage."
+      },
+      {
+        "signal": "Presenting excellent, applicable examples that answer both aspects (advantages and disadvantages) of the question well",
+        "quote": "many students presented excellent and applicable examples, and example-rich essays often answered the two aspects of the question well"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Failed to mention yeast strains by name, or misspelled Saccharomyces cerevisiae and wild yeast names",
+        "quote": "Many scripts failed to mention any yeast strains by name, and many of those that did couldn't spell Saccharomyces cerevisiae, let alone some of the wild yeast names."
+      },
+      {
+        "signal": "Spoilage microbes poorly covered, with few candidates detailing the different organisms",
+        "quote": "Spoilage microbes were poorly covered overall, with few candidates going into sufficient detail about the different organisms."
+      },
+      {
+        "signal": "Assumed incorrectly that issues with wild ferments were inevitable and could not be alleviated",
+        "quote": "Others assumed incorrectly that issues with wild ferments were inevitable and could not be alleviated."
+      },
+      {
+        "signal": "Overused the cost argument when cost savings are minimal per litre relative to the risks",
+        "quote": "it would be a secondary factor for the winemaker given the cost savings are pretty minimal spread on a per litre basis, and more so given the inherent issues of wild ferment and further costs"
+      },
+      {
+        "signal": "Examples stated what a producer does rather than explaining why, adding no weight to the argument",
+        "quote": "Examples often stated what a producer does rather than explaining why they choose to use/not use a particular practice and, therefore, did not add weight or substance to arguments."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "Candidates were expected to support their points with relevant examples and conclude their report with an informed and reasoned viewpoint on the question asked."
+    },
+    "scope_traps": [
+      {
+        "trap": "Conflating wild fermentation with the production of natural wine",
+        "quote": "Some answers erroneously conflated wild fermentation with the production of natural wines."
+      }
+    ],
+    "performance_note": "This was a popular question and most candidates showed a basic understanding of wild fermentation, but few showed the appropriate depth of technical and practical knowledge of the realities and risks of fermenting with wild yeast.",
+    "extraction_notes": ""
+  }
+]

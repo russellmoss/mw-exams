@@ -1,0 +1,786 @@
+[
+  {
+    "id": "th_2019_p1_q1",
+    "year": 2019,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Are yield restrictions necessary to produce high-quality wine?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Are ... necessary? (evaluative question)",
+    "command_word_demand": "The examiners in particular were looking to see where candidates, in evaluating \"are\" (yield restrictions necessary) were able to demonstrate \"how\" (they might be necessary to produce high-quality wine) in order to answer the question successfully.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Find meaningful connections between various methods of yield restriction and their impact on wine quality, arriving at a conclusive answer rather than an opinion piece",
+        "quote": "A successful response to this question required finding meaningful connections between various methods of yield restriction and their impact on wine quality and by doing so arriving at a conclusive answer. A more \"opinion-editorial\" approach would have been unlikely to pass.",
+        "weight": "core"
+      },
+      {
+        "element": "Focus on vineyards where yield manipulation is consciously/actively required, not naturally low-yielding vineyards (old vines, restrictive soils)",
+        "quote": "most candidates managed to grasp the essential understanding that it was about vineyards where yield manipulation was consciously required. Correctly, they did not spend much time writing about low yielding vineyards based upon old vines, restrictive soils, etc.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate HOW yield restrictions might be necessary to produce high-quality wine, not just assert that they are",
+        "quote": "were able to demonstrate \"how\" (they might be necessary to produce high-quality wine) in order to answer the question successfully",
+        "weight": "core"
+      },
+      {
+        "element": "Cover key viticultural issues such as canopy management within the time available",
+        "quote": "Poor time management was an issue for a number of candidates, evidenced by a paucity of writing, shortage of examples, or leaving out discussion of a key issue such as canopy management.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Noted that with new viticultural techniques, new clones, better understanding of vine balance and climate change effects in certain locales, low yields are not as necessary to producing high-quality wines as they once were",
+        "quote": "The best answers also noted clearly that with new viticultural techniques, new clones, better understanding of vine balance and the effect of climate change in certain locales, low yields are not as necessary to producing high-quality wines as they once were."
+      },
+      {
+        "signal": "Recognised there is no 'one size fits all' approach to lowering yields for high-quality grapes",
+        "quote": "More importantly, there is no 'one size fits all' for lowering yields to produce high-quality grapes."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Wrote an opinion-editorial piece rather than a conclusive, evidence-based answer",
+        "quote": "A more \"opinion-editorial\" approach would have been unlikely to pass."
+      },
+      {
+        "signal": "Poor time management led to shortage of examples or omission of a key issue such as canopy management",
+        "quote": "Poor time management was an issue for a number of candidates, evidenced by a paucity of writing, shortage of examples, or leaving out discussion of a key issue such as canopy management."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Not further specified for this question beyond that a shortage of examples was penalised.",
+      "named_in_report": [],
+      "quote": "Poor time management was an issue for a number of candidates, evidenced by a paucity of writing, shortage of examples, or leaving out discussion of a key issue such as canopy management."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as being about naturally low-yielding vineyards (old vines, restrictive soils) rather than active/conscious yield-restriction techniques",
+        "quote": "most candidates managed to grasp the essential understanding that it was about vineyards where yield manipulation was consciously required. Correctly, they did not spend much time writing about low yielding vineyards based upon old vines, restrictive soils, etc."
+      }
+    ],
+    "performance_note": "Generally, the question was well answered.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p1_q2",
+    "year": 2019,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Your company has acquired a vineyard suitable for high-quality wine production that is currently producing grapes for bulk wine. Indicate what steps you would take to convert it.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Indicate what steps you would take",
+    "command_word_demand": "Both could have been successful as long as they considered the main principles and importantly focused on conversion.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Focus on the conversion of an existing bulk-wine vineyard, not a generic account of how to establish a vineyard from scratch",
+        "quote": "A number of responses that discussed step by step how to establish a vineyard missed the point of the question, which is about converting.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the viticultural issues specific to conversion: changing canopy management, manipulating water availability/delivery, altering vine density, pruning, row alignment, etc.",
+        "quote": "It was important to consider the viticulture issues of conversion: changing the canopy (management), manipulating water availability/delivery, altering vine density, pruning, row alignment etc.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider options other than replanting as the sole route to conversion",
+        "quote": "Many answers missed chances to show mastery and real-world understanding by too quickly assuming that replanting was the only way to go.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Provided good general information on setting up/farming a high-quality vineyard without addressing the real-world issues of converting a vineyard from one purpose to another",
+        "quote": "Many answers rolled out good information on how to set up and farm a vineyard for high quality, but didn't necessarily address the real-world issues of converting a vineyard from one purpose to another."
+      },
+      {
+        "signal": "Used examples not related to a real bulk-wine vineyard type to support the conversion argument (e.g. citing a premium Chambolle-Musigny producer)",
+        "quote": "Examiners found too many papers where the argument presented for conversion used examples not related to a real bulk wine vineyard type. One paper noted that Chambolle-Musigny producer (hardly bulk wine area) Frederick Mugnier said that \"while spur pruning can be used successfully on young vines, it is better in time to convert them to cane-pruning to restrict the yields and achieve more terroir-driven wines.\" A similar notation from an overachieving grower in the Midi would have been more accurate and justifiable."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must be drawn from a real bulk-wine vineyard type (e.g. an overachieving grower in the Midi), not from an already-premium producer/area such as Chambolle-Musigny, which is not a bulk-wine region",
+      "named_in_report": [],
+      "quote": "Examiners found too many papers where the argument presented for conversion used examples not related to a real bulk wine vineyard type. ... A similar notation from an overachieving grower in the Midi would have been more accurate and justifiable."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering as a step-by-step guide to establishing a vineyard from scratch, rather than converting an existing bulk-wine vineyard",
+        "quote": "A number of responses that discussed step by step how to establish a vineyard missed the point of the question, which is about converting."
+      }
+    ],
+    "performance_note": "The Paper 1 examiners' General Comments note: \"Question 2 was the least well-answered question\" on the paper.",
+    "extraction_notes": "Flagged 'anchored by question number, not text'. Verified: the report's commentary restates the question as 'Your company has acquired a vineyard which has been producing grapes for bulk wine. How would you convert the vineyard to high-quality wine production?', which is a close paraphrase of the corpus question (bulk-to-quality-wine vineyard conversion) and the commentary discusses conversion steps throughout. Confirmed on-topic; coverage retained as full."
+  },
+  {
+    "id": "th_2019_p1_q3",
+    "year": 2019,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Assess how drought tolerance can be achieved through viticulture.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "Candidates were expected to evaluate the viticultural techniques available to achieve drought tolerance of vines.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Keep the emphasis on viticulture, this being Theory Paper 1",
+        "quote": "Being Theory Paper 1, the emphasis should be on viticulture.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide solid discussion and global examples for at least five to six viticultural drought-tolerance issues, presented in a balanced manner",
+        "quote": "Passing papers provided solid discussion and examples from around the globe for at least five to six of these viticultural issues, presented in a balanced manner.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider recent research and technologies (e.g. infra-red aerial photography), adaptive rootstocks, cultivar change, cover crop and canopy management, improved irrigation regimes, changing appellation restrictions on irrigation, and actual water availability where irrigation is permitted",
+        "quote": "Under consideration would be recent research and technologies such as infra-red aerial photography, as well as important viticultural issues such as adaptive rootstocks, cultivar change, cover crop and canopy management, improved irrigation regimes and changing appellation restrictions in non-permitted irrigation areas, not forgetting the issue of actual water availability in areas where irrigation is permitted.",
+        "weight": "core"
+      },
+      {
+        "element": "Interlink various tactics rather than presenting them as isolated solutions",
+        "quote": "The best papers interlinked various tactics, reflecting the fact that no one single aspect could be solely responsible for managing drought tolerance.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Interlinked various drought-tolerance tactics rather than treating them as independent",
+        "quote": "The best papers interlinked various tactics, reflecting the fact that no one single aspect could be solely responsible for managing drought tolerance."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Omitted critical issues such as canopy management, soil analyses/amendments, or cover crops, over-focusing on water management or drought-tolerant scion selection",
+        "quote": "Less successful responses omitted one or more critical issues such as canopy management, soil analyses/amendments, or cover crops, and dwelt strongly on water management or selecting drought-tolerant scions."
+      },
+      {
+        "signal": "Very few papers discussed new hybrids or crosses",
+        "quote": "Very few papers discussed using new hybrids or crosses."
+      },
+      {
+        "signal": "Very few papers discussed viticultural research centre work on drought tolerance, indicating a knowledge gap",
+        "quote": "The very small percentage of papers that discussed the important research being done at viticultural research centers on the subject indicated a significant knowledge gap."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global examples drawing on learnings from regions that have long operated in near-drought conditions, applied to changing/newly-affected regions",
+      "named_in_report": [
+        "Napa",
+        "Mendoza",
+        "parts of Australia"
+      ],
+      "quote": "It was relevant to consider how learnings from regions that have long operated in near-drought conditions, such as Napa, Mendoza and parts of Australia, may be applied in vineyards experiencing changing climatic conditions, or indeed in new regions that have hitherto been considered unsuitable for viticulture due to existing drought conditions."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating this as a question about climate change generally rather than the specific viticultural techniques for achieving drought tolerance",
+        "quote": "This was not a question about climate change."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p1_q4",
+    "year": 2019,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Mildews continue to afflict vineyards. What strategies might a vineyard manager employ to reduce the risk?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What strategies might ... employ",
+    "command_word_demand": "This was a question that could only be answered well if one had a good knowledge of the standard remedies.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Give an informed discussion of the two most important mildews, downy and powdery, with Botrytis/Phomopsis only as secondary additions",
+        "quote": "Examiners were primarily looking for an informed discussion about what are considered the two most important mildews: downy mildew and powdery mildew. Botrytis and Phomopsis could have been included in the discussion, as long as the two primary mildews were more strongly considered.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider strategies beyond copper and sulphur: alternative resistant varieties, canopy management, vineyard hygiene, climate modelling/forecasting, and critical timing of treatments",
+        "quote": "It was important to consider not just copper and sulphur treatments, but also to acknowledge and explain how alternative, resistant varieties, canopy management, vineyard hygiene, climate modelling/forecasting, and the critical timing of treatments can reduce mildew damage.",
+        "weight": "core"
+      },
+      {
+        "element": "Give a wide-ranging discussion of different strategies including organic/biodynamic approaches, noting there is no easy organic/biodynamic substitute for copper sulphate",
+        "quote": "The Examiners were looking for a wide-ranging discussion of different strategies, including organic/biodynamic approaches, in particular noting that there is no easy organic/biodynamic substitute for using copper sulphate, which is why it is accepted (although now in the EU at much reduced rates).",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the differences between contact, local systemic and fully systemic treatments and their differing modes of action",
+        "quote": "candidates should have considered the differences between contact, local systemic and fully systemic treatments; few addressed the different modes of action that lie behind a diverse, sustainable approach to preventing mildew.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Noted that fungicides/treatments must be rotated, or not all used together, to prevent mildews developing resistance",
+        "quote": "The best papers noted that there are many fungicides and treatments available and that they must be rotated, or not all used together, in order to ensure that the mildews don't develop resistance."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Few addressed the different modes of action behind a diverse, sustainable anti-mildew approach",
+        "quote": "few addressed the different modes of action that lie behind a diverse, sustainable approach to preventing mildew."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "Report notes candidates were not expected to know exact chemical formulas: \"While no one was expected in this paper to be intimate with the exact formulas...\" — a boundary-setting comment rather than a scope trap, recorded here for a grader's awareness."
+  },
+  {
+    "id": "th_2019_p1_q5",
+    "year": 2019,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "What are the critical considerations for selecting rootstock when establishing a new vineyard?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What are the critical considerations",
+    "command_word_demand": "it required specific discussion and clear examples that demonstrated the writer's knowledge of rootstock traits, limitations and consequences for their use.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Protection from soil pests such as phylloxera and nematodes as a primary rootstock consideration",
+        "quote": "A primary consideration for rootstocks is protection from pests in the soil such as phylloxera and nematodes.",
+        "weight": "core"
+      },
+      {
+        "element": "Rootstocks used to address specific site challenges such as soil chemistry, excess/inadequate water, or soil structure/fertility",
+        "quote": "Rootstocks are used to address specific challenges or limitations of a site, such as soil chemistry, or excess/inadequate water, or soil structure/fertility.",
+        "weight": "core"
+      },
+      {
+        "element": "The compatibility and health status of the scion",
+        "quote": "The compatibility and health status of the scion.",
+        "weight": "core"
+      },
+      {
+        "element": "Impact on vine vigour, considering variety, spacing, vine size, soil nutrients, salinity",
+        "quote": "How vine vigour can be impacted; therefore requiring consideration of variety, spacing, vine size, soil nutrients, salinity.",
+        "weight": "core"
+      },
+      {
+        "element": "How rootstock choice affects yield, ripening time, quality and flavour, which in turn drives wine quality",
+        "quote": "How rootstock choices can affect yield, ripening time, quality and flavour which, in turn, strongly influence the end goal of wine quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise the interconnection between all these factors: there is no single, simple answer to rootstock choice",
+        "quote": "How the relationship between all of these must be taken into consideration: there is no simple, single answer to choosing a rootstock.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Used specific examples to support discussion rather than simply enumerating facts about rootstocks without context",
+        "quote": "Good papers had specific examples that supported their discussion, rather than simply enumerating facts about rootstocks without context."
+      },
+      {
+        "signal": "Delineated interconnected reasons for rootstock choice, e.g. addressing nematodes and drought tolerance together",
+        "quote": "Good papers also delineated interconnected reasons for using a rootstock; for example to deal with nematodes and drought tolerance."
+      },
+      {
+        "signal": "Considered how climate change may require new rootstock use in traditional areas",
+        "quote": "Several papers also considered how climate change may require new rootstock use in traditional areas where changing circumstances such as drought conditions require a new approach."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Named nematode presence as a consideration with some examples but did not analyse why, which kind of nematode, and its disease-vector impact",
+        "quote": "Many papers, for example, noted that nematode presence was a critical consideration for selecting a rootstock, offering some examples. But then didn't analyse why, and for what kind of nematode and potential disease impact they may vector, and under what circumstances."
+      },
+      {
+        "signal": "Non-passing papers gave few to no examples of rootstocks needed for particular issues, or listed reasons without analysis",
+        "quote": "a number of non-passing papers provided few to no examples of rootstocks needed for particular issues. Or, if the main reasons for using rootstocks were listed, there was often a lack of analysis addressing the question: the key considerations when planting a new vineyard."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific, analysed examples (e.g. naming the nematode type and its disease-vector risk) rather than generic enumeration of rootstock facts",
+      "named_in_report": [],
+      "quote": "Good papers had specific examples that supported their discussion, rather than simply enumerating facts about rootstocks without context."
+    },
+    "scope_traps": [],
+    "performance_note": "This question was the best answered on the paper.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p1_q6",
+    "year": 2019,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Discuss the role of the following factors in the production of high-quality grapes:\n\n- Aspect\n- Vine density\n- Row orientation",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "this question asked for the issues to be addressed specifically in the context of high-quality grape production",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover each of the three elements (aspect, vine density, row orientation), as marks were allocated equally between them",
+        "quote": "Even with limited time available, to achieve good marks it was essential to cover each of the three elements of the question, as the marks were allocated equally between them.",
+        "weight": "core"
+      },
+      {
+        "element": "Address each factor specifically in the context of high-quality grape production, not generically",
+        "quote": "It was important to bear in mind, however, that this question asked for the issues to be addressed specifically in the context of high-quality grape production.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clearly noted the intimate relationship of slope and sun exposure in a higher-latitude site, such as the Graacher Himmelreich on the Mosel",
+        "quote": "excellent papers clearly noted the intimate relationship of slope and sun exposure in a higher latitude site, such as the Graacher Himmelreich on the Mosel"
+      },
+      {
+        "signal": "Considered wind damage control as a key factor for row orientation and density, beyond the obvious sunlight exposure/N-S to E-W line issue",
+        "quote": "considered the issue of wind damage control as a key factor when considering row orientation and density, beyond the obvious issue of sunlight exposure, changing from a N-S to an E-W line."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Ran out of time on this question, likely from being tackled last",
+        "quote": "Some candidates appeared to have run out of time on this question, possibly as a result of it being the final question on this paper to have been approached."
+      },
+      {
+        "signal": "Gave a standard Diploma-type answer with very few examples and little demonstration of understanding or analysis",
+        "quote": "Some responses simply did not cover sufficient detail, giving just a standard Diploma-type answer with very few examples and very little demonstration of understanding or analysis."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific named sites illustrating the factor discussed, e.g. a higher-latitude site showing the slope/sun exposure relationship",
+      "named_in_report": [
+        "Graacher Himmelreich"
+      ],
+      "quote": "excellent papers clearly noted the intimate relationship of slope and sun exposure in a higher latitude site, such as the Graacher Himmelreich on the Mosel"
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q1",
+    "year": 2019,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "How can a winemaker manage the impact of oxygen during the winemaking process?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How can ... manage",
+    "command_word_demand": "The challenge was to get to grips with how winemakers can manage oxygen ... We were not just asking the effect of oxygen on wine but the techniques to manage those outcomes.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Discuss HOW a winemaker can manage the impact of oxygen (management techniques), not just what oxygen does (effects)",
+        "quote": "Many candidates concentrated on what oxygen does rather than discussing how a winemaker can manage the impact of oxygen. We were not just asking the effect of oxygen on wine but the techniques to manage those outcomes.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the entire winemaking process in an orderly manner and across a range of wine styles",
+        "quote": "Candidates are urged to cover the entire winemaking process in an orderly manner and cover a range of wine styles.",
+        "weight": "core"
+      },
+      {
+        "element": "Acknowledge that oxygen contact has both negative and positive impacts",
+        "quote": "It is important to remember that oxygen contact has both negative and positive impacts.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a methodical approach: discuss the impact, then how that impact could be managed",
+        "quote": "The best candidates used a methodical approach where they discussed the impact and then how that impact could be managed.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Shone brightly with excellent, well-structured scripts focused squarely on the question",
+        "quote": "The best answers really focused on the question and were very competent."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Gave formulaic answers that simply regurgitated facts rather than answering the question as set",
+        "quote": "There were too many formulaic answers with a simple regurgitation of facts rather than providing an actual answer to the question as set."
+      },
+      {
+        "signal": "Lacked the depth of knowledge required to answer successfully",
+        "quote": "In many cases, candidates did not have the depth of knowledge that was required to answer this question successfully"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about the effects/nature of oxygen in general (waffling) rather than the techniques a winemaker uses to manage its impact",
+        "quote": "Structure in this question was crucial as there was a great opportunity to waffle about oxygen in so many forms. ... Many candidates concentrated on what oxygen does rather than discussing how a winemaker can manage the impact of oxygen."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q2",
+    "year": 2019,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Evaluate the options available to the winemaker wishing to make wine with a lower level of alcohol.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "the question clearly stated 'evaluate', not 'tell us all about how to make wine with a lower level of alcohol'.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Provide critical analysis of the pros and cons of the various methods rather than simply listing processes",
+        "quote": "Those that were not as successful tended to put forward a list of the processes involved without sufficient critical analysis on the pros and cons of the various methods",
+        "weight": "core"
+      },
+      {
+        "element": "Cover options including picking dates, site selection, varieties, water additions, yeast choice, vessel type, stopping fermentation, and post-fermentation options (blending, dealcoholisation via spinning cone, reverse osmosis, vacuum distillation)",
+        "quote": "Options that should have been considered included picking dates, site selection, varieties, water additions, yeast choice, vessel type, stopping fermentation, and post fermentation options such as blending, dealcoholisation via spinning cone, reverse osmosis and vacuum distillation.",
+        "weight": "core"
+      },
+      {
+        "element": "Be up to date with changes to winemaking laws relevant to lower-alcohol wine production",
+        "quote": "Please keep up to date with changes to winemaking laws. For example, Australia can now add water to juice/must to lower the potential alcohol to no lower than 13.5%.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Those who attempted the question generally provided strong responses",
+        "quote": "Relatively few candidates attempted this question, but those who did generally provided strong responses."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Listed the processes involved without sufficient critical analysis of pros and cons",
+        "quote": "Those that were not as successful tended to put forward a list of the processes involved without sufficient critical analysis on the pros and cons of the various methods"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Up-to-date, legally accurate specifics, e.g. current permitted limits such as Australia's water-addition rule",
+      "named_in_report": [
+        "Australia"
+      ],
+      "quote": "Please keep up to date with changes to winemaking laws. For example, Australia can now add water to juice/must to lower the potential alcohol to no lower than 13.5%."
+    },
+    "scope_traps": [],
+    "performance_note": "Relatively few candidates attempted this question, but those who did generally provided strong responses.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q3",
+    "year": 2019,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Explain the procedures that might be followed in the winery when dealing with rot-degraded fruit.",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain",
+    "command_word_demand": "candidates did not score well if they were not fully informed on the issues at hand. It was not possible to produce a satisfactory response based only on partial knowledge.",
+    "definitions_required": [
+      {
+        "term": "rot-degraded fruit",
+        "quote": "Candidates should have given a definition of what constitutes rot-degraded fruit."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Cover the whole winemaking process from reception to the end of maturation",
+        "quote": "The best answers covered the whole winemaking process from reception to end of maturation.",
+        "weight": "core"
+      },
+      {
+        "element": "Confine the answer to winery procedures, not vineyard choices",
+        "quote": "Vineyard choices were not to be considered as the question clearly stated 'in the winery'.",
+        "weight": "core"
+      },
+      {
+        "element": "Break the winemaking process down into its parts to clearly define what measures could be taken at each stage",
+        "quote": "If candidates had broken down the winemaking process in to its parts it would be possible to clearly define what measures could be taken.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider thermovinification as part of the procedures for dealing with rot-degraded fruit",
+        "quote": "Thermovinification should have been a consideration.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Cover red and white grapes separately where relevant",
+        "quote": "Red and white grapes may have been covered separately.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Lack of a structured approach, sometimes resulting in main points being missed",
+        "quote": "The answer needed some careful planning and a few scripts seemed to rush headlong into answering without evidence of a structured approach. A lack of structure sometimes resulted in main points being missed from answers."
+      },
+      {
+        "signal": "Used only a narrow range of examples",
+        "quote": "Examiners also commented on a narrow range of examples only being used."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A broader range of examples than the narrow range examiners typically saw",
+      "named_in_report": [],
+      "quote": "Examiners also commented on a narrow range of examples only being used."
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing about noble rot (Botrytis-affected sweet wine production) rather than dealing with degraded/spoiled rot",
+        "quote": "A number of candidates gave us a paragraph or two on noble rot; this was not required."
+      },
+      {
+        "trap": "Discussing vineyard-based rot management rather than winery procedures",
+        "quote": "Vineyard choices were not to be considered as the question clearly stated 'in the winery'."
+      }
+    ],
+    "performance_note": "This was a question which prompted a good number of responses, however candidates did not score well if they were not fully informed on the issues at hand.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q4",
+    "year": 2019,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "With new French oak barrels becoming increasingly expensive, what alternative options and techniques are available to the winemaker wishing to make high-end wines?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what alternative options and techniques are available",
+    "command_word_demand": "This was not just an oak alternative question ... A good response to this question requires more than a list of which winemaker is doing what.",
+    "definitions_required": [
+      {
+        "term": "high-end wine",
+        "quote": "Very few candidates managed to define 'high-end wine' - concentration, longevity, complexity, balance."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Go beyond oak sources/wood types/formats to discuss other vessel types (with/without oxygen transfer rates), use of lees, tannin, and application to white wines, sparkling wines and Madeira, plus other ways of achieving oxygen contact",
+        "quote": "very few discussed other vessel types (with/without oxygen transfer rates), use of lees, tannin, white wines, sparkling wines, Madeira and different ways of getting oxygen contact with the wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'high-end wine' (concentration, longevity, complexity, balance) and recognise these factors are not seen only in red wines",
+        "quote": "Very few candidates managed to define 'high-end wine' - concentration, longevity, complexity, balance. These factors are not only seen in red wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider what a French oak barrel gives to a wine, then discuss alternatives that achieve the same end result, including non-oak techniques for complexity and concentration",
+        "quote": "The best responses considered what a French oak barrel can give to a wine and then discussed alternatives to achieve the same end result. These candidates also discussed techniques to add complexity and concentration to wines that did not involve oak contact.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Considered what a French oak barrel gives a wine before discussing alternatives to achieve the same end result",
+        "quote": "The best responses considered what a French oak barrel can give to a wine and then discussed alternatives to achieve the same end result."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Used examples limited to only Bordeaux and the Napa Valley, not indicating a truly global perspective",
+        "quote": "A question answered by a good number of candidates, but very often using examples limited to only Bordeaux and the Napa Valley, which does not indicate a truly global perspective."
+      },
+      {
+        "signal": "Gave little more than a list of which winemaker is doing what, without deeper technique discussion",
+        "quote": "A good response to this question requires more than a list of which winemaker is doing what."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global diversity of examples, not limited to Bordeaux and Napa Valley",
+      "named_in_report": [],
+      "quote": "A question answered by a good number of candidates, but very often using examples limited to only Bordeaux and the Napa Valley, which does not indicate a truly global perspective."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating this purely as an 'oak alternatives' question (types/sources/formats of wood) rather than the broader set of techniques for making high-end wine without new French oak",
+        "quote": "This was not just an oak alternative question; plenty of candidates gave us great information on different oak sources, different wood types and wood formats, but very few discussed other vessel types..."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q5",
+    "year": 2019,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Consider the impact of rosé winemaking techniques on wine quality. Are paler-coloured rosé wines better quality?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Consider",
+    "command_word_demand": "Generally, students struggled with this question with very little consideration being given to the \"impact of rosé winemaking techniques on wine quality\" part of the question.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Consider winemaking processes beyond colour extraction and their impact on wine quality",
+        "quote": "Most candidates focussed on colour extraction without considering other winemaking processes that impact on wine quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover picking time, grape varieties, fermentation, residual sweetness, techniques for adjusting colour, and temperature/time on skins",
+        "quote": "Picking time and grape varieties were largely ignored as were fermentation, residual sweetness and techniques for adjusting colour. Temperature of time on skins was rarely mentioned, despite it having a big effect on colour extraction.",
+        "weight": "core"
+      },
+      {
+        "element": "Keep the response technical/winemaking-focused, as befits a Paper 2 question, not a marketing (Paper 4) angle",
+        "quote": "As a Paper 2 question, a response from a marketing / Paper 4 point of view would not have been appropriate.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the entire winemaking process in a logical manner, commenting on how various processes impact on quality",
+        "quote": "This was a question where candidates should have covered the entire winemaking process in a logical manner, commenting on how various processes impact on quality.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Lack of definitions in the introduction was often a problem",
+        "quote": "Lack of definitions in the introduction was often a problem."
+      },
+      {
+        "signal": "Very little reference to the actual impact of winemaking on quality",
+        "quote": "There was also very little reference to the actual impact of winemaking on quality."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering from a marketing/commercial (Paper 4) perspective rather than a technical winemaking perspective",
+        "quote": "As a Paper 2 question, a response from a marketing / Paper 4 point of view would not have been appropriate."
+      }
+    ],
+    "performance_note": "Generally, students struggled with this question with very little consideration being given to the \"impact of rosé winemaking techniques on wine quality\" part of the question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2019_p2_q6",
+    "year": 2019,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "To what extent is it possible for producers of tank method sparkling wines to match the style and quality of wines produced by the traditional method?",
+    "source_report": "imw_theory_exam_report_2019.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "Too many candidates did not answer the actual question, preferring to write about how Prosecco and Champagne are made without referring to the question of quality and at which steps quality could be influenced throughout the entire production process.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Answer the actual quality-comparison question — at which steps quality could be influenced throughout the entire production process — rather than simply describing how Prosecco and Champagne are made",
+        "quote": "Too many candidates did not answer the actual question, preferring to write about how Prosecco and Champagne are made without referring to the question of quality and at which steps quality could be influenced throughout the entire production process.",
+        "weight": "core"
+      },
+      {
+        "element": "Show up-to-date knowledge of sparkling wine production across all types and styles, e.g. that premium Sekt today is also made with Burgundian varieties, not only Riesling",
+        "quote": "Where Sekt was mentioned, most candidates took for granted that Sekt is always made from Riesling which demonstrated a lack of awareness of today's premium Sekt production with Burgundian varieties.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise that quality does not come just from lees ageing — every part of the winemaking process can impact final quality",
+        "quote": "Quality in sparkling wine production does not just come from ageing on lees; every part of the winemaking process can impact on the final quality of the wine and candidates should have covered this.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise that a given method (tank vs traditional) is not itself a guarantee of quality — it is the process within the method that determines outcomes",
+        "quote": "very few considered the fact that any given method is not a guarantee of quality - it is the process within those methods that determines the outcomes.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "This was a clear question, avoided by many, which exposed a lack of up-to-date knowledge of sparkling wine production of all types and styles",
+        "quote": "This was a clear question, avoided by many, which exposed a number of candidates' lack of up-to-date knowledge of sparkling wine production of all types and styles."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Describing how Prosecco and Champagne are made rather than assessing to what extent tank method can match traditional method quality/style, and at which production steps quality is influenced",
+        "quote": "Too many candidates did not answer the actual question, preferring to write about how Prosecco and Champagne are made without referring to the question of quality and at which steps quality could be influenced throughout the entire production process."
+      }
+    ],
+    "performance_note": "This was a clear question, avoided by many.",
+    "extraction_notes": ""
+  }
+]

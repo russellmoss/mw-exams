@@ -1,0 +1,418 @@
+[
+  {
+    "id": "th_2023_p1_q1",
+    "year": 2023,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Extreme heat and drought threaten many wine regions. What steps can a vineyard manager take to mitigate their effects?",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What steps can",
+    "command_word_demand": "Examiners were looking for a solid definition of heat and drought and then a multifaceted range of approaches that vineyard managers could take; candidates needed to show a full understanding of the options and also consider the reality of implementing these steps.",
+    "definitions_required": [
+      {
+        "term": "heat and drought",
+        "quote": "Examiners were looking for a solid definition of heat and drought and then a multifaceted range of approaches that vineyard managers could take."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Show understanding of how heat and drought affect the vine, linked to the different mitigation steps available",
+        "quote": "We were looking for understanding of how heat and drought affect the vine and for this to be linked to the different steps available.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider all elements of the wine business, not just fine wine regions",
+        "quote": "It was important to consider all elements of the wine business, not just fine wine regions.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider cost implications versus the price per ton of grapes in different regions of the world",
+        "quote": "Many candidates did not consider the cost implications versus the price per ton of grapes in different regions of the world.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Give options that are financially viable and legal in the regions where applied, not unrealistic ones",
+        "quote": "Many students gave unrealistic options that would not be possible, financially viable or even legal in some regions.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover a full multifaceted range of mitigation approaches rather than one or two areas",
+        "quote": "The papers that went close but ultimately did not achieve a passing mark usually omitted a key element or focused too much on just one or two areas.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Did not consider cost implications versus price per ton of grapes in different regions",
+        "quote": "Many candidates did not consider the cost implications versus the price per ton of grapes in different regions of the world."
+      },
+      {
+        "signal": "Proposed unrealistic options that would not be financially viable or legal in some regions",
+        "quote": "Many students gave unrealistic options that would not be possible, financially viable or even legal in some regions."
+      },
+      {
+        "signal": "Omitted a key element or focused too much on just one or two areas",
+        "quote": "The papers that went close but ultimately did not achieve a passing mark usually omitted a key element or focused too much on just one or two areas."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as applying only to fine wine regions",
+        "quote": "It was important to consider all elements of the wine business, not just fine wine regions."
+      }
+    ],
+    "performance_note": "This was much the more popular choice of the two Section A questions, but with mixed results.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p1_q2",
+    "year": 2023,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "To what extent is excessive precipitation during the growing season a threat in the vineyard? How can it be managed?",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "To what extent",
+    "command_word_demand": "The examiners were looking to assess candidates' understanding of the risks of excessive water to vineyard structure, leaching of specific nutrients, and difficulty in carrying out vineyard operations.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Address excessive precipitation as a threat that can occur in any region, not only wet regions",
+        "quote": "The question wasn't about how wet regions manage viticulture but about excessive precipitation, which can happen in any region.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of the risks of excessive water to vineyard structure, leaching of specific nutrients, and difficulty carrying out vineyard operations",
+        "quote": "The examiners were looking to assess candidates' understanding of the risks of excessive water to vineyard structure, leaching of specific nutrients, and difficulty in carrying out vineyard operations.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of the differing effects of precipitation at different times during the growing season (e.g. flowering versus harvest) and the approaches to managing this",
+        "quote": "It was important for answers to show an understanding of the differing effects of precipitation at different times during the growing season, e.g. flowering compared to harvest, and the approaches to managing this.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Weak understanding of viticulture, of threats such as mildew and excessive growth, and of how vines respond to excessive precipitation",
+        "quote": "There were weaknesses in understanding of viticulture, of threats such as mildew and excessive growth, and of how vines respond to excessive precipitation."
+      },
+      {
+        "signal": "Missed key elements, making it hard to give passing grades",
+        "quote": "Typically, key elements were missed which made it hard to give passing grades."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as being about how wet regions manage viticulture, rather than about excessive precipitation which can occur in any region",
+        "quote": "The question wasn't about how wet regions manage viticulture but about excessive precipitation, which can happen in any region."
+      }
+    ],
+    "performance_note": "Few attempted this question and it was not well answered.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p1_q3",
+    "year": 2023,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "A viticulturist has observed a decline in vineyard yield over the last five years. Discuss the possible causes and how the issue might be addressed.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "Good essays addressed multiple possible causes... For MW-level essays, it is not enough simply to report examples. We are looking for original thought and insight.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Focus on decline over a five-year period, not one-off events that may cause a smaller vintage",
+        "quote": "Important here was to look at declines over a five-year period, not one-off events that may cause a smaller vintage.",
+        "weight": "core"
+      },
+      {
+        "element": "Address multiple possible causes such as pests, disease, nutrition, soil health, water, cover crops, rootstock/vine choice, climate change and vine age, not just one area",
+        "quote": "Good essays addressed multiple possible causes such as pests, disease, nutrition, soil health, water, cover crops, rootstock/vine choice, climate change and vine age.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide original thought and insight into why yield decline occurs and how it might be addressed, not just a list of examples",
+        "quote": "A number of candidates just listed examples of what people are doing to deal with yield declines without showing any insight into why. For MW-level essays, it is not enough simply to report examples. We are looking for original thought and insight.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer the actual question asked rather than a pre-prepared essay on yields",
+        "quote": "There were also a number of papers that didn't answer the question, but instead answered one that the student hoped would be there, often an almost pre-written sounding essay on yields.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Addressed multiple possible causes rather than one",
+        "quote": "Good essays addressed multiple possible causes such as pests, disease, nutrition, soil health, water, cover crops, rootstock/vine choice, climate change and vine age."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Drifted off-topic into one-off events such as heat spikes, frost, flood, etc.",
+        "quote": "Many essays drifted off-topic into one-off events such as heat spikes, frost, flood, etc."
+      },
+      {
+        "signal": "Very top level without showing depth of understanding",
+        "quote": "A lot of essays were just very top level without showing the depth of understanding necessary."
+      },
+      {
+        "signal": "Focused too much on just one area (e.g. nutrients or vine disease) without enough attention to other possible causes",
+        "quote": "Many students focused too much just on one area (e.g. nutrients or vine disease) without spending enough attention on other possible causes."
+      },
+      {
+        "signal": "Listed examples of remedies without insight into why",
+        "quote": "A number of candidates just listed examples of what people are doing to deal with yield declines without showing any insight into why."
+      },
+      {
+        "signal": "Answered a different, pre-prepared question rather than the one asked",
+        "quote": "There were also a number of papers that didn't answer the question, but instead answered one that the student hoped would be there, often an almost pre-written sounding essay on yields."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating one-off events (heat spikes, frost, flood) as the answer, rather than causes of a sustained multi-year decline",
+        "quote": "Important here was to look at declines over a five-year period, not one-off events that may cause a smaller vintage. Many essays drifted off-topic into one-off events such as heat spikes, frost, flood, etc."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p1_q4",
+    "year": 2023,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "What are the causes and effects of nitrogen deficiency in a vineyard? How can it be remedied?",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What are the causes and effects",
+    "command_word_demand": "It was necessary to get down deep into issues like soil pH, organic matter, leaching, vigour, crop loads, cover crops, competition, vines and rootstocks, and then discuss how all these might affect the fruit quality and quantity, vine growth and nitrogen's impact through to fermentation.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Spend sufficient time on causes and effects of nitrogen deficiency, not just remedies",
+        "quote": "Those that failed mostly didn't spend enough time considering the causes and effects and focused too much on remedies.",
+        "weight": "core"
+      },
+      {
+        "element": "Go deep into causal issues such as soil pH, organic matter, leaching, vigour, crop loads, cover crops, competition, vines and rootstocks",
+        "quote": "It was necessary to get down deep into issues like soil pH, organic matter, leaching, vigour, crop loads, cover crops, competition, vines and rootstocks",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss how these factors affect fruit quality and quantity, vine growth, and nitrogen's impact through to fermentation",
+        "quote": "and then discuss how all these might affect the fruit quality and quantity, vine growth and nitrogen's impact through to fermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "Understand and consider the \"why\" before showing knowledge through insight, backed by global examples, to prove the \"what\"",
+        "quote": "The remedies section was generally answered well but it goes to show again how important it is to understand and consider the \"why\" before being able to show knowledge through insight, backed by global examples to prove the \"what\".",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Candidates who attempted it and knew the topic well passed at a nearly two-thirds rate",
+        "quote": "However, those that did obviously knew the topic well with a nearly two-thirds passing."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Did not spend enough time considering causes and effects, focused too much on remedies",
+        "quote": "Those that failed mostly didn't spend enough time considering the causes and effects and focused too much on remedies."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "it goes to show again how important it is to understand and consider the \"why\" before being able to show knowledge through insight, backed by global examples to prove the \"what\"."
+    },
+    "scope_traps": [],
+    "performance_note": "This topic seemed to deter a lot of candidates with only 17 students attempting it. However, those that did obviously knew the topic well with a nearly two-thirds passing.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p1_q5",
+    "year": 2023,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Evaluate the potential risks and rewards of choosing to plant ungrafted vines.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "Those who passed did so with a careful intertwining of showing an understanding of viticulture, commercial realities of running a vineyard, technical details... with clear evaluation of the potential risks and rewards.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Intertwine understanding of viticulture, commercial realities of running a vineyard, and technical details (rootstocks, soil type, scion compatibility, phylloxera, nematodes, replanting/layering/propagation) with clear evaluation of risks and rewards",
+        "quote": "Those who passed did so with a careful intertwining of showing an understanding of viticulture, commercial realities of running a vineyard, technical details around rootstocks, soil type and scion compatibility, phylloxera, nematodes, replanting/layering/propagation, etc., with clear evaluation of the potential risks and rewards.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the question as being about the decision to plant ungrafted vines, not a general essay on old ungrafted vineyards",
+        "quote": "The question was worded \"choosing to plant\", so essays devoted to old, ungrafted vines missed answering the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide clear evaluation of the potential risks and rewards, not just examples or claims about quality",
+        "quote": "while many others just listed examples of producers with ungrafted vineyards, parroting unproven claims to quality without any evaluation of the potential risks and rewards demanded by the question.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Touched on legal issues and marketing opportunities",
+        "quote": "Legal issues and marketing opportunities were also touched on by many."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Wrote a romantic, paper-5-style essay about old ungrafted vines and forgot to answer the question asked",
+        "quote": "Some candidates, though, wrote more like a paper 5 essay, getting enamoured with the romance of old ungrafted vines and forgetting to answer the question asked."
+      },
+      {
+        "signal": "Treated it as solely a question about phylloxera or rootstocks",
+        "quote": "Many candidates who were unsuccessful seemed to take it as a question solely about phylloxera or rootstocks, and focused too much on just these subjects"
+      },
+      {
+        "signal": "Listed examples of producers with ungrafted vineyards, parroting unproven quality claims, without evaluating risks and rewards",
+        "quote": "while many others just listed examples of producers with ungrafted vineyards, parroting unproven claims to quality without any evaluation of the potential risks and rewards demanded by the question."
+      },
+      {
+        "signal": "Wrote about old ungrafted vines rather than about the decision to plant ungrafted vines",
+        "quote": "The question was worded \"choosing to plant\", so essays devoted to old, ungrafted vines missed answering the question."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as solely about phylloxera or rootstocks",
+        "quote": "Many candidates who were unsuccessful seemed to take it as a question solely about phylloxera or rootstocks, and focused too much on just these subjects"
+      },
+      {
+        "trap": "Reading the question as being about old, established ungrafted vines rather than the decision to plant ungrafted vines now",
+        "quote": "The question was worded \"choosing to plant\", so essays devoted to old, ungrafted vines missed answering the question."
+      }
+    ],
+    "performance_note": "This was the second most popular question in section B and it proved to be tricky for some candidates. Still, more than a quarter passed.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2023_p1_q6",
+    "year": 2023,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Assess the role of sunlight in determining grape quality.",
+    "source_report": "2023-Theory-Examiners-Report.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "It proved to be a good test of which candidates could delve deep into showing an understanding of the link between sunlight and quality and those who could only give a very top level, basic regurgitation of a viticulture textbook without much insight.",
+    "definitions_required": [
+      {
+        "term": "grape quality",
+        "quote": "Candidates needed to show an understanding of how the natural factors (aspect, altitude, latitude, etc.), combined with vineyard management can be used to manipulate sunlight exposure in a way that enhances grape quality, which also needed to be clearly defined."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Focus on grapes and grape quality, not vine health or wine styles",
+        "quote": "The question referred to grape quality. Many essays focused not on grapes but either vine health, or, more commonly, wine styles.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of how natural factors (aspect, altitude, latitude, etc.) combined with vineyard management can be used to manipulate sunlight exposure to enhance grape quality",
+        "quote": "Candidates needed to show an understanding of how the natural factors (aspect, altitude, latitude, etc.), combined with vineyard management can be used to manipulate sunlight exposure in a way that enhances grape quality, which also needed to be clearly defined.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss grape components (sugar, tannin, acidity, anthocyanins, flavour and aroma precursors and aroma compounds) and link their balance to grape quality",
+        "quote": "The components of the grape, in particular sugar, tannin, acidity, anthocyanins, flavour and aroma precursors and aroma compounds needed to be discussed, and the balance of these elements linked to grape quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider photosynthesis, factors that reduce sunlight (pests, nutrition, etc.), effects of too much sunlight (sunburn, over ripeness), timing during the growing season, canopy management, row spacing and orientation, trellising, and link options/scenarios back to grape quality",
+        "quote": "Photosynthesis, vineyard issues that can reduce sunlight (pests, nutrition, etc.), too much sunlight (sunburn, over ripeness), timing during the growing season (vigour, future yields), canopy management, row spacing and orientation, trellising, etc. all needed to be considered, options and scenarios presented and clearly linked back to grape quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Delve deep into the link between sunlight and quality rather than give a top-level regurgitation of a viticulture textbook",
+        "quote": "It proved to be a good test of which candidates could delve deep into showing an understanding of the link between sunlight and quality and those who could only give a very top level, basic regurgitation of a viticulture textbook without much insight.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Focused on vine health or wine styles rather than grape quality",
+        "quote": "Many essays focused not on grapes but either vine health, or, more commonly, wine styles."
+      },
+      {
+        "signal": "Gave only a very top level, basic regurgitation of a viticulture textbook without much insight",
+        "quote": "those who could only give a very top level, basic regurgitation of a viticulture textbook without much insight."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering about vine health or wine styles instead of grape quality",
+        "quote": "The question referred to grape quality. Many essays focused not on grapes but either vine health, or, more commonly, wine styles."
+      }
+    ],
+    "performance_note": "Nearly a third of candidates were successful in this question.",
+    "extraction_notes": ""
+  }
+]

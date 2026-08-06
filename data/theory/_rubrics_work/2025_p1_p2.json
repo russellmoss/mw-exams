@@ -1,0 +1,812 @@
+[
+  {
+    "id": "th_2025_p1_q1",
+    "year": 2025,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "How effectively can vineyard pests and diseases be controlled without using agrochemicals?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "effectively",
+    "command_word_demand": "The word \"effectively\" signalled a requirement for analysis, weighing up the complex re al - life difficulties and practical challenges for grape growers looking to control pests and diseases without using agrochemicals.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Weigh up the real-life difficulties and practical challenges of controlling pests and diseases without agrochemicals, rather than just describing methods",
+        "quote": "The word \"effectively\" signalled a requirement for analysis, weighing up the complex re al - life difficulties and practical challenges for grape growers looking to control pests and diseases without using agrochemicals.",
+        "weight": "core"
+      },
+      {
+        "element": "Keep focus on specific pest and disease controls rather than drifting into a general organic/biodynamic philosophy discussion",
+        "quote": "Other candidates had the ir focus drift off to a more philosophical discussion on organic/biodynamic viticulture, its costs, quality of grapes and wines, etc. without focusing on specific pest and disease controls.",
+        "weight": "core"
+      },
+      {
+        "element": "Conclude with a judgement on how effective each control option actually was",
+        "quote": "The strongest papers focused on the practical challenges of foregoing agrochemicals while showing a solid understanding of pests and diseases and concluding how effective each control option was.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strongest papers combined solid pest/disease knowledge with practical challenges of foregoing agrochemicals and a conclusion on effectiveness",
+        "quote": "The strongest papers focused on the practical challenges of foregoing agrochemicals while showing a solid understanding of pests and diseases and concluding how effective each control option was."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Overly descriptive answers that just listed examples of what people are doing without analysis",
+        "quote": "A lot of answers to this question were overly descriptive, just giving a list of examples of what people are doing without showing the necessary analysis."
+      },
+      {
+        "signal": "Disproportionate emphasis on protection from animal pests, at the expense of the key areas where growers typically rely on agrochemicals",
+        "quote": "While it was acceptable to include thoughts on protection from animal pests, some candidates allocated a disproportionate amount of emphasis here, taking away from the key areas where growers have typically relied on agrochemicals."
+      },
+      {
+        "signal": "Misunderstanding that agrochemicals permitted in organic viticulture, such as Bordeaux mixture, are a non-agrochemical option",
+        "quote": "There also seemed to be some misunderstanding around agrochemicals that are allowed in organic viticulture such as Bordeaux mixture. These were often referred to as a non - agrochemical option."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as \"how can pests and diseases be controlled without using agrochemicals\", missing the word \"effectively\" and its demand for analysis",
+        "quote": "Many students seemed to read the question as \"how can pests and diseases be controlled without using agrochemicals\", missing the word \"effectively\"."
+      }
+    ],
+    "performance_note": "This was by far the more popular of the section A questions, chosen by over 90% of candidates. There were mixed results.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p1_q2",
+    "year": 2025,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "\"Bacterial and phytoplasma diseases are the greatest threats to vine health today.\" Discuss.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "thin",
+    "command_word": "Discuss",
+    "command_word_demand": "The question wasn't asking \"write all you know about bacterial and phytoplasma diseases\" but required candidates to look at the key ones, comparing and contrasting the level of threat to vine health versus other threats (such as mildew, etc.).",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Compare and contrast the level of threat posed by bacterial/phytoplasma diseases against other threats to vine health (e.g. mildew), rather than simply cataloguing bacterial and phytoplasma diseases",
+        "quote": "The question wasn't asking \"write all you know about bacterial and phytoplasma diseases\" but required candidates to look at the key ones, comparing and contrasting the level of threat to vine health versus other threats (such as mildew, etc.).",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as an invitation to write all you know about bacterial and phytoplasma diseases, rather than a comparative assessment of threat level",
+        "quote": "The question wasn't asking \"write all you know about bacterial and phytoplasma diseases\" but required candidates to look at the key ones, comparing and contrasting the level of threat to vine health versus other threats (such as mildew, etc.)."
+      }
+    ],
+    "performance_note": "This was not a popular question with only four candidates attempting it.",
+    "extraction_notes": "Very thin commentary - only one substantive sentence, consistent with the low attempt rate (four candidates). A grader should weight this rubric lightly."
+  },
+  {
+    "id": "th_2025_p1_q3",
+    "year": 2025,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "How can artificial intelligence ('AI') be used in viticulture to improve the quality of wine grapes?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How can",
+    "command_word_demand": "The less successful candidates spent a lot of time looking at how AI was used in other industries or just being overly big picture without offering specific links to grape growing and grape quality.",
+    "definitions_required": [
+      {
+        "term": "grape quality",
+        "quote": "Many failed even to define grape quality in the first place."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define grape quality and link AI applications back to specific, defined wine quality parameters",
+        "quote": "The best candidates showed some creative and interesting ways that AI is - and can be - used, linking back to specific wine quality parameters they had defined as important measures of grape quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Give creative, specific AI applications tied to grape growing rather than generic or other-industry AI discussion",
+        "quote": "The less successful candidates spent a lot of time looking at how AI was used in other industries or just being overly big picture without offering specific links to grape growing and grape quality.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Using data to give growers accurate and speedy information for more precise vineyard decisions and improved sustainability",
+        "quote": "The key areas of using data to get accurate and speedy information to growers to allow them to make more precise vineyard decisions and improve sustainability, was well answered in many essays."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Time spent on AI use in other industries or overly big-picture discussion without specific links to grape growing/quality",
+        "quote": "The less successful candidates spent a lot of time looking at how AI was used in other industries or just being overly big picture without offering specific links to grape growing and grape quality."
+      },
+      {
+        "signal": "Failure to define grape quality at all",
+        "quote": "Many failed even to define grape quality in the first place."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "There was a relatively good pass rate in this question, although the answers were quite mixed.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p1_q4",
+    "year": 2025,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "To what extent does soil management affect the quality of wine grapes?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "The best papers showed knowledge of different soil management options, looked at \"to what extent\" they had an effect and linked to specific, pre - defined elements of grape quality.",
+    "definitions_required": [
+      {
+        "term": "quality of wine grapes",
+        "quote": "Defining and linking to quality of wine grapes had to be specific, getting down to details on how different management techniques might affect sugars, acid, tannin, flavour concentration, balance, complexity, yield, etc. Many students simply referred to \"b etter quality\" without any detail."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Answer the second part of the question by linking soil management knowledge specifically to grape quality parameters (sugars, acid, tannin, flavour concentration, balance, complexity, yield), not just describing soil management options",
+        "quote": "many candidates took the opportuni ty to show considerable knowledge about options for soil management but failed to answer the second part of the question linking to quality.",
+        "weight": "core"
+      },
+      {
+        "element": "Address \"to what extent\" by weighing the degree of effect and acknowledging there is no single recipe, considering different scenarios",
+        "quote": "The most concise answers also addressed how there is no recipe and considere d different scenarios where differing management techniques were best suited.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address large-volume producers' issues, not just small high-quality producers",
+        "quote": "As is often the case, candidates tended to focus on small, high - quality producers without addressing large volume producer's issues, an important consideration to make for a more thorough paper.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best papers showed knowledge of soil management options, addressed \"to what extent\" they had an effect, and linked to specific, pre-defined elements of grape quality",
+        "quote": "The best papers showed knowledge of different soil management options, looked at \"to what extent\" they had an effect and linked to specific, pre - defined elements of grape quality."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Vague references to \"better quality\" without any detail",
+        "quote": "Many students simply referred to \"b etter quality\" without any detail."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "This was a straightforward question that allowed students to show their theory knowledge while also affording the opportunity for some critical thinking, by linking the knowledge back to wine grape quality.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p1_q5",
+    "year": 2025,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "How do changing rainfall and wind patterns affect viticulture?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How do",
+    "command_word_demand": "The non - intentional trap some candidates stumbled into here, was to just see a general climate change question, and as a result wrote a generic essay that did not address in detail the specific aspects of changing rainfall and wind patterns.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Address the specific aspects of changing rainfall and wind patterns in detail rather than writing a generic climate-change essay",
+        "quote": "The non - intentional trap some candidates stumbled into here, was to just see a general climate change question, and as a result wrote a generic essay that did not address in detail the specific aspects of changing rainfall and wind patterns.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider both negative and potentially beneficial sides of changing rainfall and wind patterns, supported by global examples",
+        "quote": "The better papers were able to give examples of how rainfall and wind patterns were changing, seeing both negative and potentially beneficial sides and supporting their analysis with the many possible global examples from recent years.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address timing of events, severity, impacts from flowering through to harvest, and trellis/equipment concerns",
+        "quote": "Timing of events, se verity, and addressing impacts from flowering through to harvest as well as trellis and equipment concerns proved the most thorough answers.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Better papers gave examples of how rainfall and wind patterns were changing, considered both negative and beneficial sides, and used global examples from recent years",
+        "quote": "The better papers were able to give examples of how rainfall and wind patterns were changing, seeing both negative and potentially beneficial sides and supporting their analysis with the many possible global examples from recent years."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Weaker answers were quite descriptive without linking back to how the changing patterns affect viticulture",
+        "quote": "The weaker ones were quite descriptive without linking back to how the changing patterns affect viticulture."
+      },
+      {
+        "signal": "Examples were lacking in many cases, without enough global perspective",
+        "quote": "Examples were lacking in many cases with not enough of a global pers pective."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global examples of changing rainfall and wind patterns from recent years, not a narrow/single-region perspective",
+      "named_in_report": [],
+      "quote": "Examples were lacking in many cases with not enough of a global pers pective."
+    },
+    "scope_traps": [
+      {
+        "trap": "Seeing this as a general climate-change question rather than one specifically about rainfall and wind patterns",
+        "quote": "The non - intentional trap some candidates stumbled into here, was to just see a general climate change question, and as a result wrote a generic essay that did not address in detail the specific aspects of changing rainfall and wind patterns."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p1_q6",
+    "year": 2025,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "To what extent can rootstocks be used to mitigate the effects of climate change?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "It was also important to consider the \"to what extent\" practicalities of changing a rootstock, the cost of no fruit while the vine establishes and the gamble on guessing what the vineyard conditions will be like over the next 30 years.",
+    "definitions_required": [
+      {
+        "term": "effects of climate change",
+        "quote": "First, candidates had to look at defining the effects of climate change and then make specific connection with different rootstocks across these different scenarios, identifying how they can help to mitigate the often - unpredictable changes."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define the effects of climate change and make specific connections with different rootstocks, identifying how they help mitigate each effect",
+        "quote": "First, candidates had to look at defining the effects of climate change and then make specific connection with different rootstocks across these different scenarios, identifying how they can help to mitigate the often - unpredictable changes.",
+        "weight": "core"
+      },
+      {
+        "element": "Weigh the \"to what extent\" practicalities of changing a rootstock - the cost of no fruit during establishment and the gamble of predicting vineyard conditions decades ahead",
+        "quote": "It was also important to consider the \"to what extent\" practicalities of changing a rootstock, the cost of no fruit while the vine establishes and the gamble on guessing what the vineyard conditions will be like over the next 30 years.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider whether a rootstock is needed at all and address practical implications with examples from different scenarios",
+        "quote": "The better papers had excellent examples from different scenarios, considered things like whether you need a rootstock at all and looked at many practical implications.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Better papers had excellent examples from different scenarios and considered whether a rootstock was needed at all, plus practical implications",
+        "quote": "The better papers had excellent examples from different scenarios, considered things like whether you need a rootstock at all and looked at many practical implications."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Weaker papers gave a descriptive list of rootstocks and their characteristics, sometimes with producer examples, without addressing how they mitigate climate-change effects",
+        "quote": "Weaker papers often just focused on a descriptive list of rootstocks, their characteristics and sometimes a few examples of what certain producers are using, but without looking at how they could mitigate the effects of climate change."
+      },
+      {
+        "signal": "Overly limited view of climate-change effects as just hotter and drier, ignoring frost, flood, and changing pest and disease pressures",
+        "quote": "Others had an overly limited view of climate change effects as just hotter and drier, ignoring aspects such as frost, flood, changing pest and disease pressures, etc."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Excellent examples from different scenarios linked to practical implications of rootstock choice",
+      "named_in_report": [],
+      "quote": "The better papers had excellent examples from different scenarios, considered things like whether you need a rootstock at all and looked at many practical implications."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p2_q1",
+    "year": 2025,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Critically assess the key techniques a winemaker can use to enhance complexity and texture in bottle-fermented sparkling wines.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Critically assess",
+    "command_word_demand": "This question challenged candidates to demonstrate a thorough understanding of how winemakers intentionally create complexity and texture in bottle - fermented sparkling wines, requiring an evaluation of chemical, microbiological, and physical mechanisms thr oughout the production process.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Evaluate the chemical, microbiological, and physical mechanisms behind complexity and texture throughout the whole production process, not just list techniques",
+        "quote": "requiring an evaluation of chemical, microbiological, and physical mechanisms thr oughout the production process.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss mousse specifically - how fine bubbles soften perceived acidity, create creamy mid-palate weight, and support length and persistence",
+        "quote": "Most surprisingly, numerous candidates failed to mention mousse at all - specifically how fine bubbles soften perceived acidity, create creamy mid - palate weight, and support length and persistence. This represents a fundamental oversight in understanding the textural qualities of bottle - fermented wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Treat malolactic conversion as a stylistic tool rather than simply stating it as fact, and emphasise blending and reserve wines as methods to create depth and consistency",
+        "quote": "They treated malolactic conversion as a stylistic tool rather than simply stating it as fact, consistently emphasising the importance of blending and reserve wines as methods to create depth and consistency across different cuvées.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Evaluate the effects of tirage composition, yeast selection, and fermentation temperature on mousse quality and autolysis, connecting extended lees ageing to the release of mannoproteins, lipids, and amino acids",
+        "quote": "better candidates evaluated the effects of tirage composition, yeast selection, and fermentation temperature on mousse quality and autolysis, effectively connecting extended lees ageing with the release of mannoproteins, lipids, and amino acid s on texture and aromatic development.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Evaluate dosage with nuance - its role in balancing acidity and in adding aromatic complexity through liqueur composition and integration time",
+        "quote": "Dosage was evaluated with nuance, recognising its role not only in balancing acidity but also in adding aromatic complexity through liqueur composition and integration time.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Demonstrate a global regional perspective beyond Champagne",
+        "quote": "The regional scope proved limited in many responses, with answers relying too heavily on Champagne exampl es, missing opportunities to demonstrate a global perspective through references to Cava, Franciacorta, or traditional method wines from the New World.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strongest scripts followed clear chronological structures from base wine considerations through pressing regimes (cuvée vs taille), must handling (débourbage), fermentation choices, MLF, blending/reserve wines, second fermentation and dosage",
+        "quote": "The strongest scripts followed clear chronological structures, beginning with base wine considerations, including grape variety and harvest decisions, pressing regimes that distinguished between cuvée and taille fractions, and must handling techniques such as débourbage."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Several candidates overlooked crucial stages such as base wine production, focusing disproportionately on oak influence, reserve wines, or dosage",
+        "quote": "Several candidates overlooked crucial stages, such as base wine production, and focused disproportionately on oak influence, reserve wines, or dosage."
+      },
+      {
+        "signal": "Numerous candidates failed to mention mousse at all",
+        "quote": "Most surprisingly, numerous candidates failed to mention mousse at all - specifically how fine bubbles soften perceived acidity, create creamy mid - palate weight, and support length and persistence. This represents a fundamental oversight in understanding the textural qualities of bottle - fermented wines."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Global regional scope beyond Champagne",
+      "named_in_report": [
+        "Cava",
+        "Franciacorta"
+      ],
+      "quote": "The regional scope proved limited in many responses, with answers relying too heavily on Champagne exampl es, missing opportunities to demonstrate a global perspective through references to Cava, Franciacorta, or traditional method wines from the New World."
+    },
+    "scope_traps": [],
+    "performance_note": "Question one on bottle-fermented sparkling wine received many pass-level and several excellent responses, demonstrating both technical accuracy and a broad understanding.",
+    "extraction_notes": "Performance note drawn from the paper preamble (Paper Chair general comments), since it names this question specifically."
+  },
+  {
+    "id": "th_2025_p2_q2",
+    "year": 2025,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Evaluate the different winemaking techniques that can enhance a wine's potential for extended bottle ageing.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "This question required candidates to critically examine how specific winemaking and maturation decisions influence a wine's long - term stability and capacity to evolve positively in bottle. … The question required technical explanations of mechanisms, not merely a listing of practices.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Give technical explanations of mechanisms, not merely a listing of practices",
+        "quote": "The question required technical explanations of mechanisms, not merely a listing of practices.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover diverse wine styles - sparkling, sweet, and fortified wines - not just red and white",
+        "quote": "Coverage of wine styles proved uneven, with many restricting themselves to red and white wines, ignoring sparkling, sweet, or fortified categories. This narrow focus severely limited their ability to demonstrate a comprehensive understanding across different wine types.",
+        "weight": "core"
+      },
+      {
+        "element": "Connect low pH (typically ≤3.4) to microbial stability, colour retention, and SO2 efficacy",
+        "quote": "the critical role of low pH (typically ≤3.4) for microbial stability, colour retention and SO₂ efficacy",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Illustrate longevity principles with classic high-acid, long-lived benchmark examples",
+        "quote": "Classic high - acid, long - lived styles like German Riesling, Loire Chenin Blanc or Hunter Semillon were seldom mentioned.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Phenolic management well understood for reds (cold soak, extended maceration, cap management); protective handling and controlled hyper-oxidation addressed effectively for whites",
+        "quote": "Phenolic management was generally well - understood, particularly for red wines, with candidates discussing extraction through cold soak, extended maceration, and cap management. For whites, both protective handling and controlled hyper - oxidation approaches were addressed effectively."
+      },
+      {
+        "signal": "Best answers explored oxygen strategies, benefits of lees ageing, impacts of vessel selection, and strategic blending decisions using benchmark examples",
+        "quote": "The best answers explored oxygen strategies, the benefits of lees ageing, the impacts of vessel selection, and strategic blending decisions using benchmark examples."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Acidity and pH control were surprisingly poorly covered; many failed to connect low pH with microbial stability, colour retention, and SO2 efficacy",
+        "quote": "However, acidity and pH control were surprisingly poorly covered. Many candidates failed to connect low pH with improved microbial stability, colour retention, and SO₂ efficacy."
+      },
+      {
+        "signal": "Lists without explaining underlying mechanisms, e.g. stating \"MLF can increase ageability\" without explaining how",
+        "quote": "Technical depth was often lacking, with essays providing lists without explaining the underlying mechanisms - stating, for example, that \"MLF can increase ageability\" without explaining how."
+      },
+      {
+        "signal": "Hygiene and microbial stability received minimal attention despite their fundamental importance",
+        "quote": "Hygiene and microbial stability received minimal attention despite their fundamental importance."
+      },
+      {
+        "signal": "Examples frequently came from fringe regions rather than established benchmarks; supplementary techniques (antioxidants, chelating agents, closure implications) rarely referenced",
+        "quote": "Examples frequently came from fringe regions rather than established benchmarks, while references to supplementary techniques, such as antioxidants, chelating agents, or closure implications, were rare."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Established international benchmark examples across diverse wine styles, not fringe regions",
+      "named_in_report": [
+        "German Riesling",
+        "Loire Chenin Blanc",
+        "Hunter Semillon"
+      ],
+      "quote": "Examples frequently came from fringe regions rather than established benchmarks … Classic high - acid, long - lived styles like German Riesling, Loire Chenin Blanc or Hunter Semillon were seldom mentioned."
+    },
+    "scope_traps": [],
+    "performance_note": "With a higher - than - average pass rate, this effectively differentiated between those candidates with genuine technical understanding and those attempting to list memorised information without critical evaluation.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p2_q3",
+    "year": 2025,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Examine the roles of bacteria in winemaking. How can bacteria be managed to achieve desired outcomes?",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Examine / How can... be managed",
+    "command_word_demand": "This question tested candidates' technical and practical understanding of bacteria's diverse roles in winemaking. A solid answer needed to demonstrate knowledge of beneficial bacteria - particularly Oenococcus oeni's role in malolactic fermentation - and spoil age organisms, including Lactobacillus, Pediococcus, Acetobacter, and Gluconobacter.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Explain specific metabolic pathways: O. oeni converting malic to lactic acid; Lactobacillus/Pediococcus producing biogenic amines and off-flavours; acetic acid bacteria creating volatile acidity and ethyl acetate under aerobic conditions",
+        "quote": "Candidates were expected to explain specific metabolic pathways: how O. oeni converts malic to lactic acid, affecting pH and wine stability; how Lactobacillus and Pediococcus produce biogenic amines and off - flavours; and how acetic acid bacteria create vol atile acidity and ethyl acetate under aerobic conditions.",
+        "weight": "core"
+      },
+      {
+        "element": "Give precise management parameters (pH 3.2-3.5 for MLF, molecular SO2 below 0.5 mg/L, temperatures 18-22°C) alongside practical approaches (inoculation timing, oxygen exclusion, hygiene protocols)",
+        "quote": "Management strategies should have included precise parameters - pH ranges of 3.2 - 3.5 for MLF, molecular SO₂ below 0.5 mg/L, temperatures of 18 - 22 ° C - alongside practical approaches like inoculation timi ng, oxygen exclusion and hygiene protocols.",
+        "weight": "core"
+      },
+      {
+        "element": "Evaluate how bacterial management varies by wine style (encouraging MLF in most reds vs suppression in aromatic whites), weighing trade-offs between predictability and terroir expression",
+        "quote": "The question demanded evaluation of how bacterial management varies with wine style, from encouraging MLF in most reds to suppression in aromatic whites, with consideration of trade - offs between predictability an d terroir expression.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Support the answer with style-specific practical examples",
+        "quote": "The few candidates showing mastery covered the topic's breadth with accurate parameters while demonstrating practical understanding through relevant examples - full MLF in Syrah, partial MLF in Chablis, suppression in Riesling, higher VA acceptance in Port.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Few candidates showed mastery: covered the topic's breadth with accurate parameters, relevant style-specific examples, explained metabolic pathways, outlined management strategies, and critically assessed trade-offs",
+        "quote": "They explained metabolic pathways, outlined comprehensive management strategies, and critically assessed trade - offs."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Most alarming issue: confusion between Brettanomyces (a type of yeast) and bacteria",
+        "quote": "The most alarming issue was confusion between Brettanomyces (a type of yeast) and bacteria."
+      },
+      {
+        "signal": "Vague assertions such as \"MLF reduces acidity\" without explaining conversion chemistry",
+        "quote": "Vague assertions such as: \"MLF reduces acidity\", appeared without explaining conversion chemistry."
+      },
+      {
+        "signal": "Understanding of spoilage bacteria was weakest - VA, biogenic amines, mouse taint, ropiness listed without explanation, with critical details on oxygen exclusion, molecular SO2 and pH thresholds largely absent",
+        "quote": "Understanding spoilage bacteria proved weakest - volatile acidity, biogenic amines, mouse taint or ropiness were listed without explanation with most candidates limiting discussion to clean fruit and cellar hygiene whilst critical deta ils - oxygen exclusion through inert gas blanketing, topped barrels, molecular SO₂ maintenance based on pH, and recognition that these aerobic organisms thrive with oxygen exposure and pH above 3.5 - were largely absent."
+      },
+      {
+        "signal": "The concept that pH below 3.2 inhibits bacteria while above 3.5 increases spoilage was rarely clear",
+        "quote": "In fact, the concept that pH below 3.2 inhibits bacteria while above 3.5 increases spoilage was rarely clear."
+      },
+      {
+        "signal": "Advanced techniques such as lysozyme, alternative bacteria like Lactobacillus plantarum, or DMDC were notably missing",
+        "quote": "Advanced techniques, such as lysozyme or alternative bacteria like Lactobacillus plantarum, or DMDC, were notably missing."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Style-specific practical examples of encouraging/suppressing bacterial activity",
+      "named_in_report": [
+        "Syrah",
+        "Chablis",
+        "Riesling",
+        "Port"
+      ],
+      "quote": "The few candidates showing mastery covered the topic's breadth with accurate parameters while demonstrating practical understanding through relevant examples - full MLF in Syrah, partial MLF in Chablis, suppression in Riesling, higher VA acceptance in Port."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p2_q4",
+    "year": 2025,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Evaluate prevention and correction strategies for each of the following issues:\n\na. 0.9g/L volatile acidity in a Chablis wine (pH3.2, 12.5% ABV) intended for lees ageing;\nb. Strong reductive aromas post-malolactic fermentation in a premium Barossa Shiraz (pH 3.8, 15% ABV) destined for 24-month oak ageing;\nc. 180mg/L total sulphur dioxide in a Bordeaux blend (pH 3.6, 13.5% ABV) pre-bottling.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "This three - part question assessed candidates' ability to critically evaluate both preventative and corrective winemaking strategies for distinct compositional and sensory faults.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "For the Chablis scenario, explain why 0.9 g/L VA was problematic - exceeding the 0.7 g/L sensory threshold and compromising Chablis's stylistic requirement for freshness and precision",
+        "quote": "the stronger candidates explained why 0.9 g/L volatile acidity was problematic, as it exceeded the 0.7 g/L sensory threshold, thereby compromising Chablis's stylistic requirements for freshness and precision.",
+        "weight": "core"
+      },
+      {
+        "element": "Give correct, style-appropriate prevention (clean fruit, sanitation with oxygen exclusion, yeast health via nutrients/temperature control, SO2 regime of 25-30 mg/L free SO2 at pH 3.2) and correction strategies (blending with low-VA Chablis, reverse osmosis, curtailing lees ageing, sterile filtration) for the VA scenario",
+        "quote": "Successful prevention strategies included using clean fruit to limit microbial loading, strict sanitation with oxygen exclusion, maintaining yeast health through adequate nutrients and temperature control, and implementing appropriate SO₂ regimes at 25 - 30 mg/L free SO₂ for a pH of 3.2. Correction proposals included blending with low - VA Chablis, reverse osmosis despite flavour loss risks, curtailing lees ageing if instability persisted, and sterile filtration for active spoilage organisms.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "For the Shiraz scenario, link high pH to reduced SO2 efficacy and reductive aromas to oxygen limitation, and recognise microbial stability risk at 15% ABV if not addressed before extended oak ageing",
+        "quote": "better answers linked high pH to reduced SO₂ efficacy, reductive aromas to oxygen limitation and that at elevated alcohol (15%), microbial stability may still be compromised, all of which can become persistent if not addressed before extended oak ageing.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Recognise the Barossa context clue about open-top fermenters for reducing reduction",
+        "quote": "Many candidates missed the Barossa context clue about open - top fermenters f or reducing reduction.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "For the Bordeaux scenario, identify that 180 mg/L exceeds the EU red-wine total SO2 limit (150 mg/L), making the wine unsaleable in that market",
+        "quote": "Strong candidates identified that 180 mg/L exceeded the EU red wine limits (150 mg/L), making it unsaleable in that market.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Muddled reasoning: discussing producers without VA issues when asked to address high VA, suggesting reliance on memorised examples rather than applied technical knowledge",
+        "quote": "However, some cand idates showed muddled reasoning, discussing producers without VA issues when asked to address high VA, suggesting reliance on memorised examples rather than applied technical knowledge."
+      },
+      {
+        "signal": "Weaker scripts on the Shiraz scenario confused reduction with oxidation, offered vague solutions, or failed to recognise the importance of early intervention before oak ageing entrenches faults",
+        "quote": "Weaker scripts confused reduction with oxidation, offered vague solutions, or failed to recognise the importance of early intervention before oak ageing entrenches faults."
+      },
+      {
+        "signal": "The Bordeaux scenario was the least well answered, revealing gaps in understanding regulatory frameworks and SO2 correction strategies",
+        "quote": "The Bordeaux scenario was least well answered, revealing gaps in understanding regulatory frameworks and SO₂ correction strategies."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Producer/example references must actually be relevant to the specific fault under discussion, not generic or memorised",
+      "named_in_report": [],
+      "quote": "However, some cand idates showed muddled reasoning, discussing producers without VA issues when asked to address high VA, suggesting reliance on memorised examples rather than applied technical knowledge."
+    },
+    "scope_traps": [],
+    "performance_note": "Only eight candidates attempted it, achieving a 50% pass rate. While initially appearing highly technical, the question proved to be more straightforward than expected, with specific guidance provided for the required solutions.",
+    "extraction_notes": "This is a three-part scenario question; required_elements are attributed to the specific sub-part (a/b/c) named in each element's description."
+  },
+  {
+    "id": "th_2025_p2_q5",
+    "year": 2025,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Considering a diversity of wine styles, critically evaluate the importance of blending to achieve consistency.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "critically evaluate",
+    "command_word_demand": "The critical requirement was eva luating blending's importance to consistency, not merely listing practices.",
+    "definitions_required": [
+      {
+        "term": "blending",
+        "quote": "Answers needed to define blending as the combination of wine components in creating a target profile and stylistic consistency as the reproduction of sensory, structural, and quality attributes across bottlings or vintages."
+      },
+      {
+        "term": "stylistic consistency",
+        "quote": "Answers needed to define blending as the combination of wine components in creating a target profile and stylistic consistency as the reproduction of sensory, structural, and quality attributes across bottlings or vintages."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define blending and stylistic consistency at the outset; failure to do so left essays unfocused",
+        "quote": "The failure to define key terms suggested inadequate planning, leaving essays unfocused and rambling.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate how blending operates at multiple stages (pre-fermentation, co-fermentation, pre-bottling adjustments) across at least three wine styles",
+        "quote": "Candidates were expected to demonstrate how blending operates at multiple stages - from pre - fermentation, co - fermentation through to pre - bottling adjustments - across at least three wine styles.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover sparkling and fortified wines specifically - the categories where blending most obviously ensures consistency (reserve wines / solera systems)",
+        "quote": "Some omitted sparkling or fortified wines - the categories where blending most obviously ensures consistency. … Many overlooked the solera system, arguably the most important blending mechanism for 10 consistency,",
+        "weight": "core"
+      },
+      {
+        "element": "Critically evaluate trade-offs - blending is often more acute in high-volume commercial wines than in premium single-vineyard examples, and assess when consistency might compromise terroir expression",
+        "quote": "The question demanded critical evaluation of trade - offs, recognising that blending is often more acute in high - volume commercial wines than premium single - vineyard examples, and assessing when consistency might compromise terroir expression.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss practical mechanics of blending: across vessels, blending trials to correct acidity/alcohol imbalances, and the logistics of maintaining reserve wine stocks",
+        "quote": "Only the best candidates discussed practical aspects, such as blending wines from different vessels, using blending trials to correct imbalances in acidity or alcohol , or the logistics of maintaining reserve wine stocks.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best candidates understood how blending supports specific stylistic goals, evaluating when it's essential versus optional, and recognised the commercial imperatives driving consistency in large-scale production",
+        "quote": "These candidates understood how blending supports specific stylistic goals, evaluating when it's essential versus optional and recognising the commercial imperatives driving consistency in large - scale production."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Many candidates drifted into descriptive accounts without critically evaluating the importance of blending to consistency",
+        "quote": "Many candidates drifted into descriptive accounts without critically evaluating the importance of blending to consistency."
+      },
+      {
+        "signal": "Examples were sometimes superficial - e.g. \"Moet uses 100+ base wines\" without explaining why this matters for consistency; Mateus rose cited extensively without substantive discussion",
+        "quote": "Examples were sometimes superficial, with statements like \"Moët uses 100+ base wines\" appearing without explaining why this matters for maintaining consistency across vintages or how reserve wines function as a stylistic anchor. Mateus rosé was cited exten sively without substantive discussion of the commercial requirements for rosé production."
+      },
+      {
+        "signal": "Blending's role in managing vintage variation in climatically variable regions like Champagne or Bordeaux was underexplored",
+        "quote": "while blending's role in managing vintage variation in climatically variable regions like Champagne or Bordeaux was underexplored."
+      },
+      {
+        "signal": "Most essays remained descriptive, failing to distinguish between blending as a corrective tool versus a proactive stylistic choice",
+        "quote": "Most essays remained descriptive, failing to distinguish between blending as a corrective tool versus a proactive stylistic choice."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must be explained for why they matter to consistency, not name-dropped",
+      "named_in_report": [
+        "Moët",
+        "Mateus rosé",
+        "Champagne",
+        "Bordeaux"
+      ],
+      "quote": "Examples were sometimes superficial, with statements like \"Moët uses 100+ base wines\" appearing without explaining why this matters for maintaining consistency across vintages or how reserve wines function as a stylistic anchor. Mateus rosé was cited exten sively without substantive discussion of the commercial requirements for rosé production."
+    },
+    "scope_traps": [],
+    "performance_note": "This was the most poorly answered question on the paper.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2025_p2_q6",
+    "year": 2025,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Assess how pH influences winemaking decisions at key stages from grape to finished wine.",
+    "source_report": "Theory-Examiners-Report-2025.pdf",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "This question tested candidates' ability to apply detailed chemical knowledge of pH across the winemaking process.",
+    "definitions_required": [
+      {
+        "term": "pH",
+        "quote": "Strong answers needed to define pH as the logarithmic measure of hydrogen ion concentration, cite typical ranges (2.9 - 3.1 for sparkling, 3.1 - 3.4 for whites, 3.3 - 3.8 for reds), and systematically evaluate how pH drives decisions at each stage."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define pH and cite typical style ranges (2.9-3.1 sparkling, 3.1-3.4 whites, 3.3-3.8 reds)",
+        "quote": "Strong answers needed to define pH as the logarithmic measure of hydrogen ion concentration, cite typical ranges (2.9 - 3.1 for sparkling, 3.1 - 3.4 for whites, 3.3 - 3.8 for reds), and systematically evaluate how pH drives decisions at each stage.",
+        "weight": "core"
+      },
+      {
+        "element": "Systematically cover pH's influence at each stage: juice handling (microbial/oxidative stability), fermentation (yeast health, competing organisms), MLF facilitation/suppression, maturation (SO2 efficacy), and pre-bottling adjustments (filtration requirements)",
+        "quote": "Candidates were expected to explain pH's influence on: microbial and oxidative stability during juice handling; yeast health and competing organisms during fermentation; MLF facilitation or suppression; SO₂ efficacy during maturation; and pre - bottling adjustments including filtration requirements.",
+        "weight": "core"
+      },
+      {
+        "element": "Use specific parameters rather than vague references to \"high\" or \"low\" pH, with examples illustrating how pH considerations vary across wine styles",
+        "quote": "The question required specific parameters - not vague references to \"high\" or \"low\" pH - with examples illustrating how pH considerations vary across different wine styles.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain the mechanism that lower pH increases the proportion of molecular SO2, the antimicrobial form, rather than just asserting pH affects microbial stability",
+        "quote": "Weaker answers relied on statements like \"pH affects microbial stability\" without explaining the mechanism - that lower pH increases the proportion of molecular SO₂ , the antimicrobial form.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address pH's role in fining efficacy/stability management, colour stability (anthocyanin), and protein/tartrate stability relationships",
+        "quote": "Very few candidates considered the influence of pH on fining efficacy or stability management. Colour stability received minimal attention despite pH's critical role in anthocyanin stability. While cold stabil isation was covered by half the candidates, protein and tartrate stability relationships with pH were frequently overlooked.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strong candidates systematically covered key stages from whole bunch pressing/early acidification through to final SO2 calculations pre-bottling, and explained how lower pH supports clean fermentation while higher pH reduces SO2 efficacy",
+        "quote": "Strong candidates systematically covered key stages, explaining how pH affects decisions from whole bunch pressing and early acidification during juice handling through to final SO₂ calculations pre - bottling. They demonstrated how a lower pH supports clean fermentation by suppressing competing microbes, while a higher pH reduces SO₂ efficacy and complicates microbial management."
+      },
+      {
+        "signal": "During MLF, recognised that higher pH encourages LAB activity but reduces stability, and that MLF itself raises pH further, discussing both encouragement (inoculation) and suppression (SO2/lysozyme) strategies",
+        "quote": "During MLF, they recognised that higher pH encourages LAB activity but reduces stability, with MLF itself raising pH further - dis cussing both encouragement strategies through inoculation and suppression through SO₂ or lysozyme."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Some candidates addressed only pH adjustment methods, missing the broader question of how pH influences decisions throughout winemaking",
+        "quote": "Some candidates addressed only pH adjustment methods, missing the broader question of how pH influences decisions throughout winema king."
+      },
+      {
+        "signal": "Others wasted time explaining differences between total acidity and pH rather than addressing key winemaking stages",
+        "quote": "Others wasted time explaining differences between total acidity and pH rather than addressing key winemaking stages."
+      },
+      {
+        "signal": "A surprising number focused solely on regional examples from their home markets, suggesting a limited global perspective insufficient at MW level",
+        "quote": "A surprising number focused solely on regional examples, presumably from their home markets, suggesting a limited global perspective that is insufficient at MW level."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples illustrating how pH considerations vary across different wine styles, not solely home-market regional examples",
+      "named_in_report": [],
+      "quote": "The question required specific parameters - not vague references to \"high\" or \"low\" pH - with examples illustrating how pH considerations vary across different wine styles."
+    },
+    "scope_traps": [],
+    "performance_note": "A large number of candidates, with varying degrees of success, answered this question.",
+    "extraction_notes": ""
+  }
+]
