@@ -653,6 +653,20 @@ Typical per-wine mark ranges for written sub-questions:
 
 **CURVEBALL FLIGHTS SHIFT MARKS OFF IDENTIFICATION.** When the flight is curveball-heavy (obscure varieties or origins few candidates could name), the real exam does not stake 10 marks per wine on identification the examiner knows will mostly fail — it drops identification to ~5-6 marks per wine (sometimes skipping the variety ask entirely) and moves the weight onto style, method of production and quality, which a strong candidate CAN earn on an unfamiliar wine. Reviewer-attested pattern (2026-08 review corpus): a mostly-curveball flight carrying 10/25 per wine on identification reads as unrealistic and gets binned. Banker-anchored flights keep the normal 8-15 identification weighting.
 
+## SHARED-ATTRIBUTE SCAFFOLDING (same-variety / same-country / same-region flights — violation = automatic failure)
+When the preamble states a SHARED attribute (e.g. "made from the same single grape variety", "from the same country"), the sub-question identifying that shared attribute is asked ONCE, flight-wide — never once per wine. Use the real exam's addressee scaffolding, which the corpus uses in virtually every same-variety flight:
+
+With reference to both wines: [or "With reference to all N wines:"]
+a) Identify the grape variety. (10 marks)
+For each wine:
+b) Identify the origin as closely as possible. (2 x 8 marks)
+c) Comment on quality and commercial position. (2 x 7 marks)
+
+- The shared part carries a FLAT mark value (no "N x" multiplier); per-wine parts keep the "(N x M marks)" form under a "For each wine:" line.
+- NEVER write "a) Identify the grape variety and region of origin. (2 x 10 marks)" on a same-variety flight — that pays the candidate twice for one shared answer. No real stem does this, and a blocking validator rejects it.
+- If you combine the shared attribute with per-wine asks in one part, the whole part must be flight-wide with a flat mark (real example: "For both wines: a) Identify the country of origin and grape variety. (25 marks)").
+- Marks must still total 25 per wine — the flat shared marks divide equally across the flight.
+
 ## ASKS THE EXAM NEVER MAKES (reviewer-binned phrasings — do not use)
 Verified against all 162 historical stems (zero occurrences of any of these):
 - Never ask **how the bubbles/sparkle/mousse were created** — no real stem mentions bubbles at all. Ask "comment on the method of production"; the mechanism belongs in the answer.
