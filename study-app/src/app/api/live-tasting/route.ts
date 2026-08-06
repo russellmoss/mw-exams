@@ -6,6 +6,7 @@ import { createLiveTasting, createByoPrep, BYO_FAMILIES } from "@/lib/live-tasti
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
+  liveTastingMarketCity,
 } from "@/lib/db";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
 
@@ -102,7 +103,7 @@ export async function POST(request: Request) {
       apiKey: keyResult.apiKey,
       paper,
       flightSize,
-      city: prefs.city!,
+      city: liveTastingMarketCity(prefs)!,
       country: prefs.country!,
       budgetAmount,
       budgetCurrency,

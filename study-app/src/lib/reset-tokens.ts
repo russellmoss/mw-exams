@@ -11,6 +11,9 @@ import { neon } from "@neondatabase/serverless";
 
 export const TOKEN_TTL_MINUTES = 60;
 
+/** Invitation links live longer than reset links — the recipient may not open mail for days. */
+export const INVITE_TTL_MINUTES = 7 * 24 * 60;
+
 /** Max reset requests per account per hour. Low: a real user needs one, maybe two. */
 export const MAX_PER_EMAIL_PER_HOUR = 3;
 /** Max per IP per hour, to blunt someone walking a list of addresses. */
@@ -78,7 +81,11 @@ export async function checkRateLimit(userId: number, ip: string | null): Promise
  * Any previously outstanding token for this user is burned, so the most recent email is the only
  * one that works.
  */
-export async function createResetToken(userId: number, ip: string | null): Promise<string> {
+export async function createResetToken(
+  userId: number,
+  ip: string | null,
+  ttlMinutes: number = TOKEN_TTL_MINUTES
+): Promise<string> {
   const sql = db();
   const token = generateToken();
   const tokenHash = hashToken(token);
@@ -93,7 +100,7 @@ export async function createResetToken(userId: number, ip: string | null): Promi
     VALUES (
       ${userId},
       ${tokenHash},
-      now() + (${TOKEN_TTL_MINUTES} * interval '1 minute'),
+      now() + (${ttlMinutes} * interval '1 minute'),
       ${ip}
     )
   `;
