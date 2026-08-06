@@ -21,7 +21,7 @@ export async function auditAndQuarantineQuestion(
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
     SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-           k.ground_truth
+           g.scope, k.ground_truth
     FROM generated_questions g
     JOIN stem_answer_keys k ON k.question_id = g.question_id
     WHERE g.question_id = ${questionId}`;
@@ -50,7 +50,21 @@ export async function auditAndQuarantineQuestion(
     // is normally present; if it failed to generate, the daily sweep re-audits once it exists.
     modelAnswer: (r.model_answer as string | null) ?? null,
   });
-  const hard = res.violations.filter((v) => v.severity === "hard");
+  // Live Tasting questions (scope='live-tasting') are pinned to an availability-confirmed
+  // flight: bank-COMPOSITION rules (banker minimum / curveball mix / producer over-use) judge
+  // what should enter the shared pool, not what a user can buy — E2E run 9 quarantined a valid
+  // 2-wine home flight for "no banker". Key-consistency and answer-content rules still apply.
+  const BANK_COMPOSITION_RULES = new Set([
+    "flight-composition", "producer-exclusion", "banker",
+    // Mark-split caps are pool-quality standards; the pinned generator deliberately skips the
+    // matching markMix nudge, so auditing them here just quarantines valid home flights (run 12).
+    "id-mark-allocation",
+  ]);
+  const hard = res.violations.filter(
+    (v) =>
+      v.severity === "hard" &&
+      !(r.scope === "live-tasting" && BANK_COMPOSITION_RULES.has(v.rule))
+  );
   if (hard.length > 0) {
     // Same two flags, same shape, as apply-change.ts and the corpus audit: the main study flow gates
     // on generated_questions.invalid_reasons, the drills on stem_answer_keys.validated.

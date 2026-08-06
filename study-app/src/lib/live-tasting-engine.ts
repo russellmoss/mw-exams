@@ -139,6 +139,28 @@ async function loadBudgetedBank(budgetAmount: number | null, budgetCurrency: str
 
 const norm = (s: string) => (s || "").toLowerCase().trim();
 
+// Variety names that can appear ON a label. A candidate whose wine_name carries a DIFFERENT
+// variety than its slot's target is either a mangled bank row or a field blend — both poison a
+// same-variety flight (E2E run 6: a "…Chardonnay" cuvée pinned into a Pinot Noir flight).
+const LABEL_VARIETIES = [
+  "chardonnay", "riesling", "sauvignon blanc", "chenin blanc", "pinot gris", "pinot grigio",
+  "pinot noir", "cabernet sauvignon", "syrah", "shiraz", "merlot", "grenache", "malbec",
+  "tempranillo", "sangiovese", "nebbiolo", "zinfandel", "gamay", "viognier", "semillon",
+];
+// Variety-driven slots demand the DOMINANT grape (first in the list): a field blend that merely
+// CONTAINS the target sneaks a duplicate resolved variety into a "different varieties" flight
+// (E2E run 10: two slots both keyed to Riesling).
+function dominantGrapeIs(r: BankRow, variety: string): boolean {
+  const g = grapeList(r);
+  return g.length > 0 && norm(g[0]) === norm(variety);
+}
+
+function nameContradictsVariety(wineName: string, variety: string): boolean {
+  const name = norm(wineName);
+  const target = norm(variety);
+  return LABEL_VARIETIES.some((v) => v !== target && !target.includes(v) && !v.includes(target) && name.includes(v));
+}
+
 /**
  * Pick an archetype and per-slot candidate lists (primary + up to 2 alternates per slot) from the
  * budget-filtered bank. Tries archetypes in shuffled preference order and returns the first that
@@ -185,7 +207,9 @@ export function pickArchetype(
   for (const arch of tryOrder) {
     if (arch === "same-variety") {
       for (const [variety, origins] of shuffle(Object.entries(varieties))) {
-        const pool = stillDry.filter((r) => grapeList(r).some((g) => norm(g) === norm(variety)));
+        const pool = stillDry.filter(
+          (r) => dominantGrapeIs(r, variety) && !nameContradictsVariety(r.wine_name, variety)
+        );
         const byOrigin = shuffle(origins)
           .map((o) => pool.filter((r) => norm(r.country) === norm(o)))
           .filter((g) => g.length > 0);
@@ -197,10 +221,21 @@ export function pickArchetype(
       }
     } else if (arch === "quality-ladder") {
       for (const ladder of shuffle(LADDER_REGIONS.filter((l) => l.paper === paper))) {
-        const pool = stillDry.filter(
+        const broad = stillDry.filter(
           (r) => norm(r.region).includes(norm(ladder.region)) &&
-                 grapeList(r).some((g) => norm(g) === norm(ladder.variety))
+                 dominantGrapeIs(r, ladder.variety) &&
+                 !nameContradictsVariety(r.wine_name, ladder.variety)
         );
+        // Same EXACT region string only: "Burgundy" broadly matched Chablis + Meursault, and the
+        // stem's "same region of origin" premise read as pedagogically false to the E2E judge
+        // (they are distinct sub-regions). Group by the row's own region and ladder within the
+        // largest group — a Meursault ladder, a Chablis ladder, never a mongrel.
+        const byExact = new Map<string, BankRow[]>();
+        for (const r of broad) {
+          const k = norm(r.region);
+          byExact.set(k, [...(byExact.get(k) ?? []), r]);
+        }
+        const pool = [...byExact.values()].sort((a, b) => b.length - a.length)[0] ?? [];
         const bands = new Set(pool.map((r) => r.price_band));
         if (pool.length >= flightSize && bands.size >= 2) {
           // Order the flight cheap→dear so the ladder reads as a ladder.
@@ -223,8 +258,9 @@ export function pickArchetype(
       for (const [variety, origins] of entries) {
         if (groups.length >= flightSize) break;
         const pool = stillDry.filter(
-          (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
-                 origins.some((o) => norm(r.country) === norm(o))
+          (r) => dominantGrapeIs(r, variety) &&
+                 origins.some((o) => norm(r.country) === norm(o)) &&
+                 !nameContradictsVariety(r.wine_name, variety)
         );
         if (pool.length > 0) groups.push(pool);
       }
@@ -260,7 +296,7 @@ export async function confirmSlots(
   const out = await Promise.all(slots.map(async (slotPick, i) => {
     const slotNo = i + 1;
     const candidates = [slotPick.row, ...slotPick.alternates];
-    type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null };
+    type Cand = { row: BankRow; stockists: Stockist[]; minListed: number | null; typical: number | null };
     let chosen: Cand | null = null;       // confident AND within budget
     let overBudgetBest: Cand | null = null; // confident but every listed price exceeds budget
     let fallback: Cand | null = null;     // nothing confident anywhere
@@ -271,13 +307,15 @@ export async function confirmSlots(
         city, country, apiKey, { userId }, radiusMinutes ?? null
       );
       const minListed = minSameCurrencyPrice(res.stockists, budget?.currency ?? null);
-      const cand: Cand = { row, stockists: res.stockists, minListed };
+      const cand: Cand = { row, stockists: res.stockists, minListed, typical: res.typicalPriceUsd };
       if (!fallback) fallback = cand;
       if (confidentCount(res.stockists) >= 1) {
         // Snippet-price refinement (plan §2.2): a concrete listed price over budget EVICTS this
-        // candidate — the price band admitted it, the shelf disagrees. First E2E run: a $40
-        // budget produced a $53.99 Barolo because this eviction was specified but not built.
-        if (budgetAmount == null || minListed == null || minListed <= budgetAmount) {
+        // candidate — the price band admitted it, the shelf disagrees. When NO price was listed,
+        // the parser's typical-retail ESTIMATE backstops with a 1.3x margin (E2E run 5: an
+        // unpriced Meursault VV sailed past a $40 budget on a mis-banded row).
+        const effective = minListed ?? (cand.typical != null ? cand.typical / 1.3 : null);
+        if (budgetAmount == null || effective == null || effective <= budgetAmount) {
           chosen = cand;
           break;
         }
@@ -354,7 +392,10 @@ export async function createLiveTasting(opts: {
       apiKey,
       { source: "user", userId },
       undefined,
-      emit,
+      // No emit: a streamed generation call is NOT capped by the SDK timeout (E2E run 5 measured
+      // 119s/162s attempts under a 95s cap), and an uncapped attempt is how creates hit the
+      // 300s wall. Non-streamed => the timeout binds and two attempts always fit.
+      undefined,
       {
         scope: "live-tasting",
         pinnedWines,
@@ -491,7 +532,8 @@ export async function replaceWine(opts: {
     apiKey,
     { source: "user", userId: session.user_id },
     undefined,
-    emit,
+    undefined, // no emit — see createLiveTasting: streamed calls escape the timeout cap
+
     {
       scope: "live-tasting",
       pinnedWines,

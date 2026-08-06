@@ -152,16 +152,29 @@ async function login() {
 }
 
 async function createSession(paper) {
-  const res = await api("/api/live-tasting", {
-    method: "POST",
-    body: JSON.stringify({ paper, flightSize: 2 }),
-  });
+  let res;
+  try {
+    res = await api("/api/live-tasting", {
+      method: "POST",
+      body: JSON.stringify({ paper, flightSize: 2 }),
+    });
+  } catch (err) {
+    // Network-level death (run 11: read ETIMEDOUT mid-SSE) must fail the CHECK, not crash the run.
+    check(`p${paper} create`, false, `network: ${err?.cause?.code || err?.message || err}`);
+    return null;
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     check(`p${paper} create`, false, body.error || `status ${res.status}`);
     return null;
   }
-  const sse = await readSse(res, { onStatus: (l) => console.log(`   … ${l}`) });
+  let sse;
+  try {
+    sse = await readSse(res, { onStatus: (l) => console.log(`   … ${l}`) });
+  } catch (err) {
+    check(`p${paper} create`, false, `stream died: ${err?.cause?.code || err?.message || err}`);
+    return null;
+  }
   if (sse.error || !sse.result?.sessionId) {
     check(`p${paper} create`, false, sse.error || "no sessionId in stream");
     return null;
@@ -203,16 +216,24 @@ async function runSession(paper, label) {
     qFresh = await dbWines(session.question_id);
   }
   check(`${label}: model answer lands (async)`, (qFresh?.model_answer?.length ?? 0) > 100);
-  check(`${label}: not quarantined (post-audit)`, qFresh && qFresh.invalid_reasons == null);
+  check(
+    `${label}: not quarantined (post-audit)`,
+    qFresh && qFresh.invalid_reasons == null,
+    qFresh?.invalid_reasons ? JSON.stringify(qFresh.invalid_reasons).slice(0, 400) : ""
+  );
 
   // 2. Redaction probe on the pre-reveal payload.
   const detailRes = await api(`/api/live-tasting/${sessionId}`);
   const detail = await detailRes.json();
   const payload = fold(JSON.stringify(detail));
   const leaks = [];
+  // Same generic-token rule as the server's blind-safety validator: trade words that appear in
+  // producer names ("X Wine Co") are not identity leaks — every stem contains "wine".
+  const GENERIC = new Set(["wine", "wines", "domaine", "chateau", "estate", "estates", "cellars",
+    "cellar", "weingut", "bodega", "bodegas", "vineyard", "vineyards", "winery", "vintners", "family"]);
   for (const w of q.wines) {
     const producer = fold(w.fullText.split(",")[0]).replace(/[^a-z ]/g, " ").trim().split(/\s+/)
-      .filter((t) => t.length >= 4);
+      .filter((t) => t.length >= 4 && !GENERIC.has(t));
     for (const tok of producer) if (payload.includes(tok)) leaks.push(tok);
   }
   check(`${label}: pre-reveal redaction`, leaks.length === 0 && !detail.reveal, leaks.join(",") || "clean");
@@ -303,7 +324,10 @@ async function gradeSession(ctx, answerStyle, label) {
     ? (await sql`SELECT pass_estimate, marks_estimate, answer_feedback FROM user_attempts WHERE id = ${after.attempt_id}`)[0]
     : null;
   check(`${label}: feedback persisted server-side`, (attempt?.answer_feedback?.length ?? 0) > 200);
-  return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null };
+  const fb = attempt?.answer_feedback || "";
+  const ri = fb.search(/result/i);
+  const feedbackSnippet = (ri >= 0 ? fb.slice(Math.max(0, ri - 20), ri + 120) : fb.slice(0, 140)).replace(/\s+/g, " ");
+  return { pass: attempt?.pass_estimate ?? null, marks: attempt?.marks_estimate ?? null, feedbackSnippet };
 }
 
 // ── main ────────────────────────────────────────────────────────────────────────────────────────
@@ -354,7 +378,8 @@ async function main() {
     } else if (gm != null && bm != null) {
       check("grading discriminates (marks)", gm > bm, `good=${gm} bad=${bm}`);
     } else {
-      warn("grading discrimination", `unparseable estimates: good=${good.pass}/${good.marks} bad=${bad.pass}/${bad.marks}`);
+      warn("grading discrimination", `unparseable estimates: good=${good.pass}/${good.marks} bad=${bad.pass}/${bad.marks}` +
+        ` | good feedback around 'Result': ${(good.feedbackSnippet || "n/a")}`);
     }
   }
 

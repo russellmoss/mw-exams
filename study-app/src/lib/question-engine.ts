@@ -1308,7 +1308,12 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     // Critical and never relaxed: the prompt bans these producers outright, so a draft naming one
     // has ignored a hard instruction. The list is capped at PRODUCER_EXCLUDE_TOP, so a compliant
     // redraft always exists.
-    const producerExclusionCheck = validateProducerExclusion(excludedProducerKeys, candidate.wines);
+    // Pinned mode (Live Tasting): the flight is fixed by retail availability — the over-used
+    // producer ban is a bank-composition concern and must not reject a wine the user can buy
+    // (E2E run 5: the ban fired on a pinned Jacques Carillon and killed the create).
+    const producerExclusionCheck = pinned
+      ? { valid: true, violations: [] }
+      : validateProducerExclusion(excludedProducerKeys, candidate.wines);
 
     // Important validators (relax on attempt 6+). Pinned mode (Live Tasting) skips every
     // flight-CHOICE validator outright — diversity/composition/price/banker/size/novelty were all

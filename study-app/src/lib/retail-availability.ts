@@ -25,6 +25,10 @@ import type { Stockist, StockistKind, StockistConfidence } from "./live-tasting"
 
 export type AvailabilityResult = {
   stockists: Stockist[];
+  /** Parser's estimate of typical retail (USD/750ml) — the budget backstop for wines whose
+   *  snippets carried no concrete price (E2E run 5: an unpriced Meursault VV sailed past a $40
+   *  budget). Estimate, not evidence: eviction applies a 1.3x margin and a listed price wins. */
+  typicalPriceUsd: number | null;
   fromCache: boolean;
   /** true when the quota latch forced a deep-link-only degraded answer (never cached). */
   degraded: boolean;
@@ -126,7 +130,10 @@ export function minSameCurrencyPrice(stockists: Stockist[], currency: string | n
   if (!currency) return null;
   const cur = currency.trim().toUpperCase();
   const prices = stockists
-    .filter((s) => s.price != null && s.price > 0 && (s.currency ?? "") === cur)
+    // A price with NO currency counts as the budget currency: in-market scrapes are near-always
+    // local currency, and null-currency rows were bypassing budget eviction (E2E run 10:
+    // unflagged $41.99/$49.99 listings on a $40 budget).
+    .filter((s) => s.price != null && s.price > 0 && (s.currency == null || s.currency === cur))
     .map((s) => s.price as number);
   return prices.length ? Math.min(...prices) : null;
 }
@@ -175,7 +182,7 @@ export function fitsBudget(opts: {
   return budgetAmount >= Math.max(floor * 1.25, floor + 5);
 }
 
-const STOCKIST_JSON_SHAPE = `[{"name":"...","kind":"local|state_store|mail","url":"...","price":29.99,"currency":"USD","confidence":"listed|likely|unverified"}]`;
+const STOCKIST_JSON_SHAPE = `{"typical_price_usd":34,"stockists":[{"name":"...","kind":"local|state_store|mail","url":"...","price":29.99,"currency":"USD","confidence":"listed|likely|unverified"}]}`;
 
 /** Validate/coerce the LLM's stockist JSON. Exported for unit tests. */
 export function coerceStockists(raw: unknown): Stockist[] {
@@ -269,7 +276,23 @@ export async function getAvailability(
         SET hit_count = hit_count + 1, last_used_at = now()
         WHERE cache_key = ${cacheKey}
       `.catch(() => {});
-      return { stockists: coerceStockists(rows[0].stockists), fromCache: true, degraded: false };
+      const raw = rows[0].stockists as unknown;
+      // Legacy shape (bare array, pre-estimate) deliberately falls through to a refresh: those
+      // rows carry no typical-price estimate, and E2E run 6 showed them dodging budget eviction.
+      if (!Array.isArray(raw)) {
+        const arr = (raw as { stockists?: unknown })?.stockists;
+        const typ = (raw as { typicalPriceUsd?: unknown })?.typicalPriceUsd;
+        // A null estimate can't arbitrate a budget (E2E run 9: an unpriced Meursault rode a
+        // null-estimate cache row past a $40 budget) — fall through and refresh.
+        if (typeof typ === "number" && typ > 0) {
+          return {
+            stockists: coerceStockists(arr),
+            typicalPriceUsd: typ,
+            fromCache: true,
+            degraded: false,
+          };
+        }
+      }
     }
   } catch (err) {
     console.error("retail_availability cache read failed:", err);
@@ -278,7 +301,7 @@ export async function getAvailability(
   // 2. Cross-instance quota latch → degrade to the deep link, and do NOT cache the degraded
   //    answer (a quota blip must not poison the cache for 30 days).
   if (isTavilyQuotaExhausted() || (await isQuotaLatchedInDb())) {
-    return { stockists: [fallback], fromCache: false, degraded: true };
+    return { stockists: [fallback], typicalPriceUsd: null, fromCache: false, degraded: true };
   }
 
   // 3. Stampede lock: only one instance refreshes a given key; losers get the fallback row
@@ -293,7 +316,7 @@ export async function getAvailability(
       RETURNING cache_key
     `;
     if (!locked.length) {
-      return { stockists: [fallback], fromCache: false, degraded: true };
+      return { stockists: [fallback], typicalPriceUsd: null, fromCache: false, degraded: true };
     }
   } catch (err) {
     console.error("retail_availability lock failed:", err);
@@ -318,7 +341,8 @@ export async function getAvailability(
   push(await searchTavily(`buy "${label}" wine shop OR store ${nearPhrase}`, tavilyMeta,
     { maxResults: 6, taskType: "retail_availability" }));
 
-  let stockists = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
+  let parsed = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
+  let stockists = parsed.stockists;
 
   if (confidentCount(stockists) < ENOUGH_STOCKISTS && !isTavilyQuotaExhausted()) {
     push(await searchTavily(`"${label}" ${city} OR ${country}`, tavilyMeta,
@@ -328,28 +352,57 @@ export async function getAvailability(
       push(await searchTavily(`"${label}"`, tavilyMeta,
         { includeDomains: mailDomains, maxResults: 5, taskType: "retail_availability" }));
     }
-    stockists = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
+    parsed = await parseStockists(collected, label, city, country, apiKey, meta, radiusMinutes);
+    stockists = parsed.stockists;
   }
 
   // Tavily flipped to 432 mid-ladder → persist the latch for every other instance.
   if (isTavilyQuotaExhausted()) latchQuotaInDb().catch(() => {});
 
+  // Dead-link filter (E2E run 6: a stale merchant page 404'd on the user): drop stockists whose
+  // URL concretely 404s. Only a definite 404 evicts — 403/405/timeouts are bot-walls, not death.
+  const alive = await Promise.all(stockists.map(async (st) => {
+    try {
+      let r = await fetch(st.url, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(6000) });
+      if (r.status === 405 || r.status === 403) return true;
+      if (r.status === 404) {
+        r = await fetch(st.url, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(6000) });
+        return r.status !== 404;
+      }
+      return true;
+    } catch { return true; }
+  }));
+  stockists = stockists.filter((_, i) => alive[i]);
+
+  // Band self-healing: when the parser's typical-price estimate contradicts the stored band by a
+  // tier, correct wine_bank so the next candidate pass starts from reality (the Haiku backfill
+  // over-assigned 'premium' to $60-120 Burgundies — E2E runs 5+6 both paid for it).
+  if (parsed.typicalPriceUsd != null && wine.wineKey) {
+    const est = parsed.typicalPriceUsd;
+    const band = est > 150 ? "icon" : est > 50 ? "super_premium" : est > 20 ? "premium" : "value";
+    sql`
+      UPDATE wine_bank SET price_band = ${band}
+      WHERE id = ${wine.wineKey} AND price_band IS DISTINCT FROM ${band}
+    `.catch(() => {});
+  }
+
   stockists = [...stockists, fallback];
 
   // 5. Cache write + lock release. Empty real results ARE cached (searching again tomorrow
-  //    won't invent a merchant — the deep-link row keeps the user unblocked).
+  //    won't invent a merchant — the deep-link row keeps the user unblocked). Cached as a
+  //    {stockists, typicalPriceUsd} envelope; the read path tolerates the legacy bare array.
   try {
     await sql`
       UPDATE retail_availability
-      SET stockists = ${JSON.stringify(stockists)}, searched_at = now(),
-          refreshing_at = NULL, last_used_at = now()
+      SET stockists = ${JSON.stringify({ stockists, typicalPriceUsd: parsed.typicalPriceUsd })},
+          searched_at = now(), refreshing_at = NULL, last_used_at = now()
       WHERE cache_key = ${cacheKey}
     `;
   } catch (err) {
     console.error("retail_availability cache write failed:", err);
   }
 
-  return { stockists, fromCache: false, degraded: false };
+  return { stockists, typicalPriceUsd: parsed.typicalPriceUsd, fromCache: false, degraded: false };
 }
 
 async function parseStockists(
@@ -360,8 +413,8 @@ async function parseStockists(
   apiKey: string,
   meta?: Meta,
   radiusMinutes?: number | null
-): Promise<Stockist[]> {
-  if (!results.length) return [];
+): Promise<{ stockists: Stockist[]; typicalPriceUsd: number | null }> {
+  if (!results.length) return { stockists: [], typicalPriceUsd: null };
   const radiusText = radiusMinutes && radiusMinutes > 0
     ? `within about ${radiusMinutes} minutes' drive of ${city}`
     : `in or near ${city}`;
@@ -378,12 +431,14 @@ async function parseStockists(
 ${STOCKIST_JSON_SHAPE}
 
 Rules:
-- Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, producers' own sites (unless they sell direct), or encyclopedic pages.
+- Only include merchants that plausibly SELL the wine "${wineLabel}" — retail shops, state stores, online merchants. Never critics, forums, or encyclopedic pages. A producer's OWN website counts only when the producer is in the user's country AND sells direct; a French domaine's site is useless to a US buyer — exclude it.
 - kind: "local" = a physical shop the user could drive to (${radiusText}; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
 - url: the result URL for that merchant (the listing page if that's what was found).
-- price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP, else null. Never guess a price.
+- price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP — when a price is shown with a bare symbol, infer the merchant's home currency (a $ price at a US merchant is USD). Never guess a price.
+- Sanity: exclude merchants whose obvious specialization rules the wine out (an Italian-only shop does not stock Alsace Pinot Gris) and names that don't read as real wine merchants.
 - confidence: "listed" = the snippet explicitly shows this wine at this merchant. "likely" = the merchant clearly stocks this producer/category and probably this wine. "unverified" = weaker.
-- Prefer local before mail. At most 6 entries. If nothing qualifies, output [].`,
+- typical_price_usd: your estimate of this wine's TYPICAL retail price in USD for a 750ml bottle (any recent vintage), from your market knowledge — always include it, even when no snippet shows a price. Round number.
+- Prefer local before mail. At most 6 stockist entries. If nothing qualifies, use "stockists": [].`,
       messages: [{ role: "user", content: docs }],
     });
     logClaudeUsage(
@@ -393,10 +448,17 @@ Rules:
       { latencyMs: Date.now() - t0 }
     );
     const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    return jsonMatch ? coerceStockists(JSON.parse(jsonMatch[0])) : [];
+    const jsonMatch = text.match(/[{[][\s\S]*[}\]]/);
+    if (!jsonMatch) return { stockists: [], typicalPriceUsd: null };
+    const parsedJson = JSON.parse(jsonMatch[0]) as unknown;
+    const arr = Array.isArray(parsedJson) ? parsedJson : (parsedJson as { stockists?: unknown })?.stockists;
+    const typRaw = !Array.isArray(parsedJson) ? (parsedJson as { typical_price_usd?: unknown })?.typical_price_usd : null;
+    return {
+      stockists: coerceStockists(arr),
+      typicalPriceUsd: typeof typRaw === "number" && typRaw > 0 && typRaw < 100000 ? typRaw : null,
+    };
   } catch (err) {
     console.error("Stockist parse failed:", err);
-    return [];
+    return { stockists: [], typicalPriceUsd: null };
   }
 }
