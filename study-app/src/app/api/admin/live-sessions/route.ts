@@ -32,7 +32,8 @@ export async function GET(request: Request) {
       FROM user_attempts a
       JOIN users u ON a.user_id = u.id
       JOIN generated_questions q ON a.question_id = q.question_id
-      WHERE a.current_step IS NOT NULL
+      WHERE a.mode = 'full'
+        AND a.current_step IS NOT NULL
         AND a.completed_at IS NULL
         AND a.started_at > NOW() - INTERVAL '2 hours'
       ORDER BY a.started_at DESC

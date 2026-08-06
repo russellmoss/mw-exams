@@ -56,7 +56,10 @@ export async function DELETE(request: Request) {
       sql`DELETE FROM live_tasting_papers WHERE user_id = ${user.id}`,
       sql`DELETE FROM live_tasting_sessions WHERE user_id = ${user.id}`,
       sql`DELETE FROM feedback_analyses WHERE user_id = ${user.id}
-          OR attempt_id IN (SELECT id FROM user_attempts WHERE user_id = ${user.id})`,
+          OR attempt_id IN (
+            /* theory-mode-guard: all-modes -- account deletion must remove every owned attempt */
+            SELECT id FROM user_attempts WHERE user_id = ${user.id}
+          )`,
       sql`DELETE FROM user_attempts WHERE user_id = ${user.id}`,
       sql`DELETE FROM question_views WHERE user_id = ${user.id}`,
       sql`DELETE FROM users WHERE id = ${user.id}`,

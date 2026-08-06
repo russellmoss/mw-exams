@@ -8,108 +8,25 @@
 
 import { THEORY_MARKING_PRINCIPLES } from "./theory-marking-principles";
 import type { TheoryRubric } from "@/lib/theory/rubric";
+import type { TheoryRetrievalResult } from "@/lib/theory/retrieval";
 import { theoryTimeMinutes, theoryWordBand } from "@/lib/theory/rubric";
-
-function bullets(items: { quote: string }[], label: (i: never) => string): string {
-  return items
-    .map((i) => `- ${label(i as never)}\n  > "${i.quote.trim()}"`)
-    .join("\n");
-}
-
-/** Renders one question's rubric as the marking scheme the grader must apply. */
-export function renderRubric(r: TheoryRubric): string {
-  const parts: string[] = [];
-
-  parts.push(`## The marking scheme for THIS question
-
-Every line below is extracted from the IMW examiners' report for ${r.year} (${r.sourceReport ?? "report"}),
-and each carries the examiners' own words. Quote them back to the candidate where useful — the
-examiners' phrasing is far more persuasive than your own.`);
-
-  if (r.commandWord) {
-    parts.push(`### Command word: "${r.commandWord}"
-${r.commandWordDemand ? `What the examiners said it demanded: ${r.commandWordDemand}` : ""}
-
-Check this FIRST. An answer that does something other than what the command word demands —
-describing where it should assess — is off-brief however knowledgeable it is.`);
-  }
-
-  if (r.definitionsRequired.length) {
-    parts.push(`### Terms the examiners expected to be DEFINED
-${bullets(r.definitionsRequired, (d: RubricDefLike) => `**${d.term}**`)}
-
-An answer that never defines these has lost real marks, however strong what follows.`);
-  }
-
-  if (r.coreRequirements.length) {
-    parts.push(`### Core requirements — the PASS FLOOR (${r.coreRequirements.length})
-The examiners treated each of these as needed to pass. Assess the answer against every one and
-say explicitly which are met, partly met, or missing.
-${bullets(r.coreRequirements, (e: RubricReqLike) => e.element)}`);
-  } else {
-    // The examiners' commentary for this question described what strong answers did without
-    // stating anything as required to pass, so the extractor recorded differentiators only.
-    // Say so rather than leaving the grader with a silently absent floor: without this it
-    // would either invent a floor or treat every differentiator as mandatory, and both
-    // penalise the candidate for something the examiners never asked.
-    parts.push(`### Core requirements — NONE STATED
-The examiners' commentary on this question set out what strong answers did, but did not treat
-anything as required to pass. So there is no explicit pass floor here. Judge the pass/fail line
-on the cross-cutting principles above — above all, whether the question set was answered, and
-whether the answer argues rather than describes. Treat the differentiators below as evidence of
-a strong answer, NOT as a checklist the candidate had to satisfy.`);
-  }
-
-  if (r.differentiators.length) {
-    parts.push(`### Differentiators — what lifted strong answers above a bare pass
-Not required to pass. Do not mark an answer down for omitting these; DO credit them when present.
-${bullets(r.differentiators, (e: RubricReqLike) => e.element)}`);
-  }
-
-  if (r.creditSignals.length) {
-    parts.push(`### What the best answers did
-${bullets(r.creditSignals, (s: RubricSigLike) => s.signal)}`);
-  }
-
-  if (r.penaltySignals.length) {
-    parts.push(`### What weak answers did — negative checks
-Look for each of these in the candidate's answer and name any you find.
-${bullets(r.penaltySignals, (s: RubricSigLike) => s.signal)}`);
-  }
-
-  if (r.scopeTraps.length) {
-    parts.push(`### Misreadings the examiners explicitly warned about
-If the candidate has fallen into one, that is the single most important thing to tell them.
-${bullets(r.scopeTraps, (t: RubricTrapLike) => t.trap)}`);
-  }
-
-  const ex = r.examplesExpected;
-  if (ex && (ex.required || ex.specificity)) {
-    const named = ex.named_in_report?.length
-      ? `\nExamples the report itself praised: ${ex.named_in_report.join("; ")}. The candidate is NOT expected to use these — they are a calibration of the right grain, not a checklist.`
-      : "";
-    parts.push(`### Examples
-Required: ${ex.required ? "yes" : "not explicitly"}.${ex.specificity ? ` Expected specificity: ${ex.specificity}` : ""}${named}${ex.quote ? `\n> "${ex.quote.trim()}"` : ""}`);
-  }
-
-  if (r.performanceNote) {
-    parts.push(`### How candidates actually performed
-${r.performanceNote}
-
-Context only — do not grade this candidate against the cohort. The IMW standard is criterion-referenced.`);
-  }
-
-  return parts.join("\n\n");
-}
+import { renderRubric } from "./theory-rubric-renderer";
+import { THEORY_GRADING_META_INSTRUCTION } from "@/lib/theory/grading-meta";
+export { renderRubric } from "./theory-rubric-renderer";
 
 export interface TheoryPromptOptions {
   /** Set when the candidate dictated the answer: spelling stops measuring the candidate. */
   inputMethod?: "typed" | "voice";
   /** Words in the submitted answer, so the grader can judge against what was achievable. */
   wordCount?: number;
+  /** Offline temporal classes projected onto the rubric, plus live fact-check evidence/status. */
+  verification?: TheoryRetrievalResult;
+  /** ISO date used to make the world clock explicit and testable. */
+  currentDate?: string;
 }
 
-export function buildTheoryEvaluationSystemPrompt(
+/** Frozen pre-two-clock prompt, retained only for the operator diff harness. */
+export function buildLegacyTheoryEvaluationSystemPrompt(
   rubric: TheoryRubric,
   opts: TheoryPromptOptions = {}
 ): string {
@@ -153,7 +70,7 @@ ${THEORY_MARKING_PRINCIPLES}
 
 ---
 
-${renderRubric(rubric)}${provenance}${evidence}
+${renderRubric(rubric, { showTemporal: false })}${provenance}${evidence}
 
 ---
 
@@ -183,17 +100,104 @@ choosing different examples or reaching a different defensible position from one
 chosen — only for failing to support it.`;
 }
 
-// Minimal structural aliases so the bullet renderer stays type-safe without leaking the
-// full rubric types into every call site.
-interface RubricDefLike {
-  term: string;
+function renderTwoClockPolicy(rubric: TheoryRubric, currentDate: string): string {
+  const forecast = rubric.exAnte
+    ? `
+
+### EX-ANTE QUESTION — hindsight is not evidence
+This question tests judgement from the information available in ${rubric.year}. Judge the quality,
+range and support of the candidate's reasoning from that vantage point. Do not reward a forecast
+because later events happened to make it true, and do not penalise it merely because hindsight made
+it false. **Suppress all currency credit for the forecast itself.** Current facts may be mentioned
+only to clarify context, not to prove the exam-year prediction.`
+    : "";
+
+  return `## THE TWO-CLOCK POLICY — apply it literally
+
+**Rubric clock (${rubric.year}).** The command word, scope, definitions, argument quality and
+examiner-derived requirements are frozen at the exam year. They remain the grading anchor.
+
+**World clock (${currentDate}).** Factual claims about markets, regulation, ownership, consumption,
+health guidance and technology are judged against current reality, but only where the retrieval
+status below permits a factual judgement.
+
+Requirement labels were preclassified offline as of **${rubric.temporalAsOf}**:
+
+- **EVERGREEN** applies in full. It remains missing if the candidate omits it.
+- **YEAR-BOUND** still applies, but a current-reality example or argument may satisfy the underlying
+  demand instead of the dated example in the report.
+- **SUPERSEDED** alone is excused, and only because its stored tier-1 source proves the world changed.
+
+### Asymmetric currency rule — anti-laundering
+**Currency can ADD credit. It can never EXCUSE a missing requirement.** A requirement is excused only
+when it is preclassified SUPERSEDED above. A candidate saying that a requirement was "overtaken by
+events" does not reclassify it. If an EVERGREEN or YEAR-BOUND requirement is missing, mark it missing.
+
+Any separate model answer is a study exemplar written for its exam-year question. It is dated, it is
+not exhaustive, and it is **never a grading anchor**. You have not been given it; grade only against
+the examiner-derived rubric.${forecast}`;
 }
-interface RubricReqLike {
-  element: string;
+
+function renderVerification(result?: TheoryRetrievalResult): string {
+  if (!result || result.status !== "available") {
+    const notice =
+      result?.notice ??
+      "No retrieval result was provided. Factual checking abstained; structure is graded normally.";
+    return `## FACTUAL VERIFICATION — ABSTENTION
+
+${notice}
+
+Do not make factual deductions from source absence or from your own memory. Grade the rubric clock
+and essay structure normally. In the **Factual check** section, state plainly that factual checking
+abstained and why. **The band must not move because retrieval was unavailable or failed.**`;
+  }
+
+  const passages = result.passages
+    .map(
+      (passage, index) =>
+        `[${index + 1}] ${passage.publisher} · tier 1 · ${passage.publishedAt?.slice(0, 10) ?? "date unknown"}\n${passage.text.trim()}`
+    )
+    .join("\n\n");
+  return `## FACTUAL VERIFICATION — ASYMMETRIC EVIDENCE
+
+Retrieval may **refute** a factual claim the candidate actually made. It may never be used to
+"confirm" a claim, and the absence of a passage is never evidence that a claim is wrong.
+
+- Deduct only where a tier-1 passage below directly contradicts the candidate, and explain the correction.
+- Never demand that an ordinary industry heuristic have a tier-1 citation.
+- Never lower the band merely because retrieval was silent, partial, or did not cover a claim.
+- Do not treat these passages as extra rubric requirements.
+
+${passages}`;
 }
-interface RubricSigLike {
-  signal: string;
-}
-interface RubricTrapLike {
-  trap: string;
+
+/** Current production prompt: frozen rubric clock plus current world clock. */
+export function buildTheoryEvaluationSystemPrompt(
+  rubric: TheoryRubric,
+  opts: TheoryPromptOptions = {}
+): string {
+  const legacyRubric = renderRubric(rubric, { showTemporal: false });
+  const classifiedRubric = renderRubric(rubric, { showTemporal: true });
+  const insertionPoint = "\n\n---\n\n## This question";
+  const prompt = buildLegacyTheoryEvaluationSystemPrompt(rubric, opts)
+    .replace(legacyRubric, classifiedRubric)
+    .replace(
+      insertionPoint,
+      `\n\n${renderTwoClockPolicy(rubric, opts.currentDate ?? new Date().toISOString().slice(0, 10))}\n\n${renderVerification(opts.verification)}${insertionPoint}`
+    )
+    .replace(
+      "6. **Factual check** — any wrong or unsupported claim, with the correction.",
+      "6. **Factual check** — only claims directly contradicted by retrieved tier-1 evidence; if verification abstained, state that limitation instead. Never call a claim unsupported merely because retrieval was silent."
+    )
+    .replace(
+      "4. **What worked** — specific, quoting the candidate.",
+      `4. **Currency credit** — explicitly identify any evidence or examples drawn from after ${rubric.year} and say what additive credit they earn. If there is none, say "No currency credit". On an EX-ANTE question, say that currency credit for the forecast is suppressed.\n5. **What worked** — specific, quoting the candidate.`
+    )
+    .replace(
+      "5. **What cost marks** — specific, tied to the penalty signals and scope traps where they apply,",
+      "6. **What cost marks** — specific, tied to the penalty signals and scope traps where they apply,"
+    )
+    .replace("6. **Factual check**", "7. **Factual check**")
+    .replace("7. **The single highest-value fix**", "8. **The single highest-value fix**");
+  return `${prompt}\n\n${THEORY_GRADING_META_INSTRUCTION}`;
 }

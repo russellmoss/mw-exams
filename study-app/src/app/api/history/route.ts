@@ -1,6 +1,7 @@
 import { getUser } from "@/lib/auth";
 import { getUserAttempts, getUserStats } from "@/lib/db";
 import { neon } from "@neondatabase/serverless";
+import { getTheoryRubric } from "@/lib/theory/rubric";
 
 export const runtime = "nodejs";
 
@@ -32,10 +33,25 @@ export async function GET(request: Request) {
       targetUserName = rows[0].name as string;
     }
 
-    const [attempts, stats] = await Promise.all([
+    const [rawAttempts, stats] = await Promise.all([
       getUserAttempts(targetUserId, 100),
       getUserStats(targetUserId),
     ]);
+    const attempts = rawAttempts.map((attempt) => {
+      if (attempt.mode !== "theory") return attempt;
+      const rubric = getTheoryRubric(attempt.question_id);
+      return {
+        ...attempt,
+        paper: rubric?.paper ?? 0,
+        family: "theory",
+        family_label: rubric?.domain.replaceAll("_", " ") ?? "Theory",
+        subcategory: rubric?.section ?? null,
+        question_text: rubric?.questionText ?? attempt.question_id,
+        wines: [],
+        model_answer: null,
+        total_marks: 0,
+      };
+    });
 
     return Response.json({ attempts, stats, userName: targetUserName });
   } catch (err) {

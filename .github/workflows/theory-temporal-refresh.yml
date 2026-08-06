@@ -1,0 +1,88 @@
+name: theory-temporal-refresh
+
+# Fully unattended temporal reclassification. The committed ledger is the runtime grading input,
+# so this workflow regenerates both root data and study-app payloads, then pushes master to trigger
+# the normal Vercel deployment. No approval or manual classification step exists.
+on:
+  schedule:
+    - cron: "0 6 6 2,8 *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: theory-temporal-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: study-app/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install app dependencies
+        working-directory: study-app
+        run: npm ci
+
+      - name: Reclassify against current tier-1 evidence
+        run: node study-app/scripts/refresh-theory-temporal.mjs
+
+      - name: Build and validate temporal ledger
+        run: |
+          python scripts/build_rubric_temporal.py
+          python scripts/build_rubric_temporal.py --check
+          node study-app/scripts/sync-theory-data.mjs
+
+      - name: Verify corpus and app gates
+        run: |
+          python tests/test_theory_corpus.py
+          python tests/test_theory_rubrics.py
+          python tests/test_theory_answers.py
+          python tests/test_rubric_temporal.py
+          cd study-app
+          npm run test:build-gate
+          npx tsc --noEmit
+
+      - name: Commit and deploy refreshed policy
+        run: |
+          git config user.name "mw-theory-temporal[bot]"
+          git config user.email "theory-temporal@users.noreply.github.com"
+          git add \
+            data/theory/rubric_temporal_overrides.json \
+            data/theory/rubric_temporal.json \
+            study-app/public/data/theory-grading-index.json \
+            study-app/src/data/theory-study-index.json
+          if git diff --cached --quiet; then
+            echo "Temporal review produced no committed-data change."
+            exit 0
+          fi
+          git commit -m "[theory-temporal] automated six-month refresh"
+          git pull --rebase origin master
+          python scripts/build_rubric_temporal.py --check
+          node study-app/scripts/sync-theory-data.mjs
+          git diff --exit-code -- \
+            data/theory/rubric_temporal.json \
+            study-app/public/data/theory-grading-index.json \
+            study-app/src/data/theory-study-index.json
+          git push origin HEAD:master

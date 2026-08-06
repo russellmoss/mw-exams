@@ -65,10 +65,10 @@ export async function POST(request: Request) {
       // existing one (which would strand it from analysis and diverge the ledger). All other update
       // fields (current_step, tasting_notes, answer_feedback, …) keep using updateAttempt.
       if (typeof data.user_feedback === "string" && data.user_feedback.trim()) {
-        const { id, analyze } = await recordUserFeedback(attemptId, data.user_feedback);
+        const { id, analyze, mode: feedbackMode } = await recordUserFeedback(attemptId, data.user_feedback);
         // Analysis is decoupled from the browser via `after()` — closing the tab can't strand it.
         // Each feedback record is analyzed exactly once against the text it holds.
-        if (analyze) {
+        if (analyze && feedbackMode !== "theory") {
           after(async () => {
             try {
               await runFeedbackAnalysis({ attemptId: id, source: "server" });

@@ -48,7 +48,8 @@ export async function GET(request: Request) {
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
-        WHERE a.user_feedback IS NOT NULL AND a.feedback_status IS NULL
+        WHERE a.mode = 'full'
+          AND a.user_feedback IS NOT NULL AND a.feedback_status IS NULL
         ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
     } else if (status === "accepted" || status === "rejected") {
@@ -66,7 +67,8 @@ export async function GET(request: Request) {
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
-        WHERE a.feedback_status = ANY(${statuses})
+        WHERE a.mode = 'full'
+          AND a.feedback_status = ANY(${statuses})
         ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.feedback_reviewed_at DESC
       `;
     } else {
@@ -81,7 +83,8 @@ export async function GET(request: Request) {
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
-        WHERE a.user_feedback IS NOT NULL
+        WHERE a.mode = 'full'
+          AND a.user_feedback IS NOT NULL
         ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
     }
@@ -108,7 +111,8 @@ export async function GET(request: Request) {
         COUNT(CASE WHEN feedback_status = 'partial' THEN 1 END)::int as partial,
         COUNT(CASE WHEN feedback_status = 'rejected' THEN 1 END)::int as rejected
       FROM user_attempts
-      WHERE user_feedback IS NOT NULL
+      WHERE mode = 'full'
+        AND user_feedback IS NOT NULL
     `;
 
     return Response.json({

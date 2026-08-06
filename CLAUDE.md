@@ -122,6 +122,9 @@ not that the transcription matches the printed report. Treat transcribed rubrics
 weaker evidence, and re-check any quote shown to a candidate as an examiner's exact words.
 
 Remaining gap: **2015 and 2026** have no examiners' report in either store (~54 questions).
+Product decision (2026-08-06): these questions remain in the source corpus only and are **never
+shown in the study app**, including as an ungraded mode or static appendix. Theory study and grading
+surfaces expose only the 243 questions backed by examiner-derived rubrics.
 
 ### Model answers — `outputs/theory_answers/`
 

@@ -285,10 +285,10 @@ Unit 3 grading provenance. Likely no migration at all.
    **add a test that fails when a new unfiltered reader appears**, since the risk is recurrence.
 
 ### Unit 9 — the no-rubric years
-2015 and 2026 (54 questions). **Default to hiding them** — both reviewers independently argued that a
-cohort of unresponsive questions dilutes a feature whose whole promise is verified feedback. Keep
-them reachable as a static appendix if wanted. Do not grade them on generic principles; that
-manufactures an authority that does not exist.
+2015 and 2026 (54 questions). **Settled product decision: never expose them.** They remain in the
+source corpus only and are absent from the picker, grading route, ungraded modes, and static
+appendices. Do not grade them on generic principles; that manufactures an authority that does not
+exist.
 
 ---
 
@@ -303,17 +303,19 @@ manufactures an authority that does not exist.
 | **Silent misgrading on retrieval failure** | §2a — abstain and say so; never move the band quietly |
 | **Non-reproducible grades** as live facts change | Unit 3 stores the retrieval snapshot with the attempt |
 | **Live retrieval cost/latency** on every grade | Route per question (Unit 1); cache per question; OIV/market reports into the KB |
-| **Time-sensitive facts decay silently** | Unit 0 output needs an owner and a refresh cadence — **unresolved, see below** |
+| **Time-sensitive facts decay silently** | Automated six-month temporal reclassification; any unverifiable supersession fails the refresh. |
 | **Stale model answers** presented as current | Unit 5 staleness markers + exam-year banner |
 | **436 unsourced claims invisible** to the candidate | Unit 5; de-emphasise unsourced figures visually, not merely annotate |
 | Grader sycophancy | Already blind-tested; extend the harness rather than trusting it |
 
-## Open question, not yet answered
+## Temporal refresh decision
 
-**Who refreshes the temporal data, and how often?** Unit 0's classes and the 112 time-sensitive flags
-decay. A 2027 candidate penalised against a 2025 "current" fact is the same failure this whole design
-exists to prevent, one level up. Options: a scheduled re-verification job over time-sensitive claims
-only (~112 items, cheap); or accept decay and date-stamp everything visibly. **Decide before Unit 6.**
+**Settled product decision (2026-08-06): the system refreshes the temporal classification every six
+months, with no human approval step.** The scheduled job reviews the temporally scoped requirements,
+requires dated tier-1 evidence and an exact supporting quote before setting `superseded`, rebuilds
+both grading payloads, runs the corpus and build gates, and commits only a fully verified result.
+Missing credentials, retrieval failure, malformed model output, or unverifiable evidence fails the
+job without changing the ledger.
 
 ## Sequencing
 
@@ -457,8 +459,8 @@ the moment any theory attempt is written.
 
 ### Still open
 
-**Who refreshes the temporal classification, and how often.** Unchanged from the plan. A 2027
-candidate marked against a 2025 "current" fact is this design's own failure one level up.
+None. The final product decisions are: the 54 no-report questions are never shown, and temporal
+classification is refreshed automatically every six months without human approval.
 
 ## GSTACK REVIEW REPORT
 
@@ -472,6 +474,6 @@ candidate marked against a 2025 "current" fact is this design's own failure one 
 
 **CODEX/GEMINI:** two-clock premise failure, temporal laundering, paper-level routing, and the
 unverified-claims double standard. All folded into §1a-1c and §2.
-**UNRESOLVED:** 1 — the temporal-data refresh owner.
+**UNRESOLVED:** 0.
 **VERDICT:** ENG REVIEW COMPLETE — 3 decisions taken, 8 findings, 22 test paths specified (8
 critical). Lane C (mode guard) lands first. Ready to implement.

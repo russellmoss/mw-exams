@@ -1,42 +1,52 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { requireApiKey } from "@/lib/api-key";
-import { logClaudeUsage } from "@/lib/usage-log";
-import { selectModel } from "@/lib/model-selector";
-import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
-import { normalizeDictatedTerms } from "@/lib/dictation-normalizer";
-import { loadWineTerms } from "@/lib/wine-terms";
 import { buildTheoryEvaluationSystemPrompt } from "@/lib/prompts/theory-evaluation-prompt";
 import {
+  normalizeGradingAnswer,
+  prepareGradingRuntime,
+  streamGradedResponse,
+} from "@/lib/grading-stream";
+import { resolveTavilyKey } from "@/lib/tavily-key";
+import {
+  activeTheoryCoreRequirements,
   getTheoryRubric,
   theoryQuestionId,
   countTheoryWords,
   theoryTimeMinutes,
   theoryWordBand,
 } from "@/lib/theory/rubric";
+import {
+  buildTheoryCitationBlock,
+  buildTheoryRetrievalPlan,
+  getTheoryRetrieval,
+} from "@/lib/theory/retrieval";
+import {
+  beginTheoryAttempt,
+  buildTheoryGradingProvenance,
+  failTheoryAttempt,
+  finishTheoryAttempt,
+  saveTheoryRetrieval,
+} from "@/lib/theory/attempts";
+import { assertTheoryGradingMeta, extractTheoryGradingMeta } from "@/lib/theory/grading-meta";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 /**
- * Grades a candidate's THEORY essay against the rubric extracted from that year's IMW
- * examiners' report.
- *
- * The rubric is the anchor, deliberately not a model answer. A theory question admits many
- * valid answers with different examples and different positions; grading by similarity to one
- * exemplar would fail a good essay for choosing different-but-equally-valid material. So the
- * model answer in outputs/theory_answers/ is study material for the candidate, never an input
- * to this route.
- *
- * Accepts either `{ id }` or `{ year, paper, question }`.
+ * Grades a candidate's THEORY essay against the examiner-derived rubric. The model answer is
+ * intentionally absent: it is a study exemplar, never a grading anchor.
  */
 export async function POST(request: Request) {
+  let startedAttempt: { attemptId: number; userId: number } | null = null;
   try {
-    const keyResult = await requireApiKey(request);
-    if (keyResult instanceof Response) return keyResult;
+    const gradingRuntime = await prepareGradingRuntime(request, "theory_grading", "sonnet");
+    if (gradingRuntime instanceof Response) return gradingRuntime;
 
     const body = await request.json();
     const inputMethod: "typed" | "voice" = body.inputMethod === "voice" ? "voice" : "typed";
+    const submissionId = typeof body.submissionId === "string" ? body.submissionId.trim() : "";
     let answer: string = typeof body.answer === "string" ? body.answer : "";
+    const elapsedSeconds = Number.isFinite(body.elapsedSeconds)
+      ? Math.max(0, Math.round(Number(body.elapsedSeconds)))
+      : null;
 
     const id: string =
       typeof body.id === "string" && body.id
@@ -45,45 +55,73 @@ export async function POST(request: Request) {
           ? theoryQuestionId(Number(body.year), Number(body.paper), Number(body.question))
           : "";
 
-    if (!id || !answer.trim()) {
-      return json({ error: "Provide an answer and either `id` or `year`/`paper`/`question`." }, 400);
+    if (!id || !answer.trim() || !submissionId || submissionId.length > 128) {
+      return json(
+        { error: "Provide an answer, a submissionId, and either `id` or `year`/`paper`/`question`." },
+        400
+      );
     }
 
     const rubric = getTheoryRubric(id);
     if (!rubric) {
-      // Being explicit here matters: 2015 and 2026 have no examiners' report, so no rubric
-      // exists and there is nothing defensible to grade against. Refusing is the correct
-      // outcome — grading them on generic principles would produce confident, unanchored
-      // feedback, which is worse than none.
+      // There is no defensible grading standard where no examiner-derived rubric exists.
       return json(
         {
           error: `No examiner-derived rubric for ${id}.`,
           detail:
-            "Theory rubrics exist for 2016-2019 and 2021-2025, the years with a usable IMW examiners' report. 2015 and 2026 have no published report, so there is no examiner standard to grade against.",
+            "Theory rubrics exist for 2016-2019 and 2021-2025. Questions without a usable examiners' report cannot be graded.",
         },
         404
       );
     }
 
-    // Repair mangled wine terms BEFORE the grader reads the answer, so it marks what the
-    // candidate meant. Every change is disclosed rather than applied silently.
-    let transcriptionFixes: { from: string; to: string }[] = [];
-    if (inputMethod === "voice") {
-      const normalized = normalizeDictatedTerms(answer, loadWineTerms());
-      answer = normalized.text;
-      transcriptionFixes = normalized.substitutions;
+    const normalized = normalizeGradingAnswer(answer, inputMethod);
+    answer = normalized.answer;
+    const transcriptionFixes = normalized.substitutions;
+
+    // The insert is the submit lock. It happens before retrieval or model spend and explicitly
+    // supplies every NOT NULL practical-era column with a deliberate Theory value.
+    const attempt = await beginTheoryAttempt({
+      questionId: rubric.id,
+      userId: gradingRuntime.user.id,
+      submissionId,
+      answer,
+      inputMethod,
+      elapsedSeconds,
+      temporalAsOf: rubric.temporalAsOf,
+    });
+    if (attempt.duplicate || attempt.attemptId == null) {
+      return json({ error: "This Theory submission is already being graded.", duplicate: true }, 409);
     }
+    startedAttempt = { attemptId: attempt.attemptId, userId: gradingRuntime.user.id };
+
+    const retrievalPlan = buildTheoryRetrievalPlan(rubric);
+    let tavilyKey: string | null = null;
+    let tavilyKeyError: string | null = null;
+    if (retrievalPlan.route === "web") {
+      try {
+        tavilyKey = (await resolveTavilyKey(gradingRuntime.user.id))?.key ?? null;
+      } catch (error) {
+        tavilyKeyError = error instanceof Error ? error.message : "unknown key lookup error";
+      }
+    }
+    const retrieval = await getTheoryRetrieval(rubric, { tavilyKey, tavilyKeyError });
+    await saveTheoryRetrieval(attempt.attemptId, gradingRuntime.user.id, retrieval);
 
     const wordCount = countTheoryWords(answer);
     const band = theoryWordBand(rubric.paper);
     const minutes = theoryTimeMinutes(rubric.paper);
-
-    let systemPrompt = buildTheoryEvaluationSystemPrompt(rubric, { inputMethod, wordCount });
+    let systemPrompt = buildTheoryEvaluationSystemPrompt(rubric, {
+      inputMethod,
+      wordCount,
+      verification: retrieval,
+      currentDate: new Date().toISOString().slice(0, 10),
+    });
     if (transcriptionFixes.length) {
       systemPrompt += `\n\n## Transcription repairs already applied
 These dictated terms were auto-corrected before you saw the answer. List them under
 "Transcription check" so the candidate knows, and do not treat them as their own spelling errors:
-${transcriptionFixes.map((s) => `- "${s.from}" → ${s.to}`).join("\n")}`;
+${transcriptionFixes.map((substitution) => `- "${substitution.from}" -> ${substitution.to}`).join("\n")}`;
     }
 
     const userMessage = `## Question
@@ -94,94 +132,84 @@ ${answer}
 
 Mark this against the rubric above.`;
 
-    const client = new Anthropic({ apiKey: keyResult.apiKey });
-    const { model, abGroup } = await selectModel("theory_grading", keyResult.apiKey, "sonnet");
-    const t0 = Date.now();
-
-    const stream = await client.messages.stream({
-      model,
+    return streamGradedResponse({
+      runtime: gradingRuntime,
+      taskType: "theory_grading",
       system: systemPrompt,
-      messages: [{ role: "user", content: userMessage }],
-      ...(await withThinking(model, 2000)),
-    } as Parameters<typeof client.messages.stream>[0]);
-
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
-      async start(controller) {
-        try {
-          // Send the grading context first so the client can render the rubric alongside the
-          // feedback — the candidate should be able to see WHAT they were marked against.
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                meta: {
-                  id: rubric.id,
-                  year: rubric.year,
-                  paper: rubric.paper,
-                  question: rubric.question,
-                  paperTitle: rubric.paperTitle,
-                  section: rubric.section,
-                  domain: rubric.domain,
-                  wordCount,
-                  band,
-                  timeMinutes: minutes,
-                  coreRequirements: rubric.coreRequirements.length,
-                  evidenceQuality: rubric.evidenceQuality,
-                  sourceReport: rubric.sourceReport,
-                  textSource: rubric.textSource,
-                  hasModelAnswer: rubric.hasModelAnswer,
-                },
-              })}\n\n`
-            )
-          );
-
-          for await (const event of stream) {
-            if (event.type !== "content_block_delta") continue;
-            if (event.delta.type === "text_delta") {
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t: event.delta.text })}\n\n`));
-            } else if (event.delta.type === "thinking_delta") {
-              controller.enqueue(encoder.encode(thinkingFrame(event.delta.thinking)));
-            }
-          }
-
-          const final = await stream.finalMessage();
-          logClaudeUsage(
-            {
-              taskType: "theory_grading",
-              model,
-              source: keyResult.source,
-              userId: keyResult.user.id,
-              abGroup,
-            },
-            final.usage,
-            { latencyMs: Date.now() - t0 }
-          );
-
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        } catch (err) {
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({
-                t: `\n\n[Error during streaming: ${err instanceof Error ? err.message : "unknown"}]`,
-              })}\n\n`
-            )
-          );
-          controller.close();
-        }
+      userMessage,
+      maxTokens: 2400,
+      usage: { attemptId: attempt.attemptId, questionId: rubric.id },
+      initialFrames: [
+        {
+          meta: {
+            attemptId: attempt.attemptId,
+            id: rubric.id,
+            year: rubric.year,
+            paper: rubric.paper,
+            question: rubric.question,
+            paperTitle: rubric.paperTitle,
+            section: rubric.section,
+            domain: rubric.domain,
+            wordCount,
+            band,
+            timeMinutes: minutes,
+            coreRequirements: rubric.coreRequirements.length,
+            activeCoreRequirements: activeTheoryCoreRequirements(rubric).length,
+            evidenceQuality: rubric.evidenceQuality,
+            sourceReport: rubric.sourceReport,
+            textSource: rubric.textSource,
+            hasModelAnswer: rubric.hasModelAnswer,
+            temporalAsOf: rubric.temporalAsOf,
+            exAnte: rubric.exAnte,
+          },
+        },
+        {
+          sources: {
+            route: retrieval.route,
+            status: retrieval.status,
+            notice: retrieval.notice,
+            checkedAt: retrieval.checkedAt,
+            fromCache: retrieval.fromCache,
+            citations: retrieval.citations,
+          },
+        },
+      ],
+      onComplete: async ({ fullText, runtime }) => {
+        const { meta, cleanedText } = extractTheoryGradingMeta(fullText);
+        assertTheoryGradingMeta(meta, retrieval);
+        const visibleFeedback = `${cleanedText}\n\n${buildTheoryCitationBlock(retrieval)}`.trim();
+        const provenance = buildTheoryGradingProvenance(rubric, retrieval, meta, runtime.model);
+        await finishTheoryAttempt({
+          attemptId: attempt.attemptId!,
+          userId: runtime.user.id,
+          feedback: visibleFeedback,
+          verdict: meta?.verdict ?? null,
+          provenance,
+        });
+        return [{ final: visibleFeedback, attemptId: attempt.attemptId, verdict: meta?.verdict ?? null }];
+      },
+      onError: async (error) => {
+        await failTheoryAttempt(
+          attempt.attemptId!,
+          gradingRuntime.user.id,
+          error instanceof Error ? error.message : "unknown grading stream error"
+        );
       },
     });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-      },
-    });
-  } catch (err) {
-    console.error("theory/grade error:", err);
-    return json({ error: err instanceof Error ? err.message : "Internal server error" }, 500);
+  } catch (error) {
+    if (startedAttempt) {
+      try {
+        await failTheoryAttempt(
+          startedAttempt.attemptId,
+          startedAttempt.userId,
+          error instanceof Error ? error.message : "unknown grading error"
+        );
+      } catch (persistenceError) {
+        console.error("theory/grade failure persistence error:", persistenceError);
+      }
+    }
+    console.error("theory/grade error:", error);
+    return json({ error: error instanceof Error ? error.message : "Internal server error" }, 500);
   }
 }
 

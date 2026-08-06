@@ -1,0 +1,22 @@
+{
+  "as_of": "2026-08-06",
+  "refresh": {
+    "owner": "automated_system",
+    "cadence": "P6M",
+    "status": "scheduled",
+    "schedule": "6 February and 6 August at 06:00 UTC",
+    "next_due": "2027-02-06",
+    "human_approval_required": false
+  },
+  "ex_ante": [
+    "th_2017_p1_q3",
+    "th_2019_p4_q6",
+    "th_2021_p1_q4",
+    "th_2022_p5_q2",
+    "th_2022_p5_q3",
+    "th_2023_p4_q6",
+    "th_2023_p5_q1",
+    "th_2025_p5_q1"
+  ],
+  "requirements": {}
+}

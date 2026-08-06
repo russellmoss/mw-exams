@@ -70,6 +70,7 @@ export async function applyFeedbackChange(opts: {
     JOIN feedback_analyses fa ON fa.attempt_id = a.id
     JOIN generated_questions q ON a.question_id = q.question_id
     WHERE a.id = ${attemptId}
+      AND a.mode = 'full'
     ORDER BY fa.updated_at DESC
     LIMIT 1
   `;

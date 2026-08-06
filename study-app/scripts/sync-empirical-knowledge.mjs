@@ -185,14 +185,16 @@ async function fetchItems(sql, cursor) {
       FROM feedback_analyses fa
       JOIN user_attempts ua ON ua.id = fa.attempt_id
       LEFT JOIN generated_questions gq ON gq.question_id = ua.question_id
-      WHERE fa.id = ${ANALYSIS_ID}`;
+      WHERE fa.id = ${ANALYSIS_ID}
+        AND ua.mode = 'full'`;
   }
   const rows = await sql`
     SELECT ${sql.unsafe(cols)}
     FROM user_attempts ua
     LEFT JOIN generated_questions gq ON gq.question_id = ua.question_id
     LEFT JOIN feedback_analyses fa ON fa.id = ua.auto_analysis_id
-    WHERE ua.feedback_status IS NOT NULL
+    WHERE ua.mode = 'full'
+      AND ua.feedback_status IS NOT NULL
       AND length(trim(coalesce(ua.user_feedback, ''))) > 0
     ORDER BY ua.id`;
   const seen = new Set(cursor.processedAttemptIds || []);
