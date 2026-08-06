@@ -72,6 +72,21 @@ jobs:
         if: success() || failure()
         run: npx vitest run
 
+      # Gates on ERRORS only — eslint exits non-zero for errors regardless of warning count, and no
+      # --max-warnings is set, so the 19 existing warnings do not fail the build.
+      #
+      # eslint-suppressions.json baselines the 13 errors that already existed when this gate was
+      # added (11 react-hooks/set-state-in-effect, 2 react-hooks/purity, across 9 components). They
+      # are real, but fixing them means restructuring effects in components under active development,
+      # which is not a drive-by change — and with no DOM test runner here, a behaviour regression
+      # would go unnoticed. Baselining makes the gate bite on NEW violations immediately while the
+      # existing debt stays explicit and reviewable in one committed file.
+      #
+      # Burn it down with: npx eslint . --prune-suppressions  (after fixing some)
+      - name: Lint (eslint)
+        if: success() || failure()
+        run: npx eslint .
+
       - name: Production build (next build, no prebuild — see header)
         if: success() || failure()
         run: npx next build
