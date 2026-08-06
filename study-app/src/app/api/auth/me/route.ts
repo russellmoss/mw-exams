@@ -17,11 +17,19 @@ export async function GET(request: Request) {
     const hasApiKey = keyRows.length > 0 || (user.isAdmin && !!process.env.ANTHROPIC_API_KEY);
 
     // Stem Detail default (migration 013) — used to preselect the dial on the setup screen.
-    const prefRows = await sql`SELECT stem_detail_default FROM users WHERE id = ${user.id}`;
+    // Study defaults (migration 047) — the onboarding choices; questionSourceDefault drives which
+    // acquire path the study flow leads with.
+    const prefRows = await sql`
+      SELECT stem_detail_default, question_source_default, reasoning_stream_default
+      FROM users WHERE id = ${user.id}
+    `;
     const raw = prefRows[0]?.stem_detail_default;
     // Coerce any legacy/unknown value (including the retired 'blind') to the exam-real default.
     const stemDetailDefault =
       raw === "guided" || raw === "exam_real" ? raw : "exam_real";
+    const questionSourceDefault =
+      prefRows[0]?.question_source_default === "banked" ? "banked" : "fresh";
+    const reasoningStreamDefault = prefRows[0]?.reasoning_stream_default !== false;
 
     return Response.json({
       user: {
@@ -31,6 +39,8 @@ export async function GET(request: Request) {
         isAdmin: user.isAdmin,
         hasApiKey,
         stemDetailDefault,
+        questionSourceDefault,
+        reasoningStreamDefault,
       },
     });
   } catch (err) {

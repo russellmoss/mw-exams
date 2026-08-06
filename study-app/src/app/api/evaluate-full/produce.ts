@@ -257,7 +257,7 @@ The two awarded values MUST sum to your overall estimated marks.`;
       systemPrompt + sectionMarksBlock + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
       "\n" + answerImageConstraint(wines),
     messages: [{ role: "user", content: userMessage }],
-    ...(await withThinking(model, 4000)),
+    ...(await withThinking(model, 4000, userId)),
   } as Parameters<typeof client.messages.stream>[0]);
 
   const encoder = new TextEncoder();

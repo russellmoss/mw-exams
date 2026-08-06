@@ -16,6 +16,8 @@ interface AuthUser {
   isAdmin: boolean;
   hasApiKey: boolean;
   stemDetailDefault?: "guided" | "exam_real";
+  questionSourceDefault?: "banked" | "fresh";
+  reasoningStreamDefault?: boolean;
 }
 
 interface AuthContextValue {

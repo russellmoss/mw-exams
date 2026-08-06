@@ -110,7 +110,11 @@ export async function GET(request: Request) {
       isAdmin: user.is_admin as boolean,
     };
 
-    return redirect("/", createSessionCookie(signToken(authUser)));
+    // Brand-new accounts pick their study defaults first; returning users go straight in.
+    return redirect(
+      action.kind === "create" ? "/onboarding" : "/",
+      createSessionCookie(signToken(authUser))
+    );
   } catch (err) {
     console.error("google callback error:", err);
     return redirect("/login?error=google_failed");
