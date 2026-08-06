@@ -62,20 +62,20 @@ def render_markdown(md_text: str) -> tuple[str, str, list[tuple[str, str, str]]]
             print_diagrams.append((diagram_label, mermaid, infer_orientation(mermaid)))
             chunks.append(
                 f"<section class=\"diagram-card\" data-diagram-id=\"{diagram_id}\" data-mermaid=\"{html.escape(mermaid, quote=True)}\">"
+                "<div class=\"diagram-viewport\">"
                 "<div class=\"diagram-toolbar no-print\">"
-                "<button type=\"button\" class=\"zoom-button\" data-action=\"zoom-out\">-</button>"
-                "<button type=\"button\" class=\"zoom-button\" data-action=\"zoom-in\">+</button>"
-                "<button type=\"button\" class=\"zoom-button\" data-action=\"reset\">Reset</button>"
-                "<button type=\"button\" class=\"zoom-button\" data-action=\"download-svg\">SVG</button>"
+                "<button type=\"button\" class=\"zoom-button\" data-action=\"zoom-out\" title=\"Zoom out\">-</button>"
+                "<button type=\"button\" class=\"zoom-button\" data-action=\"zoom-in\" title=\"Zoom in\">+</button>"
+                "<button type=\"button\" class=\"zoom-button\" data-action=\"reset\" title=\"Fit to page\">Fit</button>"
+                "<button type=\"button\" class=\"zoom-button\" data-action=\"download-svg\" title=\"Download as SVG\">SVG</button>"
                 "</div>"
-                "<div class=\"diagram-scroll\">"
                 f"<div class=\"diagram-stage\" id=\"{diagram_id}\">"
                 "<div class=\"mermaid\">"
                 f"{html.escape(mermaid)}"
                 "</div>"
                 "</div>"
                 "</div>"
-                "<p class=\"diagram-note no-print\">Use +/- or pinch and drag on touch devices.</p>"
+                "<p class=\"diagram-note no-print\">Drag to pan &middot; pinch or Ctrl+scroll to zoom.</p>"
                 "<div class=\"print-diagram\">"
                 "<div class=\"mermaid print-mermaid\">"
                 f"{html.escape(mermaid)}"
@@ -177,104 +177,133 @@ def page_template(title: str, content: str, print_filename: str) -> str:
     }});
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-    const diagramStates = new Map();
 
-    function applyScale(card, scale) {{
-      const stage = card.querySelector('.diagram-stage');
-      const next = clamp(scale, 0.5, 2.4);
-      stage.style.transform = `scale(${{next}})`;
-      stage.dataset.scale = String(next);
-      diagramStates.set(card.dataset.diagramId, next);
+    async function downloadSvg(card) {{
+      const definition = card.dataset.mermaid;
+      if (!definition) return;
+      const exportDefinition = `%%{{init: {{ "flowchart": {{ "htmlLabels": false }} }} }}%%\n${{definition}}`;
+      const renderId = `export-${{card.dataset.diagramId}}-${{Date.now()}}`;
+      const rendered = await mermaid.render(renderId, exportDefinition, undefined, document.createElement('div'));
+      const blob = new Blob([rendered.svg], {{ type: 'image/svg+xml;charset=utf-8' }});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const heading = card.previousElementSibling?.textContent?.trim() || 'diagram';
+      const safeName = heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      link.href = url;
+      link.download = `${{safeName || 'diagram'}}.svg`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 250);
     }}
 
-    function attachControls(card) {{
+    // Seamless viewport: the diagram floats on the page (no frame), auto-fitted to the content
+    // width. transform-based pan/zoom — drag to pan, pinch or Ctrl+scroll to zoom about the
+    // cursor, toolbar for the rest. Returns a refit function used on window resize.
+    function setupViewport(card) {{
+      const viewport = card.querySelector('.diagram-viewport');
       const stage = card.querySelector('.diagram-stage');
-      const scroll = card.querySelector('.diagram-scroll');
-      if (!stage) return;
-      applyScale(card, 1);
+      const svg = stage ? stage.querySelector('svg') : null;
+      if (!viewport || !stage || !svg) return null;
+
+      const viewBox = svg.viewBox && svg.viewBox.baseVal;
+      const naturalW = (viewBox && viewBox.width) || svg.getBoundingClientRect().width || 1000;
+      const naturalH = (viewBox && viewBox.height) || svg.getBoundingClientRect().height || 800;
+      svg.style.width = `${{naturalW}}px`;
+      svg.style.height = `${{naturalH}}px`;
+      svg.style.maxWidth = 'none';
+
+      const state = {{ scale: 1, tx: 0, ty: 0, fit: 1 }};
+
+      function apply() {{
+        stage.style.transform = `translate(${{state.tx}}px, ${{state.ty}}px) scale(${{state.scale}})`;
+      }}
+
+      function fit() {{
+        const vw = viewport.clientWidth || 800;
+        const maxH = Math.max(window.innerHeight * 0.78, 420);
+        // Never scale UP past natural size — small diagrams sit centered at 1:1 (blown-up 19px
+        // Mermaid text reads as a rendering bug); large ones scale down to fit width/height.
+        const fitScale = Math.min(vw / naturalW, maxH / naturalH, 1);
+        state.fit = fitScale;
+        state.scale = fitScale;
+        viewport.style.height = `${{Math.ceil(naturalH * fitScale)}}px`;
+        state.tx = Math.max((vw - naturalW * fitScale) / 2, 0);
+        state.ty = 0;
+        apply();
+      }}
+
+      function zoomAt(vx, vy, factor) {{
+        const next = clamp(state.scale * factor, state.fit * 0.5, state.fit * 6);
+        const k = next / state.scale;
+        state.tx = vx - k * (vx - state.tx);
+        state.ty = vy - k * (vy - state.ty);
+        state.scale = next;
+        apply();
+      }}
 
       card.querySelectorAll('.zoom-button').forEach((button) => {{
-        button.addEventListener('click', async () => {{
-          const current = Number(stage.dataset.scale || '1');
+        button.addEventListener('click', () => {{
           const action = button.dataset.action;
-          if (action === 'zoom-in') applyScale(card, current + 0.15);
-          if (action === 'zoom-out') applyScale(card, current - 0.15);
-          if (action === 'reset') applyScale(card, 1);
-          if (action === 'download-svg') {{
-            const definition = card.dataset.mermaid;
-            if (!definition) return;
-            const exportDefinition = `%%{{init: {{ "flowchart": {{ "htmlLabels": false }} }} }}%%\n${{definition}}`;
-            const renderId = `export-${{card.dataset.diagramId}}-${{Date.now()}}`;
-            const rendered = await mermaid.render(renderId, exportDefinition, undefined, document.createElement('div'));
-            const blob = new Blob([rendered.svg], {{ type: 'image/svg+xml;charset=utf-8' }});
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            const heading = card.previousElementSibling?.textContent?.trim() || 'diagram';
-            const safeName = heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-            link.href = url;
-            link.download = `${{safeName || 'diagram'}}.svg`;
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 250);
-          }}
+          const rect = viewport.getBoundingClientRect();
+          if (action === 'zoom-in') zoomAt(rect.width / 2, rect.height / 2, 1.25);
+          if (action === 'zoom-out') zoomAt(rect.width / 2, rect.height / 2, 0.8);
+          if (action === 'reset') fit();
+          if (action === 'download-svg') downloadSvg(card);
         }});
       }});
 
-      let pinchStart = null;
-      let baseScale = 1;
-      let dragState = null;
+      const pointers = new Map();
+      let pinchBase = null;
 
-      stage.addEventListener('touchstart', (event) => {{
-        if (event.touches.length === 2) {{
-          const [a, b] = event.touches;
-          pinchStart = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-          baseScale = Number(stage.dataset.scale || '1');
+      viewport.addEventListener('pointerdown', (event) => {{
+        if (event.button !== 0 || event.target.closest('.diagram-toolbar')) return;
+        viewport.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, {{ x: event.clientX, y: event.clientY }});
+        if (pointers.size === 1) viewport.classList.add('is-dragging');
+        if (pointers.size === 2) {{
+          const [a, b] = [...pointers.values()];
+          pinchBase = {{ dist: Math.hypot(a.x - b.x, a.y - b.y), scale: state.scale }};
         }}
-      }}, {{ passive: true }});
+      }});
 
-      stage.addEventListener('touchmove', (event) => {{
-        if (event.touches.length === 2 && pinchStart) {{
-          const [a, b] = event.touches;
-          const distance = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
-          const ratio = distance / pinchStart;
-          applyScale(card, baseScale * ratio);
+      viewport.addEventListener('pointermove', (event) => {{
+        const prev = pointers.get(event.pointerId);
+        if (!prev) return;
+        const current = {{ x: event.clientX, y: event.clientY }};
+        if (pointers.size === 1) {{
+          state.tx += current.x - prev.x;
+          state.ty += current.y - prev.y;
+          apply();
         }}
-      }}, {{ passive: true }});
-
-      stage.addEventListener('touchend', (event) => {{
-        if (event.touches.length < 2) pinchStart = null;
+        pointers.set(event.pointerId, current);
+        if (pointers.size === 2 && pinchBase) {{
+          const [a, b] = [...pointers.values()];
+          const dist = Math.hypot(a.x - b.x, a.y - b.y);
+          const rect = viewport.getBoundingClientRect();
+          const cx = (a.x + b.x) / 2 - rect.left;
+          const cy = (a.y + b.y) / 2 - rect.top;
+          zoomAt(cx, cy, (pinchBase.scale * (dist / Math.max(pinchBase.dist, 1))) / state.scale);
+        }}
       }});
 
-      if (!scroll) return;
-
-      scroll.addEventListener('mousedown', (event) => {{
-        if (event.button !== 0) return;
-        dragState = {{
-          startX: event.clientX,
-          startY: event.clientY,
-          left: scroll.scrollLeft,
-          top: scroll.scrollTop
-        }};
-        scroll.classList.add('is-dragging');
-        event.preventDefault();
-      }});
-
-      window.addEventListener('mousemove', (event) => {{
-        if (!dragState) return;
-        const dx = event.clientX - dragState.startX;
-        const dy = event.clientY - dragState.startY;
-        scroll.scrollLeft = dragState.left - dx;
-        scroll.scrollTop = dragState.top - dy;
-      }});
-
-      const stopDrag = () => {{
-        if (!dragState) return;
-        dragState = null;
-        scroll.classList.remove('is-dragging');
+      const release = (event) => {{
+        pointers.delete(event.pointerId);
+        if (pointers.size < 2) pinchBase = null;
+        if (pointers.size === 0) viewport.classList.remove('is-dragging');
       }};
+      viewport.addEventListener('pointerup', release);
+      viewport.addEventListener('pointercancel', release);
 
-      window.addEventListener('mouseup', stopDrag);
+      viewport.addEventListener('wheel', (event) => {{
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        zoomAt(event.clientX - rect.left, event.clientY - rect.top, event.deltaY < 0 ? 1.15 : 0.87);
+      }}, {{ passive: false }});
+
+      fit();
+      return fit;
     }}
 
     function fitPrintDiagrams() {{
@@ -288,21 +317,47 @@ def page_template(title: str, content: str, print_filename: str) -> str:
         printSvg.style.width = '100%';
         printSvg.style.height = 'auto';
 
-        const sourceBox = sourceSvg.getBoundingClientRect();
+        // Natural (viewBox) size, not the bounding box — the on-screen stage is scaled now.
+        const viewBox = sourceSvg.viewBox && sourceSvg.viewBox.baseVal;
+        const naturalWidth = (viewBox && viewBox.width) || 1000;
+        const naturalHeight = (viewBox && viewBox.height) || 800;
         const targetWidth = printWrap.clientWidth || 1000;
-        const widthRatio = targetWidth / Math.max(sourceBox.width, 1);
+        const widthRatio = targetWidth / Math.max(naturalWidth, 1);
         const targetHeightPx = 950;
-        const heightRatio = targetHeightPx / Math.max(sourceBox.height, 1);
+        const heightRatio = targetHeightPx / Math.max(naturalHeight, 1);
         const scale = Math.min(widthRatio, heightRatio, 1);
 
-        printSvg.style.width = `${{Math.max(sourceBox.width * scale, 320)}}px`;
+        printSvg.style.width = `${{Math.max(naturalWidth * scale, 320)}}px`;
         printSvg.style.maxWidth = '100%';
       }});
     }}
 
-    window.addEventListener('load', () => {{
-      document.querySelectorAll('.diagram-card').forEach(attachControls);
-      setTimeout(fitPrintDiagrams, 150);
+    const refits = [];
+
+    // Mermaid renders asynchronously after load; retry until every diagram's svg exists.
+    function initDiagrams(attempt) {{
+      document.querySelectorAll('.diagram-card').forEach((card) => {{
+        if (card.dataset.viewportReady) return;
+        const refit = setupViewport(card);
+        if (refit) {{
+          card.dataset.viewportReady = '1';
+          refits.push(refit);
+        }}
+      }});
+      const remaining = [...document.querySelectorAll('.diagram-card')].some((card) => !card.dataset.viewportReady);
+      if (remaining && (attempt || 0) < 25) {{
+        setTimeout(() => initDiagrams((attempt || 0) + 1), 200);
+      }} else {{
+        setTimeout(fitPrintDiagrams, 150);
+      }}
+    }}
+
+    window.addEventListener('load', () => initDiagrams(0));
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {{
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => refits.forEach((fn) => fn()), 150);
     }});
 
     window.addEventListener('beforeprint', fitPrintDiagrams);
@@ -735,7 +790,6 @@ body {
   cursor: pointer;
 }
 
-.content-card,
 .hero-card {
   background: var(--paper);
   border: 2px solid rgba(44, 44, 44, 0.9);
@@ -743,12 +797,16 @@ body {
   box-shadow: var(--shadow);
 }
 
-.page-shell {
-  padding: 18px 0 40px;
+/* Content flows directly on the page — no framing card (matches the app build). */
+.content-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 12px 0 0;
 }
 
-.content-card {
-  padding: 28px;
+.page-shell {
+  padding: 18px 0 40px;
 }
 
 .toc {
@@ -801,55 +859,60 @@ p {
   margin: 0 0 14px;
 }
 
+/* Seamless diagrams: no frame, no scroll pane (matches the app build). */
 .diagram-card {
-  margin: 18px 0 28px;
-  padding: 16px;
-  border: 2px solid #ddd0bb;
-  border-radius: 20px;
-  background:
-    linear-gradient(180deg, rgba(255, 250, 240, 0.95), rgba(255, 255, 255, 0.98));
+  margin: 18px 0 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.diagram-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.diagram-viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .diagram-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 6px;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.diagram-viewport:hover .diagram-toolbar,
+.diagram-toolbar:focus-within {
+  opacity: 1;
 }
 
 .zoom-button {
   border: 2px solid var(--line);
   background: #fff6d8;
   color: var(--ink);
-  border-radius: 12px;
-  min-width: 48px;
-  min-height: 44px;
-  padding: 0 14px;
+  border-radius: 10px;
+  min-width: 40px;
+  min-height: 36px;
+  padding: 0 10px;
   font: inherit;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
 }
 
-.diagram-scroll {
-  overflow: auto;
-  touch-action: pan-x pan-y;
-  border-radius: 14px;
-  cursor: grab;
-  user-select: none;
-}
-
 .diagram-stage {
   width: fit-content;
-  min-width: 900px;
-  transform-origin: top left;
-  transition: transform 120ms ease-out;
-}
-
-.diagram-scroll.is-dragging {
-  cursor: grabbing;
-}
-
-.diagram-scroll.is-dragging .diagram-stage {
-  pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .diagram-stage .mermaid {
@@ -857,8 +920,8 @@ p {
 }
 
 .diagram-note {
-  margin-top: 10px;
-  font-size: 0.98rem;
+  margin-top: 6px;
+  font-size: 0.85rem;
 }
 
 .print-diagram {
@@ -917,14 +980,6 @@ p {
     border-radius: 18px;
   }
 
-  .diagram-card {
-    padding: 10px;
-  }
-
-  .diagram-stage {
-    min-width: 760px;
-  }
-
   .header-inner {
     align-items: flex-start;
     flex-direction: column;
@@ -979,8 +1034,7 @@ p {
     break-after: avoid;
   }
 
-  .diagram-scroll,
-  .diagram-stage,
+  .diagram-viewport,
   .diagram-note {
     display: none !important;
   }
@@ -1116,7 +1170,6 @@ body {
   border-color: var(--accent);
 }
 
-.content-card,
 .hero-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -1124,12 +1177,17 @@ body {
   box-shadow: var(--shadow);
 }
 
-.page-shell {
-  padding: 18px 0 40px;
+/* Content flows directly on the page — no framing card. Diagrams read as part of the
+   document, not as boxed widgets. */
+.content-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 12px 0 0;
 }
 
-.content-card {
-  padding: 28px;
+.page-shell {
+  padding: 18px 0 40px;
 }
 
 .toc {
@@ -1198,29 +1256,54 @@ p {
   margin: 0 0 14px;
 }
 
+/* Seamless diagrams: no frame, no scroll pane. The viewport is an invisible window sized to
+   the fitted diagram; pan/zoom happen via transform (see setupViewport in the page script). */
 .diagram-card {
-  margin: 18px 0 28px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--card-deep);
+  margin: 18px 0 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.diagram-viewport {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.diagram-viewport.is-dragging {
+  cursor: grabbing;
 }
 
 .diagram-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
   display: flex;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 6px;
+  opacity: 0.3;
+  transition: opacity 0.15s;
+}
+
+.diagram-viewport:hover .diagram-toolbar,
+.diagram-toolbar:focus-within {
+  opacity: 1;
 }
 
 .zoom-button {
   border: 1px solid var(--line);
   background: var(--card-raised);
   color: var(--ink);
-  border-radius: 12px;
-  min-width: 48px;
-  min-height: 44px;
-  padding: 0 14px;
+  border-radius: 10px;
+  min-width: 40px;
+  min-height: 36px;
+  padding: 0 10px;
   font: inherit;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -1231,27 +1314,9 @@ p {
   background: var(--card-hover-bg);
 }
 
-.diagram-scroll {
-  overflow: auto;
-  touch-action: pan-x pan-y;
-  border-radius: 14px;
-  cursor: grab;
-  user-select: none;
-}
-
 .diagram-stage {
   width: fit-content;
-  min-width: 900px;
-  transform-origin: top left;
-  transition: transform 120ms ease-out;
-}
-
-.diagram-scroll.is-dragging {
-  cursor: grabbing;
-}
-
-.diagram-scroll.is-dragging .diagram-stage {
-  pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .diagram-stage .mermaid {
@@ -1259,8 +1324,8 @@ p {
 }
 
 .diagram-note {
-  margin-top: 10px;
-  font-size: 0.98rem;
+  margin-top: 6px;
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -1327,14 +1392,6 @@ p {
     border-radius: 18px;
   }
 
-  .diagram-card {
-    padding: 10px;
-  }
-
-  .diagram-stage {
-    min-width: 760px;
-  }
-
   .header-inner {
     align-items: flex-start;
     flex-direction: column;
@@ -1397,8 +1454,7 @@ p {
     break-after: avoid;
   }
 
-  .diagram-scroll,
-  .diagram-stage,
+  .diagram-viewport,
   .diagram-note {
     display: none !important;
   }
