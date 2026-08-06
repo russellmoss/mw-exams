@@ -8,6 +8,7 @@
 
 import { neon } from "@neondatabase/serverless";
 import { logTavilyUsage } from "./usage-log";
+import { resolveTavilyKey } from "./tavily-key";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 const MAX_IMAGE_BYTES = 5_000_000; // 5 MB cap — skip anything larger
@@ -244,8 +245,10 @@ async function tavilyImageSearch(
   query: string,
   userId: number | null
 ): Promise<{ url: string; description: string }[]> {
-  const key = process.env.TAVILY_API_KEY;
-  if (!key) return [];
+  // BYOK: the requesting user's own Tavily key (admin env fallback). No key → no images.
+  const resolved = await resolveTavilyKey(userId);
+  if (!resolved) return [];
+  const key = resolved.key;
   let ok = false;
   const candidates: { url: string; description: string }[] = [];
   try {

@@ -7,6 +7,7 @@ import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
+import { resolveTavilyKey } from "@/lib/tavily-key";
 
 /**
  * Server-side feedback analysis — the durable core of the "feedback → analysis →
@@ -125,8 +126,11 @@ async function tavilyFactCheck(
   feedback: string,
   userId: number | null
 ): Promise<string> {
-  const tavilyKey = process.env.TAVILY_API_KEY;
-  if (!tavilyKey) return "";
+  // BYOK: fact-check on the attempt owner's own Tavily key (admin env fallback). No key → the
+  // analysis still runs, just without web sources.
+  const resolved = await resolveTavilyKey(userId);
+  if (!resolved) return "";
+  const tavilyKey = resolved.key;
 
   const wineNames = wines.map((w) => {
     const parts = w.fullText.split(".");
