@@ -958,7 +958,11 @@ ${pinned.map((w) => `Wine ${w.slot}: ${w.fullText}`).join("\n")}
 Do not invent vintages — write each wine reference without a vintage year, exactly as given.
 The question stem must NEVER name or hint at any producer or cuvée above (the candidate tastes these wines blind at home). Frame the stem from what is inferable in the glass, exactly like a real MW paper.
 The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.
-Mark-structure realism: real MW papers MIX pooled sub-questions ("For both wines: identify the grape variety and origin (14 marks)") with per-wine sub-questions — do not default to rigidly symmetric per-wine allocations.${saveOpts?.paperStemsContext ? `
+Mark-structure realism (paper-QA examiner conventions, verified against the 2023-24 corpus):
+- Identification is ONE BUNDLED sub-question — "identify the grape variety (or varieties) and origin as closely as possible" — never split variety and origin into separate sub-questions, and never omit origin. Weight it 13-18 marks per question.
+- MIX pooled sub-questions ("For both wines: … (14 marks)") with per-wine ones — no rigidly symmetric allocations.
+- Where natural, include an integrative comparative sub-question ("With reference to all the wines, …").
+- Paper 3 only: real papers routinely include a discrete 2-3 mark micro-question on a technical attribute (residual sugar level, alcohol, method) — include one where it fits.${saveOpts?.paperStemsContext ? `
 This question is part of a FULL PAPER. Earlier questions used these stems — VARY your sub-question lettering, structure and phrasing (real papers never repeat an identical scaffold):
 ${saveOpts.paperStemsContext}` : ""}`;
   }
