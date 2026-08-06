@@ -18,11 +18,15 @@ SEGMENTS = {s["id"]: s for s in
 QUESTIONS = {q["id"]: q for q in
              json.loads(Path("data/theory/theory_questions.json").read_text(encoding="utf-8"))}
 
-# Years with a text-extractable theory examiners' report inside the five-paper corpus.
-# 2016/2018 come from the public IMW site; 2017, 2019, 2023, 2024, 2025 are student-area
-# reports held in docs/examiners reports/. 2021 and 2022 exist but are image scans with no
-# text layer, and 2015/2026 have no report available at all.
-EXPECTED_YEARS = {2016, 2017, 2018, 2019, 2023, 2024, 2025}
+# Years with a usable theory examiners' report inside the five-paper corpus. 2016/2018
+# come from the public IMW site; the rest are student-area reports in
+# 'docs/examiners reports/'. 2021 and 2022 were image-only PDFs and are covered via
+# transcription sidecars in data/theory/ocr/. 2015 and 2026 have no report at all.
+EXPECTED_YEARS = {2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025}
+# Years whose evidence is a transcription of page renders rather than a publisher text
+# layer. Rubrics from these carry a weaker provenance guarantee: the quote gate proves a
+# quote matches the transcription, not that the transcription matches the printed report.
+TRANSCRIBED_YEARS = {2021, 2022}
 VALID_COVERAGE = {"full", "none"}
 VALID_QUALITY = {"rich", "moderate", "thin"}
 VALID_WEIGHT = {"core", "differentiator"}
@@ -115,7 +119,28 @@ for r in RUBRICS:
         if normalise(name) and normalise(name) not in haystack:
             errors.append(f"{r['id']}: named_in_report {name!r} not in report")
 
-# 6. Coverage and content must agree.
+# 6. Provenance: a rubric's text_source must agree with its segment's, so a transcribed
+#    year can never be mistaken for publisher text further downstream.
+for r in RUBRICS:
+    seg = SEGMENTS.get(r["id"])
+    if not seg:
+        continue
+    expected = "transcribed_render" if r["year"] in TRANSCRIBED_YEARS else "pdf_text_layer"
+    if seg.get("text_source") != expected:
+        errors.append(f"{r['id']}: segment text_source={seg.get('text_source')!r}, expected {expected!r}")
+    if r.get("text_source") not in (None, expected):
+        errors.append(f"{r['id']}: rubric text_source={r.get('text_source')!r}, expected {expected!r}")
+
+# 6b. Transcription scaffolding must never appear in a quote — it would be shown to a
+#     candidate as the examiners' exact words.
+for r in RUBRICS:
+    for field in QUOTED_LIST_FIELDS:
+        for i, item in enumerate(r.get(field) or []):
+            q = (item or {}).get("quote", "")
+            if re.search(r"=====|PAGE\s+\d+", q):
+                errors.append(f"{r['id']}: {field}[{i}] quote contains transcription scaffolding")
+
+# 7. Coverage and content must agree.
 for r in RUBRICS:
     n = len(r.get("required_elements") or [])
     if r.get("coverage") == "none" and n:
@@ -123,7 +148,7 @@ for r in RUBRICS:
     if r.get("coverage") == "full" and n == 0:
         errors.append(f"{r['id']}: coverage 'full' but no required_elements")
 
-# 7. A rubric must be question-specific. If a required element's text is identical across
+# 8. A rubric must be question-specific. If a required element's text is identical across
 #    many questions, the extractor generated a generic checklist instead of extracting.
 from collections import Counter
 elem_counts = Counter(
@@ -145,4 +170,6 @@ core = sum(len([e for e in (r.get("required_elements") or []) if e["weight"] == 
 print(f"PASS: {len(RUBRICS)} rubrics for years {sorted(years)}")
 print(f"PASS: all {total_quotes} quotes verified verbatim against their report segment")
 print(f"PASS: identity fields agree with the corpus; {core} core requirements")
+tr = sum(1 for r in RUBRICS if r["year"] in TRANSCRIBED_YEARS)
 print(f"PASS: no generic requirement repeated across rubrics")
+print(f"PASS: provenance tagged — {len(RUBRICS)-tr} from publisher text, {tr} from transcribed renders")

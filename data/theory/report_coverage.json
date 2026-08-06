@@ -4,6 +4,8 @@
     2017,
     2018,
     2019,
+    2021,
+    2022,
     2023,
     2024,
     2025
@@ -20,6 +22,7 @@
     {
       "year": 2016,
       "source_report": "examiners_report_2016.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 68121,
       "questions_total": 27,
       "questions_covered": 27,
@@ -37,6 +40,7 @@
     {
       "year": 2017,
       "source_report": "imw_2017_theory_examiners_report.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 58008,
       "questions_total": 27,
       "questions_covered": 27,
@@ -61,6 +65,7 @@
     {
       "year": 2018,
       "source_report": "examiners_report_2018.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 74470,
       "questions_total": 27,
       "questions_covered": 27,
@@ -85,6 +90,7 @@
     {
       "year": 2019,
       "source_report": "imw_theory_exam_report_2019.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 48128,
       "questions_total": 27,
       "questions_covered": 27,
@@ -113,8 +119,45 @@
       ]
     },
     {
+      "year": 2021,
+      "source_report": "2021_theory_report.txt",
+      "text_source": "transcribed_render",
+      "report_chars": 60011,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 2557,
+      "flagged": []
+    },
+    {
+      "year": 2022,
+      "source_report": "2022_theory_report.txt",
+      "text_source": "transcribed_render",
+      "report_chars": 73555,
+      "questions_total": 27,
+      "questions_covered": 27,
+      "questions_uncovered": [],
+      "paper_preambles_found": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "theory_chair_report_chars": 4569,
+      "flagged": []
+    },
+    {
       "year": 2023,
       "source_report": "2023-Theory-Examiners-Report.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 71035,
       "questions_total": 27,
       "questions_covered": 27,
@@ -132,6 +175,7 @@
     {
       "year": 2024,
       "source_report": "2024-Theory-Examiners-Report.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 77242,
       "questions_total": 27,
       "questions_covered": 27,
@@ -149,6 +193,7 @@
     {
       "year": 2025,
       "source_report": "Theory-Examiners-Report-2025.pdf",
+      "text_source": "pdf_text_layer",
       "report_chars": 68059,
       "questions_total": 27,
       "questions_covered": 27,

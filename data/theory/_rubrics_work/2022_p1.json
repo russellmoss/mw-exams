@@ -1,0 +1,370 @@
+[
+  {
+    "id": "th_2022_p1_q1",
+    "year": 2022,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Which diseases of the vine are the greatest threat to vineyards around the world today, and why?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "why",
+    "command_word_demand": "Examiners were looking for a good understanding of disease threats around the world showing global knowledge and analysis as to why and how they are a threat.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show global knowledge of disease threats, with analysis of why and how they are a threat",
+        "quote": "Examiners were looking for a good understanding of disease threats around the world showing global knowledge and analysis as to why and how they are a threat.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse why diseases are a threat, not just describe them",
+        "quote": "The main negative comments for this question were that many students, while showing good knowledge of the different diseases of the vine, failed to analyse why they were a threat.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide detail on the nature of the threat: economic cost, spread, and impact on long-term vineyard success",
+        "quote": "Candidates were required not only to show a knowledge of the diseases, but to provide detail on the nature of their threat: economic cost, spread, and impact on the long-term success of vineyards.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Combining textbook knowledge of how diseases work and are managed with discussion of how and why they are a threat, showing critical thinking",
+        "quote": "Most impressive was when candidates combined the textbook knowledge of how the diseases work and what is being done to manage them with a discussion of how and why they are a threat to vineyards, thus showing the critical thinking needed to pass the MW exam."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Examples devoted only to how producers manage diseases, without analysis of the threat itself",
+        "quote": "A lot of examples were devoted only to how producers are managing diseases without analysis of the threat."
+      },
+      {
+        "signal": "Omitting less well-known but significant diseases",
+        "quote": "Better-known diseases like mildews and trunk disease were generally well covered but often other diseases like Red Blotch, Pierce's Disease and Flavescence Dorée were omitted."
+      },
+      {
+        "signal": "Just describing various diseases without analysis",
+        "quote": "The less successful candidates just described various diseases."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Named specific vine diseases, including less common ones beyond the well-known mildews/trunk disease",
+      "named_in_report": ["mildews", "trunk disease", "Red Blotch", "Pierce's Disease", "Flavescence Dorée"],
+      "quote": "Better-known diseases like mildews and trunk disease were generally well covered but often other diseases like Red Blotch, Pierce's Disease and Flavescence Dorée were omitted."
+    },
+    "scope_traps": [],
+    "performance_note": "Question 1 had the highest average mark of all Paper 1 questions and answers were of a generally high standard.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p1_q2",
+    "year": 2022,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "What effects do vineyard pests have on grape quality, and how do grape growers control them?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "what effects",
+    "command_word_demand": "For this question examiners were looking for a broad understanding of the different vineyard pests and how they are controlled, linking the impact back to grape quality.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Explicitly link pest impacts to grape quality, not wine quality",
+        "quote": "While most candidates showed knowledge of a number of vineyard pests and control options, too often the link to grape quality was weak or non-existent. Some candidates discussed wine quality rather than grape quality and others missed making the link altogether.",
+        "weight": "core"
+      },
+      {
+        "element": "Show global understanding that different pests have different impacts in different regions, with different control options",
+        "quote": "There are many different vineyard pests and they have different impacts in different regions of the world. To be successful a student needed to show this global understanding and show the different control options in a range of situations.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the key vineyard pests, not just a partial selection",
+        "quote": "Nearly every candidate missed considering some of the key pests, so despite some generally good essays, there were often holes that were too big to warrant a passing grade.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Misunderstandings of basic plant, insect and pathogen biology, vine physiology, disease impacts and vectors",
+        "quote": "There were many misunderstandings relating to the basic biology of plants, insects and pathogens, vine physiology, insects, disease impacts and vectors."
+      },
+      {
+        "signal": "Essays reading as a list of pests with one treatment each, without deeper analysis",
+        "quote": "Many essays just read as a list of pests with one possible treatment for each."
+      },
+      {
+        "signal": "Vague, broad examples that did not show deep understanding",
+        "quote": "Examples were often too vague and too broad, not being specific enough to show a deep understanding."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific rather than vague or broad, sufficient to show a deep understanding",
+      "named_in_report": [],
+      "quote": "Examples were often too vague and too broad, not being specific enough to show a deep understanding."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing wine quality instead of grape quality (or failing to make the link at all)",
+        "quote": "Some candidates discussed wine quality rather than grape quality and others missed making the link altogether."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p1_q3",
+    "year": 2022,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "To what extent does the geology of a vineyard affect the way it is managed?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "to what extent",
+    "command_word_demand": "This question required candidates to take a broad look at all aspects of vineyard management to identify to what extent the geology of a vineyard impacts, for example, drainage, irrigation, CEC, nutrition, weed control, vigour, fertilizers, vineyard equipment, vine trellising, erosion, tilling and cover crops.",
+    "definitions_required": [
+      {
+        "term": "geology vs. soil texture",
+        "quote": "Some candidates seemed to be confused about how a soil's texture differs from its geological makeup and how these things have different impacts on management."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Take a broad look at all aspects of vineyard management affected by geology (e.g. drainage, irrigation, CEC, nutrition, weed control, vigour, fertilizers, vineyard equipment, vine trellising, erosion, tilling, cover crops)",
+        "quote": "This question required candidates to take a broad look at all aspects of vineyard management to identify to what extent the geology of a vineyard impacts, for example, drainage, irrigation, CEC, nutrition, weed control, vigour, fertilizers, vineyard equipment, vine trellising, erosion, tilling and cover crops.",
+        "weight": "core"
+      },
+      {
+        "element": "Link geology, soil, and management together rather than treating them separately",
+        "quote": "There was a tendency to write either about geology, soil, or management, with few candidates linking it all together as required by the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Properly weigh \"to what extent\" and touch on a broad variety of management situations",
+        "quote": "The passing papers considered \"to what extent\" well, and touched on a broad variety of management situations.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Writing about geology, soil, or management in isolation instead of linking them together",
+        "quote": "There was a tendency to write either about geology, soil, or management, with few candidates linking it all together as required by the question."
+      },
+      {
+        "signal": "Confusing soil texture with geological makeup and their differing management impacts",
+        "quote": "Some candidates seemed to be confused about how a soil's texture differs from its geological makeup and how these things have different impacts on management."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A broad variety of management situations linked to geology, e.g. drainage, irrigation, CEC, nutrition, weed control, vigour, fertilizers, vineyard equipment, vine trellising, erosion, tilling and cover crops",
+      "named_in_report": [],
+      "quote": "This question required candidates to take a broad look at all aspects of vineyard management to identify to what extent the geology of a vineyard impacts, for example, drainage, irrigation, CEC, nutrition, weed control, vigour, fertilizers, vineyard equipment, vine trellising, erosion, tilling and cover crops."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p1_q4",
+    "year": 2022,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Glyphosate use is coming under increasing scrutiny. Should it be banned in modern viticulture? What are the alternatives?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "should",
+    "command_word_demand": "This question was designed to test a candidate's ability to be able to consider all sides of the issue in a non-biased way, yet clearly come down with an opinion on whether it should be banned. This skill is paramount in passing any MW paper.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Consider all sides of the glyphosate issue in a non-biased way, yet clearly come down with an opinion on whether it should be banned",
+        "quote": "This question was designed to test a candidate's ability to be able to consider all sides of the issue in a non-biased way, yet clearly come down with an opinion on whether it should be banned. This skill is paramount in passing any MW paper.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss alternatives with a broad understanding, including financial and logistical implications and long-term vineyard health",
+        "quote": "The best answers did just that, discussing the pros and cons objectively, showing a broad understanding of alternatives and considering financial and logistical implications, as well as the long-term health of the vineyard.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Discussing pros and cons objectively, with a broad understanding of alternatives and consideration of financial, logistical and long-term vineyard-health implications",
+        "quote": "The best answers did just that, discussing the pros and cons objectively, showing a broad understanding of alternatives and considering financial and logistical implications, as well as the long-term health of the vineyard."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Letting personal opinion show without properly unbiased consideration of pros and cons, referencing only headline statements",
+        "quote": "Some candidates clearly let their personal opinions be known without showing proper unbiased consideration of the pros and cons, often referencing only headline statements without going any deeper."
+      },
+      {
+        "signal": "Answers full of examples and information but completely one-sided",
+        "quote": "Many answers were full of examples and information but completely one-sided."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p1_q5",
+    "year": 2022,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "As a viticulturist, what factors would influence your approach to growing cover crops in a vineyard?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what factors would influence",
+    "command_word_demand": "Successful candidates showed an understanding of the purpose of using a cover crop, the limiting factors (such as climate, irrigation, soil type, planting density, microclimate, humidity/temperature, and vine details such as age, vigour, health, etc.), the cover crop options and timing of when to use them.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show understanding of the purpose of using a cover crop, limiting factors, the cover crop options available, and timing of use",
+        "quote": "Successful candidates showed an understanding of the purpose of using a cover crop, the limiting factors (such as climate, irrigation, soil type, planting density, microclimate, humidity/temperature, and vine details such as age, vigour, health, etc.), the cover crop options and timing of when to use them.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse and explain why different cover crop options work in one situation but not another, supported by a broad range of global examples",
+        "quote": "Importantly, different cover crop options may work in one situation but not in another and this needed to be analysed and explained, supported by a broad range of global examples.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the full list of relevant factors: soil water, soil temperature, drainage, frost, nutrients, pests/IPM, humidity, vigour, erosion, compaction, equipment access, cultivation and financial aspects",
+        "quote": "To be successful, candidates needed to consider things like soil water, soil temperature, drainage, frost, nutrients, pests/IPM, humidity, vigour, erosion, compaction, equipment access, cultivation and financial aspects.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding that cover crops carry simultaneous risks and rewards",
+        "quote": "Cover crops can also have simultaneous risks and rewards, and the best papers showed an understanding of this.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Understanding that cover crops carry simultaneous risks and rewards",
+        "quote": "Cover crops can also have simultaneous risks and rewards, and the best papers showed an understanding of this."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Essays filled with examples of what producers do regarding cover crops without critical analysis of why",
+        "quote": "In many cases, essays were filled with lots of examples of what viticulturists/producers do regarding the use of cover crops without much critical analysis of why."
+      },
+      {
+        "signal": "Only top-level understanding of this complex, multi-area question",
+        "quote": "For many candidates, this quite complex question, touching on many areas of grape growing, highlighted only a top-level understanding of viticulture."
+      },
+      {
+        "signal": "Showing only one side of the risk/reward equation, or too top-level and lacking detail",
+        "quote": "The less successful papers showed only one side of the equation or were too top-level, lacking sufficient detail."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A broad range of global examples showing why different cover crop options work in different situations",
+      "named_in_report": [],
+      "quote": "Importantly, different cover crop options may work in one situation but not in another and this needed to be analysed and explained, supported by a broad range of global examples."
+    },
+    "scope_traps": [],
+    "performance_note": "This was the most popular question amongst candidates, but answers were mixed.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p1_q6",
+    "year": 2022,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "What factors affect the timing of pruning in vineyards around the world?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "what factors affect",
+    "command_word_demand": "this tested an understanding of different pruning considerations globally based on unique situations in vineyards across the world.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show global understanding that pruning-timing factors vary by region (e.g. winter damage in extreme regions, rainfall, frost risk, labour logistics)",
+        "quote": "This could be potential winter damage in extreme regions, rainfall in others, frost risk somewhere else or labour logistics, for example.",
+        "weight": "core"
+      },
+      {
+        "element": "Address both dormant and green pruning and the influence of timing on bud break",
+        "quote": "Timing of pruning and its potential influence on bud break is crucial. Trunk disease risk and attempting to hedge against unpredictable climate needed consideration, along with both dormant and green pruning.",
+        "weight": "core"
+      },
+      {
+        "element": "Link green pruning timing to growth, ripeness, pests/diseases and wine style",
+        "quote": "Most candidates demonstrated a good understanding of dormant pruning and its timing but fewer made the link with green pruning and how its timing might influence growth, ripeness, pests and diseases and wine style.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Failing to mention green pruning at all",
+        "quote": "A few candidates failed to mention green pruning at all, reducing the potential for higher marks in otherwise strong papers."
+      },
+      {
+        "signal": "Drifting into pruning method or frost management, which was not helpful to answering the question",
+        "quote": "A lot of essays drifted off into method of pruning (which was relevant only if linking things like mechanical pruning to speed), or into topics such as frost management which was not helpful to answer the question."
+      },
+      {
+        "signal": "Assuming bud break happens at the same time everywhere in the world and that fires/hail occur on a predictable schedule",
+        "quote": "Some candidates seemed to think bud break happens at the same time everywhere in the world and that fires and hail happen on a regular schedule that you can prune around."
+      },
+      {
+        "signal": "Parroting information heard from producers without understanding why or when such actions are appropriate",
+        "quote": "Many papers seemed only to have top-level knowledge of pruning considerations and some candidates seemed to be just parroting back information they had heard from producers without understanding why, or when such actions may or may not be appropriate."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Drifting into pruning method (e.g. mechanical vs. hand) or frost management instead of addressing timing",
+        "quote": "A lot of essays drifted off into method of pruning (which was relevant only if linking things like mechanical pruning to speed), or into topics such as frost management which was not helpful to answer the question."
+      }
+    ],
+    "performance_note": "The second most popular question, this tested an understanding of different pruning considerations globally based on unique situations in vineyards across the world.",
+    "extraction_notes": ""
+  }
+]

@@ -1,0 +1,479 @@
+[
+  {
+    "id": "th_2022_p2_q1",
+    "year": 2022,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Explain the process of malolactic fermentation in winemaking. How, why and when is it employed?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain",
+    "command_word_demand": "Candidates needed to demonstrate a detailed knowledge of the malolactic process and the technical skill to explain how, why and when it is employed.",
+    "definitions_required": [
+      {"term": "Lactic Acid Bacteria", "quote": "The question called for a definition or reference to Lactic Acid Bacteria. Several papers failed to mention the essential bacteria, Oenococcus Oeni, and even fewer cited Lactobacillus or Pediococcus."}
+    ],
+    "required_elements": [
+      {
+        "element": "Identify Oenococcus Oeni (and ideally Lactobacillus/Pediococcus) as the bacteria responsible for MLF",
+        "quote": "Several papers failed to mention the essential bacteria, Oenococcus Oeni, and even fewer cited Lactobacillus or Pediococcus.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss the general metrics governing MLF: pH, alcohol, temperature and SO2",
+        "quote": "For MLF to occur, the general metrics of pH, alcohol, temperature, and SO2 should all have warranted discussion. However, many papers only touched on a couple of these.",
+        "weight": "core"
+      },
+      {
+        "element": "Give specific values/thresholds for the metrics discussed, not just qualitative statements",
+        "quote": "\"pH influenced MLF\" means nothing without clarifying that low pH inhibits MLF, and preferably giving a value of, say, 3.2.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Note alcohol as a limiting factor for MLF bacteria",
+        "quote": "most candidates failed to mention alcohol as a limiting factor, especially relevant since many assumed MLF usually takes place naturally.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address both the 'how' (technical mechanism) and the 'why' (purpose) of MLF, not just the why",
+        "quote": "Overall, most candidates were able to answer the \"why\" MLF is employed part and thus scored some valuable marks. The \"how\" required technical detail, and many candidates lacked the accuracy or understanding required.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Thorough technical understanding backed by relevant metrics and pertinent, clarifying examples",
+        "quote": "The strong passes displayed a thorough technical understanding of the process and backed this up with relevant metrics, using a range of pertinent examples that clarified the points being made."
+      },
+      {
+        "signal": "Correct, precise use of ascribed values (e.g. pH thresholds)",
+        "quote": "the values ascribed were poorly understood except by the top candidates."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Vague, unconnected or overly general examples not tied to the process described",
+        "quote": "Lesser papers contained vague, unconnected examples that did not apply to the process stated or were too general, e.g., \"X winery does MLF on reds\"!"
+      },
+      {
+        "signal": "Rambling structure that obscures the points being made",
+        "quote": "Poorer scripts rambled, making the points they were addressing unclear."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must be specific and connected to the technical point being made, not generic ('X winery does MLF on reds')",
+      "named_in_report": [],
+      "quote": "using a range of pertinent examples that clarified the points being made."
+    },
+    "scope_traps": [],
+    "performance_note": "The question was widely attempted and achieved the highest pass rate.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p2_q2",
+    "year": 2022,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Examine the role of yeast lees during wine maturation.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Examine",
+    "command_word_demand": "This question called for a focus on the effects of yeast lees in maturing wine post-fermentation and the breadth of styles that lees impact, including sparkling and still wines, red and white, oaked or unoaked. The examiners did not expect candidates to cover every last point but to have an overall understanding of the prominent, salient roles of yeast lees.",
+    "definitions_required": [
+      {"term": "yeast lees", "quote": "The answer required a solid definition of what yeast lees comprise, their formation, and their overall roles."}
+    ],
+    "required_elements": [
+      {
+        "element": "Solid definition of what yeast lees comprise, their formation, and their overall roles",
+        "quote": "The answer required a solid definition of what yeast lees comprise, their formation, and their overall roles.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the breadth of styles lees affect: sparkling and still, red and white, oaked or unoaked",
+        "quote": "the breadth of styles that lees impact, including sparkling and still wines, red and white, oaked or unoaked.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Reference to 'sur lie' maturation",
+        "quote": "A reference to 'sur lie' maturation would have been helpful.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Reference to 'natural' wines, skin contact and fortified wines",
+        "quote": "A reference to \"natural\" wines, skin contact and fortified wines would also have been beneficial.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss the role of lees in red wine maturation, not only white/sparkling styles",
+        "quote": "few seemed aware of the role of lees in red wine maturation.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss negative aspects/risks of lees ageing such as reduction/H2S formation, not only the protective benefits",
+        "quote": "Whilst the role of yeast lees as an oxygen scavenger was covered effectively by most, few candidates discussed the negative aspects or risks of ageing on lees, such as reduction/H2S formation.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider the benefits of lees for stability, reducing the need for SO2, and colour retention",
+        "quote": "Only a handful considered the benefits of lees in terms of stability, reducing the need for SO2 and colour retention.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Technical understanding of compounds released during lees maturation, their practical management, and their impact on development, texture, aroma and stability",
+        "quote": "Better answers showed technical understanding of the compounds released during maturation on lees, how they are managed practically in the winery, and how they impact wine development, texture, aroma, and protein and tartrate stability."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Only a basic understanding of the role of yeast lees during maturation",
+        "quote": "many failed to show more than a basic understanding of the role of yeast lees during maturation."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples clustered around lees-required styles; the report flags that few candidates extended examples to red wine lees maturation",
+      "named_in_report": ["Champagne", "Burgundy", "Muscadet sur lie"],
+      "quote": "examples focussed on wine styles where maturation on lees is required, e.g. Champagne, Burgundy and Muscadet sur lie, few seemed aware of the role of lees in red wine maturation."
+    },
+    "scope_traps": [],
+    "performance_note": "Despite some good answers, it was the least answered question on the paper - perhaps many saw it as too technical.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p2_q3",
+    "year": 2022,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "What are the options available for pre- and post-fermentation maceration in winemaking? What factors determine their use?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What are the options available... What factors determine their use?",
+    "command_word_demand": "requiring a clear understanding of maceration and how this extraction process contributes to wine style, quality and longevity.",
+    "definitions_required": [
+      {"term": "pre- and post-fermentation maceration", "quote": "Many of the essays lacked definitions, leading to confusion about which extraction method the candidate was addressing."}
+    ],
+    "required_elements": [
+      {
+        "element": "Split the answer clearly into pre-fermentation and post-fermentation maceration practices",
+        "quote": "A sensible approach would have been to split the two practices into pre- and post-fermentation maceration.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Address the post-fermentation maceration part of the question fully, not just pre-fermentation",
+        "quote": "The pre-fermentation maceration section was often covered better, but many students failed to answer the part of the question referring to post-fermentation maceration.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover styles beyond red wine, despite the question appearing red-wine focused",
+        "quote": "Whilst the question appeared red wine focussed, other wine styles also needed to be covered.",
+        "weight": "core"
+      },
+      {
+        "element": "Include basic technical details such as length and temperature of maceration",
+        "quote": "Some answers, however, failed to include basic technical details such as the length and temperature of maceration, and confused extraction methods during fermentation as pre- or post-maceration.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a wide range of relevant examples to support points on the chemical processes driving stylistic change",
+        "quote": "Stronger candidates included a wide range of relevant examples to support their points regarding the chemical processes that impact the changes in wine style.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Wide range of relevant examples supporting chemical-process points",
+        "quote": "Stronger candidates included a wide range of relevant examples to support their points regarding the chemical processes that impact the changes in wine style."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Mentioning cold stabilisation, or confusing crushing and pressing (e.g. skin contact after pressing)",
+        "quote": "a few mentioned cold stabilisation and mixed-up crushing and pressing (as in doing skin contact after pressing), suggesting a lack of experience and understanding."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Not further specified beyond 'a wide range of relevant examples'",
+      "named_in_report": [],
+      "quote": "Stronger candidates included a wide range of relevant examples to support their points regarding the chemical processes that impact the changes in wine style."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing cap management during fermentation instead of pre-/post-fermentation maceration",
+        "quote": "Some also discussed cap management during fermentation, showing how easy it is to fail an essay when not reading the question correctly."
+      },
+      {
+        "trap": "Confusing extraction methods that occur during fermentation as pre- or post-fermentation maceration",
+        "quote": "confused extraction methods during fermentation as pre- or post-maceration."
+      }
+    ],
+    "performance_note": "This was a popular question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p2_q4",
+    "year": 2022,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "How can a winemaker ensure consistency in a wine's style over a number of years?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How can a winemaker ensure consistency",
+    "command_word_demand": "Candidates were not expected to cover every possible nuance but instead focus on those practices that were most relevant, and the better candidates were able to show their knowledge of the topic and demonstrate their depth of experience from wineries around the globe.",
+    "definitions_required": [
+      {"term": "style and consistency", "quote": "The best candidates thought about how to structure the answer and provided clear definitions for style and consistency."}
+    ],
+    "required_elements": [
+      {
+        "element": "Explain why and how a given procedure helps achieve consistency, not just list procedures",
+        "quote": "Poorer answers usually omitted to discuss why or how a procedure could help achieve consistency, often stating that doing the same thing every year (same grape sources, same yeasts, same temp, blend recipe, etc.) could be relied upon to achieve consistency.",
+        "weight": "core"
+      },
+      {
+        "element": "Structure: identify elements working against consistency (vintage variation, weather) before addressing techniques to achieve it",
+        "quote": "one approach was to begin by identifying those elements that work against a wine style (e.g., vintage variations, unfavourable weather effects, etc.) and thus consistency before moving on to how techniques can be employed to help achieve a consistent wine style, such as blending, pH, management of alcohol and residual sugar, flavour profile and maturation choices.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Cover still wine consistency techniques in depth (must adjustment, yeast/MLF choices, maturation vessels, tannin adjustment, blending across varieties/years), not concentrate only on solera systems",
+        "quote": "Many scripts concentrated too much on solera systems, when there was much that needed to be said about still wines: how must might be adjusted, use of yeast and MLF, various maturation vessels, tannin adjustment, blending across varieties and using other years' wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss blending older vintages or large-volume wines into the new season's wine to 'freshen' the blend",
+        "quote": "Surprisingly few candidates talked in depth about blending either older vintages or large-volume wines that blend into the new season's wine to 'freshen' the previous year's blend. This omission demonstrates a lack of knowledge of commercial reality.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Balance coverage across wine types rather than over-concentrating on sparkling wine",
+        "quote": "most candidates covered sparkling wines in detail, but a few appeared to spend too long on this at the expense of other areas.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Better answers noted the main types of wine where consistency was needed, explained why, and addressed options using varied and valid examples",
+        "quote": "The better answers noted the main types of wine where consistency was needed and explained why, then addressed options available to achieve this, using examples that were varied and valid."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Sloppy, unexplained examples such as 'X likes to do this with his wines' without analysis or contrast",
+        "quote": "Several answers had rather sloppy examples, e.g. \"X likes to do this with his wines\" without explaining how and why that procedure could work or by contrasting with another producer who chooses to do something else."
+      },
+      {
+        "signal": "Relaying taught information without comment or question, failing to support the argument",
+        "quote": "It appeared the candidates relayed back information they had been told without comment or question and therefore did not adequately support their argument."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples needed to be varied and valid, and used to explain how/why a procedure works, not asserted without analysis",
+      "named_in_report": [],
+      "quote": "using examples that were varied and valid."
+    },
+    "scope_traps": [],
+    "performance_note": "Despite this question's popularity, it was the poorest answered on the paper.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p2_q5",
+    "year": 2022,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Describe what a winemaker can do when faced with each of the following situations:\n\na) Stuck fermentation\nb) Undesirable oxidative characters, including mouse taint\nc) Early-stage Brettanomyces infection",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Describe",
+    "command_word_demand": "Good technical knowledge was needed across all three parts to do well in this question.",
+    "definitions_required": [
+      {"term": "stuck fermentation parameters", "quote": "We expected candidates to explain what parameters constitute a stuck fermentation and the issues that can arise if left untreated, followed by the steps a winemaker can take to rectify the problem."},
+      {"term": "Brettanomyces (brief)", "quote": "Whilst a brief definition of Brettanomyces was still important, the main thrust of the question was looking at procedures that could mitigate Brettanomyces taint."}
+    ],
+    "required_elements": [
+      {
+        "element": "Give balanced coverage across all three parts a, b and c rather than concentrating on one or two",
+        "quote": "A number of candidates devoted too much of their answer to one or two parts and not enough on the other(s).",
+        "weight": "core"
+      },
+      {
+        "element": "(a) Explain what parameters constitute a stuck fermentation, the issues that can arise if untreated, and the steps a winemaker can take to rectify it",
+        "quote": "We expected candidates to explain what parameters constitute a stuck fermentation and the issues that can arise if left untreated, followed by the steps a winemaker can take to rectify the problem.",
+        "weight": "core"
+      },
+      {
+        "element": "(b) Cover all forms of oxidative character, not just mouse taint",
+        "quote": "The question stipulated that mouse taint should form part of the answer but we expected all forms of oxidative characters to be covered.",
+        "weight": "core"
+      },
+      {
+        "element": "(b) Discuss how oxygen enters the wine and preventive practices: refrigeration, inert gas, good SO2 practice",
+        "quote": "very few answers suggested checking how the oxygen got into the wine in the first place; how refrigeration can minimise it, along with inert gas and good SO2 practices.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "(c) Focus on procedures that mitigate Brettanomyces taint (SO2, pH adjustments, filtration, blending, pre-bottling options), not just describe Brett",
+        "quote": "the main thrust of the question was looking at procedures that could mitigate Brettanomyces taint. Areas to touch upon included SO2, pH adjustments, filtration techniques, blending, and reference to pre-bottling options.",
+        "weight": "core"
+      },
+      {
+        "element": "(c) Recognise that SO2 will not destroy Brettanomyces",
+        "quote": "many still did not recognise that SO2 will not destroy Brettanomyces.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "(a) Relevant list of causes followed by simple fixes (temperature, aeration) before more laborious remedies (mixing with successful ferments, yeast hulls, inoculation)",
+        "quote": "The better candidates gave a relevant list of how the situation could have arisen, followed by more straightforward fixes such as temperature and aeration before tackling the more laborious processes of mixing with successful ferments, yeast hulls or inoculation."
+      },
+      {
+        "signal": "(c) Noting Brett primarily affects red wine due to pH and skin contact",
+        "quote": "Only one candidate clarified that Brett primarily affects red wine (due to pH and skin contact) and thus is very rarely seen in white or rosé"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "(b) Muddling types of oxidation without identifying causes, or giving a scattergun list of remedies without weighing effectiveness, cost or quality risk",
+        "quote": "Several candidates got muddled between the types of oxidation without clearly identifying the causes; others just gave a scattergun approach to remedies without considering relative effectiveness, cost or any threat to the quality of the solution."
+      },
+      {
+        "signal": "(a) Suggesting winemakers would only detect a stuck fermentation once serious spoilage had set in, or offering irrelevant fixes like bottling with RS or getting MLF going",
+        "quote": "The poorer answers suggested that winemakers would only know that the fermentation had stuck once serious spoilage and off smells had set in; they often included some irrelevant suggestions, such as bottling wines with RS if they could not start it or how to get MLF going."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Writing everything known about Brettanomyces rather than mitigation procedures",
+        "quote": "whilst all the candidates recognised Brettanomyces, the question did not ask for 'everything I know on Brett'."
+      },
+      {
+        "trap": "Treating part a) stuck fermentation as the 'banker' safe section and over-investing in it at the expense of b) and c)",
+        "quote": "It appeared that candidates felt the stuck fermentation of Part a) was the 'banker'"
+      }
+    ],
+    "performance_note": "This was not a popular question, and was also one of the least well-answered. Nonetheless, this section [part a] was answered the best.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p2_q6",
+    "year": 2022,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Analyse the options available to producers of high-quality Chardonnay for reducing the risk of premature oxidation in bottle.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Analyse",
+    "command_word_demand": "The expectation was that candidates analyse those winemaking options that can reduce the risk of premature oxidation in bottles.",
+    "definitions_required": [
+      {"term": "premature oxidation / introductory definitions", "quote": "Introductory definitions were needed here."}
+    ],
+    "required_elements": [
+      {
+        "element": "Show understanding of the chemistry behind each process and state correct technical metrics",
+        "quote": "Candidates needed to show understanding of the chemistry behind each process and have the technical detail to correctly state metrics.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the full winemaking process, including pressing and resulting phenolic extraction, not just oxygen exclusion",
+        "quote": "many students wrote an essay on \"how to exclude oxygen from the winemaking and packaging process\" instead, which resulted in those candidates overlooking any discussion of pressing grapes and resulting phenolic extraction.",
+        "weight": "core"
+      },
+      {
+        "element": "Address pH and its impact on wine ageing, and SO2 levels during maturation with correct addition times and rates",
+        "quote": "Candidates were expected to touch on pH and the impact on wine ageing, SO2 levels during maturation and addition rates. Many failed to do this or, if these were mentioned, they struggled to identify correct addition times and rates.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover phenolic compounds and their effects, lees management, SO2 levels prior to bottling, and styles of Chardonnay most affected",
+        "quote": "Answers should also have covered phenolic compounds and their effects, lees management, SO2 levels prior to bottling and styles of Chardonnay most affected.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss turbidity and glutathione levels",
+        "quote": "Looking at turbidity and glutathione levels made the top candidates stand out.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Restrict discussion to high-quality Chardonnay, not other grape varieties or lower-quality Chardonnay",
+        "quote": "It was important not to cover other grape varieties nor lower-quality Chardonnay.",
+        "weight": "core"
+      },
+      {
+        "element": "Include relevant packaging/closure discussion (corks and closures) where pertinent to the premox problem",
+        "quote": "it is still relevant to include some packaging discussion in Paper 2 answers where it is relevant - such as this question where corks and closures have been a fundamental part of the discussion of the problem of premature oxidation.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Discussing turbidity and glutathione levels distinguished top candidates",
+        "quote": "Looking at turbidity and glutathione levels made the top candidates stand out."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Essays that talked at length about historical 'Premox' examples rather than analysing winemaking options",
+        "quote": "Essays that talked at length about \"Premox\" examples through the ages were unlikely to pass."
+      },
+      {
+        "signal": "Failing to identify correct SO2 addition times and rates, and not connecting SO2 efficacy to pH",
+        "quote": "As in question 5, the connection between pH and SO2 does not seem well understood, yet it is crucial to winemaking. Many scripts did not touch upon it."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Burgundy was the implicit reference point for high-quality Chardonnay premox, even though not named in the question",
+      "named_in_report": ["Burgundy"],
+      "quote": "It was surprising that although the question does not mention Burgundy, two candidates did not reference it at all."
+    },
+    "scope_traps": [
+      {
+        "trap": "Referencing Champagne as an example of high-quality Chardonnay with premox issues",
+        "quote": "Two papers included references to Champagne which is not a style of high-quality Chardonnay with \"premox\" issues."
+      },
+      {
+        "trap": "Reframing the question as 'how to exclude oxygen from the winemaking and packaging process' generally, missing pressing/phenolic extraction",
+        "quote": "many students wrote an essay on \"how to exclude oxygen from the winemaking and packaging process\" instead, which resulted in those candidates overlooking any discussion of pressing grapes and resulting phenolic extraction."
+      },
+      {
+        "trap": "Covering other grape varieties or lower-quality Chardonnay",
+        "quote": "It was important not to cover other grape varieties nor lower-quality Chardonnay."
+      }
+    ],
+    "performance_note": "This was a highly focused question and, if unpacked correctly, was a chance to score well.",
+    "extraction_notes": ""
+  }
+]

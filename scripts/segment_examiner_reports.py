@@ -80,17 +80,22 @@ REPORT_SOURCES: dict[int, list[str]] = {
     2025: ["docs/examiners reports/Theory-Examiners-Report-2025.pdf"],
 }
 
-# Reports whose questions live in the five-paper theory corpus and can be anchored.
-ANCHORABLE_YEARS = [2016, 2017, 2018, 2019, 2023, 2024, 2025]
-
-# 2021 and 2022 theory reports exist in docs/examiners reports/ but are IMAGE SCANS with
-# no text layer (75 and 48 extractable characters across 24 and 23 pages). They need OCR,
-# or page-render transcription like the 2021-2023 exam papers, before they can be
-# segmented. Listing them here so their absence is a recorded decision, not an oversight.
-IMAGE_SCAN_YEARS = {
-    2021: "docs/examiners reports/2021-Theory-Exam-Report.pdf",
-    2022: "docs/examiners reports/Theory-Examiners-Report-2022-1.pdf",
+# The 2021 and 2022 theory reports were published as image-only PDFs (75 and 48
+# extractable characters across 24 and 23 pages). They have been transcribed from
+# 170-DPI page renders into these sidecars, which the resolver prefers over the PDF.
+#
+# Provenance matters here and is propagated to every segment as `text_source`. For every
+# other year the text is the publisher's own embedded layer; for these two it is a
+# transcription. The quote gate can then only prove a quote matches the transcription, not
+# that the transcription matches the printed report — a real, if small, weakening of the
+# evidence chain that a grader showing "the examiners' exact words" should know about.
+OCR_SOURCES: dict[int, str] = {
+    2021: "data/theory/ocr/2021_theory_report.txt",
+    2022: "data/theory/ocr/2022_theory_report.txt",
 }
+
+# Reports whose questions live in the five-paper theory corpus and can be anchored.
+ANCHORABLE_YEARS = [2016, 2017, 2018, 2019, 2021, 2022, 2023, 2024, 2025]
 
 # Reports covering the four-paper era: no corpus questions to anchor, principles only.
 PRINCIPLES_ONLY_YEARS = [2010, 2011, 2012, 2013, 2014]
@@ -115,24 +120,41 @@ SECTION_TERMINATORS = [
 ]
 
 
-def resolve_report(year: int) -> Path:
-    """First existing candidate path for a year's examiners' report."""
-    if year in IMAGE_SCAN_YEARS:
-        raise SystemExit(
-            f"FAIL: the {year} theory report ({IMAGE_SCAN_YEARS[year]}) is an image scan "
-            f"with no text layer. It needs OCR or page-render transcription before it can "
-            f"be segmented."
-        )
+def resolve_report(year: int) -> tuple[Path, str]:
+    """Locate a year's report text. Returns (path, text_source).
+
+    A transcription sidecar wins over the PDF, because for the years that have one the
+    PDF carries no usable text at all.
+    """
+    ocr = OCR_SOURCES.get(year)
+    if ocr and (ROOT / ocr).exists():
+        return ROOT / ocr, "transcribed_render"
     for cand in REPORT_SOURCES.get(year, [f"source/imw_pdfs/examiners_report_{year}.pdf"]):
         p = ROOT / cand
         if p.exists():
-            return p
+            return p, "pdf_text_layer"
     raise SystemExit(
         f"FAIL: no examiners' report found for {year}. Tried: "
         f"{', '.join(REPORT_SOURCES.get(year, []))}. Public reports come from "
         f"scripts/fetch_imw_pdfs.py; 2017, 2019 and 2021-2025 are IMW student-area only "
         f"and must be added to 'docs/examiners reports/' by hand."
     )
+
+
+def read_report(path: Path) -> str:
+    """Read report text from either a PDF or a transcription sidecar."""
+    if path.suffix.lower() == ".txt":
+        lines = path.read_text(encoding="utf-8").splitlines()
+        # Strip the sidecar's provenance header so its wording can never be quoted as
+        # though it were the examiners'.
+        text = "\n".join(l for l in lines if not l.startswith("#"))
+        # Strip the transcription's own page separators. They are scaffolding, not
+        # examiner prose, and a paragraph that runs across a page break would otherwise
+        # put "===== PAGE 16 =====" inside an extracted quote — presented to a candidate
+        # as the examiners' words.
+        text = re.sub(r"=+\s*PAGE\s+\d+\s*=+", " ", text)
+        return text
+    return read_pdf_text(path)
 
 
 def read_pdf_text(path: Path) -> str:
@@ -333,8 +355,8 @@ def find_theory_end(report: str, after: int) -> int:
 
 
 def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
-    pdf = resolve_report(year)
-    raw = read_pdf_text(pdf)
+    pdf, text_source = resolve_report(year)
+    raw = read_report(pdf)
     report = normalise(raw)
     if len(report) < 5000:
         raise SystemExit(
@@ -430,6 +452,8 @@ def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
             "section": q["section"],
             "question_text": q["text"],
             "source_report": pdf.name,
+        "text_source": text_source,
+            "text_source": text_source,
             "coverage": "full",
             "paper_preamble": paper_preambles.get(q["paper"], ""),
             "theory_chair_report": theory_chair_report,
@@ -451,6 +475,8 @@ def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
             "section": q["section"],
             "question_text": q["text"],
             "source_report": pdf.name,
+        "text_source": text_source,
+            "text_source": text_source,
             "coverage": "none",
             "paper_preamble": paper_preambles.get(q["paper"], ""),
             "theory_chair_report": theory_chair_report,
@@ -465,6 +491,7 @@ def segment_report(year: int, questions: list[dict]) -> tuple[list[dict], dict]:
     coverage = {
         "year": year,
         "source_report": pdf.name,
+        "text_source": text_source,
         "report_chars": len(report),
         "questions_total": len(yq),
         "questions_covered": sum(1 for s in segments if s["coverage"] == "full"),

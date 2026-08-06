@@ -1,0 +1,387 @@
+[
+  {
+    "id": "th_2022_p5_q1",
+    "year": 2022,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "'Natural wine does not need a legal definition.' Discuss.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "This question was asking candidates to explore recent attempts to define the category of \"natural wine\" and discuss the potential benefits and drawbacks of its legal definition for producers, consumers and others in the wine industry.",
+    "definitions_required": [
+      {
+        "term": "natural wine",
+        "quote": "Candidates needed to provide their own definition of the category, which acknowledged the ambiguity and the existence of differences of opinion, and clearly argue whether it should/could be reconciled through clearer legal definitions of the use of the term, or a related one, such as \"naturally-produced wine\" or \"minimal intervention wine\"."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Provide an own definition of natural wine that acknowledges the ambiguity and disagreement in the category, and argue whether it could be reconciled through clearer legal definitions",
+        "quote": "Candidates needed to provide their own definition of the category, which acknowledged the ambiguity and the existence of differences of opinion, and clearly argue whether it should/could be reconciled through clearer legal definitions of the use of the term, or a related one, such as \"naturally-produced wine\" or \"minimal intervention wine\".",
+        "weight": "core"
+      },
+      {
+        "element": "Reach a clear, reasoned position on whether legal definition would be beneficial or not, for the range of stakeholders (producers, distributors, regulatory bodies, QA professionals, consumers, society)",
+        "quote": "Ultimately a clear, reasoned answer was needed as to whether a legal definition of natural wine…would be beneficial, or not, for producers, distributors, regulatory bodies, QA professionals, consumers, society, etc; and why.",
+        "weight": "core"
+      },
+      {
+        "element": "Show awareness of the 2020 INAO Vin Méthode Nature definition and the existence of multiple organisations with their own unofficial definitions and guidelines",
+        "quote": "A good answer required some consideration of the 2020 INAO definition of Vin Méthode Nature and the existence of multiple organisations with their own unofficial definitions and guidelines, such as Vini Veri, Vinnatur, the Natural Wine Association, RAW wine and others.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Critically considered how strict or loose a legal definition might be, and whether wines in the category are already effectively controlled through existing organisations or organic/biodynamic certification",
+        "quote": "The better answers considered how a legal definition might be more, or less, strict, and how that might be more, or less, useful, and critically examined whether wines in this category are already effectively controlled through the guidance of some or all of the different organisations, as well as the existing restrictions on certified organic and biodynamic producers."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Vague rather than precise on sulphur levels, a key point of contention in the natural wine debate",
+        "quote": "A few answers were very precise on sulphur levels, but most were vague."
+      },
+      {
+        "signal": "Insufficient supporting examples and evidence",
+        "quote": "Many answers needed more by way of supporting examples and evidence."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples of producers or industry influencers only counted if directly tied to the argument for or against legal control, not used decoratively",
+      "named_in_report": [
+        "Vin Méthode Nature",
+        "Vini Veri",
+        "Vinnatur",
+        "Natural Wine Association",
+        "RAW Wine"
+      ],
+      "quote": "Examples of producers (or industry influencers) were relevant, but only insofar as they directly related to arguments for or against legal controls; the differences of opinion over what should be permitted in \"natural wine\" (such as artificial cooling of tanks, and the use of a modest amount of sulphites or not); and the idea of coming to agreement on this term, or an alternative."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "The report's transcription splits across a page break inside one sentence ('...natural wine 20 ===== PAGE 21 ===== would be beneficial...'); the quote for the second required_element was trimmed with an ellipsis around that page-marker scaffolding, wording otherwise verbatim."
+  },
+  {
+    "id": "th_2022_p5_q2",
+    "year": 2022,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Assess the main challenges and opportunities for the wine education industry around the globe in the next ten years.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Assess",
+    "command_word_demand": "An evidence-based answer, identifying several challenges and opportunities, was required... Ultimately, the answer required a clear opinion on the \"main\" challenges and opportunities, over the 10-year time horizon.",
+    "definitions_required": [
+      {
+        "term": "wine education industry",
+        "quote": "A clear definition of \"wine education industry\" was needed - with the expectation that this encompasses trade and consumer audiences, on a wide-ranging, global scale."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define wine education industry to encompass both trade and consumer audiences on a global scale",
+        "quote": "A clear definition of \"wine education industry\" was needed - with the expectation that this encompasses trade and consumer audiences, on a wide-ranging, global scale.",
+        "weight": "core"
+      },
+      {
+        "element": "Focus mainly on the formal, course-based education industry (product-focused, professional skills e.g. UC Davis/Geisenheim, and wine business e.g. wine MBAs), while acknowledging informal education channels",
+        "quote": "Furthermore, as well as product-focused education, professional skills education (e.g., UC Davis, Geisenheim etc.) and wine business (e.g., wine MBAs), were also important to consider.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Give an evidence-based answer identifying several challenges and opportunities, with supporting examples exploring variation between countries/markets",
+        "quote": "An evidence-based answer, identifying several challenges and opportunities, was required. It was also expected that supporting examples would be utilised to explore some of the variations between different countries/markets.",
+        "weight": "core"
+      },
+      {
+        "element": "Reach a clear opinion on the 'main' challenges and opportunities specifically over the 10-year time horizon set by the question",
+        "quote": "Ultimately, the answer required a clear opinion on the \"main\" challenges and opportunities, over the 10-year time horizon.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clear definition dealt with global perspective and the context of major political/social events outside the wine industry, critical approach backed by good examples",
+        "quote": "Good answers had a clear definition and dealt with the challenges and opportunities with a global perspective, in the context of major political and social events outside the wine industry, taking a very critical approach backed up by good examples."
+      },
+      {
+        "signal": "Referenced a recent report on wine education or trend data from annual reports",
+        "quote": "Stronger answers made reference to a recent report on wine education (such as the WSET's \"Consumer Wine Education: should the wine trade care?\") or trend data from annual reports, such as those published by the IMW."
+      },
+      {
+        "signal": "Clear handle on consumer trends and attitudes across global and generational contexts, linked back to why this matters for the industry",
+        "quote": "The best answers had a clear handle on consumer trends and attitudes in myriad global and generational contexts - linking these back to why this was important for the industry to understand, in continuing to…provide relevant education."
+      },
+      {
+        "signal": "Went beyond the obvious, commonly-repeated challenges/opportunities to more nuanced, less obvious thoughts",
+        "quote": "candidates put themselves in a stronger position by trying to think more broadly and come up with less obvious, more nuanced thoughts where they can."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Failed to address the breadth of the topic, or merely listed challenges/opportunities without critically assessing them or giving specific examples",
+        "quote": "Poor answers failed to address the breadth of the topic, or merely listed some of the challenges and opportunities without properly critically assessing them, or providing specific supporting examples."
+      },
+      {
+        "signal": "Most papers converged on the same 'main' challenges and opportunities rather than showing individual understanding",
+        "quote": "The examiners observed that most papers seemed to touch on the same \"main\" challenges and opportunities."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Supporting examples exploring variation between different countries/markets, ideally citing named industry reports or trend data rather than generic assertion",
+      "named_in_report": [
+        "WSET's Consumer Wine Education: should the wine trade care?",
+        "annual reports, such as those published by the IMW",
+        "UC Davis",
+        "Geisenheim"
+      ],
+      "quote": "Stronger answers made reference to a recent report on wine education (such as the WSET's \"Consumer Wine Education: should the wine trade care?\") or trend data from annual reports, such as those published by the IMW."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "One credit_signal quote spans a page break ('...continuing to 21 ===== PAGE 22 ===== provide relevant education'); trimmed with an ellipsis around the page-marker scaffolding, wording otherwise verbatim."
+  },
+  {
+    "id": "th_2022_p5_q3",
+    "year": 2022,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "How is artificial intelligence being used within the wine industry and what might its impact be in the coming decades?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "How is...being used...and what might its impact(s) be",
+    "command_word_demand": "This question was testing the student on what AI means in the context of the wine industry, how we see it applied currently, and how we imagine AI will impact the future global wine industry.",
+    "definitions_required": [
+      {
+        "term": "artificial intelligence (AI)",
+        "quote": "Poorer answers failed to define what they considered to be AI, or confused more straightforward technologies (for example, temperature sensors or human-operated mechanical harvesters) with what might reasonably be called AI."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Consider the entire wine supply chain, with a range of examples of AI application (vineyard/winery management systems, marketing apps, virtual assistants, autonomous vehicles/drones etc.)",
+        "quote": "It was expected that the entire supply chain would be considered, with a host of examples touched upon, such as integrated vineyard or winery management systems, incorporating things like predictive water-stress algorithms or disease-monitoring robots; intelligent wine marketing apps, integrated with social media and search engines; virtual wine assistants or sommeliers; autonomous vehicle or drone applications, etc.",
+        "weight": "core"
+      },
+      {
+        "element": "Explicitly address the word 'impacts' - the potential ethical, financial and social impacts of AI, including its role in labour shortages/replacing human labour",
+        "quote": "The word \"impacts\" in the question needed to be explored, and successful answers considered some of the potential ethical, financial and social impacts of AI, and touched on AI's role in addressing labour shortages and replacing human labour, in particular.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Clear definition of AI reflecting capabilities normally requiring human intelligence, plus diverse examples of current and future applications across the global wine industry",
+        "quote": "The better answers had a clear definition of AI, reflecting capabilities we typically expect would require human intelligence (such as intelligent autonomous operations, sophisticated interpretative abilities, integrated decision-making, and the ability to adapt) and diverse examples of current and possible future applications, to illustrate a broad knowledge of the global wine industry."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Failed to define AI, or confused simple/older technologies (e.g. temperature sensors, human-operated mechanical harvesters) with AI",
+        "quote": "Poorer answers failed to define what they considered to be AI, or confused more straightforward technologies (for example, temperature sensors or human-operated mechanical harvesters) with what might reasonably be called AI."
+      },
+      {
+        "signal": "Very few answers explored the environment-related motivations for AI (climate adaptation, water optimisation, emissions reduction)",
+        "quote": "very few answers explored the diverse, environment-related motivations for developing AI, as the benefits in this area could be significant, in terms of adapting to climate change, optimising water use, reducing emissions throughout the supply chain etc."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A host of concrete examples spanning the supply chain, not just one area of application",
+      "named_in_report": [
+        "predictive water-stress algorithms",
+        "disease-monitoring robots",
+        "intelligent wine marketing apps",
+        "virtual wine assistants or sommeliers",
+        "autonomous vehicle or drone applications"
+      ],
+      "quote": "It was expected that the entire supply chain would be considered, with a host of examples touched upon, such as integrated vineyard or winery management systems, incorporating things like predictive water-stress algorithms or disease-monitoring robots; intelligent wine marketing apps, integrated with social media and search engines; virtual wine assistants or sommeliers; autonomous vehicle or drone applications, etc."
+    },
+    "scope_traps": [
+      {
+        "trap": "Assuming the question demanded deep technical detail on precisely where AI begins and ends",
+        "quote": "Where AI begins and ends is up for debate and that was not being examined here: a good answer to this question did not require deep technical detail."
+      }
+    ],
+    "performance_note": "It was clear, by the lower turnout of papers for this question, that it was an intimidating one for many students...This was a more accessible question than perhaps many realised, reflected in the higher pass rate of those who attempted it.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2022_p5_q4",
+    "year": 2022,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Are biodynamic practices the key to more sustainable wine production?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Are...the key to",
+    "command_word_demand": "In the broadest terms, this was testing the ability to construct a cohesive evidence-based argument, critically assessing the relative contribution biodynamic practices might make to sustainable wine production.",
+    "definitions_required": [
+      {
+        "term": "sustainable",
+        "quote": "A definition of sustainable was required that went beyond the…vineyard and winery, looking at the long-term viability of the wine industry."
+      },
+      {
+        "term": "key",
+        "quote": "The term \"key\" can be interpreted in different ways, as either the most crucial aspect, or the one that unlocks others. Candidates were free to examine either interpretation, or both."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define sustainable beyond just the vineyard and winery, addressing the long-term viability of the wine industry",
+        "quote": "A definition of sustainable was required that went beyond the…vineyard and winery, looking at the long-term viability of the wine industry.",
+        "weight": "core"
+      },
+      {
+        "element": "Demonstrate understanding of biodynamic practices with an evidence-based analysis of how sustainable they are",
+        "quote": "An understanding of biodynamic practices had to be demonstrated, along with an evidence-based analysis of how sustainable these are.",
+        "weight": "core"
+      },
+      {
+        "element": "Compare biodynamics to a balanced view of the contrasting sustainability advantages of 'conventional' and 'organic' approaches, and other approaches entirely",
+        "quote": "Beyond this, biodynamics needed to be considered in comparison to a balanced view of the contrasting sustainability advantages that may come from \"conventional\" and \"organic\" approaches; and those that might be achieved in other ways entirely.",
+        "weight": "core"
+      },
+      {
+        "element": "Identify broader sustainability considerations beyond biodynamics' compass (packaging sourcing, reducing glass use, renewable energy, fair trade, waste management, logistics)",
+        "quote": "Wine production involves more than just the vineyard and answers needed to identify broader sustainability considerations, such as packaging sourcing, reducing glass use, renewable energy, fair trade, waste management and logistics solutions, which may not fall within BD's compass.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Considered the financial and social aspects of sustainability, not just environmental ones",
+        "quote": "Good answers considered the financial and social aspects of sustainability, as well as environmental ones."
+      },
+      {
+        "signal": "Reached a sensible conclusion that adopting selected biodynamic practices, rather than full adoption/certification, might often be more appropriate",
+        "quote": "Many candidates arrived at a sensible conclusion that adopting selected practices from BD, versus full adoption and certification, might often be more appropriate."
+      },
+      {
+        "signal": "Explored the practical aspects of biodynamic methods in detail, including scalability, labour and cost implications versus other production philosophies, with real-world quantified comparative examples",
+        "quote": "The best papers explored the practical aspects of biodynamic methods in detail and considered its scalability, labour and cost implications, compared to other production philosophies, using real-world, quantified, comparative examples."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked any definitions and presented too much background description of biodynamics rather than critical, evidence-based analysis answering the question",
+        "quote": "Weaker answers lacked any definitions and presented too much background description of biodynamics, rather than critical analysis with supporting evidence to try to answer the question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Real-world, quantified, comparative examples on scalability, labour and cost versus other production philosophies, not generic description",
+      "named_in_report": [],
+      "quote": "The best papers explored the practical aspects of biodynamic methods in detail and considered its scalability, labour and cost implications, compared to other production philosophies, using real-world, quantified, comparative examples."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "The report's transcription splits across a page break inside one sentence ('...beyond the 22 ===== PAGE 23 ===== vineyard and winery...'); the quote for the sustainability-definition requirement was trimmed with an ellipsis around that page-marker scaffolding, wording otherwise verbatim."
+  },
+  {
+    "id": "th_2022_p5_q5",
+    "year": 2022,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Does anyone still need wine writers?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Does...still need",
+    "command_word_demand": "This was a direct question with no \"wrong\" answer, provided a wide range of aspects were addressed, and the answer was based on specific, convincing evidence, rather than a collection of loose opinions.",
+    "definitions_required": [
+      {
+        "term": "needs",
+        "quote": "Specific \"needs\" of clearly identified populations (which might include demographic-, cultural-, engagement- or expertise-related distinctions etc.) had to be discussed."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Show a historical perspective in order to address the current relevance of wine writers to all parts of the global wine community, including the full range of printed/digital writers and readers, consumer and trade",
+        "quote": "Candidates needed to show an historical perspective in order to directly address the current relevance of wine writers to all parts of the global wine community - including the full range of printed/digital writers and readers, both consumer and trade.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss specific 'needs' of clearly identified populations (demographic-, cultural-, engagement- or expertise-related distinctions)",
+        "quote": "Specific \"needs\" of clearly identified populations (which might include demographic-, cultural-, engagement- or expertise-related distinctions etc.) had to be discussed.",
+        "weight": "core"
+      },
+      {
+        "element": "Look both forward and back in time when addressing whether wine writers are still needed",
+        "quote": "Answers needed to look forward and back in time, as the question required addressing whether wine writers are still needed.",
+        "weight": "core"
+      },
+      {
+        "element": "Give special emphasis to the recent challenges/opportunities provided by social media and online channels",
+        "quote": "A special emphasis on the recent challenges/opportunities provided by the social media and online channels was expected.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a global approach with international evidence and reach a definitive, nuanced conclusion as to who still might need/not need wine writers, and for what purposes",
+        "quote": "A global approach was also looked for, with plenty of international evidence and a definitive, nuanced conclusion as to \"who\" still might need/not need wine writers, and if so, for what purposes.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Understood the global breadth of the issue, not restricted to English-speaking markets or publications",
+        "quote": "Good candidates understood the global breadth of the issue and were not restricted to English-speaking markets or publications."
+      },
+      {
+        "signal": "Placed sufficient emphasis on the 'needs' aspect (education, advice, information, publicising/marketing etc.)",
+        "quote": "Good papers clearly answered the question, with sufficient emphasis on the 'needs' (e.g. education, advice, information, publicising/marketing etc.) aspect, which in some other answers was completely ignored."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked clear definitions, offered vague opinion-led answers without specific real-life evidence, or ignored the historical aspect entirely",
+        "quote": "Not-so-good answers lacked clear definitions and offered vague, opinion-led answers without any specific evidence and examples from real life in support, or completely ignored the historical aspect."
+      },
+      {
+        "signal": "Narrow answers failed to address the range of types of wine writing and the impact of social media on wine communication",
+        "quote": "There were many narrow answers which failed to address the range of types of wine writing and the impact which social media has brought to wine communication."
+      },
+      {
+        "signal": "Limited scope so far that credibility was lost, e.g. excluding press releases, wine critics, or certain digital content",
+        "quote": "Some papers limited their scope to such an extent that they lacked credibility (for example, press releases, the writing of wine critics, or certain types of digital content were excluded)."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "International evidence, not restricted to English-speaking markets or publications",
+      "named_in_report": [],
+      "quote": "Good candidates understood the global breadth of the issue and were not restricted to English-speaking markets or publications."
+    },
+    "scope_traps": [
+      {
+        "trap": "Defining 'wine writers' too narrowly, excluding categories such as press releases, wine critics, or certain digital content, which undermined credibility",
+        "quote": "Some papers limited their scope to such an extent that they lacked credibility (for example, press releases, the writing of wine critics, or certain types of digital content were excluded)."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  }
+]

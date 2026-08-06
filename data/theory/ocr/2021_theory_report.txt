@@ -1,0 +1,383 @@
+# TRANSCRIBED TEXT — NOT A PUBLISHER TEXT LAYER
+#
+# Source PDF: docs/examiners reports/2021-Theory-Exam-Report.pdf
+# The IMW published this report as an image-only PDF (24 pages, 75 extractable
+# characters). This file is a verbatim page-by-page transcription of 170-DPI renders of
+# those pages, produced by vision transcription rather than by extracting an embedded
+# text layer.
+#
+# PROVENANCE WARNING: every rubric built from this file inherits that. The quote gate can
+# only prove a quote matches THIS TRANSCRIPTION; it cannot prove the transcription matches
+# the printed report. Rubrics sourced here are tagged text_source="transcribed_render".
+# Treat them as slightly weaker evidence than rubrics from a publisher text layer, and
+# re-check any quote that will be shown to a candidate as an examiner's exact words.
+#
+# Transcription rules applied: verbatim, no summarising, no spelling or grammar
+# correction, page numbers and question markers preserved as printed.
+
+===== PAGE 1 =====
+THE INSTITUTE OF
+MASTERS of WINE
+
+Theory Report
+2021 Stage 2 MW exam
+
+Theory Chair Report: Beverley Blanning MW..............................................................2
+Theory Exam Paper One: Joel Butler MW....................................................................3
+Theory Exam Paper Two: Meg Brodtmann MW ..........................................................7
+Theory Exam Paper Three - Caroline Gilby MW.........................................................13
+Theory Exam Paper Four: Simon Thorpe MW............................................................18
+Theory Exam Paper Five: Susan McCraith MW..........................................................21
+
+1
+
+===== PAGE 2 =====
+Theory Chair Report: Beverley Blanning MW
+The examiners reported some excellent answers across the board this year and fewer low-scoring papers. But relatively few candidates scored well across all papers, more commonly doing well in two or three papers and falling short in the others. One of the major challenges of the MW exam is that it requires both breadth and depth of knowledge across many aspects of the wine industry. This challenge should not be underestimated and students are advised to know their strengths and weaknesses so they can focus their studies accordingly. It is difficult to achieve a pass without a strong all-round performance.
+
+For MW-level answers, we expect facts to be accurate. But beyond the factual basics, examiners are looking for evidence of real-world understanding and critical analysis. For the majority of questions, it is not enough simply to write a descriptive essay, even if it is factually correct. The questions are designed to test more than this. Lack of critical thinking is frequently cited by examiners as a reason why candidates fail to achieve higher marks. This was particularly noted this year on Papers 4 and 5, which had lower pass rates compared to the other three papers.
+
+Candidates are urged to read the questions carefully. Every year many marks are lost unnecessarily by candidates failing to answer the question – or the whole question. It might sound obvious, but if a question has two parts, it is necessary to answer both parts. If a question asks for an opinion, the answer requires an opinion, informed by evidence. If a question starts with the words 'To what extent...', or 'How important...'. we expect candidates to consider multiple options: A lot? A little? Not at all? – and to tell us why.
+
+The examiners are flexible on essay writing style, but this is nevertheless an exam that tests the ability to communicate in writing. If essays are incoherent, it suggests that the thoughts of the writer are as well. A poor standard of written English is likely to hinder a candidate's ability to communicate to the appropriate level to merit a pass. Candidates who are non-native English speakers and unable to write fluently in English are encouraged to use the excellent translation service available to them.
+
+The Paper Chairs' reports that follow contain both general commentary and specific feedback on each question. The aim of these reports is to provide insight and understanding into what is required to achieve a pass in this part of the MW exam. We hope they serve this purpose.
+
+2
+
+===== PAGE 3 =====
+Theory Exam Paper One: Joel Butler MW
+
+General Comments
+This year's exam revealed overall a higher standard of answers compared to previous years, notwithstanding some of the general negatives that examiners have remarked upon for years. Answering a different question to the one set was less commonly seen than in previous years. There were also fewer serious factual errors. Aside from certain spelling mistakes, there was generally a sound quality of written style.
+
+On the negative side, examiners noted that many papers were more a 'content dump' than an analysis of the question. Other papers showed a lack of pertinent examples to support their discussion. As a rule, the best examples come from candidates' personal experience in the wine world, not from a generic example read in a book. Having specific personal experience that contributes to a paper can show the nuances necessary to reveal mastery of the subject matter under examination.
+
+This year's questions for Paper 1 tested both general and specific knowledge and understanding about viticultural issues. Two questions were more technical in nature and required more than passing familiarity with the subject to garner a passing mark. Both were the least answered questions, yet one had the highest pass rate on the paper, even though it required strong technical knowledge.
+
+Q1. Evaluate the principal factors to consider when establishing a vineyard in a marginal climate.
+This question caused problems for some, although over a third of candidates who attempted it achieved a pass. A clear understanding of 'marginal climate' was needed. The question was not about extreme climates, nor difficult climates (e.g. a climate requiring irrigation). Answers needed to be focused on issues directly related to the challenges of a marginal climate. Many papers answered the more general question: "What are the key considerations in planting a vineyard?" with insufficient emphasis on the demands of the climate. Likewise, many papers focused strongly on climate change. While this would be relevant in considering the ongoing viability of a site, it was not the main thrust of the question.
+
+Passing answers discussed not only issues of weather, slope, altitude and soil, but also more strategic issues such as the variety and purpose of the vineyard, the ability to use quantitative analytical tools regarding soil fertility, water needs etc., along with economic aspects such as labour and mechanisation, and whether the economic risks involved would be justified by the type of wine to be made from the vineyard.
+
+3
+
+===== PAGE 4 =====
+Q2. Discuss the major factors that impact the timing of harvest in a vineyard.
+This was an uncomplicated question and indeed the pass rate was fairly high, but there were fewer outstanding papers than anticipated. The broad nature of this question required candidates to focus on the major factors, considering various different types of grapes and styles of wine. Good answers addressed the different standards defining ripeness and fruit maturity, what style wine was being made, the weather conditions, availability of labour or machinery, whether there was disease pressure or rain/frost potential, and finally essential logistical aspects such as sufficient fermentation and storage space. A wide range of specific examples supporting the discussion was rewarded. Given that the question addresses a subject that should be familiar to all candidates, papers that showed a superficial recitation of facts and/or few concrete examples did not score well.
+
+Q3. What is the importance of soil pH in viticulture? How can vine growers influence soil pH to obtain quality grapes for winemaking?
+This question required familiarity with basic chemistry and up-to-date viticultural practices. It was one of the least popular questions but nearly half of those who chose to answer it passed. Both parts of the question needed to be addressed. The first required an accurate definition of pH, the differences in soil make up for acidic or alkaline soils, and discussion of how soil pH can affect the biology and growth of vines. The second part of the question required discussion of viticultural inputs that can influence the pH of soil to produce the required grape quality for the style of wine being made.
+
+Good papers provided relevant examples that illustrated how pH may be raised or lowered to counter nutrient deficiencies, improve water availability and alleviate leaching. Passing essays also discussed use of technical analyses (petiole analysis, Cation Exchange Capacity monitors) to pinpoint problems in a timely and accurate manner to achieve the best results. Good papers recognized that quality grapes can be grown in soils with pH levels within the general range of 5.5-8.0, but also that pH is affected by geology, climate, organic matter, water and mineral leaching, and time. Less successful papers often spent too much time on the role of rootstocks. The question was not about rootstocks; they may be part solution to a particular pH level, but they cannot change it.
+
+Q4. Discuss the current role and potential future use of hybrids in viticulture.
+This question required reasonably in-depth knowledge about what hybrids are and how they are used. It was important to discuss why some people (especially in certain regions) are very enthusiastic for their future, while others hold opposing views. Several papers did not correctly define hybrids. Factual accuracy was important for this question and often lacking. Lambrusco is not a hybrid; Labrusca is a native American species. Marechal Foch is not a white grape. Tinta Negra Mole is Vitis vinifera. Examiners could not excuse these basic errors.
+
+4
+
+===== PAGE 5 =====
+Some papers failed to consider hybrids' role as rootstocks. Good papers showed knowledge of new hybrids and their development at Geisenheim and UC Davis among others, and how they have been instrumental in recent years for developing wine growing in Scandinavia and Poland. It was important to address the development of hybrids and to discuss the case for their adoption going forward relative to climate change and diseases (e.g. Pierce's disease). The better papers raised considerations such as the economic perspective and the role of legal regulations.
+
+Q5. To what extent can wineries control the quality of the grapes they purchase?
+This question was less well answered than expected. There were no trick words here, but several candidates appeared to have understood the question to be, 'How do wineries grow good grapes'? The question required an answer not from a grower's perspective, but from that of a winery purchasing grapes.
+
+A passing paper needed to include discussion of wineries having an active role in advising/guiding growers they purchase from about their quality expectations. Producers can offer strong technical knowledge and assistance, as well as advance warning of weather hazards. But equally important, the paper had to link the viticultural side to economic, logistical, and perhaps even political aspects. These included: strong contracts spelling out quality parameters, pricing, adjustments for higher or lower quality fruit, honesty between grower and producer about what quality/style/wine type is expected, fair labour relations and pay for harvesters, availability of machinery and tank space at reception.
+
+Q6. Is there an ideal terroir for the production of sparkling wines?
+This thought-provoking question was designed to elicit opinion as well as cover the essential facts. There were multiple ways to answer the question (and no fixed right answer), but it required lateral thinking and the ability to consider the proposition for everything from Champagne to Pet-Nat and Prosecco. A good paper needed to look at sparkling wines and terroir with a wide lens.
+
+'Ideal' terroir depends on the style intended and the quality/quantity return expected from the investment made. Terroir needed to be defined. Since sparkling wines are 'manufactured' wines, it was relevant to address the human/traditional elements of production. Good papers pointed out the physical aspects of geology, drainage, cool climate, altitude and other factors that contribute to making good sparkling wines. They also noted the importance of human input, selecting suitable grape varieties, farming techniques and appropriate yield for the wine style desired. What might be ideal for Asti Spumante is rather different for Champagne. Some candidates took the position that Champagne is the ideal terroir and were successful as long as this was well argued and the issues were considered with due respect to alternative places. Others argued
+
+5
+
+===== PAGE 6 =====
+successfully that there is no ideal terroir because sparkling wines are 'manufactured wines', with method trumping site. As long as a wide scope was covered and pertinent examples offered, a solid pass was achievable.
+
+6
+
+===== PAGE 7 =====
+Theory Exam Paper Two: Meg Brodtmann MW
+
+General Comments
+Examiners commented, as they do each year, that examples should be used to support arguments rather than being the argument. When candidates focus solely on examples they lose the opportunity to prove they have the right level of technical understanding. A list of examples is not the best way to prove one's knowledge, as Paper 2 is a technical paper.
+
+Incorrect spelling continues to be a problem. We understand that English is a second language for many candidates so some leeway is given by examiners but common winery and place names should be spelt correctly. Candidates have the option to write in their native language and have the papers translated.
+
+Candidates are also reminded to stay on topic and not dump irrelevant information into their answers. Filtering and applying knowledge are key to passing the exam.
+
+Q1. What options are available to control final sugar levels in wine?
+This was a popular question. Candidates needed to show a knowledge of the mechanisms available to winemakers to control final sugar levels in wine. All styles should have been discussed – still, sparkling, fortified, dry to sweet. It was important to plan the structure of the essay properly; some candidates did this very well, whereas others clearly did not. It would have been logical to answer the question in the order in which most practices are carried out in the winery, starting with yeast/fermentation, considering approaches to stop fermentation and options post-fermentation e.g., blending, addition of RCGM etc.
+
+Many candidates gave a brief overview of the sugar concentration/accumulation methods used in the vineyard which was fine provided it wasn't the focus of the answer, since Paper 2 is defined as covering winemaking and pre-bottling procedures. We expected candidates to cover the winemaking methods used to ferment to dryness, stop fermentation prior to completion (SO2, chilling, centrifugation, fortification) and add back sugar at the end of fermentation (still and sparkling wines and blended sherries). Relevant examples should have been given for each of the methods.
+
+Many candidates knew the main techniques to control sugar but often forgot the basic methods such as fermenting to dryness, preventing stuck ferment, etc., as per most wines. Virtually no student really defined what a dry wine is compared to off-dry and sweet in grams per litre. Attempts were made, some better than others but many had incorrect g/L that rather undermined the authority of their answers.
+
+The best candidates included some very good and varied examples, but many students used very similar examples which suggested they had attended courses where these topics might have been covered. Students really need to think about how to make their
+
+7
+
+===== PAGE 8 =====
+answers stand out from the crowd and using examples perhaps picked up in a student group is not the best approach. Some candidates seemed to throw everything into the answer, creating more of a list of actions which could be taken, rather than analysis and consideration of why things might be done, and what the effects are likely to be.
+
+Q2. Compare and contrast winemaking techniques for an early-drinking and an age worthy Pinot Noir still wine in a premium region.
+With 'compare and contrast' questions we are expecting students to do exactly that. The aim of compare and contrast is to look at various winemaking techniques and how they impact the style of wine produced, i.e., one method will achieve one outcome while another will achieve a different outcome. Most candidates tended to just state what a particular technique did rather than comparing and contrasting it to other techniques.
+
+Some mention could have been made of the vineyard (yields, picking times) but this should not have been the focus. Candidates could have approached this question in a chronological order in terms of winemaking to underline the compare and contrast aspect of the question. Candidates needed to define a particular region or number of regions to demonstrate what constitutes a premium region. Candidates needed to define early-drinking and age-worthy.
+
+Answers should have discussed picking method, pre-fermentation maceration/treatment, destem versus whole bunch/whole berry, fermentation and cap management, post-fermentation maceration, pressing and oak ageing. Adjustments to the must/wine should also have been discussed. It seems many candidates are unaware that tannins are commonly used across many styles and varieties. Very few candidates mentioned tannin use. One examiner noted a confusion amongst candidates regarding basic winemaking practices such as cold maceration and whole bunch fermentation in terms of what they do and why they are used.
+
+Overall this question was well answered. The candidates who didn't do well did not compare or contrast the techniques required between the two styles.
+
+Q3. Write concise notes on the following:
+a) Smoke taint in grapes and wine
+b) Volatile acidity
+c) Metatartaric acid
+d) Spinning cone technology.
+These kinds of questions tend to separate the wheat from the chaff: you either know the answer or you don't. The issue with many of the candidates' answers was that they knew some of the points really well but lacked proper depth of knowledge on all four topics. This meant that they really had to shine in the areas they knew in order to pass because they could end up with very few marks for one of the parts of the question.
+
+8
+
+===== PAGE 9 =====
+This was a short notes question, and should have been be easy to score well for candidates with a good grasp of each topic. For those that did, very good marks could be obtained by showing a clear understanding, giving examples with justification (and critical comment where appropriate) and relevant numbers (e.g. legal limits of VA), while indicating pros and cons (for techniques and additives) and what was suitable use and what wasn't. Lesser answers included seemingly random facts, in no particular order, and any examples given were not put into context so added little.
+
+Quite a few candidates had issues with timing, writing a long answer for one or two of the sections and then rushing the others. Careful time management would have optimised the marks available. Time spent planning the answer before writing anything is key, even for a concise notes question.
+
+Another reason for less coherent answers was an insufficient grasp of English, and while small grammatical errors and spelling mistakes can be tolerated, candidates with poor English should be encouraged to have their answers translated so that they can be judged properly. Those who choose to write by hand but have poor legibility should be encouraged to type their answers.
+
+a) Smoke taint: Most knew that wildfires were the cause, and where these were most likely to happen. Understanding of factors affecting the degree of taint was less well understood, with few being able to name all the compounds or explain how they affected the must or wine. Not many commented on whether or not to make anything at all with high taint levels. In comparison to other sections in this question, this section was answered quite well and clearly was top of mind for many students.
+
+b) Volatile acidity: Good candidates could describe VA and its causes, and could give sensory thresholds and legal limits. The best answers also recognised that VA is not always a defect, and that at low levels it can make a positive contribution to style and quality. Poorer answers did not recognise that yeast as well as acetobacter could be a cause. We expected students to know legal limits across wine styles, detection thresholds and the two major compounds responsible. Students need to remember that Acetobacter are not the only genus responsible for causing increased volatility in wines – yeast (anaerobic and aerobic), lactic acid bacteria and other acetic acid bacteria can all play a part and cellar hygiene is key to avoiding excess VA.
+
+c) Metatartaric acid: Most candidates understood what this was used for, but only a few considered its effectiveness compared with other methods used for cold stabilisation, or gave sufficient attention to its pros and cons, and for what types of wine it is most suitable. The better answers examined why it is not good for high-quality wines (cost, stability). Not all understood exactly what it is and how it works. Better answers considered its lack of stability and temperature dependence, and thus the length of time for which it can offer protection.
+
+9
+
+===== PAGE 10 =====
+d) Spinning cone: Spinning cone seemed to be the most troublesome answer with time being a possible issue. No one really mentioned the EU limit of alcohol removal and no-one mentioned desulphiting grape juice. A few did get confused with reverse osmosis and centrifugation but generally the answers were a little brief for this section. It was very clear which ones actually knew what spinning cone is used for, and how it works. Better candidates knew that the flavour elements distilled in the process were a separate fraction from alcohol so these could be captured and blended back in. Most candidates recognised the need to use examples of producers/ regions etc. to illustrate their answers but often failed to put them into context, or show any critique.
+
+
+Q4. When, how and why should sulphur dioxide be used in winemaking? Are winemakers playing it too safe with sulphur dioxide additions?
+This was a challenging question for candidates and most failed to answer the second part of the question. Candidates could have approached this in a logical manner covering the when, the how and the why for each step of the winemaking process. The 'how' was the least well answered part of the question. Lastly, a single paragraph on whether winemakers were playing it safe would have sufficed but many students seemed to ignore this part.
+
+This was a question that tested some core knowledge, so we would expect a convincing answer. How SO2 was added was often overlooked other than PMS powder - mention of a sulphitometer, for example?. When was SO2 added? Most of the usual situations were mentioned but very few candidates delved a bit deeper and mentioned the cold soak stage or barrel storage. Basically no-one mentioned safety issues of SO2 handling and this combined with mentions of "blanketing grapes with SO2" showed an alarming lack of a really basic understanding of what SO2 is and how toxic it is in the winery. The second part of the question as to whether winemakers were playing it too safe also escaped many of the candidates and they did not discuss what alternatives to sulphur dioxide there might be.
+
+Candidates are reminded that dose rates should be accurate and terms such as 'sufficient amounts' are not pass worthy. SO2 add rates are pretty universal, and we expect knowledge of the amounts of sulphur dioxide added at each of the winemaking steps.
+
+
+Q5. To what extent are winemaking interventions desirable in a small-scale winery producing high-quality, dry red wine?
+This question provided plenty of scope for candidates to showcase their knowledge of the topic and illustrate their experience of winery practices all round the world. There were very few really good answers, while most struggled even to meet the pass mark. Unlike Question 3, this was a question that required the candidates to show critical rigour, to
+
+10
+
+===== PAGE 11 =====
+compare and contrast the different options available and above all not to be afraid to express an opinion.
+
+There were differing ideas of what constitutes a small winery (everything from 3000 cases to 1.2 million bottles), or high quality. Many merely mentioned a price level which needs to be put into the context of the wine and its region of origin, while others simply defined quality in terms of complexity, with no mention of provenance, sense of place, balance, longevity etc. Some assumed that small wineries were necessarily high end, or that larger ones only made mass market wines.
+
+Many candidates chose to interpret the question as limiting intervention, as opposed to examining the options available, while others interpreted interventions from the point of view of cellar hygiene and troubleshooting QC issues, rather than optimising quality in a healthy wine. Such answers usually completely ignored choices regarding fruit selection, pre-fermentation treatments, choice of yeast, fermentation, cap management, other additions (tannin, acid) and oak ageing. Others discussed options from the point of view of maximising style across every vintage or controlling cost, neither of which is a key factor for truly high-end wines.
+
+The clearer answers treated potential actions in a chronological winemaking order, which meant they were less likely to leave out any major steps. Good examples did not merely list the interventions available, but considered them in terms of their desirability, and how and why they can enhance quality, with pros and cons debated and the author expressing their own opinion.
+
+The choice and discussion of examples were handled well in a few cases, but often this was not the case: an example of someone in Napa who ages their Cabernet Sauvignon 24 months is not unique and the candidate in this instance should have focused on explaining what difference it would make and how it would affect the wine if other choices were made. Poorer answers were descriptive and non-critical. Some showed limited understanding of the processes, instead merely reproducing what a producer has told them with no attempt to question if this would work elsewhere, or to form their own opinion. Many answers fell into the trap of allowing the example to become the argument rather than support it (in other words, 'Producer x says he does this' implying this is therefore to be taken as best practice), without challenging when this may or may not be appropriate, or giving an opposing example and comparing the pros and cons of each (which is what the standout answers did). Some examples were inappropriate, citing producers of white wine, or mass market (e.g. Beaujolais Nouveau, Gallo, Grenache in cans).
+
+It was obvious which candidates had taken the time to plan their answers carefully before starting to write anything, with those that didn't being too descriptive and waffly to start with, and then seemingly running out of time to devote to the real meat of the answer. By planning answers effectively candidates can think about what the question is really looking for, which can then direct their answers more easily.
+
+11
+
+===== PAGE 12 =====
+Q6. What handling procedures could a winemaker implement to make mid-priced still wine from each of the following:
+a) English Chardonnay: potential alcohol 8%; pH 2.8; total acidity 14.5; and
+b) Barossa Valley Grenache Noir: potential alcohol 16.5%; pH 4.2; total acidity 3.9
+This was not a popular question despite it being a holistic question covering the entire winemaking process. Perhaps the reference to English Chardonnay (and perhaps Grenache Noir) scared a lot off. A lot of candidates seemed to lack some planning and got muddled in the structure of the essay. In reality the structure for the answer is evident in the way the question is set – mid-priced, alcohol, pH, acidity (acidification and deacidification) and chaptalisation/water addition were the things to focus on.
+
+Many candidates did not define "mid-priced", nor did they fully point out what the potential problems were with these juices. Not everyone explained clearly why the techniques they were suggesting were going to be useful given the juice composition. For example, "malolactic fermentation must be done" was stated, without really explaining why. Deacidification was not covered very well – how it is done, nor why. Some students just presented a list of winemaking processes without really answering the question and providing discussion as to potential issues of wine stability or palatability.
+
+It was surprising that certain students decided to branch out from English Chardonnay and Barossa Grenache and discuss Bordeaux, Napa Valley, flash-détente and Sauvignon Blanc in California. There were a lot of answers with very few/virtually no examples and this really made the essay read more like a list of practices that might be used.
+
+The best papers had many good examples, whereas there was a dearth in other answers. Very few students had good knowledge of English conditions/producers and they should probably have chosen to answer other questions. A number of candidates missed some key points such as use of MLF and de-acidification for the high-acid English wine.
+
+12
+
+===== PAGE 13 =====
+Theory Exam Paper Three - Caroline Gilby MW
+
+General Comments
+Paper 3 aims to test knowledge of wine handling but also requires thought and analysis about how procedures and principles work in practice. Technical knowledge and topics such as QA/QC may not be the most glamorous part of the wine industry, but they are critical in ensuring wine reaches the end consumer in sound condition.
+
+Strong candidates demonstrated appropriate technical knowledge, supported by real world evidence and examples. However, many lacked factual knowledge or the ability to adapt their answers to the specific question being asked.
+
+Every year, it bears repeating that Paper 3 is a technical paper and it is expected that candidates will know key factual and numerical information. Factual errors undermine confidence in anything a candidate has written. Key knowledge includes (but is not limited to):
+• EU limits for SO2 use and units, and how these vary for organic wines;
+• being clear about whether numbers refer to total or free SO2;
+• typical levels of free SO2 for various styles;
+• actual values for pH;
+• permitted and actual usage levels for common wine additives;
+• pore sizes for filtration.
+
+Students need to know units of measurement: SO2 stated in g/l or 5 micron filters cropped up. Vague comments like "lower levels of SO2" are not sufficient – actual numbers are required. Inaccurate use of "sulphur" instead of sulphites or sulphur dioxide still crops up regularly, and while this may be widespread shorthand among winemakers, there are important differences between sulphur as an element and its compounds.
+
+In general, candidates who did not pass wrote superficial answers that were descriptive rather than analytical, lacked examples and numbers, or failed to answer the question, simply writing around a topic instead. Examples are still required on this paper; good candidates used them to support their arguments, i.e., to show why or how, rather than simply stating a winery name as an aside. Failing to define key terms from the question was a major failing in many cases – it makes it much harder to write a clear argument without definitions. And, as happens every year, there were a few candidates who wrote well but didn't answer the question so could not score good marks.
+
+Despite all of the above, as one examiner commented, "As a general view, the overall level is getting better every year. There are few very poor answers. Candidates are largely writing in a logical manner."
+
+13
+
+===== PAGE 14 =====
+Q1. Compare and contrast the options available as preservatives for addition to still wine.
+There are both naturally occurring and added preservatives in wine and this question was about additions specifically. A definition of preservative was required, i.e. a substance added to prevent decomposition by microbial growth or by undesirable chemical changes, including oxidation. Preservatives include SO2 (in a number of guises), sorbic acid, ascorbic acid and alcohol (though not relevant to this question about still wine). Despite the natural preservative action of alcohol, tannins and acidity, most wine has preservative added as a protection against oxidation and microbial spoilage. The key preservative used is SO2 in various forms, including sulphur dioxide (preservative 220), potassium metabisulphite, etc. Ascorbic acid is used as an antioxidant in white wines and sorbic acid is used to prevent refermentation in sweet wines. Velcorin/DMDC and Chitosan can also be considered as preservatives.
+
+The question required candidates to compare and contrast the options, not simply to describe them. Candidates who only described found it difficult to write a pass standard answer. Many candidates wasted time on additives and wine treatments in general, instead of focusing on preservatives specifically. Cold stability, protein stability and filtration were not relevant here, nor were must treatments. It was almost impossible to write a pass standard essay without specific details about typical usage levels and legal limits. Many answers missed out important preservatives such as ascorbic acid and sorbic acid. That said, good answers used examples well and there was a high pass rate for this question.
+
+
+Q2. Outline the key considerations in deciding which pre-bottling treatments to use for each of the following:
+a) a vegan wine;
+b) an orange wine;
+c) an organic wine; and
+d) a mass-market, inexpensive wine.
+The question required an outline of the key options available and how to decide on the optimal treatments (including cost) for each of the specified wines. 'Pre-bottling' refers to wine in bulk and 'bottling' should always include consideration of all packaging formats, not just glass bottles. For most wines, microbiological stability (stable, clear, free from hazes and deposits) is the goal and candidates needed to be aware of relevant regulations and relative cost of treatments.
+
+Candidates needed to understand that vegan wine must be produced using no products of animal origin, even as processing aids. Orange wines are made with extended skin contact and may not be required to be clear, and they may or may not be "natural". Organic wine is regulated within the EU and USA so understanding of such regulations was required.
+
+14
+
+===== PAGE 15 =====
+Considerations for mass-market, inexpensive wine depend on colour, sweetness and style. Many may contain residual sugar and need fast processing.
+
+This question highlighted a considerable number of candidates lacking the full technical knowledge to answer all the pre-bottling treatments on the four wine styles. A number of candidates could answer only two or three well. It is hard for candidates to pass if they are unable to answer the whole question in enough depth.
+
+When candidates use terminology like a mass market wine should be 'severely fined' or 'heavily fined with Bentonite' in relation to the discussion of mass-market wine it signifies that they do not understand that good, balanced winemaking without excessive additions of, in this case fining products, can still be used to still produce an entry-level wine. Often there were generalisations that mass-market winemaking is about applying every conceivable treatment possible, whereas this is not always the case. And sweeping generalisations about lower or higher levels have no place at this level – actual indicative numbers are required.
+
+This was a question that required candidates to think about how to apply the principles they have learned in different real-world scenarios and offered the chance for candidates to support their answer with a wide range of examples. Many did not use examples. Technical detail was also essential to answering this question and in many instances it was left out, or candidates gave vague answers without pinpointing exactly what rates, levels or additions should be used. "Superficial and lacks depth of knowledge" was a frequent comment from examiners for this question.
+
+
+Q3. You are responsible for quality assurance (QA) and quality control (QC) for an importer of bulk wine. Explain the QA and QC procedures that you will need:
+a) between the completion of winemaking and the start of the bulk transport process; and
+b) following receipt of the bulk wine at its destination.
+QA can be defined as any systematic process used to determine if a product or service meets quality standards. It refers to the process used to create the deliverables. Examples of QA include process checklists, project audits and methodology and standards development. QC can be defined as the set of measures and procedures to follow in order to ensure that the quality of a product is maintained and improved against a set of benchmarks and that any errors encountered are either eliminated or reduced. The focus of quality control is to ensure that the product is not only consistent but also in line with customer requirements. Candidates were required to explain both QA and QC as appropriate for each stage of the process for each part of the question. To test and treat the wine ready for bulk transport would include QC analysis to assess the stability requirements of the wine and required treatments to ensure the wine arrives at the bottler in good condition and matching specifications. On receipt: QC tests are needed to assess that the wine has not suffered or changed in quality and stability during transport
+
+15
+
+===== PAGE 16 =====
+and to determine what treatments are required to maintain quality during bulk storage pre-bottling.
+
+A lot of answers failed to define QA and QC, which made for some very muddled arguments. Many weaker answers made general comments around QA and QC (frequently conflated) and bulk shipping without really applying knowledge to the situation specified.
+
+If the candidate wasn't technically competent, they were quickly exposed on this question. A lot of papers offered basically a sound top line answer that was not wrong, but did not convey sufficient knowledge or technical understanding to validate the points being made. What was often seen was a list of pre-bottling processes, without structuring the answer from the perspective of the import QA/QC manager. And this was really key – the question said "You are responsible for QA and QC for an importer of bulk wine. Explain the QA and QC procedures that you will need". Very few candidates did this. If they had, the pitch of the question would have been addressed from that angle rather than from the winery or from what the bottling plant would expect. In particular, the answer required both a QA and a QC approach and answer and very few of the papers provided this for both parts of the question.
+
+The level of technical knowledge is still below expectations for someone expecting to pass the MW theory exam. Too often the wrong rate or range of parameters like DO, FSO2, CO2, temperature of wine to be transported, filtration levels, cold stability, etc. were suggested and undermined the point being made. On the other hand, including a rate or parameter is a must and it is better to include and be slightly off the mark than not at all.
+
+
+Q4. A winery has received a customer complaint for a piece of glass found in a bottle. Describe the QA and QC procedures best employed by the winery to investigate the issue.
+This question required candidates to show understanding of winery QA and QC procedures for effective investigation of a quality complaint relating to bottled wine and recognition that these procedures are required by legislation (there is potentially a reputational issue too). The question only asks about investigation, not product recall.
+
+The winery first needs to be able to verify the nature of the problem, i.e. to obtain the relevant sample and check that a glass shard is in fact what is in bottle. The lot number should be checked for traceability of batch and its records. This may need to be matched to customer records in case a recall is necessary. The winery should have in place, and be complying with, QA food safety management procedures based on HACCP. These procedures should prevent glass getting into the bottle; by definition therefore if glass is established in the bottle, it would appear these procedures have failed in this case.
+
+This is another question where clear definitions from the question were required to show understanding of both QA and QC. Some good candidates talked a lot about sources of glass contamination, and how to prevent this but failed to address the question itself. Others went straight to product recall without covering QC actions to check lot numbers,
+
+16
+
+===== PAGE 17 =====
+get the bottle returned for investigations and so on. Some answers failed to show any practical logic: there is no point in stopping the bottling line if the wine has reached the consumer.
+
+17
+
+===== PAGE 18 =====
+Theory Exam Paper Four: Simon Thorpe MW
+
+General Comments
+This seemed like a slightly unusual year in relation to the disparity between excellent and poor answers – meaning there was an unusually large spread in marks. Notably, there were some very good candidates who showed plenty of knowledge on the subject matter but were let down by either not reading the question properly, or simply not answering it as requested. This does point to the importance of practicing writing essay plans and having them checked. There are examples of this in every question.
+
+As usual, the best candidates displayed a knowledge of several markets and gave interesting, thoughtful answers backed up by appropriate and often differentiated examples. Being able to use accurate data in examples is crucial.
+
+Time pressure seemed to be a factor for some.
+
+Key is the ability to demonstrate an understanding of the "why" not just the "what" in this paper...and that's worth always keeping in the back of the mind when approaching this paper. Analysis is key!
+
+Q1. How has the market transparency facilitated by the internet and social media influenced the supply, demand, and pricing of wine? Who benefits?
+The examiners were looking for candidates to show understanding of how the internet and social media has allowed extensive information about virtually any wine to be readily available to anyone who wishes to look for it. The resulting transparent marketplace means products can be sourced, compared, sold and reviewed more easily than ever. The question required strong description of the changing dynamics of the market, the consequences on how wine is distributed and priced and analysis of which element of the supply chain benefits most. Many examples could have been used, from different markets, different sectors of the market, different channels of distribution and the role of own label to reduce the possibility for price comparison.
+
+This was really poorly answered in general. Many answers just contained a list of social media activations and not enough analysis. Often the question about who benefits was not addressed at all. Great answers had a full set of differentiated examples from around the globe and some concept of whether it is the consumer, the producer or the intermediaries who benefit. Key to a successful answer was an understanding that consumers can check pricing of a wine extremely easily, and that this has changed pricing behaviour for producers, retailers and restaurants in a fundamental way. Also worth noting is that this question demands an opinion...and it's quite alright to be bold in that opinion, as long as it is backed by a good argument.
+
+18
+
+===== PAGE 19 =====
+Q2. With reference to Bordeaux and other regions, discuss the commercial viability of the en primeur model. Outline the pros and cons for all parties, from producer through to consumer.
+The question asked about the commercial viability of the en primeur model, not how it works, so although it is important to be able to demonstrate a knowledge of the process, this can only form a relatively small part of the answer. The answer requires a financial dimension, as well as a logistical case and because the question specifically asked for reference to Bordeaux and other regions, there was a lot of ground to cover. This is a question which could not be answered well without detailed numbers and examples both from Bordeaux and other regions, so knowledge of market pricing, both on release and thereafter, was key to success. The examiners frequently noted absence of specific figures to back up general assertions. This was a question begging for some analysis of whether the many-layered approach of the Bordeaux en primeur system is viable in a world which is increasingly becoming so direct from producer to consumer. Answers needed to address the impacts on consumers, wholesalers, fine wine merchants and any other elements of the route to market, and to analyse the pros and cons for all parties.
+
+Q3. As export director of a 100,000-case winery in the New World, you have been asked to increase exports from 10% to 25% of total production volume. What are the factors that would be most relevant to your strategy?
+This question demanded an understanding of export strategy and planning, and the different considerations which need to be explored when deciding how to develop existing and new markets. The question here is about the need to increase sales by only 15,000 cases, so this would mostly preclude mass-market distribution across multiple markets. It was a perfectly legitimate approach to describe and define the winery you are representing and address what could in effect be a real-life case study. Some great answers did define the producer and the resulting papers were much more interesting and logical as a result. However, many answers just described how to export, whereas this is a question requiring analysis. There were plenty of examples of unrealistic budgets and a lack of practicality or realism in the answers. The examiners were looking for specific, real-life examples, and for candidates to show understanding of how different markets present different challenges.
+
+Q4. Outline key changes in consumer taste preferences over the past decade. Which wine-producing regions have evolved their offer successfully to match these changes?
+While it was important for candidates to give examples of changes in taste preferences, this is not a question that simply required candidates to outline trends. The question required candidates to identify specific regions which have adapted their styles to fit changing demand. Note this was also a question about changes in taste preferences, so too much content around sustainability, organic, etc. was not relevant. It was expected
+
+19
+
+===== PAGE 20 =====
+that candidates would also appreciate that key consumer taste preferences may differ from one market to the next, and from mature markets to newer ones.
+
+A good answer would have described more than just a list of wines and styles, but would have analysed the evolution of wines and how they have opened up a market. Candidates needed to show knowledge of wine regions where a deliberate choice has been made to adapt styles better to match identified changes in consumer taste preferences. Prosecco is selling lots of wine – great. But the introduction of a rosé category has matched increased demand (and allowed for increased profit through premiumisation). It was hard to answer this well without mentioning the evolution of the classic fortified regions and wine styles. Candidates could also have considered how more stringent Old World appellation requirements may hamper wine style evolution to match changing consumer preferences compared to regions with no such restrictions.
+
+Q5. Identify and assess the financial considerations when planning an investment in planting a vineyard and building a winery.
+This was an almost impossible question to answer if candidates didn't know the costs of establishing a vineyard and winery and therefore was not attempted by many. However, the pass rate for the question was among the highest on the paper. The question is very broad and therefore a good answer needed to define a range of different scenarios. It is a question about finance, costs and return on investment. So, it is a complex and detailed question. It did not require description of how to plant and build, but it was essential for candidates to detail costs of land purchase, planting, winery build and the anticipated length of time needed to pay back investment. Key elements to consider included the size of the vineyard (and therefore winery) and the level of quality (price) of the wine. If candidates did have this detail to hand, then it was a straightforward challenge and very much a finance director's dream question. Some candidates answered this very well.
+
+Q6. How important is it for wine producers to develop new products?
+New product development relates to anything which is tangible or visible to the consumer. Wine is the most obvious example (e.g., lower alcohol wines, brand extensions, second wines, new varieties, etc.), but other product types were also relevant to this question (e.g., new packaging formats).
+
+This was an appealing and relatively straightforward question which achieved the highest pass rate on the paper. There were some very strong essays. The answer really needed a structure and it was important to think across a range of producers from mainstream to fine wine. Also important was to consider the motivation for NPD, and to think about where it isn't necessary or hasn't been successful. There was plenty of scope to show an ability to evaluate and analyse. Those candidates who struggled were generally those who did not impose a good structure on their answer and therefore simply produced a stream of consciousness.
+
+20
+
+===== PAGE 21 =====
+Theory Exam Paper Five: Susan McCraith MW
+
+General Comments
+It is possible to write two factually correct, cogent essays in Paper 5 and still not pass. It's really important for candidates to grasp this. Out of all the papers this one assesses more than knowledge. It assesses how you use and apply that knowledge, how sophisticated you are in your thinking and how well you can communicate this to different audiences as a Master of Wine.
+
+We have seen enormous progress in the quality of answers but if students are looking for advice on how to pass, I go back to something a venerable MW once said to me when I was taking the exam, "It's not knowing the what, where, when, who and how, it's knowing the why". In Paper 5, the examiners hope or assume that you know your stuff. Of course, we monitor factual correctness, but we're much more interested in reading your individual approach and opinions. We ask challenging questions that require you to think hard on the day, not just give a pre-prepared essay to an anticipated topic. The questions are carefully worded and your answers should pick up on any nuances. It really pays to consider the question very carefully at the start and pick it apart to make sure you understand the various perspectives and complexities. Define your understanding of the terms and think about the best structure or framework for your answer. Sometimes you might want to use a model (e.g. PEST(LE) – we see these models used much more now – but don't shoehorn an essay into a model that's not appropriate for the subject matter.
+
+Be clear in your thought processes and convey them to the examiners, justifying your argument with examples. The examples you use can be a way to set your essay apart and make it more individual and distinctive. The obvious examples aren't wrong, it's just that many people use them. Demonstrate your experience by drawing on relevant, original examples. Use examples at different points in your essay from different parts of the world to show you have a truly global perspective. Stay focused on the question itself and don't be tempted to expand on pet subjects unless they are really pertinent. We all have wine styles/regions/subjects that we're passionate about, but make sure you channel this energy and create a balanced answer.
+
+The standard of English could be improved. Precise, elegant language is essential to persuasiveness and authority, and many essays were let down by poor style, poor spelling, poor grammar and, in places, inappropriate tone. There was a degree of overlap between language groups, with certain non-native English speakers producing more carefully constructed, accurate prose than their native-speaking counterparts. At the other end of the scale, however, were answers that were barely comprehensible. For any candidate whose English is less than fluent, or who finds it difficult to write quickly enough within the time limit, the value of writing in your native language and using a translation service cannot be overstated.
+
+21
+
+===== PAGE 22 =====
+In conclusion, Paper 5 is not an exact science, as it's not a question of right or wrong answers. You will be penalised if you ignore one side of a question or if you write an essay that is Diploma-level. The reality is that there are a lot of answers that are okay but not remarkable. Your answers have to be confident, authoritative, considered, balanced, insightful, interesting (as well as factually correct, of course) and leave the examiner in no doubt that it's worthy of a pass, and worthy of a Master of Wine. We had some great answers this year and I hope this advice will help all future candidates.
+
+Q1. Who do you consider to be the real pioneers in today's wine industry, and why?
+This was a question that invited candidates to review today's wine industry, using good examples of real pioneers, to make general points about the quality and importance of leadership in moving wine forward. Many candidates failed to tackle the question with the right balance of depth and breadth. It was a little surprising that many answers ignored the direction to consider the question in terms of today's industry, or reinterpreted the question to suit their ends or understanding rather than the thrust of the question. A few candidates used extensive, pre-prepared material (on climate change or natural wines, for example) to answer this question, which usually meant they didn't consider other issues and scored poorly. Many failed to make initial definitions (pioneer, wine industry). Almost all failed to engage critically with the question and discuss what a 'real pioneer' might be; or to explore who might be doing something 'new', but were arguably not genuine 'pioneers'. This was an opportunity for candidates to show their knowledge and take a critical view of some who others might regard as 'pioneers'. Often, there was too much detail on too few examples. Many examples were also unconvincing as they lacked evidence of the commercial impact, or any kind of quantification which might make them stand out from others doing similar things.
+
+Q2. Wine is celebrated for its diversity of styles. Is this diversity under threat?
+Few managed to produce a convincing response to this challenging question which required a balanced consideration of the important factors. These included: climate change, political factors, anti-alcohol movements, health considerations, generational shifts, technological developments (vineyard/winery/packaging/supply chain), global pandemics (human/grapevine), business/supply chain consolidation, competition from other drinks/products, e-commerce and online marketing/social media impacts and others. Many answers were too narrow.
+
+Style and threats needed to be defined/clarified in the introduction and a clear answer to the question was needed. Many candidates sat on the fence and didn't take a clear position. Quite a number of answers favoured style over substance. Fluent writing is, of course, what we like to see in this paper; but the examiner needs to be convinced by specific, detailed examples rather than general, vague comments. Appropriate use of research studies in an essay needs a reminder. Arguments like, 'research shows...' are
+
+22
+
+===== PAGE 23 =====
+essentially meaningless and trusting acceptance of studies is not always convincing: who did the research? Where was it published? Did it have any limitations/flaws? Viticulture was often not covered in enough detail. More could have been made in terms of perceived diversity impacts of all elements of vineyard management (pruning, training, cropping levels, agrochemicals, machine harvesting, clones, rootstocks etc.), beyond varietal selection. Climate change was mentioned by many, but rarely was a convincing argument given as to whether, in the end, it would have a net positive or negative impact on diversity. Many answers only considered negative impacts. Few considered diversity of quality or price in depth, as a possible element of 'style' - these were interesting areas to explore, with a good opportunity for original, critical thought.
+
+Q3. To what extent is France's wine classification system a model for the rest of the world?
+This question elicited a surprisingly variable set of answers, from near-perfect to thoroughly muddled. A pass required accurate and reasonably detailed knowledge of French classification systems and the approaches adopted by at least a few other countries; many answers fell short on one or the other, if not both. Weaker answers often failed to differentiate sufficiently clearly the national AOP/IGP/VdF system from regional quality hierarchies (e.g. Grand Cru/1er Cru). The question also invited analysis rather than mere description; strong answers were insightful and persuasive, avoiding the waffle, tangents and unnecessary detail that plagued some of the less successful attempts. As ever, there were many instances of wines, winemakers and technical terms being misspelt, which is always going to detract from the authority of an answer.
+
+There was also a tendency to not answer the question. A few candidates discussed whether it should be a model for the world rather than whether it is. The approach was frequently Diploma-like, lacking the necessary analysis and rigour. Gaps in knowledge were frequently apparent, especially when drawing international comparison. The best papers explored the disadvantages of the French system as well as the advantages. This question required global scope, but a few candidates only discussed it in the French context.
+
+Q4. Can one wine ever be objectively better than another?
+This was a great question and there was a good range of differently argued positions taken. This question required careful parsing to unpack it successfully.
+
+There was a danger of waffly answers; a taut, well argued, examples-based approach was a more successful way to tackle the question. The core of the question revolved around establishing what objectivity means, and then whether it is really measurable. Framing strong definitions of "objectively" and "better" was essential for steering a confident
+
+23
+
+===== PAGE 24 =====
+course through this subtle, abstract topic. Good candidates appreciated and addressed this, while poorer answers missed the point.
+
+Given the challenges hidden beneath the question's surface appeal, there was a pleasing number of excellent answers. The very best showed some familiarity with the philosophical literature, with one referencing arguably the central work on the subject, Hume's "Of The Standard Of Taste". Some candidates successfully expanded upon the "BLIC" approach to quality assessment with telling analogies to fine art. Weaker answers were often either self-contradictory or veered off on irrelevant tangents. Some were very short, and lacked counterarguments, maybe indicating time management issues.
+
+Q5. How relevant is tradition to 21st century consumers?
+This question is very broad in scope with many possible approaches and conclusions. The question may look benign, but it is difficult to tackle and needs to be properly thought through before starting to write. It was imperative to define 'tradition' and interesting to discuss when innovation becomes tradition and vice versa. 21st century consumers needed analysing to evaluate to what extent tradition matters to them and why.
+
+Many answers were either too generic or too narrow. Many papers tended to waffle, including sweeping, unsubstantiated statements. A few papers failed to focus on the consumer and therefore did not answer the question. The best answers were focused and precise, with good examples, and had a clear structure that led logically to a sound and definite conclusion.
+
+24
