@@ -301,7 +301,19 @@ async function generateOneIntoBatch(
       // Only a freshly GENERATED result is a new pending question. A 'pre-populated' outcome means
       // generation didn't converge and the engine served an existing (approved) question instead —
       // discard it silently and retry, exactly as the spec requires.
-      if (!("error" in outcome) && outcome.source === "generated") return "generated";
+      if (!("error" in outcome) && outcome.source === "generated") {
+        // The key-stage audit (awaited via awaitBackgroundWork) quarantined the row after the
+        // save: it will never serve, so it is NOT a banked success. Leave the row for the audit
+        // trail and retry the slot — counting these as "generated" is how batches reported ~85%
+        // success while filling the bank with unservable questions.
+        if (outcome.quarantined) {
+          console.warn(
+            `[bank-worker] batch ${batch.id} question quarantined at generation (attempt ${attempt + 1}); discarding and retrying`
+          );
+          continue;
+        }
+        return "generated";
+      }
     } catch (err) {
       console.error(`[bank-worker] batch ${batch.id} generation error (attempt ${attempt + 1}):`, err);
     }
