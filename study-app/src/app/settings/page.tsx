@@ -56,6 +56,10 @@ export default function SettingsPage() {
   const [liveRadius, setLiveRadius] = useState("30");
   const [liveSaving, setLiveSaving] = useState(false);
   const [liveMsg, setLiveMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [accountDeleting, setAccountDeleting] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -249,6 +253,31 @@ export default function SettingsPage() {
     },
     [refresh]
   );
+
+  const DELETE_CONFIRMATION_PHRASE = "I want to delete my account";
+
+  const handleDeleteAccount = async () => {
+    setDeleteAccountError(null);
+    setAccountDeleting(true);
+    try {
+      const res = await fetch("/api/user/account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: deleteConfirmText }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteAccountError(data.error || "Failed to delete account");
+        setAccountDeleting(false);
+        return;
+      }
+      // Full reload — the session cookie is gone and every piece of client auth state with it.
+      window.location.href = "/login";
+    } catch {
+      setDeleteAccountError("Network error");
+      setAccountDeleting(false);
+    }
+  };
 
   const savePace = useCallback(async (pace: PaceMode, speedSeconds: SpeedSeconds) => {
     setPaceSaving(true);
@@ -965,8 +994,80 @@ export default function SettingsPage() {
               )}
             </div>
           </section>
+
+          {/* Danger Zone — delete account */}
+          <section className="bg-card rounded-xl border border-fail/30 p-6">
+            <h2 className="text-lg font-semibold text-fail mb-2">Danger Zone</h2>
+            <p className="text-sm text-muted mb-4">
+              Permanently delete your account, including your attempt history, feedback, and Live
+              Tasting sessions. This cannot be undone.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteConfirmText("");
+                setDeleteAccountError(null);
+                setShowDeleteModal(true);
+              }}
+              className="px-6 py-2.5 bg-fail hover:bg-fail/85 text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+            >
+              Delete account
+            </button>
+          </section>
         </div>
       </main>
+
+      {/* Delete-account confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-background/70 backdrop-blur-sm"
+            onClick={() => { if (!accountDeleting) setShowDeleteModal(false); }}
+          />
+          <div className="relative w-full max-w-md bg-card rounded-xl border border-fail/30 shadow-2xl p-6">
+            <h3 className="text-lg font-semibold text-fail mb-2">Delete your account?</h3>
+            <p className="text-sm text-muted mb-4">
+              This permanently deletes your account and everything attached to it — attempt
+              history, feedback, saved keys, and Live Tasting sessions. There is no undo.
+            </p>
+            {deleteAccountError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{deleteAccountError}</p>
+              </div>
+            )}
+            <label htmlFor="deleteConfirm" className="block text-sm font-medium text-foreground mb-1.5">
+              Type <span className="font-semibold text-fail">{DELETE_CONFIRMATION_PHRASE}</span> to confirm
+            </label>
+            <input
+              id="deleteConfirm"
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder={DELETE_CONFIRMATION_PHRASE}
+              autoComplete="off"
+              className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-fail focus:ring-1 focus:ring-fail transition-colors text-sm mb-6"
+            />
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={accountDeleting}
+                className="px-6 py-2.5 rounded-lg border border-border text-muted hover:text-foreground hover:border-foreground/30 transition-colors cursor-pointer font-medium disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={accountDeleting || deleteConfirmText !== DELETE_CONFIRMATION_PHRASE}
+                className="px-6 py-2.5 rounded-lg bg-fail hover:bg-fail/85 text-background font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {accountDeleting ? "Deleting..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
