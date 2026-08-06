@@ -2511,7 +2511,10 @@ export interface BinFixProposal {
 
 function mapBinFixProposal(r: Record<string, unknown>): BinFixProposal {
   return {
-    id: r.id as number,
+    // id is BIGSERIAL (int8), which the neon driver returns as a STRING — left uncoerced it flows
+    // to the client, comes back as {proposalId: "8"}, and fails the route's number check
+    // ("Missing proposalId", the dead Dispatch button of 2026-08-06).
+    id: Number(r.id),
     theme: r.theme as string,
     kind: r.kind as string,
     paper: (r.paper as number | null) ?? null,

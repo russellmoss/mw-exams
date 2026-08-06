@@ -22,6 +22,14 @@ export function binFixActionErrorMessage(action: "dispatch" | "reject", error: u
   return `${verb} failed — try again.`;
 }
 
+// Accept a proposal id as a number OR a numeric string: bin_fix_proposals.id is BIGSERIAL, and the
+// neon driver serialises int8 as a string, so a client that round-trips a row unmodified sends "8".
+export function parseProposalId(value: unknown): number | null {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  const id = Number(value);
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
 export function binFixMineErrorMessage(error: unknown): string {
   return typeof error === "string" && error.length > 0
     ? `Mining failed: ${error}`

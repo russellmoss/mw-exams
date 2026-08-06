@@ -1,5 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { requireApiKey } from "@/lib/api-key";
+import { parseProposalId } from "@/lib/bin-fix-ui";
 import { getBinFixProposals, markBinFixRejected } from "@/lib/db";
 import {
   mineBinFixProposals,
@@ -57,8 +58,8 @@ export async function POST(request: Request) {
   if (!user || !user.isAdmin) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
-  const id = typeof proposalId === "number" ? proposalId : NaN;
-  if (!Number.isFinite(id)) {
+  const id = parseProposalId(proposalId);
+  if (id === null) {
     return Response.json({ error: "Missing proposalId" }, { status: 400 });
   }
 
