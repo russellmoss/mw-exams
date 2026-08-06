@@ -123,6 +123,28 @@ weaker evidence, and re-check any quote shown to a candidate as an examiner's ex
 
 Remaining gap: **2015 and 2026** have no examiners' report in either store (~54 questions).
 
+### Model answers — `outputs/theory_answers/`
+
+One rubric-anchored model answer per rubric-backed question (**243**), written by
+`.claude/agents/theory-answer-writer.md` and gated by `scripts/build_theory_answers.py`
+(test: `tests/test_theory_answers.py`). Run with `/answer-theory-question <year> <pN>`.
+Spec: `outputs/theory_corpus/ANSWER_SPEC.md`.
+
+- **Time budget is authoritative, from the IMW Student Guide.** Papers 1, 2 and 4 are three
+  hours for three answers; paper 3 is two hours for two; **paper 5 is three hours for only
+  two**, so it alone gets 90 minutes per question. Word bands follow: 700–1,000 for papers
+  1–4, 1,050–1,450 for paper 5. An answer outside its band fails the build — a model answer
+  nobody could write in the time teaches a habit that fails in the exam.
+- **The coverage gate** is this pipeline's equivalent of the rubric extractor's quote gate:
+  every `core` requirement in the rubric must have a `covers_core` frontmatter entry quoting
+  it and naming where the answer discharges it. An answer cannot silently drop a requirement.
+- **`claims_to_verify` is mandatory.** Every specific figure, date, statistic or
+  named-producer assertion is registered in frontmatter. The gate cannot check that wine
+  facts are true, so this converts an invisible fabrication risk into a review checklist.
+  **1,300 claims are registered across the corpus and none has been externally verified** —
+  treat them as candidate-grade recollection, not as sourced fact. Thirteen answers make no
+  checkable claim at all, which is often the better-judged answer.
+
 ## Data sources (read these, don't duplicate them)
 
 - `source/MW_Practical_Papers_Compilation.md` — the human-readable annotated source. **Authoritative for question text and wine names.** Do not modify.
