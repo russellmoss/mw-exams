@@ -238,6 +238,28 @@ A versioned **`ignoreCommand`** in `study-app/vercel.json` decides what builds:
 - Otherwise build **only if** something under `study-app/` changed (`./` = the Vercel Root Directory,
   which is `study-app`). So root-only commits (docs, `data/`, `outputs/`) never trigger a build.
 
+**The deploy-quota guard keeps headroom for human deploys (added 2026-08-06).** The Hobby plan
+allows **100 deployment creations per rolling 24h per account**, and *everything* counts against
+it: production builds, preview builds, CLI/API deploys (`manual-deploy.yml` included), **and
+deployments the `ignoreCommand` cancels** — the deployment record is created before the ignore
+check runs, so `[skip ci]` and root-only pushes to master still burn a slot each (verified
+empirically 2026-08-06: 16 CANCELED master deployments in 48h). On 2026-08-05/06 the bot merge
+cadence drained all 100 slots and an urgent human fix (PR #37) could not deploy at all. Two
+defenses now exist:
+
+- **Bot work branches never create deployments.** `study-app/vercel.json` `git.deploymentEnabled`
+  excludes `claude/*`, `auto-feedback/*`, `bin-fix/*` and `feature-request/*`. If a new bot
+  pipeline is added, exclude its branch pattern too (`study-app/tests/vercel-crons.test.ts`
+  asserts the current list) — an `ignoreCommand` tweak is NOT a substitute, per the above.
+- **Bots defer merging near the quota.** `auto-feedback.yml` and `feature-build.yml` run
+  `.github/scripts/deploy-quota-guard.sh` before landing: it counts the rolling-24h deployments
+  via the Vercel API (`VERCEL_TOKEN` Actions secret) and, at/over the cutoff (100 − reserve,
+  reserve defaults to 20 and can be tuned via the `DEPLOY_QUOTA_RESERVE` repo Actions variable),
+  the verified change is **PR-gated instead of auto-merged** with the reason in the PR body and in
+  the admin UI (`apply_error`). The guard fails OPEN on API errors. If bot churn regularly hits
+  the cutoff and that churn is wanted, the real fix is Vercel Pro (6,000 deploys/day) — the guard
+  just makes the free plan safe.
+
 **The Vercel account is on the Hobby plan, which caps `crons` in `study-app/vercel.json` at 2 jobs,
 each firing at most once per day.** A sub-daily schedule (anything with `*`, `,`, `-` or `/` in the
 minute or hour field) makes Vercel reject the deployment *at creation time* with

@@ -8,6 +8,10 @@ name: manual-deploy
 #
 # NOTE: a CLI deploy counts against the same Hobby deployment quota as a git deploy — if the
 # account is hard rate-limited, this fails with the same message and nothing ships anywhere.
+# Since 2026-08-06 the bot workflows run .github/scripts/deploy-quota-guard.sh and stop
+# auto-merging at 100−reserve (default 80) deployments per rolling day, so this break-glass path
+# should normally find headroom. If it still hits the limit, a human spent the reserve too —
+# wait for the rolling window to free slots (deployments age out 24h after creation).
 #
 # The .vercel link is written inline (the directory is gitignored); project/org ids are the ones
 # documented in CLAUDE.md. `vercel deploy --prod` uploads the SOURCE and lets Vercel build it
