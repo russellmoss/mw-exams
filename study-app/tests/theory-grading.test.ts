@@ -13,6 +13,8 @@ import {
 import { buildTheoryEvaluationSystemPrompt, renderRubric } from "@/lib/prompts/theory-evaluation-prompt";
 import { THEORY_MARKING_PRINCIPLES } from "@/lib/prompts/theory-marking-principles";
 import { AB_TASKS } from "@/lib/model-selector";
+import { assertTheoryGradingMeta, extractTheoryGradingMeta } from "@/lib/theory/grading-meta";
+import type { TheoryRetrievalResult } from "@/lib/theory/retrieval";
 
 // Theory grading anchors on the examiner-derived rubric, never on a model answer: a theory
 // question admits many valid answers with different examples and different positions, so
@@ -149,6 +151,76 @@ describe("prompt construction", () => {
   it("adds dictation handling only for voice input", () => {
     expect(buildTheoryEvaluationSystemPrompt(rubric, { inputMethod: "voice" })).toMatch(/DICTATED/);
     expect(buildTheoryEvaluationSystemPrompt(rubric, { inputMethod: "typed" })).not.toMatch(/DICTATED/);
+  });
+
+  it("makes temporal laundering impossible in the written policy", () => {
+    const prompt = buildTheoryEvaluationSystemPrompt(rubric);
+    expect(prompt).toMatch(/Currency can ADD credit[\s\S]*never EXCUSE/i);
+    expect(prompt).toMatch(/Currency credit[\s\S]*evidence or examples drawn from after 2024/i);
+    expect(prompt).toMatch(/candidate saying[\s\S]*overtaken by\s*events[\s\S]*does not reclassify/i);
+    expect(prompt).toMatch(/preclassified SUPERSEDED/i);
+  });
+
+  it("makes retrieval abstention visible and band-neutral", () => {
+    const verification: TheoryRetrievalResult = {
+      questionId: rubric.id,
+      route: "none",
+      status: "error",
+      reason: "fixture outage",
+      query: null,
+      checkedAt: "2026-08-06T12:00:00Z",
+      dateBucket: "2026-08-06",
+      fromCache: false,
+      factualChecking: "abstain",
+      notice: "Factual retrieval failed. Factual checking abstained; structure was graded normally.",
+      passages: [],
+      citations: [],
+    };
+    const prompt = buildTheoryEvaluationSystemPrompt(rubric, { verification });
+    expect(prompt).toMatch(/Factual retrieval failed/);
+    expect(prompt).toMatch(/band must not move/i);
+    expect(prompt).not.toMatch(/## Model Answer/i);
+  });
+
+  it("suppresses hindsight credit on an ex-ante question", () => {
+    const exAnte = listTheoryRubrics().find((candidate) => candidate.exAnte)!;
+    expect(buildTheoryEvaluationSystemPrompt(exAnte)).toMatch(/hindsight is not evidence/i);
+    expect(buildTheoryEvaluationSystemPrompt(exAnte)).toMatch(/Suppress all currency credit/i);
+  });
+
+  it("extracts and strips machine-readable audit metadata", () => {
+    const raw = `# Verdict\nPASS — indicative.\n<!-- THEORY_GRADING_META {"verdict":"PASS","retrievalStatus":"unavailable","factualDecisions":[{"claim":"retrieval","decision":"abstained","sourceUrls":[],"explanation":"No key"}]} -->`;
+    const parsed = extractTheoryGradingMeta(raw);
+    expect(parsed.meta?.verdict).toBe("PASS");
+    expect(parsed.meta?.factualDecisions[0].decision).toBe("abstained");
+    expect(parsed.cleanedText).not.toContain("THEORY_GRADING_META");
+  });
+
+  it("rejects temporal fact laundering in the machine-readable audit", () => {
+    const retrieval: TheoryRetrievalResult = {
+      questionId: rubric.id,
+      route: "web",
+      status: "unavailable",
+      reason: "no key",
+      query: "fixture",
+      checkedAt: "2026-08-06T12:00:00Z",
+      dateBucket: "2026-08-06",
+      fromCache: false,
+      factualChecking: "abstain",
+      notice: "No key; abstained.",
+      passages: [],
+      citations: [],
+    };
+    expect(() => assertTheoryGradingMeta({
+      verdict: "FAIL",
+      retrievalStatus: "unavailable",
+      factualDecisions: [{
+        claim: "candidate claim",
+        decision: "refuted",
+        sourceUrls: ["https://example.com/not-retrieved"],
+        explanation: "memory",
+      }],
+    }, retrieval)).toThrow(/refutation while retrieval was abstaining/);
   });
 });
 

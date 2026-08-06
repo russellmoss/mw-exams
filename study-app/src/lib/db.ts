@@ -916,6 +916,7 @@ export async function getUnansweredQuestions(
       SELECT q.* FROM generated_questions q
       LEFT JOIN user_attempts a ON q.question_id = a.question_id
         AND a.completed_at IS NOT NULL
+        AND a.mode = 'full'
         AND (${uid}::int IS NULL OR a.user_id = ${uid})
       WHERE q.paper = ${paper}
         AND q.family = ${family}
@@ -936,6 +937,7 @@ export async function getUnansweredQuestions(
     SELECT q.* FROM generated_questions q
     LEFT JOIN user_attempts a ON q.question_id = a.question_id
       AND a.completed_at IS NOT NULL
+      AND a.mode = 'full'
       AND (${uid}::int IS NULL OR a.user_id = ${uid})
     WHERE q.paper = ${paper}
       AND q.invalid_reasons IS NULL
@@ -2520,7 +2522,8 @@ export async function getFeedbackRowsForMining(
            g.paper, g.question_text
     FROM user_attempts a
     LEFT JOIN generated_questions g ON g.question_id = a.question_id
-    WHERE a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
+    WHERE a.mode IS DISTINCT FROM 'theory'
+      AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
       AND a.feedback_status IN ('accepted', 'partial')
     ORDER BY COALESCE(a.feedback_submitted_at, a.completed_at, a.started_at) DESC
     LIMIT ${limit}
@@ -3066,17 +3069,21 @@ export async function createAttemptWithUser(
 // (true for a fresh write or a forked row; false for an idempotent re-submit of identical text).
 export async function getAttemptById(attemptId: number): Promise<UserAttempt | null> {
   const sql = getDb();
-  const rows = await sql`SELECT * FROM user_attempts WHERE id = ${attemptId}`;
+  const rows = await sql`
+    /* theory-mode-guard: all-modes -- primary-key attempt lookup */
+    SELECT * FROM user_attempts WHERE id = ${attemptId}`;
   return (rows[0] as UserAttempt) ?? null;
 }
 
 export async function recordUserFeedback(
   attemptId: number,
   text: string
-): Promise<{ id: number; analyze: boolean }> {
+): Promise<{ id: number; analyze: boolean; mode: string | null }> {
   const sql = getDb();
   const rows = await sql`
-    SELECT id, question_id, user_id, mode, user_feedback, app_version
+    /* theory-mode-guard: all-modes -- feedback is stored on the selected attempt */
+    SELECT id, question_id, user_id, mode, input_method, flagged, stem_detail,
+      user_feedback, app_version
     FROM user_attempts WHERE id = ${attemptId}
   `;
   const existing = rows[0] as
@@ -3085,6 +3092,9 @@ export async function recordUserFeedback(
         question_id: string;
         user_id: number | null;
         mode: string | null;
+        input_method: string;
+        flagged: boolean;
+        stem_detail: string;
         user_feedback: string | null;
         app_version: string | null;
       }
@@ -3097,7 +3107,7 @@ export async function recordUserFeedback(
         feedback_submitted_at = COALESCE(feedback_submitted_at, NOW())
       WHERE id = ${attemptId}
     `;
-    return { id: attemptId, analyze: true };
+    return { id: attemptId, analyze: true, mode: null };
   }
 
   const current = (existing.user_feedback || "").trim();
@@ -3109,24 +3119,28 @@ export async function recordUserFeedback(
         feedback_submitted_at = COALESCE(feedback_submitted_at, NOW())
       WHERE id = ${attemptId}
     `;
-    return { id: attemptId, analyze: true };
+    return { id: attemptId, analyze: true, mode: existing.mode };
   }
   // Identical re-submission → idempotent no-op (don't spawn a duplicate or re-analyze).
   if (current === text.trim()) {
-    return { id: attemptId, analyze: false };
+    return { id: attemptId, analyze: false, mode: existing.mode };
   }
   // A different second feedback → give it its own attempt row instead of overwriting. The fork
   // inherits the parent's build stamp (it describes the same study episode); only a parent from
   // before migration 019 falls back to the build recording the feedback.
   const ins = await sql`
-    INSERT INTO user_attempts (question_id, user_id, mode, user_feedback, feedback_submitted_at, app_version)
+    INSERT INTO user_attempts (
+      question_id, user_id, mode, input_method, flagged, stem_detail,
+      user_feedback, feedback_submitted_at, app_version
+    )
     VALUES (
-      ${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"}, ${text}, NOW(),
+      ${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"},
+      ${existing.input_method}, ${existing.flagged}, ${existing.stem_detail}, ${text}, NOW(),
       ${existing.app_version ?? getAppVersion()}
     )
     RETURNING id
   `;
-  return { id: ins[0].id as number, analyze: true };
+  return { id: ins[0].id as number, analyze: true, mode: existing.mode };
 }
 
 export async function updateAttempt(
@@ -3249,7 +3263,9 @@ export async function updateAttempt(
     return rows[0] as UserAttempt;
   }
 
-  const rows = await sql`SELECT * FROM user_attempts WHERE id = ${attemptId}`;
+  const rows = await sql`
+    /* theory-mode-guard: all-modes -- return the selected attempt after a generic update */
+    SELECT * FROM user_attempts WHERE id = ${attemptId}`;
   return rows[0] as UserAttempt;
 }
 
@@ -3305,7 +3321,8 @@ export async function getRecentAttempts(
     SELECT a.*, q.paper, q.family, q.family_label, q.p3_category
     FROM user_attempts a
     JOIN generated_questions q ON a.question_id = q.question_id
-    WHERE (${uid}::int IS NULL OR a.user_id = ${uid})
+    WHERE a.mode = 'full'
+      AND (${uid}::int IS NULL OR a.user_id = ${uid})
     ORDER BY a.started_at DESC
     LIMIT ${limit}
   `) as RecentAttempt[];
@@ -3339,6 +3356,7 @@ export interface AttemptWithDetails extends UserAttempt {
 export async function getUserAttempts(userId: number, limit = 50): Promise<AttemptWithDetails[]> {
   const sql = getDb();
   return (await sql`
+    /* theory-mode-guard: all-modes -- user History intentionally spans study modes */
     SELECT
       a.*,
       q.paper,
@@ -3353,7 +3371,7 @@ export async function getUserAttempts(userId: number, limit = 50): Promise<Attem
       fa.thread AS ai_thread,
       fa.status AS ai_status
     FROM user_attempts a
-    JOIN generated_questions q ON a.question_id = q.question_id
+    LEFT JOIN generated_questions q ON a.question_id = q.question_id
     LEFT JOIN LATERAL (
       SELECT recommendation, thread, status
       FROM feedback_analyses
@@ -3587,6 +3605,7 @@ export async function getFeedbackAnalysis(id: number): Promise<(FeedbackAnalysis
     JOIN user_attempts a ON fa.attempt_id = a.id
     JOIN generated_questions q ON a.question_id = q.question_id
     WHERE fa.id = ${id}
+      AND a.mode = 'full'
   `;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (rows[0] as any) || null;
@@ -3721,6 +3740,7 @@ export async function getUserNotifications(userId: number): Promise<{
     JOIN user_attempts a ON fa.attempt_id = a.id
     JOIN generated_questions q ON a.question_id = q.question_id
     WHERE fa.user_id = ${userId} AND fa.status IN ('complete', 'error')
+      AND a.mode = 'full'
     ORDER BY fa.updated_at DESC
     LIMIT 10
   `;

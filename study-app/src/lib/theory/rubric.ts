@@ -5,72 +5,24 @@
 
 import { readFileSync } from "fs";
 import { join } from "path";
+import type { RubricRequirement, TheoryRubric } from "./types";
 
-export interface RubricQuote {
-  quote: string;
-}
-export interface RubricRequirement extends RubricQuote {
-  element: string;
-}
-export interface RubricSignal extends RubricQuote {
-  signal: string;
-}
-export interface RubricTrap extends RubricQuote {
-  trap: string;
-}
-export interface RubricDefinition extends RubricQuote {
-  term: string;
-}
-
-export interface TheoryRubric {
-  id: string;
-  year: number;
-  paper: number;
-  question: number;
-  section: "A" | "B" | null;
-  domain: string;
-  paperTitle: string | null;
-  questionText: string;
-  commandWord: string | null;
-  commandWordDemand: string | null;
-  definitionsRequired: RubricDefinition[];
-  coreRequirements: RubricRequirement[];
-  differentiators: RubricRequirement[];
-  creditSignals: RubricSignal[];
-  penaltySignals: RubricSignal[];
-  scopeTraps: RubricTrap[];
-  examplesExpected: {
-    required?: boolean;
-    specificity?: string;
-    named_in_report?: string[];
-    quote?: string;
-  } | null;
-  performanceNote: string | null;
-  evidenceQuality: "rich" | "moderate" | "thin" | null;
-  sourceReport: string | null;
-  /**
-   * `transcribed_render` means the examiners' report was an image-only PDF and its text was
-   * transcribed from page renders. Quotes from those years are proven against the
-   * transcription, not against the printed report — so they must never be presented to a
-   * candidate as the examiners' exact words without that caveat.
-   */
-  textSource: "pdf_text_layer" | "transcribed_render";
-  hasModelAnswer: boolean;
-}
+export type {
+  RubricDefinition,
+  RubricQuote,
+  RubricRequirement,
+  RubricSignal,
+  RubricTrap,
+  TheoryRubric,
+} from "./types";
 
 let cache: Map<string, TheoryRubric> | null = null;
 
 function load(): Map<string, TheoryRubric> {
   if (cache) return cache;
   const path = join(process.cwd(), "public", "data", "theory-grading-index.json");
-  try {
-    const rows = JSON.parse(readFileSync(path, "utf-8")) as TheoryRubric[];
-    cache = new Map(rows.map((r) => [r.id, r]));
-  } catch {
-    // Fails soft: the corpus may be absent in a partial checkout. Callers surface a clear
-    // "no rubric" error rather than the build breaking.
-    cache = new Map();
-  }
+  const rows = JSON.parse(readFileSync(path, "utf-8")) as TheoryRubric[];
+  cache = new Map(rows.map((r) => [r.id, r]));
   return cache;
 }
 
@@ -85,6 +37,10 @@ export function theoryQuestionId(year: number, paper: number, question: number):
 
 export function listTheoryRubrics(): TheoryRubric[] {
   return [...load().values()];
+}
+
+export function activeTheoryCoreRequirements(rubric: TheoryRubric): RubricRequirement[] {
+  return rubric.coreRequirements.filter((requirement) => requirement.temporalClass !== "superseded");
 }
 
 /**

@@ -113,7 +113,7 @@ export interface AttemptDetail {
   total_marks: number;
   user_feedback: string | null;
   subcategory: string | null;
-  mode?: string | null; // 'full' (study) | 'stem-sniper' | 'reverse-tasting' | 'known-wine' | 'flash'
+  mode?: string | null; // practical modes, or 'theory'
   // Flag Question (migration 037): true when the candidate flagged this question. The attempt is never
   // deleted — this just drives the small amber "Flagged" tag next to the verdict pill.
   flagged?: boolean;
@@ -178,6 +178,20 @@ function PassBadge({ estimate }: { estimate: string | null }) {
   };
   const color = colors[estimate as keyof typeof colors] || colors.fail;
   return <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${color}`}>{estimate.charAt(0).toUpperCase() + estimate.slice(1)}</span>;
+}
+
+function TheoryTimingBadge({ seconds, paper }: { seconds: number; paper: number }) {
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  const budget = paper === 5 ? 90 : 60;
+  const over = seconds > budget * 60;
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border font-mono ${
+      over ? "bg-fail/10 text-fail border-fail/30" : "bg-card text-muted border-border"
+    }`} title={`${budget}-minute exam budget`}>
+      {minutes}:{String(remaining).padStart(2, "0")}{over ? " over" : ""}
+    </span>
+  );
 }
 
 // Pace report may arrive as a JSONB object or a JSON string; normalise both into PaceData.
@@ -463,6 +477,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   // Flash Notes (flash) is the rapid single-prompt cousin of Dry Notes — also a study-style row
   // (short single-competency feedback), with its own badge and Redo back into the Flash flow.
   const isFlash = attempt.mode === "flash";
+  const isTheory = attempt.mode === "theory";
 
   const handleApplyShip = async () => {
     setApplying(true);
@@ -485,6 +500,10 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
   const tastingNotes = typeof attempt.tasting_notes === "string" ? JSON.parse(attempt.tasting_notes) : attempt.tasting_notes;
 
   const handleRedo = () => {
+    if (isTheory) {
+      router.push(`/theory?question=${encodeURIComponent(attempt.question_id)}`);
+      return;
+    }
     if (isDrill) {
       router.push("/stem-sniper");
       return;
@@ -566,7 +585,14 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
         }`} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
-            <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">{paperLabel(attempt.paper)}</span>
+            <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">
+              {isTheory ? `Theory P${attempt.paper}` : paperLabel(attempt.paper)}
+            </span>
+            {isTheory && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted font-medium">
+                Indicative verdict
+              </span>
+            )}
             {isDrill && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/15 text-success border border-success/30 font-medium">
                 {modeLabel}
@@ -604,7 +630,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           ) : (
             <PassBadge estimate={attempt.pass_estimate} />
           )}
-          {attempt.elapsed_seconds != null && <TimingBadge seconds={attempt.elapsed_seconds} wineCount={wineCount} />}
+          {attempt.elapsed_seconds != null && (
+            isTheory
+              ? <TheoryTimingBadge seconds={attempt.elapsed_seconds} paper={attempt.paper} />
+              : <TimingBadge seconds={attempt.elapsed_seconds} wineCount={wineCount} />
+          )}
           {attempt.marks_estimate && <span className="text-xs text-muted font-mono">{attempt.marks_estimate}</span>}
           <div className="text-right">
             <p className="text-xs text-muted">{formatDate(attempt.started_at)}</p>
@@ -621,7 +651,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           {!readOnly && (
             <div className="flex items-center gap-3 py-2">
               <button onClick={handleRedo} className="px-4 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer bg-accent hover:bg-accent-hover text-background">
-                {isDrill ? "Practice in Stem Sniper" : "Redo This Question"}
+                {isDrill ? "Practice in Stem Sniper" : isTheory ? "Try This Theory Question Again" : "Redo This Question"}
               </button>
               <button
                 onClick={() => { document.getElementById(`feedback-${attempt.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }); document.getElementById(`feedback-${attempt.id}`)?.querySelector("textarea")?.focus(); }}
@@ -703,6 +733,11 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
 
           {attempt.answer_feedback && (
             <ExpandedSection title="AI Evaluation / Debrief">
+              {isTheory && (
+                <p className="text-xs text-muted mb-3">
+                  Indicative verdict against this question&apos;s examiner-derived rubric; not a calibrated script mark.
+                </p>
+              )}
               <SectionMarksRow marks={parseSectionMarks(attempt.answer_feedback)} />
               <div className="markdown-content text-sm"><FeedbackMarkdown>{stripSectionMarksTag(attempt.answer_feedback)}</FeedbackMarkdown></div>
             </ExpandedSection>
@@ -839,7 +874,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
           {!readOnly && (
             <div className="flex justify-end pt-2">
               <button onClick={handleRedo} className="px-5 py-2 text-sm font-semibold rounded-lg transition-colors cursor-pointer bg-card hover:bg-card-hover border border-border text-foreground">
-                {isDrill ? "Practice in Stem Sniper" : "Redo This Question"}
+                {isDrill ? "Practice in Stem Sniper" : isTheory ? "Try This Theory Question Again" : "Redo This Question"}
               </button>
             </div>
           )}
@@ -859,8 +894,8 @@ interface Filters {
 }
 
 const attemptMode = (a: AttemptDetail): string =>
-  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" || a.mode === "flash" || a.mode === "live-tasting" ? a.mode : "full";
-const MODE_LABEL: Record<string, string> = { full: "Study", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes", flash: "Flash Notes", "live-tasting": "Live Tasting" };
+  a.mode === "stem-sniper" || a.mode === "reverse-tasting" || a.mode === "known-wine" || a.mode === "flash" || a.mode === "live-tasting" || a.mode === "theory" ? a.mode : "full";
+const MODE_LABEL: Record<string, string> = { full: "Study", theory: "Theory", "stem-sniper": "Stem Sniper", "reverse-tasting": "Reverse Tasting", "known-wine": "Dry Notes", flash: "Flash Notes", "live-tasting": "Live Tasting" };
 
 function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   const next = new Set(set);
@@ -920,7 +955,6 @@ export function HistoryView({
 }) {
   const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() });
 
-  const passRate = stats && stats.completed_attempts > 0 ? Math.round((stats.pass_count / stats.completed_attempts) * 100) : 0;
   const passOrBorderlineRate = stats && stats.completed_attempts > 0 ? Math.round(((stats.pass_count + stats.borderline_count) / stats.completed_attempts) * 100) : 0;
 
   const timedAttempts = attempts.filter((a) => a.elapsed_seconds != null && a.elapsed_seconds > 0);
@@ -1109,7 +1143,7 @@ export function HistoryView({
                             color={
                               m === "full"
                                 ? undefined
-                                : m === "known-wine" || m === "flash"
+                                : m === "known-wine" || m === "flash" || m === "theory"
                                   ? "bg-accent/15 text-accent font-semibold border border-accent/40"
                                   : "bg-success/15 text-success font-semibold border border-success/40"
                             }

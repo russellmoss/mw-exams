@@ -40,6 +40,7 @@ export async function GET(
       FROM users u
       LEFT JOIN user_api_keys k ON u.id = k.user_id AND k.provider = 'anthropic'
       LEFT JOIN user_attempts a ON u.id = a.user_id
+        AND a.mode IS DISTINCT FROM 'theory'
       WHERE u.id = ${targetId}
       GROUP BY u.id, k.id, k.key_hint
     `;

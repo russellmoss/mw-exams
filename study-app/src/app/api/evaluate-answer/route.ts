@@ -1,15 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { buildAnswerEvaluationSystemPrompt } from "@/lib/prompts/answer-evaluation-prompt";
 import { scanDislikedWording } from "@/lib/prompts/tasting-lexicon";
-import { normalizeDictatedTerms } from "@/lib/dictation-normalizer";
-import { loadWineTerms } from "@/lib/wine-terms";
 import { extractGradingMeta, recordGradingOverrideCheck } from "@/lib/grading-telemetry";
-import { requireApiKey } from "@/lib/api-key";
-import { logClaudeUsage } from "@/lib/usage-log";
-import { selectModel } from "@/lib/model-selector";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages } from "@/lib/media";
-import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { getKnowledgeContext, buildVerificationBlock, buildCitationBlock } from "@/lib/knowledge/context";
+import {
+  normalizeGradingAnswer,
+  prepareGradingRuntime,
+  streamGradedResponse,
+} from "@/lib/grading-stream";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve up to 3 illustration images (Tavily + download).
@@ -17,8 +15,8 @@ export const maxDuration = 120;
 
 export async function POST(request: Request) {
   try {
-    const keyResult = await requireApiKey(request);
-    if (keyResult instanceof Response) return keyResult;
+    const gradingRuntime = await prepareGradingRuntime(request, "answer_grading", "sonnet");
+    if (gradingRuntime instanceof Response) return gradingRuntime;
 
     const body = await request.json();
     const { questionText, modelAnswer, paper } = body;
@@ -32,18 +30,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = new Anthropic({ apiKey: keyResult.apiKey });
-
     // Repair wine terms the speech-to-text engine mangled BEFORE anything reads the answer, so the
     // grader (and the disliked-wording scan) sees what the candidate meant. Conservative by design:
     // only unambiguous matches are rewritten. Every change is disclosed to the candidate below
     // rather than applied silently — they need to know a term came out wrong.
-    let transcriptionFixes: { from: string; to: string }[] = [];
-    if (inputMethod === "voice") {
-      const normalized = normalizeDictatedTerms(answer, loadWineTerms());
-      answer = normalized.text;
-      transcriptionFixes = normalized.substitutions;
-    }
+    const normalized = normalizeGradingAnswer(answer, inputMethod);
+    answer = normalized.answer;
+    const transcriptionFixes = normalized.substitutions;
 
     const dislikedFound = scanDislikedWording(answer);
 
@@ -84,75 +77,30 @@ ${modelAnswer}`;
 
 Please evaluate this candidate's answer against the model answer. Assess identification accuracy, reasoning quality, specificity, and completeness for each sub-question.`;
 
-    const { model, abGroup } = await selectModel("answer_grading", keyResult.apiKey, "sonnet");
-    const t0 = Date.now();
-    // Adaptive thinking so the candidate can watch the grader reason instead of staring at a gap
-    // before the first token. Safe to show un-gated here: the answer is already submitted.
-    const stream = await client.messages.stream({
-      model,
+    return streamGradedResponse({
+      runtime: gradingRuntime,
+      taskType: "answer_grading",
       system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
-      messages: [{ role: "user", content: userMessage }],
-      ...(await withThinking(model, 2000, keyResult.user.id)),
-    } as Parameters<typeof client.messages.stream>[0]);
-
-    const encoder = new TextEncoder();
-
-    const readable = new ReadableStream({
-      async start(controller) {
+      userMessage,
+      maxTokens: 2000,
+      onComplete: async ({ fullText, runtime }) => {
+        // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
+        // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
+        const { meta, cleanedText } = extractGradingMeta(fullText);
+        await recordGradingOverrideCheck(meta, {
+          grader: "answer_grading",
+          userId: runtime.user.id,
+          paper,
+        });
         try {
-          let fullText = "";
-          for await (const event of stream) {
-            if (event.type !== "content_block_delta") continue;
-            if (event.delta.type === "text_delta") {
-              fullText += event.delta.text;
-              const jsonChunk = JSON.stringify({ t: event.delta.text });
-              controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
-            } else if (event.delta.type === "thinking_delta") {
-              controller.enqueue(encoder.encode(thinkingFrame(event.delta.thinking)));
-            }
-          }
-          const final = await stream.finalMessage();
-          logClaudeUsage(
-            { taskType: "answer_grading", model, source: keyResult.source, userId: keyResult.user.id, abGroup },
-            final.usage,
-            { latencyMs: Date.now() - t0 }
-          );
-          // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
-          // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
-          const { meta, cleanedText } = extractGradingMeta(fullText);
-          await recordGradingOverrideCheck(meta, { grader: "answer_grading", userId: keyResult.user.id, paper });
-          // Resolve the model's image tokens to cached, subtitled images and send the enriched
-          // markdown as the authoritative final text (the client saves this version). Best-effort:
-          // on any failure the tokens are stripped so the user still gets clean feedback.
-          try {
-            const enriched = await enrichFeedbackWithImages(cleanedText, keyResult.user.id);
-            // Append the source list to the text the client SAVES, so citations persist with the
-            // attempt and survive a reload. The grader is instructed not to cite inline — this is
-            // where that promise is kept. Empty string when nothing was retrieved. Relevance context
-            // is the stem + the exemplar (which names the actual wines — this route has no wine list).
-            const withSources = enriched + buildCitationBlock(kbPassages, [questionText, modelAnswer].filter(Boolean).join(" "));
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: withSources })}\n\n`));
-          } catch (enrichErr) {
-            console.error("answer-eval image enrichment failed:", enrichErr);
-          }
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        } catch (err) {
-          controller.enqueue(
-            encoder.encode(
-              `data: \n\n[Error during streaming: ${err instanceof Error ? err.message : "unknown"}]\n\n`
-            )
-          );
-          controller.close();
+          const enriched = await enrichFeedbackWithImages(cleanedText, runtime.user.id);
+          const withSources =
+            enriched +
+            buildCitationBlock(kbPassages, [questionText, modelAnswer].filter(Boolean).join(" "));
+          return [{ enriched: withSources }];
+        } catch (enrichErr) {
+          console.error("answer-eval image enrichment failed:", enrichErr);
         }
-      },
-    });
-
-    return new Response(readable, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
       },
     });
   } catch (err) {

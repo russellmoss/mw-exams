@@ -322,7 +322,9 @@ async function gradeSession(ctx, answerStyle, label) {
   const after = await dbSession(sessionId);
   check(`${label}: graded_at stamped`, after.graded_at != null);
   const attempt = after.attempt_id
-    ? (await sql`SELECT pass_estimate, marks_estimate, answer_feedback FROM user_attempts WHERE id = ${after.attempt_id}`)[0]
+    ? (await sql`
+        /* theory-mode-guard: all-modes -- test fixture reads the attempt id it just created */
+        SELECT pass_estimate, marks_estimate, answer_feedback FROM user_attempts WHERE id = ${after.attempt_id}`)[0]
     : null;
   check(`${label}: feedback persisted server-side`, (attempt?.answer_feedback?.length ?? 0) > 200);
   const fb = attempt?.answer_feedback || "";

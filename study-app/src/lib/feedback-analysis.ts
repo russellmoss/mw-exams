@@ -109,7 +109,8 @@ export async function reconcileAttemptDecision(
   if (!expected) return { reconciled: false }; // "pending"/unknown — nothing was decided
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT feedback_status, feedback_decided_by FROM user_attempts WHERE id = ${attemptId}`;
+    SELECT feedback_status, feedback_decided_by FROM user_attempts
+    WHERE id = ${attemptId} AND mode = 'full'`;
   const cur = rows[0] as { feedback_status: string | null; feedback_decided_by: string | null } | undefined;
   if (!cur) return { reconciled: false };
   if (cur.feedback_status === expected) return { reconciled: false }; // already consistent — don't re-dispatch
@@ -299,6 +300,7 @@ export async function runFeedbackAnalysis(opts: {
     JOIN generated_questions q ON a.question_id = q.question_id
     JOIN users u ON a.user_id = u.id
     WHERE a.id = ${attemptId}
+      AND a.mode = 'full'
   `;
   if (!attempts[0]) return { status: "not_found" };
 
@@ -471,7 +473,8 @@ export async function sweepStrandedFeedback(
   const sql = neon(process.env.DATABASE_URL!);
   const stranded = await sql`
     SELECT id FROM user_attempts
-    WHERE user_feedback IS NOT NULL AND trim(user_feedback) <> ''
+    WHERE mode = 'full'
+      AND user_feedback IS NOT NULL AND trim(user_feedback) <> ''
       AND auto_analysis_id IS NULL
       AND feedback_status IS NULL
     ORDER BY started_at ASC
