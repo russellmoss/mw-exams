@@ -46,13 +46,15 @@ Warm-stone neutrals + one amber accent + a three-state verdict system. All defin
 - **Approach:** restrained. Color is rare and meaningful. Most of the UI is stone neutrals; amber is the single point of energy; green/yellow/red appear only as grading verdicts and status.
 - **Emphasis text:** bold body text uses amber-400 (`#fbbf24`); italic/secondary uses stone-400 (`#a8a29e`). Amber is the brand/accent/emphasis color — used intentionally for warmth, not decoration.
 - **Verdict system (first-class):** PASS = `--success`, BORDERLINE = `--borderline`, FAIL = `--fail`. These three drive grading badges and the pass-estimate UI.
-- **Dark mode:** the app is dark-native; the table above *is* the palette and the default for every
-  new visitor.
-- **Light mode (added 2026-08-02):** an opt-in second theme, toggled from the icon next to the
-  notification bell and persisted in `localStorage` under `mw-theme`. It is an **override, not a
-  redesign** — the same warm-stone family inverted, the same single amber accent, the same
-  border-defined flat cards. Implemented as `:root[data-theme="light"]` overrides of the identical
-  token set in `globals.css`, so any component built on the tokens themes itself for free.
+- **Dark mode:** the app is dark-native in its design language; the table above *is* the palette
+  the system was designed in.
+- **Light mode (added 2026-08-02; made the first-visit default 2026-08-06):** toggled from the icon
+  next to the notification bell and persisted in `localStorage` under `mw-theme`. New visitors who
+  have never toggled now land on **light**; dark remains one click away and sticks once chosen. It
+  is an **override, not a redesign** — the same warm-stone family inverted, the same single amber
+  accent, the same border-defined flat cards. Implemented as `:root[data-theme="light"]` overrides
+  of the identical token set in `globals.css`, so any component built on the tokens themes itself
+  for free.
 
 | Token | Dark | Light | Note |
 |---|---|---|---|
@@ -76,7 +78,9 @@ Warm-stone neutrals + one amber accent + a three-state verdict system. All defin
   hardcoded hexes and raw Tailwind `stone-*`/`white`/`black` classes break the light theme.
   Deliberate exceptions: modal scrims (`bg-black/…`), toggle knobs, and `/mikey`, which is a
   self-contained neon page with its own background and stays dark in both themes. The `/diagrams`
-  iframe is a separately built static site and also stays dark.
+  iframe (embedded on `/library`) is a separately built static site but is **theme-aware since
+  2026-08-06**: its generated stylesheet carries both token sets and a head script follows the
+  app's `mw-theme` localStorage key (same origin), live-switching on `storage` events.
 - **Resolved issue (2026-05-30):** `--borderline` was `#f59e0b`, identical to `--accent-hover`, so a BORDERLINE badge could read as an interactive amber control. Moved to `#eab308` (yellow) so verdict colors are unambiguous and never look clickable.
 
 ## Spacing
@@ -113,3 +117,5 @@ Warm-stone neutrals + one amber accent + a three-state verdict system. All defin
 | 2026-05-30 | Kept amber as accent + emphasis (considered reserving it) | The warm amber-everywhere is a deliberate identity for a wine tool, not slop; codified as intentional. |
 | 2026-08-02 | Shipped an opt-in light theme (`[data-theme="light"]`) | Studying in daylight. Built as token overrides rather than a second design, so "Cellar" stays one system; dark remains the default and the native look. |
 | 2026-08-02 | Methodology / Settings / Admin moved into a user menu | The nav row had grown to seven links. Study surfaces (Study, Stem Sniper, Diagrams, History) stay on the left; account-level destinations sit under the user's name on the right. |
+| 2026-08-06 | Light becomes the first-visit default theme (owner decision) | New users land on the light token set; dark stays the design-native language and persists once toggled. `DEFAULT_THEME` in `src/lib/theme.ts`. |
+| 2026-08-06 | Embedded diagrams site made theme-aware | The `/library` iframe previously stayed dark in both themes. Its builder (`scripts/build_study_diagrams_site.py`) now emits both palettes + a `mw-theme` sync script; the standalone Netlify build stays paper-light. |
