@@ -56,10 +56,19 @@ export default function StemSniperPage() {
   }, [loading, user, router]);
 
   useEffect(() => {
-    const m = typeof window !== "undefined" ? window.localStorage.getItem(MODE_KEY) : null;
-    if (m === "reverse" || m === "sniper") setMode(m);
-    const v = typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null;
-    if (v) setVariety(v);
+    // Restored off the synchronous effect path (react-hooks/set-state-in-effect). Unlike the study
+    // page's mode — which is read-only there and so became a useSyncExternalStore value — `mode` and
+    // `variety` are OWNED here (the header toggle and the variety picker set them), so they have to
+    // stay in state. A lazy initialiser is not an option either: localStorage does not exist during
+    // SSR, and the header toggle renders before the drill loads, so the server and client markup
+    // would disagree. Deferring by a microtask is behaviour-preserving, since useEffect already runs
+    // after the first paint.
+    void Promise.resolve().then(() => {
+      const m = typeof window !== "undefined" ? window.localStorage.getItem(MODE_KEY) : null;
+      if (m === "reverse" || m === "sniper") setMode(m);
+      const v = typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null;
+      if (v) setVariety(v);
+    });
     fetch("/data/stem-autocomplete.json")
       .then((r) => r.json())
       .then((d) => setAuto({ varieties: d.varieties || [], regions: d.regions || [], styles: d.styles || [] }))
@@ -159,13 +168,19 @@ export default function StemSniperPage() {
     // First-time visitors see the how-it-works intro; returning visitors go
     // straight to a drill. The toggle in the header can reopen it anytime.
     const seen = typeof window !== "undefined" && window.localStorage.getItem(INTRO_SEEN_KEY);
-    if (seen) {
-      // Read the saved variety straight from storage rather than from state: the effect that
-      // restores it into state runs on this same pass, so `variety` would still be null here.
-      fetchNext({ paper, variety: typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null });
-    } else {
-      setStatus("intro");
-    }
+    // Both branches reach setState — fetchNext sets status/drill, and the else-branch sets it
+    // directly — so the whole decision is deferred off the synchronous effect path rather than each
+    // branch separately. Nothing flashes: `status` is already "loading" on first paint, so the
+    // candidate sees the spinner either way.
+    void Promise.resolve().then(() => {
+      if (seen) {
+        // Read the saved variety straight from storage rather than from state: the effect that
+        // restores it into state is deferred the same way, so `variety` may still be null here.
+        fetchNext({ paper, variety: typeof window !== "undefined" ? window.localStorage.getItem(VARIETY_KEY) : null });
+      } else {
+        setStatus("intro");
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

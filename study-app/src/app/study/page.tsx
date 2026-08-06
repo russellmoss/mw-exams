@@ -1,6 +1,7 @@
 "use client";
 
-import { useReducer, useEffect, useState, useCallback, useRef } from "react";
+import { useReducer, useEffect, useState, useCallback, useRef, useSyncExternalStore } from "react";
+import { readSessionValue, subscribeToSessionStorage } from "@/lib/session-value";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -52,7 +53,19 @@ export default function StudyPage() {
   // wait — this reports it instead of parking the button on "Generating tasting notes…".
   // Used by both call sites; they belong to different study modes so never overlap.
   const tastingTrace = useProgressStream();
-  const [studyMode, setStudyMode] = useState<"full" | "stem-only" | "known-wine">("full");
+  // DERIVED, not owned. The home page writes "mw-study-mode" before navigating here; /study only
+  // ever read it, once, in a mount effect — which painted "full" first and is what
+  // react-hooks/set-state-in-effect flags. useSyncExternalStore reads sessionStorage directly, using
+  // the server snapshot during SSR and hydration so the markup matches, then re-rendering with the
+  // real value before paint.
+  const studyMode = useSyncExternalStore(
+    subscribeToSessionStorage,
+    () => {
+      const m = readSessionValue("mw-study-mode");
+      return m === "stem-only" || m === "known-wine" ? m : "full";
+    },
+    () => "full" as const
+  );
   const [modelAnswerReady, setModelAnswerReady] = useState(() => {
     if (typeof window === "undefined") return false;
     try {
@@ -72,7 +85,15 @@ export default function StudyPage() {
   // Stem Detail: the level this attempt STARTED at (chosen on the setup screen), and the level it
   // has been escalated to via "Add detail". Escalation is one-way and both are recorded on the
   // attempt, so a run that needed extra framing is never scored as if it didn't.
-  const [stemDetailStart, setStemDetailStart] = useState<StemDetailLevel>("exam_real");
+  // Derived for the same reason as studyMode above.
+  const stemDetailStart = useSyncExternalStore(
+    subscribeToSessionStorage,
+    () => {
+      const level = readSessionValue("mw-stem-detail");
+      return isStemDetailLevel(level) ? level : "exam_real";
+    },
+    () => "exam_real" as StemDetailLevel
+  );
   const [stemDetailEscalatedTo, setStemDetailEscalatedTo] = useState<StemDetailLevel | null>(null);
 
   const evalStream = useStreaming();
@@ -131,13 +152,7 @@ export default function StudyPage() {
 
   // Load question and mode from sessionStorage on mount
   useEffect(() => {
-    const mode = sessionStorage.getItem("mw-study-mode");
-    if (mode === "stem-only") setStudyMode("stem-only");
-    else if (mode === "known-wine") setStudyMode("known-wine");
-
-    const level = sessionStorage.getItem("mw-stem-detail");
-    if (isStemDetailLevel(level)) setStemDetailStart(level);
-
+    // studyMode and stemDetailStart are read via useSyncExternalStore above, not restored here.
     const stored = sessionStorage.getItem("mw-current-question");
     if (stored) {
       try {
