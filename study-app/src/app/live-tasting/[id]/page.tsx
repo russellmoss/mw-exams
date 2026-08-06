@@ -10,6 +10,7 @@ import { useDraft } from "@/lib/use-draft";
 import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
 import { ByoWineForm } from "@/app/components/ByoWineForm";
 import { BriefCard } from "@/app/components/BriefCard";
+import { FeedbackButton } from "@/app/components/FeedbackButton";
 
 type SlotSummary = { slot: number; stockistCount: number; thin: boolean };
 type SlotAvail = {
@@ -33,6 +34,7 @@ type SessionDetail = {
   question?: { questionText: string; totalMarks: number };
   slotSummaries?: SlotSummary[];
   reveal?: {
+    attemptId: number | null;
     wines: { slot: number; fullText: string }[];
     modelAnswer: string | null;
     availability: { archetypeLabel?: string; slots?: SlotAvail[] } | null;
@@ -527,17 +529,20 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                   </p>
                 )}
               </section>
-              {session.reveal.feedback && !gradeStream.text && (
+              {(session.reveal.feedback || gradeStream.text) && (
                 <StreamingFeedback
-                  text={session.reveal.feedback}
+                  text={session.reveal.feedback || gradeStream.text}
                   isStreaming={false}
                   error={null}
                   title="Your debrief"
                 />
               )}
-              <p className="text-xs text-muted">
-                This session is saved in your <Link href="/history" className="text-accent hover:text-accent-hover">History</Link>.
-              </p>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs text-muted">
+                  This session is saved in your <Link href="/history" className="text-accent hover:text-accent-hover">History</Link>.
+                </p>
+                <FeedbackButton attemptId={session.reveal.attemptId} step="live-tasting-reveal" />
+              </div>
             </>
           )}
         </div>

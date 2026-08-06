@@ -83,6 +83,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return Response.json({
     ...base,
     reveal: {
+      attemptId: session.attempt_id,
       wines,
       modelAnswer: question.model_answer,
       availability: session.availability,
