@@ -533,7 +533,7 @@ export async function replaceWine(opts: {
   emit?.({ type: "status", label: "Rewriting the question for the new flight…" });
   const result = await generateFreshQuestion(
     session.paper,
-    ARCHETYPE_FAMILY[(session.archetype as ArchetypeId) ?? "mixed-variety"] ?? "F4",
+    resolveFamily(session.archetype),
     apiKey,
     { source: "user", userId: session.user_id },
     undefined,
@@ -582,6 +582,26 @@ export const ARCHETYPE_LABEL: Record<ArchetypeId, string> = {
   "p3-styles": "Contrasting Paper 3 styles",
 };
 
+// BYO uses the STUDY taxonomy (F1-F7) — the same families the candidate practises against in the
+// Study tab — not the pick-my-wines archetypes (those exist to make automated bank-picking
+// tractable). Labels/descriptions mirror FamilyFilter.tsx.
+export const BYO_FAMILIES: Record<string, { label: string; description: string }> = {
+  F1: { label: "Same Variety", description: "All wines share one grape variety across different origins or styles" },
+  F2: { label: "Same Origin", description: "Wines from the same country or region, testing internal diversity" },
+  F3: { label: "Blend Logic", description: "Blended wines where composition and component roles are key" },
+  F4: { label: "Mixed Breadth", description: "Each wine is independent — tests breadth of identification" },
+  F5: { label: "Method / Production", description: "Focus on how the wine was made: sparkling, fortified, or sweet mechanisms" },
+  F6: { label: "Style Mechanism", description: "Wines grouped by a structural axis: maturity, sweetness, or style" },
+  F7: { label: "Quality Hierarchy", description: "Wines at different tiers within a legal classification system" },
+};
+
+/** BYO sessions store the F-code in the archetype column; resolve either vocabulary to a family. */
+export function resolveFamily(archetypeOrFamily: string | null | undefined): string {
+  const v = (archetypeOrFamily ?? "").trim();
+  if (/^F[1-7]$/.test(v)) return v;
+  return ARCHETYPE_FAMILY[v as ArchetypeId] ?? "F4";
+}
+
 export type EnteredWine = {
   producer: string;
   wineName: string;
@@ -593,7 +613,7 @@ export type EnteredWine = {
 
 export async function buildByoGuidance(opts: {
   paper: number;
-  archetype: ArchetypeId;
+  family: string;
   flightSize: number;
   budgetAmount: number | null;
   budgetCurrency: string | null;
@@ -602,7 +622,8 @@ export async function buildByoGuidance(opts: {
   apiKey: string;
   userId: number;
 }): Promise<string> {
-  const { paper, archetype, flightSize, budgetAmount, budgetCurrency, city, country, apiKey, userId } = opts;
+  const { paper, family, flightSize, budgetAmount, budgetCurrency, city, country, apiKey, userId } = opts;
+  const fam = BYO_FAMILIES[family] ?? BYO_FAMILIES.F1;
   const client = new Anthropic({ apiKey });
   const { model, abGroup } = await selectModel("question_generation", apiKey, "sonnet");
   const budgetLine = budgetAmount
@@ -622,7 +643,7 @@ Format (markdown, ~250-400 words):
 The candidate shops near ${city}, ${country}. ${budgetLine}`,
     messages: [{
       role: "user",
-      content: `Paper ${paper} (${paper === 1 ? "white still wines" : paper === 2 ? "red still wines" : "sparkling/fortified/sweet and other special styles"}). Question type: ${ARCHETYPE_LABEL[archetype]}. Flight size: ${flightSize} wines.`,
+      content: `Paper ${paper} (${paper === 1 ? "white still wines" : paper === 2 ? "red still wines" : "sparkling/fortified/sweet and other special styles"}). Question family: ${family} — ${fam.label} (${fam.description}). Flight size: ${flightSize} wines.`,
     }],
   });
   logClaudeUsage(
@@ -637,7 +658,7 @@ export async function createByoPrep(opts: {
   userId: number;
   apiKey: string;
   paper: number;
-  archetype: ArchetypeId;
+  family: string;
   flightSize: number;
   city: string;
   country: string;
@@ -658,7 +679,7 @@ export async function createByoPrep(opts: {
     userId: opts.userId,
     paper: opts.paper,
     flightSize: opts.flightSize,
-    archetype: opts.archetype,
+    archetype: opts.family, // BYO stores the F-code; resolveFamily() reads both vocabularies
     city: opts.city,
     country: opts.country,
     budgetAmount: opts.budgetAmount,
@@ -713,7 +734,7 @@ export async function attachByoWines(opts: {
   emit?.({ type: "status", label: "Researching your wines and writing the question…" });
   const result = await generateFreshQuestion(
     session.paper,
-    ARCHETYPE_FAMILY[(session.archetype as ArchetypeId) ?? "mixed-variety"] ?? "F4",
+    resolveFamily(session.archetype),
     apiKey,
     { source: "user", userId: session.user_id },
     undefined,

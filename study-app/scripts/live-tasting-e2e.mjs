@@ -351,7 +351,7 @@ async function runByoSession(paper) {
   const label = "C/byo";
   const res = await api("/api/live-tasting", {
     method: "POST",
-    body: JSON.stringify({ paper, flightSize: 2, mode: "byo", archetype: paper === 3 ? "p3-styles" : "same-variety" }),
+    body: JSON.stringify({ paper, flightSize: 2, mode: "byo", family: paper === 3 ? "F5" : "F1" }),
   });
   if (!res.ok) {
     check(`${label} prep create`, false, `status ${res.status}`);

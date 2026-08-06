@@ -33,7 +33,7 @@ export default function LiveTastingPage() {
   const [paper, setPaper] = useState(1);
   const [flightSize, setFlightSize] = useState(3);
   const [mode, setMode] = useState<"pick-for-me" | "byo">("pick-for-me");
-  const [archetype, setArchetype] = useState("same-variety");
+  const [family, setFamily] = useState("F1");
   const [budgetOverride, setBudgetOverride] = useState("");
   const [creating, setCreating] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
@@ -69,7 +69,7 @@ export default function LiveTastingPage() {
           paper,
           flightSize,
           mode,
-          ...(mode === "byo" ? { archetype } : {}),
+          ...(mode === "byo" ? { family } : {}),
           ...(budgetOverride.trim() ? { budgetAmount: Number(budgetOverride) } : {}),
         }),
       });
@@ -235,24 +235,28 @@ export default function LiveTastingPage() {
                   </div>
                   {mode === "byo" && (
                     <div>
-                      <span className="block text-sm font-medium text-foreground mb-1.5">Question type</span>
-                      <div className="flex flex-wrap gap-2">
+                      <span className="block text-sm font-medium text-foreground mb-1.5">Question family</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {[
-                          { id: "same-variety", label: "Same variety" },
-                          { id: "quality-ladder", label: "Quality ladder" },
-                          { id: "mixed-variety", label: "Mixed varieties" },
-                          ...(paper === 3 ? [{ id: "p3-styles", label: "Contrasting styles" }] : []),
-                        ].map((a) => (
+                          { id: "F1", label: "F1 · Same Variety", desc: "One grape across different origins or styles" },
+                          { id: "F2", label: "F2 · Same Origin", desc: "One country or region, testing internal diversity" },
+                          { id: "F3", label: "F3 · Blend Logic", desc: "Blends — composition and component roles" },
+                          { id: "F4", label: "F4 · Mixed Breadth", desc: "Independent wines — breadth of identification" },
+                          { id: "F5", label: "F5 · Method / Production", desc: "How it was made: sparkling, fortified, sweet" },
+                          { id: "F6", label: "F6 · Style Mechanism", desc: "A structural axis: maturity, sweetness, style" },
+                          { id: "F7", label: "F7 · Quality Hierarchy", desc: "Tiers within a legal classification" },
+                        ].map((f) => (
                           <button
-                            key={a.id}
-                            onClick={() => setArchetype(a.id)}
-                            className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors cursor-pointer ${
-                              archetype === a.id
-                                ? "border-accent text-accent bg-accent/10"
-                                : "border-border text-muted hover:text-foreground hover:border-muted"
+                            key={f.id}
+                            onClick={() => setFamily(f.id)}
+                            className={`px-3 py-2 rounded-lg border text-left transition-colors cursor-pointer ${
+                              family === f.id
+                                ? "border-accent bg-accent/10"
+                                : "border-border hover:border-muted"
                             }`}
                           >
-                            {a.label}
+                            <span className={`block text-sm font-medium ${family === f.id ? "text-accent" : "text-foreground"}`}>{f.label}</span>
+                            <span className="block text-xs text-muted mt-0.5">{f.desc}</span>
                           </button>
                         ))}
                       </div>

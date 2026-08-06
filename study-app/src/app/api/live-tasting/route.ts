@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { requireApiKey } from "@/lib/api-key";
 import { getUser } from "@/lib/auth";
 import { sseStream } from "@/lib/thinking-stream";
-import { createLiveTasting, createByoPrep, ARCHETYPE_FAMILY, type ArchetypeId } from "@/lib/live-tasting-engine";
+import { createLiveTasting, createByoPrep, BYO_FAMILIES } from "@/lib/live-tasting-engine";
 import {
   getLiveTastingSessionsForUser,
   getUserLiveTastingPrefs,
@@ -75,15 +75,14 @@ export async function POST(request: Request) {
   // BYO ("I'll choose wines", migration 043): paper + question type in, shopping brief out —
   // the session sits in 'prep' until the wines are entered.
   if (body.mode === "byo") {
-    const archetype = (typeof body.archetype === "string" && body.archetype in ARCHETYPE_FAMILY
-      ? body.archetype
-      : "same-variety") as ArchetypeId;
+    // Question type = the STUDY taxonomy (F1-F7), same families as the Study tab.
+    const family = typeof body.family === "string" && body.family in BYO_FAMILIES ? body.family : "F1";
     return sseStream(async (emit) => {
       const outcome = await createByoPrep({
         userId,
         apiKey: keyResult.apiKey,
         paper,
-        archetype,
+        family,
         flightSize,
         city: prefs.city!,
         country: prefs.country!,
