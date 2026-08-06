@@ -39,14 +39,18 @@ export async function GET(request: Request) {
     ]);
     const attempts = rawAttempts.map((attempt) => {
       if (attempt.mode !== "theory") return attempt;
-      const rubric = getTheoryRubric(attempt.question_id);
+      const questionId = attempt.theory_question_id ?? attempt.question_id;
+      const rubric = questionId ? getTheoryRubric(questionId) : null;
       return {
         ...attempt,
+        // Keep the History API stable: clients use question_id for every study mode even though
+        // the database has separate practical and Theory foreign keys.
+        question_id: questionId,
         paper: rubric?.paper ?? 0,
         family: "theory",
         family_label: rubric?.domain.replaceAll("_", " ") ?? "Theory",
         subcategory: rubric?.section ?? null,
-        question_text: rubric?.questionText ?? attempt.question_id,
+        question_text: rubric?.questionText ?? questionId ?? "Theory question",
         wines: [],
         model_answer: null,
         total_marks: 0,

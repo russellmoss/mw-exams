@@ -36,6 +36,34 @@ describe("Theory attempt submit lock", () => {
     const source = readFileSync(join(process.cwd(), "src/lib/theory/attempts.ts"), "utf-8");
     expect(source).toMatch(/mode, input_method, flagged, stem_detail/);
     expect(source).toMatch(/'theory'[\s\S]*false, 'none'/);
+    expect(source).toMatch(/INSERT INTO user_attempts \(\s*theory_question_id,/);
+    expect(source).not.toMatch(/INSERT INTO user_attempts \(\s*question_id,/);
+  });
+
+  it("keeps practical and Theory question foreign keys separate", () => {
+    const migration = readFileSync(
+      join(process.cwd(), "migrations/050_theory_attempt_questions.sql"),
+      "utf-8"
+    );
+    const index = JSON.parse(
+      readFileSync(join(process.cwd(), "public/data/theory-grading-index.json"), "utf-8")
+    ) as Array<{ id: string }>;
+    const registeredIds = [...migration.matchAll(/\('(th_\d{4}_p\d_q\d+)'\)/g)].map(
+      (match) => match[1]
+    );
+
+    expect(registeredIds).toEqual(index.map((rubric) => rubric.id));
+    expect(migration).toMatch(
+      /FOREIGN KEY \(theory_question_id\) REFERENCES theory_questions\(question_id\)/
+    );
+    expect(migration).toMatch(/ALTER COLUMN question_id DROP NOT NULL/);
+    expect(migration).not.toMatch(/DROP CONSTRAINT\s+user_attempts_question_id_fkey/);
+    expect(migration).toMatch(
+      /mode = 'theory' AND question_id IS NULL AND theory_question_id IS NOT NULL/
+    );
+
+    const history = readFileSync(join(process.cwd(), "src/app/api/history/route.ts"), "utf-8");
+    expect(history).toMatch(/attempt\.theory_question_id \?\? attempt\.question_id/);
   });
 
   it("refuses rubricless 2015 and 2026 questions before beginning an attempt", () => {

@@ -92,7 +92,9 @@ export interface GeneratedQuestion {
 
 export interface UserAttempt {
   id: number;
-  question_id: string;
+  /** Practical question FK. Theory rows use theory_question_id instead (migration 050). */
+  question_id: string | null;
+  theory_question_id: string | null;
   pre_glass_reasoning: string | null;
   pre_glass_feedback: string | null;
   tasting_notes: string[] | null;
@@ -3299,6 +3301,8 @@ export async function getMediaById(
 }
 
 export type RecentAttempt = UserAttempt & {
+  // getRecentAttempts is hard-filtered to mode='full', whose practical FK is always populated.
+  question_id: string;
   paper: number;
   family: string;
   family_label: string;
