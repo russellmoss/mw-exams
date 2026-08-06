@@ -145,6 +145,14 @@ function exclusionsFrom(sessions: LiveTastingSession[]): {
   return { excludeWineKeys: keys, excludeVarieties: varieties };
 }
 
+// Distinct question architectures, rotated by paper position (paper-QA round 5). Each is a real
+// pattern from the 2023-24 corpus; rotating guarantees no two flights clone a scaffold.
+const SCAFFOLD_ROTATION = [
+  "Open with a POOLED identification sub-question covering all the wines together, then per-wine analysis parts.",
+  "Per-wine sub-questions first (identification bundled per wine), closing with an integrative comparison across all the wines.",
+  "Open with an integrative comparative part across the flight, then per-wine parts, and include one discrete 2-3 mark technical micro-question.",
+];
+
 function shuffleInPlace<T>(a: T[]): T[] {
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -196,7 +204,13 @@ export async function generateNextFlight(opts: {
     requireArchetype: (FAMILY_TO_ARCHETYPE[next.family] ?? "mixed-variety") as ArchetypeId,
     excludeWineKeys,
     excludeVarieties,
-    paperStemsContext: priorStems.length ? priorStems.join("\n") : null,
+    // Round 5: "vary your structure" alone still produced clone scaffolds (round-4 judge:
+    // "structurally near-identical clones"). Rotate a NAMED architecture per position so two
+    // flights can never share one, and keep prior stems visible as the differ-from list.
+    paperStemsContext: [
+      ...priorStems,
+      `SCAFFOLD DIRECTIVE for this question: ${SCAFFOLD_ROTATION[(next.position - 1) % SCAFFOLD_ROTATION.length]}`,
+    ].join("\n"),
   });
   if ("error" in outcome) return { error: outcome.error ?? "Flight generation failed." };
 
