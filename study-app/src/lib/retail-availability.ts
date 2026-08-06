@@ -274,14 +274,18 @@ export async function getAvailability(
         WHERE cache_key = ${cacheKey}
       `.catch(() => {});
       const raw = rows[0].stockists as unknown;
-      const arr = Array.isArray(raw) ? raw : (raw as { stockists?: unknown })?.stockists;
-      const typ = !Array.isArray(raw) ? (raw as { typicalPriceUsd?: unknown })?.typicalPriceUsd : null;
-      return {
-        stockists: coerceStockists(arr),
-        typicalPriceUsd: typeof typ === "number" && typ > 0 ? typ : null,
-        fromCache: true,
-        degraded: false,
-      };
+      // Legacy shape (bare array, pre-estimate) deliberately falls through to a refresh: those
+      // rows carry no typical-price estimate, and E2E run 6 showed them dodging budget eviction.
+      if (!Array.isArray(raw)) {
+        const arr = (raw as { stockists?: unknown })?.stockists;
+        const typ = (raw as { typicalPriceUsd?: unknown })?.typicalPriceUsd;
+        return {
+          stockists: coerceStockists(arr),
+          typicalPriceUsd: typeof typ === "number" && typ > 0 ? typ : null,
+          fromCache: true,
+          degraded: false,
+        };
+      }
     }
   } catch (err) {
     console.error("retail_availability cache read failed:", err);
@@ -347,6 +351,33 @@ export async function getAvailability(
 
   // Tavily flipped to 432 mid-ladder → persist the latch for every other instance.
   if (isTavilyQuotaExhausted()) latchQuotaInDb().catch(() => {});
+
+  // Dead-link filter (E2E run 6: a stale merchant page 404'd on the user): drop stockists whose
+  // URL concretely 404s. Only a definite 404 evicts — 403/405/timeouts are bot-walls, not death.
+  const alive = await Promise.all(stockists.map(async (st) => {
+    try {
+      let r = await fetch(st.url, { method: "HEAD", redirect: "follow", signal: AbortSignal.timeout(6000) });
+      if (r.status === 405 || r.status === 403) return true;
+      if (r.status === 404) {
+        r = await fetch(st.url, { method: "GET", redirect: "follow", signal: AbortSignal.timeout(6000) });
+        return r.status !== 404;
+      }
+      return true;
+    } catch { return true; }
+  }));
+  stockists = stockists.filter((_, i) => alive[i]);
+
+  // Band self-healing: when the parser's typical-price estimate contradicts the stored band by a
+  // tier, correct wine_bank so the next candidate pass starts from reality (the Haiku backfill
+  // over-assigned 'premium' to $60-120 Burgundies — E2E runs 5+6 both paid for it).
+  if (parsed.typicalPriceUsd != null && wine.wineKey) {
+    const est = parsed.typicalPriceUsd;
+    const band = est > 150 ? "icon" : est > 50 ? "super_premium" : est > 20 ? "premium" : "value";
+    sql`
+      UPDATE wine_bank SET price_band = ${band}
+      WHERE id = ${wine.wineKey} AND price_band IS DISTINCT FROM ${band}
+    `.catch(() => {});
+  }
 
   stockists = [...stockists, fallback];
 

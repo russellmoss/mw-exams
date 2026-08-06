@@ -139,6 +139,20 @@ async function loadBudgetedBank(budgetAmount: number | null, budgetCurrency: str
 
 const norm = (s: string) => (s || "").toLowerCase().trim();
 
+// Variety names that can appear ON a label. A candidate whose wine_name carries a DIFFERENT
+// variety than its slot's target is either a mangled bank row or a field blend — both poison a
+// same-variety flight (E2E run 6: a "…Chardonnay" cuvée pinned into a Pinot Noir flight).
+const LABEL_VARIETIES = [
+  "chardonnay", "riesling", "sauvignon blanc", "chenin blanc", "pinot gris", "pinot grigio",
+  "pinot noir", "cabernet sauvignon", "syrah", "shiraz", "merlot", "grenache", "malbec",
+  "tempranillo", "sangiovese", "nebbiolo", "zinfandel", "gamay", "viognier", "semillon",
+];
+function nameContradictsVariety(wineName: string, variety: string): boolean {
+  const name = norm(wineName);
+  const target = norm(variety);
+  return LABEL_VARIETIES.some((v) => v !== target && !target.includes(v) && !v.includes(target) && name.includes(v));
+}
+
 /**
  * Pick an archetype and per-slot candidate lists (primary + up to 2 alternates per slot) from the
  * budget-filtered bank. Tries archetypes in shuffled preference order and returns the first that
@@ -185,7 +199,10 @@ export function pickArchetype(
   for (const arch of tryOrder) {
     if (arch === "same-variety") {
       for (const [variety, origins] of shuffle(Object.entries(varieties))) {
-        const pool = stillDry.filter((r) => grapeList(r).some((g) => norm(g) === norm(variety)));
+        const pool = stillDry.filter(
+          (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
+                 !nameContradictsVariety(r.wine_name, variety)
+        );
         const byOrigin = shuffle(origins)
           .map((o) => pool.filter((r) => norm(r.country) === norm(o)))
           .filter((g) => g.length > 0);
@@ -199,7 +216,8 @@ export function pickArchetype(
       for (const ladder of shuffle(LADDER_REGIONS.filter((l) => l.paper === paper))) {
         const pool = stillDry.filter(
           (r) => norm(r.region).includes(norm(ladder.region)) &&
-                 grapeList(r).some((g) => norm(g) === norm(ladder.variety))
+                 grapeList(r).some((g) => norm(g) === norm(ladder.variety)) &&
+                 !nameContradictsVariety(r.wine_name, ladder.variety)
         );
         const bands = new Set(pool.map((r) => r.price_band));
         if (pool.length >= flightSize && bands.size >= 2) {
@@ -224,7 +242,8 @@ export function pickArchetype(
         if (groups.length >= flightSize) break;
         const pool = stillDry.filter(
           (r) => grapeList(r).some((g) => norm(g) === norm(variety)) &&
-                 origins.some((o) => norm(r.country) === norm(o))
+                 origins.some((o) => norm(r.country) === norm(o)) &&
+                 !nameContradictsVariety(r.wine_name, variety)
         );
         if (pool.length > 0) groups.push(pool);
       }
