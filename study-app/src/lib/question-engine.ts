@@ -12,6 +12,12 @@ import {
   getRecentBinReasons,
   getProducerNudge,
   getOverusedProducers,
+  getRecentWineIds,
+  getRecentFlightSignatures,
+  flightSignature,
+  wineCooldownId,
+  RECENT_WINE_WINDOW,
+  RECENT_FLIGHT_WINDOW,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -669,6 +675,39 @@ async function callGenerationModel(
   return streamWithThinking(client, params, callOpts, emit);
 }
 
+// Duplicate-wine cooldown + flight-signature dedup (feedback: "same wine reused across recently
+// generated questions"). On a collision the flight is REGENERATED up to this many times before the
+// generation fails with a clear error rather than emitting a bottle / shape the candidate just saw.
+export const MAX_DEDUP_REGENERATIONS = 3;
+
+/**
+ * Regenerate a flight until it is novel against BOTH dedup guards — the exact-wine cooldown and the
+ * flight-signature dedup — or fail. Pure orchestration around a `generate` callback, so the dedup
+ * policy is pinned by a unit test without a model call or a database, and it mirrors the inline
+ * policy generateFreshQuestion runs: up to MAX_DEDUP_REGENERATIONS redraws on collision, then throw
+ * rather than serve a duplicate. `regenerations` is how many redraws it took (0 = the first draft was
+ * already novel).
+ */
+export function selectNovelFlight(
+  generate: (attempt: number) => { fullText: string }[],
+  recentWineIds: Set<string>,
+  recentSignatures: Set<string>
+): { wines: { fullText: string }[]; signature: string; regenerations: number } {
+  let lastReason = "duplicate flight";
+  for (let attempt = 0; attempt <= MAX_DEDUP_REGENERATIONS; attempt++) {
+    const wines = generate(attempt);
+    const reusedWine =
+      wines.map((w) => wineCooldownId(w.fullText)).find((id) => id && recentWineIds.has(id)) || null;
+    const signature = flightSignature(wines);
+    const sigCollision = recentSignatures.has(signature);
+    if (!reusedWine && !sigCollision) return { wines, signature, regenerations: attempt };
+    lastReason = reusedWine ? "reuses a recently used wine" : "repeats a recent flight signature";
+  }
+  throw new Error(
+    `Could not select a non-duplicate flight after ${MAX_DEDUP_REGENERATIONS} regenerations: ${lastReason}`
+  );
+}
+
 export async function generateFreshQuestion(
   paper: number,
   family: string | undefined,
@@ -1010,6 +1049,29 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
       modelError: f.modelError ?? null,
     });
 
+  // Duplicate-wine cooldown + flight-signature dedup (feedback). Fetched ONCE before the attempt
+  // loop: the exact-wine cooldown pool (bottles used in the last RECENT_WINE_WINDOW questions for
+  // this paper) and the flight signatures of the last RECENT_FLIGHT_WINDOW. Skipped in pinned mode —
+  // a Live Tasting flight is fixed upstream and deliberately reuses its bottles, and there is no
+  // redraft to converge to. A lookup outage degrades to empty sets (no dedup) rather than failing
+  // generation.
+  let recentWineIds = new Set<string>();
+  let recentFlightSignatures = new Set<string>();
+  if (!pinned) {
+    try {
+      [recentWineIds, recentFlightSignatures] = await Promise.all([
+        getRecentWineIds(paper, RECENT_WINE_WINDOW),
+        getRecentFlightSignatures(paper, RECENT_FLIGHT_WINDOW),
+      ]);
+    } catch (err) {
+      console.error("[dedup] recent wine/signature fetch failed (non-fatal):", err);
+    }
+  }
+  // How many drafts have collided with a recent wine / flight signature, and the flag that fails the
+  // whole generation once that exceeds MAX_DEDUP_REGENERATIONS (rather than emitting a duplicate).
+  let dedupCollisions = 0;
+  let dedupFailed = false;
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -1150,6 +1212,46 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
         latencyMs: callMs,
       });
       continue;
+    }
+
+    // Duplicate-wine cooldown + flight-signature dedup (feedback). BEFORE the examiner validators —
+    // a flight that reuses a bottle from the last RECENT_WINE_WINDOW questions, or repeats the
+    // (region, variety, style) signature of the last RECENT_FLIGHT_WINDOW, is redrafted rather than
+    // graded. This is what stops "same wine reused across recently generated questions" and the
+    // admin's "rated vs non-rated white Burgundy again". Pinned mode skips it (see the fetch above).
+    // After MAX_DEDUP_REGENERATIONS collisions we FAIL the generation with a clear error instead of
+    // emitting a duplicate.
+    if (!pinned) {
+      const reusedWine =
+        candidate.wines.map((w) => wineCooldownId(w.fullText)).find((id) => id && recentWineIds.has(id)) ||
+        null;
+      const candidateSignature = flightSignature(candidate.wines);
+      const signatureCollision = recentFlightSignatures.has(candidateSignature);
+      if (reusedWine || signatureCollision) {
+        dedupCollisions++;
+        const ruleName = reusedWine ? "dedupWine" : "dedupSignature";
+        const reason = reusedWine
+          ? `reuses a wine seen within the last ${RECENT_WINE_WINDOW} questions for paper ${paper}`
+          : `repeats the region/variety/style signature of a question within the last ${RECENT_FLIGHT_WINDOW} for paper ${paper}`;
+        lastViolations = [`Duplicate flight: ${reason}`];
+        console.error(
+          `Generation attempt ${attempt}/${MAX_ATTEMPTS} duplicate flight (${dedupCollisions}/${MAX_DEDUP_REGENERATIONS} regenerations): ${reason}`
+        );
+        recordAttempt(attempt, {
+          model: producedModel,
+          abGroup: producedAb,
+          passed: false,
+          rulesFired: [ruleName],
+          violations: { [ruleName]: lastViolations },
+          latencyMs: callMs,
+        });
+        if (dedupCollisions > MAX_DEDUP_REGENERATIONS) {
+          dedupFailed = true;
+          break;
+        }
+        emit?.({ type: "status", label: "Flight duplicated a recent one — redrafting…" });
+        continue;
+      }
     }
 
     emit?.({ type: "status", label: "Running the examiner validators…" });
@@ -1302,6 +1404,18 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
   // never one this user was just served (that was a silent repeat vector). Only drop the per-user
   // filter as an absolute last resort below, when excluding seen questions would leave nothing.
   if (!parsed || !validation) {
+    // Duplicate-wine cooldown / flight-signature dedup exhausted (feedback): the model kept redrawing
+    // the same bottle or the same (region, variety, style) shape. Fail with a clear error rather than
+    // fall through to a banked question — the whole point is to NOT put a just-seen flight in front of
+    // the candidate, and a banked fallback here would risk exactly that.
+    if (dedupFailed) {
+      const msg =
+        `Generation could not produce a non-duplicate flight after ${MAX_DEDUP_REGENERATIONS} regenerations ` +
+        `for paper ${paper}: ${lastViolations[0] ?? "duplicate flight"}`;
+      console.error(msg);
+      emit?.({ type: "status", label: "Couldn't produce a fresh flight — please try again." });
+      return { error: msg };
+    }
     // Pinned mode: a banked question is NOT a substitute for the availability-confirmed flight —
     // the caller (live-tasting-engine) handles failure by swapping a candidate wine and retrying.
     if (pinned) {
@@ -1358,6 +1472,9 @@ The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.`;
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,
+      // Flight-signature dedup (feedback): persist the (region, variety, style) signature so the
+      // recent-signatures lookup for the next generation is a stored read, not a re-derivation.
+      flightSignature: flightSignature(parsed.wines),
       wineShapeCheck: validation.wineShapeCheck,
       paperScopeCheck: validation.paperScopeCheck,
       varietyCheck: validation.varietyCheck,
