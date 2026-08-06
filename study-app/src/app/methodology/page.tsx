@@ -82,8 +82,8 @@ export default function MethodologyPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard value="540" label="Wines Researched" sub="Every wine from 2011-2026" />
           <StatCard value="162" label="Questions Analyzed" sub="15 years of exam papers" />
-          <StatCard value="58%" label="Top-3 Variety" sub="Blind test: 396 unseen wines" />
-          <StatCard value="80%" label="Candidate-Set Coverage" sub="Correct variety somewhere in the set" />
+          <StatCard value="64%" label="Top-3 Variety" sub="Most recent unseen paper (2026, blind)" />
+          <StatCard value="89%" label="Candidate-Set Coverage" sub="Correct variety somewhere in the set" />
         </div>
 
         {/* Section nav */}
@@ -384,26 +384,30 @@ export default function MethodologyPage() {
           </p>
 
           <h3 className="text-lg font-semibold text-foreground mb-3">
-            The blind test: what the trees score on wines they have never seen
+            The blind tests: what the trees score on wines they have never seen
           </h3>
           <p className="text-muted leading-relaxed mb-4">
-            The corpus the trees are built from cannot grade them -- every 2011-2026 question is
-            training material, and scores there measure recall. The measurement that stands is the
-            <strong> 2000-2010 blind test</strong>: 111 questions and 396 wines that contribute
-            nothing to the trees. Predictions are made from the stem and the tree alone -- wines
-            withheld, no corpus access, ranked lists capped at eight varieties -- and scored by one
-            deterministic, synonym-aware scorer against independently resolved ground truth.
+            Two blind measurements exist, and they bracket the system by era. The
+            <strong> 2026 paper</strong> -- 36 wines, predicted before the trees ever saw that year
+            -- is the modern-era measurement, and the better estimate of exam-day performance,
+            because it is the same question grammar the exam uses today. The
+            <strong> 2000-2010 papers</strong> -- 111 questions, 396 wines that contribute nothing
+            to the trees -- are the stress test: an older exam era whose constructions the modern
+            exam has partly abandoned. In both, predictions come from the stem and the tree alone
+            (wines withheld, no corpus access, ranked lists capped at eight varieties), scored by a
+            deterministic synonym-aware scorer against independently resolved ground truth.
           </p>
 
           <div className="overflow-x-auto mb-5">
             <table className="w-full text-sm">
               <thead>
-                <TableRow header cells={["Metric", "Variety", "Country"]} />
+                <TableRow header cells={["Metric", "2026 paper (modern era)", "2000-2010 (older era)"]} />
               </thead>
               <tbody>
-                <TableRow cells={["Top-1", "33%", "40%"]} />
-                <TableRow cells={["Top-3", "58%", "69%"]} />
-                <TableRow cells={["In candidate set", "80%", "90%"]} />
+                <TableRow cells={["Variety top-1", "36%", "33%"]} />
+                <TableRow cells={["Variety top-3", "64%", "58%"]} />
+                <TableRow cells={["Variety in candidate set", "89%", "80%"]} />
+                <TableRow cells={["Country top-3", "78%", "69%"]} />
               </tbody>
             </table>
           </div>
@@ -411,10 +415,13 @@ export default function MethodologyPage() {
           <Callout accent>
             <p className="text-sm text-foreground leading-relaxed">
               <strong>How to read these numbers.</strong> Do not act on the tree&apos;s top-1 answer
-              -- it is right about one time in three. The tree&apos;s job is to <em>bound the
-              universe</em>: four times in five the true variety is somewhere in the candidate set,
-              and nine times in ten the true country is. You narrow from there in the glass. The
-              trees know shapes, not bottles.
+              -- it is right about one time in three, in either era. The tree&apos;s job is to
+              <em> bound the universe</em>: on the most recent unseen paper the true variety was
+              somewhere in the candidate set for nine wines in ten (four in five on the old-era
+              stress test). You narrow from there in the glass. The trees know shapes, not bottles.
+              <br /><br />
+              The 2026 paper has since been absorbed into the trees, so that column cannot be
+              re-measured -- the next modern-era blind test is the 2027 sit.
               <br /><br />
               <strong>What we do not claim.</strong> An earlier version of this page reported 72.8%
               top-1 and 89.2% top-3 from an in-sample pass. Those numbers are not reproducible and
@@ -611,7 +618,7 @@ export default function MethodologyPage() {
               <div className="text-sm font-semibold text-success mb-3">What it is</div>
               <ul className="text-sm text-muted space-y-2 list-disc ml-4">
                 <li>Built on the <strong>complete modern MW exam corpus</strong> (15 years, 540 wines)</li>
-                <li>Decision trees <strong>blind-tested on 396 genuinely unseen wines</strong> (2000-2010) -- 58% top-3 variety, 80% candidate-set coverage</li>
+                <li>Decision trees <strong>blind-tested on 432 unseen wines</strong> -- 64% top-3 variety on the most recent paper, 58% on the 2000-2010 stress test</li>
                 <li>Stem routing <strong>audited end-to-end</strong>: every stem construction in 16 years of papers has a route through the trees</li>
                 <li>Question generation constrained by <strong>historical norms and three layers of validation</strong></li>
                 <li>Evaluation calibrated to <strong>official examiner guidance</strong></li>
