@@ -92,19 +92,49 @@ const opt = {
   dryRun: has("--dry-run"),
   repair: has("--repair"),
   repairStructural: has("--repair-structural"),
+  // Answers written before their question's wine evidence was upgraded. Exists because the id list
+  // for this set runs to ~319 entries, which does not fit on a command line.
+  staleEvidence: has("--stale-evidence"),
 };
-if (!opt.all && !opt.paper && !opt.questionId && !opt.repair && !opt.repairStructural) {
-  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair | --repair-structural\nUse --dry-run to preview. See header for all flags.");
+if (!opt.all && !opt.paper && !opt.questionId && !opt.repair && !opt.repairStructural && !opt.staleEvidence) {
+  console.error("Refusing to run without a selector. Pass one of: --question-id ID | --paper N | --all | --repair | --repair-structural | --stale-evidence\nUse --dry-run to preview. See header for all flags.");
   process.exit(1);
 }
+// An EXPLICIT --limit always wins. It used to be ignored whenever a bulk selector was passed, so
+// `--stale-evidence --limit 3` silently meant "all 319" — and since --dry-run still generates (it
+// only skips the write), that is a full-corpus spend from a command that reads like a 3-row preview.
 const limit = opt.questionIds.length
   ? opt.questionIds.length
-  : (opt.all || opt.repair || opt.repairStructural) ? null : (opt.limit ?? 5);
+  : opt.limit ?? ((opt.all || opt.repair || opt.repairStructural || opt.staleEvidence) ? null : 5);
 
 // ---- select rows to regen ----
 const sql = neon(process.env.DATABASE_URL);
 let rows;
-if (opt.repair || opt.repairStructural) {
+if (opt.staleEvidence) {
+  // STALE-EVIDENCE selector — answers written before the wine evidence behind them was upgraded.
+  //
+  // The wine bank was re-researched into tiered, cited profiles (tech sheet > critic > web >
+  // inferred), and each question's wine_profiles snapshot was then re-pointed at it by
+  // refresh-question-profiles.mjs. The stored ANSWERS still predate all of that, so they were written
+  // from the wine name plus whatever the old unscoped search had found.
+  //
+  // Requires the profile refresh to have run first: regenerating against a stale snapshot spends a
+  // full call to rewrite the answer using the SAME evidence. Hence the evidence_tier condition —
+  // it selects only questions whose snapshot is already current.
+  //
+  // Rejected questions are excluded: they are never served, so a better exemplar for them is spend
+  // with no candidate-facing benefit.
+  rows = await sql`
+    SELECT question_id, paper, family, family_label, subcategory, question_text, wines, total_marks,
+           length(model_answer) AS old_len
+    FROM generated_questions
+    WHERE model_answer IS NOT NULL
+      AND status <> 'rejected'
+      AND wine_profiles IS NOT NULL
+      AND jsonb_typeof(wine_profiles) = 'object'
+      AND (SELECT count(*) FROM jsonb_each(wine_profiles) v WHERE v.value ? 'evidence_tier') > 0
+    ORDER BY created_at DESC`;
+} else if (opt.repair || opt.repairStructural) {
   // REPAIR selector — the rows that are actually broken, rather than every row.
   //
   // Deliberately NOT `--all`: that selects `model_answer IS NOT NULL`, which skips the questions
