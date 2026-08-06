@@ -147,6 +147,10 @@ export const VARIETY_SYNONYMS = {
   "tocai friulano": "friulano",
   viura: "macabeo",
   steen: "chenin blanc",
+  // The label token "chenin" and the Steen synonym target "chenin blanc" were two DIFFERENT
+  // canonical forms, so a Steen wine in a Chenin flight read as a variety contradiction
+  // (Live Tasting E2E, 2026-08-06).
+  chenin: "chenin blanc",
   "listan blanco": "palomino",
   "ugni blanc": "trebbiano",
   "riesling italico": "welschriesling",
@@ -626,6 +630,10 @@ const APPELLATION_TO_PRIMARY_VARIETY = [
   { pattern: /\b(banyuls|maury|rivesaltes)\b/i, variety: "grenache" },
   { pattern: /\b(rutherglen)\b/i, variety: "muscat" },
   { pattern: /\b(muscadet)\b/i, variety: "melon de bourgogne" },
+  // WHITE Burgundy must outrank the generic burgundy→pinot-noir entry below (first match wins):
+  // "Pouilly-Fuissé 2022. Burgundy, France." was detecting as PINOT NOIR and failing valid
+  // same-variety Chardonnay flights (Live Tasting BYO, E2E runs 2026-08-06).
+  { pattern: /\b(chablis|meursault|puligny|chassagne|montrachet|corton-charlemagne|pouilly-fuisse|saint-veran|macon|vire-clesse|bourgogne\s+blanc|white\s+burgundy)\b/i, variety: "chardonnay" },
   { pattern: /\b(burgundy|bourgogne|gevrey|chambolle|vosne|pommard|volnay)\b/i, variety: "pinot noir" },
   { pattern: /\b(rioja|ribera\s+del\s+duero)\b/i, variety: "tempranillo" },
   { pattern: /\b(cote-rotie|cornas|hermitage|crozes-hermitage|saint-joseph)\b/i, variety: "syrah" },
