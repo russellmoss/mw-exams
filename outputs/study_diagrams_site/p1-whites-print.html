@@ -212,6 +212,9 @@
     style F5 fill:#f3e5f5
     style F7 fill:#fff9c4"><div class="sheet-render"></div></div></section>
 <section class="print-sheet landscape" data-initial-orientation="landscape"><header class="sheet-header"><p class="sheet-kicker">P1 Whites -- Mermaid Study Diagrams</p><h1>2. F1 Same Variety -- Tasting Tree (11 questions)</h1></header><div class="sheet-diagram" data-mermaid="flowchart LR
+    STEM{&quot;Only 2 wines AND&lt;br/&gt;&#x27;state of maturity&#x27;&lt;br/&gt;marked in the stem?&quot;} --&gt;|Yes| MATPAIR[&quot;Development-arc whites FIRST:&lt;br/&gt;RIESLING &amp; Chenin (strong)&lt;br/&gt;Chardonnay &amp; Semillon (plausible)&lt;br/&gt;Expect young-vs-mature pair,&lt;br/&gt;possibly same country + dry-vs-sweet&lt;br/&gt;(2018 P1 Q3: Rheingau GG 2016&lt;br/&gt;vs Mosel Auslese 2007)&quot;]
+    STEM --&gt;|No| LOCK
+    MATPAIR --&gt; LOCK
     LOCK[&quot;Lock the grape&lt;br/&gt;on the cleanest wine&quot;] --&gt; AROMA{&quot;Aroma family?&quot;}
     AROMA --&gt;|&quot;Citrus/apple&lt;br/&gt;chalk/restraint&quot;| CHARD[&quot;Chardonnay&quot;]
     AROMA --&gt;|&quot;Lime/petrol&lt;br/&gt;electric acid&quot;| RIES[&quot;Riesling&quot;]
