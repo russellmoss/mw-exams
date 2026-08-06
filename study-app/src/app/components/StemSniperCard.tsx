@@ -266,9 +266,17 @@ export function StemSniperCard({
   const isP3 = drill.paper === 3; // P3 predicts style/method, not variety
   const [rows, setRows] = useState<Row[]>(() => blankRows(drill.wineCount));
 
-  useEffect(() => {
+  // Blank the rows when the drill changes, adjusted DURING RENDER rather than in an effect. As an
+  // effect it painted the previous drill's answers once before clearing them — briefly showing the
+  // candidate their last answers against a new set of wines — and it is what
+  // react-hooks/set-state-in-effect flags. Setting during render makes React restart the pass
+  // before painting anything.
+  const drillKey = `${drill.questionId}:${drill.wineCount}`;
+  const [prevDrillKey, setPrevDrillKey] = useState(drillKey);
+  if (prevDrillKey !== drillKey) {
+    setPrevDrillKey(drillKey);
     setRows(blankRows(drill.wineCount));
-  }, [drill.questionId, drill.wineCount]);
+  }
 
   const update = (i: number, patch: Partial<Row> | ((row: Row) => Partial<Row>)) =>
     setRows((r) =>

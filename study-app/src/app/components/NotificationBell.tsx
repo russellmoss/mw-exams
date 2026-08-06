@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNow } from "@/lib/use-now";
 import Link from "next/link";
 import { FeedbackAnalysisPanel } from "./FeedbackAnalysisPanel";
 
@@ -73,6 +74,8 @@ interface AnalysisSummary {
 }
 
 export function NotificationBell() {
+  // Drives the "3m ago" labels below; see timeAgo.
+  const now = useNow();
   const [unreadCount, setUnreadCount] = useState(0);
   const [analyses, setAnalyses] = useState<AnalysisSummary[]>([]);
   const [bankReady, setBankReady] = useState<BankReady[]>([]);
@@ -152,7 +155,12 @@ export function NotificationBell() {
   }, [speakNarration]);
 
   useEffect(() => {
-    fetchNotifications();
+    // Wrapped rather than called directly: the initial fetch reaches setState on the synchronous
+    // path out of the effect (react-hooks/set-state-in-effect). The interval and listener calls
+    // below are already asynchronous and were never the problem.
+    void (async () => {
+      await fetchNotifications();
+    })();
     const interval = setInterval(fetchNotifications, 30000);
     const handleVisibility = () => {
       if (document.visibilityState === "visible") fetchNotifications();
@@ -198,7 +206,9 @@ export function NotificationBell() {
   };
 
   const timeAgo = (ts: string) => {
-    const diff = Date.now() - new Date(ts).getTime();
+    // `now` comes from state (useNow), not Date.now(): reading the clock during render is impure
+    // and left these labels frozen until some unrelated re-render happened to refresh them.
+    const diff = now - new Date(ts).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return "just now";
     if (mins < 60) return `${mins}m ago`;
