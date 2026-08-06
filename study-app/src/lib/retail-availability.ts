@@ -435,7 +435,7 @@ Rules:
 - kind: "local" = a physical shop the user could drive to (${radiusText}; neighboring towns and just across a state line count). "state_store" = a US state-run store system. "mail" = an online/national merchant that ships.
 - url: the result URL for that merchant (the listing page if that's what was found).
 - price: the per-bottle price if the snippet clearly shows one for this wine, else null. currency: ISO code like USD/EUR/GBP — when a price is shown with a bare symbol, infer the merchant's home currency (a $ price at a US merchant is USD). Never guess a price.
-- Sanity: exclude merchants whose obvious specialization rules the wine out (an Italian-only shop does not stock Alsace Pinot Gris) and names that don't read as real wine merchants.
+- Sanity: exclude merchants whose obvious specialization rules the wine out (an Italian-only shop does not stock Alsace Pinot Gris) and names that don't read as real wine merchants. A brick-and-mortar shop in a DIFFERENT state/region than the user is only valid if it clearly ships to them — a Napa shop with no shipping is useless to a Pennsylvania buyer (exclude it).
 - confidence: "listed" = the snippet explicitly shows this wine at this merchant. "likely" = the merchant clearly stocks this producer/category and probably this wine. "unverified" = weaker.
 - typical_price_usd: your estimate of this wine's TYPICAL retail price in USD for a 750ml bottle (any recent vintage), from your market knowledge — always include it, even when no snippet shows a price. Round number.
 - Prefer local before mail. At most 6 stockist entries. If nothing qualifies, use "stockists": [].`,
