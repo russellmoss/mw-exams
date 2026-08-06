@@ -128,8 +128,9 @@ Please evaluate this candidate's answer against the model answer. Assess identif
             const enriched = await enrichFeedbackWithImages(cleanedText, keyResult.user.id);
             // Append the source list to the text the client SAVES, so citations persist with the
             // attempt and survive a reload. The grader is instructed not to cite inline — this is
-            // where that promise is kept. Empty string when nothing was retrieved.
-            const withSources = enriched + buildCitationBlock(kbPassages);
+            // where that promise is kept. Empty string when nothing was retrieved. Relevance context
+            // is the stem + the exemplar (which names the actual wines — this route has no wine list).
+            const withSources = enriched + buildCitationBlock(kbPassages, [questionText, modelAnswer].filter(Boolean).join(" "));
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: withSources })}\n\n`));
           } catch (enrichErr) {
             console.error("answer-eval image enrichment failed:", enrichErr);

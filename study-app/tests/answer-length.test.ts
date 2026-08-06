@@ -82,7 +82,9 @@ describe("countAnswerBodyWords", () => {
         canonicalTitle: null,
         canonicalUrl: "https://example.org/b.pdf",
       },
-    ] as Parameters<typeof buildCitationBlock>[0]);
+      // Relevance context matches the fixture doc (the citation gate would rightly drop a Barossa
+      // Shiraz reference under any other flight, leaving no block to test).
+    ] as Parameters<typeof buildCitationBlock>[0], "Wines 1-2 are Barossa Valley Shiraz. Penfolds, Shiraz, 2020. Barossa Valley, Australia.");
 
     expect(citations).not.toBe(""); // guard: the fixture must actually produce a block
     expect(countAnswerBodyWords(body + citations)).toBe(10);

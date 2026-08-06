@@ -17,6 +17,7 @@
 // many wrong varieties, so presence proves nothing.
 
 import { norm, normStem, canonVariety, canonCountry, VARIETY_SYNONYMS } from "./question-rules.mjs";
+import { filterCitationDocs, parseCitationBlock } from "./citation-rules.mjs";
 
 // ── Body extraction ────────────────────────────────────────────────────────────────────────────────
 
@@ -292,6 +293,24 @@ export function applyAnswerContentRules({ questionText, answerText, wines }) {
       v.push({ rule: "answer-placeholder", severity: "hard", detail: `model answer contains ${m.why}` });
       break;
     }
+  }
+
+  // AC8 — citation relevance (soft). The "Sources consulted" tail must not point the student at a
+  // document about a different wine (citation-rules.mjs; generation now gates this, so flags here
+  // are pre-gate stored answers or a regression). Runs on the RAW answer — answerBody() strips the
+  // block this rule inspects.
+  const cite = parseCitationBlock(answerText);
+  if (cite && cite.docs.length > 0) {
+    const ctx = `${questionText || ""} ${wineList.map((w) => w.fullText || "").join(" ")}`;
+    const { dropped } = filterCitationDocs(cite.docs, ctx);
+    if (dropped.length > 0)
+      v.push({
+        rule: "answer-citation-offtopic",
+        severity: "soft",
+        detail: `Sources consulted lists ${dropped.length} off-topic document(s): ${dropped
+          .map((d) => `"${(d.doc.title || d.doc.url || "").slice(0, 60)}" (${d.reason})`)
+          .join("; ")}`,
+      });
   }
 
   // AC7 — truncated ending (soft). After the citation block is stripped, a finished answer ends on

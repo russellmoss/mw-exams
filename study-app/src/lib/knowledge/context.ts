@@ -12,6 +12,7 @@
 
 import { retrieveKnowledge, type RetrievedPassage } from "./retrieve";
 import { assessPassageAge, summarizeCorpusAge } from "./passage-age";
+import { filterCitationDocs } from "../citation-rules.mjs";
 
 /**
  * APPELLATION LAW — gated to the appellations whose SPECIFICATION IS ACTUALLY IN THE CORPUS.
@@ -297,8 +298,15 @@ ${body}`;
  * from" into a wall the student will not follow. Three is enough to check the claim and short enough
  * to read. This does NOT hide a retrieval problem — the model still receives all six — but it does
  * keep the weakest matches out of the student's face.
+ *
+ * RELEVANCE-GATED on `contextText` (question stem + wine labels, citation-rules.mjs): a document
+ * whose title pins it to a grape, region or style the flight does not carry is dropped, as are
+ * institutional annual reports. The prompt still received every passage — this gates only what the
+ * student is told to go read. "Barossa Shiraz grape measures" under a Loire Chenin question and
+ * "WBI Jahresbericht 1995" under anything were the observed failures. All docs dropped ⇒ no block:
+ * honest silence beats a wrong pointer.
  */
-export function buildCitationBlock(passages: RetrievedPassage[], maxDocs = 3): string {
+export function buildCitationBlock(passages: RetrievedPassage[], contextText: string, maxDocs = 3): string {
   if (passages.length === 0) return "";
   const seen = new Map<string, { publisher: string; title: string | null; url: string }>();
   for (const p of passages) {
@@ -306,7 +314,14 @@ export function buildCitationBlock(passages: RetrievedPassage[], maxDocs = 3): s
       seen.set(p.documentId, { publisher: p.publisher, title: p.canonicalTitle, url: p.canonicalUrl });
     }
   }
-  const items = [...seen.values()].slice(0, maxDocs).map((d) => {
+  const { kept, dropped } = filterCitationDocs([...seen.values()], contextText) as {
+    kept: { publisher: string; title: string | null; url: string }[];
+    dropped: { doc: { publisher: string }; reason: string }[];
+  };
+  if (dropped.length > 0)
+    console.log(`[kb] citation gate dropped ${dropped.length}: ${dropped.map((d) => `${d.doc.publisher} (${d.reason})`).join("; ")}`);
+  if (kept.length === 0) return "";
+  const items = kept.slice(0, maxDocs).map((d) => {
     const label = d.title && d.title.length > 3 && !/\.(pdf|docx?)$/i.test(d.title)
       ? `${d.publisher} — ${d.title}`
       : d.publisher;
