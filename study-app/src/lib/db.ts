@@ -186,6 +186,43 @@ export async function setUserPacePreference(userId: number, pref: PacePreference
   `;
 }
 
+// Live Tasting market prefs (migration 041): where the user shops and their per-bottle budget.
+// Currency whitelist is enforced app-side (the route), not by a DB CHECK.
+export type LiveTastingPrefs = {
+  city: string | null;
+  country: string | null;
+  budgetAmount: number | null;
+  budgetCurrency: string | null;
+};
+
+export async function getUserLiveTastingPrefs(userId: number): Promise<LiveTastingPrefs> {
+  const sql = getDb();
+  const rows = await sql`
+    SELECT live_city, live_country, live_budget_amount, live_budget_currency
+    FROM users WHERE id = ${userId}
+  `;
+  const r = rows[0];
+  const amount = r?.live_budget_amount != null ? Number(r.live_budget_amount) : null;
+  return {
+    city: r?.live_city ?? null,
+    country: r?.live_country ?? null,
+    budgetAmount: Number.isFinite(amount as number) && (amount as number) > 0 ? amount : null,
+    budgetCurrency: r?.live_budget_currency ?? null,
+  };
+}
+
+export async function setUserLiveTastingPrefs(userId: number, prefs: LiveTastingPrefs): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE users SET
+      live_city = ${prefs.city},
+      live_country = ${prefs.country},
+      live_budget_amount = ${prefs.budgetAmount},
+      live_budget_currency = ${prefs.budgetCurrency}
+    WHERE id = ${userId}
+  `;
+}
+
 export async function saveGeneratedQuestion(q: {
   questionId: string;
   paper: number;
