@@ -2049,3 +2049,58 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   used; notably the strictest (2025, Layer A only, avoiding Layer B leaves that cite the question
   under test) scored **highest** at 72.2% top-3, so leakage did not obviously help. And "LOYO"
   remains a label, not a method, for 2015–2025: one tree artifact, nothing retrained per fold.
+
+### EK-0151 · Real stems never mention bubbles — production asks say "method of production"
+- **tier:** STRONG SIGNAL · **status:** live — enforced by validator R10 (`stem-discloses-discriminator`)
+- **evidence:** 0/162 historical stems in `data/exams.json` contain "bubble", "sparkle", "fizz" or
+  "mousse" in ANY construction (measured 2026-08-05); reviewer bin `gen_p3_F7_1785964017240`
+  ("great question except for the 'how bubbles were created' — the exam would never ask that",
+  `bank_bin_reasons`); `outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md` Class 5
+- **claim:** even on all-sparkling flights, the IMW asks *"comment on the method of production"* and
+  expects the mechanism (second fermentation, tank vs bottle, tirage) to appear in the ANSWER. A
+  stem that asks "how the bubbles were created" hands the candidate the analytical axis and reads
+  as un-MW. The generation prompt now forbids it and validator R10 blocks it at draft time.
+
+### EK-0152 · The exam never asks the candidate to cite a quality designation or a named mechanism pair
+- **tier:** STRONG SIGNAL · **status:** live — enforced by validator R10
+- **evidence:** reviewer bins `gen_p3_F4_1785964281304` ("exam would never ask 'official quality
+  designation' - candidate would be expected to know and state this") and `gen_p3_F2_1785964017222`
+  ("we wouldn't see question c on an exam, at best we would see 'discuss the role of yeast'" — the
+  binned part c read "Comment on the role of autolysis and dosage"); corpus check: 0/162 historical
+  stems ask to cite a quality designation (the sole "quality level" hit, 2023 P1 Q2, is "how these
+  components contribute to its quality level" — a different construction), 0/162 name a mechanism
+  pair in an ask
+- **claim:** two ask-shapes mark a stem as machine-written: (1) *"citing any relevant official
+  quality designation"* — stating the designation unprompted is part of what earns marks; (2)
+  naming a mechanism **pair** (*"the role of autolysis and dosage"*, *"the relative roles of
+  oxidation and biological ageing"*) — the exam asks for the method, or at most one topic ("the
+  role of yeast"), and lets the candidate surface the mechanisms.
+
+### EK-0153 · Curveball-heavy flights shift marks off identification
+- **tier:** PLAUSIBLE (single expert reviewer; directionally consistent with corpus practice) · **status:** live in prompt guidance only — deliberately NOT a validator
+- **evidence:** reviewer bins `gen_p3_F5_1785878179723` ("mostly curveballs… points weighted heavily
+  against variety and country identification"), `gen_p2_F4_1785898861354` ("too many marks awarded
+  for variety where the variety is more obscure"), `gen_p2_F4_1785955036866` ("a couple of
+  curveballs so I would expect fewer marks (maybe 5) for variety and origin"),
+  `gen_p3_F5_1785878565496` ("perhaps might not even ask for the variety at all");
+  `outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md` Class 6
+- **claim:** when a flight is mostly obscure wines, the real exam drops identification to ~5-6 marks
+  per wine (or skips the variety ask) and weights style/method/quality instead — the marks a strong
+  candidate can still earn on an unfamiliar wine. **Not codable as a validator**: historical
+  identification marks legitimately span 10-30 (EK-0154) and the curveball status of historical
+  flights is unknowable, so any threshold would false-flag authentic distributions. Lives in the
+  generation prompt's mark-emphasis guidance.
+
+### EK-0154 · NEGATIVE results — two "unrealistic" patterns that are in fact exam-authentic
+- **tier:** STRONG SIGNAL · **status:** live — recorded so these are never "fixed"
+- **evidence:** `data/exams.json` measured 2026-08-05: (1) **15 historical P1/P2 stems** ask
+  origin-identification with NO variety ask anywhere (2012 P1 Q3, 2013 P2 Q1, 2014 P1 Q1, 2015 P2
+  Q1, 2016 P1 Q4, 2021 P2 Q1, 2022 P1 Q1, 2023 P2 Q1/Q2, 2024 P1 Q3, others); (2) same-variety
+  flights award **10-30 marks** for the single shared variety ask — 20 marks appears six times
+  (2011 P2 Q2/Q5, 2016 P1 Q3, 2018 P1 Q1, 2018 P2 Q3, 2022 P2 Q4), 24 (2014 P1 Q2) and 30
+  (2021 P1 Q3) once each
+- **claim:** despite individual reviewer objections (bins `gen_p2_F2_1785968458385` "this question
+  would ask for variety identification"; `gen_p2_F1_1785894009350` wrong_marks on a 20-mark shared
+  variety ask), **origin-only identification asks and 20-mark shared variety asks are authentic IMW
+  patterns** and must not be flagged by any validator. A single expert's expectation lost to the
+  corpus here; the corpus wins.

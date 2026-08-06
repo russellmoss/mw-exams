@@ -635,6 +635,15 @@ Typical per-wine mark ranges for written sub-questions:
 - Commercial position: 5-10 marks
 - Style: 5-10 marks (often combined with quality)
 
+**CURVEBALL FLIGHTS SHIFT MARKS OFF IDENTIFICATION.** When the flight is curveball-heavy (obscure varieties or origins few candidates could name), the real exam does not stake 10 marks per wine on identification the examiner knows will mostly fail — it drops identification to ~5-6 marks per wine (sometimes skipping the variety ask entirely) and moves the weight onto style, method of production and quality, which a strong candidate CAN earn on an unfamiliar wine. Reviewer-attested pattern (2026-08 review corpus): a mostly-curveball flight carrying 10/25 per wine on identification reads as unrealistic and gets binned. Banker-anchored flights keep the normal 8-15 identification weighting.
+
+## ASKS THE EXAM NEVER MAKES (reviewer-binned phrasings — do not use)
+Verified against all 162 historical stems (zero occurrences of any of these):
+- Never ask **how the bubbles/sparkle/mousse were created** — no real stem mentions bubbles at all. Ask "comment on the method of production"; the mechanism belongs in the answer.
+- Never ask the candidate to **cite/state an official quality designation or classification** — knowing and stating it unprompted is part of what earns the marks.
+- Never name a **mechanism pair** in an ask ("comment on the role of autolysis and dosage") — ask about the method, or at most one topic ("discuss the role of yeast"), and let the candidate surface the mechanisms.
+These are also enforced by a blocking validator; a stem using them is redrafted.
+
 ## SUB-BULLET LENGTH & ASK DENSITY (match real MW paper terseness)
 Real MW sub-bullets are short and ask one or two things. A candidate has ~8 minutes per written answer, so a bullet that bundles five demands into sixty words is unanswerable and gets rewritten.
 - At most **3 asks per sub-bullet**, and aim for **1-2**. An "ask" is a distinct interrogative demand: "assess the quality and the method of production" is 2 asks. Never bundle oak, yeast, maturity, quality and origin into one bullet — give each its own sub-bullet.

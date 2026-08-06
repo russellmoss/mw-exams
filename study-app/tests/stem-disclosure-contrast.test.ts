@@ -40,6 +40,28 @@ describe("R10 stem-discloses-discriminator — Mike's binned stems fire", () => 
     expect(v[0].severity).toBe("soft");
   });
 
+  it.each([
+    // Class 5 additions — gen_p3_F7_1785964017240, gen_p3_F4_1785964281304, gen_p3_F2_1785964017222
+    ["b) Comment on the key production decisions evident in the wine, including how the bubbles were created. (4 x 8 marks)"],
+    ["c) Comment on the style and quality, citing any relevant official quality designation. (3 x 5 marks)"],
+    ["c) Comment on the role of autolysis and dosage in each wine. (2 x 4 marks)"],
+  ])("Class 5 un-MW ask fires: %s", (stem) => {
+    const v = stemDisclosureViolations(stem);
+    expect(v).toHaveLength(1);
+    expect(v[0].severity).toBe("soft");
+  });
+
+  it.each([
+    // Mike's own suggested realistic single-topic ask.
+    ["b) Discuss the role of yeast in the production of each wine."],
+    // 2023 P1 Q2 (real stem): "quality level" in a contribute-construction, not a citing-ask.
+    ["b) Comment on the structural components of the wine, commenting on how these components contribute to its quality level. (4 x 10 marks)"],
+    // Real production ask — the mechanism belongs in the answer, and the stem stays silent on bubbles.
+    ["a) Comment on the method of production of each wine. (2 x 10 marks)"],
+  ])("Class 5 negatives stay clean: %s", (stem) => {
+    expect(stemDisclosureViolations(stem)).toEqual([]);
+  });
+
   it("emits at most one disclosure verdict even when several patterns match", () => {
     const stem =
       "Wines 1 and 2 have been handled very differently in the cellar, made using contrasting approaches, each by a very different route.";
