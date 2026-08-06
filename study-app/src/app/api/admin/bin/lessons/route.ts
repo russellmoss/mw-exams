@@ -6,7 +6,7 @@ import {
   setUseBinLessons,
   regenerateBinLessons,
 } from "@/lib/bin-lessons";
-import { getBinReasonAggregation } from "@/lib/db";
+import { getBinReasonAggregation, getChallengedBins } from "@/lib/db";
 import { BIN_REASON_LABELS } from "@/lib/bin-reasons";
 
 export const runtime = "nodejs";
@@ -21,11 +21,13 @@ export async function GET(request: Request) {
   if (!user || !user.isAdmin) {
     return Response.json({ error: "Forbidden" }, { status: 403 });
   }
-  const [{ summary, updatedAt }, useBinLessons, aggregation] = await Promise.all([
+  const [{ summary, updatedAt }, useBinLessons, aggregation, challenged] = await Promise.all([
     getBinLessons(),
     getUseBinLessons(),
     // "Why wines get binned" — reason_codes counts + 3 recent notes over the last N batches (spec).
     getBinReasonAggregation(5),
+    // Bin-reason pushback (migration 041) — reasoned bins the adjudication check judged invalid.
+    getChallengedBins(),
   ]);
   return Response.json({
     summary,
@@ -38,6 +40,10 @@ export async function GET(request: Request) {
       count: r.count,
     })),
     notes: aggregation.notes,
+    challenged: challenged.map((c) => ({
+      ...c,
+      reasonLabels: c.reasons.map((r) => BIN_REASON_LABELS[r] || r),
+    })),
   });
 }
 
