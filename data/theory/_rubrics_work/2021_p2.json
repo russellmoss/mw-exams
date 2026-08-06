@@ -1,0 +1,574 @@
+[
+  {
+    "id": "th_2021_p2_q1",
+    "year": 2021,
+    "paper": 2,
+    "question": 1,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "What options are available to control final sugar levels in wine?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What options are available",
+    "command_word_demand": "Candidates needed to show a knowledge of the mechanisms available to winemakers to control final sugar levels in wine, covering all styles - still, sparkling, fortified, dry to sweet - and structured logically, e.g. \"in the order in which most practices are carried out in the winery, starting with yeast/fermentation, considering approaches to stop fermentation and options post-fermentation e.g., blending, addition of RCGM etc.\"",
+    "definitions_required": [
+      {
+        "term": "dry wine (vs off-dry and sweet, in g/L)",
+        "quote": "Virtually no student really defined what a dry wine is compared to off-dry and sweet in grams per litre. Attempts were made, some better than others but many had incorrect g/L that rather undermined the authority of their answers."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Cover all wine styles: still, sparkling, fortified, dry to sweet",
+        "quote": "All styles should have been discussed - still, sparkling, fortified, dry to sweet.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover winemaking methods to ferment to dryness, stop fermentation prior to completion (SO2, chilling, centrifugation, fortification), and add back sugar at the end of fermentation (still and sparkling wines and blended sherries)",
+        "quote": "We expected candidates to cover the winemaking methods used to ferment to dryness, stop fermentation prior to completion (SO2, chilling, centrifugation, fortification) and add back sugar at the end of fermentation (still and sparkling wines and blended sherries).",
+        "weight": "core"
+      },
+      {
+        "element": "Give relevant examples for each of the methods discussed",
+        "quote": "Relevant examples should have been given for each of the methods.",
+        "weight": "core"
+      },
+      {
+        "element": "Include the basic methods too, not just the advanced ones - fermenting to dryness, preventing a stuck fermentation, etc.",
+        "quote": "Many candidates knew the main techniques to control sugar but often forgot the basic methods such as fermenting to dryness, preventing stuck ferment, etc., as per most wines.",
+        "weight": "core"
+      },
+      {
+        "element": "Structure the essay logically, ideally in the chronological order winemaking practices are carried out",
+        "quote": "It would have been logical to answer the question in the order in which most practices are carried out in the winery, starting with yeast/fermentation, considering approaches to stop fermentation and options post-fermentation e.g., blending, addition of RCGM etc.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Included varied examples rather than the generic set commonly seen",
+        "quote": "The best candidates included some very good and varied examples, but many students used very similar examples which suggested they had attended courses where these topics might have been covered."
+      },
+      {
+        "signal": "Analysed why techniques would be done and what their effects are likely to be, rather than just listing actions",
+        "quote": "Some candidates seemed to throw everything into the answer, creating more of a list of actions which could be taken, rather than analysis and consideration of why things might be done, and what the effects are likely to be."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Made the vineyard sugar concentration/accumulation discussion the focus of the answer rather than winemaking",
+        "quote": "Many candidates gave a brief overview of the sugar concentration/accumulation methods used in the vineyard which was fine provided it wasn't the focus of the answer, since Paper 2 is defined as covering winemaking and pre-bottling procedures."
+      },
+      {
+        "signal": "Forgot basic methods (fermenting to dryness, preventing stuck fermentation)",
+        "quote": "Many candidates knew the main techniques to control sugar but often forgot the basic methods such as fermenting to dryness, preventing stuck ferment, etc., as per most wines."
+      },
+      {
+        "signal": "Failed to define dry/off-dry/sweet, or gave incorrect g/L figures",
+        "quote": "Virtually no student really defined what a dry wine is compared to off-dry and sweet in grams per litre. Attempts were made, some better than others but many had incorrect g/L that rather undermined the authority of their answers."
+      },
+      {
+        "signal": "Used the same generic examples as other candidates, suggesting shared course material",
+        "quote": "many students used very similar examples which suggested they had attended courses where these topics might have been covered. Students really need to think about how to make their answers stand out from the crowd and using examples perhaps picked up in a student group is not the best approach."
+      },
+      {
+        "signal": "Produced a list of possible actions rather than analysing why they are done and their likely effects",
+        "quote": "Some candidates seemed to throw everything into the answer, creating more of a list of actions which could be taken, rather than analysis and consideration of why things might be done, and what the effects are likely to be."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Relevant examples for each method discussed; report criticises reliance on shared/generic examples as failing to differentiate the candidate",
+      "named_in_report": [],
+      "quote": "Relevant examples should have been given for each of the methods."
+    },
+    "scope_traps": [],
+    "performance_note": "This was a popular question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p2_q2",
+    "year": 2021,
+    "paper": 2,
+    "question": 2,
+    "domain": "vinification_and_pre_bottling",
+    "section": "A",
+    "question_text": "Compare and contrast winemaking techniques for an early-drinking and an age-worthy Pinot Noir still red wine in a premium region.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Compare and contrast",
+    "command_word_demand": "\"With 'compare and contrast' questions we are expecting students to do exactly that. The aim of compare and contrast is to look at various winemaking techniques and how they impact the style of wine produced, i.e., one method will achieve one outcome while another will achieve a different outcome.\" Candidates who did not do well \"did not compare or contrast the techniques required between the two styles.\"",
+    "definitions_required": [
+      {
+        "term": "premium region",
+        "quote": "Candidates needed to define a particular region or number of regions to demonstrate what constitutes a premium region."
+      },
+      {
+        "term": "early-drinking and age-worthy",
+        "quote": "Candidates needed to define early-drinking and age-worthy."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Actually compare and contrast techniques (how one method achieves one outcome vs another achieving a different outcome), not just state what each technique does",
+        "quote": "Most candidates tended to just state what a particular technique did rather than comparing and contrasting it to other techniques.",
+        "weight": "core"
+      },
+      {
+        "element": "Define a particular premium region or regions",
+        "quote": "Candidates needed to define a particular region or number of regions to demonstrate what constitutes a premium region.",
+        "weight": "core"
+      },
+      {
+        "element": "Define early-drinking and age-worthy",
+        "quote": "Candidates needed to define early-drinking and age-worthy.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss picking method, pre-fermentation maceration/treatment, destem versus whole bunch/whole berry, fermentation and cap management, post-fermentation maceration, pressing and oak ageing, plus adjustments to the must/wine",
+        "quote": "Answers should have discussed picking method, pre-fermentation maceration/treatment, destem versus whole bunch/whole berry, fermentation and cap management, post-fermentation maceration, pressing and oak ageing. Adjustments to the must/wine should also have been discussed.",
+        "weight": "core"
+      },
+      {
+        "element": "Mention tannin use, which is common across many styles and varieties",
+        "quote": "It seems many candidates are unaware that tannins are commonly used across many styles and varieties. Very few candidates mentioned tannin use.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Approached the answer in chronological winemaking order to underline the compare-and-contrast structure",
+        "quote": "Candidates could have approached this question in a chronological order in terms of winemaking to underline the compare and contrast aspect of the question."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Just stated what a technique did rather than comparing/contrasting it against alternatives",
+        "quote": "Most candidates tended to just state what a particular technique did rather than comparing and contrasting it to other techniques."
+      },
+      {
+        "signal": "Made vineyard factors (yields, picking times) the focus rather than a supporting mention",
+        "quote": "Some mention could have been made of the vineyard (yields, picking times) but this should not have been the focus."
+      },
+      {
+        "signal": "Confused basic winemaking practices such as cold maceration and whole bunch fermentation - what they do and why they are used",
+        "quote": "One examiner noted a confusion amongst candidates regarding basic winemaking practices such as cold maceration and whole bunch fermentation in terms of what they do and why they are used."
+      },
+      {
+        "signal": "Did not compare or contrast the techniques required between the two styles",
+        "quote": "The candidates who didn't do well did not compare or contrast the techniques required between the two styles."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "Overall this question was well answered.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p2_q3",
+    "year": 2021,
+    "paper": 2,
+    "question": 3,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "Write concise notes on each of the following:\n\na) Smoke taint in grapes and wine\nb) Volatile acidity\nc) Metatartaric acid\nd) Spinning cone technology",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Write concise notes",
+    "command_word_demand": "\"These kinds of questions tend to separate the wheat from the chaff: you either know the answer or you don't... This was a short notes question, and should have been be easy to score well for candidates with a good grasp of each topic.\" Good marks required \"showing a clear understanding, giving examples with justification (and critical comment where appropriate) and relevant numbers (e.g. legal limits of VA), while indicating pros and cons (for techniques and additives) and what was suitable use and what wasn't.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Have proper depth of knowledge across all four topics, not just some of them",
+        "quote": "The issue with many of the candidates' answers was that they knew some of the points really well but lacked proper depth of knowledge on all four topics.",
+        "weight": "core"
+      },
+      {
+        "element": "Manage time carefully across all four sections rather than writing long on one or two and rushing the rest",
+        "quote": "Quite a few candidates had issues with timing, writing a long answer for one or two of the sections and then rushing the others. Careful time management would have optimised the marks available.",
+        "weight": "core"
+      },
+      {
+        "element": "Smoke taint: name the compounds involved and explain how they affect must or wine, and address whether or not to make anything from high-taint fruit",
+        "quote": "Understanding of factors affecting the degree of taint was less well understood, with few being able to name all the compounds or explain how they affected the must or wine. Not many commented on whether or not to make anything at all with high taint levels.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Volatile acidity: describe VA and its causes (including that yeast and lactic acid bacteria, not only Acetobacter, can cause it), give sensory thresholds and legal limits, and recognise VA is not always a defect",
+        "quote": "We expected students to know legal limits across wine styles, detection thresholds and the two major compounds responsible. Students need to remember that Acetobacter are not the only genus responsible for causing increased volatility in wines - yeast (anaerobic and aerobic), lactic acid bacteria and other acetic acid bacteria can all play a part and cellar hygiene is key to avoiding excess VA.",
+        "weight": "core"
+      },
+      {
+        "element": "Metatartaric acid: consider its effectiveness compared with other cold-stabilisation methods, its pros and cons, what wine types it suits, and why it is unsuitable for high-quality wines (cost, stability, temperature dependence)",
+        "quote": "The better answers examined why it is not good for high-quality wines (cost, stability). Not all understood exactly what it is and how it works. Better answers considered its lack of stability and temperature dependence, and thus the length of time for which it can offer protection.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Spinning cone: explain the EU limit on alcohol removal and desulphiting of grape juice, and distinguish it from reverse osmosis/centrifugation",
+        "quote": "No one really mentioned the EU limit of alcohol removal and no-one mentioned desulphiting grape juice. A few did get confused with reverse osmosis and centrifugation but generally the answers were a little brief for this section.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Put producer/region examples into context and offer critique rather than naming them without comment",
+        "quote": "Most candidates recognised the need to use examples of producers/ regions etc. to illustrate their answers but often failed to put them into context, or show any critique.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best spinning cone answers knew the distilled flavour fraction is separate from alcohol and can be captured and blended back in",
+        "quote": "Better candidates knew that the flavour elements distilled in the process were a separate fraction from alcohol so these could be captured and blended back in."
+      },
+      {
+        "signal": "Gave relevant numbers such as legal VA limits",
+        "quote": "very good marks could be obtained by showing a clear understanding, giving examples with justification (and critical comment where appropriate) and relevant numbers (e.g. legal limits of VA), while indicating pros and cons (for techniques and additives) and what was suitable use and what wasn't."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Included seemingly random facts in no particular order with examples not put into context",
+        "quote": "Lesser answers included seemingly random facts, in no particular order, and any examples given were not put into context so added little."
+      },
+      {
+        "signal": "Poor grasp of English made answers incoherent",
+        "quote": "Another reason for less coherent answers was an insufficient grasp of English, and while small grammatical errors and spelling mistakes can be tolerated, candidates with poor English should be encouraged to have their answers translated so that they can be judged properly."
+      },
+      {
+        "signal": "Metatartaric acid - did not understand exactly what it is and how it works",
+        "quote": "Not all understood exactly what it is and how it works."
+      },
+      {
+        "signal": "Spinning cone answers were brief and confused with reverse osmosis/centrifugation",
+        "quote": "A few did get confused with reverse osmosis and centrifugation but generally the answers were a little brief for this section."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples of producers/regions must be put into context and critiqued, not merely named",
+      "named_in_report": [],
+      "quote": "Most candidates recognised the need to use examples of producers/ regions etc. to illustrate their answers but often failed to put them into context, or show any critique."
+    },
+    "scope_traps": [],
+    "performance_note": "For smoke taint, \"this section was answered quite well and clearly was top of mind for many students.\" Spinning cone \"seemed to be the most troublesome answer with time being a possible issue.\"",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p2_q4",
+    "year": 2021,
+    "paper": 2,
+    "question": 4,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "When, how and why should sulphur dioxide be used in winemaking? Are winemakers playing it too safe with sulphur dioxide additions?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "When, how and why... Are winemakers playing it too safe",
+    "command_word_demand": "\"Candidates could have approached this in a logical manner covering the when, the how and the why for each step of the winemaking process... a single paragraph on whether winemakers were playing it safe would have sufficed but many students seemed to ignore this part.\" \"This was a question that tested some core knowledge, so we would expect a convincing answer.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Cover the how of SO2 use, not just PMS powder - e.g. mention of a sulphitometer",
+        "quote": "How SO2 was added was often overlooked other than PMS powder - mention of a sulphitometer, for example?.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover when SO2 is added in depth, including less obvious stages such as cold soak and barrel storage",
+        "quote": "When was SO2 added? Most of the usual situations were mentioned but very few candidates delved a bit deeper and mentioned the cold soak stage or barrel storage.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss safety issues of handling SO2 in the winery",
+        "quote": "Basically no-one mentioned safety issues of SO2 handling and this combined with mentions of \"blanketing grapes with SO2\" showed an alarming lack of a really basic understanding of what SO2 is and how toxic it is in the winery.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer the second part of the question - whether winemakers are playing it too safe with SO2, including discussion of alternatives to SO2",
+        "quote": "The second part of the question as to whether winemakers were playing it too safe also escaped many of the candidates and they did not discuss what alternatives to sulphur dioxide there might be.",
+        "weight": "core"
+      },
+      {
+        "element": "Give accurate, specific dose rates for SO2 additions at each winemaking step, not vague terms like 'sufficient amounts'",
+        "quote": "Candidates are reminded that dose rates should be accurate and terms such as 'sufficient amounts' are not pass worthy. SO2 add rates are pretty universal, and we expect knowledge of the amounts of sulphur dioxide added at each of the winemaking steps.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Most failed to answer the second part of the question (whether winemakers are playing it too safe)",
+        "quote": "This was a challenging question for candidates and most failed to answer the second part of the question."
+      },
+      {
+        "signal": "The 'how' was the least well answered part of the question",
+        "quote": "The 'how' was the least well answered part of the question."
+      },
+      {
+        "signal": "Showed an alarming lack of basic understanding of what SO2 is and how toxic it is (e.g. phrase 'blanketing grapes with SO2', no mention of handling safety)",
+        "quote": "Basically no-one mentioned safety issues of SO2 handling and this combined with mentions of \"blanketing grapes with SO2\" showed an alarming lack of a really basic understanding of what SO2 is and how toxic it is in the winery."
+      },
+      {
+        "signal": "Used vague terms like 'sufficient amounts' instead of accurate dose rates",
+        "quote": "Candidates are reminded that dose rates should be accurate and terms such as 'sufficient amounts' are not pass worthy."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [],
+    "performance_note": "This was a challenging question for candidates and most failed to answer the second part of the question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p2_q5",
+    "year": 2021,
+    "paper": 2,
+    "question": 5,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "To what extent are winemaking interventions desirable in a small-scale winery producing high-quality, dry red wine?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent... desirable",
+    "command_word_demand": "\"This was a question that required the candidates to show critical rigour, to compare and contrast the different options available and above all not to be afraid to express an opinion.\" Good examples \"considered them in terms of their desirability, and how and why they can enhance quality, with pros and cons debated and the author expressing their own opinion.\"",
+    "definitions_required": [
+      {
+        "term": "small winery",
+        "quote": "There were differing ideas of what constitutes a small winery (everything from 3000 cases to 1.2 million bottles), or high quality."
+      },
+      {
+        "term": "high quality",
+        "quote": "Many merely mentioned a price level which needs to be put into the context of the wine and its region of origin, while others simply defined quality in terms of complexity, with no mention of provenance, sense of place, balance, longevity etc."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Show critical rigour, compare and contrast the options available, and express an opinion",
+        "quote": "this was a question that required the candidates to show critical rigour, to compare and contrast the different options available and above all not to be afraid to express an opinion.",
+        "weight": "core"
+      },
+      {
+        "element": "Examine the options available for winemaking interventions (not only argue for limiting intervention, nor limit the discussion to cellar hygiene/troubleshooting QC issues)",
+        "quote": "Many candidates chose to interpret the question as limiting intervention, as opposed to examining the options available, while others interpreted interventions from the point of view of cellar hygiene and troubleshooting QC issues, rather than optimising quality in a healthy wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover fruit selection, pre-fermentation treatments, choice of yeast, fermentation, cap management, other additions (tannin, acid) and oak ageing",
+        "quote": "Such answers usually completely ignored choices regarding fruit selection, pre-fermentation treatments, choice of yeast, fermentation, cap management, other additions (tannin, acid) and oak ageing.",
+        "weight": "core"
+      },
+      {
+        "element": "Treat interventions in terms of enhancing quality for a truly high-end wine, not maximising style consistency across vintages or controlling cost",
+        "quote": "Others discussed options from the point of view of maximising style across every vintage or controlling cost, neither of which is a key factor for truly high-end wines.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Structure the answer in chronological winemaking order to avoid omitting major steps",
+        "quote": "The clearer answers treated potential actions in a chronological winemaking order, which meant they were less likely to leave out any major steps.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Use examples to explain what difference a technique makes and how it affects the wine, not merely name a producer who does it",
+        "quote": "an example of someone in Napa who ages their Cabernet Sauvignon 24 months is not unique and the candidate in this instance should have focused on explaining what difference it would make and how it would affect the wine if other choices were made.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Do not let the example become the argument (i.e. 'Producer X says he does this, therefore it is best practice') without challenging it or giving an opposing example",
+        "quote": "Many answers fell into the trap of allowing the example to become the argument rather than support it (in other words, 'Producer x says he does this' implying this is therefore to be taken as best practice), without challenging when this may or may not be appropriate, or giving an opposing example and comparing the pros and cons of each (which is what the standout answers did).",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Considered interventions in terms of their desirability and how/why they enhance quality, with pros and cons debated and own opinion expressed",
+        "quote": "Good examples did not merely list the interventions available, but considered them in terms of their desirability, and how and why they can enhance quality, with pros and cons debated and the author expressing their own opinion."
+      },
+      {
+        "signal": "Handled the choice and discussion of examples well",
+        "quote": "The choice and discussion of examples were handled well in a few cases, but often this was not the case"
+      },
+      {
+        "signal": "Planned the answer carefully before writing",
+        "quote": "It was obvious which candidates had taken the time to plan their answers carefully before starting to write anything, with those that didn't being too descriptive and waffly to start with, and then seemingly running out of time to devote to the real meat of the answer."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Interpreted the question as only about limiting intervention, or only about cellar hygiene/QC troubleshooting",
+        "quote": "Many candidates chose to interpret the question as limiting intervention, as opposed to examining the options available, while others interpreted interventions from the point of view of cellar hygiene and troubleshooting QC issues, rather than optimising quality in a healthy wine."
+      },
+      {
+        "signal": "Assumed small wineries are necessarily high-end, or that larger ones only make mass-market wines",
+        "quote": "Some assumed that small wineries were necessarily high end, or that larger ones only made mass market wines."
+      },
+      {
+        "signal": "Was descriptive and non-critical",
+        "quote": "Poorer answers were descriptive and non-critical."
+      },
+      {
+        "signal": "Merely reproduced what a producer said without questioning whether it would work elsewhere or forming an own opinion",
+        "quote": "Some showed limited understanding of the processes, instead merely reproducing what a producer has told them with no attempt to question if this would work elsewhere, or to form their own opinion."
+      },
+      {
+        "signal": "Used inappropriate examples, e.g. white-wine producers or mass-market wines such as Beaujolais Nouveau, Gallo, or canned Grenache",
+        "quote": "Some examples were inappropriate, citing producers of white wine, or mass market (e.g. Beaujolais Nouveau, Gallo, Grenache in cans)."
+      },
+      {
+        "signal": "Was too descriptive and waffly at the start and ran out of time for the substantive part of the answer",
+        "quote": "those that didn't being too descriptive and waffly to start with, and then seemingly running out of time to devote to the real meat of the answer."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples must support the argument (explaining what difference a technique makes) rather than becoming the argument itself; inappropriate examples included white-wine producers or mass-market brands (Beaujolais Nouveau, Gallo, canned Grenache) for a high-quality dry red wine question",
+      "named_in_report": [
+        "Napa",
+        "Beaujolais Nouveau",
+        "Gallo",
+        "Grenache in cans"
+      ],
+      "quote": "Some examples were inappropriate, citing producers of white wine, or mass market (e.g. Beaujolais Nouveau, Gallo, Grenache in cans)."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading the question as only about limiting/reducing intervention rather than examining the full range of options available",
+        "quote": "Many candidates chose to interpret the question as limiting intervention, as opposed to examining the options available"
+      },
+      {
+        "trap": "Reading 'interventions' as cellar hygiene and troubleshooting QC issues rather than as choices that optimise quality in a healthy wine",
+        "quote": "others interpreted interventions from the point of view of cellar hygiene and troubleshooting QC issues, rather than optimising quality in a healthy wine."
+      }
+    ],
+    "performance_note": "There were very few really good answers, while most struggled even to meet the pass mark.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p2_q6",
+    "year": 2021,
+    "paper": 2,
+    "question": 6,
+    "domain": "vinification_and_pre_bottling",
+    "section": "B",
+    "question_text": "What handling procedures could a winemaker implement to make mid-priced still wine from each of the following:\n\na) English Chardonnay: potential alcohol 8%; pH 2.8; total acidity 14.5; and\nb) Barossa Valley Grenache Noir: potential alcohol 16.5%; pH 4.2; total acidity 3.9.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What handling procedures could a winemaker implement",
+    "command_word_demand": "\"In reality the structure for the answer is evident in the way the question is set - mid-priced, alcohol, pH, acidity (acidification and deacidification) and chaptalisation/water addition were the things to focus on.\" Candidates needed to explain why suggested techniques would be useful given the specific juice composition given, not simply state that a treatment must be done.",
+    "definitions_required": [
+      {
+        "term": "mid-priced",
+        "quote": "Many candidates did not define \"mid-priced\", nor did they fully point out what the potential problems were with these juices."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Structure the answer around mid-priced, alcohol, pH, acidity (acidification and deacidification) and chaptalisation/water addition, as signalled by the question's given parameters",
+        "quote": "In reality the structure for the answer is evident in the way the question is set - mid-priced, alcohol, pH, acidity (acidification and deacidification) and chaptalisation/water addition were the things to focus on.",
+        "weight": "core"
+      },
+      {
+        "element": "Identify the potential problems posed by each juice's composition",
+        "quote": "Many candidates did not define \"mid-priced\", nor did they fully point out what the potential problems were with these juices.",
+        "weight": "core"
+      },
+      {
+        "element": "Explain clearly why each suggested technique is useful given the specific juice composition, rather than just stating that it must be done",
+        "quote": "Not everyone explained clearly why the techniques they were suggesting were going to be useful given the juice composition. For example, \"malolactic fermentation must be done\" was stated, without really explaining why.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover deacidification properly - how it is done and why",
+        "quote": "Deacidification was not covered very well - how it is done, nor why.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the key points including use of MLF and de-acidification for the high-acid English wine",
+        "quote": "A number of candidates missed some key points such as use of MLF and de-acidification for the high-acid English wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Stay on the given wines (English Chardonnay and Barossa Grenache) rather than branching into unrelated regions/varieties",
+        "quote": "It was surprising that certain students decided to branch out from English Chardonnay and Barossa Grenache and discuss Bordeaux, Napa Valley, flash-détente and Sauvignon Blanc in California.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss potential issues of wine stability or palatability rather than just listing processes",
+        "quote": "Some students just presented a list of winemaking processes without really answering the question and providing discussion as to potential issues of wine stability or palatability.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Had many good, relevant examples",
+        "quote": "The best papers had many good examples, whereas there was a dearth in other answers."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Lacked planning and got muddled in the structure of the essay",
+        "quote": "A lot of candidates seemed to lack some planning and got muddled in the structure of the essay."
+      },
+      {
+        "signal": "Did not define 'mid-priced' nor fully identify the potential problems with the given juices",
+        "quote": "Many candidates did not define \"mid-priced\", nor did they fully point out what the potential problems were with these juices."
+      },
+      {
+        "signal": "Stated techniques ('malolactic fermentation must be done') without explaining why",
+        "quote": "For example, \"malolactic fermentation must be done\" was stated, without really explaining why."
+      },
+      {
+        "signal": "Presented a list of winemaking processes without discussing potential issues of wine stability or palatability",
+        "quote": "Some students just presented a list of winemaking processes without really answering the question and providing discussion as to potential issues of wine stability or palatability."
+      },
+      {
+        "signal": "Branched out to discuss unrelated regions/varieties not given in the question (Bordeaux, Napa Valley, flash-détente, Sauvignon Blanc in California)",
+        "quote": "It was surprising that certain students decided to branch out from English Chardonnay and Barossa Grenache and discuss Bordeaux, Napa Valley, flash-détente and Sauvignon Blanc in California."
+      },
+      {
+        "signal": "Had very few or virtually no examples, making the essay read like a list of practices",
+        "quote": "There were a lot of answers with very few/virtually no examples and this really made the essay read more like a list of practices that might be used."
+      },
+      {
+        "signal": "Weak knowledge of English wine conditions/producers, when this was a key part of the question",
+        "quote": "Very few students had good knowledge of English conditions/producers and they should probably have chosen to answer other questions."
+      },
+      {
+        "signal": "Missed key points such as use of MLF and de-acidification for the high-acid English wine",
+        "quote": "A number of candidates missed some key points such as use of MLF and de-acidification for the high-acid English wine."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples should relate to the given wines (English Chardonnay, Barossa Grenache); good knowledge of English wine conditions/producers specifically was expected",
+      "named_in_report": [],
+      "quote": "There were a lot of answers with very few/virtually no examples and this really made the essay read more like a list of practices that might be used. The best papers had many good examples, whereas there was a dearth in other answers."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing unrelated regions/varieties (Bordeaux, Napa Valley, flash-détente, Sauvignon Blanc in California) instead of staying with the English Chardonnay and Barossa Grenache given in the question",
+        "quote": "It was surprising that certain students decided to branch out from English Chardonnay and Barossa Grenache and discuss Bordeaux, Napa Valley, flash-détente and Sauvignon Blanc in California."
+      }
+    ],
+    "performance_note": "This was not a popular question despite it being a holistic question covering the entire winemaking process. Perhaps the reference to English Chardonnay (and perhaps Grenache Noir) scared a lot off.",
+    "extraction_notes": ""
+  }
+]

@@ -108,18 +108,20 @@ Three things to know before touching it:
   Chair's General Comments (`paper_preamble`), and the Theory Panel Chair's cross-paper report
   (`theory_chair_report`). Prefer question-specific evidence where they overlap.
 
-**Coverage today: 189 of 297 questions (64%)** — 2016, 2017, 2018, 2019, 2023, 2024, 2025, with
-667 core requirements and 1,910 verified quotes. Reports come from two stores, both wired into
+**Coverage today: 243 of 297 questions (82%)** — 2016–2019 and 2021–2025, with 845 core
+requirements and 2,407 verified quotes. Reports come from two stores, both wired into
 `REPORT_SOURCES` in the segmenter: `source/imw_pdfs/` (public IMW site, gitignored) and
 `docs/examiners reports/` (student-area reports, committed).
 
-The remaining gaps and what each needs:
+**Two years are covered by transcription, not publisher text.** The IMW published the 2021 and
+2022 theory reports as image-only PDFs (75 and 48 extractable characters). They were transcribed
+from 170-DPI page renders into `data/theory/ocr/{year}_theory_report.txt`, which the segmenter
+prefers over the PDF. Every segment and rubric carries `text_source` — `pdf_text_layer` or
+`transcribed_render` — because the quote gate can only prove a quote matches the *transcription*,
+not that the transcription matches the printed report. Treat transcribed rubrics as marginally
+weaker evidence, and re-check any quote shown to a candidate as an examiner's exact words.
 
-- **2021, 2022** — reports exist in `docs/examiners reports/` but are **image scans** with no text
-  layer (75 and 48 extractable characters). They need OCR or page-render transcription. Listed in
-  `IMAGE_SCAN_YEARS` so their absence is a recorded decision rather than an oversight. Worth ~54
-  questions.
-- **2015, 2026** — no examiners' report available in either store. Worth ~54 questions.
+Remaining gap: **2015 and 2026** have no examiners' report in either store (~54 questions).
 
 ## Data sources (read these, don't duplicate them)
 

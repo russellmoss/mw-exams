@@ -1,0 +1,685 @@
+[
+  {
+    "id": "th_2021_p3_q1",
+    "year": 2021,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Compare and contrast the options available as preservatives for addition to still wine.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Compare and contrast",
+    "command_word_demand": "The question required candidates to compare and contrast the options, not simply to describe them. Candidates who only described found it difficult to write a pass standard answer.",
+    "definitions_required": [
+      {
+        "term": "preservative",
+        "quote": "A definition of preservative was required, i.e. a substance added to prevent decomposition by microbial growth or by undesirable chemical changes, including oxidation."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Compare and contrast the preservative options rather than describing them one by one",
+        "quote": "The question required candidates to compare and contrast the options, not simply to describe them. Candidates who only described found it difficult to write a pass standard answer.",
+        "weight": "core"
+      },
+      {
+        "element": "Give specific typical usage levels and legal limits for the preservatives discussed",
+        "quote": "It was almost impossible to write a pass standard essay without specific details about typical usage levels and legal limits.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover the full range of preservatives, including ascorbic acid and sorbic acid, not just SO2",
+        "quote": "Many answers missed out important preservatives such as ascorbic acid and sorbic acid.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Good answers used examples well",
+        "quote": "That said, good answers used examples well and there was a high pass rate for this question."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Candidates who only described the options rather than comparing and contrasting them struggled to reach pass standard",
+        "quote": "Candidates who only described found it difficult to write a pass standard answer."
+      },
+      {
+        "signal": "Candidates wasted time discussing additives and wine treatments in general instead of preservatives specifically",
+        "quote": "Many candidates wasted time on additives and wine treatments in general, instead of focusing on preservatives specifically."
+      },
+      {
+        "signal": "Answers missed important preservatives such as ascorbic acid and sorbic acid",
+        "quote": "Many answers missed out important preservatives such as ascorbic acid and sorbic acid."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific typical usage levels and legal limits for each preservative, not general description",
+      "named_in_report": [],
+      "quote": "It was almost impossible to write a pass standard essay without specific details about typical usage levels and legal limits."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as being about additives and wine treatments in general rather than preservatives specifically",
+        "quote": "Many candidates wasted time on additives and wine treatments in general, instead of focusing on preservatives specifically."
+      },
+      {
+        "trap": "Including cold stability, protein stability, filtration or must treatments as relevant content",
+        "quote": "Cold stability, protein stability and filtration were not relevant here, nor were must treatments."
+      }
+    ],
+    "performance_note": "There was a high pass rate for this question.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p3_q2",
+    "year": 2021,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Outline the key considerations in deciding which pre-bottling treatments to use for each of the following:\n\na) A vegan wine;\nb) An orange wine;\nc) An organic wine; and\nd) A mass-market, inexpensive wine.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Outline",
+    "command_word_demand": "The question required an outline of the key options available and how to decide on the optimal treatments (including cost) for each of the specified wines.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Answer all four parts (vegan, orange, organic, mass-market wine) in sufficient depth",
+        "quote": "This question highlighted a considerable number of candidates lacking the full technical knowledge to answer all the pre-bottling treatments on the four wine styles. A number of candidates could answer only two or three well. It is hard for candidates to pass if they are unable to answer the whole question in enough depth.",
+        "weight": "core"
+      },
+      {
+        "element": "Understand that vegan wine must be produced with no products of animal origin, even as processing aids",
+        "quote": "Candidates needed to understand that vegan wine must be produced using no products of animal origin, even as processing aids.",
+        "weight": "core"
+      },
+      {
+        "element": "Understand that organic wine is regulated (EU and USA) and apply that regulatory understanding",
+        "quote": "Organic wine is regulated within the EU and USA so understanding of such regulations was required.",
+        "weight": "core"
+      },
+      {
+        "element": "Give actual indicative numbers/rates/levels rather than vague generalisations about treatment intensity",
+        "quote": "sweeping generalisations about lower or higher levels have no place at this level - actual indicative numbers are required.",
+        "weight": "core"
+      },
+      {
+        "element": "Support the answer with a wide range of examples applying principles to real-world scenarios",
+        "quote": "This was a question that required candidates to think about how to apply the principles they have learned in different real-world scenarios and offered the chance for candidates to support their answer with a wide range of examples. Many did not use examples.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "A number of candidates could only answer two or three of the four parts well",
+        "quote": "A number of candidates could answer only two or three well."
+      },
+      {
+        "signal": "Candidates wrongly generalised that mass-market wine means applying every conceivable treatment, and used imprecise language like 'severely fined'",
+        "quote": "When candidates use terminology like a mass market wine should be 'severely fined' or 'heavily fined with Bentonite' in relation to the discussion of mass-market wine it signifies that they do not understand that good, balanced winemaking without excessive additions of, in this case fining products, can still be used to still produce an entry-level wine."
+      },
+      {
+        "signal": "Many candidates did not use examples",
+        "quote": "Many did not use examples."
+      },
+      {
+        "signal": "Answers were superficial and lacked depth of knowledge",
+        "quote": "\"Superficial and lacks depth of knowledge\" was a frequent comment from examiners for this question."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Actual rates, levels or additions pinpointed exactly, not vague statements",
+      "named_in_report": [],
+      "quote": "Technical detail was also essential to answering this question and in many instances it was left out, or candidates gave vague answers without pinpointing exactly what rates, levels or additions should be used."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "'Pre-bottling' refers to wine in bulk, and 'bottling' should always include consideration of all packaging formats, not just glass bottles, per the report's clarification of the question's terms."
+  },
+  {
+    "id": "th_2021_p3_q3",
+    "year": 2021,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "You are responsible for quality assurance (QA) and quality control (QC) for an importer of bulk wine. Explain the QA and QC procedures that you will need:\n\na) between the completion of winemaking and the start of the bulk transport process; and\nb) following receipt of the bulk wine at its destination.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Explain",
+    "command_word_demand": "Candidates were required to explain both QA and QC as appropriate for each stage of the process for each part of the question.",
+    "definitions_required": [
+      {
+        "term": "QA and QC",
+        "quote": "A lot of answers failed to define QA and QC, which made for some very muddled arguments."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Explain both QA and QC (not just one or the other, conflated) for each of the two stages",
+        "quote": "In particular, the answer required both a QA and a QC approach and answer and very few of the papers provided this for both parts of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Structure the answer from the perspective of the import QA/QC manager specified in the question, not the winery or bottling plant",
+        "quote": "What was often seen was a list of pre-bottling processes, without structuring the answer from the perspective of the import QA/QC manager. And this was really key - the question said \"You are responsible for QA and QC for an importer of bulk wine. Explain the QA and QC procedures that you will need\". Very few candidates did this.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover QC analysis of stability requirements and treatments to ensure the wine arrives at the bottler in good condition pre-transport",
+        "quote": "To test and treat the wine ready for bulk transport would include QC analysis to assess the stability requirements of the wine and required treatments to ensure the wine arrives at the bottler in good condition and matching specifications.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover QC tests on receipt to assess whether the wine changed during transport, and treatments needed for bulk storage pre-bottling",
+        "quote": "On receipt: QC tests are needed to assess that the wine has not suffered or changed in quality and stability during transport … and to determine what treatments are required to maintain quality during bulk storage pre-bottling.",
+        "weight": "core"
+      },
+      {
+        "element": "Include a rate or range of parameters (e.g. DO, FSO2, CO2, temperature, filtration levels, cold stability)",
+        "quote": "Too often the wrong rate or range of parameters like DO, FSO2, CO2, temperature of wine to be transported, filtration levels, cold stability, etc. were suggested and undermined the point being made. On the other hand, including a rate or parameter is a must and it is better to include and be slightly off the mark than not at all.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "A lot of answers failed to define QA and QC, leading to muddled arguments",
+        "quote": "A lot of answers failed to define QA and QC, which made for some very muddled arguments."
+      },
+      {
+        "signal": "Weaker answers made general comments around QA and QC (frequently conflated) and bulk shipping without applying knowledge to the specified situation",
+        "quote": "Many weaker answers made general comments around QA and QC (frequently conflated) and bulk shipping without really applying knowledge to the situation specified."
+      },
+      {
+        "signal": "Candidates not technically competent were quickly exposed",
+        "quote": "If the candidate wasn't technically competent, they were quickly exposed on this question."
+      },
+      {
+        "signal": "Many papers gave a sound top-line answer that did not convey sufficient knowledge or technical understanding",
+        "quote": "A lot of papers offered basically a sound top line answer that was not wrong, but did not convey sufficient knowledge or technical understanding to validate the points being made."
+      },
+      {
+        "signal": "The level of technical knowledge shown is still below what is expected to pass the MW theory exam",
+        "quote": "The level of technical knowledge is still below expectations for someone expecting to pass the MW theory exam."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A rate or range of specific parameters (DO, FSO2, CO2, temperature, filtration levels, cold stability), even if slightly off the mark",
+      "named_in_report": [],
+      "quote": "On the other hand, including a rate or parameter is a must and it is better to include and be slightly off the mark than not at all."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering from the perspective of the winery or the bottling plant rather than the importer's own QA/QC manager as specified in the question",
+        "quote": "What was often seen was a list of pre-bottling processes, without structuring the answer from the perspective of the import QA/QC manager... If they had, the pitch of the question would have been addressed from that angle rather than from the winery or from what the bottling plant would expect."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p3_q4",
+    "year": 2021,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "A winery has received a customer complaint for a piece of glass found in a bottle. Describe the QA and QC procedures best employed by the winery to investigate the issue.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Describe",
+    "command_word_demand": "This question required candidates to show understanding of winery QA and QC procedures for effective investigation of a quality complaint relating to bottled wine and recognition that these procedures are required by legislation (there is potentially a reputational issue too).",
+    "definitions_required": [
+      {
+        "term": "QA and QC",
+        "quote": "This is another question where clear definitions from the question were required to show understanding of both QA and QC."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Address investigation of the complaint only, not product recall",
+        "quote": "The question only asks about investigation, not product recall.",
+        "weight": "core"
+      },
+      {
+        "element": "Verify the nature of the problem by obtaining the relevant sample and checking that a glass shard is in fact what is in the bottle",
+        "quote": "The winery first needs to be able to verify the nature of the problem, i.e. to obtain the relevant sample and check that a glass shard is in fact what is in bottle.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Check the lot number for traceability of the batch and its records, potentially matching to customer records",
+        "quote": "The lot number should be checked for traceability of batch and its records. This may need to be matched to customer records in case a recall is necessary.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Reference HACCP-based QA food safety management procedures",
+        "quote": "The winery should have in place, and be complying with, QA food safety management procedures based on HACCP.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Some candidates talked at length about sources of glass contamination and prevention but failed to address the question itself",
+        "quote": "Some good candidates talked a lot about sources of glass contamination, and how to prevent this but failed to address the question itself."
+      },
+      {
+        "signal": "Some candidates went straight to product recall without covering QC actions like checking lot numbers and getting the bottle returned for investigation",
+        "quote": "Others went straight to product recall without covering QC actions to check lot numbers, … get the bottle returned for investigations and so on."
+      },
+      {
+        "signal": "Some answers showed no practical logic, e.g. suggesting stopping the bottling line after the wine had already reached the consumer",
+        "quote": "Some answers failed to show any practical logic: there is no point in stopping the bottling line if the wine has reached the consumer."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering about product recall rather than investigation, which is all the question asked for",
+        "quote": "The question only asks about investigation, not product recall."
+      },
+      {
+        "trap": "Focusing on sources of glass contamination and prevention instead of the investigation procedure the question asked for",
+        "quote": "Some good candidates talked a lot about sources of glass contamination, and how to prevent this but failed to address the question itself."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": "The report does not discuss use of examples for this question, so examples_expected is left unrequired rather than inferred."
+  },
+  {
+    "id": "th_2021_p4_q1",
+    "year": 2021,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "How has the market transparency facilitated by the internet and social media influenced the supply, demand and pricing of wine? Who benefits?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Who benefits?",
+    "command_word_demand": "The question required strong description of the changing dynamics of the market, the consequences on how wine is distributed and priced and analysis of which element of the supply chain benefits most... this question demands an opinion...and it's quite alright to be bold in that opinion, as long as it is backed by a good argument.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Analyse who benefits from market transparency (consumer, producer, or intermediaries), not just describe social media activity",
+        "quote": "Often the question about who benefits was not addressed at all.",
+        "weight": "core"
+      },
+      {
+        "element": "Give an opinion on who benefits, backed by argument, rather than only description",
+        "quote": "Also worth noting is that this question demands an opinion...and it's quite alright to be bold in that opinion, as long as it is backed by a good argument.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding that consumers can now check pricing extremely easily, which has fundamentally changed pricing behaviour for producers, retailers and restaurants",
+        "quote": "Key to a successful answer was an understanding that consumers can check pricing of a wine extremely easily, and that this has changed pricing behaviour for producers, retailers and restaurants in a fundamental way.",
+        "weight": "core"
+      },
+      {
+        "element": "Use a full set of differentiated examples from around the globe",
+        "quote": "Great answers had a full set of differentiated examples from around the globe and some concept of whether it is the consumer, the producer or the intermediaries who benefit.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Great answers had a full set of differentiated examples from around the globe and a clear concept of who benefits",
+        "quote": "Great answers had a full set of differentiated examples from around the globe and some concept of whether it is the consumer, the producer or the intermediaries who benefit."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "This was really poorly answered in general",
+        "quote": "This was really poorly answered in general."
+      },
+      {
+        "signal": "Many answers just contained a list of social media activations and not enough analysis",
+        "quote": "Many answers just contained a list of social media activations and not enough analysis."
+      },
+      {
+        "signal": "The 'who benefits' part of the question was often not addressed at all",
+        "quote": "Often the question about who benefits was not addressed at all."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Differentiated examples from around the globe, from different markets, different sectors of the market, different channels of distribution and the role of own label in reducing price comparison",
+      "named_in_report": [],
+      "quote": "Many examples could have been used, from different markets, different sectors of the market, different channels of distribution and the role of own label to reduce the possibility for price comparison."
+    },
+    "scope_traps": [],
+    "performance_note": "This was really poorly answered in general.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p4_q2",
+    "year": 2021,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "With reference to Bordeaux and other regions, discuss the commercial viability of the en primeur model. Outline the pros and cons for all parties, from producer through to consumer.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "discuss the commercial viability",
+    "command_word_demand": "The question asked about the commercial viability of the en primeur model, not how it works, so although it is important to be able to demonstrate a knowledge of the process, this can only form a relatively small part of the answer.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Include a financial dimension and a logistical case for viability",
+        "quote": "The answer requires a financial dimension, as well as a logistical case",
+        "weight": "core"
+      },
+      {
+        "element": "Cover both Bordeaux and other regions, as specifically asked",
+        "quote": "because the question specifically asked for reference to Bordeaux and other regions, there was a lot of ground to cover",
+        "weight": "core"
+      },
+      {
+        "element": "Support the answer with detailed numbers and examples from Bordeaux and other regions, including market pricing on release and thereafter",
+        "quote": "This is a question which could not be answered well without detailed numbers and examples both from Bordeaux and other regions, so knowledge of market pricing, both on release and thereafter, was key to success.",
+        "weight": "core"
+      },
+      {
+        "element": "Address impacts on and analyse pros and cons for all parties in the route to market (consumers, wholesalers, fine wine merchants, etc.)",
+        "quote": "Answers needed to address the impacts on consumers, wholesalers, fine wine merchants and any other elements of the route to market, and to analyse the pros and cons for all parties.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse whether the many-layered Bordeaux en primeur approach is viable given the trend toward direct producer-to-consumer sales",
+        "quote": "This was a question begging for some analysis of whether the many-layered approach of the Bordeaux en primeur system is viable in a world which is increasingly becoming so direct from producer to consumer.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Examiners frequently noted the absence of specific figures to back up general assertions",
+        "quote": "The examiners frequently noted absence of specific figures to back up general assertions."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Detailed numbers and examples from Bordeaux and other regions, including market pricing both on release and thereafter",
+      "named_in_report": [
+        "Bordeaux"
+      ],
+      "quote": "This is a question which could not be answered well without detailed numbers and examples both from Bordeaux and other regions, so knowledge of market pricing, both on release and thereafter, was key to success."
+    },
+    "scope_traps": [
+      {
+        "trap": "Spending too much of the answer describing how en primeur works rather than assessing its commercial viability",
+        "quote": "The question asked about the commercial viability of the en primeur model, not how it works, so although it is important to be able to demonstrate a knowledge of the process, this can only form a relatively small part of the answer."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p4_q3",
+    "year": 2021,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "As export director of a 100,000-case winery in the New World, you have been asked to increase exports from 10% to 25% of total production volume. What are the factors that would be most relevant to your strategy?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "What are the factors that would be most relevant to your strategy?",
+    "command_word_demand": "This question demanded an understanding of export strategy and planning, and the different considerations which need to be explored when deciding how to develop existing and new markets... many answers just described how to export, whereas this is a question requiring analysis.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Analyse the strategy rather than simply describe how to export",
+        "quote": "many answers just described how to export, whereas this is a question requiring analysis.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise that the required increase is only 15,000 cases, which mostly precludes mass-market distribution across multiple markets",
+        "quote": "The question here is about the need to increase sales by only 15,000 cases, so this would mostly preclude mass-market distribution across multiple markets.",
+        "weight": "core"
+      },
+      {
+        "element": "Provide realistic, practical budgets and approach",
+        "quote": "There were plenty of examples of unrealistic budgets and a lack of practicality or realism in the answers.",
+        "weight": "core"
+      },
+      {
+        "element": "Use specific, real-life examples and show understanding that different markets present different challenges",
+        "quote": "The examiners were looking for specific, real-life examples, and for candidates to show understanding of how different markets present different challenges.",
+        "weight": "core"
+      },
+      {
+        "element": "Define/describe the winery being represented as a real-life case study",
+        "quote": "It was a perfectly legitimate approach to describe and define the winery you are representing and address what could in effect be a real-life case study. Some great answers did define the producer and the resulting papers were much more interesting and logical as a result.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Some great answers defined the producer, making papers more interesting and logical",
+        "quote": "Some great answers did define the producer and the resulting papers were much more interesting and logical as a result."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Many answers just described how to export rather than analysing",
+        "quote": "many answers just described how to export, whereas this is a question requiring analysis."
+      },
+      {
+        "signal": "Plenty of examples of unrealistic budgets and a lack of practicality or realism",
+        "quote": "There were plenty of examples of unrealistic budgets and a lack of practicality or realism in the answers."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific, real-life examples showing how different markets present different challenges",
+      "named_in_report": [],
+      "quote": "The examiners were looking for specific, real-life examples, and for candidates to show understanding of how different markets present different challenges."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p4_q4",
+    "year": 2021,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Outline key changes in consumer taste preferences over the past decade. Which wine-producing regions have evolved their offer successfully to match these changes?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Outline",
+    "command_word_demand": "While it was important for candidates to give examples of changes in taste preferences, this is not a question that simply required candidates to outline trends. The question required candidates to identify specific regions which have adapted their styles to fit changing demand.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Identify specific regions that have adapted their styles to fit changing demand, not just list trends",
+        "quote": "The question required candidates to identify specific regions which have adapted their styles to fit changing demand.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse the evolution of wines and how they have opened up a market, rather than just listing wines and styles",
+        "quote": "A good answer would have described more than just a list of wines and styles, but would have analysed the evolution of wines and how they have opened up a market.",
+        "weight": "core"
+      },
+      {
+        "element": "Appreciate that key consumer taste preferences may differ from one market to the next, and from mature to newer markets",
+        "quote": "It was expected … that candidates would also appreciate that key consumer taste preferences may differ from one market to the next, and from mature markets to newer ones.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Mention the evolution of the classic fortified regions and wine styles",
+        "quote": "It was hard to answer this well without mentioning the evolution of the classic fortified regions and wine styles.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider how stringent Old World appellation requirements may hamper style evolution compared to regions without such restrictions",
+        "quote": "Candidates could also have considered how more stringent Old World appellation requirements may hamper wine style evolution to match changing consumer preferences compared to regions with no such restrictions.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific regions that made deliberate style choices to match changing consumer taste, e.g. Prosecco's introduction of a rosé category",
+      "named_in_report": [
+        "Prosecco"
+      ],
+      "quote": "Prosecco is selling lots of wine - great. But the introduction of a rosé category has matched increased demand (and allowed for increased profit through premiumisation)."
+    },
+    "scope_traps": [
+      {
+        "trap": "Spending too much content on sustainability, organic, etc., which was not relevant to a question about taste preference changes",
+        "quote": "Note this was also a question about changes in taste preferences, so too much content around sustainability, organic, etc. was not relevant."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p4_q5",
+    "year": 2021,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Identify and assess the financial considerations when planning an investment in planting a vineyard and building a winery.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Identify and assess",
+    "command_word_demand": "It did not require description of how to plant and build, but it was essential for candidates to detail costs of land purchase, planting, winery build and the anticipated length of time needed to pay back investment.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Detail costs of land purchase, planting, winery build and the anticipated payback period",
+        "quote": "it was essential for candidates to detail costs of land purchase, planting, winery build and the anticipated length of time needed to pay back investment.",
+        "weight": "core"
+      },
+      {
+        "element": "Define a range of different scenarios, given the breadth of the question",
+        "quote": "The question is very broad and therefore a good answer needed to define a range of different scenarios.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the size of the vineyard/winery and the quality (price) level of the wine",
+        "quote": "Key elements to consider included the size of the vineyard (and therefore winery) and the level of quality (price) of the wine.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Candidates with the cost detail to hand found it a straightforward, finance-director-style question, and some answered it very well",
+        "quote": "If candidates did have this detail to hand, then it was a straightforward challenge and very much a finance director's dream question. Some candidates answered this very well."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "The question was almost impossible to answer without knowing establishment costs, so many candidates did not attempt it",
+        "quote": "This was an almost impossible question to answer if candidates didn't know the costs of establishing a vineyard and winery and therefore was not attempted by many."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Detailed costs (land purchase, planting, winery build) and payback timelines across defined scenarios of vineyard/winery size and wine quality level",
+      "named_in_report": [],
+      "quote": "it was essential for candidates to detail costs of land purchase, planting, winery build and the anticipated length of time needed to pay back investment."
+    },
+    "scope_traps": [
+      {
+        "trap": "Describing how to plant a vineyard and build a winery rather than assessing the financial considerations",
+        "quote": "It did not require description of how to plant and build, but it was essential for candidates to detail costs of land purchase, planting, winery build and the anticipated length of time needed to pay back investment."
+      }
+    ],
+    "performance_note": "The pass rate for the question was among the highest on the paper, despite not being attempted by many.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p4_q6",
+    "year": 2021,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "How important is it for wine producers to develop new products?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How important is it",
+    "command_word_demand": "If a question starts with the words 'To what extent...', or 'How important...'. we expect candidates to consider multiple options: A lot? A little? Not at all? - and to tell us why.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Structure the answer thinking across a range of producers from mainstream to fine wine",
+        "quote": "The answer really needed a structure and it was important to think across a range of producers from mainstream to fine wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider the motivation for new product development, and where it isn't necessary or hasn't been successful",
+        "quote": "Also important was to consider the motivation for NPD, and to think about where it isn't necessary or hasn't been successful.",
+        "weight": "core"
+      },
+      {
+        "element": "Show an ability to evaluate and analyse, not merely list examples",
+        "quote": "There was plenty of scope to show an ability to evaluate and analyse.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "There were some very strong essays on this question",
+        "quote": "There were some very strong essays."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Candidates who struggled generally failed to impose a good structure and produced a stream of consciousness",
+        "quote": "Those candidates who struggled were generally those who did not impose a good structure on their answer and therefore simply produced a stream of consciousness."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Paper-wide expectation of differentiated examples backed by accurate data (no question-specific example guidance given for this question)",
+      "named_in_report": [],
+      "quote": "the best candidates displayed a knowledge of several markets and gave interesting, thoughtful answers backed up by appropriate and often differentiated examples. Being able to use accurate data in examples is crucial."
+    },
+    "scope_traps": [],
+    "performance_note": "This was an appealing and relatively straightforward question which achieved the highest pass rate on the paper.",
+    "extraction_notes": "examples_expected and part of command_word_demand for this row are drawn from the paper_preamble (Paper 4 General Comments and the cross-paper Theory Chair Report) rather than question-specific commentary, since the Q6 commentary itself does not discuss examples or the 'How important' framing directly."
+  }
+]

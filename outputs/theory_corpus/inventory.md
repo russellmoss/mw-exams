@@ -26,39 +26,60 @@ Remaining: the **4-paper era (2000–2014)** is downloaded but not compiled — 
 grammar (different paper→domain mapping), and `parse_theory_source.py` deliberately hard-fails on
 any year outside 2015–2026 to prevent silent mixing.
 
-## Status: rubric extractor is BUILT — 189 rubrics (64% of the corpus)
+## Status: rubric extractor is BUILT — 243 rubrics (82% of the corpus)
 
 `scripts/segment_examiner_reports.py` → `.claude/agents/rubric-extractor.md` →
 `scripts/build_theory_rubrics.py` → `data/theory/theory_rubrics.json`. Run via
 `/extract-rubrics <year>`. Schema in `RUBRIC_SCHEMA.md`; gate in `tests/test_theory_rubrics.py`.
 
-Result: **189 rubrics, 667 core requirements, 185 differentiators, 1,910 quotes — every one verified
-verbatim against its report segment.** Evidence quality: 132 rich, 55 moderate, 2 thin. All 189
-questions had genuine commentary; zero `coverage: "none"` rows.
+Result: **243 rubrics, 845 core requirements, 241 differentiators, 2,407 quotes — every one
+verified verbatim against its report segment.** Evidence quality: 175 rich, 66 moderate, 2 thin.
+All 243 questions had genuine commentary; zero `coverage: "none"` rows.
 
 ### Rubric coverage by year
 
-| Year | Questions | Rubrics | Report source |
-|------|-----------|---------|---------------|
-| 2015 | 27 | — | no report available |
-| 2016 | 27 | 27 | public IMW (unlisted URL) |
-| 2017 | 27 | 27 | student area |
-| 2018 | 27 | 27 | public IMW (unlisted URL) |
-| 2019 | 27 | 27 | student area |
-| 2021 | 27 | — | **image scan, needs OCR** |
-| 2022 | 27 | — | **image scan, needs OCR** |
-| 2023 | 27 | 27 | student area |
-| 2024 | 27 | 27 | student area |
-| 2025 | 27 | 27 | student area |
-| 2026 | 27 | — | no report available |
-| **total** | **297** | **189 (64%)** | |
+| Year | Questions | Rubrics | Report source | Text |
+|------|-----------|---------|---------------|------|
+| 2015 | 27 | — | none available | — |
+| 2016 | 27 | 27 | public IMW (unlisted URL) | publisher |
+| 2017 | 27 | 27 | student area | publisher |
+| 2018 | 27 | 27 | public IMW (unlisted URL) | publisher |
+| 2019 | 27 | 27 | student area | publisher |
+| 2021 | 27 | 27 | student area | **transcribed** |
+| 2022 | 27 | 27 | student area | **transcribed** |
+| 2023 | 27 | 27 | student area | publisher |
+| 2024 | 27 | 27 | student area | publisher |
+| 2025 | 27 | 27 | student area | publisher |
+| 2026 | 27 | — | none available | — |
+| **total** | **297** | **243 (82%)** | | 189 publisher / 54 transcribed |
 
-Reports live in two stores, both resolved by `REPORT_SOURCES` in the segmenter:
+Reports resolve through `REPORT_SOURCES` in the segmenter, across two stores:
 `source/imw_pdfs/` (public, gitignored, refetch with `scripts/fetch_imw_pdfs.py`) and
-`docs/examiners reports/` (student-area reports, committed).
+`docs/examiners reports/` (student-area, committed).
 
-**Remaining upside:** OCR of the 2021 and 2022 theory reports would add ~54 questions and take
-coverage to about 82%. 2015 and 2026 have no report in either store.
+**Remaining gap:** 2015 and 2026 have no examiners' report in either store (~54 questions).
+
+### Provenance: two years are transcribed, not publisher text
+
+The IMW published the 2021 and 2022 theory reports as **image-only PDFs** — 75 and 48 extractable
+characters across 24 and 23 pages. Both were transcribed page by page from 170-DPI renders into
+`data/theory/ocr/{year}_theory_report.txt`, which `OCR_SOURCES` makes the segmenter prefer over the
+PDF. Each file carries a provenance header, stripped at read time so its own wording can never be
+quoted as an examiner's.
+
+This is a real, if small, weakening of the evidence chain and is tracked rather than hidden: every
+segment and rubric carries `text_source` (`pdf_text_layer` or `transcribed_render`), and
+`tests/test_theory_rubrics.py` asserts the two agree. **The quote gate proves a quote matches the
+transcription; it cannot prove the transcription matches the printed report.** Re-check any
+transcribed quote before showing it to a candidate as an examiner's exact words.
+
+Fidelity indicators for the transcription: 25/27 (2021) and 26/27 (2022) corpus questions appear in
+it verbatim, and all three apparent misses turned out to be the chairs rewording their own
+restatements — "How relevant is tradition to 21st century consumers?" for the paper's "…21st century
+wine consumers?" — the same drift seen in every publisher-text year.
+
+Transcription scaffolding (`===== PAGE n =====`) is stripped at read time and the test fails on any
+quote containing it, after an extractor agent flagged markers appearing mid-quote.
 
 ### What the extraction surfaced about report structure
 
@@ -66,7 +87,7 @@ Report formats vary far more than expected, and each variation broke something b
 handled:
 
 - **Heading conventions differ by year and within a year.** 2016 uses bare `1.`; 2018 uses
-  `Question 1:` for papers 1–4 then switches to bare `N.` mid-paper-5; 2019 paper 5 uses `Q5.`.
+  `Question 1:` for papers 1–4 then switches to bare `N.` mid-paper-5; 2019 and 2021–2022 use `Q5.`.
   From 2019 the IMW splits theory and practical into separate report files and retitles sections
   `Paper one report 2024: Paper chair, …`.
 - **The Theory Chair section is renamed almost every year** — `Theory Chair Report`,
@@ -74,5 +95,5 @@ handled:
   Introduction heading in 2025.
 - **Chairs abbreviate or reword question restatements.** 2018 p3q2 appears as literally
   "Question 2: each option?"; 2017 p3q4 is retitled "Write concise short notes on 3 of the
-  following topics"; 2019 p5q5 is "Q5.". These are recovered by the question-number fallback and
-  flagged `anchor: "question_number"` so a human can verify the commentary belongs to the question.
+  following topics". These are recovered by the question-number fallback and flagged
+  `anchor: "question_number"` so a human can verify the commentary belongs to the question.

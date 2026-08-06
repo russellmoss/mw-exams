@@ -33,6 +33,12 @@ from the report. If you cannot quote it, do not assert it.
   "question_text": "...",              // verbatim, copied from the corpus
 
   "source_report": "examiners_report_2016.pdf",
+  "text_source": "pdf_text_layer",   // "pdf_text_layer" | "transcribed_render"
+                                     // transcribed_render = the IMW published that year's report
+                                     // as an image-only PDF and the evidence is a transcription of
+                                     // page renders. The quote gate can then only prove a quote
+                                     // matches the transcription, not the printed report — weaker
+                                     // provenance, so weight it accordingly.
   "coverage": "full",                  // "full" — commentary found | "none" — no commentary
   "evidence_quality": "rich",          // "rich" | "moderate" | "thin"
                                        // thin = a sentence or two; grader should weight it lightly

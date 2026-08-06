@@ -1,0 +1,668 @@
+[
+  {
+    "id": "th_2022_p3_q1",
+    "year": 2022,
+    "paper": 3,
+    "question": 1,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "What are the main technical issues a wine producer should consider when evaluating a change from bottling still wines at source to shipping them in bulk for bottling in the destination market?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "consider",
+    "command_word_demand": "Examiners expected candidates to show good technical understanding of key QC analyses and QA treatments that the producer should carry out pre-shipment, and also the method of shipment (tanker/flexi/ISO) with implications for management of ullage and temperature stability. A lot of candidates slipped into discussion of bulk wine shipping in general rather than considering the change in procedures as required by the question.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Recognise that bottling at source is the shortest, most controlled route (least handling/distance) that the switch to bulk shipping departs from",
+        "quote": "Candidates needed to show understanding that bottling at source involves the least distance travelled for a wine and the fewest steps in handling",
+        "weight": "core"
+      },
+      {
+        "element": "Address distance travelled, time in transit, travel conditions (e.g. extreme temperatures), oxygen ingress/contamination risk, and additional handling/pumping",
+        "quote": "A switch to bulk shipping requires the producer to consider distance travelled, time in transit, travel conditions (e.g., extreme temperatures), the potential for oxygen ingress or contamination, and additional handling/pumping of the wine.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover cellar stabilisation treatment appropriate to wine style prior to loading, microbial stability via preservative/filtration, chemical stability, and QC on loading and arrival with pre- and post-shipment samples",
+        "quote": "Answers needed to consider appropriate cellar stabilisation treatment depending on wine style prior to loading; microbial stability, ensured by appropriate preservative and filtration treatment; chemical stability, ensured by appropriate preservative treatment and loading process; QC of wine on loading and again on arrival with samples taken pre- and post-shipment.",
+        "weight": "core"
+      },
+      {
+        "element": "Show technical understanding of QC analyses/QA treatments pre-shipment and of shipment method (tanker/flexi/ISO) with implications for ullage and temperature management",
+        "quote": "Examiners expected candidates to show good technical understanding of key QC analyses and QA treatments that the producer should carry out pre-shipment, and also the method of shipment (tanker/flexi/ISO) with implications for management of ullage and temperature stability.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Slipping into a general essay on bulk wine shipping rather than analysing the change in procedure the question asked about",
+        "quote": "A lot of candidates slipped into discussion of bulk wine shipping in general rather than considering the change in procedures as required by the question."
+      },
+      {
+        "signal": "Discussing off-topic issues such as container options or market perception instead of the technical issues asked for",
+        "quote": "Some candidates wrote about off-topic issues such as bulk shipping container options, or market perception - these were not the \"technical issues\" which were clearly asked for in the question."
+      },
+      {
+        "signal": "Treating the question purely as one about bulk wine transport tanks",
+        "quote": "Examiners also noted that some candidates saw this purely as a question on bulk wine transport tanks."
+      },
+      {
+        "signal": "Scripts light on QC/QA and required treatments, with sampling and its importance often missed",
+        "quote": "Overall, many scripts were very light on QC, QA and required treatments and at what point they should occur. The key QA aspect of sampling, and the importance of samples, were often missed."
+      },
+      {
+        "signal": "Citing bulk-shipping percentage statistics without sourcing them",
+        "quote": "Many candidates stated the percentage of wine shipped in bulk every year, but numbers varied quite widely and sources were not often cited."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Where statistics are used (e.g. percentage of wine shipped in bulk) they must be sourced, not stated as unattributed numbers",
+      "named_in_report": [],
+      "quote": "Many candidates stated the percentage of wine shipped in bulk every year, but numbers varied quite widely and sources were not often cited."
+    },
+    "scope_traps": [
+      {
+        "trap": "Answering about bulk wine shipping/transport in general instead of the specific change in procedure from source-bottling to bulk shipment",
+        "quote": "A lot of candidates slipped into discussion of bulk wine shipping in general rather than considering the change in procedures as required by the question."
+      }
+    ],
+    "performance_note": "Weaker candidates were able to write a fair script on some aspects of bulk wine shipment, but could not achieve a passing mark as they did not answer the question asked.",
+    "extraction_notes": "Report was transcribed from image-only page renders (text_source: transcribed_render); one quote was trimmed to fall before a '===== PAGE 12 =====' scaffolding marker embedded mid-sentence in the source."
+  },
+  {
+    "id": "th_2022_p3_q2",
+    "year": 2022,
+    "paper": 3,
+    "question": 2,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "Outline the winemaker's key considerations when deciding whether or not to filter each of the following in preparation for bottling:\n\na) white wine with 180g/L residual sugar\nb) ruby port\nc) Bourgogne Pinot Noir",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "outline",
+    "command_word_demand": "In each case, candidates needed to consider how vulnerable the product is to post-bottling risks, requiring application of principles to each of the three styles of wine which had different levels of vulnerability.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "For each wine, consider whether not filtering is an option and why, i.e. how vulnerable the wine is to post-bottling risks such as in-bottle fermentation by yeast (S. cerevisiae or Brett) or malolactic bacteria",
+        "quote": "candidates needed to consider whether not filtering is an option and why i.e. consider how vulnerable the product is to post-bottling risks, most notably fermentation in bottle by yeast (S. cerevisiae as well as spoilage yeasts like Brett) or malolactic bacteria.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover impact of filtration on quality, prior clarification, matching filtration type/pore size to wine style, microbial contamination risk, and re-fermentation risk",
+        "quote": "Areas to cover included: impact of filtration on wine quality; clarification before filtration to save time, filter wastage and money; understanding of the style of wine to determine the correct filtration process and then the type of filtration itself; filtration options and pore sizes; risks of microbial contamination; re-fermentation.",
+        "weight": "core"
+      },
+      {
+        "element": "(a) Recognise the 180g/L residual sugar wine as high risk of re-fermentation, requiring sterile filtration (0.45 micron), likely a late-harvest/botrytised wine needing glucanase enzymes and a filterability test",
+        "quote": "180g/L residual sugar implies the risk of re-fermentation by yeast... The winemaker would always consider sterile filtration which is 0.45 micron.",
+        "weight": "core"
+      },
+      {
+        "element": "(b) Recognise Ruby Port is always filtered to avoid sediment (unlike a crusted style), using diatomaceous earth then a cellulose filter",
+        "quote": "LBV ports are always filtered to avoid sediment in a bottle (which would be acceptable in a crusted style).",
+        "weight": "core"
+      },
+      {
+        "element": "(c) Recognise Bourgogne Pinot Noir as typically dry, oak-aged and post-MLF, so relatively stable with little re-fermentation risk, making no filtration or only a light polishing filtration (~1.2 micron) an option",
+        "quote": "Candidates were expected to recognise that this may result in a relatively stable wine with little to no risk of re-fermentation going into bottle, so choosing not to filter is an option, or just a polishing filtration of around 1.2 microns.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best answers gave accurate numbers (pore size, free SO2 levels) and supported discussion with examples",
+        "quote": "Better candidates gave accurate numbers on aspects such as pore size and levels of free SO2 and supported their discussions with examples, while weaker candidates lacked technical proficiency."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Very poor knowledge of how port is handled",
+        "quote": "Knowledge of how port is handled was especially poor, while very few candidates seemed aware that sweet wine, especially if botrytis-affected, may be difficult to filter."
+      },
+      {
+        "signal": "Limited use of examples overall",
+        "quote": "Use of examples was often limited."
+      },
+      {
+        "signal": "Weaker candidates lacked technical proficiency",
+        "quote": "while weaker candidates lacked technical proficiency."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Accurate numbers on pore size and free SO2 levels, used to support discussion",
+      "named_in_report": [],
+      "quote": "Better candidates gave accurate numbers on aspects such as pore size and levels of free SO2 and supported their discussions with examples, while weaker candidates lacked technical proficiency."
+    },
+    "scope_traps": [],
+    "performance_note": "It should have been a straightforward paper 3 question but in fact it was very poorly answered.",
+    "extraction_notes": "Text_source: transcribed_render. One quote ('LBV ports are always filtered...') was chosen to start just after a '===== PAGE 13 =====' marker that fell mid-sentence in the source, dropping the preceding fragment 'Basic Ruby' to keep the quote verbatim and marker-free."
+  },
+  {
+    "id": "th_2022_p3_q3",
+    "year": 2022,
+    "paper": 3,
+    "question": 3,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "'Post-maturation wine stabilisation practices should be used only on low-end wines.' Discuss.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "discuss",
+    "command_word_demand": "Candidates were expected to understand the potential impacts of 'active' stabilisation treatments on quality, hence why it may be thought they should be reserved for low-end wines only. However, many of these instabilities would themselves be thought of as impacting quality and so stabilisation practices are relevant to wines of all qualities and price points: it is the method for achieving that stability that may differ.",
+    "definitions_required": [
+      {
+        "term": "low-end wine",
+        "quote": "Candidates also needed to define a 'low-end' wine - likely to be a high volume, entry-level priced wine produced over a short timescale, including all styles (fortified, sparkling, sweet etc)."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Discuss the potential detrimental effects of stabilisation, e.g. stripping of colour, flavour or aroma",
+        "quote": "Candidates should have discussed the potential detrimental effects of stabilisation e.g. stripping of colour, flavour or aroma.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover reducing risk of tartrate formation, colour deterioration and haze formation",
+        "quote": "Main areas to consider included reducing risk of physical and chemical changes such as tartrate formation, colour deterioration and haze formation.",
+        "weight": "core"
+      },
+      {
+        "element": "Conclude that instabilities themselves affect quality, so stabilisation is relevant to wines of all qualities and price points, with the method of achieving stability (not whether to stabilise) being what differs",
+        "quote": "many of these instabilities would themselves be thought of as impacting quality and so stabilisation practices are relevant to wines of all qualities and price points: it is the method for achieving that stability that may differ.",
+        "weight": "core"
+      },
+      {
+        "element": "Consider natural wines as a possible exception",
+        "quote": "Natural wines might have been mentioned as an exception.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Discuss colour stability, including oxidative changes",
+        "quote": "Very few candidates included any discussion of colour stability.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Discussed the question with a well-thought-out opinion, technically correct points and relevant examples",
+        "quote": "Those that discussed the question with a well-thought-out opinion, used technically correct points and supported their points with relevant examples did well."
+      },
+      {
+        "signal": "Evident practical/winery-visit knowledge of how different wine styles are made",
+        "quote": "Like a lot of technical questions, it tests the candidate's practical knowledge, and it quickly becomes apparent whether they have actually visited wineries, seen how different wine styles are made."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Discussed why stability might be necessary rather than how it might be achieved, producing less technical answers",
+        "quote": "Several candidates discussed why stability might be necessary rather than how it might be achieved"
+      },
+      {
+        "signal": "Used examples that were not relevant, revealing weak understanding",
+        "quote": "When candidates use an example that isn't quite relevant, or there are plenty of other better options, it reveals weak understanding."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Relevant, technically correct examples supporting the argument; a compare-and-contrast approach was well suited to this question",
+      "named_in_report": [],
+      "quote": "Examiners noted that the use of examples could have been better to support points."
+    },
+    "scope_traps": [],
+    "performance_note": "This proved a difficult question for many. Overall, most candidates covered tartrate, protein and microbial stability as areas for discussion.",
+    "extraction_notes": "Text_source: transcribed_render. The penalty-signal quote on 'less technical answers' was trimmed before a '===== PAGE 14 =====' marker that interrupted the sentence."
+  },
+  {
+    "id": "th_2022_p3_q4",
+    "year": 2022,
+    "paper": 3,
+    "question": 4,
+    "domain": "handling_of_wine",
+    "section": null,
+    "question_text": "You are a producer planning to sell your wine to countries in the European Union (EU). What requirements for analysis and labelling must be met to ensure compliance with EU law?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "must be met",
+    "command_word_demand": "This question required candidates to show an understanding of the labelling information required to be compliant with EU regulations and the required analysis to supply mandatory label and technical information.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show understanding that all wine sold in the EU (produced within the EU or in third countries) must comply with specific regulations on oenological practices and labelling",
+        "quote": "All wines sold in the European Union must comply with specific regulations on oenological practices and labelling, whether produced within EU or in third countries.",
+        "weight": "core"
+      },
+      {
+        "element": "Show understanding of key requirements and knowledge of how/where to obtain compliance information (competent authority in destination market or exporters' associations), rather than exhaustive detail",
+        "quote": "Candidates would not be expected to know all the details but should show an understanding of key requirements and knowledge of how and where to obtain the correct information (a competent authority in the destination market or in some cases exporters' associations will help).",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "So few candidates attempted this question that it suggested few had the required knowledge, with confusion about mandatory label information and allergen statements",
+        "quote": "there was some evidence of confusion about mandatory label information, allergen statements and so on."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "Factual details rather than examples were what was required, or at minimum a clear demonstration of a grasp of the principles and how to ensure compliance",
+      "named_in_report": [],
+      "quote": "Factual details rather than examples were required here, or at least a clear demonstration of a grasp of the principles and how to ensure compliance."
+    },
+    "scope_traps": [],
+    "performance_note": "This was an uncomplicated question for candidates who knew the topic, but the fact that so few candidates attempted this question suggested that few had the required knowledge.",
+    "extraction_notes": "Text_source: transcribed_render. Coverage found via question-number fallback; commentary is a single paragraph, thinner than the other Paper 3 segments."
+  },
+  {
+    "id": "th_2022_p4_q1",
+    "year": 2022,
+    "paper": 4,
+    "question": 1,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "How has the global coronavirus pandemic impacted consumer wine purchasing behaviours? Use examples from at least three significant markets to illustrate your answer.",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "impacted",
+    "command_word_demand": "The examiners were looking for a clear understanding of consumer purchasing behaviours that were directly a result of Covid, so this excluded more general trends such as a move towards lower alcohol, or premiumisation.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Focus on consumer purchasing behaviours directly a result of Covid, excluding general pre-existing trends not accentuated or triggered by the pandemic",
+        "quote": "A good answer could have referenced some of the ongoing consumer trends in the market before Covid but the focus needed to be firmly on those which have been accentuated by the pandemic, or directly triggered by it.",
+        "weight": "core"
+      },
+      {
+        "element": "Address consumer purchasing behaviour specifically, not the logistical/trade impact of Covid",
+        "quote": "We didn't want candidates to explore the logistical impact of Covid on the wine trade either, as this was a question about consumer purchasing behaviour, not trade.",
+        "weight": "core"
+      },
+      {
+        "element": "Support arguments with correct, properly attributed data",
+        "quote": "As always, it was important to have correct and properly attributed data to back up arguments.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Great scores looked at whether changes have continued since markets reopened and offered future-gazing on which trends could be longer-lived",
+        "quote": "Great scores could be gained by looking at whether the changes have continued since the opening up of the markets and even some future-gazing to assess which trends could be yet longer lived."
+      },
+      {
+        "signal": "Good scores covered all the bases of behavioural changes",
+        "quote": "Good scores could be gained by covering all the bases of behavioural changes."
+      }
+    ],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples from at least three significant markets, illustrated with correct and properly attributed data",
+      "named_in_report": [],
+      "quote": "Use examples from at least three significant markets to illustrate your answer."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing general trends (e.g. move to lower alcohol, premiumisation) not specifically driven by Covid",
+        "quote": "this excluded more general trends such as a move towards lower alcohol, or premiumisation."
+      },
+      {
+        "trap": "Exploring the logistical/trade impact of Covid rather than consumer purchasing behaviour",
+        "quote": "We didn't want candidates to explore the logistical impact of Covid on the wine trade either, as this was a question about consumer purchasing behaviour, not trade."
+      }
+    ],
+    "performance_note": "This was a popular and generally well-answered question. Some candidates really excelled at this question.",
+    "extraction_notes": "Text_source: transcribed_render. No page-break markers fell within this segment's commentary."
+  },
+  {
+    "id": "th_2022_p4_q2",
+    "year": 2022,
+    "paper": 4,
+    "question": 2,
+    "domain": "business_of_wine",
+    "section": "A",
+    "question_text": "What measures determine the strength of a wine brand? How can brand managers most effectively influence their brand's long-term performance?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "effectively influence",
+    "command_word_demand": "The second part required more understanding of the role of a brand manager - and there's obviously a direct reference to \"long term\" so this should have been a key element to the answer.",
+    "definitions_required": [
+      {
+        "term": "wine brand",
+        "quote": "it needed good structure and a clear introduction, with a definition of what constitutes a wine brand."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Both parts of the two-part question needed to be addressed, with the 'long term' element of part two treated as a key requirement",
+        "quote": "As stated above, it's important to answer this question with the long term in mind.",
+        "weight": "core"
+      },
+      {
+        "element": "Show that KPIs for brand strength differ by brand positioning (mass-market vs luxury)",
+        "quote": "Good answers illustrated that the key performance indicators might be different in brands with diverse aspirations or positioning - a mass-market mainstream brand might measure success via market share, average selling price and penetration, whilst a luxury brand might look more to prestige listings, secondary market value and reviews.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Support the brand-management (second) part with concrete examples of managing wine brands",
+        "quote": "The second part of the question required examples of the management of wine brands.",
+        "weight": "core"
+      },
+      {
+        "element": "Use accurate numbers when giving examples",
+        "quote": "Again, numbers were key when giving examples.",
+        "weight": "core"
+      },
+      {
+        "element": "Relate measures of brand strength to the brand's purpose/essence and strategy, e.g. via brand life-cycle stage",
+        "quote": "these must relate to the purpose or brand essence (there is very little point measuring distribution or share of the market if the brand is a luxury offering with limited volume).",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "First-hand or borrowed practitioner knowledge of how brand performance is actually measured",
+        "quote": "First-hand knowledge will always be an advantage, but the next best thing is to interview or befriend someone who is managing a portfolio of brands to learn how performance is measured."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Good theoretical understanding of part one but less knowledge/experience shown in part two",
+        "quote": "This seemed to be a question where there was a good understanding of the theory required in the first part of the question, but less knowledge or perhaps experience in the second part."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Numbers/data were key when giving examples of brand management",
+      "named_in_report": ["Yellow Tail"],
+      "quote": "A mass-market, high-volume wine brand like Yellow Tail might want to be increasing market share, increasing awareness, raising the average selling price and increasing distribution points."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": "Text_source: transcribed_render. The command_word_demand quote was reassembled from either side of a '===== PAGE 16 =====' marker that fell mid-sentence in the source; the marker text itself is excluded."
+  },
+  {
+    "id": "th_2022_p4_q3",
+    "year": 2022,
+    "paper": 4,
+    "question": 3,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Who or what are the most important influencers of consumer behaviour in today's world of wine?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "most important",
+    "command_word_demand": "It was important for candidates to address 'most important' and to structure a concise and well-argued answer while covering all the bases and not just giving a list of categories. Answers needed to show analysis of the importance of the influencers as well as just what they are.",
+    "definitions_required": [
+      {
+        "term": "influencers",
+        "quote": "this was not just about social media and did need a broader (perhaps more philosophical) approach in defining influencers."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Recognise 'influencers' is plural and 'who or what' broadens the scope beyond social media",
+        "quote": "Note the wording of the question: \"influencers\" is plural and we asked \"who or what\"",
+        "weight": "core"
+      },
+      {
+        "element": "Recognise that the most important influencers vary by target demographic and market",
+        "quote": "It was important to recognise that the most important influencers vary according to the target demographic and market.",
+        "weight": "core"
+      },
+      {
+        "element": "Go beyond listing categories of influencer to analyse their relative importance",
+        "quote": "Answers needed to show analysis of the importance of the influencers as well as just what they are.",
+        "weight": "core"
+      },
+      {
+        "element": "Use good, correctly spelled data in examples",
+        "quote": "As with all the questions, it was really helpful to have good data in examples, and especially important not to get these examples wrong.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Great answers built on the facts and delivered analysis as well as coverage",
+        "quote": "Good answers covered all the key bases, while great answers built on the facts and delivered analysis as well."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Misspelling a key influencer's name loses credibility",
+        "quote": "Misspelling of a key influencer's name leads to a loss of credibility."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Specific, correctly spelled examples across categories such as specialist press, wine critics, social media, formal wine education, celebrity brand ownership, and trade influence",
+      "named_in_report": ["Kylie", "Brad"],
+      "quote": "celebrity brand ownership (Kylie, Brad, etc)"
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading 'influencers' as being just about social media",
+        "quote": "this was not just about social media and did need a broader (perhaps more philosophical) approach in defining influencers."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": "Text_source: transcribed_render. A '===== PAGE 17 =====' marker fell between two sentences in the source; quotes were kept on either side of it rather than spanning it. Named celebrity examples appear truncated to first names only ('Kylie, Brad') in the source report itself."
+  },
+  {
+    "id": "th_2022_p4_q4",
+    "year": 2022,
+    "paper": 4,
+    "question": 4,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Which emerging wine-producing countries or regions have the best chance of establishing themselves as a significant force on the international wine market, and why?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "and why",
+    "command_word_demand": "The other challenge with this question is that it is easy to generalise and a good answer demands in-depth knowledge of the chosen countries/regions. Anything too superficial lacks credibility at this level.",
+    "definitions_required": [
+      {
+        "term": "emerging",
+        "quote": "\"Emerging\" - showing growth, either in sales or awareness/reputation"
+      },
+      {
+        "term": "significant force",
+        "quote": "\"significant force\" could mean in either a quantitative or qualitative sense"
+      },
+      {
+        "term": "international market",
+        "quote": "\"international market\" implies the sales or reputational growth stretches beyond the domestic market."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Recognise this is a business paper, so commentary should stay on production growth capability and market exposure rather than wine style",
+        "quote": "Significant to forming a good answer was to recognise that this is a business paper and so too much commentary on wine styles is unhelpful, although it is fair to discuss production growth capability.",
+        "weight": "core"
+      },
+      {
+        "element": "Argue for broad exposure across a number of markets; too-niche choices are hard to justify as a 'significant force'",
+        "quote": "A significant force must mean a relatively broad exposure on a number of markets, and therefore anything too niche is hard to argue for.",
+        "weight": "core"
+      },
+      {
+        "element": "Choose regions with the potential to produce high-quality wine that has not yet received critical acclaim, and argue in depth rather than generalising",
+        "quote": "Candidates needed to identify areas which have the potential to produce high-quality wines and which, for one reason or another, have not yet received critical acclaim.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Using fully established wine regions (South Africa, New Zealand) as examples of 'emerging'",
+        "quote": "there were a few cases of fully established wine regions being used as examples - South Africa and New Zealand are hard to justify as emerging."
+      },
+      {
+        "signal": "Generalised answers lacking in-depth knowledge of the chosen countries/regions",
+        "quote": "Anything too superficial lacks credibility at this level."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "In-depth knowledge of the chosen countries/regions, e.g. reasoned candidates such as China (geopolitics), climate-change beneficiaries (northern/Eastern Europe, cooler North America, UK, Germany), or cost-competitive volume players (India, Eastern Europe, South America)",
+      "named_in_report": ["China", "UK", "Germany", "India"],
+      "quote": "One example could be China, where geopolitics might be a viable reason for a failure to make much impact thus far, but which could see a change under a new world order."
+    },
+    "scope_traps": [
+      {
+        "trap": "Citing already-established wine regions (e.g. South Africa, New Zealand) as 'emerging'",
+        "quote": "South Africa and New Zealand are hard to justify as emerging."
+      }
+    ],
+    "performance_note": "This was not a popular question and received the lowest number of passing marks.",
+    "extraction_notes": "Text_source: transcribed_render. No page-break markers fell within this segment's commentary. Named regions in examples_expected include ones the examiners offered as illustrative candidate answers, not necessarily ones candidates actually used well."
+  },
+  {
+    "id": "th_2022_p4_q5",
+    "year": 2022,
+    "paper": 4,
+    "question": 5,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "Which are the most attractive markets for premium Italian wines, and why?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "and why",
+    "command_word_demand": "It was difficult to answer well without a good knowledge of distribution of Italian wines around the world. Candidates who attempted to generalise did not do well.",
+    "definitions_required": [
+      {
+        "term": "premium",
+        "quote": "it was important to give a definition of premium - and as there is no single precise definition, so as long as the answer related to the definition there was no problem."
+      },
+      {
+        "term": "attractive",
+        "quote": "It would also have been a good idea to define 'attractive' - which can relate to sales growth, overall sales volume (which therefore includes established and mature markets), or it could mean profitable."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Demonstrate real knowledge of the distribution of Italian wines around the world rather than generalising",
+        "quote": "Candidates who attempted to generalise did not do well.",
+        "weight": "core"
+      },
+      {
+        "element": "Use accurate facts; examiners will check them",
+        "quote": "There were a great many factual inaccuracies noted; candidates should assume that the examiners either know the facts or will check them.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "The highest-marked answer took an unconventional but well-argued stance (Italy itself as the best market for premium Italian wine)",
+        "quote": "It is worth pointing out that the answer with the highest mark maintained that Italy was the best market for premium Italian wines...and why not!?"
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Many factual inaccuracies noted",
+        "quote": "There were a great many factual inaccuracies noted; candidates should assume that the examiners either know the facts or will check them."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Accurate, market-specific supporting data (e.g. export volume/value by country) rather than generalisation",
+      "named_in_report": ["Germany", "USA", "UK"],
+      "quote": "Its top markets by volume by a good distance are Germany, the USA, and the UK."
+    },
+    "scope_traps": [],
+    "performance_note": "Perhaps unsurprisingly, this was the least popular question. this was a hard question for those lacking the necessary knowledge, but for those with experience of different markets and accurate supporting data and examples of success, it was pretty straightforward.",
+    "extraction_notes": "Text_source: transcribed_render. Quotes were chosen to fall clear of '===== PAGE 18 =====' and '===== PAGE 19 =====' markers embedded mid-paragraph in the source."
+  },
+  {
+    "id": "th_2022_p4_q6",
+    "year": 2022,
+    "paper": 4,
+    "question": 6,
+    "domain": "business_of_wine",
+    "section": "B",
+    "question_text": "You are the production director of a one million-case winery which aspires to become carbon neutral by the end of the decade. What steps would you take to achieve this objective?",
+    "source_report": "2022_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "steps",
+    "command_word_demand": "This question required an understanding of how a carbon footprint can be measured before steps can be taken to reduce it. Candidates needed to identify the various ways in which carbon emissions are generated and discuss how they can be reduced or modified.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show understanding of how to measure a carbon footprint before proposing steps to reduce it",
+        "quote": "This question required an understanding of how a carbon footprint can be measured before steps can be taken to reduce it.",
+        "weight": "core"
+      },
+      {
+        "element": "Identify the various ways carbon emissions are generated and how they can be reduced or modified",
+        "quote": "Candidates needed to identify the various ways in which carbon emissions are generated and discuss how they can be reduced or modified.",
+        "weight": "core"
+      },
+      {
+        "element": "Be able to measure and benchmark carbon outputs, and plan improvements around the largest outputs",
+        "quote": "It is essential to be able to measure and benchmark carbon outputs and therefore plan for improvements based around the largest outputs.",
+        "weight": "core"
+      },
+      {
+        "element": "Include the concept of carbon off-setting",
+        "quote": "In addition, the idea of off-setting carbon needed to feature.",
+        "weight": "core"
+      },
+      {
+        "element": "Structure the answer clearly, e.g. following production chronology from vineyard through to packaging choices",
+        "quote": "there was a requirement for a clear structure and a good way to approach this could have been to follow the production through its chronology, starting with the vineyard and running all the way through to packaging choices.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Support the answer with accurate data",
+        "quote": "this paper rewards data in its examples, and data needed to be accurate.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Best answers demonstrated the different levels of impact on carbon outputs and analysed which elements to tackle first",
+        "quote": "The best answers were able to demonstrate the different levels of impact on carbon outputs and formed an analysis of the most important elements to tackle first."
+      }
+    ],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Accurate data to back up assertions about carbon reduction steps",
+      "named_in_report": [],
+      "quote": "This was a great question for those who had some numbers to back up their assertions."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating carbon neutrality as fully synonymous with general sustainability and writing down everything known about winery sustainability",
+        "quote": "There was in some cases an apparent temptation to rush into this essay and throw down everything known about sustainability in the winery, but note this is looking at carbon neutrality which doesn't entirely overlap with sustainability."
+      }
+    ],
+    "performance_note": "A popular and generally well-answered question this had a high pass rate.",
+    "extraction_notes": "Text_source: transcribed_render. A '===== PAGE 20 =====' marker fell after the final sentence used, outside all quotes."
+  }
+]

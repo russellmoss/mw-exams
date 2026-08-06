@@ -1,0 +1,407 @@
+[
+  {
+    "id": "th_2021_p5_q1",
+    "year": 2021,
+    "paper": 5,
+    "question": 1,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Who do you consider to be the real pioneers in today's wine industry, and why?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "consider",
+    "command_word_demand": "This was a question that invited candidates to review today's wine industry, using good examples of real pioneers, to make general points about the quality and importance of leadership in moving wine forward.",
+    "definitions_required": [
+      {
+        "term": "pioneer",
+        "quote": "Many failed to make initial definitions (pioneer, wine industry)."
+      },
+      {
+        "term": "wine industry",
+        "quote": "Many failed to make initial definitions (pioneer, wine industry)."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Consider the question in terms of today's industry, not a reinterpreted or historical version of it",
+        "quote": "It was a little surprising that many answers ignored the direction to consider the question in terms of today's industry, or reinterpreted the question to suit their ends or understanding rather than the thrust of the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Tackle the question with the right balance of depth and breadth across the industry",
+        "quote": "Many candidates failed to tackle the question with the right balance of depth and breadth.",
+        "weight": "core"
+      },
+      {
+        "element": "Engage critically with what a 'real pioneer' might be, including who might be doing something 'new' but arguably is not a genuine 'pioneer'",
+        "quote": "Almost all failed to engage critically with the question and discuss what a 'real pioneer' might be; or to explore who might be doing something 'new', but were arguably not genuine 'pioneers'.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Support examples with evidence of commercial impact or quantification rather than assertion alone",
+        "quote": "Many examples were also unconvincing as they lacked evidence of the commercial impact, or any kind of quantification which might make them stand out from others doing similar things.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Taking a critical view of figures others might regard as 'pioneers', rather than accepting the label uncritically",
+        "quote": "This was an opportunity for candidates to show their knowledge and take a critical view of some who others might regard as 'pioneers'."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Relying on extensive pre-prepared material (e.g. on climate change or natural wines) shoehorned into the answer, at the expense of considering other issues",
+        "quote": "A few candidates used extensive, pre-prepared material (on climate change or natural wines, for example) to answer this question, which usually meant they didn't consider other issues and scored poorly."
+      },
+      {
+        "signal": "Spending too much detail on too few examples",
+        "quote": "Often, there was too much detail on too few examples."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Examples of real pioneers needed evidence of commercial impact or some form of quantification to be convincing, and breadth across the industry rather than excessive depth on too few examples",
+      "named_in_report": [],
+      "quote": "This was a question that invited candidates to review today's wine industry, using good examples of real pioneers... Many examples were also unconvincing as they lacked evidence of the commercial impact, or any kind of quantification which might make them stand out from others doing similar things."
+    },
+    "scope_traps": [
+      {
+        "trap": "Reinterpreting the question to fit a pre-prepared essay (e.g. on climate change or natural wine) rather than answering the question as set, about today's industry",
+        "quote": "It was a little surprising that many answers ignored the direction to consider the question in terms of today's industry, or reinterpreted the question to suit their ends or understanding rather than the thrust of the question."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p5_q2",
+    "year": 2021,
+    "paper": 5,
+    "question": 2,
+    "domain": "contemporary_issues",
+    "section": "A",
+    "question_text": "Wine is celebrated for its diversity of styles. Is this diversity under threat?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Is this diversity under threat?",
+    "command_word_demand": "Few managed to produce a convincing response to this challenging question which required a balanced consideration of the important factors... Many candidates sat on the fence and didn't take a clear position.",
+    "definitions_required": [
+      {
+        "term": "style",
+        "quote": "Style and threats needed to be defined/clarified in the introduction and a clear answer to the question was needed."
+      },
+      {
+        "term": "threat",
+        "quote": "Style and threats needed to be defined/clarified in the introduction and a clear answer to the question was needed."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Give a balanced consideration of the important factors bearing on diversity (climate change, political factors, anti-alcohol movements, health considerations, generational shifts, technological developments, global pandemics, business/supply-chain consolidation, competition from other drinks, e-commerce/social media, etc.)",
+        "quote": "Few managed to produce a convincing response to this challenging question which required a balanced consideration of the important factors. These included: climate change, political factors, anti-alcohol movements, health considerations, generational shifts, technological developments (vineyard/winery/packaging/supply chain), global pandemics (human/grapevine), business/supply chain consolidation, competition from other drinks/products, e-commerce and online marketing/social media impacts and others.",
+        "weight": "core"
+      },
+      {
+        "element": "Define 'style' and 'threat' in the introduction",
+        "quote": "Style and threats needed to be defined/clarified in the introduction and a clear answer to the question was needed.",
+        "weight": "core"
+      },
+      {
+        "element": "Take a clear position rather than sitting on the fence",
+        "quote": "Many candidates sat on the fence and didn't take a clear position.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover viticulture's contribution to diversity in depth (pruning, training, cropping levels, agrochemicals, machine harvesting, clones, rootstocks etc.), beyond varietal selection",
+        "quote": "Viticulture was often not covered in enough detail. More could have been made in terms of perceived diversity impacts of all elements of vineyard management (pruning, training, cropping levels, agrochemicals, machine harvesting, clones, rootstocks etc.), beyond varietal selection.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Weigh whether climate change's net impact on diversity is positive or negative, rather than assuming only negative impacts",
+        "quote": "Climate change was mentioned by many, but rarely was a convincing argument given as to whether, in the end, it would have a net positive or negative impact on diversity. Many answers only considered negative impacts.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Consider diversity of quality or price as a possible element of 'style'",
+        "quote": "Few considered diversity of quality or price in depth, as a possible element of 'style' - these were interesting areas to explore, with a good opportunity for original, critical thought.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Answers were too narrow in scope",
+        "quote": "Many answers were too narrow."
+      },
+      {
+        "signal": "Answers favoured style over substance",
+        "quote": "Quite a number of answers favoured style over substance."
+      },
+      {
+        "signal": "Citing 'research shows...' without interrogating who did the research, where it was published, or its limitations/flaws",
+        "quote": "Appropriate use of research studies in an essay needs a reminder. Arguments like, 'research shows...' are essentially meaningless and trusting acceptance of studies is not always convincing: who did the research? Where was it published? Did it have any limitations/flaws?"
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "The examiner needed to be convinced by specific, detailed examples rather than general, vague comments",
+      "named_in_report": [],
+      "quote": "Fluent writing is, of course, what we like to see in this paper; but the examiner needs to be convinced by specific, detailed examples rather than general, vague comments."
+    },
+    "scope_traps": [],
+    "performance_note": "",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p5_q3",
+    "year": 2021,
+    "paper": 5,
+    "question": 3,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "To what extent is France's wine classification system a model for the rest of the world?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "If a question starts with the words 'To what extent...', or 'How important...'. we expect candidates to consider multiple options: A lot? A little? Not at all? - and to tell us why.",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Show accurate, reasonably detailed knowledge of French classification systems AND the approaches adopted by at least a few other countries",
+        "quote": "A pass required accurate and reasonably detailed knowledge of French classification systems and the approaches adopted by at least a few other countries; many answers fell short on one or the other, if not both.",
+        "weight": "core"
+      },
+      {
+        "element": "Clearly differentiate the national AOP/IGP/VdF system from regional quality hierarchies (e.g. Grand Cru/1er Cru)",
+        "quote": "Weaker answers often failed to differentiate sufficiently clearly the national AOP/IGP/VdF system from regional quality hierarchies (e.g. Grand Cru/1er Cru).",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse rather than merely describe the classification systems",
+        "quote": "The question also invited analysis rather than mere description; strong answers were insightful and persuasive, avoiding the waffle, tangents and unnecessary detail that plagued some of the less successful attempts.",
+        "weight": "core"
+      },
+      {
+        "element": "Answer whether the French system IS a model for the world (not whether it SHOULD be)",
+        "quote": "There was also a tendency to not answer the question. A few candidates discussed whether it should be a model for the world rather than whether it is.",
+        "weight": "core"
+      },
+      {
+        "element": "Give the question global scope rather than discussing only the French context",
+        "quote": "This question required global scope, but a few candidates only discussed it in the French context.",
+        "weight": "core"
+      },
+      {
+        "element": "Explore the disadvantages of the French system as well as its advantages",
+        "quote": "The best papers explored the disadvantages of the French system as well as the advantages.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Strong answers were insightful and persuasive, avoiding waffle, tangents and unnecessary detail",
+        "quote": "strong answers were insightful and persuasive, avoiding the waffle, tangents and unnecessary detail that plagued some of the less successful attempts."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Misspelling wines, winemakers and technical terms, detracting from the authority of the answer",
+        "quote": "As ever, there were many instances of wines, winemakers and technical terms being misspelt, which is always going to detract from the authority of an answer."
+      },
+      {
+        "signal": "A Diploma-like approach lacking the necessary analysis and rigour",
+        "quote": "The approach was frequently Diploma-like, lacking the necessary analysis and rigour."
+      },
+      {
+        "signal": "Gaps in knowledge apparent when drawing international comparison",
+        "quote": "Gaps in knowledge were frequently apparent, especially when drawing international comparison."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Detailed knowledge of the approaches of at least a few other countries besides France, applied with global scope rather than confined to the French context",
+      "named_in_report": [],
+      "quote": "A pass required accurate and reasonably detailed knowledge of French classification systems and the approaches adopted by at least a few other countries... This question required global scope, but a few candidates only discussed it in the French context."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing whether the French system SHOULD be a model for the world, rather than whether it IS",
+        "quote": "A few candidates discussed whether it should be a model for the world rather than whether it is."
+      },
+      {
+        "trap": "Confining the discussion to the French context only, missing the required global scope",
+        "quote": "This question required global scope, but a few candidates only discussed it in the French context."
+      }
+    ],
+    "performance_note": "This question elicited a surprisingly variable set of answers, from near-perfect to thoroughly muddled.",
+    "extraction_notes": ""
+  },
+  {
+    "id": "th_2021_p5_q4",
+    "year": 2021,
+    "paper": 5,
+    "question": 4,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "Can one wine ever be objectively better than another?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Can... ever be objectively better",
+    "command_word_demand": "This question required careful parsing to unpack it successfully... The core of the question revolved around establishing what objectivity means, and then whether it is really measurable.",
+    "definitions_required": [
+      {
+        "term": "objectively",
+        "quote": "Framing strong definitions of \"objectively\" and \"better\" was essential for steering a confident course through this subtle, abstract topic."
+      },
+      {
+        "term": "better",
+        "quote": "Framing strong definitions of \"objectively\" and \"better\" was essential for steering a confident course through this subtle, abstract topic."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Establish what objectivity means and whether it is really measurable",
+        "quote": "The core of the question revolved around establishing what objectivity means, and then whether it is really measurable.",
+        "weight": "core"
+      },
+      {
+        "element": "Frame strong definitions of 'objectively' and 'better' to steer a confident course through the topic",
+        "quote": "Framing strong definitions of \"objectively\" and \"better\" was essential for steering a confident course through this subtle, abstract topic. Good candidates appreciated and addressed this, while poorer answers missed the point.",
+        "weight": "core"
+      },
+      {
+        "element": "Adopt a taut, well-argued, examples-based approach rather than waffle",
+        "quote": "There was a danger of waffly answers; a taut, well argued, examples-based approach was a more successful way to tackle the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Include counterarguments",
+        "quote": "Weaker answers were often either self-contradictory or veered off on irrelevant tangents. Some were very short, and lacked counterarguments, maybe indicating time management issues.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Showing familiarity with the philosophical literature on the subject, e.g. referencing Hume's 'Of The Standard Of Taste'",
+        "quote": "The very best showed some familiarity with the philosophical literature, with one referencing arguably the central work on the subject, Hume's \"Of The Standard Of Taste\"."
+      },
+      {
+        "signal": "Successfully expanding on the 'BLIC' approach to quality assessment with telling analogies to fine art",
+        "quote": "Some candidates successfully expanded upon the \"BLIC\" approach to quality assessment with telling analogies to fine art."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Answers that were self-contradictory or veered off on irrelevant tangents",
+        "quote": "Weaker answers were often either self-contradictory or veered off on irrelevant tangents."
+      },
+      {
+        "signal": "Very short answers lacking counterarguments, possibly indicating time management issues",
+        "quote": "Some were very short, and lacked counterarguments, maybe indicating time management issues."
+      },
+      {
+        "signal": "Missing the point of the definitional framing required by the question",
+        "quote": "Good candidates appreciated and addressed this, while poorer answers missed the point."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "A taut, well-argued, examples-based approach was more successful than waffle; the report does not specify example precision beyond this",
+      "named_in_report": [
+        "Hume's \"Of The Standard Of Taste\"",
+        "\"BLIC\" approach to quality assessment"
+      ],
+      "quote": "There was a danger of waffly answers; a taut, well argued, examples-based approach was a more successful way to tackle the question."
+    },
+    "scope_traps": [],
+    "performance_note": "This was a great question and there was a good range of differently argued positions taken... Given the challenges hidden beneath the question's surface appeal, there was a pleasing number of excellent answers.",
+    "extraction_notes": "named_in_report entries here (Hume's essay, the BLIC approach) are literature/frameworks the report praises rather than wine/region examples in the usual sense; included because the report explicitly names them as marks of the best answers."
+  },
+  {
+    "id": "th_2021_p5_q5",
+    "year": 2021,
+    "paper": 5,
+    "question": 5,
+    "domain": "contemporary_issues",
+    "section": "B",
+    "question_text": "How relevant is tradition to 21st century wine consumers?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "How relevant",
+    "command_word_demand": "This question is very broad in scope with many possible approaches and conclusions. The question may look benign, but it is difficult to tackle and needs to be properly thought through before starting to write.",
+    "definitions_required": [
+      {
+        "term": "tradition",
+        "quote": "It was imperative to define 'tradition' and interesting to discuss when innovation becomes tradition and vice versa."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Define 'tradition'",
+        "quote": "It was imperative to define 'tradition' and interesting to discuss when innovation becomes tradition and vice versa.",
+        "weight": "core"
+      },
+      {
+        "element": "Analyse 21st century consumers specifically, to evaluate to what extent tradition matters to them and why",
+        "quote": "21st century consumers needed analysing to evaluate to what extent tradition matters to them and why.",
+        "weight": "core"
+      },
+      {
+        "element": "Keep the focus on the consumer, not on tradition in the abstract",
+        "quote": "A few papers failed to focus on the consumer and therefore did not answer the question.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss when innovation becomes tradition and vice versa",
+        "quote": "interesting to discuss when innovation becomes tradition and vice versa.",
+        "weight": "differentiator"
+      },
+      {
+        "element": "Build a clear structure that leads logically to a sound and definite conclusion",
+        "quote": "The best answers were focused and precise, with good examples, and had a clear structure that led logically to a sound and definite conclusion.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "The best answers were focused and precise, with good examples, and had a clear structure that led logically to a sound and definite conclusion",
+        "quote": "The best answers were focused and precise, with good examples, and had a clear structure that led logically to a sound and definite conclusion."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Answers were either too generic or too narrow",
+        "quote": "Many answers were either too generic or too narrow."
+      },
+      {
+        "signal": "Papers tended to waffle, including sweeping, unsubstantiated statements",
+        "quote": "Many papers tended to waffle, including sweeping, unsubstantiated statements."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "Not further specified beyond 'good examples' as a mark of the best answers",
+      "named_in_report": [],
+      "quote": "The best answers were focused and precise, with good examples, and had a clear structure that led logically to a sound and definite conclusion."
+    },
+    "scope_traps": [
+      {
+        "trap": "Discussing tradition in general without tying the analysis back to the consumer",
+        "quote": "A few papers failed to focus on the consumer and therefore did not answer the question."
+      }
+    ],
+    "performance_note": "",
+    "extraction_notes": "The report's own restatement of the question reads 'How relevant is tradition to 21st century consumers?' (word 'wine' omitted before 'consumers'; match_score 0.927 against the corpus question_text, which reads '...21st century wine consumers?'). Extracted against the corpus wording per the segmenter's authority rule; the discrepancy is a retyping omission, not a different question."
+  }
+]

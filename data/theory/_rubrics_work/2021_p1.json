@@ -1,0 +1,399 @@
+[
+  {
+    "id": "th_2021_p1_q1",
+    "year": 2021,
+    "paper": 1,
+    "question": 1,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Evaluate the principal factors to consider when establishing a vineyard in a marginal climate.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Evaluate",
+    "command_word_demand": "Answers needed to be focused on issues directly related to the challenges of a marginal climate, not a general vineyard-planting essay: \"Answers needed to be focused on issues directly related to the challenges of a marginal climate. Many papers answered the more general question: 'What are the key considerations in planting a vineyard?' with insufficient emphasis on the demands of the climate.\"",
+    "definitions_required": [
+      {
+        "term": "marginal climate",
+        "quote": "A clear understanding of 'marginal climate' was needed. The question was not about extreme climates, nor difficult climates (e.g. a climate requiring irrigation)."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Focus on issues directly tied to the challenges of a marginal climate, not a generic vineyard-establishment answer",
+        "quote": "Answers needed to be focused on issues directly related to the challenges of a marginal climate. Many papers answered the more general question: 'What are the key considerations in planting a vineyard?' with insufficient emphasis on the demands of the climate.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss weather, slope, altitude and soil",
+        "quote": "Passing answers discussed not only issues of weather, slope, altitude and soil, but also more strategic issues such as the variety and purpose of the vineyard...",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss strategic issues such as variety and purpose of the vineyard, use of quantitative analytical tools (soil fertility, water needs), and economic aspects (labour, mechanisation, and whether economic risk is justified by the wine style)",
+        "quote": "...but also more strategic issues such as the variety and purpose of the vineyard, the ability to use quantitative analytical tools regarding soil fertility, water needs etc., along with economic aspects such as labour and mechanisation, and whether the economic risks involved would be justified by the type of wine to be made from the vineyard.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Answering the more general question of vineyard planting considerations instead of marginal-climate-specific challenges",
+        "quote": "Many papers answered the more general question: 'What are the key considerations in planting a vineyard?' with insufficient emphasis on the demands of the climate."
+      },
+      {
+        "signal": "Over-focusing on climate change rather than the marginal-climate challenge itself",
+        "quote": "Likewise, many papers focused strongly on climate change. While this would be relevant in considering the ongoing viability of a site, it was not the main thrust of the question."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Reading 'marginal climate' as any extreme or difficult climate (e.g. one requiring irrigation), rather than specifically marginal",
+        "quote": "The question was not about extreme climates, nor difficult climates (e.g. a climate requiring irrigation)."
+      },
+      {
+        "trap": "Treating the question as primarily about climate change",
+        "quote": "Likewise, many papers focused strongly on climate change. While this would be relevant in considering the ongoing viability of a site, it was not the main thrust of the question."
+      }
+    ],
+    "performance_note": "This question caused problems for some, although over a third of candidates who attempted it achieved a pass.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed."
+  },
+  {
+    "id": "th_2021_p1_q2",
+    "year": 2021,
+    "paper": 1,
+    "question": 2,
+    "domain": "viticulture",
+    "section": "A",
+    "question_text": "Discuss the major factors that impact the timing of harvest in a vineyard.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "moderate",
+    "command_word": "Discuss",
+    "command_word_demand": "The broad nature of this question required candidates to focus on the major factors, considering various different types of grapes and styles of wine: \"The broad nature of this question required candidates to focus on the major factors, considering various different types of grapes and styles of wine.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Address different standards defining ripeness and fruit maturity",
+        "quote": "Good answers addressed the different standards defining ripeness and fruit maturity, what style wine was being made, the weather conditions, availability of labour or machinery, whether there was disease pressure or rain/frost potential, and finally essential logistical aspects such as sufficient fermentation and storage space.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the style of wine being made, weather conditions, disease pressure/rain/frost potential, and logistics such as fermentation and storage space",
+        "quote": "Good answers addressed the different standards defining ripeness and fruit maturity, what style wine was being made, the weather conditions, availability of labour or machinery, whether there was disease pressure or rain/frost potential, and finally essential logistical aspects such as sufficient fermentation and storage space.",
+        "weight": "core"
+      },
+      {
+        "element": "Support discussion with a wide range of specific examples, not superficial recitation of facts",
+        "quote": "A wide range of specific examples supporting the discussion was rewarded. Given that the question addresses a subject that should be familiar to all candidates, papers that showed a superficial recitation of facts and/or few concrete examples did not score well.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Using a wide range of specific examples to support the discussion",
+        "quote": "A wide range of specific examples supporting the discussion was rewarded."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Superficial recitation of facts and/or few concrete examples",
+        "quote": "papers that showed a superficial recitation of facts and/or few concrete examples did not score well."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "A wide range of specific examples supporting the discussion was rewarded."
+    },
+    "scope_traps": [],
+    "performance_note": "This was an uncomplicated question and indeed the pass rate was fairly high, but there were fewer outstanding papers than anticipated.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed."
+  },
+  {
+    "id": "th_2021_p1_q3",
+    "year": 2021,
+    "paper": 1,
+    "question": 3,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "What is the importance of soil pH in viticulture? How can vine growers influence soil pH to obtain quality grapes for winemaking?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "What is / How can",
+    "command_word_demand": "Both parts of the two-part question needed to be addressed: \"Both parts of the question needed to be addressed.\"",
+    "definitions_required": [
+      {
+        "term": "pH",
+        "quote": "The first required an accurate definition of pH, the differences in soil make up for acidic or alkaline soils, and discussion of how soil pH can affect the biology and growth of vines."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Both parts of the question needed to be addressed (importance of soil pH, and how growers can influence it)",
+        "quote": "Both parts of the question needed to be addressed.",
+        "weight": "core"
+      },
+      {
+        "element": "Accurate definition of pH; differences in soil make-up for acidic vs alkaline soils; discussion of how soil pH affects vine biology and growth",
+        "quote": "The first required an accurate definition of pH, the differences in soil make up for acidic or alkaline soils, and discussion of how soil pH can affect the biology and growth of vines.",
+        "weight": "core"
+      },
+      {
+        "element": "Discussion of viticultural inputs that can influence soil pH to produce the grape quality required for the wine style",
+        "quote": "The second part of the question required discussion of viticultural inputs that can influence the pH of soil to produce the required grape quality for the style of wine being made.",
+        "weight": "core"
+      },
+      {
+        "element": "Recognize quality grapes can be grown across a general soil pH range (5.5-8.0), and that pH is affected by geology, climate, organic matter, water and mineral leaching, and time",
+        "quote": "Good papers recognized that quality grapes can be grown in soils with pH levels within the general range of 5.5-8.0, but also that pH is affected by geology, climate, organic matter, water and mineral leaching, and time.",
+        "weight": "differentiator"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Providing relevant examples of how pH may be raised or lowered to counter nutrient deficiencies, improve water availability, and alleviate leaching",
+        "quote": "Good papers provided relevant examples that illustrated how pH may be raised or lowered to counter nutrient deficiencies, improve water availability and alleviate leaching."
+      },
+      {
+        "signal": "Discussing use of technical analyses (petiole analysis, Cation Exchange Capacity monitors) to diagnose problems accurately and in a timely manner",
+        "quote": "Passing essays also discussed use of technical analyses (petiole analysis, Cation Exchange Capacity monitors) to pinpoint problems in a timely and accurate manner to achieve the best results."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Spending too much time on the role of rootstocks, which cannot themselves change soil pH",
+        "quote": "Less successful papers often spent too much time on the role of rootstocks. The question was not about rootstocks; they may be part solution to a particular pH level, but they cannot change it."
+      }
+    ],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": "Good papers provided relevant examples that illustrated how pH may be raised or lowered to counter nutrient deficiencies, improve water availability and alleviate leaching."
+    },
+    "scope_traps": [
+      {
+        "trap": "Treating the question as being about rootstocks",
+        "quote": "The question was not about rootstocks; they may be part solution to a particular pH level, but they cannot change it."
+      }
+    ],
+    "performance_note": "This question required familiarity with basic chemistry and up-to-date viticultural practices. It was one of the least popular questions but nearly half of those who chose to answer it passed.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed. The commentary segment begins mid-sentence ('is the importance of soil pH...') due to a page break in the source render; question text itself is taken verbatim from the corpus."
+  },
+  {
+    "id": "th_2021_p1_q4",
+    "year": 2021,
+    "paper": 1,
+    "question": 4,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Discuss the current role and potential future use of hybrids in viticulture.",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Discuss",
+    "command_word_demand": "It was important to discuss why some people (especially in certain regions) are very enthusiastic for hybrids' future, while others hold opposing views: \"It was important to discuss why some people (especially in certain regions) are very enthusiastic for their future, while others hold opposing views.\"",
+    "definitions_required": [
+      {
+        "term": "hybrids",
+        "quote": "Several papers did not correctly define hybrids."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Correctly define hybrids",
+        "quote": "Several papers did not correctly define hybrids.",
+        "weight": "core"
+      },
+      {
+        "element": "Factual accuracy about specific varieties (e.g. Lambrusco, Labrusca, Marechal Foch, Tinta Negra Mole)",
+        "quote": "Factual accuracy was important for this question and often lacking. Lambrusco is not a hybrid; Labrusca is a native American species. Marechal Foch is not a white grape. Tinta Negra Mole is Vitis vinifera. Examiners could not excuse these basic errors.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss why some people/regions are enthusiastic for hybrids' future while others hold opposing views",
+        "quote": "It was important to discuss why some people (especially in certain regions) are very enthusiastic for their future, while others hold opposing views.",
+        "weight": "core"
+      },
+      {
+        "element": "Address the development of hybrids and the case for their adoption going forward relative to climate change and diseases (e.g. Pierce's disease)",
+        "quote": "It was important to address the development of hybrids and to discuss the case for their adoption going forward relative to climate change and diseases (e.g. Pierce's disease).",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Knowledge of new hybrids and their development at Geisenheim and UC Davis, and their role in developing wine growing in Scandinavia and Poland",
+        "quote": "Good papers showed knowledge of new hybrids and their development at Geisenheim and UC Davis among others, and how they have been instrumental in recent years for developing wine growing in Scandinavia and Poland."
+      },
+      {
+        "signal": "Raising economic perspective and the role of legal regulations",
+        "quote": "The better papers raised considerations such as the economic perspective and the role of legal regulations."
+      }
+    ],
+    "penalty_signals": [
+      {
+        "signal": "Factual errors about hybrids that examiners could not excuse",
+        "quote": "Factual accuracy was important for this question and often lacking. Lambrusco is not a hybrid; Labrusca is a native American species. Marechal Foch is not a white grape. Tinta Negra Mole is Vitis vinifera. Examiners could not excuse these basic errors."
+      },
+      {
+        "signal": "Failing to consider hybrids' role as rootstocks",
+        "quote": "Some papers failed to consider hybrids' role as rootstocks."
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [
+        "Geisenheim",
+        "UC Davis",
+        "Scandinavia",
+        "Poland"
+      ],
+      "quote": "Good papers showed knowledge of new hybrids and their development at Geisenheim and UC Davis among others, and how they have been instrumental in recent years for developing wine growing in Scandinavia and Poland."
+    },
+    "scope_traps": [],
+    "performance_note": "This question required reasonably in-depth knowledge about what hybrids are and how they are used.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed."
+  },
+  {
+    "id": "th_2021_p1_q5",
+    "year": 2021,
+    "paper": 1,
+    "question": 5,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "To what extent can wineries control the quality of the grapes they purchase?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "To what extent",
+    "command_word_demand": "The question required an answer from the winery-purchasing perspective, not the grower's perspective: \"The question required an answer not from a grower's perspective, but from that of a winery purchasing grapes.\"",
+    "definitions_required": [],
+    "required_elements": [
+      {
+        "element": "Answer from the perspective of a winery purchasing grapes, not from a grower's perspective",
+        "quote": "The question required an answer not from a grower's perspective, but from that of a winery purchasing grapes.",
+        "weight": "core"
+      },
+      {
+        "element": "Discuss wineries having an active role in advising/guiding growers about quality expectations, offering technical knowledge/assistance and advance warning of weather hazards",
+        "quote": "A passing paper needed to include discussion of wineries having an active role in advising/guiding growers they purchase from about their quality expectations. Producers can offer strong technical knowledge and assistance, as well as advance warning of weather hazards.",
+        "weight": "core"
+      },
+      {
+        "element": "Link the viticultural side to economic, logistical, and political aspects (contracts with quality parameters and pricing adjustments, honesty between grower and producer, fair labour relations/pay for harvesters, machinery and tank space availability)",
+        "quote": "But equally important, the paper had to link the viticultural side to economic, logistical, and perhaps even political aspects. These included: strong contracts spelling out quality parameters, pricing, adjustments for higher or lower quality fruit, honesty between grower and producer about what quality/style/wine type is expected, fair labour relations and pay for harvesters, availability of machinery and tank space at reception.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [],
+    "penalty_signals": [
+      {
+        "signal": "Misreading the question as being about how wineries/growers grow good grapes, i.e. answering from the grower's perspective",
+        "quote": "There were no trick words here, but several candidates appeared to have understood the question to be, 'How do wineries grow good grapes'?"
+      }
+    ],
+    "examples_expected": {
+      "required": false,
+      "specificity": "",
+      "named_in_report": [],
+      "quote": ""
+    },
+    "scope_traps": [
+      {
+        "trap": "Understanding the question as 'How do wineries grow good grapes?' (a grower's-perspective question) rather than addressing purchasing control from the winery's side",
+        "quote": "There were no trick words here, but several candidates appeared to have understood the question to be, 'How do wineries grow good grapes'? The question required an answer not from a grower's perspective, but from that of a winery purchasing grapes."
+      }
+    ],
+    "performance_note": "This question was less well answered than expected.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed."
+  },
+  {
+    "id": "th_2021_p1_q6",
+    "year": 2021,
+    "paper": 1,
+    "question": 6,
+    "domain": "viticulture",
+    "section": "B",
+    "question_text": "Is there an ideal terroir for the production of sparkling wines?",
+    "source_report": "2021_theory_report.txt",
+    "text_source": "transcribed_render",
+    "coverage": "full",
+    "evidence_quality": "rich",
+    "command_word": "Is there... (evaluative/opinion question)",
+    "command_word_demand": "There were multiple ways to answer with no fixed right answer, but it required lateral thinking and consideration of the proposition across styles from Champagne to Pet-Nat and Prosecco, viewed with a wide lens: \"There were multiple ways to answer the question (and no fixed right answer), but it required lateral thinking and the ability to consider the proposition for everything from Champagne to Pet-Nat and Prosecco. A good paper needed to look at sparkling wines and terroir with a wide lens.\"",
+    "definitions_required": [
+      {
+        "term": "terroir",
+        "quote": "Terroir needed to be defined."
+      }
+    ],
+    "required_elements": [
+      {
+        "element": "Look at sparkling wines and terroir with a wide lens, considering the proposition across styles from Champagne to Pet-Nat and Prosecco",
+        "quote": "There were multiple ways to answer the question (and no fixed right answer), but it required lateral thinking and the ability to consider the proposition for everything from Champagne to Pet-Nat and Prosecco. A good paper needed to look at sparkling wines and terroir with a wide lens.",
+        "weight": "core"
+      },
+      {
+        "element": "Define terroir",
+        "quote": "Terroir needed to be defined.",
+        "weight": "core"
+      },
+      {
+        "element": "Address human/traditional elements of production, since sparkling wines are 'manufactured' wines",
+        "quote": "Since sparkling wines are 'manufactured' wines, it was relevant to address the human/traditional elements of production.",
+        "weight": "core"
+      },
+      {
+        "element": "Cover a wide scope with pertinent examples, whichever position is argued",
+        "quote": "As long as a wide scope was covered and pertinent examples offered, a solid pass was achievable.",
+        "weight": "core"
+      }
+    ],
+    "credit_signals": [
+      {
+        "signal": "Pointing out physical aspects (geology, drainage, cool climate, altitude) that contribute to making good sparkling wines, and noting the importance of human input (variety selection, farming techniques, appropriate yield)",
+        "quote": "Good papers pointed out the physical aspects of geology, drainage, cool climate, altitude and other factors that contribute to making good sparkling wines. They also noted the importance of human input, selecting suitable grape varieties, farming techniques and appropriate yield for the wine style desired."
+      },
+      {
+        "signal": "Arguing that Champagne is the ideal terroir, if well-argued with due respect to alternative places",
+        "quote": "Some candidates took the position that Champagne is the ideal terroir and were successful as long as this was well argued and the issues were considered with due respect to alternative places."
+      },
+      {
+        "signal": "Arguing that there is no ideal terroir because sparkling wines are 'manufactured wines', with method trumping site",
+        "quote": "Others argued successfully that there is no ideal terroir because sparkling wines are 'manufactured wines', with method trumping site."
+      }
+    ],
+    "penalty_signals": [],
+    "examples_expected": {
+      "required": true,
+      "specificity": "",
+      "named_in_report": [
+        "Champagne",
+        "Pet-Nat",
+        "Prosecco",
+        "Asti Spumante"
+      ],
+      "quote": "As long as a wide scope was covered and pertinent examples offered, a solid pass was achievable."
+    },
+    "scope_traps": [],
+    "performance_note": "This thought-provoking question was designed to elicit opinion as well as cover the essential facts.",
+    "extraction_notes": "Text sourced from a transcribed image-render report (2021 PDF has no text layer); quoted verbatim as transcribed."
+  }
+]
