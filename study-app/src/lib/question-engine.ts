@@ -1574,10 +1574,29 @@ function validateGenerationConsistency(
   return { valid: violations.length === 0, violations };
 }
 
-const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|champagne\s*(brut|nv|vintage|rose)|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
+// Appellations where a BLEND is the norm, so a "single grape variety" stem must not use them.
+//
+// Two fixes and four additions, all grounded in the corpus (148 multi-variety wines; this list
+// previously missed 98 of them):
+//   • `champagne` no longer requires a brut/nv/vintage/rose qualifier — bare "Champagne AOC" is how
+//     12 corpus wines are written and none of them matched.
+//   • porto / bare `port` added: the list had vintage/tawny/ruby port but not the plain form (8 wines).
+//   • rioja (13 wines), tokaji (2), cotes de provence (2) added — blends by convention.
+// Deliberately NOT added: Madeira (varietal Sercial/Verdelho/Bual/Malmsey are single-grape by
+// definition), Stellenbosch and IGT Toscana (regions producing both), Chianti Classico (can be 100%
+// Sangiovese). Listing those would reject correct single-variety flights.
+//
+// NOTE: duplicated verbatim in question-rules.mjs. Change both or they drift.
+const KNOWN_BLEND_INDICATORS = /\b(tawny\s*(port|\d+\s*year)|ruby\s*port|lbv|vintage\s*port|porto|port\s*(doc|dop)|champagne|cremant|cava|franciacorta|prosecco|chateauneuf|cdp|gigondas|vacqueyras|bordeaux|medoc|haut-medoc|pauillac|margaux|saint-julien|saint-estephe|saint-emilion|pomerol|pessac|graves|cotes\s*du\s*rhone|cotes\s*de\s*provence|rioja|tokaji|gsm|meritage|ripasso|amarone|valpolicella)\b/i;
 
 function isLikelyBlend(fullText: string): boolean {
-  const text = fullText.toLowerCase();
+  // Strip diacritics first. The pattern is ASCII but the labels are not — "Châteauneuf-du-Pape AOC"
+  // never matched `chateauneuf`, so 5 corpus blends slipped through. Same bug class as the benchmark
+  // appellations (matchesBenchmarkAppellation).
+  const text = fullText
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
   if (KNOWN_BLEND_INDICATORS.test(text)) return true;
   const variety = detectPrimaryVariety(fullText);
   if (variety.includes("blend")) return true;
