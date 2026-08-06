@@ -110,6 +110,7 @@ import {
   supportsAdaptiveThinking,
   type ProgressEmitter,
 } from "@/lib/thinking-stream";
+import { reasonsByDefault } from "@/lib/model-capabilities";
 
 // Usage-tracking context threaded from the request through the background helpers so
 // each Claude call is attributed to the right source (server key = we pay) and user.
@@ -662,6 +663,26 @@ const GENERATION_EFFORT = "medium";
  *     when streaming, on its own when not — and never by spread-order accident. Both are gated on the
  *     same capability list, because `output_config.effort` is a 400 on models that don't take it.
  */
+/**
+ * Whether a generation call may REQUEST visible thinking for this model.
+ *
+ * supportsAdaptiveThinking is the wrong gate here: it also matches Opus 4.6 / Sonnet 4.6, which
+ * reason ONLY when asked — and asking is what caused the 2026-08-05/06 incident. On this prompt,
+ * Sonnet 4.6 with the thinking request would sometimes spiral: the entire 16,000-token output
+ * budget spent on thinking, zero text, ~280s per call (11 generation_attempts rows, every one
+ * `stop_reason=max_tokens blocks=[thinking]`). One such call outlived the whole generation budget,
+ * so the user saw a 5-minute wait ending in a timeout instead of a question.
+ *
+ * On a model that reasons by default the request is free — it only makes visible what is already
+ * happening. On a request-only reasoner it CHANGES the model's behaviour, and the observed change
+ * is a spiral risk with no measured quality gain (Sonnet averages ~950 output tokens on this
+ * prompt without it). So: ask only where asking is display-only. The study page still gets status
+ * events either way, and GENERATION_EFFORT is still applied below via output_config.
+ */
+export function generationThinkingEligible(model: string): boolean {
+  return reasonsByDefault(model);
+}
+
 async function callGenerationModel(
   client: Anthropic,
   model: string,
@@ -670,11 +691,15 @@ async function callGenerationModel(
   emit?: ProgressEmitter,
   userId?: number | null
 ) {
-  // `{}` when the model can't take adaptive thinking, when an admin has switched reasoning off, or
-  // when THIS user's reasoning default is off (their onboarding cost choice — those thinking tokens
-  // bill to their own key). Note this governs only whether the reasoning is VISIBLE; it does not
-  // control whether it happens. When it does return params it carries GENERATION_EFFORT with them.
-  const extra = emit ? await resolveThinking(model, GENERATION_EFFORT, userId) : {};
+  // `{}` when the model reasons only on request (see generationThinkingEligible), when the model
+  // can't take adaptive thinking at all, when an admin has switched reasoning off, or when THIS
+  // user's reasoning default is off (their onboarding cost choice — those thinking tokens bill to
+  // their own key). On a default reasoner this governs only whether the reasoning is VISIBLE; it
+  // does not control whether it happens. When it does return params it carries GENERATION_EFFORT.
+  const extra =
+    emit && generationThinkingEligible(model)
+      ? await resolveThinking(model, GENERATION_EFFORT, userId)
+      : {};
   // Effort has to be applied whether or not the reasoning is VISIBLE, so this cannot key on `emit`:
   // resolveThinking returns `{}` when the admin reasoning toggle is off, and without this the
   // streaming path would silently fall back to the API default (`high`) — a measured 164s call — the

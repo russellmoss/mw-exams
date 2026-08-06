@@ -23,3 +23,20 @@
 export function supportsAdaptiveThinking(model: string): boolean {
   return /^claude-(opus-(4-6|4-7|4-8|5)|sonnet-(4-6|5)|fable-5|mythos-5)\b/.test(model);
 }
+
+/**
+ * Models that reason BY DEFAULT — a strict subset of supportsAdaptiveThinking, which also matches
+ * Opus 4.6 / Sonnet 4.6, models that reason only when a request asks them to.
+ *
+ * The distinction is behavioural, not cosmetic. On a default reasoner, requesting the summarized
+ * display only makes visible what the model was already going to do; the tokens were being spent
+ * either way. On a request-only reasoner the same request CHANGES what the model does — and on the
+ * generation prompt Sonnet 4.6 sometimes answered that request with a thinking spiral, consuming
+ * the entire 16,000-token output budget with zero text (11 generation_attempts rows on
+ * 2026-08-05/06: ~280s each, stop_reason=max_tokens, blocks=[thinking]). Callers deciding whether
+ * to ASK for thinking should gate on this predicate; callers sizing max_tokens should keep using
+ * supportsAdaptiveThinking, where over-matching is the safe direction.
+ */
+export function reasonsByDefault(model: string): boolean {
+  return /^claude-(opus-(4-7|4-8|5)|sonnet-5|fable-5|mythos-5)\b/.test(model);
+}
