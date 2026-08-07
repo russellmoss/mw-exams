@@ -11,6 +11,7 @@ import {
   applyAnswerContentRules,
   answerBody,
   mentionedWineSlots,
+  stemWineNumberOffset,
 } from "../src/lib/answer-content-rules.mjs";
 import { validateQuestion } from "../src/lib/question-validator";
 
@@ -118,6 +119,72 @@ describe("AC2 — wine coverage (the tail-truncation signature)", () => {
       .replace(/for both wines in this flight/, "for this flight");
     const v = applyAnswerContentRules({ questionText: STEM, answerText: truncated, wines: PINOT_FLIGHT });
     expect(v.some((x) => x.rule === "answer-missing-wine" && x.severity === "hard")).toBe(true);
+  });
+
+  // 2026-08-07: a paper's fourth flight is stemmed "Wines 9 to 12", its key holds slots 1-4, and the
+  // answer follows the stem — so slot-based coverage read three complete Live Tasting answers as
+  // having lost every wine. The stem's own numbering is the reference frame.
+  describe("stem-numbered flights (paper position, not slot 1)", () => {
+    it.each([
+      ["Wines 9 to 12 are from the same region of origin.", 4, 8],
+      ["Wines 5-6 are labelled as different single grape varieties.", 2, 4],
+      ["Wines 5-6, 7-8, 9-10 and 11-12 are pairs.", 8, 4],
+      // Mark notation lands in the same position as a wine number once punctuation is flattened
+      // ("…shaped each wine. (4 x 7 marks)" -> "wine 4 x 7 marks") and must not join the window.
+      [
+        "Wines 9 to 12 are from the same region of origin.\n\nFor each wine:\na) Identify the grape variety. (4 x 8 marks)\nc) Comment on the decisions that have shaped each wine. (4 x 7 marks)",
+        4,
+        8,
+      ],
+      // No shift to recover: 1-based stems, and windows that don't match the flight size.
+      ["Wines 1 to 4 are all made from the same single grape variety.", 4, 0],
+      ["Wines 9 to 12 are from the same region of origin.", 3, 0],
+      ["Wines 1 and 2 are from the same region. Both wines have residual sugar.", 2, 0],
+      ["For each wine: identify the origin.", 4, 0],
+    ])("%s (%i wines) -> offset %i", (stem, wineCount, expected) => {
+      expect(stemWineNumberOffset(stem, wineCount)).toBe(expected);
+    });
+
+    const RIOJA_LADDER: Wine[] = [1, 2, 3, 4].map((slot) => ({
+      slot,
+      varieties: ["tempranillo"],
+      region: "Rioja",
+      country: "Spain",
+    }));
+    const LADDER_STEM =
+      "Wines 9 to 12 are from the same region of origin and are presented at different quality and price levels.\n\nFor each wine:\na) Identify the grape variety and origin as closely as possible. (4 x 8 marks)";
+    // Prose modelled on gen_p2_F7_1786105820437, one of the three flights this quarantined.
+    const ladderAnswer = (labels: number[]) =>
+      `## a) Grape variety and origin\n\nAll four are Tempranillo-dominant reds from Rioja, Spain, sharing a red-fruited cherry core, dusty tannin and medium-plus acidity. Sangiovese was considered on the sour-cherry register and rejected on tannin texture.\n\n` +
+      labels
+        .map(
+          (n) =>
+            `**Wine ${n}** — Rioja Tempranillo, ${"ruby with cedar, red cherry and American-oak coconut, medium tannin, long finish. ".repeat(
+              4
+            )}`
+        )
+        .join("\n\n");
+
+    it("does not flag an answer that uses the stem's numbering throughout", () => {
+      const v = applyAnswerContentRules({
+        questionText: LADDER_STEM,
+        answerText: ladderAnswer([9, 10, 11, 12]),
+        wines: RIOJA_LADDER,
+      });
+      expect(v.filter((x) => x.rule.startsWith("answer-missing-wine"))).toEqual([]);
+    });
+
+    it("still catches a truncated tail under the stem's numbering", () => {
+      const v = applyAnswerContentRules({
+        questionText: LADDER_STEM,
+        answerText: ladderAnswer([9, 10, 11]),
+        wines: RIOJA_LADDER,
+      });
+      const hit = v.find((x) => x.rule === "answer-missing-wine");
+      expect(hit?.severity).toBe("hard");
+      // Reported in the numbering the reader sees in the stem, with the slot for the key.
+      expect(hit?.detail).toContain("Wine 12 (slot 4)");
+    });
   });
 
   it("soft-flags (only) a thematic answer with no wine numbers at all", () => {
