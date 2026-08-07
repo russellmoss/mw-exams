@@ -205,8 +205,11 @@ export async function generateNextFlight(opts: {
         return m ? m[1].replace(/ /g, "_") : "";
       })
       .filter(Boolean);
+    // Real P3 papers always mix STILL wines with the special categories, so the last flight is
+    // forced still (dry or sweet) when no still flight exists yet; otherwise just avoid repeats.
     const isLastFlight = children.length === composition.length - 1;
-    if (isLastFlight && !usedCats.includes("still_sweet")) p3RequireCategory = "still_sweet";
+    const hasStill = usedCats.some((c) => c === "still_sweet" || c === "still_dry");
+    if (isLastFlight && !hasStill) p3RequireCategory = Math.random() < 0.5 ? "still_dry" : "still_sweet";
     else p3ExcludeCategories = usedCats;
   }
 

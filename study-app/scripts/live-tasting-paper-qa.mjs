@@ -198,13 +198,26 @@ async function main() {
     }
   }
   const genText = flights.map((f) => `Q${f.paper_position}: ${f.question_text}`).join("\n\n");
+  // The system block + the four real papers are IDENTICAL across every run of a given paper, and
+  // the loop harness fires dozens — so they are cached (5-minute TTL refreshed on each hit). Only
+  // the generated paper varies, and it goes in the uncached user turn.
   const judgeRaw = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 800,
-    system: `You are a Master of Wine examiner auditing a GENERATED practice paper against real IMW papers. This generated paper is HALF-SIZE (6 wines instead of 12) by design — judge proportional realism, not total length.
+    system: [
+      {
+        type: "text",
+        cache_control: { type: "ephemeral" },
+        text: `You are a Master of Wine examiner auditing a GENERATED practice paper against real IMW papers. This generated paper is HALF-SIZE (6 wines instead of 12) by design — judge proportional realism, not total length. It therefore totals 150 marks at exactly the real rate of 25 marks per wine (real papers: 300 marks / 12 wines). Do NOT flag the paper's total or per-question totals for not matching a full paper's 300 — that is the intended halving, not a defect.
+MEASURED FACTS about the real corpus (do not contradict these from memory): per-wine mark values that occur include 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 20 and 25 — never claim one of these is unattested; single-aspect per-wine tasks DO reach 14-20 marks (2026 Q1a 'Identify the origin' 3 x 20; 2026 Q2b 'Comment on the methods of production' 4 x 14); pooled identification runs 4-8 marks per wine. Judge STRUCTURE and phrasing, and flag a mark value only when it breaks one of these measured patterns.
 THE PROVIDED REAL PAPERS ARE THE ONLY AUTHORITY on conventions. Do not assert any convention from memory: before flagging anything as inauthentic, verify the provided real papers actually follow the convention you are enforcing, and name the real question that demonstrates it in your notes. If a feature of the generated paper ALSO appears in a provided real paper (e.g. multiplier mark notation "(4 x 13 marks)", combined "quality and commercial potential" tasks, per-wine-only questions, pooled+per-wine mixes), it is authentic by definition and must not be flagged. Answer one JSON object only:
-{"stem_style_authentic": true/false, "question_mix_realistic": true/false, "mark_structures_authentic": true/false, "would_pass_as_real": true/false, "notes": "one sentence per false, each citing the real question that proves the violated convention"}`,
-    messages: [{ role: "user", content: `GENERATED (half) PAPER ${paperNo}:\n${genText}\n\n${realPapers.join("\n\n")}` }],
+{"stem_style_authentic": true/false, "question_mix_realistic": true/false, "mark_structures_authentic": true/false, "would_pass_as_real": true/false, "notes": "one sentence per false, each citing the real question that proves the violated convention"}
+
+THE REAL PAPERS (your only authority):
+${realPapers.join("\n\n")}`,
+      },
+    ],
+    messages: [{ role: "user", content: `GENERATED (half) PAPER ${paperNo}:\n${genText}` }],
   });
   const judgeText = judgeRaw.content.filter((b) => b.type === "text").map((b) => b.text).join("");
   try {

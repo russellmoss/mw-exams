@@ -51,7 +51,14 @@ import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targe
 import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import { auditAndQuarantineQuestion } from "@/lib/question-audit";
-import { validatePinnedFlight, validateBlindSafety, validateMarkRealism } from "@/lib/live-tasting-validators";
+import {
+  validatePinnedFlight,
+  validateBlindSafety,
+  validateMarkRealism,
+  validateSharedAttributePooling,
+  validateScaffoldNovelty,
+} from "@/lib/live-tasting-validators";
+import { validateMarkBudget } from "@/lib/question-validator";
 
 /**
  * Stem/mark conventions for pinned (Live Tasting) generation, quoted from the REAL corpus in
@@ -63,19 +70,24 @@ import { validatePinnedFlight, validateBlindSafety, validateMarkRealism } from "
  * papers routinely invert (2024 P1 Q2: variety+origin 6 marks, style/quality/commercial 12;
  * 2024 P2 Q3: origin 5 marks, climate/winemaking 15).
  */
-function realPaperConventions(paper: number): string {
+function realPaperConventions(paper: number, wines = 3): string {
+  const idLow = 4 * wines;
+  const idHigh = 8 * wines;
   const shared = [
     'Section headers organize the sub-questions: "For each wine:", "With reference to all N wines:", "For each pair:", "Then for each wine:".',
     'Per-wine sub-questions use multiplier notation with EQUAL marks per wine: "(3 x 10 marks)". NEVER jagged per-wine totals (no 13/11/13).',
     "Vary marks BETWEEN sub-parts, never between wines.",
     "Identification must COVER both grape variety and origin — either bundled in one sub-question (\"Identify the grape variety and origin as closely as possible\") or SPLIT across two sub-questions (variety, then origin). Both are real. Never omit origin.",
+    "SHARED ATTRIBUTE = POOLED IDENTIFICATION (validator-enforced). If the stem declares the wines share a grape variety, ask for the variety ONCE for the whole flight — \"With reference to all N wines: a) Identify the grape variety. (16 marks)\" — then origin per wine. Same if they share an origin/region: pool that identification. Never ask per-wine for something the stem already says is shared.",
+    "EVERY task is a lettered sub-question (a), b), c) …) with its own mark tag. Never leave a dangling instruction after the lettered list.",
+    "PER-WINE MARK VALUES: match the corpus distribution — 10 is by far the most common, then 5, 7 and 8; 6, 12, 13 and 15 occur; 15-20 only for a task combining several aspects (quality AND winemaking AND style). Values like 9, 11 and 14 appear once or twice in fifteen years — do not use them. Micro-state readouts are 2-3.",
   ];
   if (paper === 3) {
     return [
       "Stem & mark conventions — copied from the REAL Paper 3 papers in the corpus; follow them EXACTLY:",
       ...shared.map((s) => `- ${s}`),
-      "- Pooled sub-questions take ONE total of 14-30 marks; a POOLED identification is never below 14 (real: 14, 15, 18, 30).",
-      "- Micro-state sub-questions are STANDARD on Paper 3 where the category fits: \"State the residual sugar. (N x 2 marks)\", \"State the alcohol level. (N x 2 marks)\" — at most one such task per paper.",
+      `- POOLED MARKS SCALE WITH WINE COUNT (validator-enforced): a pooled identification is 4-8 marks PER WINE (real: 14 marks/2 wines, 18/3, 15/2, 12/3); any other pooled task stays at or below 10 marks per wine (real: 20/2, 15/2, 30/3). For this flight that means a pooled identification of roughly ${idLow}-${idHigh} marks.`,
+      "- Micro-state sub-questions are STANDARD on Paper 3 where the category fits, phrased EXACTLY as the corpus does: \"State the residual sugar. (N x 2 marks)\", \"State the alcohol level. (N x 2 marks)\" — as a lettered sub-question, at most one per paper, and NEVER asking for a numeric precision (no \"in g/L\", no \"to the nearest 10\").",
       "- Per-wine analysis tasks of 10+ marks pair winemaking/method with quality or style; an ISOLATED production-method task carries 6-7 marks per wine.",
       "Real Paper 3 skeletons to emulate (structure and notation, not content):",
       "  1) For each wine: a) Identify the origin and grape variety/ies as closely as possible. (N x 13 marks) b) Comment on quality in the context of origin. (N x 10 marks) c) State the residual sugar. (N x 2 marks)",
@@ -88,7 +100,7 @@ function realPaperConventions(paper: number): string {
     ...shared.map((s) => `- ${s}`),
     "- NEVER use micro-state sub-questions (residual sugar, alcohol level, 2-mark technical items) — those belong to Paper 3 only and appear in NO Paper 1 or Paper 2 question.",
     "- Identification marks run 5-15 per wine and do NOT have to outrank commentary: real papers give variety+origin 6 marks against 12 for style/quality/commercial (2024 P1 Q2), or origin 5 against 15 for climate/winemaking (2024 P2 Q3).",
-    "- Pooled sub-questions take ONE total of 15-40 marks (real: 15, 25, 30, 40).",
+    `- POOLED MARKS SCALE WITH WINE COUNT (validator-enforced), they are not a fixed band: a pooled identification is 4-8 marks PER WINE (real: 10 marks/2 wines, 12/3, 15/3, 16/4, 25/5); any other pooled task stays at or below 10 marks per wine (real: 20/2, 30/3). For this flight that means a pooled identification of roughly ${idLow}-${idHigh} marks.`,
     "- Commentary sub-parts BUNDLE freely, exactly as the real papers do: \"quality and maturity\", \"style, quality, and commercial position\", \"quality and market position\", \"quality in the context of the origin\", \"the styles and consumer appeal\".",
     paper === 2
       ? "- Paper 2 also uses vintage/drinking-window tasks: \"Identify the vintage and suggest an ideal drinking window. (4 x 7 marks)\"."
@@ -1044,7 +1056,7 @@ The question stem must NEVER name or hint at any producer or cuvée above (the c
 The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.${saveOpts?.flightTheme ? `
 The flight's organizing fact: ${saveOpts.flightTheme}
 REQUIRED: the stem MUST OPEN by declaring this shared fact to the candidate ("Wines 1–${pinned.length} are …") — real MW stems always state the flight's constraint up front, then set tasks against it. Declare only the fact itself; never leak producer, cuvée, or specific origin beyond what the fact states.` : ""}
-${realPaperConventions(paper)}${saveOpts?.paperStemsContext ? `
+${realPaperConventions(paper, pinned.length)}${saveOpts?.paperStemsContext ? `
 This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part structure and phrasing must differ from them, and never repeat a micro-state task type (e.g. "State the residual sugar") that an earlier question already used.${typeof saveOpts.paperWineOffset === "number" && saveOpts.paperWineTotal ? `
 GLOBAL WINE NUMBERING: the paper has ${saveOpts.paperWineTotal} wines and this flight is wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}. In the QUESTION TEXT refer to them as "Wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}" (real papers number continuously across the paper). The wine LIST above stays slot-numbered 1-${pinned.length}.` : ""}
 ${saveOpts.paperStemsContext}` : ""}`;
@@ -1644,6 +1656,29 @@ ${repairContext.draft}`,
     const markRealismCheck = pinned
       ? validateMarkRealism(candidate.questionText, pinned.length * 25, paper)
       : { valid: true, violations: [] };
+    const sharedPoolingCheck = pinned
+      ? validateSharedAttributePooling(candidate.questionText, saveOpts?.flightTheme)
+      : { valid: true, violations: [] };
+    const scaffoldNoveltyCheck = pinned
+      ? validateScaffoldNovelty(candidate.questionText, saveOpts?.paperStemsContext)
+      : { valid: true, violations: [] };
+    // The mark BUDGET rule (sum of sub-part marks === 25 x wines, plus the 5-mark-per-wine floor
+    // for commentary tasks) already exists for the corpus audit but never ran during pinned
+    // generation — which is how a 6-wine paper printing 180 marks reached the QA loop (round 14,
+    // Paper 1). Reuse it here rather than hand-rolling a second arithmetic check.
+    const markBudgetViolations = pinned
+      ? validateMarkBudget({
+          questionId: "pinned",
+          paper,
+          family: family ?? "",
+          questionText: candidate.questionText,
+          totalMarks: pinned.length * 25,
+          // Only slot COUNT matters to the mark-budget rule (total === 25 x wines); variety/region
+          // are required by the shared audit type but unused by this specific check.
+          wines: candidate.wines.map((w) => ({ slot: w.slot, varieties: [], region: "" })),
+        }).map((v) => v.detail)
+      : [];
+    const markBudgetCheck = { valid: markBudgetViolations.length === 0, violations: markBudgetViolations };
 
     // Declared in the order the violations used to be concatenated, so the flat list below preserves
     // the original ordering while the telemetry gets the rule NAME behind each one — the whole point
@@ -1687,6 +1722,9 @@ ${repairContext.draft}`,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
       markRealism: markRealismCheck,
+      sharedAttributePooling: sharedPoolingCheck,
+      scaffoldNovelty: scaffoldNoveltyCheck,
+      markBudget: markBudgetCheck,
     };
     const violationsByRule: Record<string, string[]> = {};
     for (const [name, check] of Object.entries(checks)) {

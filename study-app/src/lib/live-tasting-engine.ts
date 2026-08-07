@@ -90,7 +90,11 @@ const LADDER_REGIONS: { region: string; paper: number; variety: string }[] = [
 ];
 
 // P3 style-contrast pools by wine_bank.style_category (wide-distribution categories only).
-const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet"];
+// Real Paper 3 is NOT all-special: every corpus P3 pairs sparkling/fortified/sweet questions
+// with STILL wine questions (2023 P3 Q2 production methods, Q3 same-region pair; 2024 P3 Q2/Q3).
+// Omitting still_dry here is why the QA loop produced a six-wine all-sparkling Paper 3
+// (round 14) — the picker had no still category to choose.
+const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet", "still_dry"];
 
 export type ArchetypeId = "same-variety" | "quality-ladder" | "mixed-variety" | "same-origin" | "p3-styles";
 

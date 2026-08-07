@@ -133,14 +133,105 @@ export function validateMarkRealism(
   if (paper !== 3 && /(residual sugar|alcohol level|level of alcohol)/i.test(text)) {
     violations.push(`a residual-sugar/alcohol micro-state task on Paper ${paper} — those appear only on Paper 3`);
   }
-  // Pooled identification carries 14-18+ marks in every real paper (14/15/18/30 observed) —
-  // round 9's only failure was a 12-mark pooled variety ID.
+  // Micro-state tasks use the corpus's bare phrasing; the QA judge rejected "to the nearest 10 g/L"
+  // as an invented precision the real papers never ask for.
+  if (/residual sugar[^.\n]*\b(nearest|g\/l|grams per)/i.test(text)) {
+    violations.push('a residual-sugar task asking for a numeric precision — real papers write "State the residual sugar."');
+  }
+  // Pooled marks SCALE WITH WINE COUNT — they are not an absolute band. Measured across the four
+  // corpus years the QA judge is shown (2023-26): pooled identification runs 4-8 marks per wine
+  // (2025 P1 Q1a 10/2, 2025 P2 Q1a 12/3, 2023 P3 Q4a 18/3, 2024 P2 Q3a 25/5), rising to ~10/wine
+  // only when the same sub-question also carries commentary (2024 P3 Q3a 30/3 "identify … and
+  // comment on commercial opportunities"). Other pooled tasks reach 10/wine (2024 P3 Q1b 20/2).
+  //
+  // An earlier absolute floor of 14-15 marks here was itself a bad fix — read off a single noisy
+  // judge finding, it forced 2-wine flights into 15-30 mark pooled tasks and made Paper 2 fail
+  // every round until the loop exposed it.
+  const wines = Math.max(1, Math.round(totalMarks / 25));
   for (const line of text.split(/\n/)) {
-    if (!/identify/i.test(line)) continue;
     const pooled = line.match(/\(\s*(\d+)\s*marks?\s*\)/i);
-    if (pooled && !/(?:x|×)\s*\d+\s*marks?/i.test(line)) {
-      const val = parseInt(pooled[1], 10);
-      if (val < 14) violations.push(`a pooled identification sub-question at ${val} marks — real papers give pooled identification 14-30 marks`);
+    if (!pooled || /(?:x|×)\s*\d+\s*marks?/i.test(line)) continue;
+    const val = parseInt(pooled[1], 10);
+    if (val === totalMarks) continue;
+    const per = val / wines;
+    const isId = /identif/i.test(line);
+    const alsoComments = /(comment|discuss|compare|contrast|quality|commercial|style|winemaking|production)/i.test(line);
+    const ceiling = isId ? (alsoComments ? 10 : 8) : 10;
+    const floor = isId ? 4 : 0;
+    if (per > ceiling) {
+      violations.push(
+        `pooled task "${line.trim().slice(0, 50)}" is ${val} marks for ${wines} wines (${per.toFixed(1)}/wine) — real pooled tasks stay at or below ${ceiling}/wine`
+      );
+    } else if (isId && per < floor) {
+      violations.push(
+        `pooled identification "${line.trim().slice(0, 50)}" is ${val} marks for ${wines} wines (${per.toFixed(1)}/wine) — real pooled identification runs 4-8/wine`
+      );
+    }
+  }
+  // The per-wine 5-mark floor for commentary tasks is NOT duplicated here — validateMarkBudget
+  // (question-validator.ts) already owns it, and now runs in pinned generation too.
+  return { valid: violations.length === 0, violations };
+}
+
+/**
+ * Shared-attribute identification must be POOLED (paper-QA round 13, the only finding that
+ * repeated across rounds): when every wine in the flight shares a variety/origin, real papers ask
+ * for that attribute ONCE for the whole flight — "With reference to all four wines: a) Identify
+ * the grape variety. (16 marks)" (2025 P1 Q2a; also 2024 P2 Q1a, 2024 P2 Q3a, 2023 P3 Q4a) —
+ * never per-wine, which would pay the candidate N times for one deduction.
+ *
+ * `flightTheme` is the archetype's organizing fact, already threaded into the prompt.
+ */
+export function validateSharedAttributePooling(
+  questionText: string,
+  flightTheme: string | null | undefined
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const theme = (flightTheme || "").toLowerCase();
+  const text = questionText || "";
+  const shared: { label: string; re: RegExp }[] = [];
+  if (/same single grape variety|same grape variety/.test(theme)) {
+    shared.push({ label: "grape variety", re: /identif\w*[^.\n]*\b(grape\s+)?variet/i });
+  }
+  // Shared ORIGIN is deliberately NOT enforced: real papers do it both ways — 2023 P1 Q3a pools
+  // "Name the country and the three grape varieties" across four wines, while 2022 P1 Q2/Q3 ask
+  // per-wine identification of same-country flights. Forcing the pooled form produced pooled
+  // "identify the country" stems the judge rejected (round 14, Paper 2). Only a shared VARIETY
+  // has unambiguous, repeated corpus support for pooling.
+  for (const { label, re } of shared) {
+    for (const line of text.split(/\n/)) {
+      if (!re.test(line)) continue;
+      // Multiplier notation on the shared attribute = asked per wine.
+      if (/\(\s*\d+\s*(?:x|×)\s*\d+\s*marks?\s*\)/i.test(line)) {
+        violations.push(
+          `the flight shares its ${label}, but "${line.trim().slice(0, 70)}" asks for it per wine — real papers pool a shared attribute into one sub-question`
+        );
+      }
+    }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+/**
+ * Anti-clone check for full papers: two questions in one paper must not share a mark skeleton.
+ * The prompt has asked for varied scaffolds since round 5 and the model still cloned Q1 into Q3
+ * (round 13, Paper 2) — so the structure is compared deterministically instead.
+ */
+export function validateScaffoldNovelty(
+  questionText: string,
+  priorStems: string | null | undefined
+): { valid: boolean; violations: string[] } {
+  const signature = (s: string) =>
+    [...(s || "").matchAll(/\(\s*(\d+\s*(?:x|×)\s*)?(\d+)\s*marks?\s*\)/gi)]
+      .map((m) => `${m[1] ? "N*" : ""}${m[2]}`)
+      .join("|");
+  const mine = signature(questionText);
+  if (!mine || !priorStems) return { valid: true, violations: [] };
+  const violations: string[] = [];
+  for (const block of priorStems.split(/\n(?=Q\d+:)/)) {
+    if (!/^Q\d+:/.test(block.trim())) continue;
+    if (signature(block) === mine) {
+      violations.push(`this question's mark skeleton (${mine}) is identical to ${block.trim().slice(0, 12)} — real papers differentiate every question`);
     }
   }
   return { valid: violations.length === 0, violations };
