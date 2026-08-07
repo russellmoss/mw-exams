@@ -69,6 +69,40 @@ export function mentionedWineSlots(body, wineCount) {
   return slots;
 }
 
+// How far the STEM's wine numbering is shifted off the answer key's slots. A flight is numbered by its
+// position in the paper, not from 1 — a paper's fourth flight is "Wines 9 to 12" while its key holds
+// slots 1-4 — and the model answer follows the stem, writing "**Wine 12** trades on the Gran Reserva
+// designation". Comparing those references against slots 1-4 reads a complete answer as one that never
+// mentions a single wine (2026-08-07: three valid Live Tasting flights quarantined exactly this way,
+// with ~62 more banked questions one audit run away from the same fate).
+//
+// Returns min-1 only for a contiguous window whose width matches the flight ("Wines 5-6, 7-8, 9-10 and
+// 11-12" over an 8-wine key is one window, base 5 → 4); anything else returns 0, leaving 1-based
+// behaviour untouched. Deliberately ignores collective forms ("For both wines:") — those carry no
+// numbering, and letting them pull the minimum to 1 would mask the offset on most P3 stems.
+export function stemWineNumberOffset(questionText, wineCount) {
+  const stem = normStem(questionText || "");
+  const nums = [];
+  // normStem has flattened the punctuation, so a range reads "wines 9 to 12" and the pairs stem reads
+  // "wines 5 6 7 8 9 10 and 11 12" — capture the whole run of numbers after the "wine(s)" token. The
+  // lookahead drops mark notation, which sits in exactly the same position: "…that have shaped each
+  // wine. (4 x 7 marks)" normalises to "wine 4 x 7 marks", and reading that 4 as a wine number pulled
+  // the window's minimum down and silently disabled the offset.
+  for (const m of stem.matchAll(
+    /\bwines?\s+(\d{1,2}(?:\s+(?:to\s+|through\s+|and\s+)?\d{1,2})*)(?!\s*(?:x|marks?)\b)/g
+  )) {
+    for (const raw of m[1].match(/\d{1,2}/g) || []) {
+      const n = Number(raw);
+      if (n >= 1 && n <= 12) nums.push(n);
+    }
+  }
+  if (!nums.length || !wineCount) return 0;
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  if (min <= 1 || max - min + 1 !== wineCount || min + wineCount - 1 > 12) return 0;
+  return min - 1;
+}
+
 // ── Identity needles ───────────────────────────────────────────────────────────────────────────────
 
 // Region words that carry no identity on their own — "Valley" must not make "Barossa Valley" match an
@@ -210,13 +244,21 @@ export function applyAnswerContentRules({ questionText, answerText, wines }) {
   // references in a multi-wine flight just means the answer is organised thematically -> soft.
   if (wineList.length >= 2) {
     const mentioned = mentionedWineSlots(body, wineList.length);
+    // The answer may number the wines from 1 (the key's slots) or from the stem's paper position
+    // ("Wines 9 to 12") — either convention covers the slot. Accepting both keeps the truncation
+    // signature detectable (a cut tail mentions the wine under NEITHER number) without quarantining
+    // an answer for the numbering its own stem told it to use.
+    const offset = stemWineNumberOffset(questionText, wineList.length);
+    const covered = (slot) => mentioned.has(slot) || (offset > 0 && mentioned.has(slot + offset));
     if (mentioned.size > 0) {
-      const missing = wineList.map((w) => w.slot).filter((s) => !mentioned.has(s));
+      const missing = wineList.map((w) => w.slot).filter((s) => !covered(s));
       if (missing.length > 0)
         v.push({
           rule: "answer-missing-wine",
           severity: "hard",
-          detail: `model answer references some wines but never Wine ${missing.join(", Wine ")} — the tail of the answer is likely truncated`,
+          detail: `model answer references some wines but never Wine ${missing
+            .map((s) => (offset > 0 ? `${s + offset} (slot ${s})` : s))
+            .join(", Wine ")} — the tail of the answer is likely truncated`,
         });
     } else {
       v.push({

@@ -1108,6 +1108,9 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   - **R5 single-variety-blend (soft):** "single grape variety" + a blend wine — flagged, not
     disqualifying (legit co-ferments like Côte-Rôtie Syrah-Viognier; "predominantly" permits blends).
   - **R6 marks (soft):** total marks must equal 25 × wine count.
+  - **R11 sweetness-out-of-paper (hard, P1/P2 only):** the stem must not declare residual sugar as a
+    flight premise, mark how it was achieved, or ask the candidate to state it — those are Paper 3
+    devices (see EK-0155). A soft variant flags a broader part that merely name-checks RS.
   - Subset/pair stems ("Wines 1 and 2… the other two…") skip flight-wide checks to avoid false positives.
 
 ### EK-0041 · 25-marks-per-wine is a hard generation constraint
@@ -2104,3 +2107,31 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   variety ask), **origin-only identification asks and 20-mark shared variety asks are authentic IMW
   patterns** and must not be flagged by any validator. A single expert's expectation lost to the
   corpus here; the corpus wins.
+
+### EK-0155 · Residual sugar is a Paper 3 device — P1/P2 pour sweet wines but never declare or mark them
+- **tier:** STRONG SIGNAL · **status:** live — enforced by validator R11 (`sweetness-out-of-paper`, hard;
+  `sweetness-reference-out-of-paper`, soft) and by the generation prompt's paper-scope block
+- **evidence:** `data/exams.json` measured 2026-08-07 — **12 of 162** historical stems (2011–2026) name
+  residual sugar or sweetness, and **all 12 are Paper 3** (2011 P3, 2012 P3, 2013 P3, 2014 P3, 2015 P3,
+  2017 P3, 2019 P3, 2021 P3, 2022 P3, 2023 P3, 2024 P3, 2026 P3); **0 in Paper 1, 0 in Paper 2**. Yet
+  `data/wines.json` holds **11 Paper 1 wines with residual sugar** — Coteaux du Layon Chaume (Domaine des
+  Forges), Eitelsbacher Karthäuserhof Riesling Auslese, JJ Prüm and Dr. Loosen Kabinetts, Huet Vouvray
+  Clos du Bourg Demi-Sec, Rolly Gassmann Pinot Gris Vendanges Tardives. Feedback `feedback_analyses` id 65
+  / attempt 394 (2026-08-07, user 1) on `gen_p1_F6_1779997829060`: *"I don't think that this is a great
+  paper one question because both wines have residual sugar and there's kind of a contrast on how the
+  residual sugar was achieved… historically what we would see on a paper one question is a flight that
+  had a wine, or even two wines, that had some residual sugar in it. The question would be broader."*
+- **claim:** the exam happily puts an off-dry or sweet wine in a Paper 1 flight — **noticing** it is the
+  candidate's job. What is Paper 3's alone is *declaring* it in the stem ("Wines 8–12 all have residual
+  sugar"), *marking the mechanism* (botrytis vs late harvest vs arrested fermentation) and the analytic
+  *readout* ("state the residual sugar in g/L", the corpus's only 2-mark ask). A P1/P2 stem that does any
+  of those is mis-papered even when every wine genuinely is sweet. Generation rule: put the sweet wine in
+  the flight, then ask the paper's own question (variety/origin, style, winemaking, quality, maturity,
+  commercial position).
+- **why the existing rule missed it:** `STEM_PREDICATE_MISMATCH` (from fb_89, on this same
+  Savennières) already catches the *factual* half — a bone-dry wine keyed under "both wines have residual
+  sugar" — but it needs a resolved RS value or a dry style tag on the answer key, and P1/P2 keys carry
+  neither. So the defect recurred on the identical question, served 3 times. R11 reads the stem SHAPE and
+  needs no key data. Measured blast radius at introduction: **3 hard** (1 servable: the reported question;
+  2 unserved) and **2 soft** across 778 banked questions; **0 in Paper 2**, and Paper 3's 79 RS questions
+  untouched.

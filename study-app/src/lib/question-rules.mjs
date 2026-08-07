@@ -412,6 +412,80 @@ export function stemDisclosureViolations(questionText) {
   return v;
 }
 
+// ── R11 — residual sugar is a Paper 3 device ────────────────────────────────────────────────────────
+//
+// Corpus measurement (data/exams.json, 2011-2026, 162 questions): residual sugar / sweetness appears in
+// TWELVE stems and every one is Paper 3. Zero in Paper 1 or Paper 2. Yet eleven Paper 1 WINES across
+// those years carry residual sugar (Coteaux du Layon Chaume, Karthäuserhof Auslese, JJ Prüm Kabinett,
+// Huet Vouvray Demi-Sec, Rolly Gassmann Pinot Gris Vendanges Tardives) — so the exam does pour sweet
+// wines in Paper 1; it just never DECLARES the sweetness in the stem or hands marks to explaining it.
+// Noticing an off-dry wine is the candidate's job in P1/P2; anatomising the mechanism (botrytis vs late
+// harvest vs arrested fermentation) and reading RS off the glass in g/L is the P3 exercise.
+//
+// Feedback fa_65 (2026-08-07) reported the generated P1 question that made this visible: "Wines 1 and 2
+// are from the same region. Both wines have residual sugar… comment on the method of production, with
+// particular reference to how the residual sugar was achieved" over a Quarts de Chaume and a bone-dry
+// Savennières. Its factual half is already codified (STEM_PREDICATE_MISMATCH, from fb_89 — the same
+// Savennières), but that rule needs a resolved RS value or dry style tag on the key, and P1/P2 keys
+// carry neither, so it could never fire. This rule catches the SHAPE instead, which needs no key data.
+const RS_TERM = "(?:residual sugar|sweetness|sweet)";
+const SWEETNESS_PREMISE = [
+  // "Both wines have residual sugar", "all three are sweet wines", "each wine has some residual sugar".
+  new RegExp(`\\b(?:both|all|each|every)\\b[a-z0-9 ]{0,25}\\b${RS_TERM}\\b`),
+  /\b(?:have|has|contain|contains|carry|carries|show|shows)\s+(?:some\s+|detectable\s+|noticeable\s+)?residual sugar\b/,
+  /\bsweet wines?\b/,
+];
+const SWEETNESS_TASK = [
+  // The P3 mechanism ask, in the phrasings the corpus and the generator both use.
+  /\b(?:how|the (?:method|means|way)s?)\b[a-z0-9 ]{0,45}\b(?:residual sugar|sweetness)\b[a-z0-9 ]{0,35}\b(?:achieved|attained|obtained|imparted|retained|arrived at)\b/,
+  /\b(?:achiev\w+|attain\w+|obtain\w+|impart\w+|retain\w+)\b[a-z0-9 ]{0,25}\b(?:residual sugar|sweetness)\b/,
+  // The P3 analytic readout ("state the level of residual sugar").
+  /\b(?:state|estimate|identify|indicate|give)\b[a-z0-9 ]{0,45}\b(?:residual sugar|level of sweetness|sweetness level)\b/,
+];
+// "Sweet" as a flavour descriptor is not a sugar claim — "sweet spice" from oak is legitimate P1/P2
+// stem language, so a bare "sweet" only counts when one of these does NOT own it.
+const SWEET_AS_DESCRIPTOR = /\bsweet\s+(?:spice|spices|fruit|oak|vanilla|vanilla oak|coconut|aroma|aromas|char|toast|tannins?)\b/;
+
+/**
+ * Residual sugar / sweetness treated as a Paper 3 device (rule R11). Stem-only, so it is shared
+ * verbatim between the generation engine (where it BLOCKS — the model reworks its own stem) and the
+ * audit. HARD when the stem declares sweetness as a flight premise or marks the mechanism/readout;
+ * SOFT when a broader part merely name-checks it ("with particular reference to residual sugar,
+ * acidity and vessel choice"), which is over-specified for the paper but still answerable.
+ * @param {number} paper
+ * @param {string} questionText
+ * @returns {Array<{ rule: string, severity: "hard"|"soft", detail: string }>}
+ */
+export function sweetnessOutOfPaperViolations(paper, questionText) {
+  if (paper !== 1 && paper !== 2) return [];
+  const stem = normStem(questionText || "");
+  const mentions = /\b(?:residual sugar|sweetness)\b/.test(stem) || (/\bsweet\b/.test(stem) && !SWEET_AS_DESCRIPTOR.test(stem));
+  if (!mentions) return [];
+
+  const premise = SWEETNESS_PREMISE.map((re) => stem.match(re)).find(Boolean);
+  const task = SWEETNESS_TASK.map((re) => stem.match(re)).find(Boolean);
+  if (premise || task)
+    return [
+      {
+        rule: "sweetness-out-of-paper",
+        severity: "hard",
+        detail: `Paper ${paper} stem ${
+          premise ? `declares residual sugar as a flight premise ("${premise[0]}")` : ""
+        }${premise && task ? " and " : ""}${
+          task ? `awards marks for the sweetness mechanism/level ("${task[0]}")` : ""
+        }. Across 2011-2026 all twelve stems that name residual sugar or sweetness are Paper 3; Paper 1 and 2 never declare or mark it, even though eleven Paper 1 wines in that corpus carry residual sugar. Put the sweet wine in the flight if you want it, but ask the broader question (variety/origin, style, winemaking, quality) and let the candidate notice the sugar.`,
+      },
+    ];
+
+  return [
+    {
+      rule: "sweetness-reference-out-of-paper",
+      severity: "soft",
+      detail: `Paper ${paper} stem name-checks residual sugar/sweetness inside a broader task. No Paper 1 or 2 stem in the 2011-2026 corpus does this (all twelve occurrences are Paper 3) — prefer references the paper actually uses (oak handling, lees, malolactic, ageing regime).`,
+    },
+  ];
+}
+
 /**
  * Run the shared contradiction rules against a (normalized) question.
  * @param {{ paper: number, questionText: string, totalMarks?: number,
@@ -578,6 +652,10 @@ export function applyQuestionRules(q, opts = {}) {
   // R10 — stem discloses the discriminator (Mike's bin corpus, Class 1). SOFT: answerable, but the
   // stem hands over the axis the marks are for. Blocking at generation via the engine's check.
   for (const d of stemDisclosureViolations(q.questionText)) v.push(d);
+
+  // R11 — residual sugar declared or marked outside Paper 3 (feedback fa_65). Self-gates on the paper,
+  // so callers that pass paper: 0 (the engine's rule-specific delegations) are unaffected.
+  for (const d of sweetnessOutOfPaperViolations(q.paper, q.questionText)) v.push(d);
 
   // R8 — every wine slot must hold a wine REFERENCE, not the generator's reasoning about which wine to
   // pick. HARD: an unparseable entry is enriched (a Tavily search on the reasoning text), banked as a

@@ -160,6 +160,7 @@ import {
   detectPrimaryVariety,
   canonVariety,
   stemDisclosureViolations,
+  sweetnessOutOfPaperViolations,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -1581,6 +1582,15 @@ ${repairContext.draft}`,
     const paperColourCheck = {
       violations: validatePaperColour(paper, auditWines, candidate.questionText).map((v) => v.detail),
     };
+    // R11 (feedback fa_65): residual sugar is a Paper 3 device. Blocks on every path including pinned —
+    // it is a pure stem rewrite (drop the premise / re-aim the sub-part), never a wine swap, so a
+    // Live Tasting flight that happens to include an off-dry bottle stays generatable. Only the HARD
+    // verdicts gate; the soft "name-checks it inside a broader task" flag stays audit-side visibility.
+    const sweetnessScopeCheck = {
+      violations: sweetnessOutOfPaperViolations(paper, candidate.questionText)
+        .filter((v) => v.severity === "hard")
+        .map((v) => v.detail),
+    };
     // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
     // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
     // structure. Blocks on every path (deterministic text/wine fix the repair prompt converges on).
@@ -1773,6 +1783,8 @@ ${repairContext.draft}`,
       // R-COLOUR: blocks on every path and never relaxes — a wrong-colour wine is exactly what the
       // post-save audit would quarantine, and the fix is a fresh wine choice the redraft loop makes.
       paperColour: paperColourCheck,
+      // R11: same policy as paperColour — blocks everywhere, never relaxes, and the fix is a stem edit.
+      sweetnessScope: sweetnessScopeCheck,
       singleWineFlight: singleWineFlightCheck,
       singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,
