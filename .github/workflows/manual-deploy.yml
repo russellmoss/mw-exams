@@ -1,5 +1,34 @@
 name: manual-deploy
 
+# Production deploy via the Vercel CLI — the BREAK-GLASS path, and (since 2026-08-07) the SCHEDULED
+# one that batches master into windowed deploys.
+#
+# ── WHY A SCHEDULE ─────────────────────────────────────────────────────────────────────────────────
+# Git auto-deploy makes deployment count equal MERGE count: one build per push to master. Measured
+# 2026-08-07 that is 30–60 production deploys/day against the Hobby plan's 100, peaking at 60 on
+# 2026-08-05 — the day the quota drained and an urgent human fix could not ship at all.
+#
+# Almost none of that is bot waste. Of 37 deploys in one 24h window, 34 were human-initiated (20 PR
+# merges, 15 direct pushes) and 3 came from bot pipelines; every one touched study-app/, so there were
+# no ignored-build slots to reclaim. The churn IS development velocity, so the fix is not to slow
+# merging down — it is to stop coupling deploy count to merge count.
+#
+# A schedule decouples them: N merges inside one window become ONE build. Deploys/day become bounded
+# by the window count (≤48 at */30) and, in practice, by how many windows actually contain a
+# study-app/ change — typically ~20. Merge as often as you like; production catches up on the window.
+#
+# ── THE TRADE ──────────────────────────────────────────────────────────────────────────────────────
+# A fix can now sit up to ~30 minutes before reaching production. That is what workflow_dispatch is
+# for: dispatching this workflow deploys master immediately and skips the change gate. Use it for
+# anything urgent.
+#
+# ── WHY NOT A VERCEL CRON ──────────────────────────────────────────────────────────────────────────
+# Because the Hobby plan caps `crons` in vercel.json at 2 jobs, each at most daily, and a sub-daily
+# schedule makes Vercel reject the DEPLOYMENT ITSELF at creation time (`cron_jobs_limits_reached`),
+# silently stopping git auto-deploy for every later commit. That took production down for four hours
+# on 2026-08-03. Scheduled work belongs in GitHub Actions — see CLAUDE.md and bank-worker-hourly.yml.
+#
+# ── ORIGINAL BREAK-GLASS NOTES (still apply) ───────────────────────────────────────────────────────
 # Break-glass production deploy, bypassing git auto-deploy.
 #
 # WHEN TO USE: git auto-deploy is starved (Hobby-plan daily deployment limit exhausted by bot
@@ -44,6 +73,25 @@ name: manual-deploy
 
 on:
   workflow_dispatch:
+  schedule:
+    # Every 30 minutes. GitHub schedules are best-effort and routinely run late on busy runners; that
+    # is fine here — a late window just batches more commits into one deploy. The change gate below
+    # measures against the LAST DEPLOYED COMMIT, not against the clock, so drift cannot skip a change.
+    - cron: "*/30 * * * *"
+
+concurrency:
+  # Never let two production deploys race. `cancel-in-progress: false` because a deploy that has
+  # already started must be allowed to finish — cancelling mid-build could leave the schema migrated
+  # (server-side prebuild) with the code not yet live.
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_PROJECT_ID: prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM
+  VERCEL_ORG_ID: team_UMX0qBzZ61GaCUri4A9hydvQ
 
 jobs:
   deploy:
@@ -51,17 +99,75 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: master
+          # The gate diffs master against the last deployed commit, which may be many merges back.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Link project
-        run: |
-          mkdir -p .vercel
-          echo '{"projectId":"prj_1FOrN1z4uYqJZZoBx7JVmpaNVKQM","orgId":"team_UMX0qBzZ61GaCUri4A9hydvQ"}' > .vercel/project.json
-
-      - name: Deploy (Vercel builds server-side)
+      # Scheduled runs only. A manual dispatch is an explicit "ship it now" and always deploys.
+      #
+      # FAILURE POSTURE: this gate decides whether to SKIP, so every uncertain path must fail OPEN
+      # (deploy). A gate that wrongly skips stops production from ever updating and says nothing — the
+      # same silent-stall class as the Vercel-cron outage. A gate that wrongly deploys costs one slot.
+      - name: Change gate — anything in study-app/ since the last deploy?
+        id: gate
+        if: github.event_name == 'schedule'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx vercel deploy --prod --yes --token="$VERCEL_TOKEN"
+        run: |
+          set -uo pipefail
+          echo "deploy=true" >> "$GITHUB_OUTPUT"   # default: fail open
+
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "::warning title=change gate::no VERCEL_TOKEN; failing open"; exit 0
+          fi
+
+          # The most recent READY production deployment, and the commit it was built from.
+          LAST=$(curl -sS --max-time 30 -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&target=production&state=READY&limit=20" \
+            | jq -r '[.deployments[]?.meta.githubCommitSha // empty] | first // empty')
+
+          if [ -z "$LAST" ]; then
+            echo "::warning title=change gate::could not read the last deployed commit; failing open"; exit 0
+          fi
+          if ! git cat-file -e "${LAST}^{commit}" 2>/dev/null; then
+            echo "::warning title=change gate::last deployed commit $LAST is not in this clone; failing open"; exit 0
+          fi
+
+          if [ "$LAST" = "$(git rev-parse HEAD)" ]; then
+            echo "Already deployed $(git rev-parse --short HEAD) — nothing to do."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          # NOTE the path scope: study-app/ only. Root-only commits (docs, data/, outputs/, the
+          # [skip ci] knowledge-doc sync) must not trigger a build — that is what vercel.json's
+          # ignoreCommand did per-push, reproduced here across the whole window.
+          if git diff --quiet "$LAST" HEAD -- study-app/; then
+            echo "No study-app/ change between ${LAST:0:7} and $(git rev-parse --short HEAD) — skipping."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "study-app/ changed since ${LAST:0:7}; deploying $(git rev-parse --short HEAD):"
+            git --no-pager log --oneline "$LAST"..HEAD -- study-app/ | head -20
+          fi
+
+      - name: Link project
+        if: github.event_name != 'schedule' || steps.gate.outputs.deploy == 'true'
+        run: |
+          mkdir -p .vercel
+          echo "{\"projectId\":\"$VERCEL_PROJECT_ID\",\"orgId\":\"$VERCEL_ORG_ID\"}" > .vercel/project.json
+
+      # --force skips Vercel's Ignored Build Step. That is REQUIRED on the scheduled path and is not
+      # a way of forcing a rebuild: the ignoreCommand compares HEAD^..HEAD, which is the wrong
+      # question once a window batches several commits. A window whose newest commit is a root-only
+      # doc change but which also carries real study-app/ work would be cancelled by that comparison
+      # and the code would never ship. The gate above already asked the right question, over the full
+      # range, so Vercel must not second-guess it with a narrower one.
+      - name: Deploy (Vercel builds server-side)
+        if: github.event_name != 'schedule' || steps.gate.outputs.deploy == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy --prod --force --yes --token="$VERCEL_TOKEN"
