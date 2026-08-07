@@ -1641,6 +1641,32 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0156 · The nightly quarantine sweep went dark for a day, and its cost is 13% not 61%
+- **tier:** PROCESS · **status:** live — workflow re-armed 2026-08-07
+- **evidence:** `gh run list --workflow question-audit-daily.yml` (failure at 2026-08-07 07:53 UTC,
+  `ERR_MODULE_NOT_FOUND: .../src/lib/tasting-validators`); `.github/workflows/question-audit-daily.yml`;
+  `study-app/scripts/audit-questions.mjs`; dry runs of the audit over the live bank, 2026-08-07
+- **claim:** `audit-questions.mjs` was invoked with plain `node`, and `question-validator.ts` acquired an
+  extensionless `./tasting-validators` import that Node cannot resolve — so the daily audit + quarantine
+  backstop died silently (a cron failure surfaces nowhere in the app). Fixed by running it under the
+  repo's existing `node --import ./scripts/ts-loader.mjs`, which the sibling bank-match step already used.
+  **Two numbers to keep straight when judging a sweep's blast radius:** the raw audit reports
+  *358 hard violations across 586 keyed questions (61%)*, but that counts already-quarantined, binned and
+  live-tasting rows. Against the **servable** bank (pool + kept + not retired + not quarantined = 256) the
+  cost was **49 (19%)**, and after removing the `missing-variety-id-part` arm (EK-0154) **34 (13%)** —
+  P1 −10, P2 −7, P3 −17, only 7 of them ever served. Always quote the servable number.
+- **also validated (negative result):** `MARKS_BELOW_FLOOR` (the 5-mark floor on style / quality /
+  commercial / method parts) fires on **0 of the 82 modern (2018–2026) real questions** — 3 in the older
+  2011–2017 era (2011 P2 Q3, 2014 P1 Q3, 2015 P2 Q1, all 4-mark commentary parts). It is corpus-correct
+  for the era the generator targets and was deliberately left armed; the 20 servable questions it
+  quarantines genuinely price a commentary part below anything the modern exam does.
+- **open, measured, not yet fixed:** `part-task-repertoire` fires on **8 of 82 modern real questions**
+  (2018 P2 Q1, 2018 P3 Q1, 2019 P1 Q2, 2019 P1 Q3, 2021 P2 Q1, 2022 P1 Q3, 2022 P2 Q4, 2022 P2 Q5) for
+  authentic phrasings its registry lacks — "identify the vintage", "what are the key winemaking
+  techniques used", "consider which markets this wine would be successful in", "compare and contrast
+  market potential", and 2019 P1 Q3's directed-away-from-origin instruction. Only 1 servable question is
+  affected today, so it did not block the re-arm, but the registry needs those entries.
+
 ### EK-0134 · Multiple feedback submissions on one question overwrite rather than append
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #190 / analysis #34 (reject)
@@ -2107,6 +2133,18 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   variety ask), **origin-only identification asks and 20-mark shared variety asks are authentic IMW
   patterns** and must not be flagged by any validator. A single expert's expectation lost to the
   corpus here; the corpus wins.
+- **2026-08-07 — this entry was being violated in code.** A hard rule `missing-variety-id-part`
+  (`partTaskRepertoireViolations`, seeded from bin `gen_p2_F2_1785968458385`) rejected any 2+-wine
+  flight that asked for origin but never the grape variety. Re-measured against `data/exams.json` it
+  fired on **27 of the 82 modern (2018–2026) real questions** and 21 of the 80 older ones — including
+  2026 P2 Q3, 2025 P3 Q2, 2024 P1 Q3, 2023 P2 Q1 and 2022 P1 Q1, five of the last six exam years — and
+  was quarantining **19 servable banked questions** (15 for that reason alone). **The arm is removed**;
+  it was not demoted to soft, because a flag on a third of the real corpus is noise. Two of the 27 were
+  a second bug: the variety-ask pattern demanded the literal "grape variet…", so real phrasings
+  ("Identify the origin and variety/ies used", 2021 P1 Q1; "Name the dominant grape variety", 2017 P3
+  Q4) read as absent — the pattern now accepts a bare "variety/varieties" and the verb "name".
+  Lesson: an EK entry that says "must not be flagged" needs a test pinning it, or a later rule
+  re-introduces the fault. `tests/question-validator.test.ts` now holds three real-paper fixtures.
 
 ### EK-0155 · Residual sugar is a Paper 3 device — P1/P2 pour sweet wines but never declare or mark them
 - **tier:** STRONG SIGNAL · **status:** live — enforced by validator R11 (`sweetness-out-of-paper`, hard;

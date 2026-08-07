@@ -56,9 +56,14 @@ jobs:
         working-directory: study-app
         run: npm ci
 
+      # ts-loader is required, not optional: audit-questions.mjs imports src/lib/question-validator.ts,
+      # which imports "./tasting-validators" extensionless — plain `node` cannot resolve that and every
+      # run from 2026-08-07 07:53 UTC onward died with ERR_MODULE_NOT_FOUND, silently taking the whole
+      # quarantine backstop offline (the failure surfaces only in the Actions log). Same invocation the
+      # bank-match step below already uses.
       - name: Audit + quarantine (hard violations → invalid_reasons)
         working-directory: study-app
-        run: node scripts/audit-questions.mjs --apply
+        run: node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply
 
       # Runs even if the step above fails: the two audits are independent, and a question-validator
       # problem should not leave wrong-wine profiles being served. ts-loader is the repo's existing
