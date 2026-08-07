@@ -20,14 +20,21 @@
  *
  * HOW THE THREE SURFACES ARE WRITTEN, which is a product decision and not a style one:
  *
- *   • intro-*  — SPEAKS THE "LEARN MORE" CONTENT. Each intro scene has a "Learn more" dialog
- *     (ShellOnboarding INFO_PARAS) holding the substance behind the headline, and most people never
- *     open it. The narration covers everything in that dialog, so the depth reaches a listener who
- *     only ever clicks Next. Scene 6 has no dialog; it gets a short hand-off instead.
+ *   • intro-*  — SPEAKS THE "LEARN MORE" CONTENT. Each intro scene used to hide the substance behind
+ *     its headline in a dialog most people never opened. The narration covers all of it, so the
+ *     depth reaches a listener who only ever clicks Next.
  *   • diagrams-* / coach-* — DO NOT READ THE SLIDE. Those slides are already dense with text and
  *     diagrams, and a voice reciting words the eye is reading is worse than silence. The narration
  *     says what the slide is FOR, and on the demo slides it commentates: what the Coach is doing
  *     while the status line runs, what to notice in the reply, why the card asks what it asks.
+ *
+ * THIS TEXT IS ALSO THE "LEARN MORE" CARD, on every slide of all three surfaces. The card shows the
+ * transcript of what the voice says, which is why the prose below reads as speech — that is the
+ * register it is quoted in, not sloppiness. Making the transcript the card content rather than a
+ * second hand-written body is the whole point: there is exactly one version of the depth behind each
+ * slide, so the spoken and the read can never disagree, and someone who mutes the narration (or
+ * cannot play audio at all) loses nothing. The dialog's own headings are TITLES below, which carry
+ * no audio and so can be edited freely.
  *
  * Written to be heard, not read: short sentences, numbers in the form a narrator should say them,
  * no markdown. Blank lines are paragraph breaks and ElevenLabs renders them as pauses.
@@ -254,6 +261,49 @@ Next, a quick tour of where everything lives. You can replay this from the Libra
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * The heading on each slide's "Learn more" card.
+ *
+ * Deliberately NOT the slide's own headline — a card that repeats the title behind it tells the
+ * reader nothing about whether it is worth opening. These name the QUESTION the card answers. They
+ * are not spoken, carry no audio, and can be reworded without a re-record.
+ */
+const TITLES: Record<string, string> = {
+  // The first five are the headings the intro's dialog already used.
+  "intro-0": "Why patterns matter",
+  "intro-1": "What is stem analysis?",
+  "intro-2": "What’s actually in the corpus",
+  "intro-3": "How we measure honestly",
+  "intro-4": "How theory grading works",
+  "intro-5": "What happens next",
+
+  "diagrams-0": "Why the mark split matters",
+  "diagrams-1": "Finding the right deck in eight minutes",
+  "diagrams-2": "What routing actually buys you",
+  "diagrams-3": "How to read a leaf",
+  "diagrams-4": "When the glass agrees with the paper",
+  "diagrams-5": "What the tree got right — and wrong",
+  "diagrams-6": "What the tree is for",
+
+  "coach-0": "What the Coach is, and isn’t",
+  "coach-1": "How to read a technical answer",
+  "coach-2": "Where the answers come from",
+  "coach-3": "Coaching, not searching",
+  "coach-4": "When the Coach tells you no",
+  "coach-5": "When you are right",
+  "coach-6": "Why your feedback matters",
+};
+
+/** The "Learn more" heading for a slide. */
+export function narrationTitle(id: string): string {
+  return TITLES[id] ?? "Learn more";
+}
+
+/** The transcript, split for rendering. Blank lines in the script are paragraph breaks. */
+export function narrationParagraphs(id: string): string[] {
+  return (TOUR_NARRATION[id] ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+}
 
 function index(surface: NarrationSurface, lines: string[]): Record<string, string> {
   return Object.fromEntries(lines.map((text, i) => [narrationId(surface, i), text.trim()]));

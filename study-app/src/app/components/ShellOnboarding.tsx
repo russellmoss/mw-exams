@@ -27,6 +27,7 @@ import { useAuth } from "@/lib/auth-context";
 import { narrationId } from "@/lib/tour-narration";
 import { CoachWalkthrough } from "./CoachWalkthrough";
 import { DiagramWalkthrough } from "./DiagramWalkthrough";
+import { TourLearnMoreButton } from "./TourLearnMore";
 import { TourNarrationButton } from "./TourNarration";
 
 const SESSION_FLAG = "mw-intro-shown-this-session";
@@ -47,41 +48,11 @@ const TOUR_STEPS: TourStep[] = [
   { key: "bell", label: "6 of 6", title: "Feedback comes back to you", text: "Tell the Coach a question is wrong — it checks the claim with you, then puts the report up for you to confirm. The system’s analysis — accepted or rejected, with reasons — lands here." },
 ];
 
-const INFO_TITLES = [
-  "Why patterns matter",
-  "What is stem analysis?",
-  "What’s actually in the corpus",
-  "How we measure honestly",
-  "How theory grading works",
-];
-
-const INFO_PARAS: string[][] = [
-  [
-    "Across any single exam year, wine selection looks arbitrary. Across fifteen years, it isn’t: Paper 1 has included Chardonnay every single year, Riesling appears in 10 of 11, and Paper 3’s first question has opened with sparkling wine every year since 2021.",
-    "Curveballs follow a “1 in 4” rule — in a multi-wine question, typically exactly one wine is significantly harder. The rest are anchors. Knowing that changes how you allocate confidence across a flight.",
-    "None of this tells you what’s in the glass. It tells you what the examiners have historically reached for — which is exactly the prior you want before you taste.",
-  ],
-  [
-    "Stem analysis means reading the question text — the “stem” — as evidence, before you smell or taste anything. The paper number constrains color and style. Phrases like “same single grape variety” eliminate most of the wine world. Mark allocations signal what the examiner expects you to write about.",
-    "Every historical question falls into one of a small number of structural families, and each family has its own decision tree, built from every stem construction in sixteen years of papers.",
-    "You’ll see exactly how that works in a moment — the walkthrough after this intro takes one real past question all the way from its stem to the wines that were actually in the glasses. You practice the skill yourself in the Stem Analysis mode of Dry Flights.",
-  ],
-  [
-    "The complete text of every MW practical exam from 2011 to 2026 — 15 years, 45 papers, 540 wines. Not a sample: the entire modern corpus.",
-    "Every one of the 540 wines was individually researched from authoritative sources — producer tech sheets, Decanter, Tim Atkin MW, JancisRobinson.com, regional wine board data. Each entry documents the tasting profile, technical specs, vintage character, and why the examiners likely chose it.",
-    "On top of that: 13 official examiner reports (2017–2025), systematically distilled into the marking principles the grading engine applies to your answers — reasoning over identification, quality in context, no shoehorning.",
-  ],
-  [
-    "The decision trees are never graded on questions they were built from — that would measure memory, not prediction. They’re scored blind, against papers they’ve never seen.",
-    "On the 2026 paper — predicted before the exam was sat — the true variety was in the candidate set for 89% of wines, and in the top three calls for 64%. On the 2000–2010 stress test (396 wines the trees never saw), those figures are 80% and 58%.",
-    "Just as important is what we don’t claim: top-1 accuracy is about one in three, so the system never pretends to name the wine. It bounds the universe; you narrow from there in the glass.",
-  ],
-  [
-    "The theory library holds 243 real past essay questions from 2016–2025, across all five theory papers — viticulture, vinification, handling of wine, the business of wine, and contemporary issues.",
-    "Each question’s grading rubric is derived from the actual examiners’ report for that year: the core requirements they said were essential, the differentiators that separated strong answers, the traps that cost marks. Your essay is scored against that — not a generic AI opinion.",
-    "Every question also carries a model answer built from the rubric, so after grading you can compare your essay against what a full-marks answer actually looks like, point by point.",
-  ],
-];
+// The per-scene "Learn more" bodies used to live here as INFO_TITLES/INFO_PARAS. They are now the
+// narration transcript (src/lib/tour-narration.ts), rendered by TourLearnMoreButton — one body of
+// depth per slide instead of two that can drift, and available on all six scenes plus every
+// walkthrough step rather than only the first five. Every fact those arrays carried is asserted to
+// still be in the narration by tests/tour-narration.test.ts.
 
 function saveShellPref(body: Record<string, unknown>) {
   fetch("/api/user/shell-prefs", {
@@ -132,7 +103,6 @@ export function ShellOnboarding() {
   const [stage, setStage] = useState<Stage>(null);
   const [scene, setScene] = useState(0);
   const [dontShow, setDontShow] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [tourRect, setTourRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
   const decidedRef = useRef(false);
@@ -411,21 +381,16 @@ export function ShellOnboarding() {
                   &larr; Back
                 </button>
               )}
+              {/* On every scene now, including the closing one — the transcript is the only place
+                  the depth behind a slide is readable rather than only audible. */}
+              <TourLearnMoreButton id={narrationId("intro", scene)} />
               {scene < 5 && (
-                <>
-                  <button
-                    onClick={() => setInfoOpen(true)}
-                    className="rounded-lg border border-border px-5 py-2 text-sm font-medium text-muted hover:text-foreground hover:bg-card transition-colors cursor-pointer"
-                  >
-                    Learn more
-                  </button>
-                  <button
-                    onClick={() => setScene((current) => current + 1)}
-                    className="rounded-lg bg-accent hover:bg-accent-hover px-7 py-2 text-sm font-semibold text-background transition-colors cursor-pointer"
-                  >
-                    Next &rarr;
-                  </button>
-                </>
+                <button
+                  onClick={() => setScene((current) => current + 1)}
+                  className="rounded-lg bg-accent hover:bg-accent-hover px-7 py-2 text-sm font-semibold text-background transition-colors cursor-pointer"
+                >
+                  Next &rarr;
+                </button>
               )}
             </div>
             <div className="flex items-center justify-center gap-2.5">
@@ -438,42 +403,6 @@ export function ShellOnboarding() {
             </div>
           </div>
 
-          {infoOpen && scene < 5 && (
-            <div className="fixed inset-0 z-[70] flex items-center justify-center p-6">
-              <button
-                aria-label="Close"
-                onClick={() => setInfoOpen(false)}
-                className="fixed inset-0 bg-background/70 backdrop-blur-sm cursor-default"
-              />
-              <div className="relative w-full max-w-[34rem] max-h-[80vh] overflow-y-auto bg-card rounded-xl border border-border p-7 shadow-[0_25px_50px_rgba(0,0,0,0.5)]">
-                <div className="flex items-start justify-between gap-4 mb-3.5">
-                  <h2 className="font-display text-[1.375rem] font-semibold leading-snug tracking-tight">
-                    {INFO_TITLES[scene]}
-                  </h2>
-                  <button
-                    onClick={() => setInfoOpen(false)}
-                    aria-label="Close"
-                    className="p-1 text-muted hover:text-foreground shrink-0 cursor-pointer"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {INFO_PARAS[scene].map((paragraph, index) => (
-                    <p key={index} className="text-sm text-muted leading-[1.7]">{paragraph}</p>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setInfoOpen(false)}
-                  className="mt-5 rounded-lg border border-border px-5 py-2 text-sm font-semibold text-accent hover:bg-card-hover transition-colors cursor-pointer"
-                >
-                  Back to the tour
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

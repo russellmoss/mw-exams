@@ -39,6 +39,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { narrationId } from "@/lib/tour-narration";
 import { CoachChatSim, type Beat } from "./coach/CoachChatSim";
+import { TourLearnMoreButton } from "./TourLearnMore";
 import { TourNarrationButton } from "./TourNarration";
 
 interface Props {
@@ -569,6 +570,9 @@ export function CoachWalkthrough({ onDone }: Props) {
               &larr; Back
             </button>
           )}
+          {/* The transcript of this step's narration. On the demo steps it is the only way to read
+              the commentary on what the Coach is doing, rather than having to catch it by ear. */}
+          <TourLearnMoreButton id={narrationId("coach", step)} />
           {step < TOTAL - 1 && (
             <button
               onClick={next}
