@@ -25,7 +25,6 @@ import { AnswerInput } from "../components/AnswerInput";
 import { ModelAnswerReveal } from "../components/ModelAnswerReveal";
 import { DecisionTreeWalkthrough } from "../components/DecisionTreeWalkthrough";
 import { StudyTimerDisplay, FloatingTimer, TimingFeedback, useStudyTimer } from "../components/StudyTimer";
-import { FeedbackButton } from "../components/FeedbackButton";
 import { FlagQuestionButton } from "../components/FlagQuestionButton";
 import { PaceStrip } from "../components/PaceStrip";
 import { PaceReport } from "../components/PaceReport";
@@ -245,9 +244,11 @@ export default function StudyPage() {
   const displayedStem = currentQuestion ? stemForLevel(currentQuestion, stemDetailLevel) : "";
   const nextStemDetailLevel = stepUpLevel(stemDetailLevel);
 
-  // ── Feedback tab wiring ──
-  // Publish the on-screen question so the persistent Feedback tab can anchor feedback to it, and
-  // hand the tab pause/resume + a live remaining getter so opening the panel pauses the clock.
+  // ── Coach screen-context wiring ──
+  // Publish the on-screen question so the Coach can anchor a report to it, and hand it pause/resume
+  // + a live remaining getter so opening the dock pauses the clock. The Coach is the only consumer
+  // now that the floating Feedback pill is gone, and report_question/flag_defect BLOCK without a
+  // questionId here — so this is load-bearing, not decoration.
   const { setFeedbackContext, clearFeedbackContext } = useFeedbackContext();
   const { registerTimer } = useFeedbackTimer();
 
@@ -268,7 +269,7 @@ export default function StudyPage() {
 
   useEffect(() => () => clearFeedbackContext(), [clearFeedbackContext]);
 
-  // The Feedback tab only shows/pauses a countdown when there is a live per-wine benchmark (Full
+  // The Coach only shows/pauses a countdown when there is a live per-wine benchmark (Full
   // Question / Dry Notes) and the clock is genuinely running.
   const feedbackTimerActiveRef = useRef(false);
   // Keep the live "is the countdown active?" flag in a ref for getRemainingSeconds to read, syncing
@@ -1299,11 +1300,6 @@ export default function StudyPage() {
           stopped={timer.stopped}
           wineCount={currentQuestion.wines.length}
         />
-      )}
-
-      {/* Persistent feedback button — available throughout the entire question flow */}
-      {currentQuestion && (
-        <FeedbackButton attemptId={attemptId} step={state.step} />
       )}
     </div>
   );

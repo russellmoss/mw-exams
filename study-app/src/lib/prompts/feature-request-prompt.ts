@@ -71,6 +71,10 @@ are admins.
   style/quality/maturity/commercial; reference notes revealed with the grade.
 - **Stem Sniper** and **Reverse Tasting** drills (a separate scored prediction game).
 - **History** page: past attempts with results, filters, and a "Leave feedback" button on every question.
+- **Coach**: a draggable chat dock on every signed-in page. It answers questions, works the decision
+  trees, and is the way a candidate REPORTS anything — a wrong question, a bug, an idea. It proposes;
+  the candidate confirms. Do not propose a feedback form or a floating feedback button: the standalone
+  ones were removed on purpose, and two entry points for one action is the confusion that ended.
 - **Settings**: add your own Anthropic API key; sound preferences. **Diagrams / Methodology** reference pages.
 
 ## Admin experiences (/admin)

@@ -12,7 +12,7 @@ import { MicButton } from "@/app/components/MicButton";
 import { BLIND_INTEGRITY_LABEL, type Stockist } from "@/lib/live-tasting";
 import { ByoWineForm } from "@/app/components/ByoWineForm";
 import { BriefCard } from "@/app/components/BriefCard";
-import { FeedbackButton } from "@/app/components/FeedbackButton";
+import { useFeedbackContext } from "@/lib/feedback-context";
 
 type SlotSummary = { slot: number; stockistCount: number; thin: boolean };
 type SlotAvail = {
@@ -36,6 +36,8 @@ type SessionDetail = {
   shareActive: boolean;
   /** Absent while a BYO session is in tasting prep — no question exists yet. */
   question?: { questionText: string; totalMarks: number };
+  /** Travels with `question` — published as Coach screen context so the flight stays reportable. */
+  questionId?: string | null;
   slotSummaries?: SlotSummary[];
   reveal?: {
     attemptId: number | null;
@@ -106,6 +108,31 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
   const [answer, setAnswer, clearAnswer] = useDraft(`lt-answer:${id}`);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const gradeStream = useStreaming();
+
+  // ── Coach screen context ──
+  // Publish the flight on screen so the Coach can anchor a report to it — the replacement for the
+  // floating Feedback pill that used to sit in the reveal footer. report_question and flag_defect
+  // raise a blocker card without a questionId, so a session with no question yet (BYO tasting prep)
+  // correctly publishes nothing and a complaint there routes to submit_feedback instead.
+  //
+  // Deliberately not gated on the reveal: the pill was only rendered post-grade, but a flight that is
+  // wrong is most reportable while the candidate is standing in front of the glasses.
+  const { setFeedbackContext, clearFeedbackContext } = useFeedbackContext();
+  useEffect(() => {
+    if (!session?.questionId) {
+      clearFeedbackContext();
+      return;
+    }
+    setFeedbackContext({
+      paper: session.paper,
+      questionId: session.questionId,
+      attemptId: session.reveal?.attemptId ?? null,
+      mode: "live-tasting",
+      route: `/live-tasting/${id}`,
+    });
+  }, [session?.questionId, session?.paper, session?.reveal?.attemptId, id, setFeedbackContext, clearFeedbackContext]);
+
+  useEffect(() => () => clearFeedbackContext(), [clearFeedbackContext]);
 
   // Dictation, same treatment as the study flow (AnswerInput): detected from mic use, never
   // declared. Both boxes are on screen at once and the browser allows one recognition session,
@@ -728,12 +755,9 @@ export default function LiveTastingSessionPage({ params }: { params: Promise<{ i
                   title="Your debrief"
                 />
               )}
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs text-muted">
-                  This session is saved in your <Link href="/history" className="text-accent hover:text-accent-hover">History</Link>.
-                </p>
-                <FeedbackButton attemptId={session.reveal.attemptId} step="live-tasting-reveal" />
-              </div>
+              <p className="text-xs text-muted">
+                This session is saved in your <Link href="/history" className="text-accent hover:text-accent-hover">History</Link>.
+              </p>
             </>
           )}
         </div>

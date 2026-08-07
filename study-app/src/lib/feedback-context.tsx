@@ -10,9 +10,13 @@ import {
   type ReactNode,
 } from "react";
 
-// What a study/drill screen tells the Feedback tab about the thing on screen right now, so the
-// panel can render `About: Paper 2 · Question 1 · Wine 3 — Chablis…` and anchor the feedback to
-// the right attempt/question. Everything is optional — the panel falls back to the pathname.
+// What a study/drill screen tells the COACH about the thing on screen right now, so a report can be
+// anchored to the right attempt/question. Named for the Feedback tab it was built for; that tab and
+// the floating Feedback pill that followed it are both gone, and the Coach dock is the sole consumer.
+//
+// Everything is optional, but `questionId` is close to mandatory in practice: report_question and
+// flag_defect both raise a blocker card without one, so a screen that shows a question and does not
+// publish it here is a screen from which that question cannot be reported.
 export interface FeedbackPageContext {
   paper?: number | null;
   questionNumber?: number | null;
@@ -24,7 +28,7 @@ export interface FeedbackPageContext {
   route?: string | null;
 }
 
-// A running study/drill timer the panel can pause while it is open and resume on close/send.
+// A running study/drill timer the Coach can pause while it is open and resume on close/send.
 // getRemainingSeconds returns the live remaining value for the "Clock paused — 6:12 left." line,
 // or null when there is no meaningful countdown (the line is then omitted).
 export interface FeedbackTimerController {
@@ -69,21 +73,21 @@ function useFeedback(): FeedbackContextValue {
   return ctx;
 }
 
-// For study/drill screens: publish the on-screen question/wine to the Feedback tab. Call when a
+// For study/drill screens: publish the on-screen question/wine to the Coach. Call when a
 // question/wine loads and clear on unmount.
 export function useFeedbackContext() {
   const { setFeedbackContext, clearFeedbackContext } = useFeedback();
   return { setFeedbackContext, clearFeedbackContext };
 }
 
-// For study/drill screens with a live timer: hand the Feedback tab pause/resume + a remaining
-// getter so opening the panel pauses the clock (and resumes on close/send).
+// For study/drill screens with a live timer: hand the Coach pause/resume + a remaining
+// getter so opening the dock pauses the clock (and resumes on close/send).
 export function useFeedbackTimer() {
   const { registerTimer } = useFeedback();
   return { registerTimer };
 }
 
-// For the panel itself: read the current context + the registered timer controller.
+// For the Coach dock itself: read the current context + the registered timer controller.
 export function useFeedbackPanelState() {
   const { context, timerRef } = useFeedback();
   return { context, timerRef };

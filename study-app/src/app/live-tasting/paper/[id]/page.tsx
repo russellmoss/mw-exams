@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
-import { FeedbackButton } from "@/app/components/FeedbackButton";
+import { useFeedbackContext } from "@/lib/feedback-context";
 import { useNow } from "@/lib/use-now";
 import { BriefCard } from "@/app/components/BriefCard";
 import { ByoWineForm } from "@/app/components/ByoWineForm";
@@ -91,6 +91,33 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
     if (!user) return;
     load();
   }, [user, load]);
+
+  // ── Coach screen context ──
+  // Replaces the floating Feedback pill this page used to carry. The pill had TWO paths and only one
+  // survives here: a question-scoped report (which the Coach handles once it has an id), and a
+  // paper-GENERATION report posted to /api/live-tasting/paper/[id]/feedback while the flights were
+  // still pending and no question existed. That endpoint is gone — it appended to a column nothing
+  // read and emailed admins — so generation feedback now goes through submit_feedback, which records
+  // `route` and therefore still identifies which paper it was about.
+  //
+  // The FIRST generated flight is the anchor: a paper is many questions, and pinning to one beats
+  // filing unattributably. The Coach can still be pointed at a different flight by id in conversation.
+  const firstQuestionId = paper?.flights.find((f) => f.questionId)?.questionId ?? null;
+  const { setFeedbackContext, clearFeedbackContext } = useFeedbackContext();
+  useEffect(() => {
+    if (!paper || !firstQuestionId) {
+      clearFeedbackContext();
+      return;
+    }
+    setFeedbackContext({
+      paper: paper.paper,
+      questionId: firstQuestionId,
+      mode: "live-tasting",
+      route: `/live-tasting/paper/${id}`,
+    });
+  }, [paper, firstQuestionId, id, setFeedbackContext, clearFeedbackContext]);
+
+  useEffect(() => () => clearFeedbackContext(), [clearFeedbackContext]);
 
   // Client-driven generation chaining (pick-for-me): one flight per request until done. A page
   // reload resumes exactly where it left off — the server generates whatever is missing next.
@@ -196,7 +223,6 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
   const examRunning = Boolean(paper.examStartedAt && paper.examDeadlineAt);
   const deadlinePassed = Boolean(paper.examDeadlineAt && new Date(paper.examDeadlineAt).getTime() < Date.now());
   const wineWord = paper.size === "full" ? "12 bottles" : "6 bottles";
-  const firstQuestionId = paper.flights.find((f) => f.questionId)?.questionId ?? null;
 
   return (
     <div className="flex flex-col flex-1">
@@ -460,16 +486,6 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
           </p>
         </div>
       </main>
-
-      {/* Feedback — bottom-left, like the study surfaces (user-1 request). */}
-      <div className="fixed bottom-4 left-4 z-40">
-        <FeedbackButton
-          attemptId={null}
-          questionId={firstQuestionId}
-          step={`paper-${paper.id}`}
-          fallbackEndpoint={`/api/live-tasting/paper/${id}/feedback`}
-        />
-      </div>
     </div>
   );
 }

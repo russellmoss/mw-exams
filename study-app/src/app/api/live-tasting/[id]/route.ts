@@ -68,6 +68,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     budgetCurrency: session.budget_currency,
     createdAt: session.created_at,
     shareActive: Boolean(session.share_token_hash && !session.graded_at && !session.abandoned_at),
+    // The opaque generated_questions id, exposed so the page can publish it as Coach screen context
+    // and a broken flight stays reportable from here. It is NOT identity: report_question and
+    // flag_defect both need an id, and the redaction contract is about wine names, the model answer
+    // and stockists — none of which an id discloses.
+    questionId: session.question_id,
     question: {
       questionText: question.question_text,
       totalMarks: question.total_marks,
