@@ -1489,7 +1489,13 @@ ${repairContext.draft}`,
     // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
     // structure. Blocks on every path (deterministic text/wine fix the repair prompt converges on).
     const singleWineFlightCheck = {
-      violations: validateSingleWineFlight(auditDraft).map((v) => v.detail),
+      violations: validateSingleWineFlight(auditDraft)
+        // Pinned (Live Tasting) keeps the ID-suppression half but drops the banker half — the flight
+        // is fixed upstream by retail availability, so "use a curveball instead" is not a fix the
+        // redraft loop can make. Unreachable today (the API caps Live Tasting at 2-4 bottles), but a
+        // rule the generator cannot satisfy is the wrong thing to leave armed.
+        .filter((v) => !(pinned && v.rule === "single-wine-flight-banker"))
+        .map((v) => v.detail),
     };
     // Single-wine frequency cap: one-wine flights are rare on the exam, so a draft that would push the
     // paper's servable share of them over 1-in-20 is rejected (redraw with 2+ wines). Pinned mode is

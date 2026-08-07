@@ -613,7 +613,11 @@ export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
     }
     if (isBanker(wine)) {
       v.push({
-        rule: "single-wine-flight",
+        // Distinct rule name from the ID-ask violation above: the engine drops THIS one in pinned
+        // (Live Tasting) mode. "Pick a curveball instead" is not a fix the redraft loop can make when
+        // the flight is fixed upstream by retail availability, so blocking on it would spin the
+        // generator to exhaustion. The ID-ask half stays hard everywhere — that one is a stem edit.
+        rule: "single-wine-flight-banker",
         severity: "hard",
         detail: `single-wine flight is keyed on ${wineLabel(
           wine

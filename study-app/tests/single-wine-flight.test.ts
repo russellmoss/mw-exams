@@ -71,7 +71,8 @@ c) Evaluate the commercial position of the wine. (9 marks)`;
 a) Comment on the style and key characteristics of the wine. (12 marks)
 b) Assess the quality of the wine. (13 marks)`;
     const v = validateSingleWineFlight(q(text, [BANKER_WINE]));
-    expect(v.some((x) => x.rule === "single-wine-flight" && /banker/.test(x.detail))).toBe(true);
+    // Its own rule name, because the engine drops this one (and only this one) in pinned mode.
+    expect(v.some((x) => x.rule === "single-wine-flight-banker" && /banker/.test(x.detail))).toBe(true);
   });
 });
 
