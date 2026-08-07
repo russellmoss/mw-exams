@@ -94,6 +94,24 @@ describe("resolveWineScope — colour and style resolve independently", () => {
     }
   });
 
+  // Dual-purpose regions: famous for a fortified wine, but also making dry table wine under the same
+  // name. The bare region name must not condemn the dry version — each of these was rejecting a
+  // legitimate Paper 2 red in the live bank.
+  it.each([
+    ["Maury Sec", { fullText: "Mas Amiel, Maury Sec. Roussillon, France." }, "still"],
+    ["Rasteau dry red", { fullText: "Domaine de la Mordorée, Rasteau Grenache Noir, 2019. Rasteau, France." }, "still"],
+    ["Rutherglen Petite Sirah", { varieties: ["Petite Sirah"], region: "Rutherglen", fullText: "Producer, Petite Sirah, 2019. Rutherglen, Australia." }, "still"],
+  ])("%s is a dry still wine, not fortified", (_l, w, expected) => {
+    expect(resolveWineScope(wine(w as Partial<AuditWine>)).style).toBe(expected);
+  });
+
+  it.each([
+    ["Rutherglen Muscat", "Chambers, Rare Muscat, NV. Rutherglen, Australia. (18%)"],
+    ["Rasteau VDN", "Domaine X, Rasteau Vin Doux Naturel, 2018. Rhône, France. (16%)"],
+  ])("%s IS still fortified — the positive marker is present", (_l, fullText) => {
+    expect(resolveWineScope(wine({ fullText })).style).toBe("fortified");
+  });
+
   it.each(["Manzanilla", "Fino", "Oloroso", "Amontillado", "Palo Cortado"])(
     "%s Sherry is fortified and fails Paper 1 (the reported miss)",
     (styleName) => {

@@ -56,9 +56,14 @@ jobs:
         working-directory: study-app
         run: npm ci
 
+      # ts-loader is required, not optional: question-validator.ts imports ./tasting-validators
+      # extensionless, and Node 24's native type-stripping will not resolve that. Without the loader
+      # this step dies with ERR_MODULE_NOT_FOUND before auditing anything — which is exactly what
+      # happened from 2026-08-07 (the 08-06 runs passed; the extensionless import landed in between),
+      # leaving the nightly quarantine silently dead. Same invocation as the bank-matches step below.
       - name: Audit + quarantine (hard violations → invalid_reasons)
         working-directory: study-app
-        run: node scripts/audit-questions.mjs --apply
+        run: node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply
 
       # Runs even if the step above fails: the two audits are independent, and a question-validator
       # problem should not leave wrong-wine profiles being served. ts-loader is the repo's existing

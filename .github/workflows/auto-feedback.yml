@@ -354,7 +354,9 @@ jobs:
             echo "Rebuilding stem_answer_keys…"; node scripts/build-stem-answer-keys.mjs || echo "::warning title=key rebuild failed::stem_answer_keys not rebuilt"
           fi
           if echo "$CHANGED" | grep -qE 'question-rules|question-validator|audit-questions|question-generation-prompt|get-question'; then
-            echo "Re-auditing corpus…"; node scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
+            # --import ts-loader: question-validator.ts has extensionless .ts imports that Node 24's
+            # native type-stripping cannot resolve. See question-audit-daily.yml for the full note.
+            echo "Re-auditing corpus…"; node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply || echo "::warning title=re-audit failed::corpus not re-audited"
           fi
 
       # NOTE: no explicit Vercel deploy step. Once "Merge to master" pushes a study-app/ change,

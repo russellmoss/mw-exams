@@ -1319,8 +1319,14 @@ const EXTRA_RED_VARIETIES = /\b(montepulciano)\b/;
 // The trade-off is deliberate. A bare "Mas Amiel, Maury" (a real VDN) now reads still, so this can
 // admit a fortified wine on Paper 2 — but false REJECTIONS retire legitimate questions from the pool,
 // which is the costlier error here, and the sweep's job is to be right about wines it is sure of.
-const DUAL_VDN_APPELLATION = /\b(maury|rasteau)\b/;
-const EXPLICIT_FORTIFIED = /\b(vin doux naturel|vdn|fortified|ambre|tuile|rancio|hors d.age|mistelle)\b/;
+// Rutherglen belongs here for the same reason: it is famous for fortified Muscat and Topaque, but it
+// also makes dry Durif, Shiraz and Petite Sirah, and a "Petite Sirah, Rutherglen" is a legitimate
+// Paper 2 wine that the bare region name was rejecting.
+const DUAL_VDN_APPELLATION = /\b(maury|rasteau|rutherglen)\b/;
+// The positive markers. `muscat|topaque|tokay|liqueur` are here for Rutherglen — they only apply when a
+// dual-purpose region has already matched, so a dry Alsace Muscat is unaffected.
+const EXPLICIT_FORTIFIED =
+  /\b(vin doux naturel|vdn|fortified|ambre|tuile|rancio|hors d.age|mistelle|muscat|topaque|tokay|liqueur)\b/;
 
 // The shared ROSE cue matches a bare `rose`, which collides with producer names once norm() strips
 // accents ("Cascina delle Rose" in Barbaresco — a red), and `cerasuolo`, which is a rosé in Abruzzo but
