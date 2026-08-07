@@ -45,6 +45,30 @@ export function proposalArgs(
   input: Record<string, unknown>,
   opts: { screen?: CoachScreenHint | null }
 ): Record<string, unknown> {
+  /**
+   * file_bug carries the question as CONTEXT, not as a target, and takes THREE deliberate
+   * differences from the two report paths above.
+   *
+   * WHY IT NEEDS ONE AT ALL. A bug found while looking at a question is nearly always about that
+   * question's rendering — the marks footer, a truncated stem, wines that won't reveal. Filed
+   * without the id (which is what happened before this: `file_bug` was excluded here and its
+   * committer hard-coded `questionId: null`) the report reaches an admin as "General feedback"
+   * with the question named only in prose, if the model happened to mention it. Attempt 407 is the
+   * worked example — a footer summing to 44 instead of 50, unattributable without reading the body.
+   *
+   * NO attemptId. The row is filed as app-level feedback (scope 'general'), which is never hung off
+   * an attempt, so signing one in would be signing a field nothing reads.
+   *
+   * SCREEN ONLY, never a model-named id. `fileBug`'s schema deliberately has no questionId
+   * property, so `input.questionId` is always absent and this cannot disagree with the card. That
+   * also keeps the FK safe: the screen's id is one the server resolved, whereas a model-invented id
+   * would fail `user_attempts_question_id_fkey` at commit and lose a bug report over a detail that
+   * was only ever context.
+   */
+  if (tool === "file_bug") {
+    return opts.screen?.questionId ? { questionId: opts.screen.questionId } : {};
+  }
+
   if (tool !== "report_question" && tool !== "flag_defect") return {};
 
   const named = typeof input.questionId === "string" && input.questionId ? input.questionId : null;

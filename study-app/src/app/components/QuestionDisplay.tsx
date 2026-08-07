@@ -55,6 +55,28 @@ export function QuestionDisplay({
   const derived = deriveQuestion(stemText ?? question.text, wineCount);
   const multiScope = derived.scopes.length > 1;
 
+  /**
+   * The footer total comes from the QUESTION, not from the stem prose.
+   *
+   * `derived.totalMarks` is scraped from a literal "Total: N marks" line in the stem, and that line is
+   * LLM-authored: the Stem Detail derivation prompt used to demand a Total line even when the
+   * canonical stem had none, so the model invented one and sometimes got it wrong. gen_p2_F5_
+   * 1786049788105 printed "Total: 44 marks" over sub-parts summing to 50 — 44 being the "For each
+   * wine" parts (10+16+18) with the flight-wide 6 for part (a) dropped. Measured across the bank: 62
+   * questions carry an invented total line (the canonical prints one on only 3), and 19 of those
+   * disagree with their own total_marks. Reported from the Coach, attempt 407.
+   *
+   * `question.totalMarks` is the authoritative column, hard-validated as flightSize x 25
+   * (question-rules.mjs "marks"), and is what the header badge already shows — so trusting it here
+   * also stops the two totals on one screen from contradicting each other.
+   *
+   * Still GATED on the stem having declared a total, so this fixes the number without adding a footer
+   * to the ~790 questions that never showed one. The scraped value survives only as a fallback for a
+   * caller with no authoritative total.
+   */
+  const declaresTotal = derived.totalMarks != null;
+  const footerTotal = question.totalMarks > 0 ? question.totalMarks : derived.totalMarks;
+
   return (
     <div>
       {/* Header badges */}
@@ -129,10 +151,10 @@ export function QuestionDisplay({
           </div>
         )}
 
-        {!multiScope && derived.totalMarks != null && (
+        {!multiScope && declaresTotal && (
           <div className="px-8 py-3 bg-border/10 border-t border-border/50">
             <p className="text-xs text-muted font-mono text-right tabular-nums">
-              Total: {derived.totalMarks} marks
+              Total: {footerTotal} marks
             </p>
           </div>
         )}
@@ -143,7 +165,7 @@ export function QuestionDisplay({
       {multiScope && (
         <>
           <QuestionSectionCards sections={derived.sections} wineCount={wineCount} />
-          {(onAddDetail && nextStemDetailLevel) || derived.totalMarks != null ? (
+          {(onAddDetail && nextStemDetailLevel) || declaresTotal ? (
             <div className="bg-card rounded-xl border border-border overflow-hidden mb-8">
               {onAddDetail && nextStemDetailLevel && (
                 <div className="px-8 py-4 flex flex-wrap items-center justify-between gap-3">
@@ -158,10 +180,10 @@ export function QuestionDisplay({
                   </button>
                 </div>
               )}
-              {derived.totalMarks != null && (
+              {declaresTotal && (
                 <div className="px-8 py-3 bg-border/10 border-t border-border/50">
                   <p className="text-xs text-muted font-mono text-right tabular-nums">
-                    Total: {derived.totalMarks} marks
+                    Total: {footerTotal} marks
                   </p>
                 </div>
               )}
