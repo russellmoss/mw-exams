@@ -1,0 +1,2706 @@
+{
+  "model": "gemini-3.6-flash",
+  "provider": "gemini",
+  "crossFamily": true,
+  "split": "holdout",
+  "goldenHash": "3be7665113dbfc58",
+  "scored": 171,
+  "unparsed": 0,
+  "kappa": 0.036834067020034084,
+  "binRecall": 0.49019607843137253,
+  "binRecallLo": 0.3585726214230619,
+  "binRecallHi": 0.6231930455159039,
+  "negatives": 51,
+  "falseBinRate": 0.17,
+  "disputed": [
+    {
+      "questionId": "gen_p1_F1_1785951397786",
+      "rationale": "Wine 2 names Clos Jordan for a Niagara Riesling, but Le Clos Jordanne produces exclusively Chardonnay and Pinot Noir, and the model answer headers contain arithmetic discrepancies with the stem mark scheme."
+    },
+    {
+      "questionId": "gen_p1_F2_1785866744346",
+      "rationale": "Jean-Louis Grippat retired and sold his estate to Guigal in 2001, making a 2022 vintage impossible, and the model answer mark scheme does not match the question stem."
+    },
+    {
+      "questionId": "gen_p1_F2_1785949360532",
+      "rationale": "The mark allocations in the model answer headers do not match the question stem, and the winemaking description incorrectly asserts oak aging for Domaine Leflaive Mâcon-Verzé, which is raised entirely in stainless steel."
+    },
+    {
+      "questionId": "gen_p1_F3_1785862935853",
+      "rationale": "The question must be binned because Domaine de la Mordorée does not produce Condrieu, and the provided model answer cuts off mid-sentence during Wine 4."
+    },
+    {
+      "questionId": "gen_p1_F3_1785857411633",
+      "rationale": "Domaine Vatan Clos de la Néore is a microscopic cult wine (£200+ secondary market, virtually impossible to source in volume for an IMW exam), its commercial price in the model answer is wildly inaccurate, and the model answer text is truncated mid-sentence."
+    },
+    {
+      "questionId": "gen_p1_F4_1785863215881",
+      "rationale": "The question stem explicitly states that each wine is made from a different single grape variety, yet both Wine 1 and Wine 3 are Chenin Blanc."
+    },
+    {
+      "questionId": "gen_p1_F7_1785957210459",
+      "rationale": "The question stem explicitly states the wines are made from different grape varieties, but both wines in the flight are Chardonnay, creating a direct factual contradiction."
+    },
+    {
+      "questionId": "gen_p1_F7_1785883372636",
+      "rationale": "Domaine Roulot Meursault 1er Cru Les Perrières is an impossibly scarce, £1,000+ iconic producer wine that an IMW exam panel could never source in exam quantities, and the model answer wildly misprices it at £80–120."
+    },
+    {
+      "questionId": "gen_p2_F1_1785875828818",
+      "rationale": "The model answer cuts off mid-sentence during Wine 5 (omitting part d entirely) and factually misplaces Bernhard Huber's Malterdingen Bienenberg in Kaiserstuhl rather than Breisgau."
+    },
+    {
+      "questionId": "gen_p2_F2_1785954957574",
+      "rationale": "Clos Rougeard Le Bourg is a rare cult wine that is impossible to source for an IMW exam, and the model answer contains a major factual error stating it uses older medium-format barrels when Le Bourg is famously aged in 100% new oak barriques."
+    },
+    {
+      "questionId": "gen_p2_F3_1785877349372",
+      "rationale": "The model answer uses completely different mark allocations than those set out in the question stem, incorrectly designates Montsant as a DOQ rather than a DO, and cuts off mid-sentence at the end."
+    },
+    {
+      "questionId": "gen_p2_F3_1785869981298",
+      "rationale": "The model answer hallucinated Wine 2 (Château Rayas Châteauneuf-du-Pape) as a white wine made from Grenache Blanc, when it is famously one of the world's most iconic 100% Grenache red wines."
+    },
+    {
+      "questionId": "gen_p2_F3_1785954069220",
+      "rationale": "Wine 2 ('Sperino Uvaggio') is a multi-variety blend (Nebbiolo/Vespolina/Croatina) from Coste della Sesia DOC, contradicting the prompt's explicit premise of 'single grape varieties', and the model answer mark scheme does not match the question breakdown."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822074988",
+      "rationale": "Gramercy Cellars' 'Lagniappe' is their flagship 100% Syrah cuvée (their Grenache is 'Third Man'), making Wine 2 factually incorrect as specified."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822320159",
+      "rationale": "The question stem explicitly states that the three wines are each made from a different grape variety, but Wine 2 (Cannonau) and Wine 3 (Garnacha) are the same grape variety (Grenache)."
+    },
+    {
+      "questionId": "gen_p2_F7_1785872270098",
+      "rationale": "The question contains severe factual errors and contradictions: Mâcon-Villages Rouge does not legally exist, the model answer absurdly claims Wine 1 is a white Chardonnay despite the stem guaranteeing a single-variety flight, and the flight includes unobtainable cult wines like Rousseau Chambertin."
+    },
+    {
+      "questionId": "gen_p2_F7_1785967849483",
+      "rationale": "Wine 4 misnames Vasse Felix's flagship wine as 'Tom Cullam' instead of 'Tom Cullity', and the model answer alters the sub-part mark allocations set out in the question stem."
+    },
+    {
+      "questionId": "gen_p3_F1_1785941649333",
+      "rationale": "The model answer contains significant factual errors regarding Rutherglen Muscat, incorrectly claiming that 'Museum Reserve' is an official tier above Rare in the Rutherglen classification and attributing Yalumba to Rutherglen, alongside mark scheme discrepancies in the headers."
+    },
+    {
+      "questionId": "gen_p3_F1_1785960888907",
+      "rationale": "Henschke Croft is a well-known still Chardonnay, not a sparkling Blanc de Blancs, and the mark breakdown in the model answer headings contradicts the question stem."
+    },
+    {
+      "questionId": "gen_p3_F2_1785961381927",
+      "rationale": "Henkell Trocken NV is an EU-blend Sekt rather than a Rheinhessen single-region wine, and the mark breakdown in the model answer headers contradicts the mark allocation in the question stem."
+    },
+    {
+      "questionId": "gen_p3_F4_1785966184238",
+      "rationale": "Domaine Ott's Clos Mireille Blanc de Blancs is a white wine (and a blend predominantly of Sémillon, not single-varietal Rolle), making 'Clos Mireille Blanc de Blancs Rosé' a factually impossible and oxymoronic wine."
+    },
+    {
+      "questionId": "gen_p3_F4_1785951740725",
+      "rationale": "Clos Windsbuhl is a famous lieu-dit rather than an Alsace Grand Cru AOC, and the mark allocations in the model answer headers contradict the question stem."
+    },
+    {
+      "questionId": "gen_p3_F4_1785960888874",
+      "rationale": "The model answer is truncated mid-sentence in Wine 4, completely omitting Wines 5 and 6, and incorrectly describes pale pink Lambrusco di Sorbara as deep ruby-red."
+    },
+    {
+      "questionId": "gen_p3_F4_1785962857190",
+      "rationale": "Le Clos Jordanne is a producer of premium dry Burgundian-style table wines and does not make Icewine (let alone a 'Grand Clos Chardonnay Icewine'), rendering Wine 4 factually incorrect, and the model answer text is truncated at the end."
+    },
+    {
+      "questionId": "gen_p3_F5_1785961788625",
+      "rationale": "The model answer incorrectly classifies Domaine de la Taille aux Loups 'Triple Zéro' as traditional method rather than ancestral method, violating both factual accuracy and the stem's explicit premise that each wine uses a different method of production."
+    },
+    {
+      "questionId": "gen_p3_F6_1785881221485",
+      "rationale": "Rey Fernando de Castilla does not produce a 'Fino Antique' because their Antique range is strictly reserved for 20+ year old oxidative styles (Amontillado, Oloroso, Palo Cortado, PX), making Wine 2 factually impossible."
+    },
+    {
+      "questionId": "gen_p3_F7_1785965682546",
+      "rationale": "The stem explicitly states the wines are from different countries, yet both selected wines are from France, and the mark allocations in the answer headers contradict the stem."
+    },
+    {
+      "questionId": "gen_p3_F7_1785963588166",
+      "rationale": "The model answer contains major factual errors regarding winemaking and pricing (Hattingley's flagship 'Kings Cuvée' is 100% barrel-fermented and sells for ~£80-100, not £35-55, and Blanc des Millénaires sees no oak), while the mark allocations in the answer headers contradict the stem."
+    }
+  ],
+  "syntheticFloorHits": 20,
+  "syntheticFloorTotal": 20,
+  "missedCorruptions": [],
+  "qualified": false,
+  "failures": [
+    "kappa 0.037 < 0.6",
+    "bin-recall lower bound 0.359 < 0.70"
+  ],
+  "cacheReadTokens": 0,
+  "cacheCreationTokens": 0,
+  "verdicts": [
+    {
+      "questionId": "gen_p1_F1_1785949912302",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary, classic MW Paper 1 flight comparing three distinct regional expressions of Sauvignon Blanc with well-calibrated wines and accurate, highly detailed model answers."
+    },
+    {
+      "questionId": "gen_p1_F1_1785848900670",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 3
+      },
+      "rationale": "This is an iconic, textbook IMW Paper 1 pair comparing classic Hunter Valley and Franschhoek Semillon, though the model answer headings accidentally misstate the question stem's mark breakdown."
+    },
+    {
+      "questionId": "gen_p1_F1_1785946297765",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is an exemplary, highly realistic single-varietal benchmark Riesling flight featuring iconic classic regions and dry-to-sweet styles."
+    },
+    {
+      "questionId": "gen_p1_F1_1785951397786",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 3
+      },
+      "rationale": "Wine 2 names Clos Jordan for a Niagara Riesling, but Le Clos Jordanne produces exclusively Chardonnay and Pinot Noir, and the model answer headers contain arithmetic discrepancies with the stem mark scheme."
+    },
+    {
+      "questionId": "gen_p1_F1_1785957210760",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook IMW Paper 1 flight featuring three classic benchmarks of Chardonnay alongside a precise, standard question format and well-structured model answer."
+    },
+    {
+      "questionId": "gen_p1_F1_1785956110224",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary flight comparing benchmark international expressions of Sauvignon Blanc with a concise, realistic stem and a rigorous model answer."
+    },
+    {
+      "questionId": "gen_p1_F2_1785885210417",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary IMW Paper 1 question pairing two classic benchmark French white varieties with accurate mark weighting and realistic wines."
+    },
+    {
+      "questionId": "gen_p1_F2_1785866744346",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 3,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Jean-Louis Grippat retired and sold his estate to Guigal in 2001, making a 2022 vintage impossible, and the model answer mark scheme does not match the question stem."
+    },
+    {
+      "questionId": "gen_p1_F2_1785869323512",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 1 question using two iconic benchmark Alto Adige wines, though the model answer slightly overstates Gewürztraminer's natural acidity."
+    },
+    {
+      "questionId": "gen_p1_F2_1785949360532",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 3
+      },
+      "rationale": "The mark allocations in the model answer headers do not match the question stem, and the winemaking description incorrectly asserts oak aging for Domaine Leflaive Mâcon-Verzé, which is raised entirely in stainless steel."
+    },
+    {
+      "questionId": "gen_p1_F2_1785957395573",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook IMW Paper 1 flight featuring classic benchmark French whites across three contrasting regions with accurate technical details and an exemplary model answer."
+    },
+    {
+      "questionId": "gen_p1_F3_1785952980853",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 3,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "The model answer fundamental misunderstands Jura winemaking by describing an 'ouillé' (topped-up, non-oxidative) wine as deliberately oxidative and aldehydic."
+    },
+    {
+      "questionId": "gen_p1_F3_1785957386477",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer hallucinates Wine 4 (Quinta do Crasto Branco, a 13% ABV dry white) as a fortified red Vintage Port."
+    },
+    {
+      "questionId": "gen_p1_F3_1785869684373",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 1 question pairing two classic benchmark white blends with clean, accurate phrasing and a high-quality model answer."
+    },
+    {
+      "questionId": "gen_p1_F3_1785862935853",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "The question must be binned because Domaine de la Mordorée does not produce Condrieu, and the provided model answer cuts off mid-sentence during Wine 4."
+    },
+    {
+      "questionId": "gen_p1_F3_1785951994890",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a flawless, classic IMW Paper 1 flight featuring recognizable benchmark wines and an exemplary model answer."
+    },
+    {
+      "questionId": "gen_p1_F3_1785857411633",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 1,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "Domaine Vatan Clos de la Néore is a microscopic cult wine (£200+ secondary market, virtually impossible to source in volume for an IMW exam), its commercial price in the model answer is wildly inaccurate, and the model answer text is truncated mid-sentence."
+    },
+    {
+      "questionId": "gen_p1_F3_1785953136558",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary, benchmark-quality Paper 1 question pairing three classic white blends from Bordeaux, Margaret River, and Swartland with accurate, highly authentic model answers."
+    },
+    {
+      "questionId": "gen_p1_F4_1785885210658",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer incorrectly identifies Wine 2 (a classic Mosel Riesling Kabinett) as a dry Pinot Gris, creating a fatal contradiction between the wine list and the official answer key."
+    },
+    {
+      "questionId": "gen_p1_F4_1785866613655",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "The stem explicitly states that the three wines are each made predominantly from a different grape variety, but both Wine 1 and Wine 3 are Chenin Blanc-based."
+    },
+    {
+      "questionId": "gen_p1_F4_1785950077499",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a flawless set of benchmark white wines framed with authentic IMW question structure and precise model answers."
+    },
+    {
+      "questionId": "gen_p1_F4_1785863215881",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 4,
+        "stem_quality": 1,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "The question stem explicitly states that each wine is made from a different single grape variety, yet both Wine 1 and Wine 3 are Chenin Blanc."
+    },
+    {
+      "questionId": "gen_p1_F4_1785957395766",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 2
+      },
+      "rationale": "The flight and stem are classic and well-calibrated, but the model answer truncates abruptly at the start of Wine 4(c)."
+    },
+    {
+      "questionId": "gen_p1_F4_1785866199637",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "An authentic IMW Paper 1 flight featuring classic benchmark whites with precise, well-structured questions, though the model answer incorrectly attributes oak to standard Sigalas Santorini Assyrtiko."
+    },
+    {
+      "questionId": "gen_p1_F4_1785882740197",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 3,
+        "answer_fidelity": 2
+      },
+      "rationale": "Paper 1 in the IMW practical exam is strictly dedicated to white wines, making the inclusion of a Schilcher rosé inappropriate; furthermore, Wine 1 is overly obscure and the model answer terminates abruptly."
+    },
+    {
+      "questionId": "gen_p1_F5_1785884746129",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook IMW Paper 1 question pairing Hunter Semillon with Meursault to contrast bottle-age toast with oak/lees-derived complexity."
+    },
+    {
+      "questionId": "gen_p1_F5_1785949028878",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A classic and well-constructed single-wine IMW Paper 1 question using a highly plausible, classic village Burgundy white."
+    },
+    {
+      "questionId": "gen_p1_F5_1785885375428",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent, realistic two-wine question featuring benchmark French producers that cleanly tests variety identification and stark contrasts in winemaking."
+    },
+    {
+      "questionId": "gen_p1_F5_1785951608542",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 1 question featuring two benchmark, contrasting expressions of Semillon-based wines."
+    },
+    {
+      "questionId": "gen_p1_F5_1785953310637",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An outstanding and realistic IMW Paper 1 question with four classic white styles demonstrating distinct winemaking methodologies, accurate wine details, and a high-quality model answer."
+    },
+    {
+      "questionId": "gen_p1_F5_1785866834848",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 3,
+        "answer_fidelity": 3
+      },
+      "rationale": "Basa by Telmo Rodríguez is a blend of Verdejo with Viura and Sauvignon Blanc, contradicting the stem's single-variety premise, and the model answer section headers misquote the mark breakdown given in the question stem."
+    },
+    {
+      "questionId": "gen_p1_F5_1785866744388",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 3,
+        "answer_fidelity": 2
+      },
+      "rationale": "The question suffers from mark allocation discrepancies between the stem and model answer headers, pricing for 2021 Meursault is unrealistically low (€35–55), and Château-Chalon is an immediate giveaway that makes identification too trivial for an MW paper."
+    },
+    {
+      "questionId": "gen_p1_F5_1785953475123",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a quintessential IMW white flight featuring benchmark high-acid varieties across three continents, with flawless factual accuracy and well-structured exam answers."
+    },
+    {
+      "questionId": "gen_p1_F5_1785866099060",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is an exemplary IMW Paper 1 flight that elegantly contrasts three distinct white winemaking methodologies (barrel/lees, stainless steel protective, and biological aging under voile) using benchmark wines."
+    },
+    {
+      "questionId": "gen_p1_F5_1785953773990",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook, highly realistic single-wine question featuring a iconic benchmark wine central to the MW Paper 1 syllabus."
+    },
+    {
+      "questionId": "gen_p1_F7_1785866656852",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 3,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer is truncated mid-sentence (missing part c for five wines), and the stem contains broken mark allocation math alongside ledger numbering mismatches."
+    },
+    {
+      "questionId": "gen_p1_F7_1785884966901",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 1 question comparing Jura Chardonnay with Mâconnais Chardonnay, featuring top-tier producer benchmark wines and an excellent model answer."
+    },
+    {
+      "questionId": "gen_p1_F7_1785957210459",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "The question stem explicitly states the wines are made from different grape varieties, but both wines in the flight are Chardonnay, creating a direct factual contradiction."
+    },
+    {
+      "questionId": "gen_p1_F7_1785883372636",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 5
+      },
+      "rationale": "Domaine Roulot Meursault 1er Cru Les Perrières is an impossibly scarce, £1,000+ iconic producer wine that an IMW exam panel could never source in exam quantities, and the model answer wildly misprices it at £80–120."
+    },
+    {
+      "questionId": "gen_p1_F7_1785883207106",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 2
+      },
+      "rationale": "While the flight pairing and wine selection are exemplary benchmark examples, the model answer cuts off mid-sentence in section c and completely omits section d."
+    },
+    {
+      "questionId": "gen_p1_F7_1785867309100",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A well-constructed, realistic two-wine comparison featuring two iconic Spanish white benchmarks that test contrasting winemaking approaches and regional typicity."
+    },
+    {
+      "questionId": "gen_p2_F1_1785975379877",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary IMW practice question featuring two benchmark, perfectly paired Pinot Noirs with authentic exam formatting and a rigorous model answer."
+    },
+    {
+      "questionId": "gen_p2_F1_1785986566856",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook, highly realistic IMW Paper 2 flight comparing benchmark Syrah expressions across Northern Rhône, Yarra Valley, and Swartland with accurate detail and exemplary answer structure."
+    },
+    {
+      "questionId": "gen_p2_F1_1785975111646",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "An exemplary IMW Paper 2 question featuring five classic benchmark Pinot Noirs from five countries, supported by an exceptionally detailed and well-reasoned model answer."
+    },
+    {
+      "questionId": "gen_p2_F1_1785869169356",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary classic Paper 2 flight of benchmark Pinot Noirs with flawless mark structure, realistic wine selection, and a highly detailed model answer."
+    },
+    {
+      "questionId": "gen_p2_F1_1785875828818",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer cuts off mid-sentence during Wine 5 (omitting part d entirely) and factually misplaces Bernhard Huber's Malterdingen Bienenberg in Kaiserstuhl rather than Breisgau."
+    },
+    {
+      "questionId": "gen_p2_F1_1785954213883",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is a textbook Paper 2 flight featuring classic benchmark Merlots from three key origins, with an accurate stem and well-structured model answer."
+    },
+    {
+      "questionId": "gen_p2_F1_1785876478226",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook IMW Paper 2 flight featuring three classic, highly plausible benchmark Syrahs paired with an accurate, well-structured model answer."
+    },
+    {
+      "questionId": "gen_p2_F2_1785898647285",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 3
+      },
+      "rationale": "Paper 2 is strictly dedicated to red wines, yet Wine 2 is presented as a white wine, which also creates a mismatch with the wine list."
+    },
+    {
+      "questionId": "gen_p2_F2_1785975388024",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 3,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 3
+      },
+      "rationale": "Librandi Gravello is an IGT Val di Neto wine rather than Cirò DOC, presenting a factual error, and the flight features a mismatched group of obscure regional blends that would be unsuitable for an IMW exam panel."
+    },
+    {
+      "questionId": "gen_p2_F2_1785968066486",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic, well-calibrated Paper 2 flight of benchmark Italian reds from four major regions with realistic producers and complete, high-quality model answers."
+    },
+    {
+      "questionId": "gen_p2_F2_1785954792546",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary, benchmark-quality IMW Paper 2 question featuring four distinct, commercially available, classic Spanish red styles with a flawless stem and model answer."
+    },
+    {
+      "questionId": "gen_p2_F2_1785951663977",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is a quintessential, benchmark IMW Paper 2 flight of modern vs classic Spanish reds with accurate producer choices and clear exam-style questions."
+    },
+    {
+      "questionId": "gen_p2_F2_1785954213889",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 2,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "Ruchè di Castagnole Monferrato is far too obscure a variety to feature as one of three wines in a 75-mark IMW practical exam."
+    },
+    {
+      "questionId": "gen_p2_F2_1785869684126",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook IMW Paper 2 flight comparing structured, high-acid Italian indigenous reds across contrasting terroirs using iconic benchmark producers with accurate, exam-standard model answers."
+    },
+    {
+      "questionId": "gen_p2_F2_1785954957574",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Clos Rougeard Le Bourg is a rare cult wine that is impossible to source for an IMW exam, and the model answer contains a major factual error stating it uses older medium-format barrels when Le Bourg is famously aged in 100% new oak barriques."
+    },
+    {
+      "questionId": "gen_p2_F3_1785955048521",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer misidentifies Reyneke Reserve Red as a Cabernet Sauvignon-dominant wine when it is 100% Syrah, and the answer text cuts off mid-sentence at the end."
+    },
+    {
+      "questionId": "gen_p2_F3_1785954883937",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "The question premise asserts both wines are made from the same single grape variety, but Wine 1 is Nebbiolo (Barolo) and Wine 2 is Mencía (Bierzo), which are two completely different grape varieties."
+    },
+    {
+      "questionId": "gen_p2_F3_1785894009156",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic, highly realistic IMW Paper 2 flight featuring three benchmark single-varietal Pinot Noirs across distinct global regions."
+    },
+    {
+      "questionId": "gen_p2_F3_1785951853976",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 2 'blended red wines' question featuring four benchmark, globally accessible wines with an accurate and well-structured mark scheme."
+    },
+    {
+      "questionId": "gen_p2_F3_1785877349372",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 2,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer uses completely different mark allocations than those set out in the question stem, incorrectly designates Montsant as a DOQ rather than a DO, and cuts off mid-sentence at the end."
+    },
+    {
+      "questionId": "gen_p2_F3_1785870277779",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a well-constructed and highly realistic Paper 2 question featuring two iconic, benchmark single-variety red wines with an excellent model answer."
+    },
+    {
+      "questionId": "gen_p2_F3_1785869981298",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer hallucinated Wine 2 (Château Rayas Châteauneuf-du-Pape) as a white wine made from Grenache Blanc, when it is famously one of the world's most iconic 100% Grenache red wines."
+    },
+    {
+      "questionId": "gen_p2_F3_1785954069220",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Wine 2 ('Sperino Uvaggio') is a multi-variety blend (Nebbiolo/Vespolina/Croatina) from Coste della Sesia DOC, contradicting the prompt's explicit premise of 'single grape varieties', and the model answer mark scheme does not match the question breakdown."
+    },
+    {
+      "questionId": "gen_p2_F4_1785894610007",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An outstanding Paper 2 flight featuring benchmark wines with immaculate factual accuracy, realistic examination phrasing, and a thorough model answer."
+    },
+    {
+      "questionId": "gen_p2_F4_1785898861354",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Clos de Trias is an established Ventoux (France) producer, making its attribution to Jumilla, Spain factually incorrect."
+    },
+    {
+      "questionId": "gen_p2_F4_1785968066481",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Domaine de Trévallon Rouge is famously a 50/50 blend of Cabernet Sauvignon and Syrah (and classified as IGP Alpilles), directly contradicting the stem premise that all three wines are made from a single grape variety."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822074988",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 5
+      },
+      "rationale": "Gramercy Cellars' 'Lagniappe' is their flagship 100% Syrah cuvée (their Grenache is 'Third Man'), making Wine 2 factually incorrect as specified."
+    },
+    {
+      "questionId": "gen_p2_F4_1785954365148",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent, authentic Paper 2 flight featuring benchmark expressions of distinct red grapes across four countries, with precise commercial and technical commentary."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822120916",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent, classic IMW pair comparing two benchmark single-varietal red wines with accurate technical details and a precise, well-structured mark scheme."
+    },
+    {
+      "questionId": "gen_p2_F4_1785894389308",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is an outstanding, highly representative Paper 2 flight featuring four benchmark varieties from four different countries, with realistic and widely available wines."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822256721",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 2 question featuring three classic, highly plausible red wines with precise deductive reasoning in the model answer."
+    },
+    {
+      "questionId": "gen_p2_F4_1785954506143",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a well-constructed, realistic Paper 2 flight of single-varietal red wines from four distinct countries, supported by a precise and well-reasoned model answer."
+    },
+    {
+      "questionId": "gen_p2_F4_1785877031685",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 1
+      },
+      "rationale": "The question stem and flight selection are exemplary, but the model answer cuts off abruptly during Wine 4 and omits Wine 5 entirely."
+    },
+    {
+      "questionId": "gen_p2_F4_1785822320159",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 4,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "The question stem explicitly states that the three wines are each made from a different grape variety, but Wine 2 (Cannonau) and Wine 3 (Garnacha) are the same grape variety (Grenache)."
+    },
+    {
+      "questionId": "gen_p2_F7_1785987498009",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "The prompt explicitly specifies three different regions from the same country, but Wine 2 (Châteauneuf-du-Pape) and Wine 3 (Côtes du Rhône Villages) are both from the Southern Rhône Valley."
+    },
+    {
+      "questionId": "gen_p2_F7_1785987927733",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 2 question comparing Langhe Nebbiolo (Barolo) with Alto Piemonte (Gattinara) using classic benchmark producers with precise, realistic model answers."
+    },
+    {
+      "questionId": "gen_p2_F7_1785974707719",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 3,
+        "stem_quality": 2,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The prompt specifies that all wines are single-varietal, yet iconic blends like Domaine de Trévallon and Sadie Family Columella are used, and the model answer is cut off halfway through Wine 4, missing Wines 5 and 6 entirely."
+    },
+    {
+      "questionId": "gen_p2_F7_1785987696132",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "Pinot Noir from the Itata Valley is an unnecessarily obscure choice for a regional identification task, and the pairing with Châteauneuf-du-Pape lacks clear comparative exam logic."
+    },
+    {
+      "questionId": "gen_p2_F7_1785876368046",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 4,
+        "answer_fidelity": 2
+      },
+      "rationale": "There is a major breakdown in answer fidelity and mark allocation consistency: the question stem allocates 18 marks per wine to part c (total 36 marks), whereas the model answer header claims it is 7 marks per wine."
+    },
+    {
+      "questionId": "gen_p2_F7_1785897933735",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "DRC La Tâche is economically and practically impossible to source in the required quantities for an IMW exam, making this pair completely unrealistic."
+    },
+    {
+      "questionId": "gen_p2_F7_1785872270098",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "The question contains severe factual errors and contradictions: Mâcon-Villages Rouge does not legally exist, the model answer absurdly claims Wine 1 is a white Chardonnay despite the stem guaranteeing a single-variety flight, and the flight includes unobtainable cult wines like Rousseau Chambertin."
+    },
+    {
+      "questionId": "gen_p2_F7_1785894009187",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook Paper 2 comparison featuring two iconic benchmark Pinot Noirs with a classic stem structure and high-quality model answer."
+    },
+    {
+      "questionId": "gen_p2_F7_1785967849483",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 3,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Wine 4 misnames Vasse Felix's flagship wine as 'Tom Cullam' instead of 'Tom Cullity', and the model answer alters the sub-part mark allocations set out in the question stem."
+    },
+    {
+      "questionId": "gen_p3_F1_1785880312586",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a flawless, textbook Paper 3 flight featuring four classic, benchmark expressions of Muscat across different styles and winemaking methods."
+    },
+    {
+      "questionId": "gen_p3_F1_1785881045661",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Sauternes is made from Sémillon, Sauvignon Blanc, and Muscadelle (never Muscat), making the premise of a single shared grape variety across all three wines factually impossible."
+    },
+    {
+      "questionId": "gen_p3_F1_1785941998143",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a flawless, textbook Paper 3 flight illustrating the versatility of Muscat Blanc à Petits Grains across four distinct winemaking and maturation techniques, accompanied by an exceptionally accurate model answer."
+    },
+    {
+      "questionId": "gen_p3_F1_1785941730291",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic IMW Paper 3 comparative pairing of benchmark wines with realistic mark allocations and well-structured model answers."
+    },
+    {
+      "questionId": "gen_p3_F1_1785960336496",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic, benchmark IMW Riesling comparison flight across three distinct classic styles (Nahe Spätlese, Clare Valley dry, and Alsace VT) with a well-structured stem and concise model answer."
+    },
+    {
+      "questionId": "gen_p3_F1_1785963389022",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer headers contradict the mark allocation set out in the question stem (allocating 13 marks to region and 7 to style/production, rather than 6 and 17 respectively)."
+    },
+    {
+      "questionId": "gen_p3_F1_1785941649333",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 3
+      },
+      "rationale": "The model answer contains significant factual errors regarding Rutherglen Muscat, incorrectly claiming that 'Museum Reserve' is an official tier above Rare in the Rutherglen classification and attributing Yalumba to Rutherglen, alongside mark scheme discrepancies in the headers."
+    },
+    {
+      "questionId": "gen_p3_F1_1785960888907",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Henschke Croft is a well-known still Chardonnay, not a sparkling Blanc de Blancs, and the mark breakdown in the model answer headings contradicts the question stem."
+    },
+    {
+      "questionId": "gen_p3_F1_1785878565476",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 3,
+        "answer_fidelity": 2
+      },
+      "rationale": "The mark allocation in the model answer headings (2x10, 2x8, 2x7) does not match the question stem (2x8, 2x9, 2x8), and claiming barrel fermentation for Baumard Quarts de Chaume is a classic factual error as Baumard famously uses stainless steel exclusively."
+    },
+    {
+      "questionId": "gen_p3_F1_1785963753852",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A pristine, classic Paper 3 flight featuring quintessential benchmark sweet wines from distinct regions and varieties with accurate stems and comprehensive model answers."
+    },
+    {
+      "questionId": "gen_p3_F1_1785965022576",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook, impeccably crafted IMW Paper 3 question and model answer featuring benchmark sweet Rieslings that illustrate four distinct sweetness-concentration methods across four countries."
+    },
+    {
+      "questionId": "gen_p3_F2_1785881183879",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer completely hallucinates Wine 4, describing a red Pinot Noir instead of the Craggy Range Noble Riesling specified in the wine list."
+    },
+    {
+      "questionId": "gen_p3_F2_1785964017222",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "The stem explicitly states that both wines are from the same country, but Wine 1 is from France and Wine 2 is from Spain, creating a fatal factual contradiction."
+    },
+    {
+      "questionId": "gen_p3_F2_1785880678476",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary, benchmark Paper 3 flight testing three distinct classic styles of oxidative winemaking across three countries."
+    },
+    {
+      "questionId": "gen_p3_F2_1785961381927",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 3,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "Henkell Trocken NV is an EU-blend Sekt rather than a Rheinhessen single-region wine, and the mark breakdown in the model answer headers contradicts the mark allocation in the question stem."
+    },
+    {
+      "questionId": "gen_p3_F2_1785962270700",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook IMW Paper 3 sweet wine flight that brilliantly contrasts four distinct French sweet wine production mechanisms across classic varieties and regions."
+    },
+    {
+      "questionId": "gen_p3_F2_1785952528913",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 3,
+        "stem_quality": 2,
+        "factual_accuracy": 4,
+        "answer_fidelity": 3
+      },
+      "rationale": "The stem suffers from faulty mark arithmetic (sub-part marks sum to 65, contradicting the 50-mark header), and a 2-wine flight is unrealistic for an IMW Paper 3 paper."
+    },
+    {
+      "questionId": "gen_p3_F2_1785960173941",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "Dry white wines (Vinho Verde Alvarinho and Dão Encruzado) belong on Paper 1 (White Wines) rather than Paper 3, which is reserved exclusively for Sparkling, Fortified, and Sweet wines."
+    },
+    {
+      "questionId": "gen_p3_F2_1785881382015",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "Château Coutet Cuvée Madame is an extremely rare, high-value unicorn wine produced in tiny quantities that an IMW exam panel would never be able to source in sufficient volume across global exam centers."
+    },
+    {
+      "questionId": "gen_p3_F2_1785963588085",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary Paper 3 sparkling flight featuring benchmark Italian wines representing four distinct sparkling production methods, with concise exam-like phrasing and flawless technical commentary."
+    },
+    {
+      "questionId": "gen_p3_F2_1785961957204",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook Paper 3 sweet wine flight featuring three classic benchmarks that perfectly contrast botrytis, arrested fermentation/late harvest, and natural cryoconcentration."
+    },
+    {
+      "questionId": "gen_p3_F4_1786013474765",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 1,
+        "stem_quality": 2,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "Wine 2 (Sato Blanc de Blancs) is far too obscure for an IMW exam flight, and Tarlant Cuvée Louis is a multi-vintage perpetual reserve cuvée rather than a single-vintage 2012 wine."
+    },
+    {
+      "questionId": "gen_p3_F4_1785965529814",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic and realistic Paper 3 sweet wine flight contrasting four distinct methods of achieving sweetness across four different countries and classic grape varieties."
+    },
+    {
+      "questionId": "gen_p3_F4_1785880725612",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary Paper 3 flight featuring benchmark producers of major fortified and sweet wine styles with flawless stem construction and model answer execution."
+    },
+    {
+      "questionId": "gen_p3_F4_1786030132168",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "A well-constructed classic Paper 3 sparkling flight featuring benchmark producers across four countries with accurate mark breakdowns and detailed model answers."
+    },
+    {
+      "questionId": "gen_p3_F4_1785964281304",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a quintessential Paper 3 sweet wine flight benchmarking the three classic methods of concentration (botrytis, appassimento, and freeze-concentration) using ideal, highly plausible reference producer examples."
+    },
+    {
+      "questionId": "gen_p3_F4_1785960456431",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary Paper 3 flight featuring classic benchmark wines with an accurately formatted stem and a high-caliber model answer."
+    },
+    {
+      "questionId": "gen_p3_F4_1785966184238",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 3,
+        "stem_quality": 2,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Domaine Ott's Clos Mireille Blanc de Blancs is a white wine (and a blend predominantly of Sémillon, not single-varietal Rolle), making 'Clos Mireille Blanc de Blancs Rosé' a factually impossible and oxymoronic wine."
+    },
+    {
+      "questionId": "gen_p3_F4_1785965676694",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 3 sticky flight comparing classic botrytis styles across different countries, varieties, winemaking techniques, and price points."
+    },
+    {
+      "questionId": "gen_p3_F4_1785951740725",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "Clos Windsbuhl is a famous lieu-dit rather than an Alsace Grand Cru AOC, and the mark allocations in the model answer headers contradict the question stem."
+    },
+    {
+      "questionId": "gen_p3_F4_1785960888874",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer is truncated mid-sentence in Wine 4, completely omitting Wines 5 and 6, and incorrectly describes pale pink Lambrusco di Sorbara as deep ruby-red."
+    },
+    {
+      "questionId": "gen_p3_F4_1785962857190",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 3,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 3
+      },
+      "rationale": "Le Clos Jordanne is a producer of premium dry Burgundian-style table wines and does not make Icewine (let alone a 'Grand Clos Chardonnay Icewine'), rendering Wine 4 factually incorrect, and the model answer text is truncated at the end."
+    },
+    {
+      "questionId": "gen_p3_F5_1785965382622",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 3,
+        "stem_quality": 2,
+        "factual_accuracy": 3,
+        "answer_fidelity": 4
+      },
+      "rationale": "The stem phrasing 'still-hazy sparkling wine' is ambiguous and poorly worded, the technical explanation incorrectly claims 'fresh lees' trigger a second fermentation, and the attached source references are completely irrelevant hallucinated citations."
+    },
+    {
+      "questionId": "gen_p3_F5_1785878307504",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary IMW Paper 3 question comparing topped-up (ouillé) and oxidative (voile) styles of Jura Savagnin, featuring classic producers and an accurate model answer."
+    },
+    {
+      "questionId": "gen_p3_F5_1786021240349",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Wine 2 is a factually invented wine; Henschke's 'Croft' is a well-known still Pinot Noir from Lenswood, not a sparkling wine."
+    },
+    {
+      "questionId": "gen_p3_F5_1786013474729",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 5
+      },
+      "rationale": "Cantina Terlano is a famous producer of still white wines and does not produce a standard commercial 'Blanc de Blancs Brut NV' sparkling wine, making Wine 2 factually inaccurate and unpourable in an exam setting."
+    },
+    {
+      "questionId": "gen_p3_F5_1785881237388",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A well-constructed Paper 3 mock question featuring four distinct sparkling and fortified styles from four countries with accurate technical analysis and classic IMW exam formatting."
+    },
+    {
+      "questionId": "gen_p3_F5_1785880456874",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 3,
+        "answer_fidelity": 4
+      },
+      "rationale": "Paper 3 is strictly reserved for fortified and sparkling wines, making the inclusion of an unfortified still white wine (Savagnin Ouillé) a fundamental exam structure error."
+    },
+    {
+      "questionId": "gen_p3_F5_1785957640263",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "Classic Paper 3 comparison pairing iconic botrytised wines with accurate production details and clear marking structure."
+    },
+    {
+      "questionId": "gen_p3_F5_1785952167440",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary Paper 3 flight featuring four classic benchmark sweet wines from four distinct countries and grape varieties, supported by technically accurate specifications and a precise MW-style model answer."
+    },
+    {
+      "questionId": "gen_p3_F5_1785961731483",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary Paper 3 sparkling wine flight featuring three distinct countries, methods, and quality tiers, supported by an accurate and well-structured model answer."
+    },
+    {
+      "questionId": "gen_p3_F5_1785960511052",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent single-wine sparkling question featuring an iconic, benchmark traditional method Sekt with an accurate, well-structured model answer."
+    },
+    {
+      "questionId": "gen_p3_F5_1785964790417",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary Paper 3 sparkling flight contrasting traditional, tank, and ancestral methods with well-chosen, benchmark wines and a highly realistic model answer."
+    },
+    {
+      "questionId": "gen_p3_F5_1785961788625",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer incorrectly classifies Domaine de la Taille aux Loups 'Triple Zéro' as traditional method rather than ancestral method, violating both factual accuracy and the stem's explicit premise that each wine uses a different method of production."
+    },
+    {
+      "questionId": "gen_p3_F5_1785893824027",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 5,
+        "factual_accuracy": 4,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic IMW Paper 3 sweet wine flight testing different residual sugar mechanisms across iconic global styles, featuring well-calibrated wines and an accurate, detailed model answer."
+    },
+    {
+      "questionId": "gen_p3_F6_1786021240352",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An outstanding classic flight comparing four distinct sweet winemaking mechanisms across benchmark global producers with an authentic exam structure."
+    },
+    {
+      "questionId": "gen_p3_F6_1785880461937",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a textbook IMW comparative pair (unfortified vs. fortified oxidative/biological ageing) featuring two benchmark, classic wines with clean, accurate, and structured answers."
+    },
+    {
+      "questionId": "gen_p3_F6_1786013740318",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent, highly realistic benchmark pairing comparing Sauternes and Austrian Beerenauslese with precise technical details and proper mark allocation."
+    },
+    {
+      "questionId": "gen_p3_F6_1785964441098",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer is truncated mid-sentence on Wine 5 and contradicts the wine list by identifying Wine 1 as Gewurztraminer instead of Riesling."
+    },
+    {
+      "questionId": "gen_p3_F6_1785962160317",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an exemplary, realistic IMW sparkling wine flight featuring four distinct classic traditional-method origins with precise factual accuracy and excellent model answer structure."
+    },
+    {
+      "questionId": "gen_p3_F6_1785964979985",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "This is a classic, well-balanced Paper 3 sweet wine comparison featuring two highly authentic and instructive benchmark wines."
+    },
+    {
+      "questionId": "gen_p3_F6_1785966811972",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A well-constructed IMW Paper 3 question contrasting Charmat-method Cartizze with ancestral-method Limoux, backed by accurate technical specifications and a thorough model answer."
+    },
+    {
+      "questionId": "gen_p3_F6_1785881221485",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "Rey Fernando de Castilla does not produce a 'Fino Antique' because their Antique range is strictly reserved for 20+ year old oxidative styles (Amontillado, Oloroso, Palo Cortado, PX), making Wine 2 factually impossible."
+    },
+    {
+      "questionId": "gen_p3_F6_1785880477795",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a classic, well-constructed IMW practical question using benchmark wines to test the understanding of biological ageing versus non-oxidative (ouillé) winemaking."
+    },
+    {
+      "questionId": "gen_p3_F6_1785880843766",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 5,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An exemplary IMW Paper 3 question featuring four benchmark classic sweet and fortified wines paired with precise, exam-standard model answers."
+    },
+    {
+      "questionId": "gen_p3_F6_1785960710325",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 4,
+        "answer_fidelity": 3
+      },
+      "rationale": "A local German cooperative Sekt (Heuchelberg Weingärtner) lacks the international availability needed for global IMW exam centers, and the model answer headers contradict the mark allocations given in the question prompt."
+    },
+    {
+      "questionId": "gen_p3_F7_1785965820437",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 2,
+        "factual_accuracy": 5,
+        "answer_fidelity": 4
+      },
+      "rationale": "Asking candidates to identify the sweetness mechanism across three wines that are all produced via noble rot makes sub-question (a) redundant and poorly calibrated for an IMW exam."
+    },
+    {
+      "questionId": "gen_p3_F7_1785881109218",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 4
+      },
+      "rationale": "Condrieu Moelleux is far too rare to realistically source for an IMW exam flight, and describing Viognier as having medium-plus acidity is factually inaccurate for the variety."
+    },
+    {
+      "questionId": "gen_p3_F7_1786030630678",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is a well-constructed, classic IMW Paper 3 comparison between benchmark Tasmanian and grower Champagne traditional method sparkling wines with realistic mark allocations and precise model answers."
+    },
+    {
+      "questionId": "gen_p3_F7_1786021121098",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A textbook classic benchmark comparison between Sauternes and Tokaji Aszú with precise technical arguments and authentic exam structure."
+    },
+    {
+      "questionId": "gen_p3_F7_1785880678496",
+      "split": "holdout",
+      "human": "bin",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "An excellent, highly plausible Paper 3 comparison flight of three classic, commercially benchmark Muscat styles across three continents."
+    },
+    {
+      "questionId": "gen_p3_F7_1785965682546",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 2,
+        "obscurity_calibration": 2,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "The stem explicitly states the wines are from different countries, yet both selected wines are from France, and the mark allocations in the answer headers contradict the stem."
+    },
+    {
+      "questionId": "gen_p3_F7_1785966824222",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "A well-constructed Paper 3 sparkling pair comparing classic Champagne with top-tier Spanish traditional-method sparkling, featuring accurate technical details and authentic exam formatting."
+    },
+    {
+      "questionId": "gen_p3_F7_1785963588166",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 3,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer contains major factual errors regarding winemaking and pricing (Hattingley's flagship 'Kings Cuvée' is 100% barrel-fermented and sells for ~£80-100, not £35-55, and Blanc des Millénaires sees no oak), while the mark allocations in the answer headers contradict the stem."
+    },
+    {
+      "questionId": "gen_p3_F7_1785881122671",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 2
+      },
+      "rationale": "The exam setup and wine selection are excellent, but the model answer is truncated mid-sentence in section (c), failing to complete the response for wines 2 through 6."
+    },
+    {
+      "questionId": "gen_p3_F7_1785941318337",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer is truncated mid-sentence in section c for Wine 2, completely omitting the final sub-question responses for wines 3 through 6."
+    },
+    {
+      "questionId": "gen_p3_F7_1785881073574",
+      "split": "holdout",
+      "human": "keep",
+      "judge": "keep",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 5
+      },
+      "rationale": "This is an excellent, realistic Paper 3 comparison between classic benchmarks of sweet Chenin Blanc and German Riesling that tests fine structural and regional discrimination."
+    },
+    {
+      "questionId": "synthetic_marks_do_not_sum_1",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 3,
+        "answer_fidelity": 2
+      },
+      "rationale": "The wine selection is an excellent benchmark flight, but the question is ruined by severe mark-allocation errors and total mismatch between the stem's weighting and the model answer."
+    },
+    {
+      "questionId": "synthetic_marks_do_not_sum_2",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "The question stem states that each wine is made predominantly from a single grape variety, which is factually false for Tawny Port (Wine 3)."
+    },
+    {
+      "questionId": "synthetic_marks_do_not_sum_3",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 5,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 5,
+        "answer_fidelity": 3
+      },
+      "rationale": "While the flight selection and analysis are exemplary benchmark examples for Paper 1, the model answer cuts off abruptly mid-word in Wine 4(c)."
+    },
+    {
+      "questionId": "synthetic_marks_do_not_sum_4",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 2,
+        "answer_fidelity": 2
+      },
+      "rationale": "The model answer incorrectly claims malolactic fermentation was blocked in Taittinger Comtes de Champagne (which routinely undergoes 100% MLF) and contains arithmetic mark mismatches between the stem (57 total marks) and model answer."
+    },
+    {
+      "questionId": "synthetic_red_wine_in_paper_1_1",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "Wine 1 is listed as Château Léoville-Barton (a red Bordeaux blend) while Wine 2 is a Mosel Riesling, making the premise that they are the same variety factually impossible, and the model answer incorrectly describes Wine 1 as a Clare Valley Riesling."
+    },
+    {
+      "questionId": "synthetic_red_wine_in_paper_1_2",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "Wine 1 is listed as Château Léoville-Barton 2016 (a red Bordeaux blend) despite the question specifying both wines are the same single variety, completely contradicting the model answer which evaluates an aged Hunter Valley Semillon."
+    },
+    {
+      "questionId": "synthetic_red_wine_in_paper_1_3",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The model answer is completely disconnected from the wine list: Wine 1 is listed as Château Léoville-Barton 2016 (a famous red Médoc) but the answer key describes a Mâconnais Chardonnay."
+    },
+    {
+      "questionId": "synthetic_red_wine_in_paper_1_4",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 2,
+        "stem_quality": 3,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Wine 1 is listed as Château Léoville-Barton (a red Cabernet blend) in a single-variety Chardonnay flight, and the model answer erroneously describes Wine 1 as a Chablis Premier Cru."
+    },
+    {
+      "questionId": "synthetic_stem_contradicts_wines_1",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The question stem contains contradictory premises ('all Riesling' vs 'mixed bag'), and the model answer identifies Wine 1 as Chablis Chardonnay despite the list specifying Bodegas Muga Rioja Reserva."
+    },
+    {
+      "questionId": "synthetic_stem_contradicts_wines_2",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The prompt, wine list, and model answer completely contradict each other (e.g. the stem claims all six wines are Riesling, but the wine list features a dry red Rioja and non-Riesling sweet wines, and the model answer is both truncated and mismatched)."
+    },
+    {
+      "questionId": "synthetic_stem_contradicts_wines_3",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 2,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The question contains self-contradictory stem instructions regarding grape varieties, and the model answer for Wine 1 evaluates Lagrein from Alto Adige instead of the specified Bodegas Muga Rioja."
+    },
+    {
+      "questionId": "synthetic_stem_contradicts_wines_4",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 1,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "The question is completely broken: the stem claims the wines are Riesling, Wine 1 in the flight list is a red Rioja (Bodegas Muga Reserva), and the model answer describes Wine 1 as a Manzanilla Pasada."
+    },
+    {
+      "questionId": "synthetic_hallucinated_appellation_1",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 2,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "Wine 1 features a fabricated French appellation ('Grand Cru Montrachet-Vergisson') which directly contradicts the model answer identifying it as a Mosel Riesling."
+    },
+    {
+      "questionId": "synthetic_hallucinated_appellation_2",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 2,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "There is a total mismatch between the wine list and the model answer (Wine 1 is listed as a fictional French dry white wine, but answered as Madeira), and the stem claims the flight is from two countries while the wine list spans three."
+    },
+    {
+      "questionId": "synthetic_hallucinated_appellation_3",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 3,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 2,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "Wine 1 is listed as a non-existent 'Grand Cru Montrachet-Vergisson' in the wine flight, yet the model answer inexplicably evaluates it as a Cabernet Franc from Saumur-Champigny."
+    },
+    {
+      "questionId": "synthetic_hallucinated_appellation_4",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 1,
+        "obscurity_calibration": 1,
+        "stem_quality": 1,
+        "factual_accuracy": 1,
+        "answer_fidelity": 1
+      },
+      "rationale": "Wine 1 in the list is a non-existent French appellation ('Grand Cru Montrachet-Vergisson'), violating the stem premise that all four wines are from the same country, while the model answer completely ignores Wine 1 and treats it as a Madeira."
+    },
+    {
+      "questionId": "synthetic_impossible_abv_1",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 3,
+        "obscurity_calibration": 3,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 5
+      },
+      "rationale": "Wine 1 is listed with an impossible alcohol content of 24.5% ABV for a dry red Bordeaux."
+    },
+    {
+      "questionId": "synthetic_impossible_abv_2",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Wine 1 is listed with an impossible 24.5% ABV for an unfortified Sauternes, and the model answer cuts off mid-sentence before finishing."
+    },
+    {
+      "questionId": "synthetic_impossible_abv_3",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 5,
+        "obscurity_calibration": 5,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 4
+      },
+      "rationale": "Wine 1 is listed with an impossible ABV of 24.5% for Champagne Pol Roger Blanc de Blancs."
+    },
+    {
+      "questionId": "synthetic_impossible_abv_4",
+      "split": "synthetic_floor",
+      "human": "bin",
+      "judge": "bin",
+      "scores": {
+        "exam_realism": 4,
+        "wine_plausibility": 4,
+        "obscurity_calibration": 4,
+        "stem_quality": 4,
+        "factual_accuracy": 1,
+        "answer_fidelity": 2
+      },
+      "rationale": "Domaine Sigalas Assyrtiko is listed with an impossible 24.5% ABV, and the model answer alters the mark scheme distribution stated in the stem."
+    }
+  ]
+}

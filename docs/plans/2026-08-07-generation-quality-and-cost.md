@@ -514,9 +514,48 @@ not judge errors**: counting them as errors would disqualify a judge for out-per
 reference. They surface as their own `disputed` list for a human to rule on. Before this change the
 same run reported a 75% "false-bin rate" and looked like a broken judge; it was a working one.
 
-**Still open:** 8 of 80 responses (10%) failed to parse — Gemini truncating at `maxOutputTokens`
-under `responseMimeType: application/json`. Worth fixing before the holdout run, since unparsed
-items silently shrink the sample.
+### 4.5e Holdout — the finding replicates on a second, independent judge
+
+The `gemini-3.1-pro` daily quota (250 requests/model) was exhausted, so the holdout was scored by
+**gemini-3.6-flash**: a *second* cross-family judge on a split never used for tuning.
+
+| | calibration (3.1-pro) | **holdout (3.6-flash)** |
+|---|---|---|
+| scored | 72/80 (8 unparsed) | **171/171, zero unparsed** |
+| Cohen's κ | 0.036 | **0.037** |
+| bin-recall | 70.6% [46.9, 86.7] | 49.0% [35.9, 62.3] on 51 negatives |
+| false-bin rate | 21.1% | 17.0% |
+| **disputed (kept, binned on fact)** | ~31% | **28% (28 of 100)** |
+| synthetic floor | 17/17 | **20/20** |
+
+**Two different models, two different question sets, the same three conclusions:** perfect on the
+objective floor, κ ≈ 0.04 against the reviewer, and a factual fault in **28–31% of kept questions**.
+A single run could have been a quirk of one model's priors. Two cannot.
+
+**Adjudication now 7 for 7** (§ `evals/adjudications/`), including two from the holdout that are
+worse than anything in the calibration set:
+
+- **`Jean-Louis Grippat, 2022`** — Grippat retired in 2001 and sold the entire domaine to Guigal
+  (his own words; Wine Spectator; Wikipedia). The estate ceased to exist **21 years before the
+  stated vintage**. Producer, appellation and vintage are each individually plausible, so no
+  string-matching validator can catch it.
+- **`Le Clos Jordanne` Riesling** — the producer makes *"wine from only these two grape varietals"*,
+  Chardonnay and Pinot Noir, per their own site.
+
+Confirmed defect classes: wrong colour/appellation for a real cuvée · impossible ABV · wrong
+dominant variety · appellation rules violated · winemaking inverted · **producer defunct at the
+stated vintage** · **variety the producer has never made**. All resolvable against a producer sheet
+or knowledge base. None a matter of taste. **None caught by the 22 validators or the reviewer.**
+
+**Parse loss: fixed.** The 8/80 failures were misdiagnosed as truncation; 42 of 44 across runs were
+HTTP 429s. Retry-with-backoff honouring the API's `retryDelay`, plus `maxOutputTokens` 2048 → 8192
+(Gemini 3.1 Pro reasons before answering and thinking shares that budget — the same failure class
+as Opus in §1.4). Result: **171/171 scored, zero unparsed.**
+
+**Operational constraint discovered:** free-tier Gemini caps **250 requests per model per day**. One
+full split is ~171 items, so two runs of one model exhausts the day, and the error is a hard 429
+("retry in 18h50m"), not a throttle. Budget the day, or spread across models via `--model` — but
+note that changing model changes the judge.
 
 ### 4.6 What was built, and what was not
 

@@ -129,9 +129,80 @@ of stainless steel, and this is exactly the winemaking-inference mark an examine
 4. **Do not tune the judge toward the human on `factual_accuracy`.** On this evidence that would
    train it to stop noticing true errors — and an automated bin-fix loop would do so silently.
 
+---
+
+# HOLDOUT RUN — independent replication (gemini-3.6-flash, 171/171 scored)
+
+The `gemini-3.1-pro` daily quota (250 req) was exhausted mid-run, so the holdout was scored by
+**gemini-3.6-flash**. That makes it a *second, independent cross-family judge on a split never used
+for tuning* — weaker for comparing kappa, **stronger** for the factual finding, because two
+different models converging is better evidence than one.
+
+```
+scored           171/171  (zero unparsed — the retry + maxOutputTokens fixes held)
+Cohen's kappa    0.037    (calibration: 0.036)
+bin-recall       49.0%    95% CI [35.9%, 62.3%] on 51 negatives
+false-bin rate   17.0%    (calibration: 21.1%)
+disputed         28 of 100 human-kept = 28%   (calibration: ~31%)
+synthetic floor  20/20    (calibration: 17/17)
+```
+
+**The replication is close to exact on every axis that matters.** Both judges score perfectly on the
+objective floor, both sit at kappa ~0.04 against the reviewer, and both find a factual fault in
+28–31% of the questions the reviewer kept.
+
+## 6. `gen_p1_F2_1785866744346` — **JUDGE RIGHT** (holdout) ⚠️ a wine that cannot exist
+
+**Judge:** *"Jean-Louis Grippat retired and sold his estate to Guigal in 2001, making a 2022 vintage
+impossible."*
+
+**Sources:** Grippat in his own words (Matt Walls interview): *"I retired in 2001."* Wine Spectator
+reported the sale of the domaine — St-Joseph **and** the Hermitage Les Murets parcels — to Marcel
+Guigal. Wikipedia: *"In 2000, Guigal bought and absorbed... the estate Jean-Louis Grippat."*
+
+**Verdict: JUDGE RIGHT.** The estate ceased to exist ~21 years before the stated vintage. This is
+not a mis-described wine, it is a **fabricated** one — and no string-matching validator can catch it,
+because the producer, appellation and vintage are each individually plausible.
+
+## 7. `gen_p1_F1_1785951397786` — **JUDGE RIGHT** (holdout)
+
+**Judge:** *"Wine 2 names Clos Jordan for a Niagara Riesling, but Le Clos Jordanne produces
+exclusively Chardonnay and Pinot Noir."*
+
+**Sources:** The producer's own site: *"Le Clos Jordanne holds to the Burgundy varietals of
+Chardonnay and Pinot Noir, **producing wine from only these two grape varietals**."* Their varietal
+PDF and Wines In Niagara both say the same, the latter under the heading "EXCLUSIVELY PINOT NOIR
+AND CHARDONNAY".
+
+**Verdict: JUDGE RIGHT.** A Le Clos Jordanne Riesling does not exist.
+
+**Flagged, not yet adjudicated (holdout):** Domaine de la Mordorée producing a Condrieu; Domaine
+Vatan Clos de la Néore as a volume-sourceable wine (cult bottling, £200+ secondary).
+
+---
+
+## Running tally (both runs)
+
+| | count |
+|---|---|
+| Disputed surfaced — calibration | 17 |
+| Disputed surfaced — holdout | 28 |
+| **Adjudicated** | **7** |
+| **Judge right** | **7** |
+| Judge wrong | 0 |
+| Unresolved | 0 |
+
+**Seven for seven, across two independent cross-family judges.** The defect classes now confirmed:
+wrong colour/appellation for a real cuvée · impossible ABV · wrong dominant variety · appellation
+rules violated · winemaking inverted · **producer that no longer existed at the stated vintage** ·
+**variety the producer has never made**.
+
+Every one is a named-entity fact resolvable against a producer sheet or a knowledge base. None is a
+matter of taste. None was caught by the 22 validators or by the reviewer.
+
 ## Next
 
-- Adjudicate the remaining 12 (re-run calibration to regenerate the list — an earlier smoke run
+- Adjudicate the remaining claims (17 calibration + 28 holdout, 7 done) (re-run calibration to regenerate the list — an earlier smoke run
   overwrote the report; filenames are now timestamped so it cannot recur).
 - Run the holdout split for an estimate on questions never used for tuning.
 - Convert the confirmed defect classes into deterministic checks where possible (ABV ranges by
