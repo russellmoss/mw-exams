@@ -1707,6 +1707,9 @@ export interface QuestionFlagInput {
   userId: number;
   reasons: string[]; // BinReasonChips codes (already sanitised)
   note: string | null;
+  // 1-based wine position within the served flight, set only when the candidate flags
+  // 'Wrong wine for this paper' (Right Paper Check) and marks WHICH wine is wrong. Null otherwise.
+  winePosition?: number | null;
 }
 
 // Create a candidate flag in one transaction. Idempotent: if a pending flag already exists for the
@@ -1735,13 +1738,14 @@ export async function createQuestionFlag(
 
   // Empty reason list stores NULL (a reason is never required at the DB level; the API enforces >=1).
   const reasons = input.reasons.length > 0 ? input.reasons : null;
+  const winePosition = input.winePosition ?? null;
 
   // One transaction: ledger row + withdraw the item from rotation (back to the 'pending' gate) +
   // mark it flagged_by_candidate so the queue can render the tag and sort it to the top.
   const results = await sql.transaction([
     sql`
-      INSERT INTO question_flags (question_id, attempt_id, user_id, reasons, note, status)
-      VALUES (${input.questionId}, ${input.attemptId}, ${input.userId}, ${reasons}, ${input.note}, 'pending')
+      INSERT INTO question_flags (question_id, attempt_id, user_id, reasons, note, wine_position, status)
+      VALUES (${input.questionId}, ${input.attemptId}, ${input.userId}, ${reasons}, ${input.note}, ${winePosition}, 'pending')
       RETURNING id
     `,
     sql`

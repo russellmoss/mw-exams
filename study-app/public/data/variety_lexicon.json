@@ -70,7 +70,14 @@
     "Xinomavro",
     "Zinfandel",
     "Muscat Blanc à Petits Grains",
-    "Muscat of Alexandria"
+    "Muscat of Alexandria",
+    "Lagrein",
+    "Blauer Wildbacher",
+    "Treixadura",
+    "Romorantin",
+    "Mauzac",
+    "Rosenmuskateller",
+    "Carménère"
   ],
   "synonyms": {
     "spatburgunder": "Pinot Noir",
@@ -80,6 +87,7 @@
     "mazuelo": "Carignan",
     "tinta de toro": "Tempranillo",
     "tinto fino": "Tempranillo",
+    "tinta fina": "Tempranillo",
     "spanna": "Nebbiolo",
     "pinot nero": "Pinot Noir",
     "grauburgunder": "Pinot Gris",
@@ -92,6 +100,7 @@
     "pinot bianco": "Pinot Blanc",
     "garnacha tinta": "Grenache",
     "cannonau": "Grenache",
+    "grenache noir": "Grenache",
     "garnacha blanca": "Grenache Blanc",
     "tinta roriz": "Tempranillo",
     "aragonez": "Tempranillo",
@@ -134,6 +143,10 @@
     "gelber muskateller": "Muscat Blanc à Petits Grains",
     "zibibbo": "Muscat of Alexandria",
     "moscatel de alejandria": "Muscat of Alexandria",
-    "moscatel graudo": "Muscat of Alexandria"
+    "moscatel graudo": "Muscat of Alexandria",
+    "palomino fino": "Palomino",
+    "muscat a petits grains": "Muscat Blanc à Petits Grains",
+    "muscat blanc a petits grains rouge": "Muscat Blanc à Petits Grains",
+    "chenin": "Chenin Blanc"
   }
 }
