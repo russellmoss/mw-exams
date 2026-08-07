@@ -98,6 +98,13 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
     if (generating.current) return;
     generating.current = true;
     setGenError(null);
+    // Consecutive "another caller is building this flight" replies. The server claims a position
+    // before generating (migration 058), so a second tab, a reload mid-generation, or this loop's own
+    // re-POST after a missed terminal frame now WAITS instead of starting a rival generation — which
+    // is what billed three Opus runs for one slot of paper ltpr_egt9dfy3e. Bounded so a claim that
+    // somehow never resolves surfaces as a message rather than an endless spinner.
+    let busyWaits = 0;
+    const MAX_BUSY_WAITS = 90; // ~6 min at 4s, past the server's 5-min claim TTL
     try {
       for (;;) {
         const res = await fetch(`/api/live-tasting/paper/${id}/next`, { method: "POST" });
@@ -108,7 +115,7 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
-        let result: { done?: boolean } | null = null;
+        let result: { done?: boolean; busy?: boolean; position?: number } | null = null;
         for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -130,6 +137,19 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
         }
         await load();
         if (result?.done) break;
+        if (result?.busy) {
+          if (++busyWaits > MAX_BUSY_WAITS) {
+            throw new Error(
+              `Flight ${result.position ?? ""} has been building for a while somewhere else. Reload to pick it up.`
+            );
+          }
+          setGenProgress(
+            `Flight ${result.position ?? ""} is already being built (another tab or an earlier request) — waiting…`
+          );
+          await new Promise((r) => setTimeout(r, 4000));
+          continue;
+        }
+        busyWaits = 0;
       }
       setGenProgress(null);
     } catch (err) {
