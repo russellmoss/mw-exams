@@ -8,7 +8,8 @@ import {
   splitPinnedReference,
 } from "@/lib/live-tasting-validators";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
-import { byoFullText, validateEnteredWines } from "@/lib/live-tasting-engine";
+import { byoFullText, validateEnteredWines, pickArchetype } from "@/lib/live-tasting-engine";
+import { validatePaperScope } from "@/lib/question-engine";
 import { checkWineReferenceShape } from "@/lib/question-rules.mjs";
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -218,5 +219,78 @@ describe("validateEnteredWines", () => {
     expect(validateEnteredWines([good, { ...good, country: "" }]).ok).toBe(false);
     expect(validateEnteredWines([good, { ...good, vintage: "202" }]).ok).toBe(false);
     expect(validateEnteredWines("nope").ok).toBe(false);
+  });
+});
+
+// ── Picker paper-scope gate (regression: paper ltpr_nrtphwgod, 2026-08-07) ────────────────────────
+//
+// The same-origin (F2) archetype grouped still_dry rows by country with NO colour constraint, so a
+// Paper 1 flight was pinned with Juan Gil Monastrell. The pinned-flight validator then required the
+// question to use that wine and paperScope required it gone — unsatisfiable, and the repair loop
+// burned 40 model calls without ever producing the flight. The picker must never emit a flight that
+// the post-generation validator would reject.
+
+const bankRow = (o: Partial<Parameters<typeof pickArchetype>[0][number]> & { id: string }) => ({
+  producer: "Producer",
+  wine_name: "Cuvée",
+  country: "Spain",
+  region: "Rioja",
+  grape_varieties: [] as unknown,
+  style_category: "still_dry",
+  price_band: "premium",
+  ...o,
+});
+
+// One country, many varieties — exactly the shape same-origin groups on. Half are red.
+const SPANISH_BANK = [
+  bankRow({ id: "w1", producer: "Bodegas Juan Gil", wine_name: "Silver Label Monastrell", region: "Jumilla", grape_varieties: ["Monastrell"] }),
+  bankRow({ id: "w2", producer: "Muga", wine_name: "Reserva", region: "Rioja", grape_varieties: ["Tempranillo"] }),
+  bankRow({ id: "w3", producer: "Quinta dos Roques", wine_name: "Touriga Nacional", region: "Dão", grape_varieties: ["Touriga Nacional"] }),
+  bankRow({ id: "w4", producer: "Bodegas Valdesil", wine_name: "Montenovo Godello", region: "Valdeorras", grape_varieties: ["Godello"] }),
+  bankRow({ id: "w5", producer: "Pazo Señorans", wine_name: "Albariño", region: "Rías Baixas", grape_varieties: ["Albariño"] }),
+  bankRow({ id: "w6", producer: "Bodegas Naia", wine_name: "Verdejo", region: "Rueda", grape_varieties: ["Verdejo"] }),
+  bankRow({ id: "w7", producer: "López de Heredia", wine_name: "Viña Gravonia", region: "Rioja", grape_varieties: ["Viura"] }),
+];
+
+describe("pickArchetype paper scope", () => {
+  it("never pins a red wine into a Paper 1 same-origin flight", () => {
+    // Shuffled internally, so run it enough times that a colour-blind picker cannot get lucky.
+    for (let i = 0; i < 40; i++) {
+      const picked = pickArchetype(SPANISH_BANK, 1, 3, { require: "same-origin" });
+      expect(picked.archetype).toBe("same-origin");
+      const scope = validatePaperScope(
+        1,
+        picked.slots.map((s, idx) => ({
+          slot: idx + 1,
+          fullText: `${s.row.producer}, ${s.row.wine_name}. ${s.row.region}, ${s.row.country}.`,
+        }))
+      );
+      expect(scope.violations).toEqual([]);
+      // Alternates get pinned too whenever availability misses on the primary.
+      for (const alt of picked.slots.flatMap((s) => s.alternates)) {
+        expect(
+          validatePaperScope(1, [{ slot: 1, fullText: `${alt.producer}, ${alt.wine_name}. ${alt.region}, ${alt.country}.` }]).violations
+        ).toEqual([]);
+      }
+    }
+  });
+
+  it("never pins a white wine into a Paper 2 same-origin flight", () => {
+    for (let i = 0; i < 40; i++) {
+      const picked = pickArchetype(SPANISH_BANK, 2, 2, { require: "same-origin" });
+      const scope = validatePaperScope(
+        2,
+        picked.slots.map((s, idx) => ({
+          slot: idx + 1,
+          fullText: `${s.row.producer}, ${s.row.wine_name}. ${s.row.region}, ${s.row.country}.`,
+        }))
+      );
+      expect(scope.violations).toEqual([]);
+    }
+  });
+
+  it("fails loudly rather than pinning off-colour wines when the bank is too thin", () => {
+    const redsOnly = SPANISH_BANK.filter((r) => ["w1", "w2", "w3"].includes(r.id));
+    expect(() => pickArchetype(redsOnly, 1, 3, { require: "same-origin" })).toThrow(/wine bank/i);
   });
 });

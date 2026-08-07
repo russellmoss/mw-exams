@@ -1,5 +1,5 @@
 import { neon } from "@neondatabase/serverless";
-import { generateFreshQuestion } from "./question-engine";
+import { generateFreshQuestion, validatePaperScope } from "./question-engine";
 import type { ProgressEmitter } from "./thinking-stream";
 import { getAvailability, fitsBudget, confidentCount, minSameCurrencyPrice, type Stockist } from "./retail-availability";
 import {
@@ -181,6 +181,30 @@ function isPureVarietal(r: BankRow): boolean {
   return grapeList(r).length === 1;
 }
 
+/**
+ * Would validatePaperScope reject this bank row on this paper? Papers 1 and 2 judge each wine on
+ * its own (P1 whites-only, P2 reds-only, both still), so a row can be pre-screened here with the
+ * SAME function the post-generation validator runs — picker and validator can never disagree.
+ *
+ * Why this exists (2026-08-07, paper ltpr_nrtphwgod): the same-origin (F2) branch below grouped
+ * raw `still_dry` by country with no colour constraint, so a Paper 1 flight got Juan Gil Monastrell
+ * pinned into slot 1. The pinned-flight validator then demanded the question use that wine while
+ * paperScope demanded it not exist — an unsatisfiable pair. The repair loop live-locked: 40 model
+ * calls in 7 minutes, flight 2 never generated, and the client's chain kept re-drawing equally
+ * colour-blind flights. Every OTHER still archetype was accidentally safe (same-variety,
+ * mixed-variety and quality-ladder all draw through paper-scoped variety tables); F2 was the only
+ * one picking on geography alone.
+ *
+ * Tested against the row's pinned text AND its banked grape list: the pinned text is what the
+ * validator will actually see, and the grape list catches rows whose label names no variety
+ * ("Silver Label" alone would have sailed through).
+ */
+function passesPaperScope(row: BankRow, paper: number): boolean {
+  if (paper !== 1 && paper !== 2) return true; // P3 scope is flight-level; its own branch handles it
+  const fullText = `${pinnedText(row)} ${grapeList(row).join(", ")}`;
+  return validatePaperScope(paper, [{ slot: 1, fullText }]).valid;
+}
+
 function nameContradictsVariety(wineName: string, variety: string): boolean {
   const name = norm(wineName);
   const target = norm(variety);
@@ -219,7 +243,9 @@ export function pickArchetype(
     return g.length > 0 && (opts?.excludeVarieties?.has(norm(g[0])) ?? false);
   };
   bank = bank.filter((r) => !excludedKey(r));
-  const stillDry = bank.filter((r) => r.style_category === "still_dry");
+  // Colour/style gate for the still-wine archetypes. Applied ONCE here rather than in each branch
+  // so a future archetype can't reintroduce the F2 defect by forgetting it.
+  const stillDry = bank.filter((r) => r.style_category === "still_dry" && passesPaperScope(r, paper));
 
   const bySlot = (groups: BankRow[][]): SlotPick[] | null => {
     if (groups.some((g) => g.length === 0)) return null;
@@ -536,14 +562,26 @@ export async function createLiveTasting(opts: {
   const availability = await confirmSlots(picked.slots, city, country, apiKey, userId, emit,
     { amount: budgetAmount, currency: budgetCurrency }, radiusMinutes ?? null);
 
-  const generateOnce = async (slotsAvail: SlotAvailability[]) => {
-    const pinnedWines = slotsAvail.map((s) => {
-      const row: BankRow = {
-        id: s.wineKey, producer: s.producer, wine_name: s.wineName,
-        country: s.country, region: s.region, grape_varieties: [], style_category: "", price_band: s.priceBand,
-      };
-      return { slot: s.slot, fullText: pinnedText(row) };
+  const pinnedTextFor = (s: SlotAvailability): string =>
+    pinnedText({
+      id: s.wineKey, producer: s.producer, wine_name: s.wineName,
+      country: s.country, region: s.region, grape_varieties: [], style_category: "", price_band: s.priceBand,
     });
+
+  // Fail FAST on an out-of-scope flight instead of handing the model an impossible pin. The pinned
+  // prompt requires the draft to use these exact wines while paperScope forbids the offender, so a
+  // bad flight can only spin the repair loop until the budget dies (paper ltpr_nrtphwgod: 40 calls,
+  // no flight). The picker gate above should make this unreachable — this is the assertion that
+  // keeps it that way, cheap and one model call before the money is spent.
+  const scope = validatePaperScope(paper, availability.map((s) => ({ slot: s.slot, fullText: pinnedTextFor(s) })));
+  if (!scope.valid) {
+    return {
+      error: `The wines picked for this flight don't fit Paper ${paper} (${scope.violations[0]}) — please try again.`,
+    };
+  }
+
+  const generateOnce = async (slotsAvail: SlotAvailability[]) => {
+    const pinnedWines = slotsAvail.map((s) => ({ slot: s.slot, fullText: pinnedTextFor(s) }));
     emit?.({ type: "status", label: "Writing the question around your confirmed flight…" });
     return generateFreshQuestion(
       paper,
@@ -663,7 +701,10 @@ export async function replaceWine(opts: {
         (departingGrapes.length === 0 ||
           grapeList(r).some((g) => departingGrapes.includes(norm(g))) ||
           norm(r.region) === norm(departing.region)) &&
-        (session.paper === 3 || r.style_category === "still_dry")
+        (session.paper === 3 || r.style_category === "still_dry") &&
+        // Same gate as the picker: the "or same region" clause above can otherwise pull a red into
+        // a Paper 1 slot, and the swap re-runs the pinned generation that deadlocks on it.
+        passesPaperScope(r, session.paper)
     )
   ).slice(0, 3);
   if (!candidates.length) {
