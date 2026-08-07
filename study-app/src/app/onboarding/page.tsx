@@ -1,13 +1,21 @@
 "use client";
 
-// Post-signup onboarding: two defaults about how the app spends the user's own API credits.
-// Recommended (pre-selected) choices are the cheap ones — banked questions and no reasoning
-// stream — with an honest case for what the expensive options buy. Both are editable any time
-// in Settings; this screen just sets the starting point.
+// Post-signup onboarding, in two steps: the API keys, then two defaults about how the app spends
+// the user's own credits.
+//
+// THE KEYS STEP IS THE ONLY PLACE A GOOGLE SIGN-UP CAN BE ASKED FOR THEM. The email/password form
+// refuses to create an account without Anthropic and Tavily; OAuth cannot do that, because Google
+// hands us a verified identity and the account exists before the user has typed anything. So this
+// screen carries the same requirement, and there is deliberately no way past it — the "Skip for
+// now" escape applies to the defaults, which are preferences, not to the keys, which are the two
+// things without which the app does nothing.
+//
+// Admins pass straight through: they resolve to the server keys (BYOK-unless-admin).
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { ApiKeySetup } from "@/app/components/ApiKeySetup";
 
 type QuestionSource = "banked" | "fresh";
 
@@ -18,6 +26,7 @@ export default function OnboardingPage() {
   const [reasoningStream, setReasoningStream] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<"keys" | "defaults">("keys");
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -51,6 +60,51 @@ export default function OnboardingPage() {
           <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" />
           <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.3s" }} />
           <div className="w-2 h-2 rounded-full bg-accent/50 streaming-dot" style={{ animationDelay: "0.6s" }} />
+        </div>
+      </div>
+    );
+  }
+
+  const hasRequiredKeys = user.hasApiKey && user.hasTavilyKey !== false;
+
+  // Step one, until the two required keys exist. Shown even to a user who arrives here with them
+  // already saved only if they are missing — otherwise we skip straight to the defaults.
+  if (step === "keys" && !hasRequiredKeys) {
+    return (
+      <div className="flex flex-col flex-1 items-center min-h-screen px-6 py-12">
+        <div className="w-full max-w-2xl">
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">
+            Welcome, {user.name?.split(" ")[0] || "candidate"}
+          </h1>
+          <p className="text-sm text-muted mt-2 mb-8 leading-relaxed">
+            This app runs on your own API keys, so your usage is yours — nothing is shared or
+            resold. Two are needed before you can start; the third is only for voice.
+          </p>
+
+          <ApiKeySetup
+            have={{
+              anthropic: !!user.hasApiKey,
+              tavily: user.hasTavilyKey !== false,
+              elevenlabs: !!user.hasVoiceKey,
+            }}
+            onSaved={refresh}
+          />
+
+          <div className="mt-8 flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setStep("defaults")}
+              disabled={!hasRequiredKeys}
+              className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue
+            </button>
+            {!hasRequiredKeys && (
+              <p className="text-xs text-muted">
+                Add the Anthropic and Tavily keys to continue.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );

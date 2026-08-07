@@ -1,15 +1,15 @@
 // audit-questions.mjs — run the hard validator over every generated question.
-//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs           (dry run: report only)
-//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply   (quarantine HARD violations)
-//   ... --apply --only=wrong_colour_for_paper,paper-style-mix                    (quarantine ONLY those rules)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs            (dry run: report only)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply    (quarantine HARD violations)
+//   ... --apply --only=wrong_colour_for_paper,paper-style-mix                     (quarantine ONLY those rules)
 //
-// The ts-loader is required: question-validator.ts imports ./tasting-validators extensionless, which
-// Node 24's native type-stripping will not resolve. Plain `node` dies with ERR_MODULE_NOT_FOUND.
+// The ts-loader is mandatory: question-validator.ts imports "./tasting-validators" extensionless, which
+// plain `node` cannot resolve (ERR_MODULE_NOT_FOUND). Running this without it is how the nightly sweep
+// went dark on 2026-08-07 — see .github/workflows/question-audit-daily.yml.
 //
-// --only=<rules> exists because a blanket --apply is a blunt instrument. The corpus currently has hard
-// violations on 62% of questions, overwhelmingly from two long-standing rule families
-// (id-mark-allocation, flight-composition). Quarantining all of them at once would gut the servable
-// pool. --only lets a NEW rule be enforced over the back catalogue on its own. In that mode the script
+// --only=<rules> exists because a blanket --apply is a blunt instrument. When a NEW hard rule is added,
+// the back catalogue can carry hundreds of hits from OTHER long-standing families, and quarantining all
+// of them at once guts the servable pool. --only enforces just the named rules. In that mode the script
 // also MERGES its reasons into invalid_reasons instead of replacing them, and skips the
 // clear-stale-flags branch entirely — a question that is clean for the scoped rules may be legitimately
 // quarantined for others, and clearing that would silently return it to service.
@@ -112,6 +112,26 @@ for (const r of rows) {
       UPDATE generated_questions SET invalid_reasons = NULL
       WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
         AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    // The quarantine writes TWO flags (see the hard branch above): generated_questions gates the main
+    // study flow, stem_answer_keys.validated gates the drills and Live Tasting. Clearing only the first
+    // left a rule false-positive permanently fatal to the other two — after the 2026-08-07 AC2
+    // stem-numbering fix, four flights would have returned to study and stayed dead as tastings.
+    // validated is only restored when the key still resolves on its own terms (§2b: every slot keys a
+    // variety and an origin), because validated=false is ALSO how the key builder records an
+    // unresolvable wine — that reason is not this script's to clear.
+    const keyResolves =
+      Array.isArray(wines) && wines.length > 0 && wines.every((w) => (w.varieties || []).length && (w.region || w.country));
+    if (keyResolves) {
+      await sql`
+        UPDATE stem_answer_keys SET validated = true, invalid_reasons = NULL
+        WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
+          AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    } else {
+      await sql`
+        UPDATE stem_answer_keys SET invalid_reasons = NULL
+        WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
+          AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    }
   }
   if (!hard.length && res.violations.length) softCount++;
 }

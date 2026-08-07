@@ -4,19 +4,28 @@ import { encrypt } from "@/lib/encryption";
 import Anthropic from "@anthropic-ai/sdk";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { validateTavilyKey } from "@/lib/tavily-key";
+import { invalidateElevenLabsKeyCache, validateElevenLabsKey } from "@/lib/elevenlabs-key";
 
 export const runtime = "nodejs";
 
-// One route, two providers. 'anthropic' (the default, so existing clients are untouched) and
-// 'tavily' share the same storage, hint, and admin-server-fallback semantics.
-type Provider = "anthropic" | "tavily";
+// One route, three providers. 'anthropic' stays the default so existing clients are untouched;
+// 'tavily' and 'elevenlabs' share the same storage, hint, and admin-server-fallback semantics.
+//
+// The three are NOT equal in consequence: anthropic and tavily are required to have an account at
+// all (see the register route), while elevenlabs only unlocks voice. That difference lives in the
+// UI and the signup gate — here they are the same shape of secret.
+type Provider = "anthropic" | "tavily" | "elevenlabs";
 
 function parseProvider(raw: string | null | undefined): Provider {
-  return raw === "tavily" ? "tavily" : "anthropic";
+  if (raw === "tavily") return "tavily";
+  if (raw === "elevenlabs") return "elevenlabs";
+  return "anthropic";
 }
 
 function serverKeyFor(provider: Provider): string | undefined {
-  return provider === "tavily" ? process.env.TAVILY_API_KEY : process.env.ANTHROPIC_API_KEY;
+  if (provider === "tavily") return process.env.TAVILY_API_KEY;
+  if (provider === "elevenlabs") return process.env.ELEVENLABS_API_KEY;
+  return process.env.ANTHROPIC_API_KEY;
 }
 
 export async function GET(request: Request) {
@@ -98,6 +107,11 @@ export async function POST(request: Request) {
         }
         // Other errors (rate limit, etc.) mean the key is probably valid
       }
+    } else if (provider === "elevenlabs") {
+      const elevenError = await validateElevenLabsKey(trimmed);
+      if (elevenError) {
+        return Response.json({ error: elevenError }, { status: 400 });
+      }
     } else {
       if (!trimmed.startsWith("tvly-")) {
         return Response.json(
@@ -124,6 +138,10 @@ export async function POST(request: Request) {
         updated_at = NOW()
     `;
 
+    // The resolver memoizes per user for 60s; without this a key saved here would not take effect
+    // until that expired, which reads as "I saved it and voice still says I have no key".
+    if (provider === "elevenlabs") invalidateElevenLabsKeyCache(user.id);
+
     return Response.json({ success: true, keyHint });
   } catch (err) {
     console.error("POST api-key error:", err);
@@ -143,6 +161,7 @@ export async function DELETE(request: Request) {
     await sql`
       DELETE FROM user_api_keys WHERE user_id = ${user.id} AND provider = ${provider}
     `;
+    if (provider === "elevenlabs") invalidateElevenLabsKeyCache(user.id);
 
     return Response.json({ success: true });
   } catch (err) {

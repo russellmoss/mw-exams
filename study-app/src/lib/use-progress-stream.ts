@@ -33,8 +33,17 @@ export interface ProgressStream {
   /**
    * Open the stream and resolve with its `result` payload (null on failure/abort).
    * Pass `body` to POST it as JSON; omit for a GET.
+   *
+   * `onDelta` receives each thinking delta as it arrives, unbatched. State updates are throttled to
+   * 80ms because re-rendering per token is wasteful for DISPLAY — but the Coach's voice mode needs
+   * every delta the moment it lands, to cut sentences for text-to-speech while the answer is still
+   * being written. Waiting for the resolved result would mean silence for the length of a turn.
    */
-  run: <T>(url: string, body?: unknown, opts?: { timeoutMs?: number }) => Promise<T | null>;
+  run: <T>(
+    url: string,
+    body?: unknown,
+    opts?: { timeoutMs?: number; onDelta?: (delta: string) => void }
+  ) => Promise<T | null>;
   reset: () => void;
 }
 
@@ -63,7 +72,7 @@ export function useProgressStream(): ProgressStream {
   const run = useCallback(async <T,>(
     url: string,
     body?: unknown,
-    opts?: { timeoutMs?: number }
+    opts?: { timeoutMs?: number; onDelta?: (delta: string) => void }
   ): Promise<T | null> => {
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -126,6 +135,8 @@ export function useProgressStream(): ProgressStream {
             setStatuses((prev) => [...prev, event.label as string]);
           } else if (event.type === "thinking" && event.delta) {
             thinkingBuf += event.delta;
+            // Unbatched, before the throttle: voice cuts sentences off this.
+            opts?.onDelta?.(event.delta);
             if (!pending) {
               pending = true;
               setTimeout(flush, 80);

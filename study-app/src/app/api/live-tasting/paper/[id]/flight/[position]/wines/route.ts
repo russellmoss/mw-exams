@@ -5,6 +5,7 @@ import {
   getPaperSessions,
   createLiveTastingPrepSession,
   linkSessionToPaper,
+  retireUnlinkedSession,
 } from "@/lib/db";
 import { attachByoWines, validateEnteredWines } from "@/lib/live-tasting-engine";
 import { paperComposition, } from "@/lib/live-tasting-paper-engine";
@@ -64,7 +65,14 @@ export async function POST(
       budgetCurrency: paper.budget_currency,
       prepGuidance: "",
     });
-    await linkSessionToPaper(session.id, paper.id, position);
+    // The children check above is a check-then-act: two submissions for one flight (a double-tap, or
+    // the owner and the partner at once) both pass it. The link is the real gate now — migration 058's
+    // unique index rejects the second, and this session is retired rather than left holding entered
+    // wines while pointing at nothing.
+    if (!(await linkSessionToPaper(session.id, paper.id, position))) {
+      await retireUnlinkedSession(session.id);
+      throw new Error("This flight already has its wines — reload to see them.");
+    }
     const outcome = await attachByoWines({
       session,
       wines: parsed.wines,

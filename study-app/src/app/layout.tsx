@@ -7,6 +7,7 @@ import { FeedbackProvider } from "@/lib/feedback-context";
 import { NavBar } from "./components/NavBar";
 import { MobileTabBar } from "./components/MobileTabBar";
 import { CoachDock } from "./components/coach/CoachDock";
+import { RequireKeysGate } from "./components/RequireKeysGate";
 import { DictationBanner } from "./components/DictationBanner";
 import "./globals.css";
 
@@ -72,6 +73,10 @@ export default function RootLayout({
           <AuthProvider>
             <FeedbackProvider>
               <DictationBanner />
+              {/* Backstop for OAuth sign-ups, who reach the app without ever seeing the signup
+                  form's key requirement. Renders nothing; redirects to /onboarding when the two
+                  required keys are missing. */}
+              <RequireKeysGate />
               <NavBar />
               {children}
               <MobileTabBar />

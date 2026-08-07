@@ -7,6 +7,10 @@ import { usePathname } from "next/navigation";
 import { useProgressStream } from "@/lib/use-progress-stream";
 import { useFeedbackPanelState } from "@/lib/feedback-context";
 import { capturePage, type Capture } from "@/lib/coach/capture";
+import type { VoiceState } from "@/lib/voice/state-types";
+import { useReadAloud, type ReadAloud } from "./voice/useReadAloud";
+import { useVoiceSession } from "./voice/useVoiceSession";
+import { VoiceInlineBar } from "./voice/VoiceInlineBar";
 import {
   clearSession,
   resumableConversationId,
@@ -52,6 +56,14 @@ const SUGGESTIONS = [
   "Where am I weakest right now?",
 ];
 
+/**
+ * Lifts the voice state up to the dock, which draws the orb in its title bar.
+ *
+ * The orb belongs to the dock chrome rather than the chat body — that is what lets voice run
+ * alongside the conversation instead of covering it. `null` means voice is off.
+ */
+export type VoiceStatusCallback = (state: VoiceState | null, getLevel: () => number) => void;
+
 /** Rough USD for a Sonnet turn. Indicative only — the Cost dashboard holds the real accounting. */
 function estimateUsd(u: CoachResult["usage"]): number {
   return (
@@ -59,7 +71,7 @@ function estimateUsd(u: CoachResult["usage"]): number {
   );
 }
 
-export function CoachChat() {
+export function CoachChat({ onVoiceStatus }: { onVoiceStatus?: VoiceStatusCallback }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -73,6 +85,13 @@ export function CoachChat() {
     { id: string; title: string | null; updated_at: string }[]
   >([]);
   const [resumedNotice, setResumedNotice] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  // Whether this account can use voice at all — i.e. has an ElevenLabs key, or is an admin falling
+  // back to the server one. Checked once when the dock mounts rather than discovered on first use:
+  // without it, someone with no key opens the mic, says a whole sentence, and only THEN gets told.
+  // `null` while unknown, so the controls do not flicker disabled on load.
+  const [voiceAvailable, setVoiceAvailable] = useState<boolean | null>(null);
+  const readAloud = useReadAloud();
   const stream = useProgressStream();
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = stream.active;
@@ -123,6 +142,23 @@ export function CoachChat() {
     }
   }, [openConversation]);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/user/api-key?provider=elevenlabs")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { hasKey?: boolean; usingServerKey?: boolean } | null) => {
+        if (!cancelled) setVoiceAvailable(!!(d?.hasKey || d?.usingServerKey));
+      })
+      .catch(() => {
+        // Unreachable is not the same as unconfigured — leave the controls enabled and let the
+        // route's own 402 explain, rather than hiding voice because one probe failed.
+        if (!cancelled) setVoiceAvailable(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const startNewChat = useCallback(() => {
     setTurns([]);
     setConversationId(null);
@@ -140,10 +176,18 @@ export function CoachChat() {
     setConversations(data.conversations || []);
   }, []);
 
+  /**
+   * Send one message and record the exchange.
+   *
+   * Shared with voice mode, which is why it takes `onDelta` and returns the answer: a spoken turn is
+   * the same turn — same endpoint, same conversation, same transcript — it just also needs the text
+   * as it streams, to cut sentences for synthesis. Forking a second send path for voice would have
+   * meant two places to keep the conversation bookkeeping right.
+   */
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, opts?: { onDelta?: (delta: string) => void }): Promise<string | null> => {
       const trimmed = text.trim();
-      if (!trimmed || busy) return;
+      if (!trimmed || busy) return null;
       setInput("");
       setNeedsKey(false);
       setTurns((t) => [...t, { role: "user", text: trimmed, hadScreenshot: !!shot }]);
@@ -174,7 +218,7 @@ export function CoachChat() {
           attemptId: context?.attemptId ?? null,
           wineIndex: context?.wineIndex ?? null,
         },
-      });
+      }, { onDelta: opts?.onDelta });
 
       if (!result) {
         // BYOK: 402 means "no Anthropic key on this account", which is a setup step rather than a
@@ -185,7 +229,7 @@ export function CoachChat() {
           ...t,
           { role: "assistant", text: needsKeyMessage(err) },
         ]);
-        return;
+        return null;
       }
 
       setConversationId(result.conversationId);
@@ -203,9 +247,47 @@ export function CoachChat() {
           proposals: result.proposals,
         },
       ]);
+      return result.text;
     },
     [busy, conversationId, stream, context, pathname, shot]
   );
+
+  // Voice mode runs the same turn through the same `send`, so a spoken exchange lands in the
+  // transcript and the conversation exactly like a typed one.
+  const ask = useCallback(
+    (message: string, onDelta: (delta: string) => void) => send(message, { onDelta }),
+    [send]
+  );
+  const voice = useVoiceSession({ ask, disabled: needsKey });
+
+  const closeVoice = useCallback(() => {
+    voice.stop();
+    setVoiceOpen(false);
+  }, [voice]);
+
+  const openVoice = useCallback(() => {
+    // Reading a message aloud and talking to it are two audio graphs competing for the speaker.
+    readAloud.stop();
+    setVoiceOpen(true);
+    void voice.start();
+  }, [readAloud, voice]);
+
+  // Publish the voice state to the dock so it can draw the orb in its title bar.
+  //
+  // From an EFFECT keyed on the primitive state, never during render (React warns on cross-component
+  // updates) and never with a freshly-allocated object in the deps — that would re-publish every
+  // render and drag the dock through a re-render at audio frame rate. The callback itself goes
+  // through a ref so a parent that re-creates it inline cannot cause the same storm.
+  const statusCbRef = useRef(onVoiceStatus);
+  useEffect(() => {
+    statusCbRef.current = onVoiceStatus;
+  });
+  const voiceLevel = voice.getLevel;
+  const voiceState = voice.state;
+  useEffect(() => {
+    statusCbRef.current?.(voiceOpen ? voiceState : null, voiceLevel);
+  }, [voiceOpen, voiceState, voiceLevel]);
+  useEffect(() => () => statusCbRef.current?.(null, () => 0), []);
 
   const rate = useCallback(async (messageId: number, rating: "up" | "down") => {
     setRatings((r) => ({ ...r, [messageId]: rating }));
@@ -326,25 +408,39 @@ export function CoachChat() {
                 {t.toolsUsed && t.toolsUsed.length > 0 && (
                   <div className="text-[11px] text-muted">Checked: {t.toolsUsed.join(", ")}</div>
                 )}
-                {t.messageId != null && (
+                {t.text.trim() && (
                   <div className="flex items-center gap-1.5 pt-0.5">
-                    {(["up", "down"] as const).map((r) => (
-                      <button
-                        key={r}
-                        type="button"
-                        aria-label={r === "up" ? "Helpful" : "Not helpful"}
-                        aria-pressed={ratings[t.messageId!] === r}
-                        onClick={() => rate(t.messageId!, r)}
-                        className={`text-[13px] leading-none rounded-md px-1.5 py-1 border transition-colors cursor-pointer ${
-                          ratings[t.messageId!] === r
-                            ? "border-accent text-accent"
-                            : "border-transparent text-muted hover:text-foreground"
-                        }`}
-                      >
-                        {r === "up" ? "👍" : "👎"}
-                      </button>
-                    ))}
+                    <SpeakButton
+                      id={`m${i}`}
+                      markdown={t.text}
+                      readAloud={readAloud}
+                      disabled={voiceOpen || voiceAvailable === false}
+                      unavailable={voiceAvailable === false}
+                    />
+                    <CopyButton text={t.text} />
+                    {/* Ratings only exist for a persisted turn; the two buttons above work on any
+                        rendered answer, including one from a thread that failed to save. */}
+                    {t.messageId != null &&
+                      (["up", "down"] as const).map((r) => (
+                        <button
+                          key={r}
+                          type="button"
+                          aria-label={r === "up" ? "Helpful" : "Not helpful"}
+                          aria-pressed={ratings[t.messageId!] === r}
+                          onClick={() => rate(t.messageId!, r)}
+                          className={`text-[13px] leading-none rounded-md px-1.5 py-1 border transition-colors cursor-pointer ${
+                            ratings[t.messageId!] === r
+                              ? "border-accent text-accent"
+                              : "border-transparent text-muted hover:text-foreground"
+                          }`}
+                        >
+                          {r === "up" ? "👍" : "👎"}
+                        </button>
+                      ))}
                   </div>
+                )}
+                {readAloud.error?.id === `m${i}` && (
+                  <div className="text-[11px] text-fail">{readAloud.error.message}</div>
                 )}
               </div>
             )}
@@ -374,6 +470,15 @@ export function CoachChat() {
           </div>
         )}
       </div>
+
+      {voiceOpen && (
+        <VoiceInlineBar
+          session={voice}
+          onClose={closeVoice}
+          // Retires itself once the loop has round-tripped once.
+          showHint={voice.turns.length === 0}
+        />
+      )}
 
       <form
         onSubmit={(e) => {
@@ -405,6 +510,40 @@ export function CoachChat() {
           }`}
         >
           {capturing ? "…" : shot ? "📎" : "📷"}
+        </button>
+        {/* Talk / End, as ONE button that changes in place rather than two that swap.
+            Opening needs a real click: both the microphone prompt and the autoplay policy require a
+            user gesture, and `start()` satisfies them together. Keeping the same DOM node means
+            focus stays on the right control when voice starts — moving it would be the disruptive
+            act — and the composer row never reflows mid-sentence. */}
+        <button
+          type="button"
+          aria-label={voiceOpen ? "End voice mode" : "Talk to the Coach"}
+          aria-pressed={voiceOpen}
+          title={
+            needsKey
+              ? "Add an Anthropic key in Settings first"
+              : voiceAvailable === false
+                ? "Add an ElevenLabs key in Settings to talk to the Coach"
+                : voiceOpen
+                  ? "End voice mode"
+                  : "Talk to the Coach"
+          }
+          // Not disabled while busy when voice is ON: ending a session mid-answer is exactly when
+          // someone reaches for it.
+          disabled={needsKey || voiceAvailable === false || (busy && !voiceOpen)}
+          onClick={voiceOpen ? closeVoice : openVoice}
+          className={`rounded-lg border px-2 py-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:hover:text-muted disabled:hover:border-border ${
+            voiceOpen
+              ? "border-accent text-accent"
+              : "border-border text-muted hover:text-accent hover:border-accent"
+          }`}
+        >
+          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden>
+            <rect x="7.5" y="2.5" width="5" height="9" rx="2.5" />
+            <path strokeLinecap="round" d="M4.5 9a5.5 5.5 0 0011 0M10 14.5v3" />
+            {voiceOpen && <path strokeLinecap="round" d="M3.5 3.5l13 13" />}
+          </svg>
         </button>
         <textarea
           value={input}
@@ -601,6 +740,139 @@ function VerdictLine({ verdict }: { verdict: Verdict }) {
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Read this answer aloud.
+ *
+ * Disabled while hands-free mode is open: that loop owns the speaker and is mid-turn, and letting a
+ * second Web Audio graph play over it produces two voices talking at once with no way to stop
+ * either cleanly.
+ */
+function SpeakButton({
+  id,
+  markdown,
+  readAloud,
+  disabled,
+  unavailable,
+}: {
+  id: string;
+  markdown: string;
+  readAloud: ReadAloud;
+  disabled: boolean;
+  /** No ElevenLabs key — say why rather than presenting a dead control. */
+  unavailable?: boolean;
+}) {
+  const active = readAloud.activeId === id;
+  const loading = active && readAloud.state === "loading";
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      aria-label={active ? "Stop reading this answer" : "Read this answer aloud"}
+      aria-pressed={active}
+      title={
+        unavailable
+          ? "Add an ElevenLabs key in Settings to have answers read aloud"
+          : disabled
+            ? "Close voice mode to use this"
+            : active
+              ? "Stop"
+              : "Read aloud"
+      }
+      onClick={() => readAloud.toggle(id, markdown)}
+      className={`rounded-md border px-1.5 py-1 leading-none transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+        active ? "border-accent text-accent" : "border-transparent text-muted hover:text-foreground"
+      }`}
+    >
+      {loading ? (
+        <span className="streaming-dot block w-3.5 h-3.5 text-[13px] leading-none">·</span>
+      ) : active ? (
+        // Stop square, so the control reads as a toggle rather than a replay.
+        <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+          <rect x="5" y="5" width="10" height="10" rx="1.5" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 8v4h2.5L10 15V5L6.5 8H4z" />
+          <path strokeLinecap="round" d="M13 7.5a3.5 3.5 0 010 5M15.2 5.3a6.5 6.5 0 010 9.4" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+/**
+ * Copy the answer's markdown.
+ *
+ * The raw markdown deliberately, not the rendered text: it is what pastes usefully into notes, and
+ * it is what the candidate saw.
+ *
+ * TWO PATHS, because the modern one is refused more often than you would think. `navigator.clipboard`
+ * needs a secure context AND document focus, so it throws NotAllowedError in an unfocused window, in
+ * an iframe without permission, and on plain http — none of which are exotic. The textarea fallback
+ * works in all three. If both fail the button SAYS so, because the one thing worse than not copying
+ * is a green tick claiming you did.
+ */
+function CopyButton({ text }: { text: string }) {
+  const [result, setResult] = useState<"idle" | "copied" | "failed">("idle");
+  const copied = result === "copied";
+
+  useEffect(() => {
+    if (result === "idle") return;
+    const timer = setTimeout(() => setResult("idle"), 1800);
+    return () => clearTimeout(timer);
+  }, [result]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setResult("copied");
+      return;
+    } catch {
+      /* fall through to the legacy path */
+    }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      // Off-screen rather than hidden: a display:none textarea cannot be selected.
+      ta.style.cssText = "position:fixed;top:-9999px;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      setResult(ok ? "copied" : "failed");
+    } catch {
+      setResult("failed");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      aria-label={copied ? "Copied" : result === "failed" ? "Couldn't copy" : "Copy this answer"}
+      title={copied ? "Copied" : result === "failed" ? "Couldn't copy — select and copy manually" : "Copy"}
+      onClick={copy}
+      className={`rounded-md border px-1.5 py-1 leading-none transition-colors cursor-pointer ${
+        copied
+          ? "border-success text-success"
+          : result === "failed"
+            ? "border-fail text-fail"
+            : "border-transparent text-muted hover:text-foreground"
+      }`}
+    >
+      {copied ? (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5l3.5 3.5 7-7.5" />
+        </svg>
+      ) : (
+        <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden>
+          <rect x="7" y="7" width="8.5" height="8.5" rx="1.6" />
+          <path strokeLinecap="round" d="M12.5 4.5H5.6A1.1 1.1 0 004.5 5.6v6.9" />
+        </svg>
+      )}
+    </button>
   );
 }
 
