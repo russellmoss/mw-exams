@@ -846,6 +846,92 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// MARK BUDGET — the hard MW rule that a flight's available marks total EXACTLY 25 × the number of
+// wines (accepted user feedback, cross-paper, 3 validated signals).
+//
+//   • fb_96  (paper 1): "every wine, no matter which paper, will have exactly 25 marks available …
+//     non-negotiable" — a two-wine flight carrying 70 marks would never occur.
+//   • fb_138 (paper 1, stem-sniper drill): "there should be exactly 25 points per wine. This is a
+//     hard fast rule" — a four-wine flight must total 100.
+//   • fb_344 (paper 2): a task that applies across the whole flight "should be broken out into two
+//     sections with it being made clear which question applied and was marked across the flight" —
+//     i.e. every part must be visibly scoped as either per-wine or whole-flight, never ambiguous.
+//
+// This is a REJECT-ONLY check (no re-balancing — generation has separate weighting guidance):
+//   • mark_total_mismatch — the summed marks (expanding every 'N × m' per-wine notation to N*m and
+//     adding whole-flight aggregate parts) do not equal 25 × wineCount. The computed total is quoted.
+//   • mark_scope_ambiguous — a part carries a bare aggregate mark value with no explicit whole-flight
+//     wording (e.g. "For all N wines"), so it is not visibly broken out from the per-wine tasks. A
+//     part rendered as 'N × m marks' is unambiguously per-wine; a bare value needs whole-flight
+//     wording to read as a single flight-wide aggregate.
+// ---------------------------------------------------------------------------------------------------
+
+// Parse the mark-carrying parts, keeping whether the annotation used a per-wine 'N × m' multiplier.
+function parseBudgetParts(
+  questionText: string
+): { text: string; marks: number; hasMultiplier: boolean }[] {
+  const text = questionText || "";
+  const re = /\((?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\)/gi;
+  const parts: { text: string; marks: number; hasMultiplier: boolean }[] = [];
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const mult = m[1] ? parseInt(m[1], 10) : 1;
+    const base = parseInt(m[2], 10);
+    parts.push({ text: text.slice(lastIndex, m.index), marks: mult * base, hasMultiplier: Boolean(m[1]) });
+    lastIndex = re.lastIndex;
+  }
+  return parts;
+}
+
+// Wording that scopes a part explicitly to the WHOLE flight (a single aggregate mark value):
+// "For all N wines", "For both wines", "all four wines", "across the flight", "for the flight as a
+// whole". Matched case-insensitively on the part's leading text (which carries any "For …:" scaffold).
+const WHOLE_FLIGHT_WORDING =
+  /\bfor (?:all|both)\b|\ball (?:the )?(?:\d+|two|three|four|five|six|seven|eight) wines?\b|\bacross (?:the|all|the whole) (?:flight|wines?)\b|\b(?:the )?flight as a whole\b|\bwhole flight\b/i;
+
+/**
+ * Mark-budget rule (reject-only). (a) Every part must be explicitly scoped — a bare aggregate mark
+ * value without whole-flight wording is `mark_scope_ambiguous`. (b) The summed marks must equal
+ * exactly 25 × wineCount, else `mark_total_mismatch` quoting the computed total.
+ */
+export function checkMarkBudget(q: QuestionForAudit): Violation[] {
+  const wineCount = (q.wines || []).length;
+  const parts = parseBudgetParts(q.questionText || "");
+  // Nothing to weigh (no wines resolved, or no mark annotations) — fail safe and say nothing.
+  if (wineCount < 1 || parts.length === 0) return [];
+
+  const v: Violation[] = [];
+
+  // (a) Scope: a per-wine 'N × m' part is unambiguous; a bare aggregate value needs whole-flight
+  // wording to be visibly broken out from the per-wine tasks (fb_344).
+  for (const p of parts) {
+    if (p.hasMultiplier) continue;
+    if (!WHOLE_FLIGHT_WORDING.test(p.text)) {
+      const clause = norm(p.text).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim().slice(-80);
+      v.push({
+        rule: "mark_scope_ambiguous",
+        severity: "hard",
+        detail: `a part carries a bare aggregate mark value (…"${clause}") without explicit scope. Tag it per-wine as 'N × m marks', or, if it is marked across the flight, state "For all ${wineCount} wines" so the flight-wide task is visibly broken out from the per-wine tasks.`,
+      });
+    }
+  }
+
+  // (b) Total: the summed marks must equal exactly 25 × wineCount.
+  const total = parts.reduce((s, p) => s + p.marks, 0);
+  const expected = 25 * wineCount;
+  if (total !== expected) {
+    v.push({
+      rule: "mark_total_mismatch",
+      severity: "hard",
+      detail: `flight of ${wineCount} wine${wineCount === 1 ? "" : "s"} carries ${total} marks, but every MW flight must total exactly ${expected} (25 × ${wineCount}). Re-weight the parts so they sum to ${expected}.`,
+    });
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -872,6 +958,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
+  violations.push(...checkMarkBudget(q));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

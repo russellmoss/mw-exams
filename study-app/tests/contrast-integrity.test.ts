@@ -67,13 +67,16 @@ describe("sweetness mechanism — flight-wide", () => {
   it("passes a two-wine flight of botrytis vs fortified (genuine contrast)", () => {
     const question = q(
       "Wines 1 and 2 are from two different countries. Both have residual sugar.\n\n" +
-        "b) Explain the mechanism by which the sweetness has been achieved. (2 x 10 marks)",
+        "For each wine:\n" +
+        "a) Identify the grape variety and region of origin as closely as possible. (2 x 10 marks)\n" +
+        "b) Explain the mechanism by which the sweetness has been achieved. (2 x 15 marks)",
       [
         { slot: 1, varieties: ["Sémillon"], region: "Sauternes", country: "France", style: "Sauternes", style_category: "Botrytis sweet" },
         { slot: 2, varieties: ["Muscat"], region: "Rutherglen", country: "Australia", style: "Rutherglen Muscat", style_category: "Fortified Muscat" },
       ]
     );
     expect(contrastIntegrityViolations(question)).toEqual([]);
+    // Complete 50-mark two-wine flight (2 × 10 + 2 × 15 = 50 = 25 × 2), so it also clears mark-budget.
     expect(validateQuestion(question).ok).toBe(true);
   });
 });
