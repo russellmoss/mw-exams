@@ -132,6 +132,13 @@ export interface AttemptDetail {
   feedback_admin_note: string | null;
   feedback_reviewed_at: string | null;
   feedback_decided_by?: string | null; // 'auto' | 'manual'
+  // Feedback tab (migration 053). Present on feedback rows so the admin surface can render the
+  // chip + scope badges and filter on them.
+  source?: string | null; // 'feedback_tab' | 'history'
+  category?: string | null; // chip value
+  scope?: string | null; // 'question' | 'general'
+  route?: string | null;
+  paused_ms?: number | null;
   elapsed_seconds: number | null;
   // Auto-apply pipeline (admin views only)
   auto_recommendation?: string | null;
@@ -310,6 +317,15 @@ function getDecision(status: string | null, decidedBy: string | null | undefined
   }
   return null;
 }
+
+// Feedback-tab chip labels (migration 053) — user-facing copy, mirrored in FeedbackTab.
+const CATEGORY_LABEL: Record<string, string> = {
+  wrong_misleading: "Wrong / misleading",
+  confusing_wording: "Confusing wording",
+  grading_off: "Grading felt off",
+  bug: "Bug",
+  idea: "Idea",
+};
 
 function DecisionBadge({ decision }: { decision: Decision }) {
   return (
@@ -586,7 +602,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent">
-              {isTheory ? `Theory P${attempt.paper}` : paperLabel(attempt.paper)}
+              {attempt.scope === "general" ? "App" : isTheory ? `Theory P${attempt.paper}` : paperLabel(attempt.paper)}
             </span>
             {isTheory && (
               <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted font-medium">
@@ -610,7 +626,18 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
             )}
             <span className="text-xs text-muted">{attempt.family_label}</span>
             {(() => { const p = parsePace(attempt.pace); return p ? <PaceBadge pace={p} /> : null; })()}
-            <CopyId id={attempt.question_id} />
+            {attempt.question_id && <CopyId id={attempt.question_id} />}
+            {/* Feedback-tab badges (migration 053): the chip label, and "General" for app-level scope. */}
+            {attempt.category && CATEGORY_LABEL[attempt.category] && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-accent/40 text-accent bg-accent/10 font-medium">
+                {CATEGORY_LABEL[attempt.category]}
+              </span>
+            )}
+            {attempt.scope === "general" && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded border border-border text-muted font-medium">
+                General
+              </span>
+            )}
             {decision && <DecisionBadge decision={decision} />}
           </div>
           <p className="text-sm text-foreground truncate">
@@ -891,6 +918,8 @@ interface Filters {
   decisions: Set<string>; // DecisionGroup values: auto-accept | partial | auto-reject | manual
   modes: Set<string>; // 'full' (study) | 'stem-sniper' | 'reverse-tasting'
   paces: Set<string>; // 'exam' | 'speed'
+  categories: Set<string>; // Feedback-tab chip values (migration 053)
+  scopes: Set<string>; // 'question' | 'general' (Feedback-tab scope)
 }
 
 const attemptMode = (a: AttemptDetail): string =>
@@ -953,7 +982,7 @@ export function HistoryView({
   isAdmin?: boolean;
   emptyAction?: React.ReactNode;
 }) {
-  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() });
+  const [filters, setFilters] = useState<Filters>({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set(), categories: new Set(), scopes: new Set() });
   // Pillar filter (shell redesign §10): one-click Theory/Practical split above the detail chips.
   const [pillar, setPillar] = useState<"all" | "theory" | "practical">("all");
 
@@ -1153,7 +1182,7 @@ export function HistoryView({
                       {activeFilterCount > 0 && (
                         <>
                           <div className="w-px h-5 bg-border" />
-                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
+                          <button onClick={() => setFilters({ results: new Set(), papers: new Set(), families: new Set(), decisions: new Set(), modes: new Set(), paces: new Set(), categories: new Set(), scopes: new Set() })} className="text-xs text-accent hover:text-accent-hover cursor-pointer">Clear ({activeFilterCount})</button>
                         </>
                       )}
                     </div>

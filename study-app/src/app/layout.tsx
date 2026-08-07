@@ -3,8 +3,10 @@ import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import { AuthProvider } from "@/lib/auth-context";
 import { ThemeProvider } from "@/lib/theme-context";
 import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import { FeedbackProvider } from "@/lib/feedback-context";
 import { NavBar } from "./components/NavBar";
 import { MobileTabBar } from "./components/MobileTabBar";
+import { FeedbackTab } from "./components/FeedbackTab";
 import { DictationBanner } from "./components/DictationBanner";
 import "./globals.css";
 
@@ -68,10 +70,13 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground font-[family-name:var(--font-geist-sans)]">
         <ThemeProvider>
           <AuthProvider>
-            <DictationBanner />
-            <NavBar />
-            {children}
-            <MobileTabBar />
+            <FeedbackProvider>
+              <DictationBanner />
+              <NavBar />
+              {children}
+              <MobileTabBar />
+              <FeedbackTab />
+            </FeedbackProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

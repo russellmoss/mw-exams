@@ -31,12 +31,14 @@ import { PaceStrip } from "../components/PaceStrip";
 import { PaceReport } from "../components/PaceReport";
 import { QuestionRecap } from "../components/QuestionRecap";
 import {
+  benchmarkFor,
   computePaceData,
   DEFAULT_PACE_PREFERENCE,
   type PaceData,
   type PaceMode,
   type SpeedSeconds,
 } from "@/lib/pace";
+import { useFeedbackContext, useFeedbackTimer } from "@/lib/feedback-context";
 
 export default function StudyPage() {
   const router = useRouter();
@@ -242,6 +244,60 @@ export default function StudyPage() {
   const currentQuestion = state.step !== "select-paper" ? state.question : null;
   const displayedStem = currentQuestion ? stemForLevel(currentQuestion, stemDetailLevel) : "";
   const nextStemDetailLevel = stepUpLevel(stemDetailLevel);
+
+  // ── Feedback tab wiring ──
+  // Publish the on-screen question so the persistent Feedback tab can anchor feedback to it, and
+  // hand the tab pause/resume + a live remaining getter so opening the panel pauses the clock.
+  const { setFeedbackContext, clearFeedbackContext } = useFeedbackContext();
+  const { registerTimer } = useFeedbackTimer();
+
+  useEffect(() => {
+    if (!currentQuestion) {
+      clearFeedbackContext();
+      return;
+    }
+    setFeedbackContext({
+      paper: currentQuestion.paper,
+      questionNumber: currentQuestion.questionNumber,
+      questionId: currentQuestion.id,
+      attemptId,
+      mode: studyMode,
+      route: "/study",
+    });
+  }, [currentQuestion, attemptId, studyMode, setFeedbackContext, clearFeedbackContext]);
+
+  useEffect(() => () => clearFeedbackContext(), [clearFeedbackContext]);
+
+  // The Feedback tab only shows/pauses a countdown when there is a live per-wine benchmark (Full
+  // Question / Dry Notes) and the clock is genuinely running.
+  const feedbackTimerActiveRef = useRef(false);
+  // Keep the live "is the countdown active?" flag in a ref for getRemainingSeconds to read, syncing
+  // it in an effect (refs must not be written during render).
+  useEffect(() => {
+    feedbackTimerActiveRef.current =
+      paceEnabled &&
+      currentQuestion != null &&
+      !timer.stopped &&
+      state.step !== "select-paper" &&
+      state.step !== "reveal-answer" &&
+      state.step !== "feedback";
+  });
+
+  useEffect(() => {
+    registerTimer({
+      pause: () => timer.pause(),
+      resume: () => timer.resume(),
+      getRemainingSeconds: () => {
+        if (!feedbackTimerActiveRef.current) return null;
+        const benchmark = benchmarkFor(sessionPaceModeRef.current, sessionSpeedSecondsRef.current);
+        const activeElapsed = timer.getElapsed() - activeWineStartRef.current;
+        return Math.max(0, benchmark - activeElapsed);
+      },
+    });
+    return () => registerTimer(null);
+    // timer's pause/resume/getElapsed are stable callbacks; the refs carry the live values.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [registerTimer]);
 
   // "Add detail" — one-way step up. Persist the level the candidate ENDED at so history and grading
   // can tell an unaided run from an assisted one.
