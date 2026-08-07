@@ -11,6 +11,7 @@ import { BankHealthSection } from "../components/BankHealthSection";
 import { WhyBinnedSection } from "../components/WhyBinnedSection";
 import { BinFixProposalsSection } from "../components/BinFixProposalsSection";
 import { AdminUserModal } from "../components/AdminUserModal";
+import { formatPurgeDate, purgeDateFor } from "@/lib/user-deletion";
 
 interface UserRow {
   id: number;
@@ -18,6 +19,8 @@ interface UserRow {
   name: string;
   is_admin: boolean;
   is_active: boolean;
+  /** Set when the account is scheduled for deletion; null otherwise. See lib/user-deletion.ts. */
+  deleted_at: string | null;
   has_own_key: boolean;
   key_hint: string | null;
   attempt_count: number;
@@ -239,6 +242,27 @@ export default function AdminPage() {
       } else {
         const data = await res.json();
         setError(data.error || "Failed to update");
+      }
+    } catch {
+      setError("Network error");
+    }
+  };
+
+  /**
+   * Cancel a pending deletion. Safe enough to expose as a one-click row action — it only ever
+   * un-does a destructive thing. Deleting, by contrast, lives in the per-user modal behind a typed
+   * email confirmation, so it can't be misfired from a list of forty similar-looking rows.
+   */
+  const restoreUser = async (targetId: number) => {
+    try {
+      const res = await fetch(`/api/admin/users/${targetId}/restore`, { method: "POST" });
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === targetId ? { ...u, deleted_at: null, is_active: true } : u))
+        );
+      } else {
+        const data = await res.json();
+        setError(data.error || "Failed to restore");
       }
     } catch {
       setError("Network error");
@@ -650,11 +674,17 @@ export default function AdminPage() {
                           Admin
                         </span>
                       )}
-                      {!u.is_active && (
+                      {/* Pending deletion supersedes Disabled — the account is inactive either
+                          way, but only one of the two is on a countdown to being erased. */}
+                      {u.deleted_at ? (
+                        <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-fail/20 text-fail">
+                          Deletes {formatPurgeDate(purgeDateFor(u.deleted_at))}
+                        </span>
+                      ) : !u.is_active ? (
                         <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-fail/20 text-fail">
                           Disabled
                         </span>
-                      )}
+                      ) : null}
                     </div>
                     <p className="text-xs text-muted">
                       {u.email}
@@ -679,22 +709,35 @@ export default function AdminPage() {
                   {/* Actions */}
                   {u.id !== user?.id && (
                     <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleAdmin(u.id, u.is_admin); }}
-                        className="text-xs px-2 py-1 rounded border border-border hover:border-accent text-muted hover:text-foreground transition-colors cursor-pointer"
-                      >
-                        {u.is_admin ? "Demote" : "Make admin"}
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleActive(u.id, u.is_active); }}
-                        className={`text-xs px-2 py-1 rounded border transition-colors cursor-pointer ${
-                          u.is_active
-                            ? "border-border hover:border-fail text-muted hover:text-fail"
-                            : "border-border hover:border-success text-muted hover:text-success"
-                        }`}
-                      >
-                        {u.is_active ? "Disable" : "Enable"}
-                      </button>
+                      {u.deleted_at ? (
+                        // The only action worth offering on a pending-deletion row. Promoting or
+                        // re-enabling it is refused by the API anyway — restore it first.
+                        <button
+                          onClick={(e) => { e.stopPropagation(); restoreUser(u.id); }}
+                          className="text-xs px-2 py-1 rounded border border-border hover:border-success text-muted hover:text-success transition-colors cursor-pointer"
+                        >
+                          Restore
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleAdmin(u.id, u.is_admin); }}
+                            className="text-xs px-2 py-1 rounded border border-border hover:border-accent text-muted hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            {u.is_admin ? "Demote" : "Make admin"}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleActive(u.id, u.is_active); }}
+                            className={`text-xs px-2 py-1 rounded border transition-colors cursor-pointer ${
+                              u.is_active
+                                ? "border-border hover:border-fail text-muted hover:text-fail"
+                                : "border-border hover:border-success text-muted hover:text-success"
+                            }`}
+                          >
+                            {u.is_active ? "Disable" : "Enable"}
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

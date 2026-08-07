@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { DELETION_GRACE_DAYS, formatPurgeDate, purgeDateFor } from "@/lib/user-deletion";
 
 interface UserDetail {
   id: number;
@@ -12,6 +13,8 @@ interface UserDetail {
   job_title: string | null;
   is_admin: boolean;
   is_active: boolean;
+  /** Set when the account is scheduled for deletion; null otherwise. See lib/user-deletion.ts. */
+  deleted_at: string | null;
   created_at: string;
   avatar_url: string | null;
   has_password: boolean;
@@ -61,11 +64,15 @@ export function AdminUserModal({ userId, currentUserId, onClose, onChanged }: Pr
   const [sendingReset, setSendingReset] = useState(false);
   const [sendingInvite, setSendingInvite] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [restoring, setRestoring] = useState(false);
 
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   const isSelf = userId === currentUserId;
-  const busy = saving || settingPw || sendingReset || sendingInvite || toggling;
+  const busy = saving || settingPw || sendingReset || sendingInvite || toggling || deleting || restoring;
+  const pendingDeletion = detail?.deleted_at ?? null;
 
   const load = useCallback(async () => {
     try {
@@ -210,6 +217,58 @@ export function AdminUserModal({ userId, currentUserId, onClose, onChanged }: Pr
     }
   };
 
+  /**
+   * Schedule this account for deletion. The typed email is re-checked server-side; it is here to
+   * make the admin look at *which* account they are about to erase, which a confirm() cannot do.
+   */
+  const handleDelete = async () => {
+    setMsg(null);
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ confirmation: deleteConfirm }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({ kind: "err", text: data.error || "Failed to delete account" });
+      } else {
+        setDeleteConfirm("");
+        setMsg({
+          kind: "ok",
+          text: `Account locked and scheduled for deletion on ${formatPurgeDate(new Date(data.purgeDate))}.`,
+        });
+        onChanged();
+        load();
+      }
+    } catch {
+      setMsg({ kind: "err", text: "Network error" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setMsg(null);
+    setRestoring(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/restore`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg({ kind: "err", text: data.error || "Failed to restore account" });
+      } else {
+        setMsg({ kind: "ok", text: "Deletion cancelled — the account is active again." });
+        onChanged();
+        load();
+      }
+    } catch {
+      setMsg({ kind: "err", text: "Network error" });
+    } finally {
+      setRestoring(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 px-4 pb-4">
       <div
@@ -228,11 +287,15 @@ export function AdminUserModal({ userId, currentUserId, onClose, onChanged }: Pr
                 Admin
               </span>
             )}
-            {detail && !detail.is_active && (
+            {pendingDeletion ? (
+              <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-fail/20 text-fail shrink-0">
+                Deletes {formatPurgeDate(purgeDateFor(pendingDeletion))}
+              </span>
+            ) : detail && !detail.is_active ? (
               <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-fail/20 text-fail shrink-0">
                 Disabled
               </span>
-            )}
+            ) : null}
           </div>
           <button
             onClick={onClose}
@@ -414,8 +477,9 @@ export function AdminUserModal({ userId, currentUserId, onClose, onChanged }: Pr
               </p>
             </section>
 
-            {/* Role & status */}
-            {!isSelf && (
+            {/* Role & status. Hidden while a deletion is pending: the account is already
+                inactive by design, and the API refuses these toggles until it is restored. */}
+            {!isSelf && !pendingDeletion && (
               <section className="border-t border-border pt-5">
                 <h3 className="text-sm font-semibold text-foreground mb-3">Role &amp; status</h3>
                 <div className="flex flex-wrap gap-2">
@@ -438,6 +502,68 @@ export function AdminUserModal({ userId, currentUserId, onClose, onChanged }: Pr
                     {detail.is_active ? "Disable account" : "Enable account"}
                   </button>
                 </div>
+              </section>
+            )}
+
+            {/* Danger zone — deletion. Not offered for your own account: the Settings page owns
+                that flow, with its own confirmation. */}
+            {!isSelf && (
+              <section className="border-t border-fail/30 pt-5">
+                <h3 className="text-sm font-semibold text-fail mb-2">Danger zone</h3>
+
+                {pendingDeletion ? (
+                  <>
+                    <p className="text-sm text-muted mb-3">
+                      This account is locked and will be erased from the database on{" "}
+                      <span className="font-semibold text-fail">
+                        {formatPurgeDate(purgeDateFor(pendingDeletion))}
+                      </span>
+                      , along with its attempts, feedback, coaching conversations and Live Tasting
+                      sessions. Restoring is only possible until then.
+                    </p>
+                    <button
+                      onClick={handleRestore}
+                      disabled={busy}
+                      className="px-4 py-2 text-sm rounded-lg border border-border text-muted hover:text-success hover:border-success transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {restoring ? "Restoring…" : "Restore account"}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-muted mb-3">
+                      Deleting locks the account immediately and revokes its API keys. After{" "}
+                      {DELETION_GRACE_DAYS} days it is erased from the database permanently, along
+                      with its attempts, feedback, coaching conversations and Live Tasting
+                      sessions. Usage/cost records and any questions it contributed to the bank are
+                      kept, with the account reference removed.
+                    </p>
+                    <label
+                      htmlFor="adminDeleteConfirm"
+                      className="block text-sm font-medium text-foreground mb-1.5"
+                    >
+                      Type <span className="font-semibold text-fail">{detail.email}</span> to confirm
+                    </label>
+                    <input
+                      id="adminDeleteConfirm"
+                      type="text"
+                      value={deleteConfirm}
+                      onChange={(e) => setDeleteConfirm(e.target.value)}
+                      placeholder={detail.email}
+                      autoComplete="off"
+                      className={`${inputClass} mb-3`}
+                    />
+                    <button
+                      onClick={handleDelete}
+                      disabled={
+                        busy || deleteConfirm.trim().toLowerCase() !== detail.email.toLowerCase()
+                      }
+                      className="px-4 py-2 text-sm rounded-lg bg-fail hover:bg-fail/85 text-background font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {deleting ? "Deleting…" : "Delete account"}
+                    </button>
+                  </>
+                )}
               </section>
             )}
           </div>

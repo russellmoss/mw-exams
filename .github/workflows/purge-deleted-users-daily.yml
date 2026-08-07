@@ -1,0 +1,82 @@
+name: purge-deleted-users-daily
+
+# Phase two of account deletion. Deleting an account (from Settings, or by an admin) sets
+# users.deleted_at and locks the account immediately; this job hard-deletes the row 30 days later,
+# which is what actually removes the person from the database. See study-app/src/lib/user-deletion.ts.
+#
+# WHY NOT A VERCEL CRON: the Vercel account is on the Hobby plan, which caps crons at 2 jobs — and
+# both slots in study-app/vercel.json are already taken (sweep-feedback, bank-worker). Adding a
+# third is not a build failure; Vercel rejects the deployment at CREATION time
+# (`cron_jobs_limits_reached`), so no build runs, nothing lands in the deployments list, and git
+# auto-deploy silently stops for every later commit. That took production down for four hours on
+# 2026-08-03. study-app/tests/vercel-crons.test.ts guards the cron list; scheduled work belongs here.
+#
+# MISSED RUNS ARE SAFE. Unlike the bank worker there is no Vercel backstop on this route, but the
+# job is not time-critical: it purges everything already past its 30-day date, so a run skipped by
+# GitHub's best-effort scheduler just means those accounts are purged on the next run. Nothing is
+# lost, and nothing is purged early.
+#
+# SETUP: CRON_SECRET must exist in BOTH places with the SAME value —
+#   - the Vercel project env (Production), which is what the route compares against; and
+#   - this repository's Actions secrets, which is what the curl below sends.
+# Without it in Vercel the route answers 401 to every caller, and deleted accounts would sit
+# un-purged indefinitely with nothing surfacing the failure in the app.
+
+on:
+  schedule:
+    # 03:20 UTC daily — off the hour, to avoid the crowd of jobs that run at :00.
+    - cron: "20 3 * * *"
+  workflow_dispatch: {} # allow manual runs from the Actions tab
+
+# Nothing in this workflow touches the repo.
+permissions: {}
+
+concurrency:
+  group: purge-deleted-users-daily
+  cancel-in-progress: false
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Purge accounts past their 30-day deletion grace period
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_URL: ${{ vars.APP_URL || 'https://study-app-blond-nine.vercel.app' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET is not set in this repository's Actions secrets. Add it there AND in the Vercel project env (Production) with the same value, then re-run."
+            exit 1
+          fi
+
+          BODY="$(mktemp)"
+          # The route declares maxDuration = 120s; allow a little headroom past that.
+          CODE="$(curl -sS -o "$BODY" -w '%{http_code}' --max-time 150 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/purge-deleted-users")" || CODE="000"
+
+          echo "HTTP $CODE"
+          # Response is {ok, purgedCount, purgedIds, stillPending} or {error} — ids only, no
+          # personal data, so it is safe to log. This is the only lasting record of a purge.
+          cat "$BODY"; echo
+
+          case "$CODE" in
+            2*)
+              exit 0
+              ;;
+            401)
+              echo "::error::401 from /api/cron/purge-deleted-users. The CRON_SECRET in this repo's Actions secrets does not match the one in the Vercel project env (or Vercel has none set at all). Deleted accounts are NOT being purged."
+              exit 1
+              ;;
+            000)
+              echo "::error::No response from $APP_URL within 150s — the app is down, or the purge exceeded the route's 120s budget."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected HTTP $CODE from /api/cron/purge-deleted-users."
+              exit 1
+              ;;
+          esac

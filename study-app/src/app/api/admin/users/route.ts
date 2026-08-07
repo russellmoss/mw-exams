@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const sql = neon(process.env.DATABASE_URL!);
     const users = await sql`
       SELECT
-        u.id, u.email, u.name, u.is_admin, u.is_active, u.created_at,
+        u.id, u.email, u.name, u.is_admin, u.is_active, u.created_at, u.deleted_at,
         u.address, u.business, u.job_title,
         CASE WHEN k.id IS NOT NULL THEN true ELSE false END as has_own_key,
         k.key_hint,
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       LEFT JOIN user_api_keys k ON u.id = k.user_id AND k.provider = 'anthropic'
       LEFT JOIN user_attempts a ON u.id = a.user_id
         AND a.mode IS DISTINCT FROM 'theory'
-      GROUP BY u.id, u.email, u.name, u.is_admin, u.is_active, u.created_at, u.address, u.business, u.job_title, k.id, k.key_hint
+      GROUP BY u.id, u.email, u.name, u.is_admin, u.is_active, u.created_at, u.deleted_at, u.address, u.business, u.job_title, k.id, k.key_hint
       ORDER BY u.created_at ASC
     `;
 

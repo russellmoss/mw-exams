@@ -95,9 +95,15 @@ export async function GET(request: Request) {
     }
 
     const rows = await sql`
-      SELECT id, email, name, is_admin, is_active FROM users WHERE id = ${userId}
+      SELECT id, email, name, is_admin, is_active, deleted_at FROM users WHERE id = ${userId}
     `;
     const user = rows[0];
+
+    // Before the generic disabled branch — a pending-deletion account is inactive too, and the
+    // user needs to know it is counting down rather than merely switched off.
+    if (user.deleted_at) {
+      return redirect("/login?error=account_pending_deletion");
+    }
 
     if (user.is_active === false) {
       return redirect("/login?error=account_disabled");

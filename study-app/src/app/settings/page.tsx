@@ -16,6 +16,7 @@ import {
   NARRATION_VOICES,
   type PreviewScript,
 } from "@/lib/voices";
+import { DELETION_GRACE_DAYS, SELF_DELETE_CONFIRMATION_PHRASE } from "@/lib/user-deletion";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -346,7 +347,8 @@ export default function SettingsPage() {
     [refresh]
   );
 
-  const DELETE_CONFIRMATION_PHRASE = "I want to delete my account";
+  // Shared with the API route that re-checks it, so the modal and the server can never disagree.
+  const DELETE_CONFIRMATION_PHRASE = SELF_DELETE_CONFIRMATION_PHRASE;
 
   const handleDeleteAccount = async () => {
     setDeleteAccountError(null);
@@ -1530,8 +1532,9 @@ export default function SettingsPage() {
           <section className="bg-card rounded-xl border border-fail/30 p-6">
             <h2 className="text-lg font-semibold text-fail mb-2">Danger Zone</h2>
             <p className="text-sm text-muted mb-4">
-              Permanently delete your account, including your attempt history, feedback, and Live
-              Tasting sessions. This cannot be undone.
+              Delete your account, including your attempt history, feedback, and Live Tasting
+              sessions. You are signed out immediately and locked out straight away; everything is
+              erased from the database permanently after {DELETION_GRACE_DAYS} days.
             </p>
             <button
               type="button"
@@ -1558,8 +1561,14 @@ export default function SettingsPage() {
           <div className="relative w-full max-w-md bg-card rounded-xl border border-fail/30 shadow-2xl p-6">
             <h3 className="text-lg font-semibold text-fail mb-2">Delete your account?</h3>
             <p className="text-sm text-muted mb-4">
-              This permanently deletes your account and everything attached to it — attempt
-              history, feedback, saved keys, and Live Tasting sessions. There is no undo.
+              You will be signed out and locked out immediately, and your saved API keys are
+              revoked right away. After {DELETION_GRACE_DAYS} days your account and everything
+              attached to it — attempt history, feedback, coaching conversations, and Live Tasting
+              sessions — is erased from the database for good.
+            </p>
+            <p className="text-sm text-muted mb-4">
+              During those {DELETION_GRACE_DAYS} days an administrator can still restore the
+              account. After that, nothing can.
             </p>
             {deleteAccountError && (
               <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
