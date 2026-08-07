@@ -109,9 +109,16 @@ export const fileBug: CoachTool = {
   kind: "write",
   description:
     "Report something broken — a page that errors, a control that does nothing, a layout that is " +
-    "wrong. Include what they did, what happened, and what they expected. The route they are on is " +
-    "attached automatically. Only after the candidate has agreed to send it.",
+    "wrong, a total that does not add up on screen. Include what they did, what happened, and what " +
+    "they expected. The route they are on AND the question they are looking at are attached " +
+    "automatically, so you do not need to name either in the body. Only after the candidate has " +
+    "agreed to send it. " +
+    "Note this is about the APP being broken, not the question being wrong — a question that is " +
+    "factually wrong or badly worded goes to report_question or flag_defect. Withdrawing a question " +
+    "from rotation cannot fix a rendering bug, so do not offer that here.",
   inputSchema: {
+    // No questionId: the screen's is attached server-side (see proposalArgs). Letting the model name
+    // one would put an unvalidated id on the row's foreign key for a field that is only context.
     type: "object",
     properties: { body: { type: "string" } },
     required: ["body"],
@@ -119,13 +126,17 @@ export const fileBug: CoachTool = {
   async run(ctx, input): Promise<CoachProposal | { error: string }> {
     const body = clampBody(input.body);
     if (!body) return { error: "A bug report needs a description." };
-    return proposal({
-      preview: "File this as a bug",
-      details: [
-        { label: "Where", value: ctx.screen?.route || "unknown" },
-        { label: "Bug", value: body },
-      ],
-    });
+
+    // Shown on the card because the attachment is inferred from the screen rather than stated by the
+    // candidate. If they are describing a bug they hit on a DIFFERENT question, seeing the wrong id
+    // here is the only chance they get to say so before it is filed under it.
+    const details = [{ label: "Where", value: ctx.screen?.route || "unknown" }];
+    if (ctx.screen?.questionId) details.push({ label: "Question on screen", value: ctx.screen.questionId });
+    details.push({ label: "Bug", value: body });
+
+    // No blockers, unlike the report paths: a bug with no question is an ordinary app bug, not an
+    // incomplete draft.
+    return proposal({ preview: "File this as a bug", details });
   },
 };
 
@@ -377,6 +388,27 @@ export const COMMITTERS: Record<string, Committer> = {
     };
   },
 
+  /**
+   * A bug keeps its question but stays OUT of the question-quality pipeline.
+   *
+   * The row is written with the question attached and `scope: 'general'`, which looks like a
+   * contradiction and is the whole point: `question_id` says what the candidate was looking at,
+   * `scope` says who reads it. An admin can now see that attempt 407 is about a P2 F5 question
+   * instead of the bare "General feedback" the old NULL produced.
+   *
+   * NO startAdjudication, and that is deliberate rather than an omission. runFeedbackAnalysis is a
+   * question-QUALITY analyser: it prompts on the stem, the wines, the model answer and the empirical
+   * knowledge for that paper, and reaches accept/reject on whether the QUESTION is sound. A footer
+   * that renders 44 for a question that correctly totals 50 is not a fact about the question — the
+   * question is fine and the analyser would say so, producing a "reject" that reads as "your bug
+   * report was wrong". Worse, an "accept" would dispatch the branch-and-PR pipeline against the
+   * generation rules to fix a bug that lives in a React component.
+   *
+   * So `awaitingVerdict` is absent too: no adjudication runs, so the card must not poll for one. The
+   * "only promises a verdict where an adjudication actually runs" test in coach-confirm.test.ts pins
+   * that pairing, and sweepStrandedFeedback skips scope='general' so the nightly sweep cannot start
+   * one behind our back.
+   */
   async file_bug(ctx, args) {
     await assertUnderRateLimit(ctx.userId);
     const { id } = await recordTabFeedback({
@@ -386,7 +418,8 @@ export const COMMITTERS: Record<string, Committer> = {
       scope: "general",
       route: ctx.route || "",
       pausedMs: null,
-      questionId: null,
+      // From the screen, signed into the token by proposalArgs — never model-named.
+      questionId: typeof args.questionId === "string" ? args.questionId : null,
       attemptId: null,
     });
     return { message: "Bug filed. Thanks — that's genuinely useful.", data: { attemptId: id } };
