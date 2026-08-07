@@ -123,6 +123,16 @@ export function validateMarkRealism(
       violations.push(`a single ${val}-mark sub-question — real pooled sub-questions cap at 30 marks`);
     }
   }
+  // Pooled identification carries 14-18+ marks in every real paper (14/15/18/30 observed) —
+  // round 9's only failure was a 12-mark pooled variety ID.
+  for (const line of text.split(/\n/)) {
+    if (!/identify/i.test(line)) continue;
+    const pooled = line.match(/\(\s*(\d+)\s*marks?\s*\)/i);
+    if (pooled && !/(?:x|×)\s*\d+\s*marks?/i.test(line)) {
+      const val = parseInt(pooled[1], 10);
+      if (val < 14) violations.push(`a pooled identification sub-question at ${val} marks — real papers give pooled identification 14-30 marks`);
+    }
+  }
   return { valid: violations.length === 0, violations };
 }
 
