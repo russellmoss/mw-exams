@@ -41,6 +41,18 @@ function structureOf(note: string): string {
 // exam expects the candidate to lead with — a completeness gap, not a contradiction.
 const ALCOHOL_SIGNAL = /\b(alcohol|abv|warm(?:th|ing)?|hot|heat|spirit(?:y|ous)?|glycerol|glyceri[nc]e?|body|weight|full[-\s]?bodied|light[-\s]?bodied|medium[-\s]?bodied|low[-\s]?alcohol|high[-\s]?alcohol|\d{1,2}(?:\.\d)?\s*%)\b/i;
 
+// An ACIDITY reading. Acidity is the second load-bearing structural axis next to alcohol: it is what
+// separates a cool-climate origin from a warm one once the alcohol band is fixed, so a note giving
+// alcohol but no acidity leaves the candidate without the discriminator the deduction turns on. The
+// word itself is required — a bare "fresh"/"crisp" is a flavour impression, not a structural reading.
+const ACIDITY_SIGNAL = /\bacid(?:ity|s|ic)?\b|\bta\b|\btartaric\b|\bmalic\b|\bph\b/i;
+
+// A sparkling wine's mousse/bead must carry an INTENSITY, not just exist: a fine, persistent bead reads
+// traditional-method while a coarse, frothy one reads tank-method, and that contrast is exactly the
+// method-of-production inference Paper 3 asks for. A bare "with a mousse" carries no such signal.
+const MOUSSE_INTENSITY =
+  /\b(?:fine|coarse|persistent|gentle|delicate|aggressive|soft|vigorous|creamy|frothy|lively|steady|active|energetic|abundant|insistent|racy|firm)\b[^.\n]{0,40}\b(?:mousse|beads?|bubbles?|perlage|effervescence|fizz)\b|\b(?:mousse|beads?|bubbles?|perlage|effervescence|fizz)\b[^.\n]{0,40}\b(?:fine|coarse|persistent|gentle|delicate|aggressive|soft|vigorous|creamy|frothy|lively|steady|active|energetic|abundant|insistent|racy|firm)\b/i;
+
 // ── Appearance completeness ────────────────────────────────────────────────────────────────────────
 // A usable appearance clause names BOTH a colour and a colour intensity: candidates read colour + depth
 // as a primary structural marker, and Paper 3 in particular is "very difficult to answer with any
@@ -78,8 +90,10 @@ function isSparklingWine(w: TastingValidationWine): boolean {
 export type NoteViolationCode =
   | "note_missing_appearance"
   | "note_missing_alcohol"
+  | "note_missing_acidity"
   | "note_negative_bubbles"
   | "note_mousse_on_still"
+  | "note_missing_mousse_intensity"
   | "note_colour_contradiction";
 
 export interface NoteViolation {
@@ -106,8 +120,10 @@ function expectedColour(wine: TastingValidationWine, paper?: number): "white" | 
  * checks:
  *   • note_missing_appearance   — appearance clause lacks a colour and/or an intensity (fb_53).
  *   • note_missing_alcohol      — no perceived-alcohol/warmth reading or stated %abv band (fb_246).
+ *   • note_missing_acidity      — no acidity reading (the companion structural axis to alcohol).
  *   • note_negative_bubbles     — states the ABSENCE of bubbles ("no mousse", "still, with no…") (fb_244).
  *   • note_mousse_on_still      — mousse/bead language on a wine whose category is not sparkling.
+ *   • note_missing_mousse_intensity — a sparkling wine's bead is mentioned but not graded (fb_244).
  *   • note_colour_contradiction — appearance hue contradicts the wine's colour (white read as ruby…).
  * If the note/wine counts don't line up we can't map reliably, so we return [].
  */
@@ -157,6 +173,20 @@ export function noteCompletenessViolations(
       });
     }
 
+    // (2b) Acidity: the companion structural axis to alcohol. With the alcohol band fixed, acidity is
+    // what separates a cool origin from a warm one, so a note carrying one but not the other leaves the
+    // deduction without its discriminator.
+    if (!ACIDITY_SIGNAL.test(structure) && !ACIDITY_SIGNAL.test(note)) {
+      out.push({
+        slot: w.slot,
+        code: "note_missing_acidity",
+        detail:
+          `Wine ${w.slot} has no acidity reading. Add acidity to the **Structure:** line with a band ` +
+          `(e.g. "high, mouth-watering acidity"), alongside alcohol, tannin, and residual sugar — with ` +
+          `alcohol fixed, acidity is the axis that separates a cool-climate origin from a warm one.`,
+      });
+    }
+
     // (3) Negative-presence bubble descriptors are forbidden in EVERY note — absence of bubbles must
     // never be stated (fb_244).
     if (NEGATIVE_BUBBLE.test(note)) {
@@ -179,6 +209,22 @@ export function noteCompletenessViolations(
         detail:
           `Wine ${w.slot} is not a sparkling wine but the note uses mousse/bead/effervescence language. ` +
           `Mousse and bead descriptors belong only to sparkling wines — remove them from a still note.`,
+      });
+    }
+
+    // (4b) A sparkling wine's mousse must be GRADED, not merely present: fine-and-persistent reads
+    // traditional-method, coarse-and-frothy reads tank-method, and that contrast is the method-of-
+    // production inference the paper asks for. Only fires once the note already talks about the bead —
+    // a sparkling note with no bubble language at all is caught as an appearance/structure gap instead,
+    // and we never demand mousse language be invented.
+    if (isSparklingWine(w) && BUBBLE_LANGUAGE.test(note) && !NEGATIVE_BUBBLE.test(note) && !MOUSSE_INTENSITY.test(note)) {
+      out.push({
+        slot: w.slot,
+        code: "note_missing_mousse_intensity",
+        detail:
+          `Wine ${w.slot} is sparkling and its note mentions the bead but gives it no intensity. Grade ` +
+          `the mousse (e.g. "a fine, persistent bead" vs "a coarse, frothy mousse") — the bead's grade is ` +
+          `how the candidate reads traditional method against tank method.`,
       });
     }
 

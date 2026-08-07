@@ -55,6 +55,53 @@ describe("note completeness — sparkling positive case", () => {
   });
 });
 
+describe("note completeness — acidity", () => {
+  it("rejects a note giving alcohol but no acidity reading", () => {
+    const note =
+      "**Appearance:** deep garnet, clear.\n\n**Structure:** warm, full body, ~14.5%; firm ripe tannin.\n\n**Nose:** cherry, tar, dried rose.";
+    expect(validateTastingNotes([note], [RED], 2).valid).toBe(false);
+    expect(codes([note], [RED], 2)).toContain("note_missing_acidity");
+  });
+
+  it("does not accept a bare flavour impression in place of a structural reading", () => {
+    // "fresh" and "crisp" are impressions, not the acidity axis the deduction turns on.
+    const note =
+      "**Appearance:** pale lemon, bright.\n\n**Structure:** light body, ~11.5%; fresh and crisp on the finish.\n\n**Nose:** citrus.";
+    expect(codes([note], [RED], 2)).toContain("note_missing_acidity");
+  });
+
+  it("accepts a note carrying an acidity band", () => {
+    const note =
+      "**Appearance:** pale lemon, bright.\n\n**Structure:** light body, ~11.5%; high, mouth-watering acidity.\n\n**Nose:** citrus.";
+    expect(codes([note], [RED], 2)).not.toContain("note_missing_acidity");
+  });
+});
+
+describe("note completeness — sparkling mousse must be graded (fb_244)", () => {
+  it("rejects a sparkling note whose bead is mentioned but not graded", () => {
+    const note =
+      "**Appearance:** pale lemon-gold, bright, with a mousse.\n\n**Structure:** medium body, 12% abv; high acidity.\n\n**Nose:** brioche, green apple.";
+    expect(validateTastingNotes([note], [SPARKLING]).valid).toBe(false);
+    expect(codes([note], [SPARKLING])).toContain("note_missing_mousse_intensity");
+  });
+
+  it("accepts a coarse tank-method bead as readily as a fine traditional-method one", () => {
+    const coarse =
+      "**Appearance:** pale lemon, bright, with a coarse, frothy bead.\n\n**Structure:** light body, 11% abv; medium acidity.\n\n**Nose:** pear, white flowers.";
+    expect(codes([coarse], [{ slot: 1, fullText: "Wine 1 — Prosecco Valdobbiadene DOCG" }])).not.toContain(
+      "note_missing_mousse_intensity"
+    );
+  });
+
+  it("never demands mousse language a note did not already use", () => {
+    // A sparkling note that omits the bead entirely is not forced to invent one — the grading rule
+    // only fires once the note is already describing the mousse.
+    const note =
+      "**Appearance:** pale lemon-gold, bright.\n\n**Structure:** medium body, 12% abv; high acidity.\n\n**Nose:** brioche, green apple.";
+    expect(codes([note], [SPARKLING])).not.toContain("note_missing_mousse_intensity");
+  });
+});
+
 describe("note completeness — appearance colour (fb_53, Paper 3 flight)", () => {
   it("rejects a P3 four-wine flight where one note lacks a colour", () => {
     const wines = [

@@ -538,7 +538,27 @@ export function DiagramWalkthrough({ onDone }: Props) {
                 </p>
               </div>
 
-              <p className="text-[0.9375rem] text-muted leading-relaxed mt-6" style={fadeUp(1400, 500)}>
+              <div
+                className="rounded-lg border border-accent/40 bg-accent/5 p-5 text-left mt-3"
+                style={fadeUp(1300, 500)}
+              >
+                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-accent mb-2">
+                  Then apply judgment
+                </p>
+                <p className="text-[0.9375rem] text-foreground leading-relaxed">
+                  The tree will show Chenin Blanc and Semillon as{" "}
+                  <span className="text-accent">PLAUSIBLE</span> — but logic dictates that this is a
+                  question about four wines of the same variety, each from a different country. Are
+                  you likely to have Semillon from four different countries? No. So you can rule
+                  that out, and be pretty certain it will be one of the strong-signal varieties.
+                </p>
+                <p className="text-[0.9375rem] text-foreground leading-relaxed mt-3">
+                  The trees and leaves are not a substitute for human judgment — they are a way to
+                  narrow the field.
+                </p>
+              </div>
+
+              <p className="text-[0.9375rem] text-muted leading-relaxed mt-6" style={fadeUp(1550, 500)}>
                 Three tiers, not percentages. Fifteen years of papers is too small a corpus to
                 pretend otherwise.
               </p>
