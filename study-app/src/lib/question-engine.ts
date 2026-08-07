@@ -21,6 +21,7 @@ import {
   getProducerTally,
   getRecentProducerKeys,
   getPaperWineTextsByQuestion,
+  getSingleWineShare,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -82,6 +83,7 @@ import {
   stemPreannouncesDiscriminator,
   contrastIntegrityViolations,
   validatePaperStyleMix,
+  validateSingleWineFlight,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -1180,6 +1182,19 @@ ${saveOpts.paperStemsContext}` : ""}`;
   let dedupCollisions = 0;
   let dedupFailed = false;
 
+  // Single-wine frequency cap (see singleWineFrequencyExceeded): the paper's live share of one-wine
+  // flights, fetched ONCE. A draft that would push the projected share over 1-in-20 is rejected so
+  // the model redraws with 2+ wines. Pinned mode (Live Tasting) keeps its own fixed flight, so it is
+  // exempt; a data outage returns {0,0} and leaves the cap effectively inactive.
+  let singleWineShare = { single: 0, total: 0 };
+  if (!pinned) {
+    try {
+      singleWineShare = await getSingleWineShare(paper);
+    } catch (err) {
+      console.error("[single-wine-cap] share fetch failed (non-fatal):", err);
+    }
+  }
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -1433,6 +1448,23 @@ ${repairContext.draft}`,
     const paperStyleMixCheck = {
       violations: pinned ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
     };
+    // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
+    // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
+    // structure. Blocks on every path (deterministic text/wine fix the repair prompt converges on).
+    const singleWineFlightCheck = {
+      violations: validateSingleWineFlight(auditDraft).map((v) => v.detail),
+    };
+    // Single-wine frequency cap: one-wine flights are rare on the exam, so a draft that would push the
+    // paper's servable share of them over 1-in-20 is rejected (redraw with 2+ wines). Pinned mode is
+    // exempt — its flight is fixed upstream by retail availability.
+    const singleWineFrequencyCheck = {
+      violations:
+        pinned || !singleWineFrequencyExceeded(candidate.wines.length, singleWineShare)
+          ? []
+          : [
+              `single-wine flights are a rare curveball on the MW exam — banking another would push paper ${paper}'s share of one-wine questions over 1-in-20 (currently ${singleWineShare.single}/${singleWineShare.total}). Use 2 or more wines.`,
+            ],
+    };
 
     // Critical validators (always run)
     // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
@@ -1573,6 +1605,8 @@ ${repairContext.draft}`,
       // it is exactly what validatePaperStyleMix will quarantine post-save, and the fix is a fresh
       // wine choice the redraft loop can make.
       paperStyleMix: paperStyleMixCheck,
+      singleWineFlight: singleWineFlightCheck,
+      singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
       markRealism: markRealismCheck,
@@ -2570,6 +2604,23 @@ function validateFlightSize(
   }
 
   return { valid: violations.length === 0, violations };
+}
+
+// SINGLE-WINE FREQUENCY CAP — one-wine flights are a rare curveball shape on the MW exam (three
+// validated feedbacks: fb_98, fb_354, fb_355). validateFlightSize already confines them to Paper 3;
+// this caps how OFTEN even Paper 3 draws one, so the bank cannot fill with single-wine questions. At
+// most 1 in 20 servable questions per paper may be a single wine: banking one more must keep the
+// projected share (single+1)/(total+1) at or below the cap. Pure so the arithmetic is unit-tested
+// without a database; the engine feeds it the paper's live share fetched once before the redraft loop.
+export const SINGLE_WINE_FREQUENCY_CAP = 1 / 20;
+
+export function singleWineFrequencyExceeded(
+  wineCount: number,
+  share: { single: number; total: number }
+): boolean {
+  if (wineCount !== 1) return false;
+  const projected = (share.single + 1) / (share.total + 1);
+  return projected > SINGLE_WINE_FREQUENCY_CAP;
 }
 
 // ── Phase 2 soft composition rules (run in the "important" tier; relax at attempt 6) ─────────────
