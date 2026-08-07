@@ -1,7 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { splitStatements, checksum, shouldRunMigrations } from "../scripts/migrate.mjs";
+import { readdirSync } from "node:fs";
+import {
+  splitStatements,
+  checksum,
+  shouldRunMigrations,
+  orphanedVersions,
+  KNOWN_ORPHANS,
+} from "../scripts/migrate.mjs";
 
 describe("checksum", () => {
   // The bug this guards: hashing bytes as-read made the checksum depend on the checkout platform
@@ -145,5 +152,77 @@ describe("shouldRunMigrations", () => {
 
   it("does not treat other Vercel environments as production", () => {
     expect(shouldRunMigrations({ VERCEL_ENV: "development" }).run).toBe(false);
+  });
+});
+
+describe("orphanedVersions", () => {
+  // The bug this guards: on 2026-08-07 an off-Vercel run applied 054_coach.sql to production from a
+  // worktree where the file was UNTRACKED. shouldRunMigrations() allows that by design (a human is
+  // driving), so the only defence available is noticing afterwards that the ledger has grown a row
+  // the repository cannot explain. Nothing did, and the drift was found by hand days later.
+  it("reports a ledger row with no migration file", () => {
+    expect(orphanedVersions(["001_a.sql", "002_b.sql"], ["001_a.sql"], new Set())).toEqual([
+      "002_b.sql",
+    ]);
+  });
+
+  it("stays quiet when every applied row has a file", () => {
+    expect(orphanedVersions(["001_a.sql"], ["001_a.sql", "002_unapplied.sql"], new Set())).toEqual(
+      []
+    );
+  });
+
+  it("suppresses the documented pre-existing orphans", () => {
+    expect(orphanedVersions(["019_generation_attempt_timeouts.sql"], [])).toEqual([]);
+  });
+
+  it("still reports a NEW orphan alongside a known one", () => {
+    // The allowlist must not become a blanket mute — that would reintroduce the whole failure mode.
+    expect(orphanedVersions(["019_generation_attempt_timeouts.sql", "099_new.sql"], [])).toEqual([
+      "099_new.sql",
+    ]);
+  });
+
+  it("stops reporting a known orphan once its file lands", () => {
+    // So 054_coach.sql needs no cleanup when the coach branch merges: the entry goes inert by itself.
+    expect(orphanedVersions(["054_coach.sql"], ["054_coach.sql"])).toEqual([]);
+  });
+
+  it("accepts a Map's keys iterator, which is what main() passes", () => {
+    const applied = new Map([["001_a.sql", "abc"]]);
+    expect(orphanedVersions(applied.keys(), [], new Set())).toEqual(["001_a.sql"]);
+  });
+
+  it("carries a written reason for every allowlisted version", () => {
+    // A bare allowlist decays into "someone muted this once". The reason is what lets the next
+    // reader tell superseded drift (027) from drift still waiting on a merge (054).
+    expect(KNOWN_ORPHANS.size).toBeGreaterThan(0);
+    for (const [version, reason] of KNOWN_ORPHANS) {
+      expect(version.endsWith(".sql"), version).toBe(true);
+      expect(reason.length, version).toBeGreaterThan(20);
+    }
+  });
+
+  it("does not allowlist anything that is actually present in migrations/", () => {
+    // Not a failure if it happens — such an entry is inert — but it means the list is stale, and a
+    // stale list is how a real orphan eventually hides behind a name someone stopped reading.
+    const files = new Set(readdirSync(join(import.meta.dirname, "..", "migrations")));
+    const stale = [...KNOWN_ORPHANS.keys()].filter((v) => files.has(v));
+    expect(stale, "remove these from KNOWN_ORPHANS; their files have landed").toEqual([]);
+  });
+
+  it("treats 027_model_usage_batch.sql as superseded, since master's 029 re-applies it", () => {
+    // Pins the reconciliation: 029_usage_batch_attribution.sql issues the same four statements, so
+    // master fully describes what production has. If 029 is ever deleted or narrowed, that stops
+    // being true and this test is the note explaining why 027 was ever considered safe.
+    const dir = join(import.meta.dirname, "..", "migrations");
+    const sql = readFileSync(join(dir, "029_usage_batch_attribution.sql"), "utf8");
+    for (const stmt of [
+      "ALTER TABLE model_usage  ADD COLUMN IF NOT EXISTS batch_id UUID",
+      "ALTER TABLE tavily_usage ADD COLUMN IF NOT EXISTS batch_id UUID",
+    ]) {
+      expect(sql, `029 must still cover: ${stmt}`).toContain(stmt);
+    }
+    expect(KNOWN_ORPHANS.get("027_model_usage_batch.sql")).toContain("superseded");
   });
 });
