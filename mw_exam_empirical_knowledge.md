@@ -1641,6 +1641,35 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0158 · Check-then-act on a paper position billed three Opus generations for one flight
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07 (migration 058)
+- **evidence:** paper `ltpr_egt9dfy3e` position 4 held THREE sessions (`lts_c6635vxn1` 12:30:29.142,
+  `lts_jk8md6na6` 12:30:29.255, `lts_ijmi6n97j` 12:30:42.783 UTC), each with its own generated question;
+  `generateNextFlight` (`study-app/src/lib/live-tasting-paper-engine.ts`); the SSE chaining loop in
+  `study-app/src/app/live-tasting/paper/[id]/page.tsx`; `study-app/migrations/058_live_tasting_flight_claims.sql`
+- **claim:** `generateNextFlight` read the paper's children, picked the first position with no session,
+  spent 40-90s of Opus on it, and only then linked it — a check-then-act with nothing held in between.
+  The client re-POSTs whenever its stream loop doesn't see a terminal `result` frame, and a reload or a
+  second tab does the same, so several callers computed the SAME next position and every one of them
+  generated. Under BYOK each duplicate is billed to the **candidate's own** Anthropic key, and the paper
+  would render one slot three times. The client's `useRef` guard cannot help: it is per mounted
+  component, and the rival callers are different requests.
+- **fix, two layers with different jobs:** a TTL'd per-position claim (`live_tasting_papers.flight_claims`,
+  one atomic conditional UPDATE) taken BEFORE generation stops the duplicate WORK — a denied claim returns
+  `busy`, which is explicitly not an error, and the client waits and re-reads instead of racing. A partial
+  unique index on `(paper_id, paper_position)` stops the duplicate ROW unconditionally, including when a
+  stale claim is taken over or a future caller forgets to claim; the loser of a link race retires its own
+  session. The claim is the optimisation, the index is the guarantee — a TTL'd claim alone can always be
+  defeated by a slow generation outliving its own claim.
+- **the same shape existed twice more:** both BYO wine-entry routes (owner and partner-token) check
+  `children.some(position)` then create-and-link, so two submissions for one flight both passed. They now
+  treat the link's rejection as the real gate. **A pre-check is not a lock** — if the DB doesn't hold the
+  invariant, concurrent callers will find the gap.
+- **verified on a Neon branch** (a copy of production, `migration-058-verify`): the migration applies, the
+  index builds, a fresh claim denies the rival, a released claim re-grants immediately, a 6-minute-stale
+  claim is taken over, linking a second session to an occupied position raises `23505`, and both legal
+  states still work (27 unlinked sessions coexist; position 1 exists on two different papers).
+
 ### EK-0157 · A pinned archetype must outrank a soft preference — Live Tasting papers silently re-drew families
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07
 - **evidence:** paper `ltpr_egt9dfy3e` (user 1, P2 full, 2026-08-07) planned `F4/F2/F4/F2` in

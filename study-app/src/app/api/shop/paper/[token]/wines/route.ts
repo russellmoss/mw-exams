@@ -4,6 +4,7 @@ import {
   getPaperSessions,
   createLiveTastingPrepSession,
   linkSessionToPaper,
+  retireUnlinkedSession,
   getUserEmailById,
 } from "@/lib/db";
 import { hashShareToken, looksLikeShareToken } from "@/lib/share-token";
@@ -70,7 +71,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       budgetCurrency: paper.budget_currency,
       prepGuidance: "",
     });
-    await linkSessionToPaper(session.id, paper.id, position);
+    // Same check-then-act as the owner-side route: the children check above cannot stop two
+    // concurrent submissions for one flight. Migration 058's unique index rejects the second link,
+    // and this session is retired rather than left holding entered wines with no paper slot.
+    if (!(await linkSessionToPaper(session.id, paper.id, position))) {
+      await retireUnlinkedSession(session.id);
+      throw new Error("Someone already entered this flight's wines — reload to see them.");
+    }
     const outcome = await attachByoWines({
       session,
       wines: parsed.wines,
