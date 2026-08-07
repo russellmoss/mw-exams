@@ -42,7 +42,7 @@ const TOUR_STEPS: TourStep[] = [
   { key: "nudge", label: "3 of 6", title: "Your coach’s nudge", text: "The app watches your verdicts and points at the gap most worth drilling, with the exam countdown attached. One line, one action — never a dashboard." },
   { key: "pillars", label: "4 of 6", title: "Jump into either half", text: "Theory holds 243 real past essay questions graded against the examiners’ reports. Practical gathers the tasting drills: Dry Flights and Live Tastings." },
   { key: "recent", label: "5 of 6", title: "Your recent verdicts", text: "Momentum at a glance. Every card in History opens the full record — question, your answer, the debrief, and any feedback you filed." },
-  { key: "bell", label: "6 of 6", title: "Feedback comes back to you", text: "Report a bad question anywhere with the Feedback button, and the system’s analysis — accepted or rejected, with reasons — lands here." },
+  { key: "bell", label: "6 of 6", title: "Feedback comes back to you", text: "Tell the Coach a question is wrong — it checks the claim with you, then puts the report up for you to confirm. The system’s analysis — accepted or rejected, with reasons — lands here." },
 ];
 
 const INFO_TITLES = [

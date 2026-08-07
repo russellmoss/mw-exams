@@ -8,9 +8,9 @@ import { StemSniperTastingCard, type TastingNote } from "../components/StemSnipe
 import { StemSniperResult, type ScoreResult, type Revealed } from "../components/StemSniperResult";
 import { StemSniperIntro } from "../components/StemSniperIntro";
 import { OriginalStem } from "../components/OriginalStem";
-import { FeedbackButton } from "../components/FeedbackButton";
 import { ThinkingTrace } from "../components/ThinkingTrace";
 import { useProgressStream } from "@/lib/use-progress-stream";
+import { useFeedbackContext } from "@/lib/feedback-context";
 
 type Status = "intro" | "loading" | "drilling" | "revealing" | "tasting" | "result" | "empty";
 type Mode = "sniper" | "reverse";
@@ -50,6 +50,31 @@ export default function StemSniperPage() {
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+
+  // ── Coach screen context ──
+  // Publish the drill on screen so the Coach can anchor a report to it. This replaced the floating
+  // Feedback pill, and it is not cosmetic: report_question and flag_defect raise a blocker card
+  // ("Which question? I couldn't tell from the screen.") when the screen hint carries no questionId,
+  // so without this a broken drill could not be reported from here at all.
+  //
+  // Published from the moment the drill loads — BEFORE it is submitted — because that is exactly when
+  // a bad stem gets noticed. `attemptId` only exists once scored, and is sent as null until then.
+  const { setFeedbackContext, clearFeedbackContext } = useFeedbackContext();
+  useEffect(() => {
+    if (!drill) {
+      clearFeedbackContext();
+      return;
+    }
+    setFeedbackContext({
+      paper: drill.paper,
+      questionId: drill.questionId,
+      attemptId: result?.attemptId ?? null,
+      mode: mode === "reverse" ? "reverse-tasting" : "stem-sniper",
+      route: "/stem-sniper",
+    });
+  }, [drill, result?.attemptId, mode, setFeedbackContext, clearFeedbackContext]);
+
+  useEffect(() => () => clearFeedbackContext(), [clearFeedbackContext]);
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -497,31 +522,6 @@ export default function StemSniperPage() {
             </>
           )}
         </>
-      )}
-
-      {/* Always available — bottom-left, on every question + answer page (both modes). Works before a
-          question is submitted so a broken/problematic drill can be reported (and auto-corrected)
-          without attempting it: uses the live attempt once submitted, else creates one on-demand from
-          the current drill's question. The step encodes mode + page so the analysis knows whether the
-          feedback is about the stem, the Layer-B tasting note, or the scoring — all prefixed
-          "stem-sniper" so feedback routing still recognises it. */}
-      {status !== "intro" && (
-        <FeedbackButton
-          attemptId={result?.attemptId ?? null}
-          questionId={drill?.questionId ?? null}
-          userId={user.id}
-          step={
-            status === "tasting"
-              ? "stem-sniper:reverse-tasting"
-              : status === "result"
-                ? movement
-                  ? "stem-sniper:reverse-result"
-                  : "stem-sniper:result"
-                : mode === "reverse"
-                  ? "stem-sniper:reverse-stem"
-                  : "stem-sniper:stem"
-          }
-        />
       )}
     </div>
   );

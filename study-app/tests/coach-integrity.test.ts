@@ -91,6 +91,46 @@ describe("coach tool gate", () => {
     }
   });
 
+  it("has no floating feedback launcher anywhere in the app", () => {
+    // The standalone Feedback tab went first; the floating "Feedback" pill outlived it by a release on
+    // /study, /stem-sniper and both Live Tasting screens, which is how the app came to contradict its
+    // own Coach prompt ("There is no feedback form anywhere in the app; the chat is it"). Both are now
+    // gone, and this asserts it over the whole tree rather than a fixed list of the four old mounts —
+    // a fifth mount added to a new screen is the regression that matters.
+    const files = fs
+      .readdirSync(path.join(appDir, "src"), { recursive: true, encoding: "utf8" })
+      .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
+    for (const f of files) {
+      expect(f, "the pill component must not come back").not.toMatch(/FeedbackButton\.tsx$/);
+      const src = fs.readFileSync(path.join(appDir, "src", f), "utf8");
+      expect(src, f).not.toMatch(/FeedbackButton/);
+    }
+  });
+
+  it("publishes the on-screen question as Coach context from every screen that serves one", () => {
+    // THE COUPLING THIS PROTECTS. report_question and flag_defect resolve their target from
+    // `screen.questionId` and raise a blocker card without one — so a screen that shows a question and
+    // does not publish it here is a screen from which that question CANNOT be reported. While the
+    // floating pill existed it carried its own questionId prop and hid this: only /study published
+    // context, yet all four screens could still file. Removing the pill made the gap load-bearing.
+    const SCREENS = [
+      "src/app/study/page.tsx",
+      "src/app/stem-sniper/page.tsx",
+      "src/app/live-tasting/[id]/page.tsx",
+      "src/app/live-tasting/paper/[id]/page.tsx",
+    ];
+    for (const rel of SCREENS) {
+      const src = fs.readFileSync(path.join(appDir, rel), "utf8");
+      expect(src, rel).toMatch(/useFeedbackContext/);
+      // The id itself, not just the call — publishing a context with no questionId would satisfy the
+      // import and still leave the screen unreportable.
+      expect(src, rel).toMatch(/setFeedbackContext\(\{[\s\S]*?questionId:/);
+      // Clearing on unmount matters as much as setting: a stale id would anchor the next screen's
+      // report to the question the candidate has already left.
+      expect(src, rel).toMatch(/clearFeedbackContext\(\)/);
+    }
+  });
+
   it("still pauses the study clock while the dock is open", () => {
     // Inherited from the Feedback tab and easy to lose in a refactor: without it, stopping to report
     // a broken question costs exam minutes, which is what stops people reporting at all.
