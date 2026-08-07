@@ -236,6 +236,9 @@ export function pickArchetype(
      * back, and same-origin (the most permissive still branch) kept winning — producing a Paper 2
      * whose three questions were all same-country pairs with identical task shape (QA batch 5).
      * Soft: tried last rather than forbidden, so a thin bank still yields a paper.
+     *
+     * Orders the FALLBACKS only. It never reorders `require` — a composition that repeats a family
+     * (allowed, famCap = 2) must still get that family on both positions; see the note in the body.
      */
     deprioritizeArchetypes?: Set<string>;
     /**
@@ -334,11 +337,21 @@ export function pickArchetype(
   const varieties = paper === 1 ? P1_VARIETIES : P2_VARIETIES;
   const used = opts?.deprioritizeArchetypes ?? new Set<string>();
   const rank = (a: ArchetypeId) => (used.has(a) ? 1 : 0);
-  const tryOrder: ArchetypeId[] = (
-    opts?.require
-      ? [opts.require, ...shuffle(["same-variety", "quality-ladder", "mixed-variety", "same-origin"] as ArchetypeId[]).filter((a) => a !== opts.require)]
-      : shuffle(["same-variety", "quality-ladder", "mixed-variety"] as ArchetypeId[])
-  ).sort((a, b) => rank(a) - rank(b));
+  // A pinned archetype is the paper composition's CONTRACT and is tried first, unconditionally: the
+  // deprioritization sort orders the FALLBACKS only. Sorting the whole list (the shape until
+  // 2026-08-07) silently defeated the pin whenever an earlier flight had already used that
+  // archetype — rank(require) became 1 and every unused archetype outranked it. Since
+  // samplePaperComposition deliberately allows a family twice per full paper (famCap = 2, matching
+  // the corpus), that broke the SECOND occurrence of any repeated family every time: paper
+  // ltpr_egt9dfy3e planned F4/F2/F4/F2 and was built as F4/F2/F1/F7, positions 3 and 4 both
+  // silently re-drawn. A pin that yields to a soft preference is not a pin.
+  const fallbacks = (base: ArchetypeId[]) => shuffle(base).sort((a, b) => rank(a) - rank(b));
+  const tryOrder: ArchetypeId[] = opts?.require
+    ? [
+        opts.require,
+        ...fallbacks((["same-variety", "quality-ladder", "mixed-variety", "same-origin"] as ArchetypeId[]).filter((a) => a !== opts.require)),
+      ]
+    : fallbacks(["same-variety", "quality-ladder", "mixed-variety"] as ArchetypeId[]);
 
   for (const arch of tryOrder) {
     if (arch === "p3-styles") continue;
