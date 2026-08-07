@@ -11,7 +11,10 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:build-gate": "vitest run --exclude '**/*.eval.test.ts' --exclude '**/*.integration.test.ts'",
-    "theory:diff": "tsx scripts/theory-grade-diff.mjs"
+    "theory:diff": "tsx scripts/theory-grade-diff.mjs",
+    "eval:golden": "node scripts/build-golden-set.mjs",
+    "eval:judge": "node scripts/calibrate-judge.mjs",
+    "eval:anchor": "vitest run tests/evals-corpus-anchor.test.ts tests/evals-metrics.test.ts tests/evals-judge-golden.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

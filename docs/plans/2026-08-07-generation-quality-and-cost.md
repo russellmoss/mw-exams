@@ -288,10 +288,19 @@ golden set hashed and committed.
 
 ---
 
-## 4. Phase 0 — Build the measurement loop
+## 4. Phase 0 — Build the measurement loop ✅ **BUILT (scoring half)**
 
 **Goal:** a repeatable offline eval that scores a generation config against human-labelled ground
 truth, so every later change is measured rather than asserted.
+
+> **Status.** The truth anchor, the scoreboard, the golden set and the judge calibration harness are
+> **built, tested (75 tests) and committed** under `study-app/evals/`. See `evals/README.md`. What
+> remains is the generate-N-and-score runner (`run.ts`) and a live calibration number, both of which
+> need credentials this environment did not have. Detail inline below; §4.6 records what is NOT done.
+>
+> The motivating fact: **15 bin-fix proposals have already shipped to production and nobody can say
+> whether any helped.** First-pass rate is 20.5% and human bin rate 33.7% after all fifteen. A loop
+> that changes things without a scoreboard is not a self-improving loop, it is drift with paperwork.
 
 ### 4.1 The golden set
 
@@ -353,18 +362,48 @@ must survive it** — which is why every hard gate below is deterministic.
 on is appended to the label store, and the weekly job (§7.2) grows the set. Revisit split sizes at
 n≥800.
 
-### 4.3 Deterministic metrics — no LLM, free, no sampling noise
+### 4.3 The truth anchor — `evals/corpus-anchor.ts` ✅ **BUILT**
 
-These need no calibration and carry no judge risk. **They are the hard gates.**
+**The one component that cannot be gamed by a model.** A generate → judge → fix loop with an LLM at
+both ends optimises toward the judge's taste; the corpus distribution does not move when models
+drift. So it is the loop's primary gate, and the judge is advisory beneath it.
 
-- First-pass validator rate; per-rule fire rate
-- Cost per accepted question (from `model_usage`)
-- Answer length band-hit rate
-- **Corpus-fidelity distances** vs the 112 real historical questions: flight-size distribution,
-  mark-type mix, country/region diversity, old/new-world balance, stem length — reported per-axis so
-  a regression names its axis
-- Prompt token count; cache-hit rate
-- Novelty pressure (mean attempts-to-novel; bank-vs-served ratio)
+**162 real IMW questions**, 2011–2026, from `data/exams.json`. (CLAUDE.md's "112" refers to the
+subset with decision matrices; the parsed corpus holds 162 and all are used.)
+
+Features are extracted with the **same functions the app uses on generated questions** —
+`deriveMarkFocus`, `deriveQuestionType`, `deriveQuestion` — never a parallel implementation. A
+second parser would drift, and a fidelity score computed through two lenses measures the lenses.
+
+Five axes, each scored by **total variation distance**: flight size · dominant mark category ·
+question type · sub-parts per question · stem length. TVD is bounded, symmetric, needs no smoothing
+(KL is infinite the moment a batch omits a category, which happens constantly at n=60), and reads
+plainly — *0.12 means 12% of the questions are in the wrong bucket*.
+
+**The noise floor is what makes it usable.** A TVD of 0.15 can be perfect: two samples from the same
+distribution differ, and at n=60 they differ a lot. Each axis therefore carries a floor measured by
+repeatedly drawing *real* samples of the batch's size and scoring them against the corpus.
+`withinNoise` means statistically indistinguishable from a real sample. A fixed threshold would
+just be measuring sample size.
+
+Verified in both directions (`tests/evals-corpus-anchor.test.ts`): a genuine slice of the real
+corpus must **not** trip drift (the false-positive guard — without it every scorecard is noise and
+the loop chases phantoms), and an obviously wrong batch must.
+
+### 4.3b The scoreboard — `evals/scorecard.ts` ✅ **BUILT**
+
+Three rules, each enforced in code and pinned by tests:
+
+1. **Nothing is a win inside the noise.** Comparisons run against the baseline's own run-to-run
+   spread (≥3 runs, 2σ). A pipeline wandering 20→26→19% between *identical* runs has not improved
+   when it lands on 26%. Below 3 baseline runs the verdict is `NO_BASELINE` and nothing may be
+   called a win — this is the most common way an eval loop fools the person running it.
+2. **Corpus fidelity outranks the judge.** Fidelity drift alone produces `REGRESS`; a metric flagged
+   `advisory` never can.
+3. **A regression names itself.** No aggregate score; every metric is diffed on its own row.
+
+Other deterministic metrics it carries: first-pass validator rate, per-rule fire rate, cost per
+accepted question, answer length band-hit rate, prompt tokens, cache-hit rate, novelty pressure.
 
 ### 4.4 The runner
 
@@ -380,8 +419,75 @@ These need no calibration and carry no judge risk. **They are the hard gates.**
 `prompt_version`/`spec_version` in every report. Baseline is N≥3 runs with reported variance; **no
 metric is called moved unless it clears 2σ.**
 
-**Exit:** golden set frozen + hashed with 4 splits; judge clears §4.2 bars on holdout *or* is
-formally declared non-gating; baseline scorecard at N≥3 with variance; eval runs <$5 and <15 min.
+### 4.5b Statistical defects found by council review, and fixed
+
+The first build of the harness was statistically wrong in four ways, each of which would have made
+it **confidently misleading** rather than merely imprecise. All four are fixed and pinned by tests.
+
+| # | Defect | Consequence | Fix |
+|---|---|---|---|
+| 1 | **Multiple comparisons ignored.** 5 axes × 3 papers = 15 drift tests, each cut at p95 | Family-wise false-drift rate **53.7%** — over half of healthy runs reported REGRESS. A gate that cries wolf that often gets re-run until green | Bonferroni: per-test quantile `1 − α/K`. Measured family-wise rate now <15% (`evals-metrics.test.ts`) |
+| 2 | **"2σ" applied at n=3.** A z-threshold on a 3-run baseline | At df=2 the true 95% critical value is **4.303**, so "2σ" was really an ~82% test — rampant false IMPROVED and false REGRESS | Student's *t* **prediction** interval: `t(n−1)·√(1+1/n)`. `MIN_BASELINE_RUNS` raised 3 → 5 (at n=3 the threshold is ~4.97σ, so a 3-run baseline can barely fail anything) |
+| 3 | **Zero-spread baseline → `Infinity` σ.** Deterministic metrics have sd=0 | 0.800 → 0.801 divided by zero and reported a confident **IMPROVED** for floating-point jitter | Every metric now declares `minRelevantDelta`; a change must clear **both** practical and statistical significance |
+| 4 | **Noise floor built from a subsample of its own reference.** Drawing 60 from 162 and scoring against the same 162 | Sample and reference ~37% shared ⇒ correlated ⇒ TVD biased **low** ⇒ floor too tight ⇒ more false REGRESS, compounding #1 | Parametric bootstrap: resample i.i.d. from the corpus's categorical distribution. Trials raised 200 → 4,000 since the corrected quantile sits far out in the tail |
+
+Two further fixes from the same review:
+
+- **`markFocus` used argmax**, collapsing a 40/30/30 mark split and a 100/0/0 split to the same
+  bucket — so a generator emitting only monolithic single-focus questions would have scored
+  *perfect* fidelity. Now compares the batch's **average mark distribution** against the corpus's.
+- **The judge could pass on recall alone** by binning aggressively. Added a `maxFalseBinRate` ceiling
+  (25%): recall and precision are now bounded together, because an over-strict pre-bank gate starves
+  the pool just as surely as a lax one floods it.
+
+### 4.5c Known limitations — stated, not solved
+
+1. **Shared feature extractors.** The anchor deliberately uses the app's own `deriveMarkFocus` /
+   `deriveQuestionType` / `deriveQuestion`. If one of those has a bug, generated and real questions
+   are parsed through the *same* broken lens and the fidelity score cannot see it. The alternative —
+   a second parser — drifts, and then the score measures the lenses rather than the questions. This
+   is a real trade-off with no free answer; the mitigation is that the parsers are separately tested
+   and the anchor asserts >85% bucketing coverage on the real corpus.
+2. **The synthetic floor is template-applied**, so a judge could in principle learn "flag stems that
+   begin *all made from*" rather than reasoning about wine. It is a **floor**: passing proves minimal
+   competence, not excellence. Generating corruptions with a different model would harden it.
+3. **Self-preference bias is unmitigated** while the judge shares the generator's family. The golden
+   set *is* generated questions with human labels, so calibration does test "can it judge Claude's
+   output as the human would" — but a Claude judge may still systematically favour Claude's habits.
+   Only a cross-family judge fixes this.
+4. **Structural fidelity is not correctness.** A question can be perfectly corpus-shaped and
+   factually wrong. The anchor cannot see that; Phase 5 (§8b) is what addresses it.
+
+### 4.6 What was built, and what was not
+
+**Built, tested, committed** (`study-app/evals/`, 75 tests, tsc clean):
+
+| component | file | notes |
+|---|---|---|
+| Truth anchor | `corpus-anchor.ts` | 162 real questions, 5 axes, sample-size-calibrated noise floors |
+| Distribution math | `metrics.ts` | TVD, seeded bootstrap, Wilson CI, Cohen's κ — pure and deterministic |
+| Scoreboard | `scorecard.ts` | 2σ discipline, advisory flags, markdown render + baseline diff |
+| Golden set | `golden.ts` + `scripts/build-golden-set.mjs` | **486 items frozen**, hash `3be7665113dbfc58` |
+| Judge + calibration | `judge.ts` + `scripts/calibrate-judge.mjs` | pluggable provider; bars enforced in code |
+
+Golden set as actually built: `calibration` 151 (51 bin) · `holdout` 151 (51 bin) · `regression` 164
+(55 bin) · `synthetic_floor` 20. **Holdout has 51 negatives** — above the 40 minimum, so the split
+can in principle gate, but the CI is still wide and §4.2's lower-bound rule is doing real work.
+
+**Not built, and why:**
+
+1. **`run.ts`, the generate-N-and-score runner.** The scoring half is complete; the generation half
+   should land *after* Phase 1's caching restructure, or the baseline has to be established twice.
+2. **A live calibration number.** The harness runs end-to-end but needs `ANTHROPIC_API_KEY`, which
+   this environment did not have. Until it runs, the judge is unqualified — which is exactly what
+   the code already assumes.
+3. **A cross-family judge.** `grep -rn "GEMINI\|OPENAI" src/` returns nothing: the app is
+   Claude-only. Shipped as a pluggable `JudgeProvider` with Claude as a loudly-flagged default
+   (`crossFamily: false`, warning banner on every scorecard). Adding a key flips the flag.
+
+**Exit:** golden set frozen + hashed with 4 splits ✅; judge clears §4.2 bars on holdout *or* is
+formally declared non-gating (**currently non-gating, by default** — pending a live run); baseline
+scorecard at N≥3 with variance (pending `run.ts`); eval runs <$5 and <15 min.
 
 ---
 
@@ -772,6 +878,29 @@ and throttling rather than stopping generation.
 
 **Council's round-3 verdict:** *"sound enough to execute"*, with the single biggest remaining risk
 being the deterministic CI gate's blindness to prompt degradation — now addressed by hard gate 2.
+
+### Round 4 — review of the BUILT Phase 0 harness
+
+Reviewed as code, not as a proposal. Six findings accepted and fixed (§4.5b), four limitations
+accepted and documented rather than solved (§4.5c).
+
+| # | Finding | Disposition |
+|---|---|---|
+| 17 | Multiple-comparisons fallacy: 15 tests at p95 ⇒ 53.7% family-wise false-drift | **Fixed** — Bonferroni; measured <15% |
+| 18 | z-test logic invalid at n=3; t(2) critical value is 4.303, not 2 | **Fixed** — t prediction interval; min baseline 3→5 |
+| 19 | Zero-spread ⇒ ∞σ ⇒ confident IMPROVED on jitter | **Fixed** — `minRelevantDelta` on every metric |
+| 20 | Noise floor subsamples its own reference ⇒ biased low | **Fixed** — parametric bootstrap, 4,000 trials |
+| 21 | `markFocus` argmax discards the mix | **Fixed** — weighted distribution comparison |
+| 22 | Judge can pass on recall alone by over-binning | **Fixed** — `maxFalseBinRate` 25% ceiling |
+| 23 | Shared feature extractors mask app parser bugs | **Documented** (§4.5c #1) — the alternative drifts |
+| 24 | Synthetic corruptions are mechanically pattern-matchable | **Documented** (§4.5c #2) — it is a floor, not a ceiling |
+| 25 | Design documents rather than prevents self-preference bias | **Documented** (§4.5c #3) — needs a provider key |
+| 26 | Corpus anchor measures structure, not truth | **Accepted** — this is precisely why Phase 5 exists |
+
+One council claim was **rejected**: that the golden set is built from *human-written* questions and
+therefore only proves the judge can grade humans. It is built from 466 **generated** questions
+carrying human keep/bin labels, so calibration does measure judging Claude's own output. The
+adjacent point — that self-preference bias is still unmitigated — stands and is documented.
 
 ---
 

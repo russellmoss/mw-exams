@@ -1,0 +1,30 @@
+{
+  "hash": "3be7665113dbfc58",
+  "seed": 20260807,
+  "builtAt": "2026-08-07T03:53:50.144Z",
+  "sourceRows": 466,
+  "counts": {
+    "calibration": {
+      "total": 151,
+      "bin": 51,
+      "keep": 100
+    },
+    "holdout": {
+      "total": 151,
+      "bin": 51,
+      "keep": 100
+    },
+    "regression": {
+      "total": 164,
+      "bin": 55,
+      "keep": 109
+    },
+    "synthetic_floor": {
+      "total": 20,
+      "bin": 20,
+      "keep": 0
+    }
+  },
+  "warnings": [],
+  "note": "Frozen artifact. Rebuilding after new reviews changes the hash and INVALIDATES existing baselines — re-baseline before comparing runs across a rebuild."
+}
