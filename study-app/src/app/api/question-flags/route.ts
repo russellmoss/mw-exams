@@ -24,11 +24,12 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { questionId, attemptId, reasons, note } = body as {
+  const { questionId, attemptId, reasons, note, winePosition } = body as {
     questionId?: unknown;
     attemptId?: unknown;
     reasons?: unknown;
     note?: unknown;
+    winePosition?: unknown;
   };
 
   if (typeof questionId !== "string" || questionId.length === 0) {
@@ -43,6 +44,16 @@ export async function POST(request: Request) {
   const cleanNote = sanitizeBinNote(note);
   const cleanAttemptId =
     typeof attemptId === "number" && Number.isFinite(attemptId) ? attemptId : null;
+  // The per-wine selector (Right Paper Check) only applies to the 'Wrong wine for this paper' reason;
+  // keep the recorded position only when that reason was actually chosen. A 1-based slot within range.
+  const cleanWinePosition =
+    cleanReasons.includes("wrong_colour_for_paper") &&
+    typeof winePosition === "number" &&
+    Number.isInteger(winePosition) &&
+    winePosition >= 1 &&
+    winePosition <= 12
+      ? winePosition
+      : null;
 
   try {
     const result = await createQuestionFlag({
@@ -51,6 +62,7 @@ export async function POST(request: Request) {
       userId: user.id,
       reasons: cleanReasons,
       note: cleanNote,
+      winePosition: cleanWinePosition,
     });
     return Response.json({ ok: true, ...result });
   } catch (err) {

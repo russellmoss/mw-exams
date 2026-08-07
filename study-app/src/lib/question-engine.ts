@@ -146,6 +146,7 @@ import {
   stemPreannouncesDiscriminator,
   contrastIntegrityViolations,
   validatePaperStyleMix,
+  validatePaperColour,
   validateSingleWineFlight,
   type AuditWine,
 } from "@/lib/question-validator";
@@ -1573,6 +1574,13 @@ ${repairContext.draft}`,
     const paperStyleMixCheck = {
       violations: pinned ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
     };
+    // R-COLOUR (Right Paper Check): Paper 1 still-white only, Paper 2 still-red only — unconditional,
+    // and applied on EVERY path including pinned (a wrong-colour wine is never served). Blocking (not
+    // advisory), so a wrong-colour draft is silently discarded and the loop redrafts a compliant
+    // flight; the eventual post-save audit (validateQuestion) records the same reason if one slips by.
+    const paperColourCheck = {
+      violations: validatePaperColour(paper, auditWines, candidate.questionText).map((v) => v.detail),
+    };
     // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
     // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
     // structure. Blocks on every path (deterministic text/wine fix the repair prompt converges on).
@@ -1762,6 +1770,9 @@ ${repairContext.draft}`,
       // it is exactly what validatePaperStyleMix will quarantine post-save, and the fix is a fresh
       // wine choice the redraft loop can make.
       paperStyleMix: paperStyleMixCheck,
+      // R-COLOUR: blocks on every path and never relaxes — a wrong-colour wine is exactly what the
+      // post-save audit would quarantine, and the fix is a fresh wine choice the redraft loop makes.
+      paperColour: paperColourCheck,
       singleWineFlight: singleWineFlightCheck,
       singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,

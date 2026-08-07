@@ -11,9 +11,12 @@ import {
   stemSniperScoringModel as _stemSniperScoringModel,
   canonCountry,
   canonVariety,
+  detectPrimaryVariety,
   methodClass,
   norm,
   normStem,
+  RED_GRAPE_INDICATORS,
+  WHITE_GRAPE_INDICATORS,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
 // Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
@@ -1218,6 +1221,133 @@ export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violat
 }
 
 // ---------------------------------------------------------------------------------------------------
+// R-COLOUR — the unconditional colour/style contract (Right Paper Check).
+//
+// A hard rule alongside R1 (country diversity), R2 (same variety) and the mark-allocation validators.
+// Paper 1 may only ever serve STILL WHITE wine; Paper 2 may only ever serve STILL RED. Paper 3 has no
+// colour restriction. The rule is UNCONDITIONAL: no stem wording can license a wrong-colour wine, and
+// a stem that itself implies a mixed/other colour on Paper 1/2 fails with the distinct reason
+// `stem_colour_conflict`. See CLAUDE.md ("Paper 1: white still wines. Paper 2: red still wines.
+// Paper 3: a mix…") and mw_exam_empirical_knowledge §4.
+//
+// Colour is DERIVED from the wine record's existing style/style_category/label/variety fields via
+// classifyWineColour(), which resolves the strict enum white|red|rose|orange|sparkling|sweet|fortified
+// (the same enum a generation-time LLM classifier persists onto records that lack a reliable colour
+// key). It reuses the shared style classifier (classifyWineStyle) and grape indicators so a wine is
+// tagged exactly as the rest of the system tags it. When a still wine's colour cannot be positively
+// determined the classifier returns null and the rule SKIPS that wine — it fails SAFE, never blocking
+// a wine it cannot place.
+// ---------------------------------------------------------------------------------------------------
+
+export type WineColour = "white" | "red" | "rose" | "orange" | "sparkling" | "sweet" | "fortified";
+
+const COLOUR_STYLE_LABEL: Record<WineColour, string> = {
+  white: "still white",
+  red: "still red",
+  rose: "rosé",
+  orange: "orange / skin-contact",
+  sparkling: "sparkling",
+  sweet: "sweet / dessert",
+  fortified: "fortified",
+};
+
+// Orange / skin-contact whites — the shared style classifier folds these into "oxidative", but the
+// colour contract names them as their own blocked style, so they are resolved explicitly here.
+const ORANGE_STYLE_RE = /orange wine|skin[- ]?contact|amber wine|\bramato\b|\bqvevri\b|\bkvevri\b/;
+// Free-text colour cues on the label/region, used to settle still red vs still white when the grape
+// indicators are silent. Accent-stripped (matched against norm()'d text).
+const RED_COLOUR_CUE = /\b(red|rouge|rosso|tinto|tinta|rot|noir|nero)\b/;
+const WHITE_COLOUR_CUE = /\b(white|blanc|blanco|bianco|weiss|weisser|weisswein)\b/;
+
+/**
+ * Resolve ONE wine's colour/style onto the strict R-COLOUR enum, or null when a still wine's colour
+ * cannot be positively determined (fail-safe). Priority: fortified > sparkling > sweet > orange > rosé
+ * > still red/white — a wine that is BOTH a special style and a colour is named by the style the
+ * contract blocks on (a rosé Champagne is `sparkling`, a sweet white is `sweet`).
+ */
+export function classifyWineColour(w: AuditWine): WineColour | null {
+  const styleText = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
+  const hay = norm([w.fullText, w.style, w.style_category, w.region, ...(w.varieties || [])].filter(Boolean).join(" "));
+  if (!hay && !styleText) return null;
+
+  const { style, isRose } = classifyWineStyle(styleText || hay);
+  if (style === "fortified") return "fortified";
+  if (style === "sparkling") return "sparkling";
+  if (style === "sweet") return "sweet";
+  if (ORANGE_STYLE_RE.test(hay)) return "orange";
+  if (isRose) return "rose";
+
+  // Still wine → red vs white. Prefer the resolved varieties, then any label colour cue.
+  const varietyBlob = norm((w.varieties || []).map((x) => canonVariety(x)).join(" "));
+  const red = RED_GRAPE_INDICATORS.test(varietyBlob) || RED_GRAPE_INDICATORS.test(hay) || RED_COLOUR_CUE.test(hay);
+  const white =
+    WHITE_GRAPE_INDICATORS.test(varietyBlob) || WHITE_GRAPE_INDICATORS.test(hay) || WHITE_COLOUR_CUE.test(hay);
+  if (red && !white) return "red";
+  if (white && !red) return "white";
+
+  // Last resort: resolve the dominant variety from the label (covers appellation-only labels) and
+  // read its colour off the shared indicators.
+  const primary = (w.varieties?.[0] && canonVariety(w.varieties[0])) || detectPrimaryVariety(w.fullText || "");
+  if (primary && primary !== "unknown") {
+    if (RED_GRAPE_INDICATORS.test(primary)) return "red";
+    if (WHITE_GRAPE_INDICATORS.test(primary)) return "white";
+  }
+  return null; // indeterminate — skip (fail safe)
+}
+
+/**
+ * Detect a stem that itself implies a colour/style the paper forbids. Requires the word "wine(s)"
+ * after a colour so a tasting descriptor ("white pepper") can never trip it; the unambiguous style
+ * words (sparkling/fortified) stand alone. Returns one hard violation or null.
+ */
+function stemColourConflict(paper: number, questionText: string | undefined): Violation | null {
+  const stem = normStem(questionText || "");
+  if (!stem) return null;
+  const forbidden =
+    paper === 1
+      ? /\b(red wines?|rose wines?|rosado wines?|rosato wines?|sparkling wines?|dessert wines?|sweet wines?|fortified)\b/
+      : /\b(white wines?|rose wines?|rosado wines?|rosato wines?|sparkling wines?|dessert wines?|fortified)\b/;
+  const m = stem.match(forbidden);
+  if (!m) return null;
+  return {
+    rule: "stem_colour_conflict",
+    severity: "hard",
+    detail: `Paper ${paper} is ${
+      paper === 1 ? "STILL WHITE" : "STILL RED"
+    } only, but the stem wording implies a forbidden colour/style ("${m[0].trim()}"). Rule R-COLOUR is unconditional — stem text can never override it.`,
+  };
+}
+
+/**
+ * R-COLOUR. Paper 1 → every wine must be still white; Paper 2 → every wine must be still red; Paper 3
+ * → no restriction. Emits `wrong_colour_for_paper` (hard) per offending wine, carrying the paper and
+ * the detected colour, and `stem_colour_conflict` (hard) when the stem implies a forbidden colour.
+ */
+export function validatePaperColour(paper: number, wines: AuditWine[], questionText?: string): Violation[] {
+  if (paper !== 1 && paper !== 2) return [];
+  const allowed: WineColour = paper === 1 ? "white" : "red";
+  const allowedLabel = paper === 1 ? "STILL WHITE" : "STILL RED";
+  const v: Violation[] = [];
+
+  for (const w of wines || []) {
+    const colour = classifyWineColour(w);
+    if (colour && colour !== allowed) {
+      v.push({
+        rule: "wrong_colour_for_paper",
+        severity: "hard",
+        detail: `Paper ${paper} must serve ${allowedLabel} wine only, but ${wineLabel(
+          w
+        )} reads as ${COLOUR_STYLE_LABEL[colour]} (detected colour "${colour}"). Rule R-COLOUR is unconditional.`,
+      });
+    }
+  }
+
+  const stemV = stemColourConflict(paper, questionText);
+  if (stemV) v.push(stemV);
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // TASTING-NOTE COMPLETENESS — every wine's generated note must carry the visual + structural markers a
 // candidate leads with, and must never describe the ABSENCE of bubbles (feedback cluster fb_246,
 // fb_244, fb_53).
@@ -1389,6 +1519,12 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
   violations.push(...validatePaperStyleMix(q.paper, q.wines));
+  // R-COLOUR (Right Paper Check) deliberately does NOT run inside this KEY-stage audit wrapper. It is
+  // an UNCONDITIONAL serve-time contract (Paper 1 still-white / Paper 2 still-red) enforced on every
+  // generation/serve path in question-engine.ts (paperColourCheck), where a wrong-colour draft is
+  // silently repaired or discarded. validateQuestion is the shared audit/feedback wrapper whose
+  // fixtures are keyed only for the rule under test and are not colour-consistent, so folding a hard
+  // colour verdict in here would reject legitimate audits. Use validatePaperColour directly instead.
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

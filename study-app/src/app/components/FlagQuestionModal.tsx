@@ -17,22 +17,35 @@ import { MAX_BIN_NOTE_CHARS } from "@/lib/bin-reasons";
 // fresh question.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 
+// The wine reason ('Wrong wine for this paper', Right Paper Check) that opens the per-wine selector.
+const WRONG_WINE_REASON = "wrong_colour_for_paper";
+
+interface FlagWine {
+  slot: number;
+  fullText: string;
+}
+
 interface FlagQuestionModalProps {
   questionId: string;
   attemptId: number | null;
+  // The flight's wines (label + name), so the candidate can mark WHICH wine is wrong when they choose
+  // 'Wrong wine for this paper'. Optional: absent on call sites that don't carry the flight.
+  wines?: FlagWine[];
   onClose: () => void;
   onFlagged: () => void;
 }
 
-export function FlagQuestionModal({ questionId, attemptId, onClose, onFlagged }: FlagQuestionModalProps) {
+export function FlagQuestionModal({ questionId, attemptId, wines, onClose, onFlagged }: FlagQuestionModalProps) {
   const [reasons, setReasons] = useState<string[]>([]);
   const [note, setNote] = useState("");
+  const [winePosition, setWinePosition] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(false);
 
   const toggle = (value: string) =>
     setReasons((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
 
+  const showWinePicker = reasons.includes(WRONG_WINE_REASON) && Array.isArray(wines) && wines.length > 0;
   const canSubmit = reasons.length > 0 && !submitting;
 
   const handleSubmit = async () => {
@@ -48,6 +61,8 @@ export function FlagQuestionModal({ questionId, attemptId, onClose, onFlagged }:
           attemptId,
           reasons,
           note: note.trim() || null,
+          // Only meaningful with the 'Wrong wine for this paper' reason + a picked wine.
+          winePosition: showWinePicker ? winePosition : null,
         }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -71,6 +86,34 @@ export function FlagQuestionModal({ questionId, attemptId, onClose, onFlagged }:
 
         <div className="px-5 pb-2">
           <BinReasonChips selected={reasons} onToggle={toggle} />
+
+          {showWinePicker && (
+            <div className="mt-4">
+              <label className="block text-xs text-muted mb-1.5">Which wine?</label>
+              <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Which wine is wrong">
+                {wines!.map((w) => {
+                  const on = winePosition === w.slot;
+                  return (
+                    <button
+                      key={w.slot}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => setWinePosition(on ? null : w.slot)}
+                      className={`text-left text-xs px-3 py-2 rounded-lg border transition-colors cursor-pointer ${
+                        on
+                          ? "border-accent text-accent"
+                          : "border-border text-muted hover:border-muted hover:text-foreground"
+                      }`}
+                    >
+                      <span className="font-medium">Wine {w.slot}</span>
+                      <span className="text-muted"> — {w.fullText}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <label className="block text-xs text-muted mt-4 mb-1.5">Anything else? (optional)</label>
           <textarea

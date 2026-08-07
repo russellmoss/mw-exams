@@ -998,6 +998,7 @@ export default function StudyPage() {
                 <FlagQuestionButton
                   questionId={state.question.id}
                   attemptId={attemptId}
+                  wines={state.question.wines}
                   onLoadNext={handleFlagLoadNext}
                   onBackToPaper={handleBackToPaper}
                 />
@@ -1224,6 +1225,7 @@ export default function StudyPage() {
                 <FlagQuestionButton
                   questionId={state.question.id}
                   attemptId={attemptId}
+                  wines={state.question.wines}
                   onLoadNext={handleFlagLoadNext}
                   onBackToPaper={handleBackToPaper}
                 />

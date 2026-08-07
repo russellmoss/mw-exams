@@ -21,13 +21,16 @@ import { FlagQuestionModal } from "./FlagQuestionModal";
 interface FlagQuestionButtonProps {
   questionId: string;
   attemptId: number | null;
+  // The flight's wines (label + name), passed through to the modal's per-wine selector for the
+  // 'Wrong wine for this paper' reason (Right Paper Check). Optional.
+  wines?: { slot: number; fullText: string }[];
   // Load the next question in the same paper/family/mode (parent owns the fetch + reducer dispatch).
   onLoadNext: () => Promise<void> | void;
   // Escape hatch back to the paper/question list.
   onBackToPaper: () => void;
 }
 
-export function FlagQuestionButton({ questionId, attemptId, onLoadNext, onBackToPaper }: FlagQuestionButtonProps) {
+export function FlagQuestionButton({ questionId, attemptId, wines, onLoadNext, onBackToPaper }: FlagQuestionButtonProps) {
   const [open, setOpen] = useState(false);
   const [flagged, setFlagged] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
@@ -86,6 +89,7 @@ export function FlagQuestionButton({ questionId, attemptId, onLoadNext, onBackTo
         <FlagQuestionModal
           questionId={questionId}
           attemptId={attemptId}
+          wines={wines}
           onClose={() => setOpen(false)}
           onFlagged={handleFlagged}
         />

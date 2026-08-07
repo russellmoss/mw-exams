@@ -208,9 +208,22 @@
       "source": "https://aubonclimat.com/news/hildegard-origin-story",
       "notes": "Pinot Gris-led white field blend (Pinot Gris/Pinot Blanc/Aligoté) in the Burgundian tradition; named for Hildegard von Bingen. NOT Chardonnay. Producer does not disclose proportions.",
       "confusables": [
-        { "variety": "Chardonnay", "region": "California", "country": "USA", "note": "deliberate trap: same country as the paired Stony Hill Chardonnay, but a different variety" },
-        { "variety": "Pinot Gris", "region": "Alsace", "country": "France" },
-        { "variety": "Pinot Gris", "region": "Willamette Valley, Oregon", "country": "USA" }
+        {
+          "variety": "Chardonnay",
+          "region": "California",
+          "country": "USA",
+          "note": "deliberate trap: same country as the paired Stony Hill Chardonnay, but a different variety"
+        },
+        {
+          "variety": "Pinot Gris",
+          "region": "Alsace",
+          "country": "France"
+        },
+        {
+          "variety": "Pinot Gris",
+          "region": "Willamette Valley, Oregon",
+          "country": "USA"
+        }
       ]
     },
     {
@@ -241,6 +254,79 @@
       "is_blend": true,
       "confidence": "medium",
       "source": "https://shop.kracher.at/en/2021-Beerenauslese-Cuvee"
+    },
+    {
+      "match": "pofadder",
+      "wine": "The Sadie Family Pofadder",
+      "country": "South Africa",
+      "region": "Swartland",
+      "varieties": [
+        "Cinsault"
+      ],
+      "dominant": "Cinsault",
+      "is_blend": false,
+      "confidence": "high",
+      "source": "https://www.thesadiefamily.com (Ouwingerdreeks — Pofadder is 100% Cinsault)"
+    },
+    {
+      "match": "nyetimber",
+      "wine": "Nyetimber (all cuvées)",
+      "country": "England",
+      "region": "West Sussex",
+      "varieties": [
+        "Chardonnay",
+        "Pinot Noir",
+        "Pinot Meunier"
+      ],
+      "dominant": "Chardonnay",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://nyetimber.com — traditional-method blends of the three Champagne varieties"
+    },
+    {
+      "match": "oratorio di san lorenzo",
+      "wine": "Inama Oratorio di San Lorenzo Riserva",
+      "country": "Italy",
+      "region": "Colli Berici, Veneto",
+      "varieties": [
+        "Carménère"
+      ],
+      "dominant": "Carménère",
+      "is_blend": false,
+      "confidence": "high",
+      "source": "https://www.inamaaziendaagricola.it — Colli Berici Carmenere Riserva"
+    },
+    {
+      "match": "mullineux old vines white",
+      "wine": "Mullineux Old Vines White",
+      "country": "South Africa",
+      "region": "Swartland",
+      "varieties": [
+        "Chenin Blanc",
+        "Grenache Blanc",
+        "Clairette",
+        "Viognier",
+        "Sémillon"
+      ],
+      "dominant": "Chenin Blanc",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://mullineuxwines.com — Chenin-led Swartland white blend"
+    },
+    {
+      "match": "villiera tradition",
+      "wine": "Villiera Tradition Brut (Cap Classique)",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "varieties": [
+        "Pinot Noir",
+        "Chardonnay",
+        "Pinotage"
+      ],
+      "dominant": "Pinot Noir",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.villiera.com — MCC blend"
     }
   ]
 }

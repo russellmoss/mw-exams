@@ -22,6 +22,11 @@ export const BIN_REASON_OPTIONS: readonly BinReasonOption[] = [
   { value: "wrong_paper", label: "Wrong paper" },
   { value: "too_easy", label: "Too easy" },
   { value: "too_obscure", label: "Too obscure" },
+  // Right Paper Check: a wine of the wrong colour/style for the paper (Paper 1 still-white / Paper 2
+  // still-red). Candidate-facing copy is deliberately plain — no self-blame, no "tool error". The
+  // candidate flag modal shows a per-wine selector when this reason is chosen; the stored flag carries
+  // reason 'wrong_colour_for_paper' and the selected wine position.
+  { value: "wrong_colour_for_paper", label: "Wrong wine for this paper" },
 ] as const;
 
 export const BIN_REASON_LABELS: Record<string, string> = Object.fromEntries(

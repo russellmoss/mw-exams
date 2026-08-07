@@ -2418,5 +2418,133 @@
     ],
     "dominance": "Trousseau/Poulsard-led",
     "source": "AOC Arbois rouge regulations (Poulsard, Trousseau, Pinot Noir)"
+  },
+  "hermitage blanc": {
+    "country": "France",
+    "region": "Northern Rhone",
+    "varieties": [
+      "Marsanne",
+      "Roussanne"
+    ],
+    "dominance": "Marsanne dominant",
+    "notes": "White Hermitage. Red Hermitage (bare \"hermitage\" entry) is Syrah.",
+    "source": "AOC Hermitage regulations"
+  },
+  "samos": {
+    "country": "Greece",
+    "region": "Samos",
+    "varieties": [
+      "Muscat Blanc à Petits Grains"
+    ],
+    "dominance": "100%",
+    "notes": "Sweet Muscats (Vin Doux, Grand Cru, Nectar) from Samos are Muscat Blanc à Petits Grains (Muscat de Samos).",
+    "source": "PDO Samos regulations"
+  },
+  "chateau chalon": {
+    "country": "France",
+    "region": "Jura",
+    "varieties": [
+      "Savagnin"
+    ],
+    "dominance": "100%",
+    "notes": "Vin Jaune appellation — Savagnin only, aged sous voile.",
+    "source": "AOC Château-Chalon regulations"
+  },
+  "show tawny": {
+    "country": "Australia",
+    "region": "South Australia",
+    "varieties": [
+      "Grenache",
+      "Shiraz",
+      "Mourvèdre"
+    ],
+    "dominance": "blend varies",
+    "notes": "Australian fortified tawny classification term (e.g. Seppelt DP90).",
+    "source": "Australian fortified wine conventions"
+  },
+  "rare tawny": {
+    "country": "Australia",
+    "region": "South Australia",
+    "varieties": [
+      "Grenache",
+      "Shiraz",
+      "Mourvèdre"
+    ],
+    "dominance": "blend varies",
+    "notes": "Australian fortified tawny classification term (e.g. Penfolds Grandfather Rare Tawny).",
+    "source": "Australian fortified wine conventions"
+  },
+  "solera tawny": {
+    "country": "Australia",
+    "region": "South Australia",
+    "varieties": [
+      "Grenache",
+      "Shiraz",
+      "Mourvèdre"
+    ],
+    "dominance": "blend varies",
+    "notes": "Australian solera-aged fortified tawny.",
+    "source": "Australian fortified wine conventions"
+  },
+  "montrachet": {
+    "country": "France",
+    "region": "Côte de Beaune, Burgundy",
+    "varieties": [
+      "Chardonnay"
+    ],
+    "dominance": "100%",
+    "notes": "Le Montrachet and all hyphenated Montrachet Grands Crus (Chevalier-, Bâtard-, etc.) are white Chardonnay.",
+    "source": "AOC Montrachet regulations"
+  },
+  "tavel": {
+    "country": "France",
+    "region": "Southern Rhône",
+    "varieties": [
+      "Grenache",
+      "Cinsault"
+    ],
+    "dominance": "Grenache dominant",
+    "notes": "Rosé-only AOC; Grenache-led blend with Cinsault et al.",
+    "source": "AOC Tavel regulations"
+  },
+  "blanquette de limoux": {
+    "country": "France",
+    "region": "Languedoc",
+    "varieties": [
+      "Mauzac"
+    ],
+    "dominance": "minimum 90%",
+    "notes": "Traditional-method sparkling; Mauzac-dominant (Crémant de Limoux is Chardonnay/Chenin-led instead).",
+    "source": "AOC Blanquette de Limoux regulations"
+  },
+  "ribeira sacra": {
+    "country": "Spain",
+    "region": "Galicia",
+    "varieties": [
+      "Mencía"
+    ],
+    "dominance": "Mencía dominant (reds)",
+    "notes": "Red context: Mencía-led. Whites are Godello/Albariño.",
+    "source": "DO Ribeira Sacra regulations"
+  },
+  "moscatel de setubal": {
+    "country": "Portugal",
+    "region": "Setúbal Peninsula",
+    "varieties": [
+      "Muscat of Alexandria"
+    ],
+    "dominance": "minimum 85%",
+    "notes": "Fortified Muscat; Moscatel de Setúbal is Muscat of Alexandria (Moscatel Graúdo).",
+    "source": "DO Setúbal regulations"
+  },
+  "schilcher": {
+    "country": "Austria",
+    "region": "Weststeiermark",
+    "varieties": [
+      "Blauer Wildbacher"
+    ],
+    "dominance": "100%",
+    "notes": "High-acid rosé from Blauer Wildbacher, specialty of Weststeiermark.",
+    "source": "Österreich Wein — Schilcherland DAC"
   }
 }
