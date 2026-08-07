@@ -318,7 +318,8 @@ function getDecision(status: string | null, decidedBy: string | null | undefined
   return null;
 }
 
-// Feedback-tab chip labels (migration 053) — user-facing copy, mirrored in FeedbackTab.
+// Feedback chip labels (migration 053). Rows now arrive from the Coach's write tools, whose
+// `category` enum is the same set — see src/lib/coach/tools/write-tools.ts.
 const CATEGORY_LABEL: Record<string, string> = {
   wrong_misleading: "Wrong / misleading",
   confusing_wording: "Confusing wording",

@@ -29,6 +29,10 @@ export async function PATCH(request: Request) {
     if (typeof body.walkthroughSeen === "boolean") {
       await sql`UPDATE users SET walkthrough_seen = ${body.walkthroughSeen} WHERE id = ${user.id}`;
     }
+    // Migration 056 — the Coach walkthrough, gated separately from the diagram one.
+    if (typeof body.coachWalkthroughSeen === "boolean") {
+      await sql`UPDATE users SET coach_walkthrough_seen = ${body.coachWalkthroughSeen} WHERE id = ${user.id}`;
+    }
     if ("examDate" in body) {
       const examDate = body.examDate;
       if (examDate !== null && (typeof examDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {

@@ -10,14 +10,21 @@
 //
 //   intro (every session until dismissed)
 //     → diagram walkthrough (ONCE — users.walkthrough_seen, migration 051)
-//       → spotlight tour over the live launcher DOM (ONCE — users.tour_seen)
+//       → Coach walkthrough (ONCE — users.coach_walkthrough_seen, migration 056)
+//         → spotlight tour over the live launcher DOM (ONCE — users.tour_seen)
 //
 // Each stage is skippable and each is gated on its own flag, so a returning user who dismissed the
 // intro but never finished the walkthrough still gets the walkthrough, and only the walkthrough.
+//
+// The order is deliberate. The diagram walkthrough teaches how a question is REASONED about; the
+// Coach walkthrough then teaches how to argue with one, which only makes sense once you know what a
+// well-formed question looks like. Both precede the spotlight tour, because the tour is about where
+// things are and these two are about what the app actually does.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { CoachWalkthrough } from "./CoachWalkthrough";
 import { DiagramWalkthrough } from "./DiagramWalkthrough";
 
 const SESSION_FLAG = "mw-intro-shown-this-session";
@@ -116,7 +123,7 @@ function StatBlock({ value, label, delayMs, accent, big }: { value: string; labe
 }
 
 /** The first-run chain, in order. Exactly one stage is on screen at a time. */
-type Stage = "intro" | "walkthrough" | "tour" | null;
+type Stage = "intro" | "walkthrough" | "coach" | "tour" | null;
 
 export function ShellOnboarding() {
   const { user, loading } = useAuth();
@@ -136,7 +143,7 @@ export function ShellOnboarding() {
   // browser session, so a mid-session reload never restarts it.
   useEffect(() => {
     if (loading || !user || decidedRef.current) return;
-    decidedRef.current = true;
+
     let shownThisSession = false;
     try {
       shownThisSession = window.sessionStorage.getItem(SESSION_FLAG) === "1";
@@ -147,17 +154,39 @@ export function ShellOnboarding() {
       ? "intro"
       : !user.walkthroughSeen
         ? "walkthrough"
-        : !user.tourSeen
-          ? "tour"
-          : null;
+        : !user.coachWalkthroughSeen
+          ? "coach"
+          : !user.tourSeen
+            ? "tour"
+            : null;
     if (!next) return;
-    try {
-      window.sessionStorage.setItem(SESSION_FLAG, "1");
-    } catch {}
-    // Open on the next frame rather than synchronously in the effect body — same reasoning as the
-    // measure effect below: a synchronous setState here is the cascading render the lint rule flags.
-    const frame = requestAnimationFrame(() => setStage(next));
-    return () => cancelAnimationFrame(frame);
+
+    // NOTHING IS COMMITTED UNTIL THE FRAME ACTUALLY RUNS, and that is the whole point.
+    //
+    // This used to latch `decidedRef` and write the session flag up front, then schedule the open.
+    // Under StrictMode — on by default in dev — React mounts, runs this effect, runs the cleanup,
+    // and runs it again. The cleanup cancelled the pending frame, and the second run saw
+    // `decidedRef` already true and returned. So the onboarding never appeared in development, for
+    // ANY stage, while the session flag had already been burnt — which then suppressed it for the
+    // rest of the session too. Production never double-invokes, so it only bit people testing
+    // locally, which is exactly the people who most need to see it.
+    //
+    // Deferring both commits into the callback makes a cancelled run a no-op: it decides nothing and
+    // records nothing, and the surviving run does the work once.
+    //
+    // A TIMER, NOT requestAnimationFrame. rAF only fires while the tab is compositing frames, so an
+    // app opened in a background tab would sit with the flag unset and no onboarding until it was
+    // brought to the front — and in a headless or non-compositing browser it never fires at all,
+    // which is how this was found. Nothing here needs to be aligned to a paint; it just needs to be
+    // out of the effect body so the setState is not a cascading render.
+    const timer = setTimeout(() => {
+      decidedRef.current = true;
+      try {
+        window.sessionStorage.setItem(SESSION_FLAG, "1");
+      } catch {}
+      setStage(next);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [loading, user]);
 
   // The tour only spotlights elements that exist on this user's launcher (no Continue card on a
@@ -199,17 +228,25 @@ export function ShellOnboarding() {
     setStage("tour");
   }, []);
 
-  // Skipping still marks the walkthrough seen — it is replayable from the Library, and re-serving
-  // a 7-step teach the user has already declined is worse than making them ask for it.
+  // Skipping still marks a walkthrough seen — both are replayable from the Library, and re-serving a
+  // 7-step teach the user has already declined is worse than making them ask for it.
+  const endCoachWalkthrough = useCallback(() => {
+    saveShellPref({ coachWalkthroughSeen: true });
+    if (user && !user.tourSeen) startTour();
+    else setStage(null);
+  }, [startTour, user]);
+
   const endWalkthrough = useCallback(() => {
     saveShellPref({ walkthroughSeen: true });
-    if (user && !user.tourSeen) startTour();
+    if (user && !user.coachWalkthroughSeen) setStage("coach");
+    else if (user && !user.tourSeen) startTour();
     else setStage(null);
   }, [startTour, user]);
 
   const startStudying = useCallback(() => {
     if (dontShow) saveShellPref({ introSeen: true });
     if (user && !user.walkthroughSeen) setStage("walkthrough");
+    else if (user && !user.coachWalkthroughSeen) setStage("coach");
     else if (user && !user.tourSeen) startTour();
     else setStage(null);
   }, [dontShow, startTour, user]);
@@ -431,6 +468,8 @@ export function ShellOnboarding() {
       )}
 
       {stage === "walkthrough" && <DiagramWalkthrough onDone={endWalkthrough} />}
+
+      {stage === "coach" && <CoachWalkthrough onDone={endCoachWalkthrough} />}
 
       {tourOpen && step && (
         <div className="fixed inset-0 z-[55]">

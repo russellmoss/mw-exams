@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { WalkthroughReplayButton } from "@/app/components/WalkthroughReplayButton";
+import { WalkthroughReplayButtons } from "@/app/components/WalkthroughReplayButton";
 
 export const metadata: Metadata = { title: "Library" };
 
@@ -18,7 +18,7 @@ export default function LibraryPage() {
               Study diagrams and decision trees. Learning units coming soon.
             </p>
           </div>
-          <WalkthroughReplayButton />
+          <WalkthroughReplayButtons />
         </div>
       </header>
       <iframe

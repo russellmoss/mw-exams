@@ -32,6 +32,10 @@ export const AB_TASKS: { task: string; label: string; defaultTier: ModelTier }[]
   { task: "feedback_reply", label: "Feedback reply", defaultTier: "sonnet" },
   { task: "notification_narration", label: "Verdict narration (spoken)", defaultTier: "sonnet" },
   { task: "retail_availability", label: "Retail availability (Live Tasting)", defaultTier: "haiku" },
+  // Sonnet by default because the Coach is conversational and BYOK — every turn spends the
+  // candidate's own credits, so the tier that answers a lookup well enough is the right default.
+  // Pushback and analysis turns can be escalated per-turn without changing this.
+  { task: "coach", label: "Coach (chat)", defaultTier: "sonnet" },
 ];
 
 export const AB_CONFIG_KEY = "model_ab_config";

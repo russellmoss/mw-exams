@@ -6,7 +6,7 @@ import { DEFAULT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
 import { FeedbackProvider } from "@/lib/feedback-context";
 import { NavBar } from "./components/NavBar";
 import { MobileTabBar } from "./components/MobileTabBar";
-import { FeedbackTab } from "./components/FeedbackTab";
+import { CoachDock } from "./components/coach/CoachDock";
 import { DictationBanner } from "./components/DictationBanner";
 import "./globals.css";
 
@@ -75,7 +75,11 @@ export default function RootLayout({
               <NavBar />
               {children}
               <MobileTabBar />
-              <FeedbackTab />
+              {/* The Coach subsumes the old Feedback tab (removed 2026-08-07). Reporting is
+                  conversational now — you say what is wrong, it checks the claim, and it raises a
+                  confirmation card — landing in the same user_attempts store the tab wrote to. The
+                  dock pauses the study clock the way the tab did. One floating widget, not two. */}
+              <CoachDock />
             </FeedbackProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -251,13 +251,48 @@ export default function Home() {
     [selectedPaper, selectedFamily, router, user, saveLastDrill]
   );
 
-  // Continue card deep link: /practical/dry-flights?repeat=1 restores the saved config and jumps
-  // straight to the acquire card (or straight into Flash Notes). Runs once, after auth resolves.
+  // Deep links into the wizard. Two forms, both landing on the acquire card:
+  //
+  //   ?repeat=1                                     the Continue card — restores the saved config
+  //   ?mode=&paper=&family=&stemDetail=             explicit — used by the Coach's launch_drill
+  //
+  // WHY THE WIZARD AND NOT /study. The obvious deep link would go straight to the drill, but /study
+  // requires a question to already be in sessionStorage — acquiring one is the wizard's job, and it
+  // owns the New-vs-Banked choice plus the streamed 30-60s generation UI. Pointing the link here
+  // reuses all of that instead of duplicating it, and keeps the candidate's hand on the decision
+  // that spends their own API credits.
   const repeatHandledRef = useRef(false);
   useEffect(() => {
     if (repeatHandledRef.current || authLoading || !user) return;
     repeatHandledRef.current = true;
     const params = new URLSearchParams(window.location.search);
+
+    const explicitMode = params.get("mode");
+    if (explicitMode && (["full", "stem-only", "known-wine", "flash"] as const).includes(explicitMode as StudyMode)) {
+      const paper = Number(params.get("paper"));
+      if (![1, 2, 3].includes(paper)) return;
+      const family = params.get("family") || "any";
+      const level = params.get("stemDetail");
+      if (explicitMode === "flash") {
+        sessionStorage.setItem("mw-flash-setup", JSON.stringify({ paper, family }));
+        router.push("/flash-notes");
+        return;
+      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedPaper(paper);
+      setSelectedFamily(family);
+      setPendingMode(explicitMode as StudyMode);
+      if (level && ["guided", "exam_real", "blind", "none"].includes(level)) {
+        setStemDetail(level as StemDetailLevel);
+      }
+      setError(null);
+      setBankTaken(false);
+      setBankCount(null);
+      autoBankedRef.current = user.questionSourceDefault === "banked";
+      setStep("acquire");
+      return;
+    }
+
     if (params.get("repeat") !== "1") return;
     const config = user.lastDrillConfig;
     if (!config?.paper || !config.mode) return;
@@ -267,10 +302,10 @@ export default function Home() {
       router.push("/flash-notes");
       return;
     }
-    // Deliberate: this restores state from two things the first render cannot know — the URL query
-    // and the user record that auth resolves asynchronously. Guarded by repeatHandledRef so it runs
-    // exactly once, which is what makes it a one-shot restore rather than a render cascade.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Deliberate, same reasoning as the explicit-deep-link branch above (which carries the lint
+    // suppression for this effect): restores state from two things the first render cannot know —
+    // the URL query and the user record auth resolves asynchronously. Guarded by repeatHandledRef so
+    // it runs exactly once, which is what makes it a one-shot restore rather than a render cascade.
     setSelectedPaper(config.paper);
     setSelectedFamily(family);
     setPendingMode(config.mode as StudyMode);

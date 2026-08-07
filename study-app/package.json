@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.99.0",
     "@neondatabase/serverless": "^1.1.0",
     "bcryptjs": "^3.0.3",
+    "html-to-image": "^1.11.13",
     "jsonwebtoken": "^9.0.3",
     "mermaid": "^11.15.0",
     "next": "16.2.6",

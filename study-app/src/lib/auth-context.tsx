@@ -23,6 +23,8 @@ interface AuthUser {
   tourSeen?: boolean;
   // Migration 051 — the one-time diagram walkthrough between the intro and the tour.
   walkthroughSeen?: boolean;
+  // Migration 056 — the one-time Coach walkthrough, which follows the diagram one.
+  coachWalkthroughSeen?: boolean;
   examDate?: string | null;
   lastDrillConfig?: {
     paper?: number;

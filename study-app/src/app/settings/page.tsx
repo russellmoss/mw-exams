@@ -56,6 +56,7 @@ export default function SettingsPage() {
   const [liveRadius, setLiveRadius] = useState("30");
   const [liveSaving, setLiveSaving] = useState(false);
   const [liveMsg, setLiveMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [replayState, setReplayState] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [accountDeleting, setAccountDeleting] = useState(false);
@@ -813,20 +814,60 @@ export default function SettingsPage() {
               <span className="text-xs text-muted">Saved automatically</span>
             </div>
             <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border">
+              {/* Resets ALL FOUR first-run flags, which is what "as if it were my first time" means.
+                  It used to clear only intro_seen and tour_seen, so the two walkthroughs in between —
+                  the diagrams and the Coach — stayed suppressed and the replay silently skipped the
+                  longest, most useful part of onboarding. Every stage the chain in ShellOnboarding
+                  knows about has to be listed here; a new stage that forgets to is invisible until
+                  someone notices it never replays. */}
               <button
-                onClick={() => {
+                disabled={replayState === "saving"}
+                onClick={async () => {
+                  setReplayState("saving");
+                  // The chain runs at most once per browser session; without clearing this, the reset
+                  // would not take effect until a new tab.
                   try { window.sessionStorage.removeItem("mw-intro-shown-this-session"); } catch {}
-                  fetch("/api/user/shell-prefs", {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ introSeen: false, tourSeen: false }),
-                  }).then(() => refresh()).catch(() => {});
+                  try {
+                    const res = await fetch("/api/user/shell-prefs", {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        introSeen: false,
+                        walkthroughSeen: false,
+                        coachWalkthroughSeen: false,
+                        tourSeen: false,
+                      }),
+                    });
+                    if (!res.ok) throw new Error(String(res.status));
+                    await refresh();
+                    setReplayState("done");
+                  } catch {
+                    // Say so rather than looking like nothing happened — the old version swallowed
+                    // every failure into an empty .catch().
+                    setReplayState("error");
+                  }
                 }}
-                className="rounded-lg border border-border px-4 py-2 text-sm text-muted hover:text-foreground hover:border-muted transition-colors cursor-pointer"
+                className={`rounded-lg border px-4 py-2 text-sm transition-colors cursor-pointer disabled:opacity-60 ${
+                  replayState === "done"
+                    ? "border-success bg-success/10 text-success"
+                    : replayState === "error"
+                      ? "border-fail bg-fail/10 text-fail"
+                      : "border-border text-muted hover:text-foreground hover:border-muted"
+                }`}
               >
-                Replay the intro &amp; tour
+                {replayState === "saving"
+                  ? "Resetting…"
+                  : replayState === "done"
+                    ? "✓ Reset — it'll run next time"
+                    : replayState === "error"
+                      ? "Didn't save — try again"
+                      : "Replay the full first-run tour"}
               </button>
-              <span className="text-xs text-muted">They&apos;ll run next time you open the home page.</span>
+              <span className="text-xs text-muted">
+                {replayState === "done"
+                  ? "Open the home page and you'll get the intro, the diagram walkthrough, the Coach walkthrough and the tour, in order."
+                  : "Resets all four: the intro, the diagram walkthrough, the Coach walkthrough and the spotlight tour."}
+              </span>
             </div>
           </section>
 

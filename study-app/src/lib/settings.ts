@@ -60,3 +60,22 @@ export async function isReasoningEnabled(): Promise<boolean> {
   if (process.env.REASONING_HARD_DISABLE === "1") return false;
   return (await getSetting<boolean>(REASONING_SETTING_KEY, true)) !== false;
 }
+
+export const COACH_SETTING_KEY = "coach_enabled";
+
+/**
+ * Whether the Coach dock is available.
+ *
+ * This one exists for a sharper reason than the other kill switches. The Coach ships to ALL users
+ * with no admin gate (plan §12), and its attempt-state gate is the only thing standing between a
+ * candidate mid-blind-attempt and the model answer in `generated_questions`. If a leak is ever
+ * found, the fix must not have to wait on a Vercel deploy — and the deploy quota has previously
+ * blocked urgent fixes for hours. So: DB toggle for an instant remote kill, plus the
+ * COACH_HARD_DISABLE env override for when the database itself is the problem.
+ *
+ * Defaults to TRUE (a kill switch over shipped behaviour, like reasoning).
+ */
+export async function isCoachEnabled(): Promise<boolean> {
+  if (process.env.COACH_HARD_DISABLE === "1") return false;
+  return (await getSetting<boolean>(COACH_SETTING_KEY, true)) !== false;
+}

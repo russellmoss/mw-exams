@@ -636,12 +636,14 @@ export function DiagramWalkthrough({ onDone }: Props) {
                   </p>
                 </div>
               </div>
+              {/* Hands off to the Coach walkthrough, which is the next stage in the first-run chain
+                  (ShellOnboarding). The label names what actually comes next rather than the tour. */}
               <button
                 onClick={() => onDone(true)}
                 className="rounded-lg bg-accent hover:bg-accent-hover px-8 py-3 text-base font-semibold text-background transition-colors cursor-pointer"
                 style={fadeUp(1000)}
               >
-                Show me around the app &rarr;
+                Now meet your Coach &rarr;
               </button>
               <p className="text-xs text-muted mt-5" style={fadeUp(1200)}>
                 You can replay this any time from the Library.

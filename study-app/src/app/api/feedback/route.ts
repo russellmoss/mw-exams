@@ -17,6 +17,12 @@ const RATE_LIMIT_PER_HOUR = 10;
 // Feedback tab (migration 053). Writes the SAME user_attempts feedback store the History flow and
 // /api/admin/feedback already use, so the item shows up in /admin with no new admin surface. No LLM
 // call here — the existing sweep/analysis cron picks up question-scoped feedback unchanged.
+//
+// NO UI CALLS THIS ANY MORE. The tab it was built for is gone; feedback is filed conversationally
+// through the Coach's write tools, which land in the same store via the same recordTabFeedback.
+// It is kept deliberately rather than deleted, as the break-glass path: it authenticates on the
+// session alone and needs no Anthropic key, so it still works when COACH_HARD_DISABLE is set or the
+// admin Coach toggle is off — the two states in which the conversational path does not exist.
 export async function POST(request: Request) {
   try {
     const user = await getUser(request);
