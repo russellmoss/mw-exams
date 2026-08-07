@@ -4,6 +4,7 @@ import {
   createLiveTastingPaper,
   getPaperSessions,
   getQuestionById,
+  getUnservableQuestionIds,
   linkSessionToPaper,
   releaseFlightPosition,
   retireUnlinkedSession,
@@ -179,7 +180,27 @@ export async function generateNextFlight(opts: {
 
   const composition = paperComposition(paper);
   const children = await getPaperSessions(paper.id);
-  const have = new Set(children.map((c) => c.paper_position));
+
+  // A position counts as BUILT only if its flight is servable. Until 2026-08-07 the check was "a session
+  // exists", so a quarantined question left the position permanently occupied: `next` skipped it, the
+  // unique index refused a second link, and the candidate had a dead flight no UI could clear. The
+  // 20:40 UTC audit sweep created exactly that on a live paper.
+  //
+  // Reclaim only what nobody has acted on. A flight whose shopping list has been opened, shared, entered
+  // or graded may already be BOTTLES ON A TABLE — silently swapping its wines is worse than surfacing the
+  // problem, so those keep their position and the paper API reports them as unservable for an explicit
+  // rebuild (POST .../flight/[position]/rebuild).
+  const untouched = (c: LiveTastingSession) =>
+    !c.user_revealed_at && !c.share_token_hash && !c.token_first_used_at && !c.attempt_id && !c.graded_at && !c.entered_wines;
+  const unservable = await getUnservableQuestionIds(children.map((c) => c.question_id));
+  const reclaim = children.filter((c) => c.question_id && unservable.has(c.question_id) && untouched(c));
+  for (const c of reclaim) {
+    // Unlink first: the position must be free before the replacement flight can take the unique index.
+    emit?.({ type: "status", label: `Flight ${c.paper_position} failed validation — rebuilding it…` });
+    await retireUnlinkedSession(c.id);
+  }
+  const reclaimed = new Set(reclaim.map((c) => c.id));
+  const have = new Set(children.filter((c) => !reclaimed.has(c.id)).map((c) => c.paper_position));
   const next = composition.find((c) => !have.has(c.position));
   if (!next) return { done: true };
 

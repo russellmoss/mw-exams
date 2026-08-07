@@ -21,6 +21,7 @@ const db = vi.hoisted(() => ({
   linkSessionToPaper: vi.fn(),
   getPaperSessions: vi.fn(),
   getQuestionById: vi.fn(),
+  getUnservableQuestionIds: vi.fn(),
   createLiveTastingPaper: vi.fn(),
 }));
 vi.mock("@/lib/db", () => db);
@@ -61,6 +62,7 @@ describe("flight generation claims its position", () => {
     db.getQuestionById.mockResolvedValue({ question_text: "Wines 1-3 …" });
     db.claimFlightPosition.mockResolvedValue(true);
     db.linkSessionToPaper.mockResolvedValue(true);
+    db.getUnservableQuestionIds.mockResolvedValue(new Set());
     engine.createLiveTasting.mockResolvedValue({ session: { id: "lts_new" } });
   });
 
@@ -114,6 +116,63 @@ describe("flight generation claims its position", () => {
 
     expect(await run()).toEqual({ done: true });
     expect(db.claimFlightPosition).not.toHaveBeenCalled();
+  });
+});
+
+// A position is only BUILT if its flight is SERVABLE. Until 2026-08-07 the test was "a session exists",
+// so a quarantined question occupied the slot forever: `next` skipped it and the unique index refused a
+// replacement. The 20:40 UTC audit sweep did exactly that to three flights of a live paper.
+describe("an unservable flight does not count as a built position", () => {
+  const DEAD = { id: "lts_dead", paper_position: 2, question_id: "gen_dead", archetype: "mixed-variety" };
+
+  beforeEach(() => {
+    for (const fn of Object.values(db)) fn.mockReset();
+    engine.createLiveTasting.mockReset();
+    db.getQuestionById.mockResolvedValue({ question_text: "Wines 1-3 …" });
+    db.claimFlightPosition.mockResolvedValue(true);
+    db.linkSessionToPaper.mockResolvedValue(true);
+    engine.createLiveTasting.mockResolvedValue({ session: { id: "lts_new" } });
+  });
+
+  it("retires an untouched dead flight and regenerates that position", async () => {
+    db.getPaperSessions.mockResolvedValue([...EXISTING, DEAD]);
+    db.getUnservableQuestionIds.mockResolvedValue(new Set(["gen_dead"]));
+
+    const out = await run();
+
+    // Unlinked FIRST — the position must be free before the replacement can take the unique index.
+    expect(db.retireUnlinkedSession).toHaveBeenCalledWith("lts_dead");
+    expect(db.retireUnlinkedSession.mock.invocationCallOrder[0]).toBeLessThan(
+      db.claimFlightPosition.mock.invocationCallOrder[0]
+    );
+    expect(db.claimFlightPosition).toHaveBeenCalledWith("ltpr_test", 2);
+    expect(out).toMatchObject({ position: 2, sessionId: "lts_new" });
+  });
+
+  it.each([
+    ["the shopping list was opened", { user_revealed_at: "2026-08-07T12:00:00Z" }],
+    ["it was shared with a partner", { share_token_hash: "abc" }],
+    ["the partner opened the link", { token_first_used_at: "2026-08-07T12:00:00Z" }],
+    ["an answer was submitted", { attempt_id: 42 }],
+    ["it was graded", { graded_at: "2026-08-07T12:00:00Z" }],
+    ["wines were entered", { entered_wines: [{ slot: 1 }] }],
+  ])("leaves a dead flight alone when %s", async (_why, activity) => {
+    // Those bottles may already be on a table. Swapping the wines under the candidate is worse than
+    // surfacing the problem, so the position stands and the paper API offers an explicit rebuild.
+    db.getPaperSessions.mockResolvedValue([...EXISTING, { ...DEAD, ...activity }]);
+    db.getUnservableQuestionIds.mockResolvedValue(new Set(["gen_dead"]));
+
+    expect(await run()).toEqual({ done: true });
+    expect(db.retireUnlinkedSession).not.toHaveBeenCalled();
+    expect(engine.createLiveTasting).not.toHaveBeenCalled();
+  });
+
+  it("treats a servable flight as built (no reclaim, no regeneration)", async () => {
+    db.getPaperSessions.mockResolvedValue([...EXISTING, DEAD]);
+    db.getUnservableQuestionIds.mockResolvedValue(new Set());
+
+    expect(await run()).toEqual({ done: true });
+    expect(db.retireUnlinkedSession).not.toHaveBeenCalled();
   });
 });
 

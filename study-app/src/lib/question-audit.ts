@@ -14,6 +14,32 @@
 
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion, type AuditWine, type Violation } from "./question-validator";
+
+// Live Tasting questions (scope='live-tasting') are pinned to an availability-confirmed flight:
+// bank-COMPOSITION rules (banker minimum / curveball mix / producer over-use) judge what should enter
+// the shared pool, not what a user can buy — E2E run 9 quarantined a valid 2-wine home flight for "no
+// banker". Key-consistency, colour/paper-scope and answer-content rules still apply.
+export const BANK_COMPOSITION_RULES = new Set([
+  "flight-composition", "producer-exclusion", "banker",
+  // Mark-split caps are pool-quality standards; the pinned generator deliberately skips the matching
+  // markMix nudge, so auditing them here just quarantines valid home flights (run 12).
+  "id-mark-allocation",
+]);
+
+/**
+ * The hard violations that should actually quarantine a question, given its scope.
+ *
+ * EXPORTED because the corpus sweep (scripts/audit-questions.mjs) must apply the IDENTICAL filter. It
+ * didn't — it derived its own `severity === "hard"` list with no scope awareness — and the 2026-08-07
+ * 20:40 UTC run quarantined ten valid Live Tasting flights on bank-composition rules this module
+ * exempts by design, including every flight of a candidate's in-progress Paper 2. Two callers judging
+ * the same rows by different rules is the defect; one function is the fix.
+ */
+export function hardViolationsForScope(violations: Violation[], scope: string | null | undefined): Violation[] {
+  return violations.filter(
+    (v) => v.severity === "hard" && !(scope === "live-tasting" && BANK_COMPOSITION_RULES.has(v.rule))
+  );
+}
 // Registers the appellation → primary-variety fallback that R-COLOUR needs. Without it
 // detectPrimaryVariety returns "unknown" for every appellation-only label — Hermitage,
 // Châteauneuf-du-Pape, Viña Tondonia — and the audit silently exempts the exact wines it exists to
@@ -72,21 +98,7 @@ export async function auditAndQuarantineQuestion(
     // is normally present; if it failed to generate, the daily sweep re-audits once it exists.
     modelAnswer: (r.model_answer as string | null) ?? null,
   });
-  // Live Tasting questions (scope='live-tasting') are pinned to an availability-confirmed
-  // flight: bank-COMPOSITION rules (banker minimum / curveball mix / producer over-use) judge
-  // what should enter the shared pool, not what a user can buy — E2E run 9 quarantined a valid
-  // 2-wine home flight for "no banker". Key-consistency and answer-content rules still apply.
-  const BANK_COMPOSITION_RULES = new Set([
-    "flight-composition", "producer-exclusion", "banker",
-    // Mark-split caps are pool-quality standards; the pinned generator deliberately skips the
-    // matching markMix nudge, so auditing them here just quarantines valid home flights (run 12).
-    "id-mark-allocation",
-  ]);
-  const hard = res.violations.filter(
-    (v) =>
-      v.severity === "hard" &&
-      !(r.scope === "live-tasting" && BANK_COMPOSITION_RULES.has(v.rule))
-  );
+  const hard = hardViolationsForScope(res.violations, r.scope as string | null);
   if (hard.length > 0) {
     // Same two flags, same shape, as apply-change.ts and the corpus audit: the main study flow gates
     // on generated_questions.invalid_reasons, the drills on stem_answer_keys.validated.

@@ -17,6 +17,10 @@
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion } from "../src/lib/question-validator.ts";
+// The SAME scope filter the per-question audit applies (question-audit.ts). Deriving a second,
+// scope-blind severity filter here is what let the 2026-08-07 sweep quarantine ten valid Live Tasting
+// flights on rules that module exempts for that scope.
+import { hardViolationsForScope } from "../src/lib/question-audit.ts";
 // Load-bearing: registers the appellation → primary-variety fallback. This script runs in its own
 // process, so without this import detectPrimaryVariety returns "unknown" for every appellation-only
 // label and the sweep cannot see a Hermitage sitting in a Paper 1 flight.
@@ -46,7 +50,7 @@ if (apply) {
 // the wine-reference-shape rule needs the original string, which ground_truth has already thrown away.
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-         k.ground_truth, k.validated
+         g.scope, k.ground_truth, k.validated
   FROM generated_questions g JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
@@ -71,7 +75,7 @@ for (const r of rows) {
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;
-  const hardAll = res.violations.filter((x) => x.severity === "hard");
+  const hardAll = hardViolationsForScope(res.violations, r.scope);
   // In scoped mode only the named rules can quarantine; everything else is still REPORTED.
   const hard = scoped ? hardAll.filter((x) => onlyRules.includes(x.rule)) : hardAll;
   for (const x of res.violations) byRule[x.rule] = (byRule[x.rule] || 0) + 1;

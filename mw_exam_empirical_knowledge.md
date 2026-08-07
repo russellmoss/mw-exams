@@ -1724,6 +1724,58 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0160 · "A session exists" is not "the flight is built" — quarantine left un-rebuildable holes
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07
+- **evidence:** paper `ltpr_egt9dfy3e` position 2 (`gen_p2_F2_1786105715559`, quarantined
+  `wrong_colour_for_paper`); `generateNextFlight` in `study-app/src/lib/live-tasting-paper-engine.ts`;
+  `study-app/src/app/api/live-tasting/paper/[id]/flight/[position]/rebuild/route.ts`;
+  `study-app/tests/live-tasting-flight-claim.test.ts`
+- **claim:** the paper engine treated a position as built if a child session existed, regardless of whether
+  its question was servable. Quarantine anything — a real defect, a validator false positive, an
+  over-broad sweep — and the position was occupied forever: `next` skipped it, migration 058's unique
+  index refused a replacement link, and the candidate had a dead flight no UI could clear. The three
+  defences (auto-quarantine, unique index, position-done check) were each individually right and jointly
+  produced a state with no exit.
+- **fix, split by who owns the decision:** the engine reclaims (unlink + soft-abandon, then regenerate)
+  only flights **nobody has acted on** — no reveal, no share, no partner open, no attempt, no grade, no
+  entered wines. A flight whose shopping list has been opened may already be **bottles on a table**, so
+  swapping its wines is the candidate's call: the paper API reports `unservable` + `rebuildable` per
+  flight, the UI shows "Needs rebuild" instead of "Ready to taste", and an explicit rebuild route retires
+  the session. `rebuildable` is false once marks are banked — rebuilding then rewrites a result rather
+  than repairing a hole.
+- **also fixed by the same flag:** the exam-conditions start gate counted a dead flight as ready, so a
+  candidate could start a timed paper containing a question that cannot be graded — a whole flight's marks
+  lost to the real rule that unanswered = zero.
+- **generalisation:** every "is this work done?" predicate that reads existence rather than VALIDITY
+  becomes a trap the moment a validity gate is added elsewhere. Ask what makes the artifact *usable*, not
+  whether a row is present.
+
+### EK-0159 · Two audit callers, two filters: the corpus sweep quarantined valid Live Tasting flights
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07 (same day the sweep was re-armed)
+- **evidence:** workflow run 31216845148 (`question-audit-daily`, workflow_dispatch, 2026-08-07 20:40 UTC,
+  343 quarantined); `study-app/src/lib/question-audit.ts`; `study-app/scripts/audit-questions.mjs`;
+  `study-app/tests/question-audit-scope.test.ts`
+- **claim:** the per-question audit exempts bank-COMPOSITION rules (`flight-composition`, `banker`,
+  `producer-exclusion`, `id-mark-allocation`) for `scope='live-tasting'` — a home flight is pinned to
+  wines a candidate can actually buy, so pool-quality composition standards judge it against a bar it was
+  never built to meet. The **corpus sweep re-ran the same validator with its own `severity === "hard"`
+  filter and no scope awareness at all**, so the first re-armed run quarantined **ten** valid Live Tasting
+  flights on exempt rules alone — including three of the four flights of an in-progress Paper 2 paper
+  (`ltpr_egt9dfy3e`), i.e. it broke a candidate's paper mid-use. Fixed by exporting
+  `hardViolationsForScope` from the audit module and having the sweep call it; the sweep now also selects
+  `g.scope`, without which the filter degrades silently to "nothing is live-tasting".
+- **generalisation:** when two callers evaluate the same rows against the same rules, the *filter* is part
+  of the rule set. Duplicating it is the same class of bug as duplicating a rule — and EK-0040's whole
+  reason for existing (one source of truth in `question-rules.mjs`) applies to the exemption logic too.
+- **what the sweep caught correctly, in the same run:** `wrong_colour_for_paper` on a Live Tasting Paper 2
+  flight holding **Abbazia di Novacella Kerner — a white wine** (`gen_p2_F2_1786105715559`, position 2 of
+  that same paper), plus two more colour breaches and an R11 sweetness violation. Those stay quarantined.
+  Colour, key-consistency and answer-content rules are NOT exempt for live-tasting and must never be: they
+  decide whether the question is answerable, not whether it belongs in the pool.
+- **still open:** a quarantined Live Tasting flight leaves its paper position occupied with no path to
+  regenerate — `generateNextFlight` counts a position as done if a session exists, valid or not. Position 2
+  of that paper is a real hole a candidate cannot clear from the UI.
+
 ### EK-0158 · Check-then-act on a paper position billed three Opus generations for one flight
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07 (migration 058)
 - **evidence:** paper `ltpr_egt9dfy3e` position 4 held THREE sessions (`lts_c6635vxn1` 12:30:29.142,

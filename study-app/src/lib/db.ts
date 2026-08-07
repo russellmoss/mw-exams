@@ -4618,6 +4618,29 @@ export async function linkSessionToPaper(sessionId: string, paperId: string, pos
   }
 }
 
+/**
+ * Which of these questions are NOT servable — quarantined, or carrying an invalidated answer key.
+ *
+ * THE definition of "this flight is unusable", shared by everything that needs it: the paper engine (to
+ * decide whether a position still counts as built), the paper API (to tell the candidate), and the
+ * rebuild route. `verifyQuestionServable` in live-tasting-engine.ts is the single-row form of the same
+ * predicate. Ids with no question row are treated as servable — absence is a different failure, and
+ * inventing a quarantine for it would hide it.
+ */
+export async function getUnservableQuestionIds(questionIds: (string | null)[]): Promise<Set<string>> {
+  const ids = questionIds.filter((id): id is string => Boolean(id));
+  if (ids.length === 0) return new Set();
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT g.question_id
+    FROM generated_questions g
+    LEFT JOIN stem_answer_keys k ON k.question_id = g.question_id
+    WHERE g.question_id = ANY(${ids})
+      AND (g.invalid_reasons IS NOT NULL OR k.validated = false)
+  `) as { question_id: string }[];
+  return new Set(rows.map((r) => r.question_id));
+}
+
 /** Unlink a session from its paper and soft-retire it (the losing side of a link race). */
 export async function retireUnlinkedSession(sessionId: string): Promise<void> {
   const sql = getDb();

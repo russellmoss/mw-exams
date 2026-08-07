@@ -18,6 +18,10 @@ type Flight = {
   questionText?: string | null;
   totalMarks?: number;
   marksLow?: number | null;
+  /** The flight's question is quarantined / its answer key invalidated: it cannot be tasted as it is. */
+  unservable?: boolean;
+  /** …and no marks are banked yet, so the candidate can have it rebuilt. */
+  rebuildable?: boolean;
 };
 
 type PaperDetail = {
@@ -73,6 +77,7 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
   const [sendBusy, setSendBusy] = useState(false);
   const [sendMsg, setSendMsg] = useState<string | null>(null);
   const generating = useRef(false);
+  const [rebuilding, setRebuilding] = useState<number | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
@@ -160,9 +165,35 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
     }
   }, [id, load]);
 
+  // Retire a dead flight the candidate has already opened, then let the chain rebuild that position.
+  // Their call, not a background sweep's: the shopping list may already be bottles on their table.
+  const rebuildFlight = useCallback(
+    async (position: number) => {
+      setRebuilding(position);
+      setGenError(null);
+      try {
+        const res = await fetch(`/api/live-tasting/paper/${id}/flight/${position}/rebuild`, { method: "POST" });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `Rebuild failed (${res.status})`);
+        }
+        await load();
+        // The load() above clears `unservable`, so the generation effect picks the position up as missing.
+      } catch (err) {
+        setGenError(err instanceof Error ? err.message : "Rebuild failed.");
+      } finally {
+        setRebuilding(null);
+      }
+    },
+    [id, load]
+  );
+
   useEffect(() => {
     if (!paper) return;
-    const missing = paper.flights.some((f) => f.state === "pending");
+    // An unservable flight is a HOLE, not a built flight: the engine reclaims and regenerates the ones
+    // nobody has opened, so the chain has to start for them. A dead flight the candidate HAS opened is
+    // left to the explicit Rebuild button — /next reports done for it, so this can't spin.
+    const missing = paper.flights.some((f) => f.state === "pending" || f.unservable);
     if (paper.mode === "pick-for-me" && missing && !generating.current && !genError) {
       chainGeneration();
     }
@@ -192,7 +223,7 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
     );
   }
 
-  const allGenerated = paper.flights.every((f) => f.state !== "pending");
+  const allGenerated = paper.flights.every((f) => f.state !== "pending" && !f.unservable);
   const examRunning = Boolean(paper.examStartedAt && paper.examDeadlineAt);
   const deadlinePassed = Boolean(paper.examDeadlineAt && new Date(paper.examDeadlineAt).getTime() < Date.now());
   const wineWord = paper.size === "full" ? "12 bottles" : "6 bottles";
@@ -417,14 +448,37 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
                       <span className="text-accent font-semibold ml-2 tabular-nums">{f.marksLow}+ marks</span>
                     )}
                   </p>
-                  <span className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full border ${FLIGHT_CHIP[f.state].cls}`}>
-                    {FLIGHT_CHIP[f.state].label}
+                  <span
+                    className={`shrink-0 text-xs font-medium px-2.5 py-1 rounded-full border ${
+                      f.unservable ? "text-fail border-fail/40 bg-fail/10" : FLIGHT_CHIP[f.state].cls
+                    }`}
+                  >
+                    {f.unservable ? "Needs rebuild" : FLIGHT_CHIP[f.state].label}
                   </span>
                 </div>
-                {f.questionText && (
+                {f.questionText && !f.unservable && (
                   <p className="text-sm text-muted whitespace-pre-wrap leading-relaxed line-clamp-3 mb-3">
                     {f.questionText}
                   </p>
+                )}
+                {f.unservable && (
+                  <div className="mt-2 mb-3 rounded-lg border border-fail/40 bg-fail/10 p-3">
+                    <p className="text-sm text-foreground font-medium">This flight didn&apos;t pass validation</p>
+                    <p className="text-xs text-muted mt-1">
+                      {f.rebuildable
+                        ? "Its question was withdrawn by the examiner checks, so it can't be tasted or graded. Rebuilding picks fresh wines for this slot."
+                        : "Its question was withdrawn by the examiner checks after this flight was graded, so the marks stand but the question can't be re-served."}
+                    </p>
+                    {f.rebuildable && (
+                      <button
+                        onClick={() => rebuildFlight(f.position)}
+                        disabled={rebuilding === f.position}
+                        className="mt-3 text-sm font-medium text-accent hover:text-accent-hover disabled:opacity-50"
+                      >
+                        {rebuilding === f.position ? "Rebuilding…" : "Rebuild this flight →"}
+                      </button>
+                    )}
+                  </div>
                 )}
                 {!f.sessionId && paper.mode === "byo" && paper.briefSelfOpened && (
                   <div className="mt-2 pt-3 border-t border-border">
@@ -438,7 +492,7 @@ export default function LiveTastingPaperPage({ params }: { params: Promise<{ id:
                     />
                   </div>
                 )}
-                {f.sessionId && (
+                {f.sessionId && !f.unservable && (
                   <Link
                     href={`/live-tasting/${f.sessionId}`}
                     className="inline-block text-sm text-accent hover:text-accent-hover font-medium"
