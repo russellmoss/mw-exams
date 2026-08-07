@@ -3976,6 +3976,15 @@ export async function getUserStats(userId: number): Promise<UserStats> {
 
   // The exam-readiness scoreboard reflects full study reps only — Stem Sniper / Reverse Tasting
   // drills have no pass/fail and would deflate the pass rate and inflate the totals, so exclude them.
+  //
+  // General app-level feedback (Feedback tab, migration 053) is stored as a user_attempts row with
+  // mode='full' and no question, so it lands inside the mode filter without being a study rep: each
+  // submission would add one to total_attempts and show up on /history as an attempt "in progress".
+  // Excluded with the same predicate getUserAttempts uses, so the scoreboard and the attempt list
+  // below it agree on what counts. Deliberately NOT keyed on source='feedback_tab': recordTabFeedback
+  // stamps that source onto the *existing* attempt when feedback is left on a question you answered
+  // (see the UPDATE in recordTabFeedback), so excluding by source would delete real completed reps —
+  // and their pass/fail — from the scoreboard. `scope` is the field that distinguishes the two.
   const totals = await sql`
     SELECT
       COUNT(*)::int as total_attempts,
@@ -3985,6 +3994,7 @@ export async function getUserStats(userId: number): Promise<UserStats> {
       COUNT(CASE WHEN pass_estimate = 'borderline' THEN 1 END)::int as borderline_count
     FROM user_attempts
     WHERE user_id = ${userId} AND (mode IS NULL OR mode = 'full')
+      AND (scope IS DISTINCT FROM 'general')
   `;
 
   // By paper
@@ -4018,12 +4028,14 @@ export async function getUserStats(userId: number): Promise<UserStats> {
     ORDER BY total DESC
   `;
 
-  // Recent 5 results
+  // Recent 5 results. A feedback row can't reach here anyway (no completed_at, no pass_estimate),
+  // but carry the same exclusion so every arm of this function agrees on what a study rep is.
   const recentResults = await sql`
     SELECT pass_estimate, started_at
     FROM user_attempts
     WHERE user_id = ${userId} AND completed_at IS NOT NULL AND pass_estimate IS NOT NULL
       AND (mode IS NULL OR mode = 'full')
+      AND (scope IS DISTINCT FROM 'general')
     ORDER BY completed_at DESC
     LIMIT 5
   `;
