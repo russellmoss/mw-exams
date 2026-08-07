@@ -15,6 +15,9 @@ import {
   normStem,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
+// Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
+// style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
+import { classifyWineStyle } from "./p3-category.mjs";
 
 export type StemSniperScoringModel = "per-wine" | "set";
 
@@ -846,6 +849,86 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// PAPER STYLE MIX — the wine-style mix of a flight must fit the paper it is set for (feedback cluster
+// fb_145 / fb_71 / fb_47, cross-paper).
+//
+// Paper identity was never constrained by wine STYLE, so the generator produced flights that read as
+// the wrong paper: Paper 3 got a pair of two still white wines made by different methods (fb_145 — the
+// reviewer notes Paper 3 "focuses very heavily on sparkling, sweet, and fortified wines with occasional
+// rosés", and a still-only pair is a Paper 1 question), while Paper 1 got two sparkling wines in one
+// four-wine flight (fb_47) and a sparkling-plus-medium-sweet flight crowding out the classics (fb_71).
+//
+// This rule tags every KEYED wine's dominant style — still / sparkling / fortified / sweet / rosé —
+// via the shared classifyWineStyle() (rosé cross-cuts, so it is counted separately), then applies a
+// per-paper predicate:
+//   • Paper 3 — reject any flight in which FEWER THAN HALF the wines (and at minimum one) are
+//     sparkling, sweet, fortified or rosé. A still-only or still-dominant flight is a Paper 1/2 flight.
+//   • Paper 1 — reject a flight with MORE THAN ONE sparkling wine, or with ANY fortified wine. (An
+//     occasional single sparkling is fine; sweetness is left unconstrained here.)
+//   • Paper 2 — unconstrained.
+// Every rejection emits PAPER_STYLE_MIX with the paper, the counted styles, and the rule that fired.
+// ---------------------------------------------------------------------------------------------------
+
+/** The dominant style + rosé flag of a keyed wine, resolved from its style/style_category/label. */
+function wineStyleTags(w: AuditWine): { style: string; isRose: boolean } {
+  const text = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
+  return classifyWineStyle(text);
+}
+
+export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violation[] {
+  const flight = wines || [];
+  const n = flight.length;
+  if (n === 0) return [];
+
+  const tagged = flight.map(wineStyleTags);
+  const counts = {
+    sparkling: tagged.filter((t) => t.style === "sparkling").length,
+    fortified: tagged.filter((t) => t.style === "fortified").length,
+    sweet: tagged.filter((t) => t.style === "sweet").length,
+    rose: tagged.filter((t) => t.isRose).length,
+  };
+  // Wines carrying a Paper-3 character style (rosé cross-cuts, so count each wine once).
+  const p3Character = tagged.filter(
+    (t) => t.isRose || t.style === "sparkling" || t.style === "sweet" || t.style === "fortified"
+  ).length;
+  const countsLabel = `sparkling ${counts.sparkling}, sweet ${counts.sweet}, fortified ${counts.fortified}, rosé ${counts.rose}`;
+  const v: Violation[] = [];
+
+  if (paper === 3) {
+    // Fewer than half (and at minimum one) sparkling/sweet/fortified/rosé → a Paper 1/2 flight.
+    if (p3Character < 1 || p3Character * 2 < n) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 3 flight of ${n} wines has only ${p3Character} sparkling/sweet/fortified/rosé wine${
+          p3Character === 1 ? "" : "s"
+        } (${countsLabel}) — Paper 3 leans heavily on those styles, so at least half of the flight (and a minimum of one) must be sparkling, sweet, fortified or rosé. A still-only or still-dominant flight belongs on Paper 1 or 2. Rule fired: p3-min-half-special.`,
+      });
+    }
+  } else if (paper === 1) {
+    // At most one sparkling wine; no fortified wine (Paper 1 tests the still classics).
+    if (counts.sparkling > 1) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 1 flight has ${counts.sparkling} sparkling wines (${countsLabel}) — at most one sparkling wine is realistic on Paper 1, which tests the still classics. Rule fired: p1-max-one-sparkling.`,
+      });
+    }
+    if (counts.fortified > 0) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 1 flight contains ${counts.fortified} fortified wine${
+          counts.fortified === 1 ? "" : "s"
+        } (${countsLabel}) — fortified wines belong on Paper 3, not Paper 1. Rule fired: p1-no-fortified.`,
+      });
+    }
+  }
+  // Paper 2 is intentionally unconstrained.
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -872,6 +955,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
+  violations.push(...validatePaperStyleMix(q.paper, q.wines));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

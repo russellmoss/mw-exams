@@ -81,6 +81,7 @@ import {
   crossCheckStemFacts,
   stemPreannouncesDiscriminator,
   contrastIntegrityViolations,
+  validatePaperStyleMix,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -1424,6 +1425,14 @@ ${repairContext.draft}`,
     const contrastCheck = {
       violations: contrastIntegrityViolations(auditDraft).map((v) => v.detail),
     };
+    // Paper style-mix (feedback fb_145 / fb_71 / fb_47): the flight's wine-style mix must fit the
+    // paper — Paper 3 needs at least half sparkling/sweet/fortified/rosé, Paper 1 rejects >1 sparkling
+    // or any fortified. Mirrored here as a pre-selection filter so the generator rarely drafts a
+    // rejectable flight, with validatePaperStyleMix in the audit as the authoritative gate. Pinned
+    // (Live Tasting) skips it — the flight was fixed upstream by retail availability, not chosen here.
+    const paperStyleMixCheck = {
+      violations: pinned ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
+    };
 
     // Critical validators (always run)
     // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
@@ -1560,6 +1569,10 @@ ${repairContext.draft}`,
       idMarkAllocation: idMarkCheck,
       stemFacts: stemFactsCheck,
       contrastIntegrity: contrastCheck,
+      // Paper style-mix: BLOCKS on every path and never relaxes (like the other audit-grade rules) —
+      // it is exactly what validatePaperStyleMix will quarantine post-save, and the fix is a fresh
+      // wine choice the redraft loop can make.
+      paperStyleMix: paperStyleMixCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
       markRealism: markRealismCheck,
