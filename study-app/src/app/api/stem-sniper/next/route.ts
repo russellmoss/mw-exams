@@ -28,11 +28,19 @@ export async function GET(request: Request) {
     FROM generated_questions q
     JOIN stem_answer_keys k ON k.question_id = q.question_id
     WHERE k.validated = true
+      -- Bank review gate (migration 025). This read was MISSING it (found 2026-08-07): every other
+      -- serve path filters review_state, so binned questions were reachable here and nowhere else —
+      -- 22 of them at the time of the fix. The sibling drill/produce.ts had the gate; this one was
+      -- overlooked when the rule was rolled out.
+      AND q.review_state = 'kept'
       -- Live Tasting questions (migration 041) belong to one user's session, never the drill pool.
       AND q.scope = 'pool'
       AND (${paper}::int IS NULL OR q.paper = ${paper}::int)
       AND (${family}::text IS NULL OR q.family = ${family}::text)
-    ORDER BY random()
+    -- Reviewed-first: review_state defaults to 'kept' but review_status defaults to 'unreviewed',
+    -- so the gate above admits never-reviewed questions. Prefer human-approved ones, fall back to
+    -- unreviewed rather than starving the drill. See src/lib/db.ts getEligibleBankedQuestions.
+    ORDER BY (q.review_status = 'kept') DESC, random()
     LIMIT 1
   `;
   const r = rows[0];

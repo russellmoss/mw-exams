@@ -693,7 +693,7 @@ export async function getQuestionsByFilter(
           SELECT 1 FROM stem_answer_keys k
           WHERE k.question_id = generated_questions.question_id AND k.validated = false
         )
-      ORDER BY created_at DESC
+      ORDER BY (review_status = 'kept') DESC, created_at DESC
     `) as GeneratedQuestion[];
   }
   return (await sql`
@@ -706,7 +706,7 @@ export async function getQuestionsByFilter(
         SELECT 1 FROM stem_answer_keys k
         WHERE k.question_id = generated_questions.question_id AND k.validated = false
       )
-    ORDER BY created_at DESC
+    ORDER BY (review_status = 'kept') DESC, created_at DESC
   `) as GeneratedQuestion[];
 }
 
@@ -947,7 +947,7 @@ export async function getUnansweredQuestions(
         AND q.model_answer IS NOT NULL
         AND length(q.model_answer) > 100
         AND a.id IS NULL
-      ORDER BY q.created_at ASC
+      ORDER BY (q.review_status = 'kept') DESC, q.created_at ASC
     `) as GeneratedQuestion[];
   }
   return (await sql`
@@ -967,7 +967,7 @@ export async function getUnansweredQuestions(
       AND q.model_answer IS NOT NULL
       AND length(q.model_answer) > 100
       AND a.id IS NULL
-    ORDER BY q.created_at ASC
+    ORDER BY (q.review_status = 'kept') DESC, q.created_at ASC
   `) as GeneratedQuestion[];
 }
 
@@ -1072,6 +1072,21 @@ export async function getBankCount(
 // The newest eligible (unseen, not retired) banked questions for a user, most-recent-first. The
 // caller picks one at random from this window — recency weighting, per the feature spec: pick from
 // the 20 newest eligible, or from all eligible when fewer than 20 exist.
+//
+// REVIEWED-FIRST (2026-08-07). `review_state` defaults to 'kept' on insert while `review_status`
+// defaults to 'unreviewed' — two different columns. Every serve path gates on the former, so a
+// freshly generated question is servable the instant it exists, before any human has looked at it.
+// Combined with `created_at DESC` that was actively perverse: unreviewed questions are by
+// definition the newest, so recency weighting served the LEAST-vetted material first. Measured
+// 2026-08-07: 99 of the 126 distinct questions ever served (79%) had review_status='unreviewed',
+// against a 33.7% human bin rate on the questions that DID get reviewed — i.e. roughly a third of
+// what candidates studied was material the reviewer would have thrown away.
+//
+// This is a PREFERENCE, not a filter: reviewed-kept questions sort first, unreviewed fall back
+// behind them, and recency still orders within each tier. A hard filter would cut the servable pool
+// from 550 to 309 and could starve a candidate mid-session, which is a worse failure than showing
+// an unvetted question. Retiring the fallback entirely is Phase 2 of
+// docs/plans/2026-08-07-generation-quality-and-cost.md, once the review backlog is cleared.
 export async function getEligibleBankedQuestions(
   userId: number,
   paper: number,
@@ -1096,7 +1111,7 @@ export async function getEligibleBankedQuestions(
         SELECT 1 FROM question_views v
         WHERE v.question_id = q.question_id AND v.user_id = ${userId}
       )
-    ORDER BY q.created_at DESC
+    ORDER BY (q.review_status = 'kept') DESC, q.created_at DESC
     LIMIT ${limit}
   `) as GeneratedQuestion[];
 }

@@ -91,7 +91,10 @@ async function pickBankedDrill(paper: number | null, family: string | null, vari
           )
         )
       )
-    ORDER BY random()
+    -- Reviewed-first: the review_state gate above admits never-reviewed questions (review_state
+    -- defaults to 'kept', review_status to 'unreviewed'). Prefer human-approved, fall back rather
+    -- than starving the drill. See src/lib/db.ts getEligibleBankedQuestions.
+    ORDER BY (q.review_status = 'kept') DESC, random()
     LIMIT 1
   `;
   return rows[0] ? toDrillStem(rows[0] as unknown as DrillStemSource) : null;

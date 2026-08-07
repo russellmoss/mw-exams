@@ -1,7 +1,7 @@
 # Question & Answer Generation: Quality + Cost Remediation
 
 **Date:** 2026-08-07
-**Status:** v3 — hardened after three adversarial council passes (Gemini 3.1 Pro)
+**Status:** v4 — council-hardened, plus the serve-gate fix shipped in this branch
 **Branch:** `claude/question-generation-quality-132871`
 
 > **Changelog.** Council review overturned **two** headline findings and forced five structural
@@ -13,6 +13,12 @@
 >   counter**. `served_count` under-records by ~7.5×. True consumption is **126 distinct questions
 >   all-time (18%)**, running at **68 distinct/week** most recently (§1.7). Oversupply is ~2×, not
 >   ~50×. Phase −1's throttle is correspondingly gentler and Phase 4 is re-scoped.
+> - **NEW (v4):** the question *"will this make our questions more often right?"* exposed two gaps
+>   the plan had not addressed at all. **§1.6c / §6.2a — 79% of served questions had never been
+>   human-reviewed** (`review_state` defaults to `'kept'`; only `review_status` records a human
+>   decision), and recency ordering actively preferred them. **Fixed and shipped in this branch.**
+>   **§1.6b / Phase 5 — nothing in the system verifies that any claim is true**; 307 banked wines
+>   have no external grounding. Added as a new phase.
 > - Generation throttle moved to **Phase −1** (immediate) — was Phase 4.
 > - The judge must be a **different model family** — Claude cannot grade Claude.
 > - The CI hard gate is now a **deterministic replay on frozen artifacts**, because a live-generation
@@ -150,6 +156,56 @@ human**, and `bin_reason_check` upholds the human: 67 of 69 checked bins came ba
 78% of model answers (456/585) need a second LLM pass to fix word count; only 21% come out `clean`.
 `answer-length` + `length-check` cost $87/month cleaning up after the generator.
 
+### 1.6b Root cause E2 — **nothing verifies that anything is true** ⚠️ **ADDED IN v4**
+
+Every rule in `answer-content-rules.mjs` checks *structure*: `answer-too-short`,
+`answer-missing-wine`, `answer-no-wine-structure`, `answer-misses-identity`,
+`answer-identity-partial`, `answer-subpart-coverage`, `answer-placeholder`,
+`answer-citation-offtopic`, `answer-truncated`. Not one checks whether a claim is **correct**.
+
+The same holds on the wine side. `wine_bank` provenance:
+
+| source | wines |
+|---|---|
+| `tavily_research` | 852 |
+| `llm_enrichment` | **307** |
+| `s1a_import` | 124 |
+
+307 wines carry **no external grounding at all** — pure model recall. Nothing verifies that the
+wine exists, that the appellation permits the stated variety, that the ABV is plausible, or that the
+vintage was made. `factually_wrong` appears in only 5 of 58 human bin tags, but that is a measure of
+*what the reviewer happened to catch*, not of what is actually wrong.
+
+The theory pipeline already solved the shape of this problem — `claims_to_verify` registers every
+checkable assertion, and `.claude/agents/claim-verifier.md` checks them against `kb_chunk` and
+tier-1 web sources. **The practical pipeline has no equivalent, not even the registry.** This is the
+single largest gap between "questions that pass our checks" and "questions that are right", and
+Phases 0–3 as originally drafted did not address it at all. It is now Phase 5 (§8b).
+
+### 1.6c Root cause E3 — the review gate never ran on served questions ⚠️ **ADDED IN v4, FIXED**
+
+`generated_questions` has **two** review columns:
+
+| column | default | meaning |
+|---|---|---|
+| `review_state` | **`'kept'`** | batch-workflow state |
+| `review_status` | `'unreviewed'` | whether a human actually decided |
+
+Every serve path gates on `review_state = 'kept'` — which a question satisfies **the instant it is
+inserted**. So "passed the review gate" never meant "a human looked at it".
+
+Measured: of the 126 distinct questions ever served, **99 (79%) were `unreviewed`**; 260 of 307
+attempts (85%). Against a 33.7% human bin rate, roughly a third of everything studied was material
+the reviewer would have thrown away.
+
+Recency ordering made it worse rather than better: unreviewed questions are by definition the
+newest, so `ORDER BY created_at DESC` **served the least-vetted material first**.
+
+Separately, `src/app/api/stem-sniper/next/route.ts` had **no review filter at all** — 22 *binned*
+questions were reachable through it and no other path.
+
+**Fixed in this branch** (§6.2a), with `tests/serve-reviewed-first.test.ts` pinning it.
+
 ### 1.7 Root cause F — oversupply (⚠️ **RESCOPED IN v3**)
 
 The v1/v2 claim of "2% consumption" came from the broken `served_count` counter. From
@@ -185,9 +241,22 @@ Phase −1  Stop the bleeding          ── hours. Throttle generation. Do thi
 Phase  0  Build the measurement loop ── prerequisite for every quality claim
 Phase  1  Cost + retry structure     ── ~55% spend cut, quality-gated
 Phase  2  Quality at source          ── raise first-pass, cut human bin rate
+                                        §6.2a (serve reviewed-first) ALREADY SHIPPED
 Phase  3  Close the loop             ── CI + weekly regression
-Phase  4  Fix consumption            ── make the bank worth generating into
+Phase  4  Right-size supply          ── match generation to consumption
+Phase  5  Fact verification          ── the only phase that makes answers TRUER
 ```
+
+**A note on what this plan does and does not do.** Phases −1 through 4 make the pipeline cheaper,
+more structurally valid, and better gated. They do **not** make a wine fact correct. Only §6.2a
+(shipped) and Phase 5 change how often what reaches a candidate is actually *true*:
+
+| goal | which phase | status |
+|---|---|---|
+| Cheaper | 1 | ~$1,000/mo |
+| Structurally valid (scope, marks, variety) | 2 | first-pass 20.5% → 40% target |
+| Fewer *bad* questions reaching the candidate | **6.2a** | **shipped** — was 79% unreviewed |
+| Claims that are actually **true** | **5** | not started; error rate unmeasured |
 
 Council pressed hard for throttling first. With the v3 correction the case is weaker than it looked
 (2× oversupply, not 50×) but still holds: generation outruns consumption ~2:1, and `MAX_ATTEMPTS=8`
@@ -427,7 +496,34 @@ size while yield sits at 20% is the wrong side of the equation. If 500 tokens of
 `paperScope`, spend them. Total prompt tokens stay a first-class *reported* scorecard metric so
 dilution remains visible, and cost is already gated directly by cost-per-accepted-question.
 
-### 6.2 Close the validator↔human gap
+### 6.2a Serve reviewed questions first — **SHIPPED IN THIS BRANCH**
+
+The highest-value fix in this entire document, and it needed no LLM, no calibration, and no model
+call. Per §1.6c, 79% of served questions had never been reviewed, and recency ordering actively
+preferred them.
+
+Applied to all five serve paths:
+
+| path | change |
+|---|---|
+| `db.ts` `getEligibleBankedQuestions` | `ORDER BY (q.review_status = 'kept') DESC, q.created_at DESC` |
+| `db.ts` `getUnansweredQuestions` (×2) | reviewed-first ahead of `created_at ASC` |
+| `db.ts` `getQuestionsByFilter` (×2) | reviewed-first ahead of `created_at DESC` |
+| `stem-sniper/drill/produce.ts` | reviewed-first ahead of `random()` |
+| `stem-sniper/next/route.ts` | **added the missing `review_state = 'kept'` gate** + reviewed-first |
+
+**A preference, not a filter.** A hard filter would cut the servable pool from 550 to 309 and could
+starve a candidate mid-session — a worse failure than one unvetted question. Unreviewed questions
+remain reachable as fallback, behind every human-approved one.
+
+`tests/serve-reviewed-first.test.ts` pins both invariants (reviewed-first must be the *first* ORDER
+BY key, or recency dominates and the preference does nothing; and no serve path may read the bank
+without a `review_state` gate). Verified by mutation: reverting any one ORDER BY fails the test.
+
+Retiring the unreviewed fallback entirely becomes safe once the review backlog is cleared (§8) —
+track it, but do not force it while the backlog stands at 225.
+
+### 6.2b Close the validator↔human gap
 
 33.7% human bin rate on validator-passing questions is the real quality number.
 
@@ -435,6 +531,10 @@ Use the calibrated judge as a **pre-bank gate**, quarantining what it would bin 
 it — **only if** it cleared §4.2 (lower CI bound on bin-recall ≥ 0.70 *and* 20/20 on
 `synthetic_floor`). Otherwise the judge only **orders the human's review queue** (highest-risk
 first), which is valuable, carries no gating risk, and is the fallback if calibration fails.
+
+With §6.2a shipped, this gate is now a second line of defence rather than the only one — which is
+the right dependency structure, since §4.2 flags judge calibration as likely to fail at ~50 holdout
+negatives.
 
 Feed `too_obscure` (18) and `not_realistic` (7) — the top two bin reasons, both about *wine choice* —
 into the wine-selection prompt as explicit negative exemplars.
@@ -532,18 +632,90 @@ re-read cadence with an under-supply alarm.
 
 ---
 
+## 8b. Phase 5 — Fact verification ⚠️ **ADDED IN v4**
+
+**This is the phase that actually makes questions and answers more often *right*.** Everything in
+Phases 0–4 targets structure, cost, and gating. Per §1.6b, nothing in the system checks whether a
+single claim is true, and 307 banked wines have no external grounding whatsoever.
+
+Port the pattern the theory pipeline already proved.
+
+### 8b.1 A claims registry for practical questions
+
+Mirror `claims_to_verify` from `outputs/theory_answers/`. At generation, the model registers every
+checkable assertion it makes, in structured form:
+
+| claim type | example | checkable against |
+|---|---|---|
+| `wine_exists` | producer + cuvée + vintage is a real wine | `wine_bank` evidence, Tavily, retailer listings |
+| `appellation_variety` | that appellation permits that variety | `kb_chunk`, appellation rules |
+| `region_country` | that region is in that country | `appellation-resolver.ts` (already exists) |
+| `production_method` | "aged sous voile", "whole-bunch" | `kb_chunk` |
+| `abv_plausible` | stated ABV within the style's real range | deterministic range table |
+| `vintage_exists` | that producer made that wine that year | Tavily / producer site |
+
+**Registration alone is worth shipping even before verification runs**, exactly as it was for
+theory: it converts an invisible fabrication risk into a visible checklist. The theory corpus has
+1,300 registered claims and *none externally verified* — that is still far better than not knowing
+what the claims are.
+
+### 8b.2 Deterministic checks first (free, no LLM)
+
+Several claim types need no model at all and should be validators, not verifications:
+- `region_country` — `appellation-resolver.ts` already resolves this
+- `abv_plausible` — a range table per style category
+- `appellation_variety` — a permitted-varieties table for the ~200 appellations the corpus actually
+  uses, seeded from `kb_chunk`
+
+These become hard rules in `question-rules.mjs` and are caught at generation, not after.
+
+### 8b.3 LLM/web verification for the rest
+
+Reuse `.claude/agents/claim-verifier.md` — it already emits per-claim verdicts against tier-1 sources
+and is explicitly built never to rubber-stamp (`UNVERIFIED` is a legitimate outcome). Run it over the
+residual claim types, batched, on newly banked questions.
+
+**Priority order, by measured exposure:** the 307 `llm_enrichment` wines first (zero grounding), then
+`s1a_import`, then re-verify `tavily_research` on a sample to establish that tier's real error rate.
+
+### 8b.4 What to do with a failed claim
+
+- **Deterministic failure** (ABV out of range, variety not permitted) → reject at generation, re-draw.
+- **Verified-false** on a banked question → quarantine via `invalid_reasons`, the existing mechanism.
+- **`UNVERIFIED`** → **do not quarantine.** An unverifiable claim is not a false one, and treating it
+  as such would gut the bank. Surface it in the review queue and let the reviewer decide.
+
+### 8b.5 Honest scoping
+
+This is the largest phase in the document and the least well-specified, because nobody has measured
+the actual factual error rate yet. **Do not commit to the full build up front.** Start with a
+measurement: take 30 banked questions, verify every wine claim by hand or with the claim-verifier,
+and produce a factual error rate. If it is 2%, this phase is a background cleanup task. If it is
+20%, it outranks everything except §6.2a. That measurement is a day's work and should run during
+Phase 0, alongside the golden set.
+
+**Exit:** factual error rate measured on a 30-question sample; claims registry live at generation;
+deterministic checks in `question-rules.mjs`; verification running on the 307 ungrounded wines;
+`UNVERIFIED` routed to review rather than quarantine.
+
+---
+
 ## 9. Sequencing, cost, risk
 
 | Phase | Depends on | Effort | Spend impact |
 |---|---|---|---|
+| **6.2a Serve reviewed-first** | — | **done** | $0 — pure quality |
 | −1 Stop bleeding | — | hours | **−$500/mo** (volume) |
 | 0 Harness | −1 | 2–3 d | +$50 one-off, +$20/mo |
 | 1 Cost + retry | 0 | 2–3 d | **−$400/mo** |
-| 2 Quality | 0, 1 | 3–5 d | −$50/mo |
+| 2 Quality (rest) | 0, 1 | 3–5 d | −$50/mo |
 | 3 Loop | 0, 2 | 1–2 d | +$30/mo |
-| 4 Consumption | 2 | 1–2 d | — (raises value, not cost) |
+| 4 Right-size supply | 2 | 1–2 d | — (raises value, not cost) |
+| 5 Fact verification | 0 (measurement) | **unscoped** | +$50–200/mo, TBD by error rate |
 
-Net: **~$1,434/mo → ~$400/mo**, with quality measured rather than assumed.
+Net: **~$1,434/mo → ~$400/mo** for Phases −1 to 4, with quality measured rather than assumed.
+Phase 5 adds cost back deliberately, in exchange for the only correctness guarantee in the system —
+and its size is unknown until the 30-question error-rate measurement runs.
 
 ### Risks
 
@@ -619,3 +791,9 @@ being the deterministic CI gate's blindness to prompt degradation — now addres
 7. Can a second council reviewer be obtained? All hardening above rests on one reviewer (Gemini),
    with Codex and OpenAI unavailable. The judge-independence argument in §4.2 applies to plan review
    too.
+8. **What is the actual factual error rate?** Unmeasured, and it determines whether Phase 5 is a
+   background cleanup or the most important thing in this document. The 30-question hand-verification
+   in §8b.5 answers it in a day and should run during Phase 0.
+9. **Should the unreviewed-fallback in §6.2a eventually become a hard filter?** Safe only once the
+   review backlog (225) is cleared and generation is throttled to match consumption — otherwise it
+   risks starving a candidate mid-session. Revisit after Phase 4.
