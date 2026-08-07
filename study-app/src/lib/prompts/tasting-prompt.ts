@@ -31,6 +31,8 @@ Use this exact structure:
 ## Guidelines
 - Appearance colors should be specific (pale lemon-green, medium ruby with garnet rim, deep purple-black, etc.)
 - The Structure block is mandatory and must always carry a perceived-alcohol/warmth reading with an estimated band, because alcohol read alongside acidity is a primary marker for deducing climate and origin. Do not omit it, and do not reduce it to a label ABV.
+- The Structure block must also always carry an explicit acidity level. With alcohol fixed, acidity is the axis that separates a cool-climate origin from a warm one, so a note giving one but not the other leaves the candidate without the discriminator. "Fresh" or "crisp" is a flavour impression, not an acidity reading.
+- If a wine is sparkling and you describe its bead, GRADE the mousse rather than merely noting it: "a fine, persistent bead" reads traditional-method, "a coarse, frothy mousse" reads tank-method, and that contrast is how the candidate infers method of production. Never describe the ABSENCE of bubbles on a still wine — simply omit the mousse.
 - Nose descriptors should be concrete (not "fruity" but "ripe yellow peach, lime zest, wet stone")
 - Palate should note texture, weight, and structure alongside flavors
 - Finish descriptions should note length (short/medium/long) and any specific lingering characters
