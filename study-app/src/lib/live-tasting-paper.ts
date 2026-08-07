@@ -62,8 +62,13 @@ export function samplePaperComposition(opts: {
   // every real P1/P2 in the corpus — guaranteeing at least one comparative anchor (F1 or F2).
   const weights = FAMILY_WEIGHTS[paper] ?? FAMILY_WEIGHTS[1];
   const drawn: string[] = [];
+  // Half papers (2-3 flights) additionally require DISTINCT families: paper-QA round 5 drew
+  // F4 twice for a 2-flight half and the examiner judge called the result "an implausibly
+  // narrow thematic pairing". With so few flights, a repeat family wastes half the paper's
+  // question-type coverage; full papers keep the corpus cap of 2.
+  const famCap = pattern.length <= 3 ? 1 : 2;
   const draw = (): string => {
-    const pool = weights.filter(([f]) => drawn.filter((d) => d === f).length < 2);
+    const pool = weights.filter(([f]) => drawn.filter((d) => d === f).length < famCap);
     const total = pool.reduce((s, [, w]) => s + w, 0);
     let roll = rng() * total;
     for (const [f, w] of pool) {

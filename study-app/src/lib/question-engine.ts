@@ -968,8 +968,9 @@ REQUIRED: the stem MUST OPEN by declaring this shared fact to the candidate ("Wi
 Mark-structure realism (paper-QA examiner conventions, verified against the 2023-24 corpus):
 - Identification is ONE BUNDLED sub-question — "identify the grape variety (or varieties) and origin as closely as possible" — never split variety and origin into separate sub-questions, and never omit origin. Weight it 13-18 marks per question.
 - MIX pooled sub-questions ("For both wines: … (14 marks)") with per-wine ones — no rigidly symmetric allocations.
+- Mark allocations must be IRREGULAR, as in real papers: never give every wine an identical split (an "8/9/8 for each wine" pattern is an automatic QA failure). Real allocations look like 13/10/2 per wine, a 15/20 two-parter, or large pooled blocks (30, 20, 15 marks). Vary both the split WITHIN each wine and the totals BETWEEN wines while keeping the question's overall total exact.
 - REQUIRED: at least ONE sub-question must be integrative across the whole flight ("With reference to both/all the wines, compare/discuss …" — quality, style, winemaking or commercial position). A question made only of stand-alone per-wine parts is NOT a real MW question.
-- Paper 3 only: real papers routinely include a discrete 2-3 mark micro-question on a technical attribute (residual sugar level, alcohol, method) — include one where it fits.${saveOpts?.paperStemsContext ? `
+- Paper 3 only: technical-state tasks (residual-sugar level, alcohol, method of production) belong EMBEDDED in the analysis sub-questions with real mark weight — a lone 2-3 mark micro-question is fine as a supplement, but must never be the only technical coverage.${saveOpts?.paperStemsContext ? `
 This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part count, mark split AND phrasing must all differ from every one of them (two near-identical a/b/c triplets fail QA).
 ${saveOpts.paperStemsContext}` : ""}`;
   }
