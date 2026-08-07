@@ -821,6 +821,10 @@ export async function generateFreshQuestion(
     // flight's axis ("Wines 1–3 are made from the same grape variety…"). Each archetype IS such
     // an axis; the engine spells it out here so the stem can declare it.
     flightTheme?: string | null;
+    // Paper flights: global wine numbering for the stem text (round 8 — both questions opening
+    // "Wines 1-3" reads as the same wines reused). Wine LIST slots stay local 1-N.
+    paperWineOffset?: number;
+    paperWineTotal?: number;
     // Live Tasting's lighter await: block on the enrichment→key chain only (the gradability
     // core), letting the model answer (Opus, ~60-90s) and audit finish in background. The first
     // E2E run proved the full awaitBackgroundWork chain can push session creation past the
@@ -971,13 +975,15 @@ Stem & mark conventions — copied from the REAL 2023-24 papers in the corpus; f
 - Pooled sub-questions take ONE total of 14-30 marks: "a) Identify the region as closely as possible. (15 marks)".
 - Vary marks BETWEEN sub-parts (e.g. a=13, b=10, c=2 per wine), never between wines.
 - Identification bundles origin + grape variety in ONE sub-question — "Identify the origin and grape variety/ies as closely as possible." — pooled (14-18 marks) or per-wine ("N x 10-13 marks"). Never split variety from origin, never omit origin.
+- Identification carries the HIGHEST per-wine mark in its question (e.g. ID 13, quality 10 — never the inverse). If variety identification is pooled, the per-wine parts MUST then include origin identification (2023 Q4 pattern), and do not bolt extra pooled micro-tasks onto that scaffold.
 - Quality tasks routinely combine with commercial potential or maturity in one sub-part: "Discuss quality and commercial potential. (3 x 8 marks)".
 - Paper 3 only: micro-state sub-questions are standard where the category fits: "State the residual sugar. (N x 2 marks)".
 Real skeletons to emulate (structure and notation, not content):
   1) For each wine: a) Identify the origin and grape variety/ies as closely as possible. (N x 13 marks) b) Comment on quality in the context of origin. (N x 10 marks) c) State the residual sugar. (N x 2 marks)
   2) With reference to all wines: a) Identify the grape variety. (18 marks) Then for each wine: b) Identify the origin as closely as possible. (N x 7 marks) c) Discuss the production methods. (N x 6 marks) d) Comment on quality and maturity. (N x 6 marks)
   3) For each wine: a) Discuss the quality, winemaking, and style. (N x 15 marks) For both wines: b) Compare and contrast the commercial opportunities and challenges. (20 marks)${saveOpts?.paperStemsContext ? `
-This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part count, mark split AND phrasing must all differ from every one of them (two near-identical a/b/c triplets fail QA).
+This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part structure and phrasing must differ from them, and never repeat a micro-state task type (e.g. "State the residual sugar") that an earlier question already used.${typeof saveOpts.paperWineOffset === "number" && saveOpts.paperWineTotal ? `
+GLOBAL WINE NUMBERING: the paper has ${saveOpts.paperWineTotal} wines and this flight is wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}. In the QUESTION TEXT refer to them as "Wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}" (real papers number continuously across the paper). The wine LIST above stays slot-numbered 1-${pinned.length}.` : ""}
 ${saveOpts.paperStemsContext}` : ""}`;
   }
 

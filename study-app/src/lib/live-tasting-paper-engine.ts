@@ -226,6 +226,11 @@ export async function generateNextFlight(opts: {
     excludeVarieties,
     p3RequireCategory,
     p3ExcludeCategories,
+    // Global wine numbering (paper-QA round 8): each flight numbered its wines locally, so Q1 and
+    // Q2 both opened "Wines 1-3…" — the judge read that as the same wines reused. Real papers
+    // number continuously (Q2 covers wines 4-6).
+    paperWineOffset: composition.filter((c) => c.position < next.position).reduce((s, c) => s + c.flightSize, 0),
+    paperWineTotal: composition.reduce((s, c) => s + c.flightSize, 0),
     // Round 5: "vary your structure" alone still produced clone scaffolds (round-4 judge:
     // "structurally near-identical clones"). Rotate a NAMED architecture per position so two
     // flights can never share one, and keep prior stems visible as the differ-from list.
