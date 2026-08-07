@@ -846,6 +846,150 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// TASTING-NOTE SCHEMA — every served wine note must carry the mandatory structural fields (recurring
+// user-feedback cluster, cross-paper, 4 validated signals: fb_246, fb_244, fb_66, fb_53).
+//
+// Testers repeatedly reported the generated notes are structurally incomplete in the same ways:
+//   • no alcohol level, though it is a primary climate/origin cue a taster leads with (fb_246);
+//   • no visual cue at all on Paper 3, where colour alone tells the candidate whether the flight is
+//     rosé / fortified / blanc de blancs and mis-reading the stem is otherwise easy (fb_53);
+//   • negative "no bubbles" descriptors asserting the ABSENCE of bubbles rather than simply omitting
+//     them (fb_244) — bubbles should only ever be described positively, and a sparkling wine's mousse
+//     must carry an intensity so a fine persistent traditional-method bead reads differently from a
+//     coarser Prosecco-style bead.
+//
+// This rule enforces ONLY the mandatory fields. Descriptor ACCURACY (e.g. fb_66's missing gamey/purple
+// Syrah markers) is left to the rolling digest — this schema does not judge whether the note is right,
+// only that it is complete and that bubbles are framed positively.
+//
+//   NOTE_MISSING_APPEARANCE — no appearance clause naming a colour.
+//   NOTE_MISSING_ALCOHOL    — no alcohol statement (a % figure/ABV or a low/medium/high band).
+//   NOTE_MISSING_ACIDITY    — no acidity statement.
+//   NOTE_NEGATIVE_BUBBLES   — an absence-of-bubbles phrasing ("no bubbles", "no mousse", …).
+//   NOTE_MISSING_MOUSSE     — a sparkling wine whose mousse/bead lacks an intensity descriptor.
+//   NOTE_GENERIC_APPEARANCE — (Paper 3 only) an appearance clause that is a bare colour with no
+//                             clarity/intensity/hue qualifier.
+// ---------------------------------------------------------------------------------------------------
+
+export interface NoteSchemaViolation {
+  code: string;
+  detail: string;
+}
+
+// Colour words a candidate would write in an APPEARANCE line, across whites, reds, rosé, orange and
+// fortified/tawny styles. Only the appearance clause is scanned so flavour descriptors ("lemon curd")
+// can't stand in for a colour reading.
+const NOTE_COLOUR_RE =
+  /\b(lemon|straw|gold(?:en)?|amber|yellow|green(?:ish)?|colou?rless|water[-\s]?white|ruby|garnet|purple|crimson|violet|magenta|brick|tawny|red|pink|salmon|onion[-\s]?skin|copper|bronze|orange|brown|mahogany|blush|pale-?gold)\b/i;
+
+// Alcohol as a % figure / ABV, OR as a low/medium/high band tied to the word "alcohol".
+const NOTE_ALCOHOL_PCT_RE = /\b\d{1,2}(?:\.\d)?\s*%|\babv\b/i;
+const NOTE_ALCOHOL_BAND_RE =
+  /\b(?:low|medium(?:[-\s]?(?:plus|minus))?|med|high|elevated|moderate)\b[\w\s,()+-]{0,20}\balcohol\b|\balcohol\b[\w\s,()+-]{0,20}\b(?:low|medium(?:[-\s]?(?:plus|minus))?|med|high|elevated|moderate)\b/i;
+
+// An acidity statement — the word acid/acidity anywhere in the note.
+const NOTE_ACIDITY_RE = /\bacid(?:ity|s)?\b/i;
+
+// Absence-of-bubbles phrasing: bubbles may only be described positively (fb_244). Never assert their
+// absence; simply omit the mousse for a still wine.
+const NOTE_NEGATIVE_BUBBLES_RE =
+  /\bno (?:visible )?(?:bubbles?|mousse|bead|effervescence|fizz)\b|\babsence of (?:bubbles?|mousse|bead|effervescence)\b|\bwithout (?:bubbles?|a mousse|effervescence)\b|\bstill,?\s+with no bead\b|\black of (?:bubbles?|mousse|effervescence)\b/i;
+
+// A sparkling wine's mousse/bead must carry an INTENSITY so a fine persistent traditional-method bead
+// reads differently from a coarser Prosecco-style bead. Matches the intensity adjacent to the bead noun.
+const NOTE_MOUSSE_INTENSITY_RE =
+  /\b(?:fine|coarse|persistent|gentle|delicate|aggressive|soft|vigorous|creamy|frothy|lively|steady|active|energetic|frothing|abundant|fine[-\s]?persistent)\b[\w\s,()+-]{0,25}\b(?:mousse|bead|bubbles?|perlage|effervescence|fizz)\b|\b(?:mousse|bead|bubbles?|perlage|effervescence|fizz)\b[\w\s,()+-]{0,25}\b(?:fine|coarse|persistent|gentle|delicate|aggressive|soft|vigorous|creamy|frothy|lively|steady|active|energetic|abundant)\b/i;
+
+// Paper 3 appearance must be non-generic: a colour word PLUS a clarity / intensity / hue qualifier.
+const NOTE_CLARITY_INTENSITY_HUE_RE =
+  /\b(bright|clear|hazy|dull|star[-\s]?bright|limpid|brilliant|cloudy|pale|deep|light|medium|intense|watery|opaque|greenish|golden[-\s]?rim|hue|tinge|tints?|rim|reflections?|core)\b/i;
+
+// The APPEARANCE clause: the dedicated "**Appearance:** …" line when present, else the note's opening
+// sentence (the appearance reading conventionally leads a tasting note).
+function noteAppearanceClause(note: string): string {
+  const text = note || "";
+  const m = text.match(/\*\*\s*Appearance\s*:?\s*\*\*\s*([^\n]+)/i);
+  if (m) return m[1];
+  const firstLine = text.split(/[\n.]/).find((l) => l.replace(/[*#]/g, "").trim().length > 0) || "";
+  return firstLine || text.slice(0, 140);
+}
+
+/**
+ * Tasting-note schema gate. Validates a SINGLE served wine note carries the mandatory fields —
+ * appearance colour, alcohol, acidity — frames bubbles positively (and, for a sparkling wine, gives
+ * the mousse an intensity), and (Paper 3) uses a non-generic appearance clause. Returns { ok,
+ * violations }, each violation carrying a stable `code`. This enforces completeness only; descriptor
+ * accuracy is left to the rolling digest.
+ */
+export function validateTastingNoteSchema(
+  note: string,
+  opts: { paper?: number; sparkling?: boolean } = {}
+): { ok: boolean; violations: NoteSchemaViolation[] } {
+  const violations: NoteSchemaViolation[] = [];
+  const text = note || "";
+  const appearance = noteAppearanceClause(text);
+
+  // (a) Appearance clause must name a colour.
+  if (!NOTE_COLOUR_RE.test(appearance)) {
+    violations.push({
+      code: "NOTE_MISSING_APPEARANCE",
+      detail:
+        `appearance clause names no colour ("${appearance.slice(0, 60).trim()}"). Lead with the ` +
+        `visual reading — colour alone tells the candidate whether the flight is rosé, fortified or blanc de blancs.`,
+    });
+  } else if (opts.paper === 3 && !NOTE_CLARITY_INTENSITY_HUE_RE.test(appearance)) {
+    // (a′) Paper 3 needs a non-generic appearance: colour PLUS a clarity/intensity/hue qualifier.
+    violations.push({
+      code: "NOTE_GENERIC_APPEARANCE",
+      detail:
+        `Paper 3 appearance clause is a bare colour with no clarity/intensity/hue qualifier ` +
+        `("${appearance.slice(0, 60).trim()}"). Add one (e.g. "pale lemon-green, bright") so the ` +
+        `visual cue can distinguish the flight.`,
+    });
+  }
+
+  // (b) Alcohol — a % figure/ABV or a low/medium/high band.
+  if (!NOTE_ALCOHOL_PCT_RE.test(text) && !NOTE_ALCOHOL_BAND_RE.test(text)) {
+    violations.push({
+      code: "NOTE_MISSING_ALCOHOL",
+      detail:
+        `no alcohol statement. Give alcohol as a % figure (e.g. "~14%") or a low/medium/high band — ` +
+        `it is a primary climate/origin cue a taster leads with.`,
+    });
+  }
+
+  // (c) Acidity statement.
+  if (!NOTE_ACIDITY_RE.test(text)) {
+    violations.push({
+      code: "NOTE_MISSING_ACIDITY",
+      detail: `no acidity statement. Give an acidity reading — it anchors the structural axis alongside alcohol.`,
+    });
+  }
+
+  // (d) Bubbles may only be described positively — never assert their absence.
+  if (NOTE_NEGATIVE_BUBBLES_RE.test(text)) {
+    violations.push({
+      code: "NOTE_NEGATIVE_BUBBLES",
+      detail:
+        `note asserts the absence of bubbles (e.g. "no bubbles"). Bubbles are only ever a positive ` +
+        `indicator — omit the mousse for a still wine rather than stating it is absent.`,
+    });
+  }
+
+  // (e) A sparkling wine's mousse/bead must carry an intensity (fine persistent vs coarse Prosecco bead).
+  if (opts.sparkling && !NOTE_MOUSSE_INTENSITY_RE.test(text)) {
+    violations.push({
+      code: "NOTE_MISSING_MOUSSE",
+      detail:
+        `sparkling wine note gives no mousse/bead intensity. Describe the bead's intensity (e.g. ` +
+        `"fine, persistent mousse" vs a coarser Prosecco-style bead) so the method reads through.`,
+    });
+  }
+
+  return { ok: violations.length === 0, violations };
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
