@@ -1,18 +1,37 @@
 // audit-questions.mjs — run the hard validator over every generated question.
 //   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs            (dry run: report only)
 //   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply    (quarantine HARD violations)
+//   ... --apply --only=wrong_colour_for_paper,paper-style-mix                     (quarantine ONLY those rules)
 //
 // The ts-loader is mandatory: question-validator.ts imports "./tasting-validators" extensionless, which
 // plain `node` cannot resolve (ERR_MODULE_NOT_FOUND). Running this without it is how the nightly sweep
 // went dark on 2026-08-07 — see .github/workflows/question-audit-daily.yml.
+//
+// --only=<rules> exists because a blanket --apply is a blunt instrument. When a NEW hard rule is added,
+// the back catalogue can carry hundreds of hits from OTHER long-standing families, and quarantining all
+// of them at once guts the servable pool. --only enforces just the named rules. In that mode the script
+// also MERGES its reasons into invalid_reasons instead of replacing them, and skips the
+// clear-stale-flags branch entirely — a question that is clean for the scoped rules may be legitimately
+// quarantined for others, and clearing that would silently return it to service.
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion } from "../src/lib/question-validator.ts";
+// Load-bearing: registers the appellation → primary-variety fallback. This script runs in its own
+// process, so without this import detectPrimaryVariety returns "unknown" for every appellation-only
+// label and the sweep cannot see a Hermitage sitting in a Paper 1 flight.
+import "../src/lib/appellation-resolver.ts";
 
 const DB = process.env.DATABASE_URL || readFileSync(".env.local", "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim();
 const sql = neon(DB);
 const apply = process.argv.includes("--apply");
+const onlyRules = (process.argv.find((a) => a.startsWith("--only=")) || "")
+  .slice("--only=".length)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const scoped = onlyRules.length > 0;
+if (scoped) console.log(`Scoped to rules: ${onlyRules.join(", ")} (merging, not replacing; no flag clearing)\n`);
 
 if (apply) {
   await sql`ALTER TABLE stem_answer_keys ADD COLUMN IF NOT EXISTS invalid_reasons JSONB`;
@@ -52,20 +71,39 @@ for (const r of rows) {
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;
-  const hard = res.violations.filter((x) => x.severity === "hard");
+  const hardAll = res.violations.filter((x) => x.severity === "hard");
+  // In scoped mode only the named rules can quarantine; everything else is still REPORTED.
+  const hard = scoped ? hardAll.filter((x) => onlyRules.includes(x.rule)) : hardAll;
   for (const x of res.violations) byRule[x.rule] = (byRule[x.rule] || 0) + 1;
-  if (res.violations.length) {
+  if (scoped ? hard.length : res.violations.length) {
     console.log(`${hard.length ? "HARD" : "soft"}  ${r.question_id}  (P${r.paper} ${r.family})`);
-    res.violations.forEach((x) => console.log(`        [${x.severity}] ${x.rule}: ${x.detail}`));
+    (scoped ? hard : res.violations).forEach((x) => console.log(`        [${x.severity}] ${x.rule}: ${x.detail}`));
   }
   if (hard.length) {
     hardCount++;
     if (apply) {
-      await sql`UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${JSON.stringify(hard)}::jsonb WHERE question_id = ${r.question_id}`;
-      await sql`UPDATE generated_questions SET invalid_reasons = ${JSON.stringify(hard)}::jsonb WHERE question_id = ${r.question_id}`;
+      const payload = JSON.stringify(hard);
+      if (scoped) {
+        // MERGE + dedupe, so quarantining for a new rule does not erase reasons another rule recorded.
+        await sql`
+          UPDATE stem_answer_keys SET validated = false, invalid_reasons = (
+            SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+              (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+              || ${payload}::jsonb) v)
+          WHERE question_id = ${r.question_id}`;
+        await sql`
+          UPDATE generated_questions SET invalid_reasons = (
+            SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+              (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+              || ${payload}::jsonb) v)
+          WHERE question_id = ${r.question_id}`;
+      } else {
+        await sql`UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${payload}::jsonb WHERE question_id = ${r.question_id}`;
+        await sql`UPDATE generated_questions SET invalid_reasons = ${payload}::jsonb WHERE question_id = ${r.question_id}`;
+      }
       quarantined++;
     }
-  } else if (apply) {
+  } else if (apply && !scoped) {
     // Clean now — clear any stale VALIDATOR flag so a fixed/regenerated question returns to service.
     // Feedback quarantines (rule 'feedback-question', set by apply-change.ts) are preserved: they
     // encode defects the rules can't see, and this script now runs nightly (question-audit-daily.yml)

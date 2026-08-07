@@ -11,6 +11,7 @@ import {
   stemSniperScoringModel as _stemSniperScoringModel,
   canonCountry,
   canonVariety,
+  colourFromAppellation,
   detectPrimaryVariety,
   methodClass,
   norm,
@@ -50,6 +51,11 @@ export interface AuditWine {
   // cross-check (STEM_PREDICATE_MISMATCH): a stem that asserts "both/all have residual sugar" or "sweet
   // wines" is contradicted by a keyed wine whose RS is below 5 g/L (or that is otherwise tagged dry).
   rs?: number;
+  // The RESOLVED colour, when the caller has one — from wine_bank.colour or from the colour stored on
+  // the question's wine slot at generation time. Authoritative: it was decided when the full context
+  // (varieties, region, answer key, enrichment) was available, whereas a serve-time caller sees only a
+  // label. Absent, resolveWineScope() infers it. See PureColour.
+  colour?: "white" | "red" | "rose" | "orange";
 }
 export interface QuestionForAudit {
   questionId: string;
@@ -1217,16 +1223,36 @@ export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violat
 // `stem_colour_conflict`. See CLAUDE.md ("Paper 1: white still wines. Paper 2: red still wines.
 // Paper 3: a mix…") and mw_exam_empirical_knowledge §4.
 //
-// Colour is DERIVED from the wine record's existing style/style_category/label/variety fields via
-// classifyWineColour(), which resolves the strict enum white|red|rose|orange|sparkling|sweet|fortified
-// (the same enum a generation-time LLM classifier persists onto records that lack a reliable colour
-// key). It reuses the shared style classifier (classifyWineStyle) and grape indicators so a wine is
-// tagged exactly as the rest of the system tags it. When a still wine's colour cannot be positively
-// determined the classifier returns null and the rule SKIPS that wine — it fails SAFE, never blocking
-// a wine it cannot place.
+// COLOUR AND STYLE ARE TWO INDEPENDENT AXES, and conflating them is a bug we shipped once already.
+// resolveWineScope() returns them separately:
+//
+//   colour: white | red | rose | orange | null      style: still | sparkling | sweet | fortified | oxidative
+//
+// A rosé Champagne is `sparkling` AND `rose`; a Riesling Spätlese is `sweet` AND `white`. The original
+// classifyWineColour() collapsed both onto one enum with style winning, so a Spätlese resolved to
+// "sweet" rather than "white" and tripped `wrong_colour_for_paper` on Paper 1 — even though the
+// generation prompt explicitly invites it ("unless a white wine with residual sugar like Riesling
+// Spätlese or Vouvray demi-sec", question-generation-prompt.ts) and 16 live Paper 1 questions relied
+// on it. Paper 1 blocks a wine for being RED or FORTIFIED or SPARKLING, never for being sweet or
+// oxidatively handled — conventionally cask-oxidised whites (white Rioja, aged Hunter Semillon) are
+// Paper 1 wines, see the note at question-engine.ts validatePaperScope.
+//
+// Both axes are DERIVED from the wine record's existing style/style_category/label/variety fields,
+// reusing the shared style classifier (classifyWineStyle) and grape indicators so a wine is tagged
+// exactly as the rest of the system tags it. When a still wine's colour cannot be positively
+// determined the resolver returns null; whether that BLOCKS is the caller's choice
+// (`blockIndeterminate`) — at generation an alternative wine is free, at serve time it is not.
 // ---------------------------------------------------------------------------------------------------
 
+// The collapsed enum. Retained because migration 052's wine_bank.colour CHECK constraint and the
+// generation-time LLM classifier both persist these seven values. New code should prefer
+// resolveWineScope() and read the two axes separately.
 export type WineColour = "white" | "red" | "rose" | "orange" | "sparkling" | "sweet" | "fortified";
+
+/** The colour axis alone — what is actually in the glass, independent of how it was made. */
+export type PureColour = "white" | "red" | "rose" | "orange";
+/** The style axis alone — how it was made, independent of colour. */
+export type WineStyleAxis = "still" | "sparkling" | "sweet" | "fortified" | "oxidative";
 
 const COLOUR_STYLE_LABEL: Record<WineColour, string> = {
   white: "still white",
@@ -1244,42 +1270,145 @@ const ORANGE_STYLE_RE = /orange wine|skin[- ]?contact|amber wine|\bramato\b|\bqv
 // Free-text colour cues on the label/region, used to settle still red vs still white when the grape
 // indicators are silent. Accent-stripped (matched against norm()'d text).
 const RED_COLOUR_CUE = /\b(red|rouge|rosso|tinto|tinta|rot|noir|nero)\b/;
-const WHITE_COLOUR_CUE = /\b(white|blanc|blanco|bianco|weiss|weisser|weisswein)\b/;
+// `branco` (Portuguese) was missing while RED_COLOUR_CUE carried the Iberian `tinto|tinta` pair, so
+// "Quinta dos Roques, Touriga Nacional Branco" — a WHITE wine — resolved red off its grape name.
+const WHITE_COLOUR_CUE = /\b(white|blanc|blanche|blanco|branco|bianco|weiss|weisser|weisswein|feher)\b/;
+
+// A colour qualifier strong enough to OVERRIDE the grape. A red grape carrying one of these is a white
+// bottling: Touriga Nacional Branco, Xinomavro White, Rioja Blanco.
+//
+// French `blanc` is deliberately EXCLUDED. It appears inside proprietary names of red wines —
+// Château Cheval Blanc is a red Saint-Émilion, Château Blanc, Clos Blanc — so promoting it to an
+// override would misread famous reds as whites. `blanc` still contributes to WHITE_COLOUR_CUE above,
+// where the resolved varieties get to outvote it.
+const WHITE_QUALIFIER_OVERRIDE = /\b(branco|blanco|bianco|white|weiss|weisswein|feher)\b/;
+
+// Varieties that RED_GRAPE_INDICATORS deliberately omits because the bare token is ambiguous for
+// VARIETY resolution, even though it is unambiguous for COLOUR. `montepulciano` is the case: adding it
+// to the shared indicator list outranks the appellation table's `vino nobile` → sangiovese entry. Every
+// wine that resolves to one of these is red.
+const EXTRA_RED_VARIETIES = /\b(montepulciano)\b/;
+
+// --- Corrections applied to the SHARED style classifier for paper-scope purposes only ---------------
+// classifyWineStyle is tuned for Paper 3 categorisation and its regexes are pinned by a corpus of real
+// labels (tests/p3-category.test.mjs). Rather than mutate them, the two cases below are corrected here,
+// where the question is narrower: "may this wine appear on Paper 1 / Paper 2?"
+
+// Maury and Rasteau each name BOTH a vin doux naturel AND a dry still red AOC. The shared FORTIFIED
+// regex matches the bare region name — correct for P3 categorisation, wrong here: "Mas Amiel, Maury
+// Sec" and "Domaine de la Mordorée, Rasteau Grenache Noir" are dry reds and legitimate Paper 2 wines.
+// Measured against the live bank, this accounted for 3 of 14 false rejections.
+//
+// So for these two the burden of proof is INVERTED: the region name alone does not make a wine
+// fortified, an explicit VDN marker does. Rivesaltes is deliberately NOT in this set — its dry wines
+// are labelled Côtes du Roussillon, so a bare "Rivesaltes" really is a VDN.
+//
+// The trade-off is deliberate. A bare "Mas Amiel, Maury" (a real VDN) now reads still, so this can
+// admit a fortified wine on Paper 2 — but false REJECTIONS retire legitimate questions from the pool,
+// which is the costlier error here, and the sweep's job is to be right about wines it is sure of.
+// Rutherglen belongs here for the same reason: it is famous for fortified Muscat and Topaque, but it
+// also makes dry Durif, Shiraz and Petite Sirah, and a "Petite Sirah, Rutherglen" is a legitimate
+// Paper 2 wine that the bare region name was rejecting.
+const DUAL_VDN_APPELLATION = /\b(maury|rasteau|rutherglen)\b/;
+// The positive markers. `muscat|topaque|tokay|liqueur` are here for Rutherglen — they only apply when a
+// dual-purpose region has already matched, so a dry Alsace Muscat is unaffected.
+const EXPLICIT_FORTIFIED =
+  /\b(vin doux naturel|vdn|fortified|ambre|tuile|rancio|hors d.age|mistelle|muscat|topaque|tokay|liqueur)\b/;
+
+// The shared ROSE cue matches a bare `rose`, which collides with producer names once norm() strips
+// accents ("Cascina delle Rose" in Barbaresco — a red), and `cerasuolo`, which is a rosé in Abruzzo but
+// a RED DOCG in Vittoria. Both produced false rosé verdicts on real reds in the live bank.
+const ROSE_FALSE_POSITIVE = /\b(cerasuolo di vittoria|(?:delle|della|des|du|de la|la|le)\s+rose)\b/;
 
 /**
- * Resolve ONE wine's colour/style onto the strict R-COLOUR enum, or null when a still wine's colour
- * cannot be positively determined (fail-safe). Priority: fortified > sparkling > sweet > orange > rosé
- * > still red/white — a wine that is BOTH a special style and a colour is named by the style the
- * contract blocks on (a rosé Champagne is `sparkling`, a sweet white is `sweet`).
+ * Settle a still wine's colour: red vs white, or null when it cannot be positively determined.
+ *
+ * Precedence is deliberate. The resolved `varieties` come from the answer key and outrank anything on
+ * the label — "Château Cheval Blanc" is a RED Bordeaux whose label says "Blanc". Only an unambiguous
+ * colour qualifier (WHITE_QUALIFIER_OVERRIDE, which omits French `blanc`) may override them.
  */
-export function classifyWineColour(w: AuditWine): WineColour | null {
+function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
+  const varietyBlob = norm((w.varieties || []).map((x) => canonVariety(x)).join(" "));
+  if (varietyBlob) {
+    const vRed = RED_GRAPE_INDICATORS.test(varietyBlob);
+    const vWhite = WHITE_GRAPE_INDICATORS.test(varietyBlob);
+    if (vRed && !vWhite) return WHITE_QUALIFIER_OVERRIDE.test(hay) ? "white" : "red";
+    if (vWhite && !vRed) return "white";
+  }
+
+  // Varieties absent or internally mixed — fall back to the label/region text.
+  const red = RED_GRAPE_INDICATORS.test(hay) || RED_COLOUR_CUE.test(hay);
+  const white = WHITE_GRAPE_INDICATORS.test(hay) || WHITE_COLOUR_CUE.test(hay);
+  if (red && !white) return "red";
+  if (white && !red) return "white";
+  if (red && white && WHITE_QUALIFIER_OVERRIDE.test(hay)) return "white";
+
+  // Last resort: resolve the dominant variety from the label and read its colour off the shared
+  // indicators. This is what covers appellation-only labels — Hermitage, Châteauneuf-du-Pape,
+  // Moulin-à-Vent, Viña Tondonia — which name no grape at all and were the wines that reached
+  // Paper 1 in production. NOTE: it depends on the appellation resolver being registered in the
+  // calling process (import "@/lib/appellation-resolver"), or detectPrimaryVariety returns "unknown".
+  const primary = (w.varieties?.[0] && canonVariety(w.varieties[0])) || detectPrimaryVariety(w.fullText || "");
+  if (primary && primary !== "unknown") {
+    if (RED_GRAPE_INDICATORS.test(primary) || EXTRA_RED_VARIETIES.test(primary)) return "red";
+    if (WHITE_GRAPE_INDICATORS.test(primary)) return "white";
+  }
+
+  // Last of all: the appellation's colour, which reaches further than its variety. detectPrimaryVariety
+  // above can only use the 117 SINGLE-variety appellations — it must decline St-Julien, whose four
+  // grapes cannot be reduced to one. But all four are red, so the appellation still settles the colour.
+  // Server-only, via the registry (this module is client-reachable and cannot read the dataset itself).
+  return colourFromAppellation(w.fullText || "") as "white" | "red" | null;
+}
+
+/**
+ * Resolve ONE wine onto the two independent axes. `colour` is null when a still wine's colour cannot
+ * be positively determined; `style` always resolves (defaulting to "still").
+ */
+export function resolveWineScope(w: AuditWine): { colour: PureColour | null; style: WineStyleAxis } {
   const styleText = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
   const hay = norm([w.fullText, w.style, w.style_category, w.region, ...(w.varieties || [])].filter(Boolean).join(" "));
-  if (!hay && !styleText) return null;
+  if (!hay && !styleText) return { colour: null, style: "still" };
 
-  const { style, isRose } = classifyWineStyle(styleText || hay);
+  const { style: s, isRose } = classifyWineStyle(styleText || hay);
+  let style: WineStyleAxis =
+    s === "fortified" || s === "sparkling" || s === "sweet" || s === "oxidative" ? s : "still";
+
+  // A dual-purpose VDN appellation needs an explicit fortification marker to count as fortified.
+  if (style === "fortified" && DUAL_VDN_APPELLATION.test(hay) && !EXPLICIT_FORTIFIED.test(hay)) style = "still";
+
+  const reallyRose = isRose && !ROSE_FALSE_POSITIVE.test(hay);
+
+  // Colour is resolved INDEPENDENTLY of style — a sweet wine still has a colour, and that is the whole
+  // point of splitting the axes.
+  //
+  // A PERSISTED colour wins outright. It was decided at generation time with the varieties, region and
+  // enrichment all in hand; a serve-time caller re-deriving from a bare label is strictly worse
+  // informed. This is what closes the label-invisible cases — 44 Paper 1 wine slots resolve to no
+  // colour from their label alone.
+  const colour: PureColour | null =
+    w.colour ??
+    (ORANGE_STYLE_RE.test(hay) ? "orange" : reallyRose ? "rose" : resolveStillColour(w, hay));
+
+  return { colour, style };
+}
+
+/**
+ * The collapsed seven-value enum, preserved for the persisted `wine_bank.colour` contract (migration
+ * 052) and for callers that want a single tag. Style wins over colour here, exactly as before — so a
+ * rosé Champagne reads "sparkling" and a sweet white reads "sweet".
+ *
+ * Do NOT use this to decide paper eligibility: that is what made a Riesling Spätlese fail Paper 1.
+ * Use resolveWineScope() and test the two axes separately.
+ */
+export function classifyWineColour(w: AuditWine): WineColour | null {
+  const { colour, style } = resolveWineScope(w);
   if (style === "fortified") return "fortified";
   if (style === "sparkling") return "sparkling";
   if (style === "sweet") return "sweet";
-  if (ORANGE_STYLE_RE.test(hay)) return "orange";
-  if (isRose) return "rose";
-
-  // Still wine → red vs white. Prefer the resolved varieties, then any label colour cue.
-  const varietyBlob = norm((w.varieties || []).map((x) => canonVariety(x)).join(" "));
-  const red = RED_GRAPE_INDICATORS.test(varietyBlob) || RED_GRAPE_INDICATORS.test(hay) || RED_COLOUR_CUE.test(hay);
-  const white =
-    WHITE_GRAPE_INDICATORS.test(varietyBlob) || WHITE_GRAPE_INDICATORS.test(hay) || WHITE_COLOUR_CUE.test(hay);
-  if (red && !white) return "red";
-  if (white && !red) return "white";
-
-  // Last resort: resolve the dominant variety from the label (covers appellation-only labels) and
-  // read its colour off the shared indicators.
-  const primary = (w.varieties?.[0] && canonVariety(w.varieties[0])) || detectPrimaryVariety(w.fullText || "");
-  if (primary && primary !== "unknown") {
-    if (RED_GRAPE_INDICATORS.test(primary)) return "red";
-    if (WHITE_GRAPE_INDICATORS.test(primary)) return "white";
-  }
-  return null; // indeterminate — skip (fail safe)
+  if (colour === "orange") return "orange";
+  if (colour === "rose") return "rose";
+  return colour; // "white" | "red" | null
 }
 
 /**
@@ -1310,21 +1439,59 @@ function stemColourConflict(paper: number, questionText: string | undefined): Vi
  * → no restriction. Emits `wrong_colour_for_paper` (hard) per offending wine, carrying the paper and
  * the detected colour, and `stem_colour_conflict` (hard) when the stem implies a forbidden colour.
  */
-export function validatePaperColour(paper: number, wines: AuditWine[], questionText?: string): Violation[] {
+export function validatePaperColour(
+  paper: number,
+  wines: AuditWine[],
+  questionText?: string,
+  opts?: { blockIndeterminate?: boolean }
+): Violation[] {
   if (paper !== 1 && paper !== 2) return [];
-  const allowed: WineColour = paper === 1 ? "white" : "red";
+  const allowedColour: PureColour = paper === 1 ? "white" : "red";
   const allowedLabel = paper === 1 ? "STILL WHITE" : "STILL RED";
   const v: Violation[] = [];
 
   for (const w of wines || []) {
-    const colour = classifyWineColour(w);
-    if (colour && colour !== allowed) {
+    const { colour, style } = resolveWineScope(w);
+
+    // BLOCKED STYLES — fortification and bubbles only. `sweet` and `oxidative` are deliberately NOT
+    // blocked: a white wine with residual sugar (Riesling Spätlese, Vouvray demi-sec) and a
+    // conventionally cask-oxidised white (white Rioja, aged Hunter Semillon) both belong on Paper 1.
+    // Blocking them is the regression that this split exists to prevent.
+    if (style === "fortified" || style === "sparkling") {
+      v.push({
+        rule: "wrong_colour_for_paper",
+        severity: "hard",
+        detail: `Paper ${paper} must serve ${allowedLabel} wine only, but ${wineLabel(
+          w
+        )} reads as ${style} (detected style "${style}"). Rule R-COLOUR is unconditional.`,
+      });
+      continue; // one verdict per wine — the style is the disqualifying fact
+    }
+
+    // BLOCKED COLOURS.
+    if (colour && colour !== allowedColour) {
       v.push({
         rule: "wrong_colour_for_paper",
         severity: "hard",
         detail: `Paper ${paper} must serve ${allowedLabel} wine only, but ${wineLabel(
           w
         )} reads as ${COLOUR_STYLE_LABEL[colour]} (detected colour "${colour}"). Rule R-COLOUR is unconditional.`,
+      });
+      continue;
+    }
+
+    // INDETERMINATE. Asymmetric by design, and the asymmetry is the point: at GENERATION an
+    // alternative wine costs one redraft, so refusing to guess is cheap and we block. At SERVE time
+    // the wine is already banked, and rejecting on a LACK of evidence would retire a large slice of
+    // the pool (and re-create the Live Tasting starvation failure), so we skip and let the colour
+    // backfill convert these into resolved rows instead.
+    if (!colour && opts?.blockIndeterminate) {
+      v.push({
+        rule: "wrong_colour_for_paper",
+        severity: "hard",
+        detail: `Paper ${paper} must serve ${allowedLabel} wine only, and ${wineLabel(
+          w
+        )} could not be positively resolved to a colour. Name the grape variety or use a wine whose colour is unambiguous.`,
       });
     }
   }
@@ -1744,7 +1911,10 @@ export function assertServedQuestionIntegrity(
   return { phase, stemHash, wineCount: renderedCount, media };
 }
 
-export function validateQuestion(q: QuestionForAudit): {
+export function validateQuestion(
+  q: QuestionForAudit,
+  opts?: { paperScope?: boolean }
+): {
   ok: boolean;
   violations: Violation[];
   scoringModel: StemSniperScoringModel;
@@ -1774,12 +1944,22 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
   violations.push(...validatePaperStyleMix(q.paper, q.wines));
-  // R-COLOUR (Right Paper Check) deliberately does NOT run inside this KEY-stage audit wrapper. It is
-  // an UNCONDITIONAL serve-time contract (Paper 1 still-white / Paper 2 still-red) enforced on every
-  // generation/serve path in question-engine.ts (paperColourCheck), where a wrong-colour draft is
-  // silently repaired or discarded. validateQuestion is the shared audit/feedback wrapper whose
-  // fixtures are keyed only for the rule under test and are not colour-consistent, so folding a hard
-  // colour verdict in here would reject legitimate audits. Use validatePaperColour directly instead.
+  // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
+  //
+  // It used to be excluded, on the grounds that some unit-test fixtures are keyed only for the rule
+  // under test and are not colour-coherent. The reasoning was right about the fixtures and wrong about
+  // the conclusion: leaving it out made paper-scope compliance something each caller of
+  // validateQuestion had to remember, and five of the six forgot. auditAndQuarantineQuestion() and
+  // scripts/audit-questions.mjs both come through here, so for as long as it was excluded NO banked
+  // question was ever quarantined for serving a red wine on Paper 1 — which is exactly what happened,
+  // 35 times, 23 of them still live.
+  //
+  // So the flag inverts the burden: production callers get the contract by omission and only a test
+  // that KNOWS its fixture is colour-incoherent opts out. tests/audit-paper-scope-default.test.ts pins
+  // that no file under src/ or scripts/ passes `paperScope: false`.
+  if (opts?.paperScope !== false) {
+    violations.push(...validatePaperColour(q.paper, q.wines, q.questionText));
+  }
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

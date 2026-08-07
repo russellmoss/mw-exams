@@ -1429,6 +1429,58 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   "no sparkling" but no validator enforced it. **Fix:** added sparkling/fortified scope checks to P1
   and P2 validation. (Pattern: prompt instructions are not guarantees — enforce with a validator.)
 
+### EK-0155 · A validator that runs in ONE place is not an enforcement (red wines in Paper 1)
+- **tier:** PROCESS · **status:** live
+- **evidence:** Neon `generated_questions` 2026-08-07 (35 violating P1/P2 questions, 23 live-servable,
+  served 20×); ledger rows #47, #71, #145, #178; commits `1bfbf81`, `ea5b178`, `021863f`, `648c5fb`
+- **claim:** **Symptom:** red wines appeared in Paper 1 flights — `Domaine Jean-Louis Chave, Hermitage`,
+  `Clos des Papes, Châteauneuf-du-Pape`, `López de Heredia, Viña Tondonia Gran Reserva`,
+  `Château du Moulin-à-Vent`, `Quinta do Crasto, Reserva Old Vines`. 35 questions, 23 still servable,
+  already served 20 times.
+  **Root cause — four faults, none of them a missing rule.** A correct contract (`validatePaperColour`,
+  "R-COLOUR") already existed with passing tests. (1) It was called from exactly one place, the
+  generation redraft loop. (2) It was *deliberately excluded* from `validateQuestion`, the shared
+  audit wrapper, because a few unit fixtures were not colour-coherent — so **no banked question was ever
+  quarantined for wrong colour**, while a comment in `question-engine.ts` claimed the post-save audit
+  recorded it. (3) The serve path used the older label-regex check, which cannot see colour in an
+  appellation-only name — none of the five wines above names a grape. (4) `/api/get-question/banked`
+  skipped `filterValidBanked` entirely. Separately, the nightly sweep
+  (`question-audit-daily.yml`) had been **failing since 2026-08-07** with `ERR_MODULE_NOT_FOUND`, so
+  even a correct rule had nothing running it over the back catalogue.
+  **Fix:** R-COLOUR folded into `validateQuestion` **by default** (opt-out only for the three
+  colour-incoherent fixtures, pinned by `tests/audit-paper-scope-default.test.ts`); added to the serve
+  filter and the unfiltered banked route; the appellation resolver registered in the audit processes;
+  the sweep given the `ts-loader` it needs.
+  **Prevention / the generalised lesson:** EK-0064 taught *"prompt instructions are not guarantees —
+  enforce with a validator."* This is the next rung: **a validator not wired into every path is not an
+  enforcement either.** Prefer defaults that protect production by omission — five of the six
+  `validateQuestion` callers forgot to add the colour check, and forgetting was the failure mode. When a
+  test fixture blocks a production rule, fix the fixture, not the rule.
+- **cross-refs:** EK-0001 (paper scope), EK-0046 / EK-0064 (the sparkling half of the same rule),
+  EK-0088 (P3 still-white placement), EK-0156
+
+### EK-0156 · Colour and style are two axes; collapsing them fails legitimate Paper 1 wines
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** Neon 2026-08-07 — 16 live P1 questions contain a residual-sugar white;
+  `question-generation-prompt.ts` P1 scope line; commit `1bfbf81`
+- **claim:** `classifyWineColour` returned a single seven-value enum in which **style beat colour**, so a
+  Riesling Spätlese resolved as `"sweet"` rather than `"white"` and tripped `wrong_colour_for_paper` on
+  Paper 1 — even though the generation prompt explicitly invites it (*"no sweet wines (unless a white
+  wine with residual sugar like Riesling Spätlese or Vouvray demi-sec)"*). **16 live Paper 1 questions
+  depended on that allowance**, so wiring the collapsed enum into the serve filter and the audit would
+  have quarantined 16 good questions while fixing 23 bad ones — a net loss.
+  Colour (`white|red|rose|orange`) and style (`still|sparkling|sweet|fortified|oxidative`) are now
+  resolved independently. **Paper 1 rejects a wine for being red, rosé, fortified or sparkling — never
+  for being sweet or oxidatively handled**; cask-oxidised whites (white Rioja, aged Hunter Semillon) are
+  Paper 1 wines, and `still_dry` was never a colour (it covered 833 banked rows, Chablis and Barolo
+  alike — now split 466 red / 361 white).
+  **Corollaries worth keeping:** an explicit colour word on a label outranks the grape's usual colour
+  (*Touriga Nacional **Branco*** and *Xinomavro **White*** are white) — but French `blanc` must be
+  excluded from that rule, because **Château Cheval Blanc is a red Saint-Émilion**. And a region famous
+  for a fortified wine may also make dry wine under the same name: **Maury, Rasteau and Rutherglen**
+  need a positive VDN/Muscat marker before a wine counts as fortified.
+- **cross-refs:** EK-0046, EK-0088 (oxidative whites on P3), EK-0132, EK-0155
+
 ### EK-0065 · Generation self-corrections weren't applied to the output
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #63 (accept); see EK-0043

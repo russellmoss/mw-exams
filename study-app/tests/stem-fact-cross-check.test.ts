@@ -9,9 +9,12 @@
 import { describe, it, expect } from "vitest";
 import { validateQuestion, crossCheckStemFacts, type QuestionForAudit } from "../src/lib/question-validator";
 
-const q = (questionText: string, wines: QuestionForAudit["wines"]): QuestionForAudit => ({
+// `paper` is overridable because validateQuestion now enforces R-COLOUR by default: a fixture of white
+// wines declared as Paper 2 is colour-incoherent and would fail on that rather than on the stem-fact
+// rule under test. Pass the paper that matches the fixture's wines.
+const q = (questionText: string, wines: QuestionForAudit["wines"], paper = 2): QuestionForAudit => ({
   questionId: "x",
-  paper: 2,
+  paper,
   family: "F3",
   questionText,
   wines,
@@ -138,7 +141,8 @@ describe("a matching single-variety flight passes", () => {
         { slot: 1, varieties: ["Riesling"], region: "Mosel", country: "Germany" },
         { slot: 2, varieties: ["Riesling"], region: "Clare Valley", country: "Australia" },
         { slot: 3, varieties: ["Riesling"], region: "Alsace", country: "France" },
-      ]
+      ],
+      1 // three Rieslings are white wines — a Paper 1 flight
     );
     const res = validateQuestion(question);
     expect(res.ok).toBe(true);

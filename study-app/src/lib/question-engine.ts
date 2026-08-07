@@ -572,6 +572,34 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
     return false;
   }
 
+  // R-COLOUR at serve time. validatePaperScope above only regexes the raw label, so it cannot see the
+  // colour of an appellation-only name — Hermitage, Châteauneuf-du-Pape, Viña Tondonia and Moulin-à-Vent
+  // all reached live Paper 1 flights through it. validatePaperColour resolves the appellation to its
+  // primary variety and reads the colour off that.
+  //
+  // Indeterminate colour is intentionally NOT blocked here (no `blockIndeterminate`): these wines are
+  // already banked, and refusing them on a LACK of evidence would retire a large slice of the pool.
+  // 44 Paper 1 wine slots currently resolve to no colour from the label alone; the wine_bank.colour
+  // backfill is what closes those, not a stricter serve gate.
+  // wine_profiles is stored on the same row and carries the colour the enrichment step resolved, when
+  // it could. Reading it here is what lifts the serve path to the audit path's strength: from the bare
+  // label alone, 44 Paper 1 wine slots resolve to no colour at all.
+  const profiles = (q.wine_profiles ?? {}) as Record<string, { colour?: unknown } | undefined>;
+  const resolvedColour = (slot: number): "white" | "red" | "rose" | "orange" | undefined => {
+    const c = profiles[String(slot)]?.colour;
+    return c === "white" || c === "red" || c === "rose" || c === "orange" ? c : undefined;
+  };
+
+  const paperColourCheck = validatePaperColour(
+    q.paper,
+    winesFromText(wines).map((w) => ({ ...w, region: "", colour: resolvedColour(w.slot) })),
+    questionText || undefined
+  );
+  if (paperColourCheck.length > 0) {
+    console.log(`Bank filter: ${q.question_id} failed R-COLOUR: ${paperColourCheck[0].detail}`);
+    return false;
+  }
+
   // Country diversity was previously NOT re-checked at serve time, so a banked question whose stem
   // promises "N different countries" but whose wines repeat a country (e.g. two USA wines under a
   // "four different countries" stem) could still be served. Re-run it on every banked question.
@@ -1577,10 +1605,18 @@ ${repairContext.draft}`,
     };
     // R-COLOUR (Right Paper Check): Paper 1 still-white only, Paper 2 still-red only — unconditional,
     // and applied on EVERY path including pinned (a wrong-colour wine is never served). Blocking (not
-    // advisory), so a wrong-colour draft is silently discarded and the loop redrafts a compliant
-    // flight; the eventual post-save audit (validateQuestion) records the same reason if one slips by.
+    // advisory), so a wrong-colour draft is silently discarded and the loop redrafts a compliant flight.
+    // The post-save audit (validateQuestion) now records the same reason if one slips by, and so does
+    // the serve-time bank filter (validateBankedQuestion) — R-COLOUR used to run ONLY here, which is how
+    // Hermitage and Châteauneuf-du-Pape ended up in live Paper 1 flights.
+    //
+    // `blockIndeterminate` is set on THIS path only. At generation an alternative wine costs one
+    // redraft, so refusing to guess is cheap and correct; at serve time the wine is already banked and
+    // rejecting on a lack of evidence would retire a large slice of the pool. See validatePaperColour.
     const paperColourCheck = {
-      violations: validatePaperColour(paper, auditWines, candidate.questionText).map((v) => v.detail),
+      violations: validatePaperColour(paper, auditWines, candidate.questionText, {
+        blockIndeterminate: true,
+      }).map((v) => v.detail),
     };
     // R11 (feedback fa_65): residual sugar is a Paper 3 device. Blocks on every path including pinned —
     // it is a pure stem rewrite (drop the premise / re-aim the sub-part), never a wine swap, so a

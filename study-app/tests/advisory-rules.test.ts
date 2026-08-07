@@ -34,7 +34,19 @@ describe("ADVISORY_RULES membership", () => {
     // These encode what the question CLAIMS versus what it contains. A question whose stem says
     // "same variety" over three different grapes is simply wrong, and no detector-accuracy argument
     // applies — unlike banker, these do not guess.
-    for (const rule of ["paperScope", "variety", "marks", "novelty", "consistency", "composition"]) {
+    // paperColour and paperStyleMix are R-COLOUR and the flight-level style-mix contract. A wine that
+    // cannot appear in the paper is not a judgement call — Paper 1 is white still wines — so these must
+    // never become advisory, on any path including pinned Live Tasting flights.
+    for (const rule of [
+      "paperScope",
+      "paperColour",
+      "paperStyleMix",
+      "variety",
+      "marks",
+      "novelty",
+      "consistency",
+      "composition",
+    ]) {
       expect(ADVISORY_RULES.has(rule)).toBe(false);
     }
   });

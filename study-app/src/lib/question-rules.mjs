@@ -721,8 +721,14 @@ export function applyQuestionRules(q, opts = {}) {
 // resolves to "unknown" and the diversity rules skip it. Every synonym key above that can appear on a
 // real label therefore has a token here. Longer alternatives must precede the shorter ones they
 // contain ("garnacha blanca" before "garnacha") because the regex alternation is first-match.
-export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|moscato\s*bianco|moscatel\s*de\s*grano\s*menudo|moscatel|muscat\s*blanc|muscat|moscato|zibibbo|gelber\s*muskateller|muskateller|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano|treixadura|romorantin|godello|hondarrabi\s*zuri)\b/i;
-export const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|cabernet\s*franc|merlot|pinot\s*noir|pinot\s*nero|spatburgunder|sp[aä]tburgunder|blauburgunder|syrah|shiraz|garnacha\s*tinta|grenache|garnacha|cannonau|tempranillo|tinta\s*de\s*toro|tinto\s*fino|tinta\s*fina|tinta\s*roriz|aragonez|ull\s*de\s*llebre|cencibel|sangiovese|prugnolo\s*gentile|nielluccio|morellino|nebbiolo|spanna|chiavennasca|malbec|zinfandel|primitivo|tribidrag|mourvedre|monastrell|mataro|carignan|carinena|cari[nñ]ena|mazuelo|samso|barbera|dolcetto|touriga\s*nacional|touriga\s*franca|touriga\s*francesa|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|kekfrankos|k[ée]kfrankos|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|xinomavro|cinsault|tinta\s*negra\s*mole|tinta\s*negra|petite\s*sirah|durif|cot|baga|mencia|blauer\s*wildbacher)\b/i;
+export const WHITE_GRAPE_INDICATORS = /\b(chardonnay|sauvignon\s*blanc|riesling\s*italico|riesling|pinot\s*gri[gs]|grauburgunder|rul[aä]nder|pinot\s*bianco|weissburgunder|gewurz|moscato\s*bianco|moscatel\s*de\s*grano\s*menudo|moscatel|muscat\s*blanc|muscat|moscato|zibibbo|gelber\s*muskateller|muskateller|viognier|chenin|steen|semillon|albarino|alvarinho|gruner|verdejo|vermentino|soave|garganega|torrontes|fiano|greco|arneis|cortese|marsanne|roussanne|picpoul|muscadet|melon\s*de\s*bourgogne|blanc\s*de\s*blancs|prosecco|glera|listan\s*blanco|palomino|pedro\s*xim[eé]nez|furmint|sercial|verdelho|malvasia|malmsey|boal|bual|assyrtiko|welschriesling|grasevina|vidal|viura|macabeo|garnacha\s*blanca|grenache\s*blanc|ugni\s*blanc|trebbiano|tocai\s*friulano|friulano|treixadura|romorantin|godello|hondarrabi\s*zuri|aligote|savagnin|altesse|jacquere|mauzac|\brolle\b|bourboulenc|clairette|timorasso|pecorino|passerina|falanghina|verdicchio|grillo|catarratto|carricante|inzolia|insolia|loureiro|arinto|encruzado|ant[aã]o\s*vaz|fern[aã]o\s*pires|s[iy]lvaner|elbling|scheurebe|rkatsiteli|robola|savatiano|malagousia|petit\s*manseng|gros\s*manseng|colombard|folle\s*blanche|chasselas|gutedel|m[uü]ller[- ]thurgau|traminer|kerner|xarel[- ]?lo|parellada)\b/i;
+export const RED_GRAPE_INDICATORS = /\b(cabernet\s*sauvignon|cabernet\s*franc|merlot|pinot\s*noir|pinot\s*nero|spatburgunder|sp[aä]tburgunder|blauburgunder|syrah|shiraz|garnacha\s*tinta|grenache|garnacha|cannonau|tempranillo|tinta\s*de\s*toro|tinto\s*fino|tinta\s*fina|tinta\s*roriz|aragonez|ull\s*de\s*llebre|cencibel|sangiovese|prugnolo\s*gentile|nielluccio|morellino|nebbiolo|spanna|chiavennasca|malbec|zinfandel|primitivo|tribidrag|mourvedre|monastrell|mataro|carignan|carinena|cari[nñ]ena|mazuelo|samso|barbera|dolcetto|touriga\s*nacional|touriga\s*franca|touriga\s*francesa|touriga|tannat|carmenere|pinotage|gamay|blaufr[aä]nkisch|lemberger|kekfrankos|k[ée]kfrankos|zweigelt|aglianico|nero\s*d.avola|nerello|lagrein|xinomavro|cinsault|tinta\s*negra\s*mole|tinta\s*negra|petite\s*sirah|durif|cot|baga|mencia|blauer\s*wildbacher|corvina|corvinone|rondinella|molinara|sagrantino|refosco|schioppettino|teroldego|petit\s*verdot|graciano|bobal|trincadeira|castel[aã]o|alfrocheiro|agiorgitiko|negroamaro|gaglioppo|frappato|saperavi|plavac\s*mali|ciliegiolo|freisa|croatina|marzemino|schiava|cesanese|trousseau|poulsard|ploussard)\b/i;
+// NOTE: `montepulciano` is deliberately NOT in the list above. The bare token is ambiguous — Vino
+// Nobile di Montepulciano is Sangiovese from a Tuscan town, Montepulciano d'Abruzzo is the grape —
+// and adding it here outranks APPELLATION_TO_PRIMARY_VARIETY's `vino nobile` entry, sending every
+// Vino Nobile to the wrong variety (pinned by tests/appellation-resolver.test.ts and
+// tests/distinct-variety-generation.test.ts). Its COLOUR is unambiguous though, so the colour
+// resolver handles it via EXTRA_RED_VARIETIES in question-validator.ts.
 
 const APPELLATION_TO_PRIMARY_VARIETY = [
   { pattern: /\b(barolo|barbaresco|gattinara|ghemme|carema|valtellina|sforzato)\b/i, variety: "nebbiolo" },
@@ -773,6 +779,23 @@ function normalizeVariety(value) {
 let appellationResolver = null;
 export function registerAppellationResolver(fn) {
   appellationResolver = typeof fn === "function" ? fn : null;
+}
+
+// The same bridge, for COLOUR rather than variety — and it reaches further than the variety one can.
+//
+// varietyFromAppellation must refuse the 114 multi-variety and 7 byColor entries, because it can only
+// assert ONE grape and a Bordeaux blend is not one grape. But colour survives that ambiguity: every
+// variety in St-Julien is red, so St-Julien is red even though its variety is unresolvable. That turns
+// 238 appellations into colour evidence where only 117 were variety evidence — which is what lets
+// R-COLOUR place an appellation-only label like Hermitage or Châteauneuf-du-Pape.
+let appellationColourResolver = null;
+export function registerAppellationColourResolver(fn) {
+  appellationColourResolver = typeof fn === "function" ? fn : null;
+}
+
+/** "white" | "red" implied by an appellation named in `fullText`, or null. Server-only; see above. */
+export function colourFromAppellation(fullText) {
+  return appellationColourResolver?.(fullText) ?? null;
 }
 
 export function detectPrimaryVariety(fullText) {

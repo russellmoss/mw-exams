@@ -14,6 +14,12 @@
 
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion, type AuditWine, type Violation } from "./question-validator";
+// Registers the appellation → primary-variety fallback that R-COLOUR needs. Without it
+// detectPrimaryVariety returns "unknown" for every appellation-only label — Hermitage,
+// Châteauneuf-du-Pape, Viña Tondonia — and the audit silently exempts the exact wines it exists to
+// catch. This module only worked before because question-engine.ts happened to import the resolver
+// earlier in the same process; the corpus sweep has no such luck.
+import "./appellation-resolver";
 
 export async function auditAndQuarantineQuestion(
   questionId: string
@@ -21,7 +27,7 @@ export async function auditAndQuarantineQuestion(
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
     SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-           g.scope, k.ground_truth
+           g.scope, g.wine_profiles, k.ground_truth
     FROM generated_questions g
     JOIN stem_answer_keys k ON k.question_id = g.question_id
     WHERE g.question_id = ${questionId}`;
@@ -36,7 +42,23 @@ export async function auditAndQuarantineQuestion(
   const bySlot = new Map<number, string>(
     (Array.isArray(raw) ? raw : []).map((w: { slot: number; fullText?: string }) => [w.slot, w.fullText ?? ""])
   );
-  const wines = (gt || []).map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w));
+  // Zip the RESOLVED COLOUR on too, from wine_profiles. ground_truth carries varieties, which usually
+  // settle colour — but not for a red grape bottled as a white ("Touriga Nacional Branco"), and not
+  // when the key's varieties are empty. The enrichment step judged the wine in the glass, so prefer it.
+  const profilesRaw = (typeof r.wine_profiles === "string" ? JSON.parse(r.wine_profiles) : r.wine_profiles) as
+    | Record<string, { colour?: unknown } | undefined>
+    | null;
+  const colourBySlot = new Map<number, "white" | "red" | "rose" | "orange">();
+  for (const [slot, p] of Object.entries(profilesRaw ?? {})) {
+    const c = p?.colour;
+    if (c === "white" || c === "red" || c === "rose" || c === "orange") colourBySlot.set(Number(slot), c);
+  }
+
+  const wines = (gt || []).map((w) => ({
+    ...w,
+    ...(bySlot.has(w.slot) ? { fullText: bySlot.get(w.slot) } : {}),
+    ...(colourBySlot.has(w.slot) ? { colour: colourBySlot.get(w.slot) } : {}),
+  }));
 
   const res = validateQuestion({
     questionId: r.question_id as string,
