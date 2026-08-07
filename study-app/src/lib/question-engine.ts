@@ -14,6 +14,7 @@ import {
   getOverusedProducers,
   getRecentWineIds,
   getRecentFlightSignatures,
+  getRecentFlightSizes,
   flightSignature,
   wineCooldownId,
   RECENT_WINE_WINDOW,
@@ -81,6 +82,8 @@ import {
   crossCheckStemFacts,
   stemPreannouncesDiscriminator,
   contrastIntegrityViolations,
+  isBanker,
+  type AuditWine,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -865,6 +868,28 @@ export async function generateFreshQuestion(
   if (!pinned) emit?.({ type: "status", label: "Checking the last 30 questions for repeats…" });
   const recentGenerated = pinned ? [] : await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
+
+  // Flight-size policy (fb_73): a single seedable draw over HISTORIC_FLIGHT_SIZE_WEIGHTS with a rolling
+  // 4-wine cap, instead of the legacy per-family "default to four" distribution. Skipped in pinned mode
+  // (the flight is fixed upstream). Bank Health's targeting.flightSize is a coarse "2 / 3 / 4+" bucket,
+  // not a wine count, and is already surfaced as a SOFT preference in buildTargetingConstraints — so it
+  // is left to nudge, and the authoritative count comes from the sampler here. A single-wine draw
+  // carries the identification-suppression flag unless it is an explicit banker (curveball 'low') —
+  // enforced downstream by validateSingleWineIdentification (fb_354/355/98).
+  let flightSizeOverride: number | null = null;
+  let suppressIdentification = false;
+  if (!pinned) {
+    try {
+      const recentSizes = await getRecentFlightSizes(paper, FLIGHT_SIZE_WINDOW).catch(() => []);
+      flightSizeOverride = selectFlightSize(paper, { recentSizes });
+      suppressIdentification = shouldSuppressIdentification(flightSizeOverride, {
+        curveball: saveOpts?.examMix?.curveball ?? null,
+      });
+    } catch (err) {
+      console.error("[flight-size] selection failed (non-fatal, falling back to prompt default):", err);
+    }
+  }
+
   const prompt = await buildQuestionGenerationPrompt(
     paper,
     family || "any",
@@ -882,7 +907,9 @@ export async function generateFreshQuestion(
     // on any non-bank generation.
     saveOpts?.examMix
       ? { flightCategory: saveOpts.examMix.flightCategory, curveball: saveOpts.examMix.curveball }
-      : undefined
+      : undefined,
+    flightSizeOverride,
+    suppressIdentification
   );
 
   // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
@@ -1498,6 +1525,14 @@ ${repairContext.draft}`,
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
       : validateFlightSize(candidate.family, paper, candidate.wines.length);
+    // Single-wine curveball ID suppression (fb_354/355/98). HARD, never relaxes: a one-wine curveball
+    // asking the candidate to name the grape/origin is exactly the fault the reviewers binned, and the
+    // fix (drop the ID sub-part) is a deterministic stem edit the repair prompt converges on. A
+    // single-wine BANKER, and any flight of 2+, are untouched by this rule. Pinned mode skips it (the
+    // stem was already blind-safety-checked and the flight is fixed upstream).
+    const singleWineIdCheck = pinned
+      ? { valid: true, violations: [] }
+      : validateSingleWineIdentification(candidate.questionText, auditWines);
     // Novelty NEVER fully relaxes: serving a user a question whose shape they've already seen defeats
     // the practice system. On relaxed attempts it runs in "lenient" mode — still blocks exact AND
     // structural/thematic repeats (same template + contrast axis), but drops the fuzzier
@@ -1539,6 +1574,7 @@ ${repairContext.draft}`,
       price: priceCheck,
       banker: bankerCheck,
       flightSize: flightSizeCheck,
+      singleWineId: singleWineIdCheck,
       novelty: noveltyCheck,
       // Stem-disclosure (rule R10, shared with the audit where it is a soft flag): a stem that
       // announces the discriminator ("made using contrasting approaches in the winery") BLOCKS here
@@ -2506,6 +2542,137 @@ function validateMarkAllocation(questionText: string, wineCount?: number): { val
     }
   }
   return { valid: violations.length === 0, violations };
+}
+
+// ── FLIGHT-SIZE POLICY (fb_73, fb_98, fb_354, fb_355) ────────────────────────────────────────────
+//
+// Two recurring, cross-paper faults: (1) the generator over-used 4-wine flights (the reviewer:
+// "This model seems overindexed in four wine flights … We often see three wine flights or pairs, and
+// every once in a while a single wine"), and (2) it set ID-focused single-wine "curveball" flights,
+// which the exam never does — a lone curveball is not asked to be named (fb_354/355/98).
+//
+// The size choice is now a single seedable sampler over an explicit, per-paper-tunable weight table,
+// with a rolling cap so 4-wine flights can never dominate a paper's recent output. The single-wine
+// arm carries a hard identification-suppression rule enforced downstream.
+
+// Historic flight-size distribution as SHARE weights (need not sum to 100 — the sampler normalises).
+// Baseline from the reviewer's "pairs / threes common, four prevalent, single occasional" reading of
+// the corpus. Tunable per paper: Papers 1 & 2 have no single-wine question in the 10-year corpus (see
+// validateFlightSize), so their 1-wine weight is 0; the sole single-wine instance is Paper 3.
+export const HISTORIC_FLIGHT_SIZE_WEIGHTS: Record<string, Record<number, number>> = {
+  default: { 1: 5, 2: 25, 3: 30, 4: 40 },
+  "1": { 2: 27, 3: 31, 4: 42 },
+  "2": { 2: 27, 3: 31, 4: 42 },
+  "3": { 1: 5, 2: 25, 3: 30, 4: 40 },
+};
+
+// Rolling cap: no more than this share of the last FLIGHT_SIZE_WINDOW generated flights for a paper
+// may be 4-wine. Once the recent window already sits at/above the cap, a freshly-drawn 4 is resampled.
+export const FLIGHT_SIZE_WINDOW = 20;
+export const FOUR_WINE_ROLLING_CAP = 0.5;
+
+function flightSizeWeightsForPaper(paper: number): Record<number, number> {
+  return HISTORIC_FLIGHT_SIZE_WEIGHTS[String(paper)] ?? HISTORIC_FLIGHT_SIZE_WEIGHTS.default;
+}
+
+/**
+ * Choose a flight size from HISTORIC_FLIGHT_SIZE_WEIGHTS instead of defaulting to four wines (fb_73).
+ *
+ * Pure and seedable: pass `rng` for a deterministic draw and `recentSizes` (the paper's last
+ * FLIGHT_SIZE_WINDOW generated flight sizes, most-recent first) to enforce the rolling 4-wine cap. If
+ * 4-wine flights already fill half of that window, a drawn 4 is resampled until it lands on another
+ * size, so 4-wine flights can never exceed ~50% of a paper's recent output.
+ */
+export function selectFlightSize(
+  paper: number,
+  opts?: {
+    recentSizes?: number[];
+    rng?: () => number;
+    weights?: Record<number, number>;
+  }
+): number {
+  const rng = opts?.rng ?? Math.random;
+  const weights = opts?.weights ?? flightSizeWeightsForPaper(paper);
+  const entries = Object.entries(weights)
+    .map(([s, w]) => [Number(s), w] as [number, number])
+    .filter(([, w]) => w > 0);
+  if (entries.length === 0) return 2;
+
+  const recent = (opts?.recentSizes ?? []).slice(0, FLIGHT_SIZE_WINDOW);
+  const fourCount = recent.filter((s) => s === 4).length;
+  const fourCapReached = recent.length > 0 && fourCount / recent.length >= FOUR_WINE_ROLLING_CAP;
+
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  const draw = (): number => {
+    let roll = rng() * total;
+    for (const [size, w] of entries) {
+      roll -= w;
+      if (roll <= 0) return size;
+    }
+    return entries[entries.length - 1][0];
+  };
+
+  // Resample a 4 only while the cap is breached. With a ~40% 4-wine weight the odds of 16 straight
+  // 4s are vanishing, so this returns a non-4 draw in every realistic case; the fallback below covers
+  // the degenerate one (weights that offer only a 4).
+  const MAX_RESAMPLE = 16;
+  for (let i = 0; i <= MAX_RESAMPLE; i++) {
+    const size = draw();
+    if (size !== 4 || !fourCapReached) return size;
+  }
+  const nonFour = entries.filter(([s]) => s !== 4).sort((a, b) => b[1] - a[1]);
+  return nonFour.length > 0 ? nonFour[0][0] : entries[0][0];
+}
+
+/**
+ * Whether a single-wine flight must SUPPRESS identification (fb_354/355/98).
+ *
+ * Only single-wine flights are affected. A single BANKER (classic benchmark) may keep its
+ * identify-variety/origin parts; a single CURVEBALL (or a wine of unknown classification, failing
+ * safe) must not be asked to be named — the exam moves those marks onto style, method of production,
+ * quality and commercial positioning. An explicit `curveball: "low"` intent counts as banker-like.
+ */
+export function shouldSuppressIdentification(
+  flightSize: number,
+  classification?: { isBanker?: boolean; curveball?: "low" | "medium" | "high" | null } | null
+): boolean {
+  if (flightSize !== 1) return false;
+  if (classification?.isBanker === true) return false;
+  if (classification?.curveball === "low") return false;
+  return true;
+}
+
+// Matches an "identify the grape variety / region / origin / country / appellation" sub-part.
+const SINGLE_WINE_ID_RE =
+  /identif(?:y|ication)[^.?\n]{0,90}\b(?:grape variet(?:y|ies)|variet(?:y|ies)|region|origin|country|appellation)\b/i;
+
+/** Whether a stem asks the candidate to identify the grape variety or the region/country of origin. */
+export function questionAsksIdentification(questionText: string): boolean {
+  return SINGLE_WINE_ID_RE.test(questionText || "");
+}
+
+/**
+ * Engine-side backstop for the single-wine curveball rule (fb_354/355/98). A single-wine flight whose
+ * one wine reads as a CURVEBALL must not carry an identify-variety/origin sub-part — the reviewer is
+ * clear the exam does not stake marks on naming, e.g., a Cabernet Franc from Hungary. A single-wine
+ * BANKER is untouched (it may keep ID parts), and flights of 2+ are out of scope here (their banker /
+ * ID-mark balance is judged by flightCompositionViolations / idMarkAllocationViolations).
+ */
+export function validateSingleWineIdentification(
+  questionText: string,
+  auditWines: AuditWine[]
+): { valid: boolean; violations: string[] } {
+  if (!Array.isArray(auditWines) || auditWines.length !== 1) return { valid: true, violations: [] };
+  if (isBanker(auditWines[0])) return { valid: true, violations: [] };
+  if (!questionAsksIdentification(questionText)) return { valid: true, violations: [] };
+  return {
+    valid: false,
+    violations: [
+      "Single-wine curveball flight asks the candidate to identify the grape variety or region of origin. " +
+        "On a one-wine curveball the exam suppresses identification and weights the marks onto style, method of " +
+        "production, quality/maturity and commercial positioning instead — remove the identify-variety/origin sub-part.",
+    ],
+  };
 }
 
 const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; typical: number[] }> = {

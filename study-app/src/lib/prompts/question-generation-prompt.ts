@@ -427,7 +427,16 @@ export async function buildQuestionGenerationPrompt(
   examMix?: {
     flightCategory?: string | null;
     curveball?: "low" | "medium" | "high" | null;
-  } | null
+  } | null,
+  // Flight-size policy (fb_73): when the engine has already chosen the size via selectFlightSize, it
+  // passes it here and this prompt uses it verbatim instead of the legacy per-family distribution
+  // draw. Null/undefined preserves the old self-contained behaviour for any caller that hasn't moved.
+  flightSizeOverride?: number | null,
+  // Single-wine curveball rule (fb_354/355/98): when true, the flight is one CURVEBALL wine and the
+  // stem must NOT ask the candidate to identify the grape variety or region/country of origin. The
+  // engine enforces this after generation (validateSingleWineIdentification); this adds the matching
+  // instruction so the model builds the right stem in the first place.
+  suppressIdentification?: boolean
 ): Promise<{ system: string; user: string }> {
   const ctx = loadPipelineContext();
 
@@ -463,9 +472,14 @@ export async function buildQuestionGenerationPrompt(
       ? "P2 (reds): most ORIGIN-driven (~50% of marks) and STYLE-driven (~23%); maturity is low (~9%). Include a precise-origin ask (commune / cru / classification level)."
       : "P3 (special): highest COMMERCIAL (~21%) and WINEMAKING (~27%); sweetness/RS and structure 'state' asks (2-3 marks) belong here.";
 
-  // Pre-roll the flight size based on historical corpus distributions,
-  // adjusted by what's already in the database to maintain correct ratios
-  const targetFlightSize = await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
+  // Pre-roll the flight size. The engine now owns this choice (selectFlightSize over
+  // HISTORIC_FLIGHT_SIZE_WEIGHTS, with the rolling 4-wine cap — fb_73) and passes it as
+  // flightSizeOverride; the legacy per-family distribution draw only runs when no override was given,
+  // so a caller that hasn't been moved onto the engine sampler still behaves exactly as before.
+  const targetFlightSize =
+    flightSizeOverride && flightSizeOverride > 0
+      ? flightSizeOverride
+      : await pickFlightSizeFromDistribution(paper, family || "any", existingWines);
   // Exam Mix supplies its own authoritative P3 category when active; fall back to the legacy corpus
   // draw otherwise so a non-bank generation is unchanged.
   const targetP3Style = paper === 3 && !examMix?.flightCategory ? await pickP3StyleCategory() : null;
@@ -487,7 +501,15 @@ ${targetFlightSize === 2 ? "This is a pair comparison — the most common format
 ${targetFlightSize === 3 ? "This is a three-wine flight — common for same-origin or same-variety questions with regional spread." : ""}
 ${targetFlightSize >= 5 ? "This is a larger comparative flight — use it for breadth questions, mechanism comparisons, or hierarchy ladders." : ""}
 
-${targetP3Style ? `## P3 WINE STYLE CATEGORY FOR THIS QUESTION: ${targetP3Style.toUpperCase()} (MANDATORY)
+${suppressIdentification && targetFlightSize === 1 ? `## SINGLE-WINE CURVEBALL — IDENTIFICATION SUPPRESSED (HARD RULE — violation = automatic rejection)
+This is a single-wine flight and the wine is a CURVEBALL. Do NOT ask the candidate to identify the grape variety, or the region/country of origin — no "Identify the grape variety", no "Identify the region/origin as closely as possible", not even at a low mark value. A candidate is not expected to name, for example, a Cabernet Franc from Hungary, so the real exam does not stake marks on identifying a lone curveball. Build all 25 marks on:
+- the STYLE of the wine (a concise descriptor of what it is),
+- its METHOD OF PRODUCTION / winemaking,
+- its QUALITY and maturity,
+- its COMMERCIAL POSITIONING (how it would be positioned in the global market).
+A blocking validator rejects this question if it contains ANY "identify the grape variety / region / origin" sub-part.
+
+` : ""}${targetP3Style ? `## P3 WINE STYLE CATEGORY FOR THIS QUESTION: ${targetP3Style.toUpperCase()} (MANDATORY)
 This Paper 3 question must feature ${targetP3Style} wines as the primary category. This was selected from the corpus distribution to ensure users practice all P3 categories at realistic frequencies.
 
 Flight categories and their frequencies: sparkling=39%, sweet=28%, fortified=23%, rose=8%, oxidative=3%.
