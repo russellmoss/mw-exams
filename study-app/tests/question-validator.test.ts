@@ -97,8 +97,8 @@ describe("partTaskRepertoireViolations", () => {
     expect(hits).toHaveLength(1);
     expect(hits[0].severity).toBe("hard");
     expect(hits[0].detail).toContain("how the bubbles were created");
-    // All-sparkling flight: the variety-ID template requirement is waived.
-    expect(v.some((x) => x.rule === "missing-variety-id-part")).toBe(false);
+    // The bubbles rider is the ONLY fault: asking origin without asking the variety is not one.
+    expect(v).toHaveLength(1);
   });
 
   it("rejects the free-standing 'role of autolysis and dosage' part c (gen_p3_F2_1785964017222)", () => {
@@ -121,28 +121,50 @@ describe("partTaskRepertoireViolations", () => {
     expect(hits[0].detail).toContain("role of autolysis and dosage");
   });
 
-  it("rejects the three-country flight that never asks for the variety (gen_p2_F2_1785968458385)", () => {
+  // The `missing-variety-id-part` arm was REMOVED 2026-08-07: it fired on 27 of the 82 modern
+  // (2018-2026) real questions, which is what EK-0154 had already recorded. Origin-only identification
+  // is a standard IMW shape, so a flight that never asks for the grape variety must pass clean. These
+  // fixtures are the real papers, verbatim in structure, so the arm cannot be reintroduced silently.
+  it.each([
+    [
+      "2023 P2 Q1 — origin only, four wines",
+      "Wines 1-4 are all from the same country.\n\nFor each wine:\n" +
+        "a) Identify the origin as closely as possible. (4 x 10 marks)\n" +
+        "b) Comment on quality, maturity and capacity to age. (4 x 10 marks)\n" +
+        "c) Comment on the method of production. (4 x 5 marks)",
+      4,
+    ],
+    [
+      "2024 P1 Q3 — origin only, three blends",
+      "Wines 10-12 are from the same country and are all blends.\n\nFor each wine:\n" +
+        "a) Identify the origin as closely as possible. (3 x 8 marks)\n" +
+        "b) Comment on the method of production with reference to the use of oak. (3 x 7 marks)\n" +
+        "c) Comment on style, quality, and commercial position. (3 x 10 marks)",
+      3,
+    ],
+    [
+      "2021 P1 Q1 — 'variety/ies used', no the word 'grape'",
+      "Wines 1-4 all come from the same country.\n\nFor each wine:\n" +
+        "a) Identify the origin and variety/ies used. (4 x 10 marks)\n" +
+        "b) Comment on quality and maturity. (4 x 10 marks)\n" +
+        "c) Comment on the method of production. (4 x 5 marks)",
+      4,
+    ],
+  ])("passes the real origin-only shape: %s", (_label, questionText, wineCount) => {
     const v = partTaskRepertoireViolations({
-      questionId: "t-no-variety",
+      questionId: "t-origin-only",
       paper: 2,
       family: "F2",
-      questionText:
-        "Wines 1 to 3 are from three different countries.\n\nFor all three wines:\n" +
-        "a) Identify the country and region of origin as closely as possible. (3 x 9 marks)\n\n" +
-        "For each wine:\n" +
-        "b) Comment on the style and key winemaking decisions. (3 x 8 marks)\n" +
-        "c) Assess the quality and commercial position. (3 x 8 marks)",
-      wines: [
-        { slot: 1, varieties: ["Tempranillo"], region: "Rioja", country: "Spain", style: "Red" },
-        { slot: 2, varieties: ["Syrah"], region: "Barossa", country: "Australia", style: "Red" },
-        { slot: 3, varieties: ["Cabernet Sauvignon"], region: "Napa Valley", country: "USA", style: "Red" },
-      ],
+      questionText,
+      wines: Array.from({ length: wineCount as number }, (_, i) => ({
+        slot: i + 1,
+        varieties: ["Tempranillo"],
+        region: "Rioja",
+        country: "Spain",
+        style: "Red",
+      })),
     });
-    // Every part is a canonical task — the fault is the MISSING variety-ID part.
-    expect(v.filter((x) => x.rule === "part-task-repertoire")).toHaveLength(0);
-    const missing = v.filter((x) => x.rule === "missing-variety-id-part");
-    expect(missing).toHaveLength(1);
-    expect(missing[0].severity).toBe("hard");
+    expect(v).toEqual([]);
   });
 
   it("passes the canonical template (guard against over-rejection)", () => {

@@ -1,6 +1,10 @@
 // audit-questions.mjs — run the hard validator over every generated question.
-//   node scripts/audit-questions.mjs            (dry run: report only)
-//   node scripts/audit-questions.mjs --apply     (quarantine HARD violations: stem_answer_keys.validated=false)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs            (dry run: report only)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply    (quarantine HARD violations)
+//
+// The ts-loader is mandatory: question-validator.ts imports "./tasting-validators" extensionless, which
+// plain `node` cannot resolve (ERR_MODULE_NOT_FOUND). Running this without it is how the nightly sweep
+// went dark on 2026-08-07 — see .github/workflows/question-audit-daily.yml.
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
