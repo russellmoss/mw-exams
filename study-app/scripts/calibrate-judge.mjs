@@ -25,7 +25,8 @@ const opt = (flag, dflt) => {
 };
 const SPLIT = opt("--split", "calibration");
 const LIMIT = Number(opt("--limit", "0"));
-const CONCURRENCY = Number(opt("--concurrency", "6"));
+// Free-tier Gemini rate-limits aggressively; 3 keeps the retry path from doing all the work.
+const CONCURRENCY = Number(opt("--concurrency", "3"));
 const PROVIDER = opt("--provider", "gemini");
 const MODEL = opt("--model", PROVIDER === "gemini" ? "gemini-3.1-pro-preview" : "claude-sonnet-4-6");
 
@@ -151,28 +152,50 @@ function makeProvider(provider, model) {
       name: "gemini",
       crossFamily: true,
       async score(system, user) {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-          {
-            method: "POST",
-            headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: system }] },
-              contents: [{ role: "user", parts: [{ text: user }] }],
-              generationConfig: {
-                temperature: 0,
-                maxOutputTokens: 2048,
-                responseMimeType: "application/json",
-              },
-            }),
+        // Retry on 429/5xx with exponential backoff. The free tier rate-limits hard, and an
+        // unretried 429 does not fail loudly — it silently drops the item, shrinking the sample and
+        // every confidence interval's denominator with it. Honouring the API's own retryDelay where
+        // offered beats guessing.
+        let lastErr;
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+            {
+              method: "POST",
+              headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: system }] },
+                contents: [{ role: "user", parts: [{ text: user }] }],
+                generationConfig: {
+                  temperature: 0,
+                  // Gemini 3.1 Pro reasons before answering and thinking shares this budget, so a
+                  // tight cap truncates the JSON mid-object — the same failure class as Opus in the
+                  // generation path (question-engine.ts:575). 2048 produced MAX_TOKENS cut-offs.
+                  maxOutputTokens: 8192,
+                  responseMimeType: "application/json",
+                },
+              }),
+            }
+          );
+          if (res.ok) {
+            const body = await res.json();
+            const cand = body.candidates?.[0];
+            return {
+              text: (cand?.content?.parts ?? []).map((p) => p.text ?? "").join(""),
+              usage: body.usageMetadata ?? {},
+              finishReason: cand?.finishReason,
+            };
           }
-        );
-        if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
-        const body = await res.json();
-        return {
-          text: (body.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join(""),
-          usage: {},
-        };
+          const text = await res.text();
+          lastErr = `Gemini ${res.status}: ${text.slice(0, 120)}`;
+          if (res.status !== 429 && res.status < 500) break;
+          const suggested = Number(text.match(/"retryDelay":\s*"(\d+)s"/)?.[1]);
+          const waitMs = Number.isFinite(suggested)
+            ? suggested * 1000
+            : Math.min(60000, 2000 * 2 ** attempt);
+          await new Promise((r) => setTimeout(r, waitMs));
+        }
+        throw new Error(lastErr ?? "Gemini: exhausted retries");
       },
     };
   }
@@ -231,11 +254,11 @@ async function main() {
   let done = 0;
   const results = await mapLimit(items, CONCURRENCY, async (item) => {
     try {
-      const { text, usage } = await judge.score(RUBRIC, buildUser(item));
+      const { text, usage, finishReason } = await judge.score(RUBRIC, buildUser(item));
       const parsed = parse(text);
       done++;
       if (done % 20 === 0) process.stdout.write(`  ${done}/${items.length}\n`);
-      return { item, parsed, usage, raw: parsed ? null : text.slice(0, 200) };
+      return { item, parsed, usage, finishReason, raw: parsed ? null : text.slice(0, 300) };
     } catch (err) {
       done++;
       return { item, parsed: null, error: String(err?.message ?? err) };
@@ -302,6 +325,21 @@ async function main() {
     cacheCreationTokens: cacheWrite,
   };
 
+  // Unparsed items silently shrink the sample, which shrinks every confidence interval's
+  // denominator without anyone noticing. Diagnose them, never just count them.
+  const failed = results.filter((r) => !r.parsed);
+  if (failed.length) {
+    console.log("\n── unparsed ──");
+    const byReason = {};
+    for (const f of failed) {
+      const k = f.error ? `error: ${f.error.slice(0, 70)}` : `finishReason=${f.finishReason ?? "?"}`;
+      byReason[k] = (byReason[k] ?? 0) + 1;
+    }
+    for (const [k, v] of Object.entries(byReason)) console.log(`  ${v}x ${k}`);
+    const sample = failed.find((f) => f.raw);
+    if (sample) console.log(`  sample: ${JSON.stringify(sample.raw).slice(0, 200)}`);
+  }
+
   console.log("\n────────── CALIBRATION ──────────");
   console.log(`  scored              ${ok.length}/${results.length}` + (report.unparsed ? ` (${report.unparsed} unparsed)` : ""));
   console.log(`  Cohen's kappa       ${kappa.toFixed(3)}   (bar: >= 0.60)`);
@@ -318,7 +356,16 @@ async function main() {
   console.log("─────────────────────────────────\n");
 
   mkdirSync(join(root, "evals", "reports"), { recursive: true });
-  const out = join(root, "evals", "reports", `judge-calibration-${judge.name}-${SPLIT}-${meta.hash}.json`);
+  // Timestamped. An earlier version keyed the filename on provider+split+hash only, so a quick
+  // 8-item smoke run silently overwrote a 60-item calibration and destroyed its disputed list —
+  // evidence a human still had to adjudicate. Runs are cheap; overwriting one is not.
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const out = join(
+    root,
+    "evals",
+    "reports",
+    `judge-calibration-${judge.name}-${SPLIT}-n${ok.length}-${meta.hash}-${stamp}.json`
+  );
   writeFileSync(out, JSON.stringify({ ...report, verdicts: ok.map((r) => ({ questionId: r.item.questionId, split: r.item.split, human: r.item.verdict, judge: r.parsed.verdict, scores: r.parsed.scores, rationale: r.parsed.rationale })) }, null, 2) + "\n");
   console.log(`Wrote ${out.replace(root, ".")}`);
 }
