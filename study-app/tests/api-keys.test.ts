@@ -28,7 +28,7 @@ describe("key requirements at signup", () => {
     const guard = register.match(/if \(!elevenlabsKey[^)]*\)\s*\{[\s\S]{0,200}?status: 400/);
     expect(guard).toBeNull();
     // It is still stored when offered.
-    expect(register).toMatch(/VALUES \(\$\{newUser\.id\}, 'elevenlabs'/);
+    expect(register).toMatch(/sealKey\("elevenlabs", String\(elevenlabsKey\)\)/);
   });
 
   it("validates an ElevenLabs key that IS offered, rather than storing it blind", () => {

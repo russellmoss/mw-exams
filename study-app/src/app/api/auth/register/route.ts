@@ -127,6 +127,29 @@ export async function POST(request: Request) {
       }
     }
 
+    // Encrypt every key BEFORE the user row is written. These statements do not share a
+    // transaction, so anything that throws between the users INSERT and the key INSERTs strands an
+    // account that exists, owns no keys, and cannot be re-created: the caller sees "Internal server
+    // error", and their retry gets 409 "an account with this email already exists". That is exactly
+    // what happened on 2026-08-07 (user 164) when a malformed ENCRYPTION_KEY made encrypt() throw.
+    // Doing the pure, throwing work first makes the window unreachable — if encryption is broken,
+    // registration fails with nothing written at all.
+    const sealedKeys: Array<{ provider: string; encrypted: string; hint: string }> = [];
+    const sealKey = (provider: string, value: string) => {
+      const trimmed = value.trim();
+      sealedKeys.push({
+        provider,
+        encrypted: encrypt(trimmed),
+        hint: "..." + trimmed.slice(-4),
+      });
+    };
+    // Anthropic and Tavily are guaranteed present by the guards above; ElevenLabs is optional.
+    sealKey("anthropic", String(apiKey));
+    sealKey("tavily", String(tavilyKey));
+    if (elevenlabsKey && String(elevenlabsKey).trim()) {
+      sealKey("elevenlabs", String(elevenlabsKey));
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
     const fullAddress = structured
       ? [streetAddress.trim(), city.trim(), state?.trim() || null, country.trim()]
@@ -156,36 +179,11 @@ export async function POST(request: Request) {
 
     const newUser = rows[0];
 
-    // Save API key if provided
-    if (apiKey && apiKey.trim()) {
-      const trimmedKey = apiKey.trim();
-      const encryptedKey = encrypt(trimmedKey);
-      const keyHint = "..." + trimmedKey.slice(-4);
+    // Store the already-encrypted keys. Same encrypted-at-rest storage for all three providers.
+    for (const k of sealedKeys) {
       await sql`
         INSERT INTO user_api_keys (user_id, provider, encrypted_key, key_hint)
-        VALUES (${newUser.id}, 'anthropic', ${encryptedKey}, ${keyHint})
-      `;
-    }
-
-    // Save Tavily key if provided
-    if (tavilyKey && tavilyKey.trim()) {
-      const trimmedTavily = tavilyKey.trim();
-      const encryptedTavily = encrypt(trimmedTavily);
-      const tavilyHint = "..." + trimmedTavily.slice(-4);
-      await sql`
-        INSERT INTO user_api_keys (user_id, provider, encrypted_key, key_hint)
-        VALUES (${newUser.id}, 'tavily', ${encryptedTavily}, ${tavilyHint})
-      `;
-    }
-
-    // Save the ElevenLabs key if they gave one. Same encrypted-at-rest storage as the other two.
-    if (elevenlabsKey && String(elevenlabsKey).trim()) {
-      const trimmedEleven = String(elevenlabsKey).trim();
-      const encryptedEleven = encrypt(trimmedEleven);
-      const elevenHint = "..." + trimmedEleven.slice(-4);
-      await sql`
-        INSERT INTO user_api_keys (user_id, provider, encrypted_key, key_hint)
-        VALUES (${newUser.id}, 'elevenlabs', ${encryptedEleven}, ${elevenHint})
+        VALUES (${newUser.id}, ${k.provider}, ${k.encrypted}, ${k.hint})
       `;
     }
 
