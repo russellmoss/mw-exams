@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 import { signToken, createSessionCookie } from "@/lib/auth";
+import { formatPurgeDate, purgeDateFor } from "@/lib/user-deletion";
 
 export const runtime = "nodejs";
 
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
     const sql = neon(process.env.DATABASE_URL!);
     const rows = await sql`
-      SELECT id, email, name, password_hash, is_admin, is_active FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, email, name, password_hash, is_admin, is_active, deleted_at FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
 
     if (rows.length === 0) {
@@ -44,6 +45,21 @@ export async function POST(request: Request) {
       return Response.json(
         { error: "Invalid email or password" },
         { status: 401 }
+      );
+    }
+
+    // Checked before the generic disabled message: a pending-deletion account is also inactive,
+    // and "Account is disabled" would leave someone waiting for an admin to re-enable an account
+    // that is actually counting down to being erased.
+    if (user.deleted_at) {
+      const purgeDate = formatPurgeDate(purgeDateFor(user.deleted_at as string));
+      return Response.json(
+        {
+          error:
+            `This account is scheduled for deletion and will be permanently erased on ${purgeDate}. ` +
+            `Contact an administrator before then if you want it restored.`,
+        },
+        { status: 403 }
       );
     }
 

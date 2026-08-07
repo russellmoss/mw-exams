@@ -16,6 +16,8 @@ const GOOGLE_ERRORS: Record<string, string> = {
   google_unavailable: "Google sign-in isn't configured. Please sign in with a password.",
   google_failed: "Google sign-in failed. Please try again.",
   account_disabled: "That account is disabled.",
+  account_pending_deletion:
+    "That account is scheduled for deletion and will be permanently erased shortly. Contact an administrator before then if you want it restored.",
 };
 
 /**

@@ -6,6 +6,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { validateTavilyKey } from "@/lib/tavily-key";
 import { validateElevenLabsKey } from "@/lib/elevenlabs-key";
+import { formatPurgeDate, purgeDateFor } from "@/lib/user-deletion";
 
 export const runtime = "nodejs";
 
@@ -60,9 +61,23 @@ export async function POST(request: Request) {
     const sql = neon(process.env.DATABASE_URL!);
 
     const existing = await sql`
-      SELECT id FROM users WHERE email = ${email.toLowerCase().trim()}
+      SELECT id, deleted_at FROM users WHERE email = ${email.toLowerCase().trim()}
     `;
     if (existing.length > 0) {
+      // The row is still there during the grace period and users.email is UNIQUE, so the address
+      // stays reserved. Say so plainly — "already exists" would be baffling to someone who just
+      // deleted the account themselves and is trying to start over.
+      if (existing[0].deleted_at) {
+        const purgeDate = formatPurgeDate(purgeDateFor(existing[0].deleted_at as string));
+        return Response.json(
+          {
+            error:
+              `An account with this email is scheduled for deletion and still holds the address ` +
+              `until ${purgeDate}. Ask an administrator to restore it, or sign up again after that date.`,
+          },
+          { status: 409 }
+        );
+      }
       return Response.json(
         { error: "An account with this email already exists" },
         { status: 409 }

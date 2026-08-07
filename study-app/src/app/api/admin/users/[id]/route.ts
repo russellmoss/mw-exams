@@ -1,5 +1,11 @@
 import { getUser } from "@/lib/auth";
 import { neon } from "@neondatabase/serverless";
+import {
+  assertNotLastAdmin,
+  DeletionBlockedError,
+  DELETION_GRACE_DAYS,
+  softDeleteUser,
+} from "@/lib/user-deletion";
 
 export const runtime = "nodejs";
 
@@ -28,7 +34,7 @@ export async function GET(
     const rows = await sql`
       SELECT
         u.id, u.email, u.name, u.address, u.business, u.job_title,
-        u.is_admin, u.is_active, u.created_at, u.avatar_url,
+        u.is_admin, u.is_active, u.created_at, u.avatar_url, u.deleted_at,
         (u.password_hash IS NOT NULL) AS has_password,
         (u.google_sub IS NOT NULL) AS google_linked,
         u.live_city, u.live_state, u.live_country,
@@ -83,6 +89,18 @@ export async function PATCH(
       // Prevent self-demotion / self-lockout
       if (targetId === user.id) {
         return Response.json({ error: "Cannot modify your own admin status" }, { status: 400 });
+      }
+      // An account scheduled for deletion is is_active = false by design. Letting the ordinary
+      // Enable toggle clear that would put a user back in circulation while the purge job still
+      // has them queued — they'd be deleted for real, without warning, on some later night.
+      const pending = (await sql`
+        SELECT deleted_at FROM users WHERE id = ${targetId} AND deleted_at IS NOT NULL
+      `) as { deleted_at: string }[];
+      if (pending.length > 0) {
+        return Response.json(
+          { error: "This account is scheduled for deletion. Restore it first." },
+          { status: 409 }
+        );
       }
       if (typeof body.isAdmin === "boolean") {
         await sql`UPDATE users SET is_admin = ${body.isAdmin} WHERE id = ${targetId}`;
@@ -141,7 +159,7 @@ export async function PATCH(
     }
 
     const rows = await sql`
-      SELECT id, email, name, address, business, job_title, is_admin, is_active,
+      SELECT id, email, name, address, business, job_title, is_admin, is_active, deleted_at,
              live_city, live_state, live_country
       FROM users WHERE id = ${targetId}
     `;
@@ -152,6 +170,84 @@ export async function PATCH(
     return Response.json({ user: rows[0] });
   } catch (err) {
     console.error("PATCH admin/users/[id] error:", err);
+    return Response.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/admin/users/[id] — an admin deletes someone else's account.
+ *
+ * Schedules the deletion (locked out now, purged from the database in DELETION_GRACE_DAYS) rather
+ * than dropping the row on the spot, so a mistaken click is recoverable via the restore route.
+ *
+ * Two guards beyond the admin check: an admin cannot delete themselves from here (that is what the
+ * Settings flow is for, and it carries its own typed confirmation), and the last active admin
+ * cannot be deleted at all. The caller must also echo back the target's email address, which is
+ * the safeguard against deleting the wrong row in a list of forty similar-looking users.
+ */
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser(request);
+    if (!user || !user.isAdmin) {
+      return Response.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const targetId = parseInt(id, 10);
+    if (isNaN(targetId)) {
+      return Response.json({ error: "Invalid user ID" }, { status: 400 });
+    }
+
+    if (targetId === user.id) {
+      return Response.json(
+        { error: "Use Settings to delete your own account." },
+        { status: 400 }
+      );
+    }
+
+    const sql = neon(process.env.DATABASE_URL!);
+
+    const rows = (await sql`SELECT id, email FROM users WHERE id = ${targetId}`) as {
+      id: number;
+      email: string;
+    }[];
+    if (rows.length === 0) {
+      return Response.json({ error: "User not found" }, { status: 404 });
+    }
+    const target = rows[0];
+
+    const body = await request.json().catch(() => ({}));
+    const confirmation = typeof body?.confirmation === "string" ? body.confirmation.trim() : "";
+    if (confirmation.toLowerCase() !== target.email.toLowerCase()) {
+      return Response.json(
+        { error: `Confirmation does not match. Type the account's email exactly: ${target.email}` },
+        { status: 400 }
+      );
+    }
+
+    try {
+      await assertNotLastAdmin(sql, targetId);
+    } catch (err) {
+      if (err instanceof DeletionBlockedError) {
+        return Response.json({ error: err.message }, { status: 400 });
+      }
+      throw err;
+    }
+
+    const pending = await softDeleteUser(sql, targetId, user.id);
+
+    return Response.json({
+      success: true,
+      user: { id: pending.id, email: pending.email },
+      deletedAt: pending.deletedAt.toISOString(),
+      purgeDate: pending.purgeDate.toISOString(),
+      graceDays: DELETION_GRACE_DAYS,
+    });
+  } catch (err) {
+    console.error("DELETE admin/users/[id] error:", err);
     return Response.json({ error: "Internal error" }, { status: 500 });
   }
 }
