@@ -1641,6 +1641,28 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0157 · A pinned archetype must outrank a soft preference — Live Tasting papers silently re-drew families
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07
+- **evidence:** paper `ltpr_egt9dfy3e` (user 1, P2 full, 2026-08-07) planned `F4/F2/F4/F2` in
+  `live_tasting_papers.composition` and was built as **F4/F2/F1/F7**; `pickArchetype`
+  (`study-app/src/lib/live-tasting-engine.ts`); `samplePaperComposition` famCap = 2
+  (`study-app/src/lib/live-tasting-paper.ts`); regression tests in `study-app/tests/live-tasting.test.ts`
+- **claim:** the paper engine DID pin the composition's family (`requireArchetype:
+  FAMILY_TO_ARCHETYPE[next.family]`), but `pickArchetype` built its try-order as
+  `[require, ...others].sort(by used-last)` — sorting the pinned archetype along with the fallbacks. Once
+  an earlier flight had used that archetype, `rank(require)` became 1 and every unused archetype
+  outranked it, so the pin was discarded without a word. Because a full paper deliberately allows a
+  family **twice**, this broke the **second occurrence of every repeated family, deterministically** —
+  not a race and not a bank-thinness fallback, which is what the symptom first looked like. Fix: the pin
+  is tried first unconditionally and the deprioritization sort orders the fallbacks only.
+- **generalisation:** a hard constraint and a soft preference must never be sorted by the same
+  comparator. If a pin can be outranked it is not a pin — and the failure is invisible, because the
+  fallback produces a perfectly good flight of the wrong family.
+- **note:** a genuine fallback (the bank cannot build the pinned archetype within budget) is still
+  allowed and still silent. The paper's stored `composition` then claims a family the flight doesn't
+  have; nothing user-facing reads family off the composition today (the paper API sends stems and
+  marks, not families), so this is a latent reporting gap, not a live defect.
+
 ### EK-0156 · The nightly quarantine sweep went dark for a day, and its cost is 13% not 61%
 - **tier:** PROCESS · **status:** live — workflow re-armed 2026-08-07
 - **evidence:** `gh run list --workflow question-audit-daily.yml` (failure at 2026-08-07 07:53 UTC,

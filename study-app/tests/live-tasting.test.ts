@@ -294,3 +294,53 @@ describe("pickArchetype paper scope", () => {
     expect(() => pickArchetype(redsOnly, 1, 3, { require: "same-origin" })).toThrow(/wine bank/i);
   });
 });
+
+// ── The pin outranks deprioritization ────────────────────────────────────────────────────────────
+//
+// samplePaperComposition deliberately allows a family twice per full paper (famCap = 2, matching the
+// corpus), and paper ltpr_egt9dfy3e planned F4/F2/F4/F2. It was BUILT as F4/F2/F1/F7: the
+// deprioritization sort was applied to the whole try-order including the pinned archetype, so once an
+// earlier flight had used that archetype the pin ranked last and any unused archetype beat it —
+// breaking the second occurrence of every repeated family, deterministically.
+//
+// This French white bank can satisfy BOTH same-origin (one country, distinct varieties) and
+// mixed-variety (distinct varieties from classic origins), so a defeated pin has somewhere to go and
+// the test genuinely fails against the old ordering. same-variety (needs one variety across 3+
+// origins) and quality-ladder (needs 2+ price bands in one region) cannot be built from it.
+const FRENCH_WHITE_BANK = [
+  bankRow({ id: "f1", country: "France", producer: "Domaine Leflaive", wine_name: "Mâcon-Verzé Chardonnay", region: "Burgundy", grape_varieties: ["Chardonnay"] }),
+  bankRow({ id: "f2", country: "France", producer: "Pascal Jolivet", wine_name: "Sancerre Sauvignon Blanc", region: "Loire", grape_varieties: ["Sauvignon Blanc"] }),
+  bankRow({ id: "f3", country: "France", producer: "Domaine Huet", wine_name: "Vouvray Sec Chenin Blanc", region: "Loire", grape_varieties: ["Chenin Blanc"] }),
+  bankRow({ id: "f4", country: "France", producer: "Trimbach", wine_name: "Riesling Réserve", region: "Alsace", grape_varieties: ["Riesling"] }),
+];
+
+describe("pickArchetype honours a pinned archetype over deprioritization", () => {
+  it("keeps the planned family when an earlier flight already used it", () => {
+    for (let i = 0; i < 40; i++) {
+      const picked = pickArchetype(FRENCH_WHITE_BANK, 1, 3, {
+        require: "same-origin",
+        // Position 2 of a paper whose composition repeats F2: same-origin is both required and used.
+        deprioritizeArchetypes: new Set(["same-origin"]),
+      });
+      expect(picked.archetype).toBe("same-origin");
+    }
+  });
+
+  it("still de-prioritizes a used archetype among the FALLBACKS", () => {
+    // No pin: mixed-variety is the only archetype this bank can build, and marking it used must not
+    // make the picker throw — deprioritization is an ordering preference, never a ban.
+    for (let i = 0; i < 20; i++) {
+      const picked = pickArchetype(FRENCH_WHITE_BANK, 1, 3, {
+        deprioritizeArchetypes: new Set(["mixed-variety"]),
+      });
+      expect(picked.archetype).toBe("mixed-variety");
+    }
+  });
+
+  it("falls back when the bank genuinely cannot build the pinned archetype", () => {
+    // One country, one variety per origin is fine for same-origin but there is no Chardonnay ladder
+    // here — a pin the bank cannot satisfy still yields a paper rather than failing.
+    const picked = pickArchetype(FRENCH_WHITE_BANK, 1, 3, { require: "quality-ladder" });
+    expect(picked.archetype).not.toBe("quality-ladder");
+  });
+});
