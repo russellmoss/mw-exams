@@ -9,12 +9,17 @@
 import {
   applyQuestionRules,
   stemSniperScoringModel as _stemSniperScoringModel,
+  canonCountry,
   canonVariety,
   methodClass,
   norm,
   normStem,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
+// Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
+// style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
+import { classifyWineStyle } from "./p3-category.mjs";
+import { noteCompletenessViolations, type TastingValidationWine } from "./tasting-validators";
 
 export type StemSniperScoringModel = "per-wine" | "set";
 
@@ -38,6 +43,10 @@ export interface AuditWine {
   // reasoning rather than a wine resolves to a plausible-looking key and the audit sees nothing wrong.
   // Callers that can supply the label should, to enable the wine-reference-shape rule.
   fullText?: string;
+  // Residual sugar in grams per litre, when the answer key resolves it. Used by the stem-predicate
+  // cross-check (STEM_PREDICATE_MISMATCH): a stem that asserts "both/all have residual sugar" or "sweet
+  // wines" is contradicted by a keyed wine whose RS is below 5 g/L (or that is otherwise tagged dry).
+  rs?: number;
 }
 export interface QuestionForAudit {
   questionId: string;
@@ -180,6 +189,35 @@ function blendSignal(w: AuditWine): string | null {
   return hit ? `${hit.name} is a multi-variety appellation` : null;
 }
 
+// Word-number map for stem cardinality claims ("four different countries", "three different regions").
+const STEM_WORD_NUM: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+  seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+};
+function parseStemCount(token: string | undefined): number {
+  if (!token) return 0;
+  return /^\d+$/.test(token) ? Number(token) : STEM_WORD_NUM[token] || 0;
+}
+
+// A wine's canonical country / region / style-tag, "" when the key can't place it. canonCountry folds
+// synonyms (USA/United States) so two USA wines don't read as two distinct countries; styleTag prefers
+// the P3 style_category and falls back to the free-text style.
+const countryOf = (w: AuditWine): string => canonCountry(w.country || "");
+const regionOf = (w: AuditWine): string => norm(w.region || "");
+const styleTag = (w: AuditWine): string => norm(w.style_category || w.style || "");
+
+// Why a wine contradicts a "has residual sugar" / "sweet" stem claim (or null). A resolved RS below
+// 5 g/L is bone dry; failing that, a dry style tag (still_dry, "dry"/"bone dry" text — but never the
+// off-dry / medium-dry families, which do carry residual sugar) is the fallback signal.
+function drySignal(w: AuditWine): string | null {
+  if (typeof w.rs === "number" && w.rs < 5) return `RS ${w.rs} g/L is below 5 g/L`;
+  const s = norm([w.style, w.style_category].filter(Boolean).join(" "));
+  if (!s) return null;
+  if (/\b(?:off|medium)[ -]?dry\b/.test(s) || /still_off_dry|still_sweet/.test(s)) return null;
+  if (/still_dry|\bbone[ -]?dry\b|\bdry\b/.test(s)) return `keyed dry (${w.style_category || w.style})`;
+  return null;
+}
+
 export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
   const stem = normStem(q.questionText);
@@ -232,6 +270,156 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
           rule: "stem-fact-singular-variety-blend",
           severity: "hard",
           detail: `stem asserts a single grape variety, but wine ${w.slot} is a blend (${why}); the stem should read "grape variety or varieties"`,
+        });
+    }
+  }
+
+  // ── Non-variety stem PREDICATES — the four remaining axes beyond variety/blend ──────────────────
+  // The shipped checker above only covers variety/blend assertions, so non-variety stem predicates
+  // still passed unchecked (fb_121 served "four different countries" over two USA wines; fb_89
+  // declared "both wines have residual sugar" while keying a bone-dry Savennières; fb_120 declared
+  // "same country … contrasting styles" over a key whose wines shared one style tag). Each parsed
+  // predicate is compared against the resolved wine records; a contradiction is a hard reject emitted
+  // as STEM_PREDICATE_MISMATCH naming the predicate and the offending wine index.
+
+  // (4) COUNTRY cardinality — "N different countries" needs N distinct; "the same country" needs one.
+  {
+    const distinctCount = stem.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
+    );
+    const required = distinctCount
+      ? parseStemCount(distinctCount[1])
+      : /\bdifferent countries\b/.test(stem)
+        ? wines.length
+        : 0;
+    if (required >= 2) {
+      const placed = wines.filter((w) => countryOf(w));
+      const distinct = new Set(placed.map(countryOf));
+      if (placed.length >= 2 && distinct.size < required) {
+        const seen = new Map<string, number>();
+        const dup = placed.find((w) => {
+          const c = countryOf(w);
+          if (seen.has(c)) return true;
+          seen.set(c, w.slot);
+          return false;
+        });
+        const dupNote = dup
+          ? ` (wine ${dup.slot} repeats ${dup.country} from wine ${seen.get(countryOf(dup))})`
+          : "";
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${
+            distinctCount ? distinctCount[0] : "different countries"
+          }" claims ${required} different countries, but the flight keys only ${distinct.size} distinct (${
+            [...distinct].join(", ") || "none"
+          })${dupNote}`,
+        });
+      }
+    }
+    if (/\b(?:the )?same country\b/.test(stem)) {
+      const placed = wines.filter((w) => countryOf(w));
+      if (placed.length >= 2) {
+        const base = placed[0];
+        const offender = placed.find((w) => countryOf(w) !== countryOf(base));
+        if (offender)
+          v.push({
+            rule: "STEM_PREDICATE_MISMATCH",
+            severity: "hard",
+            detail: `stem predicate "same country" is contradicted: wine ${offender.slot} is ${offender.country} while wine ${base.slot} is ${base.country}`,
+          });
+      }
+    }
+  }
+
+  // (5) REGION cardinality — "the same region" needs one region; "N different regions" needs N distinct.
+  {
+    if (/\b(?:the )?same region\b/.test(stem)) {
+      const placed = wines.filter((w) => regionOf(w));
+      if (placed.length >= 2) {
+        const base = placed[0];
+        const offender = placed.find((w) => regionOf(w) !== regionOf(base));
+        if (offender)
+          v.push({
+            rule: "STEM_PREDICATE_MISMATCH",
+            severity: "hard",
+            detail: `stem predicate "same region" is contradicted: wine ${offender.slot} is ${offender.region} while wine ${base.slot} is ${base.region}`,
+          });
+      }
+    }
+    const distinctRegions = stem.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+regions\b/
+    );
+    const requiredR = distinctRegions
+      ? parseStemCount(distinctRegions[1])
+      : /\bdifferent regions\b/.test(stem)
+        ? wines.length
+        : 0;
+    if (requiredR >= 2) {
+      const placed = wines.filter((w) => regionOf(w));
+      const distinct = new Set(placed.map(regionOf));
+      if (placed.length >= 2 && distinct.size < requiredR) {
+        const seen = new Map<string, number>();
+        const dup = placed.find((w) => {
+          const r = regionOf(w);
+          if (seen.has(r)) return true;
+          seen.set(r, w.slot);
+          return false;
+        });
+        const dupNote = dup ? ` (wine ${dup.slot} repeats ${dup.region} from wine ${seen.get(regionOf(dup))})` : "";
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${
+            distinctRegions ? distinctRegions[0] : "different regions"
+          }" claims ${requiredR} different regions, but the flight keys only ${distinct.size} distinct${dupNote}`,
+        });
+      }
+    }
+  }
+
+  // (6) SWEETNESS — "both/all have residual sugar" or "sweet wines" fails on any keyed wine that is
+  // bone dry (RS < 5 g/L or a dry style tag). This is the fb_89 fault: a bone-dry Savennières keyed
+  // under "both wines have residual sugar".
+  if (
+    /\b(?:both|all|each)\b[a-z ]{0,20}\bresidual sugar\b/.test(stem) ||
+    /\bhave residual sugar\b/.test(stem) ||
+    /\bsweet wines?\b/.test(stem) ||
+    /\b(?:both|all|each)\b[a-z ]{0,20}\bsweet\b/.test(stem)
+  ) {
+    const predicate = /residual sugar/.test(stem) ? "have residual sugar" : "sweet wines";
+    for (const w of wines) {
+      const why = drySignal(w);
+      if (why)
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${predicate}" is contradicted: wine ${w.slot} (${
+            w.region || (w.varieties || []).join("/") || "keyed wine"
+          }) is bone dry — ${why}`,
+        });
+    }
+  }
+
+  // (7) STYLE CONTRAST — "contrasting styles" fails when every keyed wine shares one style tag, so
+  // there is no contrast to earn the marks (the fb_120 shape: a same-country pair keyed to one style).
+  if (/\bcontrasting styles?\b/.test(stem)) {
+    const tagged = wines.filter((w) => styleTag(w));
+    if (tagged.length >= 2) {
+      const base = styleTag(tagged[0]);
+      if (tagged.every((w) => styleTag(w) === base))
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          // SOFT, unlike the other three axes. The style taxonomy is too coarse to PROVE the absence
+          // of contrast: Chablis and Meursault are both `still_dry` yet contrast sharply on oak and
+          // texture, and that is a real exam question this rule must not reject. A shared tag is a
+          // genuine smell worth surfacing, but only a reviewer can tell a flat pair from an
+          // oaked/unoaked one, so it flags rather than blocks. Country/region/sweetness stay hard —
+          // those the key can actually decide.
+          severity: "soft",
+          detail: `stem predicate "contrasting styles" is contradicted: all ${tagged.length} wines share the same style tag (${
+            tagged[0].style_category || tagged[0].style
+          }) — e.g. wines ${tagged.map((w) => w.slot).join(", ")}`,
         });
     }
   }
@@ -351,6 +539,109 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
       severity: "hard",
       detail: `flight of ${n} wines has ${curveballs.length} curveballs but at most ${maxCurveballs} is expected (one, two at best): ${list}.`,
     });
+  }
+
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// SINGLE-WINE FLIGHT — a one-wine flight must be a curveball and must NOT ask for variety/origin ID.
+//
+// Three validated feedbacks say the same thing (fb_354 + fb_355, the same served single-wine Chinon
+// question; fb_98, a P3 Madeira-shaped flight). One-wine flights are RARE on the MW exam, and when
+// they do appear the wine is a big CURVEBALL and the paper does NOT ask the candidate to identify the
+// grape variety or the region/origin — "the candidate would not be expected to pull out a Cabernet
+// Franc from Hungary". Instead the exam asks for style, quality, method or COMMERCIAL evaluation
+// (fb_98's archetype: "a Qvevri from Georgia, or an Orange wine … a quality evaluation, or a
+// commercial evaluation … variety and origin would not be asked"). This rule fires only on a lone
+// wine and hard-rejects:
+//   • any sub-part that asks the candidate to IDENTIFY the grape variety and/or the region/origin;
+//   • a single wine that reads as a BANKER (isBanker) rather than a curveball — a lone banker is not
+//     a shape the exam sets (the one corpus instance is an origin-suppressed curveball orange wine).
+//
+// It also rejects the fb_98 HYBRID structure on any multi-wine flight: a strict subset of the wines
+// share a sub-part block while ONE trailing wine gets its own private block ("For wines 1 and 2: … /
+// For wine 3: …") — the reviewer's "unlikely structure". The clean 2+2 paired comparison is exempt.
+// ---------------------------------------------------------------------------------------------------
+
+// An identification ask for grape variety and/or region/origin, matched on norm()'d question text.
+const SINGLE_WINE_ID_ASK_RE =
+  /\bidentif(?:y|ies|ication)\b[a-z0-9 ,/()'-]{0,90}\b(?:grape variet(?:y|ies)|varietal|varieties|region|regions|country|countries|origin|origins|appellation|provenance)\b/;
+
+// "For wines 1 and 2:" / "For wine 3 only:" scaffolding → the slots each sub-part block addresses.
+// Whole-flight blocks ("For all/each/both wines", "For all three wines") are skipped — they are not a
+// per-subset block. Only numeric slot lists within the paper's wine range are collected.
+function parseWineGroupScaffolds(questionText: string, wineCount: number): number[][] {
+  const text = questionText || "";
+  const groups: number[][] = [];
+  const re = /\bfor\s+(?:all\s+|both\s+|each\s+|the\s+)*wines?\s+([a-z0-9 ,and&-]+?)\s*(?:only\s*)?[:.]/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const clause = m[1].toLowerCase();
+    // "all / each / both / every / three / four …" address the whole flight, not a subset.
+    if (/\b(?:all|each|both|every|following|two|three|four|five|six)\b/.test(clause)) continue;
+    const nums = [...clause.matchAll(/\d+/g)]
+      .map((x) => Number(x[0]))
+      .filter((num) => num >= 1 && num <= wineCount);
+    const uniq = [...new Set(nums)].sort((a, b) => a - b);
+    if (uniq.length > 0) groups.push(uniq);
+  }
+  return groups;
+}
+
+/**
+ * Single-wine-flight rule. On a one-wine flight, hard-reject a variety/region/origin identification
+ * ask and a keyed BANKER (the lone wine must be a curveball). On a multi-wine flight, hard-reject the
+ * fb_98 hybrid structure (a shared subset block + one trailing wine's private block), except a 2+2.
+ */
+export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  const n = wines.length;
+  const v: Violation[] = [];
+  const text = q.questionText || "";
+
+  if (n === 1) {
+    const wine = wines[0];
+    const scan = norm(text).replace(/[^a-z0-9 ,/()'-]+/g, " ").replace(/\s+/g, " ");
+    if (SINGLE_WINE_ID_ASK_RE.test(scan)) {
+      v.push({
+        rule: "single-wine-flight",
+        severity: "hard",
+        detail:
+          "single-wine flight asks the candidate to identify the grape variety and/or region of origin — a lone wine on the MW exam is a big curveball and the paper does NOT ask for variety/origin ID; it asks for style, quality, method or commercial evaluation. Move the ask to those parts.",
+      });
+    }
+    if (isBanker(wine)) {
+      v.push({
+        // Distinct rule name from the ID-ask violation above: the engine drops THIS one in pinned
+        // (Live Tasting) mode. "Pick a curveball instead" is not a fix the redraft loop can make when
+        // the flight is fixed upstream by retail availability, so blocking on it would spin the
+        // generator to exhaustion. The ID-ask half stays hard everywhere — that one is a stem edit.
+        rule: "single-wine-flight-banker",
+        severity: "hard",
+        detail: `single-wine flight is keyed on ${wineLabel(
+          wine
+        )}, which reads as a banker — when the exam sets a lone wine it is a big curveball (e.g. a Qvevri or an orange wine), never a benchmark expression. Use a curveball wine or set 2+ wines.`,
+      });
+    }
+    return v;
+  }
+
+  // fb_98 hybrid: a strict-subset shared block + one trailing wine's own private block. Skip when the
+  // stem explicitly declares a paired-comparison (2+2) structure — that is a legitimate exam shape.
+  if (n >= 3 && parseDeclaredPairs(extractStem(text)).length < 2) {
+    const groups = parseWineGroupScaffolds(text, n);
+    const solo = groups.filter((g) => g.length === 1);
+    const shared = groups.filter((g) => g.length >= 2 && g.length < n);
+    if (solo.length === 1 && solo[0][0] === n && shared.length >= 1) {
+      v.push({
+        rule: "single-wine-flight",
+        severity: "hard",
+        detail: `flight gives wines ${shared[0].join(
+          " and "
+        )} a shared sub-part block while wine ${n} gets its own private block — an unlikely MW structure. Either set the shared wines as an explicit paired comparison, or give the whole flight the same sub-parts.`,
+      });
+    }
   }
 
   return v;
@@ -846,6 +1137,229 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// PAPER STYLE MIX — the wine-style mix of a flight must fit the paper it is set for (feedback cluster
+// fb_145 / fb_71 / fb_47, cross-paper).
+//
+// Paper identity was never constrained by wine STYLE, so the generator produced flights that read as
+// the wrong paper: Paper 3 got a pair of two still white wines made by different methods (fb_145 — the
+// reviewer notes Paper 3 "focuses very heavily on sparkling, sweet, and fortified wines with occasional
+// rosés", and a still-only pair is a Paper 1 question), while Paper 1 got two sparkling wines in one
+// four-wine flight (fb_47) and a sparkling-plus-medium-sweet flight crowding out the classics (fb_71).
+//
+// This rule tags every KEYED wine's dominant style — still / sparkling / fortified / sweet / rosé —
+// via the shared classifyWineStyle() (rosé cross-cuts, so it is counted separately), then applies a
+// per-paper predicate:
+//   • Paper 3 — reject any flight in which FEWER THAN HALF the wines (and at minimum one) are
+//     sparkling, sweet, fortified or rosé. A still-only or still-dominant flight is a Paper 1/2 flight.
+//   • Paper 1 — reject a flight with MORE THAN ONE sparkling wine, or with ANY fortified wine. (An
+//     occasional single sparkling is fine; sweetness is left unconstrained here.)
+//   • Paper 2 — unconstrained.
+// Every rejection emits PAPER_STYLE_MIX with the paper, the counted styles, and the rule that fired.
+// ---------------------------------------------------------------------------------------------------
+
+/** The dominant style + rosé flag of a keyed wine, resolved from its style/style_category/label. */
+function wineStyleTags(w: AuditWine): { style: string; isRose: boolean } {
+  const text = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
+  return classifyWineStyle(text);
+}
+
+export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violation[] {
+  const flight = wines || [];
+  const n = flight.length;
+  if (n === 0) return [];
+
+  const tagged = flight.map(wineStyleTags);
+  const counts = {
+    sparkling: tagged.filter((t) => t.style === "sparkling").length,
+    fortified: tagged.filter((t) => t.style === "fortified").length,
+    sweet: tagged.filter((t) => t.style === "sweet").length,
+    rose: tagged.filter((t) => t.isRose).length,
+  };
+  // Wines carrying a Paper-3 character style (rosé cross-cuts, so count each wine once).
+  const p3Character = tagged.filter(
+    (t) => t.isRose || t.style === "sparkling" || t.style === "sweet" || t.style === "fortified"
+  ).length;
+  const countsLabel = `sparkling ${counts.sparkling}, sweet ${counts.sweet}, fortified ${counts.fortified}, rosé ${counts.rose}`;
+  const v: Violation[] = [];
+
+  if (paper === 3) {
+    // Fewer than half (and at minimum one) sparkling/sweet/fortified/rosé → a Paper 1/2 flight.
+    if (p3Character < 1 || p3Character * 2 < n) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 3 flight of ${n} wines has only ${p3Character} sparkling/sweet/fortified/rosé wine${
+          p3Character === 1 ? "" : "s"
+        } (${countsLabel}) — Paper 3 leans heavily on those styles, so at least half of the flight (and a minimum of one) must be sparkling, sweet, fortified or rosé. A still-only or still-dominant flight belongs on Paper 1 or 2. Rule fired: p3-min-half-special.`,
+      });
+    }
+  } else if (paper === 1) {
+    // At most one sparkling wine; no fortified wine (Paper 1 tests the still classics).
+    if (counts.sparkling > 1) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 1 flight has ${counts.sparkling} sparkling wines (${countsLabel}) — at most one sparkling wine is realistic on Paper 1, which tests the still classics. Rule fired: p1-max-one-sparkling.`,
+      });
+    }
+    if (counts.fortified > 0) {
+      v.push({
+        rule: "paper-style-mix",
+        severity: "hard",
+        detail: `PAPER_STYLE_MIX: Paper 1 flight contains ${counts.fortified} fortified wine${
+          counts.fortified === 1 ? "" : "s"
+        } (${countsLabel}) — fortified wines belong on Paper 3, not Paper 1. Rule fired: p1-no-fortified.`,
+      });
+    }
+  }
+  // Paper 2 is intentionally unconstrained.
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// TASTING-NOTE COMPLETENESS — every wine's generated note must carry the visual + structural markers a
+// candidate leads with, and must never describe the ABSENCE of bubbles (feedback cluster fb_246,
+// fb_244, fb_53).
+//
+// Candidates identify wines from the glass by colour + intensity and by alcohol/warmth as much as by
+// flavour (fb_246: "one of the big structural characters that I use … is the alcohol levels"); Paper 3
+// in particular is unanswerable "with any precision" without visual cues (fb_53). And a note must never
+// state that a wine has no bubbles — bubbles are only ever a positive cue, graded fine-persistent
+// (traditional-method) vs soft-frothy (tank-method) (fb_244).
+//
+// This is the KEY-stage wrapper over the shared note-integrity rules (tasting-validators.ts): it maps
+// each coded verdict onto a hard Violation with the stable reason code as its rule, so the audit /
+// analysis path can reject the whole question with 'note_missing_appearance' / 'note_missing_alcohol'
+// (and the bubble/colour codes) when ANY wine in the flight lacks a required marker.
+// ---------------------------------------------------------------------------------------------------
+export function checkNoteCompleteness(
+  wineNotes: string[],
+  wines: TastingValidationWine[],
+  paper?: number
+): Violation[] {
+  return noteCompletenessViolations(wineNotes, wines, paper).map((x) => ({
+    rule: x.code,
+    severity: "hard" as const,
+    detail: x.detail,
+  }));
+}
+
+// ---------------------------------------------------------------------------------------------------
+// MARK BUDGET — the hard MW mark-allocation rule (accepted user feedback fb_138, fb_96, fb_73, fb_79).
+//
+// Two non-negotiable facts about a real IMW tasting paper, stated verbatim by candidates and accepted
+// by the analysis loop:
+//   • "there should be exactly 25 points per wine … a hard fast rule" (fb_138); "every wine, no matter
+//     which paper, will have exactly 25 marks available … This is non-negotiable. This question has 70
+//     marks for 2 wines, which would not occur" (fb_96). → the sum of every sub-part's marks (expanding
+//     the "n × m" per-wine notation) must equal EXACTLY 25 × wineCount, else MARKS_TOTAL_MISMATCH.
+//   • A written analytical task is never priced at 2 marks: "Commercial positioning is always at least
+//     five points" and "The only questions ever for 2 points are … residual sugar in g[/l] … and …
+//     alcohol percentage" (fb_73); the grading granularity fb_79 describes only makes sense above a
+//     5-mark floor. → any sub-part whose task is commercial positioning, quality assessment, style, or
+//     method of production must carry ≥ 5 marks per wine it covers (≥ 5 × n when asked across the whole
+//     flight in a single un-multiplied total); only a literal numeric readout ("state the residual sugar
+//     in g/L", "state the alcohol in % abv") may sit at 2 marks. A shortfall is MARKS_BELOW_FLOOR.
+//
+// This is the KEY-stage twin of the generation engine's own validateMarkAllocation (question-engine.ts):
+// putting it here lets the corpus audit and the feedback/regeneration loop reject and self-correct a
+// budget that could not occur on a real paper. It reuses the shared part-task classifier
+// (ALLOWED_PART_TASKS) so a task's category is resolved the same way it is everywhere else in this file.
+// It only judges a WELL-FORMED question (its lettered parts begin at "a)"); a bare fragment passed in
+// isolation is left alone. It does NOT choose marks — it only rejects budgets that cannot occur.
+// ---------------------------------------------------------------------------------------------------
+
+// The five-mark-floor task categories (fb_73/fb_79), keyed to the shared ALLOWED_PART_TASKS ids:
+// commercial positioning, quality assessment, style, and method of production (the "winemaking" entry).
+const FLOOR_TASK_IDS = new Set(["commercial", "quality", "style", "winemaking"]);
+const MARK_FLOOR_PER_WINE = 5;
+
+// The only ask the exam ever prices at 2 marks: a literal numeric readout of residual sugar or alcohol
+// (fb_73 — "answered in a few seconds e.g. 120 g/l, 20% ABV"). A part matching this is exempt from the
+// floor at any mark value. Everything else that is a floor task must clear the 5-mark-per-wine floor.
+const LITERAL_FACTUAL_ASK_RE =
+  /\b(?:state|give|indicate|estimate|identify)\b[a-z0-9 ,]{0,50}\b(?:residual sugar|\brs\b|alcohol|abv)\b/;
+
+// A single un-multiplied total that is asked ACROSS the whole flight (fb_73's "overall … compare and
+// contrast across all wines … 18–24 points"). Such a part's floor is 5 × wineCount, not 5.
+const FLIGHT_WIDE_ASK_RE = /\bacross\b|\ball (?:the |\d+ )?wines\b|\boverall\b|\bthe flight\b|\bcompare(?: and contrast)?\b/;
+
+// norm()'d, punctuation-flattened text for task classification (mirrors splitCommandClauses' cleaning).
+function cleanForTask(text: string): string {
+  return norm(text || "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// The floor-task category (if any) a marked part sets, via the shared part-task classifier.
+function floorTaskFor(partText: string): AllowedPartTask | null {
+  const cleaned = cleanForTask(partText);
+  return ALLOWED_PART_TASKS.find((t) => FLOOR_TASK_IDS.has(t.id) && t.re.test(cleaned)) || null;
+}
+
+/**
+ * Mark-budget rule. (a) The sum of every sub-part's marks (expanding "n × m") must equal exactly
+ * 25 × wineCount — a mismatch is MARKS_TOTAL_MISMATCH quoting the computed total. (b) Every floor-task
+ * sub-part (commercial / quality / style / method of production) must clear the 5-mark-per-wine floor
+ * unless it is a literal numeric readout — a shortfall is MARKS_BELOW_FLOOR quoting the offending part.
+ */
+export function validateMarkBudget(q: QuestionForAudit): Violation[] {
+  const v: Violation[] = [];
+  const parts = parseMarkedParts(q.questionText);
+  if (parts.length === 0) return v;
+
+  // Only judge a well-formed question: its lettered parts must begin at "a)". A fragment passed in
+  // isolation (e.g. a lone "b) …" used in a unit test) has no meaningful budget to total.
+  const lettered = parseLetteredParts(q.questionText || "");
+  if (lettered.length > 0 && lettered[0].letter !== "a") return v;
+
+  const wineCount = (q.wines || []).length;
+
+  // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
+  // rule can never invent a spurious "must equal 0" mismatch.
+  if (wineCount >= 1) {
+    const total = parts.reduce((s, p) => s + p.marks, 0);
+    const expected = wineCount * 25;
+    if (total > 0 && total !== expected) {
+      v.push({
+        rule: "MARKS_TOTAL_MISMATCH",
+        severity: "hard",
+        detail: `marks total ${total}, but a real IMW paper carries exactly 25 × ${wineCount} wine${
+          wineCount === 1 ? "" : "s"
+        } = ${expected}. Re-allocate the sub-part marks so they sum to ${expected}.`,
+      });
+    }
+  }
+
+  // (b) Per-task floor. A floor-task part must clear 5 marks per wine it covers (5 × n when asked
+  // across the whole flight in one un-multiplied total); literal numeric readouts are exempt.
+  for (const p of parts) {
+    const task = floorTaskFor(p.text);
+    if (!task) continue;
+    if (LITERAL_FACTUAL_ASK_RE.test(cleanForTask(p.text))) continue;
+
+    const hasMultiplier = p.marks !== p.perUnit; // "n × m" was written (m is the per-wine value)
+    const flightWide =
+      !hasMultiplier && wineCount > 1 && FLIGHT_WIDE_ASK_RE.test(cleanForTask(p.text));
+
+    const floor = flightWide ? MARK_FLOOR_PER_WINE * wineCount : MARK_FLOOR_PER_WINE;
+    const actual = hasMultiplier ? p.perUnit : p.marks;
+    if (actual < floor) {
+      const scope = flightWide
+        ? `across the ${wineCount}-wine flight (floor ${floor})`
+        : hasMultiplier
+        ? "per wine"
+        : "for this part";
+      v.push({
+        rule: "MARKS_BELOW_FLOOR",
+        severity: "hard",
+        detail: `a "${task.label}" part is worth ${actual} marks ${scope}, below the ${MARK_FLOOR_PER_WINE}-mark floor — commercial position, quality, style and method-of-production tasks are never priced this low (only a literal "state the residual sugar in g/L" / "state the alcohol in % abv" readout may be 2 marks).`,
+      });
+    }
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -859,7 +1373,9 @@ export function validateQuestion(q: QuestionForAudit): {
   }) as Violation[];
   violations.push(...stemPreannouncesDiscriminator(q.questionText));
   violations.push(...flightCompositionViolations(q.wines));
+  violations.push(...validateSingleWineFlight(q));
   violations.push(...idMarkAllocationViolations(q));
+  violations.push(...validateMarkBudget(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
@@ -872,6 +1388,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
+  violations.push(...validatePaperStyleMix(q.paper, q.wines));
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

@@ -14,6 +14,7 @@ import {
   getOverusedProducers,
   getRecentWineIds,
   getRecentFlightSignatures,
+  getRecentFlightSizes,
   flightSignature,
   wineCooldownId,
   RECENT_WINE_WINDOW,
@@ -21,6 +22,7 @@ import {
   getProducerTally,
   getRecentProducerKeys,
   getPaperWineTextsByQuestion,
+  getSingleWineShare,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -81,6 +83,9 @@ import {
   crossCheckStemFacts,
   stemPreannouncesDiscriminator,
   contrastIntegrityViolations,
+  validatePaperStyleMix,
+  validateSingleWineFlight,
+  type AuditWine,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
 // contradiction rules here and feeds them via the text adapter; its entangled text-only extras
@@ -869,6 +874,26 @@ export async function generateFreshQuestion(
   if (!pinned) emit?.({ type: "status", label: "Checking the last 30 questions for repeats…" });
   const recentGenerated = pinned ? [] : await getRecentGeneratedQuestions(30);
   const latestQuestion = recentGenerated[0] ? normalizeGeneratedQuestionWines(recentGenerated[0]) : null;
+
+  // Flight-size policy (fb_73): a single seedable draw over HISTORIC_FLIGHT_SIZE_WEIGHTS with a rolling
+  // 4-wine cap, instead of the legacy per-family "default to four" distribution. Skipped in pinned mode
+  // (the flight is fixed upstream). Bank Health's targeting.flightSize is a coarse "2 / 3 / 4+" bucket,
+  // not a wine count, and is already surfaced as a SOFT preference in buildTargetingConstraints — so it
+  // is left to nudge, and the authoritative count comes from the sampler here. A single-wine draw
+  // always carries the identification-suppression flag — a lone wine is a curveball by construction
+  // (validateSingleWineFlight rejects a lone banker), so ID is never asked (fb_354/355/98).
+  let flightSizeOverride: number | null = null;
+  let suppressIdentification = false;
+  if (!pinned) {
+    try {
+      const recentSizes = await getRecentFlightSizes(paper, FLIGHT_SIZE_WINDOW).catch(() => []);
+      flightSizeOverride = selectFlightSize(paper, { recentSizes });
+      suppressIdentification = shouldSuppressIdentification(flightSizeOverride);
+    } catch (err) {
+      console.error("[flight-size] selection failed (non-fatal, falling back to prompt default):", err);
+    }
+  }
+
   const prompt = await buildQuestionGenerationPrompt(
     paper,
     family || "any",
@@ -886,7 +911,9 @@ export async function generateFreshQuestion(
     // on any non-bank generation.
     saveOpts?.examMix
       ? { flightCategory: saveOpts.examMix.flightCategory, curveball: saveOpts.examMix.curveball }
-      : undefined
+      : undefined,
+    flightSizeOverride,
+    suppressIdentification
   );
 
   // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
@@ -1192,6 +1219,19 @@ ${saveOpts.paperStemsContext}` : ""}`;
   let dedupCollisions = 0;
   let dedupFailed = false;
 
+  // Single-wine frequency cap (see singleWineFrequencyExceeded): the paper's live share of one-wine
+  // flights, fetched ONCE. A draft that would push the projected share over 1-in-20 is rejected so
+  // the model redraws with 2+ wines. Pinned mode (Live Tasting) keeps its own fixed flight, so it is
+  // exempt; a data outage returns {0,0} and leaves the cap effectively inactive.
+  let singleWineShare = { single: 0, total: 0 };
+  if (!pinned) {
+    try {
+      singleWineShare = await getSingleWineShare(paper);
+    } catch (err) {
+      console.error("[single-wine-cap] share fetch failed (non-fatal):", err);
+    }
+  }
+
   const MAX_ATTEMPTS = 8;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
@@ -1437,6 +1477,37 @@ ${repairContext.draft}`,
     const contrastCheck = {
       violations: contrastIntegrityViolations(auditDraft).map((v) => v.detail),
     };
+    // Paper style-mix (feedback fb_145 / fb_71 / fb_47): the flight's wine-style mix must fit the
+    // paper — Paper 3 needs at least half sparkling/sweet/fortified/rosé, Paper 1 rejects >1 sparkling
+    // or any fortified. Mirrored here as a pre-selection filter so the generator rarely drafts a
+    // rejectable flight, with validatePaperStyleMix in the audit as the authoritative gate. Pinned
+    // (Live Tasting) skips it — the flight was fixed upstream by retail availability, not chosen here.
+    const paperStyleMixCheck = {
+      violations: pinned ? [] : validatePaperStyleMix(paper, auditWines).map((v) => v.detail),
+    };
+    // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
+    // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
+    // structure. Blocks on every path (deterministic text/wine fix the repair prompt converges on).
+    const singleWineFlightCheck = {
+      violations: validateSingleWineFlight(auditDraft)
+        // Pinned (Live Tasting) keeps the ID-suppression half but drops the banker half — the flight
+        // is fixed upstream by retail availability, so "use a curveball instead" is not a fix the
+        // redraft loop can make. Unreachable today (the API caps Live Tasting at 2-4 bottles), but a
+        // rule the generator cannot satisfy is the wrong thing to leave armed.
+        .filter((v) => !(pinned && v.rule === "single-wine-flight-banker"))
+        .map((v) => v.detail),
+    };
+    // Single-wine frequency cap: one-wine flights are rare on the exam, so a draft that would push the
+    // paper's servable share of them over 1-in-20 is rejected (redraw with 2+ wines). Pinned mode is
+    // exempt — its flight is fixed upstream by retail availability.
+    const singleWineFrequencyCheck = {
+      violations:
+        pinned || !singleWineFrequencyExceeded(candidate.wines.length, singleWineShare)
+          ? []
+          : [
+              `single-wine flights are a rare curveball on the MW exam — banking another would push paper ${paper}'s share of one-wine questions over 1-in-20 (currently ${singleWineShare.single}/${singleWineShare.total}). Use 2 or more wines.`,
+            ],
+    };
 
     // Critical validators (always run)
     // Shape first: if a slot holds reasoning rather than a wine, every variety/country/scope check
@@ -1573,6 +1644,12 @@ ${repairContext.draft}`,
       idMarkAllocation: idMarkCheck,
       stemFacts: stemFactsCheck,
       contrastIntegrity: contrastCheck,
+      // Paper style-mix: BLOCKS on every path and never relaxes (like the other audit-grade rules) —
+      // it is exactly what validatePaperStyleMix will quarantine post-save, and the fix is a fresh
+      // wine choice the redraft loop can make.
+      paperStyleMix: paperStyleMixCheck,
+      singleWineFlight: singleWineFlightCheck,
+      singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
       markRealism: markRealismCheck,
@@ -2529,6 +2606,110 @@ function validateMarkAllocation(questionText: string, wineCount?: number): { val
   return { valid: violations.length === 0, violations };
 }
 
+// ── FLIGHT-SIZE POLICY (fb_73, fb_98, fb_354, fb_355) ────────────────────────────────────────────
+//
+// Two recurring, cross-paper faults: (1) the generator over-used 4-wine flights (the reviewer:
+// "This model seems overindexed in four wine flights … We often see three wine flights or pairs, and
+// every once in a while a single wine"), and (2) it set ID-focused single-wine "curveball" flights,
+// which the exam never does — a lone curveball is not asked to be named (fb_354/355/98).
+//
+// The size choice is now a single seedable sampler over an explicit, per-paper-tunable weight table,
+// with a rolling cap so 4-wine flights can never dominate a paper's recent output. The single-wine
+// arm carries a hard identification-suppression rule enforced downstream.
+
+// Historic flight-size distribution as SHARE weights (need not sum to 100 — the sampler normalises).
+// Baseline from the reviewer's "pairs / threes common, four prevalent, single occasional" reading of
+// the corpus. Tunable per paper: Papers 1 & 2 have no single-wine question in the 10-year corpus (see
+// validateFlightSize), so their 1-wine weight is 0; the sole single-wine instance is Paper 3.
+export const HISTORIC_FLIGHT_SIZE_WEIGHTS: Record<string, Record<number, number>> = {
+  default: { 1: 5, 2: 25, 3: 30, 4: 40 },
+  "1": { 2: 27, 3: 31, 4: 42 },
+  "2": { 2: 27, 3: 31, 4: 42 },
+  "3": { 1: 5, 2: 25, 3: 30, 4: 40 },
+};
+
+// Rolling cap: no more than this share of the last FLIGHT_SIZE_WINDOW generated flights for a paper
+// may be 4-wine. Once the recent window already sits at/above the cap, a freshly-drawn 4 is resampled.
+export const FLIGHT_SIZE_WINDOW = 20;
+export const FOUR_WINE_ROLLING_CAP = 0.5;
+
+function flightSizeWeightsForPaper(paper: number): Record<number, number> {
+  return HISTORIC_FLIGHT_SIZE_WEIGHTS[String(paper)] ?? HISTORIC_FLIGHT_SIZE_WEIGHTS.default;
+}
+
+/**
+ * Choose a flight size from HISTORIC_FLIGHT_SIZE_WEIGHTS instead of defaulting to four wines (fb_73).
+ *
+ * Pure and seedable: pass `rng` for a deterministic draw and `recentSizes` (the paper's last
+ * FLIGHT_SIZE_WINDOW generated flight sizes, most-recent first) to enforce the rolling 4-wine cap. If
+ * 4-wine flights already fill half of that window, a drawn 4 is resampled until it lands on another
+ * size, so 4-wine flights can never exceed ~50% of a paper's recent output.
+ */
+export function selectFlightSize(
+  paper: number,
+  opts?: {
+    recentSizes?: number[];
+    rng?: () => number;
+    weights?: Record<number, number>;
+  }
+): number {
+  const rng = opts?.rng ?? Math.random;
+  const weights = opts?.weights ?? flightSizeWeightsForPaper(paper);
+  const entries = Object.entries(weights)
+    .map(([s, w]) => [Number(s), w] as [number, number])
+    .filter(([, w]) => w > 0);
+  if (entries.length === 0) return 2;
+
+  const recent = (opts?.recentSizes ?? []).slice(0, FLIGHT_SIZE_WINDOW);
+  const fourCount = recent.filter((s) => s === 4).length;
+  const fourCapReached = recent.length > 0 && fourCount / recent.length >= FOUR_WINE_ROLLING_CAP;
+
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  const draw = (): number => {
+    let roll = rng() * total;
+    for (const [size, w] of entries) {
+      roll -= w;
+      if (roll <= 0) return size;
+    }
+    return entries[entries.length - 1][0];
+  };
+
+  // Resample a 4 only while the cap is breached. With a ~40% 4-wine weight the odds of 16 straight
+  // 4s are vanishing, so this returns a non-4 draw in every realistic case; the fallback below covers
+  // the degenerate one (weights that offer only a 4).
+  const MAX_RESAMPLE = 16;
+  for (let i = 0; i <= MAX_RESAMPLE; i++) {
+    const size = draw();
+    if (size !== 4 || !fourCapReached) return size;
+  }
+  const nonFour = entries.filter(([s]) => s !== 4).sort((a, b) => b[1] - a[1]);
+  return nonFour.length > 0 ? nonFour[0][0] : entries[0][0];
+}
+
+/**
+ * Whether a single-wine flight must SUPPRESS identification (fb_354/355/98).
+ *
+ * EVERY single-wine flight suppresses identification. The three feedbacks are unanimous that a lone
+ * wine on the MW exam is a big curveball and the paper does not ask the candidate to name it — fb_98
+ * gives the archetype ("a Qvevri from Georgia, or an Orange wine … variety and origin would not be
+ * asked"). There is deliberately no banker exemption: validateSingleWineFlight (question-validator)
+ * rejects a lone BANKER outright as a shape the exam does not set, so a single-wine flight is a
+ * curveball by construction and letting a "banker" keep its ID parts would contradict that gate.
+ * Flights of 2+ are unaffected.
+ */
+export function shouldSuppressIdentification(flightSize: number): boolean {
+  return flightSize === 1;
+}
+
+// Matches an "identify the grape variety / region / origin / country / appellation" sub-part.
+const SINGLE_WINE_ID_RE =
+  /identif(?:y|ication)[^.?\n]{0,90}\b(?:grape variet(?:y|ies)|variet(?:y|ies)|region|origin|country|appellation)\b/i;
+
+/** Whether a stem asks the candidate to identify the grape variety or the region/country of origin. */
+export function questionAsksIdentification(questionText: string): boolean {
+  return SINGLE_WINE_ID_RE.test(questionText || "");
+}
+
 const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; typical: number[] }> = {
   F1: { min: 2, max: 6, typical: [2, 3] },
   F2: { min: 2, max: 4, typical: [2, 3] },
@@ -2570,6 +2751,23 @@ function validateFlightSize(
   }
 
   return { valid: violations.length === 0, violations };
+}
+
+// SINGLE-WINE FREQUENCY CAP — one-wine flights are a rare curveball shape on the MW exam (three
+// validated feedbacks: fb_98, fb_354, fb_355). validateFlightSize already confines them to Paper 3;
+// this caps how OFTEN even Paper 3 draws one, so the bank cannot fill with single-wine questions. At
+// most 1 in 20 servable questions per paper may be a single wine: banking one more must keep the
+// projected share (single+1)/(total+1) at or below the cap. Pure so the arithmetic is unit-tested
+// without a database; the engine feeds it the paper's live share fetched once before the redraft loop.
+export const SINGLE_WINE_FREQUENCY_CAP = 1 / 20;
+
+export function singleWineFrequencyExceeded(
+  wineCount: number,
+  share: { single: number; total: number }
+): boolean {
+  if (wineCount !== 1) return false;
+  const projected = (share.single + 1) / (share.total + 1);
+  return projected > SINGLE_WINE_FREQUENCY_CAP;
 }
 
 // ── Phase 2 soft composition rules (run in the "important" tier; relax at attempt 6) ─────────────
