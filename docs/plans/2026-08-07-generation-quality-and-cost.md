@@ -1,7 +1,7 @@
 # Question & Answer Generation: Quality + Cost Remediation
 
 **Date:** 2026-08-07
-**Status:** v4 — council-hardened, plus the serve-gate fix shipped in this branch
+**Status:** v5 — Phase 0 built and RUN; the first cross-family calibration reordered the plan
 **Branch:** `claude/question-generation-quality-132871`
 
 > **Changelog.** Council review overturned **two** headline findings and forced five structural
@@ -458,6 +458,66 @@ Two further fixes from the same review:
 4. **Structural fidelity is not correctness.** A question can be perfectly corpus-shaped and
    factually wrong. The anchor cannot see that; Phase 5 (§8b) is what addresses it.
 
+### 4.5d First live calibration — the judge failed its bars and found something worse ⚠️
+
+Run 2026-08-07: **Gemini 3.1 Pro** (cross-family), calibration split, 60 real + 20 synthetic.
+
+```
+scored           72/80 (8 unparsed)
+Cohen's κ        0.036          bar ≥ 0.60   ✗
+bin-recall       70.6%  95% CI [46.9%, 86.7%] on 17 negatives
+  lower bound    46.9%          bar ≥ 0.70   ✗
+false-bin rate   21.1%          bar ≤ 25%    ✓
+synthetic floor  17/17          bar perfect  ✓
+VERDICT: NOT QUALIFIED — advisory only
+```
+
+**The judge is objectively competent and disagrees with the human anyway.** It caught every
+deliberately-corrupted question (17/17) while binning only 21% of good questions on craft grounds —
+so it is neither incompetent nor trigger-happy. The near-zero κ is not noise: **the judge and the
+reviewer are measuring different things.**
+
+**17 of ~55 human-kept questions (≈31%) were binned for a specific, checkable factual fault.**
+Two were independently verified against tier-1 sources before writing this:
+
+| Question | Generated | Verified reality |
+|---|---|---|
+| `gen_p1_F2_…770` | "Thierry Germain, **Saumur Blanc** Les Memoires, 2021 (13.5%)" | Les Mémoires is a **Saumur-Champigny RED**, 100% Cabernet Franc (Kermit Lynch, Radford Dale, JJ Buckley). **The wine does not exist as a white** — a real cuvée name welded to the wrong colour and appellation, in a white-only paper |
+| `gen_p1_F1_…206` | "Felton Road Block 1 Riesling 2023 **(13.0%)**" | Block 1 is **8.5% ABV, 67 g/L RS** — the estate's sweet cuvée (wineanorak, with numbers) |
+
+Others flagged but not yet adjudicated: Contino Blanco called Garnacha Blanca (it is Viura-dominant);
+Bordeaux Supérieur Blanc used for a dry white (the appellation is moelleux); stainless-steel
+fermentation attributed to Koehler-Ruprecht (a large-oak house).
+
+**Every one of these passed all 22 validators AND was kept by the reviewer.**
+
+**What this means, in order of importance:**
+
+1. **§1.6b is now measured, not inferred.** Roughly a third of *kept* questions carry a disputed
+   factual claim. Even if only half survive adjudication, that is a ~15% factual error rate in
+   material candidates are studying. **Phase 5 is no longer the last phase — on this evidence it is
+   the most important one in the document.**
+2. **The 33.7% human bin rate UNDERSTATES the defect rate.** A reviewer scanning dozens of questions
+   cannot check every ABV, appellation and cépage. The human labels are a strong reference for exam
+   *craft* and a weak one for *fact*.
+3. **κ against human labels is the wrong qualification bar for `factual_accuracy`.** The obvious
+   next move — tune the rubric until κ rises — would have meant **training the judge to stop
+   noticing real errors**. That is the single most dangerous thing this project could do, and the
+   loop the user proposed would have done it automatically and invisibly.
+4. **Cross-family paid for itself on the first run.** A Claude judge scoring Claude's own output had
+   already produced 0/69 overturned bins. An independent model found a systematic defect class in
+   an afternoon.
+
+**Harness change made in response.** `falseBinRate` now excludes *disputed* bins — human-kept
+questions the judge binned while scoring `factual_accuracy ≤ 2`. Those are **claims to adjudicate,
+not judge errors**: counting them as errors would disqualify a judge for out-performing its own
+reference. They surface as their own `disputed` list for a human to rule on. Before this change the
+same run reported a 75% "false-bin rate" and looked like a broken judge; it was a working one.
+
+**Still open:** 8 of 80 responses (10%) failed to parse — Gemini truncating at `maxOutputTokens`
+under `responseMimeType: application/json`. Worth fixing before the holdout run, since unparsed
+items silently shrink the sample.
+
 ### 4.6 What was built, and what was not
 
 **Built, tested, committed** (`study-app/evals/`, 75 tests, tsc clean):
@@ -738,11 +798,18 @@ re-read cadence with an under-supply alarm.
 
 ---
 
-## 8b. Phase 5 — Fact verification ⚠️ **ADDED IN v4**
+## 8b. Phase 5 — Fact verification ⚠️ **NOW THE TOP PRIORITY (v5)**
 
 **This is the phase that actually makes questions and answers more often *right*.** Everything in
 Phases 0–4 targets structure, cost, and gating. Per §1.6b, nothing in the system checks whether a
 single claim is true, and 307 banked wines have no external grounding whatsoever.
+
+> **Promoted from last to first on measured evidence (§4.5d).** The first cross-family judge run
+> disputed a factual claim in **~31% of human-KEPT questions**, and the two claims verified against
+> independent sources were both correct — including a wine that does not exist in the colour and
+> appellation given, sitting in a white-only paper, past all 22 validators. Sequence this ahead of
+> Phase 2's prompt work: raising the first-pass validator rate on questions that are factually wrong
+> optimises the wrong thing.
 
 Port the pattern the theory pipeline already proved.
 
@@ -791,18 +858,26 @@ residual claim types, batched, on newly banked questions.
 - **`UNVERIFIED`** → **do not quarantine.** An unverifiable claim is not a false one, and treating it
   as such would gut the bank. Surface it in the review queue and let the reviewer decide.
 
-### 8b.5 Honest scoping
+### 8b.5 Scoping — the measurement has now partly happened
 
-This is the largest phase in the document and the least well-specified, because nobody has measured
-the actual factual error rate yet. **Do not commit to the full build up front.** Start with a
-measurement: take 30 banked questions, verify every wine claim by hand or with the claim-verifier,
-and produce a factual error rate. If it is 2%, this phase is a background cleanup task. If it is
-20%, it outranks everything except §6.2a. That measurement is a day's work and should run during
-Phase 0, alongside the golden set.
+The v4 draft said "nobody has measured the factual error rate; start with 30 questions". §4.5d *is*
+that measurement, arriving early and from an unexpected direction: **~31% of human-kept questions
+carry a disputed factual claim**, with 2 of 2 spot-checks upheld against independent sources.
 
-**Exit:** factual error rate measured on a 30-question sample; claims registry live at generation;
-deterministic checks in `question-rules.mjs`; verification running on the 307 ungrounded wines;
-`UNVERIFIED` routed to review rather than quarantine.
+Remaining work to size the phase properly:
+
+1. **Adjudicate the 17 disputed claims already surfaced.** A person rules on each. That turns "31%
+   disputed" into an error rate with a numerator you trust. Half a day.
+2. **Run the holdout split** for a second estimate on questions never used for tuning.
+3. Build §8b.1–8b.4 against a known rate rather than a guess.
+
+**Do not tune the judge to agree with the human on `factual_accuracy`.** §4.5d is the reason: the
+disagreement *is* the finding. The right target for that dimension is external truth — which is
+exactly what §8b.2's deterministic checks and §8b.3's `claim-verifier` supply.
+
+**Exit:** the 17 disputed claims adjudicated and an error rate published; claims registry live at
+generation; deterministic checks in `question-rules.mjs`; verification running on the 307 ungrounded
+wines; `UNVERIFIED` routed to review rather than quarantine.
 
 ---
 
@@ -920,9 +995,9 @@ adjacent point — that self-preference bias is still unmitigated — stands and
 7. Can a second council reviewer be obtained? All hardening above rests on one reviewer (Gemini),
    with Codex and OpenAI unavailable. The judge-independence argument in §4.2 applies to plan review
    too.
-8. **What is the actual factual error rate?** Unmeasured, and it determines whether Phase 5 is a
-   background cleanup or the most important thing in this document. The 30-question hand-verification
-   in §8b.5 answers it in a day and should run during Phase 0.
+8. ~~What is the actual factual error rate?~~ **Partly answered (§4.5d):** ~31% of human-KEPT
+   questions carry a disputed factual claim; 2 of 2 spot-checks upheld. Phase 5 is promoted to top
+   priority. Adjudicating the 17 disputed claims converts this into a trusted numerator.
 9. **Should the unreviewed-fallback in §6.2a eventually become a hard filter?** Safe only once the
    review backlog (225) is cleared and generation is throttled to match consumption — otherwise it
    risks starving a candidate mid-session. Revisit after Phase 4.

@@ -26,7 +26,8 @@ const opt = (flag, dflt) => {
 const SPLIT = opt("--split", "calibration");
 const LIMIT = Number(opt("--limit", "0"));
 const CONCURRENCY = Number(opt("--concurrency", "6"));
-const MODEL = opt("--model", "claude-sonnet-4-6");
+const PROVIDER = opt("--provider", "gemini");
+const MODEL = opt("--model", PROVIDER === "gemini" ? "gemini-3.1-pro-preview" : "claude-sonnet-4-6");
 
 const DIMENSIONS = [
   "exam_realism",
@@ -135,11 +136,69 @@ async function mapLimit(items, limit, fn) {
   return out;
 }
 
-async function main() {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    console.error("ANTHROPIC_API_KEY is required.");
-    process.exit(1);
+/**
+ * Provider adapters. Both return the model's raw text; everything downstream is provider-agnostic.
+ *
+ * `crossFamily` is the flag that decides whether a qualified judge may actually gate. Claude judging
+ * Claude is a closed loop — see evals/judge.ts — so an anthropic run is a development signal even
+ * when every calibration bar clears.
+ */
+function makeProvider(provider, model) {
+  if (provider === "gemini") {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error("GEMINI_API_KEY is required for --provider gemini");
+    return {
+      name: "gemini",
+      crossFamily: true,
+      async score(system, user) {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: system }] },
+              contents: [{ role: "user", parts: [{ text: user }] }],
+              generationConfig: {
+                temperature: 0,
+                maxOutputTokens: 2048,
+                responseMimeType: "application/json",
+              },
+            }),
+          }
+        );
+        if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 200)}`);
+        const body = await res.json();
+        return {
+          text: (body.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join(""),
+          usage: {},
+        };
+      },
+    };
   }
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is required for --provider anthropic");
+  const client = new Anthropic({ apiKey });
+  return {
+    name: "anthropic",
+    crossFamily: false,
+    async score(system, user) {
+      const msg = await client.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+        messages: [{ role: "user", content: user }],
+      });
+      return {
+        text: msg.content.filter((b) => b.type === "text").map((b) => b.text).join(""),
+        usage: msg.usage,
+      };
+    },
+  };
+}
+
+async function main() {
+  const judge = makeProvider(PROVIDER, MODEL);
   const goldenPath = join(root, "evals", "golden", "questions.jsonl");
   if (!existsSync(goldenPath)) {
     console.error("No golden set. Run: node scripts/build-golden-set.mjs");
@@ -159,25 +218,24 @@ async function main() {
   const floor = all.filter((i) => i.split === "synthetic_floor");
   const items = [...target, ...floor];
 
-  console.log(`Judge: ${MODEL} (anthropic — SAME FAMILY as the generator, see evals/judge.ts)`);
+  console.log(
+    `Judge: ${MODEL} (${judge.name} — ` +
+      (judge.crossFamily
+        ? "CROSS-FAMILY, independent of the generator"
+        : "SAME FAMILY as the generator, closed loop; see evals/judge.ts") +
+      ")"
+  );
   console.log(`Split: ${SPLIT} (${target.length}) + synthetic floor (${floor.length}) = ${items.length}`);
   console.log(`Golden hash: ${meta.hash}\n`);
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   let done = 0;
   const results = await mapLimit(items, CONCURRENCY, async (item) => {
     try {
-      const msg = await client.messages.create({
-        model: MODEL,
-        max_tokens: 1024,
-        system: [{ type: "text", text: RUBRIC, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: buildUser(item) }],
-      });
-      const raw = msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
-      const parsed = parse(raw);
+      const { text, usage } = await judge.score(RUBRIC, buildUser(item));
+      const parsed = parse(text);
       done++;
       if (done % 20 === 0) process.stdout.write(`  ${done}/${items.length}\n`);
-      return { item, parsed, usage: msg.usage };
+      return { item, parsed, usage, raw: parsed ? null : text.slice(0, 200) };
     } catch (err) {
       done++;
       return { item, parsed: null, error: String(err?.message ?? err) };
@@ -197,7 +255,11 @@ async function main() {
   const recall = negatives.length ? caught / negatives.length : 0;
   const ci = wilson(caught, negatives.length);
   const positives = real.filter((r) => r.item.verdict === "keep");
-  const falseBins = positives.filter((r) => r.parsed.verdict === "bin").length;
+  const binnedPositives = positives.filter((r) => r.parsed.verdict === "bin");
+  // A bin that cites a factual fault is a CLAIM TO CHECK, not a judge error. Counting these against
+  // the judge would disqualify it for out-performing its own reference — see evals/judge.ts.
+  const disputed = binnedPositives.filter((r) => r.parsed.scores.factual_accuracy <= 2);
+  const falseBins = binnedPositives.length - disputed.length;
 
   const synthHits = synth.filter((r) => r.parsed.verdict === "bin").length;
   const missed = synth.filter((r) => r.parsed.verdict !== "bin").map((r) => r.item.reasonTags[0]);
@@ -205,16 +267,21 @@ async function main() {
   const cacheRead = results.reduce((a, r) => a + (r.usage?.cache_read_input_tokens ?? 0), 0);
   const cacheWrite = results.reduce((a, r) => a + (r.usage?.cache_creation_input_tokens ?? 0), 0);
 
+  const falseBinRate = positives.length ? falseBins / positives.length : 0;
+
+  // Same four bars as evals/judge.ts CALIBRATION_BARS.
   const failures = [];
   if (kappa < 0.6) failures.push(`kappa ${kappa.toFixed(3)} < 0.6`);
   if (ci.lo < 0.7) failures.push(`bin-recall lower bound ${ci.lo.toFixed(3)} < 0.70`);
+  if (falseBinRate > 0.25)
+    failures.push(`false-bin rate ${(falseBinRate * 100).toFixed(1)}% > 25% (too strict)`);
   if (synth.length && synthHits < synth.length)
     failures.push(`synthetic floor ${synthHits}/${synth.length}`);
 
   const report = {
     model: MODEL,
-    provider: "anthropic",
-    crossFamily: false,
+    provider: judge.name,
+    crossFamily: judge.crossFamily,
     split: SPLIT,
     goldenHash: meta.hash,
     scored: ok.length,
@@ -224,7 +291,8 @@ async function main() {
     binRecallLo: ci.lo,
     binRecallHi: ci.hi,
     negatives: negatives.length,
-    falseBinRate: positives.length ? falseBins / positives.length : 0,
+    falseBinRate,
+    disputed: disputed.map((r) => ({ questionId: r.item.questionId, rationale: r.parsed.rationale })),
     syntheticFloorHits: synthHits,
     syntheticFloorTotal: synth.length,
     missedCorruptions: [...new Set(missed)],
@@ -239,7 +307,9 @@ async function main() {
   console.log(`  Cohen's kappa       ${kappa.toFixed(3)}   (bar: >= 0.60)`);
   console.log(`  bin-recall          ${(recall * 100).toFixed(1)}%  95% CI [${(ci.lo * 100).toFixed(1)}%, ${(ci.hi * 100).toFixed(1)}%]  on ${negatives.length} negatives`);
   console.log(`  -> lower bound      ${(ci.lo * 100).toFixed(1)}%  (bar: >= 70%)`);
-  console.log(`  false-bin rate      ${((report.falseBinRate) * 100).toFixed(1)}%  (kept questions wrongly binned)`);
+  console.log(`  false-bin rate      ${((report.falseBinRate) * 100).toFixed(1)}%  (kept questions binned WITHOUT a factual claim)`);
+  console.log(`  disputed            ${disputed.length}  (kept by human, binned for a FACTUAL fault - adjudicate these)`);
+  for (const r of disputed.slice(0, 5)) console.log(`    - ${r.item.questionId}: ${r.parsed.rationale.slice(0, 120)}`);
   console.log(`  synthetic floor     ${synthHits}/${synth.length}   (bar: perfect)`);
   if (missed.length) console.log(`    missed: ${[...new Set(missed)].join(", ")}`);
   console.log(`  prompt cache        ${cacheRead} read / ${cacheWrite} written`);
@@ -248,7 +318,7 @@ async function main() {
   console.log("─────────────────────────────────\n");
 
   mkdirSync(join(root, "evals", "reports"), { recursive: true });
-  const out = join(root, "evals", "reports", `judge-calibration-${SPLIT}-${meta.hash}.json`);
+  const out = join(root, "evals", "reports", `judge-calibration-${judge.name}-${SPLIT}-${meta.hash}.json`);
   writeFileSync(out, JSON.stringify({ ...report, verdicts: ok.map((r) => ({ questionId: r.item.questionId, split: r.item.split, human: r.item.verdict, judge: r.parsed.verdict, scores: r.parsed.scores, rationale: r.parsed.rationale })) }, null, 2) + "\n");
   console.log(`Wrote ${out.replace(root, ".")}`);
 }

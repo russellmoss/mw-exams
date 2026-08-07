@@ -49,10 +49,11 @@ Rebuild the golden set from the live bank (needs `DATABASE_URL`, read-only):
 npm run eval:golden
 ```
 
-Calibrate the judge and find out whether it is allowed to gate anything (needs `ANTHROPIC_API_KEY`):
+Calibrate the judge and find out whether it is allowed to gate anything. Defaults to the
+cross-family Gemini judge (needs `GEMINI_API_KEY`); `--provider anthropic` needs `ANTHROPIC_API_KEY`:
 
 ```bash
-npm run eval:judge -- --split calibration --limit 60
+npm run eval:judge -- --provider gemini --split calibration --limit 60
 ```
 
 Run the deterministic half — no API key, no database, no network:
@@ -127,16 +128,35 @@ Three bars, all of which must clear:
 prints the judge's numbers under a warning banner. **A non-qualified judge never contributes to a
 verdict** — see the `advisory` flag in `scorecard.ts`.
 
-### ⚠️ The judge is currently the same model family as the generator
+### The cross-family judge, and what it found on its first run
 
-The app has no non-Anthropic provider (`grep -rn "GEMINI\|OPENAI" src/` → nothing), so the shipped
-judge is Claude, and Claude grading Claude is a **closed loop**. The existing `bin_reason_check`
-shows the pathology: 67 of 69 human bins "upheld", **0 overturned** — a 0% disagreement rate is not
-agreement, it is an instrument reading its own reflection.
+`geminiJudge()` (`crossFamily: true`) is the one whose verdict can gate. `anthropicJudge()` remains
+for development but sets `crossFamily: false` and prints a warning on every scorecard — Claude
+grading Claude is a closed loop, and the existing `bin_reason_check` shows the pathology: 67 of 69
+human bins "upheld", **0 overturned**. A 0% disagreement rate is not agreement.
 
-So `anthropicJudge()` sets `crossFamily: false`, every scorecard prints the warning, and the corpus
-anchor stays the primary signal. `JudgeProvider` is a two-method interface: add a key, register a
-provider, and the flag flips. Nothing else changes.
+**First live run (Gemini 3.1 Pro, calibration split, 2026-08-07): NOT QUALIFIED — and that is the
+interesting part.** κ 0.036, bin-recall lower bound 0.469 — both bars missed. But the synthetic
+floor came back **17/17** and the craft false-bin rate was 21%, so the judge is neither incompetent
+nor trigger-happy. It disagrees with the reviewer because they are **measuring different things**:
+
+**17 of ~55 human-KEPT questions (~31%) were binned for a specific factual fault.** Two verified
+against independent sources:
+
+- *"Thierry Germain, **Saumur Blanc** Les Memoires, 2021 (13.5%)"* — Les Mémoires is a
+  **Saumur-Champigny RED**, 100% Cabernet Franc. The wine does not exist as a white, and it was
+  sitting in a white-only paper.
+- *"Felton Road Block 1 Riesling 2023 **(13.0%)**"* — Block 1 is **8.5% ABV, 67 g/L RS**.
+
+Both passed all 22 validators **and** the human reviewer.
+
+**This is why `falseBinRate` excludes `disputed`.** A bin that cites a factual fault is a claim to
+adjudicate, not a judge error — counting it as an error would disqualify a judge for out-performing
+its own reference. Before that fix the same run reported a 75% "false-bin rate" and looked broken.
+
+**And it is why you must not tune the rubric until κ rises.** That would mean training the judge to
+stop noticing real errors — the exact failure mode a self-improving loop would reach automatically
+and invisibly. The human labels are a strong reference for exam *craft* and a weak one for *fact*.
 
 ## The scoreboard's three rules
 

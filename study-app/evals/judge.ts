@@ -51,6 +51,48 @@ export interface JudgeProvider {
 }
 
 /**
+ * Gemini judge — the CROSS-FAMILY one, and the one whose verdict can actually gate.
+ *
+ * Independence is the entire point: it does not share the generator's training, tokenizer or
+ * stylistic priors, so when it and the human agree the agreement means something. Where it and a
+ * Claude judge disagree is the most informative signal the eval produces — that pair of rows is
+ * where self-preference bias lives, and it should go to the reviewer rather than be averaged away.
+ *
+ * Uses the REST endpoint directly rather than a client library: one POST, no dependency added to
+ * the app's bundle, and the eval harness is the only caller.
+ */
+export function geminiJudge(model = "gemini-3.1-pro-preview"): JudgeProvider {
+  const apiKey = process.env.GEMINI_API_KEY;
+  return {
+    name: "gemini",
+    model,
+    crossFamily: true,
+    async score(prompt) {
+      if (!apiKey) throw new Error("GEMINI_API_KEY is not set");
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: prompt.system }] },
+            contents: [{ role: "user", parts: [{ text: prompt.user }] }],
+            // Temperature 0: a judge that scores the same question differently on re-run cannot
+            // support a κ, because half the disagreement with the human would be its own variance.
+            generationConfig: { temperature: 0, maxOutputTokens: 2048, responseMimeType: "application/json" },
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const body = (await res.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+      return (body.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
+    },
+  };
+}
+
+/**
  * Claude judge. Cross-family is FALSE by construction — see the header. Usable for development and
  * for a directional signal; not sufficient on its own to gate a pipeline it shares a family with.
  */
@@ -180,8 +222,28 @@ export interface CalibrationResult {
   binRecall: number;
   binRecallLo: number;
   binRecallHi: number;
-  /** Share of KEPT questions the judge wrongly binned — the cost side of a strict judge. */
+  /**
+   * Share of KEPT questions the judge binned WITHOUT citing a checkable fault — the cost side of a
+   * strict judge. Excludes `disputed` (see below), because counting those against the judge would
+   * penalise it for being right.
+   */
   falseBinRate: number;
+  /**
+   * Human said keep; judge said bin AND scored `factual_accuracy` ≤ 2.
+   *
+   * These are NOT judge errors until a person says they are. Measured on the first cross-family run
+   * (Gemini, 2026-08-07): of 6 human-kept questions the judge binned, at least two were binned for
+   * verifiable factual errors that every validator and the reviewer had passed —
+   * "Thierry Germain, Saumur Blanc Les Memoires" (Les Mémoires is a Saumur-Champigny RED) and
+   * "Felton Road Block 1 Riesling (13.0%)" (Block 1 is 8.5% ABV, 67 g/L RS). Both verified against
+   * independent sources.
+   *
+   * A reviewer scanning dozens of questions cannot check every ABV and appellation, so the human
+   * labels are a strong reference for exam CRAFT and a weak one for FACT. Folding these into
+   * `falseBinRate` would have disqualified a judge for out-performing its reference — and tuning
+   * the rubric until they went away would have destroyed the most valuable signal the eval produces.
+   */
+  disputed: { questionId: string; rationale: string }[];
   syntheticFloorHits: number;
   syntheticFloorTotal: number;
   syntheticFloorRate: number;
@@ -214,7 +276,11 @@ export function assessCalibration(
   const ci = wilsonInterval(caught, negatives.length);
 
   const positives = real.filter((p) => p.t.verdict === "keep");
-  const falseBins = positives.filter((p) => p.v.verdict === "bin").length;
+  const binnedPositives = positives.filter((p) => p.v.verdict === "bin");
+  // Split "you binned a good question" from "you binned a question you say contains a factual
+  // error". Only the former is evidence the judge is too strict; the latter is a claim to check.
+  const disputedPairs = binnedPositives.filter((p) => p.v.scores.factual_accuracy <= 2);
+  const falseBins = binnedPositives.length - disputedPairs.length;
 
   const synthHits = synth.filter((p) => p.v.verdict === "bin").length;
   const missedCorruptions = synth
@@ -250,6 +316,7 @@ export function assessCalibration(
     binRecallLo: ci.lo,
     binRecallHi: ci.hi,
     falseBinRate,
+    disputed: disputedPairs.map((p) => ({ questionId: p.t.questionId, rationale: p.v.rationale })),
     syntheticFloorHits: synthHits,
     syntheticFloorTotal: synth.length,
     syntheticFloorRate: synth.length === 0 ? 0 : synthHits / synth.length,
