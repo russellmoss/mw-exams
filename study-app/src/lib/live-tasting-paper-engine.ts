@@ -190,6 +190,26 @@ export async function generateNextFlight(opts: {
     if (q?.question_text) priorStems.push(`Q${c.paper_position}: ${q.question_text.slice(0, 400)}`);
   }
 
+  // P3 genre mix (paper-QA round 6): "Paper 3 always mixes still, sparkling, and sometimes
+  // fortified" — a sparkling+fortified half paper with no still wines fails the examiner judge.
+  // Steer categories: never repeat one already used, and if the LAST flight is being built with
+  // no still-wine flight yet, require still_sweet. (Soft preferences in the picker — a thin bank
+  // degrades to a repeat rather than a failed paper.)
+  let p3RequireCategory: string | undefined;
+  let p3ExcludeCategories: string[] | undefined;
+  if (paper.paper === 3) {
+    const usedCats = children
+      .map((s) => {
+        const label = ((s.availability ?? {}) as { archetypeLabel?: string }).archetypeLabel ?? "";
+        const m = label.match(/^(.+) styles compared$/);
+        return m ? m[1].replace(/ /g, "_") : "";
+      })
+      .filter(Boolean);
+    const isLastFlight = children.length === composition.length - 1;
+    if (isLastFlight && !usedCats.includes("still_sweet")) p3RequireCategory = "still_sweet";
+    else p3ExcludeCategories = usedCats;
+  }
+
   const outcome = await createLiveTasting({
     userId: paper.user_id,
     apiKey,
@@ -204,6 +224,8 @@ export async function generateNextFlight(opts: {
     requireArchetype: (FAMILY_TO_ARCHETYPE[next.family] ?? "mixed-variety") as ArchetypeId,
     excludeWineKeys,
     excludeVarieties,
+    p3RequireCategory,
+    p3ExcludeCategories,
     // Round 5: "vary your structure" alone still produced clone scaffolds (round-4 judge:
     // "structurally near-identical clones"). Rotate a NAMED architecture per position so two
     // flights can never share one, and keep prior stems visible as the differ-from list.

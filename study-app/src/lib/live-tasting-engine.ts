@@ -202,6 +202,15 @@ export function pickArchetype(
     /** Cross-flight dedup for papers: bank ids and dominant varieties already used. */
     excludeWineKeys?: Set<string>;
     excludeVarieties?: Set<string>;
+    /**
+     * P3 papers only (paper-QA round 6): a half paper drew sparkling + fortified with no still
+     * wines — "Paper 3 always mixes still, sparkling, and sometimes fortified". The paper engine
+     * requires still_sweet on the last flight when it's missing, and excludes already-used
+     * categories. Soft preferences: constrained categories are tried FIRST, the rest as fallback,
+     * so a thin bank degrades to a repeat category rather than a failed paper.
+     */
+    p3RequireCategory?: string;
+    p3ExcludeCategories?: string[];
   }
 ): { archetype: ArchetypeId; label: string; slots: SlotPick[] } {
   const excludedKey = (r: BankRow) => opts?.excludeWineKeys?.has(r.id) ?? false;
@@ -258,7 +267,10 @@ export function pickArchetype(
       }
       return norm(r.country);
     };
-    const cats = shuffle([...P3_CATEGORIES]);
+    const preferred = opts?.p3RequireCategory
+      ? [opts.p3RequireCategory]
+      : shuffle([...P3_CATEGORIES]).filter((c) => !(opts?.p3ExcludeCategories ?? []).includes(c));
+    const cats = [...preferred, ...shuffle([...P3_CATEGORIES]).filter((c) => !preferred.includes(c))];
     for (const cat of cats) {
       const pool = bank.filter((r) => r.style_category === cat);
       if (pool.length < flightSize) continue;
@@ -474,6 +486,9 @@ export async function createLiveTasting(opts: {
   requireArchetype?: ArchetypeId;
   /** Paper flights: earlier questions' stems for scaffold variety (threaded into the prompt). */
   paperStemsContext?: string | null;
+  /** P3 papers: category steering across flights (see pickArchetype opts). */
+  p3RequireCategory?: string;
+  p3ExcludeCategories?: string[];
   /** Paper flights: cross-flight dedup — never reuse a wine or (for variety-led picks) a variety. */
   excludeWineKeys?: Set<string>;
   excludeVarieties?: Set<string>;
@@ -483,6 +498,8 @@ export async function createLiveTasting(opts: {
     require: opts.requireArchetype,
     excludeWineKeys: opts.excludeWineKeys,
     excludeVarieties: opts.excludeVarieties,
+    p3RequireCategory: opts.p3RequireCategory,
+    p3ExcludeCategories: opts.p3ExcludeCategories,
   };
 
   emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });

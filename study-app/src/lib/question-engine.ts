@@ -49,7 +49,7 @@ import { varietyLabel, substyleSpreadFor } from "@/lib/bank-health/variety-targe
 import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import { auditAndQuarantineQuestion } from "@/lib/question-audit";
-import { validatePinnedFlight, validateBlindSafety } from "@/lib/live-tasting-validators";
+import { validatePinnedFlight, validateBlindSafety, validateMarkRealism } from "@/lib/live-tasting-validators";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
 // the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
 import "@/lib/appellation-resolver";
@@ -968,7 +968,8 @@ REQUIRED: the stem MUST OPEN by declaring this shared fact to the candidate ("Wi
 Mark-structure realism (paper-QA examiner conventions, verified against the 2023-24 corpus):
 - Identification is ONE BUNDLED sub-question — "identify the grape variety (or varieties) and origin as closely as possible" — never split variety and origin into separate sub-questions, and never omit origin. Weight it 13-18 marks per question.
 - MIX pooled sub-questions ("For both wines: … (14 marks)") with per-wine ones — no rigidly symmetric allocations.
-- Mark allocations must be IRREGULAR, as in real papers: never give every wine an identical split (an "8/9/8 for each wine" pattern is an automatic QA failure). Real allocations look like 13/10/2 per wine, a 15/20 two-parter, or large pooled blocks (30, 20, 15 marks). Vary both the split WITHIN each wine and the totals BETWEEN wines while keeping the question's overall total exact.
+- Mark allocations must be IRREGULAR, as in real papers: never give every wine an identical split (an "8/9/8 for each wine" pattern is an automatic QA failure). Real allocations look like 13/10/2 per wine, a 15/20 two-parter, or pooled blocks of 15-30 marks. Vary both the split WITHIN each wine and the totals BETWEEN wines while keeping the question's overall total exact.
+- HARD mark rules (validator-enforced, a violation forces a redraft): no single sub-question above 30 marks; never write multiplier shorthand ("4 x 9 marks") or "N marks each"; no mark value may appear 4+ times. A sub-question spanning several wines takes ONE pooled total ("(23 marks)"), not per-wine mark tags inside it.
 - REQUIRED: at least ONE sub-question must be integrative across the whole flight ("With reference to both/all the wines, compare/discuss …" — quality, style, winemaking or commercial position). A question made only of stand-alone per-wine parts is NOT a real MW question.
 - Paper 3 only: technical-state tasks (residual-sugar level, alcohol, method of production) belong EMBEDDED in the analysis sub-questions with real mark weight — a lone 2-3 mark micro-question is fine as a supplement, but must never be the only technical coverage.${saveOpts?.paperStemsContext ? `
 This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part count, mark split AND phrasing must all differ from every one of them (two near-identical a/b/c triplets fail QA).
@@ -1520,6 +1521,11 @@ ${repairContext.draft}`,
     const blindSafetyCheck = pinned
       ? validateBlindSafety(candidate.questionText, pinned)
       : { valid: true, violations: [] };
+    // Mark-structure realism (paper-QA rounds 4-6): prompt guidance alone kept producing uniform
+    // "4 x 9" splits and a 50-mark essay block; deterministic check + redraft is the reliable lever.
+    const markRealismCheck = pinned
+      ? validateMarkRealism(candidate.questionText, pinned.length * 25)
+      : { valid: true, violations: [] };
 
     // Declared in the order the violations used to be concatenated, so the flat list below preserves
     // the original ordering while the telemetry gets the rule NAME behind each one — the whole point
@@ -1556,6 +1562,7 @@ ${repairContext.draft}`,
       contrastIntegrity: contrastCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
+      markRealism: markRealismCheck,
     };
     const violationsByRule: Record<string, string[]> = {};
     for (const [name, check] of Object.entries(checks)) {

@@ -93,6 +93,40 @@ export function validatePinnedFlight(
   return { valid: violations.length === 0, violations };
 }
 
+/**
+ * Mark-structure realism as a HARD check (paper-QA rounds 4-6): prompt exhortation alone kept
+ * producing "4 × 9 marks" uniform splits and one 50-mark essay block. Real 2023-24 sub-questions
+ * sit in a 2-30 mark band with irregular allocations.
+ *
+ * `totalMarks` (wines × 25) is exempted from the cap so a stem's total header ("(75 marks)")
+ * doesn't false-positive.
+ */
+export function validateMarkRealism(
+  questionText: string,
+  totalMarks: number
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const text = questionText || "";
+  if (/\b\d+\s*(?:x|×)\s*\d+\s*marks?\b/i.test(text)) {
+    violations.push("multiplier mark shorthand ('4 x 9 marks') — real papers never write this");
+  }
+  if (/\d+\s*marks?\s+each\b/i.test(text)) {
+    violations.push("'N marks each' uniform allocation — real papers allocate irregularly");
+  }
+  const marks = [...text.matchAll(/\((\d+)\s*marks?\)/gi)].map((m) => parseInt(m[1], 10));
+  for (const m of marks) {
+    if (m > 30 && m !== totalMarks) {
+      violations.push(`a single ${m}-mark sub-question — real sub-questions cap at ~30 marks`);
+    }
+  }
+  const countByVal = new Map<number, number>();
+  for (const m of marks) countByVal.set(m, (countByVal.get(m) ?? 0) + 1);
+  for (const [val, n] of countByVal) {
+    if (n >= 4) violations.push(`mark value ${val} repeated ${n}x — mechanically uniform allocation`);
+  }
+  return { valid: violations.length === 0, violations };
+}
+
 export function validateBlindSafety(
   questionText: string,
   pinned: PinnedWine[]
