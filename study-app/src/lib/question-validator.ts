@@ -1595,24 +1595,43 @@ export function computeServedStemHash(questionText: string): string {
   return fnv1aHex(JSON.stringify({ stem, parts, marks }));
 }
 
-// The wine count the STEM declares, or null when it makes no explicit claim. Handles "Wines 1 to N"
-// (also "1 through N" / "1-N"), an enumerated "Wines 1 and 2" / "Wines 1, 2 and 3", and a lone "Wine 1".
+// The wine count the STEM declares, or null when it makes no explicit claim.
+//
+// A numbered wine reference names a SLOT, not a count. A real paper holds twelve wines and a flight is
+// drawn from it, so "Wines 5 and 6" is a TWO-wine flight (slots 5 and 6), not a six-wine one — reading
+// the highest number as the size was the single largest source of false positives here.
+//
+// A stem also routinely declares several GROUPS, each naming its own slots: "Wines 1 and 2 are from the
+// same region … Wine 3 is from a different country" is a three-wine flight, and reading only the first
+// enumeration would call it two. So we union the slots referenced across the WHOLE stem and count them.
+// Handled forms: a "Wines 1 to N" range (also "through" / "1-N"), any number of enumerations
+// ("Wines 1 and 2", "Wines 1, 2 and 3"), and a lone "Wine 1".
 function parseStemWineCount(questionText: string): number | null {
   const stem = norm(extractStem(questionText || ""));
-  const range = stem.match(
-    /\bwines?\s+1\s*(?:to|through|-)\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/
-  );
-  if (range) {
-    const n = parseStemCount(range[1]);
-    if (n >= 1) return n;
+
+  const slots = new Set<number>();
+
+  // Ranges. A range is a span of SLOTS, so it need not start at 1 ("Wines 4 to 6" is a three-wine
+  // flight from slots 4-6), and the corpus writes the separator as "to", "through", an ASCII hyphen
+  // or an en/em dash ("Wines 1–6") — miss any of those and the enumeration below reads only the first
+  // number, collapsing a six-wine flight to one.
+  const RANGE_RE =
+    /\bwines?\s+(\d+)\s*(?:to|through|[-–—])\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/g;
+  for (const m of stem.matchAll(RANGE_RE)) {
+    const from = Number(m[1]);
+    const to = parseStemCount(m[2]);
+    if (from >= 1 && to >= from && to - from < 12) for (let i = from; i <= to; i++) slots.add(i);
   }
-  const enumMatch = stem.match(/\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/);
-  if (enumMatch) {
-    const nums = [...enumMatch[0].matchAll(/\d+/g)].map((x) => Number(x[0]));
-    if (nums.length >= 2) return Math.max(...nums);
+
+  // Enumerations, unioned across every group the stem declares.
+  for (const m of stem.matchAll(/\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/g)) {
+    for (const d of m[0].matchAll(/\d+/g)) slots.add(Number(d[0]));
   }
-  if (/\bwine\s+1\b/.test(stem) && !/\bwines\b/.test(stem) && !/\bwine\s+2\b/.test(stem)) return 1;
-  return null;
+
+  // Only trust the stem when it names at least TWO slots. A single incidental reference ("…of wine 2")
+  // is not a declaration that the flight holds one wine, so we fall through to the mark multiplier
+  // rather than assert a count we cannot support.
+  return slots.size >= 2 ? slots.size : null;
 }
 
 // The wine count implied by an "N × M marks" per-wine multiplier in the parts (the largest N), or null.
@@ -1668,6 +1687,36 @@ export function filterRevealMedia(
  * Check 2 (rendered wine count == declared wine count) and, at reveal, Check 3 (drop off-answer media).
  * Throws ServedQuestionIntegrityError with the phase and the mismatching field on a hard divergence.
  */
+/**
+ * The flight-size half of Check 2, as an ordinary NON-THROWING audit rule (fb_185).
+ *
+ * This is how a question whose stored flight doesn't match its stem gets taken out of circulation: it
+ * flows through validateQuestion() into the machinery that already exists — `invalid_reasons` at
+ * generation, the nightly audit re-verdict, and the serve gate that excludes quarantined rows. The
+ * candidate never sees the bad question, and never sees an error either.
+ *
+ * Deliberately NOT enforced by throwing on the serve path. A throw there reaches the candidate as a
+ * 500 (get-question/route.ts) or a stream error (stream/route.ts) with no retry and no fallback, which
+ * is a worse outcome than the truncated flight it is trying to prevent: a defective question becomes a
+ * candidate who cannot study at all.
+ */
+export function flightWineCountViolations(q: QuestionForAudit): Violation[] {
+  const questionText = q.questionText || "";
+  const wines = q.wines || [];
+  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
+  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  if (expected == null || renderedCount === 0 || renderedCount === expected) return [];
+  return [
+    {
+      rule: "flight-wine-count",
+      severity: "hard",
+      detail: `the stem declares ${expected} wine${
+        expected === 1 ? "" : "s"
+      } but the keyed flight holds ${renderedCount} — a flight must carry exactly the wines its stem announces, never a truncated or padded set`,
+    },
+  ];
+}
+
 export function assertServedQuestionIntegrity(
   phase: ServePhase,
   served: ServedQuestionPayload,
@@ -1687,13 +1736,17 @@ export function assertServedQuestionIntegrity(
 
   // Check 2 — the rendered flight must contain exactly the wines the question keys.
   const wines = served.wines || [];
+  // The flight size is the number of DISTINCT SLOTS, not the array length: a stored wines array can
+  // carry several candidate records per slot (one pool row holds 15 records across 5 slots), while a
+  // rendered flight shows one wine per slot.
+  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
   const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
-  if (expected != null && wines.length !== expected) {
+  if (expected != null && renderedCount !== expected) {
     throw new ServedQuestionIntegrityError(
       phase,
       "wine-count",
       `the question declares ${expected} wine${expected === 1 ? "" : "s"} but the served flight rendered ${
-        wines.length
+        renderedCount
       } — a flight must render every keyed wine, never a truncated subset`
     );
   }
@@ -1701,7 +1754,7 @@ export function assertServedQuestionIntegrity(
   // Check 3 — at reveal, any attached media must be about one of the answer wines (drop the stragglers).
   const media = phase === "reveal" ? filterRevealMedia(served.media || [], wines) : served.media || [];
 
-  return { phase, stemHash, wineCount: wines.length, media };
+  return { phase, stemHash, wineCount: renderedCount, media };
 }
 
 export function validateQuestion(q: QuestionForAudit): {
@@ -1720,6 +1773,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...validateSingleWineFlight(q));
   violations.push(...idMarkAllocationViolations(q));
   violations.push(...validateMarkBudget(q));
+  violations.push(...flightWineCountViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({

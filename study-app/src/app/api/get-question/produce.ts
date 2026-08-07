@@ -18,7 +18,6 @@ import {
   type GenerationOutcome,
   type ProgressEmitter,
 } from "@/lib/question-engine";
-import { assertServedQuestionIntegrity } from "@/lib/question-validator";
 
 /**
  * The study-question producer, shared by both routes that serve one:
@@ -77,21 +76,6 @@ type ProduceOpts = {
  */
 export async function produceQuestion(opts: ProduceOpts): Promise<GenerationOutcome> {
   const outcome = await selectOrGenerate(opts);
-
-  // SERVE-TIME INTEGRITY GATE (fb_344 / fb_185 / fb_161). Before this question reaches a candidate,
-  // assert the served flight renders exactly the wines the stem keys — a three-wine question that
-  // truncated to one wine is a HARD FAIL here, not a silent one-of-three render (fb_185). This is the
-  // "stem" phase: the returned stemHash is the reference every later surface (answer, reveal) re-asserts
-  // byte-equality against, so the stem shown at reveal is provably the stem shown at analysis (fb_344).
-  // Throws ServedQuestionIntegrityError (caught by both routes → a diagnosable failure in the logs).
-  if (!("error" in outcome)) {
-    assertServedQuestionIntegrity("stem", {
-      questionId: outcome.question.question_id,
-      paper: outcome.question.paper,
-      questionText: outcome.question.question_text,
-      wines: outcome.question.wines,
-    });
-  }
 
   if (!("error" in outcome) && opts.meta.userId != null) {
     const questionId = outcome.question.question_id;

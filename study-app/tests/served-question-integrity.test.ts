@@ -17,6 +17,7 @@ import {
   assertServedQuestionIntegrity,
   computeServedStemHash,
   filterRevealMedia,
+  flightWineCountViolations,
   ServedQuestionIntegrityError,
   type ServedQuestionPayload,
 } from "../src/lib/question-validator";
@@ -169,5 +170,129 @@ describe("Check 3 — reveal media must be about the answer wines (fb_161)", () 
   it("fails safe: keeps everything when no wine anchors can be resolved", () => {
     const media = [{ tag: "Barossa" }];
     expect(filterRevealMedia(media, [{ slot: 1 }])).toEqual(media);
+  });
+});
+
+// ── Flight-size parsing: the four ways the first cut miscounted a real MW stem ──────────────────────
+//
+// Measured against the 832-question live pool, the original Check 2 flagged 68 questions (8.2%) — and
+// all but three were parser artefacts. A real paper holds TWELVE wines and a flight is drawn from it,
+// so a numbered wine reference names a SLOT, not a count. Each case below is a stem shape taken from a
+// pool row that was wrongly flagged; together they took the false-positive count to zero.
+describe("flight-size parsing — a numbered reference names a slot, not a count (fb_185)", () => {
+  const flight = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ slot: i + 1, fullText: `Wine ${i + 1} — a wine` }));
+
+  const countOf = (questionText: string, wines: { slot: number; fullText: string }[]) =>
+    assertServedQuestionIntegrity("stem", { questionText, wines }).wineCount;
+
+  it("'Wines 5 and 6' is a two-wine flight, not a six-wine one", () => {
+    // pool id 2526 — the dominant false positive: max(5,6) read a 2-wine flight as declaring 6.
+    const text = `Wines 5 and 6 are both sparkling wines.
+a) Discuss the quality, winemaking, and style. (2 x 15 marks)
+b) Compare the commercial opportunities for each wine. (20 marks)`;
+    expect(() => countOf(text, flight(2))).not.toThrow();
+  });
+
+  it("unions the slots across every group a stem declares", () => {
+    // pool id 16 — reading only the first enumeration called this three-wine flight a two-wine one.
+    const text = `Wines 1 and 2 are from the same region and are made from the same single grape variety. Wine 3 is from a different country.
+a) Identify the grape variety. (11 marks)
+b) Identify the region of origin of each wine. (3 x 8 marks)`;
+    expect(() => countOf(text, flight(3))).not.toThrow();
+    expect(() => countOf(text, flight(2))).toThrow(ServedQuestionIntegrityError);
+  });
+
+  it("reads an en-dash range ('Wines 1-6')", () => {
+    // pool id 905 — the range regex only knew the ASCII hyphen, so "Wines 1\u20136" fell through to the
+    // enumeration and matched just "wines 1", collapsing a six-wine flight to one.
+    const text = `Wines 1\u20136 are from three different countries.
+a) For each wine, identify the country and region of origin. (6 \u00d7 6 marks)`;
+    expect(() => countOf(text, flight(6))).not.toThrow();
+  });
+
+  it("reads a range that does not start at wine 1 ('Wines 4 to 6')", () => {
+    // pool id 2528 — the range branch was hardcoded to start at 1.
+    const text = `Wines 4 to 6 are made from the same single grape variety, from three different countries.
+a) Identify the grape variety. (15 marks)
+b) Identify the origin of each wine. (3 x 5 marks)`;
+    expect(() => countOf(text, [4, 5, 6].map((s) => ({ slot: s, fullText: `Wine ${s} — a wine` })))).not.toThrow();
+  });
+
+  it("counts DISTINCT SLOTS, not array rows", () => {
+    // pool id 470 — the stored wines array held 15 records across 5 slots (several candidates per
+    // slot), so measuring array length read a five-wine flight as fifteen.
+    const text = `Wines 1 to 5 are from five different countries.
+a) Identify the grape variety and region of origin of each wine. (5 x 10 marks)`;
+    const withDuplicateSlots = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5].map((s) => ({
+      slot: s,
+      fullText: `Wine ${s} — a candidate record`,
+    }));
+    expect(() => countOf(text, withDuplicateSlots)).not.toThrow();
+    expect(countOf(text, withDuplicateSlots)).toBe(5);
+  });
+
+  it("still catches the real truncation fb_185 reported", () => {
+    // pool id 460 — genuinely defective: a three-wine stem whose key holds one wine.
+    const text = `Three wines are presented. Each is made predominantly from the same single grape variety.
+a) Identify the grape variety, with reference to all three wines. (15 marks)
+b) For each wine, identify the region of origin. (3 x 10 marks)`;
+    expect(() => countOf(text, flight(1))).toThrow(ServedQuestionIntegrityError);
+  });
+});
+
+// ── The audit rule, not a serve-time throw ─────────────────────────────────────────────────────────
+//
+// A flight-size mismatch takes the question out of circulation through the machinery that already
+// exists (invalid_reasons → nightly audit → serve gate), rather than throwing on the serve path where
+// it would reach the candidate as a 500 with no fallback.
+describe("flightWineCountViolations — the quarantine path (fb_185)", () => {
+  const q = (questionText: string, slots: number[]) => ({
+    questionId: "q1",
+    paper: 3,
+    family: "F1",
+    questionText,
+    wines: slots.map((s) => ({ slot: s, fullText: `Wine ${s} — a wine` })),
+  });
+
+  it("hard-flags a three-wine stem whose key holds one wine", () => {
+    const v = flightWineCountViolations(
+      q(
+        `Three wines are presented. Each is made predominantly from the same single grape variety.
+a) Identify the grape variety. (15 marks)
+b) For each wine, identify the region of origin. (3 x 10 marks)`,
+        [1]
+      )
+    );
+    expect(v).toHaveLength(1);
+    expect(v[0].rule).toBe("flight-wine-count");
+    expect(v[0].severity).toBe("hard");
+  });
+
+  it("hard-flags a padded flight (two-wine stem, three keyed wines)", () => {
+    const v = flightWineCountViolations(
+      q(
+        `Wines 1 and 2 are from the same region and are made from the same single grape variety.
+a) Identify the grape variety and the region of origin. (2 x 8 marks)`,
+        [1, 2, 3]
+      )
+    );
+    expect(v.map((x) => x.rule)).toEqual(["flight-wine-count"]);
+  });
+
+  it("passes a flight whose size matches its stem", () => {
+    expect(
+      flightWineCountViolations(
+        q(
+          `Wines 5 and 6 are both sparkling wines.
+a) Discuss the quality, winemaking, and style. (2 x 15 marks)`,
+          [5, 6]
+        )
+      )
+    ).toEqual([]);
+  });
+
+  it("says nothing when the flight cannot be measured", () => {
+    expect(flightWineCountViolations(q("A wine is presented. Comment on it. (25 marks)", []))).toEqual([]);
   });
 });
