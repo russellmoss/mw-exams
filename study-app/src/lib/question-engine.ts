@@ -977,6 +977,7 @@ Stem & mark conventions — copied from the REAL 2023-24 papers in the corpus; f
 - Identification bundles origin + grape variety in ONE sub-question — "Identify the origin and grape variety/ies as closely as possible." — pooled (14-18 marks) or per-wine ("N x 10-13 marks"). Never split variety from origin, never omit origin.
 - Identification carries the HIGHEST per-wine mark in its question (e.g. ID 13, quality 10 — never the inverse). If variety identification is pooled, the per-wine parts MUST then include origin identification (2023 Q4 pattern), and do not bolt extra pooled micro-tasks onto that scaffold.
 - A POOLED identification sub-question is NEVER below 14 marks (validator-enforced: 14-30; real papers use 14, 15, 18, 30).
+- Per-wine analysis tasks of 10+ marks always pair winemaking/method with quality or style ("Discuss the winemaking and quality", "Discuss the quality, winemaking, and style", "Comment on quality in the context of origin") — an ISOLATED production-method task only ever carries 6-7 marks per wine.
 - Quality tasks routinely combine with commercial potential or maturity in one sub-part: "Discuss quality and commercial potential. (3 x 8 marks)".
 - Paper 3 only: micro-state sub-questions are standard where the category fits: "State the residual sugar. (N x 2 marks)".
 Real skeletons to emulate (structure and notation, not content):

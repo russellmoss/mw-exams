@@ -45,7 +45,9 @@ const BASE_URL = process.env.BASE_URL || "https://study-app-blond-nine.vercel.ap
 // Own user, NOT the e2e job's: both jobs run in parallel in the weekly workflow and each
 // starts with a cleanup of its user's rows — sharing one user let the e2e job delete this
 // job's paper mid-run (observed on the first re-judge attempt, 2026-08-06).
-const E2E_EMAIL = "live-tasting-paper-qa@bwc.test";
+// Overridable so parallel QA runs use DISTINCT users — a shared user makes one run's cleanup
+// delete another run's in-flight paper (the exact race the weekly E2E jobs hit).
+const E2E_EMAIL = process.env.LT_QA_EMAIL || "live-tasting-paper-qa@bwc.test";
 const E2E_PASSWORD = process.env.LT_E2E_PASSWORD;
 for (const k of ["LT_E2E_PASSWORD", "DATABASE_URL", "ANTHROPIC_API_KEY"]) {
   if (!process.env[k]) { console.error(`${k} is required`); process.exit(1); }
