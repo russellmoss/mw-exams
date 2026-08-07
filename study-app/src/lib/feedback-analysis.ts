@@ -539,9 +539,20 @@ export async function sweepStrandedFeedback(
       AND user_feedback IS NOT NULL AND trim(user_feedback) <> ''
       AND auto_analysis_id IS NULL
       AND feedback_status IS NULL
-      -- General app-level feedback (Feedback tab, migration 053) has no question to analyze; skip it
-      -- so it never re-occupies a sweeper slot on every run.
+      -- App-level feedback is skipped on BOTH predicates, which are no longer redundant.
+      --
+      -- question_id IS NOT NULL is a hard requirement: runFeedbackAnalysis prompts on the stem, the
+      -- wines and the model answer, so a row with no question has nothing to analyse.
+      --
+      -- scope is the one that carries the intent. These agreed only for as long as every general row
+      -- also had a NULL question_id; the Coach's file_bug now attaches the on-screen question to an
+      -- app bug, so a question-less proxy for "is this about question quality" would sweep a footer
+      -- rendering bug into the question-quality analyser — which would rule on the QUESTION (sound,
+      -- therefore "reject") and could dispatch a generation-rule PR for a bug in a component. Keying
+      -- on scope also matches getUserAttempts and getUserStats, so all three agree on what a
+      -- question-scoped report is.
       AND question_id IS NOT NULL
+      AND (scope IS DISTINCT FROM 'general')
     ORDER BY started_at ASC
     LIMIT ${limit}
   `;

@@ -210,15 +210,68 @@ describe("write path source guards", () => {
       });
     });
 
-    it("adds nothing for the writes that have no question", () => {
-      for (const tool of ["submit_feedback", "file_bug"]) {
-        expect(proposalArgs(tool, { body: "x" }, { screen: SCREEN })).toEqual({});
-      }
+    it("adds nothing for general feedback, which is about no question", () => {
+      expect(proposalArgs("submit_feedback", { body: "x" }, { screen: SCREEN })).toEqual({});
     });
 
     it("adds nothing when there is no screen at all", () => {
       expect(proposalArgs("report_question", { body: "x" }, { screen: null })).toEqual({});
     });
+
+    // ── file_bug attaches the question as context ────────────────────────────────────────────────
+    //
+    // It used to be grouped with submit_feedback as "has no question", so its committer filed every
+    // bug with question_id NULL. A bug about a specific question's RENDERING (the marks footer
+    // summing wrong) then reached the admin queue as "General feedback", identifiable only by
+    // whatever the model happened to write in the body.
+
+    it("attaches the on-screen question to a bug", () => {
+      expect(proposalArgs("file_bug", { body: "footer total is wrong" }, { screen: SCREEN })).toEqual({
+        questionId: "q_onscreen",
+      });
+    });
+
+    it("never attaches an attempt to a bug", () => {
+      // The row is filed scope='general', which is never hung off an attempt — so an attemptId here
+      // would be a signed field with no reader, and an invitation for a later refactor to honour it.
+      expect(proposalArgs("file_bug", { body: "x" }, { screen: SCREEN })).not.toHaveProperty("attemptId");
+    });
+
+    it("ignores a model-named question on a bug, taking only the screen's", () => {
+      // fileBug's schema has no questionId property, so this input cannot occur through the model.
+      // Asserted anyway: the screen's id is server-resolved and safe on the row's foreign key,
+      // whereas an invented one would fail the FK at commit and lose the whole bug report.
+      expect(proposalArgs("file_bug", { questionId: "q_invented" }, { screen: SCREEN })).toEqual({
+        questionId: "q_onscreen",
+      });
+    });
+
+    it("files a bug with no question when there is none on screen", () => {
+      expect(proposalArgs("file_bug", { body: "x" }, { screen: { route: "/library" } })).toEqual({});
+    });
+  });
+
+  it("keeps file_bug's schema free of questionId, so only the screen can supply one", () => {
+    const src = fs.readFileSync(path.join(appDir, "src/lib/coach/tools/write-tools.ts"), "utf8");
+    const fileBug = src.slice(src.indexOf("export const fileBug"), src.indexOf("export const flagDefect"));
+    const schema = fileBug.slice(fileBug.indexOf("inputSchema"), fileBug.indexOf("async run"));
+    // Comments stripped first, same as the createQuestionFlag guard above: the schema carries a note
+    // explaining WHY questionId is absent, and matching that would fail the test for documenting the
+    // very property it asserts.
+    const code = schema.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/[^\n]*/g, " ");
+    expect(code).not.toMatch(/questionId/);
+  });
+
+  it("keeps app bugs out of the question-quality analyser", () => {
+    // runFeedbackAnalysis rules on whether the QUESTION is sound. A footer that renders 44 for a
+    // question correctly totalling 50 is not a claim about the question, so adjudicating it would
+    // produce a "reject" that reads as "your bug report was wrong" — or an "accept" that dispatches a
+    // generation-rule PR for a bug in a React component. Now that file_bug attaches a question_id,
+    // the sweeper can no longer use "has a question" as a proxy for "is about question quality".
+    const src = fs.readFileSync(path.join(appDir, "src/lib/feedback-analysis.ts"), "utf8");
+    const sweep = src.slice(src.indexOf("export async function sweepStrandedFeedback"));
+    expect(sweep).toMatch(/scope IS DISTINCT FROM 'general'/);
+    expect(sweep).toMatch(/question_id IS NOT NULL/);
   });
 
   it("writes through the shared feedback store, not a private Coach table", () => {

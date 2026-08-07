@@ -3259,7 +3259,9 @@ export async function recordUserFeedback(
 //     already carries different feedback, matching recordUserFeedback's no-overwrite rule).
 //   * question scope + questionId only → create a fresh 'full' attempt to hang it on (exactly how
 //     a pre-answer question report flows in via the History flow).
-//   * general scope → a 'full' row with NULL question_id, so it still lands in the admin open queue.
+//   * general scope → a 'full' row that still lands in the admin open queue. questionId is optional
+//     here and kept when given (the Coach's file_bug attaches the on-screen question as context);
+//     `scope`, not the presence of a question, is what keeps these rows out of study history.
 //
 // No analysis is triggered here (spec: no LLM at submit time) — the existing sweep/analysis cron
 // picks up question-scoped feedback. Returns the attempt id the feedback now lives on.
@@ -3335,14 +3337,24 @@ export async function recordTabFeedback(params: {
     return { id: ins[0].id as number };
   }
 
-  // General scope (or question scope with nothing to anchor to): a 'full' row with no question, so
-  // it still surfaces in the admin open-feedback queue. Excluded from the user's own History view.
+  // General scope (or question scope with nothing to anchor to): a 'full' row that still surfaces in
+  // the admin open-feedback queue. Excluded from the user's own History view and study totals.
+  //
+  // question_id is CARRIED HERE, not forced to NULL, and the pairing is intentional. The Coach's
+  // file_bug path files app-level bugs with the on-screen question attached: `question_id` records
+  // what the candidate was looking at, while `scope='general'` still decides everything that matters
+  // — out of History (getUserAttempts), out of the scoreboard (getUserStats), and out of the
+  // question-quality analyser (sweepStrandedFeedback). Before this the id was dropped and a bug about
+  // a specific question's rendering reached the admin queue as an unattributable "General feedback".
+  //
+  // Both shapes satisfy `user_attempts_question_family_check` (migration 054): with an id via the
+  // non-theory arm, without one via the general-feedback carve-out.
   const ins = await sql`
     INSERT INTO user_attempts (
-      user_id, mode, stem_detail, user_feedback, feedback_submitted_at, app_version,
+      question_id, user_id, mode, stem_detail, user_feedback, feedback_submitted_at, app_version,
       source, category, scope, route, paused_ms
     ) VALUES (
-      ${userId}, 'full', 'exam_real', ${text}, NOW(), ${getAppVersion()},
+      ${questionId}, ${userId}, 'full', 'exam_real', ${text}, NOW(), ${getAppVersion()},
       'feedback_tab', ${category}, 'general', ${route}, ${pausedMs}
     ) RETURNING id
   `;
