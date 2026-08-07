@@ -3810,6 +3810,28 @@ export async function saveNarration(
   `;
 }
 
+/**
+ * The narration voice this user picked (migration 058), or null if they never picked one — which
+ * the synthesis path resolves to the app default. Returns null rather than throwing if the read
+ * fails: not knowing someone's voice preference must never be able to stop them being notified.
+ */
+export async function getUserVoiceId(userId: number): Promise<string | null> {
+  try {
+    const sql = getDb();
+    const rows = await sql`SELECT elevenlabs_voice_id FROM users WHERE id = ${userId}`;
+    return (rows[0]?.elevenlabs_voice_id as string | null) || null;
+  } catch (err) {
+    console.error("getUserVoiceId failed (falling back to app default):", err);
+    return null;
+  }
+}
+
+/** Set (or clear, with null) this user's narration voice. */
+export async function setUserVoiceId(userId: number, voiceId: string | null): Promise<void> {
+  const sql = getDb();
+  await sql`UPDATE users SET elevenlabs_voice_id = ${voiceId} WHERE id = ${userId}`;
+}
+
 /** Fetch just the narration audio (base64 mp3) for one analysis, scoped to its owner. */
 export async function getNarrationAudio(
   analysisId: number,
