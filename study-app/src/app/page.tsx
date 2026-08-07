@@ -131,6 +131,10 @@ export default function Home() {
           best = { questionId: key.slice("mw-draft:theory:".length), words };
         }
       }
+      // Deliberate client-only external read: the draft lives in localStorage, which the server
+      // render cannot see, so seeding it as initial state would hydrate-mismatch. One extra render
+      // on mount is the price of that, not a cascading-render bug.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheoryDraft(best);
     } catch {}
   }, []);

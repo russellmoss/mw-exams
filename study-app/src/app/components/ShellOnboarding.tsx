@@ -154,9 +154,15 @@ export function ShellOnboarding() {
 
   useEffect(() => {
     if (!tourOpen || activeTourSteps.length === 0) return;
-    measure();
+    // Measure on the next frame rather than synchronously in the effect body: the spotlight target
+    // is live launcher DOM, so measuring after the browser has laid out is the honest reading (and
+    // a synchronous setState here is the cascading render React's lint rule objects to).
+    const frame = requestAnimationFrame(measure);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", measure);
+    };
   }, [tourOpen, activeTourSteps, measure]);
 
   const endTour = useCallback(() => {

@@ -36,9 +36,14 @@ export function NavBar() {
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [flyoutOpen]);
-  useEffect(() => {
+  // Navigation closes the flyout. Reset DURING render off a previous-value marker rather than in an
+  // effect: an effect would paint the new page with the old flyout still open for one frame, and
+  // React flags synchronous setState in an effect body as a cascading render.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
     setFlyoutOpen(false);
-  }, [pathname]);
+  }
 
   // Don't show nav on login page
   if (pathname === "/login") return null;

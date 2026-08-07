@@ -33,9 +33,13 @@ export function MobileTabBar() {
   const [moreOpen, setMoreOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // Navigation closes the sheet — reset during render off a previous-value marker, not in an effect
+  // (see NavBar): an effect leaves the sheet open over the new page for a frame.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
     setMoreOpen(false);
-  }, [pathname]);
+  }
   useEffect(() => {
     if (!moreOpen) return;
     const onPointerDown = (event: PointerEvent) => {

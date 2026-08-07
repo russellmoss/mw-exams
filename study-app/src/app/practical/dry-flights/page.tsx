@@ -267,6 +267,10 @@ export default function Home() {
       router.push("/flash-notes");
       return;
     }
+    // Deliberate: this restores state from two things the first render cannot know — the URL query
+    // and the user record that auth resolves asynchronously. Guarded by repeatHandledRef so it runs
+    // exactly once, which is what makes it a one-shot restore rather than a render cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedPaper(config.paper);
     setSelectedFamily(family);
     setPendingMode(config.mode as StudyMode);
