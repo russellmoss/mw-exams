@@ -2896,6 +2896,29 @@ export async function getFlightSizeCounts(
   return rows;
 }
 
+// Single-wine flight share for a paper — the count of servable one-wine questions and the paper's
+// total. Feeds the generation-time frequency cap (question-engine.ts): single-wine flights are a rare
+// curveball shape on the MW exam, so at most ~1 in 20 generated questions per paper may be one wine.
+// A data outage returns {0,0}, so the caller treats the cap as inactive rather than failing.
+export async function getSingleWineShare(
+  paper: number
+): Promise<{ single: number; total: number }> {
+  const sql = getDb();
+  try {
+    const rows = (await sql`
+      SELECT COUNT(*) FILTER (WHERE flight_size = 1)::int AS single,
+             COUNT(*)::int AS total
+      FROM generated_questions
+      WHERE ${sql.unsafe(KEPT_BANK_SQL_WHERE)}
+        AND paper = ${paper}
+    `) as { single: number; total: number }[];
+    return { single: rows[0]?.single ?? 0, total: rows[0]?.total ?? 0 };
+  } catch (err) {
+    console.error(`[single-wine-share] fetch failed for paper ${paper} (non-fatal):`, err);
+    return { single: 0, total: 0 };
+  }
+}
+
 // Keep/bin funnel across completed bulk runs: how many drafts were generated vs kept. Binned rows
 // are hard-deleted, so the bin count is (generated − kept). Feeds the overview keep/binned rates.
 export async function getBankBatchKeepStats(

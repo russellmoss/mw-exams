@@ -357,6 +357,105 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// SINGLE-WINE FLIGHT — a one-wine flight must be a curveball and must NOT ask for variety/origin ID.
+//
+// Three validated feedbacks say the same thing (fb_354 + fb_355, the same served single-wine Chinon
+// question; fb_98, a P3 Madeira-shaped flight). One-wine flights are RARE on the MW exam, and when
+// they do appear the wine is a big CURVEBALL and the paper does NOT ask the candidate to identify the
+// grape variety or the region/origin — "the candidate would not be expected to pull out a Cabernet
+// Franc from Hungary". Instead the exam asks for style, quality, method or COMMERCIAL evaluation
+// (fb_98's archetype: "a Qvevri from Georgia, or an Orange wine … a quality evaluation, or a
+// commercial evaluation … variety and origin would not be asked"). This rule fires only on a lone
+// wine and hard-rejects:
+//   • any sub-part that asks the candidate to IDENTIFY the grape variety and/or the region/origin;
+//   • a single wine that reads as a BANKER (isBanker) rather than a curveball — a lone banker is not
+//     a shape the exam sets (the one corpus instance is an origin-suppressed curveball orange wine).
+//
+// It also rejects the fb_98 HYBRID structure on any multi-wine flight: a strict subset of the wines
+// share a sub-part block while ONE trailing wine gets its own private block ("For wines 1 and 2: … /
+// For wine 3: …") — the reviewer's "unlikely structure". The clean 2+2 paired comparison is exempt.
+// ---------------------------------------------------------------------------------------------------
+
+// An identification ask for grape variety and/or region/origin, matched on norm()'d question text.
+const SINGLE_WINE_ID_ASK_RE =
+  /\bidentif(?:y|ies|ication)\b[a-z0-9 ,/()'-]{0,90}\b(?:grape variet(?:y|ies)|varietal|varieties|region|regions|country|countries|origin|origins|appellation|provenance)\b/;
+
+// "For wines 1 and 2:" / "For wine 3 only:" scaffolding → the slots each sub-part block addresses.
+// Whole-flight blocks ("For all/each/both wines", "For all three wines") are skipped — they are not a
+// per-subset block. Only numeric slot lists within the paper's wine range are collected.
+function parseWineGroupScaffolds(questionText: string, wineCount: number): number[][] {
+  const text = questionText || "";
+  const groups: number[][] = [];
+  const re = /\bfor\s+(?:all\s+|both\s+|each\s+|the\s+)*wines?\s+([a-z0-9 ,and&-]+?)\s*(?:only\s*)?[:.]/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const clause = m[1].toLowerCase();
+    // "all / each / both / every / three / four …" address the whole flight, not a subset.
+    if (/\b(?:all|each|both|every|following|two|three|four|five|six)\b/.test(clause)) continue;
+    const nums = [...clause.matchAll(/\d+/g)]
+      .map((x) => Number(x[0]))
+      .filter((num) => num >= 1 && num <= wineCount);
+    const uniq = [...new Set(nums)].sort((a, b) => a - b);
+    if (uniq.length > 0) groups.push(uniq);
+  }
+  return groups;
+}
+
+/**
+ * Single-wine-flight rule. On a one-wine flight, hard-reject a variety/region/origin identification
+ * ask and a keyed BANKER (the lone wine must be a curveball). On a multi-wine flight, hard-reject the
+ * fb_98 hybrid structure (a shared subset block + one trailing wine's private block), except a 2+2.
+ */
+export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  const n = wines.length;
+  const v: Violation[] = [];
+  const text = q.questionText || "";
+
+  if (n === 1) {
+    const wine = wines[0];
+    const scan = norm(text).replace(/[^a-z0-9 ,/()'-]+/g, " ").replace(/\s+/g, " ");
+    if (SINGLE_WINE_ID_ASK_RE.test(scan)) {
+      v.push({
+        rule: "single-wine-flight",
+        severity: "hard",
+        detail:
+          "single-wine flight asks the candidate to identify the grape variety and/or region of origin — a lone wine on the MW exam is a big curveball and the paper does NOT ask for variety/origin ID; it asks for style, quality, method or commercial evaluation. Move the ask to those parts.",
+      });
+    }
+    if (isBanker(wine)) {
+      v.push({
+        rule: "single-wine-flight",
+        severity: "hard",
+        detail: `single-wine flight is keyed on ${wineLabel(
+          wine
+        )}, which reads as a banker — when the exam sets a lone wine it is a big curveball (e.g. a Qvevri or an orange wine), never a benchmark expression. Use a curveball wine or set 2+ wines.`,
+      });
+    }
+    return v;
+  }
+
+  // fb_98 hybrid: a strict-subset shared block + one trailing wine's own private block. Skip when the
+  // stem explicitly declares a paired-comparison (2+2) structure — that is a legitimate exam shape.
+  if (n >= 3 && parseDeclaredPairs(extractStem(text)).length < 2) {
+    const groups = parseWineGroupScaffolds(text, n);
+    const solo = groups.filter((g) => g.length === 1);
+    const shared = groups.filter((g) => g.length >= 2 && g.length < n);
+    if (solo.length === 1 && solo[0][0] === n && shared.length >= 1) {
+      v.push({
+        rule: "single-wine-flight",
+        severity: "hard",
+        detail: `flight gives wines ${shared[0].join(
+          " and "
+        )} a shared sub-part block while wine ${n} gets its own private block — an unlikely MW structure. Either set the shared wines as an explicit paired comparison, or give the whole flight the same sub-parts.`,
+      });
+    }
+  }
+
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
 // IDENTIFICATION MARK ALLOCATION — cap variety/origin ID marks against flight difficulty.
 //
 // A recurring reviewer bin cluster (cross-paper, 5 reasoned bins): flights that are fine to *set* —
@@ -859,6 +958,7 @@ export function validateQuestion(q: QuestionForAudit): {
   }) as Violation[];
   violations.push(...stemPreannouncesDiscriminator(q.questionText));
   violations.push(...flightCompositionViolations(q.wines));
+  violations.push(...validateSingleWineFlight(q));
   violations.push(...idMarkAllocationViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
