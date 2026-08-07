@@ -14,7 +14,8 @@
     "theory:diff": "tsx scripts/theory-grade-diff.mjs",
     "eval:golden": "node scripts/build-golden-set.mjs",
     "eval:judge": "node scripts/calibrate-judge.mjs",
-    "eval:anchor": "vitest run tests/evals-corpus-anchor.test.ts tests/evals-metrics.test.ts tests/evals-judge-golden.test.ts"
+    "eval:anchor": "vitest run tests/evals-corpus-anchor.test.ts tests/evals-metrics.test.ts tests/evals-judge-golden.test.ts",
+    "eval:disputed": "node scripts/extract-disputed.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",
