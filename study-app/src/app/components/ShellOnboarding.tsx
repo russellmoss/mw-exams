@@ -54,8 +54,8 @@ const INFO_PARAS: string[][] = [
   ],
   [
     "Stem analysis means reading the question text — the “stem” — as evidence, before you smell or taste anything. The paper number constrains color and style. Phrases like “same single grape variety” eliminate most of the wine world. Mark allocations signal what the examiner expects you to write about.",
-    "Every historical question falls into one of a small number of structural families — same variety, same origin, blends, mixed breadth — and each family has its own decision tree, built from every stem construction in sixteen years of papers.",
-    "The trees route your question to a small candidate set with explicit confidence tiers, and they’re honest about their limits: a stem that matches no known construction is flagged as unrecognised rather than force-fit. You practice this skill directly in the Stem Analysis mode of Dry Flights.",
+    "Every historical question falls into one of a small number of structural families, and each family has its own decision tree, built from every stem construction in sixteen years of papers.",
+    "You’ll see exactly how that works in a moment — the walkthrough after this intro takes one real past question all the way from its stem to the wines that were actually in the glasses. You practice the skill yourself in the Stem Analysis mode of Dry Flights.",
   ],
   [
     "The complete text of every MW practical exam from 2011 to 2026 — 15 years, 45 papers, 540 wines. Not a sample: the entire modern corpus.",

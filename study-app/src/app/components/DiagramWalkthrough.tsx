@@ -367,9 +367,12 @@ export function DiagramWalkthrough({ onDone }: Props) {
         </div>
       </div>
 
-      {/* key={step} remounts the content so the entrance animations re-run per step */}
-      <div key={step} className="flex-1 overflow-y-auto px-6">
-        <div className="max-w-[52rem] mx-auto py-2">
+      {/* key={step} remounts the content so the entrance animations re-run per step. `my-auto` on
+          the inner block centres short steps in the leftover space without clipping tall ones —
+          steps vary from a single stat pair to four wine cards, and top-aligning them all left a
+          dead gap above the footer on the short ones. */}
+      <div key={step} className="flex-1 overflow-y-auto px-6 flex">
+        <div className="w-full max-w-[52rem] mx-auto my-auto py-4">
           <p
             className="text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-4 text-center"
             style={fade(0, 500)}
