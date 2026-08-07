@@ -1108,6 +1108,9 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   - **R5 single-variety-blend (soft):** "single grape variety" + a blend wine — flagged, not
     disqualifying (legit co-ferments like Côte-Rôtie Syrah-Viognier; "predominantly" permits blends).
   - **R6 marks (soft):** total marks must equal 25 × wine count.
+  - **R11 sweetness-out-of-paper (hard, P1/P2 only):** the stem must not declare residual sugar as a
+    flight premise, mark how it was achieved, or ask the candidate to state it — those are Paper 3
+    devices (see EK-0155). A soft variant flags a broader part that merely name-checks RS.
   - Subset/pair stems ("Wines 1 and 2… the other two…") skip flight-wide checks to avoid false positives.
 
 ### EK-0041 · 25-marks-per-wine is a hard generation constraint
@@ -1638,6 +1641,83 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0158 · Check-then-act on a paper position billed three Opus generations for one flight
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07 (migration 058)
+- **evidence:** paper `ltpr_egt9dfy3e` position 4 held THREE sessions (`lts_c6635vxn1` 12:30:29.142,
+  `lts_jk8md6na6` 12:30:29.255, `lts_ijmi6n97j` 12:30:42.783 UTC), each with its own generated question;
+  `generateNextFlight` (`study-app/src/lib/live-tasting-paper-engine.ts`); the SSE chaining loop in
+  `study-app/src/app/live-tasting/paper/[id]/page.tsx`; `study-app/migrations/058_live_tasting_flight_claims.sql`
+- **claim:** `generateNextFlight` read the paper's children, picked the first position with no session,
+  spent 40-90s of Opus on it, and only then linked it — a check-then-act with nothing held in between.
+  The client re-POSTs whenever its stream loop doesn't see a terminal `result` frame, and a reload or a
+  second tab does the same, so several callers computed the SAME next position and every one of them
+  generated. Under BYOK each duplicate is billed to the **candidate's own** Anthropic key, and the paper
+  would render one slot three times. The client's `useRef` guard cannot help: it is per mounted
+  component, and the rival callers are different requests.
+- **fix, two layers with different jobs:** a TTL'd per-position claim (`live_tasting_papers.flight_claims`,
+  one atomic conditional UPDATE) taken BEFORE generation stops the duplicate WORK — a denied claim returns
+  `busy`, which is explicitly not an error, and the client waits and re-reads instead of racing. A partial
+  unique index on `(paper_id, paper_position)` stops the duplicate ROW unconditionally, including when a
+  stale claim is taken over or a future caller forgets to claim; the loser of a link race retires its own
+  session. The claim is the optimisation, the index is the guarantee — a TTL'd claim alone can always be
+  defeated by a slow generation outliving its own claim.
+- **the same shape existed twice more:** both BYO wine-entry routes (owner and partner-token) check
+  `children.some(position)` then create-and-link, so two submissions for one flight both passed. They now
+  treat the link's rejection as the real gate. **A pre-check is not a lock** — if the DB doesn't hold the
+  invariant, concurrent callers will find the gap.
+- **verified on a Neon branch** (a copy of production, `migration-058-verify`): the migration applies, the
+  index builds, a fresh claim denies the rival, a released claim re-grants immediately, a 6-minute-stale
+  claim is taken over, linking a second session to an occupied position raises `23505`, and both legal
+  states still work (27 unlinked sessions coexist; position 1 exists on two different papers).
+
+### EK-0157 · A pinned archetype must outrank a soft preference — Live Tasting papers silently re-drew families
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07
+- **evidence:** paper `ltpr_egt9dfy3e` (user 1, P2 full, 2026-08-07) planned `F4/F2/F4/F2` in
+  `live_tasting_papers.composition` and was built as **F4/F2/F1/F7**; `pickArchetype`
+  (`study-app/src/lib/live-tasting-engine.ts`); `samplePaperComposition` famCap = 2
+  (`study-app/src/lib/live-tasting-paper.ts`); regression tests in `study-app/tests/live-tasting.test.ts`
+- **claim:** the paper engine DID pin the composition's family (`requireArchetype:
+  FAMILY_TO_ARCHETYPE[next.family]`), but `pickArchetype` built its try-order as
+  `[require, ...others].sort(by used-last)` — sorting the pinned archetype along with the fallbacks. Once
+  an earlier flight had used that archetype, `rank(require)` became 1 and every unused archetype
+  outranked it, so the pin was discarded without a word. Because a full paper deliberately allows a
+  family **twice**, this broke the **second occurrence of every repeated family, deterministically** —
+  not a race and not a bank-thinness fallback, which is what the symptom first looked like. Fix: the pin
+  is tried first unconditionally and the deprioritization sort orders the fallbacks only.
+- **generalisation:** a hard constraint and a soft preference must never be sorted by the same
+  comparator. If a pin can be outranked it is not a pin — and the failure is invisible, because the
+  fallback produces a perfectly good flight of the wrong family.
+- **note:** a genuine fallback (the bank cannot build the pinned archetype within budget) is still
+  allowed and still silent. The paper's stored `composition` then claims a family the flight doesn't
+  have; nothing user-facing reads family off the composition today (the paper API sends stems and
+  marks, not families), so this is a latent reporting gap, not a live defect.
+
+### EK-0156 · The nightly quarantine sweep went dark for a day, and its cost is 13% not 61%
+- **tier:** PROCESS · **status:** live — workflow re-armed 2026-08-07
+- **evidence:** `gh run list --workflow question-audit-daily.yml` (failure at 2026-08-07 07:53 UTC,
+  `ERR_MODULE_NOT_FOUND: .../src/lib/tasting-validators`); `.github/workflows/question-audit-daily.yml`;
+  `study-app/scripts/audit-questions.mjs`; dry runs of the audit over the live bank, 2026-08-07
+- **claim:** `audit-questions.mjs` was invoked with plain `node`, and `question-validator.ts` acquired an
+  extensionless `./tasting-validators` import that Node cannot resolve — so the daily audit + quarantine
+  backstop died silently (a cron failure surfaces nowhere in the app). Fixed by running it under the
+  repo's existing `node --import ./scripts/ts-loader.mjs`, which the sibling bank-match step already used.
+  **Two numbers to keep straight when judging a sweep's blast radius:** the raw audit reports
+  *358 hard violations across 586 keyed questions (61%)*, but that counts already-quarantined, binned and
+  live-tasting rows. Against the **servable** bank (pool + kept + not retired + not quarantined = 256) the
+  cost was **49 (19%)**, and after removing the `missing-variety-id-part` arm (EK-0154) **34 (13%)** —
+  P1 −10, P2 −7, P3 −17, only 7 of them ever served. Always quote the servable number.
+- **also validated (negative result):** `MARKS_BELOW_FLOOR` (the 5-mark floor on style / quality /
+  commercial / method parts) fires on **0 of the 82 modern (2018–2026) real questions** — 3 in the older
+  2011–2017 era (2011 P2 Q3, 2014 P1 Q3, 2015 P2 Q1, all 4-mark commentary parts). It is corpus-correct
+  for the era the generator targets and was deliberately left armed; the 20 servable questions it
+  quarantines genuinely price a commentary part below anything the modern exam does.
+- **open, measured, not yet fixed:** `part-task-repertoire` fires on **8 of 82 modern real questions**
+  (2018 P2 Q1, 2018 P3 Q1, 2019 P1 Q2, 2019 P1 Q3, 2021 P2 Q1, 2022 P1 Q3, 2022 P2 Q4, 2022 P2 Q5) for
+  authentic phrasings its registry lacks — "identify the vintage", "what are the key winemaking
+  techniques used", "consider which markets this wine would be successful in", "compare and contrast
+  market potential", and 2019 P1 Q3's directed-away-from-origin instruction. Only 1 servable question is
+  affected today, so it did not block the re-arm, but the registry needs those entries.
+
 ### EK-0134 · Multiple feedback submissions on one question overwrite rather than append
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #190 / analysis #34 (reject)
@@ -2104,3 +2184,43 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   variety ask), **origin-only identification asks and 20-mark shared variety asks are authentic IMW
   patterns** and must not be flagged by any validator. A single expert's expectation lost to the
   corpus here; the corpus wins.
+- **2026-08-07 — this entry was being violated in code.** A hard rule `missing-variety-id-part`
+  (`partTaskRepertoireViolations`, seeded from bin `gen_p2_F2_1785968458385`) rejected any 2+-wine
+  flight that asked for origin but never the grape variety. Re-measured against `data/exams.json` it
+  fired on **27 of the 82 modern (2018–2026) real questions** and 21 of the 80 older ones — including
+  2026 P2 Q3, 2025 P3 Q2, 2024 P1 Q3, 2023 P2 Q1 and 2022 P1 Q1, five of the last six exam years — and
+  was quarantining **19 servable banked questions** (15 for that reason alone). **The arm is removed**;
+  it was not demoted to soft, because a flag on a third of the real corpus is noise. Two of the 27 were
+  a second bug: the variety-ask pattern demanded the literal "grape variet…", so real phrasings
+  ("Identify the origin and variety/ies used", 2021 P1 Q1; "Name the dominant grape variety", 2017 P3
+  Q4) read as absent — the pattern now accepts a bare "variety/varieties" and the verb "name".
+  Lesson: an EK entry that says "must not be flagged" needs a test pinning it, or a later rule
+  re-introduces the fault. `tests/question-validator.test.ts` now holds three real-paper fixtures.
+
+### EK-0155 · Residual sugar is a Paper 3 device — P1/P2 pour sweet wines but never declare or mark them
+- **tier:** STRONG SIGNAL · **status:** live — enforced by validator R11 (`sweetness-out-of-paper`, hard;
+  `sweetness-reference-out-of-paper`, soft) and by the generation prompt's paper-scope block
+- **evidence:** `data/exams.json` measured 2026-08-07 — **12 of 162** historical stems (2011–2026) name
+  residual sugar or sweetness, and **all 12 are Paper 3** (2011 P3, 2012 P3, 2013 P3, 2014 P3, 2015 P3,
+  2017 P3, 2019 P3, 2021 P3, 2022 P3, 2023 P3, 2024 P3, 2026 P3); **0 in Paper 1, 0 in Paper 2**. Yet
+  `data/wines.json` holds **11 Paper 1 wines with residual sugar** — Coteaux du Layon Chaume (Domaine des
+  Forges), Eitelsbacher Karthäuserhof Riesling Auslese, JJ Prüm and Dr. Loosen Kabinetts, Huet Vouvray
+  Clos du Bourg Demi-Sec, Rolly Gassmann Pinot Gris Vendanges Tardives. Feedback `feedback_analyses` id 65
+  / attempt 394 (2026-08-07, user 1) on `gen_p1_F6_1779997829060`: *"I don't think that this is a great
+  paper one question because both wines have residual sugar and there's kind of a contrast on how the
+  residual sugar was achieved… historically what we would see on a paper one question is a flight that
+  had a wine, or even two wines, that had some residual sugar in it. The question would be broader."*
+- **claim:** the exam happily puts an off-dry or sweet wine in a Paper 1 flight — **noticing** it is the
+  candidate's job. What is Paper 3's alone is *declaring* it in the stem ("Wines 8–12 all have residual
+  sugar"), *marking the mechanism* (botrytis vs late harvest vs arrested fermentation) and the analytic
+  *readout* ("state the residual sugar in g/L", the corpus's only 2-mark ask). A P1/P2 stem that does any
+  of those is mis-papered even when every wine genuinely is sweet. Generation rule: put the sweet wine in
+  the flight, then ask the paper's own question (variety/origin, style, winemaking, quality, maturity,
+  commercial position).
+- **why the existing rule missed it:** `STEM_PREDICATE_MISMATCH` (from fb_89, on this same
+  Savennières) already catches the *factual* half — a bone-dry wine keyed under "both wines have residual
+  sugar" — but it needs a resolved RS value or a dry style tag on the answer key, and P1/P2 keys carry
+  neither. So the defect recurred on the identical question, served 3 times. R11 reads the stem SHAPE and
+  needs no key data. Measured blast radius at introduction: **3 hard** (1 servable: the reported question;
+  2 unserved) and **2 soft** across 778 banked questions; **0 in Paper 2**, and Paper 3's 79 RS questions
+  untouched.

@@ -11,6 +11,7 @@ import {
   stemPreannouncesDiscriminator,
   validateQuestion,
 } from "../src/lib/question-validator";
+import { sweetnessOutOfPaperViolations } from "../src/lib/question-rules.mjs";
 import type { AuditWine } from "../src/lib/question-validator";
 
 describe("stemPreannouncesDiscriminator — one banned phrase per fixture rejects", () => {
@@ -96,8 +97,8 @@ describe("partTaskRepertoireViolations", () => {
     expect(hits).toHaveLength(1);
     expect(hits[0].severity).toBe("hard");
     expect(hits[0].detail).toContain("how the bubbles were created");
-    // All-sparkling flight: the variety-ID template requirement is waived.
-    expect(v.some((x) => x.rule === "missing-variety-id-part")).toBe(false);
+    // The bubbles rider is the ONLY fault: asking origin without asking the variety is not one.
+    expect(v).toHaveLength(1);
   });
 
   it("rejects the free-standing 'role of autolysis and dosage' part c (gen_p3_F2_1785964017222)", () => {
@@ -120,28 +121,50 @@ describe("partTaskRepertoireViolations", () => {
     expect(hits[0].detail).toContain("role of autolysis and dosage");
   });
 
-  it("rejects the three-country flight that never asks for the variety (gen_p2_F2_1785968458385)", () => {
+  // The `missing-variety-id-part` arm was REMOVED 2026-08-07: it fired on 27 of the 82 modern
+  // (2018-2026) real questions, which is what EK-0154 had already recorded. Origin-only identification
+  // is a standard IMW shape, so a flight that never asks for the grape variety must pass clean. These
+  // fixtures are the real papers, verbatim in structure, so the arm cannot be reintroduced silently.
+  it.each([
+    [
+      "2023 P2 Q1 — origin only, four wines",
+      "Wines 1-4 are all from the same country.\n\nFor each wine:\n" +
+        "a) Identify the origin as closely as possible. (4 x 10 marks)\n" +
+        "b) Comment on quality, maturity and capacity to age. (4 x 10 marks)\n" +
+        "c) Comment on the method of production. (4 x 5 marks)",
+      4,
+    ],
+    [
+      "2024 P1 Q3 — origin only, three blends",
+      "Wines 10-12 are from the same country and are all blends.\n\nFor each wine:\n" +
+        "a) Identify the origin as closely as possible. (3 x 8 marks)\n" +
+        "b) Comment on the method of production with reference to the use of oak. (3 x 7 marks)\n" +
+        "c) Comment on style, quality, and commercial position. (3 x 10 marks)",
+      3,
+    ],
+    [
+      "2021 P1 Q1 — 'variety/ies used', no the word 'grape'",
+      "Wines 1-4 all come from the same country.\n\nFor each wine:\n" +
+        "a) Identify the origin and variety/ies used. (4 x 10 marks)\n" +
+        "b) Comment on quality and maturity. (4 x 10 marks)\n" +
+        "c) Comment on the method of production. (4 x 5 marks)",
+      4,
+    ],
+  ])("passes the real origin-only shape: %s", (_label, questionText, wineCount) => {
     const v = partTaskRepertoireViolations({
-      questionId: "t-no-variety",
+      questionId: "t-origin-only",
       paper: 2,
       family: "F2",
-      questionText:
-        "Wines 1 to 3 are from three different countries.\n\nFor all three wines:\n" +
-        "a) Identify the country and region of origin as closely as possible. (3 x 9 marks)\n\n" +
-        "For each wine:\n" +
-        "b) Comment on the style and key winemaking decisions. (3 x 8 marks)\n" +
-        "c) Assess the quality and commercial position. (3 x 8 marks)",
-      wines: [
-        { slot: 1, varieties: ["Tempranillo"], region: "Rioja", country: "Spain", style: "Red" },
-        { slot: 2, varieties: ["Syrah"], region: "Barossa", country: "Australia", style: "Red" },
-        { slot: 3, varieties: ["Cabernet Sauvignon"], region: "Napa Valley", country: "USA", style: "Red" },
-      ],
+      questionText,
+      wines: Array.from({ length: wineCount as number }, (_, i) => ({
+        slot: i + 1,
+        varieties: ["Tempranillo"],
+        region: "Rioja",
+        country: "Spain",
+        style: "Red",
+      })),
     });
-    // Every part is a canonical task — the fault is the MISSING variety-ID part.
-    expect(v.filter((x) => x.rule === "part-task-repertoire")).toHaveLength(0);
-    const missing = v.filter((x) => x.rule === "missing-variety-id-part");
-    expect(missing).toHaveLength(1);
-    expect(missing[0].severity).toBe("hard");
+    expect(v).toEqual([]);
   });
 
   it("passes the canonical template (guard against over-rejection)", () => {
@@ -161,6 +184,77 @@ describe("partTaskRepertoireViolations", () => {
       ],
     });
     expect(v).toEqual([]);
+  });
+});
+
+// R11 — residual sugar is a Paper 3 device (feedback fa_65, 2026-08-07). Corpus measurement over
+// data/exams.json (2011-2026, 162 questions): all twelve stems naming residual sugar or sweetness are
+// Paper 3, none are P1/P2 — while eleven Paper 1 WINES in those years carry residual sugar. So the
+// wine is allowed and the stem is not, which is exactly what these fixtures pin.
+describe("sweetnessOutOfPaperViolations — RS declared or marked outside Paper 3", () => {
+  // The reported question: gen_p1_F6_1779997829060, served three times before this rule existed.
+  const REPORTED_P1 =
+    "Wines 1 and 2 are from the same region. Both wines have residual sugar.\n\n" +
+    "a) Identify the region of origin. (4 marks)\n" +
+    "b) For each wine, identify the grape variety and comment on the method of production, with particular reference to how the residual sugar was achieved. (2 x 5 marks)\n" +
+    "c) Compare and contrast the style and quality of the two wines. (20 marks)";
+
+  it.each([
+    ["the reported P1 stem (premise + mechanism)", 1, REPORTED_P1],
+    ["premise only", 1, "Wines 1 to 3 all have residual sugar.\n\na) Identify the grape variety. (3 x 10 marks)"],
+    ["sweet-wines premise in P2", 2, "Wines 1 and 2 are sweet wines from the same country. (2 x 25 marks)"],
+    [
+      "mechanism ask only",
+      1,
+      "Wines 1 and 2 are from the same region.\n\na) Comment on the method of production, explaining how the sweetness was achieved. (2 x 12 marks)",
+    ],
+    [
+      "analytic readout",
+      1,
+      "Wines 1 and 2 are from the same country.\n\na) State the level of residual sugar. (2 x 2 marks)\nb) Identify the grape variety. (2 x 10 marks)",
+    ],
+  ])("hard-flags %s", (_label, paper, questionText) => {
+    const v = sweetnessOutOfPaperViolations(paper, questionText);
+    expect(v.map((x) => `${x.rule}:${x.severity}`)).toEqual(["sweetness-out-of-paper:hard"]);
+  });
+
+  it("soft-flags a broader part that merely name-checks residual sugar", () => {
+    const v = sweetnessOutOfPaperViolations(
+      1,
+      "Wines 1 to 4 are all made from the same single grape variety.\n\n" +
+        "a) Comment on the winemaking decisions that shaped each wine, with particular reference to the handling of residual sugar, acidity and vessel choice. (4 x 15 marks)"
+    );
+    expect(v.map((x) => `${x.rule}:${x.severity}`)).toEqual(["sweetness-reference-out-of-paper:soft"]);
+  });
+
+  it.each([
+    // Paper 3 owns this device — the rule must never fire there.
+    [3, "Wines 8 to 12 all have residual sugar.\n\na) State the level of residual sugar. (5 x 2 marks)"],
+    [3, "Wines 1 and 2 are sweet wines.\n\na) State how the sweetness has been achieved. (2 x 10 marks)"],
+    // A sweet WINE in a P1 flight with a stem that doesn't mention sugar: the shape the corpus uses.
+    [
+      1,
+      "Wines 1 to 4 are all made from the same single grape variety.\n\na) Identify the country and region of origin as closely as possible. (4 x 10 marks)\nb) Comment on the quality and state of maturity. (4 x 15 marks)",
+    ],
+    // "Sweet" as a flavour descriptor is not a sugar claim.
+    [2, "Wines 1 and 2 both show sweet spice from oak. (2 x 25 marks)"],
+  ])("does not fire for P%i: %s", (paper, questionText) => {
+    expect(sweetnessOutOfPaperViolations(paper, questionText)).toEqual([]);
+  });
+
+  it("is wired into validateQuestion for P1 and stays silent for P3", () => {
+    const p1 = validateQuestion({ questionId: "rs1", paper: 1, family: "F6", questionText: REPORTED_P1, wines: [] });
+    expect(p1.ok).toBe(false);
+    expect(p1.violations.some((x) => x.rule === "sweetness-out-of-paper" && x.severity === "hard")).toBe(true);
+
+    const p3 = validateQuestion({
+      questionId: "rs2",
+      paper: 3,
+      family: "F6",
+      questionText: REPORTED_P1.replace("Wines 1 and 2", "Wines 8 and 9"),
+      wines: [],
+    });
+    expect(p3.violations.some((x) => x.rule.startsWith("sweetness-"))).toBe(false);
   });
 });
 

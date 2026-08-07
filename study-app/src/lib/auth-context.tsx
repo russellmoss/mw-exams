@@ -15,6 +15,13 @@ interface AuthUser {
   name: string;
   isAdmin: boolean;
   hasApiKey: boolean;
+  /**
+   * Tavily is REQUIRED like Anthropic — without it the research behind every answer cannot run.
+   * ElevenLabs is not: it only unlocks voice, so `hasVoiceKey` gates a feature, not the app.
+   * All three are true for an admin with the corresponding server key (BYOK-unless-admin).
+   */
+  hasTavilyKey?: boolean;
+  hasVoiceKey?: boolean;
   stemDetailDefault?: "guided" | "exam_real";
   questionSourceDefault?: "banked" | "fresh";
   reasoningStreamDefault?: boolean;

@@ -4,7 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useFeedbackPanelState } from "@/lib/feedback-context";
-import { CoachChat } from "./CoachChat";
+import { CoachChat, type VoiceStatusCallback } from "./CoachChat";
+import { VoiceHeaderOrb } from "./voice/VoiceHeaderOrb";
+import type { VoiceState } from "@/lib/voice/state-types";
 
 // Same hidden surfaces as the Feedback tab: unauthenticated and shared screens.
 const HIDDEN_EXACT = new Set(["/login", "/forgot-password", "/reset-password", "/onboarding"]);
@@ -104,6 +106,16 @@ export function CoachDock() {
   // exam minutes, which is precisely the thing that stops people reporting problems at all.
   const { timerRef } = useFeedbackPanelState();
   const pausedAtRef = useRef<number | null>(null);
+  // Voice status, lifted from the chat so the orb can live in this title bar rather than covering
+  // the conversation. `getLevel` is kept in a ref: it is read every animation frame by the canvas,
+  // and holding it in state would re-render the dock at that rate.
+  const [voiceState, setVoiceState] = useState<VoiceState | null>(null);
+  const voiceLevelRef = useRef<() => number>(() => 0);
+  const onVoiceStatus = useCallback<VoiceStatusCallback>((state, getLevel) => {
+    voiceLevelRef.current = getLevel;
+    setVoiceState(state);
+  }, []);
+  const readVoiceLevel = useCallback(() => voiceLevelRef.current(), []);
   const panelRef = useRef<HTMLDivElement>(null);
   const chipRef = useRef<HTMLButtonElement>(null);
   const dragRef = useRef<{ mode: "move" | "resize"; x: number; y: number; start: DockRect } | null>(null);
@@ -278,6 +290,7 @@ export function CoachDock() {
             <div className="flex items-center gap-2 min-w-0">
               <CoachIcon className="w-4 h-4 text-accent shrink-0" />
               <span className="text-[13px] font-medium text-foreground truncate">Coach</span>
+              {voiceState && <VoiceHeaderOrb state={voiceState} getLevel={readVoiceLevel} />}
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -291,7 +304,7 @@ export function CoachDock() {
             </div>
           </div>
 
-          <CoachChat />
+          <CoachChat onVoiceStatus={onVoiceStatus} />
 
           {/* Resize grip. Top-left because the panel is anchored bottom-right, so this is the corner
               that moves when the panel grows. */}

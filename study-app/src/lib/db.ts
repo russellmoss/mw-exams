@@ -4574,11 +4574,79 @@ export async function getPaperSessions(paperId: string): Promise<LiveTastingSess
   `) as LiveTastingSession[];
 }
 
-export async function linkSessionToPaper(sessionId: string, paperId: string, position: number): Promise<void> {
+/**
+ * Link a freshly generated flight to its paper position. Returns false when the position was taken
+ * while this flight was being generated — the partial unique index from migration 058 is what makes
+ * that a rejection instead of a duplicate row, and the caller retires its own losing session.
+ */
+export async function linkSessionToPaper(sessionId: string, paperId: string, position: number): Promise<boolean> {
+  const sql = getDb();
+  try {
+    await sql`
+      UPDATE live_tasting_sessions SET paper_id = ${paperId}, paper_position = ${position}
+      WHERE id = ${sessionId}
+    `;
+    return true;
+  } catch (err) {
+    // 23505 = unique_violation. Anything else is a real failure and must not be swallowed.
+    const code = (err as { code?: string })?.code;
+    const msg = err instanceof Error ? err.message : String(err);
+    if (code === "23505" || /live_tasting_sessions_paper_position_uniq|duplicate key/i.test(msg)) return false;
+    throw err;
+  }
+}
+
+/** Unlink a session from its paper and soft-retire it (the losing side of a link race). */
+export async function retireUnlinkedSession(sessionId: string): Promise<void> {
   const sql = getDb();
   await sql`
-    UPDATE live_tasting_sessions SET paper_id = ${paperId}, paper_position = ${position}
+    UPDATE live_tasting_sessions
+    SET paper_id = NULL, paper_position = NULL, abandoned_at = COALESCE(abandoned_at, now())
     WHERE id = ${sessionId}
+  `;
+}
+
+// How long a flight-generation claim is honoured. Longer than the route's own 300s ceiling would wedge
+// a paper after a crash; shorter than a real generation (40-90s, plus availability) would let a second
+// caller start duplicate work while the first is still running.
+const FLIGHT_CLAIM_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Try to claim a paper position for generation (migration 058). One atomic conditional UPDATE: the
+ * claim is granted when nobody holds it, when the holder's claim has gone stale, or when this position
+ * has already been claimed-and-finished (its session exists, so the caller never gets here). Returns
+ * false when another caller is generating this flight right now — the caller should wait, not error,
+ * and must not start a second Opus generation for the same slot.
+ */
+export async function claimFlightPosition(paperId: string, position: number): Promise<boolean> {
+  const sql = getDb();
+  const key = String(position);
+  const staleBefore = new Date(Date.now() - FLIGHT_CLAIM_TTL_MS).toISOString();
+  const rows = await sql`
+    UPDATE live_tasting_papers
+    SET flight_claims = jsonb_set(COALESCE(flight_claims, '{}'::jsonb), ARRAY[${key}], to_jsonb(now()))
+    WHERE id = ${paperId}
+      AND (
+        flight_claims IS NULL
+        OR flight_claims->>${key} IS NULL
+        OR (flight_claims->>${key})::timestamptz < ${staleBefore}::timestamptz
+      )
+    RETURNING id
+  `;
+  return rows.length > 0;
+}
+
+/**
+ * Drop a claim so the next attempt isn't blocked for the TTL. Called only on FAILURE: a successful
+ * flight leaves its claim in place, because from then on the linked child session is what tells
+ * generateNextFlight the position is done.
+ */
+export async function releaseFlightPosition(paperId: string, position: number): Promise<void> {
+  const sql = getDb();
+  await sql`
+    UPDATE live_tasting_papers
+    SET flight_claims = COALESCE(flight_claims, '{}'::jsonb) - ${String(position)}
+    WHERE id = ${paperId}
   `;
 }
 

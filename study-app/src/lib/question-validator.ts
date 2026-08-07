@@ -748,17 +748,15 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
 //
 // The generator invents part tasks the real exam never sets ("… including how the bubbles were
 // created" — "the exam would never ask that"; a free-standing "Comment on the role of autolysis and
-// dosage" — "at best we would see 'discuss the role of yeast'") or omits a task the exam would always
-// set for the flight shape (a three-country red flight that never asks for the grape variety — "this
-// question would ask for variety identification"). Two arms, one rule family:
+// dosage" — "at best we would see 'discuss the role of yeast'"). One arm:
 //
 //   • part-task-repertoire — each lettered part is split into COMMAND CLAUSES (sentences, plus
 //     mechanism riders like ", including how …" and compound commands ", and explain …" split off so
 //     an off-repertoire rider can't hide behind a legitimate opening clause). Every clause must match
 //     an ALLOWED_PART_TASKS entry; a clause matching none is a hard reject quoting the clause.
-//   • missing-variety-id-part — a flight of 2+ wines with no part asking for grape-variety
-//     identification is a hard reject, EXCEPT when every wine is a fortified or sparkling style
-//     (where origin/method identification stands in — the corpus never asks Champagne's grapes).
+//
+// A second arm, `missing-variety-id-part`, was removed on 2026-08-07 for firing on a third of the real
+// modern corpus — see the note where it used to live, at the end of partTaskRepertoireViolations.
 //
 // The registry is DATA-ONLY: new phrasings are added by editing the array, never the rule. Entries
 // are seeded from past-paper phrasings (the compilation + the canonical templates the generation
@@ -779,7 +777,11 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   {
     id: "identify-variety",
     label: "identify the grape variety (or varieties)",
-    re: /\b(?:identify|comment(?: briefly)? on|discuss|state)\b[a-z0-9 ]{0,90}\bgrape variet(?:y|ies)\b/,
+    // "grape" is optional and "name" is a verb the exam uses: the real papers write "Identify the
+    // origin and variety as closely as possible" (2019 P2 Q2), "Identify the origin and variety/ies
+    // used" (2021 P1 Q1) and "Name the dominant grape variety" (2017 P3 Q4). Requiring the literal
+    // "grape variet…" made the repertoire scan reject those authentic phrasings.
+    re: /\b(?:identify|name|comment(?: briefly)? on|discuss|state)\b[a-z0-9 ]{0,90}\b(?:grape )?variet(?:y|ies)\b/,
   },
   {
     id: "identify-origin",
@@ -877,11 +879,9 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   },
 ];
 
-// Styles where the exam identifies by origin/method rather than grape — the variety-ID template
-// requirement is waived when EVERY wine in the flight reads as one of these. Matched on
-// norm(style + style_category + fullText).
-const NON_VARIETAL_STYLE_RE =
-  /sparkling|champagne|cremant|\bcava\b|prosecco|franciacorta|\bsekt\b|pet[- ]?nat|traditional method|tank method|fortified|sherry|jerez|\bfino\b|manzanilla|amontillado|oloroso|palo cortado|\bport\b(?!\s*phillip)|madeira|marsala|vin doux|\bvdn\b|banyuls|maury|rivesaltes|rutherglen|liqueur muscat|muscat de/;
+// (NON_VARIETAL_STYLE_RE lived here: the sparkling/fortified exemption for the variety-ID template
+// requirement. Removed with that requirement — the exam asks origin-only on still flights too, so
+// there is nothing left to exempt.)
 
 // The lettered parts of a question ("a) …" … up to the next label). Scaffolding before the first
 // label (the stem, "For each wine:") is excluded — the repertoire scan judges commands, not framing.
@@ -933,10 +933,9 @@ function splitCommandClauses(partText: string): string[] {
 }
 
 /**
- * Part-task-repertoire rule. (a) Every command clause of every lettered part must match an
- * ALLOWED_PART_TASKS entry — an unmatched clause is a hard reject quoting the clause. (b) A flight of
- * 2+ wines must contain a grape-variety-identification part unless every wine is a fortified or
- * sparkling style (missing-variety-id-part).
+ * Part-task-repertoire rule. Every command clause of every lettered part must match an
+ * ALLOWED_PART_TASKS entry — an unmatched clause is a hard reject quoting the clause. A flight is NOT
+ * required to ask for the grape variety: the exam routinely asks origin only (EK-0154).
  */
 export function partTaskRepertoireViolations(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
@@ -954,32 +953,20 @@ export function partTaskRepertoireViolations(q: QuestionForAudit): Violation[] {
     }
   }
 
-  // Required-template arm: a flight of 2+ wines whose parts ask for ORIGIN identification but never
-  // for the grape variety. Origin-asked is the trigger (the binned shape — "asked only for origin and
-  // style, never for the grape variety"): a question with no identification parts at all is the
-  // exam's legitimate directed-away-from-ID shape and is left alone.
-  const wines = q.wines || [];
-  if (wines.length >= 2) {
-    const byId = new Map(ALLOWED_PART_TASKS.map((t) => [t.id, t.re]));
-    const wholeText = norm(q.questionText || "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ");
-    // "Identify the wine as closely as possible" subsumes the variety ask — it satisfies, not triggers.
-    const asksVariety =
-      (byId.get("identify-variety")?.test(wholeText) ?? false) ||
-      (byId.get("identify-wine")?.test(wholeText) ?? false);
-    const asksOrigin = byId.get("identify-origin")?.test(wholeText) ?? false;
-    const allNonVarietal =
-      wines.length > 0 &&
-      wines.every((w) =>
-        NON_VARIETAL_STYLE_RE.test(norm([w.style, w.style_category, w.fullText].filter(Boolean).join(" ")))
-      );
-    if (asksOrigin && !asksVariety && !allNonVarietal) {
-      v.push({
-        rule: "missing-variety-id-part",
-        severity: "hard",
-        detail: `flight of ${wines.length} wines asks for origin identification but no part asks for the grape variety — the real exam would always set one for this flight shape (only all-fortified or all-sparkling flights identify by origin/method instead).`,
-      });
-    }
-  }
+  // REMOVED 2026-08-07 — the required-template arm (`missing-variety-id-part`). It hard-rejected any
+  // flight of 2+ wines whose parts asked for origin identification but never for the grape variety,
+  // on the strength of one reviewer bin (gen_p2_F2_1785968458385, "this question would ask for variety
+  // identification"). The corpus says otherwise, and EK-0154 had already recorded it: run over
+  // data/exams.json the rule fires on **27 of the 82 modern (2018-2026) real questions** and 21 of the
+  // 80 older ones — including 2026 P2 Q3, 2025 P3 Q2, 2024 P1 Q3, 2023 P2 Q1 and 2022 P1 Q1, five of
+  // the last six exam years. "Identify the origin as closely as possible" + style/quality/method, with
+  // no variety ask anywhere, is one of the IMW's standard modern shapes; a candidate who names the
+  // region has usually named the grape implicitly. It was quarantining 19 servable banked questions
+  // (15 of them for this reason alone) for being exam-realistic. Not demoted to soft either — a flag
+  // on a third of the real corpus is noise, not review signal.
+  //
+  // (The widened identify-variety pattern above is the other half of the same fault: two of those
+  // modern "misses" DO ask for the variety, phrased "Identify the origin and variety/ies used".)
 
   return v;
 }

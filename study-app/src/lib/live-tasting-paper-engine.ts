@@ -1,9 +1,12 @@
 import { samplePaperComposition, type PaperComposition } from "./live-tasting-paper";
 import {
+  claimFlightPosition,
   createLiveTastingPaper,
   getPaperSessions,
   getQuestionById,
   linkSessionToPaper,
+  releaseFlightPosition,
+  retireUnlinkedSession,
   type LiveTastingPaper,
   type LiveTastingSession,
 } from "./db";
@@ -170,7 +173,7 @@ export async function generateNextFlight(opts: {
   apiKey: string;
   emit?: ProgressEmitter;
   keepAlive?: (work: Promise<unknown>) => void;
-}): Promise<{ done: boolean; position?: number; sessionId?: string } | { error: string }> {
+}): Promise<{ done: boolean; position?: number; sessionId?: string; busy?: boolean } | { error: string }> {
   const { paper, apiKey, emit, keepAlive } = opts;
   if (paper.mode !== "pick-for-me") return { error: "BYO papers get their wines from the partner entry, not generation." };
 
@@ -179,6 +182,15 @@ export async function generateNextFlight(opts: {
   const have = new Set(children.map((c) => c.paper_position));
   const next = composition.find((c) => !have.has(c.position));
   if (!next) return { done: true };
+
+  // Claim the position before spending 40-90s of Opus on it (migration 058). Concurrent callers all
+  // compute the same `next` — the client re-POSTs whenever its SSE loop misses a terminal frame, and a
+  // reload or a second tab does the same — which is how paper ltpr_egt9dfy3e got three sessions and
+  // three billed generations on position 4. `busy` is NOT an error: the flight is being built by
+  // whoever holds the claim, so the caller waits and re-reads rather than starting a rival generation.
+  if (!(await claimFlightPosition(paper.id, next.position))) {
+    return { done: false, position: next.position, busy: true };
+  }
 
   emit?.({ type: "status", label: `Building flight ${next.position} of ${composition.length}…` });
   const { excludeWineKeys, excludeVarieties } = exclusionsFrom(children);
@@ -243,8 +255,18 @@ export async function generateNextFlight(opts: {
       `SCAFFOLD DIRECTIVE for this question: ${SCAFFOLD_ROTATION[(next.position - 1) % SCAFFOLD_ROTATION.length]}`,
     ].join("\n"),
   });
-  if ("error" in outcome) return { error: outcome.error ?? "Flight generation failed." };
+  if ("error" in outcome) {
+    // Release the claim so the candidate's retry starts immediately instead of waiting out the TTL.
+    await releaseFlightPosition(paper.id, next.position);
+    return { error: outcome.error ?? "Flight generation failed." };
+  }
 
-  await linkSessionToPaper(outcome.session.id, paper.id, next.position);
+  // The unique index is the guarantee behind the claim: if a stale-claim takeover (or any future
+  // caller that skips the claim) linked this position first, the loser retires its own session rather
+  // than leaving an orphan pointing at a paper slot it doesn't own.
+  if (!(await linkSessionToPaper(outcome.session.id, paper.id, next.position))) {
+    await retireUnlinkedSession(outcome.session.id);
+    return { done: false, position: next.position, busy: true };
+  }
   return { done: next.position === composition.length ? (await getPaperSessions(paper.id)).length === composition.length : false, position: next.position, sessionId: outcome.session.id };
 }

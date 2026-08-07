@@ -564,7 +564,18 @@ ${exampleText}`;
 ## ABSOLUTE PAPER SCOPE CONSTRAINT (VIOLATION = AUTOMATIC FAILURE)
 Paper ${paper}: ${paperScope}
 This is non-negotiable. If you include a wine that violates this scope, the entire question is invalid. Check every wine against this constraint before outputting.
-
+${
+  paper === 3
+    ? ""
+    : `
+## RESIDUAL SUGAR IS A PAPER 3 DEVICE (HARD RULE — violation = automatic rejection)
+A Paper ${paper} wine MAY carry residual sugar (a Riesling Kabinett or Auslese, a Vouvray demi-sec, a Coteaux du Layon, an Alsace Vendanges Tardives — eleven such wines appear in Paper 1 flights across 2011-2026). The STEM must not say so. Across those fifteen years, all twelve stems that mention residual sugar or sweetness are Paper 3; Paper 1 and Paper 2 never do. So for Paper ${paper}:
+- Do NOT declare it as a flight premise — no "Both wines have residual sugar", no "these are sweet wines", no "each wine has some residual sugar".
+- Do NOT award marks for how the sugar got there — no "with reference to how the residual sugar was achieved", no botrytis-vs-late-harvest mechanism contrast. That contrast is what Paper 3 exists for.
+- Do NOT ask the candidate to state the residual sugar or the level of sweetness. Those "state the RS in g/L" readouts are Paper 3 only.
+Pour the off-dry or sweet wine if the flight wants it, then ask the paper's own question — variety and origin, style, winemaking, quality, maturity, commercial position — and let noticing the sugar be part of the candidate's deduction.
+`
+}
 ## FLIGHT SIZE FOR THIS QUESTION: ${targetFlightSize} WINES (MANDATORY)
 This question MUST have exactly ${targetFlightSize} ${targetFlightSize === 1 ? "wine" : "wines"}. This number was selected from the historical corpus distribution for ${family || "this paper"} to ensure realistic variety in flight sizes. Do NOT change it to a different number.
 ${targetFlightSize === 2 ? "This is a pair comparison — the most common format for this question type. Design the question around comparing and contrasting two wines." : ""}

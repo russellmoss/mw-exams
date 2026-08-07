@@ -1,6 +1,10 @@
 // audit-questions.mjs — run the hard validator over every generated question.
-//   node scripts/audit-questions.mjs            (dry run: report only)
-//   node scripts/audit-questions.mjs --apply     (quarantine HARD violations: stem_answer_keys.validated=false)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs            (dry run: report only)
+//   node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply    (quarantine HARD violations)
+//
+// The ts-loader is mandatory: question-validator.ts imports "./tasting-validators" extensionless, which
+// plain `node` cannot resolve (ERR_MODULE_NOT_FOUND). Running this without it is how the nightly sweep
+// went dark on 2026-08-07 — see .github/workflows/question-audit-daily.yml.
 // Reads ground_truth from stem_answer_keys (already-resolved variety/region/country/is_blend per wine).
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
@@ -70,6 +74,26 @@ for (const r of rows) {
       UPDATE generated_questions SET invalid_reasons = NULL
       WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
         AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    // The quarantine writes TWO flags (see the hard branch above): generated_questions gates the main
+    // study flow, stem_answer_keys.validated gates the drills and Live Tasting. Clearing only the first
+    // left a rule false-positive permanently fatal to the other two — after the 2026-08-07 AC2
+    // stem-numbering fix, four flights would have returned to study and stayed dead as tastings.
+    // validated is only restored when the key still resolves on its own terms (§2b: every slot keys a
+    // variety and an origin), because validated=false is ALSO how the key builder records an
+    // unresolvable wine — that reason is not this script's to clear.
+    const keyResolves =
+      Array.isArray(wines) && wines.length > 0 && wines.every((w) => (w.varieties || []).length && (w.region || w.country));
+    if (keyResolves) {
+      await sql`
+        UPDATE stem_answer_keys SET validated = true, invalid_reasons = NULL
+        WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
+          AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    } else {
+      await sql`
+        UPDATE stem_answer_keys SET invalid_reasons = NULL
+        WHERE question_id = ${r.question_id} AND invalid_reasons IS NOT NULL
+          AND invalid_reasons::text NOT LIKE '%feedback-question%'`;
+    }
   }
   if (!hard.length && res.violations.length) softCount++;
 }
