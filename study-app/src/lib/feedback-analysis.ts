@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt, getUserVoiceId } from "@/lib/db";
 import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
@@ -290,11 +290,17 @@ async function generateVerdictNarration(opts: {
       .trim();
     if (!narrationText) return;
 
+    // Whose voice: the listener's own choice (Settings → Coach Voice, migration 059), falling back
+    // to the app default. Undefined rather than null so synthesizeSpeech's own fallback chain —
+    // ELEVENLABS_VOICE_ID then the default — still applies.
+    const userVoiceId = opts.userId ? await getUserVoiceId(opts.userId) : null;
+
     const tts = await synthesizeSpeech(narrationText, {
       taskType: "notification_narration",
       userId: opts.userId,
       attemptId: opts.attemptId,
       analysisId: opts.analysisId,
+      voiceId: userVoiceId || undefined,
     });
     if (!tts) return; // synthesis failed → no audio, notification stays silent
 

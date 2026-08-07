@@ -1,4 +1,5 @@
 import { getUser } from "@/lib/auth";
+import { getUserVoiceId } from "@/lib/db";
 import { synthesizeSpeech } from "@/lib/elevenlabs";
 import { getElevenLabsKeyForUserId } from "@/lib/elevenlabs-key";
 import { isCoachEnabled } from "@/lib/settings";
@@ -50,10 +51,18 @@ export async function POST(request: Request) {
   const text = toSpeakable(raw).slice(0, MAX_TEXT).trim();
   if (!text) return Response.json({ error: "Nothing to say." }, { status: 400 });
 
+  // The Coach speaks in the voice the candidate chose (Settings → Voice, migration 059). This is the
+  // surface the setting exists for: a read-aloud is minutes of listening, not one notification clip,
+  // so a voice someone finds grating is a reason to stop using the feature. Falls back to the app
+  // default when they've never picked, and getUserVoiceId already swallows read failures — nobody
+  // should lose the ability to hear an answer because a preference lookup failed.
+  const voiceId = await getUserVoiceId(user.id);
+
   const result = await synthesizeSpeech(text, {
     taskType: "coach_speak",
     userId: user.id,
     apiKey: resolved.key,
+    voiceId: voiceId || undefined,
   });
   // synthesizeSpeech returns null on any failure and has already logged it.
   if (!result) return Response.json({ error: "Voice synthesis failed." }, { status: 502 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -9,6 +9,13 @@ import {
   type PaceMode,
   type SpeedSeconds,
 } from "@/lib/pace";
+import {
+  DEFAULT_ELEVENLABS_VOICE_ID,
+  findCuratedVoice,
+  isPlausibleVoiceId,
+  NARRATION_VOICES,
+  type PreviewScript,
+} from "@/lib/voices";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -46,6 +53,13 @@ export default function SettingsPage() {
   const [elevenSuccess, setElevenSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
+  // Voice picker (migration 059). `voiceId` null = never chose → the app default.
+  const [voiceId, setVoiceId] = useState<string | null>(null);
+  const [customVoice, setCustomVoice] = useState("");
+  const [voiceSaving, setVoiceSaving] = useState(false);
+  const [voiceMsg, setVoiceMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  const [preview, setPreview] = useState<{ key: string; phase: "loading" | "playing" } | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
   const [paceMode, setPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
   const [paceSpeedSeconds, setPaceSpeedSeconds] = useState<SpeedSeconds>(DEFAULT_PACE_PREFERENCE.speedSeconds);
   const [paceSaving, setPaceSaving] = useState(false);
@@ -123,6 +137,17 @@ export default function SettingsPage() {
           if (!d) return;
           if (d.pace === "exam" || d.pace === "speed") setPaceMode(d.pace);
           if (d.speedSeconds === 480 || d.speedSeconds === 540) setPaceSpeedSeconds(d.speedSeconds);
+        })
+        .catch(() => {});
+      fetch("/api/user/voice-preference")
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+          if (!d) return;
+          const saved = typeof d.voiceId === "string" ? d.voiceId : null;
+          setVoiceId(saved);
+          // Prefill the custom box when the saved voice isn't one of ours, so a pasted ID is still
+          // visible (and re-previewable) on a later visit instead of looking like it was lost.
+          if (saved && !findCuratedVoice(saved)) setCustomVoice(saved);
         })
         .catch(() => {});
       fetch("/api/user/live-tasting-prefs")
@@ -345,6 +370,98 @@ export default function SettingsPage() {
       setAccountDeleting(false);
     }
   };
+
+  /** Stop whatever preview is playing. Selecting a second voice should replace, never overlap. */
+  const stopPreview = useCallback(() => {
+    const audio = previewAudioRef.current;
+    if (audio) {
+      audio.pause();
+      previewAudioRef.current = null;
+    }
+    setPreview(null);
+  }, []);
+
+  // Don't leave a voice talking to an empty room after navigating away.
+  useEffect(() => () => { previewAudioRef.current?.pause(); }, []);
+
+  const playPreview = useCallback(
+    async (id: string, script: PreviewScript) => {
+      const key = `${id}:${script}`;
+      setVoiceMsg(null);
+      stopPreview();
+      setPreview({ key, phase: "loading" });
+      try {
+        const res = await fetch("/api/user/voice-preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ voiceId: id, script }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          setVoiceMsg({ kind: "err", text: data.error || "Couldn't play that voice." });
+          setPreview(null);
+          return;
+        }
+        const url = URL.createObjectURL(await res.blob());
+        const audio = new Audio(url);
+        previewAudioRef.current = audio;
+        // Each clip is a fresh blob; revoke on the way out or a long browse leaks every preview.
+        const done = () => {
+          URL.revokeObjectURL(url);
+          if (previewAudioRef.current === audio) previewAudioRef.current = null;
+          setPreview((cur) => (cur?.key === key ? null : cur));
+        };
+        audio.onended = done;
+        audio.onerror = done;
+        setPreview({ key, phase: "playing" });
+        await audio.play();
+      } catch {
+        setVoiceMsg({ kind: "err", text: "Network error playing the preview." });
+        setPreview(null);
+      }
+    },
+    [stopPreview]
+  );
+
+  /**
+   * Save the chosen voice. Unlike the other preferences on this page this does NOT keep an
+   * optimistic value on failure: a pasted voice ID can legitimately be rejected, and leaving the
+   * card highlighted would tell the user they'd chosen something the server never stored.
+   */
+  const saveVoice = useCallback(
+    async (id: string | null) => {
+      const previous = voiceId;
+      setVoiceSaving(true);
+      setVoiceMsg(null);
+      setVoiceId(id);
+      try {
+        const res = await fetch("/api/user/voice-preference", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ voiceId: id }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setVoiceId(previous);
+          setVoiceMsg({ kind: "err", text: data.error || "Failed to save voice." });
+          return;
+        }
+        const name = id ? findCuratedVoice(id)?.name : null;
+        setVoiceMsg({
+          kind: "ok",
+          text: id
+            ? `Saved — you'll hear ${name || "that voice"} from now on.`
+            : "Reset to the app's default voice.",
+        });
+      } catch {
+        setVoiceId(previous);
+        setVoiceMsg({ kind: "err", text: "Network error saving the voice." });
+      } finally {
+        setVoiceSaving(false);
+      }
+    },
+    [voiceId]
+  );
 
   const savePace = useCallback(async (pace: PaceMode, speedSeconds: SpeedSeconds) => {
     setPaceSaving(true);
@@ -977,6 +1094,148 @@ export default function SettingsPage() {
               >
                 Preview sound
               </button>
+            </div>
+          </section>
+
+          {/* Voice — which ElevenLabs voice speaks to this user (migration 059) */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Voice</h2>
+            <p className="text-sm text-muted mb-5">
+              The voice the app speaks in &mdash; the Coach reading an answer aloud, the voice loop,
+              and your feedback verdicts. Preview any of them before you commit, and if you&rsquo;d
+              rather hear someone else entirely, paste an ElevenLabs voice ID at the bottom. Previews
+              use your ElevenLabs key, same as the Coach.
+            </p>
+
+            {voiceMsg && (
+              <div className={`rounded-lg p-3 mb-4 border ${voiceMsg.kind === "ok" ? "bg-success/10 border-success/30" : "bg-fail/10 border-fail/30"}`}>
+                <p className={`text-sm ${voiceMsg.kind === "ok" ? "text-success" : "text-fail"}`}>{voiceMsg.text}</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {NARRATION_VOICES.map((voice) => {
+                const selected = (voiceId || DEFAULT_ELEVENLABS_VOICE_ID) === voice.id;
+                const nonsenseKey = `${voice.id}:nonsense`;
+                const wordsKey = `${voice.id}:pronunciation`;
+                return (
+                  <div
+                    key={voice.id}
+                    className={`rounded-lg border px-4 py-3 transition-colors ${
+                      selected ? "border-accent bg-accent/10" : "border-border"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <button
+                        type="button"
+                        onClick={() => saveVoice(voice.id)}
+                        disabled={voiceSaving}
+                        aria-pressed={selected}
+                        className="flex flex-1 items-start gap-3 text-left cursor-pointer disabled:opacity-60"
+                      >
+                        <span className={`mt-0.5 w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${selected ? "border-accent" : "border-muted"}`}>
+                          {selected && <span className="w-2 h-2 rounded-full bg-accent" />}
+                        </span>
+                        <span className="flex-1">
+                          <span className={`block text-sm font-medium ${selected ? "text-accent" : "text-foreground"}`}>
+                            {voice.name}
+                            {voice.id === DEFAULT_ELEVENLABS_VOICE_ID && (
+                              <span className="ml-2 text-xs font-normal text-muted">recommended default</span>
+                            )}
+                          </span>
+                          <span className="block text-xs text-muted mt-0.5">{voice.descriptor}</span>
+                          <span className="block text-xs text-muted mt-1 leading-relaxed">{voice.rationale}</span>
+                        </span>
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4 mt-2 pl-7">
+                      <button
+                        type="button"
+                        onClick={() => playPreview(voice.id, "nonsense")}
+                        className="text-xs text-accent hover:text-accent-hover transition-colors cursor-pointer"
+                      >
+                        {preview?.key === nonsenseKey
+                          ? preview.phase === "loading" ? "Loading…" : "▶ Playing…"
+                          : "▶ Preview"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => playPreview(voice.id, "pronunciation")}
+                        className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        {preview?.key === wordsKey
+                          ? preview.phase === "loading" ? "Loading…" : "▶ Playing…"
+                          : "Hear the hard words"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Any voice, not just ours — the point of the setting is that it's the listener's call. */}
+            <div className="mt-6 pt-5 border-t border-border">
+              <h3 className="text-sm font-semibold text-foreground mb-1">Use your own voice</h3>
+              <p className="text-xs text-muted mb-3">
+                Paste a voice ID from the{" "}
+                <a
+                  href="https://elevenlabs.io/app/voice-library"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline"
+                >
+                  ElevenLabs voice library
+                </a>
+                {" "}(open a voice &rarr; the three-dot menu &rarr; Copy voice ID). Preview it first
+                &mdash; an ID that isn&rsquo;t available to this app will fail here rather than
+                silently going quiet later.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <input
+                  id="customVoice"
+                  type="text"
+                  value={customVoice}
+                  onChange={(e) => setCustomVoice(e.target.value)}
+                  placeholder="e.g. JBFqnCBsd6RMkjVDRZzb"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="flex-1 min-w-[16rem] px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => playPreview(customVoice.trim(), "nonsense")}
+                  disabled={!isPlausibleVoiceId(customVoice)}
+                  className="px-4 py-2.5 rounded-lg border border-border text-muted hover:text-foreground hover:border-muted transition-colors cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {preview?.key === `${customVoice.trim()}:nonsense`
+                    ? preview.phase === "loading" ? "Loading…" : "▶ Playing…"
+                    : "▶ Preview"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveVoice(customVoice.trim())}
+                  disabled={voiceSaving || !isPlausibleVoiceId(customVoice) || customVoice.trim() === voiceId}
+                  className="px-4 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors cursor-pointer text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {voiceSaving ? "Saving…" : "Use this voice"}
+                </button>
+              </div>
+              {voiceId && !findCuratedVoice(voiceId) && (
+                <p className="text-xs text-success mt-3">
+                  Currently using your own voice:{" "}
+                  <code className="font-mono bg-background px-1 py-0.5 rounded">{voiceId}</code>
+                </p>
+              )}
+              {voiceId && (
+                <button
+                  type="button"
+                  onClick={() => saveVoice(null)}
+                  disabled={voiceSaving}
+                  className="text-xs text-muted hover:text-foreground transition-colors cursor-pointer mt-3 block"
+                >
+                  Reset to the app default
+                </button>
+              )}
             </div>
           </section>
 
