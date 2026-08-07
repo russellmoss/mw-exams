@@ -191,6 +191,15 @@ function parseWineIdentity(fullText: string): { producer: string; wineName: stri
 // Valid style_category values (must match data/mock_wine_bank.schema.json).
 const STYLE_CATEGORIES = "still_dry, still_off_dry, still_sweet, sparkling, fortified, oxidative, orange, rose";
 
+// COLOUR is a separate axis from style_category, and must stay separate.
+//
+// style_category answers "how was it made" — and `still_dry` covers 833 of the 1,285 banked wines,
+// Chablis and Barolo alike. It therefore cannot answer "may this wine appear on Paper 1", which is a
+// COLOUR question. Deriving colour from style is exactly the bug that made a Riesling Spätlese read as
+// "sweet" rather than "white" and fail Paper 1. wine_bank.colour (migration 052) exists for this and
+// was NULL on every row until this field started populating it.
+export const WINE_COLOURS = ["white", "red", "rose", "orange"] as const;
+
 export type WineIdentity = {
   producer: string;
   wineName: string;
@@ -201,6 +210,9 @@ export type WineIdentity = {
   // Optional: only classifyWine sets it (Live Tasting budget gate); legacy call sites and test
   // fixtures build identities without one, and addToWineBank writes NULL when absent/empty.
   priceBand?: string;
+  // Optional, same contract as priceBand: only classifyWine sets it, and addToWineBank writes NULL
+  // when absent/empty rather than guessing. R-COLOUR reads it in preference to inferring from a label.
+  colour?: string;
 };
 
 // Live Tasting's deterministic budget gate (migration 041). Bands are indicative typical retail
@@ -240,7 +252,7 @@ async function classifyWine(fullText: string, apiKey: string, meta?: EnrichMeta)
       model,
       max_tokens: 300,
       system: `You identify a wine from a single reference string. Output exactly one JSON object, no prose, no code fences:
-{"producer":"...","wine_name":"...","country":"...","region":"...","grape_varieties":["..."],"style_category":"...","price_band":"..."}
+{"producer":"...","wine_name":"...","country":"...","region":"...","grape_varieties":["..."],"style_category":"...","colour":"...","price_band":"..."}
 
 Rules:
 - producer: the estate/house only, e.g. "Domaine Leflaive", "Billecart-Salmon", "Nyetimber". Never a year or a region.
@@ -257,6 +269,12 @@ Rules:
   - NOT oxidative: anything labelled "ouillé" (topped up) is the deliberate opposite — no flor forms — so an Arbois Savagnin Ouillé is still_dry however Jura it looks. A grape or appellation never settles this on its own: Arbois and L'Étoile both cover topped-up and voile-aged wines, and the reds from those same houses (Viña Tondonia Tinto, Castillo Ygay Gran Reserva, Berthet-Bondet Trousseau) are still_dry.
   - rose / orange: as appropriate. Blush wines count as rose even when unlabelled (White Zinfandel).
   - still_dry: everything else (the default for dry still whites and reds).
+- colour: what is in the GLASS, exactly one of: ${WINE_COLOURS.join(", ")}. This is a SEPARATE question from style_category — judge the colour, not the method:
+  - A Riesling Spätlese is white. A Sauternes is white. A Vin Jaune is white. A Tawny Port is red. A rosé Champagne is rose. A Blanc de Noirs Champagne is white (white wine from black grapes).
+  - orange ONLY for deliberate extended skin-contact / amber wines (qvevri Rkatsiteli, ramato Pinot Grigio). A conventionally-made white is white however deep its colour.
+  - A red grape made as a white bottling is WHITE — "Touriga Nacional Branco", "Xinomavro White", white Rioja. Trust an explicit colour word on the label over the grape's usual colour.
+  - Beware proprietary names: "Château Cheval Blanc" is a RED Bordeaux. "Blanc" inside an estate name proves nothing.
+  If genuinely unknowable, use "".
 - price_band: typical current retail for a 750ml bottle of this wine (any recent vintage), exactly one of:
   - value: under ~$20 / €20 (supermarket and entry-level regional wines).
   - premium: ~$20–50 (classic village-level and quality regional wines — most exam benchmarks).
@@ -286,6 +304,7 @@ Rules:
           ? (o.grape_varieties as unknown[]).filter((g): g is string => typeof g === "string" && g.trim().length > 0)
           : [],
         styleCategory: str(o.style_category, "still_dry"),
+        colour: WINE_COLOURS.includes(o.colour as (typeof WINE_COLOURS)[number]) ? (o.colour as string) : "",
         priceBand: PRICE_BANDS.includes(o.price_band as (typeof PRICE_BANDS)[number])
           ? (o.price_band as string)
           : "",
@@ -685,7 +704,7 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
       .filter(Boolean).join("_").slice(0, 120);
 
     await sql`
-      INSERT INTO wine_bank (id, producer, wine_name, country, region, grape_varieties, style_category, price_band, tasting_profile, source)
+      INSERT INTO wine_bank (id, producer, wine_name, country, region, grape_varieties, style_category, colour, price_band, tasting_profile, source)
       VALUES (
         ${id},
         ${identity.producer},
@@ -694,6 +713,7 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
         ${identity.region},
         ${JSON.stringify(identity.grapeVarieties)},
         ${identity.styleCategory || "still_dry"},
+        ${identity.colour || null},
         ${identity.priceBand || null},
         ${profile.tasting_profile ? JSON.stringify({
           appearance: profile.tasting_profile.appearance,
@@ -711,6 +731,9 @@ async function addToWineBank(identity: WineIdentity, profile: WineProfile, idOve
           WHEN wine_bank.grape_varieties IS NULL OR wine_bank.grape_varieties = '[]'::jsonb
           THEN EXCLUDED.grape_varieties ELSE wine_bank.grape_varieties END,
         style_category = COALESCE(NULLIF(EXCLUDED.style_category, ''), wine_bank.style_category),
+        -- Same first-writer-wins shape as price_band: a backfilled or human-corrected colour must not
+        -- be clobbered by a later LLM re-classification of the same wine.
+        colour = COALESCE(wine_bank.colour, NULLIF(EXCLUDED.colour, '')),
         price_band = COALESCE(wine_bank.price_band, NULLIF(EXCLUDED.price_band, '')),
         tasting_profile = COALESCE(EXCLUDED.tasting_profile, wine_bank.tasting_profile),
         updated_at = now()
@@ -748,6 +771,7 @@ export async function researchAndBankWine(
   const profile = await researchWineViaTavily({ slot: 1, fullText }, identity, apiKey, opts.meta);
   profile.style_category = identity.styleCategory;
   profile.grape_varieties = identity.grapeVarieties;
+  profile.colour = identity.colour || undefined;
 
   const sourced = (profile.tasting_profile?.sources?.length ?? 0) > 0;
   // No tasting profile at all means research produced nothing usable; writing that over a row that
@@ -795,6 +819,10 @@ export async function enrichWineProfiles(
     // (and any downstream tasting context) reflect the real style/grapes, not still_dry/[].
     profile.style_category = identity.styleCategory;
     profile.grape_varieties = identity.grapeVarieties;
+    // Colour rides along so this question's wine_profiles carry it too. That is what lets a serve-time
+    // caller read a resolved colour instead of re-deriving one from the bare label — the whole point of
+    // Phase 2, since 44 Paper 1 wine slots resolve to nothing from their label alone.
+    profile.colour = identity.colour || undefined;
     profiles[String(wine.slot)] = profile;
 
     if (profile.tasting_profile) {

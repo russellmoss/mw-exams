@@ -11,6 +11,7 @@ import {
   stemSniperScoringModel as _stemSniperScoringModel,
   canonCountry,
   canonVariety,
+  colourFromAppellation,
   detectPrimaryVariety,
   methodClass,
   norm,
@@ -50,6 +51,11 @@ export interface AuditWine {
   // cross-check (STEM_PREDICATE_MISMATCH): a stem that asserts "both/all have residual sugar" or "sweet
   // wines" is contradicted by a keyed wine whose RS is below 5 g/L (or that is otherwise tagged dry).
   rs?: number;
+  // The RESOLVED colour, when the caller has one — from wine_bank.colour or from the colour stored on
+  // the question's wine slot at generation time. Authoritative: it was decided when the full context
+  // (varieties, region, answer key, enrichment) was available, whereas a serve-time caller sees only a
+  // label. Absent, resolveWineScope() infers it. See PureColour.
+  colour?: "white" | "red" | "rose" | "orange";
 }
 export interface QuestionForAudit {
   questionId: string;
@@ -1354,7 +1360,12 @@ function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
     if (RED_GRAPE_INDICATORS.test(primary) || EXTRA_RED_VARIETIES.test(primary)) return "red";
     if (WHITE_GRAPE_INDICATORS.test(primary)) return "white";
   }
-  return null; // indeterminate
+
+  // Last of all: the appellation's colour, which reaches further than its variety. detectPrimaryVariety
+  // above can only use the 117 SINGLE-variety appellations — it must decline St-Julien, whose four
+  // grapes cannot be reduced to one. But all four are red, so the appellation still settles the colour.
+  // Server-only, via the registry (this module is client-reachable and cannot read the dataset itself).
+  return colourFromAppellation(w.fullText || "") as "white" | "red" | null;
 }
 
 /**
@@ -1377,11 +1388,14 @@ export function resolveWineScope(w: AuditWine): { colour: PureColour | null; sty
 
   // Colour is resolved INDEPENDENTLY of style — a sweet wine still has a colour, and that is the whole
   // point of splitting the axes.
-  const colour: PureColour | null = ORANGE_STYLE_RE.test(hay)
-    ? "orange"
-    : reallyRose
-      ? "rose"
-      : resolveStillColour(w, hay);
+  //
+  // A PERSISTED colour wins outright. It was decided at generation time with the varieties, region and
+  // enrichment all in hand; a serve-time caller re-deriving from a bare label is strictly worse
+  // informed. This is what closes the label-invisible cases — 44 Paper 1 wine slots resolve to no
+  // colour from their label alone.
+  const colour: PureColour | null =
+    w.colour ??
+    (ORANGE_STYLE_RE.test(hay) ? "orange" : reallyRose ? "rose" : resolveStillColour(w, hay));
 
   return { colour, style };
 }

@@ -580,9 +580,18 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
   // already banked, and refusing them on a LACK of evidence would retire a large slice of the pool.
   // 44 Paper 1 wine slots currently resolve to no colour from the label alone; the wine_bank.colour
   // backfill is what closes those, not a stricter serve gate.
+  // wine_profiles is stored on the same row and carries the colour the enrichment step resolved, when
+  // it could. Reading it here is what lifts the serve path to the audit path's strength: from the bare
+  // label alone, 44 Paper 1 wine slots resolve to no colour at all.
+  const profiles = (q.wine_profiles ?? {}) as Record<string, { colour?: unknown } | undefined>;
+  const resolvedColour = (slot: number): "white" | "red" | "rose" | "orange" | undefined => {
+    const c = profiles[String(slot)]?.colour;
+    return c === "white" || c === "red" || c === "rose" || c === "orange" ? c : undefined;
+  };
+
   const paperColourCheck = validatePaperColour(
     q.paper,
-    winesFromText(wines).map((w) => ({ ...w, region: "" })),
+    winesFromText(wines).map((w) => ({ ...w, region: "", colour: resolvedColour(w.slot) })),
     questionText || undefined
   );
   if (paperColourCheck.length > 0) {

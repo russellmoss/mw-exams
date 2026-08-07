@@ -17,6 +17,8 @@ export interface WineBankEntry {
   appellation?: string;
   grape_varieties: string[];
   style_category: string;
+  /** Resolved wine colour (white|red|rose|orange), independent of style_category. See WineProfile. */
+  colour?: string;
   method_tags?: string[];
   structure_tags?: string[];
   oak_signature?: string;
@@ -75,6 +77,15 @@ export interface WineProfile {
   enriched_at: string;
   structural_tags?: string[];
   style_category?: string;
+  /**
+   * The resolved wine COLOUR — "white" | "red" | "rose" | "orange" — kept separate from
+   * style_category, which answers how the wine was made rather than what is in the glass.
+   *
+   * R-COLOUR (Paper 1 = still white, Paper 2 = still red) reads this in preference to inferring from
+   * the label, because a label alone cannot place an appellation-only name like Hermitage. Absent when
+   * the classifier could not settle it; never guessed.
+   */
+  colour?: string;
   oak_signature?: string;
   rs_level?: string;
   grape_varieties?: string[];
@@ -116,6 +127,9 @@ async function loadBankWithDb(): Promise<WineBankEntry[]> {
           region: row.region as string,
           grape_varieties: (row.grape_varieties as string[]) || [],
           style_category: (row.style_category as string) || "still_dry",
+          // No default: an unknown colour must stay unknown. Defaulting it would hand R-COLOUR a
+          // confident wrong answer, which is worse than the inference it would otherwise fall back to.
+          colour: (row.colour as string | null) || undefined,
           structure_tags: (row.structure_tags as string[]) || undefined,
           oak_signature: row.oak_signature as string | undefined,
           rs_level: row.rs_level as string | undefined,
@@ -275,6 +289,7 @@ export async function lookupWines(wines: { slot: number; fullText: string }[]): 
         enriched_at: new Date().toISOString(),
         structural_tags: match.entry.structure_tags,
         style_category: match.entry.style_category,
+        colour: match.entry.colour,
         oak_signature: match.entry.oak_signature,
         rs_level: match.entry.rs_level,
         grape_varieties: match.entry.grape_varieties,

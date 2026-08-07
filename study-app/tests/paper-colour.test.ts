@@ -139,6 +139,27 @@ describe("colour resolution — appellation-only labels and colour qualifiers", 
     expect(resolveWineScope(wine(w as Partial<AuditWine>)).colour).toBe("red");
   });
 
+  // The appellation COLOUR table reaches further than the appellation VARIETY table. Variety must
+  // decline a multi-variety appellation (St-Julien cannot be reduced to one grape), but colour survives
+  // that ambiguity because all four grapes are red. 238 appellations become colour evidence where only
+  // 117 were variety evidence.
+  it.each([
+    ["Saint-Julien", "Château Léoville-Barton, Saint-Julien, 2016. Bordeaux, France.", "red"],
+    ["Saint-Estèphe", "Château Montrose, Saint-Estèphe, 2015. Bordeaux, France.", "red"],
+    ["Bandol", "Domaine Tempier, Bandol, 2019. Provence, France.", "red"],
+  ])("%s resolves %s from a multi-variety appellation", (_l, fullText, expected) => {
+    expect(resolveWineScope(wine({ fullText })).colour).toBe(expected);
+  });
+
+  // Two-colour appellations must not be guessed — only the label settles them.
+  it.each([
+    ["Graves Blanc", "Château X, Graves Blanc, 2021. Bordeaux, France.", "white"],
+    ["Graves Rouge", "Château X, Graves Rouge, 2018. Bordeaux, France.", "red"],
+    ["Anjou Blanc", "Domaine Y, Anjou Blanc, 2022. Loire, France.", "white"],
+  ])("%s takes its colour from the label", (_l, fullText, expected) => {
+    expect(resolveWineScope(wine({ fullText })).colour).toBe(expected);
+  });
+
   it("the appellation resolver is actually registered in this process", () => {
     // Guards the production hole: scripts/audit-questions.mjs and question-audit.ts must import
     // @/lib/appellation-resolver or every appellation-only wine silently resolves to null.
@@ -176,6 +197,31 @@ describe("validateQuestion enforces the paper-scope contract", () => {
   it("leaves a compliant all-white Paper 1 flight alone", () => {
     const clean = { ...redOnP1, wines: [redOnP1.wines[0]] };
     expect(validateQuestion(clean).violations.some((v) => v.rule === "wrong_colour_for_paper")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------
+// A PERSISTED colour outranks inference. It was decided at generation time with varieties, region and
+// enrichment in hand; a serve-time caller re-deriving from a bare label is strictly worse informed.
+// ---------------------------------------------------------------------------------------------------
+describe("persisted colour wins over inference", () => {
+  it("believes the stored colour even when the label argues otherwise", () => {
+    // A white wine from a red-grape region. Inference would say red off the Syrah/Hermitage; the stored
+    // value is what the enrichment step actually resolved, so it wins.
+    const w = wine({ varieties: ["Syrah"], region: "Hermitage", fullText: "Producer, Hermitage Blanc equivalent", colour: "white" });
+    expect(resolveWineScope(w).colour).toBe("white");
+    expect(validatePaperColour(1, [w])).toHaveLength(0);
+  });
+
+  it("still resolves STYLE independently of the persisted colour", () => {
+    const w = wine({ fullText: "House, Rosé Champagne Brut NV. Champagne, France.", colour: "rose" });
+    const got = resolveWineScope(w);
+    expect(got.colour).toBe("rose");
+    expect(got.style).toBe("sparkling"); // persisted colour must not short-circuit the style axis
+  });
+
+  it("falls back to inference when nothing is stored", () => {
+    expect(resolveWineScope(wine({ varieties: ["Syrah"], region: "Hermitage", fullText: "Producer, Hermitage, 2019." })).colour).toBe("red");
   });
 });
 
