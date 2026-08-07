@@ -1,5 +1,5 @@
 import { getUser } from "@/lib/auth";
-import { getLiveTastingPaper, getPaperSessions, getQuestionById, getAttemptById } from "@/lib/db";
+import { getLiveTastingPaper, getPaperSessions, getQuestionById, getAttemptById, getUnservableQuestionIds } from "@/lib/db";
 import { deriveSessionState, deriveBlindIntegrity } from "@/lib/live-tasting";
 import { paperComposition } from "@/lib/live-tasting-paper-engine";
 
@@ -23,6 +23,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const comp = paperComposition(paper);
   const children = await getPaperSessions(paper.id);
+  // Same predicate the engine uses to decide a position isn't really built (db.getUnservableQuestionIds).
+  // Surfaced per flight so a dead flight is visible instead of looking ready: an untouched one is rebuilt
+  // automatically by the generation chain, and one the candidate has already opened needs their say-so.
+  const unservable = await getUnservableQuestionIds(children.map((c) => c.question_id));
   const flights = [];
   let awarded = 0;
   let possible = 0;
@@ -46,6 +50,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         awarded += marksLow;
       }
     }
+    const isUnservable = Boolean(s.question_id && unservable.has(s.question_id));
     flights.push({
       position: c.position,
       flightSize: c.flightSize,
@@ -56,6 +61,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       totalMarks: marksTotal,
       marksLow,
       blindIntegrity: deriveBlindIntegrity(s),
+      // The flight's question is quarantined or its answer key was invalidated — it cannot be tasted or
+      // graded as it stands. `rebuildable` is false only once marks are banked, where a rebuild would
+      // rewrite history rather than repair a hole.
+      unservable: isUnservable,
+      rebuildable: isUnservable && !s.graded_at && !s.attempt_id,
     });
   }
 
