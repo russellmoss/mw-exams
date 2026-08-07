@@ -11,6 +11,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:build-gate": "vitest run --exclude '**/*.eval.test.ts' --exclude '**/*.integration.test.ts'",
+    "narration:build": "tsx scripts/generate-tour-narration.mts",
     "theory:diff": "tsx scripts/theory-grade-diff.mjs",
     "eval:golden": "node scripts/build-golden-set.mjs",
     "eval:judge": "node scripts/calibrate-judge.mjs",

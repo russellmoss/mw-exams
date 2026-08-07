@@ -37,7 +37,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { narrationId } from "@/lib/tour-narration";
 import { CoachChatSim, type Beat } from "./coach/CoachChatSim";
+import { TourNarrationButton } from "./TourNarration";
 
 interface Props {
   /** Fired when the user finishes or skips. `completed` is false only for an explicit Skip. */
@@ -234,6 +236,10 @@ export function CoachWalkthrough({ onDone }: Props) {
           <span className="text-[0.8125rem] text-muted">What the Coach can do</span>
         </div>
         <div className="flex items-center gap-4">
+          <TourNarrationButton
+            id={narrationId("coach", step)}
+            nextId={step < TOTAL - 1 ? narrationId("coach", step + 1) : undefined}
+          />
           <span className="text-[0.6875rem] text-muted tabular-nums">
             {step + 1} / {TOTAL}
           </span>

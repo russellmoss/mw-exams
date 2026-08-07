@@ -1,0 +1,146 @@
+{
+  "generatedAt": "2026-08-07T21:14:40.428Z",
+  "outputFormat": "mp3_44100_64",
+  "clips": {
+    "intro-0": {
+      "textHash": "b4fc2c510b7751fd0f269407d5e02fdb47728999c941f3a0438ff306fc89f6d5",
+      "chars": 870,
+      "bytes": 442244,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "intro-1": {
+      "textHash": "d45066445a8a7196a9e93a6c4c5832c808ee0ae4f7986efc848235ac0bf1c7c1",
+      "chars": 1015,
+      "bytes": 521866,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "intro-2": {
+      "textHash": "140d1edc18d29e9b05c28b49aa6983b2afff41742b3b2b9789f9b12070247e04",
+      "chars": 813,
+      "bytes": 490310,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "intro-3": {
+      "textHash": "cdaccdc3a4b83d6567b8f4e22781b245f6df5b69134a6c0407198bbafe3de488",
+      "chars": 724,
+      "bytes": 380595,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "intro-4": {
+      "textHash": "e6aaa81d31e218ad768efa26f77c11a33d0fecd213e48c9464faa0727e9a1449",
+      "chars": 914,
+      "bytes": 498669,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "intro-5": {
+      "textHash": "869344fe5f01e8bed9eb8a86dd754cf8300a96ceec97792b2e9b48f2483912f9",
+      "chars": 357,
+      "bytes": 170362,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-0": {
+      "textHash": "bdfaea638013c3eedc822dabe9a41e19505e5292812520aee95247ce383d5eb1",
+      "chars": 679,
+      "bytes": 351338,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-1": {
+      "textHash": "07ccad5aa685b33d42eef01a788ae9c3867bdeda1ef070ca8835a59e435b2a53",
+      "chars": 548,
+      "bytes": 283629,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-2": {
+      "textHash": "d08c3e86f5493344564ab757f4c13757dc9da8c9ac00f80780c0d0469a9c7e47",
+      "chars": 641,
+      "bytes": 335247,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-3": {
+      "textHash": "550c79437fc4d649b152b98095532dad25f94e4d9a97f99ea264ce3ff0be37e9",
+      "chars": 876,
+      "bytes": 436811,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-4": {
+      "textHash": "739f3dec467902ac7e4cde0f07c9026aca3d6cc5f2df49869ea9e802d3f0f31c",
+      "chars": 854,
+      "bytes": 439737,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-5": {
+      "textHash": "f5252b2308d772eaf4513d3aea312a620ee6fbf03588d9bd75e79a28e421084c",
+      "chars": 787,
+      "bytes": 386865,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "diagrams-6": {
+      "textHash": "27745ba297ff2e6319a9fb8017b8d9869d6b42563183c6900fa52067171e0c27",
+      "chars": 609,
+      "bytes": 286346,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-0": {
+      "textHash": "544b52cbedeeee6491d4a01c4324bc9641463ddf5665a1b04d9fa6d4563c1a00",
+      "chars": 693,
+      "bytes": 339008,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-1": {
+      "textHash": "b9f5981b1ae4205a05d897139429533e902eb53be3d1006a46bf1ce6b70cc0c2",
+      "chars": 832,
+      "bytes": 412987,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-2": {
+      "textHash": "b46389c36c9b5b373bcc6b3646e52f77dbdbd8d8edcf85e042137e9d43c0b50d",
+      "chars": 859,
+      "bytes": 458336,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-3": {
+      "textHash": "3eac7dfaac1445d3edfc50eacbc832ab6f0ed437947dd7f2e4cfe3aaf1c5ea58",
+      "chars": 737,
+      "bytes": 354891,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-4": {
+      "textHash": "fea372fc289d70476fbcc35f9cfaad6cad42d9cfb73a1a93eeb43939a5922d4b",
+      "chars": 866,
+      "bytes": 423645,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-5": {
+      "textHash": "3790123ee1d91f6c889b3ec9e0fb732aae791efb546c79553cc9dfda79e5fe1f",
+      "chars": 902,
+      "bytes": 443707,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "coach-6": {
+      "textHash": "eb43e65fb7babdf11b8270564e18a3d6636b1a682ba4ffd7b946723955d39c75",
+      "chars": 774,
+      "bytes": 371400,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    }
+  }
+}

@@ -24,8 +24,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { narrationId } from "@/lib/tour-narration";
 import { CoachWalkthrough } from "./CoachWalkthrough";
 import { DiagramWalkthrough } from "./DiagramWalkthrough";
+import { TourNarrationButton } from "./TourNarration";
 
 const SESSION_FLAG = "mw-intro-shown-this-session";
 
@@ -267,7 +269,15 @@ export function ShellOnboarding() {
         <div className="fixed inset-0 z-[60] bg-background flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-6 py-5">
             <Image src="/logo.png" alt="BWC" width={28} height={28} className="opacity-80" />
-            <span className="text-[0.6875rem] text-muted tabular-nums">{scene + 1} / 6</span>
+            <div className="flex items-center gap-3">
+              {/* Outside the key={scene} content block, so paging a slide swaps the clip without
+                  remounting the control and losing its state mid-tour. */}
+              <TourNarrationButton
+                id={narrationId("intro", scene)}
+                nextId={scene < 5 ? narrationId("intro", scene + 1) : undefined}
+              />
+              <span className="text-[0.6875rem] text-muted tabular-nums">{scene + 1} / 6</span>
+            </div>
           </div>
 
           {/* key={scene} remounts the content so the entrance animations re-run per scene */}
