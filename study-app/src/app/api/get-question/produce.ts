@@ -76,6 +76,7 @@ type ProduceOpts = {
  */
 export async function produceQuestion(opts: ProduceOpts): Promise<GenerationOutcome> {
   const outcome = await selectOrGenerate(opts);
+
   if (!("error" in outcome) && opts.meta.userId != null) {
     const questionId = outcome.question.question_id;
     await Promise.all([

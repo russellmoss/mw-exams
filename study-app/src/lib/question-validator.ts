@@ -1490,6 +1490,273 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// SERVED-QUESTION INTEGRITY — the reveal/serving surfaces must be provably reading ONE question record
+// (recurring fault cluster, cross-paper: fb_344, fb_185, fb_161).
+//
+// Three accepted feedbacks describe the SAME class of bug: a surface diverging from the keyed payload.
+//   • fb_344 — the stem shown at reveal was not the stem shown in the stem-analysis screen ("this
+//     question says the same single variety, which the previous screen did not show"). A second render
+//     re-derived the stem instead of reading the stored record.
+//   • fb_185 — "it only displayed 1 wine of the three": the served flight silently truncated to one
+//     wine, so the candidate could not answer the question that was keyed.
+//   • fb_161 — the reveal showed pictures of regions/wines that were not in the correct answer.
+//
+// This is the serve-path guard. It is called at EVERY phase transition (stem analysis → answer →
+// reveal) so all surfaces are provably reading one record:
+//   Check 1 — hash the stem text, the sub-part list and the mark table when the question is first
+//     served, then re-assert BYTE equality of that hash at answer and reveal. A changed hash means a
+//     surface re-derived the stem rather than reading the stored record → throw.
+//   Check 2 — the wine array actually rendered must have length equal to the wine count declared by the
+//     stem ("Wines 1 to N" / "Wines 1 and 2") or, failing an explicit stem count, by an "N × M marks"
+//     per-wine multiplier in the parts. A three-wine question rendering one wine is a HARD FAIL, never
+//     a silent truncation → throw.
+//   Check 3 — any image / media attached to the reveal must reference a producer, region or appellation
+//     present in the keyed answer wines. Non-matching assets are FILTERED OUT (returned minus the
+//     stragglers) rather than displayed — this one repairs rather than throws.
+//
+// Throws a ServedQuestionIntegrityError carrying the phase name and the mismatching field, so a
+// divergence is diagnosable straight from the logs.
+// ---------------------------------------------------------------------------------------------------
+
+export type ServePhase = "stem" | "answer" | "reveal";
+
+/** A reveal image / media asset. Free-shape: any string field that names its subject is inspected. */
+export interface ServedMediaAsset {
+  tag?: string;
+  caption?: string;
+  alt?: string;
+  title?: string;
+  label?: string;
+  producer?: string;
+  region?: string;
+  appellation?: string;
+  [key: string]: unknown;
+}
+
+/** The served question payload a surface renders. `wines` is the keyed flight; `media` the reveal assets. */
+export interface ServedQuestionPayload {
+  questionId?: string;
+  paper?: number;
+  questionText: string;
+  wines: Array<{
+    slot?: number;
+    fullText?: string;
+    region?: string;
+    country?: string;
+    appellation?: string;
+    producer?: string;
+    varieties?: string[];
+  }>;
+  media?: ServedMediaAsset[];
+}
+
+export interface ServedIntegrityResult {
+  phase: ServePhase;
+  /** The stem/sub-part/mark-table hash — pass this back in as `priorHash` at the next phase. */
+  stemHash: string;
+  wineCount: number;
+  /** The media to display — at reveal this is the input filtered to answer-relevant assets (Check 3). */
+  media: ServedMediaAsset[];
+}
+
+/** Thrown by assertServedQuestionIntegrity. Carries the phase and the mismatching field for the logs. */
+export class ServedQuestionIntegrityError extends Error {
+  phase: ServePhase;
+  field: string;
+  constructor(phase: ServePhase, field: string, detail: string) {
+    super(`[served-integrity:${phase}] ${field}: ${detail}`);
+    this.name = "ServedQuestionIntegrityError";
+    this.phase = phase;
+    this.field = field;
+  }
+}
+
+// A deterministic FNV-1a hash (32-bit, hex). Self-contained so the guard has no crypto/runtime
+// dependency; we only need a stable fingerprint that changes iff the canonical input bytes change.
+function fnv1aHex(input: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+/**
+ * Fingerprint the stem text, sub-part list and mark table exactly as stored. Byte-identical question
+ * text produces a byte-identical hash; a re-derived stem (fb_344) produces a different one.
+ */
+export function computeServedStemHash(questionText: string): string {
+  const text = questionText || "";
+  const stem = extractStem(text).replace(/\s+/g, " ").trim();
+  const parts = parseLetteredParts(text).map((p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`);
+  const marks = parseMarkedParts(text).map((p) => `${p.marks}/${p.perUnit}`);
+  return fnv1aHex(JSON.stringify({ stem, parts, marks }));
+}
+
+// The wine count the STEM declares, or null when it makes no explicit claim.
+//
+// A numbered wine reference names a SLOT, not a count. A real paper holds twelve wines and a flight is
+// drawn from it, so "Wines 5 and 6" is a TWO-wine flight (slots 5 and 6), not a six-wine one — reading
+// the highest number as the size was the single largest source of false positives here.
+//
+// A stem also routinely declares several GROUPS, each naming its own slots: "Wines 1 and 2 are from the
+// same region … Wine 3 is from a different country" is a three-wine flight, and reading only the first
+// enumeration would call it two. So we union the slots referenced across the WHOLE stem and count them.
+// Handled forms: a "Wines 1 to N" range (also "through" / "1-N"), any number of enumerations
+// ("Wines 1 and 2", "Wines 1, 2 and 3"), and a lone "Wine 1".
+function parseStemWineCount(questionText: string): number | null {
+  const stem = norm(extractStem(questionText || ""));
+
+  const slots = new Set<number>();
+
+  // Ranges. A range is a span of SLOTS, so it need not start at 1 ("Wines 4 to 6" is a three-wine
+  // flight from slots 4-6), and the corpus writes the separator as "to", "through", an ASCII hyphen
+  // or an en/em dash ("Wines 1–6") — miss any of those and the enumeration below reads only the first
+  // number, collapsing a six-wine flight to one.
+  const RANGE_RE =
+    /\bwines?\s+(\d+)\s*(?:to|through|[-–—])\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/g;
+  for (const m of stem.matchAll(RANGE_RE)) {
+    const from = Number(m[1]);
+    const to = parseStemCount(m[2]);
+    if (from >= 1 && to >= from && to - from < 12) for (let i = from; i <= to; i++) slots.add(i);
+  }
+
+  // Enumerations, unioned across every group the stem declares.
+  for (const m of stem.matchAll(/\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/g)) {
+    for (const d of m[0].matchAll(/\d+/g)) slots.add(Number(d[0]));
+  }
+
+  // Only trust the stem when it names at least TWO slots. A single incidental reference ("…of wine 2")
+  // is not a declaration that the flight holds one wine, so we fall through to the mark multiplier
+  // rather than assert a count we cannot support.
+  return slots.size >= 2 ? slots.size : null;
+}
+
+// The wine count implied by an "N × M marks" per-wine multiplier in the parts (the largest N), or null.
+function parseMultiplierWineCount(questionText: string): number | null {
+  const mults = parseMarkedParts(questionText)
+    .filter((p) => p.perUnit > 0 && p.marks !== p.perUnit)
+    .map((p) => Math.round(p.marks / p.perUnit))
+    .filter((n) => n >= 1);
+  return mults.length ? Math.max(...mults) : null;
+}
+
+// The anchor words (producer / region / appellation / country, plus the raw label as a fallback) that a
+// reveal asset must reference to be about one of the keyed answer wines. norm()'d, ≥3-char tokens only.
+function answerWineAnchorWords(wines: ServedQuestionPayload["wines"]): Set<string> {
+  const words = new Set<string>();
+  for (const w of wines || []) {
+    for (const field of [w.producer, w.region, w.appellation, w.country, w.fullText]) {
+      for (const tok of norm(field || "").split(/\s+/)) if (tok.length >= 3) words.add(tok);
+    }
+  }
+  return words;
+}
+
+/**
+ * Drop any reveal asset that does not reference a producer/region/appellation present in the keyed
+ * answer wines (fb_161). Fails SAFE: with no resolvable wine anchors it keeps every asset (it can only
+ * ever remove an asset it can prove is off-answer, never blank the reveal on missing data).
+ */
+export function filterRevealMedia(
+  media: ServedMediaAsset[],
+  wines: ServedQuestionPayload["wines"]
+): ServedMediaAsset[] {
+  const anchors = answerWineAnchorWords(wines);
+  if (anchors.size === 0) return media;
+  return media.filter((asset) => {
+    const text = norm(
+      [asset.tag, asset.caption, asset.alt, asset.title, asset.label, asset.producer, asset.region, asset.appellation]
+        .filter(Boolean)
+        .join(" ")
+    );
+    const assetWords = String(text)
+      .split(/\s+/)
+      .filter((t: string) => t.length >= 3);
+    // No identifying text at all → keep (fail safe; we cannot prove it is off-answer).
+    if (assetWords.length === 0) return true;
+    return assetWords.some((a: string) => anchors.has(a));
+  });
+}
+
+/**
+ * Serve-path integrity guard. Call at every phase transition (stem analysis → answer → reveal), passing
+ * the stemHash returned by the previous phase as `priorHash`. Runs Check 1 (stem-hash byte equality),
+ * Check 2 (rendered wine count == declared wine count) and, at reveal, Check 3 (drop off-answer media).
+ * Throws ServedQuestionIntegrityError with the phase and the mismatching field on a hard divergence.
+ */
+/**
+ * The flight-size half of Check 2, as an ordinary NON-THROWING audit rule (fb_185).
+ *
+ * This is how a question whose stored flight doesn't match its stem gets taken out of circulation: it
+ * flows through validateQuestion() into the machinery that already exists — `invalid_reasons` at
+ * generation, the nightly audit re-verdict, and the serve gate that excludes quarantined rows. The
+ * candidate never sees the bad question, and never sees an error either.
+ *
+ * Deliberately NOT enforced by throwing on the serve path. A throw there reaches the candidate as a
+ * 500 (get-question/route.ts) or a stream error (stream/route.ts) with no retry and no fallback, which
+ * is a worse outcome than the truncated flight it is trying to prevent: a defective question becomes a
+ * candidate who cannot study at all.
+ */
+export function flightWineCountViolations(q: QuestionForAudit): Violation[] {
+  const questionText = q.questionText || "";
+  const wines = q.wines || [];
+  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
+  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  if (expected == null || renderedCount === 0 || renderedCount === expected) return [];
+  return [
+    {
+      rule: "flight-wine-count",
+      severity: "hard",
+      detail: `the stem declares ${expected} wine${
+        expected === 1 ? "" : "s"
+      } but the keyed flight holds ${renderedCount} — a flight must carry exactly the wines its stem announces, never a truncated or padded set`,
+    },
+  ];
+}
+
+export function assertServedQuestionIntegrity(
+  phase: ServePhase,
+  served: ServedQuestionPayload,
+  priorHash?: string | null
+): ServedIntegrityResult {
+  const questionText = served.questionText || "";
+  const stemHash = computeServedStemHash(questionText);
+
+  // Check 1 — the stem/sub-parts/mark table must be byte-identical to when the question was first served.
+  if (priorHash != null && priorHash !== "" && stemHash !== priorHash) {
+    throw new ServedQuestionIntegrityError(
+      phase,
+      "stem-hash",
+      `served stem/sub-parts/mark-table changed since the question was first served (hash ${priorHash} → ${stemHash}); a surface re-derived the stem instead of reading the stored record`
+    );
+  }
+
+  // Check 2 — the rendered flight must contain exactly the wines the question keys.
+  const wines = served.wines || [];
+  // The flight size is the number of DISTINCT SLOTS, not the array length: a stored wines array can
+  // carry several candidate records per slot (one pool row holds 15 records across 5 slots), while a
+  // rendered flight shows one wine per slot.
+  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
+  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  if (expected != null && renderedCount !== expected) {
+    throw new ServedQuestionIntegrityError(
+      phase,
+      "wine-count",
+      `the question declares ${expected} wine${expected === 1 ? "" : "s"} but the served flight rendered ${
+        renderedCount
+      } — a flight must render every keyed wine, never a truncated subset`
+    );
+  }
+
+  // Check 3 — at reveal, any attached media must be about one of the answer wines (drop the stragglers).
+  const media = phase === "reveal" ? filterRevealMedia(served.media || [], wines) : served.media || [];
+
+  return { phase, stemHash, wineCount: renderedCount, media };
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -1506,6 +1773,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...validateSingleWineFlight(q));
   violations.push(...idMarkAllocationViolations(q));
   violations.push(...validateMarkBudget(q));
+  violations.push(...flightWineCountViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
