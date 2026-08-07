@@ -331,6 +331,29 @@ python scripts/build_study_diagrams_site.py
 
 This outputs to both `outputs/study_diagrams_site/` (standalone, light theme) and `study-app/public/diagrams/` (Vercel, dark theme).
 
+## The first-run tour has a voice-over, and its audio is committed
+
+Every slide of the intro presentation and the two walkthroughs has a narration clip. The spoken text
+lives in `study-app/src/lib/tour-narration.ts`; the MP3s are **pre-generated and committed** to
+`study-app/public/narration/`, not synthesized per user — the intro plays on a candidate's first
+session, before they could possibly have set up an ElevenLabs key, so a BYOK runtime path would be
+silent for exactly the audience it exists for.
+
+**Editing the narration text is a two-step change.** After changing a string, re-record it:
+
+```bash
+npm run narration:build --prefix study-app
+```
+
+It only re-synthesizes clips whose text hash moved, and it needs `ELEVENLABS_API_KEY` (read from
+`study-app/.env.local` if not in the environment). It is deliberately **not** wired into `prebuild`:
+it spends money against a real vendor key, and `prebuild` runs on every deploy. The gate is instead
+`study-app/tests/tour-narration.test.ts`, which re-hashes every string and fails the build if the
+audio and the copy have drifted — so forgetting the rebuild is a red build, never a clip that quietly
+says the old thing. Voice (George) and model (`eleven_multilingual_v2`) are pinned in the script and
+must not be read from the environment; `ELEVENLABS_VOICE_ID` in the deployed env points at a
+superseded voice.
+
 ## Token economy
 
 The source MD is 2,500+ lines. Do NOT load it into context routinely. The structured JSON exists so agents can read targeted slices. When an agent needs a specific question's text, read it from `data/exams.json`. When an agent needs wine research, read the relevant file in `data/wine_research/`.
