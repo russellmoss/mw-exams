@@ -494,7 +494,7 @@ const round2 = (n: number): number => Math.round(n * 100) / 100;
  * retroactively re-read a committed guess as a two-way hedge and dock it a quarter of its credit.
  * Only the explicit array carries hedge intent.
  */
-function chips(multi: string[] | undefined, scalar: string | undefined): string[] {
+function distinctChips(multi: string[] | undefined, scalar: string | undefined): string[] {
   const raw = Array.isArray(multi) && multi.length ? multi : scalar ? [scalar] : [];
   const out: string[] = [];
   const seen = new Set<string>();
@@ -505,9 +505,29 @@ function chips(multi: string[] | undefined, scalar: string | undefined): string[
     if (!n || seen.has(n)) continue;
     seen.add(n);
     out.push(t);
-    if (out.length >= MAX_HEDGE) break; // shotgun defence — extras are dropped, not scored
   }
   return out;
+}
+
+// Shotgun defence — extras are dropped, not scored. The submit route rejects over-cap payloads
+// outright (see overCapAxes); truncating here is the second line, so any other caller that reaches
+// the scorer directly still cannot buy credit with a wide list.
+function chips(multi: string[] | undefined, scalar: string | undefined): string[] {
+  return distinctChips(multi, scalar).slice(0, MAX_HEDGE);
+}
+
+/**
+ * Which axes carry more than MAX_HEDGE distinct answers — i.e. more than the card can produce.
+ *
+ * Counted AFTER trimming and de-duping, so `["Shiraz", "shiraz "]` is one answer and never trips.
+ * The submit route turns a non-empty result into a 400: truncating silently would grade a payload
+ * whose right answer sat fourth as an ordinary wrong answer, with nothing to say why.
+ */
+export function overCapAxes(pred: TwoAxisPrediction): ("grape" | "country")[] {
+  const over: ("grape" | "country")[] = [];
+  if (distinctChips(pred.grapes, pred.grape).length > MAX_HEDGE) over.push("grape");
+  if (distinctChips(pred.countries, pred.country).length > MAX_HEDGE) over.push("country");
+  return over;
 }
 
 export const grapeChips = (pred: TwoAxisPrediction): string[] => chips(pred.grapes, pred.grape);
