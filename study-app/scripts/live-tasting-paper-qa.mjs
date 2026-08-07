@@ -194,8 +194,9 @@ async function main() {
   const judgeRaw = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 800,
-    system: `You are a Master of Wine examiner auditing a GENERATED practice paper against real IMW papers. This generated paper is HALF-SIZE (6 wines instead of 12) by design — judge proportional realism, not total length. Answer one JSON object only:
-{"stem_style_authentic": true/false, "question_mix_realistic": true/false, "mark_structures_authentic": true/false, "would_pass_as_real": true/false, "notes": "one sentence per false"}`,
+    system: `You are a Master of Wine examiner auditing a GENERATED practice paper against real IMW papers. This generated paper is HALF-SIZE (6 wines instead of 12) by design — judge proportional realism, not total length.
+THE PROVIDED REAL PAPERS ARE THE ONLY AUTHORITY on conventions. Do not assert any convention from memory: before flagging anything as inauthentic, verify the provided real papers actually follow the convention you are enforcing, and name the real question that demonstrates it in your notes. If a feature of the generated paper ALSO appears in a provided real paper (e.g. multiplier mark notation "(4 x 13 marks)", combined "quality and commercial potential" tasks, per-wine-only questions, pooled+per-wine mixes), it is authentic by definition and must not be flagged. Answer one JSON object only:
+{"stem_style_authentic": true/false, "question_mix_realistic": true/false, "mark_structures_authentic": true/false, "would_pass_as_real": true/false, "notes": "one sentence per false, each citing the real question that proves the violated convention"}`,
     messages: [{ role: "user", content: `GENERATED (half) PAPER ${paperNo}:\n${genText}\n\n${realPapers.join("\n\n")}` }],
   });
   const judgeText = judgeRaw.content.filter((b) => b.type === "text").map((b) => b.text).join("");
