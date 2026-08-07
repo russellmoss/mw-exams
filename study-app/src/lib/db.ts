@@ -2605,6 +2605,45 @@ function mapBinFixProposal(r: Record<string, unknown>): BinFixProposal {
   };
 }
 
+// ── Mining concurrency lock ──────────────────────────────────────────────────────────────────────
+//
+// Two mining runs 48 seconds apart (2026-08-06, the nightly cron racing a "Mine now") each read the
+// existing-proposal list BEFORE either inserted, so neither could dedupe against the other: they
+// mined the same ledger into near-duplicate clusters (proposals 12≈14, 17≈11), and both duplicates
+// were dispatched, opened PRs and were closed unmerged — wasted review cycles and deploy quota.
+//
+// The neon HTTP driver holds no session, so pg_advisory_lock is unusable (it would release
+// immediately). This is a table lock instead, taken in ONE atomic statement: the ON CONFLICT arm
+// only fires when the existing lock is older than the TTL, so a concurrent caller gets zero rows
+// and backs off. A crashed run's lock expires on its own after the TTL.
+const MINING_LOCK_KEY = "bin_fix_mining_lock";
+// Mining measured ~270s against a 300s route budget; 10 minutes covers a slow run without
+// stranding the lock for long if a run dies mid-flight.
+const MINING_LOCK_TTL_MINUTES = 10;
+
+export async function tryAcquireMiningLock(holder: string): Promise<boolean> {
+  const sql = getDb();
+  const rows = await sql`
+    INSERT INTO app_settings (key, value, updated_at)
+    VALUES (${MINING_LOCK_KEY}, ${JSON.stringify({ holder })}::jsonb, NOW())
+    ON CONFLICT (key) DO UPDATE
+      SET value = ${JSON.stringify({ holder })}::jsonb, updated_at = NOW()
+      WHERE app_settings.updated_at < NOW() - (${MINING_LOCK_TTL_MINUTES} || ' minutes')::interval
+    RETURNING key
+  `;
+  return rows.length > 0;
+}
+
+export async function releaseMiningLock(): Promise<void> {
+  const sql = getDb();
+  // Backdate rather than delete: the row stays as a "last mined" breadcrumb, and any TTL check
+  // immediately sees it as free.
+  await sql`
+    UPDATE app_settings SET updated_at = NOW() - INTERVAL '1 year'
+    WHERE key = ${MINING_LOCK_KEY}
+  `;
+}
+
 export async function getBinFixProposals(limit = 50): Promise<BinFixProposal[]> {
   const sql = getDb();
   const rows = (await sql`

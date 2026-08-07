@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { parseMinedClusters, codifiedFeedbackIds } from "@/lib/bin-fix-miner";
+import {
+  parseMinedClusters,
+  codifiedFeedbackIds,
+  themeSimilarity,
+  themeTokens,
+  isDuplicateTheme,
+  THEME_DUPLICATE_THRESHOLD,
+} from "@/lib/bin-fix-miner";
 import { buildBinFixMinerPrompt } from "@/lib/prompts/bin-fix-miner-prompt";
 
 /**
@@ -182,6 +189,88 @@ describe("parseMinedClusters — feedback ids join clusters like any other known
     );
     expect(out).toHaveLength(1);
     expect(out[0].itemIds).toEqual(["gen_p1_F2_123", "fb_42", "fb_57"]);
+  });
+});
+
+// ── Near-duplicate theme suppression ─────────────────────────────────────────────────────────────
+//
+// On 2026-08-06 the nightly cron and a manual "Mine now" ran 48s apart; each read the existing
+// proposals before the other inserted, so both mined the same ledger into REWORDED versions of the
+// same clusters (real rows: 12≈14, 17≈11). Both duplicates were dispatched, opened PRs and were
+// closed unmerged. The mining lock stops the concurrent case; this is the second layer for the
+// sequential one — the model rewording a theme it was told not to re-propose.
+
+describe("isDuplicateTheme", () => {
+  it("flags the real duplicate pairs that shipped wasted PRs", () => {
+    // proposals 12 vs 14
+    expect(
+      isDuplicateTheme(
+        "Flight mark total must equal exactly 25 marks per wine",
+        "Mark budget not enforced: total ≠ 25 × wines; sub-part marks below floors"
+      )
+    ).toBe(true);
+    // proposals 11 vs 17
+    expect(
+      isDuplicateTheme(
+        "Tasting notes omit appearance and alcohol; negative bubble descriptors",
+        "Tasting notes missing alcohol/acid/appearance; absence-of-bubbles phrasing"
+      )
+    ).toBe(true);
+  });
+
+  it("still catches an exact restatement regardless of case and spacing", () => {
+    expect(isDuplicateTheme("Flight has no banker", "  flight HAS no BANKER  ")).toBe(true);
+  });
+
+  it("does not let a very short theme match everything (shared-token floor)", () => {
+    // 2 significant tokens, both present in the longer theme — overlap would be 1.0 without the floor.
+    expect(
+      isDuplicateTheme(
+        "Mark budget",
+        "Mark budget not enforced: total ≠ 25 × wines; sub-part marks below floors"
+      )
+    ).toBe(false);
+  });
+
+  it("does NOT flag genuinely distinct clusters that coexisted as real proposals", () => {
+    const distinct: [string, string][] = [
+      [
+        "Stem telegraphs the inference (contrast/quality/aging stated outright)",
+        "Stem asserts variety/blend facts that contradict the actual flight",
+      ],
+      [
+        "Flight has no banker and/or too many curveballs",
+        "Same signature producers/wines recur (Weinbach, Seppeltsfield, vin jaune)",
+      ],
+      [
+        "Identification sub-parts over-marked / attributes bundled into one part",
+        "Sub-question tasks outside the real D3 exam repertoire",
+      ],
+      [
+        "Flight wine-style mix wrong for the paper (still wines on P3, sparkling on P1)",
+        "Single-wine flights: must be curveball-led and must not ask variety+origin ID",
+      ],
+    ];
+    for (const [a, b] of distinct) {
+      expect(isDuplicateTheme(a, b), `"${a}" vs "${b}" wrongly reads as duplicate`).toBe(false);
+      expect(themeSimilarity(a, b), `"${a}" vs "${b}" scores too close to the cut`).toBeLessThan(
+        THEME_DUPLICATE_THRESHOLD
+      );
+    }
+  });
+
+  it("is symmetric, self-identical, and safe on empty/stopword-only input", () => {
+    const a = "Flight has no banker and/or too many curveballs";
+    const b = "Mark budget not enforced";
+    expect(themeSimilarity(a, b)).toBeCloseTo(themeSimilarity(b, a));
+    expect(themeSimilarity(a, a)).toBe(1);
+    expect(themeSimilarity("", "")).toBe(0);
+    expect(themeSimilarity("the and of", "a to in")).toBe(0);
+  });
+
+  it("strips punctuation, case and accents so wording noise cannot dodge the check", () => {
+    expect(themeTokens("Marks: 25 × wines!")).toEqual(themeTokens("marks 25 wines"));
+    expect(themeSimilarity("Rosé colour depth", "rose colour depth")).toBe(1);
   });
 });
 
