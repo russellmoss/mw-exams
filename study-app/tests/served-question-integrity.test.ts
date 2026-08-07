@@ -252,7 +252,12 @@ describe("flightWineCountViolations — the quarantine path (fb_185)", () => {
     paper: 3,
     family: "F1",
     questionText,
-    wines: slots.map((s) => ({ slot: s, fullText: `Wine ${s} — a wine` })),
+    wines: slots.map((s) => ({
+      slot: s,
+      varieties: ["riesling"],
+      region: "Mosel",
+      fullText: `Wine ${s} — a wine`,
+    })),
   });
 
   it("hard-flags a three-wine stem whose key holds one wine", () => {
