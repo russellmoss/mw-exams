@@ -77,7 +77,13 @@ describe("coach tool gate", () => {
     // reintroduce a form-shaped path — while a component that legitimately joins the folder (the
     // walkthrough's conversation simulator, say) does not fail the test for existing.
     const coachDir = path.join(appDir, "src/app/components/coach");
-    for (const f of fs.readdirSync(coachDir)) {
+    // Recursive: the folder has subdirectories now (voice/), and a form-shaped path added in one of
+    // them would be exactly as wrong as one added at the top level.
+    const files = fs
+      .readdirSync(coachDir, { recursive: true, encoding: "utf8" })
+      .filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
+    expect(files.length).toBeGreaterThan(2);
+    for (const f of files) {
       const src = fs.readFileSync(path.join(coachDir, f), "utf8");
       // Nothing may post to the form endpoint; every write goes through a confirmed proposal.
       expect(src, f).not.toMatch(/"\/api\/feedback"/);

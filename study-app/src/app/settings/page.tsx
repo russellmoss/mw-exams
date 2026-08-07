@@ -34,6 +34,16 @@ export default function SettingsPage() {
   const [tavilyDeleting, setTavilyDeleting] = useState(false);
   const [tavilyError, setTavilyError] = useState<string | null>(null);
   const [tavilySuccess, setTavilySuccess] = useState<string | null>(null);
+  const [elevenKey, setElevenKey] = useState("");
+  const [elevenKeyInfo, setElevenKeyInfo] = useState<{
+    hasKey: boolean;
+    keyHint: string | null;
+    usingServerKey?: boolean;
+  } | null>(null);
+  const [elevenSaving, setElevenSaving] = useState(false);
+  const [elevenDeleting, setElevenDeleting] = useState(false);
+  const [elevenError, setElevenError] = useState<string | null>(null);
+  const [elevenSuccess, setElevenSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
   const [paceMode, setPaceMode] = useState<PaceMode>(DEFAULT_PACE_PREFERENCE.pace);
@@ -92,6 +102,15 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const loadElevenKeyInfo = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/api-key?provider=elevenlabs");
+      if (res.ok) setElevenKeyInfo(await res.json());
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetch("/api/user/sound-preference")
@@ -131,6 +150,10 @@ export default function SettingsPage() {
       fetch("/api/user/api-key?provider=tavily")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data) setTavilyKeyInfo(data); })
+        .catch(() => {});
+      fetch("/api/user/api-key?provider=elevenlabs")
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => { if (data) setElevenKeyInfo(data); })
         .catch(() => {});
       fetch("/api/user/api-key")
         .then((r) => r.ok ? r.json() : null)
@@ -229,6 +252,49 @@ export default function SettingsPage() {
       setTavilyError("Failed to remove key");
     } finally {
       setTavilyDeleting(false);
+    }
+  };
+
+  const handleElevenSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setElevenError(null);
+    setElevenSuccess(null);
+    setElevenSaving(true);
+    try {
+      const res = await fetch("/api/user/api-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: elevenKey, provider: "elevenlabs" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setElevenError(data.error || "Failed to save key");
+      } else {
+        setElevenSuccess("ElevenLabs key saved. Voice is now available in the Coach.");
+        setElevenKey("");
+        await loadElevenKeyInfo();
+      }
+    } catch {
+      setElevenError("Network error");
+    } finally {
+      setElevenSaving(false);
+    }
+  };
+
+  const handleElevenDelete = async () => {
+    setElevenError(null);
+    setElevenSuccess(null);
+    setElevenDeleting(true);
+    try {
+      const res = await fetch("/api/user/api-key?provider=elevenlabs", { method: "DELETE" });
+      if (res.ok) {
+        setElevenSuccess("ElevenLabs key removed. Voice is switched off.");
+        await loadElevenKeyInfo();
+      }
+    } catch {
+      setElevenError("Failed to remove key");
+    } finally {
+      setElevenDeleting(false);
     }
   };
 
@@ -637,6 +703,130 @@ export default function SettingsPage() {
                 className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {tavilySaving ? "Validating & saving..." : tavilyKeyInfo?.hasKey ? "Replace key" : "Save key"}
+              </button>
+            </form>
+          </section>
+
+          {/* ElevenLabs — the optional one. Framed throughout as a capability you can switch on
+              rather than a gap you need to fill: no red "not configured" state, because not having
+              voice is a perfectly good way to use the app. */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2">ElevenLabs API Key</h2>
+            <p className="text-sm text-muted mb-6">
+              Optional. Add a key to <strong className="text-foreground">talk to the Coach out loud</strong>{" "}
+              and have it answer back, and to have any answer read to you.
+              {elevenKeyInfo?.usingServerKey || user?.isAdmin
+                ? " As an admin, the server key is used as a fallback if you don't set your own."
+                : " Everything else in the app works without it."}
+            </p>
+
+            {elevenKeyInfo && (
+              <div
+                className={`rounded-lg p-4 mb-6 ${
+                  elevenKeyInfo.hasKey
+                    ? "bg-success/10 border border-success/30"
+                    : elevenKeyInfo.usingServerKey
+                      ? "bg-accent/10 border border-accent/30"
+                      : "bg-background border border-border"
+                }`}
+              >
+                {elevenKeyInfo.hasKey ? (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Voice enabled</p>
+                      <p className="text-xs text-muted mt-0.5">Key ending in {elevenKeyInfo.keyHint}</p>
+                    </div>
+                    <button
+                      onClick={handleElevenDelete}
+                      disabled={elevenDeleting}
+                      className="text-xs text-fail hover:text-fail/80 transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {elevenDeleting ? "Removing..." : "Remove key"}
+                    </button>
+                  </div>
+                ) : elevenKeyInfo.usingServerKey ? (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Using server key (admin fallback)</p>
+                    <p className="text-xs text-muted mt-0.5">You can optionally set your own key below.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Voice is off</p>
+                    <p className="text-xs text-muted mt-0.5">
+                      Add a key below to turn it on. Nothing else changes.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {elevenError && (
+              <div className="bg-fail/10 border border-fail/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-fail">{elevenError}</p>
+              </div>
+            )}
+            {elevenSuccess && (
+              <div className="bg-success/10 border border-success/30 rounded-lg p-3 mb-4">
+                <p className="text-sm text-success">{elevenSuccess}</p>
+              </div>
+            )}
+
+            {elevenKeyInfo && !elevenKeyInfo.hasKey && !elevenKeyInfo.usingServerKey && (
+              <div className="bg-background rounded-lg border border-border p-4 mb-6">
+                <h3 className="text-sm font-semibold text-foreground mb-3">How to get your ElevenLabs API key</h3>
+                <ol className="space-y-2 text-sm text-muted list-decimal list-inside">
+                  <li>
+                    Go to{" "}
+                    <a
+                      href="https://elevenlabs.io/app/developers/api-keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:underline"
+                    >
+                      elevenlabs.io/app/developers/api-keys
+                    </a>{" "}
+                    and sign in.
+                  </li>
+                  <li>
+                    Click <strong className="text-foreground">Create API key</strong>, name it something
+                    like &quot;MW Study App&quot;.
+                  </li>
+                  <li>
+                    Copy the key itself — it starts{" "}
+                    <code className="text-xs bg-card px-1 py-0.5 rounded font-mono">sk_</code> and is shown{" "}
+                    <strong className="text-foreground">only once</strong>. The shorter{" "}
+                    <em>key ID</em> listed beside it is not a credential and will not work.
+                  </li>
+                  <li>Paste it below.</li>
+                </ol>
+              </div>
+            )}
+
+            <form onSubmit={handleElevenSave} className="space-y-4">
+              <div>
+                <label htmlFor="elevenKey" className="block text-sm font-medium text-foreground mb-1.5">
+                  {elevenKeyInfo?.hasKey ? "Replace ElevenLabs key" : "ElevenLabs key"}
+                </label>
+                <input
+                  id="elevenKey"
+                  type="password"
+                  value={elevenKey}
+                  onChange={(e) => setElevenKey(e.target.value)}
+                  placeholder="sk_..."
+                  className="w-full px-3 py-2.5 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
+                />
+                <p className="text-xs text-muted mt-1.5">
+                  Your key is encrypted at rest and never exposed to other users. It is only used to
+                  speak and transcribe on your behalf.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={elevenSaving || !elevenKey.trim()}
+                className="px-6 py-2.5 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {elevenSaving ? "Validating & saving..." : elevenKeyInfo?.hasKey ? "Replace key" : "Save key"}
               </button>
             </form>
           </section>

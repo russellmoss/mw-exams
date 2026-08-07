@@ -69,6 +69,8 @@ export default function LoginPage() {
   const [regTavilyKey, setRegTavilyKey] = useState("");
   const [showTavilyHelp, setShowTavilyHelp] = useState(false);
   const [showTavilyKeyField, setShowTavilyKeyField] = useState(false);
+  const [regElevenKey, setRegElevenKey] = useState("");
+  const [showElevenKeyField, setShowElevenKeyField] = useState(false);
 
   useEffect(() => {
     if (!loading && user) router.push("/");
@@ -113,6 +115,7 @@ export default function LoginPage() {
           jobTitle: regJobTitle || undefined,
           apiKey: regApiKey || undefined,
           tavilyKey: regTavilyKey || undefined,
+          elevenlabsKey: regElevenKey || undefined,
         }),
       });
       const data = await res.json();
@@ -336,7 +339,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <label htmlFor="reg-api-key" className="block text-sm font-medium text-foreground">
                   Anthropic API Key
-                  <span className="text-muted font-normal ml-1">(optional)</span>
+                  <span className="text-accent font-normal ml-1">(required)</span>
                 </label>
                 <button
                   type="button"
@@ -349,7 +352,7 @@ export default function LoginPage() {
               <div className="relative">
                 <input id="reg-api-key" type={showApiKeyField ? "text" : "password"} value={regApiKey} onChange={(e) => setRegApiKey(e.target.value)}
                   className="w-full px-3 py-2.5 pr-10 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
-                  placeholder="sk-ant-..." />
+                  placeholder="sk-ant-..." required />
                 <button type="button" onClick={() => setShowApiKeyField(!showApiKeyField)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors cursor-pointer" tabIndex={-1}>
                   {showApiKeyField ? (
                     <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
@@ -363,9 +366,9 @@ export default function LoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-xs text-muted leading-relaxed">
-                  This app uses your own Anthropic API key to power AI features.
-                  Your key is <strong className="text-foreground">encrypted at rest</strong> and never shared.
-                  You can skip this and add it later in Settings.
+                  The app runs on your own Anthropic key — it generates and grades every question, so
+                  nothing works without one. Your key is{" "}
+                  <strong className="text-foreground">encrypted at rest</strong> and never shared.
                 </p>
               </div>
               <a
@@ -385,7 +388,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <label htmlFor="reg-tavily-key" className="block text-sm font-medium text-foreground">
                   Tavily API Key
-                  <span className="text-muted font-normal ml-1">(optional)</span>
+                  <span className="text-accent font-normal ml-1">(required)</span>
                 </label>
                 <button
                   type="button"
@@ -398,7 +401,7 @@ export default function LoginPage() {
               <div className="relative">
                 <input id="reg-tavily-key" type={showTavilyKeyField ? "text" : "password"} value={regTavilyKey} onChange={(e) => setRegTavilyKey(e.target.value)}
                   className="w-full px-3 py-2.5 pr-10 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
-                  placeholder="tvly-..." />
+                  placeholder="tvly-..." required />
                 <button type="button" onClick={() => setShowTavilyKeyField(!showTavilyKeyField)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors cursor-pointer" tabIndex={-1}>
                   {showTavilyKeyField ? (
                     <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
@@ -412,9 +415,9 @@ export default function LoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-xs text-muted leading-relaxed">
-                  This app uses your own Tavily API key for live web research &mdash; wine tech sheets,
-                  critic notes, and fact-checking. Your key is <strong className="text-foreground">encrypted at rest</strong> and never shared.
-                  You can skip this and add it later in Settings.
+                  Your own Tavily key powers the live research behind every answer &mdash; wine tech
+                  sheets, critic notes and fact-checking. Your key is{" "}
+                  <strong className="text-foreground">encrypted at rest</strong> and never shared.
                 </p>
               </div>
               <a
@@ -427,6 +430,66 @@ export default function LoginPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
                 Go to Tavily to create a key
+              </a>
+            </div>
+
+            {/* ElevenLabs — the only optional key. It buys voice and nothing else, so it is framed
+                as a choice rather than a step, and sits last so it never reads as a blocker. */}
+            <div className="border border-border rounded-lg p-4 bg-card/50 space-y-3">
+              <div className="flex items-center justify-between">
+                <label htmlFor="reg-eleven-key" className="block text-sm font-medium text-foreground">
+                  ElevenLabs API Key
+                  <span className="text-muted font-normal ml-1">(optional — for voice)</span>
+                </label>
+              </div>
+              <div className="relative">
+                <input
+                  id="reg-eleven-key"
+                  type={showElevenKeyField ? "text" : "password"}
+                  value={regElevenKey}
+                  onChange={(e) => setRegElevenKey(e.target.value)}
+                  className="w-full px-3 py-2.5 pr-10 bg-background border border-border rounded-lg text-foreground placeholder-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors font-mono text-sm"
+                  placeholder="sk_..."
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowElevenKeyField(!showElevenKeyField)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition-colors cursor-pointer"
+                  tabIndex={-1}
+                >
+                  {showElevenKeyField ? (
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.98 8.223A10.477 10.477 0 001.934 12c1.292 4.338 5.31 7.5 10.066 7.5.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>
+                  ) : (
+                    <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  )}
+                </button>
+              </div>
+              <div className="flex items-start gap-2">
+                <svg className="w-4 h-4 text-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-xs text-muted leading-relaxed">
+                  Only needed if you want to <strong className="text-foreground">talk to the Coach out
+                  loud</strong> and have it answer back, or have any answer read to you. Everything
+                  else works without it, and you can add it later in Settings. Your key is{" "}
+                  <strong className="text-foreground">encrypted at rest</strong> and never shared.
+                </p>
+              </div>
+              {/* The key itself, not the key ID — the dashboard shows both and only the key works. */}
+              <p className="text-xs text-muted leading-relaxed">
+                Copy the key that starts <span className="font-mono text-foreground">sk_</span>, not
+                the key ID beside it. ElevenLabs shows the key once, when you create it.
+              </p>
+              <a
+                href="https://elevenlabs.io/app/developers/api-keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-accent hover:text-accent-hover transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Go to ElevenLabs to create a key
               </a>
             </div>
 

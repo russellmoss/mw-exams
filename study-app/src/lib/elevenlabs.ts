@@ -46,9 +46,16 @@ export async function synthesizeSpeech(
     analysisId?: number | null;
     voiceId?: string;
     modelId?: string;
+    /**
+     * The key to bill. Pass the CANDIDATE's resolved key for anything they triggered — the Coach
+     * speaking, a read-aloud — so their voice usage is theirs (see lib/elevenlabs-key.ts).
+     * Omitting it falls back to the server key, which is correct only for our own background work,
+     * such as the feedback-verdict narration that runs from a cron with no user in scope.
+     */
+    apiKey?: string | null;
   }
 ): Promise<SynthesizeResult | null> {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
+  const apiKey = ctx.apiKey || process.env.ELEVENLABS_API_KEY;
   const clean = (text || "").trim();
   if (!apiKey || !clean) return null;
 
