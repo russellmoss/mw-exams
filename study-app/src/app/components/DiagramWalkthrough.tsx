@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { narrationId } from "@/lib/tour-narration";
+import { TourLearnMoreButton } from "./TourLearnMore";
 import { TourNarrationButton } from "./TourNarration";
 
 interface Props {
@@ -689,6 +690,9 @@ export function DiagramWalkthrough({ onDone }: Props) {
               &larr; Back
             </button>
           )}
+          {/* Opens the transcript of this step's narration — the same depth, readable. Present on
+              the last step too, where the footer has no Next. */}
+          <TourLearnMoreButton id={narrationId("diagrams", step)} />
           {step < TOTAL - 1 && (
             <button
               onClick={next}

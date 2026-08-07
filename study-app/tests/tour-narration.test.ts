@@ -8,7 +8,9 @@ import {
   NARRATION_IDS,
   TOUR_NARRATION,
   narrationId,
+  narrationParagraphs,
   narrationSrc,
+  narrationTitle,
 } from "@/lib/tour-narration";
 
 // The tour voice-over is PRE-GENERATED and committed (see src/lib/tour-narration.ts for why), which
@@ -186,5 +188,59 @@ describe("the speaker control is wired into all three surfaces", () => {
 
   it("serves clips as static assets, not through an API route", () => {
     expect(narrationSrc("intro-0")).toBe("/narration/intro-0.mp3");
+  });
+});
+
+describe("every slide has a readable Learn more card", () => {
+  // The narration transcript IS the card body, so muting (or being unable to play audio at all)
+  // costs the reader nothing. Before this the depth behind the fifteen walkthrough slides was
+  // audio-only.
+  it("has a title for every clip, distinct from the slide headline", () => {
+    for (const id of NARRATION_IDS) {
+      const title = narrationTitle(id);
+      expect(title, `${id} has no Learn more title`).not.toBe("Learn more");
+      expect(title.length).toBeGreaterThan(6);
+    }
+  });
+
+  it("splits every transcript into renderable paragraphs", () => {
+    for (const id of NARRATION_IDS) {
+      const paragraphs = narrationParagraphs(id);
+      expect(paragraphs.length, `${id} renders as no paragraphs`).toBeGreaterThan(0);
+      // A single wall of 900 characters is not a card anyone reads.
+      expect(paragraphs.every((p) => p.length > 0)).toBe(true);
+      expect(paragraphs.join("\n\n")).toBe(TOUR_NARRATION[id]);
+    }
+  });
+
+  it("is reachable from every slide of all three surfaces", () => {
+    for (const file of [
+      "src/app/components/ShellOnboarding.tsx",
+      "src/app/components/DiagramWalkthrough.tsx",
+      "src/app/components/CoachWalkthrough.tsx",
+    ]) {
+      const source = read(file);
+      expect(source, `${file} has no Learn more control`).toContain("TourLearnMoreButton");
+      // Not gated on the step index — the closing slide of each surface gets one too.
+      expect(source).not.toMatch(/scene < 5 &&\s*<TourLearnMoreButton/);
+      expect(source).not.toMatch(/step < TOTAL - 1 &&\s*<TourLearnMoreButton/);
+    }
+  });
+
+  it("keeps one body of depth per slide, not two that can drift", () => {
+    // The intro's hand-written INFO_PARAS/INFO_TITLES were retired into the transcript. A second
+    // copy would drift silently: nobody proof-reads a card against an MP3.
+    const shell = read("src/app/components/ShellOnboarding.tsx");
+    expect(shell).not.toMatch(/const INFO_PARAS/);
+    expect(shell).not.toMatch(/const INFO_TITLES/);
+  });
+
+  it("does not let the arrow keys page the slide underneath an open card", () => {
+    // Both walkthroughs bind ArrowLeft/ArrowRight on window; a capture-phase listener is the only
+    // thing that can stop them firing while someone is reading.
+    const card = read("src/app/components/TourLearnMore.tsx");
+    expect(card).toContain('window.addEventListener("keydown", onKey, true)');
+    expect(card).toContain("ArrowLeft");
+    expect(card).toContain("Escape");
   });
 });
