@@ -489,6 +489,9 @@ export async function createLiveTasting(opts: {
   /** P3 papers: category steering across flights (see pickArchetype opts). */
   p3RequireCategory?: string;
   p3ExcludeCategories?: string[];
+  /** Paper flights: global wine numbering for the stem ("Wines 4-6" in a 12-wine paper). */
+  paperWineOffset?: number;
+  paperWineTotal?: number;
   /** Paper flights: cross-flight dedup — never reuse a wine or (for variety-led picks) a variety. */
   excludeWineKeys?: Set<string>;
   excludeVarieties?: Set<string>;
@@ -562,6 +565,8 @@ export async function createLiveTasting(opts: {
         onBackgroundWork: keepAlive,
         paperStemsContext: opts.paperStemsContext,
         flightTheme: flightThemeFor(picked.archetype, picked.label, slotsAvail.length),
+        paperWineOffset: opts.paperWineOffset,
+        paperWineTotal: opts.paperWineTotal,
         // Sized so TWO generation attempts fit inside the route's 300s platform ceiling alongside
         // the availability phase (E2E run 1 + the pilot's first create both died at that wall).
         budgetMs: 190_000,

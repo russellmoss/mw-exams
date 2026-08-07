@@ -148,9 +148,9 @@ function exclusionsFrom(sessions: LiveTastingSession[]): {
 // Distinct question architectures, rotated by paper position (paper-QA round 5). Each is a real
 // pattern from the 2023-24 corpus; rotating guarantees no two flights clone a scaffold.
 const SCAFFOLD_ROTATION = [
-  "Open with a POOLED identification sub-question covering all the wines together, then per-wine analysis parts.",
-  "Per-wine sub-questions first (identification bundled per wine), closing with an integrative comparison across all the wines.",
-  "Open with an integrative comparative part across the flight, then per-wine parts, and include one discrete 2-3 mark technical micro-question.",
+  "Use real skeleton 1: per-wine only — 'For each wine:' with a/b/c in multiplier notation (identification, quality-in-context, plus a micro-state part where the category fits).",
+  "Use real skeleton 2: pooled-open — 'With reference to all wines:' pooled identification (14-18 marks), 'Then for each wine:' analysis parts in multiplier notation.",
+  "Use real skeleton 3: per-wine analysis first ('For each wine: Discuss the quality, winemaking, and style'), closing with a pooled comparative part ('For both/all wines: Compare and contrast …' 20-30 marks).",
 ];
 
 function shuffleInPlace<T>(a: T[]): T[] {
@@ -226,6 +226,11 @@ export async function generateNextFlight(opts: {
     excludeVarieties,
     p3RequireCategory,
     p3ExcludeCategories,
+    // Global wine numbering (paper-QA round 8): each flight numbered its wines locally, so Q1 and
+    // Q2 both opened "Wines 1-3…" — the judge read that as the same wines reused. Real papers
+    // number continuously (Q2 covers wines 4-6).
+    paperWineOffset: composition.filter((c) => c.position < next.position).reduce((s, c) => s + c.flightSize, 0),
+    paperWineTotal: composition.reduce((s, c) => s + c.flightSize, 0),
     // Round 5: "vary your structure" alone still produced clone scaffolds (round-4 judge:
     // "structurally near-identical clones"). Rotate a NAMED architecture per position so two
     // flights can never share one, and keep prior stems visible as the differ-from list.
