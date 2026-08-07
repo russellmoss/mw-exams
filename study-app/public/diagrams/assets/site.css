@@ -43,6 +43,8 @@ body {
   color: var(--ink);
   background: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Full-bleed diagram breakout uses 100vw, which includes the scrollbar gutter. */
+  overflow-x: hidden;
 }
 
 .site-header,
@@ -185,6 +187,9 @@ p {
   padding: 0;
   border: 0;
   background: transparent;
+  /* Break out of the text column: diagrams use the full window width. */
+  width: calc(100vw - 40px);
+  margin-left: calc(50% - 50vw + 20px);
 }
 
 .diagram-viewport {
