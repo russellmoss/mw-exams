@@ -257,7 +257,7 @@ async function main() {
       const { text, usage, finishReason } = await judge.score(RUBRIC, buildUser(item));
       const parsed = parse(text);
       done++;
-      if (done % 20 === 0) process.stdout.write(`  ${done}/${items.length}\n`);
+      if (done % 5 === 0) process.stdout.write(`  ${done}/${items.length}\n`);
       return { item, parsed, usage, finishReason, raw: parsed ? null : text.slice(0, 300) };
     } catch (err) {
       done++;

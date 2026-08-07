@@ -56,11 +56,36 @@ cross-family Gemini judge (needs `GEMINI_API_KEY`); `--provider anthropic` needs
 npm run eval:judge -- --provider gemini --split calibration --limit 60
 ```
 
+Turn a run's disputed claims into an adjudication worksheet:
+
+```bash
+npm run eval:disputed
+```
+
 Run the deterministic half — no API key, no database, no network:
 
 ```bash
 npm run eval:anchor
 ```
+
+### Rate limits are the binding constraint on eval size
+
+Free-tier Gemini caps **250 requests per model per day**
+(`GenerateRequestsPerDayPerProjectPerModel`). A single full-split run is ~171 items, so **two runs
+of one model exhausts the day** — and the error is a 429 that says "retry in 18h50m", not a
+soft throttle.
+
+Practical consequences:
+
+- **Budget the day before starting.** A calibration run plus a holdout run on the same model does
+  not fit. Use `--model` to spread across models (quotas are per-model:
+  `gemini-3.6-flash`, `gemini-3.5-flash`, `gemini-2.5-pro` each have their own).
+- **Changing model changes the judge.** A holdout scored by a different model is an independent
+  cross-family estimate, not the same judge on an untouched split. Say which was used; the report
+  records `model`.
+- The runner retries 429s with backoff and honours the API's `retryDelay`, but a *daily* quota
+  cannot be waited out inside a run — it will burn its retries and drop the item. Watch the
+  `unparsed` breakdown, which names the cause.
 
 ## Corpus fidelity, and why there is a noise floor
 
