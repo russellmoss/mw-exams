@@ -174,6 +174,54 @@ export function validateMarkRealism(
 }
 
 /**
+ * Per-PAPER structural tables, measured from the four corpus years each judge sees
+ * (data/exams.json 2023-26). Conventions differ by paper number — pooling every paper together
+ * (as an earlier pass did) hid that 9-mark per-wine tasks exist only on Paper 3, and that Papers
+ * 1 and 2 never run past sub-part c).
+ */
+const PER_WINE_MARKS: Record<number, number[]> = {
+  1: [5, 6, 7, 8, 10, 12, 13, 15, 20, 25],
+  2: [5, 6, 7, 8, 10, 11, 13, 15, 20],
+  3: [2, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16],
+};
+const MAX_SUBPARTS: Record<number, number> = { 1: 3, 2: 3, 3: 4 };
+
+export function validatePaperMarkTables(
+  questionText: string,
+  paper: number
+): { valid: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const text = questionText || "";
+  const allowed = PER_WINE_MARKS[paper];
+  if (allowed) {
+    for (const m of text.matchAll(/\(\s*\d+\s*(?:x|×)\s*(\d+)\s*marks?\s*\)/gi)) {
+      const per = parseInt(m[1], 10);
+      if (!allowed.includes(per)) {
+        violations.push(`a ${per}-mark per-wine task — Paper ${paper} only ever uses ${allowed.join(", ")}`);
+      }
+    }
+  }
+  const letters = new Set([...text.matchAll(/^\s*([a-e])\)/gim)].map((m) => m[1].toLowerCase()));
+  const cap = MAX_SUBPARTS[paper];
+  if (cap && letters.size > cap) {
+    violations.push(`${letters.size} sub-parts — real Paper ${paper} questions stop at ${String.fromCharCode(96 + cap)})`);
+  }
+  // A single-aspect identification (origin only, or variety only) tops out at 10 marks per wine;
+  // 11+ per-wine identification marks only ever accompany a BUNDLED variety-and-origin task.
+  for (const line of text.split(/\n/)) {
+    if (!/identif/i.test(line)) continue;
+    const m = line.match(/\(\s*\d+\s*(?:x|×)\s*(\d+)\s*marks?\s*\)/i);
+    if (!m) continue;
+    const per = parseInt(m[1], 10);
+    const bundled = /(variet[^.]*origin|origin[^.]*variet)/i.test(line);
+    if (per > 10 && !bundled) {
+      violations.push(`a ${per}-mark per-wine single-aspect identification — only a bundled variety-and-origin identification exceeds 10`);
+    }
+  }
+  return { valid: violations.length === 0, violations };
+}
+
+/**
  * Shared-attribute identification must be POOLED (paper-QA round 13, the only finding that
  * repeated across rounds): when every wine in the flight shares a variety/origin, real papers ask
  * for that attribute ONCE for the whole flight — "With reference to all four wines: a) Identify

@@ -57,6 +57,7 @@ import {
   validateMarkRealism,
   validateSharedAttributePooling,
   validateScaffoldNovelty,
+  validatePaperMarkTables,
 } from "@/lib/live-tasting-validators";
 import { validateMarkBudget } from "@/lib/question-validator";
 
@@ -78,6 +79,7 @@ function realPaperConventions(paper: number, wines = 3): string {
     'Per-wine sub-questions use multiplier notation with EQUAL marks per wine: "(3 x 10 marks)". NEVER jagged per-wine totals (no 13/11/13).',
     "Vary marks BETWEEN sub-parts, never between wines.",
     "Identification must COVER both grape variety and origin — either bundled in one sub-question (\"Identify the grape variety and origin as closely as possible\") or SPLIT across two sub-questions (variety, then origin). Both are real. Never omit origin.",
+    "A per-wine identification asking for ONE thing (origin only, or variety only) carries 6-10 marks (real: 3 x 6, 4 x 8, 6 x 10); only a BUNDLED variety-and-origin identification reaches 11-15.",
     "SHARED ATTRIBUTE = POOLED IDENTIFICATION (validator-enforced). If the stem declares the wines share a grape variety, ask for the variety ONCE for the whole flight — \"With reference to all N wines: a) Identify the grape variety. (16 marks)\" — then origin per wine. Same if they share an origin/region: pool that identification. Never ask per-wine for something the stem already says is shared.",
     "EVERY task is a lettered sub-question (a), b), c) …) with its own mark tag. Never leave a dangling instruction after the lettered list.",
     "PER-WINE MARK VALUES: match the corpus distribution — 10 is by far the most common, then 5, 7 and 8; 6, 12, 13 and 15 occur; 15-20 only for a task combining several aspects (quality AND winemaking AND style). Values like 9, 11 and 14 appear once or twice in fifteen years — do not use them. Micro-state readouts are 2-3.",
@@ -1679,6 +1681,9 @@ ${repairContext.draft}`,
         }).map((v) => v.detail)
       : [];
     const markBudgetCheck = { valid: markBudgetViolations.length === 0, violations: markBudgetViolations };
+    const paperTablesCheck = pinned
+      ? validatePaperMarkTables(candidate.questionText, paper)
+      : { valid: true, violations: [] };
 
     // Declared in the order the violations used to be concatenated, so the flat list below preserves
     // the original ordering while the telemetry gets the rule NAME behind each one — the whole point
@@ -1725,6 +1730,7 @@ ${repairContext.draft}`,
       sharedAttributePooling: sharedPoolingCheck,
       scaffoldNovelty: scaffoldNoveltyCheck,
       markBudget: markBudgetCheck,
+      paperMarkTables: paperTablesCheck,
     };
     const violationsByRule: Record<string, string[]> = {};
     for (const [name, check] of Object.entries(checks)) {

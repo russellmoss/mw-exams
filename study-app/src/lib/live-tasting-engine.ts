@@ -90,11 +90,11 @@ const LADDER_REGIONS: { region: string; paper: number; variety: string }[] = [
 ];
 
 // P3 style-contrast pools by wine_bank.style_category (wide-distribution categories only).
-// Real Paper 3 is NOT all-special: every corpus P3 pairs sparkling/fortified/sweet questions
-// with STILL wine questions (2023 P3 Q2 production methods, Q3 same-region pair; 2024 P3 Q2/Q3).
-// Omitting still_dry here is why the QA loop produced a six-wine all-sparkling Paper 3
-// (round 14) — the picker had no still category to choose.
-const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet", "still_dry"];
+// Paper 3 categories. still_dry is deliberately ABSENT: validatePaperScope requires every P3
+// flight to contain special-category wines, so an all-still-dry flight is rejected outright —
+// adding it (QA batch 6) produced Paper 3 papers that failed to generate at all. Thematic
+// breadth is achieved by rotating these three across flights instead.
+const P3_CATEGORIES = ["sparkling", "fortified", "still_sweet"];
 
 export type ArchetypeId = "same-variety" | "quality-ladder" | "mixed-variety" | "same-origin" | "p3-styles";
 
@@ -231,6 +231,14 @@ export function pickArchetype(
     excludeWineKeys?: Set<string>;
     excludeVarieties?: Set<string>;
     /**
+     * Archetypes already used by this paper's earlier flights. Distinct FAMILIES do not guarantee
+     * distinct flight shapes: when the required archetype cannot fill a flight the picker falls
+     * back, and same-origin (the most permissive still branch) kept winning — producing a Paper 2
+     * whose three questions were all same-country pairs with identical task shape (QA batch 5).
+     * Soft: tried last rather than forbidden, so a thin bank still yields a paper.
+     */
+    deprioritizeArchetypes?: Set<string>;
+    /**
      * P3 papers only (paper-QA round 6): a half paper drew sparkling + fortified with no still
      * wines — "Paper 3 always mixes still, sparkling, and sometimes fortified". The paper engine
      * requires still_sweet on the last flight when it's missing, and excludes already-used
@@ -324,9 +332,13 @@ export function pickArchetype(
   }
 
   const varieties = paper === 1 ? P1_VARIETIES : P2_VARIETIES;
-  const tryOrder: ArchetypeId[] = opts?.require
-    ? [opts.require, ...shuffle(["same-variety", "quality-ladder", "mixed-variety", "same-origin"] as ArchetypeId[]).filter((a) => a !== opts.require)]
-    : shuffle(["same-variety", "quality-ladder", "mixed-variety"] as ArchetypeId[]);
+  const used = opts?.deprioritizeArchetypes ?? new Set<string>();
+  const rank = (a: ArchetypeId) => (used.has(a) ? 1 : 0);
+  const tryOrder: ArchetypeId[] = (
+    opts?.require
+      ? [opts.require, ...shuffle(["same-variety", "quality-ladder", "mixed-variety", "same-origin"] as ArchetypeId[]).filter((a) => a !== opts.require)]
+      : shuffle(["same-variety", "quality-ladder", "mixed-variety"] as ArchetypeId[])
+  ).sort((a, b) => rank(a) - rank(b));
 
   for (const arch of tryOrder) {
     if (arch === "p3-styles") continue;
@@ -516,6 +528,8 @@ export async function createLiveTasting(opts: {
   requireArchetype?: ArchetypeId;
   /** Paper flights: earlier questions' stems for scaffold variety (threaded into the prompt). */
   paperStemsContext?: string | null;
+  /** Paper flights: archetypes earlier flights already used (soft de-prioritization). */
+  deprioritizeArchetypes?: Set<string>;
   /** P3 papers: category steering across flights (see pickArchetype opts). */
   p3RequireCategory?: string;
   p3ExcludeCategories?: string[];
@@ -533,6 +547,7 @@ export async function createLiveTasting(opts: {
     excludeVarieties: opts.excludeVarieties,
     p3RequireCategory: opts.p3RequireCategory,
     p3ExcludeCategories: opts.p3ExcludeCategories,
+    deprioritizeArchetypes: opts.deprioritizeArchetypes,
   };
 
   emit?.({ type: "status", label: "Choosing a flight archetype within your budget…" });

@@ -229,6 +229,7 @@ export async function generateNextFlight(opts: {
     excludeVarieties,
     p3RequireCategory,
     p3ExcludeCategories,
+    deprioritizeArchetypes: new Set(children.map((c) => c.archetype).filter((a): a is string => Boolean(a))),
     // Global wine numbering (paper-QA round 8): each flight numbered its wines locally, so Q1 and
     // Q2 both opened "Wines 1-3…" — the judge read that as the same wines reused. Real papers
     // number continuously (Q2 covers wines 4-6).
