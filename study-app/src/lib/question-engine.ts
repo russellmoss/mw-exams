@@ -355,7 +355,15 @@ function generateModelAnswerInBackground(
         // live route and both offline scripts so this path can no longer drift from them.
         max_tokens: modelAnswerMaxTokens(model),
         ...modelAnswerEffort(model),
-        system: prompt.system,
+        // Cached corpus prefix + per-question remainder — see callGenerationModel for the rationale.
+        system: [
+          {
+            type: "text" as const,
+            text: prompt.cachedPrefix,
+            cache_control: { type: "ephemeral" as const },
+          },
+          { type: "text" as const, text: prompt.system },
+        ],
         messages: [{ role: "user", content: prompt.user }],
       });
       // Truncation here is SILENT — a cut response still parses, it just loses the tail sections — so
@@ -753,7 +761,7 @@ export function generationThinkingEligible(model: string): boolean {
 async function callGenerationModel(
   client: Anthropic,
   model: string,
-  prompt: { system: string; user: string },
+  prompt: { cachedPrefix?: string; system: string; user: string },
   callOpts: { timeout: number; maxRetries: number },
   emit?: ProgressEmitter,
   userId?: number | null
@@ -777,10 +785,28 @@ async function callGenerationModel(
     supportsAdaptiveThinking(model) && !("output_config" in extra)
       ? { output_config: { effort: GENERATION_EFFORT } }
       : {};
+  // Two system blocks, and the split is the whole point. The first is the corpus prefix — ~31k
+  // tokens, byte-identical for a given paper — carrying the cache breakpoint. The second is
+  // everything per-question, including every `prompt.system +=` the engine appends below (producer
+  // exclusions, targeting, country nudges, pinned-flight mode), which is exactly why the prefix is
+  // a separate immutable field rather than the head of one mutable string: an append would shift
+  // the bytes the cache is keyed on.
+  //
+  // Measured before this change: 0.0% cache hits across 3,358 calls, ~42k input re-paid every time.
+  const system = prompt.cachedPrefix
+    ? [
+        {
+          type: "text" as const,
+          text: prompt.cachedPrefix,
+          cache_control: { type: "ephemeral" as const },
+        },
+        { type: "text" as const, text: prompt.system },
+      ]
+    : prompt.system;
   const params = {
     model,
     max_tokens: generationMaxTokens(model),
-    system: prompt.system,
+    system,
     messages: [{ role: "user" as const, content: prompt.user }],
     ...effort,
     ...extra,
@@ -1280,7 +1306,17 @@ ${saveOpts.paperStemsContext}` : ""}`;
     }
   }
 
-  const MAX_ATTEMPTS = 8;
+  // Measured 2026-08-07 over 3,422 production attempts: the pass rate falls monotonically with
+  // attempt number — 20.5% on the first draft, then 13.0, 11.6, 12.5, 10.5, 12.6, 4.3, and 0.0% on
+  // the eighth. Attempts 4–8 spent 571 calls to land 62 questions (9.2 calls each, against 4.9 on
+  // attempt 1), so the tail was roughly twice the price per question for a steadily worse chance.
+  //
+  // Three is not a round number, it is where the evidence stops: repair (the redraft path below)
+  // beats a blind re-roll 2.4–3x on attempts 2 and 3, and then INVERTS from attempt 4 — 8.0%, 4.3%,
+  // 4.5% against a blind re-roll's 13.4%, 11.5%, 10.6%. Whatever the model is carrying by the
+  // fourth attempt is actively hurting it. Raising this cap without re-measuring that curve would
+  // reintroduce the harm; see docs/plans/2026-08-07-generation-quality-and-cost.md §1.3.
+  const MAX_ATTEMPTS = 3;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     // Stop before we risk a platform timeout; the banked fallback below serves instead. A call
     // needs MIN_CALL_MS to have any chance of returning, so anything less is dead time.
@@ -1306,11 +1342,15 @@ ${saveOpts.paperStemsContext}` : ""}`;
     }
     const callOpts = { timeout: Math.min(CALL_TIMEOUT_MS, remaining), maxRetries: 0 } as const;
     // Repair attempt: append the rejected draft + its violations so the model FIXES rather than
-    // re-rolls. Appended to the USER message only — the system prompt stays byte-identical as the
-    // cacheable prefix.
+    // re-rolls. Appended to the USER message only — both system blocks stay byte-identical, so a
+    // repair is the single cheapest call in the ladder: it re-reads a fully cached ~31k prefix and
+    // pays only for the draft it is fixing. Carrying `cachedPrefix` through here is load-bearing —
+    // rebuilding the object without it would silently drop the breakpoint on exactly the attempts
+    // that benefit most from it.
     const usedRepair = repairContext !== null;
     const attemptPrompt = repairContext
       ? {
+          cachedPrefix: prompt.cachedPrefix,
           system: prompt.system,
           user: `${prompt.user}
 

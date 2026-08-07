@@ -40,10 +40,16 @@ export async function POST(request: Request) {
 
     const picked = eligible[Math.floor(Math.random() * eligible.length)];
 
-    // Burn it for this user and count the serve. View first so a double-tap can't hand out the same
-    // row twice; times_served is a soft stat and rides along.
+    // Burn it for this user and count the serve. The VIEW is load-bearing and stays awaited
+    // un-caught: if it fails the user must not be handed a row the "never seen" filter will offer
+    // again, so failing the request is the correct outcome.
     await recordQuestionView(user.id, picked.question_id);
-    await incrementTimesServed(picked.question_id);
+    // The COUNT is a soft stat. It was awaited un-caught too, which meant a counter write failing
+    // would 500 an otherwise-good serve — the candidate loses their question so a statistic can be
+    // recorded. Best-effort, matching produce.ts and the Live Tasting grade route.
+    await incrementTimesServed(picked.question_id).catch((err) =>
+      console.error("incrementTimesServed failed:", err)
+    );
 
     return Response.json({
       source: "pre-populated" as const,

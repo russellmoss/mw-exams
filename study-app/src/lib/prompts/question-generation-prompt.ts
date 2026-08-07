@@ -437,7 +437,7 @@ export async function buildQuestionGenerationPrompt(
   // engine enforces this after generation (validateSingleWineIdentification); this adds the matching
   // instruction so the model builds the right stem in the first place.
   suppressIdentification?: boolean
-): Promise<{ system: string; user: string }> {
+): Promise<{ cachedPrefix: string; system: string; user: string }> {
   const ctx = loadPipelineContext();
 
   const examples = ctx.historicalQuestionExamples[`p${paper}`] || [];
@@ -489,7 +489,44 @@ export async function buildQuestionGenerationPrompt(
   // validateCurveballMix) then enforce.
   const examMixBlock = buildExamMixBlock(paper, examMix);
 
-  const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent below.
+  // ── THE CACHEABLE PREFIX ────────────────────────────────────────────────────────────────────
+  //
+  // The corpus documents, which are loaded once from public/data/pipeline-context.json, memoised in
+  // module scope, and byte-identical on every call in the process. ~31k of the ~42k median input.
+  //
+  // They used to sit in the MIDDLE of the system prompt, behind `${paper}` and the flight-size draw,
+  // which made the prefix vary per question and left prompt caching impossible: measured 2026-08-07,
+  // the cache-hit rate across 3,358 generation calls was 0.0% and this text was re-sent, and re-paid
+  // for, every single time. Hoisting them ahead of everything dynamic gives THREE stable prefixes —
+  // one per paper, since the historical examples are per-paper — each hit hundreds of times a day.
+  //
+  // NOTHING PER-QUESTION MAY BE INTERPOLATED HERE. `${paper}` is the only variable and it is what
+  // makes the prefix per-paper rather than global; anything else (flight size, family, avoid-list,
+  // exam mix) breaks the byte-identity and silently returns the cache-hit rate to zero. There is a
+  // test for exactly that — see tests/generation-prompt-cache.test.ts.
+  const cachedPrefix = `## MOCK EXAM WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
+${ctx.mockExamWriterAgent}
+
+## SHARED RULES
+${ctx.sharedRules}
+
+## EXAMINER REPORT SYNTHESIS
+${ctx.examinerReportSynthesis}
+
+## CURVEBALL ANALYSIS
+${ctx.curveballAnalysis}
+
+## WINE SOURCING GUIDE
+${ctx.sourcingGuide}
+
+## WINE COMPOSITION RULES
+${ctx.wineCompositionAnalysis}
+
+## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper} — match this voice exactly)
+Match the VOICE and structure, NOT the mark values: several examples predate the modern mark shape, and older papers used identification parts worth 13-15+ marks that are now illegal — your marks must follow the IDENTIFICATION MARK BUDGET below (no identification part over 10 marks per instance, ever, even where an example below shows one).
+${exampleText}`;
+
+  const system = `You are generating a SINGLE question (not a full exam) for Paper ${paper}. You follow the exact same rules as the mock-exam-writer agent above.
 
 ## ABSOLUTE PAPER SCOPE CONSTRAINT (VIOLATION = AUTOMATIC FAILURE)
 Paper ${paper}: ${paperScope}
@@ -519,29 +556,7 @@ ${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, C
 
 P3 OXIDATIVE STILL-WHITE SUB-RULE (HARD): A still (non-sparkling, non-fortified) white wine is in-scope for Paper 3 ONLY if its oxidative character is flor/sous voile-driven (e.g., Jura Savagnin sous voile, Vin Jaune). Conventionally cask-oxidized still whites — oxidative white Rioja (e.g., López de Heredia Tondonia/Gravonia Blanco, Marqués de Murrieta Castillo Ygay Blanco), oxidative aged Hunter Semillon — are PAPER 1 wines and must NOT be the basis of a Paper 3 question. Two such still whites contrasted by production method is a Paper 1 question. A P3 question may feature a conventionally-oxidative still white ONLY when it is paired with a fortified or biologically-aged (flor) wine (e.g., a Fino/Manzanilla Sherry) that supplies a genuine P3 contrast (oxidative-vs-biological, or still-vs-fortified). If you reason about including a Fino, Sherry, or other fortified/flor wine, you MUST actually place that wine in the wine list — do not let the selection collapse into all still wines.
 ` : ""}${examMixBlock}## YOUR TASK
-Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
-
-## MOCK EXAM WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
-${ctx.mockExamWriterAgent}
-
-## SHARED RULES
-${ctx.sharedRules}
-
-## EXAMINER REPORT SYNTHESIS
-${ctx.examinerReportSynthesis}
-
-## CURVEBALL ANALYSIS
-${ctx.curveballAnalysis}
-
-## WINE SOURCING GUIDE
-${ctx.sourcingGuide}
-
-## WINE COMPOSITION RULES
-${ctx.wineCompositionAnalysis}
-
-## REAL HISTORICAL QUESTION EXAMPLES (Paper ${paper} — match this voice exactly)
-Match the VOICE and structure, NOT the mark values: several examples predate the modern mark shape, and older papers used identification parts worth 13-15+ marks that are now illegal — your marks must follow the IDENTIFICATION MARK BUDGET above (no identification part over 10 marks per instance, ever, even where an example below shows one).
-${exampleText}
+Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions above and the rules below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
 
 ${(() => {
   const avoid = compressAvoidList(existingWines);
@@ -873,5 +888,5 @@ RULES for appearance notes:
 
 [Confirm: "All ${paper === 1 ? 'wines are white still wines' : paper === 2 ? 'wines are red still wines' : 'wines are sparkling/fortified/sweet/rosé/oxidative'} — VERIFIED." List each wine and its color/type to prove compliance.]`;
 
-  return { system, user };
+  return { cachedPrefix, system, user };
 }

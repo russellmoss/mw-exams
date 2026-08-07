@@ -58,7 +58,10 @@ export async function POST(request: Request) {
       // engine's background generator and both offline scripts.
       max_tokens: modelAnswerMaxTokens(model),
       ...modelAnswerEffort(model),
-      system: prompt.system,
+      system: [
+        { type: "text" as const, text: prompt.cachedPrefix, cache_control: { type: "ephemeral" as const } },
+        { type: "text" as const, text: prompt.system },
+      ],
       messages: [{ role: "user", content: prompt.user }],
     });
     if (message.stop_reason === "max_tokens") {

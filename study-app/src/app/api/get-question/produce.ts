@@ -3,6 +3,7 @@ import {
   getUnansweredQuestions,
   getQuestionsByFilter,
   recordQuestionView,
+  incrementTimesServed,
   type GeneratedQuestion,
 } from "@/lib/db";
 import {
@@ -61,13 +62,30 @@ type ProduceOpts = {
  * question_views (migration 020) so the "Banked Question" path never offers it again. Per the
  * feature spec, being SERVED is the "seen" event: abandoning the attempt still burns it. Recording
  * is best-effort — a view-log failure must never sink an otherwise-good serve.
+ *
+ * SERVE COUNTER (fixed 2026-08-07). This path recorded the view but never incremented
+ * `served_count`, while the sibling banked route (api/get-question/banked) and the Live Tasting
+ * grade route both did. Since this is the main study path, the counter under-reported by ~7.5x:
+ * `served_count` claimed 14 all-time serves where `user_attempts` showed 126 distinct questions
+ * attempted, and only 10 of the 75 questions attempted in the preceding 30 days carried a non-zero
+ * count. That was not a cosmetic drift — `served_count` is the reopen safety rail (a question that
+ * has reached a candidate must not be yanked back into the review queue by a batch undo), and it
+ * was the number every supply-sizing decision in
+ * docs/plans/2026-08-07-generation-quality-and-cost.md was originally reasoned from. Both writes
+ * now happen here, together and best-effort.
  */
 export async function produceQuestion(opts: ProduceOpts): Promise<GenerationOutcome> {
   const outcome = await selectOrGenerate(opts);
   if (!("error" in outcome) && opts.meta.userId != null) {
-    await recordQuestionView(opts.meta.userId, outcome.question.question_id).catch((err) =>
-      console.error("recordQuestionView failed:", err)
-    );
+    const questionId = outcome.question.question_id;
+    await Promise.all([
+      recordQuestionView(opts.meta.userId, questionId).catch((err) =>
+        console.error("recordQuestionView failed:", err)
+      ),
+      incrementTimesServed(questionId).catch((err) =>
+        console.error("incrementTimesServed failed:", err)
+      ),
+    ]);
   }
   return outcome;
 }

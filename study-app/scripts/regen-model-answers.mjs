@@ -246,7 +246,7 @@ console.log(`Model: ${model} | concurrency: ${opt.concurrency}\n${"=".repeat(70)
 const MAX_ATTEMPTS = 4;
 const REQUEST_TIMEOUT_MS = 180_000; // an 8000-token Opus package takes ~40-90s; 3 min is a stall, not slowness
 
-async function callClaude(system, user) {
+async function callClaude(system, user, cachedPrefix) {
   let lastErr;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
@@ -264,7 +264,14 @@ async function callClaude(system, user) {
           model,
           max_tokens: modelAnswerMaxTokens(model),
           ...modelAnswerEffort(model),
-          system,
+          // Cached corpus prefix (prompts/model-answer-prompt.ts). Bulk regeneration is where
+          // caching pays most: one stable ~10k prefix re-read across every question in the run.
+          system: cachedPrefix
+            ? [
+                { type: "text", text: cachedPrefix, cache_control: { type: "ephemeral" } },
+                { type: "text", text: system },
+              ]
+            : system,
           messages: [{ role: "user", content: user }],
         }),
         signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -306,7 +313,7 @@ async function regenOne(row) {
   const marks = row.total_marks > 0 ? row.total_marks : marksForWineCount(wines.length);
   const oldWords = countAnswerBodyWords(row.model_answer);
   const prompt = buildModelAnswerPrompt(row.question_text, wines, row.paper, lexiconGuidance, knowledgeBlock, wineProfiles, marks);
-  const text = await callClaude(prompt.system, prompt.user);
+  const text = await callClaude(prompt.system, prompt.user, prompt.cachedPrefix);
   const s = parseModelAnswerSections(text);
   // Same mark-proportional gate the live paths run, before the citations go on. Without it this
   // script would be the one path that can write an off-budget exemplar — exactly the offline/production

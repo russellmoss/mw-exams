@@ -181,7 +181,7 @@ export function buildModelAnswerPrompt(
   // Optional so no call site is forced to thread it: omitted, it falls back to 25 marks per wine,
   // which is the modern exam's universal allocation (EK-0001).
   totalMarks?: number | null
-): { system: string; user: string } {
+): { cachedPrefix: string; system: string; user: string } {
   const refs = loadReferenceData();
   const ctx = loadPipelineContext();
   const keys = TREE_KEYS[paper] || TREE_KEYS[1];
@@ -190,10 +190,24 @@ export function buildModelAnswerPrompt(
   const decisionTree = refs.decisionTrees[keys.tree] || "";
   const studyDiagram = refs.studyDiagrams[keys.diagram] || "";
 
-  const system = `You are generating a model answer package for a Paper ${paper} MW practical exam question. Follow the exact same rules as the mock-answer-writer agent below.
-
-## MOCK ANSWER WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
+  // Cacheable prefix — same rationale as the generation prompt (see question-generation-prompt.ts).
+  // model_answer is the single most expensive task in the system: measured 2026-08-07 it ran $148
+  // over 30 hours, ahead of question generation, because it is Opus-5 by default and re-sent this
+  // corpus text on every call at a 0.0% cache-hit rate. Nothing per-question may be interpolated
+  // here — `${paper}` only, which is what makes the prefix per-paper.
+  const cachedPrefix = `## MOCK ANSWER WRITER AGENT INSTRUCTIONS (CANONICAL — follow these exactly)
 ${ctx.mockAnswerWriterAgent}
+
+## SHARED RULES
+${ctx.sharedRules}
+
+## EXAMINER REPORT SYNTHESIS
+${ctx.examinerReportSynthesis}
+
+## MARKING PRINCIPLES (write to what actually earns marks — the grader scores against these exact rules)
+${MARKING_PRINCIPLES}`;
+
+  const system = `You are generating a model answer package for a Paper ${paper} MW practical exam question. Follow the exact same rules as the mock-answer-writer agent above.
 
 ## ANSWER LENGTH — MARK-PROPORTIONAL (OVERRIDES any flat word target above)
 The agent instructions may quote a flat word target ("around 250–420 words", "absolute max 450"). That flat number is SUPERSEDED and must be ignored. It does not scale with the size of the question, so it starves a six-wine flight and pads a two-wine one.
@@ -204,14 +218,6 @@ The agent instructions may quote a flat word target ("around 250–420 words", "
 - **Do NOT report a word count.** Omit \`actual_word_count\` from the frontmatter entirely (and never write \`TBD\`). The count is measured from your output in code; a self-reported number is ignored.
 - The budget is enforced. An answer outside the band is sent back to be rewritten, and the rewrite can only cut padding — so write to length the first time and keep the funnelling, the per-wine differentiation and the "under the skin" insight, which are never what gets cut.
 
-## SHARED RULES
-${ctx.sharedRules}
-
-## EXAMINER REPORT SYNTHESIS
-${ctx.examinerReportSynthesis}
-
-## MARKING PRINCIPLES (write to what actually earns marks — the grader scores against these exact rules)
-${MARKING_PRINCIPLES}
 
 ${FUNNELLING_PRINCIPLE}
 ${lexiconGuidance ? `\n${lexiconGuidance}\n` : ""}
@@ -297,7 +303,7 @@ Walk through the Paper ${paper} decision tree step by step:
 - Where the tree might mislead (specific ambiguity points for these wines)
 - Recovery if the first branch is wrong`;
 
-  return { system, user };
+  return { cachedPrefix, system, user };
 }
 
 // Pull one "### N. <Header>" block out of a generated model-answer package. Tolerant of the

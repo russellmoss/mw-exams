@@ -137,10 +137,22 @@ try { OPUS = await getLatestOpus(APIKEY); } catch { /* fall back to sonnet */ }
 // drift below the live engine: at 2000, 12 of 17 remediated questions landed in the live pool with NO
 // model answer at all, and genModelAnswer's `catch` never fired because nothing threw, the response
 // simply came back short.
-async function callModel(model, system, user) {
+async function callModel(model, system, user, cachedPrefix) {
   const maxTokens = modelAnswerMaxTokens(model);
   const msg = await client.messages.create(
-    { model, max_tokens: maxTokens, ...modelAnswerEffort(model), system, messages: [{ role: "user", content: user }] },
+    {
+      model,
+      max_tokens: maxTokens,
+      ...modelAnswerEffort(model),
+      // Cached corpus prefix (prompts/model-answer-prompt.ts) when the caller has one.
+      system: cachedPrefix
+        ? [
+            { type: "text", text: cachedPrefix, cache_control: { type: "ephemeral" } },
+            { type: "text", text: system },
+          ]
+        : system,
+      messages: [{ role: "user", content: user }],
+    },
     // The timeout has to be able to cover maxTokens or it converts a truncation into a lost call. At
     // Opus's ~50-80 tok/s a full 16k-token answer runs 200-320s, so the previous 90s ceiling could not
     // have completed one — and with maxRetries: 2 a slow answer cost three timeouts and still failed.
@@ -171,7 +183,7 @@ async function callModel(model, system, user) {
 async function genModelAnswer(questionText, wines, paper, wineProfiles) {
   try {
     const p = buildModelAnswerPrompt(questionText, wines, paper, undefined, undefined, wineProfiles);
-    const text = await callModel(OPUS, p.system, p.user);
+    const text = await callModel(OPUS, p.system, p.user, p.cachedPrefix);
     const s = parseModelAnswerSections(text);
     // An empty answer is a silent failure: the caller skips the save and the replacement lands in
     // the live pool with no model answer, having archived the question it replaced. Say so loudly.
@@ -193,7 +205,7 @@ async function remediateOne(old, existingWines, latest) {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const model = attempt === 1 ? OPUS : "claude-sonnet-4-6";
     let text;
-    try { text = await callModel(model, prompt.system, prompt.user); }
+    try { text = await callModel(model, prompt.system, prompt.user, prompt.cachedPrefix); }
     catch (e) { console.warn(`    attempt ${attempt}: model error ${e.message}`); continue; }
 
     const cand = parseGenerated(text, paper, family);
