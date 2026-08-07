@@ -34,7 +34,7 @@ export { DEFAULT_ELEVENLABS_VOICE_ID };
 
 /**
  * The app-wide fallback voice, used when the listener has no per-user choice saved. Per-user voices
- * live on `users.elevenlabs_voice_id` (migration 058) and are resolved by the caller, so the
+ * live on `users.elevenlabs_voice_id` (migration 059) and are resolved by the caller, so the
  * precedence is: the listener's choice → this default.
  *
  * ELEVENLABS_VOICE_ID IS DELIBERATELY NO LONGER READ. It existed to configure the app's single voice

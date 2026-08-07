@@ -1,5 +1,6 @@
 import { getUser } from "@/lib/auth";
-import { isElevenLabsConfigured, synthesizeSpeech } from "@/lib/elevenlabs";
+import { synthesizeSpeech } from "@/lib/elevenlabs";
+import { getElevenLabsKeyForUserId } from "@/lib/elevenlabs-key";
 import { isPlausibleVoiceId, PREVIEW_SCRIPTS, type PreviewScript } from "@/lib/voices";
 
 export const runtime = "nodejs";
@@ -7,6 +8,12 @@ export const runtime = "nodejs";
 /**
  * Synthesize one of the two fixed preview lines in a given voice, so a user can hear a voice before
  * committing to it.
+ *
+ * BYOK, like /api/coach/speak. A preview is the candidate's own action, so it bills to the
+ * candidate's own ElevenLabs key, with the server key available only to admins. Checking
+ * isElevenLabsConfigured() instead would be wrong in both directions: it would tell a non-admin who
+ * has their own key that previews are unavailable, and it would put an admin's previews on our
+ * account when they have a key of their own.
  *
  * SPEND IS BOUNDED BY DESIGN. The caller chooses a voice and which of two scripts to hear — never
  * the text. Both scripts are server-side constants under 100 characters, so the worst a caller can
@@ -17,9 +24,13 @@ export const runtime = "nodejs";
 
 /**
  * Per-instance memo of rendered previews, keyed by voice+script. Previews are immutable — the same
- * voice reading the same fixed line — so a repeat click should be free and instant rather than
- * another API call. Serverless instances recycle, which is fine: a cold miss just re-synthesizes.
- * Capped so a user pasting many voice IDs can't grow it without bound.
+ * voice reading the same fixed line under the same model — so a repeat click should be free and
+ * instant rather than another API call. Serverless instances recycle, which is fine: a cold miss
+ * just re-synthesizes. Capped so a user pasting many voice IDs can't grow it without bound.
+ *
+ * DELIBERATELY NOT KEYED BY USER. A cache hit means the second user's preview costs nobody anything,
+ * which is the right outcome: the bytes are identical, they aren't private, and keying by user would
+ * multiply real ElevenLabs spend to produce the same audio twice.
  */
 const previewCache = new Map<string, Buffer>();
 const PREVIEW_CACHE_MAX = 40;
@@ -49,10 +60,13 @@ export async function POST(request: Request) {
     const user = await getUser(request);
     if (!user) return Response.json({ error: "Not authenticated" }, { status: 401 });
 
-    if (!isElevenLabsConfigured()) {
+    // 402 rather than 503, matching /api/coach/speak: this is a setup step the user can complete,
+    // not a deployment fault, so the UI can point them at the ElevenLabs key field above.
+    const resolved = await getElevenLabsKeyForUserId(user.id);
+    if (!resolved) {
       return Response.json(
-        { error: "Voice previews are unavailable — this server has no ElevenLabs key configured." },
-        { status: 503 }
+        { error: "Add your ElevenLabs API key in Settings to preview voices." },
+        { status: 402 }
       );
     }
 
@@ -79,6 +93,7 @@ export async function POST(request: Request) {
       taskType: "voice_preview",
       userId: user.id,
       voiceId,
+      apiKey: resolved.key,
     });
 
     // synthesizeSpeech swallows the upstream error (a failed narration must never break analysis),

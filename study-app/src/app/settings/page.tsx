@@ -53,7 +53,7 @@ export default function SettingsPage() {
   const [elevenSuccess, setElevenSuccess] = useState<string | null>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundLoading, setSoundLoading] = useState(false);
-  // Voice picker (migration 058). `voiceId` null = never chose → the app default.
+  // Voice picker (migration 059). `voiceId` null = never chose → the app default.
   const [voiceId, setVoiceId] = useState<string | null>(null);
   const [customVoice, setCustomVoice] = useState("");
   const [voiceSaving, setVoiceSaving] = useState(false);
@@ -1097,13 +1097,14 @@ export default function SettingsPage() {
             </div>
           </section>
 
-          {/* Voice — which ElevenLabs voice speaks to this user (migration 058) */}
+          {/* Voice — which ElevenLabs voice speaks to this user (migration 059) */}
           <section className="bg-card rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Voice</h2>
             <p className="text-sm text-muted mb-5">
-              The voice that reads your feedback verdicts aloud. Preview any of them before you
-              commit &mdash; and if you&rsquo;d rather hear someone else entirely, paste an
-              ElevenLabs voice ID at the bottom.
+              The voice the app speaks in &mdash; the Coach reading an answer aloud, the voice loop,
+              and your feedback verdicts. Preview any of them before you commit, and if you&rsquo;d
+              rather hear someone else entirely, paste an ElevenLabs voice ID at the bottom. Previews
+              use your ElevenLabs key, same as the Coach.
             </p>
 
             {voiceMsg && (

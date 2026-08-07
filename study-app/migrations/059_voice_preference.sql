@@ -1,4 +1,4 @@
--- Migration 058: per-user narration voice.
+-- Migration 059: per-user narration voice.
 --
 --   • elevenlabs_voice_id — the ElevenLabs voice this user wants to hear. NULL means "never chose",
 --     which resolves to the app default (src/lib/voices.ts). Deliberately a free TEXT column with

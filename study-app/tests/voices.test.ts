@@ -81,7 +81,7 @@ describe("narration voice catalog", () => {
 describe("narration synthesis wiring", () => {
   const elevenlabs = read("src/lib/elevenlabs.ts");
   const feedbackAnalysis = read("src/lib/feedback-analysis.ts");
-  const migration = read("migrations/058_voice_preference.sql");
+  const migration = read("migrations/059_voice_preference.sql");
 
   it("synthesizes with a multilingual model, not a turbo/flash one", () => {
     // The app's vocabulary is German, French, Greek and Italian wine terms. Turbo/flash models
@@ -99,6 +99,25 @@ describe("narration synthesis wiring", () => {
   it("speaks in the listener's chosen voice, not just the app default", () => {
     expect(feedbackAnalysis).toMatch(/getUserVoiceId/);
     expect(feedbackAnalysis).toMatch(/voiceId:\s*userVoiceId/);
+  });
+
+  it("uses the chosen voice for the Coach, which is the surface it matters most on", () => {
+    // A read-aloud is minutes of listening. If /api/coach/speak ignored the preference, the picker
+    // would only affect a handful of notification clips and look broken to anyone who set it.
+    const speak = read("src/app/api/coach/speak/route.ts");
+    expect(speak).toMatch(/getUserVoiceId/);
+    expect(speak).toMatch(/voiceId:\s*voiceId\s*\|\|\s*undefined/);
+  });
+
+  it("bills previews to the candidate's own ElevenLabs key, not the server's", () => {
+    // BYOK contract: a non-admin with their own key must be able to preview, and an admin with a key
+    // of their own must not have previews land on our account.
+    const preview = read("src/app/api/user/voice-preview/route.ts");
+    expect(preview).toMatch(/getElevenLabsKeyForUserId/);
+    expect(preview).toMatch(/apiKey:\s*resolved\.key/);
+    // Match the import, not the word: the route's comment explains why this helper is the wrong
+    // gate here, and a bare substring check would flag that explanation as the bug it warns about.
+    expect(preview).not.toMatch(/import\s*\{[^}]*isElevenLabsConfigured/);
   });
 
   it("stores the preference additively and idempotently", () => {

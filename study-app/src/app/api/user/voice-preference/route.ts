@@ -8,7 +8,7 @@ import {
 
 export const runtime = "nodejs";
 
-// The narration voice preference (migration 058). GET reports the saved choice plus the catalog the
+// The narration voice preference (migration 059). GET reports the saved choice plus the catalog the
 // picker renders, so Settings needs one round trip. PATCH saves either a curated ID or a voice ID
 // the user pasted from their own ElevenLabs library — the whole point of the setting is that who
 // they hear is their call, so a well-formed unknown ID is accepted, not rejected.

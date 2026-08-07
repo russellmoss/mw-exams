@@ -290,7 +290,7 @@ async function generateVerdictNarration(opts: {
       .trim();
     if (!narrationText) return;
 
-    // Whose voice: the listener's own choice (Settings → Coach Voice, migration 058), falling back
+    // Whose voice: the listener's own choice (Settings → Coach Voice, migration 059), falling back
     // to the app default. Undefined rather than null so synthesizeSpeech's own fallback chain —
     // ELEVENLABS_VOICE_ID then the default — still applies.
     const userVoiceId = opts.userId ? await getUserVoiceId(opts.userId) : null;
