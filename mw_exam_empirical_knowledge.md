@@ -1168,6 +1168,9 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   Paper 2 (red still) likewise excludes sparkling/fortified. The generation prompt said this but it
   was not enforced — it is now a validator scope check. (An occasional off-dry wine in P1 is fine,
   especially a Riesling flight; see EK-0048.)
+- **superseded in the app by EK-0157 (2026-08-07):** the *observation* here still stands, but "almost
+  never" is not a specification a generator can follow, and the app now blocks sparkling on Paper 1
+  **entirely**. Do not reintroduce an "at most one" allowance without reading EK-0157 first.
 
 ### EK-0047 · RS language in a stem must match genuinely sweet wines
 - **tier:** STRONG SIGNAL · **status:** live
@@ -1458,6 +1461,34 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   test fixture blocks a production rule, fix the fixture, not the rule.
 - **cross-refs:** EK-0001 (paper scope), EK-0046 / EK-0064 (the sparkling half of the same rule),
   EK-0088 (P3 still-white placement), EK-0156
+
+### EK-0157 · PRODUCT DECISION — sparkling wine is blocked on Paper 1 entirely (not "at most one")
+- **tier:** PROCESS · **status:** live
+- **evidence:** user decision 2026-08-07; ledger row #47 ("almost never sparkling in P1, and for sure
+  not two — **I think not**"); `validatePaperStyleMix` p1-no-sparkling; `tests/paper-style-mix.test.ts`
+- **claim:** Paper 1 admits **zero** sparkling wines. This replaces EK-0046's "almost never … never
+  two", which the app had encoded as `p1-max-one-sparkling`.
+  **Why the allowance had to go.** It was already unreachable: R-COLOUR blocks sparkling per-wine on
+  Paper 1 and runs on every generation and serve path, so a one-sparkling P1 flight was rejected before
+  the style-mix clause was consulted. Two rules disagreed and the stricter silently won — the worst of
+  both, because the intent lived nowhere and deleting the per-wine rule would have quietly re-admitted
+  sparkling. The generation prompt had said "no sparkling" for Paper 1 all along; the style-mix clause
+  was the lone outlier.
+  **Why zero and not one.** "Almost never" is an observation about the real papers, not an instruction a
+  generator can follow — asked to include sparkling *almost never*, a model includes it sometimes. The
+  app's job is to drill the paper's actual shape, and a sparkling wine on Paper 1 trains a candidate to
+  expect something the paper is defined not to contain. That is a worse error than omitting a rare
+  curveball. Note this is a decision about **generated practice material**, not a claim that the IMW has
+  never once done it — if a real P1 paper ever shows a sparkling wine, EK-0046 records the observation
+  and this entry still governs what we generate.
+  **Blast radius: zero.** One banked question was newly matched (`gen_p1_F2_1779931088254` — the
+  Montlouis Triple Zéro Brut Nature flight from row #47 itself) and it was already quarantined for
+  `wrong_colour_for_paper`. Pool unchanged.
+  **Prevention:** the two Paper 1 rules are now pinned to AGREE by a test that asserts a single
+  sparkling wine is rejected by both `validatePaperStyleMix` and `validatePaperColour`. Relaxing one
+  without the other reintroduces the contradiction.
+- **cross-refs:** EK-0046 (the underlying observation), EK-0048 (off-dry IS fine on P1), EK-0155,
+  EK-0156
 
 ### EK-0156 · Colour and style are two axes; collapsing them fails legitimate Paper 1 wines
 - **tier:** STRONG SIGNAL · **status:** live

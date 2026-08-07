@@ -1191,12 +1191,28 @@ export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violat
       });
     }
   } else if (paper === 1) {
-    // At most one sparkling wine; no fortified wine (Paper 1 tests the still classics).
-    if (counts.sparkling > 1) {
+    // NO sparkling and NO fortified wine — Paper 1 is white STILL wines.
+    //
+    // This clause used to allow one sparkling wine (`p1-max-one-sparkling`), on the strength of
+    // EK-0046's "almost never contains sparkling and NEVER two". Two things made that untenable.
+    //
+    // First it was already dead: R-COLOUR blocks sparkling per-wine on Paper 1, and it runs on every
+    // generation and serve path, so a single-sparkling P1 flight was rejected before this clause was
+    // reached. The two rules disagreed and the stricter one silently won — which is worse than either
+    // policy, because the intent was recorded nowhere and removing the per-wine rule would quietly
+    // re-admit sparkling.
+    //
+    // Second, "almost never" is not a specification a generator can follow. The app's job is to drill
+    // the paper's actual shape, and a sparkling wine on Paper 1 teaches a candidate to expect something
+    // the paper is defined not to contain. Product decision (2026-08-07): block it entirely, and say so
+    // in ONE place. See EK-0157.
+    if (counts.sparkling > 0) {
       v.push({
         rule: "paper-style-mix",
         severity: "hard",
-        detail: `PAPER_STYLE_MIX: Paper 1 flight has ${counts.sparkling} sparkling wines (${countsLabel}) — at most one sparkling wine is realistic on Paper 1, which tests the still classics. Rule fired: p1-max-one-sparkling.`,
+        detail: `PAPER_STYLE_MIX: Paper 1 flight contains ${counts.sparkling} sparkling wine${
+          counts.sparkling === 1 ? "" : "s"
+        } (${countsLabel}) — Paper 1 is white STILL wines, so sparkling wines belong on Paper 3. Rule fired: p1-no-sparkling.`,
       });
     }
     if (counts.fortified > 0) {

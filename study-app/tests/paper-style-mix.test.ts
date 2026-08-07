@@ -6,9 +6,12 @@
 // two sparkling wines in one Paper 1 flight (fb_47), and a sparkling-plus-medium-sweet Paper 1 flight
 // crowding out the classics (fb_71). validatePaperStyleMix keys off the paper number and the keyed
 // wines' style tags: Paper 3 needs at least half (min one) sparkling/sweet/fortified/rosé; Paper 1
-// rejects >1 sparkling or any fortified; Paper 2 is unconstrained.
+// rejects ANY sparkling and any fortified; Paper 2 is unconstrained.
+//
+// Paper 1 was "at most one sparkling" until 2026-08-07. It is now zero — see EK-0157 and the note on
+// the p1-no-sparkling clause in question-validator.ts.
 import { describe, it, expect } from "vitest";
-import { validatePaperStyleMix, type AuditWine } from "../src/lib/question-validator";
+import { validatePaperStyleMix, validatePaperColour, type AuditWine } from "../src/lib/question-validator";
 
 const wine = (slot: number, fullText: string): AuditWine => ({
   slot,
@@ -47,18 +50,37 @@ describe("validatePaperStyleMix — Paper 1", () => {
   it("rejects a flight with two sparkling wines (fb_47)", () => {
     const v = validatePaperStyleMix(1, [sparkling1, sparkling2, stillWhite1, rieslingDry]);
     expect(fired(v)).toBe(true);
-    expect(v.some((x) => /p1-max-one-sparkling/.test(x.detail))).toBe(true);
+    expect(v.some((x) => /p1-no-sparkling/.test(x.detail))).toBe(true);
   });
 
-  it("passes a flight with one sparkling and three still wines", () => {
+  // Policy change 2026-08-07: ZERO sparkling on Paper 1, not "at most one".
+  //
+  // The previous allowance (`p1-max-one-sparkling`) was already unreachable — R-COLOUR rejects a
+  // sparkling wine per-wine on Paper 1, on every generation and serve path — so the two rules
+  // disagreed and the stricter silently won. Recording the intent in one place is the point; see
+  // EK-0157. If this test ever needs relaxing, relax R-COLOUR too or the disagreement returns.
+  it("rejects a flight with ONE sparkling wine", () => {
     const v = validatePaperStyleMix(1, [sparkling1, stillWhite1, rieslingDry, chablis]);
-    expect(v).toEqual([]);
+    expect(fired(v)).toBe(true);
+    expect(v.some((x) => /p1-no-sparkling/.test(x.detail))).toBe(true);
+  });
+
+  it("passes an all-still-white flight", () => {
+    expect(validatePaperStyleMix(1, [stillWhite1, rieslingDry, chablis])).toEqual([]);
   });
 
   it("rejects any fortified wine on Paper 1 (fb_71)", () => {
     const v = validatePaperStyleMix(1, [stillWhite1, port, rieslingDry, chablis]);
     expect(fired(v)).toBe(true);
     expect(v.some((x) => /p1-no-fortified/.test(x.detail))).toBe(true);
+  });
+
+  // The two Paper 1 rules must agree. This is the assertion that would have caught the original
+  // contradiction, and it is why the policy is stated once rather than in two places.
+  it("agrees with R-COLOUR: a single sparkling wine is rejected by BOTH", () => {
+    const flight = [sparkling1, stillWhite1, rieslingDry, chablis];
+    expect(validatePaperStyleMix(1, flight).length).toBeGreaterThan(0);
+    expect(validatePaperColour(1, flight).some((x) => x.rule === "wrong_colour_for_paper")).toBe(true);
   });
 });
 
