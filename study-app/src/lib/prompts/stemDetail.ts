@@ -45,11 +45,22 @@ export function stepUpLevel(level: StemDetailLevel): StemDetailLevel | null {
 
 const MARK_TOKEN_RE = /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\s*\)/gi;
 const SUBQ_LABEL_RE = /(?:^|\n|\s)\(?([a-h]|i{1,3}|iv|v|vi{0,3})\)\s/gi;
+/**
+ * The printed "Total: N marks" line, which MARK_TOKEN_RE cannot see — it requires parentheses, and a
+ * total line has none. That blind spot is how "Total: 44 marks" was written onto a question whose
+ * sub-parts sum to 50 and still passed this gate: both signatures reported markTotal 50, because the
+ * invented line contributed nothing to either. Line-anchored, mirroring deriveQuestion's own
+ * `^Total:` parse, so prose like "a total of 50 marks" mid-sentence is not mistaken for one.
+ */
+const PRINTED_TOTAL_RE = /^\s*Total\s*:\s*(\d+)\s*marks?/im;
 
 export interface StemSignature {
   subLabels: string[];   // ordered sub-question labels, e.g. ["a","b","c"]
   markTokens: string[];  // normalised mark tokens, e.g. ["4x3", "13"]
   markTotal: number;     // sum of all mark tokens (x-multiplied where present)
+  /** The printed "Total: N marks", or null when the stem prints none. Absent vs present is itself a
+   *  difference: a variant may not add a total line the canonical never had. */
+  printedTotal: number | null;
 }
 
 export function extractStemSignature(text: string): StemSignature {
@@ -69,12 +80,19 @@ export function extractStemSignature(text: string): StemSignature {
     markTotal += mult * per;
   }
 
-  return { subLabels, markTokens, markTotal };
+  const totalMatch = clean.match(PRINTED_TOTAL_RE);
+  const printedTotal = totalMatch ? parseInt(totalMatch[1], 10) : null;
+
+  return { subLabels, markTokens, markTotal, printedTotal };
 }
 
-// A derived variant is VALID only if its sub-question labels, mark tokens and mark total match the
-// canonical stem exactly. (Order matters for labels/tokens.)
+// A derived variant is VALID only if its sub-question labels, mark tokens, mark total and printed
+// Total line all match the canonical stem exactly. (Order matters for labels/tokens.)
 export function signaturesMatch(a: StemSignature, b: StemSignature): boolean {
+  // Strict inequality catches all three failures at once: a changed total, an invented one (null vs
+  // number), and a dropped one (number vs null). A variant that fails falls back to the canonical
+  // stem, which is always structurally correct.
+  if (a.printedTotal !== b.printedTotal) return false;
   if (a.markTotal !== b.markTotal) return false;
   if (a.subLabels.length !== b.subLabels.length) return false;
   if (a.markTokens.length !== b.markTokens.length) return false;
@@ -146,7 +164,8 @@ export function buildStemVariantsPrompt(canonicalStem: string): { system: string
 
 ABSOLUTE RULES (apply to every level):
 - NEVER alter the sub-question wording. Reproduce each lettered sub-question and its instruction verbatim.
-- NEVER alter, add, remove or renumber marks. Every mark token — e.g. "(4 x 3 marks)", "(10 marks)", "Total: 100 marks" — and the running total MUST be identical to the source, character-for-character.
+- NEVER alter, add, remove or renumber marks. Every mark token — e.g. "(4 x 3 marks)", "(10 marks)", "Total: 100 marks" — MUST be identical to the source, character-for-character.
+- NEVER INVENT A TOTAL. Reproduce a "Total: N marks" line if and only if the canonical stem prints one, copied verbatim. If the canonical has no Total line, your output must have none either. Do not compute one, and never sum the sub-parts yourself.
 - NEVER change the number of wines or the wine numbering.
 - NEVER drop, weaken or reword a factual relationship the preamble states about the wines — same/different grape variety, country, region, vintage or producer, or a stated count of varieties or countries ("from three different countries"). These are constraints the real exam PRINTS on the paper, not coaching, and every level must reproduce each one word-for-word.
 - Output candidate-facing exam prose only. Do NOT mention these instructions, "levels", "variants", or any meta commentary.
@@ -159,7 +178,7 @@ GUIDED — the richer, organising-principle-explicit version. It MAY state the f
 
 Output STRICT JSON, no markdown fence, exactly:
 {"exam_real": "<full stem text>", "guided": "<full stem text>"}
-Each value is the COMPLETE stem (preamble + every sub-question with its marks + the Total line), ready to print.`;
+Each value is the COMPLETE stem — preamble + every sub-question with its marks, plus the Total line ONLY if the canonical stem has one — ready to print.`;
 
   const user = `CANONICAL STEM (source of truth for sub-questions and marks — reproduce these verbatim in every level):
 
