@@ -143,17 +143,29 @@ describe("sweetness", () => {
 
 describe("style contrast", () => {
   // fb_120 shape: a same-country pair asked for "contrasting styles" but keyed one shared style tag.
-  it("fires when all wines share one style tag", () => {
-    const res = crossCheckStemFacts(q(
-      "Wines 1 and 2 are from the same country but made in contrasting styles.",
-      [
-        { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", style_category: "still_dry" },
-        { slot: 2, varieties: ["Chardonnay"], region: "Meursault", country: "France", style_category: "still_dry" },
-      ]
-    ));
+  // SOFT only — the taxonomy cannot prove the absence of contrast (see the rule's comment), so this
+  // flags for review instead of rejecting.
+  const chablisMeursault = q(
+    "Wines 1 and 2 are from the same country but made in contrasting styles.",
+    [
+      { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", style_category: "still_dry" },
+      { slot: 2, varieties: ["Chardonnay"], region: "Meursault", country: "France", style_category: "still_dry" },
+    ]
+  );
+
+  it("flags when all wines share one style tag", () => {
+    const res = crossCheckStemFacts(chablisMeursault);
     const hit = res.find((v) => v.rule === "STEM_PREDICATE_MISMATCH")!;
     expect(hit).toBeDefined();
     expect(hit.detail).toMatch(/contrasting styles/i);
+  });
+
+  it("flags SOFT, so an oaked-vs-unoaked pair is not rejected", () => {
+    // Chablis vs Meursault share `still_dry` but contrast sharply on oak and texture — a real exam
+    // question. A hard reject here would bin legitimate flights, so the whole question must stay ok.
+    const res = crossCheckStemFacts(chablisMeursault);
+    expect(res.find((v) => v.rule === "STEM_PREDICATE_MISMATCH")!.severity).toBe("soft");
+    expect(validateQuestion(chablisMeursault).ok).toBe(true);
   });
 
   it("passes when the two wines carry contrasting style tags", () => {

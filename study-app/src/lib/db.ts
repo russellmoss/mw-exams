@@ -902,6 +902,21 @@ export async function getRecentFlightSignatures(
   return sigs;
 }
 
+// The wine count (flight size) of the last `limit` pool questions for a paper, most-recent first.
+// Feeds selectFlightSize's rolling 4-wine cap (question-engine.ts): the historic-weight sampler must
+// not let 4-wine flights dominate a paper's recent output (fb_73). Sizes are re-derived from the
+// stored wines; a row whose wines fail to parse contributes nothing (filtered to > 0).
+export async function getRecentFlightSizes(paper: number, limit = 20): Promise<number[]> {
+  const sql = getDb();
+  const rows = (await sql`
+    SELECT wines FROM generated_questions
+    WHERE paper = ${paper} AND scope = 'pool'
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+  `) as { wines: unknown }[];
+  return rows.map((r) => parseWinesLoose(r.wines).length).filter((n) => n > 0);
+}
+
 export async function getUnansweredQuestions(
   paper: number,
   family?: string,

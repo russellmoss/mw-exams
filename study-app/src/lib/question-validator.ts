@@ -410,7 +410,13 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
       if (tagged.every((w) => styleTag(w) === base))
         v.push({
           rule: "STEM_PREDICATE_MISMATCH",
-          severity: "hard",
+          // SOFT, unlike the other three axes. The style taxonomy is too coarse to PROVE the absence
+          // of contrast: Chablis and Meursault are both `still_dry` yet contrast sharply on oak and
+          // texture, and that is a real exam question this rule must not reject. A shared tag is a
+          // genuine smell worth surfacing, but only a reviewer can tell a flat pair from an
+          // oaked/unoaked one, so it flags rather than blocks. Country/region/sweetness stay hard —
+          // those the key can actually decide.
+          severity: "soft",
           detail: `stem predicate "contrasting styles" is contradicted: all ${tagged.length} wines share the same style tag (${
             tagged[0].style_category || tagged[0].style
           }) — e.g. wines ${tagged.map((w) => w.slot).join(", ")}`,
