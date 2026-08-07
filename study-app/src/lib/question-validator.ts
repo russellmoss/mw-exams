@@ -15,6 +15,7 @@ import {
   normStem,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
+import { noteCompletenessViolations, type TastingValidationWine } from "./tasting-validators";
 
 export type StemSniperScoringModel = "per-wine" | "set";
 
@@ -844,6 +845,34 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
   }
 
   return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// TASTING-NOTE COMPLETENESS — every wine's generated note must carry the visual + structural markers a
+// candidate leads with, and must never describe the ABSENCE of bubbles (feedback cluster fb_246,
+// fb_244, fb_53).
+//
+// Candidates identify wines from the glass by colour + intensity and by alcohol/warmth as much as by
+// flavour (fb_246: "one of the big structural characters that I use … is the alcohol levels"); Paper 3
+// in particular is unanswerable "with any precision" without visual cues (fb_53). And a note must never
+// state that a wine has no bubbles — bubbles are only ever a positive cue, graded fine-persistent
+// (traditional-method) vs soft-frothy (tank-method) (fb_244).
+//
+// This is the KEY-stage wrapper over the shared note-integrity rules (tasting-validators.ts): it maps
+// each coded verdict onto a hard Violation with the stable reason code as its rule, so the audit /
+// analysis path can reject the whole question with 'note_missing_appearance' / 'note_missing_alcohol'
+// (and the bubble/colour codes) when ANY wine in the flight lacks a required marker.
+// ---------------------------------------------------------------------------------------------------
+export function checkNoteCompleteness(
+  wineNotes: string[],
+  wines: TastingValidationWine[],
+  paper?: number
+): Violation[] {
+  return noteCompletenessViolations(wineNotes, wines, paper).map((x) => ({
+    rule: x.code,
+    severity: "hard" as const,
+    detail: x.detail,
+  }));
 }
 
 export function validateQuestion(q: QuestionForAudit): {
