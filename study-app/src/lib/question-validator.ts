@@ -1136,6 +1136,121 @@ export function checkNoteCompleteness(
   }));
 }
 
+// ---------------------------------------------------------------------------------------------------
+// MARK BUDGET — the hard MW mark-allocation rule (accepted user feedback fb_138, fb_96, fb_73, fb_79).
+//
+// Two non-negotiable facts about a real IMW tasting paper, stated verbatim by candidates and accepted
+// by the analysis loop:
+//   • "there should be exactly 25 points per wine … a hard fast rule" (fb_138); "every wine, no matter
+//     which paper, will have exactly 25 marks available … This is non-negotiable. This question has 70
+//     marks for 2 wines, which would not occur" (fb_96). → the sum of every sub-part's marks (expanding
+//     the "n × m" per-wine notation) must equal EXACTLY 25 × wineCount, else MARKS_TOTAL_MISMATCH.
+//   • A written analytical task is never priced at 2 marks: "Commercial positioning is always at least
+//     five points" and "The only questions ever for 2 points are … residual sugar in g[/l] … and …
+//     alcohol percentage" (fb_73); the grading granularity fb_79 describes only makes sense above a
+//     5-mark floor. → any sub-part whose task is commercial positioning, quality assessment, style, or
+//     method of production must carry ≥ 5 marks per wine it covers (≥ 5 × n when asked across the whole
+//     flight in a single un-multiplied total); only a literal numeric readout ("state the residual sugar
+//     in g/L", "state the alcohol in % abv") may sit at 2 marks. A shortfall is MARKS_BELOW_FLOOR.
+//
+// This is the KEY-stage twin of the generation engine's own validateMarkAllocation (question-engine.ts):
+// putting it here lets the corpus audit and the feedback/regeneration loop reject and self-correct a
+// budget that could not occur on a real paper. It reuses the shared part-task classifier
+// (ALLOWED_PART_TASKS) so a task's category is resolved the same way it is everywhere else in this file.
+// It only judges a WELL-FORMED question (its lettered parts begin at "a)"); a bare fragment passed in
+// isolation is left alone. It does NOT choose marks — it only rejects budgets that cannot occur.
+// ---------------------------------------------------------------------------------------------------
+
+// The five-mark-floor task categories (fb_73/fb_79), keyed to the shared ALLOWED_PART_TASKS ids:
+// commercial positioning, quality assessment, style, and method of production (the "winemaking" entry).
+const FLOOR_TASK_IDS = new Set(["commercial", "quality", "style", "winemaking"]);
+const MARK_FLOOR_PER_WINE = 5;
+
+// The only ask the exam ever prices at 2 marks: a literal numeric readout of residual sugar or alcohol
+// (fb_73 — "answered in a few seconds e.g. 120 g/l, 20% ABV"). A part matching this is exempt from the
+// floor at any mark value. Everything else that is a floor task must clear the 5-mark-per-wine floor.
+const LITERAL_FACTUAL_ASK_RE =
+  /\b(?:state|give|indicate|estimate|identify)\b[a-z0-9 ,]{0,50}\b(?:residual sugar|\brs\b|alcohol|abv)\b/;
+
+// A single un-multiplied total that is asked ACROSS the whole flight (fb_73's "overall … compare and
+// contrast across all wines … 18–24 points"). Such a part's floor is 5 × wineCount, not 5.
+const FLIGHT_WIDE_ASK_RE = /\bacross\b|\ball (?:the |\d+ )?wines\b|\boverall\b|\bthe flight\b|\bcompare(?: and contrast)?\b/;
+
+// norm()'d, punctuation-flattened text for task classification (mirrors splitCommandClauses' cleaning).
+function cleanForTask(text: string): string {
+  return norm(text || "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// The floor-task category (if any) a marked part sets, via the shared part-task classifier.
+function floorTaskFor(partText: string): AllowedPartTask | null {
+  const cleaned = cleanForTask(partText);
+  return ALLOWED_PART_TASKS.find((t) => FLOOR_TASK_IDS.has(t.id) && t.re.test(cleaned)) || null;
+}
+
+/**
+ * Mark-budget rule. (a) The sum of every sub-part's marks (expanding "n × m") must equal exactly
+ * 25 × wineCount — a mismatch is MARKS_TOTAL_MISMATCH quoting the computed total. (b) Every floor-task
+ * sub-part (commercial / quality / style / method of production) must clear the 5-mark-per-wine floor
+ * unless it is a literal numeric readout — a shortfall is MARKS_BELOW_FLOOR quoting the offending part.
+ */
+export function validateMarkBudget(q: QuestionForAudit): Violation[] {
+  const v: Violation[] = [];
+  const parts = parseMarkedParts(q.questionText);
+  if (parts.length === 0) return v;
+
+  // Only judge a well-formed question: its lettered parts must begin at "a)". A fragment passed in
+  // isolation (e.g. a lone "b) …" used in a unit test) has no meaningful budget to total.
+  const lettered = parseLetteredParts(q.questionText || "");
+  if (lettered.length > 0 && lettered[0].letter !== "a") return v;
+
+  const wineCount = (q.wines || []).length;
+
+  // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
+  // rule can never invent a spurious "must equal 0" mismatch.
+  if (wineCount >= 1) {
+    const total = parts.reduce((s, p) => s + p.marks, 0);
+    const expected = wineCount * 25;
+    if (total > 0 && total !== expected) {
+      v.push({
+        rule: "MARKS_TOTAL_MISMATCH",
+        severity: "hard",
+        detail: `marks total ${total}, but a real IMW paper carries exactly 25 × ${wineCount} wine${
+          wineCount === 1 ? "" : "s"
+        } = ${expected}. Re-allocate the sub-part marks so they sum to ${expected}.`,
+      });
+    }
+  }
+
+  // (b) Per-task floor. A floor-task part must clear 5 marks per wine it covers (5 × n when asked
+  // across the whole flight in one un-multiplied total); literal numeric readouts are exempt.
+  for (const p of parts) {
+    const task = floorTaskFor(p.text);
+    if (!task) continue;
+    if (LITERAL_FACTUAL_ASK_RE.test(cleanForTask(p.text))) continue;
+
+    const hasMultiplier = p.marks !== p.perUnit; // "n × m" was written (m is the per-wine value)
+    const flightWide =
+      !hasMultiplier && wineCount > 1 && FLIGHT_WIDE_ASK_RE.test(cleanForTask(p.text));
+
+    const floor = flightWide ? MARK_FLOOR_PER_WINE * wineCount : MARK_FLOOR_PER_WINE;
+    const actual = hasMultiplier ? p.perUnit : p.marks;
+    if (actual < floor) {
+      const scope = flightWide
+        ? `across the ${wineCount}-wine flight (floor ${floor})`
+        : hasMultiplier
+        ? "per wine"
+        : "for this part";
+      v.push({
+        rule: "MARKS_BELOW_FLOOR",
+        severity: "hard",
+        detail: `a "${task.label}" part is worth ${actual} marks ${scope}, below the ${MARK_FLOOR_PER_WINE}-mark floor — commercial position, quality, style and method-of-production tasks are never priced this low (only a literal "state the residual sugar in g/L" / "state the alcohol in % abv" readout may be 2 marks).`,
+      });
+    }
+  }
+
+  return v;
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
@@ -1150,6 +1265,7 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...stemPreannouncesDiscriminator(q.questionText));
   violations.push(...flightCompositionViolations(q.wines));
   violations.push(...idMarkAllocationViolations(q));
+  violations.push(...validateMarkBudget(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
