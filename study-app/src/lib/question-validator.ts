@@ -1490,6 +1490,220 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   return v;
 }
 
+// ---------------------------------------------------------------------------------------------------
+// SERVED-QUESTION INTEGRITY — the reveal/serving surfaces must be provably reading ONE question record
+// (recurring fault cluster, cross-paper: fb_344, fb_185, fb_161).
+//
+// Three accepted feedbacks describe the SAME class of bug: a surface diverging from the keyed payload.
+//   • fb_344 — the stem shown at reveal was not the stem shown in the stem-analysis screen ("this
+//     question says the same single variety, which the previous screen did not show"). A second render
+//     re-derived the stem instead of reading the stored record.
+//   • fb_185 — "it only displayed 1 wine of the three": the served flight silently truncated to one
+//     wine, so the candidate could not answer the question that was keyed.
+//   • fb_161 — the reveal showed pictures of regions/wines that were not in the correct answer.
+//
+// This is the serve-path guard. It is called at EVERY phase transition (stem analysis → answer →
+// reveal) so all surfaces are provably reading one record:
+//   Check 1 — hash the stem text, the sub-part list and the mark table when the question is first
+//     served, then re-assert BYTE equality of that hash at answer and reveal. A changed hash means a
+//     surface re-derived the stem rather than reading the stored record → throw.
+//   Check 2 — the wine array actually rendered must have length equal to the wine count declared by the
+//     stem ("Wines 1 to N" / "Wines 1 and 2") or, failing an explicit stem count, by an "N × M marks"
+//     per-wine multiplier in the parts. A three-wine question rendering one wine is a HARD FAIL, never
+//     a silent truncation → throw.
+//   Check 3 — any image / media attached to the reveal must reference a producer, region or appellation
+//     present in the keyed answer wines. Non-matching assets are FILTERED OUT (returned minus the
+//     stragglers) rather than displayed — this one repairs rather than throws.
+//
+// Throws a ServedQuestionIntegrityError carrying the phase name and the mismatching field, so a
+// divergence is diagnosable straight from the logs.
+// ---------------------------------------------------------------------------------------------------
+
+export type ServePhase = "stem" | "answer" | "reveal";
+
+/** A reveal image / media asset. Free-shape: any string field that names its subject is inspected. */
+export interface ServedMediaAsset {
+  tag?: string;
+  caption?: string;
+  alt?: string;
+  title?: string;
+  label?: string;
+  producer?: string;
+  region?: string;
+  appellation?: string;
+  [key: string]: unknown;
+}
+
+/** The served question payload a surface renders. `wines` is the keyed flight; `media` the reveal assets. */
+export interface ServedQuestionPayload {
+  questionId?: string;
+  paper?: number;
+  questionText: string;
+  wines: Array<{
+    slot?: number;
+    fullText?: string;
+    region?: string;
+    country?: string;
+    appellation?: string;
+    producer?: string;
+    varieties?: string[];
+  }>;
+  media?: ServedMediaAsset[];
+}
+
+export interface ServedIntegrityResult {
+  phase: ServePhase;
+  /** The stem/sub-part/mark-table hash — pass this back in as `priorHash` at the next phase. */
+  stemHash: string;
+  wineCount: number;
+  /** The media to display — at reveal this is the input filtered to answer-relevant assets (Check 3). */
+  media: ServedMediaAsset[];
+}
+
+/** Thrown by assertServedQuestionIntegrity. Carries the phase and the mismatching field for the logs. */
+export class ServedQuestionIntegrityError extends Error {
+  phase: ServePhase;
+  field: string;
+  constructor(phase: ServePhase, field: string, detail: string) {
+    super(`[served-integrity:${phase}] ${field}: ${detail}`);
+    this.name = "ServedQuestionIntegrityError";
+    this.phase = phase;
+    this.field = field;
+  }
+}
+
+// A deterministic FNV-1a hash (32-bit, hex). Self-contained so the guard has no crypto/runtime
+// dependency; we only need a stable fingerprint that changes iff the canonical input bytes change.
+function fnv1aHex(input: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+/**
+ * Fingerprint the stem text, sub-part list and mark table exactly as stored. Byte-identical question
+ * text produces a byte-identical hash; a re-derived stem (fb_344) produces a different one.
+ */
+export function computeServedStemHash(questionText: string): string {
+  const text = questionText || "";
+  const stem = extractStem(text).replace(/\s+/g, " ").trim();
+  const parts = parseLetteredParts(text).map((p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`);
+  const marks = parseMarkedParts(text).map((p) => `${p.marks}/${p.perUnit}`);
+  return fnv1aHex(JSON.stringify({ stem, parts, marks }));
+}
+
+// The wine count the STEM declares, or null when it makes no explicit claim. Handles "Wines 1 to N"
+// (also "1 through N" / "1-N"), an enumerated "Wines 1 and 2" / "Wines 1, 2 and 3", and a lone "Wine 1".
+function parseStemWineCount(questionText: string): number | null {
+  const stem = norm(extractStem(questionText || ""));
+  const range = stem.match(
+    /\bwines?\s+1\s*(?:to|through|-)\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b/
+  );
+  if (range) {
+    const n = parseStemCount(range[1]);
+    if (n >= 1) return n;
+  }
+  const enumMatch = stem.match(/\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/);
+  if (enumMatch) {
+    const nums = [...enumMatch[0].matchAll(/\d+/g)].map((x) => Number(x[0]));
+    if (nums.length >= 2) return Math.max(...nums);
+  }
+  if (/\bwine\s+1\b/.test(stem) && !/\bwines\b/.test(stem) && !/\bwine\s+2\b/.test(stem)) return 1;
+  return null;
+}
+
+// The wine count implied by an "N × M marks" per-wine multiplier in the parts (the largest N), or null.
+function parseMultiplierWineCount(questionText: string): number | null {
+  const mults = parseMarkedParts(questionText)
+    .filter((p) => p.perUnit > 0 && p.marks !== p.perUnit)
+    .map((p) => Math.round(p.marks / p.perUnit))
+    .filter((n) => n >= 1);
+  return mults.length ? Math.max(...mults) : null;
+}
+
+// The anchor words (producer / region / appellation / country, plus the raw label as a fallback) that a
+// reveal asset must reference to be about one of the keyed answer wines. norm()'d, ≥3-char tokens only.
+function answerWineAnchorWords(wines: ServedQuestionPayload["wines"]): Set<string> {
+  const words = new Set<string>();
+  for (const w of wines || []) {
+    for (const field of [w.producer, w.region, w.appellation, w.country, w.fullText]) {
+      for (const tok of norm(field || "").split(/\s+/)) if (tok.length >= 3) words.add(tok);
+    }
+  }
+  return words;
+}
+
+/**
+ * Drop any reveal asset that does not reference a producer/region/appellation present in the keyed
+ * answer wines (fb_161). Fails SAFE: with no resolvable wine anchors it keeps every asset (it can only
+ * ever remove an asset it can prove is off-answer, never blank the reveal on missing data).
+ */
+export function filterRevealMedia(
+  media: ServedMediaAsset[],
+  wines: ServedQuestionPayload["wines"]
+): ServedMediaAsset[] {
+  const anchors = answerWineAnchorWords(wines);
+  if (anchors.size === 0) return media;
+  return media.filter((asset) => {
+    const text = norm(
+      [asset.tag, asset.caption, asset.alt, asset.title, asset.label, asset.producer, asset.region, asset.appellation]
+        .filter(Boolean)
+        .join(" ")
+    );
+    const assetWords = String(text)
+      .split(/\s+/)
+      .filter((t: string) => t.length >= 3);
+    // No identifying text at all → keep (fail safe; we cannot prove it is off-answer).
+    if (assetWords.length === 0) return true;
+    return assetWords.some((a: string) => anchors.has(a));
+  });
+}
+
+/**
+ * Serve-path integrity guard. Call at every phase transition (stem analysis → answer → reveal), passing
+ * the stemHash returned by the previous phase as `priorHash`. Runs Check 1 (stem-hash byte equality),
+ * Check 2 (rendered wine count == declared wine count) and, at reveal, Check 3 (drop off-answer media).
+ * Throws ServedQuestionIntegrityError with the phase and the mismatching field on a hard divergence.
+ */
+export function assertServedQuestionIntegrity(
+  phase: ServePhase,
+  served: ServedQuestionPayload,
+  priorHash?: string | null
+): ServedIntegrityResult {
+  const questionText = served.questionText || "";
+  const stemHash = computeServedStemHash(questionText);
+
+  // Check 1 — the stem/sub-parts/mark table must be byte-identical to when the question was first served.
+  if (priorHash != null && priorHash !== "" && stemHash !== priorHash) {
+    throw new ServedQuestionIntegrityError(
+      phase,
+      "stem-hash",
+      `served stem/sub-parts/mark-table changed since the question was first served (hash ${priorHash} → ${stemHash}); a surface re-derived the stem instead of reading the stored record`
+    );
+  }
+
+  // Check 2 — the rendered flight must contain exactly the wines the question keys.
+  const wines = served.wines || [];
+  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  if (expected != null && wines.length !== expected) {
+    throw new ServedQuestionIntegrityError(
+      phase,
+      "wine-count",
+      `the question declares ${expected} wine${expected === 1 ? "" : "s"} but the served flight rendered ${
+        wines.length
+      } — a flight must render every keyed wine, never a truncated subset`
+    );
+  }
+
+  // Check 3 — at reveal, any attached media must be about one of the answer wines (drop the stragglers).
+  const media = phase === "reveal" ? filterRevealMedia(served.media || [], wines) : served.media || [];
+
+  return { phase, stemHash, wineCount: wines.length, media };
+}
+
 export function validateQuestion(q: QuestionForAudit): {
   ok: boolean;
   violations: Violation[];
