@@ -26,6 +26,9 @@ export async function PATCH(request: Request) {
     if (typeof body.tourSeen === "boolean") {
       await sql`UPDATE users SET tour_seen = ${body.tourSeen} WHERE id = ${user.id}`;
     }
+    if (typeof body.walkthroughSeen === "boolean") {
+      await sql`UPDATE users SET walkthrough_seen = ${body.walkthroughSeen} WHERE id = ${user.id}`;
+    }
     if ("examDate" in body) {
       const examDate = body.examDate;
       if (examDate !== null && (typeof examDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {

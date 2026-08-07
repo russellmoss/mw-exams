@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { WalkthroughReplayButton } from "@/app/components/WalkthroughReplayButton";
 
 export const metadata: Metadata = { title: "Library" };
 
@@ -10,11 +11,14 @@ export default function LibraryPage() {
   return (
     <div className="flex flex-col flex-1">
       <header className="border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 py-6 w-full">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Library</h1>
-          <p className="text-sm text-muted mt-1">
-            Study diagrams and decision trees. Learning units coming soon.
-          </p>
+        <div className="max-w-5xl mx-auto px-6 py-6 w-full flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Library</h1>
+            <p className="text-sm text-muted mt-1">
+              Study diagrams and decision trees. Learning units coming soon.
+            </p>
+          </div>
+          <WalkthroughReplayButton />
         </div>
       </header>
       <iframe

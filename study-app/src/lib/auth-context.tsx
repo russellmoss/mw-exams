@@ -21,6 +21,8 @@ interface AuthUser {
   // Shell prefs (migration 050) — intro/tour flags, exam countdown, Continue card config.
   introSeen?: boolean;
   tourSeen?: boolean;
+  // Migration 051 — the one-time diagram walkthrough between the intro and the tour.
+  walkthroughSeen?: boolean;
   examDate?: string | null;
   lastDrillConfig?: {
     paper?: number;

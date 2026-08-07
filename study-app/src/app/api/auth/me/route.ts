@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     // Shell prefs (migration 050) — intro/tour flags, exam countdown, Continue card config.
     const prefRows = await sql`
       SELECT stem_detail_default, question_source_default, reasoning_stream_default,
-             intro_seen, tour_seen, exam_date, last_drill_config
+             intro_seen, tour_seen, walkthrough_seen, exam_date, last_drill_config
       FROM users WHERE id = ${user.id}
     `;
     const raw = prefRows[0]?.stem_detail_default;
@@ -45,6 +45,7 @@ export async function GET(request: Request) {
         reasoningStreamDefault,
         introSeen: prefRows[0]?.intro_seen === true,
         tourSeen: prefRows[0]?.tour_seen === true,
+        walkthroughSeen: prefRows[0]?.walkthrough_seen === true,
         examDate: prefRows[0]?.exam_date
           ? String(prefRows[0].exam_date).slice(0, 10)
           : null,

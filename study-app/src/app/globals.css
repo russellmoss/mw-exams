@@ -244,3 +244,9 @@ textarea {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Diagram walkthrough (migration 051) — connectors draw themselves along their own length so the
+   eye follows the route the stem takes through the tree. The dash length is set per path inline. */
+@keyframes treeDraw {
+  to { stroke-dashoffset: 0; }
+}

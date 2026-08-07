@@ -3,13 +3,22 @@
 // First-run intro presentation + spotlight UI tour (docs/design/2026-08-06-shell-redesign/ §0, §3).
 //
 // The intro is a 6-scene, click-through-only, full-screen presentation shown at every session
-// start until the user checks "Don't show this again" (users.intro_seen, migration 050). Exit is
-// only via scene 6's "Start studying", which — on a user whose tour_seen is false — fires the
-// spotlight tour over the live launcher DOM. All copy is verbatim from the design prototype.
+// start until the user checks "Don't show this again" (users.intro_seen, migration 050). All copy
+// is verbatim from the design prototype.
+//
+// Exit is only via scene 6's "Start studying", which hands off to the rest of the first-run chain:
+//
+//   intro (every session until dismissed)
+//     → diagram walkthrough (ONCE — users.walkthrough_seen, migration 051)
+//       → spotlight tour over the live launcher DOM (ONCE — users.tour_seen)
+//
+// Each stage is skippable and each is gated on its own flag, so a returning user who dismissed the
+// intro but never finished the walkthrough still gets the walkthrough, and only the walkthrough.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { DiagramWalkthrough } from "./DiagramWalkthrough";
 
 const SESSION_FLAG = "mw-intro-shown-this-session";
 
@@ -106,19 +115,25 @@ function StatBlock({ value, label, delayMs, accent, big }: { value: string; labe
   );
 }
 
+/** The first-run chain, in order. Exactly one stage is on screen at a time. */
+type Stage = "intro" | "walkthrough" | "tour" | null;
+
 export function ShellOnboarding() {
   const { user, loading } = useAuth();
-  const [introOpen, setIntroOpen] = useState(false);
+  const [stage, setStage] = useState<Stage>(null);
   const [scene, setScene] = useState(0);
   const [dontShow, setDontShow] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [tourOpen, setTourOpen] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [tourRect, setTourRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
   const decidedRef = useRef(false);
 
-  // Decide once, after auth resolves: intro every session start until intro_seen; otherwise the
-  // tour directly if it has never completed.
+  const introOpen = stage === "intro";
+  const tourOpen = stage === "tour";
+
+  // Decide once, after auth resolves: enter the chain at the earliest stage this user still owes —
+  // intro (every session until intro_seen), then walkthrough, then tour. At most one chain per
+  // browser session, so a mid-session reload never restarts it.
   useEffect(() => {
     if (loading || !user || decidedRef.current) return;
     decidedRef.current = true;
@@ -126,14 +141,23 @@ export function ShellOnboarding() {
     try {
       shownThisSession = window.sessionStorage.getItem(SESSION_FLAG) === "1";
     } catch {}
-    if (!user.introSeen && !shownThisSession) {
-      try {
-        window.sessionStorage.setItem(SESSION_FLAG, "1");
-      } catch {}
-      setIntroOpen(true);
-    } else if (!user.tourSeen && !shownThisSession) {
-      setTourOpen(true);
-    }
+    if (shownThisSession) return;
+
+    const next: Stage = !user.introSeen
+      ? "intro"
+      : !user.walkthroughSeen
+        ? "walkthrough"
+        : !user.tourSeen
+          ? "tour"
+          : null;
+    if (!next) return;
+    try {
+      window.sessionStorage.setItem(SESSION_FLAG, "1");
+    } catch {}
+    // Open on the next frame rather than synchronously in the effect body — same reasoning as the
+    // measure effect below: a synchronous setState here is the cascading render the lint rule flags.
+    const frame = requestAnimationFrame(() => setStage(next));
+    return () => cancelAnimationFrame(frame);
   }, [loading, user]);
 
   // The tour only spotlights elements that exist on this user's launcher (no Continue card on a
@@ -166,18 +190,29 @@ export function ShellOnboarding() {
   }, [tourOpen, activeTourSteps, measure]);
 
   const endTour = useCallback(() => {
-    setTourOpen(false);
+    setStage(null);
     saveShellPref({ tourSeen: true });
   }, []);
 
+  const startTour = useCallback(() => {
+    setTourStep(0);
+    setStage("tour");
+  }, []);
+
+  // Skipping still marks the walkthrough seen — it is replayable from the Library, and re-serving
+  // a 7-step teach the user has already declined is worse than making them ask for it.
+  const endWalkthrough = useCallback(() => {
+    saveShellPref({ walkthroughSeen: true });
+    if (user && !user.tourSeen) startTour();
+    else setStage(null);
+  }, [startTour, user]);
+
   const startStudying = useCallback(() => {
-    setIntroOpen(false);
     if (dontShow) saveShellPref({ introSeen: true });
-    if (user && !user.tourSeen) {
-      setTourStep(0);
-      setTourOpen(true);
-    }
-  }, [dontShow, user]);
+    if (user && !user.walkthroughSeen) setStage("walkthrough");
+    else if (user && !user.tourSeen) startTour();
+    else setStage(null);
+  }, [dontShow, startTour, user]);
 
   if (loading || !user) return null;
 
@@ -394,6 +429,8 @@ export function ShellOnboarding() {
           )}
         </div>
       )}
+
+      {stage === "walkthrough" && <DiagramWalkthrough onDone={endWalkthrough} />}
 
       {tourOpen && step && (
         <div className="fixed inset-0 z-[55]">
