@@ -2,7 +2,7 @@
 // only, Paper 3 unrestricted. Colour is derived from the wine record's existing style/label/variety
 // fields; the rule is unconditional and fails safe on wines whose colour cannot be positively placed.
 import { describe, it, expect } from "vitest";
-import { classifyWineColour, resolveWineScope, validatePaperColour } from "../src/lib/question-validator";
+import { classifyWineColour, resolveWineScope, validatePaperColour, validateQuestion } from "../src/lib/question-validator";
 import type { AuditWine } from "../src/lib/question-validator";
 // Registers the appellation → primary-variety fallback. Without this import detectPrimaryVariety
 // returns "unknown" and every appellation-only label below resolves to null — which is exactly the
@@ -143,6 +143,39 @@ describe("colour resolution — appellation-only labels and colour qualifiers", 
     // Guards the production hole: scripts/audit-questions.mjs and question-audit.ts must import
     // @/lib/appellation-resolver or every appellation-only wine silently resolves to null.
     expect(resolveWineScope(wine({ fullText: "Producer, Barolo, 2018. Piedmont, Italy." })).colour).toBe("red");
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------
+// WIRING. The rule being correct was never the problem — it ran in exactly one place. These assertions
+// pin it into the shared audit wrapper, which is what makes auditAndQuarantineQuestion() and
+// scripts/audit-questions.mjs able to quarantine a wrong-colour row at all.
+// ---------------------------------------------------------------------------------------------------
+describe("validateQuestion enforces the paper-scope contract", () => {
+  const redOnP1 = {
+    questionId: "wiring",
+    paper: 1,
+    family: "F1",
+    questionText: "Wines 1 and 2 are from the same country. Identify the grape variety of each.",
+    wines: [
+      { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", fullText: "Domaine A, Chablis, 2021. Burgundy, France." },
+      { slot: 2, varieties: ["Syrah"], region: "Hermitage", country: "France", fullText: "Domaine Jean-Louis Chave, Hermitage, 2019. Northern Rhône, France." },
+    ],
+  };
+
+  it("emits wrong_colour_for_paper by default — the regression the old exclusion allowed", () => {
+    const res = validateQuestion(redOnP1);
+    expect(res.violations.some((v) => v.rule === "wrong_colour_for_paper")).toBe(true);
+    expect(res.ok).toBe(false); // hard, so auditAndQuarantineQuestion writes invalid_reasons
+  });
+
+  it("can be opted out ONLY explicitly (for colour-incoherent fixtures)", () => {
+    expect(validateQuestion(redOnP1, { paperScope: false }).violations.some((v) => v.rule === "wrong_colour_for_paper")).toBe(false);
+  });
+
+  it("leaves a compliant all-white Paper 1 flight alone", () => {
+    const clean = { ...redOnP1, wines: [redOnP1.wines[0]] };
+    expect(validateQuestion(clean).violations.some((v) => v.rule === "wrong_colour_for_paper")).toBe(false);
   });
 });
 

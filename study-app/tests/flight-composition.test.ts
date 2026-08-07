@@ -29,13 +29,20 @@ const CURVEBALLS: AuditWine[] = [
 
 const flight = (wines: AuditWine[]) => {
   const w = wines.map((x, i) => ({ ...x, slot: i + 1 }));
-  return validateQuestion({
-    questionId: "test",
-    paper: 1,
-    family: "F1",
-    questionText: `Wines 1 to ${w.length} are from ${w.length} different countries. For each wine identify the grape variety and region of origin.`,
-    wines: w,
-  });
+  return validateQuestion(
+    {
+      questionId: "test",
+      paper: 1,
+      family: "F1",
+      questionText: `Wines 1 to ${w.length} are from ${w.length} different countries. For each wine identify the grape variety and region of origin.`,
+      wines: w,
+    },
+    // R-COLOUR opt-out. These fixtures deliberately mix colours to exercise the banker/curveball
+    // COUNTING logic — BANKERS pairs Sauvignon Blanc with Cabernet Sauvignon and Tempranillo,
+    // CURVEBALLS mixes Assyrtiko with Blaufränkisch and Trousseau — so no single paper number can make
+    // them coherent. The paper is incidental here; colour compliance is covered by paper-colour.test.ts.
+    { paperScope: false }
+  );
 };
 
 describe("banker classification", () => {

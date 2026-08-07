@@ -14,6 +14,12 @@
 
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion, type AuditWine, type Violation } from "./question-validator";
+// Registers the appellation → primary-variety fallback that R-COLOUR needs. Without it
+// detectPrimaryVariety returns "unknown" for every appellation-only label — Hermitage,
+// Châteauneuf-du-Pape, Viña Tondonia — and the audit silently exempts the exact wines it exists to
+// catch. This module only worked before because question-engine.ts happened to import the resolver
+// earlier in the same process; the corpus sweep has no such luck.
+import "./appellation-resolver";
 
 export async function auditAndQuarantineQuestion(
   questionId: string

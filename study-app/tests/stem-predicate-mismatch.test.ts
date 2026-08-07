@@ -150,7 +150,8 @@ describe("style contrast", () => {
     [
       { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", style_category: "still_dry" },
       { slot: 2, varieties: ["Chardonnay"], region: "Meursault", country: "France", style_category: "still_dry" },
-    ]
+    ],
+    1 // two white Burgundies — a Paper 1 flight, so R-COLOUR stays satisfied
   );
 
   it("flags when all wines share one style tag", () => {

@@ -4,7 +4,7 @@ import {
   recordQuestionView,
   incrementTimesServed,
 } from "@/lib/db";
-import { sanitizeQuestionMetadata } from "@/lib/question-engine";
+import { filterValidBanked, sanitizeQuestionMetadata } from "@/lib/question-engine";
 
 export const runtime = "nodejs";
 
@@ -33,7 +33,12 @@ export async function POST(request: Request) {
     const { paper, family } = await request.json();
     if (!paper) return Response.json({ error: "Missing paper" }, { status: 400 });
 
-    const eligible = await getEligibleBankedQuestions(user.id, paper, family);
+    // filterValidBanked is the same serve-time gate produce.ts applies to both of its banked tiers.
+    // This route used to skip it entirely, relying only on the SQL `invalid_reasons IS NULL` filter —
+    // so a question whose violation had never been recorded (R-COLOUR did not run in the audit, so
+    // wrong-colour rows were never marked) was served straight to the candidate. It is the reason a
+    // Hermitage could appear in a Paper 1 flight even after the audit was fixed.
+    const eligible = filterValidBanked(await getEligibleBankedQuestions(user.id, paper, family));
     if (eligible.length === 0) {
       return Response.json({ reason: "empty" }, { status: 409 });
     }

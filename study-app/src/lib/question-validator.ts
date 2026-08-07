@@ -1296,6 +1296,31 @@ const WHITE_QUALIFIER_OVERRIDE = /\b(branco|blanco|bianco|white|weiss|weisswein|
 // wine that resolves to one of these is red.
 const EXTRA_RED_VARIETIES = /\b(montepulciano)\b/;
 
+// --- Corrections applied to the SHARED style classifier for paper-scope purposes only ---------------
+// classifyWineStyle is tuned for Paper 3 categorisation and its regexes are pinned by a corpus of real
+// labels (tests/p3-category.test.mjs). Rather than mutate them, the two cases below are corrected here,
+// where the question is narrower: "may this wine appear on Paper 1 / Paper 2?"
+
+// Maury and Rasteau each name BOTH a vin doux naturel AND a dry still red AOC. The shared FORTIFIED
+// regex matches the bare region name — correct for P3 categorisation, wrong here: "Mas Amiel, Maury
+// Sec" and "Domaine de la Mordorée, Rasteau Grenache Noir" are dry reds and legitimate Paper 2 wines.
+// Measured against the live bank, this accounted for 3 of 14 false rejections.
+//
+// So for these two the burden of proof is INVERTED: the region name alone does not make a wine
+// fortified, an explicit VDN marker does. Rivesaltes is deliberately NOT in this set — its dry wines
+// are labelled Côtes du Roussillon, so a bare "Rivesaltes" really is a VDN.
+//
+// The trade-off is deliberate. A bare "Mas Amiel, Maury" (a real VDN) now reads still, so this can
+// admit a fortified wine on Paper 2 — but false REJECTIONS retire legitimate questions from the pool,
+// which is the costlier error here, and the sweep's job is to be right about wines it is sure of.
+const DUAL_VDN_APPELLATION = /\b(maury|rasteau)\b/;
+const EXPLICIT_FORTIFIED = /\b(vin doux naturel|vdn|fortified|ambre|tuile|rancio|hors d.age|mistelle)\b/;
+
+// The shared ROSE cue matches a bare `rose`, which collides with producer names once norm() strips
+// accents ("Cascina delle Rose" in Barbaresco — a red), and `cerasuolo`, which is a rosé in Abruzzo but
+// a RED DOCG in Vittoria. Both produced false rosé verdicts on real reds in the live bank.
+const ROSE_FALSE_POSITIVE = /\b(cerasuolo di vittoria|(?:delle|della|des|du|de la|la|le)\s+rose)\b/;
+
 /**
  * Settle a still wine's colour: red vs white, or null when it cannot be positively determined.
  *
@@ -1342,14 +1367,19 @@ export function resolveWineScope(w: AuditWine): { colour: PureColour | null; sty
   if (!hay && !styleText) return { colour: null, style: "still" };
 
   const { style: s, isRose } = classifyWineStyle(styleText || hay);
-  const style: WineStyleAxis =
+  let style: WineStyleAxis =
     s === "fortified" || s === "sparkling" || s === "sweet" || s === "oxidative" ? s : "still";
+
+  // A dual-purpose VDN appellation needs an explicit fortification marker to count as fortified.
+  if (style === "fortified" && DUAL_VDN_APPELLATION.test(hay) && !EXPLICIT_FORTIFIED.test(hay)) style = "still";
+
+  const reallyRose = isRose && !ROSE_FALSE_POSITIVE.test(hay);
 
   // Colour is resolved INDEPENDENTLY of style — a sweet wine still has a colour, and that is the whole
   // point of splitting the axes.
   const colour: PureColour | null = ORANGE_STYLE_RE.test(hay)
     ? "orange"
-    : isRose
+    : reallyRose
       ? "rose"
       : resolveStillColour(w, hay);
 
@@ -1874,7 +1904,10 @@ export function assertServedQuestionIntegrity(
   return { phase, stemHash, wineCount: renderedCount, media };
 }
 
-export function validateQuestion(q: QuestionForAudit): {
+export function validateQuestion(
+  q: QuestionForAudit,
+  opts?: { paperScope?: boolean }
+): {
   ok: boolean;
   violations: Violation[];
   scoringModel: StemSniperScoringModel;
@@ -1904,12 +1937,22 @@ export function validateQuestion(q: QuestionForAudit): {
   violations.push(...contrastIntegrityViolations(q));
   violations.push(...partTaskRepertoireViolations(q));
   violations.push(...validatePaperStyleMix(q.paper, q.wines));
-  // R-COLOUR (Right Paper Check) deliberately does NOT run inside this KEY-stage audit wrapper. It is
-  // an UNCONDITIONAL serve-time contract (Paper 1 still-white / Paper 2 still-red) enforced on every
-  // generation/serve path in question-engine.ts (paperColourCheck), where a wrong-colour draft is
-  // silently repaired or discarded. validateQuestion is the shared audit/feedback wrapper whose
-  // fixtures are keyed only for the rule under test and are not colour-consistent, so folding a hard
-  // colour verdict in here would reject legitimate audits. Use validatePaperColour directly instead.
+  // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
+  //
+  // It used to be excluded, on the grounds that some unit-test fixtures are keyed only for the rule
+  // under test and are not colour-coherent. The reasoning was right about the fixtures and wrong about
+  // the conclusion: leaving it out made paper-scope compliance something each caller of
+  // validateQuestion had to remember, and five of the six forgot. auditAndQuarantineQuestion() and
+  // scripts/audit-questions.mjs both come through here, so for as long as it was excluded NO banked
+  // question was ever quarantined for serving a red wine on Paper 1 — which is exactly what happened,
+  // 35 times, 23 of them still live.
+  //
+  // So the flag inverts the burden: production callers get the contract by omission and only a test
+  // that KNOWS its fixture is colour-incoherent opts out. tests/audit-paper-scope-default.test.ts pins
+  // that no file under src/ or scripts/ passes `paperScope: false`.
+  if (opts?.paperScope !== false) {
+    violations.push(...validatePaperColour(q.paper, q.wines, q.questionText));
+  }
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,

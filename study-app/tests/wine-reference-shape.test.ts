@@ -104,10 +104,14 @@ describe("the rule fires through both stages", () => {
       { slot: 1, varieties: ["Riesling"], region: "Alsace", country: "France" },
       { slot: 2, varieties: ["Muscat"], region: "Rutherglen", country: "Australia" },
     ];
-    expect(validateQuestion({ questionId: "x", paper: 1, family: "F4", questionText: "Identify each wine.", wines: key }).ok).toBe(true);
+    // R-COLOUR opt-out on both calls: slot 2 is a Rutherglen Muscat, which is FORTIFIED and so illegal
+    // on Paper 1. That is intentional here — the fixture exists to prove the wine-reference-shape rule
+    // needs the raw label, and swapping in a compliant wine would lose the malformed-slot case.
+    const noColour = { paperScope: false } as const;
+    expect(validateQuestion({ questionId: "x", paper: 1, family: "F4", questionText: "Identify each wine.", wines: key }, noColour).ok).toBe(true);
 
     const withLabels = key.map((w, i) => ({ ...w, fullText: wines[i].fullText }));
-    const res = validateQuestion({ questionId: "x", paper: 1, family: "F4", questionText: "Identify each wine.", wines: withLabels });
+    const res = validateQuestion({ questionId: "x", paper: 1, family: "F4", questionText: "Identify each wine.", wines: withLabels }, noColour);
     expect(res.ok).toBe(false);
     expect(res.violations.map((v) => v.rule)).toContain("wine-reference-shape");
   });

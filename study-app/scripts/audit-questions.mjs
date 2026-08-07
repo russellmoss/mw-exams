@@ -5,6 +5,10 @@
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion } from "../src/lib/question-validator.ts";
+// Load-bearing: registers the appellation → primary-variety fallback. This script runs in its own
+// process, so without this import detectPrimaryVariety returns "unknown" for every appellation-only
+// label and the sweep cannot see a Hermitage sitting in a Paper 1 flight.
+import "../src/lib/appellation-resolver.ts";
 
 const DB = process.env.DATABASE_URL || readFileSync(".env.local", "utf8").match(/DATABASE_URL\s*=\s*"?([^"\n\r]+)"?/)[1].trim();
 const sql = neon(DB);
