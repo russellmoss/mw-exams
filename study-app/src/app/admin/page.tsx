@@ -63,7 +63,7 @@ export default function AdminPage() {
   };
 
   // Feedback
-  const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, partial: 0, rejected: 0 });
+  const [feedbackCounts, setFeedbackCounts] = useState({ open: 0, accepted: 0, partial: 0, rejected: 0, endorsed: 0 });
   const [modalFilter, setModalFilter] = useState<string | null>(null);
   const [modalAttempts, setModalAttempts] = useState<AttemptDetail[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
@@ -481,7 +481,7 @@ export default function AdminPage() {
           <FeatureRequestPanel autoFeature={autoFeature} />
 
           {/* Feedback scorecards */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-4 gap-4 mb-8">
             <button
               onClick={() => openFeedbackModal("open")}
               className="bg-card rounded-xl border-2 border-accent/30 p-4 text-left hover:border-accent transition-colors cursor-pointer"
@@ -508,6 +508,14 @@ export default function AdminPage() {
               <p className="text-3xl font-bold text-fail">{feedbackCounts.rejected}</p>
               <p className="text-xs text-muted mt-1">No change needed</p>
             </button>
+            <button
+              onClick={() => openFeedbackModal("endorsed")}
+              className="bg-card rounded-xl border border-border p-4 text-left hover:border-accent/50 transition-colors cursor-pointer"
+            >
+              <p className="text-xs text-muted uppercase tracking-wider mb-1">Endorsed</p>
+              <p className="text-3xl font-bold text-accent">{feedbackCounts.endorsed}</p>
+              <p className="text-xs text-muted mt-1">Exemplars for generation</p>
+            </button>
           </div>
 
           {/* Feedback modal */}
@@ -517,7 +525,7 @@ export default function AdminPage() {
               <div className="relative w-full max-w-4xl max-h-[85vh] overflow-y-auto bg-card rounded-xl border border-border shadow-2xl">
                 <div className="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between z-10">
                   <h2 className="font-semibold text-foreground">
-                    {modalFilter === "open" ? "Open Feedback" : modalFilter === "accepted" ? "Accepted Feedback" : "Rejected Feedback"}
+                    {modalFilter === "open" ? "Open Feedback" : modalFilter === "accepted" ? "Accepted Feedback" : modalFilter === "endorsed" ? "Endorsed Feedback" : "Rejected Feedback"}
                     <span className="text-sm font-normal text-muted ml-2">({modalAttempts.length})</span>
                   </h2>
                   <button onClick={() => setModalFilter(null)} className="text-muted hover:text-foreground transition-colors cursor-pointer p-1">

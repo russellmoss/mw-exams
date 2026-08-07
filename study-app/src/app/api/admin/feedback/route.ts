@@ -55,10 +55,12 @@ export async function GET(request: Request) {
           AND a.user_feedback IS NOT NULL AND a.feedback_status IS NULL
         ORDER BY a.feedback_submitted_at DESC NULLS LAST, a.completed_at DESC
       `;
-    } else if (status === "accepted" || status === "rejected") {
+    } else if (status === "accepted" || status === "rejected" || status === "endorsed") {
       // The Accepted bucket also surfaces PARTIAL items (valid points, core question sound) so
-      // the admin sees them alongside full accepts (rendered orange in the UI).
-      const statuses = status === "accepted" ? ["accepted", "partial"] : ["rejected"];
+      // the admin sees them alongside full accepts (rendered orange in the UI). Endorsed is its own
+      // bucket — praise, no defect, question flagged as an exemplar.
+      const statuses =
+        status === "accepted" ? ["accepted", "partial"] : status === "endorsed" ? ["endorsed"] : ["rejected"];
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
           COALESCE(q.paper, 0) as paper, COALESCE(q.family, '') as family,
@@ -118,7 +120,8 @@ export async function GET(request: Request) {
         COUNT(CASE WHEN user_feedback IS NOT NULL AND feedback_status IS NULL THEN 1 END)::int as open,
         COUNT(CASE WHEN feedback_status IN ('accepted', 'partial') THEN 1 END)::int as accepted,
         COUNT(CASE WHEN feedback_status = 'partial' THEN 1 END)::int as partial,
-        COUNT(CASE WHEN feedback_status = 'rejected' THEN 1 END)::int as rejected
+        COUNT(CASE WHEN feedback_status = 'rejected' THEN 1 END)::int as rejected,
+        COUNT(CASE WHEN feedback_status = 'endorsed' THEN 1 END)::int as endorsed
       FROM user_attempts
       WHERE mode = 'full'
         AND user_feedback IS NOT NULL

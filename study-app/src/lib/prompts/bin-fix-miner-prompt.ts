@@ -17,9 +17,10 @@ export interface MinableBinRow {
   binnedAt: string;
   // Which signal stream the row came from. Omitted = 'bin' (the original stream), so existing
   // callers and tests keep working. 'feedback' rows are user feedback the analysis loop accepted;
-  // feedbackStatus distinguishes fully accepted from partially accepted.
+  // feedbackStatus distinguishes fully accepted from partially accepted — or 'endorsed' (praise:
+  // POSITIVE signal, a contrast class, often carrying an embedded design suggestion).
   source?: "bin" | "feedback";
-  feedbackStatus?: "accepted" | "partial";
+  feedbackStatus?: "accepted" | "partial" | "endorsed";
 }
 
 export interface ExistingProposalSummary {
@@ -39,6 +40,12 @@ The ledger below carries TWO validated human signal streams, labeled per row:
 - "user feedback (accepted)" / "user feedback (partial)": a user complained about a served question
   or drill, and the feedback-analysis loop judged the complaint valid (fully or partially). Raw
   unvetted feedback never reaches you.
+- "user feedback (endorsed)": a user PRAISED a served question and the loop endorsed it. These are
+  positive rows — never cluster them as faults. Use them two ways: (1) as a CONTRAST class (what do
+  endorsed questions have that a fault cluster's questions lack — that difference sharpens the
+  proposal); (2) praise often embeds a design suggestion ("one wine could be New World for extra
+  contrast") — a suggestion recurring across ≥3 endorsed rows may itself form a cluster, phrased as
+  an enhancement, provided the fix is still mechanical (a prompt constraint or selection rule).
 Both streams feed prompts only as bounded rolling nudges — which means a RECURRING fault keeps
 recurring: the same complaint appears three, four, six times. Your job is to find those recurring
 clusters and propose ONE mechanical fix per cluster, so the fault is enforced in code permanently

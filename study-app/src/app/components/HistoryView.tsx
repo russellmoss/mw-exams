@@ -125,7 +125,7 @@ export interface AttemptDetail {
   // attempts. Object (JSONB) or string; null/absent for attempts without pace data.
   pace?: PaceData | string | null;
   // The AI's response to this attempt's feedback (latest analysis): shown inline in history.
-  ai_recommendation?: "accept" | "reject" | "pending" | null;
+  ai_recommendation?: "accept" | "reject" | "partial" | "endorse" | "pending" | null;
   ai_thread?: AiThreadMessage[] | string | null;
   ai_status?: string | null;
   feedback_status: string | null;
@@ -287,8 +287,8 @@ function ExpandedSection({ title, children }: { title: string; children: React.R
 }
 
 // Decision groups used by the admin filter chips. Color is keyed to the feedback_status
-// (accepted=green, partial=orange, rejected=red); the "auto" flag drives the 🤖 marker.
-type DecisionGroup = "auto-accept" | "partial" | "auto-reject" | "manual";
+// (accepted=green, partial=orange, rejected=red, endorsed=amber); the "auto" flag drives the 🤖 marker.
+type DecisionGroup = "auto-accept" | "partial" | "auto-reject" | "manual" | "endorsed";
 
 interface Decision {
   group: DecisionGroup;
@@ -314,6 +314,12 @@ function getDecision(status: string | null, decidedBy: string | null | undefined
   if (status === "rejected") {
     return { group: auto ? "auto-reject" : "manual", auto, label: auto ? "Auto-rejected" : "Rejected",
       tail: "— no change needed", chip: "bg-fail/20 text-fail", bg: "bg-fail/5", color: "var(--fail)" };
+  }
+  // Praise: the question was flagged as an exemplar. Accent (not a verdict color) — nothing was
+  // graded right or wrong; "rejected" was what praise used to be misfiled as.
+  if (status === "endorsed") {
+    return { group: "endorsed", auto, label: "Endorsed",
+      tail: "— flagged as an exemplar", chip: "bg-accent/20 text-accent", bg: "bg-accent/5", color: "var(--accent)" };
   }
   return null;
 }
@@ -432,6 +438,8 @@ const candidateFacing = (text: string) => (text.split("[[INTERNAL]]")[0] || text
 function recBadge(rec: string | null | undefined) {
   if (rec === "accept") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-success/15 text-success font-semibold">ACCEPT</span>;
   if (rec === "reject") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-fail/15 text-fail font-semibold">REJECT</span>;
+  if (rec === "partial") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-borderline/15 text-borderline font-semibold">PARTIAL</span>;
+  if (rec === "endorse") return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-semibold">ENDORSED</span>;
   return <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-borderline/15 text-borderline font-semibold">PENDING</span>;
 }
 function AiFeedbackResponse({ thread, recommendation, status }: { thread: AiThreadMessage[] | string | null | undefined; recommendation?: string | null; status?: string | null }) {
@@ -806,7 +814,7 @@ function AttemptCard({ attempt, readOnly, isAdmin }: { attempt: AttemptDetail; r
                 <div className="border-t border-border/60 pt-3 space-y-2">
                   {attempt.auto_recommendation && (
                     <div className="text-xs text-muted">
-                      Auto-analysis: <span className={`font-semibold ${attempt.auto_recommendation === "accept" ? "text-success" : attempt.auto_recommendation === "reject" ? "text-fail" : "text-borderline"}`}>{attempt.auto_recommendation.toUpperCase()}</span>
+                      Auto-analysis: <span className={`font-semibold ${attempt.auto_recommendation === "accept" ? "text-success" : attempt.auto_recommendation === "reject" ? "text-fail" : attempt.auto_recommendation === "endorse" ? "text-accent" : "text-borderline"}`}>{attempt.auto_recommendation.toUpperCase()}</span>
                     </div>
                   )}
                   {decision && (
@@ -1222,6 +1230,7 @@ export function HistoryView({
                         <Chip active={filters.decisions.has("auto-accept")} color="bg-success/20 text-success font-semibold border border-success/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "auto-accept") }))}>🤖 Auto-accepted</Chip>
                         <Chip active={filters.decisions.has("partial")} color="bg-borderline/20 text-borderline font-semibold border border-borderline/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "partial") }))}>Partial</Chip>
                         <Chip active={filters.decisions.has("auto-reject")} color="bg-fail/20 text-fail font-semibold border border-fail/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "auto-reject") }))}>🤖 Auto-rejected</Chip>
+                        <Chip active={filters.decisions.has("endorsed")} color="bg-accent/20 text-accent font-semibold border border-accent/40" onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "endorsed") }))}>Endorsed</Chip>
                         <Chip active={filters.decisions.has("manual")} onClick={() => setFilters((f) => ({ ...f, decisions: toggleInSet(f.decisions, "manual") }))}>Manual</Chip>
                       </div>
                     )}

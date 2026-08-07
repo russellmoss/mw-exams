@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { requireApiKey } from "@/lib/api-key";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
 import { getFeedbackAnalysis, updateFeedbackAnalysis, getEmpiricalKnowledgeForAnalysis } from "@/lib/db";
-import { reconcileAttemptDecision } from "@/lib/feedback-analysis";
+import { reconcileAttemptDecision, extractRecommendation } from "@/lib/feedback-analysis";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
 
@@ -109,13 +109,7 @@ export async function POST(
             timestamp: new Date().toISOString(),
           });
 
-          const recommendation = /recommendation:\s*\*?\*?accept/i.test(fullText)
-            ? "accept"
-            : /recommendation:\s*\*?\*?reject/i.test(fullText)
-              ? "reject"
-              : /recommendation:\s*\*?\*?partial/i.test(fullText)
-                ? "partial"
-                : "pending";
+          const recommendation = extractRecommendation(fullText);
 
           await updateFeedbackAnalysis(analysisId, {
             thread,

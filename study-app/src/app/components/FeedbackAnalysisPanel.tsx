@@ -12,7 +12,7 @@ interface ThreadMessage {
 
 interface AnalysisDetail {
   id: number;
-  recommendation: "accept" | "reject" | "pending" | null;
+  recommendation: "accept" | "reject" | "partial" | "endorse" | "pending" | null;
   thread: ThreadMessage[];
   status: string;
   user_feedback: string;
@@ -91,7 +91,11 @@ export function FeedbackAnalysisPanel({
         ? "accept"
         : /recommendation:\s*\*?\*?reject/i.test(result)
           ? "reject"
-          : "pending";
+          : /recommendation:\s*\*?\*?partial/i.test(result)
+            ? "partial"
+            : /recommendation:\s*\*?\*?endorse/i.test(result)
+              ? "endorse"
+              : "pending";
       setAnalysis({ ...analysis, thread: newThread, recommendation: rec as AnalysisDetail["recommendation"], status: "complete" });
     }
   };
@@ -103,6 +107,8 @@ export function FeedbackAnalysisPanel({
   const recBadge = (rec: string | null) => {
     if (rec === "accept") return <span className="text-xs px-2 py-1 rounded-full bg-success/15 text-success font-semibold">ACCEPT</span>;
     if (rec === "reject") return <span className="text-xs px-2 py-1 rounded-full bg-fail/15 text-fail font-semibold">REJECT</span>;
+    if (rec === "partial") return <span className="text-xs px-2 py-1 rounded-full bg-borderline/15 text-borderline font-semibold">PARTIAL</span>;
+    if (rec === "endorse") return <span className="text-xs px-2 py-1 rounded-full bg-accent/15 text-accent font-semibold">ENDORSED</span>;
     return <span className="text-xs px-2 py-1 rounded-full bg-borderline/15 text-borderline font-semibold">PENDING</span>;
   };
 

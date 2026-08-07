@@ -155,9 +155,21 @@ issue — classify it with the Kind line below.${pageNote}
   routes it to the Feature Request engine instead of dispatching any code change). Litmus test: if
   satisfying the request means *adding a capability the app doesn't have*, it is \`feature-request\`; if
   it means *correcting wrong content/scoring/selection of something that already exists*, it is one of
-  the fix Kinds above.
+  the fix Kinds above. If the same feedback ALSO praises this question itself ("good question, would be
+  nice to have X"), add \`Endorse: yes\` on its own line in the INTERNAL section — the pipeline then
+  logs the feature request AND flags the praised question as an exemplar, instead of "rejecting" praise.
+- **Kind: praise** — the feedback is POSITIVE: the user says the question is good, realistic, or
+  well-designed, and claims no defect. Set **recommendation: endorse**. Nothing is broken and nothing
+  ships; the question is flagged as an endorsed exemplar that future generation treats as the quality
+  bar, and the praise feeds the pattern miner as positive signal. If the praise carries an embedded
+  suggestion about question DESIGN (e.g. "one wine could be New World for another dimension of
+  contrast"), still use \`praise\` + endorse, and restate the suggestion clearly in the INTERNAL section
+  on a \`Suggestion:\` line so the miner can pick it up — do NOT treat a design musing as a defect. But
+  praise for the question combined with a genuine DEFECT claim elsewhere is not \`praise\` — classify by
+  the defect and use accept/partial/reject as usual.
 Pick the NARROWEST Kind that fixes the root cause: a one-off bad question is \`question\`; a recurring
-pattern is \`generation\` or \`validator\`; a request for brand-new functionality is \`feature-request\`.
+pattern is \`generation\` or \`validator\`; a request for brand-new functionality is \`feature-request\`;
+positive feedback with no defect claim is \`praise\`.
 
 ## WHERE THE LOGIC LIVES (target the right layer in your Proposed Change)
 When you propose a code change, name the layer/file the fix actually belongs in — not just the
@@ -194,7 +206,7 @@ ${stemSniperBlock}
 
 ## Purpose
 
-Users leave feedback on generated MW exam questions — often disagreeing with the AI evaluation, questioning the wine selection, or flagging issues with question design. Your job is to determine whether each piece of feedback should be **ACCEPTED** (leading to a pipeline change) or **REJECTED** (the system is already correct), grounded in what the real MW exam has actually done over the past 10+ years (2011–2025).
+Users leave feedback on generated MW exam questions — often disagreeing with the AI evaluation, questioning the wine selection, or flagging issues with question design. Your job is to determine whether each piece of feedback should be **ACCEPTED** (leading to a pipeline change), **REJECTED** (the system is already correct), or **ENDORSED** (the feedback is praise — the question is flagged as an exemplar), grounded in what the real MW exam has actually done over the past 10+ years (2011–2025). Reject is for a DISPUTED claim; it is never the bucket for positive feedback.
 
 The key principle: the MW exam has done surprising things historically. A candidate saying "this would NEVER happen" may be wrong — if the past exams show it HAS happened, the feedback should be rejected and the system preserved. Conversely, if the feedback identifies a genuine gap or error not seen in any past exam, it should be accepted.
 
@@ -260,16 +272,17 @@ If it HASN'T, note the absence and whether it's a deliberate gap or just hasn't 
 - User says "the MW would never test X" but the corpus shows they have → cite the evidence
 If all claims are factually correct, say "All factual claims verified."}
 
-### Recommendation: ACCEPT, REJECT, or PARTIAL
+### Recommendation: ACCEPT, REJECT, PARTIAL, or ENDORSE
 Use PARTIAL when:
 - Some claims are valid but others are factually wrong
 - The question has a real issue but the user's diagnosis of WHY is incorrect
 - The user raises a valid nuance (e.g., winemaking technique) but the core question design is sound
+Use ENDORSE when the feedback is praise with no defect claim (Kind: praise) — never REJECT praise.
 
 **Reasoning:** {2-3 sentences, plain language, why — backed by precedent}
 
 **What this means for you:**
-{Speak to the candidate. ACCEPT → acknowledge the valid point and that the system will be improved (no code detail). REJECT → respectful, educational explanation citing past real exams. PARTIAL → what's right, what isn't, and what (if anything) changes.}
+{Speak to the candidate. ACCEPT → acknowledge the valid point and that the system will be improved (no code detail). REJECT → respectful, educational explanation citing past real exams. PARTIAL → what's right, what isn't, and what (if anything) changes. ENDORSE → thank them; their endorsement flags this question as an exemplar the generator learns from, and any suggestion they made feeds future question design.}
 
 [[INTERNAL]]
 

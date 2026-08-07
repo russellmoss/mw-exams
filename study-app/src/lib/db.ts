@@ -2551,7 +2551,7 @@ export async function getFeedbackRowsForMining(
   {
     itemId: string;
     paper: number | null;
-    feedbackStatus: "accepted" | "partial";
+    feedbackStatus: "accepted" | "partial" | "endorsed";
     note: string | null;
     stem: string | null;
     mode: string | null;
@@ -2559,6 +2559,9 @@ export async function getFeedbackRowsForMining(
   }[]
 > {
   const sql = getDb();
+  // 'endorsed' rows are POSITIVE signal (praise, often carrying an embedded suggestion like "add a
+  // New World example for contrast") — they give the miner a contrast class against the defect
+  // streams and surface praise-borne suggestions that would otherwise be lost.
   const rows = (await sql`
     SELECT a.id, a.question_id, a.mode, a.user_feedback, a.feedback_status,
            COALESCE(a.feedback_submitted_at, a.completed_at, a.started_at) AS submitted_at,
@@ -2567,7 +2570,7 @@ export async function getFeedbackRowsForMining(
     LEFT JOIN generated_questions g ON g.question_id = a.question_id
     WHERE a.mode IS DISTINCT FROM 'theory'
       AND a.user_feedback IS NOT NULL AND length(trim(a.user_feedback)) > 0
-      AND a.feedback_status IN ('accepted', 'partial')
+      AND a.feedback_status IN ('accepted', 'partial', 'endorsed')
     ORDER BY COALESCE(a.feedback_submitted_at, a.completed_at, a.started_at) DESC
     LIMIT ${limit}
   `) as {
@@ -2575,7 +2578,7 @@ export async function getFeedbackRowsForMining(
     question_id: string | null;
     mode: string | null;
     user_feedback: string;
-    feedback_status: "accepted" | "partial";
+    feedback_status: "accepted" | "partial" | "endorsed";
     submitted_at: string | Date | null;
     paper: number | null;
     question_text: string | null;
@@ -3485,6 +3488,53 @@ export async function updateAttempt(
   return rows[0] as UserAttempt;
 }
 
+// Endorse the generated question behind an attempt: positive feedback (recommendation: endorse)
+// flags the question as an exemplar future generation learns from. The praise text rides along so
+// the generation prompt can show WHY an expert liked it. Idempotent-ish: a later endorsement
+// overwrites an earlier one (most recent praise wins — it's a flag, not a ledger).
+export async function endorseQuestionForAttempt(
+  attemptId: number,
+  opts?: { retroactive?: boolean }
+): Promise<string | null> {
+  const sql = getDb();
+  const source = `user_feedback:${attemptId}${opts?.retroactive ? " (retroactive)" : ""}`;
+  const rows = await sql`
+    UPDATE generated_questions g SET
+      endorsed_at = NOW(),
+      endorsement_note = LEFT(a.user_feedback, 600),
+      endorsement_source = ${source}
+    FROM user_attempts a
+    WHERE a.id = ${attemptId} AND g.question_id = a.question_id
+    RETURNING g.question_id
+  `;
+  return (rows[0]?.question_id as string) ?? null;
+}
+
+// Exemplars for the generation prompt: endorsed, still-live questions for this paper, same-family
+// first, most recently endorsed first. Small on purpose — 1-2 exemplars anchor style without
+// collapsing variety.
+export async function getEndorsedExemplars(
+  paper: number,
+  family?: string | null,
+  limit = 2
+): Promise<{ questionText: string; family: string | null; note: string | null }[]> {
+  const sql = getDb();
+  const fam = family && family !== "any" ? family : null;
+  const rows = await sql`
+    SELECT question_text, family, endorsement_note
+    FROM generated_questions
+    WHERE paper = ${paper} AND endorsed_at IS NOT NULL
+      AND status = 'approved' AND is_retired IS NOT TRUE
+    ORDER BY (family = ${fam}) DESC NULLS LAST, endorsed_at DESC
+    LIMIT ${limit}
+  `;
+  return rows.map((r) => ({
+    questionText: r.question_text as string,
+    family: (r.family as string) ?? null,
+    note: (r.endorsement_note as string) ?? null,
+  }));
+}
+
 export async function reviewFeedback(
   attemptId: number,
   status: string,
@@ -3566,7 +3616,7 @@ export interface AttemptWithDetails extends UserAttempt {
   pace: PaceData | null;
   // The AI's response to this attempt's feedback (latest feedback_analyses row): recommendation +
   // the conversation thread (system = "Analysis", user = follow-ups). History shows it inline.
-  ai_recommendation: "accept" | "reject" | "pending" | null;
+  ai_recommendation: "accept" | "reject" | "partial" | "endorse" | "pending" | null;
   ai_thread: unknown;
   ai_status: string | null;
 }
@@ -3623,7 +3673,7 @@ export interface FeedbackAnalysis {
   id: number;
   attempt_id: number;
   user_id: number;
-  recommendation: "accept" | "reject" | "pending" | null;
+  recommendation: "accept" | "reject" | "partial" | "endorse" | "pending" | null;
   thread: { role: "system" | "user"; content: string; timestamp: string }[];
   is_read: boolean;
   status: "analyzing" | "complete" | "error";

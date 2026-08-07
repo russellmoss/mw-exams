@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { neon } from "@neondatabase/serverless";
 import { buildFeedbackAnalysisPrompt } from "@/lib/prompts/feedback-analysis-prompt";
-import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback } from "@/lib/db";
+import { createFeedbackAnalysis, updateFeedbackAnalysis, reviewFeedback, saveNarration, getEmpiricalKnowledgeForAnalysis, createFeatureRequestFromFeedback, endorseQuestionForAttempt } from "@/lib/db";
 import { selectModel } from "@/lib/model-selector";
 import { isAutoApplyEnabled } from "@/lib/settings";
 import { applyFeedbackChange } from "@/lib/apply-change";
@@ -37,16 +37,35 @@ export interface RunFeedbackAnalysisResult {
   autoApplied?: boolean;
   autoRejected?: boolean;
   autoPartial?: boolean;
+  autoEndorsed?: boolean;
   error?: string;
 }
 
 // The attempt `feedback_status` each recommendation maps to once a decision is applied.
-// (accept → "accepted" is set inside applyFeedbackChange; reject/partial via reviewFeedback.)
+// (accept → "accepted" is set inside applyFeedbackChange; reject/partial/endorse via reviewFeedback.)
 const STATUS_FOR_RECOMMENDATION: Record<string, string> = {
   accept: "accepted",
   reject: "rejected",
   partial: "partial",
+  endorse: "endorsed",
 };
+
+/**
+ * Parse the analysis text's "Recommendation:" line. Single source of truth — the initial analysis
+ * and the follow-up reply route both use this, so a recommendation added in one place can never be
+ * silently unparseable in the other (endorse was nearly that bug).
+ */
+export function extractRecommendation(text: string): string {
+  return /recommendation:\s*\*?\*?accept/i.test(text)
+    ? "accept"
+    : /recommendation:\s*\*?\*?reject/i.test(text)
+      ? "reject"
+      : /recommendation:\s*\*?\*?partial/i.test(text)
+        ? "partial"
+        : /recommendation:\s*\*?\*?endorse/i.test(text)
+          ? "endorse"
+          : "pending";
+}
 
 /**
  * Execute the Auto-Apply decision for a resolved recommendation. Extracted so the initial
@@ -56,9 +75,9 @@ const STATUS_FOR_RECOMMENDATION: Record<string, string> = {
 export async function applyRecommendation(
   attemptId: number,
   recommendation: string,
-  opts?: { rejectNote?: string; partialNote?: string }
-): Promise<{ autoApplied: boolean; autoRejected: boolean; autoPartial: boolean }> {
-  const r = { autoApplied: false, autoRejected: false, autoPartial: false };
+  opts?: { rejectNote?: string; partialNote?: string; endorseNote?: string }
+): Promise<{ autoApplied: boolean; autoRejected: boolean; autoPartial: boolean; autoEndorsed: boolean }> {
+  const r = { autoApplied: false, autoRejected: false, autoPartial: false, autoEndorsed: false };
   if (recommendation === "accept") {
     try {
       await applyFeedbackChange({ attemptId, appliedBy: "auto" });
@@ -90,6 +109,26 @@ export async function applyRecommendation(
     } catch (partErr) {
       console.error("auto-partial failed:", partErr);
     }
+  } else if (recommendation === "endorse") {
+    // Positive feedback: nothing to fix. Flag the question as an exemplar (feeds the generation
+    // prompt + the miner's contrast class) and resolve with a status that thanks rather than
+    // "rejects" the praise.
+    try {
+      await endorseQuestionForAttempt(attemptId);
+    } catch (endErr) {
+      console.error("question endorsement failed:", endErr); // still resolve the feedback below
+    }
+    try {
+      await reviewFeedback(
+        attemptId,
+        "endorsed",
+        opts?.endorseNote ?? "Auto-endorsed by Auto-Apply — positive feedback; question flagged as an exemplar for future generation.",
+        "auto"
+      );
+      r.autoEndorsed = true;
+    } catch (endErr) {
+      console.error("auto-endorse failed:", endErr);
+    }
   }
   return r;
 }
@@ -118,7 +157,7 @@ export async function reconcileAttemptDecision(
   if (!(await isAutoApplyEnabled())) return { reconciled: false };
   // The verdict changed under auto-decisioning — re-run the decision so the corrected verdict sticks.
   const note = `Re-decided by Auto-Apply after follow-up discussion (was ${cur.feedback_status ?? "undecided"}).`;
-  await applyRecommendation(attemptId, recommendation, { rejectNote: note, partialNote: note });
+  await applyRecommendation(attemptId, recommendation, { rejectNote: note, partialNote: note, endorseNote: note });
   return { reconciled: true, from: cur.feedback_status, to: expected };
 }
 
@@ -209,7 +248,9 @@ async function generateVerdictNarration(opts: {
           ? "rejected"
           : opts.recommendation === "partial"
             ? "partially accepted"
-            : "reviewed";
+            : opts.recommendation === "endorse"
+              ? "received as an endorsement — the question they praised is now flagged as an exemplar future questions are generated against"
+              : "reviewed";
 
     const system =
       "You write a SPOKEN notification, read aloud to a Master of Wine candidate, " +
@@ -387,13 +428,7 @@ export async function runFeedbackAnalysis(opts: {
       .map((b) => b.text)
       .join("");
 
-    const recommendation = /recommendation:\s*\*?\*?accept/i.test(analysisText)
-      ? "accept"
-      : /recommendation:\s*\*?\*?reject/i.test(analysisText)
-        ? "reject"
-        : /recommendation:\s*\*?\*?partial/i.test(analysisText)
-          ? "partial"
-          : "pending";
+    const recommendation = extractRecommendation(analysisText);
 
     const thread = [
       { role: "system" as const, content: analysisText, timestamp: new Date().toISOString() },
@@ -433,22 +468,49 @@ export async function runFeedbackAnalysis(opts: {
         console.error("[feature-gate] failed to log feature request from feedback:", frErr);
       }
       const link = frId ? `/admin#feature-request` : "/admin#feature-request";
-      const note = isAdminAuthor
+      // Mixed praise + feature request ("good question, would be nice to see model answers"): the
+      // analysis marks `Endorse: yes`, so the FR is logged AND the praised question still becomes
+      // an exemplar — the praise isn't discarded, and the user isn't told "rejected".
+      const alsoEndorse = /endorse:\s*\**yes\**/i.test(analysisText);
+      if (alsoEndorse) {
+        try {
+          await endorseQuestionForAttempt(attemptId);
+          // Keep the analysis row consistent with the decision (the prompt has FR set
+          // "recommendation: reject", which is wrong for the praise half).
+          await updateFeedbackAnalysis(analysis.id, { recommendation: "endorse" });
+        } catch (endErr) {
+          console.error("[feature-gate] endorse-alongside-FR failed:", endErr);
+        }
+      }
+      const frNote = isAdminAuthor
         ? `Feature request (not a fix) — open the Feature Request engine to refine and build it: ${link}${frId ? ` (logged as feature_requests #${frId})` : ""}.`
         : `Feature request from a non-admin — logged for admin review${frId ? ` (feature_requests #${frId})` : ""}; not auto-built.`;
-      await reviewFeedback(attemptId, "rejected", note, "auto");
-      return { status: "complete", analysisId: analysis.id, recommendation: "reject", autoApplied: false, autoRejected: true, autoPartial: false };
+      const status = alsoEndorse ? "endorsed" : "rejected";
+      const note = alsoEndorse
+        ? `Positive feedback — question flagged as an exemplar. ${frNote}`
+        : frNote;
+      await reviewFeedback(attemptId, status, note, "auto");
+      return {
+        status: "complete",
+        analysisId: analysis.id,
+        recommendation: alsoEndorse ? "endorse" : "reject",
+        autoApplied: false,
+        autoRejected: !alsoEndorse,
+        autoPartial: false,
+        autoEndorsed: alsoEndorse,
+      };
     }
 
     // Auto-Apply: the AI's recommendation is authoritative and the item leaves the open queue.
     let autoApplied = false;
     let autoRejected = false;
     let autoPartial = false;
+    let autoEndorsed = false;
     if (!opts.skipAutoApply && (await isAutoApplyEnabled())) {
-      ({ autoApplied, autoRejected, autoPartial } = await applyRecommendation(attemptId, recommendation));
+      ({ autoApplied, autoRejected, autoPartial, autoEndorsed } = await applyRecommendation(attemptId, recommendation));
     }
 
-    return { status: "complete", analysisId: analysis.id, recommendation, autoApplied, autoRejected, autoPartial };
+    return { status: "complete", analysisId: analysis.id, recommendation, autoApplied, autoRejected, autoPartial, autoEndorsed };
   } catch (err) {
     // Don't leave the analysis row stuck in 'analyzing' — mark it errored so the
     // sweeper/admin can see it failed (auto_analysis_id is already set, so it won't

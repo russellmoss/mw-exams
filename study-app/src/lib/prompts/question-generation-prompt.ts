@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
+import { getEndorsedExemplars } from "@/lib/db";
 
 const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
   F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
@@ -489,6 +490,38 @@ export async function buildQuestionGenerationPrompt(
   // validateCurveballMix) then enforce.
   const examMixBlock = buildExamMixBlock(paper, examMix);
 
+  // Endorsed exemplars (migration 057): generated questions an expert user explicitly praised — the
+  // pipeline's only POSITIVE signal, since everything else it learns says what to avoid. A data
+  // outage degrades to no block rather than a failed generation.
+  //
+  // DELIBERATELY OUTSIDE THE CACHEABLE PREFIX, and interpolated into the dynamic half below. It
+  // varies by paper AND family, and changes the moment anyone endorses a question — exactly the
+  // per-question variability the prefix must not contain. Its original commit predated the caching
+  // work and appended it to the historical examples, which sit at the END of the prefix; carrying
+  // that over verbatim would have broken byte-identity and silently returned the cache-hit rate to
+  // the 0.0% the caching work was written to fix.
+  let endorsedBlock = "";
+  try {
+    const exemplars = await getEndorsedExemplars(paper, family);
+    if (exemplars.length > 0) {
+      const lines = exemplars
+        .map(
+          (e) =>
+            `[P${paper}${e.family ? `, ${e.family}` : ""}]: ${e.questionText}${e.note ? `\n  ↳ expert praise: "${e.note}"` : ""}`
+        )
+        .join("\n\n");
+      endorsedBlock = `## ENDORSED EXEMPLARS (generated questions expert users explicitly PRAISED — this is the quality bar)
+Emulate what makes these work — the coherence of the contrast, the wine-selection logic, the stem
+discipline the praise points at. Do NOT copy their wines, producers, or stem template: the
+deduplication and novelty rules above still apply in full. The exemplar shows a STANDARD, not a mold.
+${lines}
+
+`;
+    }
+  } catch (err) {
+    console.error("endorsed-exemplars fetch failed (continuing without):", err);
+  }
+
   // ── THE CACHEABLE PREFIX ────────────────────────────────────────────────────────────────────
   //
   // The corpus documents, which are loaded once from public/data/pipeline-context.json, memoised in
@@ -555,7 +588,7 @@ Still dry wines are NOT a category of their own — they appear WITHIN these fli
 ${targetP3Style === "sparkling" ? "Select sparkling wines — Champagne, Cava, Crémant, English sparkling, Prosecco, Franciacorta, Sekt, Cap Classique." : ""}${targetP3Style === "fortified" ? "Select fortified wines — Port, Sherry, Madeira, Banyuls, Rutherglen, VDN, Marsala." : ""}${targetP3Style === "sweet" ? "Select sweet wines with meaningful RS — Sauternes, Tokaji, BA/TBA, Icewine, Quarts de Chaume, Vin Santo, late harvest." : ""}${targetP3Style === "rose" ? "Select rosé wines — Provence, Tavel, Bandol, sparkling rosé, New World rosé." : ""}${targetP3Style === "oxidative" ? "Select oxidative wines — Vin Jaune, orange/amber wines, oxidative Jura, sous voile styles." : ""}
 
 P3 OXIDATIVE STILL-WHITE SUB-RULE (HARD): A still (non-sparkling, non-fortified) white wine is in-scope for Paper 3 ONLY if its oxidative character is flor/sous voile-driven (e.g., Jura Savagnin sous voile, Vin Jaune). Conventionally cask-oxidized still whites — oxidative white Rioja (e.g., López de Heredia Tondonia/Gravonia Blanco, Marqués de Murrieta Castillo Ygay Blanco), oxidative aged Hunter Semillon — are PAPER 1 wines and must NOT be the basis of a Paper 3 question. Two such still whites contrasted by production method is a Paper 1 question. A P3 question may feature a conventionally-oxidative still white ONLY when it is paired with a fortified or biologically-aged (flor) wine (e.g., a Fino/Manzanilla Sherry) that supplies a genuine P3 contrast (oxidative-vs-biological, or still-vs-fortified). If you reason about including a Fino, Sherry, or other fortified/flor wine, you MUST actually place that wine in the wine list — do not let the selection collapse into all still wines.
-` : ""}${examMixBlock}## YOUR TASK
+` : ""}${examMixBlock}${endorsedBlock}## YOUR TASK
 Generate ONE question with exactly ${targetFlightSize} wines for Paper ${paper}${family !== "any" ? `, question family ${family}` : ""}. Follow every constraint in the agent instructions above and the rules below — geographic vocabulary, wine selection, mark allocation, curveball design, etc.
 
 ${(() => {

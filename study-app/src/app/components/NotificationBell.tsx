@@ -60,7 +60,7 @@ function markFlagSeen(id: number) {
 interface AnalysisSummary {
   id: number;
   attempt_id: number;
-  recommendation: "accept" | "reject" | "partial" | "pending" | null;
+  recommendation: "accept" | "reject" | "partial" | "endorse" | "pending" | null;
   status: "analyzing" | "complete" | "error";
   is_read: boolean;
   created_at: string;
@@ -202,6 +202,7 @@ export function NotificationBell() {
     if (rec === "accept") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-success/20 text-success">Accept</span>;
     if (rec === "reject") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-fail/20 text-fail">Reject</span>;
     if (rec === "partial") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-borderline/20 text-borderline">Partial</span>;
+    if (rec === "endorse") return <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">Endorsed</span>;
     return <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/20 text-muted">Pending</span>;
   };
 
