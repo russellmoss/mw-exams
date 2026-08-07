@@ -92,10 +92,12 @@ export function BinFixProposalsSection() {
         const n = Array.isArray(data.created) ? data.created.length : 0;
         setNote(
           data.status === "nothing_to_mine"
-            ? "Not enough live bin reasons to mine yet."
-            : n === 0
-              ? "No new recurring clusters found."
-              : `${n} new proposal${n === 1 ? "" : "s"}.`
+            ? "Not enough live signals to mine yet."
+            : data.status === "already_running"
+              ? "A mining run is already in progress — try again in a few minutes."
+              : n === 0
+                ? "No new recurring clusters found."
+                : `${n} new proposal${n === 1 ? "" : "s"}.`
         );
         await load();
       } else {

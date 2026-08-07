@@ -29,6 +29,8 @@ import {
   markBinFixDispatched,
   markBinFixPrState,
   retireBinFixEvidence,
+  tryAcquireMiningLock,
+  releaseMiningLock,
   type BinFixProposal,
 } from "@/lib/db";
 import type { MinableBinRow } from "@/lib/prompts/bin-fix-miner-prompt";
@@ -133,8 +135,65 @@ export async function getSignalRowsForMining(): Promise<MinableBinRow[]> {
   return [...binMapped, ...fbMapped.slice(0, Math.max(0, MAX_MINING_ROWS - binMapped.length))];
 }
 
+// Second dedupe layer, behind the mining lock. The lock stops CONCURRENT runs from mining the same
+// ledger blind to each other; this catches the sequential case where the model rewords a theme it
+// was told not to re-propose ("Flight mark total must equal exactly 25 marks per wine" vs "Mark
+// budget not enforced: total ≠ 25 × wines" — real proposals 12 and 14). Compared on significant
+// words only, and the threshold is deliberately HIGH: suppressing a genuinely new cluster is worse
+// than letting a near-duplicate through for the admin to reject.
+const THEME_STOPWORDS = new Set([
+  "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "not", "is", "are", "be", "must",
+  "per", "by", "with", "at", "as", "into", "one", "must", "should",
+]);
+
+export function themeTokens(theme: string): Set<string> {
+  return new Set(
+    theme
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !THEME_STOPWORDS.has(w))
+  );
+}
+
+/**
+ * Overlap coefficient (shared / smaller set) of two themes' significant words, 0–1.
+ *
+ * Measured against the real corpus rather than guessed: over the two known duplicate pairs and six
+ * known-distinct pairs from bin_fix_proposals, the unstemmed overlap coefficient scored duplicates
+ * at 0.43–0.50 and distinct pairs at 0.00–0.14 — a ~3x margin. Jaccard separates too but compresses
+ * everything under 0.31, and crude plural-stemming made it WORSE (a distinct pair rose to 0.33) by
+ * collapsing "wine"/"wines" across unrelated themes. Hence: overlap, no stemming.
+ */
+export function themeSimilarity(a: string, b: string): number {
+  const ta = themeTokens(a);
+  const tb = themeTokens(b);
+  if (ta.size === 0 || tb.size === 0) return 0;
+  let shared = 0;
+  for (const t of ta) if (tb.has(t)) shared++;
+  return shared / Math.min(ta.size, tb.size);
+}
+
+// Sits in the measured gap (distinct max 0.14, duplicate min 0.43), nearer the distinct side so a
+// genuinely new cluster is never suppressed on a coin-flip.
+export const THEME_DUPLICATE_THRESHOLD = 0.3;
+// An overlap coefficient divides by the SMALLER set, so a 2-word theme would match almost anything
+// containing both words. Require real lexical agreement as well — both known duplicates share 3+.
+export const THEME_DUPLICATE_MIN_SHARED = 3;
+
+export function isDuplicateTheme(a: string, b: string): boolean {
+  if (a.toLowerCase().trim() === b.toLowerCase().trim()) return true;
+  const ta = themeTokens(a);
+  const tb = themeTokens(b);
+  let shared = 0;
+  for (const t of ta) if (tb.has(t)) shared++;
+  return shared >= THEME_DUPLICATE_MIN_SHARED && themeSimilarity(a, b) >= THEME_DUPLICATE_THRESHOLD;
+}
+
 export interface MineResult {
-  status: "mined" | "nothing_to_mine" | "no_api_key" | "error";
+  status: "mined" | "nothing_to_mine" | "no_api_key" | "already_running" | "error";
   created: BinFixProposal[];
 }
 
@@ -143,12 +202,20 @@ export async function mineBinFixProposals(opts: {
   userId?: number | null;
   source?: "user" | "server";
 }): Promise<MineResult> {
+  let lockHeld = false;
   try {
     const apiKey = opts.apiKey ?? process.env.ANTHROPIC_API_KEY;
     if (!apiKey) return { status: "no_api_key", created: [] };
 
     const rows = await getSignalRowsForMining();
     if (rows.length < MIN_CLUSTER_SIZE) return { status: "nothing_to_mine", created: [] };
+
+    // Take the lock AFTER the cheap early-outs but BEFORE reading the proposals we dedupe against —
+    // that read is the start of the critical section (see tryAcquireMiningLock).
+    if (!(await tryAcquireMiningLock(opts.source === "user" ? `user:${opts.userId ?? "?"}` : "cron"))) {
+      return { status: "already_running", created: [] };
+    }
+    lockHeld = true;
     const existing = await getBinFixProposals();
 
     const prompt = buildBinFixMinerPrompt({
@@ -179,14 +246,17 @@ export async function mineBinFixProposals(opts: {
       .join("");
     const clusters = parseMinedClusters(text, new Set(rows.map((r) => r.itemId)));
 
-    // Defensive theme dedupe on top of the prompt instruction — an identical theme (case-insensitive)
-    // never becomes a second proposal row, whatever the model said.
-    const seenThemes = new Set(existing.map((p) => p.theme.toLowerCase().trim()));
+    // Defensive theme dedupe on top of the prompt instruction: an identical theme never becomes a
+    // second proposal row, and neither does a REWORDED one (themeSimilarity — see its comment).
+    const seenThemes = existing.map((p) => p.theme);
     const created: BinFixProposal[] = [];
     for (const c of clusters) {
-      const key = c.theme.toLowerCase().trim();
-      if (seenThemes.has(key)) continue;
-      seenThemes.add(key);
+      const dupe = seenThemes.find((t) => isDuplicateTheme(t, c.theme));
+      if (dupe) {
+        console.log(`[bin-fix-miner] skipped near-duplicate theme "${c.theme}" (matches "${dupe}")`);
+        continue;
+      }
+      seenThemes.push(c.theme);
       created.push(
         await insertBinFixProposal({
           theme: c.theme,
@@ -201,6 +271,9 @@ export async function mineBinFixProposals(opts: {
   } catch (err) {
     console.error("[bin-fix-miner] mine failed (non-fatal):", err);
     return { status: "error", created: [] };
+  } finally {
+    // Release only if WE took it — a run that bounced off a held lock must not free the holder's.
+    if (lockHeld) await releaseMiningLock().catch(() => {});
   }
 }
 
