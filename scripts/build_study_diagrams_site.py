@@ -206,9 +206,13 @@ def page_template(title: str, content: str, print_filename: str) -> str:
       const svg = stage ? stage.querySelector('svg') : null;
       if (!viewport || !stage || !svg) return null;
 
+      // A freshly inserted mermaid svg has no viewBox yet (the browser reports the 300x150
+      // default). Treat that as "still rendering" and let initDiagrams retry — measuring too
+      // early would lock the finished diagram to placeholder size.
       const viewBox = svg.viewBox && svg.viewBox.baseVal;
-      const naturalW = (viewBox && viewBox.width) || svg.getBoundingClientRect().width || 1000;
-      const naturalH = (viewBox && viewBox.height) || svg.getBoundingClientRect().height || 800;
+      if (!viewBox || !viewBox.width || !viewBox.height) return null;
+      const naturalW = viewBox.width;
+      const naturalH = viewBox.height;
       svg.style.width = `${{naturalW}}px`;
       svg.style.height = `${{naturalH}}px`;
       svg.style.maxWidth = 'none';
@@ -221,10 +225,14 @@ def page_template(title: str, content: str, print_filename: str) -> str:
 
       function fit() {{
         const vw = viewport.clientWidth || 800;
-        const maxH = Math.max(window.innerHeight * 0.78, 420);
-        // Never scale UP past natural size — small diagrams sit centered at 1:1 (blown-up 19px
-        // Mermaid text reads as a rendering bug); large ones scale down to fit width/height.
-        const fitScale = Math.min(vw / naturalW, maxH / naturalH, 1);
+        // Fit to WIDTH only — the page scrolls, so tall trees take the full vertical room they
+        // need instead of being crushed into the window height. Two guards keep every diagram
+        // legible and consistent: never scale UP past 1:1 (blown-up 19px Mermaid text reads as
+        // a rendering bug), and never start below MIN_READABLE — a floored diagram overflows
+        // horizontally and the reader pans, which beats unreadable text.
+        const MIN_READABLE = 0.6;
+        const widthFit = Math.min(vw / naturalW, 1);
+        const fitScale = Math.max(widthFit, MIN_READABLE);
         state.fit = fitScale;
         state.scale = fitScale;
         viewport.style.height = `${{Math.ceil(naturalH * fitScale)}}px`;
@@ -746,6 +754,8 @@ body {
     radial-gradient(circle at top right, rgba(132, 67, 54, 0.12), transparent 22%),
     linear-gradient(180deg, #efe4d3 0%, var(--bg) 100%);
   font-family: 'Source Sans 3', sans-serif;
+  /* Full-bleed diagram breakout uses 100vw, which includes the scrollbar gutter. */
+  overflow-x: hidden;
 }
 
 .site-header,
@@ -865,6 +875,9 @@ p {
   padding: 0;
   border: 0;
   background: transparent;
+  /* Break out of the text column: diagrams use the full window width. */
+  width: calc(100vw - 40px);
+  margin-left: calc(50% - 50vw + 20px);
 }
 
 .diagram-viewport {
@@ -1121,6 +1134,8 @@ body {
   color: var(--ink);
   background: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Full-bleed diagram breakout uses 100vw, which includes the scrollbar gutter. */
+  overflow-x: hidden;
 }
 
 .site-header,
@@ -1263,6 +1278,9 @@ p {
   padding: 0;
   border: 0;
   background: transparent;
+  /* Break out of the text column: diagrams use the full window width. */
+  width: calc(100vw - 40px);
+  margin-left: calc(50% - 50vw + 20px);
 }
 
 .diagram-viewport {

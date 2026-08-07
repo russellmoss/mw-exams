@@ -25,6 +25,8 @@ body {
     radial-gradient(circle at top right, rgba(132, 67, 54, 0.12), transparent 22%),
     linear-gradient(180deg, #efe4d3 0%, var(--bg) 100%);
   font-family: 'Source Sans 3', sans-serif;
+  /* Full-bleed diagram breakout uses 100vw, which includes the scrollbar gutter. */
+  overflow-x: hidden;
 }
 
 .site-header,
@@ -144,6 +146,9 @@ p {
   padding: 0;
   border: 0;
   background: transparent;
+  /* Break out of the text column: diagrams use the full window width. */
+  width: calc(100vw - 40px);
+  margin-left: calc(50% - 50vw + 20px);
 }
 
 .diagram-viewport {
