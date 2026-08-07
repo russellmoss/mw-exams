@@ -9,6 +9,7 @@
 import {
   applyQuestionRules,
   stemSniperScoringModel as _stemSniperScoringModel,
+  canonCountry,
   canonVariety,
   methodClass,
   norm,
@@ -38,6 +39,10 @@ export interface AuditWine {
   // reasoning rather than a wine resolves to a plausible-looking key and the audit sees nothing wrong.
   // Callers that can supply the label should, to enable the wine-reference-shape rule.
   fullText?: string;
+  // Residual sugar in grams per litre, when the answer key resolves it. Used by the stem-predicate
+  // cross-check (STEM_PREDICATE_MISMATCH): a stem that asserts "both/all have residual sugar" or "sweet
+  // wines" is contradicted by a keyed wine whose RS is below 5 g/L (or that is otherwise tagged dry).
+  rs?: number;
 }
 export interface QuestionForAudit {
   questionId: string;
@@ -180,6 +185,35 @@ function blendSignal(w: AuditWine): string | null {
   return hit ? `${hit.name} is a multi-variety appellation` : null;
 }
 
+// Word-number map for stem cardinality claims ("four different countries", "three different regions").
+const STEM_WORD_NUM: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
+  seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+};
+function parseStemCount(token: string | undefined): number {
+  if (!token) return 0;
+  return /^\d+$/.test(token) ? Number(token) : STEM_WORD_NUM[token] || 0;
+}
+
+// A wine's canonical country / region / style-tag, "" when the key can't place it. canonCountry folds
+// synonyms (USA/United States) so two USA wines don't read as two distinct countries; styleTag prefers
+// the P3 style_category and falls back to the free-text style.
+const countryOf = (w: AuditWine): string => canonCountry(w.country || "");
+const regionOf = (w: AuditWine): string => norm(w.region || "");
+const styleTag = (w: AuditWine): string => norm(w.style_category || w.style || "");
+
+// Why a wine contradicts a "has residual sugar" / "sweet" stem claim (or null). A resolved RS below
+// 5 g/L is bone dry; failing that, a dry style tag (still_dry, "dry"/"bone dry" text — but never the
+// off-dry / medium-dry families, which do carry residual sugar) is the fallback signal.
+function drySignal(w: AuditWine): string | null {
+  if (typeof w.rs === "number" && w.rs < 5) return `RS ${w.rs} g/L is below 5 g/L`;
+  const s = norm([w.style, w.style_category].filter(Boolean).join(" "));
+  if (!s) return null;
+  if (/\b(?:off|medium)[ -]?dry\b/.test(s) || /still_off_dry|still_sweet/.test(s)) return null;
+  if (/still_dry|\bbone[ -]?dry\b|\bdry\b/.test(s)) return `keyed dry (${w.style_category || w.style})`;
+  return null;
+}
+
 export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
   const stem = normStem(q.questionText);
@@ -232,6 +266,150 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
           rule: "stem-fact-singular-variety-blend",
           severity: "hard",
           detail: `stem asserts a single grape variety, but wine ${w.slot} is a blend (${why}); the stem should read "grape variety or varieties"`,
+        });
+    }
+  }
+
+  // ── Non-variety stem PREDICATES — the four remaining axes beyond variety/blend ──────────────────
+  // The shipped checker above only covers variety/blend assertions, so non-variety stem predicates
+  // still passed unchecked (fb_121 served "four different countries" over two USA wines; fb_89
+  // declared "both wines have residual sugar" while keying a bone-dry Savennières; fb_120 declared
+  // "same country … contrasting styles" over a key whose wines shared one style tag). Each parsed
+  // predicate is compared against the resolved wine records; a contradiction is a hard reject emitted
+  // as STEM_PREDICATE_MISMATCH naming the predicate and the offending wine index.
+
+  // (4) COUNTRY cardinality — "N different countries" needs N distinct; "the same country" needs one.
+  {
+    const distinctCount = stem.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
+    );
+    const required = distinctCount
+      ? parseStemCount(distinctCount[1])
+      : /\bdifferent countries\b/.test(stem)
+        ? wines.length
+        : 0;
+    if (required >= 2) {
+      const placed = wines.filter((w) => countryOf(w));
+      const distinct = new Set(placed.map(countryOf));
+      if (placed.length >= 2 && distinct.size < required) {
+        const seen = new Map<string, number>();
+        const dup = placed.find((w) => {
+          const c = countryOf(w);
+          if (seen.has(c)) return true;
+          seen.set(c, w.slot);
+          return false;
+        });
+        const dupNote = dup
+          ? ` (wine ${dup.slot} repeats ${dup.country} from wine ${seen.get(countryOf(dup))})`
+          : "";
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${
+            distinctCount ? distinctCount[0] : "different countries"
+          }" claims ${required} different countries, but the flight keys only ${distinct.size} distinct (${
+            [...distinct].join(", ") || "none"
+          })${dupNote}`,
+        });
+      }
+    }
+    if (/\b(?:the )?same country\b/.test(stem)) {
+      const placed = wines.filter((w) => countryOf(w));
+      if (placed.length >= 2) {
+        const base = placed[0];
+        const offender = placed.find((w) => countryOf(w) !== countryOf(base));
+        if (offender)
+          v.push({
+            rule: "STEM_PREDICATE_MISMATCH",
+            severity: "hard",
+            detail: `stem predicate "same country" is contradicted: wine ${offender.slot} is ${offender.country} while wine ${base.slot} is ${base.country}`,
+          });
+      }
+    }
+  }
+
+  // (5) REGION cardinality — "the same region" needs one region; "N different regions" needs N distinct.
+  {
+    if (/\b(?:the )?same region\b/.test(stem)) {
+      const placed = wines.filter((w) => regionOf(w));
+      if (placed.length >= 2) {
+        const base = placed[0];
+        const offender = placed.find((w) => regionOf(w) !== regionOf(base));
+        if (offender)
+          v.push({
+            rule: "STEM_PREDICATE_MISMATCH",
+            severity: "hard",
+            detail: `stem predicate "same region" is contradicted: wine ${offender.slot} is ${offender.region} while wine ${base.slot} is ${base.region}`,
+          });
+      }
+    }
+    const distinctRegions = stem.match(
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+regions\b/
+    );
+    const requiredR = distinctRegions
+      ? parseStemCount(distinctRegions[1])
+      : /\bdifferent regions\b/.test(stem)
+        ? wines.length
+        : 0;
+    if (requiredR >= 2) {
+      const placed = wines.filter((w) => regionOf(w));
+      const distinct = new Set(placed.map(regionOf));
+      if (placed.length >= 2 && distinct.size < requiredR) {
+        const seen = new Map<string, number>();
+        const dup = placed.find((w) => {
+          const r = regionOf(w);
+          if (seen.has(r)) return true;
+          seen.set(r, w.slot);
+          return false;
+        });
+        const dupNote = dup ? ` (wine ${dup.slot} repeats ${dup.region} from wine ${seen.get(regionOf(dup))})` : "";
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${
+            distinctRegions ? distinctRegions[0] : "different regions"
+          }" claims ${requiredR} different regions, but the flight keys only ${distinct.size} distinct${dupNote}`,
+        });
+      }
+    }
+  }
+
+  // (6) SWEETNESS — "both/all have residual sugar" or "sweet wines" fails on any keyed wine that is
+  // bone dry (RS < 5 g/L or a dry style tag). This is the fb_89 fault: a bone-dry Savennières keyed
+  // under "both wines have residual sugar".
+  if (
+    /\b(?:both|all|each)\b[a-z ]{0,20}\bresidual sugar\b/.test(stem) ||
+    /\bhave residual sugar\b/.test(stem) ||
+    /\bsweet wines?\b/.test(stem) ||
+    /\b(?:both|all|each)\b[a-z ]{0,20}\bsweet\b/.test(stem)
+  ) {
+    const predicate = /residual sugar/.test(stem) ? "have residual sugar" : "sweet wines";
+    for (const w of wines) {
+      const why = drySignal(w);
+      if (why)
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "${predicate}" is contradicted: wine ${w.slot} (${
+            w.region || (w.varieties || []).join("/") || "keyed wine"
+          }) is bone dry — ${why}`,
+        });
+    }
+  }
+
+  // (7) STYLE CONTRAST — "contrasting styles" fails when every keyed wine shares one style tag, so
+  // there is no contrast to earn the marks (the fb_120 shape: a same-country pair keyed to one style).
+  if (/\bcontrasting styles?\b/.test(stem)) {
+    const tagged = wines.filter((w) => styleTag(w));
+    if (tagged.length >= 2) {
+      const base = styleTag(tagged[0]);
+      if (tagged.every((w) => styleTag(w) === base))
+        v.push({
+          rule: "STEM_PREDICATE_MISMATCH",
+          severity: "hard",
+          detail: `stem predicate "contrasting styles" is contradicted: all ${tagged.length} wines share the same style tag (${
+            tagged[0].style_category || tagged[0].style
+          }) — e.g. wines ${tagged.map((w) => w.slot).join(", ")}`,
         });
     }
   }
