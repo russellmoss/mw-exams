@@ -55,7 +55,15 @@ export function samplePaperComposition(opts: {
   const { paper, size, totalBudget } = opts;
   const rng = opts.rng ?? Math.random;
 
-  const patterns = size === "full" ? FULL_PATTERNS : HALF_PATTERNS;
+  // Real wines-per-question, 2022-24 (data/exams.json): P1 [2,3,3,4,4,4,4,6,3,3] — 3-4 dominant,
+  // a single 2-wine question in three years; P2 [4,2,2,2,2,4,4,4,3,4,5] and P3 [4,5,3,4,3,2,3,2,2,3,5]
+  // — 2-wine questions are common. So an all-2s half paper is plausible on P2/P3 but not on P1.
+  const patterns =
+    size === "full"
+      ? FULL_PATTERNS
+      : paper === 1
+        ? HALF_PATTERNS.filter((p) => p.some((n) => n >= 3))
+        : HALF_PATTERNS;
   const pattern = patterns[Math.floor(rng() * patterns.length)];
 
   // Weighted family draw per flight, without letting any family exceed 2 slots and — matching

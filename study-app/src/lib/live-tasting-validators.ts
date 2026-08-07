@@ -106,22 +106,32 @@ export function validatePinnedFlight(
  */
 export function validateMarkRealism(
   questionText: string,
-  totalMarks: number
+  totalMarks: number,
+  paper?: number
 ): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const text = questionText || "";
+  // Bands are PER PAPER — the original numbers were read off Paper 3 alone and would reject real
+  // Paper 1 structures (2023 P1 Q3a pools 40 marks; 2023 P1 Q1c allocates "2 x 25" per pair).
+  const pooledCap = paper === 3 ? 30 : 40;
+  const perUnitCap = 25;
   if (/\d+\s*marks?\s+each\b/i.test(text)) {
     violations.push("'N marks each' phrasing — real papers write multiplier notation '(3 x N marks)'");
   }
   for (const m of text.matchAll(/\(\s*\d+\s*(?:x|×)\s*(\d+)\s*marks?\s*\)/gi)) {
     const per = parseInt(m[1], 10);
-    if (per > 18) violations.push(`a ${per}-mark per-wine block — real per-wine blocks cap at ~15-18 marks`);
+    if (per > perUnitCap) violations.push(`a ${per}-mark per-wine block — real per-wine blocks cap at ${perUnitCap} marks`);
   }
   for (const m of text.matchAll(/\(\s*(\d+)\s*marks?\s*\)/gi)) {
     const val = parseInt(m[1], 10);
-    if (val > 30 && val !== totalMarks) {
-      violations.push(`a single ${val}-mark sub-question — real pooled sub-questions cap at 30 marks`);
+    if (val > pooledCap && val !== totalMarks) {
+      violations.push(`a single ${val}-mark sub-question — real pooled sub-questions cap at ${pooledCap} marks on Paper ${paper ?? "?"}`);
     }
+  }
+  // Micro-state technical tasks (residual sugar, alcohol) are a Paper 3 convention and appear in
+  // NO Paper 1/2 question in the corpus — round 12 caught the generator using them on both.
+  if (paper !== 3 && /(residual sugar|alcohol level|level of alcohol)/i.test(text)) {
+    violations.push(`a residual-sugar/alcohol micro-state task on Paper ${paper} — those appear only on Paper 3`);
   }
   // Pooled identification carries 14-18+ marks in every real paper (14/15/18/30 observed) —
   // round 9's only failure was a 12-mark pooled variety ID.

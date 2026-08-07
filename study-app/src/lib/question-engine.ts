@@ -52,6 +52,54 @@ import type { WineProfile } from "@/lib/wine-bank-lookup";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
 import { auditAndQuarantineQuestion } from "@/lib/question-audit";
 import { validatePinnedFlight, validateBlindSafety, validateMarkRealism } from "@/lib/live-tasting-validators";
+
+/**
+ * Stem/mark conventions for pinned (Live Tasting) generation, quoted from the REAL corpus in
+ * data/exams.json (2022-24) and SPLIT BY PAPER.
+ *
+ * Why per-paper: paper-QA rounds 1-11 only ever ran Paper 3, so every convention was extracted
+ * from P3 and then leaked into P1/P2 — micro-state tasks ("State the residual sugar", 2 marks)
+ * that no P1/P2 paper contains, and an identification-outranks-commentary rule that real P1/P2
+ * papers routinely invert (2024 P1 Q2: variety+origin 6 marks, style/quality/commercial 12;
+ * 2024 P2 Q3: origin 5 marks, climate/winemaking 15).
+ */
+function realPaperConventions(paper: number): string {
+  const shared = [
+    'Section headers organize the sub-questions: "For each wine:", "With reference to all N wines:", "For each pair:", "Then for each wine:".',
+    'Per-wine sub-questions use multiplier notation with EQUAL marks per wine: "(3 x 10 marks)". NEVER jagged per-wine totals (no 13/11/13).',
+    "Vary marks BETWEEN sub-parts, never between wines.",
+    "Identification must COVER both grape variety and origin — either bundled in one sub-question (\"Identify the grape variety and origin as closely as possible\") or SPLIT across two sub-questions (variety, then origin). Both are real. Never omit origin.",
+  ];
+  if (paper === 3) {
+    return [
+      "Stem & mark conventions — copied from the REAL Paper 3 papers in the corpus; follow them EXACTLY:",
+      ...shared.map((s) => `- ${s}`),
+      "- Pooled sub-questions take ONE total of 14-30 marks; a POOLED identification is never below 14 (real: 14, 15, 18, 30).",
+      "- Micro-state sub-questions are STANDARD on Paper 3 where the category fits: \"State the residual sugar. (N x 2 marks)\", \"State the alcohol level. (N x 2 marks)\" — at most one such task per paper.",
+      "- Per-wine analysis tasks of 10+ marks pair winemaking/method with quality or style; an ISOLATED production-method task carries 6-7 marks per wine.",
+      "Real Paper 3 skeletons to emulate (structure and notation, not content):",
+      "  1) For each wine: a) Identify the origin and grape variety/ies as closely as possible. (N x 13 marks) b) Comment on quality in the context of origin. (N x 10 marks) c) State the residual sugar. (N x 2 marks)",
+      "  2) With reference to all wines: a) Identify the grape variety. (18 marks) Then for each wine: b) Identify the origin as closely as possible. (N x 7 marks) c) Discuss the production methods. (N x 6 marks) d) Comment on quality and maturity. (N x 6 marks)",
+      "  3) For each wine: a) Discuss the quality, winemaking, and style. (N x 15 marks) For both wines: b) Compare and contrast the commercial opportunities and challenges. (20 marks)",
+    ].join("\n");
+  }
+  return [
+    `Stem & mark conventions — copied from the REAL Paper ${paper} papers in the corpus (2022-24); follow them EXACTLY:`,
+    ...shared.map((s) => `- ${s}`),
+    "- NEVER use micro-state sub-questions (residual sugar, alcohol level, 2-mark technical items) — those belong to Paper 3 only and appear in NO Paper 1 or Paper 2 question.",
+    "- Identification marks run 5-15 per wine and do NOT have to outrank commentary: real papers give variety+origin 6 marks against 12 for style/quality/commercial (2024 P1 Q2), or origin 5 against 15 for climate/winemaking (2024 P2 Q3).",
+    "- Pooled sub-questions take ONE total of 15-40 marks (real: 15, 25, 30, 40).",
+    "- Commentary sub-parts BUNDLE freely, exactly as the real papers do: \"quality and maturity\", \"style, quality, and commercial position\", \"quality and market position\", \"quality in the context of the origin\", \"the styles and consumer appeal\".",
+    paper === 2
+      ? "- Paper 2 also uses vintage/drinking-window tasks: \"Identify the vintage and suggest an ideal drinking window. (4 x 7 marks)\"."
+      : "- Paper 1 also uses ageing-potential tasks: \"Comment on quality and ageing potential.\", \"Discuss the wine's ageing potential, describing how it might evolve.\"",
+    `Real Paper ${paper} skeletons to emulate (structure and notation, not content):`,
+    "  1) For each wine: a) Identify the origin and variety as closely as possible. (N x 10 marks) b) Comment on the quality and maturity. (N x 10 marks) c) Comment on the winemaking techniques used. (N x 5 marks)",
+    "  2) With reference to all N wines: a) Identify the grape variety. (15 marks) b) Compare and contrast the styles and consumer appeal of the wines. (30 marks) For each wine: c) Identify the origin as closely as possible. (N x 10 marks)",
+    "  3) For each wine: a) Identify the grape variety. (N x 8 marks) b) Identify the origin as closely as possible. (N x 7 marks) c) Comment on style, quality, and commercial position. (N x 10 marks)",
+    "  4) (2-wine flights) For each wine: a) Identify the origin as closely as possible. (2 x 10 marks) With reference to both wines: b) Compare the two wines discussing the quality, maturity, use of oak and market position. (30 marks)",
+  ].join("\n");
+}
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so
 // the TEXT stage stops missing grapes named only by appellation. Server-only by construction.
 import "@/lib/appellation-resolver";
@@ -996,21 +1044,7 @@ The question stem must NEVER name or hint at any producer or cuvée above (the c
 The flight has ${pinned.length} wines, so total marks = ${pinned.length * 25}.${saveOpts?.flightTheme ? `
 The flight's organizing fact: ${saveOpts.flightTheme}
 REQUIRED: the stem MUST OPEN by declaring this shared fact to the candidate ("Wines 1–${pinned.length} are …") — real MW stems always state the flight's constraint up front, then set tasks against it. Declare only the fact itself; never leak producer, cuvée, or specific origin beyond what the fact states.` : ""}
-Stem & mark conventions — copied from the REAL 2023-24 papers in the corpus; follow them EXACTLY:
-- Section headers organize the sub-questions: "For each wine:", "With reference to both/all wines:", "Then for each wine:". Real questions are either per-wine only (a/b/c all per-wine) or pooled-open then per-wine.
-- Per-wine sub-questions use multiplier notation with EQUAL marks per wine: "(3 x 10 marks)". NEVER jagged per-wine totals (no 13/11/13).
-- Pooled sub-questions take ONE total of 14-30 marks: "a) Identify the region as closely as possible. (15 marks)".
-- Vary marks BETWEEN sub-parts (e.g. a=13, b=10, c=2 per wine), never between wines.
-- Identification bundles origin + grape variety in ONE sub-question — "Identify the origin and grape variety/ies as closely as possible." — pooled (14-18 marks) or per-wine ("N x 10-13 marks"). Never split variety from origin, never omit origin.
-- Identification carries the HIGHEST per-wine mark in its question (e.g. ID 13, quality 10 — never the inverse). If variety identification is pooled, the per-wine parts MUST then include origin identification (2023 Q4 pattern), and do not bolt extra pooled micro-tasks onto that scaffold.
-- A POOLED identification sub-question is NEVER below 14 marks (validator-enforced: 14-30; real papers use 14, 15, 18, 30).
-- Per-wine analysis tasks of 10+ marks always pair winemaking/method with quality or style ("Discuss the winemaking and quality", "Discuss the quality, winemaking, and style", "Comment on quality in the context of origin") — an ISOLATED production-method task only ever carries 6-7 marks per wine.
-- Quality tasks routinely combine with commercial potential or maturity in one sub-part: "Discuss quality and commercial potential. (3 x 8 marks)".
-- Paper 3 only: micro-state sub-questions are standard where the category fits: "State the residual sugar. (N x 2 marks)".
-Real skeletons to emulate (structure and notation, not content):
-  1) For each wine: a) Identify the origin and grape variety/ies as closely as possible. (N x 13 marks) b) Comment on quality in the context of origin. (N x 10 marks) c) State the residual sugar. (N x 2 marks)
-  2) With reference to all wines: a) Identify the grape variety. (18 marks) Then for each wine: b) Identify the origin as closely as possible. (N x 7 marks) c) Discuss the production methods. (N x 6 marks) d) Comment on quality and maturity. (N x 6 marks)
-  3) For each wine: a) Discuss the quality, winemaking, and style. (N x 15 marks) For both wines: b) Compare and contrast the commercial opportunities and challenges. (20 marks)${saveOpts?.paperStemsContext ? `
+${realPaperConventions(paper)}${saveOpts?.paperStemsContext ? `
 This question is part of a FULL PAPER — its architecture must not clone any other question's. Follow the scaffold directive below; where earlier stems are listed, your sub-part structure and phrasing must differ from them, and never repeat a micro-state task type (e.g. "State the residual sugar") that an earlier question already used.${typeof saveOpts.paperWineOffset === "number" && saveOpts.paperWineTotal ? `
 GLOBAL WINE NUMBERING: the paper has ${saveOpts.paperWineTotal} wines and this flight is wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}. In the QUESTION TEXT refer to them as "Wines ${saveOpts.paperWineOffset + 1}-${saveOpts.paperWineOffset + pinned.length}" (real papers number continuously across the paper). The wine LIST above stays slot-numbered 1-${pinned.length}.` : ""}
 ${saveOpts.paperStemsContext}` : ""}`;
@@ -1608,7 +1642,7 @@ ${repairContext.draft}`,
     // Mark-structure realism (paper-QA rounds 4-6): prompt guidance alone kept producing uniform
     // "4 x 9" splits and a 50-mark essay block; deterministic check + redraft is the reliable lever.
     const markRealismCheck = pinned
-      ? validateMarkRealism(candidate.questionText, pinned.length * 25)
+      ? validateMarkRealism(candidate.questionText, pinned.length * 25, paper)
       : { valid: true, violations: [] };
 
     // Declared in the order the violations used to be concatenated, so the flat list below preserves

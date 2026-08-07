@@ -186,9 +186,14 @@ async function main() {
 
   const exams = JSON.parse(readFileSync(join(REPO_ROOT, "data", "exams.json"), "utf-8"));
   const realPapers = [];
+  // Show the judge FOUR real papers, not two. Round 12 produced three "no precedent in either
+  // real paper" findings that the wider corpus flatly contradicts (2022 P2 has four 2-wine
+  // questions; 2022 P1 Q1b is a pooled 30-mark commercial comparison; 2023 P2 Q3c bundles
+  // "style, quality, and commercial position") — a thin evidence window manufactures false
+  // violations exactly like the memory-based hallucinations of rounds 5-7.
   for (const y of exams.slice(-4)) {
     const p = y.papers.find((pp) => pp.paper === paperNo);
-    if (p && realPapers.length < 2) {
+    if (p && realPapers.length < 4) {
       realPapers.push(`REAL ${y.year} PAPER ${paperNo}:\n` + p.questions.map((q, i) => `Q${i + 1} (${(q.wines || []).length} wines): ${q.text}`).join("\n"));
     }
   }
