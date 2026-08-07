@@ -131,6 +131,13 @@ export interface UserAttempt {
   // Short git sha of the build that served this attempt (migration 019). NULL for local dev and for
   // attempts predating the column. Lets a bug report be pinned to the exact code that produced it.
   app_version: string | null;
+  // Feedback tab (migration 053). Set on rows that carry user_feedback so the admin surface can
+  // tell tab feedback (and its chip/scope) apart from the per-question History flow.
+  source: string | null; // 'feedback_tab' | 'history'
+  category: string | null; // chip value, nullable
+  scope: string | null; // 'question' | 'general'
+  route: string | null; // pathname the feedback was sent from
+  paused_ms: number | null; // timer paused-while-panel-open time, excluded from elapsed answer time
 }
 
 // Persist derived Stem Detail variants for a question. COALESCE keeps any level that already has a
@@ -3241,6 +3248,117 @@ export async function recordUserFeedback(
   return { id: ins[0].id as number, analyze: true, mode: existing.mode };
 }
 
+// Record feedback submitted from the persistent Feedback tab (migration 053). Writes the SAME
+// user_attempts store the History flow and /api/admin/feedback already use, tagged with source /
+// category / scope / route / paused_ms so the admin surface can render the chip + scope badges.
+//
+//   * question scope + attemptId → record on that attempt (forking to its own row if the attempt
+//     already carries different feedback, matching recordUserFeedback's no-overwrite rule).
+//   * question scope + questionId only → create a fresh 'full' attempt to hang it on (exactly how
+//     a pre-answer question report flows in via the History flow).
+//   * general scope → a 'full' row with NULL question_id, so it still lands in the admin open queue.
+//
+// No analysis is triggered here (spec: no LLM at submit time) — the existing sweep/analysis cron
+// picks up question-scoped feedback. Returns the attempt id the feedback now lives on.
+export async function recordTabFeedback(params: {
+  userId: number;
+  text: string;
+  category: string | null;
+  scope: "question" | "general";
+  route: string;
+  pausedMs: number | null;
+  questionId: string | null;
+  attemptId: number | null;
+}): Promise<{ id: number }> {
+  const sql = getDb();
+  const { userId, text, category, scope, route, pausedMs, questionId, attemptId } = params;
+
+  // Question scope with an existing attempt: record on it, or fork a fresh row if it already holds
+  // different feedback (never clobber — the attempt-188 no-overwrite rule).
+  if (scope === "question" && attemptId) {
+    const rows = await sql`
+      /* theory-mode-guard: all-modes -- feedback tab records on the selected attempt */
+      SELECT id, question_id, user_id, mode, input_method, flagged, stem_detail, user_feedback, app_version
+      FROM user_attempts WHERE id = ${attemptId}
+    `;
+    const existing = rows[0] as
+      | { id: number; question_id: string | null; user_id: number | null; mode: string | null;
+          input_method: string; flagged: boolean; stem_detail: string; user_feedback: string | null;
+          app_version: string | null }
+      | undefined;
+    const current = (existing?.user_feedback || "").trim();
+    if (existing && !current) {
+      await sql`
+        UPDATE user_attempts SET
+          user_feedback = ${text},
+          feedback_submitted_at = COALESCE(feedback_submitted_at, NOW()),
+          source = 'feedback_tab', category = ${category}, scope = 'question',
+          route = ${route}, paused_ms = ${pausedMs}
+        WHERE id = ${attemptId}
+      `;
+      return { id: attemptId };
+    }
+    if (existing) {
+      // Fork onto its own row so the existing feedback (and its analysis) is untouched.
+      const ins = await sql`
+        INSERT INTO user_attempts (
+          question_id, user_id, mode, input_method, flagged, stem_detail,
+          user_feedback, feedback_submitted_at, app_version,
+          source, category, scope, route, paused_ms
+        ) VALUES (
+          ${existing.question_id}, ${existing.user_id}, ${existing.mode ?? "full"},
+          ${existing.input_method}, ${existing.flagged}, ${existing.stem_detail}, ${text}, NOW(),
+          ${existing.app_version ?? getAppVersion()},
+          'feedback_tab', ${category}, 'question', ${route}, ${pausedMs}
+        ) RETURNING id
+      `;
+      return { id: ins[0].id as number };
+    }
+    // No such attempt — fall through to creating a question row below.
+  }
+
+  // Question scope with only a questionId, or a question-scope attempt that vanished: create a
+  // fresh 'full' attempt to carry the feedback.
+  if (scope === "question" && questionId) {
+    const ins = await sql`
+      INSERT INTO user_attempts (
+        question_id, user_id, mode, stem_detail, user_feedback, feedback_submitted_at, app_version,
+        source, category, scope, route, paused_ms
+      ) VALUES (
+        ${questionId}, ${userId}, 'full', 'exam_real', ${text}, NOW(), ${getAppVersion()},
+        'feedback_tab', ${category}, 'question', ${route}, ${pausedMs}
+      ) RETURNING id
+    `;
+    return { id: ins[0].id as number };
+  }
+
+  // General scope (or question scope with nothing to anchor to): a 'full' row with no question, so
+  // it still surfaces in the admin open-feedback queue. Excluded from the user's own History view.
+  const ins = await sql`
+    INSERT INTO user_attempts (
+      user_id, mode, stem_detail, user_feedback, feedback_submitted_at, app_version,
+      source, category, scope, route, paused_ms
+    ) VALUES (
+      ${userId}, 'full', 'exam_real', ${text}, NOW(), ${getAppVersion()},
+      'feedback_tab', ${category}, 'general', ${route}, ${pausedMs}
+    ) RETURNING id
+  `;
+  return { id: ins[0].id as number };
+}
+
+// Count a user's Feedback-tab submissions in the last hour (rate limit: 10/hour/user).
+export async function countRecentTabFeedback(userId: number): Promise<number> {
+  const sql = getDb();
+  const rows = await sql`
+    /* theory-mode-guard: all-modes -- rate-limit count of Feedback-tab submissions; scoped by
+       source='feedback_tab', not by exam mode */
+    SELECT COUNT(*)::int AS n FROM user_attempts
+    WHERE user_id = ${userId} AND source = 'feedback_tab'
+      AND feedback_submitted_at > NOW() - INTERVAL '1 hour'
+  `;
+  return (rows[0]?.n as number) ?? 0;
+}
+
 export async function updateAttempt(
   attemptId: number,
   data: Partial<{
@@ -3480,6 +3598,9 @@ export async function getUserAttempts(userId: number, limit = 50): Promise<Attem
       LIMIT 1
     ) fa ON true
     WHERE a.user_id = ${userId}
+      -- General app-level feedback (Feedback tab, migration 053) has no question and is not part of
+      -- the candidate's own study history — it belongs only to the admin feedback queue.
+      AND (a.scope IS DISTINCT FROM 'general')
     ORDER BY a.started_at DESC
     LIMIT ${limit}
   `) as AttemptWithDetails[];

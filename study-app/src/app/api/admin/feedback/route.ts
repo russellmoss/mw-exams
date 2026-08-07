@@ -39,12 +39,15 @@ export async function GET(request: Request) {
     if (status === "open") {
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
-          q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
+          COALESCE(q.paper, 0) as paper, COALESCE(q.family, '') as family,
+          COALESCE(q.family_label, 'General') as family_label, q.subcategory,
+          COALESCE(q.question_text, 'General feedback') as question_text,
+          COALESCE(q.wines::text, '[]') as wines, q.model_answer, COALESCE(q.total_marks, 0) as total_marks,
           fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
-        JOIN generated_questions q ON a.question_id = q.question_id
+        LEFT JOIN generated_questions q ON a.question_id = q.question_id
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
@@ -58,12 +61,15 @@ export async function GET(request: Request) {
       const statuses = status === "accepted" ? ["accepted", "partial"] : ["rejected"];
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
-          q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
+          COALESCE(q.paper, 0) as paper, COALESCE(q.family, '') as family,
+          COALESCE(q.family_label, 'General') as family_label, q.subcategory,
+          COALESCE(q.question_text, 'General feedback') as question_text,
+          COALESCE(q.wines::text, '[]') as wines, q.model_answer, COALESCE(q.total_marks, 0) as total_marks,
           fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
-        JOIN generated_questions q ON a.question_id = q.question_id
+        LEFT JOIN generated_questions q ON a.question_id = q.question_id
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true
@@ -74,12 +80,15 @@ export async function GET(request: Request) {
     } else {
       attempts = await sql`
         SELECT a.*, u.name as user_name, u.email as user_email,
-          q.paper, q.family, q.family_label, q.subcategory, q.question_text, q.wines, q.model_answer, q.total_marks,
+          COALESCE(q.paper, 0) as paper, COALESCE(q.family, '') as family,
+          COALESCE(q.family_label, 'General') as family_label, q.subcategory,
+          COALESCE(q.question_text, 'General feedback') as question_text,
+          COALESCE(q.wines::text, '[]') as wines, q.model_answer, COALESCE(q.total_marks, 0) as total_marks,
           fa.id as analysis_id, fa.recommendation as auto_recommendation, fa.apply_status, fa.work_branch,
           fa.commit_sha, fa.pr_url, fa.deploy_state, fa.applied_by, fa.apply_error
         FROM user_attempts a
         JOIN users u ON a.user_id = u.id
-        JOIN generated_questions q ON a.question_id = q.question_id
+        LEFT JOIN generated_questions q ON a.question_id = q.question_id
         LEFT JOIN LATERAL (
           SELECT * FROM feedback_analyses f WHERE f.attempt_id = a.id ORDER BY f.updated_at DESC LIMIT 1
         ) fa ON true

@@ -477,6 +477,9 @@ export async function sweepStrandedFeedback(
       AND user_feedback IS NOT NULL AND trim(user_feedback) <> ''
       AND auto_analysis_id IS NULL
       AND feedback_status IS NULL
+      -- General app-level feedback (Feedback tab, migration 053) has no question to analyze; skip it
+      -- so it never re-occupies a sweeper slot on every run.
+      AND question_id IS NOT NULL
     ORDER BY started_at ASC
     LIMIT ${limit}
   `;
