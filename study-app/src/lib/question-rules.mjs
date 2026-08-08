@@ -792,7 +792,13 @@ export function applyQuestionRules(q, opts = {}) {
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
   const distinctCountry = new Set(wines.map((w) => canonCountry(w.country)).filter(Boolean));
-  const predominantly = /\bpredominantly\b/.test(stem); // explicitly permits blends / dominant grape
+  // "Predominant" explicitly permits blends — it is the exam's own word for "the dominant grape, and
+  // there may be others". The ADJECTIVE is what the corpus actually writes: measured over
+  // data/structured/corpus_questions.json, twelve real stems say "predominant" ("the same predominant
+  // grape variety", "a different (predominant) grape variety") and exactly one says "predominantly".
+  // Matching only the adverb missed twelve of the thirteen, so a Semillon-led Sauternes was rejected
+  // from a stem that had gone out of its way to allow it.
+  const predominantly = /\bpredominant(?:ly)?\b/.test(stem);
   const subsetSplit = isSubsetSplit(stem);
   // Detection-gap guard for the TEXT stage only (engine passes countryRequireAllKnown). When a wine's
   // country couldn't be detected from its label, flagging "N countries" would be a false positive, so

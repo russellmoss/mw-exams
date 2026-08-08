@@ -2675,9 +2675,19 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
   const stemSaysEachSingleVariety = /\beach\b.*\b(single|one)\s*(grape\s*)?variet/i.test(questionText)
     || /\bdifferent[,]?\s*(single|predominant)\s*(grape\s*)?variet/i.test(questionText);
 
+  // "Predominant" is the exam's own word for "the dominant grape, and there may be others", so a
+  // stem using it PERMITS blends — only a "single"/"one" variety claim forbids them. Conflating the
+  // two rejected a Semillon-led Sauternes from "four different predominant varieties" (2019 P3 Q3),
+  // a stem that had gone out of its way to allow exactly that. Twelve real corpus stems use the word.
+  // The DISTINCT-variety half below still applies either way: four different predominant varieties
+  // must still be four different varieties.
+  const stemPermitsBlends =
+    /\bpredominant(?:ly)?\b/i.test(questionText) &&
+    !/\b(single|one)\s*(grape\s*)?variet/i.test(questionText);
+
   if (stemSaysEachSingleVariety) {
     for (const wine of wines) {
-      if (isLikelyBlend(wine.fullText)) {
+      if (!stemPermitsBlends && isLikelyBlend(wine.fullText)) {
         violations.push(
           `Stem says each wine is a single grape variety, but Wine ${wine.slot} ("${wine.fullText}") is a known blend category. Single-variety stems require every wine to be genuinely single-varietal.`
         );
