@@ -60,8 +60,24 @@ collides, and the validator still passes evidence rows. This is the finding the 
 the same complaint keeps arriving because the fix was aimed at the wrong layer. Say where the cause
 actually appears to sit. Do not let the new brief re-add a rule at the layer that already failed.
 
-**GENUINELY NEW.** No overlap, no collision. Now judge it on merits, and check three things the
-mechanical pass cannot:
+**GENUINELY NEW.** No overlap, no collision. Now judge it on merits.
+
+First, confirm the rule actually runs. `tests/validator-rules-have-callers.test.ts` enforces this in CI —
+a rule-shaped export under `src/lib` must be transitively reachable from outside `src/lib` — so a PR
+adding dead code now goes red. Run it **on the PR branch**, not on master, or it proves nothing about
+the PR's additions:
+
+```bash
+cd study-app && npx vitest run tests/validator-rules-have-callers.test.ts
+```
+
+This is the failure mode that has cost the most: #60, #71 and #103 each added a correct, well-tested
+rule that nothing called. Such a PR passes review, then **retires the feedback that motivated it** from
+the prompt feeds — the signal stops nagging and the defect stays. Merging it is worse than not merging
+it. Note the test's `KNOWN_DEAD` allowlist: three rules on master are already in this state, including
+the audit-side half of #64 and the integrity gate of #73. That list must only shrink.
+
+Then check three more things the mechanical pass cannot:
 
 1. **Layer.** Is a reject-rule the right answer, or should generation have been constrained not to
    produce this? The script prints the validator/generation mix across all proposals — it has been
