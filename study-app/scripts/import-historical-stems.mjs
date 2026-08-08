@@ -42,6 +42,12 @@ const arg = (name, fallback) => {
 };
 const PAPER = arg("paper", "all");
 const YEAR = arg("year", null);
+// Comma-separated qids or hist_ ids, for repairing specific rows without re-spending on a whole
+// tranche (e.g. the four stems the length check rewrote before it was gated off this path).
+const ONLY = (arg("only", "") || "")
+  .split(",")
+  .map((s) => s.trim().replace(/^hist_/, ""))
+  .filter(Boolean);
 const FROM = Number(arg("from", "0")) || 0;
 const LIMIT = Number(arg("limit", "0")) || Infinity;
 const REDO = process.argv.includes("--redo");
@@ -67,6 +73,11 @@ for (const i of ineligible) console.log(`   SKIP ${i.qid}: ${i.detail}`);
 
 // Filters
 let queue = stems;
+if (ONLY.length) {
+  queue = queue.filter((s) => ONLY.includes(s.qid));
+  const missing = ONLY.filter((q) => !queue.some((s) => s.qid === q));
+  if (missing.length) throw new Error(`--only names ${missing.join(", ")}, which are not importable stems`);
+}
 if (PAPER !== "all") queue = queue.filter((s) => s.paper === Number(PAPER));
 if (YEAR) queue = queue.filter((s) => s.year === Number(YEAR));
 if (FROM) queue = queue.filter((s) => s.year >= FROM);

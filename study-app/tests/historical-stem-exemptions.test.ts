@@ -64,9 +64,13 @@ function judge(stemIsAuthoritative: boolean) {
   const hits: { qid: string; rule: string }[] = [];
   for (const stem of selectImportableStems(corpus()).stems) {
     const labels = stem.originalSlots.map((slot) => wines.get(`${stem.year}_${stem.paper}_${slot}`) || "");
-    const auditWines = winesFromText(
+    const auditWines: AuditWine[] = winesFromText(
       labels.map((fullText: string, i: number) => ({ slot: i + 1, fullText }))
-    ).map((w: AuditWine & { fullText?: string }) => ({ ...w, region: w.fullText ?? "", style: "" }));
+    ).map((w: { slot: number; fullText: string; varieties: string[]; country: string; is_blend: boolean }) => ({
+      ...w,
+      region: w.fullText,
+      style: "",
+    }));
     const res = validateQuestion({
       questionId: `hist_${stem.qid}`,
       paper: stem.paper,

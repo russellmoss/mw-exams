@@ -2071,7 +2071,17 @@ ${repairContext.draft}`,
   // (marks + total invariant), an 'over' result keeps the original and records the violation summary,
   // and a length-check outage degrades to 'clean' (no badge). Only a non-clean verdict is persisted;
   // a clean item keeps its NULL columns.
-  if (saveOpts?.batchId) {
+  //
+  // ANCHORED (historical import) SKIPS IT ENTIRELY. The length check measures a stem against the real
+  // papers' sub-bullet budget and rewrites it if it runs long — which is meaningless when the stem IS
+  // one of the real papers, and destructive: on the first 20-question import it rewrote four verbatim
+  // past-paper stems. hist_2021_p1_q2 was the clearest, splitting the real "a) Compare and contrast
+  // quality and maturity. (36 marks)" into two parts marked "(2 x 18 marks)" each — 36 marks became
+  // 72, the question's total went from its correct 75 to 111, and the post-save audit then
+  // quarantined it. (Note that also disproves this comment's "marks + total invariant" claim for the
+  // repair in general; the multiplier it invented did not match the flight's three wines. Worth a
+  // separate look, but on this path the right answer is simply not to run it.)
+  if (saveOpts?.batchId && !anchored) {
     emit?.({ type: "status", label: "Checking length against real MW papers…" });
     const lengthOutcome = await enforceLengthCheck(parsed.questionText, apiKey, meta, questionId);
     if (lengthOutcome.status !== "clean") {
