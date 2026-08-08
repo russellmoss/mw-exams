@@ -87,16 +87,32 @@ export function parseMinedClusters(text: string, knownItemIds: Set<string>): Min
   return out;
 }
 
-// Feedback rows have no codified_by column (they live in user_attempts, not the bin ledger); a
-// feedback signal counts as codified once it appears in the evidence of a SHIPPED proposal — that
-// is the moment its root cause became code. Derived, not stored, so no migration and no drift.
-export function codifiedFeedbackIds(
+// Evidence some proposal already OWNS, and which must therefore not seed a second one.
+//
+// This used to key on 'shipped' alone, on the theory that a signal is spent once its root cause became
+// code. That is true but far too late, and the gap it left is a race the miner loses routinely: a
+// proposal reaches 'shipped' only after the PR merges AND reconcile runs, so every mine in between sees
+// the evidence as live and clusters it again. On 2026-08-06 that produced three duplicate proposals in
+// one day (10, 12 and 17 re-implementing validatePaperStyleMix, validateMarkBudget and the
+// note-completeness codes), two of which reached open PRs before anyone noticed. Theme-text dedupe
+// cannot catch them — the model rewords the label, and a reworded label is all it compares.
+//
+// So the claim starts at 'proposed'. The terminal-but-unshipped states deliberately RELEASE their
+// evidence back to the pool: 'rejected' means the admin declined this framing (the fault is still real
+// and should be re-mined, perhaps clustered differently), 'failed' means the Action produced nothing,
+// and 'pr_closed' means the PR died unmerged. In all three the fault was never fixed.
+//
+// Applies to both streams. Bin rows have a codified_by column and feedback rows do not, but they share
+// the race, so the in-memory claim covers both and no migration is needed.
+const CLAIMING_STATUSES = new Set(["proposed", "dispatched", "pr_opened", "merged", "shipped"]);
+
+export function claimedEvidenceIds(
   proposals: { status: string; evidenceItemIds: string[] }[]
 ): Set<string> {
   const out = new Set<string>();
   for (const p of proposals) {
-    if (p.status !== "shipped") continue;
-    for (const id of p.evidenceItemIds) if (id.startsWith("fb_")) out.add(id);
+    if (!CLAIMING_STATUSES.has(p.status)) continue;
+    for (const id of p.evidenceItemIds) out.add(id);
   }
   return out;
 }
@@ -125,9 +141,9 @@ export async function getSignalRowsForMining(): Promise<MinableBinRow[]> {
     getFeedbackRowsForMining(),
     getBinFixProposals(),
   ]);
-  const codified = codifiedFeedbackIds(proposals);
-  const binMapped = binRows.map((r) => ({ ...r, source: "bin" as const }));
-  const fbMapped = feedbackRows.filter((r) => !codified.has(r.itemId)).map(mapFeedbackRow);
+  const claimed = claimedEvidenceIds(proposals);
+  const binMapped = binRows.filter((r) => !claimed.has(r.itemId)).map((r) => ({ ...r, source: "bin" as const }));
+  const fbMapped = feedbackRows.filter((r) => !claimed.has(r.itemId)).map(mapFeedbackRow);
   // The mining routes run under Vercel's 300s maxDuration and a 43-row ledger already measured
   // ~270s of Opus thinking — cap the combined ledger so latency cannot grow unboundedly with
   // feedback volume. Admin bins always make the cut; newest feedback fills what remains.
