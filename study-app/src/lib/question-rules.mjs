@@ -167,7 +167,18 @@ export const norm = (s) =>
   (s || "").toString().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim();
 
 export const canonVariety = (s) => {
-  const n = norm(s);
+  // "<variety> blend" canonicalises to the variety itself. Several appellation entries resolve to a
+  // dominant-variety label — Châteauneuf-du-Pape, Gigondas and Vacqueyras all resolve to "grenache
+  // blend" — which then compares unequal to a varietally-labelled "grenache" and reads as two
+  // different grapes. On the real 2025 P2 Q1, whose stem is "the same single grape variety OR
+  // PREDOMINANT grape variety", a Châteauneuf and a McLaren Vale Grenache were rejected as a
+  // same-variety contradiction, which is exactly the comparison the appellation entry means to allow.
+  //
+  // Deliberately only in the COMPARISON canonicaliser. Blend DETECTION runs off detectPrimaryVariety
+  // (isLikelyBlend tests for "blend" in its raw output), so stripping the suffix here does not make a
+  // blend look varietal anywhere it matters — it only stops "grenache blend" and "grenache" reading
+  // as different grapes.
+  const n = norm(s).replace(/\s+blend$/, "");
   return VARIETY_SYNONYMS[n] || n;
 };
 
