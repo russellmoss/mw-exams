@@ -71,9 +71,13 @@ export default function SettingsPage() {
     reasoningStream: boolean;
   } | null>(null);
   const [studySaving, setStudySaving] = useState(false);
-  // Seeded from auth-context rather than fetched: /api/auth/me already carries it, so a separate
-  // GET would only add a round trip and a flash of the wrong card.
-  const [persona, setPersona] = useState<PersonaId>(DEFAULT_PERSONA);
+  // DERIVED from auth-context, not mirrored into state by an effect: /api/auth/me already carries
+  // the persona, so the context is the single source of truth and `personaOverride` is only the
+  // optimistic overlay between a click and the refresh landing. Copying `user.persona` into state
+  // in an effect would be a synchronous setState in an effect — a cascading render, and an eslint
+  // error — for no benefit.
+  const [personaOverride, setPersonaOverride] = useState<PersonaId | null>(null);
+  const persona: PersonaId = personaOverride ?? user?.persona ?? DEFAULT_PERSONA;
   const [personaSaving, setPersonaSaving] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
@@ -179,8 +183,6 @@ export default function SettingsPage() {
           });
         })
         .catch(() => {});
-      // No fetch — /api/auth/me already carries the persona, so read it off the context.
-      if (user.persona) setPersona(user.persona);
       fetch("/api/user/api-key?provider=tavily")
         .then((r) => r.ok ? r.json() : null)
         .then((data) => { if (data) setTavilyKeyInfo(data); })
@@ -335,7 +337,7 @@ export default function SettingsPage() {
   const savePersona = useCallback(
     async (next: PersonaId) => {
       setPersonaSaving(true);
-      setPersona(next); // optimistic; the PATCH persists it
+      setPersonaOverride(next); // optimistic; refresh() below makes the context agree
       try {
         await fetch("/api/user/persona", {
           method: "PATCH",
