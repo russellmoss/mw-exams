@@ -14,6 +14,7 @@ import {
   colourFromAppellation,
   detectPrimaryVariety,
   expandMarkTokens,
+  subsetScopedStem,
   methodClass,
   norm,
   normStem,
@@ -264,9 +265,17 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
   const stem = normStem(q.questionText);
   const wines = q.wines || [];
+  // A stem that describes its flight in SUBSETS makes each claim about a subset, not flight-wide, so
+  // applying them to every wine is a false positive. The shared rule layer has always guarded its own
+  // cardinality checks this way (applyQuestionRules → subsetSplit); these did not. On the real 2022
+  // P2 Q1 — "Wines 1-3 are from different countries and are each made from a different, single grape
+  // variety. Wine 4 is a blend of all three of these varieties." — that gap rejected the blend the
+  // stem had just asked for, counted four different countries where the stem asked for three, and
+  // read wine 4's three resolved varieties as duplicates of wines 1-3.
+  const subsetSplit = subsetScopedStem(q.questionText, wines.length);
 
   // (1) "the same (single) grape variety" — every resolved primary variety must be identical.
-  if (wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
+  if (!subsetSplit && wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
     const known = wines.filter((w) => primaryVariety(w));
     if (known.length >= 2) {
       const base = primaryVariety(known[0]);
@@ -283,7 +292,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   }
 
   // (2) "a different (single) grape variety" / "different grape varieties" — primaries pairwise distinct.
-  if (/different (?:single )?grape variet(?:y|ies)/.test(stem)) {
+  if (!subsetSplit && /different (?:single )?grape variet(?:y|ies)/.test(stem)) {
     const seen = new Map<string, number>();
     for (const w of wines) {
       const pv = primaryVariety(w);
@@ -301,10 +310,15 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (3) A singular variety claim ("single grape variety", or "predominantly … grape variety") must not
   // sit over a blend. Skipped when the stem already hedges as "grape variety or varieties" / "variety(ies)".
-  const hedged = /variety or varieties|variety ies\b/.test(stem);
+  // "…the same single grape variety OR PREDOMINANT grape variety" is a hedge in the exam's own words:
+  // it offers the candidate either reading and therefore permits a blended wine. Four real stems use
+  // it (2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1 and Q3) and all four were rejected for the blends they
+  // explicitly allow. normStem has already flattened the commas in the printed "single, or
+  // predominant, grape variety".
+  const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(stem);
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
-  if (!hedged && singularClaim) {
+  if (!hedged && singularClaim && !subsetSplit) {
     for (const w of wines) {
       const why = blendSignal(w);
       if (why)
@@ -329,7 +343,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     const distinctCount = stem.match(
       /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
     );
-    const required = distinctCount
+    const required = subsetSplit
+      ? 0
+      : distinctCount
       ? parseStemCount(distinctCount[1])
       : /\bdifferent countries\b/.test(stem)
         ? wines.length
@@ -359,7 +375,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
         });
       }
     }
-    if (/\b(?:the )?same country\b/.test(stem)) {
+    if (/\b(?:the )?same country\b/.test(stem) && !subsetSplit) {
       const placed = wines.filter((w) => countryOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -376,7 +392,11 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (5) REGION cardinality — "the same region" needs one region; "N different regions" needs N distinct.
   {
-    if (/\b(?:the )?same region\b/.test(stem)) {
+    // "…from the same region but different sub-regions" (real: 2022 P2 Q2 and Q3) asserts BOTH, and
+    // what the key resolves as each wine's region IS its sub-region — so a difference between them is
+    // exactly what the stem predicts, not a contradiction of it.
+    const subRegionSplit = /\bdifferent\s+sub\s?-?\s?regions?\b/.test(stem);
+    if (/\b(?:the )?same region\b/.test(stem) && !subsetSplit && !subRegionSplit) {
       const placed = wines.filter((w) => regionOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -1098,7 +1118,10 @@ function parseDeclaredPairs(stem: string): [number, number][] {
   const s = norm(stem);
   if (!/\bpairs?\b/.test(s)) return [];
   const pairs: [number, number][] = [];
-  for (const m of s.matchAll(/\b(\d+)\s+and\s+(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
+  // "&" as well as "and": the real 2023 P1 Q1 writes "1 & 2 are a pair and 3 & 4 are a pair", where
+  // matching only "and" found the single spurious span "2 are a pair and 3" and so read the stem as
+  // having no declared pairs at all.
+  for (const m of s.matchAll(/\b(\d+)\s*(?:and|&)\s*(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
   return pairs.length >= 2 ? pairs : [];
 }
 

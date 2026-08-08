@@ -126,6 +126,9 @@ if (REDO && already.length) {
   if (DRY) {
     console.log(`[import] dry run — would delete ${ids.length} existing rows before regenerating`);
   } else if (ids.length) {
+    // Derived, no FK: orphan producer rows would keep the discarded flight's producers on the
+    // over-used list and block the regeneration from reusing them.
+    await sql`DELETE FROM bank_wine_producer WHERE item_id = ANY(${ids})`;
     await sql`DELETE FROM stem_answer_keys WHERE question_id = ANY(${ids})`;
     await sql`DELETE FROM question_views WHERE question_id = ANY(${ids})`;
     await sql`DELETE FROM generated_questions WHERE question_id = ANY(${ids})`;
