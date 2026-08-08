@@ -169,8 +169,12 @@ async function resolveEvidence(itemIds) {
   const fbIds = itemIds.filter((i) => i.startsWith("fb_")).map((i) => Number(i.slice(3))).filter(Number.isFinite);
   const qIds = itemIds.filter((i) => !i.startsWith("fb_"));
   const viaFeedback = fbIds.length
-    ? await sql`SELECT 'fb_' || a.id AS item_id, a.question_id, a.user_feedback AS note
-                FROM user_attempts a WHERE a.id = ANY(${fbIds})`
+    ? await sql`
+        /* theory-mode-guard: all-modes -- primary-key lookup of ids the miner already selected;
+           getFeedbackRowsForMining excludes theory upstream, and re-filtering here would silently
+           report a stray row as "unresolvable" instead of showing it */
+        SELECT 'fb_' || a.id AS item_id, a.question_id, a.user_feedback AS note
+        FROM user_attempts a WHERE a.id = ANY(${fbIds})`
     : [];
   const viaBin = qIds.length
     ? await sql`SELECT b.item_id, b.item_id AS question_id, b.reason_note AS note
