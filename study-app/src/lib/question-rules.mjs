@@ -408,6 +408,13 @@ export function expandMarkTokens(questionText, wineCount = 0) {
 export function subsetScopedStem(questionText, wineCount = 0) {
   if (!wineCount || wineCount < 2) return false;
   const stem = normStem(questionText);
+  // A stem that organises a flight of three or more wines into PAIRS is making its claims per pair,
+  // not flight-wide. The real 2023 P1 Q1 is the case: "Wines 1-4 are from four different countries
+  // and two different grape varieties. 1 & 2 are a pair and 3 & 4 are a pair. Each pair is from the
+  // same single grape variety." Read flight-wide that stem is self-contradictory — it asserts both
+  // "different varieties" and "the same single grape variety" — and ten rules fired on it at once.
+  // The enumeration test below cannot catch it, because the first group named is "Wines 1-4".
+  if (/\bpairs?\b/.test(stem) && wineCount > 2) return true;
   if (!isSubsetSplit(stem)) return false;
   // isSubsetSplit alone is too blunt to gate a rule on: it matches "Wines 1 and 2 …", which on a
   // TWO-wine flight is the whole flight, not a subset — guarding on it there would silence the rule
@@ -822,7 +829,20 @@ export function applyQuestionRules(q, opts = {}) {
   // Matching only the adverb missed twelve of the thirteen, so a Semillon-led Sauternes was rejected
   // from a stem that had gone out of its way to allow it.
   const predominantly = /\bpredominant(?:ly)?\b/.test(stem);
-  const subsetSplit = isSubsetSplit(stem);
+  // UNION, deliberately, not a replacement. subsetScopedStem adds the pair-aware arm this needs
+  // (the real 2023 P1 Q1 organises four wines into two pairs and tripped R1 and R2), but it is also
+  // STRICTER than isSubsetSplit in one respect: it requires the named group to be smaller than the
+  // flight, so a two-wine "Wines 1 and 2 …" stem is no longer treated as a subset.
+  //
+  // Swapping outright would therefore have started running R1/R2 on 306 banked questions that had
+  // been skipping them, about half of them currently clean — a tightening far beyond the scope of
+  // this fix and one that would land as a wave of new quarantines on the next nightly audit. The
+  // union keeps this change purely relaxing: 3 questions newly skip, none newly run.
+  //
+  // That leaves a genuine pre-existing gap — R1/R2 never fire on a two-wine flight whose stem says
+  // "Wines 1 and 2 …" — which is worth closing on its own, with its own measurement.
+  const subsetSplit =
+    isSubsetSplit(stem) || subsetScopedStem(q.questionText ?? stem, wines.length);
   // Detection-gap guard for the TEXT stage only (engine passes countryRequireAllKnown). When a wine's
   // country couldn't be detected from its label, flagging "N countries" would be a false positive, so
   // the engine skips the check unless every wine resolved a country. For the KEY stage (validator)

@@ -1118,7 +1118,10 @@ function parseDeclaredPairs(stem: string): [number, number][] {
   const s = norm(stem);
   if (!/\bpairs?\b/.test(s)) return [];
   const pairs: [number, number][] = [];
-  for (const m of s.matchAll(/\b(\d+)\s+and\s+(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
+  // "&" as well as "and": the real 2023 P1 Q1 writes "1 & 2 are a pair and 3 & 4 are a pair", where
+  // matching only "and" found the single spurious span "2 are a pair and 3" and so read the stem as
+  // having no declared pairs at all.
+  for (const m of s.matchAll(/\b(\d+)\s*(?:and|&)\s*(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
   return pairs.length >= 2 ? pairs : [];
 }
 

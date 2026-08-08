@@ -2609,7 +2609,11 @@ function isLikelyBlend(fullText: string): boolean {
 
 export function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
-  const stemSaysOneVariety = /same single grape variety/i.test(questionText);
+  // Pair- and subset-scoped stems assert their variety claims PER GROUP. The real 2023 P1 Q1 says
+  // both "four different countries and two different grape varieties" and "Each pair is from the
+  // same single grape variety" — read flight-wide it contradicts itself, and ten rules fired at once.
+  const scoped = subsetScopedStem(questionText, wines.length);
+  const stemSaysOneVariety = !scoped && /same single grape variety/i.test(questionText);
 
   if (stemSaysOneVariety) {
     const wineVarieties = wines.map((wine) => ({
