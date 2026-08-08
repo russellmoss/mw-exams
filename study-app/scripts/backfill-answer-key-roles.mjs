@@ -29,7 +29,9 @@
 // than a matter of opinion — and this whole backfill is revertible with one UPDATE.
 //
 // IDEMPOTENT: without --refresh-derived an existing role is left exactly as it is, so re-running never
-// overwrites a generator-declared role with a derived one, in either order.
+// overwrites a generator-declared role with a derived one, in either order. It also never fills a role
+// the AGREEMENT GATE withheld — on a question whose generator declared its roles, a missing role means
+// the declaration and the classifier disagreed and neither is trusted enough to enforce.
 
 import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
@@ -50,7 +52,7 @@ function databaseUrl() {
 const sql = neon(databaseUrl());
 
 const rows = await sql`
-  SELECT k.question_id, k.ground_truth, g.wines, g.paper
+  SELECT k.question_id, k.ground_truth, g.wines, g.paper, g.curveball_slots
   FROM stem_answer_keys k
   JOIN generated_questions g ON g.question_id = k.question_id
   ORDER BY k.question_id
@@ -61,6 +63,7 @@ let updated = 0;
 let winesStamped = 0;
 let skippedAlreadyRoled = 0;
 let refreshedWines = 0;
+let skippedGateDeclined = 0;
 const tally = { banker: 0, curveball: 0 };
 
 for (const r of rows) {
@@ -71,9 +74,17 @@ for (const r of rows) {
   const wines = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
   const labelBySlot = new Map((wines || []).map((w) => [w.slot, w.fullText]));
 
+  // Did the GENERATOR declare this flight's roles? If so, a wine with no role is not a gap this script
+  // should fill — it is the agreement gate in buildKeyForRow having DECLINED to key it, because the
+  // declaration and the classifier disagreed. Stamping a derived role there re-enforces the very verdict
+  // the gate withheld, which is what a first run of this script did to three wines before this check
+  // existed. Only questions with NO declaration (everything predating migration 065) are in scope.
+  const generatorDeclared = Array.isArray(r.curveball_slots);
+
   let changed = false;
   const next = ground.map((g) => {
     if (!g || typeof g.slot !== "number") return g;
+    if (!g.role && generatorDeclared) { skippedGateDeclined += 1; return g; }
     // Never clobber a role — EXCEPT a derived one under --refresh-derived, where the whole point is to
     // recompute the cached verdict. A generator-declared role is intent and is never recomputed.
     if (g.role && !(REFRESH && g.role_source === "derived")) { skippedAlreadyRoled += 1; return g; }
@@ -111,6 +122,7 @@ console.log(`  answer keys examined     ${examined}`);
 console.log(`  answer keys updated      ${updated}`);
 console.log(`  wines stamped            ${winesStamped}  (banker ${tally.banker}, curveball ${tally.curveball})`);
 console.log(`  wines left alone         ${skippedAlreadyRoled}  (already carried a correct role)`);
+console.log(`  gate declined, untouched ${skippedGateDeclined}  (generator declared; the gate withheld a role)`);
 if (REFRESH) console.log(`  stale roles CORRECTED    ${refreshedWines}  (--refresh-derived)`);
 if (winesStamped) {
   const pct = ((tally.curveball / winesStamped) * 100).toFixed(1);
