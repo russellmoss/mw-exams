@@ -27,14 +27,22 @@ if (binProposalId && !Number.isNaN(binProposalId)) {
   // if it ever does — the app-side reconcile turns merged into shipped + retired.
   const status =
     applyStatus === "merged" ? "merged" : applyStatus === "pr_opened" ? "pr_opened" : "failed";
-  await sql`
+  // A rejection wins over a late Action result. The admin may reject a dispatched proposal while its
+  // build is still running — that is the normal way a duplicate is caught, since you usually only see
+  // the duplication by reading the PR the build produces. Without this guard the run's write-back
+  // would flip 'rejected' straight back to 'pr_opened' and the proposal would silently return to the
+  // review queue. (Proposal 10 was in exactly that state on 2026-08-08.)
+  const updated = await sql`
     UPDATE bin_fix_proposals SET
       status = ${status},
       pr_url = COALESCE(${prUrl}::text, pr_url),
       apply_error = COALESCE(${applyError}::text, apply_error),
       updated_at = NOW()
-    WHERE id = ${binProposalId}
+    WHERE id = ${binProposalId} AND status <> 'rejected'
+    RETURNING id
   `;
+  if (updated.length === 0)
+    console.log("record-apply: proposal", binProposalId, "was rejected while this run was in flight — status left as 'rejected'; close the PR if one was opened");
   console.log("record-apply: updated bin_fix_proposals", binProposalId, { status, prUrl, applyError });
 } else if (analysisId && !Number.isNaN(analysisId)) {
   await sql`
