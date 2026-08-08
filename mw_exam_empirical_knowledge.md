@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0169).**
 - **2026-08-08 — three duplicate ids resolved; the Neon mirror was silently 3 entries short.** The
   2026-08-07 batch reused **EK-0155, EK-0156 and EK-0157** for two entries each. `sync-ek-table.mjs`
   upserts `ON CONFLICT (ek_id) DO UPDATE`, so of each pair only the later heading survived: the table
@@ -1128,6 +1129,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #428 / analysis #68 (accept); corpus `data/exams.json` — 2019 P1 Q3 (Iago Chinuri, Kartli Georgia: "Do not spend time thinking about the wine's specific origin"); 2017 P3 Q2 (Cullen 'Amber', "consider wine 4 to be of unknown origin"); EK-0104; EK-0048
 - **claim:** New origins do enter the exam (Georgia 2019, Uruguay, Greece), but the IMW introduces them as a **single wine with the identification marks taken off the table** — origin explicitly suppressed or unasked, marks paid for winemaking / style / quality / commercial. Slovenia and the wider Brda–Collio amber belt (Ribolla Gialla / Rebula, Friulano) have **zero appearances across 2011–2025**. An origin with no corpus precedent must therefore never be the *premise* of a same-origin (F2) flight, and never supply every wine in a flight: with no banker (EK-0029) the candidate has nothing to anchor against, and the question is unanswerable rather than merely hard.
 
+### EK-0169 · Cross-country same-variety flights carry an Old World anchor — an all-New-World Chardonnay trio is unattested
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #440 / analysis #76 (accept); corpus `data/exams.json` — 2011 P1 Q2 (Chablis 1er Cru Les Vaillons), 2018 P1 Q1 (Chablis Grand Cru Les Preuses), 2025 P1 Q2 (Chablis 1er Cru Côte de Lechet), 2026 P1 Q1 (Meursault Les Narvaux + Chablis); EK-0029; EK-0034
+- **claim:** Every multi-country "same single grape variety" Chardonnay flight in 2011–2026 carries a Burgundian anchor (Chablis 1er/Grand Cru, Meursault), and the same holds for the other big P1 varieties (2014 Riesling → Alsace Grand Cru/Pfalz; 2015 and 2021 Chenin → Loire). All-New-World same-variety sets occur only when the stem itself makes origin the constraint (2016 P1 Q2 "same country", two Californian Chardonnays) or as a pair inside a larger question whose other pair supplies the Old World reference (2023 P1 Q1 Semillon). A three-wine, three-country Chardonnay flight with no Old World wine has no precedent and must not be generated: it also fails EK-0029, since no New World bottling in such a set functions as a banker the candidate knows cold.
+
 ---
 
 ## §5 · Question generation rules
@@ -1376,6 +1382,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 246 | 42 | P2/F4 | accept | auto | generated tasting notes omitted alcohol/structural cues that the model answer then reasoned from; notes must carry perceptible alcohol/body alongside acidity/tannin/RS | EK-0135, EK-0013 |
 | 419 | 66 | P2/F6 | accept | manual | 4-wine P2 flight had two curveballs and no banker classic; famous-but-idiosyncratic wines (Musar, Trévallon) don't count as anchors | EK-0162, EK-0029 |
 | 428 | 68 | P1/F2 | accept | manual | zero-precedent origins (Slovenia/Brda) debut only as single ID-suppressed wines, never as a same-origin pair with 40% of marks on identification | EK-0164, EK-0165, EK-0029, EK-0153 |
+| 440 | 76 | P1/F1 | accept | auto | cross-country same-variety white flights need an Old World (Burgundy/Loire/Alsace) anchor; all-NW Chardonnay trio unattested | EK-0169, EK-0029, EK-0034 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
