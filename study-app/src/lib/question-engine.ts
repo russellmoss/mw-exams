@@ -162,6 +162,7 @@ import {
   stemDisclosureViolations,
   sweetnessOutOfPaperViolations,
   expandMarkTokens,
+  subsetScopedStem,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -2608,7 +2609,11 @@ function isLikelyBlend(fullText: string): boolean {
 
 export function validateVarietyConsistency(questionText: string, wines: { slot: number; fullText: string }[]): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
-  const stemSaysOneVariety = /same single grape variety/i.test(questionText);
+  // Pair- and subset-scoped stems assert their variety claims PER GROUP. The real 2023 P1 Q1 says
+  // both "four different countries and two different grape varieties" and "Each pair is from the
+  // same single grape variety" — read flight-wide it contradicts itself, and ten rules fired at once.
+  const scoped = subsetScopedStem(questionText, wines.length);
+  const stemSaysOneVariety = !scoped && /same single grape variety/i.test(questionText);
 
   if (stemSaysOneVariety) {
     const wineVarieties = wines.map((wine) => ({
@@ -2675,9 +2680,28 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
   const stemSaysEachSingleVariety = /\beach\b.*\b(single|one)\s*(grape\s*)?variet/i.test(questionText)
     || /\bdifferent[,]?\s*(single|predominant)\s*(grape\s*)?variet/i.test(questionText);
 
-  if (stemSaysEachSingleVariety) {
+  // "Predominant" is the exam's own word for "the dominant grape, and there may be others", so a
+  // stem using it PERMITS blends — only a "single"/"one" variety claim forbids them. Conflating the
+  // two rejected a Semillon-led Sauternes from "four different predominant varieties" (2019 P3 Q3),
+  // a stem that had gone out of its way to allow exactly that. Twelve real corpus stems use the word.
+  // The DISTINCT-variety half below still applies either way: four different predominant varieties
+  // must still be four different varieties.
+  // Either the stem uses "predominant" alone, or it explicitly OFFERS BOTH readings — "the same
+  // single grape variety or predominant grape variety" (real: 2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1
+  // and Q3). The second form is a hedge, so a blend is permitted even though the words "single
+  // grape variety" appear.
+  const stemPermitsBlends =
+    /\bor,?\s+predominant\b/i.test(questionText) ||
+    (/\bpredominant(?:ly)?\b/i.test(questionText) &&
+      !/\b(single|one)\s*(grape\s*)?variet/i.test(questionText));
+
+  // Subset-scoped stems make their claims about a SUBSET, not the whole flight — "Wines 1-3 are …
+  // each made from a different, single grape variety. Wine 4 is a blend of all three" (real, 2022 P2
+  // Q1). The shared rule layer and crossCheckStemFacts both guard on this; without it here, the
+  // engine rejected the blend the stem explicitly asks for.
+  if (stemSaysEachSingleVariety && !subsetScopedStem(questionText, wines.length)) {
     for (const wine of wines) {
-      if (isLikelyBlend(wine.fullText)) {
+      if (!stemPermitsBlends && isLikelyBlend(wine.fullText)) {
         violations.push(
           `Stem says each wine is a single grape variety, but Wine ${wine.slot} ("${wine.fullText}") is a known blend category. Single-variety stems require every wine to be genuinely single-varietal.`
         );

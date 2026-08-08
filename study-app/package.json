@@ -16,7 +16,8 @@
     "eval:golden": "node scripts/build-golden-set.mjs",
     "eval:judge": "node scripts/calibrate-judge.mjs",
     "eval:anchor": "vitest run tests/evals-corpus-anchor.test.ts tests/evals-metrics.test.ts tests/evals-judge-golden.test.ts",
-    "eval:disputed": "node scripts/extract-disputed.mjs"
+    "eval:disputed": "node scripts/extract-disputed.mjs",
+    "captions:build": "tsx scripts/build-tour-captions.mts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

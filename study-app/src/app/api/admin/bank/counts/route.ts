@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 /**
  * GET /api/admin/bank/counts — admin-only.
  *
- * Per-paper live bank counts plus the total pending-review count. Feeds the "Fill the Bank" card
+ * Per-paper live bank counts plus the total pending-review count. Feeds the "Bank Review" card
  * lines and, crucially, the amber dot on the NavBar "Bank" link (which polls this on mount + every
  * 60s). Non-admins get a zeroed payload so the nav renders nothing.
  */

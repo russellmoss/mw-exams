@@ -399,7 +399,37 @@ export function expandMarkTokens(questionText, wineCount = 0) {
 // True when the stem describes the flight in subsets/pairs ("Wines 1 and 2 ... the other two ...").
 // Per-subset claims can't be validated flight-wide without false positives, so flight-wide rules
 // (country/variety diversity) are skipped for these.
-function isSubsetSplit(stem) {
+//
+// Exported because crossCheckStemFacts in question-validator.ts needs the SAME guard and did not
+// have it: on the real 2022 P2 Q1 — "Wines 1-3 are from different countries and are each made from a
+// different, single grape variety. Wine 4 is a blend of all three of these varieties." — it read both
+// claims as flight-wide and rejected the blend the stem had just asked for, and counted four
+// countries where the stem asked for three.
+export function subsetScopedStem(questionText, wineCount = 0) {
+  if (!wineCount || wineCount < 2) return false;
+  const stem = normStem(questionText);
+  // A stem that organises a flight of three or more wines into PAIRS is making its claims per pair,
+  // not flight-wide. The real 2023 P1 Q1 is the case: "Wines 1-4 are from four different countries
+  // and two different grape varieties. 1 & 2 are a pair and 3 & 4 are a pair. Each pair is from the
+  // same single grape variety." Read flight-wide that stem is self-contradictory — it asserts both
+  // "different varieties" and "the same single grape variety" — and ten rules fired on it at once.
+  // The enumeration test below cannot catch it, because the first group named is "Wines 1-4".
+  if (/\bpairs?\b/.test(stem) && wineCount > 2) return true;
+  if (!isSubsetSplit(stem)) return false;
+  // isSubsetSplit alone is too blunt to gate a rule on: it matches "Wines 1 and 2 …", which on a
+  // TWO-wine flight is the whole flight, not a subset — guarding on it there would silence the rule
+  // entirely. So also require that the first group of slots the stem names covers FEWER wines than
+  // the flight holds. "Wines 1-3 … Wine 4 is a blend" over four wines is scoped (3 < 4); "Wines 1 and
+  // 2 are from the same country" over two is not (2 = 2).
+  const m = stem.match(/\bwines?\s+(\d+(?:\s*(?:,|and|to|through|-)\s*\d+)*)/);
+  if (!m) return false;
+  const nums = (m[1].match(/\d+/g) || []).map(Number);
+  if (!nums.length) return false;
+  const span = /(?:to|through|-)/.test(m[1]) ? Math.max(...nums) - Math.min(...nums) + 1 : nums.length;
+  return span < wineCount;
+}
+
+export function isSubsetSplit(stem) {
   return /the other (?:two|three|one|wine)\b|\btwo wines\b|\bwines?\s+1\s+and\s+2\b|\bwines?\s+3\s+and\s+4\b|\bwine\s+[1-9]\s+(?:is|are|comes)\b/.test(
     stem
   );
@@ -792,8 +822,27 @@ export function applyQuestionRules(q, opts = {}) {
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
   const distinctCountry = new Set(wines.map((w) => canonCountry(w.country)).filter(Boolean));
-  const predominantly = /\bpredominantly\b/.test(stem); // explicitly permits blends / dominant grape
-  const subsetSplit = isSubsetSplit(stem);
+  // "Predominant" explicitly permits blends — it is the exam's own word for "the dominant grape, and
+  // there may be others". The ADJECTIVE is what the corpus actually writes: measured over
+  // data/structured/corpus_questions.json, twelve real stems say "predominant" ("the same predominant
+  // grape variety", "a different (predominant) grape variety") and exactly one says "predominantly".
+  // Matching only the adverb missed twelve of the thirteen, so a Semillon-led Sauternes was rejected
+  // from a stem that had gone out of its way to allow it.
+  const predominantly = /\bpredominant(?:ly)?\b/.test(stem);
+  // UNION, deliberately, not a replacement. subsetScopedStem adds the pair-aware arm this needs
+  // (the real 2023 P1 Q1 organises four wines into two pairs and tripped R1 and R2), but it is also
+  // STRICTER than isSubsetSplit in one respect: it requires the named group to be smaller than the
+  // flight, so a two-wine "Wines 1 and 2 …" stem is no longer treated as a subset.
+  //
+  // Swapping outright would therefore have started running R1/R2 on 306 banked questions that had
+  // been skipping them, about half of them currently clean — a tightening far beyond the scope of
+  // this fix and one that would land as a wave of new quarantines on the next nightly audit. The
+  // union keeps this change purely relaxing: 3 questions newly skip, none newly run.
+  //
+  // That leaves a genuine pre-existing gap — R1/R2 never fire on a two-wine flight whose stem says
+  // "Wines 1 and 2 …" — which is worth closing on its own, with its own measurement.
+  const subsetSplit =
+    isSubsetSplit(stem) || subsetScopedStem(q.questionText ?? stem, wines.length);
   // Detection-gap guard for the TEXT stage only (engine passes countryRequireAllKnown). When a wine's
   // country couldn't be detected from its label, flagging "N countries" would be a false positive, so
   // the engine skips the check unless every wine resolved a country. For the KEY stage (validator)

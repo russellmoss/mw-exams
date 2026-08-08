@@ -13,12 +13,10 @@ import {
   reviewBankQuestion,
   keepAllPending,
   applyBinReasons,
-  extendBatchForReplacement,
   type GeneratedQuestion,
   type FlagContext,
 } from "@/lib/db";
 import type { ProducerFlag } from "@/lib/bank-health/producer";
-import { runBankBatch } from "@/lib/bank-worker";
 import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
 import { sanitizeBinTags, sanitizeBinNote, VALIDATOR_LINKED_TAGS } from "@/lib/bin-reasons";
 import { runBinReasonCheck } from "@/lib/bin-reason-check";
@@ -242,7 +240,7 @@ async function attachFlagContext<T extends { id: string }>(
 }
 
 /**
- * GET /api/admin/fill-bank/review?batch=… — admin-only.
+ * GET /api/admin/bank/review-queue?batch=… — admin-only.
  *
  * The next pending question for the batch (oldest first) as a full review payload, plus the
  * reviewer's position (n of total). Binned questions are hard-deleted, so "total" is the kept count
@@ -277,7 +275,6 @@ export async function GET(request: Request) {
       batchId: "flagged:producer",
       flagged: "producer",
       paper: pending[0]?.paper ?? null,
-      replaceBinned: false,
       status: "complete",
       keptCount: 0,
       remaining: total,
@@ -311,7 +308,6 @@ export async function GET(request: Request) {
       batchId: "flagged:candidate",
       flagged: "candidate",
       paper: pending[0]?.paper ?? null,
-      replaceBinned: false,
       status: "complete",
       keptCount: 0,
       remaining: total,
@@ -358,7 +354,6 @@ export async function GET(request: Request) {
   return Response.json({
     batchId: batch.id,
     paper: batch.paper,
-    replaceBinned: batch.replace_binned,
     status: batch.status,
     keptCount: batch.kept_count,
     remaining: pending.length,
@@ -371,11 +366,10 @@ export async function GET(request: Request) {
 }
 
 /**
- * POST /api/admin/fill-bank/review  { id, action:'keep'|'bin'|'keepAll' } — admin-only.
+ * POST /api/admin/bank/review-queue  { id, action:'keep'|'bin'|'keepAll' } — admin-only.
  *
  * keep    → review_state='kept' (servable).
- * bin     → the row is hard-deleted (immediate, permanent, no undo); if the batch has
- *           "Replace anything I bin" on, one replacement generation is appended to the same batch.
+ * bin     → the row is hard-deleted (immediate, permanent, no undo).
  * keepAll → every remaining pending question in the batch is kept in one shot.
  */
 export async function POST(request: Request) {
@@ -446,32 +440,13 @@ export async function POST(request: Request) {
     ? (await getBatchPendingQuestions(result.batchId)).length
     : 0;
 
-  let replacementQueued = false;
-  if (action === "bin" && result.batchId) {
-    const batch = await getBankBatch(result.batchId);
-    if (batch && batch.replace_binned) {
-      const extended = await extendBatchForReplacement(result.batchId);
-      if (extended) {
-        replacementQueued = true;
-        const apiKey = keyResult.apiKey;
-        const userId = keyResult.user.id;
-        const baseUrl = new URL(request.url).origin;
-        after(async () => {
-          try {
-            await runBankBatch({ batchId: extended.id, apiKey, userId, baseUrl });
-          } catch (err) {
-            console.error(`[fill-bank/review] replacement worker failed for ${extended.id}:`, err);
-          }
-        });
-      }
-    }
-  }
-
-  return Response.json({ ok: true, changed: true, replacementQueued, remaining });
+  // A bin used to enqueue a replacement generation here ("Replace anything I bin"). Bulk generation
+  // is gone, so a bin now simply removes the question — nothing is written to replace it.
+  return Response.json({ ok: true, changed: true, remaining });
 }
 
 /**
- * PATCH /api/admin/fill-bank/review  { itemIds: string[], reasons: string[], note?: string }
+ * PATCH /api/admin/bank/review-queue  { itemIds: string[], reasons: string[], note?: string }
  *
  * Optional, non-blocking reason capture for items still on the Undo stack (spec §3). Fire-and-forget:
  * the client never rolls back on failure, so this must never touch bin state. Reasons apply to EVERY

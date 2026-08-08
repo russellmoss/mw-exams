@@ -142,7 +142,16 @@ for (const item of authored) {
     getProducerTally(stem.paper, { includeRetiredEvidence: true }),
     getRecentProducerKeys(stem.paper, PRODUCER_RECENT_WINDOW),
   ]);
-  const banned = buildGenerationProducerExclusion(tally.rows, recent);
+  // A question being REPLACED must not count against itself. If an earlier attempt at this same qid
+  // is still banked — saved but quarantined, say — its producers sit in the recent-window and the
+  // retry is told its own wines are over-used. 2023 P1 Q3 came back with all four producers banned
+  // by the attempt this run is about to delete.
+  const ownKeys = new Set(
+    (await sql`SELECT producer_key FROM bank_wine_producer WHERE item_id = ${id}`).map((r) => r.producer_key)
+  );
+  const banned = buildGenerationProducerExclusion(tally.rows, recent).filter(
+    (b) => !(ownKeys.has(b.key) && !b.reasons.includes("reviewer-ban"))
+  );
   for (const v of validateProducerExclusion(new Set(banned.map((b) => b.key)), wines).violations) {
     problems.push(`producer-exclusion: ${v}`);
   }
@@ -205,6 +214,11 @@ for (const { stem, wines, item } of ready) {
     console.error(`::warning::${questionId} has a user attempt — refusing to overwrite it`);
     continue;
   }
+  // bank_wine_producer is a derived table with no FK, so deleting the question leaves its
+  // producer rows behind — and those rows are what getRecentProducerKeys reads. Without this,
+  // a failed commit BANS ITS OWN WINES from the retry: 2023 P1 Q3 came back with all four
+  // producers on the over-used list, put there by the attempt that had just been discarded.
+  await sql`DELETE FROM bank_wine_producer WHERE item_id = ${questionId}`;
   await sql`DELETE FROM stem_answer_keys WHERE question_id = ${questionId}`;
   await sql`DELETE FROM question_views    WHERE question_id = ${questionId}`;
   await sql`DELETE FROM generated_questions WHERE question_id = ${questionId}`;

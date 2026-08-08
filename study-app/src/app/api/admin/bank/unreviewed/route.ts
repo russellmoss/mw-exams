@@ -3,7 +3,7 @@ import { getUnreviewedQueue } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-// Family F-codes → the human labels used across the review surfaces (mirrors fill-bank/review).
+// Family F-codes → the human labels used across the review surfaces (mirrors bank/review-queue).
 const FAMILY_LABELS: Record<string, string> = {
   F1: "Same variety",
   F2: "Same origin",

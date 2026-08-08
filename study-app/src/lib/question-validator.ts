@@ -14,6 +14,7 @@ import {
   colourFromAppellation,
   detectPrimaryVariety,
   expandMarkTokens,
+  subsetScopedStem,
   methodClass,
   norm,
   normStem,
@@ -272,9 +273,17 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
   const stem = normStem(q.questionText);
   const wines = q.wines || [];
+  // A stem that describes its flight in SUBSETS makes each claim about a subset, not flight-wide, so
+  // applying them to every wine is a false positive. The shared rule layer has always guarded its own
+  // cardinality checks this way (applyQuestionRules → subsetSplit); these did not. On the real 2022
+  // P2 Q1 — "Wines 1-3 are from different countries and are each made from a different, single grape
+  // variety. Wine 4 is a blend of all three of these varieties." — that gap rejected the blend the
+  // stem had just asked for, counted four different countries where the stem asked for three, and
+  // read wine 4's three resolved varieties as duplicates of wines 1-3.
+  const subsetSplit = subsetScopedStem(q.questionText, wines.length);
 
   // (1) "the same (single) grape variety" — every resolved primary variety must be identical.
-  if (wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
+  if (!subsetSplit && wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
     const known = wines.filter((w) => primaryVariety(w));
     if (known.length >= 2) {
       const base = primaryVariety(known[0]);
@@ -291,7 +300,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   }
 
   // (2) "a different (single) grape variety" / "different grape varieties" — primaries pairwise distinct.
-  if (/different (?:single )?grape variet(?:y|ies)/.test(stem)) {
+  if (!subsetSplit && /different (?:single )?grape variet(?:y|ies)/.test(stem)) {
     const seen = new Map<string, number>();
     for (const w of wines) {
       const pv = primaryVariety(w);
@@ -309,10 +318,15 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (3) A singular variety claim ("single grape variety", or "predominantly … grape variety") must not
   // sit over a blend. Skipped when the stem already hedges as "grape variety or varieties" / "variety(ies)".
-  const hedged = /variety or varieties|variety ies\b/.test(stem);
+  // "…the same single grape variety OR PREDOMINANT grape variety" is a hedge in the exam's own words:
+  // it offers the candidate either reading and therefore permits a blended wine. Four real stems use
+  // it (2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1 and Q3) and all four were rejected for the blends they
+  // explicitly allow. normStem has already flattened the commas in the printed "single, or
+  // predominant, grape variety".
+  const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(stem);
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
-  if (!hedged && singularClaim) {
+  if (!hedged && singularClaim && !subsetSplit) {
     for (const w of wines) {
       const why = blendSignal(w);
       if (why)
@@ -337,7 +351,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     const distinctCount = stem.match(
       /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
     );
-    const required = distinctCount
+    const required = subsetSplit
+      ? 0
+      : distinctCount
       ? parseStemCount(distinctCount[1])
       : /\bdifferent countries\b/.test(stem)
         ? wines.length
@@ -367,7 +383,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
         });
       }
     }
-    if (/\b(?:the )?same country\b/.test(stem)) {
+    if (/\b(?:the )?same country\b/.test(stem) && !subsetSplit) {
       const placed = wines.filter((w) => countryOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -384,7 +400,11 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (5) REGION cardinality — "the same region" needs one region; "N different regions" needs N distinct.
   {
-    if (/\b(?:the )?same region\b/.test(stem)) {
+    // "…from the same region but different sub-regions" (real: 2022 P2 Q2 and Q3) asserts BOTH, and
+    // what the key resolves as each wine's region IS its sub-region — so a difference between them is
+    // exactly what the stem predicts, not a contradiction of it.
+    const subRegionSplit = /\bdifferent\s+sub\s?-?\s?regions?\b/.test(stem);
+    if (/\b(?:the )?same region\b/.test(stem) && !subsetSplit && !subRegionSplit) {
       const placed = wines.filter((w) => regionOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -542,7 +562,13 @@ const BANKER_SIGNALS: BankerSignal[] = [
   { region: /rutherglen/, variety: /muscat|muscadelle|topaque|tokay/ },
   { region: /\bnapa\b|sonoma|russian river|carneros/ },
   { region: /willamette/, variety: /pinot noir/ },
-  { region: /\bmendoza\b|\buco\b/, variety: /malbec/ },
+  // NB: Mendoza/Uco Malbec is deliberately NOT a banker. Per EK-0029 (STRONG SIGNAL) the anchor of a
+  // 3+ wine flight has to be a wine the candidate knows cold at classified/benchmark level (Bordeaux
+  // classed growth, Barolo, 1er Cru Burgundy, Rioja Gran Reserva, Marlborough Sauvignon). A bare
+  // regional Mendoza Malbec reads as a competent but standard wine, not the route-to-country anchor —
+  // and the region+variety detector can't tell an iconic single-vineyard from a supermarket bottling —
+  // so it fails safe to curveball. (Flagged on gen_p2_F6_1779988985396, a bankerless 4-wine P2 flight
+  // that had been passing only because this signal miscounted its Mendoza Malbec as the banker.)
   { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
   { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
 ];
@@ -1192,7 +1218,10 @@ function parseDeclaredPairs(stem: string): [number, number][] {
   const s = norm(stem);
   if (!/\bpairs?\b/.test(s)) return [];
   const pairs: [number, number][] = [];
-  for (const m of s.matchAll(/\b(\d+)\s+and\s+(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
+  // "&" as well as "and": the real 2023 P1 Q1 writes "1 & 2 are a pair and 3 & 4 are a pair", where
+  // matching only "and" found the single spurious span "2 are a pair and 3" and so read the stem as
+  // having no declared pairs at all.
+  for (const m of s.matchAll(/\b(\d+)\s*(?:and|&)\s*(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
   return pairs.length >= 2 ? pairs : [];
 }
 
@@ -1438,7 +1467,11 @@ const WHITE_COLOUR_CUE = /\b(white|blanc|blanche|blanco|branco|bianco|weiss|weis
 // Château Cheval Blanc is a red Saint-Émilion, Château Blanc, Clos Blanc — so promoting it to an
 // override would misread famous reds as whites. `blanc` still contributes to WHITE_COLOUR_CUE above,
 // where the resolved varieties get to outvote it.
-const WHITE_QUALIFIER_OVERRIDE = /\b(branco|blanco|bianco|white|weiss|weisswein|feher)\b/;
+//
+// The two `blanc de …` compounds ARE included: unlike a bare `blanc` they cannot be part of an estate
+// name, and both name a white wine outright. Blanc de Noirs is the one that needs saying — a white
+// wine from black grapes, so its variety list argues red and only the label is right.
+const WHITE_QUALIFIER_OVERRIDE = /\b(branco|blanco|bianco|white|weiss|weisswein|feher)\b|\bblanc de (?:blancs|noirs)\b/;
 
 // Varieties that RED_GRAPE_INDICATORS deliberately omits because the bare token is ambiguous for
 // VARIETY resolution, even though it is unambiguous for COLOUR. `montepulciano` is the case: adding it
@@ -1477,23 +1510,145 @@ const EXPLICIT_FORTIFIED =
 // a RED DOCG in Vittoria. Both produced false rosé verdicts on real reds in the live bank.
 const ROSE_FALSE_POSITIVE = /\b(cerasuolo di vittoria|(?:delle|della|des|du|de la|la|le)\s+rose)\b/;
 
+// ---------------------------------------------------------------------------------------------------
+// EXPLICIT COLOUR SIGNALS — what the label SAYS and what the grapes ARE, as distinct from a regional
+// prior ("Etna is famous for Nerello Mascalese, therefore red").
+//
+// The reported failure: "Benanti, Etna Bianco Superiore Pietra Marina, 2020. Etna, Sicily, Italy" was
+// classified RED, twice, by the generation-stage classifier — even though the label says Bianco and
+// Carricante is a white grape. The wrong colour persisted onto the question's wine slot, and because a
+// persisted colour outranks inference (see resolveWineScope), R-COLOUR then quarantined a legitimate
+// Paper 1 question. R-COLOUR is unconditional and blocking by design, so a region whose name is
+// associated with the opposite colour silently loses ALL of its wines of that colour from its paper:
+// Etna Bianco, Etna Rosato, white Rioja, Blanc de Noirs, Sancerre Rouge, Alsace Pinot Noir.
+//
+// The rule stays unconditional. What changes is that its INPUT stops being a prior when the label or
+// the grape settles the matter outright.
+// ---------------------------------------------------------------------------------------------------
+
+// Unambiguous rosé words. `rose` itself is kept (accents are stripped by norm(), so "rosé" arrives as
+// "rose") but stays subject to ROSE_FALSE_POSITIVE, and is required to stand alone rather than sit
+// inside a hyphenated proprietary name.
+const ROSE_LABEL_CUE = /\b(rosado|rosato|blush|weissherbst)\b|\bwhite zinfandel\b|(?:^|[^\w-])rose(?:[^\w-]|$)/;
+// Red colour words. `red` is here for "Sancerre Rouge"'s Anglophone cousins, but see the guard in
+// explicitColourSignal — "Red Car, Chardonnay" is a white wine from a producer called Red Car.
+const RED_LABEL_CUE = /\b(rouge|rosso|tinto|tinta|rotwein|red)\b/;
+
+// French `blanc`, which WHITE_QUALIFIER_OVERRIDE deliberately excludes because it hides inside
+// proprietary names of reds. Measured against the live bank, that exclusion was the single largest
+// source of false quarantines: 7 of the 17 questions quarantined on `wrong_colour_for_paper` were
+// white Paper 1 wines whose ONLY colour evidence was the word Blanc — Château Rayas Châteauneuf-du-Pape
+// Blanc, Château Smith Haut Lafitte Blanc, Château de Beaucastel Blanc, Domaine de la Mordorée Lirac
+// Blanc, Domaine Gauby Côtes Catalanes Blanc, Domaine Gramenon Côtes du Rhône Blanc, Tablas Creek
+// Esprit de Tablas Blanc. In three of them the resolved KEY named the appellation's red grapes,
+// because the appellation table made the same mistake, so nothing but the label could save them.
+//
+// The appellation data cannot arbitrate this: it lists Châteauneuf-du-Pape, Pessac-Léognan and Côtes
+// du Rhône as red-only (only 7 of its 238 entries carry byColor at all), so "red appellation ⇒ ignore
+// blanc" would keep every one of those seven broken.
+//
+// So `blanc` is now believed, with two carve-outs:
+//   - "blanc de X" is a construction, not a colour ("Clos Blanc de Vougeot"). `blanc de blancs` and
+//     `blanc de noirs` are matched earlier by WHITE_QUALIFIER_OVERRIDE and are unaffected.
+//   - a short denylist of estates whose NAME ends in Blanc and whose wine is red.
+// The residual risk is a red wine with a proprietary Blanc name outside that list reading as white.
+// That is the smaller error: it admits one wrong wine, where the old behaviour retired every white
+// wine labelled in French from Paper 1.
+const FRENCH_BLANC = /\bblanc(?:he)?\b(?!\s+de\b)/;
+const BLANC_PROPRIETARY_RED = /\b(cheval blanc|chateau blanc|mas blanc)\b/;
+
+// A colour qualifier carried as a SUFFIX on the variety name itself. This is the grape stating its own
+// colour, and it has to outrank the indicator lists because those match on substrings: "Grenache Blanc"
+// contains "grenache", so RED_GRAPE_INDICATORS fires on a white grape. That collision is why five
+// legitimate white Rhône/Roussillon flights were quarantined as red. It cuts the other way too —
+// "Malvasia Nera" is a red grape whose name contains the white "malvasia".
+const VARIETY_WHITE_SUFFIX = /\b(blanc|blanche|blanca|blanco|bianco|branco|gris|grigio|weiss|weisser)$/;
+const VARIETY_RED_SUFFIX = /\b(noir|noire|nero|nera|negro|negra|tinto|tinta|rouge|rosso|preto)$/;
+
+// The same qualifier, but written on the LABEL rather than in the resolved variety list: "Arnot-
+// Roberts, Trousseau Gris" is a white wine keyed simply as Trousseau. The preceding word must itself be
+// a recognised grape, which is what keeps "Vin Gris" and "Gris de Gris" — both rosés — out of it.
+const GRAPE_PLUS_GRIS = /\b([a-z]+)\s+(?:gris|grigio)\b/;
+function labelGrapeGris(hay: string): boolean {
+  const m = hay.match(GRAPE_PLUS_GRIS);
+  if (!m) return false;
+  return RED_GRAPE_INDICATORS.test(m[1]) || WHITE_GRAPE_INDICATORS.test(m[1]);
+}
+
+/** One variety's colour. Suffix qualifier first, then the LONGER indicator match. */
+function colourOfOneVariety(v: string): "white" | "red" | null {
+  const t = norm(canonVariety(v));
+  if (!t) return null;
+  if (VARIETY_WHITE_SUFFIX.test(t)) return "white";
+  if (VARIETY_RED_SUFFIX.test(t)) return "red";
+  const rm = t.match(RED_GRAPE_INDICATORS)?.[0] ?? "";
+  const wm = t.match(WHITE_GRAPE_INDICATORS)?.[0] ?? "";
+  // Longest match wins, so "grenache blanc" (white, 14 chars) beats "grenache" (red, 8).
+  if (wm.length > rm.length) return "white";
+  if (rm.length > wm.length) return "red";
+  return EXTRA_RED_VARIETIES.test(t) ? "red" : null;
+}
+
+/** The colour a variety list agrees on, or null when it is mixed, empty or unrecognised. */
+function varietyColour(varieties?: string[]): "white" | "red" | null {
+  let red = false;
+  let white = false;
+  for (const v of varieties || []) {
+    const c = colourOfOneVariety(v);
+    if (c === "red") red = true;
+    else if (c === "white") white = true;
+  }
+  if (red && !white) return "red";
+  if (white && !red) return "white";
+  return null;
+}
+
+/** The text a colour word may legitimately appear in: the label, plus the region it names. */
+export const colourBearingText = (w: Pick<AuditWine, "fullText" | "region">) =>
+  [w.fullText, w.region].filter(Boolean).join(". ");
+
+export type ColourSignal = { colour: PureColour; basis: "label" | "variety" };
+
+/**
+ * The colour a label states outright, or that its grapes settle — never a regional prior.
+ *
+ * `basis` matters to the caller: a LABEL word is the strongest evidence there is and may overturn a
+ * stored colour, while a VARIETY list is only decisive for still wines (a Provence rosé is Grenache
+ * and a ramato is Pinot Grigio — the grape cannot see how the wine was made).
+ *
+ * Precedence within the label mirrors resolveStillColour's, which is already pinned by tests: a white
+ * qualifier outranks the grape (Touriga Nacional Branco), French `blanc` is not a qualifier (Château
+ * Cheval Blanc), and rosé/orange are read before either.
+ */
+export function explicitColourSignal(fullText?: string, varieties?: string[]): ColourSignal | null {
+  const hay = norm(fullText || "");
+  const vc = varietyColour(varieties);
+  if (hay) {
+    if (ORANGE_STYLE_RE.test(hay)) return { colour: "orange", basis: "label" };
+    if (ROSE_LABEL_CUE.test(hay) && !ROSE_FALSE_POSITIVE.test(hay)) return { colour: "rose", basis: "label" };
+    if (WHITE_QUALIFIER_OVERRIDE.test(hay)) return { colour: "white", basis: "label" };
+    if (FRENCH_BLANC.test(hay) && !BLANC_PROPRIETARY_RED.test(hay)) return { colour: "white", basis: "label" };
+    if (labelGrapeGris(hay)) return { colour: "white", basis: "label" };
+    // A red word does NOT outrank a unanimously white grape list. The asymmetry is deliberate and
+    // mirrors WHITE_QUALIFIER_OVERRIDE: white qualifiers are almost always the colour of the wine,
+    // whereas `red`/`rosso` turn up in producer and place names ("Red Car, Chardonnay, Sonoma Coast").
+    if (RED_LABEL_CUE.test(hay) && vc !== "white") return { colour: "red", basis: "label" };
+  }
+  return vc ? { colour: vc, basis: "variety" } : null;
+}
+
 /**
  * Settle a still wine's colour: red vs white, or null when it cannot be positively determined.
  *
- * Precedence is deliberate. The resolved `varieties` come from the answer key and outrank anything on
- * the label — "Château Cheval Blanc" is a RED Bordeaux whose label says "Blanc". Only an unambiguous
- * colour qualifier (WHITE_QUALIFIER_OVERRIDE, which omits French `blanc`) may override them.
+ * Precedence is deliberate: what the label STATES, then what the grapes ARE (both via
+ * explicitColourSignal), and only then the weaker cues — loose colour words anywhere in the record, the
+ * dominant variety implied by the appellation, and finally the appellation's own colour.
  */
 function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
-  const varietyBlob = norm((w.varieties || []).map((x) => canonVariety(x)).join(" "));
-  if (varietyBlob) {
-    const vRed = RED_GRAPE_INDICATORS.test(varietyBlob);
-    const vWhite = WHITE_GRAPE_INDICATORS.test(varietyBlob);
-    if (vRed && !vWhite) return WHITE_QUALIFIER_OVERRIDE.test(hay) ? "white" : "red";
-    if (vWhite && !vRed) return "white";
-  }
+  const explicit = explicitColourSignal(colourBearingText(w), w.varieties);
+  if (explicit?.colour === "white" || explicit?.colour === "red") return explicit.colour;
 
-  // Varieties absent or internally mixed — fall back to the label/region text.
+  // Nothing stated and no usable grape list — fall back to the label/region text.
   const red = RED_GRAPE_INDICATORS.test(hay) || RED_COLOUR_CUE.test(hay);
   const white = WHITE_GRAPE_INDICATORS.test(hay) || WHITE_COLOUR_CUE.test(hay);
   if (red && !white) return "red";
@@ -1539,11 +1694,21 @@ export function resolveWineScope(w: AuditWine): { colour: PureColour | null; sty
   // Colour is resolved INDEPENDENTLY of style — a sweet wine still has a colour, and that is the whole
   // point of splitting the axes.
   //
-  // A PERSISTED colour wins outright. It was decided at generation time with the varieties, region and
-  // enrichment all in hand; a serve-time caller re-deriving from a bare label is strictly worse
-  // informed. This is what closes the label-invisible cases — 44 Paper 1 wine slots resolve to no
+  // A PERSISTED colour wins over INFERENCE. It was decided at generation time with the varieties,
+  // region and enrichment all in hand; a serve-time caller re-deriving from a bare label is strictly
+  // worse informed. This is what closes the label-invisible cases — 44 Paper 1 wine slots resolve to no
   // colour from their label alone.
+  //
+  // It does NOT win over the label STATING a different colour. That is not inference losing an argument
+  // to better context, it is a stored value contradicting the words on the bottle — which is how a
+  // Paper 1 Etna Bianco came to be quarantined as a red. The persisted colour is a model's judgement
+  // and models follow regional fame; "Bianco" is not a judgement.
+  const explicit = explicitColourSignal(colourBearingText(w), w.varieties);
+  const labelContradiction =
+    explicit?.basis === "label" && w.colour && explicit.colour !== w.colour ? explicit.colour : null;
+
   const colour: PureColour | null =
+    labelContradiction ??
     w.colour ??
     (ORANGE_STYLE_RE.test(hay) ? "orange" : reallyRose ? "rose" : resolveStillColour(w, hay));
 

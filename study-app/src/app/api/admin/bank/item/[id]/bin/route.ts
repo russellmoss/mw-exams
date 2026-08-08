@@ -4,26 +4,25 @@ import { requireApiKey } from "@/lib/api-key";
 import {
   reviewBankQuestion,
   unbinBankQuestion,
-  getBankBatch,
-  extendBatchForReplacement,
   getBatchPendingQuestions,
 } from "@/lib/db";
-import { runBankBatch } from "@/lib/bank-worker";
 import { sanitizeBinTags, sanitizeBinNote } from "@/lib/bin-reasons";
 import { regenerateBinLessons } from "@/lib/bin-lessons";
 import { runBinReasonCheck } from "@/lib/bin-reason-check";
 
 export const runtime = "nodejs";
-// A binned item can enqueue one replacement generation, driven in after() past the response.
+// The bin itself is a single UPDATE; the budget covers the bin-reason adjudication in after().
 export const maxDuration = 300;
 
 /**
  * POST /api/admin/bank/item/[id]/bin — admin-only.
  *
  * Reject one pending banked question (status pending → rejected) so it never reaches a candidate.
- * [id] is the generated question's id. If its batch has "Replace anything I bin" on, one replacement
- * generation is enqueued into the SAME batch via the durable worker, so a run of 10 still yields 10
- * kept.
+ * [id] is the generated question's id.
+ *
+ * A bin used to enqueue a replacement generation when its batch had "Replace anything I bin" on.
+ * Bulk generation has been removed, so a bin now only removes — the bank shrinks by one and nothing
+ * is written to backfill it.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const keyResult = await requireApiKey(request);
@@ -72,28 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     ? (await getBatchPendingQuestions(result.batchId)).length
     : 0;
 
-  let replacementQueued = false;
-  if (result.batchId) {
-    const batch = await getBankBatch(result.batchId);
-    if (batch && batch.replace_rejected) {
-      const extended = await extendBatchForReplacement(result.batchId);
-      if (extended) {
-        replacementQueued = true;
-        const apiKey = keyResult.apiKey;
-        const userId = keyResult.user.id;
-        const baseUrl = new URL(request.url).origin;
-        after(async () => {
-          try {
-            await runBankBatch({ batchId: extended.id, apiKey, userId, baseUrl });
-          } catch (err) {
-            console.error(`[bank/item/bin] replacement worker failed for batch ${extended.id}:`, err);
-          }
-        });
-      }
-    }
-  }
-
-  return Response.json({ ok: true, changed: true, replacementQueued, remaining });
+  return Response.json({ ok: true, changed: true, remaining });
 }
 
 /**

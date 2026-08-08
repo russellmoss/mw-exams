@@ -8,8 +8,18 @@
  *   2. The SSE wire format — the client parses `data: {json}` line by line, so a malformed or
  *      multi-line frame shows up as a drill that never loads, not as an error.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type Anthropic from "@anthropic-ai/sdk";
+
+// The admin reasoning toggle lives in a live `app_settings` row, so `isReasoningEnabled` would
+// otherwise make these assertions depend on whatever the shared CI database happens to hold (it is
+// currently OFF, which silently drops the max_tokens doubling and fails the withThinking test).
+// Pin it ON here: the switched-OFF path is still exercised deterministically via the
+// REASONING_HARD_DISABLE env override, which short-circuits before this setting is ever read.
+vi.mock("@/lib/settings", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/settings")>()),
+  isReasoningEnabled: async () => true,
+}));
 import {
   supportsAdaptiveThinking,
   thinkingParams,

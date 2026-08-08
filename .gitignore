@@ -44,6 +44,12 @@ desktop.ini
 # Outputs that are large or regenerable
 outputs/**/*.draft.md
 
+# Tour videos: hundreds of MB of MP4, rebuilt by study-app/scripts/record-tour-videos.mjs from the
+# committed narration and the live components. The frame scratch dir is mid-render state.
+outputs/tour_videos/
+tour_videos/
+study-app/.tour-video-work/
+
 # Logs
 *.log
 logs/

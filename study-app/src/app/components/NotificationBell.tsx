@@ -5,8 +5,10 @@ import { useNow } from "@/lib/use-now";
 import Link from "next/link";
 import { FeedbackAnalysisPanel } from "./FeedbackAnalysisPanel";
 
-// Fill-the-Bank ready notifications (admin only). Dismissal is tracked client-side so a batch the
-// admin has already opened stops nagging; a genuinely new ready batch still lights the bell.
+// Bank-review notifications (admin only) — batches with questions still awaiting a Keep/Bin call.
+// Dismissal is tracked client-side so a batch the admin has already opened stops nagging; a batch
+// sent back to review still lights the bell. Nothing generates these any more (bulk generation was
+// removed 2026-08-08); they are the tail of what was already written, plus anything reopened.
 interface BankReady {
   batchId: string;
   paper: number;
@@ -139,7 +141,7 @@ export function NotificationBell() {
       setAnalyses(list);
     } catch {}
 
-    // Fill-the-Bank ready batches (admin only; non-admins get an empty list). Surface only the ones
+    // Batches with questions awaiting review (admin only; non-admins get an empty list). Surface only the ones
     // this admin hasn't already opened.
     try {
       const res = await fetch("/api/admin/bank/notifications");
@@ -284,11 +286,11 @@ export function NotificationBell() {
                     className="block px-4 py-3 bg-accent/5 hover:bg-card-hover transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Fill the Bank</span>
+                      <span className="text-sm font-medium text-foreground">Bank Review</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">P{b.paper}</span>
                     </div>
                     <p className="text-xs text-muted mt-0.5">
-                      {b.pending} new question{b.pending === 1 ? "" : "s"} ready to review →
+                      {b.pending} question{b.pending === 1 ? "" : "s"} awaiting review →
                     </p>
                   </Link>
                 ))}

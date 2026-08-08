@@ -2659,8 +2659,9 @@ export async function getBinRowsForMining(
 // accepted) on served questions and drills. Each accepted feedback already got its own point fix —
 // what the miner adds is noticing when the same class of complaint keeps being accepted, which is
 // evidence the point fixes did not generalize. Item ids are namespaced `fb_<attemptId>` so they can
-// never collide with bin item_ids in a proposal's evidence list; "codified" for these rows is
-// derived from shipped proposals' evidence (no column — see codifiedFeedbackIds in bin-fix-miner).
+// never collide with bin item_ids in a proposal's evidence list. Whether a row is already spoken for
+// is derived, not stored (no column) — see claimedEvidenceIds in bin-fix-miner, which excludes the
+// evidence of every non-terminal proposal from BOTH streams, not just that of shipped ones.
 export async function getFeedbackRowsForMining(
   limit = 150
 ): Promise<
@@ -2838,11 +2839,21 @@ export async function markBinFixDispatched(
   return rows.length > 0;
 }
 
+// Reject from any NON-TERMINAL state, not just 'proposed'.
+//
+// It used to require 'proposed', which made the admin Reject button a silent no-op at exactly the
+// moment rejection is most needed: you usually discover a proposal is a duplicate by reading the PR it
+// produced, and by then it is 'dispatched' or 'pr_opened'. On 2026-08-08 three proposals had to be
+// rejected in that state (10, 12, 17 — all re-implementations of shipped validators) and none of them
+// could be, through the UI or the API.
+//
+// 'merged' and 'shipped' stay excluded. Those are done, their evidence is retired, and flipping them to
+// 'rejected' would assert the fix never landed while the code sits on master.
 export async function markBinFixRejected(id: number, decidedBy: number): Promise<boolean> {
   const sql = getDb();
   const rows = await sql`
     UPDATE bin_fix_proposals SET status = 'rejected', decided_by = ${decidedBy}, updated_at = NOW()
-    WHERE id = ${id} AND status = 'proposed'
+    WHERE id = ${id} AND status IN ('proposed', 'dispatched', 'pr_opened', 'pr_closed', 'failed')
     RETURNING id
   `;
   return rows.length > 0;

@@ -5,6 +5,7 @@ import { neon } from "@neondatabase/serverless";
 import { logClaudeUsage, logTavilyUsage } from "./usage-log";
 import { selectModel } from "./model-selector";
 import { resolveTavilyKey } from "./tavily-key";
+import { explicitColourSignal } from "./question-validator";
 
 const TAVILY_API_URL = "https://api.tavily.com/search";
 
@@ -200,6 +201,35 @@ const STYLE_CATEGORIES = "still_dry, still_off_dry, still_sweet, sparkling, fort
 // was NULL on every row until this field started populating it.
 export const WINE_COLOURS = ["white", "red", "rose", "orange"] as const;
 
+/**
+ * Correct a classified colour that contradicts an explicit signal, and say so in the log.
+ *
+ * The classifier runs on Haiku and follows REGIONAL FAME when the region's reputation points the other
+ * way. Measured twice on 2026-08-08: "Benanti, Etna Bianco Superiore Pietra Marina, 2020. Etna, Sicily,
+ * Italy" came back RED — the label says Bianco, the model's own grape list said Carricante, and Etna is
+ * famous for Nerello Mascalese. The wrong colour persisted onto the Paper 1 question's wine slot and
+ * R-COLOUR — unconditional and blocking, by design — quarantined the question.
+ *
+ * So the model's colour is now the FALLBACK, used when nothing explicit is available, rather than the
+ * answer. Prompt wording alone would not do: the prompt already said "Trust an explicit colour word on
+ * the label over the grape's usual colour" and the model said red anyway.
+ *
+ * The one thing the model still wins on is rosé and orange against a bare grape list, because those are
+ * MADE rather than implied: a Provence rosé is Grenache and a ramato is Pinot Grigio, so a variety-based
+ * signal must not turn either back into a still wine. A label word may still overturn them.
+ */
+export function reconcileColour(modelColour: string, fullText: string, varieties: string[]): string {
+  const signal = explicitColourSignal(fullText, varieties);
+  if (!signal) return modelColour;
+  if (!modelColour) return signal.colour;
+  if (signal.colour === modelColour) return modelColour;
+  if (signal.basis === "variety" && (modelColour === "rose" || modelColour === "orange")) return modelColour;
+  console.warn(
+    `Colour override for "${fullText}": classifier said "${modelColour}", ${signal.basis} says "${signal.colour}"`
+  );
+  return signal.colour;
+}
+
 export type WineIdentity = {
   producer: string;
   wineName: string;
@@ -273,6 +303,7 @@ Rules:
   - A Riesling Spätlese is white. A Sauternes is white. A Vin Jaune is white. A Tawny Port is red. A rosé Champagne is rose. A Blanc de Noirs Champagne is white (white wine from black grapes).
   - orange ONLY for deliberate extended skin-contact / amber wines (qvevri Rkatsiteli, ramato Pinot Grigio). A conventionally-made white is white however deep its colour.
   - A red grape made as a white bottling is WHITE — "Touriga Nacional Branco", "Xinomavro White", white Rioja. Trust an explicit colour word on the label over the grape's usual colour.
+  - IGNORE WHAT THE REGION IS FAMOUS FOR. A colour word on the label and the grape you listed both beat the region's reputation: "Etna Bianco" (Carricante) is WHITE however famous Etna's Nerello Mascalese reds are, "Etna Rosato" is rose, "Sancerre Rouge" (Pinot Noir) is RED, and an Alsace Pinot Noir is RED.
   - Beware proprietary names: "Château Cheval Blanc" is a RED Bordeaux. "Blanc" inside an estate name proves nothing.
   If genuinely unknowable, use "".
 - price_band: typical current retail for a 750ml bottle of this wine (any recent vintage), exactly one of:
@@ -295,16 +326,23 @@ Rules:
     if (jsonMatch) {
       const o = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
       const str = (v: unknown, fb: string) => (typeof v === "string" && v.trim() ? v.trim() : fb);
+      const grapeVarieties = Array.isArray(o.grape_varieties)
+        ? (o.grape_varieties as unknown[]).filter((g): g is string => typeof g === "string" && g.trim().length > 0)
+        : [];
       return {
         producer: str(o.producer, fallbackIdentity.producer),
         wineName: str(o.wine_name, fallbackIdentity.wineName),
         country: str(o.country, fallbackIdentity.country),
         region: str(o.region, fallbackIdentity.region),
-        grapeVarieties: Array.isArray(o.grape_varieties)
-          ? (o.grape_varieties as unknown[]).filter((g): g is string => typeof g === "string" && g.trim().length > 0)
-          : [],
+        grapeVarieties,
         styleCategory: str(o.style_category, "still_dry"),
-        colour: WINE_COLOURS.includes(o.colour as (typeof WINE_COLOURS)[number]) ? (o.colour as string) : "",
+        // The model's colour is the fallback, not the answer: an explicit colour word on the label or
+        // an unambiguous grape list overrules it. See reconcileColour.
+        colour: reconcileColour(
+          WINE_COLOURS.includes(o.colour as (typeof WINE_COLOURS)[number]) ? (o.colour as string) : "",
+          fullText,
+          grapeVarieties
+        ),
         priceBand: PRICE_BANDS.includes(o.price_band as (typeof PRICE_BANDS)[number])
           ? (o.price_band as string)
           : "",
