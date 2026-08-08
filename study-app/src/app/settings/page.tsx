@@ -1265,17 +1265,18 @@ export default function SettingsPage() {
               <span className="text-xs text-muted">Saved automatically</span>
             </div>
             <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-border">
-              {/* Resets ALL FIVE first-run flags, which is what "as if it were my first time" means.
+              {/* Resets ALL SIX first-run flags, which is what "as if it were my first time" means.
                   It used to clear only intro_seen and tour_seen, so the two walkthroughs in between —
                   the diagrams and the Coach — stayed suppressed and the replay silently skipped the
                   longest, most useful part of onboarding. Every stage the chain in ShellOnboarding
                   knows about has to be listed here; a new stage that forgets to is invisible until
                   someone notices it never replays.
 
-                  practical_walkthrough_seen (migration 061) is the one flag here that is NOT in the
-                  launcher chain — it fires on the first visit to /practical. It is reset alongside
-                  the others anyway, because "as if it were my first time" is about the user's
-                  experience of the app, not about which component happens to own the trigger. */}
+                  Two flags here are NOT in the launcher chain: practical_walkthrough_seen
+                  (migration 061) and theory_walkthrough_seen (062), which fire on the first visit to
+                  /practical and /theory. They are reset alongside the others anyway, because "as if
+                  it were my first time" is about the user's experience of the app, not about which
+                  component happens to own the trigger. */}
               <button
                 disabled={replayState === "saving"}
                 onClick={async () => {
@@ -1293,6 +1294,7 @@ export default function SettingsPage() {
                         coachWalkthroughSeen: false,
                         tourSeen: false,
                         practicalWalkthroughSeen: false,
+                        theoryWalkthroughSeen: false,
                       }),
                     });
                     if (!res.ok) throw new Error(String(res.status));
@@ -1322,8 +1324,8 @@ export default function SettingsPage() {
               </button>
               <span className="text-xs text-muted">
                 {replayState === "done"
-                  ? "Open the home page and you'll get the intro, the diagram walkthrough, the Coach walkthrough and the tour, in order — and the drills walkthrough next time you open Practical."
-                  : "Resets all five: the intro, the diagram walkthrough, the Coach walkthrough, the spotlight tour, and the drills walkthrough on Practical."}
+                  ? "Open the home page and you'll get the intro, the diagram walkthrough, the Coach walkthrough and the tour, in order — plus the drills and Theory walkthroughs next time you open those pages."
+                  : "Resets all six: the intro, the diagram walkthrough, the Coach walkthrough, the spotlight tour, and the walkthroughs on Practical and Theory."}
               </span>
             </div>
           </section>

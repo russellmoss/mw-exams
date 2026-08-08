@@ -37,6 +37,10 @@ export async function PATCH(request: Request) {
     if (typeof body.practicalWalkthroughSeen === "boolean") {
       await sql`UPDATE users SET practical_walkthrough_seen = ${body.practicalWalkthroughSeen} WHERE id = ${user.id}`;
     }
+    // Migration 062 — the Theory walkthrough, fired by /theory.
+    if (typeof body.theoryWalkthroughSeen === "boolean") {
+      await sql`UPDATE users SET theory_walkthrough_seen = ${body.theoryWalkthroughSeen} WHERE id = ${user.id}`;
+    }
     if ("examDate" in body) {
       const examDate = body.examDate;
       if (examDate !== null && (typeof examDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {

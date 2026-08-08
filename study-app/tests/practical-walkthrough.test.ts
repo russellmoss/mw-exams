@@ -168,8 +168,17 @@ describe("first-visit trigger and replay", () => {
   it("is reset by the Settings replay button, which claims to reset everything", () => {
     const settings = read("src/app/settings/page.tsx");
     expect(settings).toContain("practicalWalkthroughSeen: false");
-    // The copy must not still say "four".
-    expect(settings).not.toMatch(/Resets all four/);
-    expect(settings).toContain("Resets all five");
+
+    // The invariant, rather than a literal that goes stale every time a stage is added: the number
+    // the copy claims must equal the number of flags the button actually clears. This is what
+    // silently rotted before — the reset cleared two flags while saying it cleared everything.
+    // Anchor on introSeen — there are other JSON.stringify bodies on this page (the exam-date save,
+    // for one), and matching the first would count zero flags and pass vacuously.
+    const body = settings.match(/introSeen: false,[\s\S]*?\}\),/)?.[0] ?? "";
+    const flags = body.match(/\w+: false,/g) ?? [];
+    const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight"];
+    expect(flags.length).toBeGreaterThanOrEqual(5);
+    expect(settings, `the reset clears ${flags.length} flags — the copy must say "${WORDS[flags.length]}"`)
+      .toContain(`Resets all ${WORDS[flags.length]}`);
   });
 });

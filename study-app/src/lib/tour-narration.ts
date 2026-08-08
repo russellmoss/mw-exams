@@ -49,7 +49,7 @@ export function narrationSrc(id: string): string {
 }
 
 /** Slide count per surface — asserted against each component's own constant by the test. */
-export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7, practical: 8 } as const;
+export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7, practical: 8, theory: 7 } as const;
 
 export type NarrationSurface = keyof typeof NARRATION_COUNTS;
 
@@ -357,6 +357,89 @@ That is both drills. You can replay this walkthrough from the Practical page or 
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// The Theory walkthrough (TheoryWalkthrough, 7 steps)
+//
+// Fires the first time /theory is opened (migration 062) and replays from the Theory header and the
+// Library. Same rule as the other walkthroughs: explain, don't recite.
+//
+// Every mechanic named below is read off the live UI or the corpus docs, not remembered:
+//   • the five papers and their names   → components/TheoryQuestionPicker.tsx PAPERS
+//   • 60 min for Papers 1-4, 90 for P5  → the picker footer, and outputs/theory_corpus/ANSWER_SPEC
+//   • 243 rubric-backed questions,
+//     2016-2025, and that 2015/2026 are
+//     deliberately not shown            → CLAUDE.md, "Coverage today" + the product decision
+//   • rubric hidden until submission    → theory/page.tsx, the writing panel
+//   • the 50-word submit floor and the
+//     "30-60 seconds / locks
+//     immediately" confirm dialog       → theory/page.tsx
+//   • PASS / BORDERLINE / FAIL and that
+//     it is INDICATIVE, never a mark    → theory/page.tsx verdict chip + page footer
+//   • Pass floor vs Differentiator,
+//     verbatim quotes, evergreen /
+//     year-bound / superseded, ex-ante  → components/TheoryRubricPanel.tsx
+//   • model answer claim statuses       → components/TheoryModelAnswer.tsx
+// ─────────────────────────────────────────────────────────────────────────────
+
+const THEORY: string[] = [
+  // 1 — what theory is
+  `Theory is the other half of Stage 2, and it is a completely different exam from the practical. No wines. No glasses. Five papers of essay questions: viticulture, vinification, handling of wine, the business of wine, and contemporary issues.
+
+One thing to understand before anything else. The IMW publishes no model answers and no per-question marks for theory. It publishes the questions, and afterwards the examiners write a report saying what strong candidates did and where weak ones went wrong. That report is the only real marking guidance that exists.
+
+So that is what this is built on. 243 real past questions from 2016 to 2025, each one carrying a rubric extracted from the examiners' report for that year. Questions we could not find a report for are not shown at all, because a theory question without examiner guidance can only be graded against somebody's opinion, and that is not worth your time.`,
+
+  // 2 — browsing
+  `The library in front of you is the whole gradeable corpus, and there are three ways through it.
+
+Filter by paper if you are working one domain at a time. Filter by theme if you are chasing a topic — type "sustainability" or "climate" or "luxury" and it searches the question text.
+
+Or press "Give me a question" and it picks a random one you have not attempted. That is the right button most days. Choosing what to write about is itself a way of avoiding the things you are bad at, and the exam will not let you choose.
+
+Each row shows the year, the paper, the question, its time budget, and whether you have already attempted it. There is also an unattempted-only filter, for when the list starts filling up with things you have done.`,
+
+  // 3 — the clock and the word band
+  `Two numbers govern every theory answer, and both are taken from the real exam rather than invented.
+
+The time budget: sixty minutes for Papers 1 to 4, and ninety minutes for Paper 5. That is not arbitrary. Papers 1, 2 and 4 give you three hours for three answers; Paper 3 gives two hours for two; Paper 5 gives three hours for only two, which is why it alone gets ninety minutes.
+
+The word band follows from the clock — roughly what a person can actually write in the time. The counter turns green inside the band and amber above it, and going over is a warning rather than a penalty, because in the real exam the cost of overwriting one answer is the answer you never started.
+
+The clock runs while you write, and it counts up past zero rather than stopping. Seeing how far over you went is the useful information.`,
+
+  // 4 — writing
+  `Plan before you write. The examiners say this in almost every report: a clear line of argument beats a list of facts, and structure is what separates the top band from the middle.
+
+There is a microphone if you would rather talk than type. Dictation is normalised for wine vocabulary before grading, so a transcription that spells Gewürztraminer wrong will not cost you anything.
+
+Your draft saves as you go, so a closed laptop does not lose the essay. Submission needs at least fifty words, and it asks you to confirm — because grading takes thirty to sixty seconds and locks immediately, so a double-click does not buy you two of the same thing.
+
+And note what is not on screen while you write: the rubric. It stays hidden until you submit. Being able to see what you are marked against would turn this into a checklist exercise and teach you nothing about writing under pressure.`,
+
+  // 5 — how it is graded
+  `Then the essay is read against that year's rubric, requirement by requirement, and you get a verdict: pass, borderline, or fail.
+
+Take the word "indicative" on that badge seriously. It is not a mark out of a hundred, and it is not pretending to be. The IMW never publishes per-question marks for theory, so any number here would be invented — and an invented number is worse than no number, because you would start optimising for it.
+
+What the verdict is anchored to is real: the things the examiners themselves said were essential that year. A theory question admits many good answers with different examples and different positions, so grading on similarity to one model answer would penalise you for choosing Rías Baixas where we chose Marlborough. Grading against the requirements does not.`,
+
+  // 6 — the rubric panel
+  `The moment you submit, the rubric appears, and this is the part worth reading slowly.
+
+Every requirement is tagged either a pass floor — something the examiners treated as essential — or a differentiator, which is what separated the strong answers from the adequate ones. Underneath each one is a verbatim quote from the examiners' report. Nothing in that panel is our opinion; if we could not quote it, it is not there.
+
+Requirements also carry a date sense, because wine moves. Evergreen applies in full. Year-bound means a current substitute is accepted instead. Superseded means the world changed and you are excused it entirely, with a source for the change.
+
+And some questions are marked ex-ante: judged on what was knowable in the year they were set, with no credit for hindsight. Answering a 2019 question with what we learned in 2023 is not insight, it is anachronism.`,
+
+  // 7 — the model answer
+  `Finally, once you are graded, you get a model answer written against that same rubric — so you can compare your essay to a full-marks one point by point, rather than guessing what you were missing.
+
+One honest warning about it. Every specific figure, date and named producer in those answers is registered as a claim and labelled: verified against a tier-one source, time-sensitive to the year of the exam, or — quite often — not verified. Treat an unverified claim as a well-informed candidate's recollection, not as a fact you should carry into an exam and repeat.
+
+That is Theory. Filter or press "Give me a question", write against the clock, read the rubric afterwards, then read the exemplar. You can replay this walkthrough from the Theory page or the Library whenever you like.`,
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * The heading on each slide's "Learn more" card.
@@ -398,6 +481,14 @@ const TITLES: Record<string, string> = {
   "practical-5": "Why taste real bottles",
   "practical-6": "Choosing the shape of a tasting",
   "practical-7": "How tasting day runs",
+
+  "theory-0": "Why theory is graded differently",
+  "theory-1": "Finding a question worth writing",
+  "theory-2": "Where the clock and word band come from",
+  "theory-3": "Writing it, and why the rubric is hidden",
+  "theory-4": "What “indicative” actually means",
+  "theory-5": "How to read the rubric",
+  "theory-6": "Using the model answer safely",
 };
 
 /** The "Learn more" heading for a slide. */
@@ -420,6 +511,7 @@ export const TOUR_NARRATION: Readonly<Record<string, string>> = {
   ...index("diagrams", DIAGRAMS),
   ...index("coach", COACH),
   ...index("practical", PRACTICAL),
+  ...index("theory", THEORY),
 };
 
 export const NARRATION_IDS = Object.keys(TOUR_NARRATION);

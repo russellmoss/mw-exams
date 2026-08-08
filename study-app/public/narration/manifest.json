@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T00:33:17.072Z",
+  "generatedAt": "2026-08-08T00:58:25.198Z",
   "outputFormat": "mp3_44100_64",
   "clips": {
     "intro-0": {
@@ -195,6 +195,55 @@
       "textHash": "6bba202e2d839c32ae21040bc1670118194f792dec8cfe2536f13f4aba35d062",
       "chars": 869,
       "bytes": 437438,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-0": {
+      "textHash": "b95006f18e4efcf49d71eb4014845d042ce55694de6c72d5d3185659e10cfa01",
+      "chars": 909,
+      "bytes": 481324,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-1": {
+      "textHash": "3b5db4acbebe3d6878bc1cf6c7a51b2d41a9088775ef2d395a8103c87200b061",
+      "chars": 735,
+      "bytes": 354264,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-2": {
+      "textHash": "313ae4f74fc47cb8dc4193ef4f0f04d695905e2e1f928fdf8ccccbcb214e9a85",
+      "chars": 815,
+      "bytes": 401493,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-3": {
+      "textHash": "078862241b1a7f3b3b609dccee9f4efb26d3e6343a286ccbc24f3d8ee140420d",
+      "chars": 881,
+      "bytes": 422600,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-4": {
+      "textHash": "251d59fd1702e5ff839c3214585dbb5d17ae53f697a1d0f86b7a8c091ed5ebf9",
+      "chars": 794,
+      "bytes": 399613,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-5": {
+      "textHash": "3ba0282387e4e9ec61d1eb02d01ed2ad91043749868c39462fc538a558ccbfcf",
+      "chars": 878,
+      "bytes": 458963,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "theory-6": {
+      "textHash": "f462df734b1dee72894034cb65980d945437ae2b8f2e4acd3068fc3ea6fe5044",
+      "chars": 785,
+      "bytes": 375789,
       "voiceId": "JBFqnCBsd6RMkjVDRZzb",
       "modelId": "eleven_multilingual_v2"
     }
