@@ -35,7 +35,22 @@ export interface CoachToolContext {
 export interface CoachTool {
   name: string;
   description: string;
-  kind: "read" | "write";
+  /**
+   * What the tool does to the world, which is also what the run loop does with its return value.
+   *
+   * - `read`       — returns data. Nothing changes.
+   * - `write`      — returns a PROPOSAL and changes nothing. A confirmation card goes to the
+   *                  candidate and a committer in write-tools.ts does the work if they press
+   *                  Confirm. Everything that reaches past this user is a `write`.
+   * - `preference` — mutates one of this user's OWN settings, immediately, with no card. The
+   *                  narrow exemption: the effect is visible in the next sentence they read, it is
+   *                  undone by saying so, and it reaches nobody else. A confirmation card here
+   *                  would be the double-confirmation the BASE prompt explicitly forbids ("the
+   *                  card IS that question"). `set_persona` is the only one, and
+   *                  coach-integrity.test.ts pins that — anything that wants to join it needs the
+   *                  same three properties, not just the same convenience.
+   */
+  kind: "read" | "write" | "preference";
   /**
    * Withheld from the model entirely while the user has an attempt open.
    *

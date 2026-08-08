@@ -147,7 +147,33 @@ describe("coach tool gate", () => {
         .map((t) => t.name)
         .sort()
     ).toEqual(["file_bug", "flag_defect", "report_question", "submit_feedback"]);
-    expect(toolDefinitions(CLEAR)).toHaveLength(13);
+    expect(toolDefinitions(CLEAR)).toHaveLength(14);
+  });
+
+  // ── The `preference` exemption ──
+  //
+  // `set_persona` mutates without raising a confirmation card, which every other mutating tool
+  // does. The exemption is narrow and these two assertions are what keep it narrow: a later tool
+  // that wants to skip the card has to come here and argue for itself.
+
+  it("lets exactly one tool mutate without a confirmation card", () => {
+    // Three properties earn the exemption: it touches only the caller's OWN settings, the effect
+    // is visible in the next sentence they read, and it is undone by saying so. A tool that
+    // reaches another user, or whose effect is invisible, does not qualify however convenient a
+    // card-free path would be.
+    expect(
+      ALL_TOOLS.filter((t) => t.kind === "preference").map((t) => t.name)
+    ).toEqual(["set_persona"]);
+  });
+
+  it("keeps the persona tool out of the committer pipeline entirely", () => {
+    // A `preference` tool with a committer would be a card-free write with a second, card-bearing
+    // path to the same mutation — two ways to do one thing, disagreeing about consent.
+    const src = fs.readFileSync(
+      path.join(appDir, "src/lib/coach/tools/write-tools.ts"),
+      "utf8"
+    );
+    expect(src).not.toMatch(/set_persona/);
   });
 
   it("keeps the same read set in both states", () => {

@@ -6,6 +6,8 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
+import { getUserPersona } from "@/lib/persona-server";
+import { personaBlock } from "@/lib/personas";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve the hero + up to 3 illustration images.
@@ -41,7 +43,14 @@ export async function POST(request: Request) {
     // candidate has already committed their pre-glass answer, so nothing here is a spoiler.
     const stream = await client.messages.stream({
       model,
-      system: systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS,
+      // Persona last — it supersedes the "supportive, experienced coach" framing in the pre-glass
+      // prompt's own role section, while its invariants keep every blind spot the grader found.
+      system:
+        systemPrompt +
+        "\n" +
+        IMAGE_TOKEN_INSTRUCTIONS +
+        "\n\n" +
+        personaBlock(await getUserPersona(keyResult.user.id), "grading"),
       ...(await withThinking(model, 1500, keyResult.user.id)),
       messages: [
         {

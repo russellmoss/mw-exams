@@ -16,6 +16,7 @@ import {
 import { getScreenContext } from "./tools/screen-tools";
 import { getAttemptDebrief } from "./tools/debrief-tools";
 import { searchWineWeb } from "./tools/web-tools";
+import { setPersona } from "./tools/persona-tools";
 import { WRITE_TOOLS } from "./tools/write-tools";
 
 export const ALL_TOOLS: CoachTool[] = [
@@ -34,6 +35,9 @@ export const ALL_TOOLS: CoachTool[] = [
   // happens to be open is not a leak.
   getAttemptDebrief,
   searchWineWeb,
+  // Available throughout, including mid-attempt: a candidate who is finding the voice grating
+  // needs to be able to stop it now, and "finish your question first" is no answer to that.
+  setPersona,
   ...WRITE_TOOLS,
 ];
 

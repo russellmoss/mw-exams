@@ -20,6 +20,8 @@ import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithI
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { deriveQuestion, markPhrase } from "@/lib/question-sections";
 import { masterTreeForPaper } from "@/lib/master-trees";
+import { getUserPersona } from "@/lib/persona-server";
+import { personaBlock } from "@/lib/personas";
 
 /**
  * The full-debrief grading core, shared by two callers (flash-notes/grade/produce.ts precedent):
@@ -297,6 +299,12 @@ In ADDITION to your per-sub-question marks, emit this machine-readable tag LAST 
 The two awarded values MUST sum to your overall estimated marks.`;
   }
 
+  // LAST in the system prompt, deliberately. MARKING_PRINCIPLES ends with its own "Tone — faithful
+  // verdict, constructive voice" section, and a candidate who chose The Examiner or The Cellar Rat
+  // must not be read that instruction last. The invariants inside the block are what keep the
+  // override confined to wording: the verdict stays faithful either way.
+  const persona = personaBlock(await getUserPersona(userId), "grading");
+
   const { model, abGroup } = await selectModel("full_debrief", apiKey, "opus");
   const t0 = Date.now();
   // Adaptive thinking so the debrief's reasoning streams while the (long) markdown is composed.
@@ -305,7 +313,7 @@ The two awarded values MUST sum to your overall estimated marks.`;
     model,
     system:
       systemPrompt + sectionMarksBlock + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n" + INFOGRAPHIC_INSTRUCTIONS +
-      "\n" + answerImageConstraint(wines),
+      "\n" + answerImageConstraint(wines) + "\n\n" + persona,
     messages: [{ role: "user", content: userMessage }],
     ...(await withThinking(model, 4000, userId)),
   } as Parameters<typeof client.messages.stream>[0]);

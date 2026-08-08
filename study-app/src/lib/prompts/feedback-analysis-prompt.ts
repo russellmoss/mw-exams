@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { MARKING_PRINCIPLES } from "./marking-principles";
+import { personaBlock, type PersonaId } from "../personas";
 
 interface ThreadMessage {
   role: "system" | "user";
@@ -40,6 +41,11 @@ export function buildFeedbackAnalysisPrompt(params: {
   userAnswer: string | null;
   userFeedback: string;
   userName?: string;
+  /**
+   * The voice the CANDIDATE-FACING half is written in (migration 068). Omitted → the default
+   * Tutor, which is what the server-side sweeps and any caller without a user in hand should get.
+   */
+  persona?: PersonaId | null;
   questionMetadata?: Record<string, unknown> | null;
   previousThread?: ThreadMessage[];
   /** The attempt record — what the system ACTUALLY generated and showed this candidate. Without it
@@ -448,5 +454,22 @@ ${threadContext}
 
 Please analyze this feedback using the workflow above and produce your structured recommendation.`;
 
-  return { system, user };
+  // The candidate's chosen voice — appended last so it supersedes "keep it high-level, respectful
+  // and educational" in the PART 1 spec above.
+  //
+  // SCOPED TO PART 1 ONLY. Part 2 is read by admins and parsed by the fix pipeline; a Cellar Rat
+  // routing note would be both unhelpful and, where the pipeline pattern-matches on it, actively
+  // harmful. The recommendation token itself (ACCEPT/REJECT/PARTIAL/ENDORSE) is a machine-read
+  // enum, not prose, and no voice may reword it — hence the explicit carve-out here as well as the
+  // generic invariants inside the block.
+  const personaScoped = `${personaBlock(params.persona, "verdict")}
+
+**SCOPE OF THE VOICE.** It applies to PART 1, the candidate-facing half, and to nothing else.
+Everything after the \`[[INTERNAL]]\` marker is read by engineers and parsed by an automated fix
+pipeline: write it in neutral technical prose whatever voice is selected. The
+\`### Recommendation:\` line is a machine-read token — print ACCEPT, REJECT, PARTIAL or ENDORSE
+exactly, never a stylised variant of it — and every required heading in both parts stays
+verbatim.`;
+
+  return { system: `${system}\n\n${personaScoped}`, user };
 }

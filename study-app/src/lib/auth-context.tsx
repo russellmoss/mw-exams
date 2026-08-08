@@ -8,6 +8,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import type { PersonaId } from "./personas";
 
 interface AuthUser {
   id: number;
@@ -30,6 +31,11 @@ interface AuthUser {
   stemDetailDefault?: "guided" | "exam_real";
   questionSourceDefault?: "banked" | "fresh";
   reasoningStreamDefault?: boolean;
+  /**
+   * The voice every LLM surface speaks in (migration 068). Server-resolved, so it is always one of
+   * the four known ids — the client never has to handle a null here.
+   */
+  persona?: PersonaId;
   // Shell prefs (migration 050) — intro/tour flags, exam countdown, Continue card config.
   introSeen?: boolean;
   tourSeen?: boolean;

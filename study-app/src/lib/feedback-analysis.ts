@@ -8,6 +8,8 @@ import { applyFeedbackChange } from "@/lib/apply-change";
 import { logClaudeUsage, logTavilyUsage } from "@/lib/usage-log";
 import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 import { resolveTavilyKey } from "@/lib/tavily-key";
+import { getUserPersona } from "@/lib/persona-server";
+import { personaBlock } from "@/lib/personas";
 
 /**
  * Server-side feedback analysis — the durable core of the "feedback → analysis →
@@ -255,13 +257,18 @@ async function generateVerdictNarration(opts: {
     const system =
       "You write a SPOKEN notification, read aloud to a Master of Wine candidate, " +
       "explaining how the system handled the feedback they left on a practice question. " +
-      "Warm, encouraging, educational tone — like a mentor. Address them directly as 'you'. " +
+      "Address them directly as 'you'. " +
       "STRICT: 2 to 3 sentences, no more. Plain prose only — no markdown, no lists, no headings, " +
       "no emojis, no stage directions. Do not start with 'Recommendation' or restate the verdict label; " +
       "speak naturally. NEVER mention internal codes (e.g. 'EK-0042'), file paths, or routing labels like " +
       "'Kind:' — speak in plain, everyday language; you may reference real past exams (e.g. 'past Paper 3 " +
       "exams') as precedent. Make clear their feedback was " + verdictWord + " and give the key reason why, " +
-      "so they learn something about the exam from it.";
+      "so they learn something about the exam from it.\n\n" +
+      // Was a hardcoded "warm, encouraging, educational tone — like a mentor" until personas
+      // landed. The `spoken` surface is where the voices need the most restraint: TTS makes a
+      // line sound like a person meaning it, so the rider halves the roast's intensity and bans
+      // everything that only works on a page.
+      personaBlock(await getUserPersona(opts.userId), "spoken");
 
     // Only the candidate-facing part of the analysis (everything before the [[INTERNAL]] marker).
     const candidateFacing = (opts.analysisText.split("[[INTERNAL]]")[0] || opts.analysisText).trim();
@@ -399,6 +406,9 @@ export async function runFeedbackAnalysis(opts: {
       userAnswer: attempt.user_answer as string | null,
       userFeedback: feedbackText,
       userName: attempt.user_name as string,
+      // The voice belongs to whoever left the feedback, not to whoever triggered the analysis —
+      // a nightly sweep or an admin re-run still writes back to the candidate who filed it.
+      persona: await getUserPersona((attempt.user_id as number) ?? null),
       empiricalKnowledge,
       questionMetadata: metadata as Record<string, unknown> | null,
       reasoningTrace: attempt.reasoning_trace as string | null,
