@@ -39,8 +39,9 @@ export async function GET(request: Request) {
     // Coerce any legacy/unknown value (including the retired 'blind') to the exam-real default.
     const stemDetailDefault =
       raw === "guided" || raw === "exam_real" ? raw : "exam_real";
+    // Coerce toward 'banked' (migration 063): only an explicit 'fresh' leads with generation.
     const questionSourceDefault =
-      prefRows[0]?.question_source_default === "banked" ? "banked" : "fresh";
+      prefRows[0]?.question_source_default === "fresh" ? "fresh" : "banked";
     const reasoningStreamDefault = prefRows[0]?.reasoning_stream_default !== false;
 
     return Response.json({
