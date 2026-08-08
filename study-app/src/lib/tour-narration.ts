@@ -49,7 +49,7 @@ export function narrationSrc(id: string): string {
 }
 
 /** Slide count per surface — asserted against each component's own constant by the test. */
-export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7, practical: 8, theory: 7 } as const;
+export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7, practical: 9, theory: 7 } as const;
 
 export type NarrationSurface = keyof typeof NARRATION_COUNTS;
 
@@ -329,22 +329,35 @@ And the Coach is there the whole time. Opening it pauses your clock, so asking a
 
 The idea is straightforward. You say which paper and how many wines, and the app builds a realistic flight out of bottles that are genuinely purchasable near you, checked against shops in your city and against your budget. Not a theoretical flight of things you would have to import.
 
-Then it protects your blindness, which is the hard part of practising alone. The shopping brief can be sent to a partner who buys the wines and enters them, so you never see a label. Every session records how blind it actually was, so a result you got after seeing the bottles is never quietly counted as if you hadn't.
+And it is not only for practising alone. One person can set a tasting up and a whole group can taste it blind, which is the cheapest way to turn a tasting group into exam practice instead of a nice evening.
+
+Then there is the hard part — actually staying blind when you are the one organising it. That is the next slide, and it is the single most important thing in this section.
 
 About two and a quarter hours, and it is the closest thing to the exam you can arrange for yourself.`,
 
-  // 7 — setting one up
-  `Setting one up has a few choices, and they change the character of the session completely.
+  // 7 — THE BLIND ROUTING. The load-bearing feature of the whole Live Tasting system.
+  `This is the part that makes the whole thing work, and it is worth slowing down for.
+
+You can have the app write the shopping brief and email it straight to somebody else — a partner, a friend, anyone in your tasting group — without ever reading it yourself. They get the brief and a private link of their own. They buy the wines, bag them, number them, and enter what they actually bought. The question is then built around their bottles, you get an email telling you it is ready, and you have still never seen a label.
+
+If instead you let the app pick the wines for you, the same principle holds. You hand the shopping list to your buyer with a share link that shows them the wines and the stockists, and never the question or the answers.
+
+And if you simply have to shop for yourself, you can. The app records that you did. Every session is stamped with how blind it actually was — a partner handled the wines, or you saw them first — so you always know which of your own results to trust.
+
+That is the difference between a real blind tasting and an expensive rehearsal. It also means one person can set the whole thing up for a group, and nobody who tastes has to be the person who bought.`,
+
+  // 8 — the shape of the session
+  `Two more choices, and these set the scale rather than the integrity.
 
 A single question, or a full paper. A full paper is corpus-realistic: the question mix, the flight sizes and the wine spread mirror real exams, and you do not pick the families — just like the real thing.
 
-Who picks the wines. "Pick my wines" builds the flight and finds the stockists. "I'll choose wines" gives you a brief for that paper and question type, you buy whatever fits, and the question is built around the bottles you actually got — which is the practical option when your local shops are thin.
+And how you sit it. Flight by flight, at your own pace, or exam conditions on the real clock: sixty-eight minutes for a half paper, two hours fifteen for a full one, where anything unanswered at the deadline scores zero.
 
-And how you sit it. Flight by flight, at your own pace, or exam conditions on the real clock — sixty-eight minutes for a half paper, two hours fifteen for a full one, where anything unanswered at the deadline scores zero.
+Do a couple flight by flight first. Save exam conditions for when you want the truth.
 
-Do a couple flight by flight first. Save exam conditions for when you want the truth.`,
+Whichever you pick, the blind routing from the last slide still applies. A full paper can go to a partner exactly the same way a single question can.`,
 
-  // 8 — the day itself
+  // 9 — the day itself
   `On the day, the sequence is: brief, buy, bag, taste, write, submit, reveal.
 
 Get the bottles bagged and numbered, ideally by someone who is not you, and poured in slot order. If you are shopping for yourself, buy across a few days and let someone else do the bagging — that is the difference between a real result and an expensive rehearsal.
@@ -479,8 +492,9 @@ const TITLES: Record<string, string> = {
   "practical-3": "The two setup choices that matter",
   "practical-4": "Treating it like the exam",
   "practical-5": "Why taste real bottles",
-  "practical-6": "Choosing the shape of a tasting",
-  "practical-7": "How tasting day runs",
+  "practical-6": "Staying blind when you organise it",
+  "practical-7": "Choosing the shape of a tasting",
+  "practical-8": "How tasting day runs",
 
   "theory-0": "Why theory is graded differently",
   "theory-1": "Finding a question worth writing",

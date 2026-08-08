@@ -42,7 +42,7 @@ interface Props {
   onDone: (completed: boolean) => void;
 }
 
-const TOTAL = 8;
+const TOTAL = 9;
 
 const fadeUp = (delayMs: number, durationMs = 500): React.CSSProperties => ({
   animation: `introFadeUp ${durationMs}ms ${delayMs}ms both`,
@@ -66,6 +66,7 @@ const STEP_EYEBROWS = [
   "Dry Flights — the setup that matters",
   "Dry Flights — the run",
   "Live Tastings — the idea",
+  "Live Tastings — staying blind",
   "Live Tastings — the shape",
   "Live Tastings — the day",
 ];
@@ -74,7 +75,14 @@ const STEP_EYEBROWS = [
 // Shared bits
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** A left-to-right chain of steps, each revealing after the last. Used for both flows. */
+/**
+ * A chain of steps, each revealing after the last.
+ *
+ * TWO RENDERINGS, and the reason is legibility rather than taste. The SVG scales to its container,
+ * so a five- or six-step chain inside a 280px phone column shrinks the 10.5px sub-labels to about
+ * 4px — present in the DOM, unreadable to a human. Below `sm` it therefore renders as a stacked
+ * list at real type sizes instead. Same steps, same order, same reveal cadence.
+ */
 function Flow({
   steps,
   delayMs = 300,
@@ -86,12 +94,33 @@ function Flow({
   const gap = 18;
   const total = steps.length * w + (steps.length - 1) * gap;
   return (
-    <svg
-      viewBox={`0 0 ${total} 74`}
-      className="w-full h-auto"
-      role="img"
-      aria-label={steps.map((s) => s.label).join(", then ")}
-    >
+    <>
+      {/* Phones: a stacked list, because the diagram below is illegible at this width. */}
+      <ol className="sm:hidden space-y-1.5 text-left">
+        {steps.map((step, index) => (
+          <li
+            key={step.label}
+            className="flex items-baseline gap-3 rounded-lg border border-border bg-card px-3 py-2"
+            style={fade(delayMs + index * 260)}
+          >
+            <span className="font-mono text-[0.625rem] text-accent tabular-nums shrink-0">
+              {index + 1}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[0.8125rem] text-foreground leading-snug">{step.label}</span>
+              {step.sub && (
+                <span className="block text-[0.6875rem] text-muted leading-snug">{step.sub}</span>
+              )}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <svg
+        className="hidden sm:block w-full h-auto"
+        viewBox={`0 0 ${total} 74`}
+        role="img"
+        aria-label={steps.map((s) => s.label).join(", then ")}
+      >
       {steps.map((step, index) => {
         const x = index * (w + gap);
         const at = delayMs + index * 260;
@@ -125,9 +154,10 @@ function Flow({
               />
             )}
           </g>
-        );
-      })}
-    </svg>
+          );
+        })}
+      </svg>
+    </>
   );
 }
 
@@ -475,14 +505,14 @@ export function PracticalWalkthrough({ onDone }: Props) {
                       "The flight is built from wines checked against shops near you and against your budget — not a theoretical flight you would have to import.",
                   },
                   {
-                    title: "Your blindness is protected",
+                    title: "For you, or your whole group",
                     body:
-                      "The shopping brief can go straight to a partner who buys the wines and enters them, so you never see a label.",
+                      "One person sets it up and everyone tastes it blind — the cheapest way to turn a tasting group into exam practice rather than a nice evening.",
                   },
                   {
-                    title: "Honest about how blind it was",
+                    title: "About 2¼ hours, end to end",
                     body:
-                      "Every session records whether a partner kept you blind or you shopped for yourself. A result you got after seeing the bottles is never counted as if you hadn't.",
+                      "Brief, buy, bag, taste, write, reveal. The closest thing to the exam you can arrange for yourself.",
                   },
                 ].map((card, index) => (
                   <div key={card.title} className="rounded-lg border border-border bg-card p-4" style={fadeUp(500 + index * 150)}>
@@ -493,8 +523,9 @@ export function PracticalWalkthrough({ onDone }: Props) {
               </div>
 
               <Rail delayMs={1050}>
-                About <span className="text-foreground">two and a quarter hours</span> end to end —
-                the closest thing to the exam you can arrange for yourself.
+                And then the hard part, which the next slide is entirely about:{" "}
+                <span className="text-foreground">actually staying blind when you are the one
+                organising it.</span>
               </Rail>
             </div>
           )}
@@ -502,7 +533,79 @@ export function PracticalWalkthrough({ onDone }: Props) {
           {step === 6 && (
             <div className="text-center">
               <h1 className="font-display text-[2.25rem] font-bold leading-[1.15] tracking-tight mb-3" style={fadeUp(100, 600)}>
-                Three choices set<br />the whole character.
+                You never have to see<br />what you are about to taste.
+              </h1>
+              <Rail delayMs={300}>
+                This is the part that makes the whole thing work. Practising alone normally means
+                buying your own wines, which means knowing what they are — and a tasting you set up
+                yourself is not a blind tasting.
+              </Rail>
+
+              <div className="rounded-xl border border-accent/40 bg-accent/5 p-5 mt-7 mb-3" style={fadeUp(500, 500)}>
+                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-accent mb-3">
+                  The brief goes to your buyer, not to you
+                </p>
+                <Flow
+                  steps={[
+                    { label: "App writes it", sub: "you never open it" },
+                    { label: "Emailed out", sub: "partner or group" },
+                    { label: "They buy", sub: "and bag it" },
+                    { label: "They enter it", sub: "into the app" },
+                    { label: "You're told", sub: "“question ready”" },
+                  ]}
+                  delayMs={650}
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3 text-left">
+                <div className="rounded-lg border border-border bg-card p-5" style={fadeUp(2000)}>
+                  <p className="text-sm font-semibold text-foreground mb-2">
+                    If you chose <span className="text-accent">&ldquo;I&rsquo;ll choose wines&rdquo;</span>
+                  </p>
+                  <p className="text-xs text-muted leading-relaxed">
+                    Put in an email address and the shopping brief goes straight to them, with a
+                    private entry link of their own. You are never shown it. They buy whatever fits,
+                    then type in exactly what they bought — and the question is built around{" "}
+                    <span className="text-foreground">their</span> bottles.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-border bg-card p-5" style={fadeUp(2150)}>
+                  <p className="text-sm font-semibold text-foreground mb-2">
+                    If you chose <span className="text-accent">&ldquo;Pick my wines&rdquo;</span>
+                  </p>
+                  <p className="text-xs text-muted leading-relaxed">
+                    Same idea, one step later. Share the shopping list with your buyer by link — it
+                    shows them the wines and the stockists, and{" "}
+                    <span className="text-foreground">never the question or the answers</span>. Open
+                    it yourself and the app says so.
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-border bg-card p-5 mt-3 text-left" style={fadeUp(2300)}>
+                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-muted mb-2">
+                  And it keeps score honestly
+                </p>
+                <p className="text-[0.875rem] text-muted leading-relaxed">
+                  Every session is stamped with how blind it actually was —{" "}
+                  <span className="text-success">a partner handled the wines</span>,{" "}
+                  <span className="text-borderline">you saw them before tasting</span>, or the list
+                  was never opened. So you always know which of your own results to trust.
+                </p>
+              </div>
+
+              <Rail delayMs={2450}>
+                <span className="text-foreground">One person can set the whole thing up for a
+                group</span>, and nobody who tastes has to be the person who bought. That is the
+                difference between real blind practice and an expensive rehearsal.
+              </Rail>
+            </div>
+          )}
+
+          {step === 7 && (
+            <div className="text-center">
+              <h1 className="font-display text-[2.25rem] font-bold leading-[1.15] tracking-tight mb-3" style={fadeUp(100, 600)}>
+                Two more choices —<br />scale, not integrity.
               </h1>
 
               <div className="space-y-3 mt-7 text-left">
@@ -513,14 +616,9 @@ export function PracticalWalkthrough({ onDone }: Props) {
                     delay: 400,
                   },
                   {
-                    q: "Who picks the wines?",
-                    a: "“Pick my wines” builds the flight and finds the stockists. “I’ll choose wines” gives you a brief for that paper and question type, you buy what fits, and the question is built around the bottles you actually got — the practical option when your local shops are thin.",
-                    delay: 600,
-                  },
-                  {
                     q: "How will you sit it?",
                     a: "Flight by flight at your own pace, or exam conditions on the real clock — 68 minutes for a half paper, 2h15 for a full one, where anything unanswered at the deadline scores zero.",
-                    delay: 800,
+                    delay: 600,
                   },
                 ].map((row) => (
                   <div key={row.q} className="rounded-lg border border-border bg-card p-5" style={fadeUp(row.delay)}>
@@ -530,16 +628,22 @@ export function PracticalWalkthrough({ onDone }: Props) {
                 ))}
               </div>
 
-              <div className="rounded-lg border border-accent/40 bg-accent/5 p-5 mt-3 text-left" style={fadeUp(1000)}>
+              <div className="rounded-lg border border-accent/40 bg-accent/5 p-5 mt-3 text-left" style={fadeUp(800)}>
                 <p className="text-[0.9375rem] text-foreground leading-relaxed">
                   Do a couple <span className="text-accent">flight by flight</span> first. Save{" "}
                   <span className="text-accent">exam conditions</span> for when you want the truth.
                 </p>
               </div>
+
+              <Rail delayMs={950}>
+                Neither of these touches the blind routing. A{" "}
+                <span className="text-foreground">full paper can go to a partner</span> exactly the
+                same way a single question can.
+              </Rail>
             </div>
           )}
 
-          {step === 7 && (
+          {step === 8 && (
             <div className="text-center">
               <h1 className="font-display text-[2.25rem] font-bold leading-[1.15] tracking-tight mb-3" style={fadeUp(100, 600)}>
                 On the day.

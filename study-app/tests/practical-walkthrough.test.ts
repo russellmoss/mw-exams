@@ -13,7 +13,19 @@ import { TOUR_NARRATION } from "@/lib/tour-narration";
 const APP_ROOT = process.cwd();
 const read = (path: string) => readFileSync(join(APP_ROOT, path), "utf8");
 
-const walkthrough = read("src/app/components/PracticalWalkthrough.tsx");
+// JSX escapes the curly quotes in UI labels (&rsquo;, &ldquo;…), so a raw substring search for a
+// label like "I’ll choose wines" misses depending on where in the markup it sits. Decode first and
+// compare against what a reader actually sees.
+const decode = (source: string) =>
+  source
+    .replaceAll("&rsquo;", "’")
+    .replaceAll("&lsquo;", "‘")
+    .replaceAll("&ldquo;", "“")
+    .replaceAll("&rdquo;", "”")
+    .replaceAll("&apos;", "'")
+    .replaceAll("&amp;", "&");
+
+const walkthrough = decode(read("src/app/components/PracticalWalkthrough.tsx"));
 const hub = read("src/app/practical/page.tsx");
 const wizard = read("src/app/practical/dry-flights/page.tsx");
 const live = read("src/app/live-tasting/page.tsx");
@@ -98,14 +110,67 @@ describe("what it says about Live Tastings is still true", () => {
     expect(walkthrough).toContain("scores zero");
   });
 
-  it("describes the blind-integrity guarantee the session actually makes", () => {
-    // The partner route is what keeps a solo candidate blind, and the session records which route
-    // was taken — the walkthrough is allowed to promise both because both exist.
-    expect(session).toContain("Send it to a partner and you stay fully");
-    expect(live).toContain("blind kept via partner");
-    expect(live).toContain("you saw the wines pre-taste");
-    expect(walkthrough).toMatch(/never see a label/);
-    expect(walkthrough).toMatch(/never counted as if you hadn/);
+  // THE BLIND ROUTING IS THE LOAD-BEARING FEATURE and it gets its own slide. It is also the easiest
+  // thing in the app to break silently: remove the send-brief route or the share link and the
+  // walkthrough would keep promising a guarantee the app no longer makes, to people deciding whether
+  // to spend £150 on bottles. Each half of the promise is pinned to the endpoint that delivers it.
+  describe("the partner-blind routing", () => {
+    it("has a slide of its own, not a clause", () => {
+      expect(walkthrough).toContain('"Live Tastings — staying blind"');
+      expect(walkthrough).toContain("The brief goes to your buyer, not to you");
+    });
+
+    it("promises the emailed brief because the endpoint exists", () => {
+      const sendBrief = read("src/app/api/live-tasting/[id]/send-brief/route.ts");
+      expect(sendBrief).toContain("sendPartnerBriefEmail");
+      expect(sendBrief).toContain("entryUrl");
+      expect(session).toContain("Send it to a partner and you stay fully");
+      // …and that the candidate is not shown the brief on that path.
+      expect(session).toContain("Brief sent — you&apos;re blind until the wines are in");
+      expect(walkthrough).toMatch(/You are never shown it/);
+      expect(narration).toMatch(/without ever reading it yourself/);
+    });
+
+    it("promises the partner can enter the bottles, because the partner page does that", () => {
+      const shop = read("src/app/shop/[token]/page.tsx");
+      expect(shop).toContain("Enter what you bought");
+      expect(shop).toContain("don&apos;t tell them what you buy");
+      expect(shop).toContain("Put each bottle in an opaque bag");
+      expect(walkthrough).toMatch(/type in exactly what they bought/);
+      expect(narration).toMatch(/enter what they actually bought/);
+      // The payoff claim: the question is built around THEIR bottles.
+      expect(walkthrough).toMatch(/the question is built around/i);
+    });
+
+    it("promises the pick-my-wines share link with the same limits the UI states", () => {
+      expect(session).toContain("Share list with a partner");
+      expect(session).toMatch(/never the\s+question or answers/);
+      expect(walkthrough).toMatch(/never the question or the answers/);
+      expect(narration).toMatch(/never the question or the answers/);
+    });
+
+    it("repeats the honesty stamp, in the app's own three states", () => {
+      const lib = read("src/lib/live-tasting.ts");
+      expect(lib).toContain("Blind kept — a partner handled the wines");
+      expect(lib).toContain("You saw the wines before tasting");
+      expect(lib).toContain("Shopping list never opened in-app");
+      expect(walkthrough).toMatch(/a partner handled the wines/);
+      expect(walkthrough).toMatch(/you saw them before tasting/);
+      expect(walkthrough).toMatch(/never opened/);
+      expect(narration).toMatch(/how blind it actually was/);
+    });
+
+    it("says it works for a tasting group, not only a solo candidate", () => {
+      expect(walkthrough).toMatch(/for a[\s\S]{0,40}group/);
+      expect(narration).toMatch(/tasting group/);
+      expect(narration).toMatch(/nobody who tastes has to be the person who bought/);
+    });
+
+    it("keeps the routing decoupled from the session's scale", () => {
+      // A full paper routes to a partner the same way a single question does.
+      expect(walkthrough).toMatch(/full paper can go to a partner/);
+      expect(narration).toMatch(/A full paper can go to a partner/);
+    });
   });
 
   it("gets the tasting-day sequence and the autosave right", () => {
