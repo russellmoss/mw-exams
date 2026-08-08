@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   parseMinedClusters,
-  codifiedFeedbackIds,
+  claimedEvidenceIds,
   themeSimilarity,
   themeTokens,
   isDuplicateTheme,
@@ -274,18 +274,35 @@ describe("isDuplicateTheme", () => {
   });
 });
 
-describe("codifiedFeedbackIds", () => {
-  it("collects fb_ ids only from SHIPPED proposals", () => {
-    const out = codifiedFeedbackIds([
+describe("claimedEvidenceIds", () => {
+  it("claims evidence from every non-terminal proposal, in BOTH streams", () => {
+    const out = claimedEvidenceIds([
       { status: "shipped", evidenceItemIds: ["gen_p1_F2_123", "fb_42"] },
       { status: "pr_opened", evidenceItemIds: ["fb_57"] },
-      { status: "rejected", evidenceItemIds: ["fb_58"] },
-      { status: "shipped", evidenceItemIds: ["fb_60"] },
+      { status: "dispatched", evidenceItemIds: ["gen_p3_F7_456"] },
+      { status: "proposed", evidenceItemIds: ["fb_59"] },
+      { status: "merged", evidenceItemIds: ["fb_60"] },
     ]);
-    expect(out).toEqual(new Set(["fb_42", "fb_60"]));
+    expect(out).toEqual(new Set(["gen_p1_F2_123", "fb_42", "fb_57", "gen_p3_F7_456", "fb_59", "fb_60"]));
   });
 
-  it("returns an empty set when nothing shipped", () => {
-    expect(codifiedFeedbackIds([{ status: "proposed", evidenceItemIds: ["fb_1"] }])).toEqual(new Set());
+  // The whole point of the change: 'shipped' arrives only after merge AND reconcile, so keying on it
+  // let every mine in between re-cluster evidence that was already in flight. Proposals 12 and 17 were
+  // both born that way.
+  it("claims evidence the moment a proposal exists, not when it ships", () => {
+    expect(claimedEvidenceIds([{ status: "proposed", evidenceItemIds: ["fb_1"] }])).toEqual(
+      new Set(["fb_1"])
+    );
+  });
+
+  // Terminal-but-unshipped states RELEASE their evidence — in none of them was the fault ever fixed.
+  it("releases evidence from rejected, failed and pr_closed proposals", () => {
+    expect(
+      claimedEvidenceIds([
+        { status: "rejected", evidenceItemIds: ["fb_58"] },
+        { status: "failed", evidenceItemIds: ["fb_61"] },
+        { status: "pr_closed", evidenceItemIds: ["fb_62"] },
+      ])
+    ).toEqual(new Set());
   });
 });
