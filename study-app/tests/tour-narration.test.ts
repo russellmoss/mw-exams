@@ -49,6 +49,7 @@ describe("narration script covers every slide", () => {
     expect(totalOf("src/app/components/DiagramWalkthrough.tsx")).toBe(NARRATION_COUNTS.diagrams);
     expect(totalOf("src/app/components/CoachWalkthrough.tsx")).toBe(NARRATION_COUNTS.coach);
     expect(totalOf("src/app/components/PracticalWalkthrough.tsx")).toBe(NARRATION_COUNTS.practical);
+    expect(totalOf("src/app/components/TheoryWalkthrough.tsx")).toBe(NARRATION_COUNTS.theory);
     expect(read("src/app/components/ShellOnboarding.tsx")).toContain("{scene + 1} / 6");
   });
 
@@ -141,6 +142,9 @@ describe("walkthrough narration explains rather than recites", () => {
     ["practical-2", "The modes are not"],
     ["practical-4", "Then treat it like"],
     ["practical-7", "On the day."],
+    ["theory-1", "Three ways in."],
+    ["theory-4", "A verdict, not a mark."],
+    ["theory-6", "And then the exemplar."],
   ];
 
   for (const [id, headline] of HEADLINES) {
@@ -177,12 +181,13 @@ describe("the speaker control is wired into all three surfaces", () => {
     expect(component).toContain('document.addEventListener("pointerdown"');
   });
 
-  it("appears in the intro and all three walkthroughs", () => {
+  it("appears in the intro and all four walkthroughs", () => {
     for (const [file, surface] of [
       ["src/app/components/ShellOnboarding.tsx", "intro"],
       ["src/app/components/DiagramWalkthrough.tsx", "diagrams"],
       ["src/app/components/CoachWalkthrough.tsx", "coach"],
       ["src/app/components/PracticalWalkthrough.tsx", "practical"],
+      ["src/app/components/TheoryWalkthrough.tsx", "theory"],
     ] as const) {
       const source = read(file);
       expect(source).toContain("TourNarrationButton");
@@ -217,12 +222,13 @@ describe("every slide has a readable Learn more card", () => {
     }
   });
 
-  it("is reachable from every slide of all four surfaces", () => {
+  it("is reachable from every slide of all five surfaces", () => {
     for (const file of [
       "src/app/components/ShellOnboarding.tsx",
       "src/app/components/DiagramWalkthrough.tsx",
       "src/app/components/CoachWalkthrough.tsx",
       "src/app/components/PracticalWalkthrough.tsx",
+      "src/app/components/TheoryWalkthrough.tsx",
     ]) {
       const source = read(file);
       expect(source, `${file} has no Learn more control`).toContain("TourLearnMoreButton");

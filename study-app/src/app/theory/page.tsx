@@ -12,6 +12,7 @@ import { MicButton } from "../components/MicButton";
 import { TheoryModelAnswer, type TheoryAnswerPayload } from "../components/TheoryModelAnswer";
 import { TheoryQuestionPicker, type TheoryQuestionSummary } from "../components/TheoryQuestionPicker";
 import { TheoryRubricPanel } from "../components/TheoryRubricPanel";
+import { TheoryWalkthrough } from "../components/TheoryWalkthrough";
 import { ThinkingTrace } from "../components/ThinkingTrace";
 
 type Phase = "writing" | "grading" | "complete" | "error";
@@ -368,10 +369,49 @@ export default function TheoryPage() {
   const [selected, setSelected] = useState<TheoryQuestionSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
+  const [replaying, setReplaying] = useState(false);
+  const decidedRef = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, router, user]);
+
+  // First visit to Theory opens the walkthrough (migration 062). Page-scoped, so there is nothing to
+  // sequence against — ShellOnboarding only mounts on `/`.
+  //
+  // NOT when the URL names a question. `/theory?question=…` is a deep link — from History, from the
+  // Coach, from a bookmark — and someone arriving that way wants that essay, not a seven-step teach
+  // covering it. They still get the walkthrough on their first ordinary visit, because the flag is
+  // left unset here.
+  //
+  // The commit is deferred INTO the timer callback rather than done in the effect body: under
+  // StrictMode React mounts, cleans up and mounts again, and latching up front means the cancelled
+  // first run burns the latch and the survivor returns early — which is how onboarding once became
+  // invisible in development. A timer, not requestAnimationFrame, which never fires in a background
+  // tab.
+  useEffect(() => {
+    if (authLoading || !user || decidedRef.current) return;
+    if (user.theoryWalkthroughSeen) return;
+    if (new URLSearchParams(window.location.search).get("question")) return;
+    const timer = setTimeout(() => {
+      decidedRef.current = true;
+      setWalkthroughOpen(true);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [authLoading, user]);
+
+  // Finishing OR skipping marks it seen — it is replayable from the header and the Library, and
+  // re-serving a teach someone has already declined is worse than making them ask for it.
+  const closeWalkthrough = useCallback(() => {
+    setWalkthroughOpen(false);
+    decidedRef.current = true;
+    fetch("/api/user/shell-prefs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ theoryWalkthroughSeen: true }),
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -450,16 +490,33 @@ export default function TheoryPage() {
               {" · graded against the examiners’ reports"}
             </p>
           </div>
-          {!selected && !loading && questions.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={giveMeAQuestion}
-              className="rounded-lg bg-accent hover:bg-accent-hover px-5 py-2.5 text-sm font-medium text-background transition-colors cursor-pointer"
+              onClick={() => setReplaying(true)}
+              className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:bg-card transition-colors cursor-pointer"
             >
-              Give me a question
+              How Theory works
             </button>
-          )}
+            {!selected && !loading && questions.length > 0 && (
+              <button
+                onClick={giveMeAQuestion}
+                className="rounded-lg bg-accent hover:bg-accent-hover px-5 py-2.5 text-sm font-medium text-background transition-colors cursor-pointer"
+              >
+                Give me a question
+              </button>
+            )}
+          </div>
         </div>
       </header>
+
+      {(walkthroughOpen || replaying) && (
+        <TheoryWalkthrough
+          onDone={() => {
+            if (replaying) setReplaying(false);
+            else closeWalkthrough();
+          }}
+        />
+      )}
       <main className="flex-1">
         <div className="max-w-6xl mx-auto px-6 py-8">{content}</div>
       </main>

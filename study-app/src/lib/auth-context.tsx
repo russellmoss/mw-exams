@@ -35,6 +35,8 @@ interface AuthUser {
   // Migration 061 — the one-time Practical-drills walkthrough. Page-scoped, not part of the
   // launcher chain: it fires the first time /practical is opened.
   practicalWalkthroughSeen?: boolean;
+  // Migration 062 — the same, for Theory, on the first visit to /theory.
+  theoryWalkthroughSeen?: boolean;
   examDate?: string | null;
   lastDrillConfig?: {
     paper?: number;
