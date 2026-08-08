@@ -1038,7 +1038,22 @@ export interface AllowedPartTask {
 }
 
 // Verb stems the exam uses to open a task. Shared across entries so a new verb is one edit.
-const TASK_VERBS = "(?:identify|comment(?: briefly)? (?:on|upon)|describe|discuss|assess|evaluate|analyse|analyze|compare(?: and contrast)?|contrast|explain|state|estimate|account for)";
+//
+// Widened 2026-08-08 against the corpus. `consider` and `highlight` alone accounted for six of the
+// thirty real questions this rule rejected — "Consider the likely vintage" (2017 P3 Q5), "Highlight
+// the key winemaking techniques used" (2017 P3 Q1 and Q2) — and `comment(?: briefly)? on` could not
+// read "Comment in detail on the method of production", so the adverb slot is now open.
+//
+// INTERROGATIVES are the other half. The real exam sets plenty of tasks as questions rather than
+// commands — "What are the key winemaking techniques used in the wine's production?" (2017 P1 Q2,
+// 2019 P1 Q2), "Who would buy this wine?" (2017 P3 Q6), "To whom is this wine most likely to appeal,
+// and why?" (2012 P3 Q2), "In which area of the trade would this wine be most successful?"
+// (2017 P1 Q3). A repertoire that only understands imperatives cannot see any of them, so the
+// question forms sit alongside the verbs and every entry below gets them for free.
+const TASK_VERBS =
+  "(?:identify|comment(?:[a-z ]{0,20})? (?:on|upon)|describe|discuss|assess|evaluate|analyse|analyze|" +
+  "compare(?: and contrast)?|contrast|explain|state|estimate|account for|consider|highlight|outline|suggest|" +
+  "what (?:are|is|has|have|would|do|does)|which|who (?:would|might|is|are)|to whom|how (?:would|might|has|have|is|are))";
 
 export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   {
@@ -1072,7 +1087,10 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
     id: "winemaking",
     label: "comment on the key winemaking/production decisions and how they influenced style",
     re: new RegExp(
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:winemaking|wine making|vinification|maturation|elevage|viticultur[a-z]*|production (?:decisions?|methods?|techniques?)|methods? (?:of|used in|used for) (?:its )?production|production of|techniques?)\\b`
+      // `winemaker` is here because the exam asks about the person as readily as the process:
+      // "Consider how the winemaker has sought to retain the wine's sense of place" (2017 P1 Q4),
+      // "What has the winemaker done to maximise quality and regional typicity…" (2018 P2 Q1).
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:winemaking|wine making|winemakers?|vinification|maturation|elevage|viticultur[a-z]*|production (?:decisions?|methods?|techniques?)|methods? (?:of|used in|used for) (?:its )?production|production of|techniques?)\\b`
     ),
   },
   {
@@ -1110,14 +1128,42 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
     label: "comment on readiness for drinking and ageing potential",
     // Keyword-only (no verb requirement): these phrases are unambiguous task markers, and real parts
     // sometimes carry them in verb-less clauses ("… and how long each wine is likely to hold").
-    re: /\b(?:readiness for drinking|ready to drink|drink(?:ing)? window|drinkability|likely to hold|drink well|ag(?:e)?ing potential|potential for (?:further )?ag(?:e)?ing|ability to age|capacity to age|capacity for ag(?:e)?ing|future development)\b/,
+    // The "how long…" family is the same task in the exam's own words, and it arrives as a rider on a
+    // maturity part ("…including how long the wine will keep"), so it has to be matchable on its own.
+    re: /\b(?:readiness for drinking|ready to drink|drink(?:ing)? window|drinkability|likely to hold|drink well|ag(?:e)?ing potential|potential for (?:further )?ag(?:e)?ing|ability to age|capacity to age|capacity for ag(?:e)?ing|capacity to improve|potential to (?:develop|improve)|likely to improve|reach (?:its|their) peak|how long [a-z ]{0,20}(?:keep|last|hold|improve|age)|future development)\b/,
   },
   {
     id: "commercial",
-    label: "comment on the commercial position",
+    label: "comment on the commercial position / who the wine is for",
+    // The keyword list was written for the phrase "commercial position" and missed the way the real
+    // exam usually asks this: who would BUY it, how would you SELL it, which MARKET or area of the
+    // TRADE it belongs in, to whom it would APPEAL. Six real questions turned on those words.
     re: new RegExp(
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:commercial|consumer appeal|market position|target market|price|pricing|value for money)\\b`
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:commercial|appeal|markets?|market position|market potential|target market|price|pricing|value for money|sell|selling|buy|buyer|purchase|customers?|consumers?|trade)\\b`
     ),
+  },
+  {
+    id: "identify-vintage",
+    label: "identify or estimate the vintage / age of the wine",
+    // The single largest repertoire gap: nine clauses across eight real questions, 2012 to 2021.
+    // "Identify the vintage" (2015 P1 Q1, 2016 P2 Q3, 2018 P3 Q1, 2021 P2 Q1), "Identify the vintage,
+    // giving reasons for your conclusion" (2014 P2 Q2), "Consider the likely vintage" (2017 P3 Q5),
+    // "Comment on the age/vintage of each wine" (2011 P1 Q1). It is a staple, and the registry simply
+    // did not have it.
+    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,60}\\b(?:vintages?|age of the wine|wine s age)\\b|\\bcomment on the age\\b`),
+  },
+  {
+    id: "group-the-wines",
+    label: "divide / pair / group the wines",
+    // 2014 P1 Q3 is a paired flight: "Divide the wines into their respective pairs by country…".
+    re: /\b(?:divide|group|pair|split|separate)\b[a-z0-9 ]{0,40}\bwines?\b|\b(?:pairs?|pairings?) by (?:country|variety|region)\b/,
+  },
+  {
+    id: "answer-format",
+    label: "record the answer in the grid / tick the appropriate box",
+    // A real P3 answer-sheet instruction: "Place a tick in the appropriate box for the residual sugar"
+    // (2015 P3 Q3). It is a direction about HOW to answer, not an invented task.
+    re: /\b(?:place a tick|tick the appropriate|appropriate box|complete the (?:grid|table)|in the (?:grid|table) (?:below|provided))\b/,
   },
   {
     id: "compare-wines",
@@ -1137,12 +1183,16 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   {
     id: "justify",
     label: "justify your answer / give reasons",
-    re: /^(?:justify(?:ing)? your|give (?:your )?reasons?|support your|with reference to)\b/,
+    re: /^(?:justify(?:ing)? your|give (?:your )?reasons?|support your|with reference to|draw on evidence|use evidence|base your answer)\b/,
   },
   {
     id: "state-analytic",
     label: "state the residual sugar / sweetness (dosage) category / alcohol level",
-    re: /\b(?:state|estimate|identify)\b[a-z0-9 ]{0,40}\b(?:residual sugar|sweetness (?:level|category)|level of sweetness|dosage(?: category| level)?|abv|alcohol)\b/,
+    // Verb-OPTIONAL, unlike its siblings. The exam and the generator both write this one as a bare
+    // noun phrase under a "For each wine:" header — "d) The level of residual sugar in grammes per
+    // litre." The task is unambiguous from the object alone, and requiring a verb rejected a
+    // canonical analytic readout for a missing word.
+    re: /\b(?:state|estimate|identify)\b[a-z0-9 ]{0,40}\b(?:residual sugar|sweetness (?:level|category)|level of sweetness|dosage(?: category| level)?|abv|alcohol)\b|\b(?:the )?level of (?:residual sugar|alcohol)\b|\bresidual sugar in (?:grammes|grams)\b/,
   },
 ];
 
@@ -1154,7 +1204,14 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
 // label (the stem, "For each wine:") is excluded — the repertoire scan judges commands, not framing.
 function parseLetteredParts(questionText: string): { letter: string; text: string }[] {
   const text = questionText || "";
-  const labels = [...text.matchAll(/(?:^|[^a-z0-9])([a-z])\)\s/gi)].map((m) => ({
+  // The label must START a line or follow whitespace — `[^a-z0-9]` also matched a letter closing a
+  // PARENTHESIS mid-word, so "Identify the grape variety and origin(s) as closely as possible"
+  // (2016 P1 Q2) invented a part "s" whose text was " as closely as possible", and "State the level of
+  // residual sugar (g/l) and level of alcohol" (2017 P3 Q3) invented a part "l". Both phantoms then
+  // failed the repertoire scan, because a sentence fragment matches no task. Four of the thirty real
+  // questions this rule rejected were this bug rather than a repertoire gap. `\(?` keeps the "(a)"
+  // spelling working, since there the parenthesis OPENS the label instead of closing a word.
+  const labels = [...text.matchAll(/(?:^|[\s\n])\(?([a-z])\)\s/gi)].map((m) => ({
     letter: m[1].toLowerCase(),
     labelAt: m.index ?? 0,
     start: (m.index ?? 0) + m[0].length,
@@ -1169,8 +1226,16 @@ function parseLetteredParts(questionText: string): { letter: string; text: strin
 // how …") and compound commands (", and explain …") are split off so each command is judged alone.
 function splitCommandClauses(partText: string): string[] {
   const noMarks = (partText || "").replace(/\((?:\d+\s*[x×]\s*)?\d+\s*marks?\)/gi, " ");
+  // "e.g." and friends are not sentence ends. Splitting on their dots tore
+  // "State the approximate dosage category (e.g. Brut Nature, Brut, Demi-Sec)" into three pieces and
+  // then rejected the orphan "brut nature brut demi sec" for setting no task. Decimal points ("13.5%")
+  // would do the same. Neutralise both before the sentence split, not after.
+  const protectedText = noMarks
+    .replace(/\b(e|i)\.(g|e)\./gi, "$1$2")
+    .replace(/\bcf\./gi, "cf")
+    .replace(/(\d)\.(\d)/g, "$1$2");
   const clauses: string[] = [];
-  for (const sentence of noMarks.split(/[.?!;:\n]+/)) {
+  for (const sentence of protectedText.split(/[.?!;:\n]+/)) {
     for (const clause of sentence.split(
       /,?\s+including\s+(?=(?:how|why|whether)\b)|,\s+and\s+(?=(?:identify|comment|describe|discuss|assess|evaluate|compare|contrast|explain|state|estimate)\b)/i
     )) {
@@ -1188,11 +1253,18 @@ function splitCommandClauses(partText: string): string[] {
         );
       if (meaningful.length < 3) continue;
       if (
-        /^(?:for (?:each|both|all|the)(?: \w+)? wines?(?: \d+(?: and \d+)*)?|with reference to (?:each|both|all)(?: \w+)? wines?|in each case|be as (?:precise|specific|accurate) as possible)$/.test(
+        /^(?:for (?:each|both|all|the)(?: of)?(?: the)?(?: \w+)? wines?(?: \d+(?: and \d+)*)?|with reference to (?:each|both|all)(?: \w+)? wines?|in each case|be as (?:precise|specific|accurate) as possible)$/.test(
           cleaned
         )
       )
         continue;
+      // Framing and answer-DIRECTION, neither of which sets a task. The exam writes both: "Do not
+      // spend time thinking about the wine's specific origin" (2019 P1 Q3) steers effort away from a
+      // task, and "In addition to being paired by variety they are also paired by country"
+      // (2014 P1 Q3) is a statement about the flight that happens to sit inside a lettered part.
+      // Judging either against a repertoire of COMMANDS is a category error.
+      if (/^(?:do not|don t|you (?:are )?(?:need |do )?not|there is no need to|avoid)\b/.test(cleaned)) continue;
+      if (/^(?:in addition to|as well as|note that|these wines are|they are)\b/.test(cleaned)) continue;
       clauses.push(cleaned);
     }
   }

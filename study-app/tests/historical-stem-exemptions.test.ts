@@ -95,19 +95,28 @@ describe("stem-shape rules on a verbatim past-paper stem", () => {
     expect(hits).toEqual([]);
   });
 
-  it("stay armed when the stem is generated — this scopes the rules, it does not retire them", () => {
-    const hits = judge(false);
-    const rules = new Set(hits.map((h) => h.rule));
-    expect(rules.has("part-task-repertoire")).toBe(true);
-    // `id-mark-allocation` is deliberately NOT asserted here any more. It was recalibrated against
-    // this very corpus on 2026-08-08 (see tests/id-mark-allocation.test.ts): its thresholds are now
-    // the real exam's own observed maxima, so by construction it fires on none of these 160 questions
-    // in either mode. That is the rule being fixed rather than scoped — the outcome this file's
-    // sibling rules are still waiting for.
+  // This assertion used to read "stay armed when the stem is generated" and name id-mark-allocation
+  // and part-task-repertoire as proof that the exemption SCOPED the rules rather than retiring them.
+  // Both have since been recalibrated against this very corpus — id-mark-allocation on 2026-08-08 to
+  // the real exam's observed maxima, part-task-repertoire the same day by adding the tasks the exam
+  // actually sets (identify the vintage, who would buy it, the interrogative forms) and fixing a
+  // label parser that invented parts out of "origin(s)". Neither fires on a real question in EITHER
+  // mode now, which is the stronger outcome: the exemption is a safety net, not the thing holding the
+  // corpus up.
+  //
+  // The count is still pinned, because it is the honest measure of how far our model of the exam
+  // still is from the exam: 119 → 39 → the number below.
+  it("no longer NEED the exemption for the two rules that were recalibrated", () => {
+    const rules = new Set(judge(false).map((h) => h.rule));
     expect(rules.has("id-mark-allocation")).toBe(false);
-    // The measured baseline: real questions still rejected on stem shape alone, down from 119 once the
-    // mark-allocation caps stopped describing an exam the IMW does not set. Pinned so the remaining
-    // gap between our model of the exam and the exam stays visible.
-    expect(new Set(hits.map((h) => h.qid)).size).toBe(39);
+    expect(rules.has("part-task-repertoire")).toBe(false);
+  });
+
+  it("still fire on a generated stem for the rules that have NOT been recalibrated", () => {
+    const hits = judge(false);
+    // Whatever remains is a rule still describing a narrower exam than the IMW sets, and is the next
+    // candidate for the same treatment. An empty set here would mean the exemption is dead code.
+    expect(hits.length).toBeGreaterThan(0);
+    expect(new Set(hits.map((h) => h.qid)).size).toBe(11);
   });
 });

@@ -286,3 +286,101 @@ describe("validateQuestion wiring", () => {
     expect(res.violations.some((x) => x.rule === "part-task-repertoire")).toBe(true);
   });
 });
+
+// ── part-task-repertoire, recalibrated 2026-08-08 ────────────────────────────────────────────────
+//
+// The rule rejected 30 of the 160 real IMW questions (19%) while rejecting only 13 of 782 generated
+// ones (1.7%) — it fired on the exam eleven times more often than on our own output. Three causes,
+// all fixed below: a label parser that invented parts, a clause splitter that broke on "e.g.", and a
+// repertoire missing tasks the exam sets constantly. It is now 0% on the real corpus and still
+// catches every mechanism rider it was built for (the two bin fixtures above).
+describe("partTaskRepertoireViolations — tasks the real exam sets", () => {
+  const plainWines: AuditWine[] = [
+    { slot: 1, varieties: ["Riesling"], region: "Mosel", country: "Germany" },
+    { slot: 2, varieties: ["Riesling"], region: "Clare Valley", country: "Australia" },
+  ];
+  const ask = (parts: string) =>
+    partTaskRepertoireViolations({
+      questionId: "t",
+      paper: 1,
+      family: "F1",
+      questionText: `Wines 1 and 2 are made from the same grape variety.\n\nFor each wine:\n\n${parts}`,
+      totalMarks: 50,
+      wines: plainWines,
+    }).filter((v) => v.rule === "part-task-repertoire");
+
+  it.each([
+    // The largest gap: nine clauses across eight real questions, and the registry had no vintage entry.
+    ["identify the vintage (2015 P1 Q1)", "a) Identify the vintage. (2 x 10 marks)"],
+    ["with reasons (2014 P2 Q2)", "a) Identify the vintage, giving reasons for your conclusion. (2 x 10 marks)"],
+    ["consider the likely vintage (2017 P3 Q5)", "a) Consider the likely vintage. (2 x 10 marks)"],
+    ["comment on the age/vintage (2011 P1 Q1)", "a) Comment on the age/vintage of each wine and its potential to develop further. (2 x 10 marks)"],
+    // Commercial, as the exam actually phrases it — as a question about a person, not a "position".
+    ["to whom would it appeal (2012 P3 Q2)", "a) To whom is this wine most likely to appeal, and why? (2 x 10 marks)"],
+    ["who would buy it (2017 P3 Q6)", "a) Who would buy this wine? (2 x 10 marks)"],
+    ["how would you sell it (2016 P2 Q5)", "a) How would you sell this wine to a potential customer? (2 x 10 marks)"],
+    ["which area of the trade (2017 P1 Q3)", "a) In which area of the trade would this wine be most successful? (2 x 10 marks)"],
+    ["which markets (2022 P1 Q3)", "a) Consider which markets this wine would be successful in. (2 x 10 marks)"],
+    ["market potential (2022 P2 Q4)", "a) Compare and contrast market potential. (2 x 10 marks)"],
+    // Interrogative and non-imperative openings for winemaking.
+    ["what are the techniques (2019 P1 Q2)", "a) What are the key winemaking techniques used in the wine's production? (2 x 10 marks)"],
+    ["highlight the techniques (2017 P3 Q1)", "a) Highlight the key winemaking techniques used. (2 x 10 marks)"],
+    ["what has the winemaker done (2018 P2 Q1)", "a) What has the winemaker done to maximise quality during the winemaking process? (2 x 10 marks)"],
+    ["sense of place (2017 P1 Q4)", "a) Consider how the winemaker has sought to retain the wine's sense of place. (2 x 10 marks)"],
+    ["comment in detail on (adverb slot)", "a) Comment in detail on the method of production. (2 x 10 marks)"],
+    // Other real shapes.
+    ["quality via 'consider' (2013 P1 Q5)", "a) Consider quality and style with reference to winemaking. (2 x 10 marks)"],
+    ["tick box (2015 P3 Q3)", "a) Place a tick in the appropriate box for the residual sugar. (2 x 10 marks)"],
+    ["divide into pairs (2014 P1 Q3)", "a) Divide the wines into their respective pairs by country. (2 x 10 marks)"],
+    ["how long it will keep", "a) Assess the maturity, including how long the wine will keep. (2 x 10 marks)"],
+    ["when it reaches its peak", "a) Assess maturity, including how long each is likely to improve and when it will reach its peak. (2 x 10 marks)"],
+    ["draw on evidence", "a) Identify the grape variety. Draw on evidence from all three wines to support your answer. (2 x 10 marks)"],
+    ["verbless analytic readout", "a) The level of residual sugar in grammes per litre. (2 x 10 marks)"],
+  ])("accepts %s", (_label, parts) => {
+    expect(ask(parts)).toEqual([]);
+  });
+
+  it("accepts a negative DIRECTION — it steers effort, it does not set a task (2019 P1 Q3)", () => {
+    expect(
+      ask("a) Discuss the wine's style and quality. Do not spend time thinking about the wine's specific origin. (2 x 10 marks)")
+    ).toEqual([]);
+  });
+
+  it("still rejects an invented mechanism rider — the rule keeps its teeth", () => {
+    const v = ask("a) Comment on the key production decisions evident in the wine, including how the bubbles were created. (2 x 10 marks)");
+    expect(v).toHaveLength(1);
+    expect(v[0].detail).toContain("how the bubbles were created");
+  });
+});
+
+describe("part parsing — two bugs that invented parts and fragments", () => {
+  const wines: AuditWine[] = [{ slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France" }];
+  const run = (questionText: string) =>
+    partTaskRepertoireViolations({ questionId: "t", paper: 1, family: "F1", questionText, totalMarks: 50, wines })
+      .filter((v) => v.rule === "part-task-repertoire");
+
+  it("does not read a part label out of 'origin(s)' (2016 P1 Q2)", () => {
+    // `[^a-z0-9]` before the letter matched the "(" of "origin(s)", inventing a part "s" whose text
+    // was " as closely as possible" — a fragment that matches no task, so a real question failed.
+    expect(run("a) Identify the grape variety and origin(s) as closely as possible. (16 marks)")).toEqual([]);
+  });
+
+  it("does not read a part label out of '(g/l)' (2017 P3 Q3)", () => {
+    expect(run("a) State the level of residual sugar (g/l) and level of alcohol (%). (2 x 4 marks)")).toEqual([]);
+  });
+
+  it("still reads a genuine '(a)' label", () => {
+    const v = run("(a) Comment on the key production decisions evident in the wine, including how the bubbles were created. (10 marks)");
+    expect(v).toHaveLength(1);
+  });
+
+  it("does not split a sentence at 'e.g.'", () => {
+    // "State the approximate dosage category (e.g. Brut Nature, Brut, Demi-Sec)" was torn into three
+    // clauses, and the orphan "brut nature brut demi sec" was rejected for setting no task.
+    expect(run("a) State the approximate dosage category (e.g. Brut Nature, Brut, Demi-Sec). (4 x 7 marks)")).toEqual([]);
+  });
+
+  it("treats 'For each of the four wines' as scaffolding, not a task", () => {
+    expect(run("a) Identify the region of origin as closely as possible.\nFor each of the four wines\nb) Discuss quality. (4 x 8 marks)")).toEqual([]);
+  });
+});
