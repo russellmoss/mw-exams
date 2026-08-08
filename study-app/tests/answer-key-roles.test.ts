@@ -80,8 +80,11 @@ describe("isBanker — the appellation-only signals are colour-blind without an 
   });
 });
 
-describe("buildKeyForRow — stamps the declared role onto the ground truth", () => {
-  const build = () =>
+describe("buildKeyForRow — keys the declared role only where the classifier agrees", () => {
+  // A stamped role is ENFORCED (Rule 1 rewrites prose that contradicts it), so the generator's
+  // declaration has to survive a second opinion. `agree` stands in for isBanker: the default treats
+  // Alsace Pinot Gris as a banker and the Sylvaner as a curveball, matching the real table.
+  const build = (isBanker: (w: { slot: number }) => boolean = (w) => w.slot === 1) =>
     createAnswerKeyBuilder({
       variety_lexicon: { varieties: ["Pinot Gris", "Sylvaner"], synonyms: {} },
       appellation_varieties: {
@@ -90,6 +93,7 @@ describe("buildKeyForRow — stamps the declared role onto the ground truth", ()
       stem_proprietary_blends: { entries: [] },
       stem_style_lexicon: { styles: [] },
       mock_wine_bank: [],
+      isBanker,
     }).buildKeyForRow;
 
   const row = (curveball_slots: number[] | null | undefined) => ({
@@ -106,8 +110,10 @@ describe("buildKeyForRow — stamps the declared role onto the ground truth", ()
   // The builder is .mjs, so TS infers its bucket shape from the literal and does not know about the
   // fields added conditionally. Read the ground through this view rather than annotating each callback.
   type Keyed = { slot: number; role?: string; role_source?: string };
-  const groundOf = (curveball_slots: number[] | null | undefined): Keyed[] =>
-    build()(row(curveball_slots)).ground as unknown as Keyed[];
+  const groundOf = (
+    curveball_slots: number[] | null | undefined,
+    isBanker?: (w: { slot: number }) => boolean
+  ): Keyed[] => build(isBanker)(row(curveball_slots)).ground as unknown as Keyed[];
 
   it("marks the declared slot a curveball and every other wine a banker", () => {
     const ground = groundOf([2]);
@@ -118,8 +124,28 @@ describe("buildKeyForRow — stamps the declared role onto the ground truth", ()
     expect(ground.every((g) => g.role_source === "generator")).toBe(true);
   });
 
-  it("marks every wine a banker on an explicit all-anchor declaration", () => {
-    expect(groundOf([]).map((g) => g.role)).toEqual(["banker", "banker"]);
+  it("keys only the wine the classifier agrees about on an all-anchor declaration", () => {
+    // This is the Felton Road case: the generator declared every wine an anchor, but the classifier
+    // reads slot 2 as a curveball. Slot 2 is therefore left UNKEYED so Rule 1 flags instead of
+    // rewriting — enforcing "banker" here would rewrite a debrief that was right.
+    expect(groundOf([]).map((g) => g.role)).toEqual(["banker", undefined]);
+  });
+
+  it("keys nothing when the declaration and the classifier disagree on every wine", () => {
+    // Declared inverse of the classifier's reading: nothing is trustworthy enough to enforce.
+    expect(groundOf([1]).map((g) => g.role)).toEqual([undefined, undefined]);
+  });
+
+  it("fails safe and keys nothing when no classifier is injected", () => {
+    // A path that forgets to inject one loses enforcement rather than gaining ungated enforcement.
+    const ground = createAnswerKeyBuilder({
+      variety_lexicon: { varieties: ["Pinot Gris", "Sylvaner"], synonyms: {} },
+      appellation_varieties: { alsace: { country: "France", region: "Alsace", varieties: ["Pinot Gris"] } },
+      stem_proprietary_blends: { entries: [] },
+      stem_style_lexicon: { styles: [] },
+      mock_wine_bank: [],
+    }).buildKeyForRow(row([2])).ground as unknown as Keyed[];
+    expect(ground.every((g) => g.role === undefined)).toBe(true);
   });
 
   it("stamps NO role when the generator did not declare one", () => {

@@ -107,10 +107,17 @@ const STYLE_CAT_FALLBACK = {
 
 /**
  * Build a key derivation context from the injected lexicon/bank data, returning `buildKeyForRow`.
+ *
+ * `isBanker` is INJECTED rather than imported because it lives in question-validator.ts and this module
+ * is .mjs, loaded by offline scripts as well as the Next bundle. It gates the generator-declared role:
+ * see the reconciliation in buildKeyForRow.
+ *
  * @param {{ variety_lexicon: any, appellation_varieties: any, stem_proprietary_blends: any,
- *           stem_style_lexicon: any, mock_wine_bank: any }} data
+ *           stem_style_lexicon: any, mock_wine_bank: any,
+ *           isBanker?: (w: any) => boolean }} data
  */
 export function createAnswerKeyBuilder(data) {
+  const isBankerFn = typeof data.isBanker === "function" ? data.isBanker : null;
   const lex = data.variety_lexicon;
   const appVar = data.appellation_varieties;
   const prop = data.stem_proprietary_blends;
@@ -284,9 +291,37 @@ export function createAnswerKeyBuilder(data) {
       // provenance so a consumer can tell an intended role from an inferred one, and so telemetry can
       // separate the two: 'generator' is a record of what the question was built to do, 'derived'
       // (stamped by the backfill) is the reviewer-calibrated isBanker table's inference about the wine.
-      if (declaredCurveballs) {
-        bucket.role = declaredCurveballs.has(w.slot) ? "curveball" : "banker";
-        bucket.role_source = "generator";
+      // ROLE RECONCILIATION — stamp a role only where the generator's declaration and the
+      // reviewer-calibrated isBanker table AGREE.
+      //
+      // A stamped role is ENFORCED: validateAnswerKeyClaims Rule 1 will rewrite a debrief that
+      // contradicts it. The generator knows the flight's intent, but measured on the first
+      // generator-declared flight it under-called — a Felton Road Central Otago Chardonnay declared an
+      // anchor beside a Raveneau Chablis, when Central Otago is a Pinot Noir region and the engine's
+      // own composition telemetry logged it as non-benchmark in the same run. Enforcing that would
+      // rewrite a debrief that correctly called it a curveball, inverting the rule.
+      //
+      // So disagreement leaves the role OFF, which keeps Rule 1 a review flag for that wine — the
+      // pre-existing safe state. Fail-safe in the same direction when no classifier is injected.
+      if (declaredCurveballs && isBankerFn) {
+        const declared = declaredCurveballs.has(w.slot) ? "curveball" : "banker";
+        let derived;
+        try {
+          derived = isBankerFn({ ...bucket, fullText: w.fullText }) ? "banker" : "curveball";
+        } catch {
+          derived = null; // a classifier failure must not block keying the rest of the flight
+        }
+        if (derived && derived === declared) {
+          bucket.role = declared;
+          bucket.role_source = "generator";
+        } else if (derived) {
+          // Not a `problems` entry: that would set validated=false and drop the question from drills
+          // over a role disagreement, which is far too harsh. Visible in logs instead.
+          console.warn(
+            `[stem-key] W${w.slot} role not keyed — generator declared "${declared}", classifier reads ` +
+              `"${derived}". Left unkeyed so the claim rule flags rather than rewrites.`
+          );
+        }
       }
       if (r.paper === 3) {
         const st = deriveStyle(w.fullText, prof.style_category);

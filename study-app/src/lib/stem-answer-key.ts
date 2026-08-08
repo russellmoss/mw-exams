@@ -10,6 +10,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { createAnswerKeyBuilder } from "./stem-answer-key.mjs";
+import { isBanker } from "./question-validator";
 
 export interface StemKey {
   ground: Array<{
@@ -60,6 +61,9 @@ function builder(): Builder {
     stem_proprietary_blends: load("stem_proprietary_blends.json"),
     stem_style_lexicon: load("stem_style_lexicon.json"),
     mock_wine_bank: load("mock_wine_bank.json"),
+    // Gates the generator-declared role: a role is keyed (and therefore ENFORCED by
+    // validateAnswerKeyClaims) only where the declaration and this classifier agree.
+    isBanker,
   }) as unknown as Builder;
   return cached;
 }
