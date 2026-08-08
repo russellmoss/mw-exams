@@ -6,8 +6,14 @@ import {
   REVIEW_REASON_OPTIONS,
   REVIEW_REASON_LABELS,
   MAX_REVIEW_NOTE_CHARS,
+  REVIEW_PAPERS,
+  REVIEW_FAMILIES,
+  FAMILY_LABELS,
+  DEFAULT_REVIEW_FILTER,
   sanitizeReviewTags,
   sanitizeReviewNote,
+  sanitizeReviewFilter,
+  isDefaultFilter,
   isReviewVerdict,
 } from "@/lib/question-review-shared";
 import { BIN_REASON_OPTIONS } from "@/lib/bin-reasons";
@@ -88,6 +94,77 @@ describe("isReviewVerdict", () => {
     for (const bad of ["UP", "approve", "", null, 1, undefined]) {
       expect(isReviewVerdict(bad)).toBe(false);
     }
+  });
+});
+
+// ── Blocks and filtering ──────────────────────────────────────────────────────────────────────────
+
+describe("the block walk", () => {
+  it("covers all three papers and all SEVEN families", () => {
+    // F6 is not the last one. A walk that stopped at F6 would silently never show the 43 Quality
+    // hierarchy questions, and nothing on screen would say so.
+    expect([...REVIEW_PAPERS]).toEqual([1, 2, 3]);
+    expect([...REVIEW_FAMILIES]).toEqual(["F1", "F2", "F3", "F4", "F5", "F6", "F7"]);
+    for (const f of REVIEW_FAMILIES) expect(FAMILY_LABELS[f]).toBeTruthy();
+  });
+
+  it("defaults to the whole bank, grouped", () => {
+    expect(DEFAULT_REVIEW_FILTER.order).toBe("grouped");
+    expect(isDefaultFilter(DEFAULT_REVIEW_FILTER)).toBe(true);
+  });
+});
+
+describe("sanitizeReviewFilter", () => {
+  it("reads an empty selection as EVERYTHING, never as nothing", () => {
+    // The load-bearing case. An empty queue and a finished queue look identical on screen, and one
+    // of them is alarming — so unticking the last paper must widen back to the whole bank.
+    expect(sanitizeReviewFilter({ papers: [], families: [] })).toEqual(DEFAULT_REVIEW_FILTER);
+    expect(sanitizeReviewFilter({})).toEqual(DEFAULT_REVIEW_FILTER);
+    expect(sanitizeReviewFilter(null)).toEqual(DEFAULT_REVIEW_FILTER);
+    expect(sanitizeReviewFilter({ papers: [9], families: ["F99"] })).toEqual(DEFAULT_REVIEW_FILTER);
+  });
+
+  it("keeps a real selection and normalises its order", () => {
+    const f = sanitizeReviewFilter({ papers: [3, 1, 1], families: ["F4", "F2"], order: "random" });
+    expect(f.papers).toEqual([1, 3]);
+    // Families come back in canonical walk order regardless of how they were sent, so the sequence
+    // is F2 then F4 — not the order the checkboxes happened to be clicked in.
+    expect(f.families).toEqual(["F2", "F4"]);
+    expect(f.order).toBe("random");
+    expect(isDefaultFilter(f)).toBe(false);
+  });
+
+  it("only accepts 'random' as an alternative order", () => {
+    for (const bad of ["shuffle", "REVERSE", "", null, 7]) {
+      expect(sanitizeReviewFilter({ order: bad }).order).toBe("grouped");
+    }
+  });
+});
+
+describe("queue SQL", () => {
+  const lib = readFileSync(join(ROOT, "src", "lib", "question-review.ts"), "utf-8");
+
+  it("orders the grouped walk by paper, then family, then most-served", () => {
+    expect(lib).toMatch(/ORDER BY generated_questions\.paper,\s*[\s\S]*?generated_questions\.family,/);
+    expect(lib).toMatch(/served_count DESC NULLS LAST/);
+  });
+
+  it("breaks ties on question_id so the order is total", () => {
+    // Without a total order, two rows with equal served_count and created_at can swap between
+    // fetches — the reviewer sees one card twice and never sees the other.
+    expect(lib).toMatch(/generated_questions\.question_id\s*`/);
+  });
+
+  it("keys the shuffle on the reviewer so it is stable and uncorrelated", () => {
+    // Stable: re-fetching mid-session must not reshuffle the remaining pile (same double-show bug).
+    // Per-reviewer: the two of them should not walk an identical random order.
+    expect(lib).toContain("md5(generated_questions.question_id ||");
+    expect(lib).not.toMatch(/ORDER BY random\(\)/);
+  });
+
+  it("binds the filter values rather than interpolating them", () => {
+    expect(lib).toMatch(/paper = ANY\(\$\{papersParam\}\)/);
+    expect(lib).toMatch(/family = ANY\(\$\{familiesParam\}\)/);
   });
 });
 
@@ -182,6 +259,31 @@ describe("migration 066", () => {
 
   it("constrains verdict to the three the code emits", () => {
     expect(sql()).toMatch(/CHECK \(verdict IN \('up', 'down', 'skip'\)\)/);
+  });
+});
+
+describe("migration 067", () => {
+  const sql = () =>
+    readFileSync(join(ROOT, "migrations", "067_question_review_blocks.sql"), "utf-8");
+
+  it("adds the persisted selection column", () => {
+    expect(sql()).toMatch(/ADD COLUMN IF NOT EXISTS review_filter JSONB/);
+  });
+
+  it("indexes the block walk on the same predicate the queue filters by", () => {
+    // A partial index whose WHERE drifts from servableWhere() silently stops being used, and the
+    // queue degrades to a full scan of 942 rows on every card.
+    const text = sql();
+    expect(text).toMatch(/CREATE INDEX IF NOT EXISTS idx_generated_questions_review_blocks/);
+    expect(text).toMatch(/\(paper, family, served_count DESC, created_at DESC, question_id\)/);
+    for (const clause of [
+      "invalid_reasons IS NULL",
+      "review_state = 'kept'",
+      "is_retired IS NOT TRUE",
+      "scope = 'pool'",
+    ]) {
+      expect(text).toContain(clause);
+    }
   });
 });
 

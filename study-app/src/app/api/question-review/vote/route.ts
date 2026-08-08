@@ -18,6 +18,8 @@ import {
   recordReviewVote,
   attachAnalysisToReview,
   getReviewProgress,
+  getReviewBlocks,
+  getReviewFilter,
   getReviewSpendToday,
   sanitizeReviewTags,
   sanitizeReviewNote,
@@ -98,8 +100,12 @@ export async function POST(request: Request) {
       });
     }
 
-    const [progress, spendToday] = await Promise.all([
+    // Blocks ride back on every vote so the client can tell, without a second round-trip, that this
+    // vote was the last one in its paper × family block and the completion interstitial is due.
+    const filter = await getReviewFilter(gate.id);
+    const [progress, blocks, spendToday] = await Promise.all([
       getReviewProgress(gate.id),
+      getReviewBlocks(gate.id, filter),
       getReviewSpendToday(gate.id),
     ]);
 
@@ -109,6 +115,7 @@ export async function POST(request: Request) {
       attemptId,
       awaitingVerdict: !!attemptId,
       progress,
+      blocks,
       spendToday,
     });
   } catch (err) {

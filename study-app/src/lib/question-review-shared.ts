@@ -60,6 +60,108 @@ export function sanitizeReviewNote(note: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+// ── Blocks: one paper × family at a time ─────────────────────────────────────────────────────────
+//
+// The review walk is grouped so a reviewer settles into one question type instead of being thrown
+// between a Paper 1 same-variety flight and a Paper 3 fortified style question on consecutive cards.
+// Judging exam-realism needs a frame of reference, and the frame IS the paper and the family.
+
+export const REVIEW_PAPERS = [1, 2, 3] as const;
+
+/** Canonical family order. The default walk is papers ascending, families in THIS order. */
+export const REVIEW_FAMILIES = ["F1", "F2", "F3", "F4", "F5", "F6", "F7"] as const;
+
+export const FAMILY_LABELS: Record<string, string> = {
+  F1: "Same variety",
+  F2: "Same origin",
+  F3: "Blend logic",
+  F4: "Mixed breadth",
+  F5: "Method / production",
+  F6: "Style mechanism",
+  F7: "Quality hierarchy",
+};
+
+export const PAPER_LABELS: Record<number, string> = {
+  1: "Whites",
+  2: "Reds",
+  3: "Mixed / special",
+};
+
+export function familyLabel(family: string): string {
+  return FAMILY_LABELS[family] ?? family;
+}
+
+export type ReviewOrder = "grouped" | "random";
+
+export interface ReviewFilter {
+  papers: number[];
+  families: string[];
+  order: ReviewOrder;
+}
+
+/** Everything, in the fixed P1 F1 → P3 F7 walk. What a reviewer gets before they touch the filter. */
+export const DEFAULT_REVIEW_FILTER: ReviewFilter = {
+  papers: [...REVIEW_PAPERS],
+  families: [...REVIEW_FAMILIES],
+  order: "grouped",
+};
+
+/**
+ * Coerce anything (a stored JSONB blob, a request body) into a usable filter.
+ *
+ * An EMPTY selection is treated as "all", never as "nothing". A reviewer who unticks the last paper
+ * should see the whole bank again, not an empty queue that looks identical to having finished it —
+ * those two states are indistinguishable on screen and one of them is alarming.
+ */
+export function sanitizeReviewFilter(raw: unknown): ReviewFilter {
+  const obj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+
+  const papers = Array.isArray(obj.papers)
+    ? obj.papers.map(Number).filter((p) => (REVIEW_PAPERS as readonly number[]).includes(p))
+    : [];
+  const families = Array.isArray(obj.families)
+    ? obj.families.filter(
+        (f): f is string => typeof f === "string" && (REVIEW_FAMILIES as readonly string[]).includes(f)
+      )
+    : [];
+
+  return {
+    papers: papers.length > 0 ? Array.from(new Set(papers)).sort() : [...REVIEW_PAPERS],
+    families:
+      families.length > 0
+        ? REVIEW_FAMILIES.filter((f) => families.includes(f))
+        : [...REVIEW_FAMILIES],
+    order: obj.order === "random" ? "random" : "grouped",
+  };
+}
+
+/** True when the filter selects the whole bank — used to label the UI honestly. */
+export function isDefaultFilter(f: ReviewFilter): boolean {
+  return (
+    f.papers.length === REVIEW_PAPERS.length &&
+    f.families.length === REVIEW_FAMILIES.length &&
+    f.order === "grouped"
+  );
+}
+
+/** One paper × family group, with this reviewer's standing in it. */
+export interface ReviewBlock {
+  paper: number;
+  family: string;
+  familyLabel: string;
+  /** Servable questions in this block, regardless of who has reviewed them. */
+  total: number;
+  /** How many of them this reviewer has ruled on. */
+  done: number;
+  remaining: number;
+  // The verdict split, read from the database rather than accumulated in the browser: a reviewer who
+  // resumes a half-finished block mid-week would otherwise be shown a completion tally covering only
+  // today's votes, which reads as though the earlier ones were lost.
+  up: number;
+  down: number;
+  skipped: number;
+}
+
 export type ReviewVerdict = "up" | "down" | "skip";
 
 export function isReviewVerdict(v: unknown): v is ReviewVerdict {

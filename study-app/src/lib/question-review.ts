@@ -19,7 +19,13 @@ import { getAppVersion } from "@/lib/app-version";
 import { verdictFromGroundTruth, type QuestionVerdict } from "@/lib/question-verdict";
 import {
   REVIEW_REASON_LABELS,
+  DEFAULT_REVIEW_FILTER,
+  familyLabel,
+  sanitizeReviewFilter,
+  type ReviewBlock,
   type ReviewCard,
+  type ReviewFilter,
+  type ReviewOrder,
   type ReviewProgress,
   type ReviewVerdict,
   type ReviewViolation,
@@ -69,13 +75,109 @@ function servableWhere(alias = "generated_questions"): string {
 }
 const SERVABLE_WHERE = servableWhere();
 
-// Most-served first: if a reviewer only ever gets through 150 of these, they should be the 150 that
-// candidates have actually been hitting, not 150 arbitrary rows. question_id breaks ties so the
-// order is total and a reviewer never sees the same card twice or skips one under concurrent writes.
+// ── Queue order ──────────────────────────────────────────────────────────────────────────────────
 //
-// served_count and times_served are two columns holding identical values on all 942 rows (verified
-// 2026-08-08). served_count is the one on the GeneratedQuestion interface, so it is the one used here.
-const QUEUE_ORDER = `ORDER BY served_count DESC NULLS LAST, created_at DESC, question_id`;
+// GROUPED (the default): the twenty-one paper × family blocks walked in a fixed sequence, P1 F1
+// through P3 F7, so the reviewer settles into one question type instead of being thrown between a
+// Paper 1 same-variety flight and a Paper 3 fortified style question on consecutive cards.
+//
+// Within a block, most-served first: if a reviewer only gets halfway through P1 F1, those should be
+// the ones candidates have actually been hitting, not an arbitrary half. question_id breaks ties so
+// the order is TOTAL — without it, two rows with equal served_count and created_at could swap places
+// between fetches and the reviewer would see one card twice and never see the other.
+//
+// RANDOM: a shuffle that is stable per reviewer. md5(question_id || reviewer_id) is deterministic, so
+// re-fetching mid-session returns the same order rather than reshuffling the remaining pile — which
+// would do exactly the double-show/skip thing the tie-breaker above exists to prevent. Keying on the
+// reviewer as well means the two of them get different orders, so their passes aren't correlated.
+//
+// served_count and times_served hold identical values on all 942 rows (verified 2026-08-08).
+// served_count is the one on the GeneratedQuestion interface, so it is the one used here.
+function queueOrder(order: ReviewOrder, reviewerParam: string): string {
+  if (order === "random") {
+    return `ORDER BY md5(generated_questions.question_id || ${reviewerParam}::text)`;
+  }
+  return `ORDER BY generated_questions.paper,
+                  generated_questions.family,
+                  generated_questions.served_count DESC NULLS LAST,
+                  generated_questions.created_at DESC,
+                  generated_questions.question_id`;
+}
+
+/** The filter as SQL, appended to the servable predicate. Values are bound, never interpolated. */
+function filterClause(alias: string, papersParam: string, familiesParam: string): string {
+  return `AND ${alias}.paper = ANY(${papersParam}) AND ${alias}.family = ANY(${familiesParam})`;
+}
+
+/** Read the reviewer's stored selection, falling back to "everything, grouped". */
+export async function getReviewFilter(reviewerId: number): Promise<ReviewFilter> {
+  const sql = db();
+  const rows = await sql`SELECT review_filter FROM users WHERE id = ${reviewerId}`;
+  return sanitizeReviewFilter(rows[0]?.review_filter ?? null);
+}
+
+export async function saveReviewFilter(
+  reviewerId: number,
+  filter: ReviewFilter
+): Promise<ReviewFilter> {
+  const clean = sanitizeReviewFilter(filter);
+  const sql = db();
+  await sql`
+    UPDATE users SET review_filter = ${JSON.stringify(clean)}::jsonb WHERE id = ${reviewerId}
+  `;
+  return clean;
+}
+
+/**
+ * Every paper × family block in the walk, in order, with this reviewer's standing in each.
+ *
+ * Returns blocks the FILTER selects, including ones already finished (done = total, remaining = 0) —
+ * the UI needs those to render a walk with ticks against what's complete, and the block-complete
+ * interstitial needs to know what comes next.
+ *
+ * Block sizes are very uneven and that is a property of the bank, not a bug: P3 F6 holds 93 of the
+ * 511 because Paper 3 is the style-mechanism paper, while P3 F3 holds 2.
+ */
+export async function getReviewBlocks(
+  reviewerId: number,
+  filter: ReviewFilter
+): Promise<ReviewBlock[]> {
+  const sql = db();
+  const rows = (await sql.query(
+    `
+    SELECT g.paper, g.family,
+      count(*)                                        AS total,
+      count(r.id)                                     AS done,
+      count(*) FILTER (WHERE r.verdict = 'up')        AS up,
+      count(*) FILTER (WHERE r.verdict = 'down')      AS down,
+      count(*) FILTER (WHERE r.verdict = 'skip')      AS skipped
+    FROM generated_questions g
+    LEFT JOIN question_reviews r
+      ON r.question_id = g.question_id AND r.reviewer_id = $1
+    WHERE ${servableWhere("g")}
+      ${filterClause("g", "$2", "$3")}
+    GROUP BY g.paper, g.family
+    ORDER BY g.paper, g.family
+    `,
+    [reviewerId, filter.papers, filter.families]
+  )) as unknown as Record<string, unknown>[];
+
+  return rows.map((r) => {
+    const total = Number(r.total ?? 0);
+    const done = Number(r.done ?? 0);
+    return {
+      paper: Number(r.paper),
+      family: String(r.family),
+      familyLabel: familyLabel(String(r.family)),
+      total,
+      done,
+      remaining: Math.max(0, total - done),
+      up: Number(r.up ?? 0),
+      down: Number(r.down ?? 0),
+      skipped: Number(r.skipped ?? 0),
+    };
+  });
+}
 
 /**
  * The reviewer's countdown.
@@ -189,16 +291,6 @@ export async function getReviewSpendToday(reviewerId: number): Promise<number> {
   return Number(rows[0]?.spend ?? 0);
 }
 
-const FAMILY_LABELS: Record<string, string> = {
-  F1: "Same variety",
-  F2: "Same origin",
-  F3: "Blend logic",
-  F4: "Mixed breadth",
-  F5: "Method / production",
-  F6: "Style mechanism",
-  F7: "Quality hierarchy",
-};
-
 function parseJson<T>(v: unknown, fallback: T): T {
   if (v == null) return fallback;
   if (typeof v === "string") {
@@ -227,7 +319,7 @@ function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): Revie
     id: q.question_id,
     paper: q.paper,
     family: q.family,
-    familyLabel: FAMILY_LABELS[q.family] || q.family_label || q.family,
+    familyLabel: familyLabel(q.family) || q.family_label || q.family,
     stem: q.question_text,
     totalMarks: q.total_marks,
     wines: (Array.isArray(wines) ? wines : []).map((w) => {
@@ -269,22 +361,28 @@ function toCard(q: GeneratedQuestion, groundTruth: unknown[] | undefined): Revie
  *
  * There is no cursor and none is needed: casting a vote (including a skip) writes a question_reviews
  * row, which removes that question from this query's result set. The queue self-advances, so a
- * refetch always resumes exactly where the reviewer left off — including on a different device.
+ * refetch always resumes exactly where the reviewer left off — including on a different device, and
+ * including after they change the filter mid-pass.
  */
-export async function getReviewQueue(reviewerId: number, limit = 12): Promise<ReviewCard[]> {
+export async function getReviewQueue(
+  reviewerId: number,
+  limit = 12,
+  filter: ReviewFilter = DEFAULT_REVIEW_FILTER
+): Promise<ReviewCard[]> {
   const sql = db();
   const rows = (await sql.query(
     `
     SELECT * FROM generated_questions
     WHERE ${SERVABLE_WHERE}
+      ${filterClause("generated_questions", "$2", "$3")}
       AND NOT EXISTS (
         SELECT 1 FROM question_reviews r
         WHERE r.question_id = generated_questions.question_id AND r.reviewer_id = $1
       )
-    ${QUEUE_ORDER}
-    LIMIT $2
+    ${queueOrder(filter.order, "$1")}
+    LIMIT $4
     `,
-    [reviewerId, Math.max(1, Math.min(50, limit))]
+    [reviewerId, filter.papers, filter.families, Math.max(1, Math.min(50, limit))]
   )) as unknown as GeneratedQuestion[];
 
   if (rows.length === 0) return [];

@@ -14,18 +14,29 @@
 // A rejection does not get a bespoke pipeline: it becomes a user_attempts row that the existing
 // feedback loop adjudicates, so the verdict arrives in the notification bell and can be argued with
 // in the same thread UI as any other feedback.
+//
+// The walk is GROUPED by paper × family — all of P1 F1, then all of P1 F2, through to P3 F7 — and
+// stops on an interstitial at each block boundary. Judging whether a question is exam-realistic
+// needs a settled frame of reference, and the frame is the paper and the family; being thrown from
+// a Paper 1 same-variety flight to a Paper 3 fortified style question on consecutive cards costs a
+// re-orientation every single time. The reviewer can narrow the scope or ask for a shuffle instead.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { QuestionReviewCard } from "../components/QuestionReviewCard";
+import { ReviewBlockPicker } from "../components/ReviewBlockPicker";
+import { ReviewBlockComplete } from "../components/ReviewBlockComplete";
 // -shared, never question-review: that module reaches the database, and everything a "use client"
 // file imports is bundled for the browser (tests/client-server-boundary.test.ts enforces this).
 import {
   REVIEW_REASON_LABELS,
+  DEFAULT_REVIEW_FILTER,
   type ReviewCard,
   type ReviewProgress,
   type ReviewerStanding,
+  type ReviewFilter,
+  type ReviewBlock,
   type Disagreement,
 } from "@/lib/question-review-shared";
 
@@ -53,6 +64,11 @@ export default function ReviewPage() {
   const [queue, setQueue] = useState<ReviewCard[]>([]);
   const [progress, setProgress] = useState<ReviewProgress | null>(null);
   const [standings, setStandings] = useState<ReviewerStanding[]>([]);
+  const [filter, setFilter] = useState<ReviewFilter>(DEFAULT_REVIEW_FILTER);
+  const [blocks, setBlocks] = useState<ReviewBlock[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  /** Set when a vote empties its block; cleared when the reviewer chooses to carry on. */
+  const [blockDone, setBlockDone] = useState<ReviewBlock | null>(null);
   const [spendToday, setSpendToday] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +115,8 @@ export default function ReviewPage() {
         });
         setProgress(data.progress ?? null);
         setStandings(data.standings ?? []);
+        setBlocks(data.blocks ?? []);
+        if (data.filter) setFilter(data.filter);
         if (typeof data.spendToday === "number") setSpendToday(data.spendToday);
         setError(null);
       })
@@ -138,6 +156,9 @@ export default function ReviewPage() {
       if (!current || busy) return;
       setBusy(true);
       const questionId = current.id;
+      // Captured before the queue advances: this is the block the vote belongs to, and the one that
+      // may have just run out.
+      const votedBlock = { paper: current.paper, family: current.family };
       try {
         const res = await fetch("/api/question-review/vote", {
           method: "POST",
@@ -152,6 +173,17 @@ export default function ReviewPage() {
         setRejecting(false);
         if (data.progress) setProgress(data.progress);
         if (typeof data.spendToday === "number") setSpendToday(data.spendToday);
+
+        const nextBlocks: ReviewBlock[] = data.blocks ?? [];
+        if (nextBlocks.length > 0) setBlocks(nextBlocks);
+        // Did that vote finish the block? Only meaningful in the grouped walk — in shuffled mode the
+        // blocks aren't a sequence, so stopping at one of their boundaries would be arbitrary.
+        if (filter.order === "grouped") {
+          const finished = nextBlocks.find(
+            (b) => b.paper === votedBlock.paper && b.family === votedBlock.family && b.remaining === 0
+          );
+          if (finished) setBlockDone(finished);
+        }
         setFlash(
           verdict === "down"
             ? "Rejected — analysing now. The verdict will arrive in your notifications, where you can argue with it."
@@ -167,8 +199,41 @@ export default function ReviewPage() {
         setBusy(false);
       }
     },
-    [current, busy]
+    [current, busy, filter.order]
   );
+
+  /**
+   * Save a new selection and swap in the freshly-scoped queue from the same response.
+   *
+   * Persisted server-side rather than in component state alone: a 511-question pass is not a
+   * one-sitting job, and resuming on another device should continue the same walk.
+   */
+  const applyFilter = useCallback((next: ReviewFilter) => {
+    setBusy(true);
+    fetch("/api/question-review/prefs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        if (data.filter) setFilter(data.filter);
+        setBlocks(data.blocks ?? []);
+        setQueue(data.cards ?? []);
+        if (data.progress) setProgress(data.progress);
+        // A scope change invalidates any pending block-complete card — it referred to the old walk.
+        setBlockDone(null);
+        setError(null);
+      })
+      .catch((err) => {
+        console.error("Failed to save the selection:", err);
+        setError("Couldn't save that selection.");
+      })
+      .finally(() => setBusy(false));
+  }, []);
 
   useEffect(() => {
     if (!flash) return;
@@ -178,7 +243,20 @@ export default function ReviewPage() {
 
   // Keyboard shortcuts. At ~500 questions each, fifteen seconds saved per card is over two hours.
   useEffect(() => {
-    if (tab !== "queue" || !current) return;
+    if (tab !== "queue") return;
+
+    // The block-complete card owns the keyboard while it is up: Enter carries on to the next block.
+    // The voting keys must NOT be live here — the reviewer is looking at a summary, not a question,
+    // and a stray "a" would silently approve the first card of the next block sight unseen.
+    if (blockDone) {
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Enter") { e.preventDefault(); setBlockDone(null); }
+      };
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    }
+
+    if (!current) return;
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       const typing =
@@ -200,7 +278,7 @@ export default function ReviewPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [tab, current, rejecting, rejectTags, rejectNote, vote]);
+  }, [tab, current, rejecting, rejectTags, rejectNote, vote, blockDone]);
 
   const loadDisagreements = useCallback(() => {
     fetch("/api/question-review/disagreements")
@@ -223,6 +301,19 @@ export default function ReviewPage() {
     if (!progress || progress.total === 0) return 0;
     return Math.round((progress.done / progress.total) * 100);
   }, [progress]);
+
+  /** The block the card on screen belongs to — drives the header and the walk's "you are here". */
+  const currentBlock = useMemo(() => {
+    if (!current) return null;
+    return blocks.find((b) => b.paper === current.paper && b.family === current.family) ?? null;
+  }, [current, blocks]);
+
+  /** The next block with anything left in it, for the completion card's "next up". */
+  const nextBlock = useMemo(() => {
+    if (!blockDone) return null;
+    const i = blocks.findIndex((b) => b.paper === blockDone.paper && b.family === blockDone.family);
+    return blocks.slice(i + 1).find((b) => b.remaining > 0) ?? null;
+  }, [blockDone, blocks]);
 
   if (authLoading || (loading && queue.length === 0 && !error)) {
     return (
@@ -325,8 +416,45 @@ export default function ReviewPage() {
           </div>
         )}
 
+        {tab === "queue" && (
+          <ReviewBlockPicker
+            filter={filter}
+            blocks={blocks}
+            currentBlock={currentBlock}
+            open={pickerOpen}
+            busy={busy}
+            onToggleOpen={() => setPickerOpen((v) => !v)}
+            onChange={applyFilter}
+          />
+        )}
+
+        {/* Where you are in the current block. The whole reason for grouping is that this stays put
+            for a stretch, so it is stated plainly above the card rather than left to the chips. */}
+        {tab === "queue" && !blockDone && currentBlock && filter.order === "grouped" && (
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-lg text-foreground">
+              Paper {currentBlock.paper} · {currentBlock.familyLabel}
+            </h2>
+            <p className="text-xs text-muted tabular-nums">
+              {currentBlock.done + 1} of {currentBlock.total} in this block ·{" "}
+              {currentBlock.remaining} left
+            </p>
+          </div>
+        )}
+
         {tab === "queue" ? (
-          current ? (
+          blockDone ? (
+            <ReviewBlockComplete
+              completed={blockDone}
+              tally={{ up: blockDone.up, down: blockDone.down, skipped: blockDone.skipped }}
+              next={nextBlock}
+              onContinue={() => setBlockDone(null)}
+              onPick={() => {
+                setBlockDone(null);
+                setPickerOpen(true);
+              }}
+            />
+          ) : current ? (
             <QuestionReviewCard
               card={current}
               rejecting={rejecting}
@@ -346,15 +474,38 @@ export default function ReviewPage() {
               onReject={() => vote("down", rejectTags, rejectNote.trim())}
             />
           ) : (
+            // Two different endings, and conflating them would be a lie: finishing a narrowed
+            // selection is not finishing the bank, and telling someone they're done when 400
+            // questions are still waiting outside their filter is the worse error of the two.
             <div className="rounded-xl border border-border bg-card px-6 py-16 text-center">
-              <p className="font-display text-xl text-foreground">
-                {progress && progress.done > 0 ? "That's the whole bank." : "Nothing to review."}
-              </p>
-              <p className="mt-2 text-sm text-muted">
-                {progress && progress.done > 0
-                  ? `You've ruled on all ${progress.done}. New questions appear here as they're generated.`
-                  : "No servable questions are waiting for your verdict."}
-              </p>
+              {progress && progress.remaining > 0 ? (
+                <>
+                  <p className="font-display text-xl text-foreground">Selection complete.</p>
+                  <p className="mt-2 text-sm text-muted">
+                    Nothing left in the papers and families you picked —{" "}
+                    <span className="tabular-nums">{progress.remaining}</span> questions are still
+                    waiting elsewhere in the bank.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => applyFilter({ ...DEFAULT_REVIEW_FILTER })}
+                    className="mt-4 rounded-lg border border-accent/40 bg-accent/15 px-5 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/25 cursor-pointer"
+                  >
+                    Review the rest
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="font-display text-xl text-foreground">
+                    {progress && progress.done > 0 ? "That's the whole bank." : "Nothing to review."}
+                  </p>
+                  <p className="mt-2 text-sm text-muted">
+                    {progress && progress.done > 0
+                      ? `You've ruled on all ${progress.done}. New questions appear here as they're generated.`
+                      : "No servable questions are waiting for your verdict."}
+                  </p>
+                </>
+              )}
             </div>
           )
         ) : (
