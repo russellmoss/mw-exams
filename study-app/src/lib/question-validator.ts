@@ -13,6 +13,7 @@ import {
   canonVariety,
   colourFromAppellation,
   detectPrimaryVariety,
+  expandMarkTokens,
   methodClass,
   norm,
   normStem,
@@ -684,17 +685,25 @@ const ID_SINGLE_PART_CAP = 10;
 // Parse the mark-carrying sub-questions from a question's text. Each "(N marks)" or "(A x B marks)"
 // annotation closes a part; `text` is everything since the previous annotation (so it holds the part's
 // prompt), `marks` is the part's total (A×B or N), and `perUnit` is the per-instance value (B, or N).
-function parseMarkedParts(questionText: string): { text: string; marks: number; perUnit: number }[] {
+// Split a question into its marked sub-parts. `marks` is what the part is really worth and `perUnit`
+// is the printed per-unit value; they differ whenever the part is awarded over several wines.
+//
+// The multiplier is resolved by the shared expander, so a part scoped by a section header
+// ("For each wine:" then a bare "(15 marks)") is worth 15 × N here exactly as it is in the
+// generation engine. Reading those at face value under-counted ten real IMW questions — see the
+// block comment on expandMarkTokens in question-rules.mjs. `wineCount` is optional only so a caller
+// without wines keeps the old face-value reading rather than crashing; pass it whenever it is known.
+function parseMarkedParts(
+  questionText: string,
+  wineCount = 0
+): { text: string; marks: number; perUnit: number }[] {
   const text = questionText || "";
-  const re = /\((?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\)/gi;
+  const { tokens } = expandMarkTokens(text, wineCount);
   const parts: { text: string; marks: number; perUnit: number }[] = [];
   let lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    const mult = m[1] ? parseInt(m[1], 10) : 1;
-    const base = parseInt(m[2], 10);
-    parts.push({ text: text.slice(lastIndex, m.index), marks: mult * base, perUnit: base });
-    lastIndex = re.lastIndex;
+  for (const t of tokens) {
+    parts.push({ text: text.slice(lastIndex, t.start), marks: t.marks, perUnit: t.perUnit });
+    lastIndex = t.end;
   }
   return parts;
 }
@@ -705,7 +714,7 @@ function parseMarkedParts(questionText: string): { text: string; marks: number; 
  * more) or when any single ID part is worth more than 10 marks.
  */
 export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
-  const parts = parseMarkedParts(q.questionText);
+  const parts = parseMarkedParts(q.questionText, (q.wines || []).length);
   if (parts.length === 0) return [];
   const idParts = parts.filter((p) => ID_PART_RE.test(p.text));
   if (idParts.length === 0) return [];
@@ -1604,15 +1613,14 @@ function floorTaskFor(partText: string): AllowedPartTask | null {
  */
 export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
-  const parts = parseMarkedParts(q.questionText);
+  const wineCount = (q.wines || []).length;
+  const parts = parseMarkedParts(q.questionText, wineCount);
   if (parts.length === 0) return v;
 
   // Only judge a well-formed question: its lettered parts must begin at "a)". A fragment passed in
   // isolation (e.g. a lone "b) …" used in a unit test) has no meaningful budget to total.
   const lettered = parseLetteredParts(q.questionText || "");
   if (lettered.length > 0 && lettered[0].letter !== "a") return v;
-
-  const wineCount = (q.wines || []).length;
 
   // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
   // rule can never invent a spurious "must equal 0" mismatch.
@@ -1761,6 +1769,9 @@ export function computeServedStemHash(questionText: string): string {
   const text = questionText || "";
   const stem = extractStem(text).replace(/\s+/g, " ").trim();
   const parts = parseLetteredParts(text).map((p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`);
+  // Deliberately UNSCOPED (no wine count). This is a stored fingerprint compared against hashes
+  // written by earlier builds; resolving section-header scope here would change the hash of every
+  // scoped question already served and read as a re-derived stem (fb_344) on every one of them.
   const marks = parseMarkedParts(text).map((p) => `${p.marks}/${p.perUnit}`);
   return fnv1aHex(JSON.stringify({ stem, parts, marks }));
 }
@@ -1806,6 +1817,8 @@ function parseStemWineCount(questionText: string): number | null {
 
 // The wine count implied by an "N × M marks" per-wine multiplier in the parts (the largest N), or null.
 function parseMultiplierWineCount(questionText: string): number | null {
+  // Deliberately UNSCOPED: this function INFERS the wine count, so feeding one in would be circular
+  // (a scoped token would report back the very count that was used to expand it).
   const mults = parseMarkedParts(questionText)
     .filter((p) => p.perUnit > 0 && p.marks !== p.perUnit)
     .map((p) => Math.round(p.marks / p.perUnit))

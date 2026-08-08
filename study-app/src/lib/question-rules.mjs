@@ -187,6 +187,215 @@ export function stemSniperScoringModel(questionText, wineCount = 0) {
   return sameVariety && wineCount >= 2 ? "set" : "per-wine";
 }
 
+// ---------------------------------------------------------------------------------------------------
+// MARK TOKENS — the three notations the IMW actually prints, expanded to real totals.
+//
+// A mark token is only worth its face value when it stands alone. The corpus prints marks THREE ways
+// and until now every totalling site in the app understood exactly one of them:
+//
+//   1. Explicit multiplier — "(3 x 10 marks)".                          → 30. Always understood.
+//   2. Scoped by a section header — "For each wine:" then "(15 marks)". → 15 × N. Was read as 15.
+//   3. An inline per-unit phrase — "(8 marks per pair)".                → 8 × N/2. Was read as 8.
+//
+// Measured against the 162 real questions in data/structured/corpus_questions.json, reading (2) and
+// (3) as face value made TEN real IMW questions look like mis-allocations: every 2013 paper uses the
+// scoped form ("For each wine" + a bare total), so 2013 P1 Q1 summed to 35 against an expected 50 and
+// 2011 P3 Q1's "8 marks per pair" summed to 48 against 300. All ten are correctly 25-marks-per-wine
+// on the printed paper. The generator is instructed to use notation (1) only, so this never surfaced
+// as a false quarantine in the bank — but it is a live undercount risk there too (a draft that scopes
+// its marks reads as short, gets "repaired" by normalizeMarkAllocation, and ships wrong), and it is a
+// hard blocker for importing the real corpus.
+//
+// The word "marks" is optional, but only under a convention check. The 2012 papers print every mark
+// unitless — "(4 x 10)" for per-wine parts and a bare "(15)" for pooled ones (see
+// source/MW_Practical_Papers_Compilation.md:3094) — which zeroed out all eight of that year's
+// questions. A MULTIPLIER in parentheses is unambiguous enough to read as marks on its own. A BARE
+// "(15)" is not: a stem that named a vintage, "all from the same vintage (2015)", would otherwise
+// score 2015 marks. So a bare number counts only in a question that has ALREADY shown the unitless
+// convention by printing a multiplier token without "marks", and only within a plausible mark range.
+// A question written the modern way ("(3 x 10 marks)") never turns the convention on. A trailing
+// backslash is tolerated — the source compilation escapes the closing paren on those 2012 lines.
+//
+// SINGLE SOURCE OF TRUTH: every site that totals marks (the engine's validateMarkAllocation,
+// normalizeMarkAllocation and computeMarkTypeMix; the validator's parseMarkedParts, which feeds
+// validateMarkBudget and idMarkAllocationViolations) calls this. They previously each carried their
+// own regex, which is exactly how the notations diverged in the first place.
+
+const NUM_WORDS_IN_HEADER = /\b(?:two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|both)\b/;
+
+// A section header: its own line, opening with the corpus's small header vocabulary. The trailing
+// colon is OPTIONAL — the 2013 Paper 3 questions omit it ("For each wine" on a bare line).
+const SCOPE_HEADER_RE =
+  /^[ \t]*((?:then[ \t]+)?(?:for|with[ \t]+reference[ \t]+to|considering)\b[^\n:]{0,70}?)[ \t]*:?[ \t]*$/gim;
+
+/**
+ * Classify a section header into the multiplier it imposes on the bare mark tokens beneath it.
+ * Returns null for a line that is not actually a scope header, so prose is never mistaken for one.
+ * @param {string} header
+ * @param {number} wineCount
+ * @returns {{ kind: "each" | "pooled", count: number } | null}
+ */
+function markScopeForHeader(header, wineCount) {
+  const h = norm(header).replace(/[^a-z0-9 -]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!/\bwines?\b|\bpairs?\b/.test(h)) return null;
+
+  // POOLED — one shared answer for the named set, so the marks are awarded once.
+  // "For all three wines", "With reference to both wines", "Considering both wines together".
+  if (/\btogether\b/.test(h)) return { kind: "pooled", count: 1 };
+  if (/\b(?:all|both)\b/.test(h) && !/\beach\b/.test(h)) return { kind: "pooled", count: 1 };
+
+  // DISTRIBUTIVE over pairs — "For each pair:" (2011 P3 Q1, 2026 P3 Q2).
+  if (/\beach\s+pairs?\b/.test(h)) return { kind: "each", count: Math.max(1, Math.floor(wineCount / 2)) };
+
+  // DISTRIBUTIVE over an explicit slot range — "For each wine 1-3:".
+  const range = h.match(/\beach\s+wines?\s+(\d+)\s*(?:-|to)\s*(\d+)/);
+  if (range) return { kind: "each", count: Math.max(1, Number(range[2]) - Number(range[1]) + 1) };
+
+  // A SINGLE named wine — "For wine 4:", "For this wine:". One wine, so marks count once.
+  if (/^for\s+(?:this\s+wine|wine\s+\d+)\b/.test(h)) return { kind: "each", count: 1 };
+
+  // DISTRIBUTIVE over the whole flight — "For each wine:", "Then for each wine:".
+  if (/\beach\s+wine\b/.test(h)) return { kind: "each", count: wineCount };
+
+  // "With reference to all N wines" already matched pooled above; anything else naming a number
+  // without "each" is pooled too ("For both wines").
+  if (NUM_WORDS_IN_HEADER.test(h)) return { kind: "pooled", count: 1 };
+  return null;
+}
+
+// "(3 x 10 marks)" | "(15 marks)" | "(8 marks per pair)" | "(4 x 10)" | "(4 x 10\)"
+const MARK_TOKEN_RE =
+  /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+)\s*(marks?)?(?:\s+per\s+(wine|pair))?\s*\\?\s*\)/gi;
+
+// A lettered sub-part label — the unit a header's scope actually distributes over.
+const LETTERED_PART_RE = /^\s*([a-h])\)\s*/gim;
+
+// A sub-part that is flight-wide IN ITS OWN WORDS overrides the header it happens to sit under. Real
+// generated questions put a pooled comparison as the last part inside a "For each wine:" block
+// ("c) Compare and contrast the style and commercial position of these two wines. (14 marks)"), and
+// scoping that by the header double-counted it. Mirrors FLIGHT_WIDE_ASK_RE in question-validator.ts,
+// which encodes the same idea for the 5-mark floor.
+const FLIGHT_WIDE_PART_RE =
+  /\bacross\b|\ball (?:the |\d+ |two |three |four |five |six )?wines\b|\bboth wines\b|\bthese (?:two|three|four|five|six) wines\b|\bthe (?:two|three|four|five|six) wines\b|\boverall\b|\bthe flight\b|\bcompare\b|\bcontrast\b/;
+
+/**
+ * @typedef {Object} MarkToken
+ * @property {string} raw       the matched text, e.g. "(3 x 10 marks)"
+ * @property {number} start     index of `raw` in the question text
+ * @property {number} end       index just past `raw`
+ * @property {number} perUnit   the printed per-unit value (10 in "3 x 10 marks")
+ * @property {number} mult      how many units it is awarded over
+ * @property {number} marks     perUnit × mult — what this token is really worth
+ * @property {"explicit"|"per-phrase"|"scoped"|"enumerated"|"pooled"|"bare"} origin  where `mult` came from
+ */
+
+/**
+ * Expand every mark token in a question to what it is actually worth, resolving section-header scope
+ * and inline "per wine"/"per pair" phrases. See the block comment above for why this exists.
+ *
+ * `wineCount` of 0 (unknown) disables scoping — every token falls back to face value, which is the
+ * pre-existing behaviour, so a caller without a wine count can never be made worse off.
+ *
+ * @param {string} questionText
+ * @param {number} [wineCount]
+ * @returns {{ tokens: MarkToken[], total: number }}
+ */
+export function expandMarkTokens(questionText, wineCount = 0) {
+  const text = (questionText || "").toString();
+  const n = wineCount > 0 ? wineCount : 0;
+
+  /** @type {Array<{ at: number, kind: "each"|"pooled", count: number }>} */
+  const scopes = [];
+  if (n > 0) {
+    for (const m of text.matchAll(SCOPE_HEADER_RE)) {
+      const scope = markScopeForHeader(m[1], n);
+      if (scope) scopes.push({ at: m.index ?? 0, ...scope });
+    }
+  }
+  const scopeAt = (idx) => {
+    let current = null;
+    for (const s of scopes) {
+      if (s.at >= idx) break;
+      current = s;
+    }
+    return current;
+  };
+
+  // Does this question print marks without the word "marks"? Only then may a bare "(15)" count.
+  let unitless = false;
+  for (const m of text.matchAll(MARK_TOKEN_RE)) {
+    if (m[1] !== undefined && !m[3]) { unitless = true; break; }
+  }
+
+  // Where each lettered sub-part begins, so a token can be read together with its own task text.
+  const partStarts = [...text.matchAll(LETTERED_PART_RE)].map((m) => m.index ?? 0);
+  const partStartFor = (idx) => {
+    let at = 0;
+    for (const s of partStarts) {
+      if (s >= idx) break;
+      at = s;
+    }
+    return at;
+  };
+
+  /** @type {MarkToken[]} */
+  const raws = [];
+  for (const m of text.matchAll(MARK_TOKEN_RE)) {
+    // A bare "(10)" is a mark token only under a question's own unitless convention, and only at a
+    // value a paper could plausibly award — which keeps a parenthesised vintage or ABV out.
+    if (m[1] === undefined && !m[3]) {
+      if (!unitless || m[4]) continue;
+      const bare = parseInt(m[2], 10);
+      if (!(bare >= 1 && bare <= 100)) continue;
+    }
+    const start = m.index ?? 0;
+    raws.push({ m, start, end: start + m[0].length, perUnit: parseInt(m[2], 10) });
+  }
+
+  // Adjacent bare tokens are an ENUMERATION, not one scoped value: "a) Identify … (13 marks)
+  // (12 marks) (14 marks)" under "For each wine:" already lists a value per wine (jagged marks the
+  // generator sometimes emits). Multiplying each by N turned a 75-mark question into 209. Only a
+  // whitespace gap counts as adjacent — "(10 marks) and … (5 marks)" stays two independent parts.
+  const enumerated = new Set();
+  for (let i = 0; i < raws.length; i++) {
+    let j = i;
+    while (j + 1 < raws.length && /^\s*$/.test(text.slice(raws[j].end, raws[j + 1].start))) j++;
+    if (j > i) for (let k = i; k <= j; k++) enumerated.add(k);
+    i = j;
+  }
+
+  /** @type {MarkToken[]} */
+  const tokens = [];
+  raws.forEach((r, i) => {
+    const { m, start, end, perUnit } = r;
+    let mult;
+    let origin;
+    if (m[1] !== undefined) {
+      mult = parseInt(m[1], 10);
+      origin = "explicit";
+    } else if (m[4]) {
+      origin = "per-phrase";
+      mult = m[4].toLowerCase() === "pair" ? Math.max(1, Math.floor(n / 2)) : Math.max(1, n);
+    } else if (enumerated.has(i)) {
+      mult = 1;
+      origin = "enumerated";
+    } else {
+      const scope = scopeAt(start);
+      // The sub-part's own wording wins over the header it sits under.
+      const partText = norm(text.slice(partStartFor(start), start)).replace(/[^a-z0-9 ]+/g, " ");
+      if (scope && scope.kind === "each" && !FLIGHT_WIDE_PART_RE.test(partText)) {
+        mult = scope.count;
+        origin = "scoped";
+      } else {
+        mult = 1;
+        origin = scope ? "pooled" : "bare";
+      }
+    }
+    tokens.push({ raw: m[0], start, end, perUnit, mult, marks: perUnit * mult, origin });
+  });
+  return { tokens, total: tokens.reduce((sum, t) => sum + t.marks, 0) };
+}
+
 // True when the stem describes the flight in subsets/pairs ("Wines 1 and 2 ... the other two ...").
 // Per-subset claims can't be validated flight-wide without false positives, so flight-wide rules
 // (country/variety diversity) are skipped for these.

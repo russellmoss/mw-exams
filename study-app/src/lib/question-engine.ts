@@ -161,6 +161,7 @@ import {
   canonVariety,
   stemDisclosureViolations,
   sweetnessOutOfPaperViolations,
+  expandMarkTokens,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -1708,7 +1709,7 @@ ${repairContext.draft}`,
     // whole 157s Opus attempt — the budget only fits two.
     const markMixCheck = pinned || relaxMarkMix
       ? { valid: true, violations: [] }
-      : validateMarkTypeMix(candidate.questionText);
+      : validateMarkTypeMix(candidate.questionText, candidate.wines.length);
     const compositionCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validateCompositionBalance(candidate.family, paper, candidate.wines);
@@ -2736,59 +2737,38 @@ export function matchesBenchmarkAppellation(fullText: string): boolean {
 
 function validateMarkAllocation(questionText: string, wineCount?: number): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
+  // Scope-aware: "For each wine:" over a bare "(15 marks)" is worth 15 × N, and "(8 marks per pair)"
+  // is worth 8 × N/2. Totalling those at face value made ten real IMW questions read as
+  // mis-allocations — see the block comment on expandMarkTokens in question-rules.mjs.
+  const { tokens, total: totalMarks } = expandMarkTokens(questionText, wineCount ?? 0);
 
   // Check 25-marks-per-wine rule
-  if (wineCount && wineCount > 0) {
-    let totalMarks = 0;
-    const mult = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    const single = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
-    for (const m of single) totalMarks += parseInt(m[1]);
-
-    if (totalMarks > 0) {
-      const expectedTotal = wineCount * 25;
-      // Exactly 25/wine — no tolerance. Marks parse as clean integers, so any deviation is a real
-      // mis-allocation (e.g. 8+7+8+7 = 30/wine), not parse noise. (EK-0001/EK-0041.)
-      if (totalMarks !== expectedTotal) {
-        violations.push(
-          `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
-        );
-      }
+  if (wineCount && wineCount > 0 && totalMarks > 0) {
+    const expectedTotal = wineCount * 25;
+    // Exactly 25/wine — no tolerance. Marks parse as clean integers, so any deviation is a real
+    // mis-allocation (e.g. 8+7+8+7 = 30/wine), not parse noise. (EK-0001/EK-0041.) Verified against
+    // all 162 real questions in data/structured/corpus_questions.json: every one totals exactly 25×N.
+    if (totalMarks !== expectedTotal) {
+      violations.push(
+        `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
+      );
     }
   }
 
-  // Find per-wine mark allocations like (4 x 2 marks) or (3 x 3 marks)
-  const perWineMarks = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-  for (const m of perWineMarks) {
-    const perWine = parseInt(m[2]);
-    if (perWine <= 4) {
-      // Check if the sub-question is a "state RS/ABV" type (allowed at 2-3 marks)
-      const idx = questionText.indexOf(m[0]);
-      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
-      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
-        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
-      if (!isStateQuestion) {
-        violations.push(
-          `Sub-question "${m[0]}" allocates only ${perWine} marks per wine for a written answer. The MW exam only uses 2-4 marks for numerical "state RS/ABV" answers. Written sub-questions must be at least 5 marks.`
-        );
-      }
-    }
-  }
-  // Also check single mark allocations
-  const singleMarks = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
-  for (const m of singleMarks) {
-    const marks = parseInt(m[1]);
-    if (marks <= 4 && marks >= 1) {
-      const idx = questionText.indexOf(m[0]);
-      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
-      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
-        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
-      if (!isStateQuestion) {
-        violations.push(
-          `Sub-question "${m[0]}" allocates only ${marks} marks for a written answer. Written sub-questions must be at least 5 marks.`
-        );
-      }
-    }
+  // The 5-mark floor on written sub-questions, checked on the PER-UNIT value in every notation:
+  // 4 in "(3 x 4 marks)", and equally 4 in a bare "(4 marks)" under "For each wine:".
+  for (const t of tokens) {
+    if (t.perUnit > 4 || t.perUnit < 1) continue;
+    // Check if the sub-question is a "state RS/ABV" type (allowed at 2-3 marks)
+    const preceding = questionText.slice(Math.max(0, t.start - 150), t.start).toLowerCase();
+    const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
+      || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
+    if (isStateQuestion) continue;
+    violations.push(
+      t.mult > 1
+        ? `Sub-question "${t.raw}" allocates only ${t.perUnit} marks per wine for a written answer. The MW exam only uses 2-4 marks for numerical "state RS/ABV" answers. Written sub-questions must be at least 5 marks.`
+        : `Sub-question "${t.raw}" allocates only ${t.perUnit} marks for a written answer. Written sub-questions must be at least 5 marks.`
+    );
   }
   return { valid: violations.length === 0, violations };
 }
@@ -2986,29 +2966,31 @@ const SUBQ_SPLIT_RE = /^\s*([a-h])\)\s*/gim;
 
 // Full-credit-per-hit mark mix + ID-composite (union, counted once so "identify variety and region"
 // isn't double-charged) over a question's sub-parts. Matches the corpus method.
-function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompositeShare: number } {
+function computeMarkTypeMix(questionText: string, wineCount = 0): { totalMarks: number; idCompositeShare: number } {
   const labels = [...questionText.matchAll(SUBQ_SPLIT_RE)];
-  const parts: string[] = [];
+  // Part boundaries in the ORIGINAL text, so expanded tokens can be attributed back by index.
+  const spans: { text: string; from: number; to: number }[] = [];
   if (labels.length === 0) {
-    parts.push(questionText);
+    spans.push({ text: questionText, from: 0, to: questionText.length });
   } else {
     for (let i = 0; i < labels.length; i++) {
-      const start = (labels[i].index ?? 0) + labels[i][0].length;
-      const end = i + 1 < labels.length ? (labels[i + 1].index ?? questionText.length) : questionText.length;
-      parts.push(questionText.slice(start, end));
+      const from = (labels[i].index ?? 0) + labels[i][0].length;
+      const to = i + 1 < labels.length ? (labels[i + 1].index ?? questionText.length) : questionText.length;
+      spans.push({ text: questionText.slice(from, to), from, to });
     }
   }
+  // Scope-aware, so a "For each wine:" part is weighed at its real N× value against a pooled part.
+  // wineCount 0 (unknown) keeps the original face-value reading.
+  const { tokens } = expandMarkTokens(questionText, wineCount);
   let total = 0;
   let idMarks = 0;
   const ID_TYPES = new Set(["variety_id", "origin_id", "vintage_id"]);
-  for (const part of parts) {
+  for (const span of spans) {
     let partMarks = 0;
-    for (const m of part.matchAll(MARK_TOKEN_RE)) {
-      partMarks += (m[1] ? parseInt(m[1], 10) : 1) * parseInt(m[2], 10);
-    }
+    for (const t of tokens) if (t.start >= span.from && t.start < span.to) partMarks += t.marks;
     if (partMarks === 0) continue;
     total += partMarks;
-    const low = part.toLowerCase();
+    const low = span.text.toLowerCase();
     const hitsId = SUBQ_TYPE_RULES.some(([type, re]) => ID_TYPES.has(type) && re.test(low));
     if (hitsId) idMarks += partMarks;
   }
@@ -3018,9 +3000,9 @@ function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompo
 // R8 (soft): modern papers cap identification at ~46% of marks; flag a question only when ID dominates
 // (>55%). Calibrated against the corpus — trips ~40% of even REAL last-10 questions (median 44%), so it
 // nudges rather than blocks. Commercial/style presence is a whole-paper concern (Phase 3), not here.
-export function validateMarkTypeMix(questionText: string): { valid: boolean; violations: string[] } {
+export function validateMarkTypeMix(questionText: string, wineCount = 0): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
-  const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText);
+  const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText, wineCount);
   if (totalMarks === 0) return { valid: true, violations };
   if (idCompositeShare > 0.55) {
     violations.push(
@@ -3120,44 +3102,41 @@ function validateCountryDiversity(
 export function normalizeMarkAllocation(text: string, wineCount: number): string {
   if (!wineCount || wineCount < 1) return text;
   const expected = wineCount * 25;
-  const re = /\((\d+)\s*[x×]\s*(\d+)\s*marks?\)|\((\d+)\s*marks?\)/gi;
-  type Tok = { kind: "mult" | "single"; n?: number; mark: number; start: number; raw: string };
-  const tokens: Tok[] = [];
-  for (const m of text.matchAll(re)) {
-    if (m[1] !== undefined) tokens.push({ kind: "mult", n: +m[1], mark: +m[2], start: m.index ?? 0, raw: m[0] });
-    else tokens.push({ kind: "single", mark: +m[3], start: m.index ?? 0, raw: m[0] });
-  }
+  // Reads marks through the SAME scope-aware expander the validator uses. When these two disagreed,
+  // the repairer "fixed" a question the validator would have passed — a scoped draft ("For each
+  // wine:" + "(15 marks)") totalled short here and got a sub-question silently rewritten.
+  const { tokens, total } = expandMarkTokens(text, wineCount);
   if (!tokens.length) return text; // no marks → engine defaults to 100; leave
-  const total = tokens.reduce((s, t) => s + (t.kind === "mult" ? (t.n as number) * t.mark : t.mark), 0);
   if (total === expected) return text;
   const delta = expected - total;
 
-  let target: Tok | null = null;
+  let target: (typeof tokens)[number] | null = null;
   let newRaw: string | null = null;
-  // Preferred: nudge a genuine per-wine multiplier (count === N) by delta/N — preserves structure.
+  // Preferred: nudge a genuine per-wine part (worth N units) by delta/N — preserves structure. This
+  // now covers a scoped bare token as well as an explicit "N x M".
   if (delta % wineCount === 0) {
-    const perWine = tokens.filter((t) => t.kind === "mult" && t.n === wineCount);
+    const perWine = tokens.filter((t) => t.mult === wineCount);
     if (perWine.length) {
-      const t = perWine.reduce((a, b) => (b.mark > a.mark ? b : a)); // largest M = most headroom
-      const newM = t.mark + delta / wineCount;
-      if (newM >= 5) { target = t; newRaw = `(${t.n} x ${newM} marks)`; }
+      const t = perWine.reduce((a, b) => (b.perUnit > a.perUnit ? b : a)); // largest M = most headroom
+      const newM = t.perUnit + delta / wineCount;
+      // Rewrite in the token's own notation so a scoped question keeps reading as scoped.
+      if (newM >= 5) { target = t; newRaw = t.origin === "explicit" ? `(${t.mult} x ${newM} marks)` : `(${newM} marks)`; }
     }
   }
-  // Fallback: adjust a single written part (≥5) by the whole delta.
+  // Fallback: adjust a single-unit written part (≥5) by the whole delta.
   if (!target) {
-    const singles = tokens.filter((t) => t.kind === "single" && t.mark >= 5);
+    const singles = tokens.filter((t) => t.mult === 1 && t.perUnit >= 5);
     if (singles.length) {
-      const t = singles.reduce((a, b) => (b.mark > a.mark ? b : a));
-      const newX = t.mark + delta;
+      const t = singles.reduce((a, b) => (b.perUnit > a.perUnit ? b : a));
+      const newX = t.perUnit + delta;
       if (newX >= 5) { target = t; newRaw = `(${newX} marks)`; }
     }
   }
   if (!target || !newRaw) return text; // can't fix cleanly → leave for the validator (no regression)
 
-  const out = text.slice(0, target.start) + newRaw + text.slice(target.start + target.raw.length);
-  let chk = 0; // re-verify; never ship a half-fixed text
-  for (const m of out.matchAll(re)) chk += m[1] !== undefined ? +m[1] * +m[2] : +m[3];
-  return chk === expected ? out : text;
+  const out = text.slice(0, target.start) + newRaw + text.slice(target.end);
+  // Re-verify through the expander; never ship a half-fixed text.
+  return expandMarkTokens(out, wineCount).total === expected ? out : text;
 }
 
 function parseGeneratedQuestion(
