@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-08 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0164, EK-0165).**
 - **2026-08-08 — app bug 427 fixed and catalogued (EK-0163).** A late-arriving model answer was
   written to `sessionStorage` while the debrief rendered from the reducer, so every on-the-fly
   question showed "No model answer available" with the answer already in the database. Grading read
@@ -1100,6 +1101,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #419 / analysis #66 (accept); EK-0029; EK-0031; EK-0032
 - **claim:** The EK-0029 banker requirement bites hardest on Paper 2: a 4-wine red flight consuming a third of the paper needs at least one wine the candidate is expected to know cold — a Bordeaux classed growth, Barolo, 1er cru Burgundy, or Rioja Gran Reserva. Fame is not anchor status: Château Musar (Bekaa), Domaine de Trévallon (Alpilles IGP) and a premium Barossa Cabernet-Shiraz blend are idiosyncratic or non-standard and function as curveballs, and a standard Mendoza Malbec (corpus-legitimate, EK-0032) is an ordinary wine rather than a banker. A generated flight of two curveballs plus mid-tier regional wines with no classified anchor is implausible and must be redrawn.
 
+### EK-0164 · Zero-precedent origins debut with identification SUPPRESSED, never as a same-origin flight premise
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #428 / analysis #68 (accept); corpus `data/exams.json` — 2019 P1 Q3 (Iago Chinuri, Kartli Georgia: "Do not spend time thinking about the wine's specific origin"); 2017 P3 Q2 (Cullen 'Amber', "consider wine 4 to be of unknown origin"); EK-0104; EK-0048
+- **claim:** New origins do enter the exam (Georgia 2019, Uruguay, Greece), but the IMW introduces them as a **single wine with the identification marks taken off the table** — origin explicitly suppressed or unasked, marks paid for winemaking / style / quality / commercial. Slovenia and the wider Brda–Collio amber belt (Ribolla Gialla / Rebula, Friulano) have **zero appearances across 2011–2025**. An origin with no corpus precedent must therefore never be the *premise* of a same-origin (F2) flight, and never supply every wine in a flight: with no banker (EK-0029) the candidate has nothing to anchor against, and the question is unanswerable rather than merely hard.
+
 ---
 
 ## §5 · Question generation rules
@@ -1284,6 +1290,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #246 / analysis #42 (accept); examiner_report_synthesis §2.7 (2025: "hard evidence like alcohol and sugar are often more reliable than the flavour profile"); see EK-0013
 - **claim:** In the real room the candidate perceives alcohol (warmth, weight, glycerol) directly and is expected to lead with it — alcohol read against acidity is a primary climate/origin marker, and examiners model it explicitly (2017: "where in the northern Rhône is going to produce a wine with the high alcohol and breadth of wine 8?"). On paper that evidence can only reach the candidate through the written note, so every generated tasting note must convey a perceptible alcohol/warmth/body signal alongside acidity, tannin and RS. A note that describes only aroma and flavour removes the most diagnostic axis and makes the model answer argue from evidence the candidate was never given (this flight's model answer reasoned from "13% alcohol" / "14% alcohol" cues absent from the study notes).
 
+### EK-0165 · Mark allocation must track ID reachability — no heavy ID tariff on an unreachable origin
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #428 / analysis #68 (accept); EK-0153; EK-0016; EK-0104
+- **claim:** A generated flight must not price identification highly when identification is effectively unreachable. The rejected question put **20 of 50 marks (40%) on region + variety ID** for two Slovenian Brda wines from an origin with no corpus precedent — the opposite of the real exam's behaviour, which downweights or removes ID marks on curveball/unprecedented wines and redistributes them to style, winemaking, quality and commercial (EK-0016, EK-0104). This upgrades EK-0153 from prompt-only guidance to a generation constraint for the specific case of an all-curveball or zero-precedent flight: cap ID at ~5–6 marks per wine, or omit the variety/origin ask entirely.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1342,6 +1353,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 206 | 35 | P1/F5 | reject | auto | four-country/four-different-variety P1 breadth is the most common (F4) format — corpus-overruled; already covered | EK-0052, EK-0077, EK-0044 |
 | 246 | 42 | P2/F4 | accept | auto | generated tasting notes omitted alcohol/structural cues that the model answer then reasoned from; notes must carry perceptible alcohol/body alongside acidity/tannin/RS | EK-0135, EK-0013 |
 | 419 | 66 | P2/F6 | accept | manual | 4-wine P2 flight had two curveballs and no banker classic; famous-but-idiosyncratic wines (Musar, Trévallon) don't count as anchors | EK-0162, EK-0029 |
+| 428 | 68 | P1/F2 | accept | manual | zero-precedent origins (Slovenia/Brda) debut only as single ID-suppressed wines, never as a same-origin pair with 40% of marks on identification | EK-0164, EK-0165, EK-0029, EK-0153 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
