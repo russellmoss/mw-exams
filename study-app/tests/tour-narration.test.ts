@@ -45,10 +45,10 @@ describe("narration script covers every slide", () => {
 
   it("matches each component's own slide count", () => {
     // ShellOnboarding hardcodes 6 scenes as `scene === 5` / `length: 6`; the walkthroughs use TOTAL.
-    const diagramTotal = read("src/app/components/DiagramWalkthrough.tsx").match(/const TOTAL = (\d+)/);
-    const coachTotal = read("src/app/components/CoachWalkthrough.tsx").match(/const TOTAL = (\d+)/);
-    expect(Number(diagramTotal?.[1])).toBe(NARRATION_COUNTS.diagrams);
-    expect(Number(coachTotal?.[1])).toBe(NARRATION_COUNTS.coach);
+    const totalOf = (file: string) => Number(read(file).match(/const TOTAL = (\d+)/)?.[1]);
+    expect(totalOf("src/app/components/DiagramWalkthrough.tsx")).toBe(NARRATION_COUNTS.diagrams);
+    expect(totalOf("src/app/components/CoachWalkthrough.tsx")).toBe(NARRATION_COUNTS.coach);
+    expect(totalOf("src/app/components/PracticalWalkthrough.tsx")).toBe(NARRATION_COUNTS.practical);
     expect(read("src/app/components/ShellOnboarding.tsx")).toContain("{scene + 1} / 6");
   });
 
@@ -138,6 +138,9 @@ describe("walkthrough narration explains rather than recites", () => {
     ["coach-1", "Ask it anything technical."],
     ["coach-2", "Not the web. A library."],
     ["coach-3", "Ask it how to get better."],
+    ["practical-2", "The modes are not"],
+    ["practical-4", "Then treat it like"],
+    ["practical-7", "On the day."],
   ];
 
   for (const [id, headline] of HEADLINES) {
@@ -174,11 +177,12 @@ describe("the speaker control is wired into all three surfaces", () => {
     expect(component).toContain('document.addEventListener("pointerdown"');
   });
 
-  it("appears in the intro and both walkthroughs", () => {
+  it("appears in the intro and all three walkthroughs", () => {
     for (const [file, surface] of [
       ["src/app/components/ShellOnboarding.tsx", "intro"],
       ["src/app/components/DiagramWalkthrough.tsx", "diagrams"],
       ["src/app/components/CoachWalkthrough.tsx", "coach"],
+      ["src/app/components/PracticalWalkthrough.tsx", "practical"],
     ] as const) {
       const source = read(file);
       expect(source).toContain("TourNarrationButton");
@@ -213,11 +217,12 @@ describe("every slide has a readable Learn more card", () => {
     }
   });
 
-  it("is reachable from every slide of all three surfaces", () => {
+  it("is reachable from every slide of all four surfaces", () => {
     for (const file of [
       "src/app/components/ShellOnboarding.tsx",
       "src/app/components/DiagramWalkthrough.tsx",
       "src/app/components/CoachWalkthrough.tsx",
+      "src/app/components/PracticalWalkthrough.tsx",
     ]) {
       const source = read(file);
       expect(source, `${file} has no Learn more control`).toContain("TourLearnMoreButton");

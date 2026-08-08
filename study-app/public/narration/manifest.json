@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-07T21:14:40.428Z",
+  "generatedAt": "2026-08-08T00:33:17.072Z",
   "outputFormat": "mp3_44100_64",
   "clips": {
     "intro-0": {
@@ -139,6 +139,62 @@
       "textHash": "eb43e65fb7babdf11b8270564e18a3d6636b1a682ba4ffd7b946723955d39c75",
       "chars": 774,
       "bytes": 371400,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-0": {
+      "textHash": "7a7bffc561c134a758677ae4aa1089493c92a4282def23dded306ef90aba8557",
+      "chars": 733,
+      "bytes": 376834,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-1": {
+      "textHash": "7e77decd1e3254f6b0e304f52c3b55e6ae0bc166f1cf6ad9f3837e6862136c32",
+      "chars": 719,
+      "bytes": 345278,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-2": {
+      "textHash": "02fbb7dd022ad820103277c6b0e7a6eeb757624e7cde15d164298cf36885990d",
+      "chars": 830,
+      "bytes": 420301,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-3": {
+      "textHash": "8aad8113ec46d9ff5dd8f643c81ca08a1186024f36a9f5523b4692cb0bf45eac",
+      "chars": 837,
+      "bytes": 412569,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-4": {
+      "textHash": "0df0a868333dcfd9696c9b02f6439d71da9c1bc2574e68c948c8334a52e9cc27",
+      "chars": 745,
+      "bytes": 361578,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-5": {
+      "textHash": "ef4009eba6543e99d5183ee3162701bc3f799847debc9f242428466f259cf5af",
+      "chars": 845,
+      "bytes": 382476,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-6": {
+      "textHash": "97dba56b3d06ee55ee9f02e5eb6bee52cb88d0232e53acc0794a0979c6775365",
+      "chars": 908,
+      "bytes": 456873,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-7": {
+      "textHash": "6bba202e2d839c32ae21040bc1670118194f792dec8cfe2536f13f4aba35d062",
+      "chars": 869,
+      "bytes": 437438,
       "voiceId": "JBFqnCBsd6RMkjVDRZzb",
       "modelId": "eleven_multilingual_v2"
     }

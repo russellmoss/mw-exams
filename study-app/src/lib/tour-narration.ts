@@ -49,7 +49,7 @@ export function narrationSrc(id: string): string {
 }
 
 /** Slide count per surface — asserted against each component's own constant by the test. */
-export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7 } as const;
+export const NARRATION_COUNTS = { intro: 6, diagrams: 7, coach: 7, practical: 8 } as const;
 
 export type NarrationSurface = keyof typeof NARRATION_COUNTS;
 
@@ -261,6 +261,102 @@ Next, a quick tour of where everything lives. You can replay this from the Libra
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
+// The Practical-drills walkthrough (PracticalWalkthrough, 8 steps)
+//
+// Fires the first time /practical is opened (migration 061) and replays from the Practical header
+// and the Library. Same rule as the other two walkthroughs: explain, don't recite.
+//
+// Every mechanic named below is read off the live UI, not remembered:
+//   • the four modes and their times    → practical/page.tsx MODES + the mode cards in dry-flights
+//   • the wizard order                  → dry-flights/page.tsx `LandingStep`
+//   • banked instant / fresh 30-60s     → dry-flights/page.tsx, the "generating" step copy
+//   • Guided vs IMW Only                → lib/prompts/stemDetail.ts STEM_DETAIL_META
+//   • Paper 3 Focus override            → dry-flights/page.tsx, shown only when paper === 3
+//   • pick-my-wines vs BYO, partner vs self brief, exam-conditions 68 min / 2h15
+//                                       → live-tasting/page.tsx and live-tasting/[id]/page.tsx
+// ─────────────────────────────────────────────────────────────────────────────
+
+const PRACTICAL: string[] = [
+  // 1 — the two drills
+  `There are two ways to practise the practical here, and they are for different problems.
+
+Dry Flights need no wine at all. You get a question in the IMW style, you answer it on the clock, and it is marked the way the examiners mark. Anything from two minutes to half an hour, which means you can do one on a Tuesday morning without planning anything.
+
+Live Tastings are the real thing. Actual bottles, bought near you, poured blind, about two and a quarter hours end to end.
+
+The honest division of labour: Dry Flights train the writing and the reasoning, which is where most marks are lost. Live Tastings train the palate and the nerve, which is what you cannot fake on the day. You need both, but you will do many more of the first.`,
+
+  // 2 — the Dry Flights wizard
+  `Setting up a dry flight is four short questions, and none of them is a commitment.
+
+First the paper: whites, reds, or the special paper. Then the question family, or Any if you would rather not choose. Then the mode. Then where the question comes from.
+
+One thing worth knowing on Paper 3: because it is the mixed paper, you get an extra Focus control, so you can lean the sampling towards sparkling, fortified, sweet, or whatever you have been avoiding. It appears only on Paper 3, because the other two do not need it.
+
+Pick Any family when you want the exam's own unpredictability. Pick a specific family when you know exactly which structure keeps beating you. Both are legitimate; they just train different things.`,
+
+  // 3 — the four modes
+  `The four modes are not difficulty levels. They isolate different halves of the task.
+
+Full Question is the complete simulation: stem, flight, timed answer, full feedback with marks. Twenty to thirty minutes. This is the one that tells you where you actually stand.
+
+Stem Analysis Only is the fastest useful thing in the app. Five to ten minutes, no tasting, just reading the question as evidence and getting coached on your reasoning, then seeing the wines. If you have a spare ten minutes, do one of these.
+
+Dry Notes removes the identification gamble entirely: the wines are revealed up front, and you are graded on style, quality, maturity and commercial position alone. Use it when your problem is the writing, not the guessing.
+
+Flash Notes is one prompt at a time, a minute or two each, with pace tracking. Volume and speed.`,
+
+  // 4 — new or banked, and the stem dial
+  `Then two setup choices that people tend to click past, and both matter.
+
+New or banked. A banked question is one already written and validated that you personally have never seen, and it appears instantly. A new one is written for you on the spot and takes thirty to sixty seconds. They are built to the same standard and nothing marks a banked question as banked. Take a banked one when you want to start now; take a new one when you want something nobody has answered.
+
+Then: how much should the stem tell you? Guided adds framing hints. IMW Only shows the stem exactly as the exam prints it. The sub-questions and the marks are identical either way — only the framing prose changes.
+
+Start on Guided if the structure is still unfamiliar. Move to IMW Only well before the exam, because that is the only version you will get on the day.`,
+
+  // 5 — the run itself
+  `Once it starts, treat it as the exam.
+
+The clock runs. You write the answer you would actually write, not the answer you would write with a reference book open. Then it is marked against principles distilled from thirteen examiners' reports: reasoning over identification, quality judged in the context of origin, no shoehorning a wine into a story it does not fit.
+
+The debrief is the part worth your time. It is not a score, it is where the marks went and why. Every attempt lands in History with the question, your answer and the debrief kept together, so you can go back and see whether the same mistake keeps recurring.
+
+And the Coach is there the whole time. Opening it pauses your clock, so asking a question never costs you exam minutes.`,
+
+  // 6 — what a Live Tasting is
+  `Live Tastings solve the problem that dry practice cannot touch: you can reason perfectly on paper and still be undone by an actual glass.
+
+The idea is straightforward. You say which paper and how many wines, and the app builds a realistic flight out of bottles that are genuinely purchasable near you, checked against shops in your city and against your budget. Not a theoretical flight of things you would have to import.
+
+Then it protects your blindness, which is the hard part of practising alone. The shopping brief can be sent to a partner who buys the wines and enters them, so you never see a label. Every session records how blind it actually was, so a result you got after seeing the bottles is never quietly counted as if you hadn't.
+
+About two and a quarter hours, and it is the closest thing to the exam you can arrange for yourself.`,
+
+  // 7 — setting one up
+  `Setting one up has a few choices, and they change the character of the session completely.
+
+A single question, or a full paper. A full paper is corpus-realistic: the question mix, the flight sizes and the wine spread mirror real exams, and you do not pick the families — just like the real thing.
+
+Who picks the wines. "Pick my wines" builds the flight and finds the stockists. "I'll choose wines" gives you a brief for that paper and question type, you buy whatever fits, and the question is built around the bottles you actually got — which is the practical option when your local shops are thin.
+
+And how you sit it. Flight by flight, at your own pace, or exam conditions on the real clock — sixty-eight minutes for a half paper, two hours fifteen for a full one, where anything unanswered at the deadline scores zero.
+
+Do a couple flight by flight first. Save exam conditions for when you want the truth.`,
+
+  // 8 — the day itself
+  `On the day, the sequence is: brief, buy, bag, taste, write, submit, reveal.
+
+Get the bottles bagged and numbered, ideally by someone who is not you, and poured in slot order. If you are shopping for yourself, buy across a few days and let someone else do the bagging — that is the difference between a real result and an expensive rehearsal.
+
+Then you write, in the same two passes as the exam: stem analysis first, then the full answer. It autosaves as you go, so a closed laptop does not cost you the session.
+
+Only after you submit does it grade and reveal what was actually in the glasses. The reveal is the point. Reading a wine wrong and then seeing exactly what it was, with your own note beside it, teaches more in one flight than a week of reading.
+
+That is both drills. You can replay this walkthrough from the Practical page or the Library whenever you like.`,
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * The heading on each slide's "Learn more" card.
@@ -293,6 +389,15 @@ const TITLES: Record<string, string> = {
   "coach-4": "When the Coach tells you no",
   "coach-5": "When you are right",
   "coach-6": "Why your feedback matters",
+
+  "practical-0": "Which drill, and when",
+  "practical-1": "Choosing your ground",
+  "practical-2": "What each mode isolates",
+  "practical-3": "The two setup choices that matter",
+  "practical-4": "Treating it like the exam",
+  "practical-5": "Why taste real bottles",
+  "practical-6": "Choosing the shape of a tasting",
+  "practical-7": "How tasting day runs",
 };
 
 /** The "Learn more" heading for a slide. */
@@ -314,6 +419,7 @@ export const TOUR_NARRATION: Readonly<Record<string, string>> = {
   ...index("intro", INTRO),
   ...index("diagrams", DIAGRAMS),
   ...index("coach", COACH),
+  ...index("practical", PRACTICAL),
 };
 
 export const NARRATION_IDS = Object.keys(TOUR_NARRATION);
