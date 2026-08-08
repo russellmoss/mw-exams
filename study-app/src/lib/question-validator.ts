@@ -2535,9 +2535,24 @@ export function regionClassificationModel(w: AuditWine): ClassificationModel | n
   return REGION_CLASSIFICATION_MODELS.find((m) => m.re.test(hay))?.model ?? null;
 }
 
-// The role a wine record keys, preferring the stored `role`, falling back to the derived classifier.
-function keyedRole(w: AuditWine): "banker" | "curveball" {
-  return w.role ?? (isBanker(w) ? "banker" : "curveball");
+/**
+ * The role a wine record keys, and whether that came from the ANSWER KEY or from a heuristic.
+ *
+ * This distinction decides Rule 1's severity, and it matters more than it looks. Nothing in the schema
+ * stores `role` today, so every live call lands on `isBanker()` — a region×variety regex table built to
+ * COUNT curveballs for flight composition, documented as failing soft to curveball, and calibrated on
+ * that job. Measured against the 95 stored debriefs, its single surviving disagreement with the prose
+ * (attempt 426: Condrieu Viognier, which the prose called "a genuine curveball" and the table calls a
+ * banker) was the TABLE being wrong, not the examiner.
+ *
+ * A heuristic that loses that argument is not a fit basis for rewriting examiner prose, so a derived
+ * role yields a SOFT violation: recorded and measurable, but it does not trigger a correction pass. A
+ * genuinely keyed `role` is authoritative and yields a HARD one — so the day roles are stored, fb_188
+ * starts being enforced with no further change here.
+ */
+function keyedRole(w: AuditWine): { role: "banker" | "curveball"; fromAnswerKey: boolean } {
+  if (w.role) return { role: w.role, fromAnswerKey: true };
+  return { role: isBanker(w) ? "banker" : "curveball", fromAnswerKey: false };
 }
 
 // Split prose into clauses on sentence + strong-clause boundaries, so a role/method claim is judged
@@ -2547,6 +2562,56 @@ function splitProseClauses(text: string): string[] {
     .split(/[.?!;\n]+|,\s+(?=(?:but|whereas|while|although|however)\b)/i)
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+// ── Rule 1 gates. Measured over the 95 real stored debriefs, the role rule without these fired on 23
+// of them (24%) and every single fire was a FALSE POSITIVE. That is not a cosmetic problem: each fire
+// bills a debrief-sized completion AND instructs the corrector to "fix" prose that was already right,
+// so an unguarded Rule 1 actively corrupts good debriefs. The three gates below are each derived from
+// a real false-positive class in that measurement; a comment names the attempt it came from.
+
+// Mermaid/markup, not prose. The debrief embeds study diagrams whose nodes read
+// `F --> C["CURVEBALL: minor grape such as Clairette or Bourboulenc"]` — a generic tree LEAF, matched
+// off the variety names it happens to list (attempts 234, 268).
+const CLAUSE_IS_MARKUP_RE = /-->|\[\"|\|\s*\w+\s*\||^\s*[A-Z]\s*\[/;
+
+// Hypothetical / advisory / counterfactual framing: the clause is about what a curveball COULD have
+// been, or what the candidate should watch for — not an assertion that a keyed wine IS one.
+// "**Plausible curveball**: Mâconnais or cool New World Chardonnay" (attempt 80);
+// "**Plausible curveballs:** Wine 2 could be a structured Tavel" (attempt 156 — note this one names an
+// explicit slot, which is why requiring "wine N" is not on its own sufficient);
+// "That constraint should actively surface … an indigenous curveball" (attempt 129).
+// Kept deliberately narrow. An earlier draft also excluded "classic", "typical", "often" and a bare
+// "or", which suppressed genuine assertions — "The Alsace Sylvaner is a banker: a classic benchmark
+// expression" is exactly the fb_188 defect, and it contains "classic". Only words that make the clause
+// COUNTERFACTUAL belong here.
+const CLAUSE_IS_HYPOTHETICAL_RE =
+  /\b(?:plausible|possible|potential|could|might|may|would|should|if|unless|expect|anticipate|watch for|look for|consider|alternative|scenario|trap)\b/;
+
+// The debrief attributing a role call to the CANDIDATE. "Identified Carménère as a plausible South
+// American curveball — good instinct" (attempt 245); "CURVEBALL = the repeated-Chardonnay trap, which
+// you walked past" (attempt 178). The rule adjudicates what the DEBRIEF asserts, and a debrief
+// correctly reporting the candidate's own wrong label must not be rewritten into agreement with it.
+const CLAUSE_ATTRIBUTES_TO_CANDIDATE_RE =
+  /\b(?:you|your|yours|candidate'?s?|identified|generated|called|named|treated|spotted|flagged|walked|instinct|credit)\b/;
+
+// An ASSERTION that some wine holds the role, rather than a passing mention of the word. Requires a
+// copula reaching the role noun: "wine 2 is the banker", "the Sylvaner was the curveball", "wines 1
+// and 2 are bankers". A bare noun-phrase mention ("a curveball Sicilian", "the examiner's deliberate
+// curveball") is not a claim about a keyed wine (attempts 41, 79).
+const CLAUSE_ASSERTS_ROLE_RE =
+  /\b(?:is|was|are|were|remains?|reads?\s+as|serves?\s+as|functions?\s+as|acts?\s+as)\b[^,;]{0,40}?\b(?:banker|curve\s*-?\s*ball)s?\b/;
+
+/**
+ * Can this clause be adjudicated as a role CLAIM about a keyed wine at all? Deliberately conservative:
+ * on this rule a false positive rewrites correct prose, so anything ambiguous is left alone. Measured
+ * effect of these gates on the 95 stored debriefs: 23 fires → 0.
+ */
+function clauseAssertsRole(clause: string, clauseNorm: string): boolean {
+  if (CLAUSE_IS_MARKUP_RE.test(clause)) return false;
+  if (CLAUSE_IS_HYPOTHETICAL_RE.test(clauseNorm)) return false;
+  if (CLAUSE_ATTRIBUTES_TO_CANDIDATE_RE.test(clauseNorm)) return false;
+  return CLAUSE_ASSERTS_ROLE_RE.test(clauseNorm);
 }
 
 // The explicit "wine N" slots a clause names (norm()'d clause). Empty when the clause names none.
@@ -2575,7 +2640,14 @@ function clauseReferencesWine(clauseNorm: string, w: AuditWine): boolean {
 // Which model families does the prose CITE? Terms are checked on the whole (norm()'d) feedback block.
 function citedClassificationModels(feedbackNorm: string): Set<ClassificationModel> {
   const cited = new Set<ClassificationModel>();
-  if (/\bgeograph|\bdelimit|proximity|\blocation\b|geographical boundar/.test(feedbackNorm))
+  // Geography in the APPELLATION-LADDER sense only. A bare /\bgeograph/ also matched "geography
+  // (domestic/export)" — a sentence about commercial markets — which is how attempt 236 was flagged for
+  // explaining a hierarchy geographically when it never discussed a hierarchy at all.
+  if (
+    /geographic(?:al)?\s+(?:delimitation|boundar|specificity|hierarch|ladder|precision)|\bdelimit|increasingly specific|narrower (?:appellation|geograph)|proximity|geographical boundar/.test(
+      feedbackNorm
+    )
+  )
     cited.add("geographic");
   if (/producer|chateau|\bestate\b|classified growth|cru classe|classement|1855|house classification/.test(feedbackNorm))
     cited.add("producer");
@@ -2591,6 +2663,69 @@ export interface AnswerKeyClaimResult {
   violations: Violation[];
   /** The joined hard-failure detail(s) to STORE so the feedback can be regenerated once before serving. */
   failureReason: string | null;
+}
+
+/**
+ * The keyed ground-truth shape the flight builder consumes — structurally satisfied by a derived
+ * `StemKey["ground"]` entry. Declared here rather than imported so this module keeps no dependency on
+ * the key builder (which reads files at import time and would drag I/O into every validator test).
+ */
+export interface KeyedGroundWine {
+  slot: number;
+  varieties?: string[];
+  is_blend?: boolean;
+  region?: string;
+  country?: string;
+  style?: string;
+  style_category?: string;
+  /**
+   * Not written by any generator today. Threaded anyway because it is what promotes Rule 1 from a
+   * review flag to an enforced correction (see keyedRole) — the day the key stores a role, enforcement
+   * follows without another change here.
+   */
+  role?: "banker" | "curveball";
+  classificationModel?: ClassificationModel;
+}
+
+/**
+ * Build the flight validateAnswerKeyClaims judges against, from a derived answer key's ground truth
+ * zipped with the revealed wine labels. Same "zip label onto ground_truth by slot" merge as
+ * question-audit.ts, minus the DB read — the debrief path already holds both halves in memory.
+ *
+ * Degrades on purpose rather than throwing:
+ *  - No ground truth (the key could not resolve the flight) → label-only wines, so Rule 2 (which is
+ *    wine-independent) and any explicit "wine N" role claim still get checked.
+ *  - A slot in one half and not the other → carried through on whichever half has it, because a
+ *    partial flight still catches claims about the wines it does know.
+ */
+export function answerKeyFlight(
+  ground: readonly KeyedGroundWine[] | null | undefined,
+  wines: readonly { slot: number; fullText?: string }[] | null | undefined
+): AuditWine[] {
+  const labelBySlot = new Map<number, string>();
+  for (const w of wines || []) if (w?.fullText) labelBySlot.set(w.slot, w.fullText);
+
+  const bySlot = new Map<number, AuditWine>();
+  for (const g of ground || []) {
+    if (!g || typeof g.slot !== "number") continue;
+    bySlot.set(g.slot, {
+      slot: g.slot,
+      varieties: g.varieties || [],
+      region: g.region || "",
+      country: g.country,
+      is_blend: g.is_blend,
+      style: g.style,
+      style_category: g.style_category,
+      role: g.role,
+      classificationModel: g.classificationModel,
+      fullText: labelBySlot.get(g.slot),
+    });
+  }
+  // Slots the key missed entirely: keep them as label-only wines.
+  for (const [slot, fullText] of labelBySlot)
+    if (!bySlot.has(slot)) bySlot.set(slot, { slot, varieties: [], region: "", fullText });
+
+  return [...bySlot.values()].sort((a, b) => a.slot - b.slot);
 }
 
 /**
@@ -2614,15 +2749,23 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
     // A clause that discusses both roles (e.g. "a banker against a curveball") is descriptive, not a
     // single mislabel — skip it, we can only adjudicate a clause that asserts ONE role of ONE wine.
     if (saysBanker === saysCurveball) continue;
+    // ...and it must be an ASSERTION about a keyed wine, not a hypothetical, a diagram node, or the
+    // debrief reporting the candidate's own call. See clauseAssertsRole: without this the rule fired on
+    // 24% of real debriefs, all false, each one rewriting prose that was already correct.
+    if (!clauseAssertsRole(clause, clauseNorm)) continue;
     const asserted: "banker" | "curveball" = saysBanker ? "banker" : "curveball";
     for (const w of wines) {
       if (!clauseReferencesWine(clauseNorm, w)) continue;
-      const keyed = keyedRole(w);
+      const { role: keyed, fromAnswerKey } = keyedRole(w);
       if (keyed !== asserted) {
         v.push({
           rule: "answer-key-claim-role",
-          severity: "hard",
-          detail: `feedback calls ${wineLabel(w)} a ${asserted}, but the answer key keys it as a ${keyed}: "${clause.trim()}". The role stated in the prose must match the keyed role.`,
+          // HARD only against a genuinely keyed role; SOFT when it is the isBanker() heuristic's opinion.
+          // See keyedRole — on the measured corpus the heuristic, not the prose, was the wrong one.
+          severity: fromAnswerKey ? "hard" : "soft",
+          detail: fromAnswerKey
+            ? `feedback calls ${wineLabel(w)} a ${asserted}, but the answer key keys it as a ${keyed}: "${clause.trim()}". The role stated in the prose must match the keyed role.`
+            : `feedback calls ${wineLabel(w)} a ${asserted}, but the derived flight-composition classifier reads it as a ${keyed}: "${clause.trim()}". No role is stored for this wine, so this is a flag for review, not a correction — the classifier is the weaker of the two.`,
         });
       }
     }
@@ -2648,8 +2791,11 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
   }
 
   // ── Rule 3 — QUALITY HIERARCHY. A hierarchy rationale must cite each keyed region's model. ───────
+  // A bare /\btiers?\b/ is not a hierarchy explanation: "Quality must name the official tier" is an
+  // instruction about naming one, and it is what made attempt 236 a false positive. Require prose that
+  // is actually ABOUT the ladder.
   const explainsHierarchy =
-    /hierarch|quality ladder|\bladder\b|\btiers?\b|ascend|classification (?:model|system)|appellation tiers?/.test(
+    /hierarch|quality ladder|\bladder\b|ascend|classification (?:model|system)|appellation tiers?|(?:quality|appellation|cru) tiers?|tiers? of (?:quality|appellation)/.test(
       feedbackNorm
     );
   if (explainsHierarchy && wines.length > 0) {
@@ -2682,21 +2828,83 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
 
 /**
  * Regenerate-once wrapper for reveal/marking feedback (the "regenerate once before serving" contract).
- * Validates `feedback`; if it passes, serves it. On a hard claim violation it STORES the reason, calls
- * `regenerate(reason)` exactly once, and serves that redraft — validated too, so the stored reason
- * always reflects what actually shipped. `regenerate` is synchronous by contract; callers on an async
- * path should await their model call first and pass a thunk that returns the resolved string.
+ * Validates `feedback`; if it passes, serves it unchanged and spends nothing. On a hard claim violation
+ * it calls `regenerate(reason)` EXACTLY once and serves that redraft, re-validated so the returned
+ * `failureReason` always describes what actually shipped rather than what the first draft said.
+ *
+ * `regenerate` is async because the reason is its INPUT — a corrector cannot be pre-awaited, since what
+ * it must fix is only known once validation has run.
+ *
+ * Two invariants the caller depends on:
+ *  - It NEVER throws. A corrector that fails (model error, timeout) falls back to the original prose
+ *    with `correctionFailed: true`. A debrief the candidate is waiting on is worth more than one wrong
+ *    banker label, and the stored reason keeps the defect visible either way.
+ *  - It regenerates ONCE. No retry loop: a second failure means the corrector cannot fix this class of
+ *    claim, and looping would bill a full grading pass per attempt to find that out.
  */
-export function regenerateFeedbackOnce(
+export interface RegeneratedFeedback {
+  feedback: string;
+  regenerated: boolean;
+  /** Null once the served prose is clean; otherwise the hard-violation detail(s) to STORE. */
+  failureReason: string | null;
+  /** The reason the FIRST draft failed — retained even when the redraft is clean, for measurement. */
+  originalFailureReason: string | null;
+  /** True when `regenerate` threw and the original prose was served as the fallback. */
+  correctionFailed: boolean;
+  /** The FIRST draft's violations, so a caller can record WHICH rules fired, not just the prose reason. */
+  violations: Violation[];
+}
+
+export async function regenerateFeedbackOnce(
   feedback: string,
   flight: AuditWine[],
-  regenerate: (reason: string) => string
-): { feedback: string; regenerated: boolean; failureReason: string | null } {
+  regenerate: (reason: string, violations: Violation[]) => Promise<string>
+): Promise<RegeneratedFeedback> {
   const first = validateAnswerKeyClaims(feedback, flight);
-  if (first.ok) return { feedback, regenerated: false, failureReason: null };
-  const redraft = regenerate(first.failureReason || "answer-key claim violation");
+  if (first.ok) {
+    return {
+      feedback,
+      regenerated: false,
+      failureReason: null,
+      originalFailureReason: null,
+      correctionFailed: false,
+      violations: first.violations,
+    };
+  }
+  const reason = first.failureReason || "answer-key claim violation";
+  let redraft: string;
+  try {
+    redraft = await regenerate(reason, first.violations);
+  } catch {
+    return {
+      feedback,
+      regenerated: false,
+      failureReason: reason,
+      originalFailureReason: reason,
+      correctionFailed: true,
+      violations: first.violations,
+    };
+  }
+  // A corrector that returns nothing usable is a failed correction, not a valid empty debrief.
+  if (!redraft || !redraft.trim()) {
+    return {
+      feedback,
+      regenerated: false,
+      failureReason: reason,
+      originalFailureReason: reason,
+      correctionFailed: true,
+      violations: first.violations,
+    };
+  }
   const second = validateAnswerKeyClaims(redraft, flight);
-  return { feedback: redraft, regenerated: true, failureReason: second.ok ? null : second.failureReason };
+  return {
+    feedback: redraft,
+    regenerated: true,
+    failureReason: second.ok ? null : second.failureReason,
+    originalFailureReason: reason,
+    correctionFailed: false,
+    violations: first.violations,
+  };
 }
 
 export function validateQuestion(

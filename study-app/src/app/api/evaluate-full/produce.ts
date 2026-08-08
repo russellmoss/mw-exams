@@ -8,6 +8,8 @@ import { loadWineTerms } from "@/lib/wine-terms";
 import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
 import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 import { deriveStemKey } from "@/lib/stem-answer-key";
+import { answerKeyFlight, regenerateFeedbackOnce, type AuditWine } from "@/lib/question-validator";
+import { buildClaimCorrectionPrompt } from "@/lib/prompts/claim-correction-prompt";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { deriveQuestion, markPhrase } from "@/lib/question-sections";
@@ -209,9 +211,14 @@ The candidate tasted these specific bottles at home. Do not penalise development
   // left to unaided judgement. Derived purely from the revealed wines' text via the same live key
   // builder the Stem Sniper uses (empty wine_profiles → fullText fallback). Best-effort: any failure or
   // an empty set silently skips, so grading behaviour is unchanged when it can't derive a useful set.
+  // The keyed flight, kept for the answer-key CLAIM check at the end of the stream. Derived from the
+  // same key as the plausibility reference below — no extra call, no extra I/O. Seeded label-only so a
+  // key-derivation failure still leaves the claim check something to judge explicit "wine N" claims on.
+  let keyedFlight: AuditWine[] = answerKeyFlight(null, wines);
   try {
     if (Array.isArray(wines) && wines.length) {
       const key = deriveStemKey({ paper, question_text: questionText, wines, wine_profiles: {} });
+      keyedFlight = answerKeyFlight(key?.ground, wines);
       const pl = (key?.plausible ?? []).slice(0, 16);
       if (pl.length) {
         const lines = pl
@@ -319,15 +326,60 @@ The two awarded values MUST sum to your overall estimated marks.`;
         // Phase 4b (detect-only): pull the hidden GRADING_META tag, strip it from the saved text, and
         // log any howler/cascade override the grader should have applied. Does NOT change the verdict.
         const { meta, cleanedText } = extractGradingMeta(fullText);
-        await recordGradingOverrideCheck(meta, { grader: "full_debrief", userId, paper });
-        let finalText = cleanedText;
+
+        // ANSWER-KEY CLAIM CHECK (fb_188 / fb_175 / fb_135). The debrief prose can assert wine facts the
+        // key contradicts — a curveball called a banker, "Prosecco is not traditional method", a quality
+        // hierarchy flattened to geography. Validate the finished prose against the keyed flight and, on a
+        // hard violation, run ONE targeted correction pass.
+        //
+        // This runs BEFORE image enrichment on purpose: the corrector rewrites markdown, and it must not
+        // be handed resolved <img> markup to preserve — only the compact [[IMG:...]] tokens.
+        //
+        // The candidate has already watched the original stream in. The `{enriched}` frame below is the
+        // documented authoritative final text — use-streaming.ts replaces its buffer with it verbatim and
+        // that is what gets persisted — so pushing the corrected prose through it corrects BOTH the view
+        // and the saved record. Nothing here can block grading: a correction failure serves the original.
+        const claimCheck = await regenerateFeedbackOnce(cleanedText, keyedFlight, async (_reason, violations) => {
+          const t1 = Date.now();
+          const prompt = buildClaimCorrectionPrompt(cleanedText, violations);
+          const corrected = await client.messages.create({
+            model,
+            // The corrected debrief is a rewrite of the original, so it needs at least its own length
+            // back. Reuse the grader's own budget rather than guessing a smaller one and truncating.
+            max_tokens: 8000,
+            system: prompt.system,
+            messages: [{ role: "user", content: prompt.user }],
+          });
+          logClaudeUsage(
+            { taskType: "debrief_claim_correction", model, source: usageSource, userId, abGroup },
+            corrected.usage,
+            { latencyMs: Date.now() - t1 }
+          );
+          return corrected.content
+            .filter((b) => b.type === "text")
+            .map((b) => b.text)
+            .join("");
+        });
+        await recordGradingOverrideCheck(meta, {
+          grader: "full_debrief",
+          userId,
+          paper,
+          claims: claimCheck,
+        });
+
+        let finalText = claimCheck.feedback;
         try {
           await imageStreamer.flush();
-          const enriched = await enrichFeedbackWithImages(cleanedText, userId, imageAllowList);
+          const enriched = await enrichFeedbackWithImages(claimCheck.feedback, userId, imageAllowList);
           finalText = enriched;
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
         } catch (enrichErr) {
           console.error("full-debrief image enrichment failed:", enrichErr);
+          // Enrichment failed but the prose may still have been CORRECTED — the client is holding the
+          // uncorrected stream, so the corrected text has to reach it even without images.
+          if (claimCheck.regenerated) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: finalText })}\n\n`));
+          }
         }
         // Persist-on-completion hook (Live Tasting): runs BEFORE [DONE] so the client only sees a
         // finished stream once the server-side save landed. Errors surface on the stream.

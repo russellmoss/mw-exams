@@ -12,6 +12,7 @@ import {
   validateAnswerKeyClaims,
   regenerateFeedbackOnce,
   regionClassificationModel,
+  answerKeyFlight,
   type AuditWine,
 } from "../src/lib/question-validator";
 
@@ -47,6 +48,49 @@ describe("validateAnswerKeyClaims — Rule 1: role labels must match the keyed r
       "Wine 1 is the banker (Alsace Pinot Gris), while wine 2 is the curveball.";
     const res = validateAnswerKeyClaims(feedback, [alsacePinotGris, alsaceSylvaner]);
     expect(res.ok).toBe(true);
+  });
+
+  // Nothing writes `role` yet, so in production this rule lands on the isBanker() heuristic — a
+  // region×variety table built for counting curveballs in flight composition, not for adjudicating
+  // prose. Measured over the 95 stored debriefs its one surviving disagreement was the TABLE being
+  // wrong. So a derived role flags for review and must NOT trigger a rewrite.
+  it("downgrades to SOFT when the role is derived rather than keyed", () => {
+    const derived = [
+      { slot: 1, varieties: ["Pinot Gris"], region: "Alsace", country: "France" },
+      { slot: 2, varieties: ["Sylvaner"], region: "Alsace", country: "France" },
+    ];
+    const res = validateAnswerKeyClaims("The Alsace Sylvaner is a banker.", derived);
+    const roleViolations = res.violations.filter((x) => x.rule === "answer-key-claim-role");
+    expect(roleViolations).toHaveLength(1);
+    expect(roleViolations[0].severity).toBe("soft");
+    expect(roleViolations[0].detail).toMatch(/flag for review, not a correction/);
+    // Soft means no correction pass: ok stays true and there is nothing to store as a failure.
+    expect(res.ok).toBe(true);
+    expect(res.failureReason).toBeNull();
+  });
+
+  // Each of these is a real false-positive class from the 95-debrief measurement, where the unguarded
+  // rule fired on 23 of them (24%) and every fire was wrong. A fire here would rewrite correct prose.
+  describe("does not fire on prose that merely mentions a role", () => {
+    const flight: AuditWine[] = [
+      { slot: 1, varieties: ["Chardonnay"], region: "Chablis", country: "France", role: "banker" },
+      { slot: 3, varieties: ["Clairette", "Bourboulenc"], region: "Southern Rhône", country: "France", role: "banker" },
+    ];
+    const cases: [string, string][] = [
+      ["a Mermaid diagram node (attempts 234, 268)", 'F --> C["CURVEBALL: minor grape such as Clairette or Bourboulenc"]'],
+      ["a hypothetical (attempt 80)", "**Plausible curveball**: Mâconnais or cool New World Chardonnay (Chablis requires the chalk to be confirmed)"],
+      ["a hypothetical naming an explicit slot (attempt 156)", "**Plausible curveballs:** Wine 1 could be a structured Chablis"],
+      ["an instruction about what to expect (attempt 129)", "That constraint should actively surface Chardonnay and an indigenous curveball"],
+      ["praise for the CANDIDATE's own call (attempt 245)", "Identified Clairette as a plausible curveball — good instinct"],
+      ["a bare noun-phrase mention (attempt 41)", "Ruling out Chablis entirely misses the examiner's deliberate curveball here"],
+      ["a trap category, not a wine (attempt 178)", "CURVEBALL = the repeated-Chardonnay trap, which you walked past"],
+    ];
+    for (const [label, feedback] of cases) {
+      it(`ignores ${label}`, () => {
+        const res = validateAnswerKeyClaims(feedback, flight);
+        expect(res.violations.filter((x) => x.rule === "answer-key-claim-role")).toEqual([]);
+      });
+    }
   });
 });
 
@@ -129,25 +173,108 @@ describe("regenerateFeedbackOnce — stores the reason and regenerates once befo
     { slot: 1, varieties: ["Glera"], region: "Prosecco", country: "Italy" },
   ];
 
-  it("serves a passing feedback untouched", () => {
+  it("serves a passing feedback untouched, and spends nothing", async () => {
     const good = "Prosecco spans both tank and traditional method.";
-    const out = regenerateFeedbackOnce(good, flight, () => "should not be called");
+    let calls = 0;
+    const out = await regenerateFeedbackOnce(good, flight, async () => {
+      calls += 1;
+      return "should not be called";
+    });
+    expect(calls).toBe(0);
     expect(out.regenerated).toBe(false);
     expect(out.feedback).toBe(good);
   });
 
-  it("regenerates exactly once with the failure reason and serves the redraft", () => {
+  it("regenerates exactly once with the failure reason and serves the redraft", async () => {
     const bad = "Prosecco is not traditional method.";
     let seenReason: string | null = null;
+    let seenRules: string[] = [];
     let calls = 0;
-    const out = regenerateFeedbackOnce(bad, flight, (reason) => {
+    const out = await regenerateFeedbackOnce(bad, flight, async (reason, violations) => {
       calls += 1;
       seenReason = reason;
+      seenRules = violations.map((v) => v.rule);
       return "Prosecco is largely tank method, though a quality slice is traditional method.";
     });
     expect(calls).toBe(1);
     expect(seenReason).toMatch(/prosecco/i);
+    // The corrector is handed the violations, not just the prose reason — it has to know which rule fired.
+    expect(seenRules).toEqual(["answer-key-claim-method"]);
     expect(out.regenerated).toBe(true);
     expect(out.failureReason).toBeNull();
+    expect(out.originalFailureReason).toMatch(/prosecco/i);
+  });
+
+  // A wrong banker label is not worth losing the debrief the candidate is waiting on.
+  it("serves the ORIGINAL prose when the corrector throws, and says the correction failed", async () => {
+    const bad = "Prosecco is not traditional method.";
+    const out = await regenerateFeedbackOnce(bad, flight, async () => {
+      throw new Error("model overloaded");
+    });
+    expect(out.feedback).toBe(bad);
+    expect(out.regenerated).toBe(false);
+    expect(out.correctionFailed).toBe(true);
+    // The defect stays visible in the stored reason rather than being silently dropped.
+    expect(out.failureReason).toMatch(/prosecco/i);
+  });
+
+  it("treats an empty redraft as a failed correction rather than an empty debrief", async () => {
+    const bad = "Prosecco is not traditional method.";
+    const out = await regenerateFeedbackOnce(bad, flight, async () => "   ");
+    expect(out.feedback).toBe(bad);
+    expect(out.correctionFailed).toBe(true);
+  });
+
+  it("does not loop: a redraft that still violates is served once, with the surviving reason", async () => {
+    const bad = "Prosecco is not traditional method.";
+    let calls = 0;
+    const out = await regenerateFeedbackOnce(bad, flight, async () => {
+      calls += 1;
+      return "Prosecco is never traditional method."; // still wrong
+    });
+    expect(calls).toBe(1);
+    expect(out.regenerated).toBe(true);
+    expect(out.failureReason).toMatch(/prosecco/i);
+    expect(out.correctionFailed).toBe(false);
+  });
+});
+
+// The builder that feeds the rule at the debrief seam: StemKey["ground"] zipped with the wine labels.
+describe("answerKeyFlight", () => {
+  it("zips the keyed ground truth onto the revealed labels by slot", () => {
+    const flight = answerKeyFlight(
+      [
+        { slot: 1, varieties: ["Pinot Gris"], region: "Alsace", country: "France", is_blend: false },
+        { slot: 2, varieties: ["Sylvaner"], region: "Alsace", country: "France", is_blend: false },
+      ],
+      [
+        { slot: 1, fullText: "Alsace Pinot Gris 2019" },
+        { slot: 2, fullText: "Alsace Sylvaner 2020" },
+      ]
+    );
+    expect(flight).toHaveLength(2);
+    expect(flight[0]).toMatchObject({ slot: 1, region: "Alsace", fullText: "Alsace Pinot Gris 2019" });
+    expect(flight[1].varieties).toEqual(["Sylvaner"]);
+  });
+
+  it("degrades to label-only wines when the key resolved nothing", () => {
+    const flight = answerKeyFlight(null, [{ slot: 1, fullText: "Prosecco Superiore DOCG" }]);
+    expect(flight).toEqual([
+      { slot: 1, varieties: [], region: "", fullText: "Prosecco Superiore DOCG" },
+    ]);
+  });
+
+  it("keeps a slot the key missed, and sorts by slot", () => {
+    const flight = answerKeyFlight(
+      [{ slot: 2, varieties: ["Riesling"], region: "Mosel", country: "Germany" }],
+      [{ slot: 1, fullText: "unresolved bottle" }, { slot: 2, fullText: "Mosel Riesling" }]
+    );
+    expect(flight.map((w) => w.slot)).toEqual([1, 2]);
+    expect(flight[0].varieties).toEqual([]);
+    expect(flight[1].region).toBe("Mosel");
+  });
+
+  it("returns an empty flight for no inputs rather than throwing", () => {
+    expect(answerKeyFlight(null, null)).toEqual([]);
   });
 });
