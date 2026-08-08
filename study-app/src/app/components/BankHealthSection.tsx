@@ -8,9 +8,10 @@
 // benchmark) with the numeric percentages as the primary read.
 //
 // Clicking a row opens a right-hand slide-over of the actual banked questions (paginated by "Load
-// more"); "Generate more like this" — and the inline "Generate more" on any thin row — opens a small
-// confirm step that queues targeted generation into the normal review queue via the existing
-// /api/admin/bank/generate. No new generation pipeline; no new route.
+// more"). It used to offer "Generate more like this" (and an inline "Generate more" on any thin row),
+// which queued targeted generation. Bulk generation was removed (2026-08-08) — the card now reports
+// where the bank is off its benchmark and stops there. A thin slice is information, not a to-do with
+// a button.
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { BankReviewBadge } from "./BankReviewBadge";
@@ -85,29 +86,6 @@ function FlagPill({ flag }: { flag: Flag }) {
   );
 }
 
-// The soft generation targets for a slice row. paper is required by /api/admin/bank/generate; it's
-// the row's own paper for the paper slice, otherwise the modal fills it from the slice's questions.
-function targetingFor(sliceId: string, key: string, paper: number): Record<string, string | number> {
-  const t: Record<string, string | number> = { paper };
-  switch (sliceId) {
-    case "questionType": t.questionType = key; break;
-    case "curveball": t.curveball = key; break;
-    case "flightSize": t.flightSize = key; break;
-    case "priceBand": t.priceBand = key; break;
-    case "grapeCoverage":
-    case "overRepetition": t.grape = key; break;
-    case "regionCoverage": t.region = key; break;
-    // paper / markFocus carry no extra field — paper alone targets the run.
-  }
-  return t;
-}
-
-// Best-guess paper for a slice row before its questions load: the paper slice's own key, else P1.
-function paperGuess(slice: HealthSlice, row: HealthRow): number {
-  if (slice.id === "paper") return Number(row.key) || 1;
-  return 1;
-}
-
 interface Selection { slice: HealthSlice; row: HealthRow }
 
 // A slice "needs attention" when any of its rows is off the benchmark (over-weighted or thin).
@@ -116,7 +94,7 @@ function needsAttention(slice: HealthSlice): boolean {
 }
 
 // Read the persisted open state at first render (default collapsed). Window-guarded for SSR, mirroring
-// FillTheBankCard's initialReviewBatch pattern.
+// BankReviewSection's initialReviewBatch pattern.
 function initialOpen(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -141,9 +119,9 @@ export function BankHealthSection() {
   const [scope, setScope] = useState<Scope>("all");
   const firstLoadRef = useRef(true);
 
-  // Screen 2 (slide-over) and Screen 3 (confirm modal) selections.
+  // Screen 2 (slide-over) selection. There is no Screen 3 any more — the confirm modal existed only
+  // to size a generation batch.
   const [panel, setPanel] = useState<Selection | null>(null);
-  const [confirm, setConfirm] = useState<{ selection: Selection; paper: number } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   const toggleOpen = useCallback(() => {
@@ -318,9 +296,6 @@ export function BankHealthSection() {
                   key={slice.id}
                   slice={slice}
                   onOpenRow={(row) => setPanel({ slice, row })}
-                  onGenerate={(row) =>
-                    setConfirm({ selection: { slice, row }, paper: scopeToPaper(scope) ?? paperGuess(slice, row) })
-                  }
                 />
               ))}
             </div>
@@ -334,19 +309,6 @@ export function BankHealthSection() {
           selection={panel}
           scopePaper={scopeToPaper(scope)}
           onClose={() => setPanel(null)}
-          onGenerate={(paper) => setConfirm({ selection: panel, paper })}
-        />
-      )}
-
-      {confirm && (
-        <GenerateModal
-          selection={confirm.selection}
-          paper={confirm.paper}
-          onClose={() => setConfirm(null)}
-          onQueued={(n) => {
-            setConfirm(null);
-            showToast(`Queued ${n} question${n === 1 ? "" : "s"} · they'll appear in review`);
-          }}
         />
       )}
 
@@ -379,11 +341,9 @@ function TwoToneBar({ bankPct, benchmarkPct, scaleMax }: { bankPct: number; benc
 function SliceCard({
   slice,
   onOpenRow,
-  onGenerate,
 }: {
   slice: HealthSlice;
   onOpenRow: (row: HealthRow) => void;
-  onGenerate: (row: HealthRow) => void;
 }) {
   const scaleMax = useMemo(
     () => Math.max(1, ...slice.rows.map((r) => Math.max(r.bankPct, r.benchmarkPct))),
@@ -413,7 +373,7 @@ function SliceCard({
             <h4 className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">Most used</h4>
             <div className="divide-y divide-border/60">
               {mostUsed.map((row) => (
-                <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} onGenerate={onGenerate} />
+                <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} />
               ))}
               {mostUsed.length === 0 && <p className="text-xs text-muted py-2">Nothing banked yet.</p>}
             </div>
@@ -422,7 +382,7 @@ function SliceCard({
             <h4 className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">Thin or missing</h4>
             <div className="divide-y divide-border/60">
               {thin.map((row) => (
-                <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} onGenerate={onGenerate} />
+                <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} />
               ))}
               {thin.length === 0 && <p className="text-xs text-muted py-2">Full coverage — nothing thin.</p>}
             </div>
@@ -437,26 +397,23 @@ function SliceCard({
       <h3 className="font-medium text-foreground mb-2">{slice.label}</h3>
       <div className="divide-y divide-border/60">
         {slice.rows.map((row) => (
-          <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} onGenerate={onGenerate} />
+          <SliceRow key={row.key} row={row} scaleMax={scaleMax} onOpenRow={onOpenRow} />
         ))}
       </div>
     </section>
   );
 }
 
-// A single clickable slice row: label · two-tone bar · our % (count) · benchmark % · flag. Thin rows
-// carry an inline compact "Generate more" button that opens the confirm step directly. The whole row
-// opens the slide-over; hover raises a subtle amber edge.
+// A single clickable slice row: label · two-tone bar · our % (count) · benchmark % · flag. The whole
+// row opens the slide-over; hover raises a subtle amber edge.
 function SliceRow({
   row,
   scaleMax,
   onOpenRow,
-  onGenerate,
 }: {
   row: HealthRow;
   scaleMax: number;
   onOpenRow: (row: HealthRow) => void;
-  onGenerate: (row: HealthRow) => void;
 }) {
   return (
     <div
@@ -479,17 +436,6 @@ function SliceRow({
       </span>
       <span className="w-14 text-right text-xs text-muted tabular-nums">{row.benchmarkPct}%</span>
       <FlagPill flag={row.flag} />
-      {row.flag === "thin" && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onGenerate(row);
-          }}
-          className="shrink-0 text-xs text-accent hover:text-accent-hover underline underline-offset-2 transition-colors cursor-pointer"
-        >
-          Generate more
-        </button>
-      )}
     </div>
   );
 }
@@ -517,13 +463,11 @@ function SlicePanel({
   selection,
   scopePaper,
   onClose,
-  onGenerate,
 }: {
   selection: Selection;
   // The page's paper scope (1|2|3 or null for all) — keeps the drill-down list scoped to the same paper.
   scopePaper: number | null;
   onClose: () => void;
-  onGenerate: (paper: number) => void;
 }) {
   const { slice, row } = selection;
   const [items, setItems] = useState<SliceItem[]>([]);
@@ -574,15 +518,6 @@ function SlicePanel({
     setLoadingMore(false);
   };
 
-  // Paper for targeted generation: the loaded question set's most common paper, else the row's guess.
-  const paper = useMemo(() => {
-    if (slice.id === "paper") return Number(row.key) || 1;
-    if (items.length === 0) return 1;
-    const tally = new Map<number, number>();
-    for (const it of items) tally.set(it.paper, (tally.get(it.paper) || 0) + 1);
-    return [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
-  }, [items, slice.id, row.key]);
-
   return (
     <div className="fixed inset-0 z-40">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -610,12 +545,6 @@ function SlicePanel({
         </div>
 
         <div className="p-5 border-b border-border space-y-4">
-          <button
-            onClick={() => onGenerate(paper)}
-            className="w-full text-sm px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer"
-          >
-            Generate more like this
-          </button>
           {/* Batch Undo — review-state filter chips. */}
           <div className="flex flex-wrap items-center gap-2">
             {REVIEW_FILTERS.map((f) => (
@@ -683,96 +612,3 @@ function SlicePanel({
   );
 }
 
-// ── Screen 3: centred confirm modal — pick a batch size and queue targeted generation ─────────────
-const COUNT_OPTIONS = [5, 10, 25];
-
-function GenerateModal({
-  selection,
-  paper,
-  onClose,
-  onQueued,
-}: {
-  selection: Selection;
-  paper: number;
-  onClose: () => void;
-  onQueued: (count: number) => void;
-}) {
-  const { slice, row } = selection;
-  const [count, setCount] = useState(10);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const submit = async () => {
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/bank/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count, targeting: targetingFor(slice.id, row.key, paper) }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(body.error || "Couldn't queue generation.");
-        setBusy(false);
-        return;
-      }
-      onQueued(count);
-    } catch {
-      setError("Network error — try again.");
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={busy ? undefined : onClose} />
-      <div className="relative w-[360px] max-w-full rounded-xl border border-border bg-card p-6 shadow-2xl">
-        <h2 className="text-lg font-bold text-foreground">Generate more like this</h2>
-        <p className="text-sm text-muted mt-1">
-          {slice.label} · <span className="text-foreground">{row.label}</span>
-        </p>
-
-        <div className="mt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted mb-2">Batch size</p>
-          <div className="flex gap-2">
-            {COUNT_OPTIONS.map((n) => (
-              <button
-                key={n}
-                onClick={() => setCount(n)}
-                disabled={busy}
-                className={`flex-1 text-sm py-2 rounded-lg border tabular-nums transition-colors cursor-pointer disabled:opacity-50 ${
-                  count === n
-                    ? "border-accent bg-accent/10 text-foreground"
-                    : "border-border text-muted hover:text-foreground hover:border-muted"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <p className="text-xs text-muted mt-4">Generated questions go to the review queue as usual.</p>
-        {error && <p className="text-xs text-fail mt-2">{error}</p>}
-
-        <div className="flex items-center justify-end gap-3 mt-5">
-          <button
-            onClick={onClose}
-            disabled={busy}
-            className="text-sm text-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={submit}
-            disabled={busy}
-            className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
-          >
-            {busy ? "Queuing…" : "Generate"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}

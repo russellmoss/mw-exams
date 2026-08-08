@@ -21,7 +21,11 @@
 import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { generateFreshQuestion } from "@/lib/question-engine";
-import { WORKER_CALL_TIMEOUT_MS } from "@/lib/bank-worker";
+
+// Was imported from lib/bank-worker, which was deleted with the Fill-the-Bank generator. This script
+// is a deliberate, hand-run import (not reachable from the app), so it keeps the worker's old
+// per-call ceiling verbatim rather than dragging the whole module back for one number.
+const WORKER_CALL_TIMEOUT_MS = Number(process.env.BANK_WORKER_CALL_TIMEOUT_MS) || 130_000;
 import {
   selectImportableStems,
   historicalQuestionId,

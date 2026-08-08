@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { HistoryView, type AttemptDetail } from "../components/HistoryView";
 import { FeatureRequestPanel } from "../components/FeatureRequestPanel";
-import { FillTheBankRows } from "../components/FillTheBankCard";
+import { BankReviewSection } from "../components/BankReviewSection";
 import { BankHealthSection } from "../components/BankHealthSection";
 import { WhyBinnedSection } from "../components/WhyBinnedSection";
 import { BinFixProposalsSection } from "../components/BinFixProposalsSection";
@@ -375,7 +375,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Auto-Apply pipeline toggle. Fill the Bank is rendered as additional rows INSIDE this
+          {/* Auto-Apply pipeline toggle. Bank Review is rendered as additional rows INSIDE this
               same settings card (below, after a border-t divider) — deliberately nested in the same
               JSX block as the Auto-Apply toggle so it can never sit on a separately-gated or
               unrendered branch. Five prior builds shipped it as a standalone card/page the admin
@@ -414,10 +414,10 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {/* Fill the Bank — additional rows inside the Auto-Apply card, below the toggle, split by
+            {/* Bank Review — additional rows inside the Auto-Apply card, below the toggle, split by
                 a 1px border-t divider (spec). Same JSX block as the toggle above. */}
             <div className="mt-5 pt-5 border-t border-border">
-              <FillTheBankRows />
+              <BankReviewSection />
             </div>
           </div>
 

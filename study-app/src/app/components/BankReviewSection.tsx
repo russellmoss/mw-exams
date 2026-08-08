@@ -14,57 +14,38 @@ function initialReviewBatch(): string | null {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
-// "Fill the Bank" — rendered as a SECTION INSIDE the Auto-Apply settings card on /admin (never a
-// standalone card or its own page). Admin-only bulk question generation with a human review gate.
+// "Bank Review" — rendered as a SECTION INSIDE the Auto-Apply settings card on /admin (never a
+// standalone card or its own page). Admin-only human review gate over questions already in the bank.
 //
-//   RESTING  — per-paper banked stat pairs, a paper <select>, a count input, a live muted cost range,
-//              and the amber Generate button. A quiet amber link "N waiting for review" sits at the
-//              row end when a batch is waiting.
-//   RUNNING  — controls collapse to "Writing N of M… you can close this tab." + a thin amber bar.
+// This WAS "Fill the Bank", which also generated questions in bulk. Every generation path was removed
+// (2026-08-08): bulk runs were the largest line in the model bill by a wide margin, and the bank
+// already holds far more questions than the pilot can work through, so the honest next step is to
+// judge what exists rather than buy more of it. New questions now come only from "New question" in
+// Study, one at a time, at a candidate's request. What is left here is the review half of the old
+// feature: nothing in this section can spend money.
+//
+//   RESTING  — per-paper banked / awaiting-review stat pairs. A quiet amber link "N waiting for
+//              review" sits at the row end when anything is queued.
 //   REVIEW   — the section expands into a review pane: one question at a time. The per-card action row
 //              is primary amber Keep, then plain Bin and Bin with reason (plus Keep all / Bin all for
 //              bulk). "Bin" is immediate with empty reasons; "Bin with reason" expands an inline panel
 //              (multi-select fault chips + optional note) confirmed with "Bin it". Every bin is
 //              soft-deleted server-side so a 5s Undo bar can reverse it (restoring its reasons too).
 //              When the queue empties the pane collapses back with a brief "Batch reviewed · N kept".
+//
+// The pane is also the queue for candidate-flagged questions (?review=flagged:candidate from the
+// NotificationBell) and over-used-producer flags (?review=flagged:producer) — which is why it
+// outlives the generator that it shipped alongside.
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 const PAPER_LABEL: Record<number, string> = { 1: "Paper 1", 2: "Paper 2", 3: "Paper 3" };
-const PAPER_OPTION: Record<number, string> = {
-  1: "Paper 1 · Whites",
-  2: "Paper 2 · Reds",
-  3: "Paper 3 · Special",
-};
 
-interface Running {
-  batchId: string;
-  generatedCount: number;
-  requestedCount: number;
-  skipped: number;
-}
-interface Stalled {
-  batchId: string;
-  keptForReview: number;
-}
-interface Done {
-  batchId: string;
-  written: number;
-  requested: number;
-  skipped: number;
-  pending: number;
-  cancelled: boolean;
-}
 interface PaperStatus {
   paper: number;
   descriptor: string;
   keptCount: number;
   pendingCount: number;
-  running: Running | null;
-  stalled: Stalled | null;
-  done: Done | null;
   reviewBatchId: string | null;
-  // "Learned from your bins" — top bin-reason tag for this paper over the last 30 days; null = none.
-  learnedFrom: { label: string; count: number } | null;
 }
 interface ReviewWine {
   slot: number;
@@ -156,7 +137,6 @@ interface ReviewCard extends ReviewQuestion {
 interface ReviewData {
   batchId: string;
   paper: number;
-  replaceBinned: boolean;
   status: string;
   keptCount: number;
   remaining: number;
@@ -167,14 +147,6 @@ interface ReviewData {
   failingRemaining: number;
   // Full pending queue (each with verdict) — drives optimistic local navigation.
   questions: ReviewCard[];
-}
-
-// Live cost range: per-question average × count, widened ±35%, rounded to whole dollars.
-function costRange(count: number, perQuestion: number): string {
-  const mid = count * perQuestion;
-  const min = Math.max(0, Math.floor(mid * 0.65));
-  const max = Math.max(min, Math.ceil(mid * 1.35));
-  return min === max ? `roughly $${max}` : `roughly $${min}–${max}`;
 }
 
 // "1st / 2nd / 3rd / 4th …" for the producer-flag chip's appearance number.
@@ -388,16 +360,8 @@ function Spinner() {
   );
 }
 
-export function FillTheBankRows() {
+export function BankReviewSection() {
   const [papers, setPapers] = useState<PaperStatus[]>([]);
-  const [costPerQuestion, setCostPerQuestion] = useState(0.35);
-  // Country Balance (always-on): the light origins the next batches will lean toward, from the status
-  // poll. Empty when the read is insufficient or nothing is light — the hint line then hides entirely.
-  const [leaningToward, setLeaningToward] = useState<string[]>([]);
-  const [selectedPaper, setSelectedPaper] = useState(1);
-  const [count, setCount] = useState(10);
-  const [generating, setGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [reviewBatchId, setReviewBatchId] = useState<string | null>(() => initialReviewBatch());
   const [reviewOpen, setReviewOpen] = useState(() => !!initialReviewBatch());
@@ -464,12 +428,10 @@ export function FillTheBankRows() {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/fill-bank/status", { cache: "no-store" });
+      const res = await fetch("/api/admin/bank/review-queue/status", { cache: "no-store" });
       if (!res.ok) return;
       const data = await res.json();
       setPapers(data.papers || []);
-      if (typeof data.costPerQuestion === "number") setCostPerQuestion(data.costPerQuestion);
-      setLeaningToward(Array.isArray(data.leaningToward) ? data.leaningToward : []);
     } catch {
       /* transient — next poll retries */
     }
@@ -498,7 +460,7 @@ export function FillTheBankRows() {
       const query = batchId.startsWith("flagged:")
         ? "flagged=producer"
         : `batch=${encodeURIComponent(batchId)}`;
-      const res = await fetch(`/api/admin/fill-bank/review?${query}`, {
+      const res = await fetch(`/api/admin/bank/review-queue?${query}`, {
         cache: "no-store",
       });
       if (!res.ok) return null;
@@ -547,12 +509,9 @@ export function FillTheBankRows() {
   }, [reviewOpen, reviewBatchId, review?.status, loadReview]);
 
   const totalPending = papers.reduce((s, p) => s + p.pendingCount, 0);
-  const current = papers.find((p) => p.paper === selectedPaper);
-  const running = current?.running || null;
-  const stalled = current?.stalled || null;
-  const done = current?.done || null;
-  // Batch to review = the selected paper's, else any paper with pending work.
-  const pendingPaper = current?.pendingCount ? current : papers.find((p) => p.pendingCount > 0);
+  // Batch to review = the first paper with pending work (there is no paper selector any more, since
+  // nothing here targets a paper — the queue is worked in whatever order it arrived).
+  const pendingPaper = papers.find((p) => p.pendingCount > 0);
   const nextReviewBatchId = reviewBatchId || pendingPaper?.reviewBatchId || null;
 
   // Dismiss the undo cluster (on undo, on expiry, or when the pane closes).
@@ -577,50 +536,6 @@ export function FillTheBankRows() {
     }
   };
 
-  const startGeneration = useCallback(
-    async (paper: number, howMany: number) => {
-      setGenerating(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/admin/fill-bank", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paper, count: howMany, replaceBinned: true }),
-        });
-        const data = await res.json();
-        if (!res.ok) setError(data.error || "Couldn't start generation");
-        else await fetchStatus();
-      } catch {
-        setError("Network error");
-      } finally {
-        setGenerating(false);
-      }
-    },
-    [fetchStatus]
-  );
-
-  const handleGenerate = () => startGeneration(selectedPaper, count);
-
-  // "Write N more" — top up a done batch's skipped items for that paper.
-  const writeMore = (paper: number, n: number) => startGeneration(paper, Math.max(1, n));
-
-  // Cancel the running batch. Keeps everything generated so far.
-  const handleCancel = useCallback(
-    async (batchId: string) => {
-      try {
-        await fetch("/api/admin/fill-bank/cancel", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ batchId }),
-        });
-        await fetchStatus();
-      } catch {
-        /* transient — the next poll reflects the cancel */
-      }
-    },
-    [fetchStatus]
-  );
-
   // Reverse a bin server-side (best-effort — the local restore already happened).
   const fireUnbin = useCallback(
     async (card: ReviewCard) => {
@@ -631,7 +546,7 @@ export function FillTheBankRows() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         await fetchStatus();
       } catch (err) {
-        console.error(`[fill-bank] undo (unbin) failed for ${card.id}:`, err);
+        console.error(`[bank-review]undo (unbin) failed for ${card.id}:`, err);
       }
     },
     [fetchStatus]
@@ -722,7 +637,7 @@ export function FillTheBankRows() {
         }
         await fetchStatus();
       } catch (err) {
-        console.error(`[fill-bank] bin failed for ${card.id}:`, err);
+        console.error(`[bank-review]bin failed for ${card.id}:`, err);
         revertBin(card, index, err instanceof Error ? err.message : "The bin request failed.");
       }
     },
@@ -819,7 +734,7 @@ export function FillTheBankRows() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         await fetchStatus();
       } catch (err) {
-        console.error(`[fill-bank] keep failed for ${card.id}:`, err);
+        console.error(`[bank-review]keep failed for ${card.id}:`, err);
         setReview((r) => (r ? { ...r, keptCount: Math.max(0, r.keptCount - 1) } : r));
         setQueue((q) => {
           const copy = q.slice();
@@ -839,7 +754,7 @@ export function FillTheBankRows() {
     setInFlight("keepAll");
     setActionError(null);
     try {
-      const res = await fetch("/api/admin/fill-bank/review", {
+      const res = await fetch("/api/admin/bank/review-queue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: review.batchId, action: "keepAll" }),
@@ -878,17 +793,6 @@ export function FillTheBankRows() {
     }
   }, [queue.length, undoStack.length, review, reviewOpen]);
 
-  const toggleReplace = async () => {
-    if (!review) return;
-    const nextVal = !review.replaceBinned;
-    setReview({ ...review, replaceBinned: nextVal });
-    await fetch("/api/admin/bank/set-replace", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ batchId: review.batchId, replaceRejected: nextVal }),
-    });
-  };
-
   const safeCursor = queue.length === 0 ? 0 : Math.min(cursor, queue.length - 1);
   const q = queue[safeCursor] || null;
   const total = review ? review.keptCount + queue.length : queue.length;
@@ -900,7 +804,7 @@ export function FillTheBankRows() {
           Bank Health now renders as its own inline section below this card, so no cross-link here. */}
       <div className="flex items-center justify-between gap-3 mb-3">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground">
-          Fill the Bank
+          Bank Review
         </h3>
       </div>
 
@@ -920,9 +824,9 @@ export function FillTheBankRows() {
         />
       </div>
 
-      {/* ── RESTING ROW ─────────────────────────────────────────────────────────────────────────── */}
+      {/* ── RESTING ROW ── per-paper counts + the opener. No controls: nothing here generates. */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-        {/* Compact per-paper stat pairs */}
+        {/* Compact per-paper stat pairs — banked (servable) and, when non-zero, awaiting review. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs tabular-nums">
           {[1, 2, 3].map((p) => {
             const s = papers.find((x) => x.paper === p);
@@ -931,6 +835,13 @@ export function FillTheBankRows() {
                 <span className="text-muted">{PAPER_LABEL[p]} · </span>
                 {s?.keptCount ?? 0}
                 <span className="text-muted"> banked</span>
+                {(s?.pendingCount ?? 0) > 0 && (
+                  <>
+                    <span className="text-muted"> · </span>
+                    {s!.pendingCount}
+                    <span className="text-muted"> to review</span>
+                  </>
+                )}
               </span>
             );
           })}
@@ -938,163 +849,23 @@ export function FillTheBankRows() {
 
         <div className="flex-1" />
 
-        {running ? (
-          /* ── RUNNING STATE ── controls collapse to a progress line + thin amber bar + Cancel */
-          <div className="w-full">
-            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <p className="text-sm text-foreground">
-                Writing {running.requestedCount} for {PAPER_LABEL[selectedPaper]} ·{" "}
-                <span className="tabular-nums">
-                  {Math.min(running.generatedCount + 1, running.requestedCount)}
-                </span>{" "}
-                of <span className="tabular-nums">{running.requestedCount}</span>
-              </p>
-              <div className="flex items-center gap-4">
-                {current!.pendingCount > 0 && !reviewOpen && (
-                  <button
-                    onClick={openReview}
-                    className="text-sm text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
-                  >
-                    {current!.pendingCount} ready to review
-                  </button>
-                )}
-                {/* Cancel is always visible on the running row (plain text, spec §2). */}
-                <button
-                  onClick={() => handleCancel(running.batchId)}
-                  className="text-sm text-muted hover:text-foreground underline underline-offset-2 transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-            <div className="mt-2 h-1 rounded-full bg-border overflow-hidden max-w-md">
-              <div
-                className="h-full bg-accent transition-all"
-                style={{
-                  width: `${Math.min(
-                    100,
-                    Math.round((running.generatedCount / Math.max(1, running.requestedCount)) * 100)
-                  )}%`,
-                }}
-              />
-            </div>
-          </div>
-        ) : (
-          /* ── RESTING CONTROLS ── */
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Country Balance (always-on): a single muted line directly above Generate naming the
-                light origins the next batch will lean toward. Hidden when nothing is light. `w-full`
-                floats it onto its own line above the controls row. */}
-            {leaningToward.length > 0 && (
-              <p className="w-full text-[13px] text-muted">
-                Leaning toward {leaningToward.join(", ")}
-              </p>
-            )}
-            <select
-              value={selectedPaper}
-              onChange={(e) => setSelectedPaper(Number(e.target.value))}
-              className="text-sm px-3 py-2 bg-card border border-border rounded-lg text-foreground focus:outline-none focus:border-accent cursor-pointer"
-              aria-label="Paper"
-            >
-              {[1, 2, 3].map((p) => (
-                <option key={p} value={p}>
-                  {PAPER_OPTION[p]}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="number"
-              min={1}
-              value={count}
-              onChange={(e) => {
-                const n = Math.round(Number(e.target.value));
-                if (Number.isFinite(n)) setCount(Math.max(1, n));
-              }}
-              className="text-sm w-20 px-3 py-2 bg-card border border-border rounded-lg text-foreground tabular-nums focus:outline-none focus:border-accent"
-              aria-label="How many questions"
-            />
-
-            <span className="text-xs text-muted tabular-nums">{costRange(count, costPerQuestion)}</span>
-
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="text-sm px-5 py-2 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {generating ? "Starting…" : "Generate"}
-            </button>
-
-            {totalPending > 0 && !reviewOpen && (
-              <button
-                onClick={openReview}
-                className="text-sm text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
-              >
-                {totalPending} waiting for review
-              </button>
-            )}
-          </div>
+        {totalPending > 0 && !reviewOpen && (
+          <button
+            onClick={openReview}
+            className="text-sm text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
+          >
+            {totalPending} waiting for review
+          </button>
         )}
       </div>
 
-      {/* ── LEARNED-FROM LINE ── top bin reason for the selected paper over the last 30 days. Hidden
-          when this paper has no tagged bins in the window. */}
-      {current?.learnedFrom && (
-        <p className="text-xs text-muted mt-3">
-          Learned from your bins · Most common reason:{" "}
-          {current.learnedFrom.label.toLowerCase()}{" "}
-          <span className="tabular-nums">({current.learnedFrom.count})</span>
-        </p>
-      )}
+      {/* Says plainly why there is no Generate button, so the next person to open /admin doesn't go
+          looking for one or quietly rebuild it. */}
+      <p className="text-xs text-muted mt-3 max-w-xl">
+        Bulk generation was removed. New questions are written one at a time, on request, from “New
+        question” in Study — this section only decides what stays in the bank.
+      </p>
 
-      {/* ── STALLED / AUTO-RELEASED NOTE ── grey note; Generate above is re-enabled by the else branch */}
-      {!running && stalled && (
-        <p className="text-xs text-muted mt-3">
-          Previous run stalled and was released
-          {stalled.keptForReview > 0 && (
-            <>
-              {" · "}
-              <span className="text-foreground tabular-nums">{stalled.keptForReview}</span> kept for review
-            </>
-          )}
-        </p>
-      )}
-
-      {/* ── DONE STATE ── "9 of 10 written · 1 skipped", with Write N more + Review N */}
-      {!running && !stalled && done && (
-        <div className="flex flex-wrap items-center gap-3 mt-3">
-          <p className="text-xs text-muted">
-            <span className="text-foreground tabular-nums">{done.written}</span> of{" "}
-            <span className="tabular-nums">{done.requested}</span> written
-            {done.skipped > 0 && (
-              <>
-                {" · "}
-                <span className="text-foreground tabular-nums">{done.skipped}</span> skipped
-              </>
-            )}
-            {done.cancelled && " · cancelled"}
-          </p>
-          {done.skipped > 0 && (
-            <button
-              onClick={() => writeMore(selectedPaper, done.skipped)}
-              disabled={generating}
-              className="text-xs px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-background font-medium transition-colors cursor-pointer disabled:opacity-50"
-            >
-              {done.skipped === 1 ? "Write 1 more" : `Write ${done.skipped} more`}
-            </button>
-          )}
-          {done.pending > 0 && !reviewOpen && (
-            <button
-              onClick={openReview}
-              className="text-xs text-accent underline underline-offset-2 hover:text-accent-hover transition-colors cursor-pointer"
-            >
-              Review {done.pending}
-            </button>
-          )}
-        </div>
-      )}
-
-      {error && <p className="text-xs text-fail mt-2">{error}</p>}
       {summary && !reviewOpen && (
         <p className="text-xs text-muted mt-3">
           Batch reviewed · <span className="text-foreground tabular-nums">{summary.kept} kept</span>
@@ -1332,18 +1103,11 @@ export function FillTheBankRows() {
                 </div>
               )}
 
-              {/* Footer: replace toggle left · the three-button action row + Keep all right.
-                  Primary amber Keep, then two plain bordered Bin / Bin with reason (spec §1). */}
-              <div className="flex flex-wrap items-center gap-3 mt-5">
-                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer mr-auto">
-                  <input
-                    type="checkbox"
-                    checked={review!.replaceBinned}
-                    onChange={toggleReplace}
-                    className="rounded accent-accent"
-                  />
-                  Replace anything I bin
-                </label>
+              {/* Footer: the three-button action row + Keep all, right-aligned. Primary amber Keep,
+                  then two plain bordered Bin / Bin with reason (spec §1). The "Replace anything I
+                  bin" toggle that used to sit on the left is gone with bulk generation — a bin is now
+                  purely a removal. */}
+              <div className="flex flex-wrap items-center justify-end gap-3 mt-5">
                 {binError ? (
                   /* The bin GENUINELY failed → the card was restored with the count unchanged. Show
                      the ACTUAL server error (spec §4) with a Retry that re-fires the same request. */

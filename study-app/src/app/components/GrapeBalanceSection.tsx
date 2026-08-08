@@ -4,14 +4,16 @@
 // Country Balance). It reads the derived variety tally (/api/admin/bank-health/varieties) and shows,
 // per paper, how the bank's dominant-variety coverage compares with the historical shape of the exam:
 // a thin two-tone bar (amber fill = current bank share, muted outline marker = expected share), the
-// "bank% vs ~expected%" figures, and a Short / Heavy chip. Short rows carry a one-click "Fill the gap"
-// ghost-amber button that queues a grape-targeted generation batch and then polls the bank status so
-// the row reads Generating… → Ready to review.
+// "bank% vs ~expected%" figures, and a Short / Heavy chip.
+//
+// Short rows used to carry a one-click "Fill the gap" button that queued a grape-targeted generation
+// batch. Bulk generation was removed (2026-08-08), so this card is now purely diagnostic: it tells you
+// where the bank is thin, and closing that gap is a deliberate act elsewhere, not a button here.
 //
 // Cellar look: flat bordered card on warm-stone, single amber accent, Fraunces title over Geist body —
 // matching CountryBalanceSection and the sibling Bank Health cards.
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { PaperFilterPills, type PaperValue } from "./PaperFilterPills";
 
 type VarietyStatus = "short" | "heavy" | "ok";
@@ -34,18 +36,8 @@ interface VarietyPayload {
 }
 
 const TOP_ROWS = 10;
-const FILL_CAP = 12; // count = min(shortfallWines, 12)
 
 const PAPER_TAG: Record<number, string> = { 1: "P1", 2: "P2", 3: "P3" };
-
-// Per-row generation lifecycle after "Fill the gap".
-type QueuePhase = "queuing" | "generating" | "ready" | "error";
-interface QueueState {
-  phase: QueuePhase;
-  count: number;
-  batchId?: string;
-  paper: number;
-}
 
 function rowKey(row: VarietyRow): string {
   return `${row.paper}:${row.variety}`;
@@ -59,9 +51,6 @@ export function GrapeBalanceSection() {
   const [error, setError] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0); // bumped by Retry to force a re-fetch
 
-  // Queued "Fill the gap" batches, keyed by paper:variety, kept across re-fetches so a queued row
-  // doesn't lose its Generating…/Ready state when the tally refreshes.
-  const [queued, setQueued] = useState<Record<string, QueueState>>({});
 
   // ── Load the tally ────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -94,70 +83,6 @@ export function GrapeBalanceSection() {
     setPaper(p);
   };
 
-  // ── Poll bank status while any queued batch is still running ──────────────────────────────────
-  const anyRunning = useMemo(
-    () => Object.values(queued).some((q) => q.phase === "generating" || q.phase === "queuing"),
-    [queued]
-  );
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  useEffect(() => {
-    if (!anyRunning) return;
-    let alive = true;
-    const tick = async () => {
-      try {
-        const res = await fetch("/api/admin/bank/status", { cache: "no-store" });
-        if (!res.ok) return;
-        const body = (await res.json()) as {
-          papers: { paper: number; running: { batchId: string } | null }[];
-        };
-        const running = new Set(
-          body.papers.map((p) => p.running?.batchId).filter(Boolean) as string[]
-        );
-        if (!alive) return;
-        setQueued((prev) => {
-          let changed = false;
-          const next = { ...prev };
-          for (const [k, q] of Object.entries(prev)) {
-            if (q.phase === "generating" && q.batchId && !running.has(q.batchId)) {
-              next[k] = { ...q, phase: "ready" };
-              changed = true;
-            }
-          }
-          return changed ? next : prev;
-        });
-      } catch {
-        /* transient — keep polling */
-      }
-    };
-    void tick();
-    pollRef.current = setInterval(tick, 4000);
-    return () => {
-      alive = false;
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-  }, [anyRunning]);
-
-  // ── Fill the gap ──────────────────────────────────────────────────────────────────────────────
-  const fillGap = useCallback(async (row: VarietyRow) => {
-    const count = Math.max(1, Math.min(FILL_CAP, row.shortfallWines));
-    const key = rowKey(row);
-    setQueued((prev) => ({ ...prev, [key]: { phase: "queuing", count, paper: row.paper } }));
-    try {
-      const res = await fetch("/api/admin/bank/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count, paper: row.paper, varietyFocus: row.variety }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(body.error || String(res.status));
-      setQueued((prev) => ({
-        ...prev,
-        [key]: { phase: "generating", count, paper: row.paper, batchId: body.batchId },
-      }));
-    } catch {
-      setQueued((prev) => ({ ...prev, [key]: { phase: "error", count, paper: row.paper } }));
-    }
-  }, []);
 
   const rows = useMemo(() => data?.rows ?? [], [data]);
   const visible = showAll ? rows : rows.slice(0, TOP_ROWS);
@@ -222,8 +147,6 @@ export function GrapeBalanceSection() {
                         row={row}
                         scale={scale}
                         dim={row.status === "ok"}
-                        queue={queued[rowKey(row)]}
-                        onFill={fillGap}
                       />
                     ))}
                   </div>
@@ -237,8 +160,6 @@ export function GrapeBalanceSection() {
                   key={rowKey(row)}
                   row={row}
                   scale={scale}
-                  queue={queued[rowKey(row)]}
-                  onFill={fillGap}
                 />
               ))}
             </div>
@@ -259,20 +180,15 @@ export function GrapeBalanceSection() {
 }
 
 // One variety row: name + paper tag, a two-tone bar (amber bank share, muted outline marker at the
-// expected share), the "bank% vs ~expected%" figures, a status chip, and — on short rows — either a
-// "Fill the gap" button or its queued/generating/ready state.
+// expected share), the "bank% vs ~expected%" figures and a status chip.
 function GrapeRow({
   row,
   scale,
   dim,
-  queue,
-  onFill,
 }: {
   row: VarietyRow;
   scale: number;
   dim?: boolean;
-  queue?: QueueState;
-  onFill: (row: VarietyRow) => void;
 }) {
   const bankW = Math.min(100, (row.bankSharePct / scale) * 100);
   const expectedW = Math.min(100, (row.expectedSharePct / scale) * 100);
@@ -307,23 +223,9 @@ function GrapeRow({
         <span className="text-foreground">{row.bankSharePct}%</span> vs ~{row.expectedSharePct}%
       </span>
 
-      {/* Right-hand action / status: the queue state takes over once "Fill the gap" is clicked. */}
+      {/* Right-hand status chip. There is no action here: nothing in the app fills a gap on demand. */}
       <div className="w-[128px] shrink-0 flex items-center justify-end gap-2">
-        {queue ? (
-          <QueueView queue={queue} />
-        ) : (
-          <>
-            <StatusChip status={row.status} />
-            {row.status === "short" && (
-              <button
-                onClick={() => onFill(row)}
-                className="shrink-0 text-[11px] px-2 py-0.5 rounded-md border border-accent/60 text-accent bg-transparent hover:bg-accent/10 hover:border-accent transition-colors cursor-pointer"
-              >
-                Fill the gap
-              </button>
-            )}
-          </>
-        )}
+        <StatusChip status={row.status} />
       </div>
     </div>
   );
@@ -345,34 +247,6 @@ function StatusChip({ status }: { status: VarietyStatus }) {
     );
   }
   return null;
-}
-
-function QueueView({ queue }: { queue: QueueState }) {
-  if (queue.phase === "error") {
-    return <span className="text-[11px] text-fail">Couldn&apos;t queue</span>;
-  }
-  if (queue.phase === "queuing") {
-    return <span className="text-[11px] text-muted">Queuing…</span>;
-  }
-  // Queued (generating) / ready: top line names the queued batch, second line tracks its progress and
-  // links through to the batch review surface.
-  const phaseLabel = queue.phase === "generating" ? "Generating…" : "Ready to review";
-  return (
-    <div className="text-right leading-tight">
-      <span className="block text-[11px] text-foreground tabular-nums">
-        Queued · {queue.count} wines
-      </span>
-      <span className="block text-[11px]">
-        <span className={queue.phase === "ready" ? "text-success" : "text-muted"}>{phaseLabel}</span>
-        <a
-          href="/admin"
-          className="ml-1 text-accent hover:text-accent-hover underline underline-offset-2"
-        >
-          View batch
-        </a>
-      </span>
-    </div>
-  );
 }
 
 function RowsSkeleton() {
