@@ -571,13 +571,48 @@ const BANKER_SIGNALS: BankerSignal[] = [
   // that had been passing only because this signal miscounted its Mendoza Malbec as the banker.)
   { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
   { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
+  // ── Classics the list simply did not name ──────────────────────────────────────────────────────
+  // Every entry below was measured as a repeat curveball across the 160 real IMW questions
+  // (scripts/corpus-false-positive-rate.mjs), which is the wrong verdict on a wine the Institute
+  // pours as an anchor. Each keeps a variety gate, so the region alone never promotes an oddity: bare
+  // Burgundy counts for Pinot Noir and Chardonnay, not for Aligoté.
+  //
+  // Deliberately NOT added, because the reviewer's own calibration treats them as curveballs and
+  // tests/flight-composition.test.ts pins that: Santorini Assyrtiko, Jura Savagnin, Somló Furmint,
+  // Mittelburgenland Blaufränkisch, Naoussa Xinomavro, Arbois Trousseau — and Mendoza Malbec, per the
+  // EK-0029 note above. Also left out on the same judgement: Marlborough Pinot Noir (the region is a
+  // banker for Sauvignon only), Oregon Pinot Gris, Baden Spätburgunder, Roussillon Grenache, Etna.
+  { region: /\bburgundy\b|\bbourgogne\b/, variety: /pinot noir|chardonnay/ },
+  { region: /\bchinon\b|bourgueil|\bsaumur\b|\bloire\b/, variety: /cabernet franc/ },
+  { region: /muscadet|\bloire\b/, variety: /melon de bourgogne/ },
+  { region: /\bcondrieu\b|\brhone\b/, variety: /viognier/ },
+  { region: /\bpenedes\b|\bcava\b/ },
+  { region: /\btokaj/, variety: /furmint|harslevelu/ },
+  { region: /\bpiedmont\b|\bpiemonte\b|\basti\b|\balba\b/, variety: /barbera|dolcetto|nebbiolo|moscato/ },
+  { region: /\bmadeira\b/ },
+  { region: /provence/, variety: /grenache|cinsault|mourvedre|syrah|rolle|vermentino/ },
+  { region: /\btuscany\b|\btoscana\b|bolgheri/, variety: /sangiovese|cabernet|merlot/ },
+  { region: /south australia/, variety: /shiraz|syrah|cabernet|riesling|chardonnay/ },
+  { region: /\bcalifornia\b/, variety: /zinfandel|cabernet|chardonnay|pinot noir|merlot/ },
 ];
 
-/** Derive whether a resolved wine reads as a BANKER (true) or a CURVEBALL (false, incl. unknowns). */
+/**
+ * Derive whether a resolved wine reads as a BANKER (true) or a CURVEBALL (false, incl. unknowns).
+ *
+ * An UNRESOLVED variety does not veto a region match. Requiring the variety gate to pass on an empty
+ * string made every wine whose grape the key could not resolve a curveball, however classic its
+ * origin: measured over the 160 real IMW questions, "Stellenbosch | ?", "Tuscany | ?", "Alsace | ?",
+ * "Piedmont | ?", "Provence | ?" and "Penedès | ?" were all being counted against the flight. This is
+ * the same principle the appellation resolver already applies to colour — an unrecognised grape is
+ * SKIPPED, not treated as a veto — and it is the single largest contributor to the 47% of real exam
+ * wines this detector was calling curveballs.
+ */
 export function isBanker(w: AuditWine): boolean {
   const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
   const variety = norm((w.varieties || []).map(canonVariety).join(" "));
-  return BANKER_SIGNALS.some((s) => s.region.test(origin) && (!s.variety || s.variety.test(variety)));
+  return BANKER_SIGNALS.some(
+    (s) => s.region.test(origin) && (!s.variety || !variety || s.variety.test(variety))
+  );
 }
 
 function wineLabel(w: AuditWine): string {
@@ -608,7 +643,11 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
     });
   }
 
-  const maxCurveballs = Math.min(2, Math.ceil(n / 2));
+  // `min(2, …)` capped the allowance at two curveballs however large the flight, so a six-wine Paper 3
+  // flight was held to the same budget as a four-wine one. Measured over the real exam that rejected
+  // 27% of its flights; scaling with the flight instead takes it to 5%, while still rejecting 11% of
+  // our generated flights — this rule, unlike id-mark-allocation, does have signal against the bank.
+  const maxCurveballs = Math.max(2, Math.ceil(n / 2));
   if (curveballs.length > maxCurveballs) {
     v.push({
       rule: "flight-composition",
@@ -835,10 +874,48 @@ export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
 // obvious fix is to move marks to the style/method/quality parts.
 // ---------------------------------------------------------------------------------------------------
 
-// A part naming an identification task. Matched case-insensitively against the sub-question text.
+// ── RECALIBRATED 2026-08-08, against the exam itself ────────────────────────────────────────────
+//
+// The thresholds below were invented (10 marks a part; 35% of the paper once a flight had a
+// curveball, 50% otherwise). Measured over the 160 importable real IMW questions with the wines the
+// Institute actually poured (scripts/corpus-false-positive-rate.mjs), they rejected 101 of them —
+// 63% of the real exam — because the real exam is nothing like that shape:
+//
+//                        real IMW          our generated bank
+//   ID share   median      40%                  32%
+//              p90         60%                  52%
+//              max         80%                 100%
+//   single ID  median      10                   10
+//              p90         20                   15
+//              max         30                   60
+//
+// Two things follow. First, a 35% cap rejected the MEDIAN real question, and a 10-mark part cap
+// rejected 43% of them — 2011 P1 Q1 pays 15 marks for "Identify the region" and puts 60 of its 75
+// marks on identification. Second, and more damning for the rule as written: our generated questions
+// are TAMER than the real exam on this axis at every percentile, so the rule was not catching
+// generated excess at all. It was just noise — 305 of the bank's violations.
+//
+// There is still a genuine tail worth catching: generated questions reach a 100% ID share and a
+// 60-mark single part, and the real exam never exceeds 80% / 30. So the HARD line is drawn exactly
+// where the real exam stops, giving zero false positives on it by construction, and the reviewer's
+// original preference survives as a SOFT flag at the real exam's own p90 — visible in review, never
+// a quarantine.
+//
+// The curveball scaling is GONE. It cannot be rescued: it made the cap stricter (35%) precisely when
+// the flight was hard, and the real exam's median sits at 40% regardless. Flight difficulty is
+// policed by flight-composition, which is the rule that actually has signal on it.
 const ID_PART_RE = /identify the (grape variety|region|country|origin)/i;
-// Any one identification sub-question is capped at this per-instance mark value.
-const ID_SINGLE_PART_CAP = 10;
+const ID_SINGLE_PART_HARD = 30; // the real exam's maximum
+const ID_SINGLE_PART_SOFT = 20; // the real exam's p90
+const ID_SHARE_HARD = 0.8; // the real exam's maximum
+const ID_SHARE_SOFT = 0.6; // the real exam's p90
+// …and the other end, which the old cap-only rule could not see. Across 177 identification parts in
+// the real corpus the per-unit value runs 5 → 30 and NEVER below 5. That matters because it is where
+// the reviewer's own bin actually went wrong: the binned question paid 13 marks for "Identify the
+// country" — which the real exam does twice — and 1 mark for "Identify the grape variety", which it
+// never does. The old rule flagged the 13 and let the 1 through. Same 5-mark floor the written parts
+// already use (MARKS_BELOW_FLOOR).
+const ID_PART_FLOOR = 5;
 
 // Parse the mark-carrying sub-questions from a question's text. Each "(N marks)" or "(A x B marks)"
 // annotation closes a part; `text` is everything since the previous annotation (so it holds the part's
@@ -880,35 +957,52 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
   const idMarks = idParts.reduce((s, p) => s + p.marks, 0);
   const total =
     q.totalMarks && q.totalMarks > 0 ? q.totalMarks : parts.reduce((s, p) => s + p.marks, 0);
-  const curveballs = (q.wines || []).filter((w) => !isBanker(w)).length;
   const v: Violation[] = [];
 
-  // (a) No single identification part may exceed the per-part cap (catches "20 marks for the variety").
-  const oversized = idParts.find((p) => p.perUnit > ID_SINGLE_PART_CAP);
-  if (oversized) {
-    const label = oversized.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+  // (a) A single identification part. Hard above what the real exam has ever paid for one, soft above
+  //     its p90 — "15 marks to identify the region" is real, "60 marks" is not.
+  const biggest = idParts.reduce((a, b) => (b.perUnit > a.perUnit ? b : a));
+  if (biggest.perUnit > ID_SINGLE_PART_SOFT) {
+    const label = biggest.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+    const hard = biggest.perUnit > ID_SINGLE_PART_HARD;
     v.push({
       rule: "id-mark-allocation",
-      severity: "hard",
-      detail: `"${label}" is worth ${oversized.perUnit} marks, over the ${ID_SINGLE_PART_CAP}-mark cap on any single variety/region/origin identification part. Move the balance to the style/method/quality parts.`,
+      severity: hard ? "hard" : "soft",
+      detail: hard
+        ? `"${label}" is worth ${biggest.perUnit} marks. The real exam has never paid more than ${ID_SINGLE_PART_HARD} for a single variety/region/origin identification part. Move the balance to the style/method/quality parts.`
+        : `"${label}" is worth ${biggest.perUnit} marks, above the ${ID_SINGLE_PART_SOFT}-mark level the real exam only reaches in its top decile. Legitimate, but check the style/method/quality parts are not being starved.`,
     });
   }
 
-  // (b) The identification total must sit under the difficulty-scaled share of the paper.
-  if (total > 0) {
-    const capFraction = curveballs >= 1 ? 0.35 : 0.5;
-    const capMarks = Math.floor(total * capFraction);
-    if (idMarks > capMarks) {
-      v.push({
-        rule: "id-mark-allocation",
-        severity: "hard",
-        detail: `identification marks total ${idMarks} of ${total} — over the ${Math.round(
-          capFraction * 100
-        )}% cap (${capMarks} marks) for a flight with ${curveballs} curveball${
-          curveballs === 1 ? "" : "s"
-        }. Obscure wines are fine, but the exam then weights the other parts (it may not even ask for the variety); move marks to the style/method/quality parts.`,
-      });
-    }
+  // (a2) …and the floor. A part the exam would never price this low is a mis-allocation just as much
+  //      as an oversized one, and it is the arm that catches the real reviewer bin.
+  const starved = idParts.find((p) => p.perUnit > 0 && p.perUnit < ID_PART_FLOOR);
+  if (starved) {
+    const label = starved.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+    v.push({
+      rule: "id-mark-allocation",
+      severity: "hard",
+      detail: `"${label}" is worth only ${starved.perUnit} mark${
+        starved.perUnit === 1 ? "" : "s"
+      }, below the ${ID_PART_FLOOR}-mark floor every identification part in the real corpus respects (177 parts, 5 to 30 marks). Price it like a task the candidate has to earn.`,
+    });
+  }
+
+  // (b) The identification share of the paper, on the same two-tier basis.
+  if (total > 0 && idMarks > Math.floor(total * ID_SHARE_SOFT)) {
+    const hard = idMarks > Math.floor(total * ID_SHARE_HARD);
+    const share = Math.round((idMarks / total) * 100);
+    v.push({
+      rule: "id-mark-allocation",
+      severity: hard ? "hard" : "soft",
+      detail: hard
+        ? `identification marks total ${idMarks} of ${total} (${share}%) — beyond the ${Math.round(
+            ID_SHARE_HARD * 100
+          )}% the real exam has never exceeded. A question that is almost entirely "name it" leaves no marks for style, method or quality.`
+        : `identification marks total ${idMarks} of ${total} (${share}%), above the ${Math.round(
+            ID_SHARE_SOFT * 100
+          )}% the real exam only reaches in its top decile. Worth checking the other parts carry their weight.`,
+    });
   }
 
   return v;
@@ -2270,7 +2364,21 @@ export function validateQuestion(
     violations.push(...idMarkAllocationViolations(q));
     violations.push(...flightWineCountViolations(q));
   }
-  violations.push(...flightCompositionViolations(q.wines));
+  // POOL-ADMISSION ASYMMETRY, the same shape as R-COLOUR's `blockIndeterminate`.
+  //
+  // flight-composition is emitted HARD, and the generation path (question-engine.ts) consumes it that
+  // way — there, refusing a curveball-heavy flight costs one redraft and steers the generator toward a
+  // recognisable anchor, which is cheap and is the whole point of the rule.
+  //
+  // Here it is ADVISORY, because this entry point judges questions that already exist. Even with the
+  // banker detector repaired, the rule still rejects ~5% of real IMW flights: the Institute really does
+  // set 2023 P1 Q3 (four South African whites, no classic anchor anywhere) and 2016 P2 Q2 (three
+  // cool-climate Pinots). Retiring a banked question on a stylistic preference the exam itself breaks
+  // one time in twenty is the wrong trade — 235 of the bank's violations were this rule. Making the
+  // wine choice better at generation is right; deleting the question afterwards is not.
+  violations.push(
+    ...flightCompositionViolations(q.wines).map((v) => ({ ...v, severity: "soft" as const }))
+  );
   // Rarity budget, exam-precedent blocklist and fortified category integrity are all WINE-side (they
   // turn on the choice/keying of the wines, not the stem's wording), so they run even on a fixed stem.
   violations.push(...validateRarityBudget(q));
