@@ -17,6 +17,10 @@
 import { readFileSync } from "fs";
 import { neon } from "@neondatabase/serverless";
 import { validateQuestion } from "../src/lib/question-validator.ts";
+import { GROUND_TRUTH_INDEPENDENT_RULES } from "../src/lib/question-rules.mjs";
+// The serve-time bank gate, imported so the sweep can enforce exactly what the serve path enforces
+// rather than an approximation of it. See the SERVE-GATE PARITY note below.
+import { bankedServeRejection } from "../src/lib/question-engine.ts";
 // Load-bearing: registers the appellation → primary-variety fallback. This script runs in its own
 // process, so without this import detectPrimaryVariety returns "unknown" for every appellation-only
 // label and the sweep cannot see a Hermitage sitting in a Paper 1 flight.
@@ -44,24 +48,36 @@ if (apply) {
 // so a remediated corpus can report 0 HARD violations on the live pool.
 // g.wines comes along for the ride so the raw label can be zipped back onto the resolved key below —
 // the wine-reference-shape rule needs the original string, which ground_truth has already thrown away.
+// LEFT JOIN, not JOIN. The inner join is why this sweep never delivered the coverage its own header
+// promised: a question with no stem_answer_key row simply was not in the result set, so the "backstop
+// for rows the per-question audit cannot reach" reached exactly none of them. On 2026-08-08 that was
+// 191 of the 409 servable questions — 47% of everything a candidate could be served had never been
+// validated by any rule beyond the five in the serve gate.
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-         k.ground_truth, k.validated
-  FROM generated_questions g JOIN stem_answer_keys k ON k.question_id = g.question_id
+         g.wine_profiles, k.ground_truth, k.validated
+  FROM generated_questions g LEFT JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
 
-let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0;
+let hardCount = 0, softCount = 0, quarantined = 0, setScored = 0, unkeyed = 0;
 const byRule = {};
 for (const r of rows) {
   const gt = typeof r.ground_truth === "string" ? JSON.parse(r.ground_truth) : r.ground_truth;
+  const raw = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
+  const rawWines = Array.isArray(raw) ? raw : [];
+  const bySlot = new Map(rawWines.map((w) => [w.slot, w.fullText]));
+  // A row with no key has no resolved variety/region/country at all, so the wines it can offer the
+  // rule layer are bare labels. Everything the rules infer from a key is simply absent.
+  const hasKey = !!gt;
+  if (!hasKey) unkeyed++;
   // Zip the raw label back onto each resolved key wine, by slot. A slot holding the generator's
   // deliberation instead of a wine still resolves to a plausible-looking key (a paragraph mentioning
   // "Amontillado" and "Spain" keys as Palomino/Jerez/Spain), so the shape rule is the only one that
   // can see the defect — and it needs the string ground_truth discarded.
-  const raw = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
-  const bySlot = new Map((Array.isArray(raw) ? raw : []).map((w) => [w.slot, w.fullText]));
-  const wines = (gt || []).map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w));
+  const wines = hasKey
+    ? gt.map((w) => (bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w))
+    : rawWines.map((w) => ({ slot: w.slot, fullText: w.fullText }));
   const res = validateQuestion({
     questionId: r.question_id, paper: r.paper, family: r.family,
     questionText: r.question_text, totalMarks: r.total_marks, wines,
@@ -71,13 +87,43 @@ for (const r of rows) {
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;
-  const hardAll = res.violations.filter((x) => x.severity === "hard");
+  let hardAll = res.violations.filter((x) => x.severity === "hard");
+
+  // UNKEYED ROWS ENFORCE ONLY THE GROUND-TRUTH-INDEPENDENT RULES.
+  //
+  // The rest are not merely unreliable on bare labels, they are actively wrong: `country-diversity`
+  // fires on 187 keyed questions when their ground truth is stripped and on zero of the same
+  // questions keyed, because "N different countries" cannot be checked against wines whose country
+  // nobody has resolved. Enforcing the full set here would quarantine most of the bank over nothing.
+  // GROUND_TRUTH_INDEPENDENT_RULES is derived from that same two-way comparison — see the note on it
+  // in question-rules.mjs and tests/ground-truth-independent-rules.test.ts, which re-derives it.
+  if (!hasKey) hardAll = hardAll.filter((x) => GROUND_TRUTH_INDEPENDENT_RULES.includes(x.rule));
+
+  // SERVE-GATE PARITY. filterValidBanked refuses questions at serve time that the SQL eligibility
+  // predicate happily counts, so the "N available" on the setup card overstated the pool by 36 of 409
+  // and those 36 sat as permanently unservable inventory that nothing ever flagged. Recording the
+  // rejection here collapses the two gates into one: what the count advertises is what can be served.
+  const serveRejection = bankedServeRejection({ ...r, wines: raw });
+  if (serveRejection)
+    hardAll.push({ rule: "serve-gate", severity: "hard", detail: serveRejection });
+
   // In scoped mode only the named rules can quarantine; everything else is still REPORTED.
   const hard = scoped ? hardAll.filter((x) => onlyRules.includes(x.rule)) : hardAll;
-  for (const x of res.violations) byRule[x.rule] = (byRule[x.rule] || 0) + 1;
-  if (scoped ? hard.length : res.violations.length) {
-    console.log(`${hard.length ? "HARD" : "soft"}  ${r.question_id}  (P${r.paper} ${r.family})`);
-    (scoped ? hard : res.violations).forEach((x) => console.log(`        [${x.severity}] ${x.rule}: ${x.detail}`));
+  // Report what is ENFORCED plus every soft finding. On an unkeyed row the hard rules that were
+  // filtered out above are deliberately not printed as findings — they were never evaluated, and
+  // listing them would read as "checked and passed".
+  const reported = scoped
+    ? hard
+    : [...hardAll, ...res.violations.filter((x) => x.severity !== "hard")];
+  // Tally the REPORTED set, not res.violations: counting a rule that ran on an unkeyed row but was
+  // not enforced puts a number in the summary that no quarantine will ever match (country-diversity
+  // showed 42 that way, all of them unenforceable verdicts on bare labels).
+  for (const x of reported) byRule[x.rule] = (byRule[x.rule] || 0) + 1;
+  if (reported.length) {
+    console.log(
+      `${hard.length ? "HARD" : "soft"}  ${r.question_id}  (P${r.paper} ${r.family})${hasKey ? "" : "  [unkeyed: only ground-truth-independent rules evaluated]"}`
+    );
+    reported.forEach((x) => console.log(`        [${x.severity}] ${x.rule}: ${x.detail}`));
   }
   if (hard.length) {
     hardCount++;
@@ -103,8 +149,12 @@ for (const r of rows) {
       }
       quarantined++;
     }
-  } else if (apply && !scoped) {
+  } else if (apply && !scoped && hasKey) {
     // Clean now — clear any stale VALIDATOR flag so a fixed/regenerated question returns to service.
+    //
+    // Only for KEYED rows. On an unkeyed row "clean" means clean on eight rules out of thirty, which
+    // is not evidence that a flag set by a full evaluation is stale — un-quarantining on that basis
+    // would return genuinely broken questions to service. Same reasoning as scoped mode.
     // Feedback quarantines (rule 'feedback-question', set by apply-change.ts) are preserved: they
     // encode defects the rules can't see, and this script now runs nightly (question-audit-daily.yml)
     // — clearing them here would silently un-quarantine every user-reported bad question each night.
@@ -138,6 +188,9 @@ for (const r of rows) {
 
 console.log(`\n──────── AUDIT SUMMARY ────────`);
 console.log(`questions audited:   ${rows.length}`);
+console.log(
+  `  of which unkeyed:  ${unkeyed}  (evaluated on the ${GROUND_TRUTH_INDEPENDENT_RULES.length} ground-truth-independent rules + the serve gate only)`
+);
 console.log(`HARD violations:     ${hardCount}  (${Math.round((hardCount / rows.length) * 100)}%)`);
 console.log(`soft-only:           ${softCount}`);
 console.log(`set-scored flights:  ${setScored}  (same-variety → origin-pool scoring, not per-wine)`);

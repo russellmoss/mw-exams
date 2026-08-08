@@ -146,7 +146,14 @@ export interface ProducerFlag {
 //      single key ever clears the over-used share threshold — Weinbach had 20 kept P1 wines split
 //      across fragmented keys and still tallied under the bar.
 // Names are display forms; keys are derived via normaliseProducer at the union site.
-export const REVIEWER_EXCLUDED_PRODUCERS = ["Domaine Weinbach", "Seppeltsfield"];
+//
+// The list itself now lives in question-rules.mjs and is re-exported here so existing importers are
+// unchanged. It moved because the ban is enforced in two places, not one: this module feeds the
+// GENERATION prompt, and R-PRODUCER in the rule layer re-checks the finished flight. A prompt is a
+// request, not a gate — three banned wines reached the servable pool on 6-7 Aug 2026 — and the rule
+// layer is plain .mjs, so it cannot import this TypeScript module. One declaration, both stages.
+import { REVIEWER_EXCLUDED_PRODUCERS } from "../question-rules.mjs";
+export { REVIEWER_EXCLUDED_PRODUCERS };
 
 // The over-used slice of a producer tally, capped — the tally-derived half of the generation-time
 // HARD exclusion list. Pure so the cap and the "status decides membership" rule are testable without

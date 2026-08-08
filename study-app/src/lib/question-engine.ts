@@ -536,10 +536,20 @@ function getWineCount(q: GeneratedQuestion): number {
   return Array.isArray(wines) ? wines.length : 0;
 }
 
-function validateBankedQuestion(q: GeneratedQuestion): boolean {
+/**
+ * Why the serve path must refuse this banked question, or null if it may be served.
+ *
+ * Split out of validateBankedQuestion (which now wraps it) so the nightly corpus sweep can enforce
+ * the SAME gate the serve path enforces and record WHY. Before this, the gate's verdict existed only
+ * as a console.log on a live request: the SQL eligibility predicate counted 409 questions while this
+ * function refused 36 of them, so the setup card advertised a pool ~9% larger than could be served
+ * and those 36 sat as invisible dead inventory. Returning the reason is what lets the audit quarantine
+ * them with a legible cause instead of a bare boolean.
+ */
+export function bankedServeRejection(q: GeneratedQuestion): string | null {
   const wines = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
   const wineCount = Array.isArray(wines) ? wines.length : 0;
-  if (wineCount === 0) return false;
+  if (wineCount === 0) return "flight has no wines";
 
   const questionText = q.question_text || "";
 
@@ -550,26 +560,22 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
   // so the serve path has to refuse them until remediate-questions.mjs regenerates them.
   const wineShapeCheck = validateWineReferenceShape(wines);
   if (!wineShapeCheck.valid) {
-    console.log(`Bank filter: ${q.question_id} failed wine-reference shape: ${wineShapeCheck.violations[0]}`);
-    return false;
+    return `failed wine-reference shape: ${wineShapeCheck.violations[0]}`;
   }
 
   const markCheck = validateMarkAllocation(questionText, wineCount);
   if (!markCheck.valid) {
-    console.log(`Bank filter: ${q.question_id} failed mark check: ${markCheck.violations[0]}`);
-    return false;
+    return `failed mark check: ${markCheck.violations[0]}`;
   }
 
   const varietyCheck = validateVarietyConsistency(questionText, wines);
   if (!varietyCheck.valid) {
-    console.log(`Bank filter: ${q.question_id} failed variety check: ${varietyCheck.violations[0]}`);
-    return false;
+    return `failed variety check: ${varietyCheck.violations[0]}`;
   }
 
   const paperScopeCheck = validatePaperScope(q.paper, wines);
   if (!paperScopeCheck.valid) {
-    console.log(`Bank filter: ${q.question_id} failed paper scope: ${paperScopeCheck.violations[0]}`);
-    return false;
+    return `failed paper scope: ${paperScopeCheck.violations[0]}`;
   }
 
   // R-COLOUR at serve time. validatePaperScope above only regexes the raw label, so it cannot see the
@@ -596,8 +602,7 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
     questionText || undefined
   );
   if (paperColourCheck.length > 0) {
-    console.log(`Bank filter: ${q.question_id} failed R-COLOUR: ${paperColourCheck[0].detail}`);
-    return false;
+    return `failed R-COLOUR: ${paperColourCheck[0].detail}`;
   }
 
   // Country diversity was previously NOT re-checked at serve time, so a banked question whose stem
@@ -605,11 +610,16 @@ function validateBankedQuestion(q: GeneratedQuestion): boolean {
   // "four different countries" stem) could still be served. Re-run it on every banked question.
   const countryCheck = validateCountryDiversity(questionText, wines);
   if (!countryCheck.valid) {
-    console.log(`Bank filter: ${q.question_id} failed country diversity: ${countryCheck.violations[0]}`);
-    return false;
+    return `failed country diversity: ${countryCheck.violations[0]}`;
   }
 
-  return true;
+  return null;
+}
+
+function validateBankedQuestion(q: GeneratedQuestion): boolean {
+  const reason = bankedServeRejection(q);
+  if (reason) console.log(`Bank filter: ${q.question_id} ${reason}`);
+  return !reason;
 }
 
 function filterValidBanked(questions: GeneratedQuestion[]): GeneratedQuestion[] {
