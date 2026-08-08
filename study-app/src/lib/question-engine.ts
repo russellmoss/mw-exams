@@ -1638,13 +1638,19 @@ ${repairContext.draft}`,
     };
     // Pinned (Live Tasting) skips the mark-split cap, mirroring the audit's BANK_COMPOSITION_RULES
     // exemption for live-tasting scope — it is a pool-quality standard, not a home-flight one.
+    // Anchored (historical import) drops it for a stronger reason than pinned mode's: the cap
+    // rejects 102 of the 160 real corpus questions (64%) — the IMW routinely pays 15 marks for
+    // "Identify the region" against our 10-mark cap — and the stem may not be edited, so the redraft
+    // loop cannot satisfy it. See `stemIsAuthoritative` in question-validator.ts.
     const idMarkCheck = {
-      violations: pinned ? [] : idMarkAllocationViolations(auditDraft).map((v) => v.detail),
+      violations: pinned || anchored ? [] : idMarkAllocationViolations(auditDraft).map((v) => v.detail),
     };
     const stemFactsCheck = {
       violations: [
+        // crossCheckStemFacts compares the stem's claims against the WINES — actionable, always runs.
+        // stemPreannouncesDiscriminator judges the stem alone, so it stands down on a fixed one.
         ...crossCheckStemFacts(auditDraft),
-        ...stemPreannouncesDiscriminator(candidate.questionText),
+        ...(anchored ? [] : stemPreannouncesDiscriminator(candidate.questionText)),
       ].map((v) => v.detail),
     };
     const contrastCheck = {
@@ -1677,10 +1683,27 @@ ${repairContext.draft}`,
     // it is a pure stem rewrite (drop the premise / re-aim the sub-part), never a wine swap, so a
     // Live Tasting flight that happens to include an off-dry bottle stays generatable. Only the HARD
     // verdicts gate; the soft "name-checks it inside a broader task" flag stays audit-side visibility.
+    // Anchored mode stands down for the reason this comment already gives: it is a pure stem rewrite,
+    // and the stem is a real past paper. (It fires on none of the 160 corpus questions, so this is
+    // about not leaving an unsatisfiable rule armed rather than about unblocking anything.)
     const sweetnessScopeCheck = {
-      violations: sweetnessOutOfPaperViolations(paper, candidate.questionText)
-        .filter((v) => v.severity === "hard")
-        .map((v) => v.detail),
+      violations: anchored
+        ? []
+        : sweetnessOutOfPaperViolations(paper, candidate.questionText)
+            .filter((v) => v.severity === "hard")
+            .map((v) => v.detail),
+    };
+    // Anchored mode's replacement for flightWineCountViolations, which re-parses the stem for its
+    // declared count and cannot read a paired stem ("Wines 1-2, 3-4 and 5-6 are pairs" — 4 of the 160
+    // corpus questions). Here the count is known exactly from the corpus row, so check that instead:
+    // stricter than the rule it replaces, and it cannot be fooled by the stem's prose.
+    const anchoredFlightCheck = {
+      violations:
+        anchored && candidate.wines.length !== anchored.wineCount
+          ? [
+              `this stem is a real past-paper question set on exactly ${anchored.wineCount} wines, but the flight holds ${candidate.wines.length}. Produce ${anchored.wineCount}.`,
+            ]
+          : [],
     };
     // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
     // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
@@ -1692,6 +1715,10 @@ ${repairContext.draft}`,
         // redraft loop can make. Unreachable today (the API caps Live Tasting at 2-4 bottles), but a
         // rule the generator cannot satisfy is the wrong thing to leave armed.
         .filter((v) => !(pinned && v.rule === "single-wine-flight-banker"))
+        // Anchored mode is the mirror: it KEEPS the banker half (pick a curveball — a wine choice the
+        // loop can make) and drops the two `single-wine-flight` arms, which this file already
+        // describes as "a stem edit". The corpus's only single-wine question, 2017 P3 Q2, trips them.
+        .filter((v) => !(anchored && v.rule === "single-wine-flight"))
         .map((v) => v.detail),
     };
     // Single-wine frequency cap: one-wine flights are rare on the exam, so a draft that would push the
@@ -1869,7 +1896,12 @@ ${repairContext.draft}`,
       // announces the discriminator ("made using contrasting approaches in the winery") BLOCKS here
       // and never relaxes — the model is rewording its own text, so convergence is not at risk, and
       // this was the largest stem-quality class in Mike's bin-reason corpus.
-      stemDisclosure: { violations: stemDisclosureViolations(candidate.questionText).map((x) => x.detail) },
+      // Anchored (historical import) stands down: "the model is rewording its own text" is precisely
+      // what is not true of a verbatim past-paper stem. (It fires on none of the 160 corpus
+      // questions — this is about not leaving an unsatisfiable rule armed.)
+      stemDisclosure: {
+        violations: anchored ? [] : stemDisclosureViolations(candidate.questionText).map((x) => x.detail),
+      },
       // Audit-grade rules (see auditDraft above). All three BLOCK on every path and never relax:
       // they are exactly what auditAndQuarantineQuestion will quarantine on minutes after the save,
       // so letting a draft through on them just converts a redraft into a dead banked row. idMark
@@ -1888,6 +1920,8 @@ ${repairContext.draft}`,
       // R11: same policy as paperColour — blocks everywhere, never relaxes, and the fix is a stem edit.
       sweetnessScope: sweetnessScopeCheck,
       singleWineFlight: singleWineFlightCheck,
+      // Anchored mode only: the flight must hold exactly the number of wines the real paper set.
+      anchoredFlight: anchoredFlightCheck,
       singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,

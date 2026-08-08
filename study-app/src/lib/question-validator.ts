@@ -70,6 +70,38 @@ export interface QuestionForAudit {
   // point — the corpus audit, the per-question generation audit, the Fill-the-Bank review pane —
   // gets the answer verdict for free. Absent/empty, behaviour is byte-identical to before.
   modelAnswer?: string | null;
+  // The stem is a REAL past-paper question taken verbatim from the corpus (a historical import; see
+  // historical-stems.ts), not something a model wrote. Set it and the STEM-SHAPE rules stand down.
+  //
+  // Those rules describe our model of the exam, and measurement says the model is narrower than the
+  // exam. Run over all 160 importable questions with the real wines the Institute poured
+  // (scripts/corpus-false-positive-rate.mjs), they reject:
+  //
+  //   id-mark-allocation                102/160  (64%)   real papers routinely pay 15 marks for
+  //                                                      "Identify the region" against our 10 cap,
+  //                                                      and put 60-80% of marks on identification
+  //   part-task-repertoire               30/160  (19%)   tasks it does not know are real, including
+  //                                                      "identify the vintage" and "to whom is this
+  //                                                      wine most likely to appeal, and why"
+  //   flight-wine-count                   4/160   (3%)   the stem-count parser cannot read a paired
+  //                                                      stem ("Wines 1-2, 3-4 and 5-6 are pairs")
+  //   stem-preannounces-discriminator     2/160   (1%)
+  //   single-wine-flight (structure)      1/160   (1%)
+  //
+  // On a fixed stem these are not merely wrong, they are unsatisfiable: the only lever each one
+  // offers is "edit the stem", and the stem is the one thing the import may not change. The first
+  // import run banked 4 of 20 for exactly this reason — the model redrafted three times, failed
+  // identically each time, and fell back to a banked question.
+  //
+  // Everything WINE-side still runs, which is the point of importing through the engine at all:
+  // paper scope and colour, variety consistency against the stem's own claims, contrast integrity,
+  // cross-checked stem facts, the producer caps, style mix, the answer-content rules, and the
+  // single-wine BANKER arm — all of those are answerable by choosing different wines.
+  //
+  // (Precedent: `missing-variety-id-part` was retired outright on 2026-08-07 for firing on a third
+  // of the real modern corpus. The same measurement, the same conclusion — but these rules earn
+  // their keep on GENERATED stems, so they are scoped rather than removed.)
+  stemIsAuthoritative?: boolean;
 }
 export interface Violation {
   rule: string;
@@ -1640,6 +1672,16 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
 
   // (b) Per-task floor. A floor-task part must clear 5 marks per wine it covers (5 × n when asked
   // across the whole flight in one un-multiplied total); literal numeric readouts are exempt.
+  //
+  // Skipped on a verbatim past-paper stem. The floor comes from fb_73 ("Commercial positioning is
+  // always at least five points") and it is right about the modern exam, but four real questions
+  // break it — 2011 P2 Q3 and 2015 P2 Q1 both price a written part at "(3 x 4 marks)". The rule's
+  // only fix is a stem edit, so on a fixed stem it can do nothing but block the import. Note this
+  // does NOT loosen generation: a drafted stem is still held to the floor. (The total-marks arm
+  // above still runs on every path — it fires on none of the 160 corpus questions and it is the
+  // check that the stored total_marks is honest.)
+  if (q.stemIsAuthoritative === true) return v;
+
   for (const p of parts) {
     const task = floorTaskFor(p.text);
     if (!task) continue;
@@ -1954,12 +1996,22 @@ export function validateQuestion(
     totalMarks: q.totalMarks,
     wines: q.wines,
   }) as Violation[];
-  violations.push(...stemPreannouncesDiscriminator(q.questionText));
+  // Stem-shape rules: skipped when the stem is a verbatim past-paper question. See the
+  // `stemIsAuthoritative` field on QuestionForAudit for the measured false-positive rates and why
+  // these are unsatisfiable rather than merely wrong on a fixed stem.
+  const stemFixed = q.stemIsAuthoritative === true;
+  if (!stemFixed) {
+    violations.push(...stemPreannouncesDiscriminator(q.questionText));
+    violations.push(...idMarkAllocationViolations(q));
+    violations.push(...flightWineCountViolations(q));
+  }
   violations.push(...flightCompositionViolations(q.wines));
-  violations.push(...validateSingleWineFlight(q));
-  violations.push(...idMarkAllocationViolations(q));
+  // The banker arm is a WINE choice ("pick a curveball instead") and survives a fixed stem; the two
+  // `single-wine-flight` arms are stem edits, which this file already says of the ID-ask half.
+  violations.push(
+    ...validateSingleWineFlight(q).filter((v) => !stemFixed || v.rule === "single-wine-flight-banker")
+  );
   violations.push(...validateMarkBudget(q));
-  violations.push(...flightWineCountViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
@@ -1971,7 +2023,7 @@ export function validateQuestion(
   }
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
-  violations.push(...partTaskRepertoireViolations(q));
+  if (!stemFixed) violations.push(...partTaskRepertoireViolations(q));
   violations.push(...validatePaperStyleMix(q.paper, q.wines));
   // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
   //

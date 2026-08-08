@@ -27,7 +27,7 @@ export async function auditAndQuarantineQuestion(
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
     SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-           g.scope, g.wine_profiles, k.ground_truth
+           g.scope, g.wine_profiles, g.metadata->>'source' AS source, k.ground_truth
     FROM generated_questions g
     JOIN stem_answer_keys k ON k.question_id = g.question_id
     WHERE g.question_id = ${questionId}`;
@@ -71,6 +71,11 @@ export async function auditAndQuarantineQuestion(
     // after BOTH background writes (stem key + model answer), so on the generation path the answer
     // is normally present; if it failed to generate, the daily sweep re-audits once it exists.
     modelAnswer: (r.model_answer as string | null) ?? null,
+    // Historical import (metadata.source): the stem is a verbatim past-paper question, so the
+    // stem-SHAPE rules stand down — they reject up to 64% of the real corpus and, on a stem that may
+    // not be edited, offer no fix. Every wine-side rule still runs. See `stemIsAuthoritative` on
+    // QuestionForAudit for the measured rates.
+    stemIsAuthoritative: r.source === "historical_stem",
   });
   // Live Tasting questions (scope='live-tasting') are pinned to an availability-confirmed
   // flight: bank-COMPOSITION rules (banker minimum / curveball mix / producer over-use) judge
