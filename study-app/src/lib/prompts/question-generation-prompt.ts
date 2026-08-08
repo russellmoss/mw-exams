@@ -2,6 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { getEndorsedExemplars } from "@/lib/db";
+import { paperScopeProse } from "@/lib/paper-scope";
 
 const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
   F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
@@ -451,20 +452,10 @@ export async function buildQuestionGenerationPrompt(
 
   // Use the actual mock-exam-writer agent instructions as the core system prompt
   // This keeps the app and CLI pipeline in perfect sync
-  const paperScope = paper === 1
-    ? "WHITE STILL WINES ONLY. Every wine in this question MUST be a white still wine. No reds, no rosés, no sparkling, no fortified, no sweet wines (unless a white wine with residual sugar like Riesling Spätlese or Vouvray demi-sec)."
-    : paper === 2
-      ? "RED STILL WINES ONLY. Every wine in this question MUST be a red still wine. No whites, no rosés, no sparkling, no fortified. All wines must be made from red grape varieties."
-      // Measured over the 51 real P3 questions in the corpus: 0 are entirely still dry, 42 (82%)
-      // contain at least one still dry wine, 9 contain none. 32 of 180 real P3 wines (17.8%) are
-      // still dry, and not as exotica — Nuits St Georges 1er Cru, Bandol, Saint-Romain and Riesling
-      // Trocken all appear at curveball_level=low.
-      //
-      // The old text said "No standard still dry whites or reds", which contradicted both the real
-      // exam and this prompt's own P3 style block (which lists still_dry at 20% and can make it the
-      // required category). When it did, the model was told to produce still dry wines and that
-      // still dry wines were an automatic failure.
-      : "A MIXED PAPER: sparkling, fortified, sweet, rosé, oxidative, orange AND still dry wines all belong here. Still dry wines are NOT excluded — 82% of real Paper 3 questions contain at least one, including mainstream examples like Nuits St Georges 1er Cru and Alsace Pinot Gris Grand Cru. The ONE thing Paper 3 never is: a flight made ENTIRELY of standard still dry wines, because that is simply a Paper 1 or Paper 2 question. Every flight must carry at least one wine that is sparkling, fortified, sweet, rosé, oxidative or orange.";
+  //
+  // The scope prose itself now lives in paper-scope.ts so the Live Tasting shopping brief is held to
+  // the same policy — it used to be a local const here and no other generator could read it.
+  const paperScope = paperScopeProse(paper);
 
   // Per-paper mark emphasis — the modern (2018–2025) shape differs sharply by paper (EK-0098).
   const markEmphasis = paper === 1

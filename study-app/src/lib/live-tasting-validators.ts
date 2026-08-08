@@ -14,7 +14,13 @@
  *
  * Both are HARD checks: any entry in the engine's `checks` map that is not in ADVISORY_RULES
  * fails the attempt.
+ *
+ *  - validateBriefPaperScope: the BYO shopping brief must not send the candidate out to buy wines
+ *    that the chosen paper cannot contain. See its own note below.
  */
+
+import { sweetnessOutOfPaperViolations } from "./question-rules.mjs";
+import { validatePaperColour } from "./question-validator";
 
 export type PinnedWine = { slot: number; fullText: string };
 
@@ -301,5 +307,88 @@ export function validateBlindSafety(
       }
     }
   }
+  return { valid: violations.length === 0, violations };
+}
+
+// ── BYO shopping-brief paper scope ──────────────────────────────────────────────────────────────────
+//
+// The brief is the only artefact in the app that costs the candidate MONEY. It is written before any
+// wine exists, so none of the wine-level scope validators can see it: validatePaperColour and
+// validatePaperScope judge resolved wines, and by the time a wine is resolved the bottles are already
+// bought. Reported from the Coach (attempt 413): a Paper 1 brief headed "F5 Production Method
+// (Sweet-Wine Mechanisms)" specified botrytis, passerillage and late-harvest wines — three Paper 3
+// bottles — because BYO_FAMILIES described F5 as "sparkling, fortified, or sweet mechanisms" on every
+// paper, and that description went into the prompt beside "Paper 1".
+//
+// This reuses the two rules that already own the policy rather than inventing a third:
+//   R11  sweetnessOutOfPaperViolations — sweetness as the flight PREMISE or the marked task is a
+//        Paper 3 device. This is the rule that catches the reported bug.
+//   R-COLOUR  validatePaperColour — a slot profile that reads as sparkling or fortified. It
+//        deliberately does NOT block `sweet`, because an off-dry Riesling Spätlese is a legitimate
+//        Paper 1 wine; that asymmetry is why R11 has to carry the sweetness case.
+//
+// PROHIBITIONS ARE STRIPPED FIRST, and that is load-bearing. A correct Paper 1 brief ends with an
+// "Avoid" line, and the honest thing for it to say is "avoid sparkling, fortified or sweet wines" —
+// which contains the exact phrase R11 fires on. Validating the raw brief would reject every
+// well-formed Paper 1 brief and leave the malformed ones (which state sweetness positively) as the
+// only ones that pass. So a line that FORBIDS a style is not a claim about the flight.
+const PROHIBITION_LINE =
+  /\b(?:avoid|avoiding|do not|don't|never|not|no|exclude|excluding|steer clear|rather than|instead of|would break|nothing that|reject)\b/i;
+
+/** Lines of a brief that assert what the flight IS, with prohibitions ("Avoid: sweet wines") removed. */
+function briefClaims(brief: string): string {
+  return (brief || "")
+    .split(/\r?\n/)
+    .filter((line) => line.trim() && !PROHIBITION_LINE.test(line))
+    .join("\n");
+}
+
+/**
+ * Per-slot profiles: "Wine 1 — Botrytis-Affected Sweet Wine" → { slot: 1, fullText: "Botrytis-…" }.
+ * Both an em dash and a colon appear in practice, and the heading may be bolded markdown.
+ */
+function briefSlots(brief: string): { slot: number; profile: string }[] {
+  const out: { slot: number; profile: string }[] = [];
+  for (const line of (brief || "").split(/\r?\n/)) {
+    const m = line.match(/^\s*[*#\s]*wine\s+(\d+)\s*[—–\-:]\s*(.+?)\s*[*#]*\s*$/i);
+    if (m) out.push({ slot: Number(m[1]), profile: m[2].replace(/\*+/g, "").trim() });
+  }
+  return out;
+}
+
+/**
+ * Would this shopping brief send the candidate out for wines Paper `paper` cannot contain?
+ *
+ * Paper 3 admits every style, so it has nothing to check here — its own flight-level rule (at least
+ * one non-still-dry wine) is enforced on the generated question, where the wines are known.
+ */
+export function validateBriefPaperScope(
+  paper: number,
+  brief: string
+): { valid: boolean; violations: string[] } {
+  if (paper !== 1 && paper !== 2) return { valid: true, violations: [] };
+  const violations: string[] = [];
+
+  // R11 — sweetness/RS as the exercise. Hard verdicts only: the soft "name-checks it in passing"
+  // tier is a stem-quality note and would over-fire on shopping prose, which legitimately mentions
+  // what a wine tastes like.
+  for (const v of sweetnessOutOfPaperViolations(paper, briefClaims(brief))) {
+    if (v.severity === "hard") {
+      violations.push(
+        `the brief frames the flight around sweetness, which is a Paper 3 exercise: ${v.detail}`
+      );
+    }
+  }
+
+  // R-COLOUR — a slot asking for a sparkling or fortified bottle, or the wrong colour outright.
+  const slots = briefSlots(brief);
+  for (const s of slots) {
+    for (const v of validatePaperColour(paper, [
+      { slot: s.slot, varieties: [], region: "", fullText: s.profile },
+    ])) {
+      violations.push(`Wine ${s.slot} ("${s.profile}"): ${v.detail}`);
+    }
+  }
+
   return { valid: violations.length === 0, violations };
 }
