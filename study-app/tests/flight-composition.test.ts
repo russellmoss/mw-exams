@@ -8,7 +8,12 @@
 // (unknown wines fail safe to curveball) and rejects a flight with no banker or with more curveballs
 // than min(2, ceil(n/2)).
 import { describe, it, expect } from "vitest";
-import { validateQuestion, isBanker, type AuditWine } from "../src/lib/question-validator";
+import {
+  validateQuestion,
+  isBanker,
+  flightCompositionViolations,
+  type AuditWine,
+} from "../src/lib/question-validator";
 
 const BANKERS: AuditWine[] = [
   { slot: 1, varieties: ["Sauvignon Blanc"], region: "Marlborough", country: "New Zealand" },
@@ -60,35 +65,58 @@ describe("banker classification", () => {
   });
 });
 
-describe("flight-composition rule", () => {
+// The rule is emitted HARD and consumed that way by the generation loop (question-engine.ts), where
+// rejecting a curveball-heavy flight costs one redraft. validateQuestion — which judges questions that
+// ALREADY EXIST — demotes it to soft, because even with the detector repaired it still rejects ~5% of
+// real IMW flights (2023 P1 Q3 is four South African whites with no classic anchor). See the
+// pool-admission note in validateQuestion.
+describe("flight-composition rule (raw — the generation verdict)", () => {
   it("rejects a four-wine flight with three curveballs and one banker", () => {
-    const res = flight([BANKERS[0], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2]]);
-    expect(res.ok).toBe(false);
-    const v = res.violations.filter((x) => x.rule === "flight-composition");
+    const v = flightCompositionViolations([BANKERS[0], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2]]);
     expect(v.some((x) => x.severity === "hard")).toBe(true);
     expect(v.some((x) => /3 curveballs/.test(x.detail))).toBe(true);
   });
 
   it("passes the same-size flight with two curveballs and two bankers", () => {
-    const res = flight([BANKERS[0], BANKERS[1], CURVEBALLS[0], CURVEBALLS[1]]);
-    expect(res.violations.filter((x) => x.rule === "flight-composition")).toEqual([]);
-    expect(res.ok).toBe(true);
+    expect(flightCompositionViolations([BANKERS[0], BANKERS[1], CURVEBALLS[0], CURVEBALLS[1]])).toEqual([]);
   });
 
   it("rejects a six-wine all-obscure flight (no banker)", () => {
-    const res = flight(CURVEBALLS);
-    expect(res.ok).toBe(false);
-    const v = res.violations.filter((x) => x.rule === "flight-composition");
+    const v = flightCompositionViolations(CURVEBALLS);
     expect(v.some((x) => /no banker/.test(x.detail))).toBe(true);
   });
 
   it("rejects a two-wine flight of two curveballs, but passes it with a banker", () => {
-    expect(flight([CURVEBALLS[0], CURVEBALLS[1]]).ok).toBe(false);
-    expect(flight([BANKERS[0], CURVEBALLS[0]]).ok).toBe(true);
+    expect(flightCompositionViolations([CURVEBALLS[0], CURVEBALLS[1]]).length).toBeGreaterThan(0);
+    expect(flightCompositionViolations([BANKERS[0], CURVEBALLS[0]])).toEqual([]);
+  });
+
+  it("scales the curveball allowance with the flight, rather than capping it at two", () => {
+    // min(2, …) held a six-wine flight to the same budget as a four-wine one, which rejected 27% of
+    // real IMW flights. Three curveballs in six wines is now within budget; four is not.
+    const six = [BANKERS[0], BANKERS[1], BANKERS[2], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2]];
+    expect(flightCompositionViolations(six)).toEqual([]);
+    const sixHeavy = [BANKERS[0], BANKERS[1], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2], CURVEBALLS[3]];
+    expect(flightCompositionViolations(sixHeavy).some((x) => /4 curveballs/.test(x.detail))).toBe(true);
   });
 
   it("leaves single-wine questions untouched", () => {
-    const res = flight([CURVEBALLS[0]]);
-    expect(res.violations.filter((x) => x.rule === "flight-composition")).toEqual([]);
+    expect(flightCompositionViolations([CURVEBALLS[0]])).toEqual([]);
+  });
+});
+
+describe("flight-composition through validateQuestion (the audit verdict)", () => {
+  it("reports the same finding, but advisory — it must not retire a banked question", () => {
+    const res = flight([BANKERS[0], CURVEBALLS[0], CURVEBALLS[1], CURVEBALLS[2]]);
+    const v = res.violations.filter((x) => x.rule === "flight-composition");
+    expect(v.length).toBeGreaterThan(0);
+    expect(v.every((x) => x.severity === "soft")).toBe(true);
+    expect(v.some((x) => /3 curveballs/.test(x.detail))).toBe(true);
+  });
+
+  it("a bankerless flight is flagged, not failed", () => {
+    const res = flight(CURVEBALLS);
+    const v = res.violations.filter((x) => x.rule === "flight-composition");
+    expect(v.some((x) => /no banker/.test(x.detail) && x.severity === "soft")).toBe(true);
   });
 });

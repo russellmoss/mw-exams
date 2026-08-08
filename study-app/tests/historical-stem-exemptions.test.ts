@@ -98,10 +98,16 @@ describe("stem-shape rules on a verbatim past-paper stem", () => {
   it("stay armed when the stem is generated — this scopes the rules, it does not retire them", () => {
     const hits = judge(false);
     const rules = new Set(hits.map((h) => h.rule));
-    expect(rules.has("id-mark-allocation")).toBe(true);
     expect(rules.has("part-task-repertoire")).toBe(true);
-    // The measured baseline: 119 of 160 real questions rejected on stem shape alone. Pinned so the
-    // scale of the gap between our model of the exam and the exam stays visible.
-    expect(new Set(hits.map((h) => h.qid)).size).toBe(119);
+    // `id-mark-allocation` is deliberately NOT asserted here any more. It was recalibrated against
+    // this very corpus on 2026-08-08 (see tests/id-mark-allocation.test.ts): its thresholds are now
+    // the real exam's own observed maxima, so by construction it fires on none of these 160 questions
+    // in either mode. That is the rule being fixed rather than scoped — the outcome this file's
+    // sibling rules are still waiting for.
+    expect(rules.has("id-mark-allocation")).toBe(false);
+    // The measured baseline: real questions still rejected on stem shape alone, down from 119 once the
+    // mark-allocation caps stopped describing an exam the IMW does not set. Pinned so the remaining
+    // gap between our model of the exam and the exam stays visible.
+    expect(new Set(hits.map((h) => h.qid)).size).toBe(39);
   });
 });

@@ -48,7 +48,12 @@ describe("prompt template vs auditor ID-mark caps", () => {
     }
   );
 
-  it("the pre-fix template (10 ID marks per wine) fails the cap on a curveball flight — the bug this guards against", () => {
+  // UPDATED 2026-08-08. This used to assert that the pre-fix template (10 of 25 marks on ID, i.e. 40%)
+  // FAILED the auditor — that mismatch was the bug, and it was fixed by moving the prompt down to 32%.
+  // Recalibrating the auditor against the real exam settled the argument the other way: 40% is the
+  // real IMW median, so the prompt was never the thing that was wrong. Both allocations now pass, and
+  // the conflict this file exists to prevent can no longer arise from either side.
+  it("the pre-fix template (10 ID marks per wine, 40%) also passes — it is the real exam's median", () => {
     const n = 4;
     const text = [
       `Wines 1 to ${n} are made in different styles.`,
@@ -64,7 +69,27 @@ describe("prompt template vs auditor ID-mark caps", () => {
       totalMarks: n * 25,
       wines: curveballFlight(n),
     });
-    expect(violations.some((v) => v.rule === "id-mark-allocation")).toBe(true);
+    expect(violations).toEqual([]);
+  });
+
+  it("a template that DID starve the other parts would still fail", () => {
+    // The guard that still has teeth: 21 of 25 marks per wine on identification is 84%, beyond the
+    // 80% the real exam has never exceeded.
+    const n = 4;
+    const text = [
+      `Wines 1 to ${n} are made in different styles.`,
+      `a) Identify the grape variety and origin of each wine as closely as possible. (${n} x 21 marks)`,
+      `b) Comment on the key winemaking decisions behind each wine. (${n} x 4 marks)`,
+    ].join("\n");
+    const violations = idMarkAllocationViolations({
+      questionId: "t",
+      paper: 2,
+      family: "F4",
+      questionText: text,
+      totalMarks: n * 25,
+      wines: curveballFlight(n),
+    });
+    expect(violations.some((v) => v.rule === "id-mark-allocation" && v.severity === "hard")).toBe(true);
   });
 
   it("the prompt's worked example (2 x 8 ID) passes the single-part 10-mark cap and the 35% cap", () => {
