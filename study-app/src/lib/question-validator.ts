@@ -265,9 +265,17 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
   const stem = normStem(q.questionText);
   const wines = q.wines || [];
+  // A stem that describes its flight in SUBSETS makes each claim about a subset, not flight-wide, so
+  // applying them to every wine is a false positive. The shared rule layer has always guarded its own
+  // cardinality checks this way (applyQuestionRules → subsetSplit); these did not. On the real 2022
+  // P2 Q1 — "Wines 1-3 are from different countries and are each made from a different, single grape
+  // variety. Wine 4 is a blend of all three of these varieties." — that gap rejected the blend the
+  // stem had just asked for, counted four different countries where the stem asked for three, and
+  // read wine 4's three resolved varieties as duplicates of wines 1-3.
+  const subsetSplit = subsetScopedStem(q.questionText, wines.length);
 
   // (1) "the same (single) grape variety" — every resolved primary variety must be identical.
-  if (wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
+  if (!subsetSplit && wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
     const known = wines.filter((w) => primaryVariety(w));
     if (known.length >= 2) {
       const base = primaryVariety(known[0]);
@@ -284,7 +292,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   }
 
   // (2) "a different (single) grape variety" / "different grape varieties" — primaries pairwise distinct.
-  if (/different (?:single )?grape variet(?:y|ies)/.test(stem)) {
+  if (!subsetSplit && /different (?:single )?grape variet(?:y|ies)/.test(stem)) {
     const seen = new Map<string, number>();
     for (const w of wines) {
       const pv = primaryVariety(w);
@@ -305,13 +313,6 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const hedged = /variety or varieties|variety ies\b/.test(stem);
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
-  // A stem that describes its flight in SUBSETS makes each claim about a subset, not flight-wide, so
-  // applying them to every wine is a false positive. The shared rule layer has always guarded its own
-  // cardinality checks this way (applyQuestionRules → subsetSplit); these did not. On the real 2022
-  // P2 Q1 — "Wines 1-3 are from different countries and are each made from a different, single grape
-  // variety. Wine 4 is a blend of all three of these varieties." — that gap rejected the blend the
-  // stem had just asked for, and counted four different countries where the stem asked for three.
-  const subsetSplit = subsetScopedStem(q.questionText, wines.length);
   if (!hedged && singularClaim && !subsetSplit) {
     for (const w of wines) {
       const why = blendSignal(w);
