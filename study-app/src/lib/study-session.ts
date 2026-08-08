@@ -66,8 +66,20 @@ export type StudyState =
 
 // ---- Actions ----
 
+/**
+ * The answer-side fields that arrive AFTER the question has been served. A freshly generated
+ * question is handed to the candidate the moment generation converges; its model answer takes
+ * another ~75s to write, so it always lands mid-attempt.
+ */
+export type ModelAnswerPatch = {
+  modelAnswer: string;
+  proposedAnnotation?: string | null;
+  studyDiagramAssist?: string | null;
+};
+
 export type StudyAction =
   | { type: "SELECT_QUESTION"; question: Question }
+  | { type: "ATTACH_MODEL_ANSWER"; answer: ModelAnswerPatch }
   | { type: "START_PRE_GLASS" }
   | { type: "START_KNOWN_WINE" }
   | { type: "SUBMIT_REASONING"; reasoning: string }
@@ -83,6 +95,35 @@ export function studyReducer(state: StudyState, action: StudyAction): StudyState
   switch (action.type) {
     case "SELECT_QUESTION":
       return { step: "question", question: action.question };
+
+    // Install a late-arriving model answer WITHOUT disturbing the attempt. SELECT_QUESTION is the
+    // only other action that sets `question`, and it resets `step` to "question" — dispatching it
+    // mid-attempt would wipe the candidate's progress, which is why the arrival path used to write
+    // only to sessionStorage and left `state.question.modelAnswer` empty forever. That divergence
+    // is the bug: the debrief renders from state, so every on-the-fly question showed
+    // "No model answer available for this question yet." even after the answer had been persisted.
+    //
+    // Every step except select-paper carries a question, so spreading `state` preserves both the
+    // discriminant and the step-specific fields.
+    case "ATTACH_MODEL_ANSWER": {
+      if (state.step === "select-paper") return state;
+      // An empty answer is not an update. Guarding here means no caller can blank a good answer by
+      // dispatching a failed poll result.
+      if (!action.answer.modelAnswer) return state;
+      const { modelAnswer, proposedAnnotation, studyDiagramAssist } = action.answer;
+      return {
+        ...state,
+        question: {
+          ...state.question,
+          modelAnswer,
+          hasModelAnswer: true,
+          // Only overwrite the optional companions when the arrival actually carried them —
+          // a poll response missing them must not erase what the serve payload already had.
+          ...(proposedAnnotation ? { proposedAnnotation } : {}),
+          ...(studyDiagramAssist ? { studyDiagramAssist } : {}),
+        },
+      };
+    }
 
     case "START_PRE_GLASS":
       if (state.step === "question") {
