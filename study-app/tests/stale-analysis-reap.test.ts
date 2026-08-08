@@ -79,6 +79,15 @@ describe("the guard that made fa_65 permanent", () => {
     expect(src).toMatch(/const \{ reaped \} = await reapStaleAnalyses\(\)/);
   });
 
+  it("stamps updated_at, so a reaped row does not look untouched", () => {
+    // `updated_at == created_at` is the signature that diagnosed fa_65 as never-written-to. If the reap
+    // left that intact, every reaped row would carry the same misleading fingerprint.
+    const reapSql = src.slice(src.indexOf("export async function reapStaleAnalyses"));
+    const statements = reapSql.match(/UPDATE feedback_analyses SET[^`]*/g) ?? [];
+    expect(statements.length).toBeGreaterThan(0);
+    for (const s of statements) expect(s).toMatch(/updated_at = NOW\(\)/);
+  });
+
   it("does not silently retry — reaping unwedges, a human re-triggers", () => {
     // auto_apply_enabled is ON in production, so a retry can dispatch a branch-and-PR. The feedback
     // sitting behind a stale lock is by definition old, and 394's substance had already shipped as R11,

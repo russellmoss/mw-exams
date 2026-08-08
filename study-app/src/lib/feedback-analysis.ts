@@ -579,16 +579,21 @@ export async function reapStaleAnalyses(
 
   // updated_at, not created_at: a run that got partway and wrote its thread should get the full window
   // from its LAST sign of life.
+  //
+  // The reap also STAMPS updated_at, matching every other write path in updateFeedbackAnalysis. Without
+  // it a reaped row keeps `updated_at == created_at` — which is precisely the signature used to diagnose
+  // fa_65 as "inserted and never written to again". A reaped row would look untouched, and the next
+  // person to read one would reach the wrong conclusion about what happened to it.
   const rows = opts.attemptId
     ? await sql`
-        UPDATE feedback_analyses SET status = 'error', error_message = ${message}
+        UPDATE feedback_analyses SET status = 'error', error_message = ${message}, updated_at = NOW()
         WHERE status = 'analyzing'
           AND attempt_id = ${opts.attemptId}
           AND updated_at < NOW() - (${cutoffMinutes} * INTERVAL '1 minute')
         RETURNING id
       `
     : await sql`
-        UPDATE feedback_analyses SET status = 'error', error_message = ${message}
+        UPDATE feedback_analyses SET status = 'error', error_message = ${message}, updated_at = NOW()
         WHERE status = 'analyzing'
           AND updated_at < NOW() - (${cutoffMinutes} * INTERVAL '1 minute')
         RETURNING id
