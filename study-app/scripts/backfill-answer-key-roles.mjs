@@ -2,6 +2,13 @@
 //
 //   node --import ./scripts/ts-loader.mjs scripts/backfill-answer-key-roles.mjs --dry-run
 //   node --import ./scripts/ts-loader.mjs scripts/backfill-answer-key-roles.mjs
+//   node --import ./scripts/ts-loader.mjs scripts/backfill-answer-key-roles.mjs --refresh-derived
+//
+// RUN --refresh-derived AFTER ANY CHANGE TO BANKER_SIGNALS. A derived role is a cached verdict from that
+// table, and a stored role is ENFORCED — so recalibrating the table silently leaves stale roles behind
+// that Rule 1 will act on, rewriting prose to agree with a verdict the table no longer holds. Adding the
+// Tavel signal left exactly one such row out of 2265 keyed wines; a broader recalibration would leave
+// more. Generator-declared roles are never touched by the refresh: they record intent, not an inference.
 //
 // WHY THIS EXISTS. validateAnswerKeyClaims Rule 1 checks that a debrief's "banker"/"curveball" label
 // agrees with the wine's keyed role, and it only ENFORCES (triggers a correction pass) against a role
@@ -21,14 +28,26 @@
 // roles turn out to disagree with examiners more often than declared ones, that is measurable rather
 // than a matter of opinion — and this whole backfill is revertible with one UPDATE.
 //
-// IDEMPOTENT and NON-DESTRUCTIVE: a bucket that already carries a role is left exactly as it is, so
-// re-running never overwrites a generator-declared role with a derived one, in either order.
+// IDEMPOTENT: without --refresh-derived an existing role is left exactly as it is, so re-running never
+// overwrites a generator-declared role with a derived one, in either order.
 
+import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { isBanker } from "../src/lib/question-validator.ts";
 
 const DRY_RUN = process.argv.includes("--dry-run");
-const sql = neon(process.env.DATABASE_URL);
+const REFRESH = process.argv.includes("--refresh-derived");
+
+// Prefer the env var (CI); fall back to study-app/.env.local when run by hand, the same way
+// build-stem-answer-keys.mjs and regen-model-answers.mjs do. Run from study-app/.
+function databaseUrl() {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  const text = readFileSync(".env.local", "utf8");
+  const match = text.match(/DATABASE_URL\s*=\s*"?([^"\r\n]+)"?/);
+  if (!match) throw new Error("DATABASE_URL not in the environment or study-app/.env.local");
+  return match[1].trim();
+}
+const sql = neon(databaseUrl());
 
 const rows = await sql`
   SELECT k.question_id, k.ground_truth, g.wines, g.paper
@@ -41,6 +60,7 @@ let examined = 0;
 let updated = 0;
 let winesStamped = 0;
 let skippedAlreadyRoled = 0;
+let refreshedWines = 0;
 const tally = { banker: 0, curveball: 0 };
 
 for (const r of rows) {
@@ -54,7 +74,9 @@ for (const r of rows) {
   let changed = false;
   const next = ground.map((g) => {
     if (!g || typeof g.slot !== "number") return g;
-    if (g.role) { skippedAlreadyRoled += 1; return g; } // never clobber an existing role
+    // Never clobber a role — EXCEPT a derived one under --refresh-derived, where the whole point is to
+    // recompute the cached verdict. A generator-declared role is intent and is never recomputed.
+    if (g.role && !(REFRESH && g.role_source === "derived")) { skippedAlreadyRoled += 1; return g; }
     // isBanker reads region + country + label together, so give it the label the candidate sees —
     // it is what carries "Châteauneuf-du-Pape Blanc", and the blanc exclusion depends on seeing it.
     const role = isBanker({
@@ -66,6 +88,8 @@ for (const r of rows) {
     })
       ? "banker"
       : "curveball";
+    if (g.role === role) { skippedAlreadyRoled += 1; return g; } // already correct; not a write
+    if (g.role) refreshedWines += 1;
     changed = true;
     winesStamped += 1;
     tally[role] += 1;
@@ -86,7 +110,8 @@ console.log(`\n${DRY_RUN ? "DRY RUN — nothing written" : "WROTE"}`);
 console.log(`  answer keys examined     ${examined}`);
 console.log(`  answer keys updated      ${updated}`);
 console.log(`  wines stamped            ${winesStamped}  (banker ${tally.banker}, curveball ${tally.curveball})`);
-console.log(`  wines left alone         ${skippedAlreadyRoled}  (already carried a role)`);
+console.log(`  wines left alone         ${skippedAlreadyRoled}  (already carried a correct role)`);
+if (REFRESH) console.log(`  stale roles CORRECTED    ${refreshedWines}  (--refresh-derived)`);
 if (winesStamped) {
   const pct = ((tally.curveball / winesStamped) * 100).toFixed(1);
   console.log(`\n  curveball share ${pct}% — sanity-check this against flight composition: the rule expects`);

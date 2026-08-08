@@ -80,6 +80,47 @@ describe("isBanker — the appellation-only signals are colour-blind without an 
   });
 });
 
+describe("isBanker — rosé benchmarks", () => {
+  // The table had no rosé entry at all until Tavel was added. Measured on a generated P3 flight: the
+  // generator declared a Château d'Aqueria Tavel an anchor, the table read it a curveball, and the
+  // agreement gate therefore left the role unkeyed — so no P3 rosé flight could be enforced. Note the
+  // keyed REGION for that wine is "Rhône Valley", not "Tavel", so the signal has to match on the label.
+  const rose = (varieties: string[], region: string, country: string, fullText: string) => ({
+    slot: 1,
+    varieties,
+    region,
+    country,
+    fullText,
+  });
+
+  it("keys Tavel a banker, matching on the label when the region is the broader Rhône", () => {
+    expect(
+      isBanker(rose(["Grenache", "Cinsault"], "Rhône Valley", "France",
+        "Château d'Aqueria, Tavel Rosé, 2023. Rhône Valley, France. (13.5%)"))
+    ).toBe(true);
+  });
+
+  it("was already keying Provence and Bandol rosé, so those needed no new entry", () => {
+    expect(
+      isBanker(rose(["Grenache", "Cinsault", "Rolle"], "Côtes de Provence", "France",
+        "Domaine Ott, Côtes de Provence Rosé, 2023. Provence, France."))
+    ).toBe(true);
+    expect(
+      isBanker(rose(["Mourvedre", "Grenache"], "Bandol, Provence", "France",
+        "Domaine Tempier, Bandol Rosé, 2023. Provence, France."))
+    ).toBe(true);
+  });
+
+  it("leaves a genuinely niche rosé a curveball", () => {
+    // Getariako Txakolina rosado is not a benchmark a candidate knows cold; adding Tavel must not
+    // sweep in every rosé.
+    expect(
+      isBanker(rose(["Hondarrabi Beltza"], "Getariako Txakolina", "Spain",
+        "Ameztoi, Rubentis Txakoli Rosado, 2023. Getariako Txakolina, Spain. (11%)"))
+    ).toBe(false);
+  });
+});
+
 describe("buildKeyForRow — keys the declared role only where the classifier agrees", () => {
   // A stamped role is ENFORCED (Rule 1 rewrites prose that contradicts it), so the generator's
   // declaration has to survive a second opinion. `agree` stands in for isBanker: the default treats

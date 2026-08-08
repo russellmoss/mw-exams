@@ -558,6 +558,13 @@ const BANKER_SIGNALS: BankerSignal[] = [
   { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
   // Rouge only — the white is a curveball, not the anchor. See BankerSignal.exclude (attempt 249).
   { region: /chateauneuf/, exclude: /\bblanc\b/ },
+  // Tavel — the benchmark serious dry rosé, and until now the table's only rosé blind spot. Côtes de
+  // Provence and Bandol rosé already match via the /provence/ entry below and Rioja rosado via /rioja/,
+  // so Tavel was the whole gap: measured on a generated P3 flight where the generator declared a
+  // Château d'Aqueria Tavel an anchor and the table read it a curveball, leaving the role unkeyed.
+  // Region-only is safe here in a way it is NOT for chateauneuf: Tavel is rosé by law and makes no red
+  // or white, so there is no other colour for a bare region match to catch.
+  { region: /\btavel\b/ },
   { region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/, variety: /syrah|shiraz/ },
   { region: /\bchampagne\b/ },
   { region: /\bsauternes\b|\bbarsac\b/ },
