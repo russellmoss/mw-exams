@@ -750,6 +750,118 @@ export async function getRecentGeneratedQuestions(limit = 5): Promise<GeneratedQ
 // lookup is a read of a stored value rather than a re-derivation — with a compute-on-the-fly fallback
 // for rows generated before this feature.
 
+// ── Rarity budget & fortified category integrity (P3 feedback cluster: fb_254, fb_241, fb_55) ──────
+//
+// Three validated Paper-3 signals converge on ONE fault: ultra-rare / no-precedent fortified &
+// oxidative wines used as flight fillers.
+//   • fb_254 — a flor-aged Australian "apera"/fino: a style the IMW practical has not poured in a
+//     decade. examPrecedent === false → the wine is rejected outright.
+//   • fb_241 — two Jura oxidative/flor-aged wines in a six-wine ladder (25% of the flight). The Jura
+//     oxidative style is legitimate but niche (tier 3); a flight may carry at most ONE tier-3 wine.
+//   • fb_55 — a tawny port keyed as a single grape variety. Tawny port (and most sherry solera
+//     styles) are mandatory blends, so a stem/key that presents one as single-variety is wrong.
+//
+// This is the SINGLE source of the tier data: admins retag wines by editing WINE_RARITY_TIERS /
+// FORTIFIED_CATEGORY_INTEGRITY here, and validateRarityBudget() (question-validator.ts) reads it and
+// holds no wine knowledge of its own. Each rule's `match` is tested (case-insensitively, accents
+// stripped — see the validator's haystack builder) against a wine's fullText / region / country /
+// variety / style text combined.
+
+/** 1 = classic benchmark · 2 = uncommon · 3 = niche (a flight may hold at most ONE tier-3 wine). */
+export type RarityTier = 1 | 2 | 3;
+
+export interface WineRarityRule {
+  /** Stable id an admin can reference when retagging. */
+  id: string;
+  /** Human label for the category this rule tags. */
+  label: string;
+  /** Matched against the wine's combined, normalised descriptor. */
+  match: RegExp;
+  rarityTier: RarityTier;
+  /**
+   * Has this category appeared in an MW practical or Institute mock in the last ten years?
+   * `false` → the wine is rejected outright regardless of flight composition (Rule 2). The blocklist
+   * is seeded with the flor-aged Australian apera/fino of fb_254 and other non-Jerez flor styles.
+   */
+  examPrecedent: boolean;
+}
+
+export const WINE_RARITY_TIERS: WineRarityRule[] = [
+  // ── examPrecedent === false: rejected outright (Rule 2) ─────────────────────────────────────────
+  // Flor-aged Australian "apera" (the legal name for Australian fino/sherry-style since 2010). fb_254:
+  // "very uncommon, i have not seen this wine on any exam … in the last ten years".
+  {
+    id: "apera-australia",
+    label: "Flor-aged Australian apera / fino",
+    match: /\bapera\b|\baustralian?\b[^.]*\b(fino|flor|sherry)\b|\b(fino|flor|sherry)\b[^.]*\baustralian?\b/,
+    rarityTier: 3,
+    examPrecedent: false,
+  },
+  // Other non-Jerez flor / biologically-aged styles — same no-precedent argument. Jerez, Montilla and
+  // the Jura are deliberately NOT matched here (they have precedent; the Jura is tiered below).
+  {
+    id: "flor-non-jerez",
+    label: "Non-Jerez flor / biologically-aged style",
+    match: /\b(flor|biologically[- ]aged|sous\s*voile)\b[^.]*\b(california|south africa|canada|usa|united states|new zealand|chile|argentina)\b|\b(california|south africa|canada|usa|united states|new zealand|chile|argentina)\b[^.]*\b(flor|biologically[- ]aged)\b/,
+    rarityTier: 3,
+    examPrecedent: false,
+  },
+  // ── tier-3 niche BUT with precedent: capped at one per flight (Rule 1) ──────────────────────────
+  // Jura oxidative / flor-aged (vin jaune, Château-Chalon, savagnin sous voile). fb_241: historically
+  // an exam pours at most ONE, to test that the candidate reads the low alcohol as "not fino sherry".
+  {
+    id: "jura-oxidative",
+    label: "Jura oxidative / flor-aged (vin jaune, Château-Chalon)",
+    match: /\bvin\s*jaune\b|\bchateau-?\s*chalon\b|\bjura\b[^.]*\b(oxidative|flor|voile|savagnin|jaune)\b|\b(oxidative|flor|voile|savagnin|jaune)\b[^.]*\bjura\b|\barbois\b[^.]*\b(oxidative|flor|voile|jaune)\b/,
+    rarityTier: 3,
+    examPrecedent: true,
+  },
+];
+
+export interface FortifiedCategoryIntegrity {
+  /** Stable id an admin can reference when retagging. */
+  id: string;
+  /** Human label for the fortified style. */
+  label: string;
+  /** Matched against the wine's combined, normalised descriptor. */
+  match: RegExp;
+  /** Asserts the style is ALWAYS a blend, so a single-variety stem/key over it is a category error. */
+  mandatoryBlend: true;
+  /**
+   * Grapes that a key MAY legitimately list on their own for this style, so the single-variety check
+   * stands down. Sherry's blend is fractional across VINTAGES (solera), not across grapes — an
+   * oloroso keyed as 100% Palomino is varietally correct — so palomino/PX/moscatel are exempt. Port's
+   * blend is across GRAPES, so it has no exception and any single-variety key is a category error.
+   */
+  singleVarietyOk?: RegExp;
+}
+
+// Category-integrity map for fortified styles that are mandatory blends (Rule 3). A flight stem that
+// claims each wine is a "different, single grape variety" — or a key that resolves one of these to a
+// single variety — is rejected. Sherry solera styles are blends by their fractional multi-vintage
+// solera; port styles are field/lot blends of many grapes.
+export const FORTIFIED_CATEGORY_INTEGRITY: FortifiedCategoryIntegrity[] = [
+  {
+    id: "tawny-port",
+    label: "Tawny Port",
+    match: /\btawny\b|\btawny\s*port\b|\bcolheita\b/,
+    mandatoryBlend: true,
+  },
+  {
+    id: "port",
+    label: "Port (ruby / vintage / LBV)",
+    match: /\b(ruby|vintage|lbv|late[- ]bottled)\b[^.]*\bport\b|\bport\b[^.]*\b(ruby|vintage|lbv|late[- ]bottled)\b|\bporto\b/,
+    mandatoryBlend: true,
+  },
+  {
+    id: "sherry-solera",
+    label: "Sherry (solera-aged: oloroso, amontillado, palo cortado, cream)",
+    match: /\b(oloroso|amontillado|palo\s*cortado|cream\s*sherry|pale\s*cream|east\s*india)\b|\bsolera\b/,
+    mandatoryBlend: true,
+    singleVarietyOk: /\b(palomino|pedro\s*ximenez|pedro\s*ximenes|px|moscatel|muscat)\b/,
+  },
+];
+
 export const RECENT_WINE_WINDOW = 20;
 export const RECENT_FLIGHT_WINDOW = 50;
 

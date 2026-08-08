@@ -128,9 +128,20 @@ describe("thinking request params", () => {
   });
 
   it("grows max_tokens when thinking is on, because it caps thinking + response together", async () => {
-    expect((await withThinking("claude-sonnet-4-6", 2000)).max_tokens).toBe(4000);
-    // Unsupported model: max_tokens passes through untouched and no thinking fields are added.
-    expect(await withThinking("claude-haiku-4-5-20251001", 2000)).toEqual({ max_tokens: 2000 });
+    // Pin the admin toggle to its shipped default (ON) rather than whatever the shared app_settings
+    // row happens to hold in CI: null DATABASE_URL so reasoningEnabled fails open to true, matching
+    // a clean environment. Restore + invalidate afterwards so no later test inherits the state.
+    const url = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    invalidateReasoningCache();
+    try {
+      expect((await withThinking("claude-sonnet-4-6", 2000)).max_tokens).toBe(4000);
+      // Unsupported model: max_tokens passes through untouched and no thinking fields are added.
+      expect(await withThinking("claude-haiku-4-5-20251001", 2000)).toEqual({ max_tokens: 2000 });
+    } finally {
+      if (url !== undefined) process.env.DATABASE_URL = url;
+      invalidateReasoningCache();
+    }
   });
 
   it("the admin kill switch strips thinking entirely and restores the original max_tokens", async () => {
