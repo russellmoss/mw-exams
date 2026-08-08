@@ -55,7 +55,7 @@ if (apply) {
 // validated by any rule beyond the five in the serve gate.
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.question_text, g.total_marks, g.wines, g.model_answer,
-         g.wine_profiles, k.ground_truth, k.validated
+         g.wine_profiles, g.metadata->>'source' AS source, k.ground_truth, k.validated
   FROM generated_questions g LEFT JOIN stem_answer_keys k ON k.question_id = g.question_id
   WHERE (g.metadata->>'archived') IS DISTINCT FROM 'true'
   ORDER BY g.paper, g.family`;
@@ -84,6 +84,11 @@ for (const r of rows) {
     // Answer-content rules (answer-content-rules.mjs) run over the stored model answer when one
     // exists — missing wines, absent identities, placeholders quarantine alongside the stem rules.
     modelAnswer: r.model_answer ?? null,
+    // Historical imports carry a verbatim past-paper stem, so the stem-SHAPE rules stand down here
+    // exactly as they do in auditAndQuarantineQuestion. Without this the DAILY audit re-quarantines
+    // every imported row on rules that reject up to 64% of the real corpus — which is precisely what
+    // happened on 2026-08-08: eleven rows that passed generation came back id-mark-allocation.
+    stemIsAuthoritative: r.source === "historical_stem",
   });
   // Same-variety flights are scored by origin POOL, not per-wine binary, in the Stem Sniper drill.
   if (res.scoringModel === "set") setScored++;

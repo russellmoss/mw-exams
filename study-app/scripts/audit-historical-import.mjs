@@ -19,8 +19,16 @@
 import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { selectImportableStems, historicalQuestionId } from "@/lib/historical-stems";
+import { auditAndQuarantineQuestion } from "@/lib/question-audit";
 
 const VERBOSE = process.argv.includes("--verbose");
+// --reaudit clears every imported row's quarantine flags and re-runs the audit.
+//
+// Needed because auditAndQuarantineQuestion only ever SETS invalid_reasons; nothing clears them. So a
+// row quarantined by a stale rule stays quarantined after the rule is fixed. That is exactly what
+// happened on 2026-08-08: the daily corpus audit ran on production (which does not yet carry the
+// stemIsAuthoritative scoping) and re-quarantined eleven imported rows on id-mark-allocation.
+const REAUDIT = process.argv.includes("--reaudit");
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
 const sql = neon(process.env.DATABASE_URL);
 
@@ -44,6 +52,25 @@ function normalizeLabel(s) {
 // substitution exists to produce. Deliberately generous — a mature-wine question legitimately pours
 // old bottles, so this reports rather than fails.
 const STALE_BEFORE = Number(process.argv.find((a) => a.startsWith("--stale-before="))?.split("=")[1] || 2010);
+
+if (REAUDIT) {
+  const ids = (await sql`SELECT question_id FROM generated_questions WHERE question_id LIKE 'hist_%'`)
+    .map((r) => r.question_id);
+  console.log(`[audit] re-auditing ${ids.length} imported rows with the current rules…`);
+  await sql`UPDATE generated_questions SET invalid_reasons = NULL WHERE question_id = ANY(${ids})`;
+  await sql`UPDATE stem_answer_keys SET invalid_reasons = NULL, validated = true WHERE question_id = ANY(${ids})`;
+  let stillBad = 0;
+  for (const id of ids) {
+    const res = await auditAndQuarantineQuestion(id);
+    if (res.audited && res.hard.length) {
+      stillBad++;
+      console.log(`   ${id}  ${res.hard.map((v) => v.rule).join(", ")}`);
+    } else if (!res.audited) {
+      console.log(`   ${id}  not audited: ${res.reason}`);
+    }
+  }
+  console.log(`[audit] re-audit done — ${ids.length - stillBad} clean, ${stillBad} still quarantined\n`);
+}
 
 const rows = await sql`
   SELECT g.question_id, g.paper, g.family, g.total_marks, g.status, g.invalid_reasons, g.wines,

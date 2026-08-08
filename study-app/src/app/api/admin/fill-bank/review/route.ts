@@ -163,6 +163,11 @@ function violationsFor(q: GeneratedQuestion, groundTruth: unknown[]): Violation[
     // Answer-content verdicts too (answer-content-rules.mjs): the reviewer deciding keep/bin should
     // see a truncated or wine-skipping model answer, not just stem<->wine contradictions.
     modelAnswer: q.model_answer ?? null,
+    // Historical imports carry a verbatim past-paper stem. Showing the reviewer stem-shape
+    // violations on one would be actively misleading — they reject up to 64% of the real corpus, and
+    // the reviewer's only available fix ("edit the stem") is the one thing the import must not do.
+    stemIsAuthoritative:
+      (typeof q.metadata === "string" ? JSON.parse(q.metadata) : q.metadata)?.source === "historical_stem",
   }).violations;
 }
 
