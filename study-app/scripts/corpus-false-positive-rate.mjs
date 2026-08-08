@@ -28,7 +28,6 @@ import {
   validateSingleWineFlight,
   flightWineCountViolations,
   flightCompositionViolations,
-  isBanker,
 } from "@/lib/question-validator";
 // Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so a
 // wine named only by its appellation ("Chablis 1er Cru") resolves its variety and colour the way the
