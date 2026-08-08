@@ -15,6 +15,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { selectModel } from "./model-selector";
 import { logClaudeUsage } from "./usage-log";
 import { liveTastingSessionId } from "./live-tasting";
+import { paperScopeProse, paperScopeShort } from "./paper-scope";
+import { validateBriefPaperScope } from "./live-tasting-validators";
 
 /**
  * Live Tasting generation pipeline (live_tasting_plan.md §2.1, §4):
@@ -827,6 +829,52 @@ export const BYO_FAMILIES: Record<string, { label: string; description: string }
   F7: { label: "Quality Hierarchy", description: "Wines at different tiers within a legal classification system" },
 };
 
+/**
+ * Two of those descriptions name PAPER 3 DEVICES, and the description is fed to the brief writer
+ * beside the paper number.
+ *
+ * F5 said "sparkling, fortified, or sweet mechanisms" and F6 said "maturity, sweetness, or style" on
+ * every paper. Asked for "Paper 1 (white still wines). Question family: F5 — Method / Production
+ * (Focus on how the wine was made: sparkling, fortified, or sweet mechanisms)", a reasonable model
+ * resolves the conflict in favour of the family, because the family is the specific instruction. That
+ * is exactly what happened in Coach bug 413: a Paper 1 brief of botrytis + passerillage +
+ * late-harvest wines, which the candidate would have gone out and bought.
+ *
+ * The families themselves are real on Papers 1 and 2 — the exam does ask how a dry white was made.
+ * What is Paper 3 is the specific MECHANISM SET. So the description is resolved per paper, naming the
+ * production levers that paper actually turns.
+ *
+ * F6 keeps "maturity" and "style" on P1/P2 and loses "sweetness" for the reason codified in R11
+ * (question-rules.mjs): across 2011-2026 every stem that declares or marks residual sugar is Paper 3,
+ * even though eleven Paper 1 wines in that corpus carry RS. Noticing the sugar is the candidate's job
+ * on Paper 1; anatomising it is the Paper 3 exercise.
+ */
+const BYO_FAMILY_SCOPED_DESCRIPTION: Record<string, Record<number, string>> = {
+  F5: {
+    // Deliberately NOT "skin contact": a skin-contact white is an ORANGE wine, which R-COLOUR blocks
+    // on Paper 1 as unconditionally as it blocks sparkling. Naming it here made the description invite
+    // the violation the guard then rejected — a live P1/F5 call offered "Skin-Contact or
+    // Amphora/Concrete-Vessel, Oxidative-Leaning" in slot 3 and cost a repair round. Reductive vs
+    // oxidative HANDLING stays: a cask-oxidised white Rioja is a legitimate Paper 1 wine and
+    // validatePaperColour deliberately permits the `oxidative` style.
+    1: "Focus on how the wine was made, on DRY OR OFF-DRY WHITE STILL wines: oak regime (new vs neutral, barrel size), lees contact and bâtonnage, malolactic fermentation, vessel choice (steel vs concrete vs oak vs amphora), reductive vs oxidative handling. NOT sparkling, fortified, dessert-sweet or skin-contact/orange mechanisms — those are Paper 3.",
+    2: "Focus on how the wine was made, on DRY RED STILL wines: whole-bunch or carbonic maceration, extraction and maceration length, cap management, oak regime and vessel, malolactic, ageing and élevage. NOT sparkling, fortified or dessert-sweet mechanisms — those are Paper 3.",
+    3: "Focus on how the wine was made: sparkling, fortified, or sweet mechanisms",
+  },
+  F6: {
+    1: "Wines grouped by a structural axis on WHITE STILL wines: maturity and development, ageing regime, or house style. NOT sweetness — a sweetness axis is Paper 3.",
+    2: "Wines grouped by a structural axis on RED STILL wines: maturity and development, tannin or extraction level, ageing regime, or house style. NOT sweetness — a sweetness axis is Paper 3.",
+    3: "Wines grouped by a structural axis: maturity, sweetness, or style",
+  },
+};
+
+/** The family label + the description that is true for THIS paper. */
+export function byoFamilyFor(family: string, paper: number): { label: string; description: string } {
+  const fam = BYO_FAMILIES[family] ?? BYO_FAMILIES.F1;
+  const scoped = BYO_FAMILY_SCOPED_DESCRIPTION[family]?.[paper];
+  return scoped ? { label: fam.label, description: scoped } : fam;
+}
+
 /** Benchmark anchor varieties per paper for multi-flight papers — drawn without replacement so
  *  flights can't collide. Same pools the pick-for-me candidate picker uses. */
 export function anchorVarietiesForPaper(paper: number): string[] {
@@ -873,7 +921,7 @@ export async function buildByoGuidance(opts: {
   omitTitle?: boolean;
 }): Promise<string> {
   const { paper, family, flightSize, budgetAmount, budgetCurrency, city, country, apiKey, userId } = opts;
-  const fam = BYO_FAMILIES[family] ?? BYO_FAMILIES.F1;
+  const fam = byoFamilyFor(family, paper);
   const anchorLine = opts.anchor?.variety
     ? `\nANCHOR (non-negotiable): this flight is built on ${opts.anchor.variety}. Do not offer a choice of anchor varieties.`
     : opts.anchor?.region
@@ -890,29 +938,59 @@ export async function buildByoGuidance(opts: {
   const budgetLine = budgetAmount
     ? `Budget: about ${budgetAmount} ${budgetCurrency ?? ""} per bottle.`
     : "No fixed budget, but favour widely available benchmarks over trophies.";
-  const t0 = Date.now();
-  const msg = await client.messages.create({
-    model,
-    max_tokens: 1200,
-    system: `You are a Master of Wine exam coach writing a SHOPPING BRIEF for a candidate practising at home. They will buy real bottles matching your brief, a partner will bag them, and they will taste blind against a generated MW-style question. Write practical, buyable guidance — benchmark wines a decent wine shop or mail-order carries, not unicorns.
+  // The scope is stated in the SYSTEM turn (a standing constraint) as well as beside the paper number
+  // in the user turn, because the family description used to be the most specific instruction in the
+  // prompt and the model followed it over the paper.
+  const system = `You are a Master of Wine exam coach writing a SHOPPING BRIEF for a candidate practising at home. They will buy real bottles matching your brief, a partner will bag them, and they will taste blind against a generated MW-style question. Write practical, buyable guidance — benchmark wines a decent wine shop or mail-order carries, not unicorns.
+
+PAPER SCOPE — Paper ${paper}: ${paperScopeProse(paper)}
+This governs every slot. If the question family below suggests a style this paper cannot contain, the PAPER WINS: express the family through the production levers this paper does turn. The candidate is going to spend real money on these bottles, so a wine from the wrong paper is the worst mistake you can make.
 
 Format (markdown, ~250-400 words):
 1. One line restating the exercise (paper, question type, flight size).
 2. Per slot (Wine 1..N): the profile to buy — variety/style, 2-3 example regions ranked by availability, what QUALITY tier to aim for, and 3-4 example producers spanning price points. Never demand one exact wine.
 3. "Avoid" line: what would break this flight (wrong styles, ringers, wines that contradict the question type).
 4. One line on price expectations.
-The candidate shops near ${city}, ${country}. ${budgetLine}${anchorLine}${avoidLine}${titleLine}`,
-    messages: [{
-      role: "user",
-      content: `Paper ${paper} (${paper === 1 ? "white still wines" : paper === 2 ? "red still wines" : "sparkling/fortified/sweet and other special styles"}). Question family: ${family} — ${fam.label} (${fam.description}). Flight size: ${flightSize} wines.`,
-    }],
-  });
-  logClaudeUsage(
-    { taskType: "question_generation", model, source: "user", userId, abGroup },
-    msg.usage,
-    { latencyMs: Date.now() - t0 }
-  );
-  return msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+The candidate shops near ${city}, ${country}. ${budgetLine}${anchorLine}${avoidLine}${titleLine}`;
+  const userTurn = `Paper ${paper} (${paperScopeShort(paper)}). Question family: ${family} — ${fam.label} (${fam.description}). Flight size: ${flightSize} wines.`;
+
+  const ask = async (correction?: string): Promise<string> => {
+    const t0 = Date.now();
+    const msg = await client.messages.create({
+      model,
+      max_tokens: 1200,
+      system,
+      messages: [{ role: "user", content: correction ? `${userTurn}\n\n${correction}` : userTurn }],
+    });
+    logClaudeUsage(
+      { taskType: "question_generation", model, source: "user", userId, abGroup },
+      msg.usage,
+      { latencyMs: Date.now() - t0 }
+    );
+    return msg.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  };
+
+  let brief = await ask();
+
+  // The guard behind the prompt. One repair attempt, then fail loudly: a brief that sends the
+  // candidate shopping for the wrong paper is worse than no brief, because they only find out after
+  // the bottles are open. Silently serving it is what produced Coach bug 413.
+  const scope = validateBriefPaperScope(paper, brief);
+  if (!scope.valid) {
+    console.log(`BYO brief failed paper scope (P${paper} ${family}): ${scope.violations.join(" | ")}`);
+    brief = await ask(
+      `Your previous brief broke the PAPER SCOPE rule and was rejected:\n${scope.violations
+        .map((v) => `- ${v}`)
+        .join("\n")}\nRewrite it for Paper ${paper} only. Keep the same family (${fam.label}) but express it through styles Paper ${paper} can contain.`
+    );
+    const retry = validateBriefPaperScope(paper, brief);
+    if (!retry.valid) {
+      throw new Error(
+        `The shopping brief kept specifying wines that are not Paper ${paper} (${retry.violations[0]}). Try again, or pick a different question type.`
+      );
+    }
+  }
+  return brief;
 }
 
 export async function createByoPrep(opts: {

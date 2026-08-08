@@ -1724,6 +1724,58 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0159 · A wine-level validator cannot guard the artefact that has no wines (the shopping brief)
+- **tier:** PROCESS · **status:** live — fixed 2026-08-07
+- **evidence:** Coach bug report attempt **413** (user 2, 2026-08-07 22:09 UTC, route
+  `/live-tasting/lts_idpk44j2t`): a Live Tasting brief headed "Live Tasting · Paper 1" and "Paper 1
+  White Still — F5 Production Method (Sweet-Wine Mechanisms)" whose three slots were a
+  botrytis wine, a dried-grape/passerillage wine and a late-harvest/cryoextraction wine;
+  `BYO_FAMILIES` and `buildByoGuidance` (`study-app/src/lib/live-tasting-engine.ts`);
+  `study-app/tests/live-tasting-brief-scope.test.ts`
+- **claim:** **Symptom:** a Paper 1 exercise instructing the candidate to go and buy three Paper 3
+  dessert wines. **Root cause — the prompt named a Paper 3 device more specifically than it named the
+  paper.** `BYO_FAMILIES.F5` described itself as "Focus on how the wine was made: sparkling, fortified,
+  or sweet mechanisms" on *every* paper, and that description was interpolated into the brief prompt
+  beside `Paper 1 (white still wines)`. Given a general constraint and a specific instruction that
+  contradicts it, the model followed the specific one — correctly, in prompt terms. F6 carried the same
+  defect via "maturity, **sweetness**, or style".
+  **Why no validator caught it.** Every paper-scope enforcement in the codebase — `validatePaperColour`
+  (R-COLOUR), `validatePaperScope`, `validatePaperStyleMix` — takes *wines*. The shopping brief is
+  written **before any wine exists**; it is a description of wines to go and buy. By the time a wine is
+  resolved and those validators can run, the bottles are bought and opened. R11
+  (`sweetnessOutOfPaperViolations`, EK-0155-era) would have caught the framing, but it was only ever run
+  over question stems.
+  **Fix, three layers.** (1) The family description is resolved **per paper** (`byoFamilyFor`), naming
+  the production levers that paper actually turns — oak/lees/MLF/vessel on P1, whole-bunch/maceration on
+  P2 — and keeping the sweet/sparkling/fortified set for P3 only. (2) The paper scope prose moved out of
+  `buildQuestionGenerationPrompt`'s local scope into `study-app/src/lib/paper-scope.ts`, so the brief
+  writer is held to the same text as the question generator, and it is stated in the system turn with an
+  explicit "if the family suggests a style this paper cannot contain, the PAPER WINS". (3)
+  `validateBriefPaperScope` runs R11 (sweetness-as-premise) and R-COLOUR (per slot profile) over the
+  returned brief, with one repair round and then a hard failure.
+- **prohibitions must be stripped before validating prose, and this is load-bearing:** a *correct* Paper 1
+  brief ends with "Avoid: anything sparkling, fortified or dessert-sweet" — the exact phrase R11 fires on.
+  Validating the raw brief rejects every well-formed brief and passes only the malformed ones, which state
+  sweetness positively. A line that FORBIDS a style is not a claim about the flight.
+- **a description must not invite the guard's own violation.** The first draft of the P1 F5 lever list
+  included "skin contact"; a live call duly offered "Skin-Contact or Amphora/Concrete-Vessel,
+  Oxidative-Leaning" in slot 3, which resolves to **orange** and is blocked on Paper 1 as firmly as
+  sparkling. Every such brief burned a repair round. Reductive-vs-oxidative *handling* stays — a
+  cask-oxidised white Rioja is a legitimate Paper 1 wine and R-COLOUR deliberately permits `oxidative`
+  (EK-0156).
+- **verified against live model calls**, not only unit tests: three families (P1 F5, P1 F6, P2 F5) and
+  then P1 F5 twice more after removing the skin-contact lever — all pass the guard on the first attempt,
+  producing oak/MLF/lees/vessel contrasts instead of dessert wines. The unit tests pin both directions,
+  including that a correct brief mentioning sweet wines in its Avoid line is ACCEPTED.
+- **the generalised lesson, one rung past EK-0155.** EK-0064: prompt instructions are not guarantees,
+  enforce with a validator. EK-0155: a validator not wired into every path is not an enforcement.
+  **Here: a validator whose input type is "resolved wine" cannot protect an artefact that contains no
+  wines.** Ask what the artefact IS before assuming the existing rule layer covers it — and note this
+  one is the only artefact in the app that spends the candidate's money, so it deserved the *most*
+  enforcement and had the least.
+- **cross-refs:** EK-0155 (validator wiring), EK-0156 (colour and style are two axes), EK-0157 (sparkling
+  blocked on P1 entirely), R11 in `question-rules.mjs` (sweetness is a Paper 3 device)
+
 ### EK-0158 · Check-then-act on a paper position billed three Opus generations for one flight
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07 (migration 058)
 - **evidence:** paper `ltpr_egt9dfy3e` position 4 held THREE sessions (`lts_c6635vxn1` 12:30:29.142,
