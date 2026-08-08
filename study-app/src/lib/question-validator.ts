@@ -310,7 +310,12 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (3) A singular variety claim ("single grape variety", or "predominantly … grape variety") must not
   // sit over a blend. Skipped when the stem already hedges as "grape variety or varieties" / "variety(ies)".
-  const hedged = /variety or varieties|variety ies\b/.test(stem);
+  // "…the same single grape variety OR PREDOMINANT grape variety" is a hedge in the exam's own words:
+  // it offers the candidate either reading and therefore permits a blended wine. Four real stems use
+  // it (2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1 and Q3) and all four were rejected for the blends they
+  // explicitly allow. normStem has already flattened the commas in the printed "single, or
+  // predominant, grape variety".
+  const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(stem);
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
   if (!hedged && singularClaim && !subsetSplit) {

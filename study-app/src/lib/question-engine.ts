@@ -2682,9 +2682,14 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
   // a stem that had gone out of its way to allow exactly that. Twelve real corpus stems use the word.
   // The DISTINCT-variety half below still applies either way: four different predominant varieties
   // must still be four different varieties.
+  // Either the stem uses "predominant" alone, or it explicitly OFFERS BOTH readings — "the same
+  // single grape variety or predominant grape variety" (real: 2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1
+  // and Q3). The second form is a hedge, so a blend is permitted even though the words "single
+  // grape variety" appear.
   const stemPermitsBlends =
-    /\bpredominant(?:ly)?\b/i.test(questionText) &&
-    !/\b(single|one)\s*(grape\s*)?variet/i.test(questionText);
+    /\bor,?\s+predominant\b/i.test(questionText) ||
+    (/\bpredominant(?:ly)?\b/i.test(questionText) &&
+      !/\b(single|one)\s*(grape\s*)?variet/i.test(questionText));
 
   // Subset-scoped stems make their claims about a SUBSET, not the whole flight — "Wines 1-3 are …
   // each made from a different, single grape variety. Wine 4 is a blend of all three" (real, 2022 P2
