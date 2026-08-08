@@ -541,13 +541,23 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 // fail-safe default is "curveball", so the list only needs the wines a reasonable examiner would
 // call a banker. `region` is tested against the wine's region + country + raw label; `variety`,
 // when present, against the resolved (canonicalised) varieties.
-type BankerSignal = { region: RegExp; variety?: RegExp };
+/**
+ * `exclude` is tested against the same origin string as `region` and VETOES the match. It exists for
+ * the appellation-only signals (no `variety` gate), which are colour-blind: `/chateauneuf/` was
+ * calibrated on Châteauneuf-du-Pape ROUGE, the Paper 2 benchmark, but it also matched Château Rayas
+ * Châteauneuf-du-Pape **Blanc** in a Paper 1 flight and keyed it a banker. CdP Blanc is a few percent
+ * of the appellation and rarely poured — a debrief calling it "the classic curveball here" was right,
+ * and the table was wrong (attempt 249). A variety gate cannot express this, because the white's grapes
+ * include Grenache Blanc and `/grenache/` matches it.
+ */
+type BankerSignal = { region: RegExp; variety?: RegExp; exclude?: RegExp };
 const BANKER_SIGNALS: BankerSignal[] = [
   // ── France ──
   { region: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/ },
   { region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/, variety: /pinot noir/ },
   { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
-  { region: /chateauneuf/ },
+  // Rouge only — the white is a curveball, not the anchor. See BankerSignal.exclude (attempt 249).
+  { region: /chateauneuf/, exclude: /\bblanc\b/ },
   { region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/, variety: /syrah|shiraz/ },
   { region: /\bchampagne\b/ },
   { region: /\bsauternes\b|\bbarsac\b/ },
@@ -630,7 +640,10 @@ export function isBanker(w: AuditWine): boolean {
   const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
   const variety = norm((w.varieties || []).map(canonVariety).join(" "));
   return BANKER_SIGNALS.some(
-    (s) => s.region.test(origin) && (!s.variety || !variety || s.variety.test(variety))
+    (s) =>
+      s.region.test(origin) &&
+      !(s.exclude && s.exclude.test(origin)) &&
+      (!s.variety || !variety || s.variety.test(variety))
   );
 }
 

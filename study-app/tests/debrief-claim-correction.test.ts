@@ -48,14 +48,29 @@ vi.mock("@anthropic-ai/sdk", () => {
 });
 
 // ── The keyed flight: what deriveStemKey would resolve for this pair of Alsace wines. ──
-// `role` is set here because Rule 1 only ENFORCES against a role the key actually stores — a derived
-// role is a review flag and deliberately does not rewrite prose (see keyedRole). Nothing writes `role`
-// in production yet, so this fixture is also the spec for what has to be keyed to turn enforcement on.
+// The STORED answer key — the only place a keyed `role` lives, and therefore the only thing that lets
+// Rule 1 enforce instead of flag. produce.ts must prefer this over the live re-derivation below, which
+// rebuilds the flight from wine labels and can never carry a role.
+const storedGroundTruth: unknown[] = [
+  { slot: 1, varieties: ["Pinot Gris"], region: "Alsace", country: "France", role: "banker", role_source: "generator" },
+  { slot: 2, varieties: ["Sylvaner"], region: "Alsace", country: "France", role: "curveball", role_source: "generator" },
+];
+let storedKeyLookups = 0;
+vi.mock("@/lib/db", () => ({
+  getAnswerKeyGroundTruth: async () => {
+    storedKeyLookups += 1;
+    return storedGroundTruth;
+  },
+}));
+
+// The live re-derivation. Deliberately carries NO role, so any test that depends on a role proves the
+// stored key was the source — if produce.ts ever overwrote the stored flight with this one, Rule 1
+// would silently fall back to soft and the role tests below would go red.
 vi.mock("@/lib/stem-answer-key", () => ({
   deriveStemKey: () => ({
     ground: [
-      { slot: 1, varieties: ["Pinot Gris"], region: "Alsace", country: "France", is_blend: false, role: "banker" },
-      { slot: 2, varieties: ["Sylvaner"], region: "Alsace", country: "France", is_blend: false, role: "curveball" },
+      { slot: 1, varieties: ["Pinot Gris"], region: "Alsace", country: "France", is_blend: false },
+      { slot: 2, varieties: ["Sylvaner"], region: "Alsace", country: "France", is_blend: false },
     ],
     plausible: [],
     source: {},
@@ -112,6 +127,7 @@ async function runDebrief(): Promise<{ frames: Record<string, unknown>[]; saved:
     apiKey: "test-key",
     userId: 1,
     questionText: "Wines 1 and 2 are from the same region. Identify each. (25 marks each)",
+    questionId: "gen_p1_F2_test",
     paper: 1,
     wines: WINES,
     inputMethod: "typed",
@@ -140,6 +156,7 @@ const enrichedFrame = (frames: Record<string, unknown>[]) =>
 beforeEach(() => {
   createCalls.length = 0;
   recorded.length = 0;
+  storedKeyLookups = 0;
   vi.clearAllMocks();
 });
 
@@ -226,6 +243,21 @@ describe("the debrief's answer-key claim check", () => {
     expect(enrichedFrame(frames)[0]).toContain("Wine 2 is the banker");
     expect(recorded[0]?.ctx.claims).toMatchObject({ correctionFailed: true, regenerated: false });
     expect((recorded[0]?.ctx.claims as { failureReason: string }).failureReason).toMatch(/banker/i);
+  });
+
+  it("reads the STORED answer key, which is the only source of a keyed role", async () => {
+    // Without this the roles come from the live re-derivation, which has none, and Rule 1 silently
+    // degrades to a review flag no matter how many roles are keyed.
+    streamText.mockReturnValue("Wine 2 is the banker — Alsace Sylvaner.\n\nResult: FAIL");
+    correctionText.mockReturnValue("Wine 2 is the curveball — Alsace Sylvaner.\n\nResult: FAIL");
+
+    const { saved } = await runDebrief();
+
+    expect(storedKeyLookups).toBe(1);
+    // Enforced, not merely flagged: a correction pass ran and the corrected prose shipped.
+    expect(createCalls).toHaveLength(1);
+    expect(saved).toContain("the curveball");
+    expect((recorded[0]?.ctx.claims as { violations: { severity: string }[] }).violations[0].severity).toBe("hard");
   });
 
   it("strips the hidden GRADING_META tag before validating, so the tag is not read as prose", async () => {

@@ -311,6 +311,9 @@ type QuestionCandidate = {
   // flag validateP3Composition keys on. Null when the model omitted them (a non-bank generation).
   wineCategory: string | null;
   curveballLevel: string | null;
+  // Per-wine ROLE, declared by the generator that chose the flight (see parseCurveballSlots). null =
+  // not declared, which is NOT the same as "no curveballs" ([]): null leaves the keyed role derived.
+  curveballSlots: number[] | null;
   crossCategoryIntentional: boolean;
 };
 
@@ -2038,6 +2041,10 @@ ${repairContext.draft}`,
     batchId: saveOpts?.batchId ?? null,
     // Live Tasting (migration 041): 'live-tasting' rows are session-private, excluded from pools.
     scope: saveOpts?.scope,
+    // Per-wine role the generator declared (migration 065). Feeds stem_answer_keys.ground_truth[].role,
+    // which is what lets validateAnswerKeyClaims enforce that a debrief cannot call the flight's anchor
+    // a curveball. null (not declared) is preserved as null — see parseCurveballSlots.
+    curveballSlots: parsed.curveballSlots,
     metadata: {
       generatedOnTheFly: true,
       generationReasoning: parsed.generationReasoning,
@@ -3276,6 +3283,33 @@ export function normalizeMarkAllocation(text: string, wineCount: number): string
   return expandMarkTokens(out, wineCount).total === expected ? out : text;
 }
 
+/**
+ * Parse the generator's `CurveballSlots:` metadata into wine slots.
+ *
+ * Returns null — meaning "the generator did not tell us" — rather than an empty array whenever the line
+ * is missing or unreadable, because the two are acted on differently downstream: null leaves the role
+ * derived (a soft review flag), while `[]` is a positive declaration that every wine is an anchor and is
+ * enforced as such. Guessing "no curveballs" from a missing line would silently make every wine a keyed
+ * banker and turn every legitimate "curveball" mention in a debrief into a rewrite.
+ *
+ * Slots outside 1..wineCount are dropped: a hallucinated "wine 7" in a four-wine flight is not evidence
+ * about any real wine, and keying it would shift every other wine's role by omission.
+ */
+export function parseCurveballSlots(text: string, wineCount: number): number[] | null {
+  const m = text.match(/CurveballSlots:\s*\[?([^\]\n]*)\]?/i);
+  if (!m) return null;
+  const raw = m[1].trim();
+  if (!raw) return null;
+  // Tolerate the bracketed instruction surviving into the output ("[the wine NUMBER(S) ...]").
+  if (/wine\s+number|comma-separated|machine-parsed/i.test(raw)) return null;
+  if (/^none\b/i.test(raw)) return [];
+  const slots = [...raw.matchAll(/\d+/g)]
+    .map((d) => Number(d[0]))
+    .filter((n) => Number.isInteger(n) && n >= 1 && n <= wineCount);
+  if (!slots.length) return null; // said something, but nothing usable — do not infer "none"
+  return [...new Set(slots)].sort((a, b) => a - b);
+}
+
 function parseGeneratedQuestion(
   text: string,
   paper: number,
@@ -3337,6 +3371,14 @@ function parseGeneratedQuestion(
     const rawWineCategory = wineCategoryMatch ? wineCategoryMatch[1].toLowerCase() : null;
     const wineCategory = rawWineCategory && VALID_WINE_CATEGORIES.has(rawWineCategory) ? rawWineCategory : null;
     const curveballLevel = curveballLevelMatch ? curveballLevelMatch[1].toLowerCase() : null;
+    // Per-wine ROLE (banker vs curveball), declared by the generator that chose the flight. The prompt
+    // has always asked "Curveball: [which wine and why]" in prose and nothing ever read it — the intent
+    // was produced and discarded. CurveballSlots is the machine-parsed form, and it is what makes the
+    // answer key's `role` authoritative: it records what the question INTENDED, not what a regex infers.
+    // validateAnswerKeyClaims Rule 1 enforces against it, so a debrief cannot call the anchor a curveball.
+    // Unparseable or absent → null, and the role falls back to the derived classifier (a review flag
+    // rather than an enforced rewrite). Slots outside the flight are dropped rather than trusted.
+    const curveballSlots = parseCurveballSlots(text, wines.length);
     const crossCategoryIntentional = crossCategoryMatch ? crossCategoryMatch[1].toLowerCase() === "true" : false;
 
     const parsedFamily = familyMatch ? familyMatch[1] : family;
@@ -3377,6 +3419,7 @@ function parseGeneratedQuestion(
       generationReasoning,
       wineCategory,
       curveballLevel,
+      curveballSlots,
       crossCategoryIntentional,
     };
   } catch {

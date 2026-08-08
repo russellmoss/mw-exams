@@ -944,6 +944,7 @@ RULES for appearance notes:
 - Variety: [the key variety/varieties]
 - Countries: [list]
 - Curveball: [which wine and why, or "None"]
+- CurveballSlots: [the wine NUMBER(S) that are curveballs, comma-separated, e.g. "2" or "2, 4" — or "None" if every wine is an anchor. Numbers only, no names. This is MACHINE-PARSED and must agree with the Curveball line above.]
 - CurveballLevel: [low | medium | high — the overall difficulty of this flight]
 - WineCategory: [sparkling | rose | fortified | sweet | oxidative | orange | still_white | still_red — the single category ALL wines in this flight belong to]
 - CrossCategoryIntentional: [true ONLY if the stem explicitly and deliberately frames a comparison ACROSS two wine categories; otherwise false. If true, the stem must itself justify the cross-category contrast.]
