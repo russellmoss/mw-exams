@@ -9,6 +9,12 @@ export interface AuthUser {
   email: string;
   name: string;
   isAdmin: boolean;
+  /**
+   * Question Review access (migration 066). Its own flag, NOT derived from isAdmin: 12 of the 14
+   * live accounts are admins, so an admin check would show the surface to nearly everyone. Granting
+   * a reviewer is an UPDATE on users, not a deploy.
+   */
+  canReviewQuestions: boolean;
 }
 
 interface JwtPayload {
@@ -30,7 +36,10 @@ function getJwtSecret(): string {
   return secret;
 }
 
-export function signToken(user: AuthUser): string {
+// Takes only what it actually signs. The JWT carries identity, never authorization — every role and
+// grant (is_admin, can_review_questions) is re-read from the DB by getUser on each request, so a
+// revoked grant takes effect immediately instead of lingering until the 7-day token expires.
+export function signToken(user: Pick<AuthUser, "id" | "email" | "name">): string {
   return jwt.sign(
     { userId: user.id, email: user.email, name: user.name },
     getJwtSecret(),
@@ -63,13 +72,23 @@ export async function getUser(request: Request): Promise<AuthUser | null> {
   // Verify the user still exists in the database
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT id, email, name, is_admin, is_active FROM users WHERE id = ${payload.userId}
+    SELECT id, email, name, is_admin, is_active, can_review_questions
+    FROM users WHERE id = ${payload.userId}
   `;
 
   if (rows.length === 0) return null;
   const row = rows[0];
   if (row.is_active === false) return null;
-  return { id: row.id as number, email: row.email as string, name: row.name as string, isAdmin: row.is_admin as boolean };
+  return {
+    id: row.id as number,
+    email: row.email as string,
+    name: row.name as string,
+    isAdmin: row.is_admin as boolean,
+    // Strict === true, so a NULL grants nothing. The COLUMN's existence is guaranteed by the
+    // prebuild migration runner, which applies 066 before the new code serves (same assumption every
+    // other per-user column here makes — see the walkthrough flags in /api/auth/me).
+    canReviewQuestions: row.can_review_questions === true,
+  };
 }
 
 export function createSessionCookie(token: string): string {

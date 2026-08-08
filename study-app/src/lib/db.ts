@@ -3850,6 +3850,11 @@ export async function getUserAttempts(userId: number, limit = 50): Promise<Attem
       -- General app-level feedback (Feedback tab, migration 053) has no question and is not part of
       -- the candidate's own study history — it belongs only to the admin feedback queue.
       AND (a.scope IS DISTINCT FROM 'general')
+      -- Question Review down-votes (migration 066) are question-scoped rows the reviewer never sat.
+      -- Without this they render on the reviewer's own History as attempts permanently "in progress".
+      -- Safe to key on source here (unlike 'feedback_tab', see getUserStats): recordReviewVote always
+      -- INSERTs a fresh row and never stamps this source onto an existing attempt.
+      AND (a.source IS DISTINCT FROM 'question_review')
     ORDER BY a.started_at DESC
     LIMIT ${limit}
   `) as AttemptWithDetails[];
@@ -4266,6 +4271,12 @@ export async function getUserStats(userId: number): Promise<UserStats> {
     FROM user_attempts
     WHERE user_id = ${userId} AND (mode IS NULL OR mode = 'full')
       AND (scope IS DISTINCT FROM 'general')
+      -- Question Review down-votes (migration 066): question-scoped rows for questions the reviewer
+      -- ruled on but never sat. They carry no answer and no pass_estimate, so they only ever inflate
+      -- total_attempts — quietly dragging the reviewer's own completion rate down as they review.
+      -- Unlike 'feedback_tab' this source is only ever set by an INSERT (recordReviewVote), never
+      -- stamped onto an existing attempt, so keying on it cannot delete a real study rep.
+      AND (source IS DISTINCT FROM 'question_review')
   `;
 
   // By paper

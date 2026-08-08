@@ -14,6 +14,11 @@ interface AuthUser {
   email: string;
   name: string;
   isAdmin: boolean;
+  /**
+   * Question Review access (migration 066). Gates the header link only — every
+   * /api/question-review/* route re-checks it server-side, because a hidden link is not a gate.
+   */
+  canReviewQuestions?: boolean;
   hasApiKey: boolean;
   /**
    * Tavily is REQUIRED like Anthropic — without it the research behind every answer cannot run.

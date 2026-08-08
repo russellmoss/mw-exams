@@ -62,10 +62,12 @@ export function MobileTabBar() {
   const moreItems = [
     { label: "Library", href: "/library" },
     { label: "Methodology", href: "/methodology" },
+    // Question Review (migration 066) — two named reviewers only, gated server-side per route.
+    ...(user.canReviewQuestions ? [{ label: "Question Review", href: "/review" }] : []),
     { label: "Settings", href: "/settings" },
     ...(user.isAdmin ? [{ label: "Admin", href: "/admin" }] : []),
   ];
-  const moreActive = pathname.startsWith("/library") || pathname.startsWith("/diagrams") || pathname.startsWith("/methodology") || pathname.startsWith("/settings") || pathname.startsWith("/admin");
+  const moreActive = pathname.startsWith("/library") || pathname.startsWith("/diagrams") || pathname.startsWith("/methodology") || pathname.startsWith("/settings") || pathname.startsWith("/admin") || pathname.startsWith("/review");
 
   return (
     <>

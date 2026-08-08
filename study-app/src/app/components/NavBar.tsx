@@ -119,6 +119,13 @@ export function NavBar() {
           <Link href="/history" className={`${linkClass(pathname.startsWith("/history"))} max-sm:hidden`}>
             History
           </Link>
+          {/* Question Review (migration 066) — two named reviewers only. Hiding the link is a
+              convenience, not the gate: every /api/question-review/* route re-checks the flag. */}
+          {user.canReviewQuestions && (
+            <Link href="/review" className={`${linkClass(pathname.startsWith("/review"))} max-sm:hidden`}>
+              Review
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

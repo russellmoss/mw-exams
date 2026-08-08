@@ -7,7 +7,6 @@ import {
   getFlaggedPendingQuestions,
   getCandidateFlaggedQuestions,
   getFlagContextForItems,
-  getAnswerKeyGroundTruth,
   getAnswerKeyGroundTruths,
   getQuestionById,
   reviewBankQuestion,
@@ -17,7 +16,10 @@ import {
   type FlagContext,
 } from "@/lib/db";
 import type { ProducerFlag } from "@/lib/bank-health/producer";
-import { validateQuestion, type AuditWine, type Violation } from "@/lib/question-validator";
+import type { Violation } from "@/lib/question-validator";
+// Shared with the Question Review surface (src/lib/question-verdict.ts) so the two review UIs can
+// never show two different verdicts for the same question.
+import { violationsFor, verdictFor } from "@/lib/question-verdict";
 import { sanitizeBinTags, sanitizeBinNote, VALIDATOR_LINKED_TAGS } from "@/lib/bin-reasons";
 import { runBinReasonCheck } from "@/lib/bin-reason-check";
 
@@ -138,60 +140,6 @@ function serialize(q: GeneratedQuestion) {
     answerWordCount: (q.answer_word_count as number | null) ?? null,
     answerLength,
   };
-}
-
-function violationsFor(q: GeneratedQuestion, groundTruth: unknown[]): Violation[] {
-  // Zip the raw label onto each resolved key wine by slot (same shape as the corpus audit): the
-  // wine-reference-shape rule and the answer rules' label-derived origin needles both need the
-  // original string the key derivation threw away.
-  const raw = (typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines) as
-    | { slot: number; fullText?: string }[]
-    | null;
-  const bySlot = new Map((Array.isArray(raw) ? raw : []).map((w) => [w.slot, w.fullText]));
-  const wines = (groundTruth as AuditWine[]).map((w) =>
-    bySlot.has(w.slot) ? { ...w, fullText: bySlot.get(w.slot) } : w
-  );
-  return validateQuestion({
-    questionId: q.question_id,
-    paper: q.paper,
-    family: q.family,
-    questionText: q.question_text,
-    totalMarks: q.total_marks,
-    wines,
-    // Answer-content verdicts too (answer-content-rules.mjs): the reviewer deciding keep/bin should
-    // see a truncated or wine-skipping model answer, not just stem<->wine contradictions.
-    modelAnswer: q.model_answer ?? null,
-    // Historical imports carry a verbatim past-paper stem. Showing the reviewer stem-shape
-    // violations on one would be actively misleading — they reject up to 64% of the real corpus, and
-    // the reviewer's only available fix ("edit the stem") is the one thing the import must not do.
-    stemIsAuthoritative:
-      (typeof q.metadata === "string" ? JSON.parse(q.metadata) : q.metadata)?.source === "historical_stem",
-  }).violations;
-}
-
-/**
- * Run the hard validator over a pending question so the reviewer sees the same verdict the corpus
- * audit would give, BEFORE deciding keep/bin.
- *
- * This exists because a reviewer kept a question whose stem promised three different grape varieties
- * over a Pinot Noir, a Cannonau di Sardegna and a Campo de Borja Garnacha — Cannonau and Garnacha are
- * both Grenache, so it was unanswerable, and nothing in the rendered stem or wine list said so. The
- * pane showed everything a candidate sees and nothing a validator knows.
- *
- * Returns null when the answer key hasn't been derived yet — the validator needs resolved varieties,
- * so with no key there is no verdict to show (better a stated "not available" than a false all-clear).
- */
-async function verdictFor(q: GeneratedQuestion): Promise<{
-  ok: boolean;
-  hard: Violation[];
-  soft: Violation[];
-} | null> {
-  const groundTruth = await getAnswerKeyGroundTruth(q.question_id);
-  if (!groundTruth || groundTruth.length === 0) return null;
-
-  const violations = violationsFor(q, groundTruth);
-  const hard = violations.filter((v) => v.severity === "hard");
-  return { ok: hard.length === 0, hard, soft: violations.filter((v) => v.severity === "soft") };
 }
 
 // How many of the still-pending questions fail hard validation. "Keep all" approves every one of them

@@ -50,6 +50,8 @@ export async function GET(request: Request) {
         email: user.email,
         name: user.name,
         isAdmin: user.isAdmin,
+        // Question Review (migration 066) — gates the header link. getUser already read it.
+        canReviewQuestions: user.canReviewQuestions,
         hasApiKey,
         hasTavilyKey,
         hasVoiceKey,
