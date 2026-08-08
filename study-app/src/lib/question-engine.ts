@@ -946,6 +946,26 @@ export async function generateFreshQuestion(
     // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
     scope?: string;
     pinnedWines?: { slot: number; fullText: string }[] | null;
+    // Historical import: the MIRROR of pinnedWines. Pin the STEM — a real past-paper question, taken
+    // verbatim from data/structured/corpus_questions.json with only its wine slots renumbered to
+    // 1..n — and generate the wines and model answer against it. The candidate practises the exact
+    // framings the IMW has set, over wines that are currently buyable instead of a 2011 list.
+    //
+    // Anchored mode overwrites candidate.questionText with `text` after parsing, so the banked stem
+    // is the real one no matter what the model returns. Three flight-CHOICE checks stand down and
+    // nothing else does: flight size is judged against the corpus maximum rather than the generation
+    // maximum (a corpus question cannot be out-of-distribution for its own distribution), novelty is
+    // meaningless (the stem IS the history the novelty window is defending), and the mark-type-mix
+    // nudge is a bank-composition preference that trips 43% of real questions. Every WINE-side
+    // validator runs untouched — that is the whole point of importing this way rather than by bulk
+    // INSERT: the wines are new, so they get the same scrutiny a generated flight gets.
+    anchoredStem?: {
+      text: string;
+      wineCount: number;
+      family: string;
+      questionId: string;
+      metadata: Record<string, unknown>;
+    } | null;
     // Paper flights: earlier questions' stems, so this flight VARIES its scaffold. The paper-QA
     // examiner judge failed identical a/b/c scaffolds repeated across a paper, and flagged the
     // absence of POOLED identification marks — both are stem-construction habits, steered here.
@@ -981,6 +1001,7 @@ export async function generateFreshQuestion(
 
   const pinned =
     saveOpts?.pinnedWines && saveOpts.pinnedWines.length > 0 ? saveOpts.pinnedWines : null;
+  const anchored = saveOpts?.anchoredStem ?? null;
 
   emit?.({ type: "status", label: "Reading the wine bank for duplicates…" });
 
@@ -1013,7 +1034,10 @@ export async function generateFreshQuestion(
   // (validateSingleWineFlight rejects a lone banker), so ID is never asked (fb_354/355/98).
   let flightSizeOverride: number | null = null;
   let suppressIdentification = false;
-  if (!pinned) {
+  if (anchored) {
+    // The real paper already chose the size; the sampler must not overrule it.
+    flightSizeOverride = anchored.wineCount;
+  } else if (!pinned) {
     try {
       const recentSizes = await getRecentFlightSizes(paper, FLIGHT_SIZE_WINDOW).catch(() => []);
       flightSizeOverride = selectFlightSize(paper, { recentSizes });
@@ -1042,7 +1066,8 @@ export async function generateFreshQuestion(
       ? { flightCategory: saveOpts.examMix.flightCategory, curveball: saveOpts.examMix.curveball }
       : undefined,
     flightSizeOverride,
-    suppressIdentification
+    suppressIdentification,
+    anchored ? { text: anchored.text, wineCount: anchored.wineCount } : null
   );
 
   // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
@@ -1270,7 +1295,11 @@ ${saveOpts.paperStemsContext}` : ""}`;
   // does not exist. That is deliberate: model_usage.question_id carries no FK, and the money was
   // genuinely spent. Only the converged attempt's id reaches generated_questions, so the cost of
   // discarded attempts stays outside a batch's reconciled total.
-  const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
+  // Anchored (historical-import) rows carry a deterministic `hist_<qid>` id instead of a timestamped
+  // one: it namespaces them away from generated questions at a glance, and it makes a re-import
+  // idempotent — saveGeneratedQuestion's ON CONFLICT (question_id) updates the row rather than
+  // banking a second copy of 2013 P2 Q4.
+  const questionId = anchored?.questionId ?? `gen_p${paper}_${family || "any"}_${Date.now()}`;
 
   // Every attempt is recorded, passed or failed. questionId is stamped on ALL of them, including
   // ones that never produce a question: it is the same id the model_usage rows carry, so the cost
@@ -1499,6 +1528,16 @@ ${repairContext.draft}`,
 
     const candidate = parseGeneratedQuestion(text, paper, family || "F4");
 
+    // Anchored mode: the stem is not the model's to write. It is asked to reproduce the past-paper
+    // text verbatim so its wine choices are made against the real wording, but what gets BANKED is
+    // the corpus text either way — a near-miss transcription (a dropped line break, a "3 x 10" the
+    // model rounded to "3 x 12") would otherwise silently become the question a candidate sits.
+    // The family comes from the corpus taxonomy tags for the same reason.
+    if (anchored && candidate) {
+      candidate.questionText = anchored.text;
+      candidate.family = anchored.family;
+    }
+
     if (!candidate) {
       lastViolations = ["Failed to parse generated question"];
       console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed: parse error`);
@@ -1707,7 +1746,10 @@ ${repairContext.draft}`,
     // Pinned mode skips markMix outright: it is a bank-composition nudge that trips ~40% of REAL
     // MW questions (see its own relaxation note), and on a 2-wine home flight it cost the pilot a
     // whole 157s Opus attempt — the budget only fits two.
-    const markMixCheck = pinned || relaxMarkMix
+    // Anchored mode skips it outright for the same reason pinned mode does, only more so: it is a
+    // bank-composition nudge that trips 43% of the real corpus (69 of 162, measured), so applying it
+    // to a real stem would reject the exam for not looking enough like our model of the exam.
+    const markMixCheck = pinned || anchored || relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText, candidate.wines.length);
     const compositionCheck = pinned || relaxImportant
@@ -1736,12 +1778,20 @@ ${repairContext.draft}`,
     const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
-      : validateFlightSize(candidate.family, paper, candidate.wines.length);
+      // Anchored mode judges against the CORPUS maximum, not the generation maximum: a real question
+      // cannot be out-of-distribution for the distribution it is a member of. It still runs, because
+      // the model choosing the wrong number of wines for a fixed stem is a real failure to catch.
+      : validateFlightSize(candidate.family, paper, candidate.wines.length, { historical: !!anchored });
     // Novelty NEVER fully relaxes: serving a user a question whose shape they've already seen defeats
     // the practice system. On relaxed attempts it runs in "lenient" mode — still blocks exact AND
     // structural/thematic repeats (same template + contrast axis), but drops the fuzzier
     // family/country/variety heuristic so generation can still converge.
-    const noveltyCheck = pinned
+    // Anchored mode is exempt: the novelty window defends against the generator re-running its own
+    // stem templates, and a past-paper stem IS the history those templates are imitations of.
+    // Historical stems also repeat each other near-verbatim year to year, which is a fact about the
+    // exam, not a defect. Wine repetition is still governed — the dedup list, origin diversity and
+    // the producer caps all run normally, and the import script dedupes stems among themselves.
+    const noveltyCheck = pinned || anchored
       ? ({ valid: true, violations: [] } as ReturnType<typeof validateNoveltyAgainstLatest>)
       : validateNoveltyAgainstLatest(
           candidate,
@@ -1965,6 +2015,10 @@ ${repairContext.draft}`,
       noveltyCheck: validation.noveltyCheck,
       genModel: genModelUsed,
       genAbGroup,
+      // Historical import: which past-paper question this stem is, and that the wines are not the
+      // ones the Institute poured. Not surfaced in the study UI (product decision, 2026-08-07) —
+      // it exists so the import is auditable and every imported row is retractable in one query.
+      ...(saveOpts?.anchoredStem?.metadata ?? {}),
     },
   });
 
@@ -2877,28 +2931,38 @@ export function questionAsksIdentification(questionText: string): boolean {
   return SINGLE_WINE_ID_RE.test(questionText || "");
 }
 
-const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; typical: number[] }> = {
-  F1: { min: 2, max: 6, typical: [2, 3] },
-  F2: { min: 2, max: 4, typical: [2, 3] },
-  F3: { min: 2, max: 4, typical: [2, 4] },
-  F4: { min: 2, max: 6, typical: [3, 4] },
-  F5: { min: 1, max: 5, typical: [2, 3, 4] },
-  F6: { min: 2, max: 5, typical: [2, 4, 5] },
-  F7: { min: 2, max: 6, typical: [2, 6] },
+// `max` is the largest flight this family may be GENERATED at; `corpusMax` is the largest the IMW has
+// ever actually set. They differ where the corpus has a lone outlier: F2 has exactly one 6-wine
+// question in fifteen years (2026 P2 Q3, 1 of 39) and F6 exactly one (2013 P3 Q3, 1 of 6). A single
+// instance is real history but not a licence to generate at that size, so a draft stays held to `max`
+// while a question imported FROM the corpus is checked against `corpusMax` — it cannot be
+// out-of-distribution for a distribution it is a member of. Measured over the 160 single-question
+// entries in data/structured/corpus_questions.json (the two whole-paper questions, 2011 P3 Q1 at 12
+// wines and 2026 P3 Q2 at 8, are excluded — they are papers, not flights).
+const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; corpusMax: number; typical: number[] }> = {
+  F1: { min: 2, max: 6, corpusMax: 6, typical: [2, 3] },
+  F2: { min: 2, max: 4, corpusMax: 6, typical: [2, 3] },
+  F3: { min: 2, max: 4, corpusMax: 4, typical: [2, 4] },
+  F4: { min: 2, max: 6, corpusMax: 6, typical: [3, 4] },
+  F5: { min: 1, max: 5, corpusMax: 5, typical: [2, 3, 4] },
+  F6: { min: 2, max: 5, corpusMax: 6, typical: [2, 4, 5] },
+  F7: { min: 2, max: 6, corpusMax: 6, typical: [2, 6] },
 };
 
 function validateFlightSize(
   family: string,
   paper: number,
-  wineCount: number
+  wineCount: number,
+  opts: { historical?: boolean } = {}
 ): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const range = FAMILY_FLIGHT_RANGES[family];
   if (!range) return { valid: true, violations };
 
-  if (wineCount < range.min || wineCount > range.max) {
+  const max = opts.historical ? range.corpusMax : range.max;
+  if (wineCount < range.min || wineCount > max) {
     violations.push(
-      `Flight of ${wineCount} wines is outside historical range for ${family} (${range.min}-${range.max} wines). Regenerate with a different flight size.`
+      `Flight of ${wineCount} wines is outside historical range for ${family} (${range.min}-${max} wines). Regenerate with a different flight size.`
     );
   }
 
