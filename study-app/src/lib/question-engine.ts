@@ -1763,6 +1763,9 @@ ${repairContext.draft}`,
     // decided upstream by the archetype picker; re-judging them here could only reject a flight
     // we are not allowed to change. Stem-coherence validators (shape/scope/variety/marks) still run.
     const relaxImportant = attempt >= 6;
+    // Bank path (batchId present — Fill-the-Bank / generate / cron worker) needed early: it gates
+    // both banker (below) and the OW/NW composition guard, which must not relax when we are BANKING.
+    const bankPath = Boolean(saveOpts?.batchId);
     const originDiversityCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validateOriginDiversity(candidate.questionText, candidate.wines, candidate.family, candidate.subcategory);
@@ -1770,7 +1773,12 @@ ${repairContext.draft}`,
       ? { valid: true, violations: [] }
       : validateCountryDiversity(candidate.questionText, candidate.wines);
     // Phase 2 soft composition rules (also "important" tier): modern mark-mix cap, OW/NW balance,
-    // coarse price proxy. Composition and price relax at attempt 6 alongside originDiversity.
+    // coarse price proxy. Price relaxes at attempt 6 alongside originDiversity; the OW/NW balance
+    // guard (validateCompositionBalance) is the ONE exception — on the bank path it never relaxes.
+    // A single-world 3+ same-variety flight (e.g. three Chardonnays from three New-World countries
+    // with no Burgundian anchor, fb: gen_p1_F1_1786071954722) has no precedent in 2011–2026 and must
+    // not be BANKED, so it stays binding for the bank worker exactly like banker does. Interactively
+    // (user on the spinner) it still relaxes at attempt 6 so generation can converge.
     //
     // markMix relaxes EARLIER, at attempt 3. It is documented below as a nudge that "trips ~40% of
     // even REAL last-10 questions" — a rule that rejects two in five genuine MW questions cannot be
@@ -1788,7 +1796,7 @@ ${repairContext.draft}`,
     const markMixCheck = pinned || anchored || relaxMarkMix
       ? { valid: true, violations: [] }
       : validateMarkTypeMix(candidate.questionText, candidate.wines.length);
-    const compositionCheck = pinned || relaxImportant
+    const compositionCheck = pinned || (relaxImportant && !bankPath)
       ? { valid: true, violations: [] }
       : validateCompositionBalance(candidate.family, paper, candidate.wines);
     const priceCheck = pinned || relaxImportant
@@ -1801,7 +1809,8 @@ ${repairContext.draft}`,
     // blocks — a bankerless flight must not be BANKED, whereas the interactive path keeps both the
     // relaxation and the advisory demotion because a user is waiting on the spinner. Pinned mode
     // (Live Tasting) skips banker outright — the flight was chosen upstream by the archetype picker.
-    const bankPath = Boolean(saveOpts?.batchId);
+    // (bankPath is declared above, alongside relaxImportant, because the OW/NW composition guard
+    // also gates on it.)
     // The banker verdict now comes from the AUDIT's own flight-composition rule (isBanker +
     // curveball cap) rather than validateBankerMinimum's divergent regex — the two heuristics
     // disagreeing is how 144 bankerless/curveball-heavy flights passed generation and were then
@@ -3172,7 +3181,7 @@ function worldOf(fullText: string): "old" | "new" | "unknown" {
 }
 
 // R10 (mixed): OW/NW balance is ROBUST and gated; the curveball-count axis is TELEMETRY ONLY.
-function validateCompositionBalance(
+export function validateCompositionBalance(
   family: string,
   paper: number,
   wines: { slot: number; fullText: string }[]
