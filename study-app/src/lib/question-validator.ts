@@ -13,6 +13,7 @@ import {
   canonVariety,
   colourFromAppellation,
   detectPrimaryVariety,
+  expandMarkTokens,
   methodClass,
   norm,
   normStem,
@@ -69,6 +70,38 @@ export interface QuestionForAudit {
   // point — the corpus audit, the per-question generation audit, the Fill-the-Bank review pane —
   // gets the answer verdict for free. Absent/empty, behaviour is byte-identical to before.
   modelAnswer?: string | null;
+  // The stem is a REAL past-paper question taken verbatim from the corpus (a historical import; see
+  // historical-stems.ts), not something a model wrote. Set it and the STEM-SHAPE rules stand down.
+  //
+  // Those rules describe our model of the exam, and measurement says the model is narrower than the
+  // exam. Run over all 160 importable questions with the real wines the Institute poured
+  // (scripts/corpus-false-positive-rate.mjs), they reject:
+  //
+  //   id-mark-allocation                102/160  (64%)   real papers routinely pay 15 marks for
+  //                                                      "Identify the region" against our 10 cap,
+  //                                                      and put 60-80% of marks on identification
+  //   part-task-repertoire               30/160  (19%)   tasks it does not know are real, including
+  //                                                      "identify the vintage" and "to whom is this
+  //                                                      wine most likely to appeal, and why"
+  //   flight-wine-count                   4/160   (3%)   the stem-count parser cannot read a paired
+  //                                                      stem ("Wines 1-2, 3-4 and 5-6 are pairs")
+  //   stem-preannounces-discriminator     2/160   (1%)
+  //   single-wine-flight (structure)      1/160   (1%)
+  //
+  // On a fixed stem these are not merely wrong, they are unsatisfiable: the only lever each one
+  // offers is "edit the stem", and the stem is the one thing the import may not change. The first
+  // import run banked 4 of 20 for exactly this reason — the model redrafted three times, failed
+  // identically each time, and fell back to a banked question.
+  //
+  // Everything WINE-side still runs, which is the point of importing through the engine at all:
+  // paper scope and colour, variety consistency against the stem's own claims, contrast integrity,
+  // cross-checked stem facts, the producer caps, style mix, the answer-content rules, and the
+  // single-wine BANKER arm — all of those are answerable by choosing different wines.
+  //
+  // (Precedent: `missing-variety-id-part` was retired outright on 2026-08-07 for firing on a third
+  // of the real modern corpus. The same measurement, the same conclusion — but these rules earn
+  // their keep on GENERATED stems, so they are scoped rather than removed.)
+  stemIsAuthoritative?: boolean;
 }
 export interface Violation {
   rule: string;
@@ -684,17 +717,25 @@ const ID_SINGLE_PART_CAP = 10;
 // Parse the mark-carrying sub-questions from a question's text. Each "(N marks)" or "(A x B marks)"
 // annotation closes a part; `text` is everything since the previous annotation (so it holds the part's
 // prompt), `marks` is the part's total (A×B or N), and `perUnit` is the per-instance value (B, or N).
-function parseMarkedParts(questionText: string): { text: string; marks: number; perUnit: number }[] {
+// Split a question into its marked sub-parts. `marks` is what the part is really worth and `perUnit`
+// is the printed per-unit value; they differ whenever the part is awarded over several wines.
+//
+// The multiplier is resolved by the shared expander, so a part scoped by a section header
+// ("For each wine:" then a bare "(15 marks)") is worth 15 × N here exactly as it is in the
+// generation engine. Reading those at face value under-counted ten real IMW questions — see the
+// block comment on expandMarkTokens in question-rules.mjs. `wineCount` is optional only so a caller
+// without wines keeps the old face-value reading rather than crashing; pass it whenever it is known.
+function parseMarkedParts(
+  questionText: string,
+  wineCount = 0
+): { text: string; marks: number; perUnit: number }[] {
   const text = questionText || "";
-  const re = /\((?:(\d+)\s*[x×]\s*)?(\d+)\s*marks?\)/gi;
+  const { tokens } = expandMarkTokens(text, wineCount);
   const parts: { text: string; marks: number; perUnit: number }[] = [];
   let lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(text)) !== null) {
-    const mult = m[1] ? parseInt(m[1], 10) : 1;
-    const base = parseInt(m[2], 10);
-    parts.push({ text: text.slice(lastIndex, m.index), marks: mult * base, perUnit: base });
-    lastIndex = re.lastIndex;
+  for (const t of tokens) {
+    parts.push({ text: text.slice(lastIndex, t.start), marks: t.marks, perUnit: t.perUnit });
+    lastIndex = t.end;
   }
   return parts;
 }
@@ -705,7 +746,7 @@ function parseMarkedParts(questionText: string): { text: string; marks: number; 
  * more) or when any single ID part is worth more than 10 marks.
  */
 export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
-  const parts = parseMarkedParts(q.questionText);
+  const parts = parseMarkedParts(q.questionText, (q.wines || []).length);
   if (parts.length === 0) return [];
   const idParts = parts.filter((p) => ID_PART_RE.test(p.text));
   if (idParts.length === 0) return [];
@@ -1604,15 +1645,14 @@ function floorTaskFor(partText: string): AllowedPartTask | null {
  */
 export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   const v: Violation[] = [];
-  const parts = parseMarkedParts(q.questionText);
+  const wineCount = (q.wines || []).length;
+  const parts = parseMarkedParts(q.questionText, wineCount);
   if (parts.length === 0) return v;
 
   // Only judge a well-formed question: its lettered parts must begin at "a)". A fragment passed in
   // isolation (e.g. a lone "b) …" used in a unit test) has no meaningful budget to total.
   const lettered = parseLetteredParts(q.questionText || "");
   if (lettered.length > 0 && lettered[0].letter !== "a") return v;
-
-  const wineCount = (q.wines || []).length;
 
   // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
   // rule can never invent a spurious "must equal 0" mismatch.
@@ -1632,6 +1672,16 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
 
   // (b) Per-task floor. A floor-task part must clear 5 marks per wine it covers (5 × n when asked
   // across the whole flight in one un-multiplied total); literal numeric readouts are exempt.
+  //
+  // Skipped on a verbatim past-paper stem. The floor comes from fb_73 ("Commercial positioning is
+  // always at least five points") and it is right about the modern exam, but four real questions
+  // break it — 2011 P2 Q3 and 2015 P2 Q1 both price a written part at "(3 x 4 marks)". The rule's
+  // only fix is a stem edit, so on a fixed stem it can do nothing but block the import. Note this
+  // does NOT loosen generation: a drafted stem is still held to the floor. (The total-marks arm
+  // above still runs on every path — it fires on none of the 160 corpus questions and it is the
+  // check that the stored total_marks is honest.)
+  if (q.stemIsAuthoritative === true) return v;
+
   for (const p of parts) {
     const task = floorTaskFor(p.text);
     if (!task) continue;
@@ -1761,6 +1811,9 @@ export function computeServedStemHash(questionText: string): string {
   const text = questionText || "";
   const stem = extractStem(text).replace(/\s+/g, " ").trim();
   const parts = parseLetteredParts(text).map((p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`);
+  // Deliberately UNSCOPED (no wine count). This is a stored fingerprint compared against hashes
+  // written by earlier builds; resolving section-header scope here would change the hash of every
+  // scoped question already served and read as a re-derived stem (fb_344) on every one of them.
   const marks = parseMarkedParts(text).map((p) => `${p.marks}/${p.perUnit}`);
   return fnv1aHex(JSON.stringify({ stem, parts, marks }));
 }
@@ -1806,6 +1859,8 @@ function parseStemWineCount(questionText: string): number | null {
 
 // The wine count implied by an "N × M marks" per-wine multiplier in the parts (the largest N), or null.
 function parseMultiplierWineCount(questionText: string): number | null {
+  // Deliberately UNSCOPED: this function INFERS the wine count, so feeding one in would be circular
+  // (a scoped token would report back the very count that was used to expand it).
   const mults = parseMarkedParts(questionText)
     .filter((p) => p.perUnit > 0 && p.marks !== p.perUnit)
     .map((p) => Math.round(p.marks / p.perUnit))
@@ -1941,12 +1996,22 @@ export function validateQuestion(
     totalMarks: q.totalMarks,
     wines: q.wines,
   }) as Violation[];
-  violations.push(...stemPreannouncesDiscriminator(q.questionText));
+  // Stem-shape rules: skipped when the stem is a verbatim past-paper question. See the
+  // `stemIsAuthoritative` field on QuestionForAudit for the measured false-positive rates and why
+  // these are unsatisfiable rather than merely wrong on a fixed stem.
+  const stemFixed = q.stemIsAuthoritative === true;
+  if (!stemFixed) {
+    violations.push(...stemPreannouncesDiscriminator(q.questionText));
+    violations.push(...idMarkAllocationViolations(q));
+    violations.push(...flightWineCountViolations(q));
+  }
   violations.push(...flightCompositionViolations(q.wines));
-  violations.push(...validateSingleWineFlight(q));
-  violations.push(...idMarkAllocationViolations(q));
+  // The banker arm is a WINE choice ("pick a curveball instead") and survives a fixed stem; the two
+  // `single-wine-flight` arms are stem edits, which this file already says of the ID-ask half.
+  violations.push(
+    ...validateSingleWineFlight(q).filter((v) => !stemFixed || v.rule === "single-wine-flight-banker")
+  );
   violations.push(...validateMarkBudget(q));
-  violations.push(...flightWineCountViolations(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
     violations.push(
       ...(applyAnswerContentRules({
@@ -1958,7 +2023,7 @@ export function validateQuestion(
   }
   violations.push(...crossCheckStemFacts(q));
   violations.push(...contrastIntegrityViolations(q));
-  violations.push(...partTaskRepertoireViolations(q));
+  if (!stemFixed) violations.push(...partTaskRepertoireViolations(q));
   violations.push(...validatePaperStyleMix(q.paper, q.wines));
   // R-COLOUR (Right Paper Check) runs here by DEFAULT, and that default is the whole point.
   //

@@ -217,6 +217,12 @@ async function main() {
     JOIN stem_answer_keys k ON k.question_id = g.question_id
     WHERE g.invalid_reasons IS NOT NULL
       AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
+      -- Historical imports are excluded outright. This script repairs a question by REGENERATING it,
+      -- and a historical row's stem is a verbatim past-paper question that must never be rewritten
+      -- (see historical-stems.ts). A stem-shape quarantine on one of these is a false positive to be
+      -- fixed by scoping the rule, not by editing the exam. Re-import instead:
+      --   scripts/import-historical-stems.mjs --only=<qid> --redo
+      AND (g.metadata->>'source') IS DISTINCT FROM 'historical_stem'
       AND g.scope = 'pool'
       AND g.is_retired IS NOT TRUE
       AND g.review_state = 'kept'

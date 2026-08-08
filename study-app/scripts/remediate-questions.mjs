@@ -275,6 +275,9 @@ async function main() {
     FROM generated_questions g LEFT JOIN stem_answer_keys k USING (question_id)
     WHERE (k.validated = false OR g.invalid_reasons IS NOT NULL)
       AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
+      -- Never remediate a historical import: remediation rewrites the question, and these carry a
+      -- verbatim past-paper stem. Re-import instead (import-historical-stems.mjs --only=<qid> --redo).
+      AND (g.metadata->>'source') IS DISTINCT FROM 'historical_stem'
     ORDER BY g.paper, g.family`;
 
   // Third quarantine signal: a wines[] entry that isn't a wine at all but the generator's own
@@ -288,6 +291,7 @@ async function main() {
     SELECT question_id, paper, family, wines
     FROM generated_questions
     WHERE (metadata->>'archived') IS DISTINCT FROM 'true'
+      AND (metadata->>'source') IS DISTINCT FROM 'historical_stem'
     ORDER BY paper, family`;
   const malformed = [];
   for (const r of live) {

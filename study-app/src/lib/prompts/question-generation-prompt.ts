@@ -438,7 +438,11 @@ export async function buildQuestionGenerationPrompt(
   // stem must NOT ask the candidate to identify the grape variety or region/country of origin. The
   // engine enforces this after generation (validateSingleWineIdentification); this adds the matching
   // instruction so the model builds the right stem in the first place.
-  suppressIdentification?: boolean
+  suppressIdentification?: boolean,
+  // Historical import: a REAL past-paper stem, fixed. The model's job narrows to choosing the wines
+  // that satisfy it. The engine overwrites the returned stem with this text regardless, so the
+  // instruction below exists to make the WINES right, not to be trusted for the stem.
+  anchoredStem?: { text: string; wineCount: number } | null
 ): Promise<{ cachedPrefix: string; system: string; user: string }> {
   const ctx = loadPipelineContext();
 
@@ -867,7 +871,36 @@ The candidate is drilling ${variety}. EVERY wine in this flight MUST have ${vari
 `
     : "";
 
-  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.${varietyConstraint}
+  const anchoredStemBlock = anchoredStem
+    ? `
+## THE STEM IS FIXED — YOUR JOB IS THE WINES
+
+This is a REAL question from a past IMW paper. It is reproduced below exactly as the Institute set
+it. Copy it into \`## Question\` CHARACTER FOR CHARACTER: same wording, same sub-question letters,
+same mark values, same line breaks. Do not reword it, do not renumber the wines, do not rebalance the
+marks, do not add or remove a sub-question, do not "improve" it. It is already correct.
+
+Everything you would normally decide about the QUESTION has been decided. What you are choosing is
+the ${anchoredStem.wineCount}-wine flight that this stem is asked about — wines available on the
+market TODAY, not the ones the Institute poured. Every constraint the stem declares must hold for
+your flight, and every sub-question must be answerable from it. Read the stem as a specification:
+
+- If it says the wines share a variety, an origin, a vintage or a production method, they must.
+- If it says they differ, they must differ on that axis.
+- If it awards marks for a topic (oak, malolactic, residual sugar, commercial position, maturity),
+  your wines must give the candidate something real to say about it.
+- If the stem's premise cannot be satisfied with wines you are confident about, output exactly
+  CONSTRAINT_IMPOSSIBLE and nothing else. A flight that half-fits is worse than none.
+
+Fill in \`## Metadata\`, \`## Generation Reasoning\` and \`## Paper Scope Check\` as normal — the
+reasoning should explain why each wine satisfies the stem.
+
+THE STEM, VERBATIM:
+${anchoredStem.text}
+`
+    : "";
+
+  const user = `Generate ONE exam question for Paper ${paper}${family !== "any" ? `, type ${family}` : ""}.${varietyConstraint}${anchoredStemBlock}
 
 Output in this EXACT format:
 

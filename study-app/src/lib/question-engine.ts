@@ -161,6 +161,7 @@ import {
   canonVariety,
   stemDisclosureViolations,
   sweetnessOutOfPaperViolations,
+  expandMarkTokens,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -945,6 +946,26 @@ export async function generateFreshQuestion(
     // buyable, so failure surfaces as an error the caller handles by swapping a candidate.
     scope?: string;
     pinnedWines?: { slot: number; fullText: string }[] | null;
+    // Historical import: the MIRROR of pinnedWines. Pin the STEM — a real past-paper question, taken
+    // verbatim from data/structured/corpus_questions.json with only its wine slots renumbered to
+    // 1..n — and generate the wines and model answer against it. The candidate practises the exact
+    // framings the IMW has set, over wines that are currently buyable instead of a 2011 list.
+    //
+    // Anchored mode overwrites candidate.questionText with `text` after parsing, so the banked stem
+    // is the real one no matter what the model returns. Three flight-CHOICE checks stand down and
+    // nothing else does: flight size is judged against the corpus maximum rather than the generation
+    // maximum (a corpus question cannot be out-of-distribution for its own distribution), novelty is
+    // meaningless (the stem IS the history the novelty window is defending), and the mark-type-mix
+    // nudge is a bank-composition preference that trips 43% of real questions. Every WINE-side
+    // validator runs untouched — that is the whole point of importing this way rather than by bulk
+    // INSERT: the wines are new, so they get the same scrutiny a generated flight gets.
+    anchoredStem?: {
+      text: string;
+      wineCount: number;
+      family: string;
+      questionId: string;
+      metadata: Record<string, unknown>;
+    } | null;
     // Paper flights: earlier questions' stems, so this flight VARIES its scaffold. The paper-QA
     // examiner judge failed identical a/b/c scaffolds repeated across a paper, and flagged the
     // absence of POOLED identification marks — both are stem-construction habits, steered here.
@@ -980,6 +1001,7 @@ export async function generateFreshQuestion(
 
   const pinned =
     saveOpts?.pinnedWines && saveOpts.pinnedWines.length > 0 ? saveOpts.pinnedWines : null;
+  const anchored = saveOpts?.anchoredStem ?? null;
 
   emit?.({ type: "status", label: "Reading the wine bank for duplicates…" });
 
@@ -1012,7 +1034,10 @@ export async function generateFreshQuestion(
   // (validateSingleWineFlight rejects a lone banker), so ID is never asked (fb_354/355/98).
   let flightSizeOverride: number | null = null;
   let suppressIdentification = false;
-  if (!pinned) {
+  if (anchored) {
+    // The real paper already chose the size; the sampler must not overrule it.
+    flightSizeOverride = anchored.wineCount;
+  } else if (!pinned) {
     try {
       const recentSizes = await getRecentFlightSizes(paper, FLIGHT_SIZE_WINDOW).catch(() => []);
       flightSizeOverride = selectFlightSize(paper, { recentSizes });
@@ -1041,7 +1066,8 @@ export async function generateFreshQuestion(
       ? { flightCategory: saveOpts.examMix.flightCategory, curveball: saveOpts.examMix.curveball }
       : undefined,
     flightSizeOverride,
-    suppressIdentification
+    suppressIdentification,
+    anchored ? { text: anchored.text, wineCount: anchored.wineCount } : null
   );
 
   // PRODUCER & WINE-STYLE EXCLUSION (hard, every generation path): the reviewer's standing bans plus
@@ -1269,7 +1295,11 @@ ${saveOpts.paperStemsContext}` : ""}`;
   // does not exist. That is deliberate: model_usage.question_id carries no FK, and the money was
   // genuinely spent. Only the converged attempt's id reaches generated_questions, so the cost of
   // discarded attempts stays outside a batch's reconciled total.
-  const questionId = `gen_p${paper}_${family || "any"}_${Date.now()}`;
+  // Anchored (historical-import) rows carry a deterministic `hist_<qid>` id instead of a timestamped
+  // one: it namespaces them away from generated questions at a glance, and it makes a re-import
+  // idempotent — saveGeneratedQuestion's ON CONFLICT (question_id) updates the row rather than
+  // banking a second copy of 2013 P2 Q4.
+  const questionId = anchored?.questionId ?? `gen_p${paper}_${family || "any"}_${Date.now()}`;
 
   // Every attempt is recorded, passed or failed. questionId is stamped on ALL of them, including
   // ones that never produce a question: it is the same id the model_usage rows carry, so the cost
@@ -1498,6 +1528,21 @@ ${repairContext.draft}`,
 
     const candidate = parseGeneratedQuestion(text, paper, family || "F4");
 
+    // Anchored mode: the stem is not the model's to write. It is asked to reproduce the past-paper
+    // text verbatim so its wine choices are made against the real wording, but what gets BANKED is
+    // the corpus text either way — a near-miss transcription (a dropped line break, a "3 x 10" the
+    // model rounded to "3 x 12") would otherwise silently become the question a candidate sits.
+    // The family comes from the corpus taxonomy tags for the same reason.
+    if (anchored && candidate) {
+      candidate.questionText = anchored.text;
+      candidate.family = anchored.family;
+      // totalMarks was derived from the MODEL's text (and from normalizeMarkAllocation's repair of
+      // it). Once the stem is replaced, that number describes a stem nobody will ever see — and it
+      // is the value stored in total_marks and re-checked by the post-save audit, so leaving it
+      // stale quarantines the question on its own stem.
+      candidate.totalMarks = expandMarkTokens(anchored.text, anchored.wineCount).total;
+    }
+
     if (!candidate) {
       lastViolations = ["Failed to parse generated question"];
       console.error(`Generation attempt ${attempt}/${MAX_ATTEMPTS} failed: parse error`);
@@ -1593,13 +1638,19 @@ ${repairContext.draft}`,
     };
     // Pinned (Live Tasting) skips the mark-split cap, mirroring the audit's BANK_COMPOSITION_RULES
     // exemption for live-tasting scope — it is a pool-quality standard, not a home-flight one.
+    // Anchored (historical import) drops it for a stronger reason than pinned mode's: the cap
+    // rejects 102 of the 160 real corpus questions (64%) — the IMW routinely pays 15 marks for
+    // "Identify the region" against our 10-mark cap — and the stem may not be edited, so the redraft
+    // loop cannot satisfy it. See `stemIsAuthoritative` in question-validator.ts.
     const idMarkCheck = {
-      violations: pinned ? [] : idMarkAllocationViolations(auditDraft).map((v) => v.detail),
+      violations: pinned || anchored ? [] : idMarkAllocationViolations(auditDraft).map((v) => v.detail),
     };
     const stemFactsCheck = {
       violations: [
+        // crossCheckStemFacts compares the stem's claims against the WINES — actionable, always runs.
+        // stemPreannouncesDiscriminator judges the stem alone, so it stands down on a fixed one.
         ...crossCheckStemFacts(auditDraft),
-        ...stemPreannouncesDiscriminator(candidate.questionText),
+        ...(anchored ? [] : stemPreannouncesDiscriminator(candidate.questionText)),
       ].map((v) => v.detail),
     };
     const contrastCheck = {
@@ -1632,10 +1683,27 @@ ${repairContext.draft}`,
     // it is a pure stem rewrite (drop the premise / re-aim the sub-part), never a wine swap, so a
     // Live Tasting flight that happens to include an off-dry bottle stays generatable. Only the HARD
     // verdicts gate; the soft "name-checks it inside a broader task" flag stays audit-side visibility.
+    // Anchored mode stands down for the reason this comment already gives: it is a pure stem rewrite,
+    // and the stem is a real past paper. (It fires on none of the 160 corpus questions, so this is
+    // about not leaving an unsatisfiable rule armed rather than about unblocking anything.)
     const sweetnessScopeCheck = {
-      violations: sweetnessOutOfPaperViolations(paper, candidate.questionText)
-        .filter((v) => v.severity === "hard")
-        .map((v) => v.detail),
+      violations: anchored
+        ? []
+        : sweetnessOutOfPaperViolations(paper, candidate.questionText)
+            .filter((v) => v.severity === "hard")
+            .map((v) => v.detail),
+    };
+    // Anchored mode's replacement for flightWineCountViolations, which re-parses the stem for its
+    // declared count and cannot read a paired stem ("Wines 1-2, 3-4 and 5-6 are pairs" — 4 of the 160
+    // corpus questions). Here the count is known exactly from the corpus row, so check that instead:
+    // stricter than the rule it replaces, and it cannot be fooled by the stem's prose.
+    const anchoredFlightCheck = {
+      violations:
+        anchored && candidate.wines.length !== anchored.wineCount
+          ? [
+              `this stem is a real past-paper question set on exactly ${anchored.wineCount} wines, but the flight holds ${candidate.wines.length}. Produce ${anchored.wineCount}.`,
+            ]
+          : [],
     };
     // Single-wine flight (fb_98/354/355): a lone wine must be a curveball asked for style/quality/
     // commercial — never variety/origin ID — and no flight may use the fb_98 hybrid subset+solo
@@ -1647,6 +1715,10 @@ ${repairContext.draft}`,
         // redraft loop can make. Unreachable today (the API caps Live Tasting at 2-4 bottles), but a
         // rule the generator cannot satisfy is the wrong thing to leave armed.
         .filter((v) => !(pinned && v.rule === "single-wine-flight-banker"))
+        // Anchored mode is the mirror: it KEEPS the banker half (pick a curveball — a wine choice the
+        // loop can make) and drops the two `single-wine-flight` arms, which this file already
+        // describes as "a stem edit". The corpus's only single-wine question, 2017 P3 Q2, trips them.
+        .filter((v) => !(anchored && v.rule === "single-wine-flight"))
         .map((v) => v.detail),
     };
     // Single-wine frequency cap: one-wine flights are rare on the exam, so a draft that would push the
@@ -1706,9 +1778,12 @@ ${repairContext.draft}`,
     // Pinned mode skips markMix outright: it is a bank-composition nudge that trips ~40% of REAL
     // MW questions (see its own relaxation note), and on a 2-wine home flight it cost the pilot a
     // whole 157s Opus attempt — the budget only fits two.
-    const markMixCheck = pinned || relaxMarkMix
+    // Anchored mode skips it outright for the same reason pinned mode does, only more so: it is a
+    // bank-composition nudge that trips 43% of the real corpus (69 of 162, measured), so applying it
+    // to a real stem would reject the exam for not looking enough like our model of the exam.
+    const markMixCheck = pinned || anchored || relaxMarkMix
       ? { valid: true, violations: [] }
-      : validateMarkTypeMix(candidate.questionText);
+      : validateMarkTypeMix(candidate.questionText, candidate.wines.length);
     const compositionCheck = pinned || relaxImportant
       ? { valid: true, violations: [] }
       : validateCompositionBalance(candidate.family, paper, candidate.wines);
@@ -1735,12 +1810,20 @@ ${repairContext.draft}`,
     const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
-      : validateFlightSize(candidate.family, paper, candidate.wines.length);
+      // Anchored mode judges against the CORPUS maximum, not the generation maximum: a real question
+      // cannot be out-of-distribution for the distribution it is a member of. It still runs, because
+      // the model choosing the wrong number of wines for a fixed stem is a real failure to catch.
+      : validateFlightSize(candidate.family, paper, candidate.wines.length, { historical: !!anchored });
     // Novelty NEVER fully relaxes: serving a user a question whose shape they've already seen defeats
     // the practice system. On relaxed attempts it runs in "lenient" mode — still blocks exact AND
     // structural/thematic repeats (same template + contrast axis), but drops the fuzzier
     // family/country/variety heuristic so generation can still converge.
-    const noveltyCheck = pinned
+    // Anchored mode is exempt: the novelty window defends against the generator re-running its own
+    // stem templates, and a past-paper stem IS the history those templates are imitations of.
+    // Historical stems also repeat each other near-verbatim year to year, which is a fact about the
+    // exam, not a defect. Wine repetition is still governed — the dedup list, origin diversity and
+    // the producer caps all run normally, and the import script dedupes stems among themselves.
+    const noveltyCheck = pinned || anchored
       ? ({ valid: true, violations: [] } as ReturnType<typeof validateNoveltyAgainstLatest>)
       : validateNoveltyAgainstLatest(
           candidate,
@@ -1813,7 +1896,12 @@ ${repairContext.draft}`,
       // announces the discriminator ("made using contrasting approaches in the winery") BLOCKS here
       // and never relaxes — the model is rewording its own text, so convergence is not at risk, and
       // this was the largest stem-quality class in Mike's bin-reason corpus.
-      stemDisclosure: { violations: stemDisclosureViolations(candidate.questionText).map((x) => x.detail) },
+      // Anchored (historical import) stands down: "the model is rewording its own text" is precisely
+      // what is not true of a verbatim past-paper stem. (It fires on none of the 160 corpus
+      // questions — this is about not leaving an unsatisfiable rule armed.)
+      stemDisclosure: {
+        violations: anchored ? [] : stemDisclosureViolations(candidate.questionText).map((x) => x.detail),
+      },
       // Audit-grade rules (see auditDraft above). All three BLOCK on every path and never relax:
       // they are exactly what auditAndQuarantineQuestion will quarantine on minutes after the save,
       // so letting a draft through on them just converts a redraft into a dead banked row. idMark
@@ -1832,6 +1920,8 @@ ${repairContext.draft}`,
       // R11: same policy as paperColour — blocks everywhere, never relaxes, and the fix is a stem edit.
       sweetnessScope: sweetnessScopeCheck,
       singleWineFlight: singleWineFlightCheck,
+      // Anchored mode only: the flight must hold exactly the number of wines the real paper set.
+      anchoredFlight: anchoredFlightCheck,
       singleWineFrequency: singleWineFrequencyCheck,
       pinnedFlight: pinnedFlightCheck,
       blindSafety: blindSafetyCheck,
@@ -1964,6 +2054,10 @@ ${repairContext.draft}`,
       noveltyCheck: validation.noveltyCheck,
       genModel: genModelUsed,
       genAbGroup,
+      // Historical import: which past-paper question this stem is, and that the wines are not the
+      // ones the Institute poured. Not surfaced in the study UI (product decision, 2026-08-07) —
+      // it exists so the import is auditable and every imported row is retractable in one query.
+      ...(saveOpts?.anchoredStem?.metadata ?? {}),
     },
   });
 
@@ -1977,7 +2071,17 @@ ${repairContext.draft}`,
   // (marks + total invariant), an 'over' result keeps the original and records the violation summary,
   // and a length-check outage degrades to 'clean' (no badge). Only a non-clean verdict is persisted;
   // a clean item keeps its NULL columns.
-  if (saveOpts?.batchId) {
+  //
+  // ANCHORED (historical import) SKIPS IT ENTIRELY. The length check measures a stem against the real
+  // papers' sub-bullet budget and rewrites it if it runs long — which is meaningless when the stem IS
+  // one of the real papers, and destructive: on the first 20-question import it rewrote four verbatim
+  // past-paper stems. hist_2021_p1_q2 was the clearest, splitting the real "a) Compare and contrast
+  // quality and maturity. (36 marks)" into two parts marked "(2 x 18 marks)" each — 36 marks became
+  // 72, the question's total went from its correct 75 to 111, and the post-save audit then
+  // quarantined it. (Note that also disproves this comment's "marks + total invariant" claim for the
+  // repair in general; the multiplier it invented did not match the flight's three wines. Worth a
+  // separate look, but on this path the right answer is simply not to run it.)
+  if (saveOpts?.batchId && !anchored) {
     emit?.({ type: "status", label: "Checking length against real MW papers…" });
     const lengthOutcome = await enforceLengthCheck(parsed.questionText, apiKey, meta, questionId);
     if (lengthOutcome.status !== "clean") {
@@ -2736,59 +2840,38 @@ export function matchesBenchmarkAppellation(fullText: string): boolean {
 
 function validateMarkAllocation(questionText: string, wineCount?: number): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
+  // Scope-aware: "For each wine:" over a bare "(15 marks)" is worth 15 × N, and "(8 marks per pair)"
+  // is worth 8 × N/2. Totalling those at face value made ten real IMW questions read as
+  // mis-allocations — see the block comment on expandMarkTokens in question-rules.mjs.
+  const { tokens, total: totalMarks } = expandMarkTokens(questionText, wineCount ?? 0);
 
   // Check 25-marks-per-wine rule
-  if (wineCount && wineCount > 0) {
-    let totalMarks = 0;
-    const mult = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    const single = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
-    for (const m of single) totalMarks += parseInt(m[1]);
-
-    if (totalMarks > 0) {
-      const expectedTotal = wineCount * 25;
-      // Exactly 25/wine — no tolerance. Marks parse as clean integers, so any deviation is a real
-      // mis-allocation (e.g. 8+7+8+7 = 30/wine), not parse noise. (EK-0001/EK-0041.)
-      if (totalMarks !== expectedTotal) {
-        violations.push(
-          `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
-        );
-      }
+  if (wineCount && wineCount > 0 && totalMarks > 0) {
+    const expectedTotal = wineCount * 25;
+    // Exactly 25/wine — no tolerance. Marks parse as clean integers, so any deviation is a real
+    // mis-allocation (e.g. 8+7+8+7 = 30/wine), not parse noise. (EK-0001/EK-0041.) Verified against
+    // all 162 real questions in data/structured/corpus_questions.json: every one totals exactly 25×N.
+    if (totalMarks !== expectedTotal) {
+      violations.push(
+        `Total marks (${totalMarks}) does not equal 25 × ${wineCount} wines (${expectedTotal}). The MW exam allocates exactly 25 marks per wine — no exceptions.`
+      );
     }
   }
 
-  // Find per-wine mark allocations like (4 x 2 marks) or (3 x 3 marks)
-  const perWineMarks = [...questionText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-  for (const m of perWineMarks) {
-    const perWine = parseInt(m[2]);
-    if (perWine <= 4) {
-      // Check if the sub-question is a "state RS/ABV" type (allowed at 2-3 marks)
-      const idx = questionText.indexOf(m[0]);
-      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
-      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
-        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
-      if (!isStateQuestion) {
-        violations.push(
-          `Sub-question "${m[0]}" allocates only ${perWine} marks per wine for a written answer. The MW exam only uses 2-4 marks for numerical "state RS/ABV" answers. Written sub-questions must be at least 5 marks.`
-        );
-      }
-    }
-  }
-  // Also check single mark allocations
-  const singleMarks = [...questionText.matchAll(/\((\d+)\s*marks?\)/gi)];
-  for (const m of singleMarks) {
-    const marks = parseInt(m[1]);
-    if (marks <= 4 && marks >= 1) {
-      const idx = questionText.indexOf(m[0]);
-      const preceding = questionText.slice(Math.max(0, idx - 150), idx).toLowerCase();
-      const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
-        || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
-      if (!isStateQuestion) {
-        violations.push(
-          `Sub-question "${m[0]}" allocates only ${marks} marks for a written answer. Written sub-questions must be at least 5 marks.`
-        );
-      }
-    }
+  // The 5-mark floor on written sub-questions, checked on the PER-UNIT value in every notation:
+  // 4 in "(3 x 4 marks)", and equally 4 in a bare "(4 marks)" under "For each wine:".
+  for (const t of tokens) {
+    if (t.perUnit > 4 || t.perUnit < 1) continue;
+    // Check if the sub-question is a "state RS/ABV" type (allowed at 2-3 marks)
+    const preceding = questionText.slice(Math.max(0, t.start - 150), t.start).toLowerCase();
+    const isStateQuestion = /\b(state|indicate|estimate)\b.*\b(residual sugar|alcohol|rs|abv|sugar level|alcohol level)\b/.test(preceding)
+      || /\b(residual sugar|alcohol level|alcohol %|rs level)\b/.test(preceding);
+    if (isStateQuestion) continue;
+    violations.push(
+      t.mult > 1
+        ? `Sub-question "${t.raw}" allocates only ${t.perUnit} marks per wine for a written answer. The MW exam only uses 2-4 marks for numerical "state RS/ABV" answers. Written sub-questions must be at least 5 marks.`
+        : `Sub-question "${t.raw}" allocates only ${t.perUnit} marks for a written answer. Written sub-questions must be at least 5 marks.`
+    );
   }
   return { valid: violations.length === 0, violations };
 }
@@ -2897,28 +2980,38 @@ export function questionAsksIdentification(questionText: string): boolean {
   return SINGLE_WINE_ID_RE.test(questionText || "");
 }
 
-const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; typical: number[] }> = {
-  F1: { min: 2, max: 6, typical: [2, 3] },
-  F2: { min: 2, max: 4, typical: [2, 3] },
-  F3: { min: 2, max: 4, typical: [2, 4] },
-  F4: { min: 2, max: 6, typical: [3, 4] },
-  F5: { min: 1, max: 5, typical: [2, 3, 4] },
-  F6: { min: 2, max: 5, typical: [2, 4, 5] },
-  F7: { min: 2, max: 6, typical: [2, 6] },
+// `max` is the largest flight this family may be GENERATED at; `corpusMax` is the largest the IMW has
+// ever actually set. They differ where the corpus has a lone outlier: F2 has exactly one 6-wine
+// question in fifteen years (2026 P2 Q3, 1 of 39) and F6 exactly one (2013 P3 Q3, 1 of 6). A single
+// instance is real history but not a licence to generate at that size, so a draft stays held to `max`
+// while a question imported FROM the corpus is checked against `corpusMax` — it cannot be
+// out-of-distribution for a distribution it is a member of. Measured over the 160 single-question
+// entries in data/structured/corpus_questions.json (the two whole-paper questions, 2011 P3 Q1 at 12
+// wines and 2026 P3 Q2 at 8, are excluded — they are papers, not flights).
+const FAMILY_FLIGHT_RANGES: Record<string, { min: number; max: number; corpusMax: number; typical: number[] }> = {
+  F1: { min: 2, max: 6, corpusMax: 6, typical: [2, 3] },
+  F2: { min: 2, max: 4, corpusMax: 6, typical: [2, 3] },
+  F3: { min: 2, max: 4, corpusMax: 4, typical: [2, 4] },
+  F4: { min: 2, max: 6, corpusMax: 6, typical: [3, 4] },
+  F5: { min: 1, max: 5, corpusMax: 5, typical: [2, 3, 4] },
+  F6: { min: 2, max: 5, corpusMax: 6, typical: [2, 4, 5] },
+  F7: { min: 2, max: 6, corpusMax: 6, typical: [2, 6] },
 };
 
 function validateFlightSize(
   family: string,
   paper: number,
-  wineCount: number
+  wineCount: number,
+  opts: { historical?: boolean } = {}
 ): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
   const range = FAMILY_FLIGHT_RANGES[family];
   if (!range) return { valid: true, violations };
 
-  if (wineCount < range.min || wineCount > range.max) {
+  const max = opts.historical ? range.corpusMax : range.max;
+  if (wineCount < range.min || wineCount > max) {
     violations.push(
-      `Flight of ${wineCount} wines is outside historical range for ${family} (${range.min}-${range.max} wines). Regenerate with a different flight size.`
+      `Flight of ${wineCount} wines is outside historical range for ${family} (${range.min}-${max} wines). Regenerate with a different flight size.`
     );
   }
 
@@ -2986,29 +3079,31 @@ const SUBQ_SPLIT_RE = /^\s*([a-h])\)\s*/gim;
 
 // Full-credit-per-hit mark mix + ID-composite (union, counted once so "identify variety and region"
 // isn't double-charged) over a question's sub-parts. Matches the corpus method.
-function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompositeShare: number } {
+function computeMarkTypeMix(questionText: string, wineCount = 0): { totalMarks: number; idCompositeShare: number } {
   const labels = [...questionText.matchAll(SUBQ_SPLIT_RE)];
-  const parts: string[] = [];
+  // Part boundaries in the ORIGINAL text, so expanded tokens can be attributed back by index.
+  const spans: { text: string; from: number; to: number }[] = [];
   if (labels.length === 0) {
-    parts.push(questionText);
+    spans.push({ text: questionText, from: 0, to: questionText.length });
   } else {
     for (let i = 0; i < labels.length; i++) {
-      const start = (labels[i].index ?? 0) + labels[i][0].length;
-      const end = i + 1 < labels.length ? (labels[i + 1].index ?? questionText.length) : questionText.length;
-      parts.push(questionText.slice(start, end));
+      const from = (labels[i].index ?? 0) + labels[i][0].length;
+      const to = i + 1 < labels.length ? (labels[i + 1].index ?? questionText.length) : questionText.length;
+      spans.push({ text: questionText.slice(from, to), from, to });
     }
   }
+  // Scope-aware, so a "For each wine:" part is weighed at its real N× value against a pooled part.
+  // wineCount 0 (unknown) keeps the original face-value reading.
+  const { tokens } = expandMarkTokens(questionText, wineCount);
   let total = 0;
   let idMarks = 0;
   const ID_TYPES = new Set(["variety_id", "origin_id", "vintage_id"]);
-  for (const part of parts) {
+  for (const span of spans) {
     let partMarks = 0;
-    for (const m of part.matchAll(MARK_TOKEN_RE)) {
-      partMarks += (m[1] ? parseInt(m[1], 10) : 1) * parseInt(m[2], 10);
-    }
+    for (const t of tokens) if (t.start >= span.from && t.start < span.to) partMarks += t.marks;
     if (partMarks === 0) continue;
     total += partMarks;
-    const low = part.toLowerCase();
+    const low = span.text.toLowerCase();
     const hitsId = SUBQ_TYPE_RULES.some(([type, re]) => ID_TYPES.has(type) && re.test(low));
     if (hitsId) idMarks += partMarks;
   }
@@ -3018,9 +3113,9 @@ function computeMarkTypeMix(questionText: string): { totalMarks: number; idCompo
 // R8 (soft): modern papers cap identification at ~46% of marks; flag a question only when ID dominates
 // (>55%). Calibrated against the corpus — trips ~40% of even REAL last-10 questions (median 44%), so it
 // nudges rather than blocks. Commercial/style presence is a whole-paper concern (Phase 3), not here.
-export function validateMarkTypeMix(questionText: string): { valid: boolean; violations: string[] } {
+export function validateMarkTypeMix(questionText: string, wineCount = 0): { valid: boolean; violations: string[] } {
   const violations: string[] = [];
-  const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText);
+  const { totalMarks, idCompositeShare } = computeMarkTypeMix(questionText, wineCount);
   if (totalMarks === 0) return { valid: true, violations };
   if (idCompositeShare > 0.55) {
     violations.push(
@@ -3120,44 +3215,41 @@ function validateCountryDiversity(
 export function normalizeMarkAllocation(text: string, wineCount: number): string {
   if (!wineCount || wineCount < 1) return text;
   const expected = wineCount * 25;
-  const re = /\((\d+)\s*[x×]\s*(\d+)\s*marks?\)|\((\d+)\s*marks?\)/gi;
-  type Tok = { kind: "mult" | "single"; n?: number; mark: number; start: number; raw: string };
-  const tokens: Tok[] = [];
-  for (const m of text.matchAll(re)) {
-    if (m[1] !== undefined) tokens.push({ kind: "mult", n: +m[1], mark: +m[2], start: m.index ?? 0, raw: m[0] });
-    else tokens.push({ kind: "single", mark: +m[3], start: m.index ?? 0, raw: m[0] });
-  }
+  // Reads marks through the SAME scope-aware expander the validator uses. When these two disagreed,
+  // the repairer "fixed" a question the validator would have passed — a scoped draft ("For each
+  // wine:" + "(15 marks)") totalled short here and got a sub-question silently rewritten.
+  const { tokens, total } = expandMarkTokens(text, wineCount);
   if (!tokens.length) return text; // no marks → engine defaults to 100; leave
-  const total = tokens.reduce((s, t) => s + (t.kind === "mult" ? (t.n as number) * t.mark : t.mark), 0);
   if (total === expected) return text;
   const delta = expected - total;
 
-  let target: Tok | null = null;
+  let target: (typeof tokens)[number] | null = null;
   let newRaw: string | null = null;
-  // Preferred: nudge a genuine per-wine multiplier (count === N) by delta/N — preserves structure.
+  // Preferred: nudge a genuine per-wine part (worth N units) by delta/N — preserves structure. This
+  // now covers a scoped bare token as well as an explicit "N x M".
   if (delta % wineCount === 0) {
-    const perWine = tokens.filter((t) => t.kind === "mult" && t.n === wineCount);
+    const perWine = tokens.filter((t) => t.mult === wineCount);
     if (perWine.length) {
-      const t = perWine.reduce((a, b) => (b.mark > a.mark ? b : a)); // largest M = most headroom
-      const newM = t.mark + delta / wineCount;
-      if (newM >= 5) { target = t; newRaw = `(${t.n} x ${newM} marks)`; }
+      const t = perWine.reduce((a, b) => (b.perUnit > a.perUnit ? b : a)); // largest M = most headroom
+      const newM = t.perUnit + delta / wineCount;
+      // Rewrite in the token's own notation so a scoped question keeps reading as scoped.
+      if (newM >= 5) { target = t; newRaw = t.origin === "explicit" ? `(${t.mult} x ${newM} marks)` : `(${newM} marks)`; }
     }
   }
-  // Fallback: adjust a single written part (≥5) by the whole delta.
+  // Fallback: adjust a single-unit written part (≥5) by the whole delta.
   if (!target) {
-    const singles = tokens.filter((t) => t.kind === "single" && t.mark >= 5);
+    const singles = tokens.filter((t) => t.mult === 1 && t.perUnit >= 5);
     if (singles.length) {
-      const t = singles.reduce((a, b) => (b.mark > a.mark ? b : a));
-      const newX = t.mark + delta;
+      const t = singles.reduce((a, b) => (b.perUnit > a.perUnit ? b : a));
+      const newX = t.perUnit + delta;
       if (newX >= 5) { target = t; newRaw = `(${newX} marks)`; }
     }
   }
   if (!target || !newRaw) return text; // can't fix cleanly → leave for the validator (no regression)
 
-  const out = text.slice(0, target.start) + newRaw + text.slice(target.start + target.raw.length);
-  let chk = 0; // re-verify; never ship a half-fixed text
-  for (const m of out.matchAll(re)) chk += m[1] !== undefined ? +m[1] * +m[2] : +m[3];
-  return chk === expected ? out : text;
+  const out = text.slice(0, target.start) + newRaw + text.slice(target.end);
+  // Re-verify through the expander; never ship a half-fixed text.
+  return expandMarkTokens(out, wineCount).total === expected ? out : text;
 }
 
 function parseGeneratedQuestion(
@@ -3231,12 +3323,12 @@ function parseGeneratedQuestion(
     // otherwise it returns the text unchanged for validateMarkAllocation to quarantine.
     const repairedText = normalizeMarkAllocation(questionText, wines.length);
 
-    // Extract marks (from the repaired text, so totalMarks reflects the corrected allocation)
-    let totalMarks = 0;
-    const mult = [...repairedText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    const single = [...repairedText.matchAll(/\((\d+)\s*marks?\)/gi)];
-    for (const m of single) totalMarks += parseInt(m[1]);
+    // Extract marks (from the repaired text, so totalMarks reflects the corrected allocation).
+    // Scope-aware, like every other mark total in the app — this one becomes the STORED
+    // total_marks column, so reading a scoped stem at face value banks a wrong number that the
+    // post-save audit then quarantines the question for. (Caught by the first historical-import
+    // pilot: 2013 P2 Q1 stored 35 against its real 50 and was quarantined on its own stem.)
+    let totalMarks = expandMarkTokens(repairedText, wines.length).total;
     if (!totalMarks) totalMarks = 100;
 
     if (!questionText || wines.length === 0) return null;
