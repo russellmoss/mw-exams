@@ -486,6 +486,63 @@ export function sweetnessOutOfPaperViolations(paper, questionText) {
   ];
 }
 
+// ── Reviewer producer bans ───────────────────────────────────────────────────────────────────────
+//
+// Declared HERE, in the dependency-free rule layer, rather than in bank-health/producer.ts where it
+// used to live: this file is plain .mjs imported by plain-node scripts, so it cannot import a .ts
+// module, and the rule below needs the list. producer.ts re-exports it, so every existing importer
+// (question-engine's generation exclusion list, the admin bank-health UI) is unchanged.
+export const REVIEWER_EXCLUDED_PRODUCERS = ["Domaine Weinbach", "Seppeltsfield"];
+
+// Generic house-title prefixes. "Domaine Weinbach" must also match a label that says only
+// "Weinbach, Riesling Cuvée Théo" — the title is not the identity, and comma-less labels routinely
+// drop it. Stripping the prefix is what makes the ban survive the label variation that let Weinbach
+// fragment across producer keys in the first place (see bank-health/producer.ts).
+const PRODUCER_TITLE_PREFIX =
+  /^(domaine|dom\.|ch[aâ]teau|weingut|bodegas?|quinta|tenuta|maison|cantina|azienda(\s+agricola)?|casa|clos|castello|schloss|marchesi|famille|family)\s+/i;
+
+/**
+ * The banned producer a raw wine label names, or null. Case- and accent-insensitive, matched on a
+ * word boundary so "Weinbach" does not fire on a longer unrelated word.
+ * @param {string} label
+ * @returns {string|null} the display name of the banned producer
+ */
+export function matchExcludedProducer(label) {
+  const hay = norm(label || "");
+  if (!hay) return null;
+  for (const display of REVIEWER_EXCLUDED_PRODUCERS) {
+    const full = norm(display);
+    const bare = norm(display.replace(PRODUCER_TITLE_PREFIX, ""));
+    for (const needle of new Set([full, bare])) {
+      if (!needle) continue;
+      if (new RegExp(`(^|[^a-z0-9])${needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(hay))
+        return display;
+    }
+  }
+  return null;
+}
+
+// The rules whose verdict does NOT depend on a resolved answer key — the only ones an audit may
+// ENFORCE on a question that has no stem_answer_key row.
+//
+// Derived empirically, not by reading the rule bodies: every keyed question in the corpus (n=586)
+// was validated twice, once with its ground truth and once with it stripped to bare labels, and a
+// rule earns its place here only if the two runs agreed on every single question. That matters more
+// than it sounds — `country-diversity` fires 187 times on stripped input and zero times on the same
+// questions keyed, so enforcing the full rule set on unkeyed rows would have quarantined most of the
+// servable pool over nothing. tests/ground-truth-independent-rules.test.ts re-derives this list and
+// fails if the corpus ever disagrees with it.
+export const GROUND_TRUTH_INDEPENDENT_RULES = [
+  "MARKS_BELOW_FLOOR",
+  "excluded-producer",
+  "part-task-repertoire",
+  "shared-variety-marked-per-wine",
+  "single-wine-flight",
+  "stem-preannounces-discriminator",
+  "stem-too-wordy",
+  "sweetness-out-of-paper",
+];
+
 /**
  * Run the shared contradiction rules against a (normalized) question.
  * @param {{ paper: number, questionText: string, totalMarks?: number,
@@ -501,6 +558,28 @@ export function applyQuestionRules(q, opts = {}) {
   const v = [];
   const stem = normStem(q.questionText);
   const wines = q.wines || [];
+
+  // R-PRODUCER — the reviewer's standing producer bans, re-checked against the raw label.
+  //
+  // These bans were enforced ONLY in the generation prompt (buildGenerationProducerExclusion feeds
+  // them to the model). A prompt is a request, not a gate: three banned-producer wines reached the
+  // servable pool on 6-7 Aug 2026 — two Seppeltsfield Solera Tawny and a Domaine Weinbach Sylvaner —
+  // after the 2026-08-05 sweep retired 34 of them. Nothing downstream could catch it, because no
+  // post-hoc rule existed. This is that rule.
+  //
+  // It reads only fullText, so it is ground-truth independent and runs on unkeyed questions too —
+  // which matters, since all three escapees were unkeyed.
+  for (const w of wines) {
+    const label = w.fullText;
+    if (!label) continue;
+    const banned = matchExcludedProducer(label);
+    if (banned)
+      v.push({
+        rule: "excluded-producer",
+        severity: "hard",
+        detail: `wine ${w.slot} is from ${banned}, a producer on the reviewer's standing exclusion list — it must not appear in a generated flight at all`,
+      });
+  }
   const primaries = wines.map((w) => canonVariety(w.varieties?.[0]));
   const distinctPrimary = new Set(primaries.filter(Boolean));
   const distinctCountry = new Set(wines.map((w) => canonCountry(w.country)).filter(Boolean));
