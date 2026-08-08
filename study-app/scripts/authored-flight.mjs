@@ -55,6 +55,9 @@ import {
   getProducerTally,
   getRecentProducerKeys,
   getQuestionsByFilter,
+  createBankBatch,
+  incrementBatchCounts,
+  setBankBatchStatus,
 } from "@/lib/db";
 import { enrichWineProfiles } from "@/lib/wine-enrichment";
 import { buildStemKeyForQuestion } from "@/lib/stem-answer-key";
@@ -202,6 +205,26 @@ if (!ready.length) { console.error("nothing to commit"); process.exit(1); }
 const apiKey = process.env.ANTHROPIC_API_KEY;
 if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set (wine enrichment runs on Haiku)");
 
+// One review batch per paper. Rows land review_state='pending', and the Fill-the-Bank pane is
+// organised BY BATCH — so without this the questions are gated correctly and simultaneously
+// invisible to the only UI that can un-gate them. 71 authored rows reached exactly that state before
+// this was noticed: banked, pending, and unreviewable. Batches also give the admin strip its
+// per-paper grouping and counts.
+const batches = new Map();
+for (const paper of [...new Set(ready.map((r) => r.stem.paper))].sort()) {
+  const count = ready.filter((r) => r.stem.paper === paper).length;
+  const batch = await createBankBatch({
+    paper,
+    requestedCount: count,
+    replaceBinned: false,
+    createdBy: null,
+    // An authored flight spends nothing on generation; only the Haiku enrichment below costs anything.
+    estCostUsd: Math.round(count * 0.02 * 100) / 100,
+  });
+  batches.set(paper, batch.id);
+  console.log(`[batch] P${paper}: ${batch.id} for ${count} authored question(s)`);
+}
+
 for (const { stem, wines, item } of ready) {
   const questionId = historicalQuestionId(stem);
   // A row with a user attempt is never overwritten — see import-historical-stems.mjs for why.
@@ -234,6 +257,7 @@ for (const { stem, wines, item } of ready) {
     totalMarks: stem.totalMarks,
     modelAnswer: item.modelAnswer,
     status: "pending",
+    batchId: batches.get(stem.paper) ?? null,
     metadata: {
       generatedOnTheFly: false,
       generationReasoning: item.reasoning ?? null,
@@ -256,5 +280,11 @@ for (const { stem, wines, item } of ready) {
   const audit = await auditAndQuarantineQuestion(questionId);
   const verdict = audit.audited && audit.hard.length ? `QUARANTINED: ${audit.hard.map((v) => v.rule).join(", ")}` : "clean";
   console.log(`   ${questionId}  saved · ${verdict}`);
+  await incrementBatchCounts(batches.get(stem.paper), { generated: 1, failed: 0 }).catch(() => {});
 }
-console.log(`\ncommitted ${ready.length}`);
+for (const [, id] of batches) {
+  await setBankBatchStatus(id, "complete", { completed: true, actualCostUsd: 0 }).catch(() => {});
+}
+console.log(`\ncommitted ${ready.length} — they are BANKED BUT NOT SERVABLE until kept.`);
+console.log(`Review them in the Fill-the-Bank pane, or keep the clean ones with:`);
+console.log(`  node --import ./scripts/ts-loader.mjs scripts/approve-historical-import.mjs`);
