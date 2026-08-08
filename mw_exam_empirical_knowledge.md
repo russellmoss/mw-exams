@@ -37,6 +37,28 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-08 — three duplicate ids resolved; the Neon mirror was silently 3 entries short.** The
+  2026-08-07 batch reused **EK-0155, EK-0156 and EK-0157** for two entries each. `sync-ek-table.mjs`
+  upserts `ON CONFLICT (ek_id) DO UPDATE`, so of each pair only the later heading survived: the table
+  read **163 rows against 166 parsed entries** and three real entries were invisible to the
+  feedback-analysis agent, which queries that mirror rather than this doc. Most consequentially the
+  lost EK-0157 is the **product decision that blocks sparkling on Paper 1 entirely**, which the
+  generation rules depend on. In all three pairs every inbound cross-reference — in this doc *and* in
+  `question-validator.ts`, `paper-style-mix.test.ts`, `stale-analysis-reap.test.ts` — pointed at the
+  **earlier** entry, so the earlier entry keeps its id and the later was renumbered:
+  §10 *"Residual sugar is a Paper 3 device"* EK-0155 → **EK-0166**;
+  §7 *"The nightly quarantine sweep went dark for a day"* EK-0156 → **EK-0167**;
+  §7 *"A pinned archetype must outrank a soft preference"* EK-0157 → **EK-0168**.
+  The four references to the renumbered entries were updated (R11's rationale in §5 and §7 ×3); no
+  code or `outputs/` reference needed changing. **Guarded so it cannot recur:** `sync-ek-table.mjs`
+  now hard-fails on a duplicate `ek_id` instead of silently dropping rows, and
+  `study-app/tests/ek-id-uniqueness.test.ts` fails the build on a collision before it can reach the
+  sync workflow. (Prior art: the 2026-05-30 `EK-0070 → EK-0085` fix, which had no guard behind it.)
+  **Renumbering races the id allocator:** the first pass here took 0164–0166, and while it was in
+  progress the auto-feedback bot landed `28c493f` claiming **EK-0164 and EK-0165** for two new
+  entries — `sync-empirical-knowledge.mjs` allocates from `max(id) + 1`, which a duplicate had
+  deflated. Syncing that pass would have deleted the bot's two rows and re-inserted its ids with
+  unrelated content. Re-check `max(id)` against master immediately before writing.
 - **2026-08-08 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0164, EK-0165).**
 - **2026-08-08 — app bug 427 fixed and catalogued (EK-0163).** A late-arriving model answer was
   written to `sessionStorage` while the debrief rendered from the reducer, so every on-the-fly
@@ -1128,7 +1150,7 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   - **R6 marks (soft):** total marks must equal 25 × wine count.
   - **R11 sweetness-out-of-paper (hard, P1/P2 only):** the stem must not declare residual sugar as a
     flight premise, mark how it was achieved, or ask the candidate to state it — those are Paper 3
-    devices (see EK-0155). A soft variant flags a broader part that merely name-checks RS.
+    devices (see EK-0166). A soft variant flags a broader part that merely name-checks RS.
   - Subset/pair stems ("Wines 1 and 2… the other two…") skip flight-wide checks to avoid false positives.
 
 ### EK-0041 · 25-marks-per-wine is a hard generation constraint
@@ -1879,8 +1901,8 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   `study-app/study-app/` and always matched nothing. The workflow runs from the same directory, so it
   would have shipped and been indistinguishable from "nobody references their bug reports". Every git
   call is now anchored with `-C <repo root>`, pinned by a test. **When a heuristic reports nothing,
-  suspect the plumbing before concluding the signal is absent** — cf. EK-0155's nightly sweep that had
-  been failing with `ERR_MODULE_NOT_FOUND` while looking like a clean back catalogue.
+  suspect the plumbing before concluding the signal is absent** — cf. the nightly sweep of EK-0155 /
+  EK-0167 that had been failing with `ERR_MODULE_NOT_FOUND` while looking like a clean back catalogue.
 - **cross-refs:** EK-0064 (instructions are not guarantees), EK-0155 (a validator not wired into every
   path is not an enforcement), EK-0159 (the artefact with no wines)
 
@@ -1903,8 +1925,8 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   (R-COLOUR), `validatePaperScope`, `validatePaperStyleMix` — takes *wines*. The shopping brief is
   written **before any wine exists**; it is a description of wines to go and buy. By the time a wine is
   resolved and those validators can run, the bottles are bought and opened. R11
-  (`sweetnessOutOfPaperViolations`, EK-0155-era) would have caught the framing, but it was only ever run
-  over question stems.
+  (`sweetnessOutOfPaperViolations`, the sweetness-is-a-Paper-3-device rule of EK-0166) would have caught
+  the framing, but it was only ever run over question stems.
   **Fix, three layers.** (1) The family description is resolved **per paper** (`byoFamilyFor`), naming
   the production levers that paper actually turns — oak/lees/MLF/vessel on P1, whole-bunch/maceration on
   P2 — and keeping the sweet/sparkling/fortified set for P3 only. (2) The paper scope prose moved out of
@@ -1934,7 +1956,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   one is the only artefact in the app that spends the candidate's money, so it deserved the *most*
   enforcement and had the least.
 - **cross-refs:** EK-0155 (validator wiring), EK-0156 (colour and style are two axes), EK-0157 (sparkling
-  blocked on P1 entirely), R11 in `question-rules.mjs` (sweetness is a Paper 3 device)
+  blocked on P1 entirely), EK-0166 / R11 in `question-rules.mjs` (sweetness is a Paper 3 device)
 
 ### EK-0158 · Check-then-act on a paper position billed three Opus generations for one flight
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07 (migration 058)
@@ -1965,7 +1987,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   claim is taken over, linking a second session to an occupied position raises `23505`, and both legal
   states still work (27 unlinked sessions coexist; position 1 exists on two different papers).
 
-### EK-0157 · A pinned archetype must outrank a soft preference — Live Tasting papers silently re-drew families
+### EK-0168 · A pinned archetype must outrank a soft preference — Live Tasting papers silently re-drew families
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07
 - **evidence:** paper `ltpr_egt9dfy3e` (user 1, P2 full, 2026-08-07) planned `F4/F2/F4/F2` in
   `live_tasting_papers.composition` and was built as **F4/F2/F1/F7**; `pickArchetype`
@@ -1987,7 +2009,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
   have; nothing user-facing reads family off the composition today (the paper API sends stems and
   marks, not families), so this is a latent reporting gap, not a live defect.
 
-### EK-0156 · The nightly quarantine sweep went dark for a day, and its cost is 13% not 61%
+### EK-0167 · The nightly quarantine sweep went dark for a day, and its cost is 13% not 61%
 - **tier:** PROCESS · **status:** live — workflow re-armed 2026-08-07
 - **evidence:** `gh run list --workflow question-audit-daily.yml` (failure at 2026-08-07 07:53 UTC,
   `ERR_MODULE_NOT_FOUND: .../src/lib/tasting-validators`); `.github/workflows/question-audit-daily.yml`;
@@ -2492,7 +2514,7 @@ This document is a synthesis layer. The deep artifacts it draws on (do not dupli
   Lesson: an EK entry that says "must not be flagged" needs a test pinning it, or a later rule
   re-introduces the fault. `tests/question-validator.test.ts` now holds three real-paper fixtures.
 
-### EK-0155 · Residual sugar is a Paper 3 device — P1/P2 pour sweet wines but never declare or mark them
+### EK-0166 · Residual sugar is a Paper 3 device — P1/P2 pour sweet wines but never declare or mark them
 - **tier:** STRONG SIGNAL · **status:** live — enforced by validator R11 (`sweetness-out-of-paper`, hard;
   `sweetness-reference-out-of-paper`, soft) and by the generation prompt's paper-scope block
 - **evidence:** `data/exams.json` measured 2026-08-07 — **12 of 162** historical stems (2011–2026) name
