@@ -318,16 +318,32 @@ best-effort.
 
 **Only PRODUCTION deploys migrate the database.** Preview deployments share the production
 `DATABASE_URL` (there is no preview branch DB) and `prebuild` runs `scripts/migrate.mjs` — so every
-preview build of every unmerged branch was applying its schema to production. Three migrations
+preview build of every unmerged branch was applying its schema to production. Four migrations
 reached prod that way (`018_generation_telemetry`, `019_generation_attempt_timeouts`,
-`026_bank_batch_family`); they are ledger rows in `schema_migrations` with no file on master, which
-is why a production build reports fewer applied migrations than the table has rows. All three were
+`026_bank_batch_family`, `027_model_usage_batch`); they are ledger rows in `schema_migrations` with
+no file on master, which is why a production build reports fewer applied migrations than the table
+has rows (75 rows vs 71 files as of 2026-08-08). All four were
 additive, but a branch carrying a `DROP COLUMN` or a backfill would have mutated production from an
 experiment nobody merged. `shouldRunMigrations()` now gates on `VERCEL_ENV`: production migrates,
 previews skip loudly, off-Vercel runs (`npm run migrate`, local builds) still migrate because a
 human is driving. A preview needing a new column will fail against the production schema — that is
 the correct outcome. If previews are ever given their own database, set
 `MIGRATE_ALLOW_NON_PRODUCTION=1` so they resume migrating it.
+
+**A new migration takes `max(existing) + 1`, and nothing else.** Migrations apply in **filename**
+order and the ledger keys on the **full filename**, so two files sharing a number both apply and
+both track — but which of them runs first is decided by the rest of the filename sorting
+alphabetically, not by what depends on what. Six numbers on master are already claimed twice
+(041, 042, 043, 047, 050, 054), each one two parallel feature branches taking "the next number" and
+both landing. All six are safe by luck — no pair touches the same table — but a pair where one adds
+a column the other backfills would apply in whichever order `b` sorts against `l`, silently and
+with a green build. `study-app/tests/migration-numbering.test.ts` is the gate: it fails on any
+**new** collision, and grandfathers exactly those six in a list that can only shrink.
+
+**Never renumber a colliding migration to tidy this up.** The ledger keys on the filename, so a
+rename reads as a brand-new migration and the runner re-applies it to production — the same class of
+failure as the drift the runner exists to prevent. The collisions are permanent; only the gate is
+forward-looking.
 
 **Cron routes authenticate on `CRON_SECRET`** (`/api/cron/*` and `/api/admin/bank/resume`): they
 compare `Authorization: Bearer $CRON_SECRET` and otherwise fall back to an admin session. It must be

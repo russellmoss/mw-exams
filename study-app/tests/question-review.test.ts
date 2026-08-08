@@ -154,16 +154,12 @@ describe("every question-review route is gated", () => {
 describe("migration 066", () => {
   const sql = () => readFileSync(MIGRATION, "utf-8");
 
-  it("exists and is the highest-numbered migration", () => {
+  it("exists", () => {
     expect(existsSync(MIGRATION)).toBe(true);
-    // Renumbering an applied migration is how this project has broken production before, so the new
-    // one must sit at the end rather than collide with an existing number.
-    const numbers = readdirSync(join(ROOT, "migrations"))
-      .filter((f) => f.endsWith(".sql"))
-      .map((f) => Number(f.slice(0, 3)))
-      .filter((n) => Number.isFinite(n));
-    expect(Math.max(...numbers)).toBe(66);
-    expect(numbers.filter((n) => n === 66)).toHaveLength(1);
+    // This used to also assert that 066 was the highest number and used once. Collision-freedom is
+    // now enforced corpus-wide by tests/migration-numbering.test.ts, so every future migration gets
+    // the guarantee instead of just this one — and this test no longer has to be edited each time a
+    // migration lands.
   });
 
   it("widens the user_attempts source CHECK to allow question_review", () => {
