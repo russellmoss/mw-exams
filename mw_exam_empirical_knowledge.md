@@ -1724,6 +1724,48 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0160 · A citation and a fix claim are the same string — only a trailer may close a bug report
+- **tier:** PROCESS · **status:** live — built 2026-08-08
+- **evidence:** attempts 407 and 413 (both fixed, deployed, and still reading `feedback_status = NULL`
+  hours later); `file_bug` in `study-app/src/lib/coach/tools/write-tools.ts`; the deliberate app-level
+  exclusion in `sweepStrandedFeedback` (`study-app/src/lib/feedback-analysis.ts`);
+  `study-app/scripts/close-fixed-bug-reports.mjs`; `.github/workflows/close-fixed-bug-reports.yml`;
+  verified on Neon branch `writeback-verify`
+- **claim:** **Symptom:** a candidate could not find out whether their own bug was fixed. Attempt 407
+  was fixed in `98075a1` and live in production for five hours while its row still read "open"; the only
+  way to answer the question was to read the git log by hand.
+  **Why nothing closed it, and why that was half right.** `file_bug` records a row and returns.
+  `sweepStrandedFeedback` — the self-healing sweeper for feedback that was never analysed — deliberately
+  excludes `scope = 'general'` rows, and the exclusion is CORRECT: `runFeedbackAnalysis` prompts on the
+  stem, the wines and the model answer, so a footer rendering bug handed to it would be judged as a
+  QUESTION (sound, therefore "reject") and could dispatch a generation-rule PR for a defect in a React
+  component. The gap was not a missing sweep. It was that an app bug is closed by a **code fix**, and no
+  mechanism connected the two.
+  **Fix:** a `Fixes-Bug: <attempt id>` git trailer, reconciled on every push to master (both deploy
+  paths share that event; hooking either one alone would miss fixes that shipped by the other). Sets
+  `feedback_status = 'accepted'` with a note naming the commit. Creates no deployment, so it costs
+  nothing against the Hobby quota (EK-0157-adjacent).
+- **the finding that shaped it — prose cannot carry intent.** The first build also closed on prose
+  references, on the reasoning that a convention nobody remembers never fires (EK-0064). Run against real
+  history it closed attempt 407 against `0deddf9` — *"fix(coach): attach the question a bug was filed
+  from"* — which merely CITES 407 as its motivating example while fixing something adjacent. The commit
+  that actually fixed 407 never names it in its message at all. Side by side the two are identical to a
+  machine: a conventional-commit `fix(` subject plus a bare "attempt 407" / "bug 413" in the body. One is
+  a fix claim, one is a citation, and **the distinguishing information is simply not in the text.** So
+  prose is parsed only to REPORT a candidate as a warning annotation; the trailer alone writes. The cost
+  is honest and stated: if the trailer is missing the row stays open, so writing the trailer IS the
+  mechanism.
+- **a guard that fails closed can look exactly like a quiet world.** The first version returned "no
+  fixing commit found" for every commit, because `touchesApp()` ran `git diff-tree -- study-app/` from a
+  cwd of `study-app/` — a pathspec resolves against the CURRENT DIRECTORY, so it asked for
+  `study-app/study-app/` and always matched nothing. The workflow runs from the same directory, so it
+  would have shipped and been indistinguishable from "nobody references their bug reports". Every git
+  call is now anchored with `-C <repo root>`, pinned by a test. **When a heuristic reports nothing,
+  suspect the plumbing before concluding the signal is absent** — cf. EK-0155's nightly sweep that had
+  been failing with `ERR_MODULE_NOT_FOUND` while looking like a clean back catalogue.
+- **cross-refs:** EK-0064 (instructions are not guarantees), EK-0155 (a validator not wired into every
+  path is not an enforcement), EK-0159 (the artefact with no wines)
+
 ### EK-0159 · A wine-level validator cannot guard the artefact that has no wines (the shopping brief)
 - **tier:** PROCESS · **status:** live — fixed 2026-08-07
 - **evidence:** Coach bug report attempt **413** (user 2, 2026-08-07 22:09 UTC, route

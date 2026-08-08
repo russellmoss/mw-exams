@@ -331,6 +331,39 @@ python scripts/build_study_diagrams_site.py
 
 This outputs to both `outputs/study_diagrams_site/` (standalone, light theme) and `study-app/public/diagrams/` (Vercel, dark theme).
 
+## Fixing a bug someone filed? Add a `Fixes-Bug:` trailer
+
+App bug reports come in through the Coach (`file_bug`) and land as `user_attempts` rows. **Nothing
+analyses them** — and that exclusion is deliberate, not an oversight: `sweepStrandedFeedback` skips
+app-level rows because `runFeedbackAnalysis` prompts on the stem, the wines and the model answer, so
+handing it a footer rendering bug would make it rule on the *question*, find it sound, therefore
+"reject", and possibly dispatch a generation-rule PR for a bug in a React component.
+
+So an app bug is closed by the **code fix**, and the link is a git trailer on the fixing commit:
+
+```
+fix(live-tasting): hold the shopping brief to its paper's scope
+
+Fixes-Bug: 413
+```
+
+Ids are the `user_attempts.id` shown in the admin feedback queue; `Fixes-Bug: 407, 413` closes several.
+On every push to master, `.github/workflows/close-fixed-bug-reports.yml` runs
+`study-app/scripts/close-fixed-bug-reports.mjs`, which sets `feedback_status = 'accepted'` on each
+referenced open row with a note naming the commit. It creates no deployment, so it burns none of the
+Hobby-plan quota.
+
+**Only the trailer closes a row.** Prose mentions are parsed but merely reported as a candidate in the
+Actions log, because prose cannot express intent reliably — measured on real history, prose matching
+closed attempt 407 against `0deddf9` ("fix(coach): attach the question a bug was filed from"), which
+only *cites* 407 while fixing something adjacent, and the commit that actually fixed 407 (`98075a1`)
+never names it at all. A citation and a fix claim are the same string to a machine. If the trailer is
+missing, the run says so and the row stays open — which is the safe direction, but it means **writing
+the trailer is the whole mechanism**.
+
+A wrong close is reversible: set `feedback_status` back to NULL and the report reopens. Rows a human
+already decided are never touched. See EK-0160.
+
 ## The first-run tour has a voice-over, and its audio is committed
 
 Every slide of the intro presentation and the two walkthroughs has a narration clip. The spoken text

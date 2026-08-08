@@ -1,0 +1,67 @@
+name: close-fixed-bug-reports
+
+# Close app bug reports whose fix has reached master.
+#
+# WHY ON PUSH AND NOT ON DEPLOY. Production is reached by TWO paths — Vercel git auto-deploy (still
+# enabled for master in study-app/vercel.json; only claude/*, auto-feedback/*, bin-fix/* and
+# feature-request/* are excluded) and the windowed manual-deploy.yml. Hooking this to either one would
+# miss fixes that shipped by the other, so it hangs off the event both have in common: the commit
+# landing on master. A row therefore closes on MERGE, and the note says "fixed in <sha>" rather than
+# claiming a deploy time it cannot know. Production follows within minutes on the git path, or by the
+# next 30-minute window.
+#
+# This is bookkeeping, so it must never be able to break anything: it needs no Vercel token, creates no
+# deployment (and so burns none of the Hobby plan's 100/day — see CLAUDE.md), takes `contents: read`,
+# and only ever moves a row from NULL to 'accepted'. A human decision is never overwritten.
+#
+# Dispatch it manually to reconcile the backlog after changing the matching rules.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print what would close without writing"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  # Never cancel: a cancelled run just means a fixed report stays open until the next push. Overlap is
+  # harmless anyway — the UPDATE re-checks `feedback_status IS NULL`.
+  group: close-fixed-bug-reports
+  cancel-in-progress: false
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history: the script scans `git log --since=<oldest open report>`, and the default
+          # shallow clone would hide every commit before the most recent one.
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Only @neondatabase/serverless is needed, and it is a production dependency — no dev tree, so
+      # this stays a few seconds rather than a minute.
+      - name: Install app dependencies
+        working-directory: study-app
+        run: npm ci --omit=dev
+
+      - name: Close reports whose fix is on master
+        working-directory: study-app
+        run: |
+          node scripts/close-fixed-bug-reports.mjs \
+            ${{ github.event.inputs.dry_run == 'true' && ' ' || '--apply' }} \
+            --sha="${{ github.sha }}"
