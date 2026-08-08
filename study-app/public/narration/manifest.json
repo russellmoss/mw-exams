@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T00:58:25.198Z",
+  "generatedAt": "2026-08-08T03:05:56.020Z",
   "outputFormat": "mp3_44100_64",
   "clips": {
     "intro-0": {
@@ -178,23 +178,30 @@
       "modelId": "eleven_multilingual_v2"
     },
     "practical-5": {
-      "textHash": "ef4009eba6543e99d5183ee3162701bc3f799847debc9f242428466f259cf5af",
-      "chars": 845,
-      "bytes": 382476,
+      "textHash": "cc56e6a6c96dcad68c74aac67d7ac4d07062f07cb0a3cd111a251cbb4ce9b92c",
+      "chars": 905,
+      "bytes": 422182,
       "voiceId": "JBFqnCBsd6RMkjVDRZzb",
       "modelId": "eleven_multilingual_v2"
     },
     "practical-6": {
-      "textHash": "97dba56b3d06ee55ee9f02e5eb6bee52cb88d0232e53acc0794a0979c6775365",
-      "chars": 908,
-      "bytes": 456873,
+      "textHash": "72205520b3641c77782ff3e803be59e1000dd45006ebb3f6c8e6ecb7f561c4cf",
+      "chars": 1192,
+      "bytes": 560109,
       "voiceId": "JBFqnCBsd6RMkjVDRZzb",
       "modelId": "eleven_multilingual_v2"
     },
     "practical-7": {
+      "textHash": "a179ed4749e8c2bdd59c7571467228e59bf73225ef97a5c27aacc76d69e688b8",
+      "chars": 734,
+      "bytes": 362414,
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "modelId": "eleven_multilingual_v2"
+    },
+    "practical-8": {
       "textHash": "6bba202e2d839c32ae21040bc1670118194f792dec8cfe2536f13f4aba35d062",
       "chars": 869,
-      "bytes": 437438,
+      "bytes": 416958,
       "voiceId": "JBFqnCBsd6RMkjVDRZzb",
       "modelId": "eleven_multilingual_v2"
     },
