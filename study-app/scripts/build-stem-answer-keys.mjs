@@ -17,6 +17,9 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { dirname, join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { createAnswerKeyBuilder } from "../src/lib/stem-answer-key.mjs";
+// Gates the generator-declared role — see the reconciliation in buildKeyForRow. Without it this
+// script would key roles ungated, and its keys are what the corpus audit reads.
+import { isBanker } from "../src/lib/question-validator.ts";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const dataFile = (f) => JSON.parse(readFileSync(join(ROOT, "data", f), "utf8"));
@@ -34,6 +37,7 @@ const { buildKeyForRow: _buildKeyForRow } = createAnswerKeyBuilder({
   stem_proprietary_blends: dataFile("stem_proprietary_blends.json"),
   stem_style_lexicon: dataFile("stem_style_lexicon.json"),
   mock_wine_bank: dataFile("mock_wine_bank.json"),
+  isBanker,
 });
 
 // Re-exported so the remediation loop / tests can validate a freshly generated question.
