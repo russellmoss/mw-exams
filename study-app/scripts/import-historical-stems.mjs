@@ -82,6 +82,46 @@ if (already.length) {
   console.log(`[import] ${already.length} already banked${REDO ? " — --redo will regenerate them" : " — skipping"}`);
 }
 
+// --redo has to DELETE first. saveGeneratedQuestion's ON CONFLICT (question_id) DO UPDATE
+// deliberately preserves question_text, wines and total_marks — it exists for the background
+// model-answer re-save of the SAME question, not for a genuine regeneration. Upserting over an
+// existing row therefore kept the first attempt's flight and marks while the run reported success.
+//
+// Three tables carry an FK to generated_questions, all ON DELETE NO ACTION. stem_answer_keys is
+// derived and goes with the question. user_attempts and live_tasting_sessions are NOT: an attempt is
+// a candidate's own work, and regenerating a question out from under one would rewrite what they
+// answered. Anything with either is REFUSED, not cascaded — bin it in the review pane instead.
+if (REDO && already.length) {
+  const candidates = already.map((s) => historicalQuestionId(s));
+  const attempted = new Set(
+    (await sql`
+      /* theory-mode-guard: all-modes -- an attempt in ANY mode means a candidate answered this
+         question; the point is to REFUSE to regenerate it, so narrowing by mode could only let a
+         real attempt slip through and be destroyed. */
+      SELECT DISTINCT question_id FROM user_attempts WHERE question_id = ANY(${candidates})
+    `).map((r) => r.question_id)
+  );
+  for (const r of await sql`SELECT DISTINCT question_id FROM live_tasting_sessions WHERE question_id = ANY(${candidates})`) {
+    attempted.add(r.question_id);
+  }
+  const ids = candidates.filter((id) => !attempted.has(id));
+  if (attempted.size) {
+    console.error(
+      `::warning::refusing to regenerate ${attempted.size} question(s) that already have a user attempt or ` +
+        `live-tasting session — bin them in the review pane instead: ${[...attempted].join(", ")}`
+    );
+    queue = queue.filter((s) => !attempted.has(historicalQuestionId(s)));
+  }
+  if (DRY) {
+    console.log(`[import] dry run — would delete ${ids.length} existing rows before regenerating`);
+  } else if (ids.length) {
+    await sql`DELETE FROM stem_answer_keys WHERE question_id = ANY(${ids})`;
+    await sql`DELETE FROM question_views WHERE question_id = ANY(${ids})`;
+    await sql`DELETE FROM generated_questions WHERE question_id = ANY(${ids})`;
+    console.log(`[import] deleted ${ids.length} existing rows so they regenerate cleanly`);
+  }
+}
+
 queue = queue.slice(0, LIMIT === Infinity ? undefined : LIMIT);
 
 const byPaper = new Map();

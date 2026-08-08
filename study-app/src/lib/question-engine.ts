@@ -1536,6 +1536,11 @@ ${repairContext.draft}`,
     if (anchored && candidate) {
       candidate.questionText = anchored.text;
       candidate.family = anchored.family;
+      // totalMarks was derived from the MODEL's text (and from normalizeMarkAllocation's repair of
+      // it). Once the stem is replaced, that number describes a stem nobody will ever see — and it
+      // is the value stored in total_marks and re-checked by the post-save audit, so leaving it
+      // stale quarantines the question on its own stem.
+      candidate.totalMarks = expandMarkTokens(anchored.text, anchored.wineCount).total;
     }
 
     if (!candidate) {
@@ -3274,12 +3279,12 @@ function parseGeneratedQuestion(
     // otherwise it returns the text unchanged for validateMarkAllocation to quarantine.
     const repairedText = normalizeMarkAllocation(questionText, wines.length);
 
-    // Extract marks (from the repaired text, so totalMarks reflects the corrected allocation)
-    let totalMarks = 0;
-    const mult = [...repairedText.matchAll(/\((\d+)\s*[x×]\s*(\d+)\s*marks?\)/gi)];
-    for (const m of mult) totalMarks += parseInt(m[1]) * parseInt(m[2]);
-    const single = [...repairedText.matchAll(/\((\d+)\s*marks?\)/gi)];
-    for (const m of single) totalMarks += parseInt(m[1]);
+    // Extract marks (from the repaired text, so totalMarks reflects the corrected allocation).
+    // Scope-aware, like every other mark total in the app — this one becomes the STORED
+    // total_marks column, so reading a scoped stem at face value banks a wrong number that the
+    // post-save audit then quarantines the question for. (Caught by the first historical-import
+    // pilot: 2013 P2 Q1 stored 35 against its real 50 and was quarantined on its own stem.)
+    let totalMarks = expandMarkTokens(repairedText, wines.length).total;
     if (!totalMarks) totalMarks = 100;
 
     if (!questionText || wines.length === 0) return null;

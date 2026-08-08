@@ -15,6 +15,7 @@ import {
   MAX_IMPORTABLE_FLIGHT,
   type CorpusQuestion,
 } from "../src/lib/historical-stems";
+import { expandMarkTokens } from "../src/lib/question-rules.mjs";
 
 const corpus = (): CorpusQuestion[] =>
   JSON.parse(readFileSync(join(__dirname, "../../data/structured/corpus_questions.json"), "utf8"));
@@ -99,6 +100,17 @@ describe("selectImportableStems", () => {
     for (const s of stems) {
       const first = s.stemText.match(/\bwines?\s+(\d+)/i);
       if (first) expect(Number(first[1])).toBe(1);
+    }
+  });
+
+  it("still totals 25 marks per wine after renumbering", () => {
+    // The engine recomputes total_marks from the ANCHORED text once it overwrites the model's stem,
+    // and that number is the stored total_marks the post-save audit re-checks. The first import
+    // pilot banked 2013 P2 Q1 with 35 against its real 50 and the audit quarantined the question on
+    // its own stem — so this invariant is load-bearing, not decorative.
+    for (const s of stems) {
+      expect({ qid: s.qid, marks: expandMarkTokens(s.stemText, s.flightSize).total })
+        .toEqual({ qid: s.qid, marks: s.flightSize * 25 });
     }
   });
 
