@@ -27,7 +27,13 @@ import {
   crossCheckStemFacts,
   validateSingleWineFlight,
   flightWineCountViolations,
+  flightCompositionViolations,
+  isBanker,
 } from "@/lib/question-validator";
+// Side-effect import: registers the 220-entry appellation resolver with the shared rule layer, so a
+// wine named only by its appellation ("Chablis 1er Cru") resolves its variety and colour the way the
+// engine sees it. Without it the banker check reads far more wines as curveballs than it should.
+import "@/lib/appellation-resolver";
 import { winesFromText, stemDisclosureViolations, sweetnessOutOfPaperViolations } from "@/lib/question-rules.mjs";
 
 const ONLY = process.argv.find((a) => a.startsWith("--rule="))?.split("=")[1];
@@ -46,21 +52,35 @@ for (const y of exams) {
 
 const { stems } = selectImportableStems(corpus);
 
-// Build AuditWine records from the real labels. Variety/country/blend are text-detected exactly as
-// the engine's own text adapter does; region falls back to the label so region-sensitive rules have
-// something real to read. This under-resolves compared with the answer key, which makes the run
-// CONSERVATIVE -- an unresolved wine reads as a curveball, which loosens the id-mark caps rather than
-// tightening them. A rule that still fires here fires on generous inputs.
+// Build AuditWine records from the real labels.
+//
+// The corpus writes a wine as "Cuvee, Producer. Vintage. Region, Country (ABV%)", so the origin is
+// the last sentence-segment. Parsing it out matters: an earlier version of this script passed the
+// WHOLE label as `region`, which made "same region" impossible to satisfy and made every wine read
+// as a curveball to the banker check -- so the wine-side rules all looked broken when it was the
+// fixture that was. Variety/country/blend still come from the engine's own text adapter.
+//
+// Still short of the answer key (no style_category, no RS), so wine-side numbers here remain
+// indicative. Fine for the question being asked: is a rule's threshold plausible against the real
+// exam, or is it describing a narrower exam than the one the IMW sets?
+function parseOrigin(label) {
+  const noAbv = (label || "").replace(/\([^)]*%\)\s*$/, "").trim();
+  const segments = noAbv.split(/\.\s+/).map((s) => s.trim()).filter(Boolean);
+  const origin = segments[segments.length - 1] || "";
+  const parts = origin.split(",").map((s) => s.trim()).filter(Boolean);
+  return { region: parts[0] || "", country: parts[parts.length - 1] || "" };
+}
+
 function auditWines(stem) {
   const labels = stem.originalSlots.map((slot) => wineAt.get(`${stem.year}_${stem.paper}_${slot}`) || "");
-  return winesFromText(labels.map((fullText, i) => ({ slot: i + 1, fullText }))).map((w) => ({
-    ...w,
-    region: w.fullText,
-    style: "",
-  }));
+  return winesFromText(labels.map((fullText, i) => ({ slot: i + 1, fullText }))).map((w) => {
+    const { region, country } = parseOrigin(w.fullText);
+    return { ...w, region, country: w.country || country.toLowerCase(), style: "" };
+  });
 }
 
 const RULES = [
+  ["flight-composition", (q) => flightCompositionViolations(q.wines)],
   ["id-mark-allocation", (q) => idMarkAllocationViolations(q)],
   ["part-task-repertoire", (q) => partTaskRepertoireViolations(q)],
   ["mark-budget", (q) => validateMarkBudget(q)],
