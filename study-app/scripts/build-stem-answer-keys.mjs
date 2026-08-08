@@ -71,7 +71,7 @@ export async function build() {
   // Skip archived rows (Phase D: a quarantined question replaced by a regenerated one is marked
   // metadata.archived=true so it leaves the live pool and is never re-validated here).
   const rows = await sql`
-    SELECT question_id, paper, family, question_text, wines, wine_profiles
+    SELECT question_id, paper, family, question_text, wines, wine_profiles, curveball_slots
     FROM generated_questions
     WHERE wine_profiles IS NOT NULL
       AND (metadata->>'archived') IS DISTINCT FROM 'true'`;

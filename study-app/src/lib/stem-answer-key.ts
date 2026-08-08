@@ -21,6 +21,10 @@ export interface StemKey {
     style?: string;
     style_category?: string;
     style_tokens?: string[];
+    /** Generator-declared flight role (migration 065). Absent when the generator did not declare it. */
+    role?: "banker" | "curveball";
+    /** Provenance of `role`: 'generator' here; the backfill stamps 'derived'. */
+    role_source?: "generator" | "derived";
   }>;
   plausible: Array<{ variety: string; region: string; country: string | null; tier: string }>;
   source: Record<string, string>;
@@ -34,6 +38,12 @@ export interface StemKeyRow {
   question_text: string;
   wines: unknown;
   wine_profiles: unknown;
+  /**
+   * generated_questions.curveball_slots (migration 065) — which wines the generator called curveballs.
+   * null/absent means UNDECLARED and leaves the role off the key entirely; `[]` positively declares
+   * every wine an anchor. Do not default one to the other.
+   */
+  curveball_slots?: number[] | null;
 }
 
 type Builder = { buildKeyForRow: (row: StemKeyRow) => StemKey };
@@ -82,7 +92,7 @@ export async function buildStemKeyForQuestion(
 ): Promise<{ ok: boolean; problems: string[] } | { error: string }> {
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`
-    SELECT question_id, paper, question_text, wines, wine_profiles
+    SELECT question_id, paper, question_text, wines, wine_profiles, curveball_slots
     FROM generated_questions WHERE question_id = ${questionId}
   `;
   const r = rows[0];

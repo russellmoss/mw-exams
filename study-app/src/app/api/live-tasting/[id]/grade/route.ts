@@ -107,6 +107,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     preGlassReasoning,
     modelAnswer: question.model_answer,
     paper: session.paper,
+    // Server-side flow: the question is already in hand, so the stored answer key (and its keyed
+    // banker/curveball roles) is always available here.
+    questionId,
     wineAppearances: wines
       .filter((w) => w.appearance)
       .map((w) => ({ slot: w.slot, appearance: w.appearance! })),

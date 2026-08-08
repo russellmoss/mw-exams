@@ -518,6 +518,10 @@ export default function StudyPage() {
         // The stem as answered. Marks and sub-questions are byte-identical across levels (enforced
         // by variantPreservesStructure), so grading is unchanged — only the framing differs.
         questionText: displayedStem,
+        // Sent so the server can read this question's STORED answer key. That key is the only place
+        // each wine's keyed banker/curveball role lives, and the claim check needs it to enforce
+        // (rather than merely flag) that the debrief doesn't call the flight's anchor a curveball.
+        questionId: state.question.id,
         preGlassReasoning,
         userAnswer: answer,
         modelAnswer,

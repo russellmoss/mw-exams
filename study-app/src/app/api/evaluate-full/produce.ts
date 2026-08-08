@@ -8,7 +8,13 @@ import { loadWineTerms } from "@/lib/wine-terms";
 import { scanDislikedWording, buildLexiconCritiqueGuidance } from "@/lib/prompts/tasting-lexicon";
 import { extractGradingMeta, recordGradingOverrideCheck, GRADING_META_INSTRUCTION } from "@/lib/grading-telemetry";
 import { deriveStemKey } from "@/lib/stem-answer-key";
-import { answerKeyFlight, regenerateFeedbackOnce, type AuditWine } from "@/lib/question-validator";
+import {
+  answerKeyFlight,
+  regenerateFeedbackOnce,
+  type AuditWine,
+  type KeyedGroundWine,
+} from "@/lib/question-validator";
+import { getAnswerKeyGroundTruth } from "@/lib/db";
 import { buildClaimCorrectionPrompt } from "@/lib/prompts/claim-correction-prompt";
 import { IMAGE_TOKEN_INSTRUCTIONS, INFOGRAPHIC_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer, deriveWineSubjects, answerImageConstraint } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
@@ -33,6 +39,13 @@ export type FullEvaluationInput = {
   preGlassReasoning?: string | null;
   modelAnswer?: string | null;
   paper: number;
+  /**
+   * Which banked question this is. Optional only because the study flow historically posted the
+   * question's TEXT and wines rather than its id. Supply it wherever possible: it is the only way the
+   * STORED answer key (and therefore each wine's keyed banker/curveball role) can be read, which is
+   * what lets the answer-key claim check enforce rather than merely flag.
+   */
+  questionId?: string | null;
   wineAppearances?: { slot: number; appearance: string }[] | null;
   wines?: { slot: number; fullText: string }[] | null;
   identityRevealed?: boolean;
@@ -47,7 +60,7 @@ export type FullEvaluationInput = {
 export async function produceFullEvaluation(input: FullEvaluationInput): Promise<ReadableStream> {
   const {
     apiKey, userId, usageSource, questionText, preGlassReasoning, modelAnswer, paper,
-    wineAppearances, wines, identityRevealed, inputMethod, vintagesBought, onComplete,
+    questionId, wineAppearances, wines, identityRevealed, inputMethod, vintagesBought, onComplete,
   } = input;
 
   let userAnswer: string = input.userAnswer;
@@ -215,10 +228,25 @@ The candidate tasted these specific bottles at home. Do not penalise development
   // same key as the plausibility reference below — no extra call, no extra I/O. Seeded label-only so a
   // key-derivation failure still leaves the claim check something to judge explicit "wine N" claims on.
   let keyedFlight: AuditWine[] = answerKeyFlight(null, wines);
+  // The STORED answer key first, when we know which question this is. Only the stored key carries
+  // `role` — the live re-derivation below rebuilds the flight from the wine labels and has no access to
+  // what the generator declared, so a role can never come out of it. Without this read Rule 1 stays a
+  // review flag forever, however many roles are keyed. Best-effort: any failure falls through to the
+  // derived flight, which is what every pre-migration-065 question gets anyway.
+  if (questionId) {
+    try {
+      const stored = await getAnswerKeyGroundTruth(questionId);
+      if (stored?.length) keyedFlight = answerKeyFlight(stored as KeyedGroundWine[], wines);
+    } catch (err) {
+      console.error(`[answer-key-claims] stored key lookup failed for ${questionId} (non-fatal):`, err);
+    }
+  }
   try {
     if (Array.isArray(wines) && wines.length) {
       const key = deriveStemKey({ paper, question_text: questionText, wines, wine_profiles: {} });
-      keyedFlight = answerKeyFlight(key?.ground, wines);
+      // Only fall back to the derived flight when the stored key gave us nothing — never overwrite a
+      // stored one, or the role we just read would be dropped on the floor.
+      if (!keyedFlight.some((w) => w.role)) keyedFlight = answerKeyFlight(key?.ground, wines);
       const pl = (key?.plausible ?? []).slice(0, 16);
       if (pl.length) {
         const lines = pl

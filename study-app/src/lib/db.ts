@@ -305,6 +305,9 @@ export async function saveGeneratedQuestion(q: {
   // accept-anyway fallback that deliberately excludes an item from the mix counters.
   wineCategory?: string | null;
   curveballLevel?: string | null;
+  // Which wines the generator declared curveballs (migration 065). undefined/null = not declared, which
+  // leaves the keyed role DERIVED; [] = positively declared all-anchor. The two are not interchangeable.
+  curveballSlots?: number[] | null;
   // Live Tasting (migration 041): 'live-tasting' rows belong to one user's session and are
   // excluded from every pool query (which all filter scope='pool'). Omitted → 'pool'.
   scope?: string;
@@ -331,7 +334,7 @@ export async function saveGeneratedQuestion(q: {
       model_answer, proposed_annotation, reasoning_trace, study_diagram_assist,
       metadata, created_by_user_id, status, batch_id, review_state,
       question_type, curveball, price_band, flight_size, producer_flags,
-      wine_category, curveball_level, scope
+      wine_category, curveball_level, scope, curveball_slots
     ) VALUES (
       ${q.questionId}, ${q.paper}, ${q.family}, ${q.familyLabel}, ${q.subcategory || null},
       ${q.questionText}, ${JSON.stringify(q.wines)}, ${q.totalMarks}, ${p3Category},
@@ -342,7 +345,8 @@ export async function saveGeneratedQuestion(q: {
       ${q.status === "pending" ? "pending" : q.status === "rejected" ? "binned" : "kept"},
       ${questionType}, ${curveball}, ${priceBand}, ${flightSize},
       ${producerFlags && producerFlags.length > 0 ? JSON.stringify(producerFlags) : null}::jsonb,
-      ${q.wineCategory ?? null}, ${q.curveballLevel ?? null}, ${q.scope ?? "pool"}
+      ${q.wineCategory ?? null}, ${q.curveballLevel ?? null}, ${q.scope ?? "pool"},
+      ${q.curveballSlots ?? null}
     )
     ON CONFLICT (question_id) DO UPDATE SET
       -- Keep an existing tag; only fill it if the row predates classification (COALESCE keeps the
@@ -352,6 +356,7 @@ export async function saveGeneratedQuestion(q: {
       -- the row predates it, so a background model-answer re-save never clears them.
       wine_category = COALESCE(generated_questions.wine_category, EXCLUDED.wine_category),
       curveball_level = COALESCE(generated_questions.curveball_level, EXCLUDED.curveball_level),
+      curveball_slots = COALESCE(generated_questions.curveball_slots, EXCLUDED.curveball_slots),
       model_answer = COALESCE(EXCLUDED.model_answer, generated_questions.model_answer),
       proposed_annotation = COALESCE(EXCLUDED.proposed_annotation, generated_questions.proposed_annotation),
       reasoning_trace = COALESCE(EXCLUDED.reasoning_trace, generated_questions.reasoning_trace),

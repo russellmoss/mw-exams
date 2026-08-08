@@ -16,6 +16,9 @@ export async function POST(request: Request) {
     if (keyResult instanceof Response) return keyResult;
 
     const {
+      // Sent so the STORED answer key can be read server-side — that key is the only place a wine's
+      // keyed banker/curveball role lives, and without it the answer-key claim check can only flag.
+      questionId,
       questionText,
       preGlassReasoning,
       modelAnswer,
@@ -39,6 +42,7 @@ export async function POST(request: Request) {
       apiKey: keyResult.apiKey,
       userId: keyResult.user.id,
       usageSource: keyResult.source,
+      questionId: typeof questionId === "string" ? questionId : null,
       questionText,
       preGlassReasoning,
       modelAnswer,

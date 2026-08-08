@@ -230,6 +230,11 @@ export function createAnswerKeyBuilder(data) {
   function buildKeyForRow(r) {
     const wines = typeof r.wines === "string" ? JSON.parse(r.wines) : r.wines;
     const wp = typeof r.wine_profiles === "string" ? JSON.parse(r.wine_profiles) : r.wine_profiles;
+    // Per-wine ROLE, from the generator's own declaration (migration 065). NULL means "not declared"
+    // and must NOT become an empty set: an empty set says every wine is an anchor, and consumers ENFORCE
+    // that, whereas undeclared leaves the role to be derived and only flagged. Kept a Set of slots.
+    const declaredCurveballs =
+      Array.isArray(r.curveball_slots) ? new Set(r.curveball_slots.map(Number)) : null;
     const ground = [];
     // Annotated because this module is .mjs and TypeScript infers its exports for the .ts callers.
     // A bare `{}` infers as the empty type, so `key.source[slot]` in a TS consumer is TS7053
@@ -275,6 +280,14 @@ export function createAnswerKeyBuilder(data) {
         region: o.region,
         country: o.country,
       };
+      // Only stamped when the generator actually declared the flight's roles. role_source records the
+      // provenance so a consumer can tell an intended role from an inferred one, and so telemetry can
+      // separate the two: 'generator' is a record of what the question was built to do, 'derived'
+      // (stamped by the backfill) is the reviewer-calibrated isBanker table's inference about the wine.
+      if (declaredCurveballs) {
+        bucket.role = declaredCurveballs.has(w.slot) ? "curveball" : "banker";
+        bucket.role_source = "generator";
+      }
       if (r.paper === 3) {
         const st = deriveStyle(w.fullText, prof.style_category);
         bucket.style = st.style;
