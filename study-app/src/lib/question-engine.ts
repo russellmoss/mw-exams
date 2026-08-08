@@ -162,6 +162,7 @@ import {
   stemDisclosureViolations,
   sweetnessOutOfPaperViolations,
   expandMarkTokens,
+  subsetScopedStem,
   WHITE_GRAPE_INDICATORS,
   RED_GRAPE_INDICATORS,
 } from "@/lib/question-rules.mjs";
@@ -2685,7 +2686,11 @@ export function validateVarietyConsistency(questionText: string, wines: { slot: 
     /\bpredominant(?:ly)?\b/i.test(questionText) &&
     !/\b(single|one)\s*(grape\s*)?variet/i.test(questionText);
 
-  if (stemSaysEachSingleVariety) {
+  // Subset-scoped stems make their claims about a SUBSET, not the whole flight — "Wines 1-3 are …
+  // each made from a different, single grape variety. Wine 4 is a blend of all three" (real, 2022 P2
+  // Q1). The shared rule layer and crossCheckStemFacts both guard on this; without it here, the
+  // engine rejected the blend the stem explicitly asks for.
+  if (stemSaysEachSingleVariety && !subsetScopedStem(questionText, wines.length)) {
     for (const wine of wines) {
       if (!stemPermitsBlends && isLikelyBlend(wine.fullText)) {
         violations.push(

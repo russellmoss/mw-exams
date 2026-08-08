@@ -399,7 +399,30 @@ export function expandMarkTokens(questionText, wineCount = 0) {
 // True when the stem describes the flight in subsets/pairs ("Wines 1 and 2 ... the other two ...").
 // Per-subset claims can't be validated flight-wide without false positives, so flight-wide rules
 // (country/variety diversity) are skipped for these.
-function isSubsetSplit(stem) {
+//
+// Exported because crossCheckStemFacts in question-validator.ts needs the SAME guard and did not
+// have it: on the real 2022 P2 Q1 — "Wines 1-3 are from different countries and are each made from a
+// different, single grape variety. Wine 4 is a blend of all three of these varieties." — it read both
+// claims as flight-wide and rejected the blend the stem had just asked for, and counted four
+// countries where the stem asked for three.
+export function subsetScopedStem(questionText, wineCount = 0) {
+  if (!wineCount || wineCount < 2) return false;
+  const stem = normStem(questionText);
+  if (!isSubsetSplit(stem)) return false;
+  // isSubsetSplit alone is too blunt to gate a rule on: it matches "Wines 1 and 2 …", which on a
+  // TWO-wine flight is the whole flight, not a subset — guarding on it there would silence the rule
+  // entirely. So also require that the first group of slots the stem names covers FEWER wines than
+  // the flight holds. "Wines 1-3 … Wine 4 is a blend" over four wines is scoped (3 < 4); "Wines 1 and
+  // 2 are from the same country" over two is not (2 = 2).
+  const m = stem.match(/\bwines?\s+(\d+(?:\s*(?:,|and|to|through|-)\s*\d+)*)/);
+  if (!m) return false;
+  const nums = (m[1].match(/\d+/g) || []).map(Number);
+  if (!nums.length) return false;
+  const span = /(?:to|through|-)/.test(m[1]) ? Math.max(...nums) - Math.min(...nums) + 1 : nums.length;
+  return span < wineCount;
+}
+
+export function isSubsetSplit(stem) {
   return /the other (?:two|three|one|wine)\b|\btwo wines\b|\bwines?\s+1\s+and\s+2\b|\bwines?\s+3\s+and\s+4\b|\bwine\s+[1-9]\s+(?:is|are|comes)\b/.test(
     stem
   );

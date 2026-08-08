@@ -14,6 +14,7 @@ import {
   colourFromAppellation,
   detectPrimaryVariety,
   expandMarkTokens,
+  subsetScopedStem,
   methodClass,
   norm,
   normStem,
@@ -304,7 +305,14 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const hedged = /variety or varieties|variety ies\b/.test(stem);
   const singularClaim =
     /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
-  if (!hedged && singularClaim) {
+  // A stem that describes its flight in SUBSETS makes each claim about a subset, not flight-wide, so
+  // applying them to every wine is a false positive. The shared rule layer has always guarded its own
+  // cardinality checks this way (applyQuestionRules → subsetSplit); these did not. On the real 2022
+  // P2 Q1 — "Wines 1-3 are from different countries and are each made from a different, single grape
+  // variety. Wine 4 is a blend of all three of these varieties." — that gap rejected the blend the
+  // stem had just asked for, and counted four different countries where the stem asked for three.
+  const subsetSplit = subsetScopedStem(q.questionText, wines.length);
+  if (!hedged && singularClaim && !subsetSplit) {
     for (const w of wines) {
       const why = blendSignal(w);
       if (why)
@@ -329,7 +337,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     const distinctCount = stem.match(
       /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
     );
-    const required = distinctCount
+    const required = subsetSplit
+      ? 0
+      : distinctCount
       ? parseStemCount(distinctCount[1])
       : /\bdifferent countries\b/.test(stem)
         ? wines.length
@@ -359,7 +369,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
         });
       }
     }
-    if (/\b(?:the )?same country\b/.test(stem)) {
+    if (/\b(?:the )?same country\b/.test(stem) && !subsetSplit) {
       const placed = wines.filter((w) => countryOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -376,7 +386,11 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 
   // (5) REGION cardinality — "the same region" needs one region; "N different regions" needs N distinct.
   {
-    if (/\b(?:the )?same region\b/.test(stem)) {
+    // "…from the same region but different sub-regions" (real: 2022 P2 Q2 and Q3) asserts BOTH, and
+    // what the key resolves as each wine's region IS its sub-region — so a difference between them is
+    // exactly what the stem predicts, not a contradiction of it.
+    const subRegionSplit = /\bdifferent\s+sub\s?-?\s?regions?\b/.test(stem);
+    if (/\b(?:the )?same region\b/.test(stem) && !subsetSplit && !subRegionSplit) {
       const placed = wines.filter((w) => regionOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
