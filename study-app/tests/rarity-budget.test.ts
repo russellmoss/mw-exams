@@ -85,6 +85,50 @@ describe("Rule 3 — fortified category integrity (mandatory-blend styles)", () 
     expect(v.some((x) => x.rule === "fortified-category-integrity" && x.severity === "hard")).toBe(true);
   });
 
+  // Both of these came off the first sweep of the live bank, where a bare `colheita` in the tawny-port
+  // matcher classified them as mandatory-blend Port and would have quarantined them.
+  it("does NOT flag a Colheita MADEIRA, where a single variety is correct", () => {
+    const madeira: AuditWine = {
+      slot: 2,
+      varieties: ["tinta negra"],
+      is_blend: false,
+      region: "Madeira",
+      country: "Portugal",
+      style_category: "Madeira",
+      fullText: "Broadbent Colheita Madeira 2000. Madeira, Portugal. (19% ABV)",
+    };
+    const v = validateRarityBudget(q([classic(1), madeira, classic(3), classic(4)], stem));
+    expect(v.some((x) => x.rule === "fortified-category-integrity")).toBe(false);
+  });
+
+  it("does NOT flag 'Colheita Tardia' — Portuguese for late harvest, on an unfortified white", () => {
+    const lateHarvest: AuditWine = {
+      slot: 2,
+      varieties: ["verdelho"],
+      is_blend: false,
+      region: "Alentejo",
+      country: "Portugal",
+      style_category: "Sweet",
+      fullText: "Herdade do Esporão Verdelho Colheita Tardía, 2021. Alentejo, Portugal. (11.5%)",
+    };
+    const v = validateRarityBudget(q([classic(1), lateHarvest, classic(3), classic(4)], stem));
+    expect(v.some((x) => x.rule === "fortified-category-integrity")).toBe(false);
+  });
+
+  it("still flags a Colheita PORT, where colheita has its Port context", () => {
+    const colheitaPort: AuditWine = {
+      slot: 2,
+      varieties: ["touriga nacional"],
+      is_blend: false,
+      region: "Douro",
+      country: "Portugal",
+      style_category: "Port",
+      fullText: "Niepoort Colheita 1997, Douro, Portugal (20%)",
+    };
+    const v = validateRarityBudget(q([classic(1), colheitaPort, classic(3), classic(4)], stem));
+    expect(v.some((x) => x.rule === "fortified-category-integrity" && x.severity === "hard")).toBe(true);
+  });
+
   it("does NOT flag a legitimately single-varietal Palomino oloroso sherry", () => {
     const oloroso: AuditWine = {
       slot: 2,
