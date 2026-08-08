@@ -387,6 +387,52 @@ says the old thing. Voice (George) and model (`eleven_multilingual_v2`) are pinn
 must not be read from the environment; `ELEVENLABS_VOICE_ID` in the deployed env points at a
 superseded voice.
 
+### The tour also exports to MP4 (YouTube, sharing outside the app)
+
+`study-app/scripts/record-tour-videos.mjs` renders each of the five surfaces — `intro`, `diagrams`,
+`coach`, `practical`, `theory` — as a 1080p MP4 with its committed narration as the soundtrack, into
+`outputs/tour_videos/` (gitignored):
+
+```bash
+PLAYWRIGHT_DIR=<dir with playwright installed> node scripts/record-tour-videos.mjs
+```
+
+It films the **real components**, not a re-creation: it spawns its own `next dev` with
+`NEXT_PUBLIC_TOUR_EXPORT=1`, which is the only thing that un-404s the recording stage at
+`/tour-export/<surface>` (`src/app/tour-export/[surface]/page.tsx`). Production and preview builds
+have no such route. So the videos cannot drift from the app — re-record after any slide edit, exactly
+as you re-run `narration:build` after a copy edit.
+
+Three things that will bite whoever touches it:
+
+- **Playwright is deliberately not a dependency.** It is a browser download that every Vercel build
+  would install for a script CI never runs. Install it anywhere and pass `PLAYWRIGHT_DIR`.
+- **Drive the dev server on `localhost`, never `127.0.0.1`.** Next treats the IP form as a
+  cross-origin dev host and blocks `/_next/*`, so the page renders from SSR HTML and then never
+  hydrates — no effects, no auth fetch, no slide advance. It looks like a working page that ignores
+  every click.
+- **The 1920x1080 viewport is load-bearing.** The walkthrough body is a scroll container, so a
+  shorter viewport does not reflow the dense Coach and Practical steps, it hides 100–220px of them
+  below the fold, and video cannot be scrolled. Re-measure all 36 slides before changing it.
+
+The intro is the one surface that needs a session (it lives inside `ShellOnboarding`, which opens it
+only for a signed-in user who has not seen it), so the recorder mocks `/api/auth/me` and stubs
+`/api/user/**` rather than the app exporting its auth context for a recording harness.
+
+**Captions come from the script, not from transcribing the audio.**
+`npm run captions:build --prefix study-app` writes `<surface>.srt` beside each MP4, with cue text taken
+verbatim from `TOUR_NARRATION` — so a caption cannot say something the voice does not. Run it after
+the videos exist; it skips surfaces that have none.
+
+It gets its slide boundaries by **sampling the progress-dot row at 10fps and finding the frames where
+the active pill jumps**, because adding up clip durations plus the recorder's nominal pad drifts by
+~0.4s per advance on the animated Coach steps — 2.5s adrift by the end, which is precisely what
+captions are judged on. Nothing else in that strip of the footer moves within a slide, so the signal
+is unambiguous. If it ever finds the wrong number of transitions it says so and falls back to nominal
+timing with the latency spread evenly. Within a slide, cue times are apportioned by character count
+with an allowance for the pauses ElevenLabs renders at paragraph breaks — an estimate, but each slide
+re-anchors on a measured boundary, so error stays inside one slide instead of accumulating.
+
 ## Token economy
 
 The source MD is 2,500+ lines. Do NOT load it into context routinely. The structured JSON exists so agents can read targeted slices. When an agent needs a specific question's text, read it from `data/exams.json`. When an agent needs wine research, read the relevant file in `data/wine_research/`.
