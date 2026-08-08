@@ -217,6 +217,46 @@ All other study artifacts (decision matrices, mock answers, mock exams) build on
 - `/study-batch` — run a randomized study session pulling questions from history
 - `/optimize-costs [30d|7d|24h] [apply]` — analyze `model_usage`/`tavily_usage` vs feedback+validity signals; recommend a per-task model mix, project savings, flag cost↔accuracy tradeoffs. Writes `outputs/cost_reports/{date}.md`. See `cost-tracking-system` memory.
 
+## There is exactly ONE way to generate a question, and it is candidate-initiated
+
+**"New question" in Study — `/api/get-question` (and its SSE twin `/stream`) — is the only path that
+calls the model to write a question.** One question, on request, in front of the person who asked for
+it. Anything that would write questions in bulk, on a schedule, or as a side effect of another action
+is out of bounds; do not add one back without the user explicitly asking.
+
+Bulk generation ("Fill the Bank") was **removed on 2026-08-08**, along with every other bulk path.
+The reasons, in order:
+
+- **It was the bill.** Over the seven days to 2026-08-08, `question_generation` cost **$1,053** and
+  bulk batches accounted for roughly **$1,100 of the ~$1,760 total** — $611 on 2026-08-05 alone.
+- **It was buying an unproven thing.** Whether generated questions are good enough is still an open
+  question (see the quarantine loop and the audit workflow). Until that is answered, more volume just
+  multiplies the unknown.
+- **The bank is already deep.** At removal: **370 servable approved questions** (P1 107, P2 116,
+  P3 147) against **33** seen by the design partner and 77 by the author. The binding constraint is
+  review capacity, not supply.
+
+What went, so nobody rebuilds half of it by accident:
+
+| Removed | Was |
+|---|---|
+| `src/lib/bank-worker.ts` | the durable bulk worker |
+| `/api/admin/fill-bank{,/status,/cancel}`, `/api/admin/bank/{generate,resume,status,cancel,keep-all,set-replace,review}` | generation + batch control routes |
+| `/api/cron/bank-worker` + its Vercel cron | hourly/daily resume of stalled batches |
+| `.github/workflows/{bank-fill,bank-worker-hourly}.yml` | manual bulk runs + the hourly poke |
+| `scripts/fill-bank.mjs` | the CLI filler the workflow drove |
+| "Generate more" / "Fill the gap" in Bank Health + Grape Balance | targeted top-ups |
+| "Replace anything I bin" | a bin silently commissioning a replacement |
+
+What stayed, deliberately: the **review** half, now `BankReviewSection` on `/admin`
+(`/api/admin/bank/review-queue`). It is the only surface that can act on a question a candidate
+flags as broken, and the only way to clear the ~66 questions still sitting at `status='pending'`.
+Nothing in it spends money. Bank Health, Grape/Country Balance and Producer Spread also stayed as
+read-only diagnostics — a thin slice is now information, not a button.
+
+`scripts/import-historical-stems.mjs` still generates, but it is hand-run and unreachable from the
+app. Treat running it as a deliberate spending decision.
+
 ## Deploying the study app
 
 **Deploys are GIT AUTO-DEPLOY, single-path (changed 2026-05-30).** Vercel git auto-deploy is
@@ -268,12 +308,13 @@ each firing at most once per day.** A sub-daily schedule (anything with `*`, `,`
 minute or hour field) makes Vercel reject the deployment *at creation time* with
 `cron_jobs_limits_reached` — so there is no failed build to look at, nothing appears in the
 deployments list, and **git auto-deploy silently stops for every subsequent commit**. That is what
-took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`).
-`study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule. **Never raise a
-Vercel cron above daily.** Anything that needs to run more often belongs in a GitHub Actions
-`schedule:` workflow that curls the route — `.github/workflows/bank-worker-hourly.yml` is the
-pattern to copy (hourly `/api/cron/bank-worker`, with the daily Vercel cron kept as a backstop
-because GitHub schedules are best-effort).
+took production down for four hours on 2026-08-03 (`0 * * * *` on `/api/cron/bank-worker`, since
+removed). `study-app/tests/vercel-crons.test.ts` now fails the build gate on any such schedule.
+**Never raise a Vercel cron above daily.** Anything that needs to run more often belongs in a GitHub
+Actions `schedule:` workflow that curls the route — `.github/workflows/bin-fix-miner-daily.yml` is
+the pattern to copy (a `schedule:` plus a `curl` carrying `Authorization: Bearer $CRON_SECRET`),
+keeping a daily Vercel cron as a backstop where one is wanted, because GitHub schedules are
+best-effort.
 
 **Only PRODUCTION deploys migrate the database.** Preview deployments share the production
 `DATABASE_URL` (there is no preview branch DB) and `prebuild` runs `scripts/migrate.mjs` — so every

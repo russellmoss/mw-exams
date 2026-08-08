@@ -3,7 +3,7 @@ import { getQuestionById, type GeneratedQuestion } from "@/lib/db";
 
 export const runtime = "nodejs";
 
-// Family F-codes → the human labels used across the review surfaces (mirrors fill-bank/review).
+// Family F-codes → the human labels used across the review surfaces (mirrors bank/review-queue).
 const FAMILY_LABELS: Record<string, string> = {
   F1: "Same variety",
   F2: "Same origin",
@@ -17,7 +17,7 @@ const FAMILY_LABELS: Record<string, string> = {
 // Shape a stored question into the reviewer payload the Unreviewed modal renders: verbatim stem, a
 // per-wine mark breakdown that sums to the total (25 marks per wine, spec), and the numbered wine list
 // with identity / region / vintage. Same presentation contract as the batch review card (serialize in
-// api/admin/fill-bank/review) so the modal can reuse the QuestionDisplay / WineReveal style.
+// api/admin/bank/review-queue) so the modal can reuse the QuestionDisplay / WineReveal style.
 function serialize(q: GeneratedQuestion) {
   const wines = typeof q.wines === "string" ? JSON.parse(q.wines as unknown as string) : q.wines;
   const list = Array.isArray(wines) ? wines : [];

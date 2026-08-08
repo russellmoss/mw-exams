@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────────
-// Batch Undo — "Recent batches" strip at the top of the Fill-the-Bank review area. Bordered flat card
+// Batch Undo — "Recent batches" strip at the top of the Bank Review area. Bordered flat card
 // (Cellar), serif title + right-aligned muted "N awaiting review". Each row shows when a bulk run
 // landed, how many questions it made, a plain-English resolution summary, and either an amber outline
 // "Reopen all" (when there are never-reviewed auto-kept items left to reverse) or a muted status line.

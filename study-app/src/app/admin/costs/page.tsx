@@ -264,7 +264,7 @@ export default function CostsPage() {
               <SummaryCard label="Tokens (in / out)" value={`${num(s.inputTokens)} / ${num(s.outputTokens)}`} sub={`cache read ${num(s.cacheReadTokens)}`} />
               {data?.bank && (
                 <SummaryCard
-                  label="Fill the Bank"
+                  label="Bulk generation (retired)"
                   value={usd(data.bank.cost)}
                   sub={`${num(data.bank.batches)} batch${data.bank.batches === 1 ? "" : "es"} · ${num(data.bank.calls)} calls`}
                 />
