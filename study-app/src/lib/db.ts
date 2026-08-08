@@ -179,6 +179,10 @@ export async function setUserStemDetailDefault(userId: number, level: string): P
 // Study defaults (migration 047): the onboarding-screen choices. questionSource picks which acquire
 // path the study flow leads with ('banked' is free, 'fresh' generates on the user's key);
 // reasoningStream is the per-user visible-reasoning switch consumed by lib/thinking-stream.ts.
+//
+// The coercion defaults to 'banked' (migration 063): only an explicit 'fresh' means fresh, so a
+// missing row or an unrecognised value lands on the free path rather than silently billing a
+// generation to the candidate's key.
 export type StudyDefaults = { questionSource: "banked" | "fresh"; reasoningStream: boolean };
 
 export async function getUserStudyDefaults(userId: number): Promise<StudyDefaults> {
@@ -187,7 +191,7 @@ export async function getUserStudyDefaults(userId: number): Promise<StudyDefault
     SELECT question_source_default, reasoning_stream_default FROM users WHERE id = ${userId}
   `;
   return {
-    questionSource: rows[0]?.question_source_default === "banked" ? "banked" : "fresh",
+    questionSource: rows[0]?.question_source_default === "fresh" ? "fresh" : "banked",
     reasoningStream: rows[0]?.reasoning_stream_default !== false,
   };
 }

@@ -79,11 +79,12 @@ export default function Home() {
   const [bankCount, setBankCount] = useState<number | null>(null);
   const [bankLoading, setBankLoading] = useState(false);
   const [bankTaken, setBankTaken] = useState(false);
-  // Onboarding default (migration 047): when the user's default is 'banked', arriving on the
-  // acquire card auto-requests a free banked question. Armed only on the mode→acquire transition —
-  // never when the user comes BACK to acquire (e.g. from the stem-detail screen), which would trap
-  // them in a fetch loop.
-  const autoBankedRef = useRef(false);
+  // Which acquire path this candidate leads with (migration 047, defaulted to 'banked' by 063).
+  // It decides which button gets the amber primary treatment and reads first — it does NOT fetch
+  // anything. The acquire card used to auto-consume a banked question on arrival for these users,
+  // which burned a pool row (the serve records the view) even when they had come to click New, and
+  // it left "they can pick the other one" true only via the Back button.
+  const prefersBanked = user?.questionSourceDefault !== "fresh";
   // Live progress for the question fetch. Serving from the bank is instant; writing a fresh one
   // runs the engine's validate-and-retry loop for 30-60s, which used to be a static spinner.
   const questionTrace = useProgressStream();
@@ -245,10 +246,9 @@ export default function Home() {
       setError(null);
       setBankTaken(false);
       setBankCount(null); // show "Checking…" until the effect below loads the live count
-      autoBankedRef.current = user?.questionSourceDefault === "banked";
       setStep("acquire");
     },
-    [selectedPaper, selectedFamily, router, user, saveLastDrill]
+    [selectedPaper, selectedFamily, router, saveLastDrill]
   );
 
   // Deep links into the wizard. Two forms, both landing on the acquire card:
@@ -288,7 +288,6 @@ export default function Home() {
       setError(null);
       setBankTaken(false);
       setBankCount(null);
-      autoBankedRef.current = user.questionSourceDefault === "banked";
       setStep("acquire");
       return;
     }
@@ -312,7 +311,6 @@ export default function Home() {
     setError(null);
     setBankTaken(false);
     setBankCount(null);
-    autoBankedRef.current = user.questionSourceDefault === "banked";
     setStep("acquire");
   }, [authLoading, user, router]);
 
@@ -385,15 +383,6 @@ export default function Home() {
       setBankLoading(false);
     }
   }, [selectedPaper, selectedFamily, pendingMode, toQuestion, beginStemDetail]);
-
-  // Lead with the user's default acquire path. Fires the free banked fetch once per arrival from
-  // the mode step; on an empty pool (409) handleBankedQuestion sets bankTaken and the two-button
-  // choice remains as the fallback.
-  useEffect(() => {
-    if (step !== "acquire" || !autoBankedRef.current) return;
-    autoBankedRef.current = false;
-    handleBankedQuestion();
-  }, [step, handleBankedQuestion]);
 
   // Keep the banked count live: refetch whenever the acquire card is showing and the
   // paper / family / mode selection changes. Clears the race flag on every fresh selection.
@@ -679,36 +668,25 @@ export default function Home() {
                 {MODE_LABELS[pendingMode]}
               </p>
 
-              {/* 2-up on ≥480px, stacked below it. The user's default source (migration 047) takes
-                  the amber primary treatment; the other option is the stone outline. */}
+              {/* 2-up on ≥480px, stacked below it. Banked leads (migration 063) — it is instant and
+                  costs nothing on the candidate's key — so it takes both the first slot in reading
+                  order and the amber primary treatment, unless this user has explicitly chosen
+                  'fresh' in Settings. The other option is the stone outline, always one click away.
+                  Neither is pre-fetched: arriving here consumes nothing. */}
               <div className="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3">
-                <button
-                  onClick={handleNewQuestion}
-                  className={
-                    user?.questionSourceDefault === "banked"
-                      ? "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
-                      : "bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
-                  }
-                >
-                  New Question
-                  <span className={`block text-xs font-normal mt-0.5 ${user?.questionSourceDefault === "banked" ? "text-muted" : "text-background/70"}`}>
-                    Written fresh for you
-                  </span>
-                </button>
-
                 <button
                   onClick={handleBankedQuestion}
                   disabled={bankLoading || bankCount === 0 || bankTaken}
                   className={
                     bankCount === 0 || bankTaken
                       ? "border border-border/60 text-muted/50 rounded-lg px-4 py-4 text-center cursor-not-allowed"
-                      : user?.questionSourceDefault === "banked"
+                      : prefersBanked
                         ? "bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
                         : "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
                   }
                 >
                   Banked Question
-                  <span className={`block text-xs font-normal mt-0.5 ${user?.questionSourceDefault === "banked" && !(bankCount === 0 || bankTaken) ? "text-background/70" : "text-muted"}`}>
+                  <span className={`block text-xs font-normal mt-0.5 ${prefersBanked && !(bankCount === 0 || bankTaken) ? "text-background/70" : "text-muted"}`}>
                     {bankLoading
                       ? "Loading…"
                       : bankTaken
@@ -718,6 +696,24 @@ export default function Home() {
                           : bankCount === 0
                             ? "No banked questions yet"
                             : `${bankCount} available`}
+                  </span>
+                </button>
+
+                {/* New takes the primary treatment when the bank cannot answer — either this user
+                    prefers fresh, or the pool for this paper·family is empty/just taken. Without
+                    that second case an exhausted pool would leave the card with no amber button at
+                    all and the only way forward greyed out beside a stone outline. */}
+                <button
+                  onClick={handleNewQuestion}
+                  className={
+                    prefersBanked && !(bankCount === 0 || bankTaken)
+                      ? "border border-border text-foreground hover:text-foreground hover:border-muted rounded-lg px-4 py-4 text-center cursor-pointer transition-colors"
+                      : "bg-accent hover:bg-accent-hover text-background font-medium rounded-lg px-4 py-4 transition-colors cursor-pointer text-center"
+                  }
+                >
+                  New Question
+                  <span className={`block text-xs font-normal mt-0.5 ${prefersBanked && !(bankCount === 0 || bankTaken) ? "text-muted" : "text-background/70"}`}>
+                    Written fresh for you
                   </span>
                 </button>
               </div>

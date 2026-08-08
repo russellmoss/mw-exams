@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   } catch (err) {
     console.error("GET study-defaults error:", err);
     // Fall back to the column defaults rather than erroring — the settings UI can still render.
-    return Response.json({ questionSource: "fresh", reasoningStream: true });
+    return Response.json({ questionSource: "banked", reasoningStream: true });
   }
 }
 
