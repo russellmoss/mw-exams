@@ -63,21 +63,48 @@ export function extractGradingMeta(fullText: string): { meta: GradingMeta | null
 // Neon write is best-effort (a logging failure must never break a candidate's grading).
 export async function recordGradingOverrideCheck(
   meta: GradingMeta | null,
-  ctx: { grader: string; userId?: number | null; paper?: number | null; questionId?: string | null }
+  ctx: {
+    grader: string;
+    userId?: number | null;
+    paper?: number | null;
+    questionId?: string | null;
+    /**
+     * The answer-key CLAIM check for this grading event (migration 064), when the caller ran one.
+     * Unlike the GRADING_META flags above this one is NOT detect-only — a hard violation triggers a
+     * single correction pass — so the row records both what the first draft failed on and what was
+     * still wrong in the text that actually shipped.
+     */
+    claims?: {
+      violations: { rule: string }[];
+      failureReason: string | null;
+      originalFailureReason: string | null;
+      regenerated: boolean;
+      correctionFailed: boolean;
+    } | null;
+  }
 ): Promise<void> {
-  if (!meta) return;
+  const claims = ctx.claims ?? null;
+  // Fire on SOFT violations too, not just the hard ones that triggered a correction. Rule 1 is soft
+  // whenever the wine's role is only derived rather than keyed, which today is always — so counting only
+  // hard fires would record nothing at all about the rule with the largest exposure. A soft-only event
+  // is the row where claim_rules is non-empty and claim_reason_before is NULL.
+  const claimFired = !!claims && (!!claims.originalFailureReason || claims.violations.length > 0);
+  // A missing GRADING_META tag must not swallow a claim-check result: the two signals are independent,
+  // and the claim rows are the ones with a cost attached.
+  if (!meta && !claimFired) return;
 
   // The same conditions warned on below, precomputed so DB base/false-positive rates are a trivial COUNT.
-  const howlerBorderlineMismatch = meta.howlerPresent === true && meta.verdict === "BORDERLINE";
-  const overcreditMismatch = meta.wrongCallPlausible === false && meta.creditGiven === "full";
-  const undercreditMismatch = meta.wrongCallPlausible === true && meta.creditGiven === "none";
+  const howlerBorderlineMismatch = meta?.howlerPresent === true && meta?.verdict === "BORDERLINE";
+  const overcreditMismatch = meta?.wrongCallPlausible === false && meta?.creditGiven === "full";
+  const undercreditMismatch = meta?.wrongCallPlausible === true && meta?.creditGiven === "none";
+  const claimRules = claimFired ? [...new Set((claims?.violations ?? []).map((x) => x.rule))] : null;
 
   try {
-    const tag = `[grading-override] grader=${ctx.grader} user=${ctx.userId ?? "?"} verdict=${meta.verdict ?? "?"}`;
+    const tag = `[grading-override] grader=${ctx.grader} user=${ctx.userId ?? "?"} verdict=${meta?.verdict ?? "?"}`;
     if (howlerBorderlineMismatch) {
-      console.warn(`${tag} MISMATCH: howler present + BORDERLINE → the IMW rule resolves this to FAIL, but the grader kept BORDERLINE. howler=${JSON.stringify(meta.howler ?? null)}`);
+      console.warn(`${tag} MISMATCH: howler present + BORDERLINE → the IMW rule resolves this to FAIL, but the grader kept BORDERLINE. howler=${JSON.stringify(meta?.howler ?? null)}`);
     }
-    if (meta.cascadeFlag) {
+    if (meta?.cascadeFlag) {
       console.warn(`${tag} NOTE: cascadeFlag=true → the affected conclusion mark should be zero; verify the grader applied it.`);
     }
     // PG-2 plausibility-gradient mismatches (EK-0112): the gradient says a plausible wrong call earns
@@ -87,6 +114,24 @@ export async function recordGradingOverrideCheck(
     }
     if (undercreditMismatch) {
       console.warn(`${tag} MISMATCH: plausible wrong call awarded NO conclusion credit → the plausibility gradient (EK-0112) says a stylistically-adjacent miss earns real partial credit; possible under-credit.`);
+    }
+    // Answer-key claim check (migration 064). Unlike the flags above this one ACTED, so the log says
+    // what it did — and says so loudest when the correction did not take, which is the case that both
+    // costs money and still ships a wrong claim.
+    if (claimFired) {
+      const what = `rules=${claimRules?.join(",")} reason=${JSON.stringify(claims?.originalFailureReason ?? null)}`;
+      if (!claims?.originalFailureReason) {
+        // Soft-only: nothing was rewritten and nothing was billed. Logged at info because this is the
+        // measurement channel, not an incident — a soft Rule 1 flag is as often the classifier's fault
+        // as the prose's, which is precisely what the accumulated rows are meant to settle.
+        console.info(`${tag} CLAIM: answer-key claim flagged for review only (no correction, nothing billed). ${what}`);
+      } else if (claims?.correctionFailed) {
+        console.warn(`${tag} CLAIM: answer-key violation NOT corrected — the corrector failed, so the original prose shipped. ${what}`);
+      } else if (claims?.failureReason) {
+        console.warn(`${tag} CLAIM: answer-key violation SURVIVED its correction pass — the redraft still fails. still=${JSON.stringify(claims.failureReason)} ${what}`);
+      } else {
+        console.warn(`${tag} CLAIM: answer-key violation corrected on the single regeneration. ${what}`);
+      }
     }
   } catch {
     /* warns must never break the response */
@@ -100,12 +145,15 @@ export async function recordGradingOverrideCheck(
       INSERT INTO grading_telemetry (
         grader, user_id, paper, question_id,
         verdict, howler_present, howler, cascade_flag, wrong_call_plausible, credit_given,
-        howler_borderline_mismatch, overcredit_mismatch, undercredit_mismatch
+        howler_borderline_mismatch, overcredit_mismatch, undercredit_mismatch,
+        claim_reason_before, claim_reason_after, claim_rules, claim_regenerated, claim_correction_failed
       ) VALUES (
         ${ctx.grader}, ${ctx.userId ?? null}, ${ctx.paper ?? null}, ${ctx.questionId ?? null},
-        ${meta.verdict ?? null}, ${meta.howlerPresent ?? null}, ${meta.howler ?? null},
-        ${meta.cascadeFlag ?? null}, ${meta.wrongCallPlausible ?? null}, ${meta.creditGiven ?? null},
-        ${howlerBorderlineMismatch}, ${overcreditMismatch}, ${undercreditMismatch}
+        ${meta?.verdict ?? null}, ${meta?.howlerPresent ?? null}, ${meta?.howler ?? null},
+        ${meta?.cascadeFlag ?? null}, ${meta?.wrongCallPlausible ?? null}, ${meta?.creditGiven ?? null},
+        ${howlerBorderlineMismatch}, ${overcreditMismatch}, ${undercreditMismatch},
+        ${claims?.originalFailureReason ?? null}, ${claims?.failureReason ?? null},
+        ${claimRules}, ${claims?.regenerated ?? false}, ${claims?.correctionFailed ?? false}
       )
     `;
   } catch (err) {
