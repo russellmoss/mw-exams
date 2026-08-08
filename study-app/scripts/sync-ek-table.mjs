@@ -87,9 +87,36 @@ function parseDoc(md) {
   return entries;
 }
 
+// A duplicate `ek_id` used to be invisible: the INSERT below is ON CONFLICT DO UPDATE, so of two
+// entries sharing an id only the LATER heading reached the table and the earlier one vanished without
+// a word — the mirror read 163 rows against 166 parsed entries for a day, and the entry the generation
+// rules depend on (sparkling is blocked on Paper 1 entirely) was one of the three that disappeared.
+// The agent queries the table, not the doc, so nothing downstream could notice. Fail instead: a red
+// ek-table-sync run is recoverable, a silently-thinner knowledge base is not.
+function assertUniqueIds(entries) {
+  const seen = new Map();
+  for (const e of entries) {
+    if (!seen.has(e.ek_id)) seen.set(e.ek_id, []);
+    seen.get(e.ek_id).push(e);
+  }
+  const dupes = [...seen.entries()].filter(([, es]) => es.length > 1);
+  if (!dupes.length) return;
+  console.error(`ek-table: FATAL — ${dupes.length} duplicate ek_id(s) in mw_exam_empirical_knowledge.md.`);
+  for (const [id, es] of dupes) {
+    console.error(`  ${id} used ${es.length}×:`);
+    for (const e of es) console.error(`    §${e.section} · ${e.title}`);
+  }
+  console.error(
+    "ek-table: renumber all but one of each pair to a fresh id (and update every cross-reference).\n" +
+      "ek-table: NOTHING was written — the table still holds the previous sync."
+  );
+  process.exit(1);
+}
+
 async function main() {
   if (!existsSync(DOC_PATH)) throw new Error(`doc not found: ${DOC_PATH}`);
   const entries = parseDoc(readFileSync(DOC_PATH, "utf8"));
+  assertUniqueIds(entries);
   const bySection = {};
   for (const e of entries) bySection[e.section] = (bySection[e.section] || 0) + 1;
   console.log(`ek-table: parsed ${entries.length} entries; by section:`, bySection);
