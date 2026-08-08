@@ -25,6 +25,14 @@ import { applyAnswerContentRules } from "./answer-content-rules.mjs";
 // style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
 import { classifyWineStyle } from "./p3-category.mjs";
 import { noteCompletenessViolations, type TastingValidationWine } from "./tasting-validators";
+// Rarity/precedent tier data + fortified category-integrity map. The wine knowledge lives in db.ts as
+// exported consts (so admins retag wines there); this module holds only the rules that read them.
+import {
+  WINE_RARITY_TIERS,
+  FORTIFIED_CATEGORY_INTEGRITY,
+  type WineRarityRule,
+  type FortifiedCategoryIntegrity,
+} from "./db";
 
 export type StemSniperScoringModel = "per-wine" | "set";
 
@@ -581,6 +589,98 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
       severity: "hard",
       detail: `flight of ${n} wines has ${curveballs.length} curveballs but at most ${maxCurveballs} is expected (one, two at best): ${list}.`,
     });
+  }
+
+  return v;
+}
+
+// ---------------------------------------------------------------------------------------------------
+// RARITY BUDGET & FORTIFIED CATEGORY INTEGRITY — three validated Paper-3 signals (fb_254, fb_241,
+// fb_55) that all reduce to "ultra-rare / no-precedent fortified & oxidative wines used as flight
+// fillers". The wine knowledge lives in db.ts (WINE_RARITY_TIERS, FORTIFIED_CATEGORY_INTEGRITY) so an
+// admin can retag wines without touching this rule. Three HARD arms:
+//   • Rule 1 (rarity-budget)         a flight may hold at most ONE tier-3 (niche) wine, regardless of
+//                                    flight size — the six-wine ladder with two Jura wines (25%) fails.
+//   • Rule 2 (rarity-no-precedent)   a wine whose category has no MW-exam precedent in ten years
+//                                    (examPrecedent === false, e.g. flor-aged Australian apera) is
+//                                    rejected outright, at any flight position.
+//   • Rule 3 (fortified-category-integrity)  a mandatory-blend fortified style (tawny port, most
+//                                    sherry solera styles) that is keyed or stem-framed as a single
+//                                    grape variety is a category error.
+// ---------------------------------------------------------------------------------------------------
+
+// Everything the answer key knows about a wine, flattened + normalised, so the db.ts regexes match
+// against the label, region, country, keyed varieties and style category together.
+function rarityHaystack(w: AuditWine): string {
+  return norm(
+    [w.fullText, w.region, w.country, ...(w.varieties || []), w.style, w.style_category]
+      .filter(Boolean)
+      .join(" ")
+  );
+}
+
+function matchRarityRule(w: AuditWine): WineRarityRule | null {
+  const hay = rarityHaystack(w);
+  return WINE_RARITY_TIERS.find((rule) => rule.match.test(hay)) || null;
+}
+
+function matchFortifiedIntegrity(w: AuditWine): FortifiedCategoryIntegrity | null {
+  const hay = rarityHaystack(w);
+  return FORTIFIED_CATEGORY_INTEGRITY.find((rule) => rule.match.test(hay)) || null;
+}
+
+export function validateRarityBudget(q: QuestionForAudit): Violation[] {
+  const wines = q.wines || [];
+  if (wines.length === 0) return [];
+  const v: Violation[] = [];
+
+  const noPrecedent: string[] = [];
+  const tier3: string[] = [];
+  for (const w of wines) {
+    const rule = matchRarityRule(w);
+    if (!rule) continue;
+    if (rule.examPrecedent === false) noPrecedent.push(`${wineLabel(w)} — ${rule.label}`);
+    if (rule.rarityTier === 3) tier3.push(`${wineLabel(w)} — ${rule.label}`);
+  }
+
+  // Rule 2 — no exam precedent: rejected outright, before any budget maths.
+  if (noPrecedent.length > 0) {
+    v.push({
+      rule: "rarity-no-precedent",
+      severity: "hard",
+      detail: `wine has no MW-exam precedent in the last ten years (not poured on an Institute practical or mock): ${noPrecedent.join("; ")}. A no-precedent style is not exam-realistic and cannot appear in a flight.`,
+    });
+  }
+
+  // Rule 1 — at most ONE tier-3 (niche) wine per flight, whatever the flight size.
+  if (tier3.length > 1) {
+    v.push({
+      rule: "rarity-budget",
+      severity: "hard",
+      detail: `flight carries ${tier3.length} tier-3 (niche) wines but at most one is exam-realistic: ${tier3.join("; ")}.`,
+    });
+  }
+
+  // Rule 3 — fortified category integrity: a mandatory-blend style presented as a single variety.
+  const stem = normStem(q.questionText || "");
+  const singleVarietyStem = /\bsingle grape variet(?:y|ies)\b/.test(stem);
+  for (const w of wines) {
+    const cat = matchFortifiedIntegrity(w);
+    if (!cat) continue;
+    const varieties = w.varieties || [];
+    const keyedSingleVariety = w.is_blend !== true && varieties.length === 1;
+    // A legitimately single-varietal expression of this style (Palomino sherry) stands down.
+    const exempt = cat.singleVarietyOk ? varieties.some((g) => cat.singleVarietyOk!.test(norm(g))) : false;
+    const stemForcesSingle = singleVarietyStem && w.is_blend !== true && varieties.length === 0;
+    if (!exempt && (keyedSingleVariety || stemForcesSingle)) {
+      v.push({
+        rule: "fortified-category-integrity",
+        severity: "hard",
+        detail: keyedSingleVariety
+          ? `${wineLabel(w)} is a ${cat.label}, a mandatory blend, but is keyed as a single grape variety (${varieties.join("/") || "one variety"}).`
+          : `${wineLabel(w)} is a ${cat.label}, a mandatory blend, but the stem frames every wine as a single grape variety.`,
+      });
+    }
   }
 
   return v;
@@ -2006,6 +2106,9 @@ export function validateQuestion(
     violations.push(...flightWineCountViolations(q));
   }
   violations.push(...flightCompositionViolations(q.wines));
+  // Rarity budget, exam-precedent blocklist and fortified category integrity are all WINE-side (they
+  // turn on the choice/keying of the wines, not the stem's wording), so they run even on a fixed stem.
+  violations.push(...validateRarityBudget(q));
   // The banker arm is a WINE choice ("pick a curveball instead") and survives a fixed stem; the two
   // `single-wine-flight` arms are stem edits, which this file already says of the ID-ask half.
   violations.push(
