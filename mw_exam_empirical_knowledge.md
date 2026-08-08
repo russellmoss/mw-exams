@@ -37,6 +37,12 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-08 — app bug 427 fixed and catalogued (EK-0163).** A late-arriving model answer was
+  written to `sessionStorage` while the debrief rendered from the reducer, so every on-the-fly
+  question showed "No model answer available" with the answer already in the database. Grading read
+  the updated copy, which is why the defect presented as cosmetic. Four of five arrival paths were
+  wrong; the fix adds `ATTACH_MODEL_ANSWER`, a single writer, an answer-carrying poll response, and a
+  static guard test (PR #115 / `47372d3`).
 - **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0162).**
 - **2026-08-05 — first BLIND out-of-sample backtest of the master trees (EK-0148).** Ran the trees
   against the newly structured 2000–2010 corpus with the wines withheld from the predicting agents and
@@ -1730,6 +1736,57 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
+
+### EK-0163 · Two copies of one object; the debrief rendered the copy nobody updated
+- **tier:** PROCESS · **status:** live — fixed 2026-08-08
+- **evidence:** attempt 427 (bug report against `gen_p1_F6_1786206158735`); that question's row
+  (`model_answer` 3,133 chars, `answer_length_status = 'corrected'`, `metadata.generatedOnTheFly = true`);
+  its `model_usage` timeline (question saved 16:24:54 → `model_answer` row 16:26:08, `answer-length`
+  16:26:22 → attempt submitted 16:27:07 with 6,401 chars of `answer_feedback`);
+  `study-app/src/app/study/page.tsx`, `src/lib/study-session.ts`,
+  `src/app/api/check-model-answer/route.ts`, `src/app/components/ModelAnswerReveal.tsx`;
+  `study-app/tests/model-answer-arrival.test.tsx`; PR #115 / `47372d3`
+- **claim:** **Symptom:** a candidate reached the debrief of a freshly generated P1 flight and read
+  "No model answer available for this question yet." The answer was in the database, 3,133 characters
+  of it, persisted 45 seconds before they submitted.
+  **The mechanism.** A generated question is served the instant generation converges; its model answer
+  takes ~75s more to write, so it always lands **mid-attempt**. The arrival path wrote the answer to
+  `sessionStorage`, and the debrief renders from the **reducer**. Nothing reconciled them, so
+  `state.question.modelAnswer` stayed empty for the whole attempt.
+  **Why it survived so long: partial correctness.** `runFinalEvaluation` re-read `sessionStorage` —
+  the one consumer wired to the copy that *was* updated. So grading worked perfectly and the failure
+  presented as a cosmetic empty panel rather than a broken debrief. **A defect that leaves the
+  expensive path working is a defect nobody reports for months**; the visible surface is not a proxy
+  for the state underneath it.
+  **Why nobody had just re-dispatched.** `SELECT_QUESTION` was the only action that sets `question`,
+  and it resets `step` — dispatching it mid-attempt would wipe the candidate's work. The
+  sessionStorage write was the workaround, and it half-worked. The fix is a narrow
+  `ATTACH_MODEL_ANSWER` that merges in place, plus one writer (`applyModelAnswer`) that every arrival
+  path funnels through.
+- **it was four of five call sites, not one.** "Generate fresh" and flag-load-next were *worse* than
+  the reported case: they called `setModelAnswerReady(true)` and wrote the text nowhere at all, so
+  grading on those paths ran with **no model answer**. Each had independently reinvented "flip the
+  flag and move on". This is EK-0157's and EK-0160's shape again — a contract every call site must
+  remember is a contract that gets forgotten — so it is now asserted rather than remembered:
+  `tests/model-answer-arrival.test.tsx` fails if a sixth path flips the flag outside the writer.
+- **a readiness boolean cannot heal what it polls for.** `/api/check-model-answer` returned
+  `{ready}` alone. The background poll therefore learned the answer had landed and had **nothing to
+  install** — the one mechanism whose entire purpose was to recover this case was structurally
+  incapable of it. **A poll that reports a state change should carry the state**, or it is only an
+  interrupt with no payload.
+- **the reported diagnosis was wrong in a way that mattered.** The report concluded the grader
+  could not grade, and proposed (a) withholding questions until an answer is attached. Grading had in
+  fact succeeded, and (a) would have added ~75s of dead wait to **every** on-the-fly generation to
+  work around a state-sync bug — a large latency cost bought by mis-reading which component was
+  broken. **Confirm which layer actually failed before pricing the fix.**
+- **scope:** not a rare race. It fired on **every** on-the-fly generation and never on a banked one —
+  586 of the 30 days to 2026-08-08 (`metadata.generatedOnTheFly = true`) versus 71 banked.
+- **closed by trailer**, per EK-0160: `Fixes-Bug: 427` on `47372d3` set `feedback_status = 'accepted'`
+  automatically — the first bug filed after that mechanism shipped, and it worked.
+- **cross-refs:** EK-0160 (only a trailer closes a report; the mechanism that closed this one),
+  EK-0157 (cross-file/cross-call-site rules must be pinned by a test), EK-0161 (state that means
+  "work is in progress" needs an owner and an expiry), EK-0133 and EK-0134 (the other study-page
+  surface defects that grading masked)
 
 ### EK-0161 · A concurrency guard with no TTL is a permanent lock (fa_65 sat "analyzing" for 7 hours)
 - **tier:** PROCESS · **status:** live — fixed 2026-08-08
