@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0162).**
 - **2026-08-05 — first BLIND out-of-sample backtest of the master trees (EK-0148).** Ran the trees
   against the newly structured 2000–2010 corpus with the wines withheld from the predicting agents and
   ground truth resolved independently (111 questions / 396 wines;
@@ -1088,6 +1089,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
   question engine should treat "same NW country" stems as routing to this set; graders should treat an
   exotic-country call on such a stem as low-plausibility (EK-0090).
 
+### EK-0162 · P2 bankers are classified classics; famous-but-idiosyncratic wines are curveballs, not anchors
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #419 / analysis #66 (accept); EK-0029; EK-0031; EK-0032
+- **claim:** The EK-0029 banker requirement bites hardest on Paper 2: a 4-wine red flight consuming a third of the paper needs at least one wine the candidate is expected to know cold — a Bordeaux classed growth, Barolo, 1er cru Burgundy, or Rioja Gran Reserva. Fame is not anchor status: Château Musar (Bekaa), Domaine de Trévallon (Alpilles IGP) and a premium Barossa Cabernet-Shiraz blend are idiosyncratic or non-standard and function as curveballs, and a standard Mendoza Malbec (corpus-legitimate, EK-0032) is an ordinary wine rather than a banker. A generated flight of two curveballs plus mid-tier regional wines with no classified anchor is implausible and must be redrawn.
+
 ---
 
 ## §5 · Question generation rules
@@ -1329,6 +1335,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 190 | 34 | P1/F6 | reject | auto | UX: repeated feedback clicks overwrite instead of appending discrete records | EK-0134 |
 | 206 | 35 | P1/F5 | reject | auto | four-country/four-different-variety P1 breadth is the most common (F4) format — corpus-overruled; already covered | EK-0052, EK-0077, EK-0044 |
 | 246 | 42 | P2/F4 | accept | auto | generated tasting notes omitted alcohol/structural cues that the model answer then reasoned from; notes must carry perceptible alcohol/body alongside acidity/tannin/RS | EK-0135, EK-0013 |
+| 419 | 66 | P2/F6 | accept | manual | 4-wine P2 flight had two curveballs and no banker classic; famous-but-idiosyncratic wines (Musar, Trévallon) don't count as anchors | EK-0162, EK-0029 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
