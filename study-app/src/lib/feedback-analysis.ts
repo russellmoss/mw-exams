@@ -355,7 +355,9 @@ export async function runFeedbackAnalysis(opts: {
   const feedbackText = attempt.user_feedback as string | null;
   if (!feedbackText || !feedbackText.trim()) return { status: "no_feedback" };
 
-  // Concurrency guard — never run two analyses for the same attempt at once.
+  // Concurrency guard — never run two analyses for the same attempt at once. Reap first: without a
+  // TTL this guard is a permanent lock (see reapStaleAnalyses).
+  await reapStaleAnalyses({ attemptId });
   const inFlight = await sql`
     SELECT id FROM feedback_analyses WHERE attempt_id = ${attemptId} AND status = 'analyzing'
   `;
@@ -531,14 +533,88 @@ export async function runFeedbackAnalysis(opts: {
 }
 
 /**
+ * An analysis still 'analyzing' after this long is dead, not slow.
+ *
+ * THE CEILING IS WHAT MAKES THIS SAFE. Both entry points — /api/save-attempt (which runs the analysis
+ * in `after()`) and /api/feedback-analysis/trigger — declare `maxDuration = 120`, so no invocation can
+ * still be working after two minutes; the platform has already killed it. Ten minutes is five times
+ * that ceiling, so a LIVE analysis can never be reaped, which is the only way this could do harm.
+ * Measured for reference: real analyses finish in 31-73s (feedback_analyses 49-64; the multi-hour
+ * created→updated spans on rows 55 and 54 are a later admin apply bumping updated_at, not the LLM).
+ */
+export const STALE_ANALYSIS_MINUTES = 10;
+
+/**
+ * Mark abandoned 'analyzing' rows as errored, and return how many were reaped.
+ *
+ * WHY THIS EXISTS — a killed analysis was a PERMANENT LOCK. fa_65 (attempt 394, 2026-08-07) was
+ * inserted and never written to again: empty thread, no recommendation, no error_message. The catch in
+ * runFeedbackAnalysis marks 'error' on a thrown exception, but this invocation was KILLED, so no catch
+ * ran. The row then blocked every route back:
+ *
+ *   1. the concurrency guard matched `status = 'analyzing'` with no TTL, so every re-trigger returned
+ *      `already_analyzing` — forever;
+ *   2. the stranded sweep below requires `auto_analysis_id IS NULL`, and createFeedbackAnalysis had
+ *      already stamped it.
+ *
+ * So attempt 394 was unreachable by every recovery path the system has, and sat "analyzing" for seven
+ * hours looking like work in progress. This is the same shape as EK-0158's flight claims — a claim
+ * taken before the work with nothing to release it if the worker dies — and the same answer: a TTL.
+ *
+ * DELIBERATELY NOT A RETRY. Reaping unwedges the attempt; it does not re-run it. `auto_apply_enabled`
+ * is ON, so a retry can dispatch a branch-and-PR, and the feedback most likely to be sitting behind a
+ * stale lock is old — 394's substance had already shipped as R11 in question-rules.mjs, so re-running
+ * it would have proposed a fix for something already fixed. Re-triggering is a human decision; this
+ * just makes it possible again.
+ */
+export async function reapStaleAnalyses(
+  opts: { attemptId?: number } = {}
+): Promise<{ reaped: number; ids: number[] }> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const cutoffMinutes = STALE_ANALYSIS_MINUTES;
+  const message =
+    `Abandoned mid-analysis — no update for over ${cutoffMinutes} minutes, and the invocation's own ` +
+    `maxDuration is 120s, so the process was killed rather than still running. Reaped automatically; ` +
+    `re-trigger from the admin feedback view if this feedback still needs a verdict.`;
+
+  // updated_at, not created_at: a run that got partway and wrote its thread should get the full window
+  // from its LAST sign of life.
+  const rows = opts.attemptId
+    ? await sql`
+        UPDATE feedback_analyses SET status = 'error', error_message = ${message}
+        WHERE status = 'analyzing'
+          AND attempt_id = ${opts.attemptId}
+          AND updated_at < NOW() - (${cutoffMinutes} * INTERVAL '1 minute')
+        RETURNING id
+      `
+    : await sql`
+        UPDATE feedback_analyses SET status = 'error', error_message = ${message}
+        WHERE status = 'analyzing'
+          AND updated_at < NOW() - (${cutoffMinutes} * INTERVAL '1 minute')
+        RETURNING id
+      `;
+  const ids = rows.map((r) => r.id as number);
+  if (ids.length) console.log(`reapStaleAnalyses: reaped ${ids.length} abandoned analysis row(s): ${ids.join(", ")}`);
+  return { reaped: ids.length, ids };
+}
+
+/**
  * Find feedback that was submitted but never analyzed (the stranded set the original
  * client-fire-and-forget bug produced) and analyze it. Drives the cron sweeper and an
  * opportunistic sweep when the admin opens the feedback dashboard.
+ *
+ * Reaps abandoned analyses first, so the queue tells the truth even for an attempt nobody re-triggers:
+ * a stale row shows as errored rather than as work still in progress.
  */
 export async function sweepStrandedFeedback(
   limit = 3
-): Promise<{ swept: number; results: { attemptId: number; status: string; recommendation?: string }[] }> {
+): Promise<{
+  swept: number;
+  reaped: number;
+  results: { attemptId: number; status: string; recommendation?: string }[];
+}> {
   const sql = neon(process.env.DATABASE_URL!);
+  const { reaped } = await reapStaleAnalyses();
   const stranded = await sql`
     SELECT id FROM user_attempts
     WHERE mode = 'full'
@@ -568,5 +644,5 @@ export async function sweepStrandedFeedback(
     const r = await runFeedbackAnalysis({ attemptId, source: "server" });
     results.push({ attemptId, status: r.status, recommendation: r.recommendation });
   }
-  return { swept: results.length, results };
+  return { swept: results.length, reaped, results };
 }

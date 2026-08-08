@@ -1724,6 +1724,48 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **evidence:** ledger: attempt #189 / analysis #33 (reject)
 - **claim:** Symptom: while writing the answer the candidate could not see the wine labels and had to recall them from memory; no tasting notes were available. In the real exam the wines are physically present throughout the sitting (re-smell/re-taste at will), so writing 'from memory' diverges from exam conditions. For New-World wines, identity alone (e.g. 'Napa Chardonnay') can be insufficient to infer winemaking without the producer. Fix (UX): keep the wine list visible during answer entry; consider surfacing tasting context. A product/UI gap, not a content/pipeline defect.
 
+### EK-0161 · A concurrency guard with no TTL is a permanent lock (fa_65 sat "analyzing" for 7 hours)
+- **tier:** PROCESS · **status:** live — fixed 2026-08-08
+- **evidence:** `feedback_analyses` row 65 (attempt 394, created 2026-08-07T18:07:18Z, `updated_at`
+  identical, `thread` `[]`, `recommendation` NULL, `error_message` NULL); the in-flight guard and
+  `sweepStrandedFeedback` in `study-app/src/lib/feedback-analysis.ts`; `maxDuration = 120` in
+  `src/app/api/save-attempt/route.ts` and `src/app/api/feedback-analysis/trigger/route.ts`;
+  `study-app/tests/stale-analysis-reap.test.ts`; verified on Neon branch `reap-verify`
+- **claim:** **Symptom:** a feedback analysis showed "analyzing" for seven hours. It looked like slow
+  work in progress; it was a corpse.
+  **What actually happened.** The row was inserted and never written to again — `updated_at` equal to
+  `created_at`, empty thread, and critically **`error_message` NULL**. `runFeedbackAnalysis` has a catch
+  that marks `status = 'error'`, so a NULL error message proves no exception was thrown: the invocation
+  was **killed**. Both entry points declare `maxDuration = 120`, and the analysis runs in `after()`
+  (post-response), so the remaining budget is whatever the response left over. Measured wall clock for
+  real analyses is 31–73s, so the margin is thin rather than absent — fa_65 lost the race.
+  **The killing was survivable; the LOCK was not.** A stuck `analyzing` row closed every route back:
+  (1) the concurrency guard selected `attempt_id = X AND status = 'analyzing'` with **no TTL**, so every
+  re-trigger returned `already_analyzing` — forever; (2) the stranded sweep requires
+  `auto_analysis_id IS NULL`, and `createFeedbackAnalysis` stamps that id at insert. The attempt was
+  unreachable by every recovery path the system has. The comment in the catch even promised "a manual
+  re-trigger can retry it", which was true for `error` and false for the killed case.
+  **Fix:** `reapStaleAnalyses()` — a TTL of 10 minutes, applied before the guard is consulted (order
+  matters; reaping after the SELECT would still return `already_analyzing` on the very call meant to
+  recover) and again on every sweep, so the queue stops lying even for an attempt nobody re-triggers.
+- **the TTL is safe because of a cross-file relationship, so that relationship is a test.** The reaper's
+  only way to do harm is killing live work, and it cannot: the platform kills any invocation at
+  `maxDuration = 120s`, so a 10-minute TTL can only ever see corpses. That safety depends on three files
+  agreeing, which is the shape EK-0157 was written about, so `tests/stale-analysis-reap.test.ts` parses
+  the routes' declared `maxDuration` and fails if the TTL is not at least 2× the largest.
+- **reaping deliberately does NOT retry.** `auto_apply_enabled` is ON in production, so a retry can
+  dispatch a branch-and-PR — and the feedback sitting behind a stale lock is old by definition. 394's
+  substance had already shipped as R11 in `question-rules.mjs`, so an automatic retry would have proposed
+  a fix for something already fixed (and see the duplicate-PR failure the bin-fix miner produces).
+  Unwedging is mechanical; deciding to spend an Opus call and possibly open a PR is a human's call.
+- **the generalised lesson:** this is EK-0158's flight-claim bug in a different table — a claim taken
+  before the work with nothing to release it if the worker dies. **Any state that means "someone is
+  working on this" needs an expiry, because the worker can always be killed between the claim and the
+  release.** When auditing for this, the tell is a status column with no timestamp comparison anywhere
+  in its WHERE clauses.
+- **cross-refs:** EK-0158 (the same shape, TTL'd flight claims), EK-0157 (cross-file rules must be
+  pinned to agree), EK-0155 (a recovery path that silently never runs)
+
 ### EK-0160 · A citation and a fix claim are the same string — only a trailer may close a bug report
 - **tier:** PROCESS · **status:** live — built 2026-08-08
 - **evidence:** attempts 407 and 413 (both fixed, deployed, and still reading `feedback_status = NULL`
