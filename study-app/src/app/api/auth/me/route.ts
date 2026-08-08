@@ -31,6 +31,7 @@ export async function GET(request: Request) {
     const prefRows = await sql`
       SELECT stem_detail_default, question_source_default, reasoning_stream_default,
              intro_seen, tour_seen, walkthrough_seen, coach_walkthrough_seen,
+             practical_walkthrough_seen,
              exam_date, last_drill_config
       FROM users WHERE id = ${user.id}
     `;
@@ -58,6 +59,7 @@ export async function GET(request: Request) {
         tourSeen: prefRows[0]?.tour_seen === true,
         walkthroughSeen: prefRows[0]?.walkthrough_seen === true,
         coachWalkthroughSeen: prefRows[0]?.coach_walkthrough_seen === true,
+        practicalWalkthroughSeen: prefRows[0]?.practical_walkthrough_seen === true,
         examDate: prefRows[0]?.exam_date
           ? String(prefRows[0].exam_date).slice(0, 10)
           : null,

@@ -4,10 +4,11 @@
 // enough copy to understand what it is and how long it takes. Stem Sniper is deliberately not
 // listed (kept reachable at /stem-sniper); Stem Analysis lives inside Dry Flights as a mode.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { PracticalWalkthrough } from "../components/PracticalWalkthrough";
 
 const MODES = [
   { name: "Full Question", description: "The complete exam simulation — stem, flight, timed answer, marks.", time: "20–30 min" },
@@ -20,10 +21,45 @@ export default function PracticalHubPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const [activeSessions, setActiveSessions] = useState<number | null>(null);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
+  const decidedRef = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) router.push("/login");
   }, [authLoading, user, router]);
+
+  // First visit to Practical opens the drills walkthrough (migration 061). Page-scoped, so unlike
+  // the launcher chain there is nothing to sequence against — ShellOnboarding only mounts on `/`.
+  //
+  // The commit is deferred INTO the timer callback, not done in the effect body. Under StrictMode
+  // React mounts, cleans up and mounts again; latching `decidedRef` up front meant the cancelled
+  // first run burnt the latch and the surviving run returned early, so the walkthrough never
+  // appeared in development. A timer rather than requestAnimationFrame, because rAF never fires in a
+  // background tab or a non-compositing browser — the same two traps ShellOnboarding documents.
+  useEffect(() => {
+    if (authLoading || !user || decidedRef.current) return;
+    if (user.practicalWalkthroughSeen) return;
+    const timer = setTimeout(() => {
+      decidedRef.current = true;
+      setWalkthroughOpen(true);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [authLoading, user]);
+
+  // Finishing OR skipping marks it seen — it is replayable from the header and the Library, and
+  // re-serving an 8-step teach someone has already declined is worse than making them ask for it.
+  const closeWalkthrough = useCallback(() => {
+    setWalkthroughOpen(false);
+    decidedRef.current = true;
+    fetch("/api/user/shell-prefs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ practicalWalkthroughSeen: true }),
+    }).catch(() => {});
+  }, []);
+
+  // Replay is presentation-only: it must not re-write the flag (it is already true by then anyway).
+  const [replaying, setReplaying] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -41,13 +77,30 @@ export default function PracticalHubPage() {
   return (
     <div className="flex-1">
       <header className="border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Practical</h1>
-          <p className="text-sm text-muted mt-1">
-            The practical exam: three papers of twelve wines, tasted blind.
-          </p>
+        <div className="max-w-5xl mx-auto px-6 py-6 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Practical</h1>
+            <p className="text-sm text-muted mt-1">
+              The practical exam: three papers of twelve wines, tasted blind.
+            </p>
+          </div>
+          <button
+            onClick={() => setReplaying(true)}
+            className="shrink-0 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted hover:text-foreground hover:bg-card transition-colors cursor-pointer"
+          >
+            How the two drills work
+          </button>
         </div>
       </header>
+
+      {(walkthroughOpen || replaying) && (
+        <PracticalWalkthrough
+          onDone={() => {
+            if (replaying) setReplaying(false);
+            else closeWalkthrough();
+          }}
+        />
+      )}
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="grid md:grid-cols-2 gap-3 items-stretch">

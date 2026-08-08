@@ -32,6 +32,9 @@ interface AuthUser {
   walkthroughSeen?: boolean;
   // Migration 056 — the one-time Coach walkthrough, which follows the diagram one.
   coachWalkthroughSeen?: boolean;
+  // Migration 061 — the one-time Practical-drills walkthrough. Page-scoped, not part of the
+  // launcher chain: it fires the first time /practical is opened.
+  practicalWalkthroughSeen?: boolean;
   examDate?: string | null;
   lastDrillConfig?: {
     paper?: number;

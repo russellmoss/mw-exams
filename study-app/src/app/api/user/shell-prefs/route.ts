@@ -33,6 +33,10 @@ export async function PATCH(request: Request) {
     if (typeof body.coachWalkthroughSeen === "boolean") {
       await sql`UPDATE users SET coach_walkthrough_seen = ${body.coachWalkthroughSeen} WHERE id = ${user.id}`;
     }
+    // Migration 061 — the Practical-drills walkthrough, fired by /practical rather than the chain.
+    if (typeof body.practicalWalkthroughSeen === "boolean") {
+      await sql`UPDATE users SET practical_walkthrough_seen = ${body.practicalWalkthroughSeen} WHERE id = ${user.id}`;
+    }
     if ("examDate" in body) {
       const examDate = body.examDate;
       if (examDate !== null && (typeof examDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(examDate))) {
