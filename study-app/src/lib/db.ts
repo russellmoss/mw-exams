@@ -844,7 +844,15 @@ export const FORTIFIED_CATEGORY_INTEGRITY: FortifiedCategoryIntegrity[] = [
   {
     id: "tawny-port",
     label: "Tawny Port",
-    match: /\btawny\b|\btawny\s*port\b|\bcolheita\b/,
+    // "colheita" needs Port context. On its own it fired on two legitimate wines in the first sweep of
+    // the live bank: "Broadbent Colheita Madeira 2000" (a single-harvest Madeira, and Tinta Negra as a
+    // single variety is correct for it) and "Herdade do Esporão Verdelho Colheita Tardía" — where
+    // colheita tardia is just Portuguese for late harvest, on a wine that is not fortified at all.
+    // Both would have been quarantined as "a Tawny Port keyed as a single grape variety".
+    //
+    // Note \bport\b cannot match inside "Portugal" (the word continues), so a Portuguese country string
+    // does not resupply the context this now requires.
+    match: /\btawny\b|(?=[\s\S]*\bcolheita\b)(?=[\s\S]*\b(?:port|porto|douro)\b)/,
     mandatoryBlend: true,
   },
   {
