@@ -1,4 +1,5 @@
 import { getUser } from "@/lib/auth";
+import { DEFAULT_PERSONA, isPersonaId } from "@/lib/personas";
 import { neon } from "@neondatabase/serverless";
 
 export const runtime = "nodejs";
@@ -28,11 +29,14 @@ export async function GET(request: Request) {
     // Study defaults (migration 047) — the onboarding choices; questionSourceDefault drives which
     // acquire path the study flow leads with.
     // Shell prefs (migration 050) — intro/tour flags, exam countdown, Continue card config.
+    // Persona (migration 068) — the voice every LLM surface speaks in. Carried here rather than
+    // fetched by Settings alone because the Coach header names it, so it must be available on
+    // first paint of any page.
     const prefRows = await sql`
       SELECT stem_detail_default, question_source_default, reasoning_stream_default,
              intro_seen, tour_seen, walkthrough_seen, coach_walkthrough_seen,
              practical_walkthrough_seen, theory_walkthrough_seen,
-             exam_date, last_drill_config
+             exam_date, last_drill_config, persona
       FROM users WHERE id = ${user.id}
     `;
     const raw = prefRows[0]?.stem_detail_default;
@@ -43,6 +47,9 @@ export async function GET(request: Request) {
     const questionSourceDefault =
       prefRows[0]?.question_source_default === "fresh" ? "fresh" : "banked";
     const reasoningStreamDefault = prefRows[0]?.reasoning_stream_default !== false;
+    // Coerce anything unrecognised (a hand-edited row, a persona retired in a later release) to
+    // the default rather than letting the client render a card for a voice that no longer exists.
+    const persona = isPersonaId(prefRows[0]?.persona) ? prefRows[0].persona : DEFAULT_PERSONA;
 
     return Response.json({
       user: {
@@ -58,6 +65,7 @@ export async function GET(request: Request) {
         stemDetailDefault,
         questionSourceDefault,
         reasoningStreamDefault,
+        persona,
         introSeen: prefRows[0]?.intro_seen === true,
         tourSeen: prefRows[0]?.tour_seen === true,
         walkthroughSeen: prefRows[0]?.walkthrough_seen === true,

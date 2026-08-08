@@ -17,6 +17,8 @@ import {
   type PreviewScript,
 } from "@/lib/voices";
 import { DELETION_GRACE_DAYS, SELF_DELETE_CONFIRMATION_PHRASE } from "@/lib/user-deletion";
+import { DEFAULT_PERSONA, type PersonaId } from "@/lib/personas";
+import { PersonaPicker } from "@/app/components/PersonaPicker";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -69,6 +71,14 @@ export default function SettingsPage() {
     reasoningStream: boolean;
   } | null>(null);
   const [studySaving, setStudySaving] = useState(false);
+  // DERIVED from auth-context, not mirrored into state by an effect: /api/auth/me already carries
+  // the persona, so the context is the single source of truth and `personaOverride` is only the
+  // optimistic overlay between a click and the refresh landing. Copying `user.persona` into state
+  // in an effect would be a synchronous setState in an effect — a cascading render, and an eslint
+  // error — for no benefit.
+  const [personaOverride, setPersonaOverride] = useState<PersonaId | null>(null);
+  const persona: PersonaId = personaOverride ?? user?.persona ?? DEFAULT_PERSONA;
+  const [personaSaving, setPersonaSaving] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
   const [pwError, setPwError] = useState<string | null>(null);
@@ -323,6 +333,27 @@ export default function SettingsPage() {
       setElevenDeleting(false);
     }
   };
+
+  const savePersona = useCallback(
+    async (next: PersonaId) => {
+      setPersonaSaving(true);
+      setPersonaOverride(next); // optimistic; refresh() below makes the context agree
+      try {
+        await fetch("/api/user/persona", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ persona: next }),
+        });
+        // The Coach header names the current voice, and it reads auth-context.
+        await refresh();
+      } catch {
+        // Keep the optimistic state; a reload re-reads the server value.
+      } finally {
+        setPersonaSaving(false);
+      }
+    },
+    [refresh]
+  );
 
   const saveStudyDefaults = useCallback(
     async (next: { questionSource: "banked" | "fresh"; reasoningStream: boolean }) => {
@@ -948,6 +979,24 @@ export default function SettingsPage() {
                 {elevenSaving ? "Validating & saving..." : elevenKeyInfo?.hasKey ? "Replace key" : "Save key"}
               </button>
             </form>
+          </section>
+
+          {/* Voice — the persona every LLM surface speaks in (migration 068) */}
+          <section className="bg-card rounded-xl border border-border p-6">
+            <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Voice</h2>
+            <p className="text-sm text-muted mb-5">
+              How the app talks to you in the Coach and in the rulings on feedback you file. You can
+              also just tell the Coach to change it — &ldquo;be blunter&rdquo; is enough.
+            </p>
+            <p className="text-xs text-muted mb-5 leading-relaxed border-l-2 border-border pl-3">
+              <span className="text-foreground">Your graded debriefs stay in The Tutor&apos;s voice
+              for now.</span>{" "}
+              We tested the others on real marking and they moved the grade — the blunt one marked
+              the same script harder, the rude one marked it softer. A voice you pick should never
+              change whether you pass, so marking keeps one voice until we can separate the
+              wording from the score properly.
+            </p>
+            <PersonaPicker value={persona} onChange={savePersona} disabled={personaSaving} />
           </section>
 
           {/* Study Defaults — the onboarding choices: question source + reasoning stream */}

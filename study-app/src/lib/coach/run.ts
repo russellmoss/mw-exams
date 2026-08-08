@@ -8,6 +8,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { selectModel } from "@/lib/model-selector";
+import { getUserPersona } from "@/lib/persona-server";
 import { logClaudeUsage } from "@/lib/usage-log";
 import type { ProgressEmitter } from "@/lib/thinking-stream";
 import { resolveCoachState, type CoachState } from "./state";
@@ -149,10 +150,15 @@ export async function runCoachTurn(opts: {
       break;
     }
 
+    // Re-read inside the loop, not once above it, so `set_persona` takes effect on the very next
+    // hop rather than at the next message — the candidate asks the Coach to stop being nice and
+    // the reply they are waiting on is already in the new voice. Cached and invalidated on write
+    // (see persona-server), so the extra iterations are not extra queries.
     const system = await buildSystemBlocks({
       tier: tierForTurn({ toolsUsedSoFar: [...opts.priorTools, ...toolsUsed] }),
       state,
       screen: opts.screen,
+      persona: await getUserPersona(opts.userId),
     });
 
     const stream = client.messages.stream({
@@ -313,6 +319,8 @@ function labelFor(tool: string): string {
       return "Searching the technical corpus…";
     case "search_wine_web":
       return "Checking tier-1 sources…";
+    case "set_persona":
+      return "Changing voice…";
     default:
       return "Working…";
   }

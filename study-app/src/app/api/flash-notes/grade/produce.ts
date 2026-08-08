@@ -3,6 +3,8 @@ import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
 import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
+import { getUserPersona } from "@/lib/persona-server";
+import { personaBlock } from "@/lib/personas";
 
 /**
  * The Flash Notes grading core, shared by both routes that mark a card:
@@ -119,7 +121,11 @@ Return a SINGLE JSON object, nothing else (no markdown, no prose around it):
 
 - "score" is a normalised 0–100 mark for the ${prompt.label} dimension ONLY (do not surface marks-per-wine internals).
 - Map score to verdict: FAIL < 50, BORDERLINE 50–64, PASS >= 65 (then apply the howler→FAIL override).
-- "feedback" is ONE short "what you missed" line, **45 words maximum**, the single highest-value fix for next time. Constructive voice, faithful verdict.`;
+- "feedback" is ONE short "what you missed" line, **45 words maximum**, the single highest-value fix for next time.
+
+${personaBlock(await getUserPersona(userId), "oneliner")}
+
+The voice above applies to the "feedback" string ONLY. "score" and "verdict" are numbers and enums; no persona touches them, and the JSON shape is fixed.`;
 
   const userMessage = `## Wines (revealed to the candidate)
 ${wineList}

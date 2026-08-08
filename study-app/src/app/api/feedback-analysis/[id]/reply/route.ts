@@ -5,6 +5,7 @@ import { getFeedbackAnalysis, updateFeedbackAnalysis, getEmpiricalKnowledgeForAn
 import { reconcileAttemptDecision, extractRecommendation } from "@/lib/feedback-analysis";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { selectModel } from "@/lib/model-selector";
+import { getUserPersona } from "@/lib/persona-server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -60,6 +61,9 @@ export async function POST(
       modelAnswer: analysis.model_answer,
       userAnswer: analysis.user_answer,
       userFeedback: analysis.user_feedback,
+      // The analysis owner's voice, not the caller's — an admin replying on someone's thread must
+      // not re-voice it into their own persona.
+      persona: await getUserPersona(analysis.user_id),
       empiricalKnowledge,
       previousThread: thread,
       // Same attempt evidence the first-pass analysis saw — a follow-up must not re-argue the

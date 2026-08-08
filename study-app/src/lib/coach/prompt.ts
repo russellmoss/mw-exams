@@ -14,6 +14,7 @@
 // spends the user's money rather than ours.
 
 import { getEmpiricalKnowledgeDigest } from "@/lib/db";
+import { personaBlock, type PersonaId } from "@/lib/personas";
 import { loadPracticalCorpus } from "./corpus";
 import type { CoachState } from "./state";
 import type { CoachScreenHint } from "./types";
@@ -163,6 +164,8 @@ export async function buildSystemBlocks(opts: {
   tier: PromptTier;
   state: CoachState;
   screen?: CoachScreenHint | null;
+  /** The candidate's chosen voice (migration 068). Omitted → the default Tutor. */
+  persona?: PersonaId | null;
 }): Promise<{ type: "text"; text: string; cache_control?: { type: "ephemeral" } }[]> {
   const blocks: { type: "text"; text: string; cache_control?: { type: "ephemeral" } }[] = [
     { type: "text", text: BASE, cache_control: { type: "ephemeral" } },
@@ -190,7 +193,17 @@ export async function buildSystemBlocks(opts: {
   }
 
   // Uncached, last. Nothing may be appended after this.
-  blocks.push({ type: "text", text: dynamicBlock(opts.state, opts.screen) });
+  //
+  // THE PERSONA RIDES IN THE UNCACHED TAIL, and that is a deliberate trade rather than an
+  // oversight. It is per-user but near-constant, so it looks like it belongs in a cached block —
+  // except the cache matches on a PREFIX, so a persona placed above the CORPUS block would
+  // invalidate all ~20k tokens of it the moment someone changed their voice (which the Coach's own
+  // set_persona tool now lets them do mid-conversation). Down here it costs ~250 uncached tokens a
+  // turn and can never invalidate anything, because nothing follows it.
+  blocks.push({
+    type: "text",
+    text: `${dynamicBlock(opts.state, opts.screen)}\n\n${personaBlock(opts.persona, "chat")}`,
+  });
   return blocks;
 }
 

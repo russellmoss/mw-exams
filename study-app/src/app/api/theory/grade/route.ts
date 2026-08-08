@@ -5,6 +5,8 @@ import {
   streamGradedResponse,
 } from "@/lib/grading-stream";
 import { resolveTavilyKey } from "@/lib/tavily-key";
+import { getUserPersona } from "@/lib/persona-server";
+import { personaBlock } from "@/lib/personas";
 import {
   activeTheoryCoreRequirements,
   getTheoryRubric,
@@ -123,6 +125,12 @@ These dictated terms were auto-corrected before you saw the answer. List them un
 "Transcription check" so the candidate knows, and do not treat them as their own spelling errors:
 ${transcriptionFixes.map((substitution) => `- "${substitution.from}" -> ${substitution.to}`).join("\n")}`;
     }
+    // Appended last so it overrides the tone guidance inside THEORY_MARKING_PRINCIPLES. The block's
+    // own invariants hold the band, the rubric coverage and the required sections fixed.
+    systemPrompt += `\n\n${personaBlock(
+      await getUserPersona(gradingRuntime.user.id),
+      "grading"
+    )}`;
 
     const userMessage = `## Question
 ${rubric.questionText}

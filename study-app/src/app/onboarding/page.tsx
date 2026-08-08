@@ -16,6 +16,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { ApiKeySetup } from "@/app/components/ApiKeySetup";
+import { PersonaPicker } from "@/app/components/PersonaPicker";
+import { DEFAULT_PERSONA, type PersonaId } from "@/lib/personas";
 
 type QuestionSource = "banked" | "fresh";
 
@@ -24,6 +26,7 @@ export default function OnboardingPage() {
   const { user, loading, refresh } = useAuth();
   const [questionSource, setQuestionSource] = useState<QuestionSource>("banked");
   const [reasoningStream, setReasoningStream] = useState(false);
+  const [persona, setPersona] = useState<PersonaId>(DEFAULT_PERSONA);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<"keys" | "defaults">("keys");
@@ -44,6 +47,16 @@ export default function OnboardingPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Failed to save your defaults");
+      }
+      // Separate route, and a failure here must NOT block onboarding: the column already defaults
+      // to 'mentor', so a dropped persona save leaves them on the voice this screen pre-selected
+      // anyway. The two credit choices are the ones worth surfacing an error for.
+      if (persona !== DEFAULT_PERSONA) {
+        await fetch("/api/user/persona", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ persona }),
+        }).catch(() => {});
       }
       await refresh();
       router.push("/");
@@ -117,8 +130,9 @@ export default function OnboardingPage() {
           Welcome, {user.name?.split(" ")[0] || "candidate"}
         </h1>
         <p className="text-sm text-muted mt-2 mb-8 leading-relaxed">
-          Two quick choices about how the app spends your API credits. We&apos;ve pre-selected the
-          money-saving options — you can change either of them any time in Settings.
+          Two quick choices about how the app spends your API credits, and one about how it talks
+          to you. We&apos;ve pre-selected sensible options — you can change any of them later in
+          Settings.
         </p>
 
         {error && (
@@ -242,6 +256,17 @@ export default function OnboardingPage() {
               </p>
             </button>
           </div>
+        </section>
+
+        {/* Voice */}
+        <section className="bg-card rounded-xl border border-border p-6 mb-8">
+          <h2 className="text-lg font-semibold text-foreground mb-1">How should it talk to you?</h2>
+          <p className="text-sm text-muted mb-5">
+            This sets how the Coach talks to you, and how it explains the ruling on any feedback you
+            file. Your graded debriefs stay in The Tutor&apos;s voice — a voice you pick should never
+            change your marks. Switch any time in Settings, or just tell the Coach to change it.
+          </p>
+          <PersonaPicker value={persona} onChange={setPersona} disabled={saving} />
         </section>
 
         <div className="flex items-center gap-4">
