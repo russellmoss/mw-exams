@@ -8,7 +8,7 @@ import {
   studyReducer,
   initialStudyState,
   type Question,
-
+  type ModelAnswerPatch,
 } from "@/lib/study-session";
 import { useStreaming } from "@/lib/use-streaming";
 import { useProgressStream } from "@/lib/use-progress-stream";
@@ -79,6 +79,10 @@ export default function StudyPage() {
     return false;
   });
   const modelAnswerReadyRef = useRef(modelAnswerReady);
+  // The live model answer text. A ref, not derived from `state`, because the submit gate installs a
+  // late answer and grades in the same tick — reading `state.question` there would get the
+  // pre-dispatch closure. Same pattern (and same reason) as the pace refs below.
+  const modelAnswerTextRef = useRef<string>("");
   const [waitingForModel, setWaitingForModel] = useState(false);
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [preGlassReasoning, setPreGlassReasoning] = useState("");
@@ -123,6 +127,39 @@ export default function StudyPage() {
   useEffect(() => { sessionSpeedSecondsRef.current = sessionSpeedSeconds; }, [sessionSpeedSeconds]);
 
   useEffect(() => { userIdRef.current = user?.id; }, [user?.id]);
+
+  // THE single writer for a late-arriving model answer. Every arrival path (the on-mount
+  // generate call, the background poll, the submit gate's poll) funnels through here so the four
+  // places that need to know can never disagree again:
+  //   - the ref, read synchronously by grading
+  //   - study state, which is what the debrief actually renders
+  //   - sessionStorage, which is only there to survive a reload
+  //   - the readiness flag that ungates submit
+  // The old code updated sessionStorage alone, so the debrief rendered an empty answer for the
+  // whole of every on-the-fly question. See ATTACH_MODEL_ANSWER in lib/study-session.ts.
+  const applyModelAnswer = useCallback((patch: ModelAnswerPatch) => {
+    if (!patch.modelAnswer) return;
+    modelAnswerTextRef.current = patch.modelAnswer;
+    dispatch({ type: "ATTACH_MODEL_ANSWER", answer: patch });
+    try {
+      const stored = sessionStorage.getItem("mw-current-question");
+      if (stored) {
+        const q = JSON.parse(stored);
+        sessionStorage.setItem(
+          "mw-current-question",
+          JSON.stringify({
+            ...q,
+            modelAnswer: patch.modelAnswer,
+            hasModelAnswer: true,
+            ...(patch.proposedAnnotation ? { proposedAnnotation: patch.proposedAnnotation } : {}),
+            ...(patch.studyDiagramAssist ? { studyDiagramAssist: patch.studyDiagramAssist } : {}),
+          })
+        );
+      }
+    } catch {}
+    modelAnswerReadyRef.current = true;
+    setModelAnswerReady(true);
+  }, []);
 
   // Seed the session pace from the user's saved default (does not touch a flight already underway).
   useEffect(() => {
@@ -178,19 +215,18 @@ export default function StudyPage() {
             .then((r) => r.json())
             .then((d) => {
               if (d.success && d.question?.model_answer) {
-                const updated = {
-                  ...question,
+                applyModelAnswer({
                   modelAnswer: d.question.model_answer,
                   proposedAnnotation: d.question.proposed_annotation,
-                  reasoningTrace: d.question.reasoning_trace,
                   studyDiagramAssist: d.question.study_diagram_assist,
-                };
-                sessionStorage.setItem("mw-current-question", JSON.stringify(updated));
-                setModelAnswerReady(true);
+                });
               }
             })
             .catch(() => {});
         } else {
+          // Resuming a question whose answer was already in the snapshot — seed the grading ref
+          // from it, since applyModelAnswer will never run for this attempt.
+          modelAnswerTextRef.current = question.modelAnswer ?? "";
           modelAnswerReadyRef.current = true;
         }
       } catch {
@@ -199,7 +235,7 @@ export default function StudyPage() {
     } else {
       router.push("/practical/dry-flights");
     }
-  }, [router]);
+  }, [router, applyModelAnswer]);
 
   // Create attempt once auth is loaded — ensures user_id is never null
   useEffect(() => {
@@ -341,7 +377,14 @@ export default function StudyPage() {
         });
         const data = await res.json();
         if (data.ready) {
-          setModelAnswerReady(true);
+          // Install the text, not just the flag. This poll is the safety net for the case where
+          // the on-mount generate call never resolves (tab backgrounded, request dropped, or the
+          // server-side background writer got there first).
+          applyModelAnswer({
+            modelAnswer: data.modelAnswer,
+            proposedAnnotation: data.proposedAnnotation,
+            studyDiagramAssist: data.studyDiagramAssist,
+          });
           if (modelAnswerPollRef.current) {
             clearInterval(modelAnswerPollRef.current);
           }
@@ -352,7 +395,7 @@ export default function StudyPage() {
     return () => {
       if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
     };
-  }, [modelAnswerReady, state]);
+  }, [modelAnswerReady, state, applyModelAnswer]);
 
   // Handle pre-glass reasoning submission
   const handleReasoningSubmit = useCallback(
@@ -461,14 +504,11 @@ export default function StudyPage() {
     async (answer: string, inputMethod: "typed" | "voice" = "typed") => {
       if (state.step !== "feedback" && state.step !== "answer") return;
 
-      const stored = sessionStorage.getItem("mw-current-question");
-      let modelAnswer = "";
-      if (stored) {
-        try {
-          const q = JSON.parse(stored);
-          modelAnswer = q.modelAnswer || "";
-        } catch {}
-      }
+      // The live answer, maintained by applyModelAnswer (and seeded at mount when resuming a
+      // question that already had one). Previously this re-read sessionStorage — the only consumer
+      // wired to the copy that actually got updated, which is why grading kept working while the
+      // debrief showed nothing.
+      const modelAnswer = modelAnswerTextRef.current;
 
       const wineAppearances = state.question.wines
         .filter((w) => w.appearance)
@@ -616,7 +656,14 @@ export default function StudyPage() {
             if (data.ready) {
               clearInterval(poll);
               setWaitingForModel(false);
-              setModelAnswerReady(true);
+              // Install BEFORE grading. applyModelAnswer sets modelAnswerTextRef synchronously,
+              // which is exactly why grading reads the ref and not `state.question` — the dispatch
+              // on the line above has not been applied by the time this call reads it.
+              applyModelAnswer({
+                modelAnswer: data.modelAnswer,
+                proposedAnnotation: data.proposedAnnotation,
+                studyDiagramAssist: data.studyDiagramAssist,
+              });
               runFinalEvaluationRef.current(answer, inputMethod);
             }
           } catch {}
@@ -666,12 +713,14 @@ export default function StudyPage() {
         hasWineResearch: false,
         modelAnswer: q.model_answer || "",
         proposedAnnotation: q.proposed_annotation || "",
-        reasoningTrace: q.reasoning_trace || "",
         studyDiagramAssist: q.study_diagram_assist || "",
         year: null,
       };
 
       sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+      // Seed the grading ref from the swapped-in question. A banked question arrives with its
+      // answer already attached; a fresh one arrives empty and applyModelAnswer fills it in below.
+      modelAnswerTextRef.current = question.modelAnswer;
       setModelAnswerReady(data.hasModelAnswer);
       dispatch({ type: "SELECT_QUESTION", question });
 
@@ -705,7 +754,13 @@ export default function StudyPage() {
         })
           .then((r) => r.json())
           .then((d) => {
-            if (d.success) setModelAnswerReady(true);
+            if (d.success && d.question?.model_answer) {
+              applyModelAnswer({
+                modelAnswer: d.question.model_answer,
+                proposedAnnotation: d.question.proposed_annotation,
+                studyDiagramAssist: d.question.study_diagram_assist,
+              });
+            }
           })
           .catch(() => {});
       }
@@ -714,7 +769,7 @@ export default function StudyPage() {
     } finally {
       setIsGeneratingFresh(false);
     }
-  }, [state]);
+  }, [state, applyModelAnswer]);
 
   // Handle next question
   const handleNextQuestion = useCallback(() => {
@@ -724,6 +779,9 @@ export default function StudyPage() {
     setTastingProvenance([]);
     setTastingLoading(false);
     setModelAnswerReady(false);
+    // Clear alongside the flag, or the next question would be graded against this one's answer.
+    modelAnswerTextRef.current = "";
+    modelAnswerReadyRef.current = false;
     setWaitingForModel(false);
     setAttemptId(null);
     setPreGlassReasoning("");
@@ -756,6 +814,9 @@ export default function StudyPage() {
     setActiveWineStart(0);
     setPaceResult(null);
     setModelAnswerReady(false);
+    // Same reason as handleNextQuestion: the outgoing question's answer must not survive the swap.
+    modelAnswerTextRef.current = "";
+    modelAnswerReadyRef.current = false;
     setAttemptId(null);
     if (modelAnswerPollRef.current) clearInterval(modelAnswerPollRef.current);
 
@@ -785,12 +846,14 @@ export default function StudyPage() {
         hasWineResearch: false,
         modelAnswer: q.model_answer || "",
         proposedAnnotation: q.proposed_annotation || "",
-        reasoningTrace: q.reasoning_trace || "",
         studyDiagramAssist: q.study_diagram_assist || "",
         year: null,
       };
 
       sessionStorage.setItem("mw-current-question", JSON.stringify(question));
+      // Seed the grading ref from the swapped-in question. A banked question arrives with its
+      // answer already attached; a fresh one arrives empty and applyModelAnswer fills it in below.
+      modelAnswerTextRef.current = question.modelAnswer;
       setModelAnswerReady(data.hasModelAnswer);
       dispatch({ type: "SELECT_QUESTION", question });
 
@@ -821,13 +884,21 @@ export default function StudyPage() {
           }),
         })
           .then((r) => r.json())
-          .then((d) => { if (d.success) setModelAnswerReady(true); })
+          .then((d) => {
+            if (d.success && d.question?.model_answer) {
+              applyModelAnswer({
+                modelAnswer: d.question.model_answer,
+                proposedAnnotation: d.question.proposed_annotation,
+                studyDiagramAssist: d.question.study_diagram_assist,
+              });
+            }
+          })
           .catch(() => {});
       }
     } catch (err) {
       console.error("Flag load-next error:", err);
     }
-  }, [state, evalStream, timer, studyMode]);
+  }, [state, evalStream, timer, studyMode, applyModelAnswer]);
 
   // "Back to paper" escape hatch after a flag — clear the current question and return to the picker.
   const handleBackToPaper = useCallback(() => {
@@ -1275,6 +1346,7 @@ export default function StudyPage() {
                 onNextQuestion={handleNextQuestion}
                 tastingNotes={tastingNotes}
                 provenance={tastingProvenance}
+                pending={!modelAnswerReady}
               />
               {/* Flag Question (feature): debrief footer control — shown only now the wines are
                   revealed. Withdraws the question from rotation and swaps in a fresh one. */}

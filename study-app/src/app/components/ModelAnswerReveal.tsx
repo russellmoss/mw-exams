@@ -65,6 +65,11 @@ interface ModelAnswerRevealProps {
   tastingNotes?: string[];
   /** Where each note's reference profile came from, in flight order. */
   provenance?: WineProvenance[];
+  /**
+   * The answer is still being written in the background. Distinguishes "wait a moment" from
+   * "this never arrived" — without it a pending answer and a failed one render the same dead end.
+   */
+  pending?: boolean;
 }
 
 export function ModelAnswerReveal({
@@ -72,6 +77,7 @@ export function ModelAnswerReveal({
   onNextQuestion,
   tastingNotes,
   provenance,
+  pending = false,
 }: ModelAnswerRevealProps) {
   const parsed = cleanModelAnswer(question.modelAnswer || "");
   const hasModelAnswer = parsed.answer.length > 0;
@@ -219,12 +225,24 @@ export function ModelAnswerReveal({
         </details>
       )}
 
-      {/* No model answer fallback */}
+      {/* No model answer yet — still being written, or genuinely absent */}
       {!hasModelAnswer && (
         <div className="bg-card rounded-xl border border-border p-6 text-center">
-          <p className="text-muted text-sm">
-            No model answer available for this question yet.
-          </p>
+          {pending ? (
+            <div className="flex items-center justify-center gap-3">
+              <span
+                className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-border border-t-accent"
+                aria-hidden="true"
+              />
+              <p className="text-muted text-sm" role="status">
+                The model answer is still being written — it will appear here in a moment.
+              </p>
+            </div>
+          ) : (
+            <p className="text-muted text-sm">
+              No model answer available for this question yet.
+            </p>
+          )}
         </div>
       )}
 
