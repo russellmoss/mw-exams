@@ -31,6 +31,7 @@ import { noteCompletenessViolations, type TastingValidationWine } from "./tastin
 import {
   WINE_RARITY_TIERS,
   FORTIFIED_CATEGORY_INTEGRITY,
+  ZERO_PRECEDENT_ORIGINS,
   type WineRarityRule,
   type FortifiedCategoryIntegrity,
 } from "./db";
@@ -694,6 +695,14 @@ function matchFortifiedIntegrity(w: AuditWine): FortifiedCategoryIntegrity | nul
   return FORTIFIED_CATEGORY_INTEGRITY.find((rule) => rule.match.test(hay)) || null;
 }
 
+// The origin nobody has seen (Slovenia / the Brda–Collio amber belt, seeded in db.ts). Returns the
+// matched origin's label so a violation can name it; null when the wine reads as a normal origin. Uses
+// the same combined descriptor as the rarity rules, so region, country, label and grape all count.
+function matchZeroPrecedentOrigin(w: AuditWine): string | null {
+  const hay = rarityHaystack(w);
+  return ZERO_PRECEDENT_ORIGINS.find((rule) => rule.match.test(hay))?.label ?? null;
+}
+
 export function validateRarityBudget(q: QuestionForAudit): Violation[] {
   const wines = q.wines || [];
   if (wines.length === 0) return [];
@@ -958,6 +967,28 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
   const total =
     q.totalMarks && q.totalMarks > 0 ? q.totalMarks : parts.reduce((s, p) => s + p.marks, 0);
   const v: Violation[] = [];
+
+  // (0) Zero-precedent origin. When EVERY wine in the flight is from an origin nobody has seen in the
+  //     recorded papers (Slovenia / the Brda–Collio amber belt, seeded in db.ts), identification is
+  //     near-impossible — and the real exam responds by taking the ID marks off the table entirely,
+  //     not by pricing them. 2019 P1 Q3 tells the candidate "do not spend time thinking about the
+  //     wine's specific origin"; 2017 P3 Q2 says "consider wine 4 to be of unknown origin". So an ID
+  //     ask over an all-zero-precedent flight is the defect, at ANY mark level: the marks belong on
+  //     style, winemaking, quality and commercial. Fires ahead of the share/part-size arms because it
+  //     is a stronger, wine-side signal than "too many marks on a reachable ID", and it has zero
+  //     false positives on the real corpus by construction — these origins never appear in it.
+  const wines = q.wines || [];
+  if (wines.length > 0) {
+    const origins = wines.map(matchZeroPrecedentOrigin);
+    if (origins.every((o) => o !== null)) {
+      const label = [...new Set(origins as string[])].join("; ");
+      v.push({
+        rule: "zero-precedent-origin-id",
+        severity: "hard",
+        detail: `the flight asks the candidate to identify the grape variety/region/origin (${idMarks} marks) of wines whose origin — ${label} — has no precedent in the recorded MW papers. When the exam pours a never-seen origin it suppresses identification ("do not spend time thinking about the wine's specific origin", 2019 P1 Q3; "consider wine 4 to be of unknown origin", 2017 P3 Q2) and weights style, winemaking, quality and commercial. Move these marks to those parts.`,
+      });
+    }
+  }
 
   // (a) A single identification part. Hard above what the real exam has ever paid for one, soft above
   //     its p90 — "15 marks to identify the region" is real, "60 marks" is not.

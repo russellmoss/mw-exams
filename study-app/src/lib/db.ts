@@ -870,6 +870,53 @@ export const FORTIFIED_CATEGORY_INTEGRITY: FortifiedCategoryIntegrity[] = [
   },
 ];
 
+// ── Zero-precedent origins: identification must be suppressed, not priced (P1 F2 feedback) ─────────
+//
+// gen_p1_F2_1786073614804 set a 2-wine same-origin flight of two curveballs from the Brda–Collio
+// amber belt — a region that returns NOTHING across 162 real MW practical papers (2011–2025). The
+// wines are legitimate to POUR (every curveball has a first appearance: Georgia's Chinuri debuted in
+// 2019, Uruguayan Tannat in 2019, Moschofilero in 2024), but the question then put 20 of its 50 marks
+// (40%) on region + variety identification that no candidate can make from an origin nobody has seen.
+//
+// The decisive precedent is HOW the IMW actually deploys an unprecedented origin: it takes the
+// identification marks off the table.
+//   • 2019 P1 Q3 — Iago's Chinuri (Kartli, Georgia): "Discuss the wine's style, quality and commercial
+//     potential. Do not spend time thinking about the wine's specific origin." Origin/variety not asked.
+//   • 2017 P3 Q2 — Cullen "Amber" skin-contact: "consider wine 4 to be of unknown origin"; marks on
+//     winemaking, style, quality and market.
+//   • 2023 P3 Q3 — dry Tokaji Furmint paired with a 5-Puttonyos Aszú, weighted to style/method/quality.
+//
+// So this is NOT an examPrecedent-false blocklist (that would forbid the first appearance the exam
+// itself allows). It is an ORIGIN list that, when EVERY wine in a flight is from one of these
+// never-seen origins, forbids the stem from ASKING for grape-variety / region / origin identification:
+// the marks must sit on style, winemaking, quality and commercial, exactly as the three papers above.
+//
+// Admin-editable, single source of truth (like WINE_RARITY_TIERS): each `match` is tested
+// case-insensitively, accents stripped, against a wine's combined fullText / region / country /
+// variety / style descriptor. Add an origin here only once a complete-corpus search returns nothing
+// for it; remove it the first time the Institute pours it.
+export interface ZeroPrecedentOrigin {
+  /** Stable id an admin can reference when retagging. */
+  id: string;
+  /** Human label for the origin this rule tags. */
+  label: string;
+  /** Matched against the wine's combined, normalised descriptor. */
+  match: RegExp;
+}
+
+export const ZERO_PRECEDENT_ORIGINS: ZeroPrecedentOrigin[] = [
+  // The Brda–Collio amber belt straddling the Slovenia/Italy border. Neither Slovenia nor its Italian
+  // twin (Collio, Colli Orientali) appears anywhere in the recorded papers, and the belt's signature
+  // grapes — Ribolla Gialla / Rebula and Friulano (Tocai Friulano) — are absent as well, so any of
+  // those tokens fingerprints an origin the candidate has no route to.
+  {
+    id: "brda-collio-amber-belt",
+    label: "Brda–Collio amber belt (Slovenia / Collio / Colli Orientali)",
+    match:
+      /\bslovenia\b|\bslovenian\b|\bbrda\b|goriska\s*brda|\bcollio\b|colli\s*orientali|ribolla\s*gialla|\brebula\b|\bfriulano\b|tocai\s*friulano/,
+  },
+];
+
 export const RECENT_WINE_WINDOW = 20;
 export const RECENT_FLIGHT_WINDOW = 50;
 
