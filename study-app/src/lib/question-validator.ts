@@ -534,7 +534,13 @@ const BANKER_SIGNALS: BankerSignal[] = [
   { region: /rutherglen/, variety: /muscat|muscadelle|topaque|tokay/ },
   { region: /\bnapa\b|sonoma|russian river|carneros/ },
   { region: /willamette/, variety: /pinot noir/ },
-  { region: /\bmendoza\b|\buco\b/, variety: /malbec/ },
+  // NB: Mendoza/Uco Malbec is deliberately NOT a banker. Per EK-0029 (STRONG SIGNAL) the anchor of a
+  // 3+ wine flight has to be a wine the candidate knows cold at classified/benchmark level (Bordeaux
+  // classed growth, Barolo, 1er Cru Burgundy, Rioja Gran Reserva, Marlborough Sauvignon). A bare
+  // regional Mendoza Malbec reads as a competent but standard wine, not the route-to-country anchor —
+  // and the region+variety detector can't tell an iconic single-vineyard from a supermarket bottling —
+  // so it fails safe to curveball. (Flagged on gen_p2_F6_1779988985396, a bankerless 4-wine P2 flight
+  // that had been passing only because this signal miscounted its Mendoza Malbec as the banker.)
   { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
   { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
 ];

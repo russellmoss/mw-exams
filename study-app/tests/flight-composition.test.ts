@@ -53,6 +53,11 @@ describe("banker classification", () => {
     for (const c of CURVEBALLS) expect(isBanker(c)).toBe(false);
     expect(isBanker({ slot: 1, varieties: [], region: "", country: "" })).toBe(false);
   });
+  it("does not treat a bare regional Mendoza Malbec as a banker (EK-0029)", () => {
+    // gen_p2_F6_1779988985396 slipped through because this counted as the flight's banker; a
+    // standard Mendoza Malbec is not the classified/benchmark anchor EK-0029 requires.
+    expect(isBanker({ slot: 1, varieties: ["Malbec"], region: "Mendoza", country: "Argentina" })).toBe(false);
+  });
 });
 
 describe("flight-composition rule", () => {
