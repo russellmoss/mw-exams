@@ -265,8 +265,14 @@ function markScopeForHeader(header, wineCount) {
   // A SINGLE named wine — "For wine 4:", "For this wine:". One wine, so marks count once.
   if (/^for\s+(?:this\s+wine|wine\s+\d+)\b/.test(h)) return { kind: "each", count: 1 };
 
-  // DISTRIBUTIVE over the whole flight — "For each wine:", "Then for each wine:".
-  if (/\beach\s+wine\b/.test(h)) return { kind: "each", count: wineCount };
+  // DISTRIBUTIVE over the whole flight — "For each wine:", "Then for each wine:", and the long form
+  // "For each of the four wines" (2014 P1 Q1, 2014 P1 Q2). The long form used to fall through this
+  // test — "each of the four wines" does not match `each\s+wine` — and was then caught by the
+  // NUM_WORDS_IN_HEADER fallback below and mis-classified POOLED, i.e. the exact opposite of what it
+  // says. It stayed invisible because every sub-part under it carries an explicit "(4 x 5 marks)"
+  // multiplier, so the wrong scope never changed a mark total; R12 reads the scope itself, so it
+  // surfaced immediately as a false positive on a real 2014 question.
+  if (/\beach\s+(?:of\s+(?:the\s+)?(?:\w+\s+)?)?wines?\b/.test(h)) return { kind: "each", count: wineCount };
 
   // "With reference to all N wines" already matched pooled above; anything else naming a number
   // without "each" is pooled too ("For both wines").
@@ -786,12 +792,31 @@ export const GROUND_TRUTH_INDEPENDENT_RULES = [
   "MARKS_BELOW_FLOOR",
   "excluded-producer",
   "part-task-repertoire",
+  "pooled-block-marked-per-wine",
+  "pooled-block-per-wine-task",
   "shared-variety-marked-per-wine",
   "single-wine-flight",
   "stem-preannounces-discriminator",
   "stem-too-wordy",
   "sweetness-out-of-paper",
 ];
+
+// --- R12 shapes (see the rule body for the argument) ---------------------------------------------
+// Non-global twin of SCOPE_HEADER_RE, so R12 can test one line at a time without the shared global's
+// lastIndex leaking between calls. Built from the same source so the header vocabulary cannot drift.
+const HEADER_LINE_RE = new RegExp(SCOPE_HEADER_RE.source, "i");
+// "the grape variety OF EACH WINE" — the ANSWER is per-wine. This is the defect under a pooled header.
+const PER_WINE_OBJECT_RE = /\b(?:of|for)\s+each\s+wine\b/i;
+// "identify the grape variety, WITH REFERENCE TO EACH WINE" — the answer is shared and the EVIDENCE is
+// per-wine. Real and legitimate: 2012 P3 Q4 ("with reference to each wine", 12 marks) and 2021 P2 Q1
+// ("referencing each wine", 15 marks) both do exactly this, under a pooled header, with a flat mark.
+const PER_WINE_EVIDENCE_RE =
+  /(?:with\s+reference\s+to|referencing|by\s+reference\s+to|drawing\s+on)\s+each\b|\bin\s+each\s+case\b/i;
+// Determinate identification verbs only. A pooled EVALUATIVE part may legitimately range over each
+// wine — 2024 P3 Q2 c) "Comment on the quality and commercial potential of each wine. (20 marks)" is
+// one pooled 20-mark answer that happens to mention both. Restricting to identify/name/state is what
+// keeps those three real questions out of the net.
+const DETERMINATE_ID_PART_RE = /^\s*\(?[a-h]\)\s*(?:identify|name|state)\b/i;
 
 /**
  * Run the shared contradiction rules against a (normalized) question.
@@ -994,6 +1019,83 @@ export function applyQuestionRules(q, opts = {}) {
         });
         break; // one verdict per stem — the first offending part is the one to fix
       }
+    }
+  }
+
+  // R12 — the MIRROR of R11. R11 catches a shared property marked per wine; this catches a per-wine
+  // property pooled under a flight-wide header.
+  //
+  // A pooled block ("With reference to all four wines:", "For both wines:", "Considering both wines
+  // together:") buys ONE shared answer, so in the real corpus its sub-parts always carry a FLAT mark
+  // and always ask for a single thing the stem has already established the wines share — "Identify
+  // the grape variety. (16 marks)" under "Wines 3-6 are from the same single grape variety" (2023 P1
+  // Q2); "Identify the country of origin. (16 marks)" under "Wines 1-4 come from the same country"
+  // (2014 P1 Q1). Measured over all 162 historical questions: 66 pooled blocks, and NOT ONE carries
+  // an "N x M" mark token or hangs a determinate per-wine identification off the pooled header.
+  //
+  // The generator produces both malformations, and the reviewer filed the same complaint six times in
+  // one sitting (attempts #469, #471, #473, #476, #477, #478 — "any time you have a Part A that's
+  // going to reference all three wines, there has to be some sort of commonality across the wines"):
+  //   "With reference to all four wines:  a) Identify the grape variety of each wine. (16 marks)"
+  // The header promises one answer; "of each wine" wants four; the flat 16 pays for one. Worse, the
+  // stem that precedes it says the four wines are "each made predominantly from a DIFFERENT, single
+  // grape variety" — so the pooled framing asserts a commonality its own stem denies. There is no way
+  // to answer it as written, and the Split Sections renderer has nothing to group on.
+  //
+  // Both halves are ground-truth independent (they read only questionText), which matters here: the
+  // cohort that carries this defect is largely unkeyed, and a rule that needed an answer key would
+  // have skipped exactly the rows that have the bug.
+  if (wines.length >= 2) {
+    // Break inline sub-part markers onto their own lines (mirrors R11 and question-sections.ts).
+    const lined = (q.questionText || "").replace(/\s+\(?([a-h])\)\s+/gi, "\n$1) ");
+    let pooled = false;
+    let markedPerWine = false;
+    let taskedPerWine = false;
+    for (const raw of lined.split("\n")) {
+      if (!raw.trim()) continue;
+      const header = raw.match(HEADER_LINE_RE);
+      if (header) {
+        // Reuse the one header classifier the mark expander uses, so "For each wine" vs "For all
+        // three wines" is decided in exactly one place.
+        const scope = markScopeForHeader(header[1], wines.length);
+        if (scope) {
+          pooled = scope.kind === "pooled";
+          continue;
+        }
+      }
+      if (!pooled) continue;
+      const part = raw.match(/^\s*\(?([a-h])\)\s*(.*)$/i);
+      if (!part) continue;
+
+      // (a) An explicit per-wine multiplier under a pooled header. Self-contradictory on its face —
+      // the header says one answer, the marks say N. Zero occurrences in the corpus.
+      const mult = raw.match(/\(\s*(\d+)\s*[x×]\s*\d+\s*(?:marks?)?\s*\)/i);
+      if (mult && !markedPerWine) {
+        markedPerWine = true;
+        v.push({
+          rule: "pooled-block-marked-per-wine",
+          severity: "hard",
+          detail: `sub-part ${part[1].toLowerCase()}) sits under a flight-wide header but carries a per-wine mark ("${mult[0].trim()}") — a pooled block is answered once and pays once. Either give it a flat mark, or move the part under "For each wine:".`,
+        });
+      }
+
+      // (b) A determinate identification whose OBJECT is per-wine, under a pooled header. Excludes
+      // the evidential form ("identify the grape variety, with reference to each wine"), which is a
+      // shared answer justified from every glass and is real corpus usage.
+      if (
+        !taskedPerWine &&
+        DETERMINATE_ID_PART_RE.test(raw) &&
+        PER_WINE_OBJECT_RE.test(part[2]) &&
+        !PER_WINE_EVIDENCE_RE.test(part[2])
+      ) {
+        taskedPerWine = true;
+        v.push({
+          rule: "pooled-block-per-wine-task",
+          severity: "hard",
+          detail: `sub-part ${part[1].toLowerCase()}) asks to identify something "${(part[2].match(PER_WINE_OBJECT_RE) || [""])[0]}" under a flight-wide header — a pooled part must ask for ONE thing the stem establishes the wines share (e.g. "Identify the grape variety. (16 marks)" for a same-variety flight). Move the per-wine identification under "For each wine:" with an "N x M marks" allocation, or drop the pooled header.`,
+        });
+      }
+      if (markedPerWine && taskedPerWine) break;
     }
   }
 
