@@ -39,6 +39,9 @@ on:
       - "data/stem_style_lexicon*"
       - "data/variety_lexicon*"
       - "data/appellation_varieties*"
+      # Itself, so a change to this workflow is exercised by the very push that makes it — the only
+      # way to find out it was a no-op was to watch a run that should have done something.
+      - ".github/workflows/corpus-reaudit.yml"
   workflow_dispatch:
 
 permissions:
@@ -82,6 +85,13 @@ jobs:
       - name: What changed
         id: changed
         run: |
+          # A human dispatching this wants a re-audit, full stop. Diffing the last commit would decide
+          # on whatever happened to land most recently, which has nothing to do with why they clicked.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "manual dispatch — re-auditing unconditionally"
+            echo "rules=1" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           CHANGED=$(git diff --name-only HEAD^ HEAD 2>/dev/null || true)
           echo "changed files:"; echo "${CHANGED:-<unavailable>}"
           if [ -z "$CHANGED" ]; then

@@ -66,6 +66,16 @@ describe("corpus-reaudit workflow", () => {
     );
   });
 
+  it("re-audits unconditionally on a manual dispatch", () => {
+    // Diffing the last commit on a dispatch decides on whatever happened to land most recently, which
+    // has nothing to do with why a human clicked the button.
+    expect(yml()).toMatch(/workflow_dispatch"\s*\]\s*;\s*then[\s\S]{0,200}rules=1/);
+  });
+
+  it("watches itself, so a change to it is exercised by the push that makes it", () => {
+    expect(yml()).toContain(".github/workflows/corpus-reaudit.yml");
+  });
+
   it("runs the audit through ts-loader", () => {
     // Without it, question-validator.ts's extensionless imports throw ERR_MODULE_NOT_FOUND and the
     // sweep goes dark with a green tick — the 2026-08-07 failure mode.
