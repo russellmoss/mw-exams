@@ -12,7 +12,7 @@
 import { readFileSync } from "node:fs";
 import { neon } from "@neondatabase/serverless";
 import { selectImportableStems } from "@/lib/historical-stems";
-import { flightCompositionViolations, validateOldWorldAnchor } from "@/lib/question-validator";
+import { flightCompositionViolations, validateOldWorldAnchor, flightAnchorPairingViolations } from "@/lib/question-validator";
 import "@/lib/appellation-resolver";
 import { winesFromText } from "@/lib/question-rules.mjs";
 
@@ -46,6 +46,7 @@ const CANDIDATES = [
   ["flight-composition:zero-banker", (q) => flightCompositionViolations(q.wines).filter((v) => /has no banker/.test(v.detail))],
   ["flight-composition:over-curveball", (q) => flightCompositionViolations(q.wines).filter((v) => !/has no banker/.test(v.detail))],
   ["old-world-anchor (R-OW-ANCHOR)", (q) => validateOldWorldAnchor(q)],
+  ["flight-anchor-pairing", (q) => flightAnchorPairingViolations(q.wines)],
 ];
 
 function tally(rows) {

@@ -9,7 +9,7 @@
 // ONLY from the answer key, so on any unkeyed row every gate in the table was skipped and the region
 // alone promoted the wine. Two grape indicators then made it worse by never matching at all.
 import { describe, it, expect } from "vitest";
-import { isBanker, flightCompositionViolations, type AuditWine } from "@/lib/question-validator";
+import { isBanker, flightCompositionViolations, matchesAnchorPair, type AuditWine } from "@/lib/question-validator";
 import { detectPrimaryVariety, canonVariety } from "@/lib/question-rules.mjs";
 import "@/lib/appellation-resolver";
 
@@ -134,5 +134,43 @@ describe("flight composition, end to end", () => {
       "Domaine Rolet, Savagnin Ouillé. Côtes du Jura, France.",
     ].map((t, i) => ({ ...label(t), slot: i + 1 }));
     expect(flightCompositionViolations(flight)).toEqual([]);
+  });
+});
+
+// ── The anchor-pairing matcher must abstain on an unresolved variety ──────────────────────────────
+//
+// matchingAnchorPair shipped as `!!variety && p.variety.test(variety)`, so a wine whose grape the
+// label does not state was refused its pairing however classic its origin. A Bordeaux label names no
+// grape, and the Bordeaux pair gates on cabernet|merlot — so Château Lynch Bages (Pauillac), Nenin
+// (Pomerol), Léoville Barton (St Julien) and Berliquet (St Émilion) all read as "no anchor".
+//
+// It is the same bug isBanker's own comment records having already fixed, where an unresolved variety
+// vetoing a region match was "the single largest contributor to the 47% of real exam wines this
+// detector was calling curveballs". Measured against the real corpus, restoring the abstain took the
+// anchor rule's false-positive rate from 20.6% to 13.1% — and the residue is flights the exam really
+// does set bankerless (four Muscats in 2012 P3 Q4, Chinon + Pinotage + Lagrein in 2017 P2 Q3).
+describe("matchesAnchorPair — the unknown abstains", () => {
+  const wine = (fullText: string, region: string, varieties: string[] = []) =>
+    ({ slot: 1, fullText, region, country: "", varieties }) as Parameters<typeof matchesAnchorPair>[0];
+
+  it("anchors a Bordeaux classed growth whose label names no grape", () => {
+    expect(matchesAnchorPair(wine("Château Lynch Bages. 2006. Pauillac, Bordeaux, France.", "Pauillac"))).toBe(true);
+    expect(matchesAnchorPair(wine("Château Nenin. 2008. Pomerol, Bordeaux, France.", "Pomerol"))).toBe(true);
+  });
+
+  it("still vetoes a RESOLVED variety that does not belong to the region", () => {
+    // The rule's whole purpose — a banker grape in an atypical origin is not an anchor. Only the
+    // unknown abstains; a grape we can actually read still has to fit.
+    expect(matchesAnchorPair(wine("Chardonnay, Coonawarra, Australia.", "Coonawarra", ["chardonnay"]))).toBe(false);
+  });
+
+  it("recognises non-Champagne traditional method as an anchor", () => {
+    // 2023 P3 Q1 is "traditional method sparkling wines from four different countries. None is from
+    // Champagne" — Cava, Crémant d'Alsace, Nyetimber, Rheingau Sekt. With Champagne as the only
+    // sparkling anchor the stem forbade the one thing that could satisfy the rule, and the re-import
+    // of that question failed three times on "flight has NO anchor".
+    expect(matchesAnchorPair(wine("Recaredo, Terrers Brut Nature. Corpinnat, Penedès, Spain.", "Penedès"))).toBe(true);
+    expect(matchesAnchorPair(wine("Clément Klur, Brut NV. Crémant d'Alsace, France.", "Crémant d'Alsace"))).toBe(true);
+    expect(matchesAnchorPair(wine("Schloss Reinhartshausen, Riesling Extra Brut Sekt. Rheingau, Germany.", "Rheingau", ["riesling"]))).toBe(true);
   });
 });

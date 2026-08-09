@@ -933,6 +933,18 @@ export const ANCHOR_PAIRS: AnchorPair[] = [
   { variety: /grenache|syrah|shiraz|mourvedre/, region: /chateauneuf/, exclude: /\bblanc\b/, label: "Grenache/Syrah × Châteauneuf-du-Pape" },
   { variety: /gamay/, region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent|\bbrouilly\b|\bjulienas\b/, label: "Gamay × Beaujolais" },
   { region: /\bchampagne\b/, label: "Champagne (region-only)" },
+  // ── Traditional-method sparkling that is NOT Champagne ──
+  //
+  // Champagne alone made every non-Champagne sparkling flight anchorless, and the exam sets those
+  // deliberately: 2023 P3 Q1 is "Wines 1-4 are traditional method sparkling wines from four different
+  // countries. NONE IS FROM CHAMPAGNE" over Cava, Crémant d'Alsace, Nyetimber and a Rheingau Sekt.
+  // The stem forbids the only anchor the table recognised, so the question was unsatisfiable — the
+  // re-import of that very question failed three times on "flight has NO anchor" before this existed.
+  // Each of these is the benchmark expression of its country, which is what an anchor is for.
+  { region: /\bcava\b|corpinnat/, label: "Cava / Corpinnat (region-only, traditional method)" },
+  { region: /cremant/, label: "Crémant (region-only, traditional method)" },
+  { region: /franciacorta|trentodoc|\btrento\b/, label: "Franciacorta / Trentodoc (region-only)" },
+  { region: /\bsekt\b/, exclude: /deutscher sekt\b/, label: "Sekt (region-only, the German/Austrian benchmark)" },
   { region: /\bsancerre\b/, label: "Sancerre (region-only anchor for the Loire)" },
   { region: /muscadet/, label: "Muscadet (Melon de Bourgogne, region-only)" },
   { region: /\bsauternes\b|\bbarsac\b/, exclude: /blanc\s*sec/, label: "Sauternes / Barsac (region-only, sweet)" },
@@ -990,7 +1002,20 @@ export function matchingAnchorPair(w: AuditWine): AnchorPair | null {
       (p) =>
         p.region.test(origin) &&
         !(p.exclude && p.exclude.test(origin)) &&
-        (p.variety ? !!variety && p.variety.test(variety) : true),
+        // AN UNRESOLVED VARIETY DOES NOT VETO A REGION MATCH — the same clause isBanker carries, and
+        // for the same reason it carries it. This read `!!variety && p.variety.test(variety)`, so any
+        // wine whose grape the label does not state was refused its pairing however classic its
+        // origin: Château Lynch Bages (Pauillac), Château Nenin (Pomerol), Léoville Barton (St
+        // Julien), Berliquet (St Émilion) all failed the Bordeaux pair, which gates on cabernet|merlot
+        // and a Bordeaux label names no grape. Measured against the real corpus, this clause alone was
+        // most of a 20.6% false-positive rate — and it is the precise bug isBanker's comment records
+        // having already fixed once, where it was "the single largest contributor to the 47% of real
+        // exam wines this detector was calling curveballs".
+        //
+        // The rule's purpose survives: it exists to catch a banker GRAPE in an atypical region, and a
+        // RESOLVED variety still vetoes (Chardonnay in Coonawarra is not a Cabernet×Coonawarra
+        // anchor). Only the unknown abstains, rather than counting against the flight.
+        (!p.variety || !variety || p.variety.test(variety)),
     ) ?? null
   );
 }
