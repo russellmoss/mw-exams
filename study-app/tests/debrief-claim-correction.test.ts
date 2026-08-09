@@ -104,6 +104,32 @@ vi.mock("@/lib/prompts/tasting-lexicon", () => ({
   scanDislikedWording: () => [],
   buildLexiconCritiqueGuidance: () => "",
 }));
+// The persona layer. BOTH halves must be mocked, and the reason is worth stating because this test
+// went red in CI without them and the failure was much worse than a red test:
+//
+//   `userId: 1` is a REAL production row. On the Vercel build machine DATABASE_URL and GROK_API_KEY
+//   are both set, so `getUserPersona(1)` read the production database during `npm run build`, found
+//   that user had chosen Unhinged, and `restyleForPersona` then made a live, billable xAI call —
+//   which re-voiced the debrief and broke the assertions further down.
+//
+// The rule this file's mock list already stated ("everything the producer touches that would
+// otherwise reach a file, a model or the DB") was right; the persona layer was simply a new thing
+// the producer touches. Anything added to produce.ts that reads the DB or calls a vendor belongs
+// here too. Note that mocking `@/lib/db` is NOT sufficient — persona-server constructs its own
+// neon() client, the same way elevenlabs-key and thinking-stream do.
+vi.mock("@/lib/persona-server", () => ({
+  getUserPersona: async () => "mentor",
+  getUserFirstName: async () => null,
+}));
+vi.mock("@/lib/persona-restyle", () => ({
+  // Never reached while the persona is the default, but stubbed so a future default change cannot
+  // silently reintroduce a paid call into the build.
+  restyleForPersona: async ({ neutralText }: { neutralText: string }) => ({
+    text: neutralText,
+    outcome: "default_persona",
+  }),
+}));
+
 vi.mock("@/lib/media", () => ({
   IMAGE_TOKEN_INSTRUCTIONS: "",
   INFOGRAPHIC_INSTRUCTIONS: "",
