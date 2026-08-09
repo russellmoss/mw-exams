@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0182).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0181).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0180).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
@@ -1389,6 +1390,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #537 / analysis #177 (accept); corpus `data/exams.json` — every printed sub-part tariff 2011–2026 is an integer; EK-0001; EK-0041
 - **claim:** Every printed IMW mark tariff is a whole number; the exam has never used a fractional sub-part value. A served P2 pair carried `2 x 7.5 marks` for part (b), which is both un-MW in form and a symptom of a deeper allocation error — its parts totalled 65 marks for two wines (32.5/wine) instead of the mandatory 50 (EK-0001, EK-0041). Generation must round every per-wine and pooled tariff to an integer, and the 25-marks-per-wine check must be applied to the sum of the printed parts, not to a separately-declared total.
 
+### EK-0182 · Appellation-only labels encode variety — same-variety checks must resolve appellation → grape
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #577 / analysis #217 (accept); EK-0040 R2 (same-variety hard rule); EK-0043 (name-label cross-check); EK-0155 (appellation resolver registered in the audit processes)
+- **claim:** A served P3 pair declared "wines 1 and 2 are made from the same single, or predominant, grape variety" over Château de Fargues Sauternes (Sémillon-dominant, blended with Sauvignon Blanc) and Coteaux du Layon Saint-Aubin (100% Chenin Blanc by appellation law) — a false premise that makes the question unanswerable. Neither label names a grape, so the EK-0043 name-label scan cannot see the contradiction: R2/R3 must resolve variety from the **appellation** (Coteaux du Layon/Vouvray → Chenin; Sauternes/Barsac → Sémillon-dominant blend; Chablis → Chardonnay) before comparing, exactly as the colour resolver had to for appellation-only names. The pairing itself is sound and corpus-realistic as a botrytis-mechanism comparison — the defect is the same-variety framing, which should be dropped or replaced with a different-variety/mechanism stem.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1460,6 +1466,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 505 | 145 | P2/F2 | accept | auto | Second report of the same defect — four-wine same-country Italian P2 flight (Aglianico del Vulture, Cirò/Gaglioppo, Valpolicella, Montepulciano d'Abruzzo) carries three hard wines against one anchor; attested Italian P2 flights pair Barolo/Chianti/Valpolicella anchors with only one curveball. Fully covered by existing entries. | EK-0179, EK-0029, EK-0162, EK-0097 |
 | 517 | 157 | P2/F3 | accept | auto | "Bordeaux varieties" stem is a closed six-variety set; Touriga Franca in the flight breaks the premise — variety-family premises need list validation | EK-0180, EK-0043, EK-0040 |
 | 537 | 177 | P2/F1 | accept | auto | fractional 7.5-mark sub-part is never used by the IMW, and the flight totalled 65 marks for 2 wines instead of 50 (personal abuse in the same submission ignored) | EK-0181, EK-0041, EK-0001 |
+| 577 | 217 | P3/F1 | accept | auto | same-variety stem premise false for two appellation-only sweet wines (Sauternes = Sémillon/SB, Coteaux du Layon = Chenin); variety checks need appellation→grape resolution (personal abuse in the submission ignored) | EK-0182, EK-0040, EK-0043, EK-0180 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
