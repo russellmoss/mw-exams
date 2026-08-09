@@ -59,6 +59,15 @@ const { logClaudeUsage } = await import("../src/lib/usage-log.ts");
 // (model-resolver is not imported here any more — selectModel resolves the opus tier through it.)
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
 const { checkWineReferenceShape, checkStemShape } = await import("../src/lib/question-rules.mjs");
+// The reviewer-loop closures (2026-08-09). A replacement for a reviewer-rejected question now (a)
+// carries the validated complaint in its prompt, (b) gets the same bin-lessons block every live
+// generation gets, and (c) inherits its predecessor's review votes as superseded rows so the
+// reviewer sees it as the answer to their complaint, not an anonymous new card. main() adds (d):
+// a question whose rule PR is still in flight is deferred, because regenerating it tonight would
+// validate the replacement under the OLD rules.
+const { getBinLessonsBlock } = await import("../src/lib/bin-lessons.ts");
+const { carryReviewsForward } = await import("../src/lib/question-review.ts");
+const { feedbackQuarantineEntries, attemptIdsFromEntries, buildComplaintBlock } = await import("./remediation-complaint.mjs");
 
 const sql = neon(process.env.DATABASE_URL);
 const APPLY = process.argv.includes("--apply");
@@ -252,8 +261,28 @@ async function genModelAnswer(questionText, wines, paper, wineProfiles) {
   }
 }
 
+// One batched query for the whole night's targets: the latest analysis per attempt, with the
+// feedback text the analysis actually ran on (the snapshot; live column for pre-009 rows).
+// apply_status/pr_url ride along for the in-flight-PR gate in main().
+async function fetchAnalysesByAttempt(attemptIds) {
+  if (attemptIds.length === 0) return new Map();
+  const rows = await sql`
+    /* theory-mode-guard: all-modes -- keyed lookup by attempt ids already stamped into
+       feedback-question quarantine flags, not an aggregate; the complaint's words matter whatever
+       mode it arrived through, and theory attempts never quarantine bank questions. */
+    SELECT DISTINCT ON (fa.attempt_id)
+      fa.attempt_id, fa.recommendation, fa.apply_status, fa.pr_url,
+      COALESCE(fa.analyzed_feedback, a.user_feedback) AS feedback_text
+    FROM feedback_analyses fa
+    JOIN user_attempts a ON a.id = fa.attempt_id
+    WHERE fa.attempt_id = ANY(${attemptIds})
+    ORDER BY fa.attempt_id, fa.updated_at DESC`;
+  return new Map(rows.map((r) => [Number(r.attempt_id), r]));
+}
+
 // Regenerate ONE valid replacement for a quarantined question. Returns {newId, key, audit} or null.
-async function remediateOne(old, existingWines, latest) {
+// `complaint` is {entries, analyses} from main() when the quarantine came from a reviewer, else null.
+async function remediateOne(old, existingWines, latest, complaint) {
   const paper = old.paper, family = old.family;
   const prompt = await buildQuestionGenerationPrompt(paper, family, existingWines, latest);
 
@@ -278,6 +307,25 @@ async function remediateOne(old, existingWines, latest) {
     // Degrade to no exclusion rather than to a failed remediation — the validator still rejects a
     // banned producer, so the worst case is the retry loop we had before.
     console.warn(`    producer-exclusion fetch failed (non-fatal): ${e.message}`);
+  }
+
+  // The bin-lessons block, exactly as the live engine appends it (question-engine.ts,
+  // generateFreshQuestion). Without it, the one path that exists to REPLACE rejected questions ran
+  // with less accumulated feedback than an ordinary "New question" click. Non-fatal by the same
+  // contract as the live path: getBinLessonsBlock returns "" when the toggle is off or empty.
+  try {
+    prompt.system += await getBinLessonsBlock();
+  } catch (e) {
+    console.warn(`    bin-lessons block failed (non-fatal): ${e.message}`);
+  }
+
+  // The validated complaint itself. Rules can only constrain what got codified; this constrains the
+  // regeneration on what the reviewer actually said, which for Kind:question accepts and cohort
+  // retirements is the ONLY signal that exists.
+  const complaintBlock = buildComplaintBlock(complaint);
+  if (complaintBlock) {
+    prompt.system += complaintBlock;
+    console.log(`    complaint context in prompt (${complaint.entries.length} quarantine entry(ies), ${complaint.analyses.length} analysis(es))`);
   }
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -518,7 +566,7 @@ async function main() {
   // the historical corpus never overshoots). Those are real defects, not cosmetic, so they are
   // regenerated through the same hardened path rather than patched in place.
   const flagged = await sql`
-    SELECT g.question_id, g.paper, g.family
+    SELECT g.question_id, g.paper, g.family, g.invalid_reasons
     FROM generated_questions g LEFT JOIN stem_answer_keys k USING (question_id)
     WHERE (k.validated = false OR g.invalid_reasons IS NOT NULL)
       AND (g.metadata->>'archived') IS DISTINCT FROM 'true'
@@ -556,8 +604,41 @@ async function main() {
 
   const seen = new Set(flagged.map((r) => r.question_id));
   const bad = [...flagged, ...malformed.filter((m) => !seen.has(m.question_id)).map(({ bad: _bad, ...r }) => r)];
-  const targets = Number.isFinite(LIMIT) ? bad.slice(0, LIMIT) : bad;
-  console.log(`Remediating ${targets.length}/${bad.length} quarantined question(s). apply=${APPLY}\n`);
+
+  // Reviewer-quarantined rows get their complaint resolved back to the analysis it came from, and
+  // rows whose rule PR is still in flight are deferred to a later night: the whole point of that PR
+  // is a validator/generation rule the replacement must be held to, and regenerating before it
+  // merges validates the replacement under the OLD rules — the flagged defect could sail straight
+  // back into the pool tonight and cost a second regeneration when the nightly audit re-flags it.
+  // 'dispatched'/'pr_opened' is apply-change.ts's own definition of in-flight; 'pr_closed' (rejected
+  // without merging) and 'quarantined' (Kind:question, no code change) proceed — for those the
+  // complaint block in the prompt is the only correction there will ever be.
+  const entriesByQ = new Map(bad.map((r) => [r.question_id, feedbackQuarantineEntries(r.invalid_reasons)]));
+  const analysesByAttempt = await fetchAnalysesByAttempt(
+    [...new Set(bad.flatMap((r) => attemptIdsFromEntries(entriesByQ.get(r.question_id))))]
+  );
+  const contexts = new Map();
+  const deferredForPr = [];
+  const actionable = [];
+  for (const r of bad) {
+    const entries = entriesByQ.get(r.question_id) || [];
+    const linked = attemptIdsFromEntries(entries).map((id) => analysesByAttempt.get(id)).filter(Boolean);
+    const inflight = linked.find((a) => a.apply_status === "dispatched" || a.apply_status === "pr_opened");
+    if (inflight) {
+      deferredForPr.push({ question_id: r.question_id, pr: inflight.pr_url || `analysis for attempt ${inflight.attempt_id} (${inflight.apply_status})` });
+      continue;
+    }
+    if (entries.length > 0) contexts.set(r.question_id, { entries, analyses: linked });
+    actionable.push(r);
+  }
+  if (deferredForPr.length) {
+    console.log(`Deferring ${deferredForPr.length} question(s) whose rule PR is still in flight (would regenerate under the OLD rules):`);
+    for (const d of deferredForPr) console.log(`  ${d.question_id} — ${d.pr}`);
+    console.log("");
+  }
+
+  const targets = Number.isFinite(LIMIT) ? actionable.slice(0, LIMIT) : actionable;
+  console.log(`Remediating ${targets.length}/${actionable.length} quarantined question(s) (${bad.length} flagged, ${deferredForPr.length} awaiting a rule PR). apply=${APPLY}\n`);
 
   const recent = await getRecentGeneratedQuestions(5);
   const latest = recent[0]
@@ -595,7 +676,8 @@ async function main() {
       const ws = typeof q.wines === "string" ? JSON.parse(q.wines) : q.wines;
       for (const w of ws) existing.push(w.fullText);
     }
-    const res = await remediateOne(old, existing, latest);
+    const complaint = contexts.get(old.question_id) || null;
+    const res = await remediateOne(old, existing, latest, complaint);
     if (!res) { console.log(`  ✗ FAILED to regenerate a valid replacement\n`); results.push({ old: old.question_id, ok: false }); continue; }
 
     if (APPLY) {
@@ -617,6 +699,19 @@ async function main() {
         UPDATE generated_questions
         SET metadata = COALESCE(metadata, '{}'::jsonb) || ${JSON.stringify({ archived: true, replaced_by: res.newId })}::jsonb
         WHERE question_id = ${old.question_id}`;
+      // Same mechanism as the wine-swap repair path: the predecessor's votes are copied across as
+      // superseded rows, so the reviewer who rejected it sees this replacement as the answer to
+      // their complaint rather than an anonymous new card. Without this, the human check on "did
+      // the fix take" silently existed for role-ruling repairs and not for reviewer rejections.
+      try {
+        const carryReason = complaint?.entries?.[0]
+          ? `Regenerated by remediation after a validated complaint — ${complaint.entries[0].detail.slice(0, 300)}`
+          : `Regenerated by remediation — replaces ${old.question_id}`;
+        const carried = await carryReviewsForward(old.question_id, res.newId, carryReason);
+        if (carried > 0) console.log(`    carried ${carried} review vote(s) forward onto ${res.newId}`);
+      } catch (e) {
+        console.warn(`    carryReviewsForward failed (non-fatal): ${e.message}`);
+      }
       console.log(`  ✓ ${old.question_id} → ${res.newId} (key validated, model_answer=${ma ? "yes" : "no"}, old archived)\n`);
     } else {
       // Dry run: leave the candidate row archived so it doesn't pollute the pool.
@@ -636,7 +731,8 @@ async function main() {
   const deferred = results.filter((r) => r.deferred).length;
   console.log(
     `\n${okCount}/${results.length} fixed — ${repairedCount} repaired in place, ${okCount - repairedCount} regenerated` +
-      `${deferred ? `, ${deferred} deferred to the regeneration pass` : ""}.` +
+      `${deferred ? `, ${deferred} deferred to the regeneration pass` : ""}` +
+      `${deferredForPr.length ? `, ${deferredForPr.length} awaiting a rule PR` : ""}.` +
       `${APPLY ? " Committed." : " (dry run — pass --apply to commit)"}`
   );
 }
