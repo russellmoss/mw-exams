@@ -2,6 +2,9 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { MARKING_PRINCIPLES } from "./marking-principles";
 import { personaBlock, type PersonaId } from "../personas";
+// Shared with the batch adjudicator (wine-role-rulings.ts) so a role dispute filed WITH a rejection
+// and one filed with an approve cannot be ruled on by two different sets of rules.
+import { roleDisputeBlock, type RoleDisputeForPrompt } from "./role-adjudication";
 
 interface ThreadMessage {
   role: "system" | "user";
@@ -70,6 +73,17 @@ export function buildFeedbackAnalysisPrompt(params: {
   /** Live empirical knowledge from the Neon projection (paper-filtered). Falls back to the
    *  build-time digest in pipeline-context.json when not supplied. */
   empiricalKnowledge?: string;
+  /**
+   * Per-wine banker/curveball claims filed with this rejection (wine_role_rulings rows at 'pending').
+   *
+   * When present, the analysis adjudicates them INLINE and emits a RoleRuling line for each. That is
+   * deliberate rather than lazy: this prompt already carries the flight, the corpus and the empirical
+   * knowledge, so a second model call to rule on the same wines would pay ~$1.58 twice to look at the
+   * same evidence. A role dispute filed WITHOUT a rejection (a reviewer approving a question but
+   * correcting a role) has no analysis to ride on and is batched separately — see
+   * adjudicateRoleRulings in wine-role-rulings.ts, which uses the identical contract.
+   */
+  roleDisputes?: RoleDisputeForPrompt[];
 }): { system: string; user: string } {
   // Load ALL historical questions for cross-reference (not just same paper)
   let allQuestions = "";
@@ -110,6 +124,18 @@ export function buildFeedbackAnalysisPrompt(params: {
     if (ctx.wineCompositionAnalysis) wineComposition = ctx.wineCompositionAnalysis.slice(0, 3000);
     if (!empiricalKnowledge && ctx.empiricalKnowledgeDigest) empiricalKnowledge = ctx.empiricalKnowledgeDigest;
   } catch {}
+
+  // Per-wine banker/curveball claims filed alongside this rejection. Rendered ONLY when there are
+  // any: the block carries the whole calibration plus corpus statistics per claim, and paying that on
+  // every analysis to say "no disputes" would be several thousand wasted tokens on the majority of a
+  // pass. The section is appended at the END of the internal part, after the Kind line, because its
+  // RoleRuling lines are machine-parsed and the analyser has already been told that the last thing it
+  // writes is the thing that gets read.
+  const disputes = params.roleDisputes ?? [];
+  const roleDisputeSection =
+    disputes.length === 0
+      ? ""
+      : `\n\n${roleDisputeBlock(disputes)}\n\nEmit the ${disputes.length} RoleRuling line${disputes.length === 1 ? "" : "s"} as the FINAL thing in your internal section, after the Kind line.`;
 
   // Does this feedback dispute the AI's EVALUATION / score (as opposed to question design)? If so we
   // inject the exact marking rubric the grader followed so the analysis adjudicates the score against
@@ -306,6 +332,7 @@ code change, and the Kind line belong.
 {Specific, actionable change. Name the constraint, the section, and the file/layer it belongs in (see WHERE THE LOGIC LIVES).}
 
 {End with the Kind line — see CLASSIFY THE FIX.}
+${roleDisputeSection}
 
 ## Important Rules
 

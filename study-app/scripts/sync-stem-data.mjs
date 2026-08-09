@@ -17,7 +17,25 @@ const FILES = [
   "stem_proprietary_blends.json",
   "stem_style_lexicon.json",
   "mock_wine_bank.json",
+  // The banker/curveball calibration (src/lib/banker-signals.ts). Unlike the four above, a MISSING
+  // copy of this one is not a degraded derivation — isBanker() throws rather than defaulting, because
+  // silently failing open would make every wine a curveball and hard-reject the entire bank. So the
+  // warn below is not cosmetic for this file: a skipped copy is a broken deploy.
+  "banker_signals.json",
+  // The 540 real IMW exam wines with their expert benchmark_status / question_role / curveball_level.
+  // This is the COUNTER-EVIDENCE a role dispute is adjudicated against: when a reviewer asserts a wine
+  // is a banker, the adjudicator is shown how the Institute has actually used that region across ten
+  // years before it rules. Without it the adjudicator has only the reviewer's assertion and its own
+  // recall, and it defers — which makes the whole loop an expensive way to rubber-stamp one opinion.
+  "historical_wine_classification.json",
 ];
+
+// Files whose absence must FAIL the build rather than warn. The four lexicon files degrade the
+// stem-key derivation when missing, which is bad but recoverable; banker_signals.json does not
+// degrade — isBanker() throws on a missing table (deliberately, since failing open would classify
+// every wine a curveball and hard-reject the whole bank), so a skipped copy is a deploy that 500s on
+// the first validation instead of a deploy that is merely worse.
+const REQUIRED = new Set(["banker_signals.json"]);
 
 let copied = 0;
 for (const f of FILES) {
@@ -25,6 +43,9 @@ for (const f of FILES) {
   if (existsSync(src)) {
     copyFileSync(src, join(dstDir, f));
     copied++;
+  } else if (REQUIRED.has(f)) {
+    console.error(`sync-stem-data: REQUIRED source missing: ${src}`);
+    process.exit(1);
   } else {
     console.warn(`sync-stem-data: source missing, skipped ${f}`);
   }

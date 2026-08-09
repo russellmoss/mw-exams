@@ -327,6 +327,24 @@
       "is_blend": true,
       "confidence": "high",
       "source": "https://www.villiera.com — MCC blend"
+    },
+    {
+      "match": "faithful hound",
+      "wine": "Mulderbosch Faithful Hound",
+      "country": "South Africa",
+      "region": "Stellenbosch",
+      "varieties": [
+        "Cabernet Franc",
+        "Cabernet Sauvignon",
+        "Merlot",
+        "Malbec",
+        "Petit Verdot"
+      ],
+      "dominant": "Cabernet Franc",
+      "is_blend": true,
+      "confidence": "high",
+      "source": "https://www.mulderbosch.co.za/our-wines/faithful-hound/",
+      "notes": "Red Bordeaux-style blend — NOT a Sauvignon Blanc, and invalid for Paper 1. Mulderbosch also make a well-known white 'Sauvignon Blanc' under a different label; the flagship name 'Faithful Hound' does not disclose its grape, so a producer-level lookup can wrongly resolve it to the white. Keyed here so the colour-conflict veto in resolveVariety catches the mis-key."
     }
   ]
 }

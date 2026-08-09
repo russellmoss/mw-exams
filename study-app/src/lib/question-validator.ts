@@ -22,6 +22,10 @@ import {
   WHITE_GRAPE_INDICATORS,
 } from "./question-rules.mjs";
 import { applyAnswerContentRules } from "./answer-content-rules.mjs";
+// The banker/curveball calibration, loaded from data/banker_signals.json. It used to be an inline
+// literal here; it moved to a data file so an upheld reviewer role ruling has one small, mechanical
+// thing to edit, and so the GENERATOR reads the same list this validator enforces.
+import { bankerSignalTable, type BankerSignal } from "./banker-signals";
 // Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
 // style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
 import { classifyWineStyle } from "./p3-category.mjs";
@@ -741,142 +745,14 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 // Rule: a flight of 2+ wines must contain at least one banker, and the number of curveballs must not
 // exceed min(2, ceil(n/2)) — 2-wine flights allow 1 curveball, 3–6 wine flights allow 2. Rejections
 // name the curveball wines so the admin can see (and overrule) the call.
+//
+// THE LOOKUP ITSELF NOW LIVES IN data/banker_signals.json, not here. It is the one body of wine
+// knowledge in this file that a human expert routinely corrects — several of its entries were
+// hand-transcribed from a reviewer's rejection — and the generator needed the same list, which it
+// previously duplicated as prose. Moving it to a data file gives an upheld role ruling something
+// mechanical to edit (a small PR against one JSON file) and makes the validator and the generator
+// read the SAME calibration. See src/lib/banker-signals.ts for the loader and the matching contract.
 // ---------------------------------------------------------------------------------------------------
-
-// Each signal is a classic benchmark expression: a region that (optionally paired with its
-// mainstream variety) unambiguously routes a candidate to a country. Deliberately compact — the
-// fail-safe default is "curveball", so the list only needs the wines a reasonable examiner would
-// call a banker. `region` is tested against the wine's region + country + raw label; `variety`,
-// when present, against the resolved (canonicalised) varieties.
-/**
- * `exclude` is tested against the same origin string as `region` and VETOES the match. It exists for
- * the appellation-only signals (no `variety` gate), which are colour-blind: `/chateauneuf/` was
- * calibrated on Châteauneuf-du-Pape ROUGE, the Paper 2 benchmark, but it also matched Château Rayas
- * Châteauneuf-du-Pape **Blanc** in a Paper 1 flight and keyed it a banker. CdP Blanc is a few percent
- * of the appellation and rarely poured — a debrief calling it "the classic curveball here" was right,
- * and the table was wrong (attempt 249). A variety gate cannot express this, because the white's grapes
- * include Grenache Blanc and `/grenache/` matches it.
- */
-type BankerSignal = { region: RegExp; variety?: RegExp; exclude?: RegExp };
-const BANKER_SIGNALS: BankerSignal[] = [
-  // ── France ──
-  {
-    region:
-      /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/,
-  },
-  {
-    region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/,
-    variety: /pinot noir/,
-  },
-  { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
-  // Rouge only — the white is a curveball, not the anchor. See BankerSignal.exclude (attempt 249).
-  { region: /chateauneuf/, exclude: /\bblanc\b/ },
-  // Tavel — the benchmark serious dry rosé, and until now the table's only rosé blind spot. Côtes de
-  // Provence and Bandol rosé already match via the /provence/ entry below and Rioja rosado via /rioja/,
-  // so Tavel was the whole gap: measured on a generated P3 flight where the generator declared a
-  // Château d'Aqueria Tavel an anchor and the table read it a curveball, leaving the role unkeyed.
-  // Region-only is safe here in a way it is NOT for chateauneuf: Tavel is rosé by law and makes no red
-  // or white, so there is no other colour for a bare region match to catch.
-  { region: /\btavel\b/ },
-  {
-    region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/,
-    variety: /syrah|shiraz/,
-  },
-  { region: /\bchampagne\b/ },
-  { region: /\bsauternes\b|\bbarsac\b/ },
-  {
-    region:
-      /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bbordeaux\b/,
-  },
-  {
-    region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent/,
-    variety: /gamay/,
-  },
-  { region: /vouvray|savennieres|\bmontlouis\b/, variety: /chenin/ },
-  {
-    region: /\balsace\b/,
-    variety: /riesling|gewurztraminer|pinot gris|muscat|pinot blanc/,
-  },
-  // ── Italy ──
-  { region: /\bbarolo\b|barbaresco|\bbarbera\b\s*d/, variety: /nebbiolo/ },
-  { region: /chianti|brunello|montalcino|vino nobile/, variety: /sangiovese/ },
-  { region: /\bsoave\b/ },
-  { region: /valpolicella|amarone/ },
-  { region: /\bprosecco\b/ },
-  // ── Spain / Portugal ──
-  { region: /\brioja\b/, variety: /tempranillo|grenache/ },
-  { region: /ribera del duero/, variety: /tempranillo/ },
-  { region: /rias baixas/, variety: /albarino/ },
-  { region: /\bjerez\b|\bsherry\b|manzanilla|montilla/ },
-  { region: /\bdouro\b|\bport\b|\bporto\b/ },
-  // ── Germany / Austria ──
-  {
-    region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen/,
-    variety: /riesling/,
-  },
-  { region: /\bwachau\b|kamptal|kremstal/, variety: /gruner|riesling/ },
-  // ── New World ──
-  { region: /marlborough/, variety: /sauvignon/ },
-  { region: /central otago|martinborough/, variety: /pinot noir/ },
-  { region: /barossa|mclaren vale/, variety: /shiraz|syrah|grenache/ },
-  { region: /coonawarra/, variety: /cabernet/ },
-  { region: /clare valley|eden valley/, variety: /riesling/ },
-  { region: /hunter valley/, variety: /semillon|shiraz/ },
-  { region: /margaret river|\byarra\b/ },
-  { region: /rutherglen/, variety: /muscat|muscadelle|topaque|tokay/ },
-  { region: /\bnapa\b|sonoma|russian river|carneros/ },
-  { region: /willamette/, variety: /pinot noir/ },
-  // NB: Mendoza/Uco Malbec is deliberately NOT a banker. Per EK-0029 (STRONG SIGNAL) the anchor of a
-  // 3+ wine flight has to be a wine the candidate knows cold at classified/benchmark level (Bordeaux
-  // classed growth, Barolo, 1er Cru Burgundy, Rioja Gran Reserva, Marlborough Sauvignon). A bare
-  // regional Mendoza Malbec reads as a competent but standard wine, not the route-to-country anchor —
-  // and the region+variety detector can't tell an iconic single-vineyard from a supermarket bottling —
-  // so it fails safe to curveball. (Flagged on gen_p2_F6_1779988985396, a bankerless 4-wine P2 flight
-  // that had been passing only because this signal miscounted its Mendoza Malbec as the banker.)
-  { region: /\bmaipo\b|colchagua/, variety: /cabernet|carmenere/ },
-  { region: /stellenbosch/, variety: /cabernet|chenin|syrah|shiraz/ },
-  // ── Classics the list simply did not name ──────────────────────────────────────────────────────
-  // Every entry below was measured as a repeat curveball across the 160 real IMW questions
-  // (scripts/corpus-false-positive-rate.mjs), which is the wrong verdict on a wine the Institute
-  // pours as an anchor. Each keeps a variety gate, so the region alone never promotes an oddity: bare
-  // Burgundy counts for Pinot Noir and Chardonnay, not for Aligoté.
-  //
-  // Deliberately NOT added, because the reviewer's own calibration treats them as curveballs and
-  // tests/flight-composition.test.ts pins that: Santorini Assyrtiko, Jura Savagnin, Somló Furmint,
-  // Mittelburgenland Blaufränkisch, Naoussa Xinomavro, Arbois Trousseau — and Mendoza Malbec, per the
-  // EK-0029 note above. Also left out on the same judgement: Marlborough Pinot Noir (the region is a
-  // banker for Sauvignon only), Oregon Pinot Gris, Baden Spätburgunder, Roussillon Grenache, Etna.
-  { region: /\bburgundy\b|\bbourgogne\b/, variety: /pinot noir|chardonnay/ },
-  {
-    region: /\bchinon\b|bourgueil|\bsaumur\b|\bloire\b/,
-    variety: /cabernet franc/,
-  },
-  { region: /muscadet|\bloire\b/, variety: /melon de bourgogne/ },
-  { region: /\bcondrieu\b|\brhone\b/, variety: /viognier/ },
-  { region: /\bpenedes\b|\bcava\b/ },
-  { region: /\btokaj/, variety: /furmint|harslevelu/ },
-  {
-    region: /\bpiedmont\b|\bpiemonte\b|\basti\b|\balba\b/,
-    variety: /barbera|dolcetto|nebbiolo|moscato/,
-  },
-  { region: /\bmadeira\b/ },
-  {
-    region: /provence/,
-    variety: /grenache|cinsault|mourvedre|syrah|rolle|vermentino/,
-  },
-  {
-    region: /\btuscany\b|\btoscana\b|bolgheri/,
-    variety: /sangiovese|cabernet|merlot/,
-  },
-  {
-    region: /south australia/,
-    variety: /shiraz|syrah|cabernet|riesling|chardonnay/,
-  },
-  {
-    region: /\bcalifornia\b/,
-    variety: /zinfandel|cabernet|chardonnay|pinot noir|merlot/,
-  },
-];
 
 /**
  * Derive whether a resolved wine reads as a BANKER (true) or a CURVEBALL (false, incl. unknowns).
@@ -890,15 +766,27 @@ const BANKER_SIGNALS: BankerSignal[] = [
  * wines this detector was calling curveballs.
  */
 export function isBanker(w: AuditWine): boolean {
-  const origin = norm(
-    `${w.region || ""} ${w.country || ""} ${w.fullText || ""}`,
-  );
+  return matchingBankerSignal(w) !== null;
+}
+
+/**
+ * The signal a wine matched, or null if it reads as a curveball.
+ *
+ * Same predicate as isBanker(), but it names WHICH line of data/banker_signals.json did the work. The
+ * role sweep needs that: when a ruling adds or removes a signal, "which banked questions change
+ * verdict, and because of which entry" is the difference between a repair queue an admin can audit and
+ * a list of question ids they have to take on trust.
+ */
+export function matchingBankerSignal(w: AuditWine): BankerSignal | null {
+  const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
   const variety = norm((w.varieties || []).map(canonVariety).join(" "));
-  return BANKER_SIGNALS.some(
-    (s) =>
-      s.region.test(origin) &&
-      !(s.exclude && s.exclude.test(origin)) &&
-      (!s.variety || !variety || s.variety.test(variety)),
+  return (
+    bankerSignalTable().signals.find(
+      (s) =>
+        s.region.test(origin) &&
+        !(s.exclude && s.exclude.test(origin)) &&
+        (!s.variety || !variety || s.variety.test(variety))
+    ) ?? null
   );
 }
 

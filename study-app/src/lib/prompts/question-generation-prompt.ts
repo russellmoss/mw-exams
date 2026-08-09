@@ -3,6 +3,10 @@ import { join } from "path";
 import { neon } from "@neondatabase/serverless";
 import { getEndorsedExemplars } from "@/lib/db";
 import { paperScopeProse } from "@/lib/paper-scope";
+// The SAME banker/curveball table the validator enforces (data/banker_signals.json). Rendered into
+// the banker-minimum section below so the generator builds flights against the rule it is judged by,
+// instead of against a prose paraphrase that could disagree with it.
+import { renderBankerCalibration } from "@/lib/banker-signals";
 
 const TARGET_DISTRIBUTIONS: Record<string, Record<number, number>> = {
   F1: { 2: 44, 3: 32, 4: 12, 5: 8, 6: 4 },
@@ -676,6 +680,9 @@ The banker is the anchor that establishes the baseline. The curveball(s) then di
 BAD: Montlouis sparkling + Bourgogne Blanc + Hermitage Blanc + Deiss field blend (0 bankers, 2 curveballs)
 GOOD: Puligny-Montrachet 1er Cru + Sancerre + Hermitage Blanc + Deiss field blend (2 bankers, 1 curveball)
 GOOD: Chablis Grand Cru + Pouilly-Fumé + Condrieu + Jurançon Sec (2 bankers, 1 curveball)
+
+### The exact banker calibration the validator applies
+${renderBankerCalibration()}
 
 ## F4 (MIXED BREADTH) WINE SELECTION — QUALITY TIER CAP
 F4 "grab bag" questions test VARIETAL IDENTIFICATION and REGIONAL TYPICITY, not quality prestige. The 10-year MW corpus consistently uses mid-tier, regional-identity wines for this question family — not icon cuvées or prestige bottlings.
