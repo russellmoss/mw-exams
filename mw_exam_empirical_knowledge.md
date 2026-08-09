@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0181).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0180).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0179).**
@@ -1383,6 +1384,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #517 / analysis #157 (accept); corpus `data/exams.json` — 2019 P2 Q1 ("Bordeaux varieties": Lussac-Saint-Émilion, Cabernet-based Super-Tuscan, Loire Cabernet Franc, Stellenbosch Bordeaux blend)
 - **claim:** A stem declaring the flight "made from Bordeaux varieties" is a hard, testable premise limited to the six Bordeaux-permitted grapes (Cabernet Sauvignon, Merlot, Cabernet Franc, Malbec, Petit Verdot, Carmenère) and their synonyms. The real 2019 P2 Q1 deployment honours this exactly. Touriga Franca is a Portuguese Douro variety (Touriga Nacional × Marufo) with no ampelographic link to the Bordeaux family, so a Quinta do Crasto Touriga Franca in such a flight contradicts the stem and makes the question factually invalid. Generation must validate variety-FAMILY premises against an explicit variety list, not just per-wine same/different-variety claims (extends EK-0043, EK-0040 R2/R3), and must never justify an inclusion with unsupported "ancient crossing" reasoning.
 
+### EK-0181 · Mark tariffs are whole numbers — never fractional (a 7.5-mark sub-part is invalid)
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #537 / analysis #177 (accept); corpus `data/exams.json` — every printed sub-part tariff 2011–2026 is an integer; EK-0001; EK-0041
+- **claim:** Every printed IMW mark tariff is a whole number; the exam has never used a fractional sub-part value. A served P2 pair carried `2 x 7.5 marks` for part (b), which is both un-MW in form and a symptom of a deeper allocation error — its parts totalled 65 marks for two wines (32.5/wine) instead of the mandatory 50 (EK-0001, EK-0041). Generation must round every per-wine and pooled tariff to an integer, and the 25-marks-per-wine check must be applied to the sum of the printed parts, not to a separately-declared total.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1453,6 +1459,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 500 | 140 | P2/F2 | accept | auto | one banker isn't enough — same-country Italian P2 flights carry one curveball, not three | EK-0179, EK-0029, EK-0162, EK-0097 |
 | 505 | 145 | P2/F2 | accept | auto | Second report of the same defect — four-wine same-country Italian P2 flight (Aglianico del Vulture, Cirò/Gaglioppo, Valpolicella, Montepulciano d'Abruzzo) carries three hard wines against one anchor; attested Italian P2 flights pair Barolo/Chianti/Valpolicella anchors with only one curveball. Fully covered by existing entries. | EK-0179, EK-0029, EK-0162, EK-0097 |
 | 517 | 157 | P2/F3 | accept | auto | "Bordeaux varieties" stem is a closed six-variety set; Touriga Franca in the flight breaks the premise — variety-family premises need list validation | EK-0180, EK-0043, EK-0040 |
+| 537 | 177 | P2/F1 | accept | auto | fractional 7.5-mark sub-part is never used by the IMW, and the flight totalled 65 marks for 2 wines instead of 50 (personal abuse in the same submission ignored) | EK-0181, EK-0041, EK-0001 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
