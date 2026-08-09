@@ -874,6 +874,156 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
 }
 
 // ---------------------------------------------------------------------------------------------------
+// ANCHOR PAIRING — a banker is a VARIETY×ORIGIN classic, never a grape name on its own.
+//
+// A recurring reviewer fault cluster (Paper 1, 10 validated signals — fb_433/434/435/438/440/441/451/
+// 461/468/483) all reduce to the SAME mistake: the flight's variety is a "banker grape" (Riesling,
+// Chardonnay, Sauvignon Blanc, Chenin) but EVERY origin is atypical for it, so there is no real anchor.
+// In the reviewer's own words: Riesling from Austria + Canada with no Germany/Alsace; four Chardonnays
+// with "none of the origins … classics", no Burgundy or Napa; three New World Sauvignon Blancs with no
+// Old World; Chenin as Montlouis + two South Africans; Rolle from Provence labelled a banker when it is
+// "quite uncommon" as a single varietal. The through-line: banker status was being read off the GRAPE,
+// ignoring whether the grape sits in a region that is actually classic FOR that grape.
+//
+// ANCHOR_PAIRS makes the pairing explicit. Each entry is a (variety, region) classic — the only shapes
+// a candidate can reliably use as a route to the country. A wine is an anchor ONLY when its keyed (or
+// label-read) variety AND its origin BOTH match one entry; the grape alone never qualifies, and a
+// stored `role: "banker"` (or a `banker` flag) is IGNORED unless the pairing matches. A handful of
+// entries are region-only — appellations that are effectively one style by law (Champagne, Sauternes,
+// Sherry, Port, Muscadet, …), where the region itself is the anchor regardless of the variety keyed.
+//
+// This is DELIBERATELY stricter than isBanker()/banker_signals.json, which grants a region-only free
+// pass and an unknown-variety free pass — the two loopholes the reviewers kept catching. The rule
+// (flightAnchorPairingViolations) rejects any flight of 2+ wines with ZERO anchor-paired wines, code
+// NO_ANCHOR_PAIRING. It is emitted HARD (the generation path in question-engine.ts consumes it as the
+// banker verdict, so flights are BUILT with an anchor) and demoted to SOFT in the audit path
+// (validateQuestion), for the same measured reason flight-composition is advisory there: the Institute
+// itself occasionally sets an anchorless flight (2023 P1 Q3), and retiring a banked question on a
+// preference the exam breaks is the wrong trade. See the pool-admission note in validateQuestion.
+// ---------------------------------------------------------------------------------------------------
+
+/** One classic anchor: a variety in a region that is genuinely a benchmark for it. */
+export interface AnchorPair {
+  /** Tested against the wine's RESOLVED, canonicalised variety. Omit for a region-only fixed-style classic. */
+  variety?: RegExp;
+  /** Tested against the wine's region + country + raw label, lowercased and de-accented. */
+  region: RegExp;
+  /** Anything on `region` that VETOES the match (e.g. a dry wine in a by-law sweet appellation). */
+  exclude?: RegExp;
+  /** Human-readable description of the pairing, for violation messages and the generator. */
+  label: string;
+}
+
+/**
+ * The curated table of variety×origin classics. Ordered by country for readability only; matching is a
+ * flat `.find`. Region-only entries (no `variety`) are appellations that are effectively one style by
+ * law, where the region alone is the anchor.
+ */
+export const ANCHOR_PAIRS: AnchorPair[] = [
+  // ── France ──
+  { variety: /chardonnay/, region: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|corton|\bmontagny\b|\brully\b|cote de beaune|cote de nuits|\bbeaune\b|maconnais|\bmacon\b|pouilly-?fuisse|pouilly-?vinzelles|saint-?veran|\bbourgogne\b|\bburgundy\b/, label: "Chardonnay × Burgundy (Chablis / Côte de Beaune / Mâconnais)" },
+  { variety: /pinot noir/, region: /gevrey|chambolle|\bvosne\b|pommard|volnay|nuits-?saint-?georges|cote de nuits|cote de beaune|\bbeaune\b|\bbourgogne\b|\bburgundy\b/, label: "Pinot Noir × Burgundy (Côte de Nuits / Côte de Beaune)" },
+  { variety: /sauvignon blanc|(?<!cabernet\s)\bsauvignon\b(?!\s+vert)/, region: /\bsancerre\b|pouilly-?fume|menetou-?salon|\bquincy\b|\breuilly\b/, label: "Sauvignon Blanc × the Loire (Sancerre / Pouilly-Fumé)" },
+  { variety: /sauvignon blanc|(?<!cabernet\s)\bsauvignon\b(?!\s+vert)/, region: /\bpessac\b|\bgraves\b/, label: "Sauvignon Blanc × white Bordeaux (Pessac-Léognan / Graves)" },
+  { variety: /chenin/, region: /vouvray|savennieres|\bmontlouis\b|\banjou\b|\bsaumur\b/, label: "Chenin Blanc × the Loire (Vouvray / Savennières)" },
+  { variety: /riesling|gewurztraminer|pinot gris|pinot grigio|muscat|pinot blanc/, region: /\balsace\b/, exclude: /vendanges?\s*tardives?|selection\s*de\s*grains\s*nobles|\bsgn\b|late\s*harvest/, label: "an Alsace noble grape (Riesling / Gewürztraminer / Pinot Gris / Muscat)" },
+  { variety: /cabernet|merlot/, region: /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|\bpomerol\b|saint-?emilion|\bpessac\b|\bgraves\b|\bbordeaux\b/, label: "Cabernet / Merlot × Bordeaux (Médoc / Right Bank)" },
+  { variety: /syrah|shiraz/, region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes|\bsaint-?joseph\b/, label: "Syrah × the Northern Rhône (Côte-Rôtie / Hermitage)" },
+  { variety: /viognier/, region: /\bcondrieu\b|chateau-?grillet/, label: "Viognier × Condrieu" },
+  { variety: /grenache|syrah|shiraz|mourvedre/, region: /chateauneuf/, exclude: /\bblanc\b/, label: "Grenache/Syrah × Châteauneuf-du-Pape" },
+  { variety: /gamay/, region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent|\bbrouilly\b|\bjulienas\b/, label: "Gamay × Beaujolais" },
+  { region: /\bchampagne\b/, label: "Champagne (region-only)" },
+  { region: /\bsancerre\b/, label: "Sancerre (region-only anchor for the Loire)" },
+  { region: /muscadet/, label: "Muscadet (Melon de Bourgogne, region-only)" },
+  { region: /\bsauternes\b|\bbarsac\b/, exclude: /blanc\s*sec/, label: "Sauternes / Barsac (region-only, sweet)" },
+  { region: /\btavel\b/, label: "Tavel (region-only, the benchmark dry rosé)" },
+  // ── Italy ──
+  { variety: /nebbiolo/, region: /\bbarolo\b|barbaresco|\bgattinara\b|\bghemme\b/, label: "Nebbiolo × Barolo / Barbaresco" },
+  { variety: /sangiovese/, region: /chianti|brunello|montalcino|vino nobile|montepulciano/, label: "Sangiovese × Chianti / Brunello" },
+  { region: /\bsoave\b/, label: "Soave (region-only)" },
+  { region: /valpolicella|amarone/, label: "Valpolicella / Amarone (region-only)" },
+  { region: /\bprosecco\b/, label: "Prosecco (region-only)" },
+  // ── Spain / Portugal ──
+  { variety: /tempranillo|grenache|garnacha/, region: /\brioja\b/, label: "Tempranillo × Rioja" },
+  { variety: /tempranillo/, region: /ribera del duero/, label: "Tempranillo × Ribera del Duero" },
+  { variety: /albarino/, region: /rias baixas/, label: "Albariño × Rías Baixas" },
+  { region: /\bjerez\b|\bsherry\b|manzanilla|montilla/, label: "Sherry (region-only)" },
+  { region: /\bdouro\b|\bport\b(?!\s*phillip)|\bporto\b/, label: "Douro / Port (region-only)" },
+  // ── Germany / Austria ──
+  { variety: /riesling/, region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen|\bfranken\b/, label: "Riesling × the Mosel / Rheingau / Pfalz" },
+  { variety: /gruner|riesling/, region: /\bwachau\b|kamptal|kremstal/, label: "Grüner Veltliner / Riesling × the Wachau / Kamptal" },
+  // ── New World ──
+  { variety: /sauvignon blanc|(?<!cabernet\s)\bsauvignon\b(?!\s+vert)/, region: /marlborough/, label: "Sauvignon Blanc × Marlborough" },
+  { variety: /pinot noir/, region: /central otago|martinborough/, label: "Pinot Noir × Central Otago / Martinborough" },
+  { variety: /chardonnay|cabernet|merlot/, region: /\bnapa\b|sonoma|russian river|carneros|oakville|rutherford|stags?\s*leap|howell mountain/, label: "Chardonnay / Cabernet × Napa / Sonoma" },
+  { variety: /pinot noir/, region: /willamette|russian river|sonoma coast/, label: "Pinot Noir × Willamette / Sonoma Coast" },
+  { variety: /cabernet/, region: /coonawarra/, label: "Cabernet × Coonawarra" },
+  { variety: /riesling/, region: /clare valley|eden valley/, label: "Riesling × Clare / Eden Valley" },
+  { variety: /shiraz|syrah|grenache/, region: /barossa|mclaren vale/, label: "Shiraz / Grenache × the Barossa / McLaren Vale" },
+  { variety: /semillon|shiraz/, region: /hunter valley/, label: "Semillon / Shiraz × the Hunter Valley" },
+  { variety: /cabernet|carmenere/, region: /\bmaipo\b|colchagua/, label: "Cabernet / Carmenère × Maipo / Colchagua" },
+  { variety: /cabernet|chenin|syrah|shiraz/, region: /stellenbosch/, exclude: /late\s*harvest|\bnoble\s*late\b/, label: "Cabernet / Chenin / Syrah × Stellenbosch" },
+];
+
+/**
+ * The variety a resolved wine reads as, for anchor-pairing: the canonicalised key, or the grape read
+ * off the label when the key resolved none. "" when it genuinely cannot be told (an unresolvable label
+ * or an empty record). Mirrors matchingBankerSignal()'s resolution EXACTLY so the two agree on grapes.
+ */
+function anchorVariety(w: AuditWine): string {
+  const keyed = norm((w.varieties || []).map(canonVariety).join(" "));
+  const fromLabel = w.fullText ? detectPrimaryVariety(w.fullText) : "unknown";
+  return keyed || (fromLabel === "unknown" ? "" : norm(canonVariety(fromLabel)));
+}
+
+/**
+ * The ANCHOR_PAIRS entry a wine matches, or null. A wine is an anchor ONLY when its (variety, origin)
+ * both key onto one classic pairing. A pairing with a `variety` gate requires the wine's grape to be
+ * resolved AND to match; a region-only pairing (a by-law single-style appellation) anchors on the
+ * region alone. A `role: "banker"` on the record is not consulted — the pairing is the sole authority.
+ */
+export function matchingAnchorPair(w: AuditWine): AnchorPair | null {
+  const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+  const variety = anchorVariety(w);
+  return (
+    ANCHOR_PAIRS.find(
+      (p) =>
+        p.region.test(origin) &&
+        !(p.exclude && p.exclude.test(origin)) &&
+        (p.variety ? !!variety && p.variety.test(variety) : true),
+    ) ?? null
+  );
+}
+
+/** Whether a wine is an anchor under the variety×origin table (the banker test, pairing-gated). */
+export function matchesAnchorPair(w: AuditWine): boolean {
+  return matchingAnchorPair(w) !== null;
+}
+
+/**
+ * NO_ANCHOR_PAIRING. Every flight of 2+ wines must contain at least one wine whose (variety, origin)
+ * matches an ANCHOR_PAIRS entry. A flight of banker GRAPES in atypical regions — the recurring Paper 1
+ * fault — has no anchor and is hard-rejected. Emitted hard; the audit path demotes it (see
+ * validateQuestion), the generation path consumes it as the banker verdict.
+ */
+export function flightAnchorPairingViolations(wines: AuditWine[]): Violation[] {
+  const flight = wines || [];
+  if (flight.length < 2) return []; // a single wine has no flight to anchor
+
+  if (flight.some(matchesAnchorPair)) return [];
+
+  return [
+    {
+      rule: "NO_ANCHOR_PAIRING",
+      severity: "hard",
+      detail: `flight of ${flight.length} wines has NO anchor: not one wine pairs a banker variety with a region that is actually classic for it (${flight
+        .map(wineLabel)
+        .join("; ")}). A banker is a variety×origin classic — Riesling from the Mosel, Chardonnay from Burgundy or Napa, Sauvignon Blanc from Sancerre or Marlborough — not a banker grape from an atypical origin. Replace one wine with a benchmark pairing (see ANCHOR_PAIRS).`,
+    },
+  ];
+}
+
+// ---------------------------------------------------------------------------------------------------
 // R-OW-ANCHOR — a multi-country SAME-VARIETY flight of a classic variety must carry an Old World anchor.
 //
 // Mike Juergens, reviewing a four-wine Chardonnay flight (Mendoza + Coonawarra + Casablanca +
@@ -3950,6 +4100,17 @@ export function validateQuestion(
   // wine choice better at generation is right; deleting the question afterwards is not.
   violations.push(
     ...flightCompositionViolations(q.wines).map((v) => ({
+      ...v,
+      severity: "soft" as const,
+    })),
+  );
+  // NO_ANCHOR_PAIRING — a flight whose only "bankers" are banker GRAPES in atypical regions. Emitted
+  // HARD by flightAnchorPairingViolations (the generation path in question-engine.ts consumes it as
+  // the banker verdict, so flights are BUILT with an anchor), but demoted to SOFT here for the SAME
+  // pool-admission reason as flight-composition above: the Institute itself occasionally sets an
+  // anchorless flight, so this judges-existing-questions path flags rather than quarantines.
+  violations.push(
+    ...flightAnchorPairingViolations(q.wines).map((v) => ({
       ...v,
       severity: "soft" as const,
     })),

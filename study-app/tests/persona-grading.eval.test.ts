@@ -113,7 +113,12 @@ describe.skipIf(!KEY)("two-pass voicing", () => {
     const neutral = await gradeNeutral(client);
     const base = fingerprintAssessment(neutral);
 
-    const voices = PERSONAS.filter((p) => p.id !== DEFAULT_PERSONA).map((p) => p.id);
+    // Only voices this eval can actually produce. A persona with an external `copyProvider` (e.g.
+    // the Grok-voiced Unhinged) is written by another vendor and needs a BYOK key this harness does
+    // not set up — it holds an Anthropic key only, and passes no `userId` for a grok-key lookup. Such
+    // a restyle degrades to `no_copy_key` by design, which is correct behaviour, not a gate failure,
+    // so it is out of scope for the "does the gate reject everything?" measurement below.
+    const voices = PERSONAS.filter((p) => p.id !== DEFAULT_PERSONA && !p.copyProvider).map((p) => p.id);
     const results = await Promise.all(
       voices.map((persona) =>
         restyleForPersona({
