@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { selectModel } from "@/lib/model-selector";
 import { logClaudeUsage } from "@/lib/usage-log";
 import { MARKING_PRINCIPLES } from "@/lib/prompts/marking-principles";
+import { bandForScore, MARKING_BANDS_PROSE } from "@/lib/marking-bands";
 import { streamWithThinking, resolveThinking, type ProgressEmitter } from "@/lib/thinking-stream";
 import { getUserPersona } from "@/lib/persona-server";
 import { personaBlock } from "@/lib/personas";
@@ -56,13 +57,9 @@ function normaliseVerdict(v: unknown): "pass" | "borderline" | "fail" {
   return "borderline";
 }
 
-// Map a 0–100 single-competency score to the same verdict bands the rest of the app uses
-// (marking-principles single-question proxy: FAIL < 50, BORDERLINE ~55–64, PASS ≥ 65).
-function verdictFromScore(score: number): "pass" | "borderline" | "fail" {
-  if (score >= 65) return "pass";
-  if (score >= 50) return "borderline";
-  return "fail";
-}
+// Delegated rather than re-implemented: this function used to carry its own copy of the bands,
+// with a comment ("~55–64") that disagreed with both its own code and the prompt below it.
+const verdictFromScore = bandForScore;
 
 export type FlashGrade = { score: number; verdict: "pass" | "borderline" | "fail"; feedback: string };
 
@@ -120,7 +117,7 @@ Return a SINGLE JSON object, nothing else (no markdown, no prose around it):
 {"score": <integer 0-100>, "verdict": "PASS" | "BORDERLINE" | "FAIL", "feedback": "<one short line>"}
 
 - "score" is a normalised 0–100 mark for the ${prompt.label} dimension ONLY (do not surface marks-per-wine internals).
-- Map score to verdict: FAIL < 50, BORDERLINE 50–64, PASS >= 65 (then apply the howler→FAIL override).
+- Map score to verdict: ${MARKING_BANDS_PROSE} (then apply the howler→FAIL override).
 - "feedback" is ONE short "what you missed" line, **45 words maximum**, the single highest-value fix for next time.
 
 ${personaBlock(await getUserPersona(userId), "oneliner")}
