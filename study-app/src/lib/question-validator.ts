@@ -3071,6 +3071,122 @@ export async function regenerateFeedbackOnce(
   };
 }
 
+// ---------------------------------------------------------------------------------------------------
+// MODEL-ANSWER COMPLETENESS — a question is not servable without a keyed model answer that COVERS every
+// lettered sub-part of its stem.
+//
+// Three validated signals converge on one fault (fb_427, fb_368, fb_362): generated questions reach a
+// candidate — and the reveal/debrief screen — with no model answer attached, so the reveal renders
+// "No model answer available for this question yet." The grader has nothing to mark against and the
+// post-mortem debrief is empty. fb_427 is the acute case (a Paper 1 Condrieu vs Eden Valley Viognier
+// flight served with no answer); fb_368 and fb_362 are the same gap endorsed more mildly ("would be
+// nice to have model answers").
+//
+// This rule is the mechanical gate the analysis loop asked for. It fails a question whose payload
+// carries NO model answer, and — because a half-written answer is as ungradeable as a missing one on
+// the parts it skips — a question whose model answer does not carry a non-empty prose block for EVERY
+// lettered sub-part (a, b, c …) named in the stem. Each sub-part's block must reach
+// MODEL_ANSWER_SUBPART_MIN_CHARS characters of prose; anything thinner is treated as "not written".
+// The rule reads the payload only — it never touches question content — so it is safe to run on the
+// serve path (question-engine.ts consumes it there) and in the corpus audit.
+
+/** Minimum prose length, in characters, for a lettered sub-part's model-answer block to count as written. */
+export const MODEL_ANSWER_SUBPART_MIN_CHARS = 150;
+
+// The lettered sub-question labels a stem actually poses — "a)", "b)", "(c)" … — in first-seen order,
+// de-duplicated. Matched at a token boundary so the "1" in "Wines 1 and 2" or a mid-word letter can
+// never read as a sub-part. This is the SAME label shape extractStem() keys on to find where a stem
+// ends, so the two agree on what a sub-part is.
+export function stemSubpartLetters(questionText: string): string[] {
+  const text = questionText || "";
+  const re = /(?:^|[\s([])([a-z])\)/gi;
+  const letters: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const letter = m[1].toLowerCase();
+    if (!letters.includes(letter)) letters.push(letter);
+  }
+  return letters;
+}
+
+// Slice a model answer into the prose block that answers each lettered sub-part. A block begins at a
+// lettered label at the start of a line — tolerant of the markdown the generator emits around it
+// (blockquote ">", heading "###", list "-", and bold "**a)**") — and runs to the next such label or the
+// end of the text. A letter that appears more than once (e.g. across the two rendered SPLIT SECTIONS)
+// keeps its LONGEST block, so a stub in one section cannot mask a full answer in the other.
+export function modelAnswerSubpartBlocks(modelAnswer: string): Map<string, string> {
+  const text = modelAnswer || "";
+  const re = /(?:^|\n)[ \t]*(?:>[ \t]*)?(?:#{1,6}[ \t]*)?(?:[-*+][ \t]+)?\*{0,2}\(?([a-z])[).][ \t*:]/gi;
+  const markers: { letter: string; bodyStart: number; labelStart: number }[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    markers.push({ letter: m[1].toLowerCase(), bodyStart: re.lastIndex, labelStart: m.index });
+  }
+  const blocks = new Map<string, string>();
+  for (let i = 0; i < markers.length; i++) {
+    const stop = i + 1 < markers.length ? markers[i + 1].labelStart : text.length;
+    const body = text.slice(markers[i].bodyStart, stop).trim();
+    const prev = blocks.get(markers[i].letter);
+    if (prev === undefined || body.length > prev.length) blocks.set(markers[i].letter, body);
+  }
+  return blocks;
+}
+
+/**
+ * validateModelAnswerPresent — a HARD gate: a question with no model answer, or a model answer that
+ * fails to cover every lettered sub-part of its stem with >= MODEL_ANSWER_SUBPART_MIN_CHARS characters
+ * of prose, is not servable. Reads q.modelAnswer + q.questionText only.
+ *
+ * When the stem poses no lettered sub-parts (a bare single-ask), the whole answer is the one block and
+ * it must itself clear the character floor — a one-line stub is still ungradeable.
+ */
+export function validateModelAnswerPresent(q: QuestionForAudit): Violation[] {
+  const answer = (q.modelAnswer || "").trim();
+  if (!answer) {
+    return [
+      {
+        rule: "model-answer-missing",
+        severity: "hard",
+        detail:
+          "no model answer is attached — the grader has nothing to mark against and the debrief is empty, so this question must not be served (fb_427). Write and attach a model answer before it can reach a candidate.",
+      },
+    ];
+  }
+
+  const letters = stemSubpartLetters(q.questionText || "");
+  if (letters.length === 0) {
+    if (answer.length < MODEL_ANSWER_SUBPART_MIN_CHARS) {
+      return [
+        {
+          rule: "model-answer-incomplete",
+          severity: "hard",
+          detail: `model answer is only ${answer.length} characters — below the ${MODEL_ANSWER_SUBPART_MIN_CHARS}-character floor for a gradeable answer. It reads as a stub, not a model answer.`,
+        },
+      ];
+    }
+    return [];
+  }
+
+  const blocks = modelAnswerSubpartBlocks(answer);
+  const missing = letters.filter((l) => (blocks.get(l)?.length ?? 0) < MODEL_ANSWER_SUBPART_MIN_CHARS);
+  if (missing.length > 0) {
+    return [
+      {
+        rule: "model-answer-incomplete",
+        severity: "hard",
+        detail: `model answer does not cover every lettered sub-part: part${
+          missing.length > 1 ? "s" : ""
+        } ${missing.map((l) => `"${l})"`).join(", ")} ${
+          missing.length > 1 ? "are" : "is"
+        } missing or below ${MODEL_ANSWER_SUBPART_MIN_CHARS} characters of prose. A candidate served this question could not be graded on ${
+          missing.length > 1 ? "those parts" : "that part"
+        }.`,
+      },
+    ];
+  }
+  return [];
+}
+
 export function validateQuestion(
   q: QuestionForAudit,
   opts?: { paperScope?: boolean }
