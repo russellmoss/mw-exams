@@ -62,6 +62,42 @@ describe("the identification mark budget block", () => {
   });
 });
 
+// hist_2022_p1_q3 (Mike Juergens review): a same-country Spanish whites flight with a banker
+// (Rías Baixas Albariño) plus a Canary Islands Listán Blanco was given a flat 15/wine ID tariff. The
+// exam never prices identification highly on an unreachable-origin wine, EVEN when the flight has a
+// banker — the banker's presence does not license a flat, flight-wide ID tariff (EK-0165). The rule
+// must be per-wine: downweight that one wine's ID to ~5-6 marks (or omit) and pay the rest on
+// style/method/quality/commercial. Assert intent, not phrasing.
+describe("the per-wine curveball identification downweighting rule", () => {
+  // Anchor on the curveball paragraph itself — it sits below the worked examples, past the 3000-char
+  // budget() window, but must remain inside the identification budget teaching.
+  const curveball = () => {
+    const anchor = full.indexOf("THE ID TARIFF IS PER-WINE");
+    expect(anchor, "the per-wine curveball ID rule is gone from the prompt").toBeGreaterThan(-1);
+    return full.slice(anchor, anchor + 1600);
+  };
+
+  it("states the ID tariff is per-wine, not a flat flight-wide tariff licensed by the banker", () => {
+    const block = curveball();
+    expect(block).toMatch(/per-wine/i);
+    expect(block).toMatch(/flat/i);
+    expect(block).toMatch(/banker/i);
+  });
+
+  it("caps an unreachable-origin wine's ID to ~5-6 marks (or omits it) even inside a banker-anchored flight", () => {
+    const block = curveball();
+    expect(block).toMatch(/unreachable/i);
+    expect(block).toMatch(/5-6 marks|~5|omit/i);
+    expect(block).toMatch(/redistribut|style|commercial/i);
+  });
+
+  it("cites the 2019 Paper 1 Q3 origin-suppressed geometry as the model", () => {
+    const block = curveball();
+    expect(block).toMatch(/2019 Paper 1 Q3/i);
+    expect(block).toMatch(/do not spend time thinking about the wine's specific origin/i);
+  });
+});
+
 describe("no other prompt section teaches an over-cap identification part", () => {
   it("never shows an identification example above 10 marks outside a labeled illegal shape", () => {
     // The old prompt taught "Identify the country of origin" worth 15 marks shared across the
