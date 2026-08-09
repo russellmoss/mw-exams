@@ -2642,6 +2642,22 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
   const lettered = parseLetteredParts(q.questionText || "");
   if (lettered.length > 0 && lettered[0].letter !== "a") return v;
 
+  // (0) Whole marks only. "(2 x 7.5 marks)" was invisible to the integer-only token regex until
+  // 2026-08-09, so two stems shipped printing 65 marks over 2 wines while every total check counted
+  // the remaining integer tokens to a clean 50 (Mike's rejections of gen_p2_F1_1785898742363 and
+  // gen_p2_any_1780197953533: "Never in the history of never have they ever given a half a mark").
+  // Checked on its own — not just via the total — because fractional parts can still sum to 25 × N
+  // ("2 x 12.5 marks"), and they are wrong at any total.
+  for (const p of parts) {
+    if (!Number.isInteger(p.perUnit) || !Number.isInteger(p.marks)) {
+      v.push({
+        rule: "MARKS_FRACTIONAL",
+        severity: "hard",
+        detail: `a sub-part is priced at ${p.perUnit} marks — the exam awards whole marks only. Re-allocate to integer marks summing to 25 per wine.`,
+      });
+    }
+  }
+
   // (a) Total must be exactly 25 × wineCount. Skip only when the wine count is unknown (0), so the
   // rule can never invent a spurious "must equal 0" mismatch.
   if (wineCount >= 1) {

@@ -281,8 +281,15 @@ export function markScopeForHeader(header, wineCount) {
 }
 
 // "(3 x 10 marks)" | "(15 marks)" | "(8 marks per pair)" | "(4 x 10)" | "(4 x 10\)"
+//
+// The per-unit value matches DECIMALS too — "(2 x 7.5 marks)". Not because fractional marks are legal
+// (they never are; the exam awards whole marks only) but because an integer-only pattern made them
+// INVISIBLE: "(2 x 7.5 marks)" matched nothing, so both stems Mike rejected on 2026-08-09 printed
+// 65 marks over 2 wines while every sum check totalled the remaining integer tokens to a clean 50.
+// A defect the parser cannot see is a defect no rule can reject. Bare decimals — "(13.5)", an ABV —
+// are still excluded from the unitless convention inside expandMarkTokens.
 const MARK_TOKEN_RE =
-  /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+)\s*(marks?)?(?:\s+per\s+(wine|pair))?\s*\\?\s*\)/gi;
+  /\(\s*(?:(\d+)\s*[x×]\s*)?(\d+(?:\.\d+)?)\s*(marks?)?(?:\s+per\s+(wine|pair))?\s*\\?\s*\)/gi;
 
 // A lettered sub-part label — the unit a header's scope actually distributes over.
 const LETTERED_PART_RE = /^\s*([a-h])\)\s*/gim;
@@ -300,10 +307,12 @@ const FLIGHT_WIDE_PART_RE =
  * @property {string} raw       the matched text, e.g. "(3 x 10 marks)"
  * @property {number} start     index of `raw` in the question text
  * @property {number} end       index just past `raw`
- * @property {number} perUnit   the printed per-unit value (10 in "3 x 10 marks")
+ * @property {number} perUnit   the printed per-unit value (10 in "3 x 10 marks"; may be fractional)
  * @property {number} mult      how many units it is awarded over
  * @property {number} marks     perUnit × mult — what this token is really worth
  * @property {"explicit"|"per-phrase"|"scoped"|"enumerated"|"pooled"|"bare"} origin  where `mult` came from
+ * @property {boolean} fractional  the printed per-unit value is not a whole number ("7.5 marks") —
+ *                                 always a defect; the exam awards whole marks only
  */
 
 /**
@@ -358,15 +367,17 @@ export function expandMarkTokens(questionText, wineCount = 0) {
   /** @type {MarkToken[]} */
   const raws = [];
   for (const m of text.matchAll(MARK_TOKEN_RE)) {
+    const perUnit = parseFloat(m[2]);
     // A bare "(10)" is a mark token only under a question's own unitless convention, and only at a
-    // value a paper could plausibly award — which keeps a parenthesised vintage or ABV out.
+    // value a paper could plausibly award — which keeps a parenthesised vintage or ABV out. A bare
+    // DECIMAL never counts at all: "(13.5)" is an ABV, and no unitless corpus year prints one.
     if (m[1] === undefined && !m[3]) {
       if (!unitless || m[4]) continue;
-      const bare = parseInt(m[2], 10);
-      if (!(bare >= 1 && bare <= 100)) continue;
+      if (!Number.isInteger(perUnit)) continue;
+      if (!(perUnit >= 1 && perUnit <= 100)) continue;
     }
     const start = m.index ?? 0;
-    raws.push({ m, start, end: start + m[0].length, perUnit: parseInt(m[2], 10) });
+    raws.push({ m, start, end: start + m[0].length, perUnit });
   }
 
   // Adjacent bare tokens are an ENUMERATION, not one scoped value: "a) Identify … (13 marks)
@@ -408,7 +419,10 @@ export function expandMarkTokens(questionText, wineCount = 0) {
         origin = scope ? "pooled" : "bare";
       }
     }
-    tokens.push({ raw: m[0], start, end, perUnit, mult, marks: perUnit * mult, origin });
+    tokens.push({
+      raw: m[0], start, end, perUnit, mult, marks: perUnit * mult, origin,
+      fractional: !Number.isInteger(perUnit),
+    });
   });
   return { tokens, total: tokens.reduce((sum, t) => sum + t.marks, 0) };
 }
@@ -833,6 +847,7 @@ export function matchExcludedProducer(label) {
 // fails if the corpus ever disagrees with it.
 export const GROUND_TRUTH_INDEPENDENT_RULES = [
   "MARKS_BELOW_FLOOR",
+  "MARKS_FRACTIONAL",
   "excluded-producer",
   "part-task-repertoire",
   "pooled-block-marked-per-wine",
