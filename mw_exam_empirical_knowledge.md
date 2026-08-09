@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0172, EK-0173).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0170, EK-0171).**
 - **2026-08-08 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0169).**
 - **2026-08-08 — three duplicate ids resolved; the Neon mirror was silently 3 entries short.** The
@@ -1334,6 +1335,16 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #450 / analysis #86 (accept); EK-0165; EK-0153; EK-0016
 - **claim:** EK-0165's constraint — do not price identification highly when identification is unreachable — is not limited to origins with zero corpus precedent. A same-country flight pricing origin+variety at 15 of 25 marks per wine (60%) is out of calibration when one wine is a fringe-DO curveball such as a Canary Islands Listán Blanco: the real exam downweights ID on such wines and pays instead for method of production, style, quality and commercial positioning (EK-0016, EK-0153). Generation should cap ID at ~5–6 marks for the curveball wine, or ask origin only, and move the freed marks to the analytical parts.
 
+### EK-0172 · Scope headers must match the ask — "with reference to both wines" signals a SHARED attribute
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #458 / analysis #97 (accept); EK-0147 (scope notation `For each wine:` vs `For both wines:` is how the IMW tariffs marks)
+- **claim:** The IMW's scope header is a diagnostic instruction, not decoration. "With reference to both wines / all four wines" tells the candidate to argue the wines together toward a **shared** attribute (one variety common to the flight, one region), whereas differing per-wine answers are scoped "For each wine:". A generated stem that declares "different regions, each made from a different, single grape variety" and then asks "with reference to both wines: identify the grape variety of each wine" mixes the two and reads as un-MW: the header promises an integrated shared answer while the ask demands two separate ones. Generation must pair a per-wine identification ask with a per-wine scope header (and the corresponding `2 x N marks` tariff form).
+
+### EK-0173 · A two-wine same-country pair legitimately carries ~26–30 marks of variety+origin ID
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #458 / analysis #97 (accept); corpus `data/exams.json` — 2013 P1 Q1/Q2 (same country, different regions/varieties: 15 marks per wine for origin-as-closely-as-possible + variety, i.e. 30 of 50); 2016 P1 Q4 (Spain, 10+10 origin); EK-0165; EK-0171
+- **claim:** Heavy identification tariffs on a two-wine flight are corpus-authentic when the wines are reachable: 26 of 50 marks (10 variety + 16 origin) sits inside the attested band, and 2013 P1 Q1/Q2 pays 30 of 50 for the same shape. The ID-reachability constraint (EK-0165/EK-0171) bites on *unreachable* wines — zero- or low-precedent origins and fringe curveballs — not on a same-country pair of recognisable varieties (e.g. Stellenbosch Sauvignon Blanc + Cederberg Chenin Blanc). Do not down-tariff identification merely because it is a large share of a small flight.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1395,6 +1406,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 428 | 68 | P1/F2 | accept | manual | zero-precedent origins (Slovenia/Brda) debut only as single ID-suppressed wines, never as a same-origin pair with 40% of marks on identification | EK-0164, EK-0165, EK-0029, EK-0153 |
 | 440 | 76 | P1/F1 | accept | auto | cross-country same-variety white flights need an Old World (Burgundy/Loire/Alsace) anchor; all-NW Chardonnay trio unattested | EK-0169, EK-0029, EK-0034 |
 | 450 | 86 | P1/F2 | accept | auto | three-wine same-country P1 flight with two curveballs and no anchor; 15/25 marks on ID for a Canary Islands Listán Blanco is mis-tariffed — shift marks to method/quality/commercial | EK-0170, EK-0171, EK-0029, EK-0165, EK-0153 |
+| 458 | 97 | P1/F2 | accept | auto | "with reference to both wines" scope header must match a shared-attribute ask; but the 26/50 ID tariff itself is corpus-authentic for a reachable two-wine pair | EK-0172, EK-0173, EK-0165, EK-0171, EK-0147 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
