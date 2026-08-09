@@ -68,6 +68,51 @@ describe("isBanker reads the label when the key resolved no variety", () => {
   });
 });
 
+describe("a banker region is a banker for its canonical STYLE", () => {
+  // The region and the grape can both match while the wine is something else entirely. These three
+  // are style modifiers printed on the label, and each is excluded in data/banker_signals.json rather
+  // than in code, so an expert can overrule them in one small JSON edit.
+  it("demotes an Alsace Vendanges Tardives (reviewer attempt #474)", () => {
+    // Alsace + Pinot Gris clears the signal on region and grape; a late-harvest sweet wine is not the
+    // dry varietal Alsace the signal stands for.
+    expect(isBanker(label("Josmeyer, Le Fromenteau Pinot Gris, 2022. Alsace, France. (14%)"))).toBe(true);
+    expect(
+      isBanker(
+        label(
+          "Domaine Schoffit, Rangen de Thann Clos Saint-Théobald Pinot Gris Vendanges Tardives, 2019. Alsace, France."
+        )
+      )
+    ).toBe(false);
+  });
+
+  it("demotes a dry wine labelled as Sauternes (reviewer attempt #457)", () => {
+    // Sauternes AOC is sweet by law, so the dry wine of a Sauternes château is Bordeaux Blanc — which
+    // is how the corpus labels the one it pours (2024 P3, "R de Rieussec … Bordeaux Blanc Sec").
+    expect(isBanker(label("Château Guiraud, Sauternes, 2015. Sauternes, France."))).toBe(true);
+    expect(isBanker(label("Château Gravas, Sauternes Blanc Sec. Sauternes, France."))).toBe(false);
+  });
+
+  it("demotes a Noble Late Harvest Chenin from Stellenbosch", () => {
+    expect(isBanker(label("Ken Forrester, FMC Chenin Blanc. Stellenbosch, South Africa."))).toBe(true);
+    expect(
+      isBanker(label("Ken Forrester, T Noble Late Harvest Chenin Blanc, 2019. Stellenbosch, South Africa."))
+    ).toBe(false);
+  });
+
+  it("leaves the real 2011 P1 Alsace flight intact", () => {
+    // The counter-case that had to be checked before excluding VT at all: the single Vendanges
+    // Tardives the Institute pours sits in an ALL-Alsace flight beside a dry Muscat and a dry
+    // Riesling, so the region stays anchored twice over and the flight still passes.
+    const flight = [
+      "Muscat D'Alsace, Rolly Gassmann. 2007. Alsace, France (12.5%)",
+      "Riesling, Kappelweg de Rorschwihr, Rolly Gassmann. 2002. Alsace, France (12.5%)",
+      "Pinot Gris, Vendanges Tardives, Rotleibel de Rorschwihr, Rolly Gassmann. 1996. Alsace, France",
+    ].map((t, i) => ({ ...label(t), slot: i + 1 }));
+    expect(flight.filter(isBanker)).toHaveLength(2);
+    expect(flightCompositionViolations(flight)).toEqual([]);
+  });
+});
+
 describe("flight composition, end to end", () => {
   it("rejects the reviewer's New Zealand flight (attempt #459)", () => {
     // One anchor, three curveballs: "I think this would be a better flight if there were only three
