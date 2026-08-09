@@ -53,8 +53,37 @@ describe("R-OW-ANCHOR", () => {
     expect(validateOldWorldAnchor(q(withNapa)).some((x) => x.rule === "old-world-anchor")).toBe(true);
   });
 
-  it("does not fire on a 2-wine pair", () => {
-    expect(validateOldWorldAnchor(q(ALL_NEW_WORLD_CHARD.slice(0, 2)))).toHaveLength(0);
+  // A PAIR COUNTS — the rule shipped at n>=3 and so missed the second flight the SAME reviewer binned
+  // (attempt 442): "Wines 5 and 6 are made from the same single grape variety, from different origins",
+  // Clare Valley Riesling + Columbia Valley Riesling. Both wines are bankers, so every banker-counting
+  // rule passes it; what is missing is the reference expression, which is what this rule is about, and
+  // nothing in EK-0169 is about flight size. Re-measured at n>=2: still zero hits on the 160 real IMW
+  // questions, because both real all-New-World same-variety flights in the corpus are red.
+  it("fires on a two-wine cross-country pair — Clare Valley + Columbia Valley Riesling", () => {
+    const pair: AuditWine[] = [
+      { slot: 5, varieties: ["Riesling"], region: "Clare Valley", country: "Australia", fullText: "Knappstein, Hand Picked Riesling. Clare Valley, Australia." },
+      { slot: 6, varieties: ["Riesling"], region: "Columbia Valley", country: "USA", fullText: "Chateau Ste. Michelle, Cold Creek Vineyard Riesling. Columbia Valley, United States." },
+    ];
+    const text = "Wines 5 and 6 are made from the same single grape variety, from different origins. a) Identify the grape variety.";
+    expect(validateOldWorldAnchor(q(pair, text)).some((x) => x.rule === "old-world-anchor")).toBe(true);
+  });
+
+  it("clears the same pair once one wine is German", () => {
+    const pair: AuditWine[] = [
+      { slot: 5, varieties: ["Riesling"], region: "Clare Valley", country: "Australia", fullText: "Knappstein, Hand Picked Riesling. Clare Valley, Australia." },
+      { slot: 6, varieties: ["Riesling"], region: "Mosel", country: "Germany", fullText: "Dr Loosen, Wehlener Sonnenuhr Riesling Kabinett. Mosel, Germany." },
+    ];
+    const text = "Wines 5 and 6 are made from the same single grape variety, from different origins. a) Identify the grape variety.";
+    expect(validateOldWorldAnchor(q(pair, text))).toHaveLength(0);
+  });
+
+  it("still ignores a single-country pair — there is no cross-country placement to anchor", () => {
+    const sameCountry = ALL_NEW_WORLD_CHARD.slice(0, 2).map((w) => ({ ...w, country: "Australia" }));
+    expect(validateOldWorldAnchor(q(sameCountry))).toHaveLength(0);
+  });
+
+  it("does not fire on a lone wine", () => {
+    expect(validateOldWorldAnchor(q(ALL_NEW_WORLD_CHARD.slice(0, 1)))).toHaveLength(0);
   });
 
   it("does not fire on a same-country flight", () => {
