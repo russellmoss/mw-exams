@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, it, expect } from "vitest";
 import { checkStemShape } from "@/lib/question-rules.mjs";
+import { validateQuestion } from "@/lib/question-validator";
 import { selectImportableStems } from "@/lib/historical-stems";
 
 /**
@@ -42,6 +43,55 @@ describe("checkStemShape", () => {
     // "(3 x 8 marks)" is the correct notation. Only prose ABOUT the arithmetic is a marker — a rule
     // that fired on numbers would reject every question in the corpus.
     expect(checkStemShape("a) Identify the variety. (3 x 8 marks) b) Comment on quality. (3 x 17 marks)").ok).toBe(true);
+  });
+});
+
+describe("wired into validateQuestion (the nightly audit's entry point)", () => {
+  // Before this wiring, a reasoning-filled stem in the BANK was caught only indirectly — the part
+  // extractor read each fragment as a sub-part and emitted hundreds of part-task-repertoire
+  // violations. This is the purpose-built verdict: one hard `stem-shape` violation, quarantining via
+  // the same invalid_reasons machinery as every other hard rule.
+  const base = {
+    questionId: "q1",
+    paper: 1 as const,
+    family: "F1",
+    questionText:
+      "Wines 1 and 2 are from the same country. actually rereading the instructions, f must be " +
+      "divisible by 3.\na) Identify the grape variety. (2 x 10 marks)",
+    totalMarks: 50,
+    wines: [
+      { slot: 1, varieties: ["chardonnay"], region: "Burgundy", country: "France" },
+      { slot: 2, varieties: ["chardonnay"], region: "Margaret River", country: "Australia" },
+    ],
+  };
+
+  it("emits a hard stem-shape violation on a deliberation stem", () => {
+    const res = validateQuestion(base);
+    const hit = res.violations.find((v) => v.rule === "stem-shape");
+    expect(hit).toBeDefined();
+    expect(hit!.severity).toBe("hard");
+    expect(hit!.detail).toMatch(/generator reasoning/);
+    expect(res.ok).toBe(false);
+  });
+
+  it("stands down when the stem is a verbatim past paper (stemIsAuthoritative)", () => {
+    // Same gating as the other stem-shape rules: a historical stem may not be edited, so a rule whose
+    // only fix is a stem edit must not fire on it. (No real stem trips the markers — the corpus sweep
+    // below proves that — but the gate keeps this rule in the family's contract.)
+    const res = validateQuestion({ ...base, stemIsAuthoritative: true });
+    expect(res.violations.find((v) => v.rule === "stem-shape")).toBeUndefined();
+  });
+
+  it("does not fire on a clean generated stem", () => {
+    const res = validateQuestion({
+      ...base,
+      questionText:
+        "Wines 1 and 2 are from the same single grape variety.\n" +
+        "a) Identify the grape variety. (10 marks)\n" +
+        "For each wine:\nb) Identify the origin as closely as possible. (2 x 10 marks)\n" +
+        "c) Comment on the quality of the wine. (2 x 10 marks)",
+    });
+    expect(res.violations.find((v) => v.rule === "stem-shape")).toBeUndefined();
   });
 });
 
