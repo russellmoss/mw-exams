@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0179).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0178).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 3 new entries (EK-0175, EK-0176, EK-0177).**
@@ -1161,6 +1162,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #464 / analysis #104 (accept)
 - **claim:** Château de Beaucastel **Blanc** is a white Châteauneuf-du-Pape, roughly 80% Roussanne balanced by Grenache Blanc, Clairette, Bourboulenc and Picardan (with a separate Roussanne Vieilles Vignes bottling above it), fermented approximately 30% in barrel / 70% in tank — a legitimate and rich Paper 1 winemaking subject. Any model answer describing garnet colour, kirsch, peppery spice or a Grenache/Syrah/Mourvèdre conclusion has silently substituted the estate's red and is invalid on the white paper.
 
+### EK-0179 · One banker is necessary but not sufficient — same-country Italian P2 flights carry only one curveball
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #500 / analysis #140 (accept); corpus `data/exams.json` — 2017 P2 Q2 (Montepulciano d'Abruzzo, Chianti Classico Riserva, Barolo, Etna Rosso) and 2023 P2 Q1 (Barolo, Valpolicella, Taurasi Riserva, Etna Rosso)
+- **claim:** Satisfying EK-0029/EK-0162 with a single banker does not make a four-wine flight realistic: the attested same-country Italian P2 flights pair one canonical anchor (Barolo) with one or two broadly accessible regional wines and only ONE genuine curveball, matching the per-flight concentration in EK-0097. A flight of Gaja Sperss Barolo plus Montevetrano (Campanian international blend), Occhipinti SP68 (Frappato/Nero d'Avola) and Foradori Granato (Teroldego) inverts that shape — three hard-to-place wines against one anchor — and must be redrawn with a second accessible regional wine (e.g. Chianti Classico, Valpolicella, Montepulciano d'Abruzzo).
+
 ---
 
 ## §5 · Question generation rules
@@ -1437,6 +1443,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 464 | 104 | P1/F3 | accept | auto | P1 Bordeaux-vs-CdP white blend pair is corpus-attested and correctly tariffed, but Beaucastel Blanc was keyed and answered as the estate's RED — the `blanc` exclusion in the colour resolver plus a grape-only label-conflict guard let it through | EK-0175, EK-0176, EK-0177, EK-0061, EK-0156, EK-0155, EK-0074 |
 | 467 | 107 | P1/F4 | accept | auto | collective 'with reference to all four wines' header + pooled 16-mark tariff used for four DIFFERENT varieties; corpus always pairs distinct-variety asks with a per-wine header and `4 x 8` multiplier | EK-0178, EK-0172, EK-0147, EK-0041 |
 | 473 | 113 | P1/F4 | accept | auto | Third report of the same scope-header defect — collective 'with reference to all three wines' header on a per-wine variety ask (even with the correct 3 x 5 multiplier tariff); already covered, reinforces the case for validator enforcement | EK-0172, EK-0178 |
+| 500 | 140 | P2/F2 | accept | auto | one banker isn't enough — same-country Italian P2 flights carry one curveball, not three | EK-0179, EK-0029, EK-0162, EK-0097 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
