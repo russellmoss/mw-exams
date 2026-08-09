@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import { scorePredictions } from "../src/lib/stem-scoring.ts";
-import { scopeHeaderProblems } from "../src/lib/stem-answer-key.mjs";
+import { scopeHeaderProblems, varietyFamilyProblems } from "../src/lib/stem-answer-key.mjs";
 
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; } else { fail++; console.log("  FAIL:", name); } };
@@ -214,6 +214,61 @@ try {
 {
   const stem = "Wine 1 is a premium white. Identify the grape variety and origin. (25 marks)";
   ok("S7 no scope header = clean", scopeHeaderProblems(stem).length === 0);
+}
+
+// --- Named variety-family membership (EK-0173, R12) ---
+const bordeauxStem =
+  "Wines 1-4 are made from Bordeaux varieties. For each wine: a) Identify the origin and grape " +
+  "variety(ies). (4 x 10 marks)";
+// V1. THE FLAGGED DEFECT: Touriga Franca under a "Bordeaux varieties" stem must be flagged.
+{
+  const ground = [
+    { slot: 1, varieties: ["Merlot", "Cabernet Franc"], region: "Lussac-Saint-Émilion", country: "France" },
+    { slot: 2, varieties: ["Cabernet Sauvignon"], region: "Tuscany", country: "Italy" },
+    { slot: 3, varieties: ["Cabernet Franc"], region: "Chinon, Loire", country: "France" },
+    { slot: 4, varieties: ["Touriga Franca"], region: "Douro", country: "Portugal" },
+  ];
+  const p = varietyFamilyProblems(bordeauxStem, ground);
+  ok("V1 Touriga Franca in Bordeaux flight = flagged (W4 only)", p.length === 1 && /W4/.test(p[0]) && /Touriga Franca/.test(p[0]));
+}
+// V2. VALID: an all-Bordeaux-variety flight is clean (Côt is Malbec's canonical synonym).
+{
+  const ground = [
+    { slot: 1, varieties: ["Cabernet Sauvignon", "Merlot"], region: "Pauillac", country: "France" },
+    { slot: 2, varieties: ["Malbec"], region: "Mendoza", country: "Argentina" },
+    { slot: 3, varieties: ["Carménère"], region: "Maipo Valley", country: "Chile" },
+    { slot: 4, varieties: ["Petit Verdot"], region: "Napa Valley", country: "USA" },
+  ];
+  ok("V2 all-Bordeaux flight = clean", varietyFamilyProblems(bordeauxStem, ground).length === 0);
+}
+// V3. VALID: Cabernet Franc grown in the Douro satisfies the premise (the correct Portugal curveball).
+{
+  const ground = [{ slot: 4, varieties: ["Cabernet Franc"], region: "Douro", country: "Portugal" }];
+  ok("V3 Portuguese Cabernet Franc = clean", varietyFamilyProblems(bordeauxStem, ground).length === 0);
+}
+// V4. BLEND: passes when ANY component is Bordeaux, fails when NONE is.
+{
+  const okBlend = [{ slot: 1, varieties: ["Cabernet Sauvignon", "Syrah"], region: "Provence", country: "France" }];
+  const badBlend = [{ slot: 1, varieties: ["Touriga Nacional", "Tempranillo"], region: "Douro", country: "Portugal" }];
+  ok("V4a blend with one Bordeaux component = clean", varietyFamilyProblems(bordeauxStem, okBlend).length === 0);
+  ok("V4b blend with no Bordeaux component = flagged", varietyFamilyProblems(bordeauxStem, badBlend).length === 1);
+}
+// V5. NO FALSE POSITIVE: a stem naming no variety family is never checked.
+{
+  const stem = "Wines 1-4 are premium reds. For each wine, identify the grape variety and origin. (4 x 15 marks)";
+  const ground = [{ slot: 1, varieties: ["Touriga Franca"], region: "Douro", country: "Portugal" }];
+  ok("V5 no named family = clean", varietyFamilyProblems(stem, ground).length === 0);
+}
+// V6. UNENFORCED FAMILY: a family with no curated member list stays unenforced (no false flag).
+{
+  const stem = "Wines 1-3 are made from Rhône varieties. For each wine, identify the grape. (3 x 10 marks)";
+  const ground = [{ slot: 1, varieties: ["Riesling"], region: "Mosel", country: "Germany" }];
+  ok("V6 un-listed family = clean", varietyFamilyProblems(stem, ground).length === 0);
+}
+// V7. NO-VARIETY wine is not double-flagged here (the resolver already flags it).
+{
+  const ground = [{ slot: 4, varieties: [], region: "Douro", country: "Portugal" }];
+  ok("V7 no-variety wine not flagged by family rule", varietyFamilyProblems(bordeauxStem, ground).length === 0);
 }
 
 console.log(`\nstem-scoring tests: ${pass} passed, ${fail} failed.`);
