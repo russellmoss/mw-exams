@@ -69,6 +69,15 @@ jobs:
         working-directory: study-app
         run: node --import ./scripts/ts-loader.mjs scripts/audit-questions.mjs --apply
 
+      # Whole-bank exact-duplicate retirement (reviewer attempts #495/#503/#507: "you keep giving me
+      # the same question"). Generation-time novelty only sees a recent window, so a twin banked weeks
+      # earlier escapes it; this is the backstop. Pure SQL + JS — no ts-loader needed. Independent of
+      # the audit above, so it runs even if that step fails.
+      - name: Retire exact-duplicate flights
+        if: always()
+        working-directory: study-app
+        run: node scripts/sweep-duplicate-flights.mjs --apply
+
       # Runs even if the step above fails: the two audits are independent, and a question-validator
       # problem should not leave wrong-wine profiles being served. ts-loader is the repo's existing
       # way to run a .mts that imports the app's extensionless .ts libs — no tsx dependency needed.
