@@ -262,9 +262,10 @@ export default function OnboardingPage() {
         <section className="bg-card rounded-xl border border-border p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-1">How should it talk to you?</h2>
           <p className="text-sm text-muted mb-5">
-            This sets how the Coach talks to you, and how it explains the ruling on any feedback you
-            file. Your graded debriefs stay in The Tutor&apos;s voice — a voice you pick should never
-            change your marks. Switch any time in Settings, or just tell the Coach to change it.
+            The Coach, your graded debriefs, and the rulings on any feedback you file.{" "}
+            <strong className="text-foreground">Your voice cannot change your marks</strong> — the
+            grading happens first, in one neutral voice, and only the wording is changed afterwards.
+            Switch any time in Settings, or just tell the Coach to change it.
           </p>
           <PersonaPicker value={persona} onChange={setPersona} disabled={saving} />
         </section>

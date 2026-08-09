@@ -7,11 +7,16 @@ import { logClaudeUsage } from "@/lib/usage-log";
 import { IMAGE_TOKEN_INSTRUCTIONS, enrichFeedbackWithImages, createImageStreamer } from "@/lib/media";
 import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { getUserPersona } from "@/lib/persona-server";
-import { personaBlock } from "@/lib/personas";
+import { restyleForPersona } from "@/lib/persona-restyle";
+import { DEFAULT_PERSONA, gradedRestyleEnabled, personaBlock } from "@/lib/personas";
 
 export const runtime = "nodejs";
 // Generous budget: after the text streams we resolve the hero + up to 3 illustration images.
-export const maxDuration = 120;
+// Raised from 120 when the persona re-voicing pass landed. Measured on a real debrief: pass 1
+// (grading, Opus) 61s + pass 2 (re-voicing, Sonnet) 43s = ~104s, which left 16s of headroom against
+// the old cap — a longer script would have timed out mid-stream and cost the candidate their graded
+// attempt. 300 matches /api/coach, the other long-running streaming route.
+export const maxDuration = 300;
 
 export async function POST(request: Request) {
   try {
@@ -37,20 +42,19 @@ export async function POST(request: Request) {
       masterTreeForPaper(paper)
     );
 
+    const chosenPersona = await getUserPersona(keyResult.user.id);
+    const willRestyle = chosenPersona !== DEFAULT_PERSONA && gradedRestyleEnabled("grading");
+
     const { model, abGroup } = await selectModel("reasoning_grading", keyResult.apiKey, "opus");
     const t0 = Date.now();
     // Adaptive thinking so the stem-analysis grader's reasoning is visible while it works. The
     // candidate has already committed their pre-glass answer, so nothing here is a spoiler.
     const stream = await client.messages.stream({
       model,
-      // Persona last — it supersedes the "supportive, experienced coach" framing in the pre-glass
-      // prompt's own role section, while its invariants keep every blind spot the grader found.
+      // Neutral by construction: personaBlock pins the grading surface to the Tutor, so this call
+      // cannot be swayed by the chosen voice. The voice is applied to the finished critique below.
       system:
-        systemPrompt +
-        "\n" +
-        IMAGE_TOKEN_INSTRUCTIONS +
-        "\n\n" +
-        personaBlock(await getUserPersona(keyResult.user.id), "grading"),
+        systemPrompt + "\n" + IMAGE_TOKEN_INSTRUCTIONS + "\n\n" + personaBlock(chosenPersona, "grading"),
       ...(await withThinking(model, 1500, keyResult.user.id)),
       messages: [
         {
@@ -83,8 +87,10 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
             ) {
               fullText += event.delta.text;
               imageStreamer.feed(fullText);
-              const jsonChunk = JSON.stringify({ t: event.delta.text });
-              controller.enqueue(encoder.encode(`data: ${jsonChunk}\n\n`));
+              // Withheld when a re-voicing pass is coming — the styled text streams instead.
+              if (!willRestyle) {
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t: event.delta.text })}\n\n`));
+              }
             } else if (
               event.type === "content_block_delta" &&
               event.delta.type === "thinking_delta"
@@ -98,14 +104,42 @@ Please evaluate this stem analysis. What did the candidate identify well? What s
             final.usage,
             { latencyMs: Date.now() - t0 }
           );
+          // Pass 2 — the candidate's voice, applied after the critique is written. Before image
+          // enrichment so the rewrite sees compact [[IMG:...]] tokens rather than resolved markup.
+          let critique = fullText;
+          if (willRestyle) {
+            const restyled = await restyleForPersona({
+              neutralText: critique,
+              persona: chosenPersona,
+              surface: "grading",
+              client,
+              apiKey: keyResult.apiKey,
+              usage: {
+                taskType: "reasoning_grading_persona_restyle",
+                source: keyResult.source,
+                userId: keyResult.user.id,
+              },
+              onDelta: (t) => controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t })}\n\n`)),
+            });
+            critique = restyled.text;
+            if (restyled.outcome !== "applied") {
+              console.warn(`[reasoning-eval] restyle not applied: ${restyled.outcome}`);
+            }
+          }
           // Wait for in-flight incremental image fetches, then send the enriched markdown as the
-          // authoritative final text. Best-effort — tokens are stripped on failure.
+          // authoritative final text — which also corrects the client's buffer if a rewrite was
+          // streamed and then discarded. Best-effort — tokens are stripped on failure.
           try {
             await imageStreamer.flush();
-            const enriched = await enrichFeedbackWithImages(fullText, keyResult.user.id);
+            const enriched = await enrichFeedbackWithImages(critique, keyResult.user.id);
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
           } catch (enrichErr) {
             console.error("reasoning-eval image enrichment failed:", enrichErr);
+            // The buffer the client is holding may be a rejected rewrite; the corrected text has
+            // to reach it even without images.
+            if (willRestyle) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: critique })}\n\n`));
+            }
           }
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();

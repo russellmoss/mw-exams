@@ -30,7 +30,11 @@ import {
 import { assertTheoryGradingMeta, extractTheoryGradingMeta } from "@/lib/theory/grading-meta";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Raised from 120 when the persona re-voicing pass landed. Measured on a real debrief: pass 1
+// (grading, Opus) 61s + pass 2 (re-voicing, Sonnet) 43s = ~104s, which left 16s of headroom against
+// the old cap — a longer script would have timed out mid-stream and cost the candidate their graded
+// attempt. 300 matches /api/coach, the other long-running streaming route.
+export const maxDuration = 300;
 
 /**
  * Grades a candidate's THEORY essay against the examiner-derived rubric. The model answer is
@@ -146,6 +150,9 @@ Mark this against the rubric above.`;
       system: systemPrompt,
       userMessage,
       maxTokens: 2400,
+      // Pass 2. `systemPrompt` above was built with the neutral voice (personaBlock pins the
+      // grading surface), so the band and the rubric coverage are decided before this is read.
+      restyle: { persona: await getUserPersona(gradingRuntime.user.id), surface: "grading" },
       usage: { attemptId: attempt.attemptId, questionId: rubric.id },
       initialFrames: [
         {

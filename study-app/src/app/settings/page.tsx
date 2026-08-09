@@ -985,16 +985,16 @@ export default function SettingsPage() {
           <section className="bg-card rounded-xl border border-border p-6">
             <h2 className="text-lg font-semibold text-foreground mb-2 font-display">Voice</h2>
             <p className="text-sm text-muted mb-5">
-              How the app talks to you in the Coach and in the rulings on feedback you file. You can
-              also just tell the Coach to change it — &ldquo;be blunter&rdquo; is enough.
+              How the app talks to you — the Coach, your graded debriefs, and the rulings on
+              feedback you file. You can also just tell the Coach to change it;
+              &ldquo;be blunter&rdquo; is enough.
             </p>
             <p className="text-xs text-muted mb-5 leading-relaxed border-l-2 border-border pl-3">
-              <span className="text-foreground">Your graded debriefs stay in The Tutor&apos;s voice
-              for now.</span>{" "}
-              We tested the others on real marking and they moved the grade — the blunt one marked
-              the same script harder, the rude one marked it softer. A voice you pick should never
-              change whether you pass, so marking keeps one voice until we can separate the
-              wording from the score properly.
+              <span className="text-foreground">Your voice cannot change your marks.</span>{" "}
+              Your answer is graded once, in one neutral voice, before the app knows which persona
+              you picked — then the finished feedback is re-worded. The marks, the verdict and
+              every last point are checked against the original afterwards, and if a single number
+              or finding moved, the re-wording is thrown away and you get the plain version.
             </p>
             <PersonaPicker value={persona} onChange={savePersona} disabled={personaSaving} />
           </section>

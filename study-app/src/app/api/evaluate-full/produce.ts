@@ -21,7 +21,8 @@ import { withThinking, thinkingFrame } from "@/lib/thinking-stream";
 import { deriveQuestion, markPhrase } from "@/lib/question-sections";
 import { masterTreeForPaper } from "@/lib/master-trees";
 import { getUserPersona } from "@/lib/persona-server";
-import { personaBlock } from "@/lib/personas";
+import { restyleForPersona } from "@/lib/persona-restyle";
+import { DEFAULT_PERSONA, gradedRestyleEnabled, personaBlock } from "@/lib/personas";
 
 /**
  * The full-debrief grading core, shared by two callers (flash-notes/grade/produce.ts precedent):
@@ -299,11 +300,16 @@ In ADDITION to your per-sub-question marks, emit this machine-readable tag LAST 
 The two awarded values MUST sum to your overall estimated marks.`;
   }
 
-  // LAST in the system prompt, deliberately. MARKING_PRINCIPLES ends with its own "Tone — faithful
-  // verdict, constructive voice" section, and a candidate who chose The Examiner or The Cellar Rat
-  // must not be read that instruction last. The invariants inside the block are what keep the
-  // override confined to wording: the verdict stays faithful either way.
-  const persona = personaBlock(await getUserPersona(userId), "grading");
+  // TWO-PASS VOICING. This call grades, and it grades in the neutral voice whatever the candidate
+  // chose — personaBlock pins the "grading" surface to the Tutor, because a voice handed to a
+  // grading model moves the mark (see lib/persona-restyle.ts for the measurements). The chosen
+  // voice is applied afterwards by restyleForPersona, which may only rewrite prose.
+  const chosenPersona = await getUserPersona(userId);
+  const persona = personaBlock(chosenPersona, "grading");
+  // When a rewrite is coming, pass 1's text is NOT forwarded to the client — the candidate watches
+  // progress, then the styled prose streams in. Forwarding both would make them read the whole
+  // debrief in one voice and then watch it re-write itself in another.
+  const willRestyle = chosenPersona !== DEFAULT_PERSONA && gradedRestyleEnabled("grading");
 
   const { model, abGroup } = await selectModel("full_debrief", apiKey, "opus");
   const t0 = Date.now();
@@ -339,10 +345,13 @@ The two awarded values MUST sum to your overall estimated marks.`;
           ) {
             fullText += event.delta.text;
             imageStreamer.feed(fullText);
-            const jsonChunk = JSON.stringify({ t: event.delta.text });
-            controller.enqueue(
-              encoder.encode(`data: ${jsonChunk}\n\n`)
-            );
+            // Suppressed when a restyle is coming: the styled pass streams instead, below. Image
+            // resolution still runs off this text so the hero image is ready either way — the
+            // restyle is required to copy [[IMG:...]] tokens through verbatim, and the fingerprint
+            // gate rejects it if it does not.
+            if (!willRestyle) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t: event.delta.text })}\n\n`));
+            }
           } else if (
             event.type === "content_block_delta" &&
             event.delta.type === "thinking_delta"
@@ -403,17 +412,45 @@ The two awarded values MUST sum to your overall estimated marks.`;
           claims: claimCheck,
         });
 
-        let finalText = claimCheck.feedback;
+        // PASS 2 — the candidate's voice, applied to text that is already marked.
+        //
+        // After the claim correction on purpose: the corrector rewrites prose, so re-voicing first
+        // would have its work overwritten. Before image enrichment for the same reason the
+        // corrector runs before it — the rewrite must see compact [[IMG:...]] tokens, not resolved
+        // <img> markup it would have to reproduce byte-perfectly.
+        let graded = claimCheck.feedback;
+        if (willRestyle) {
+          const restyled = await restyleForPersona({
+            neutralText: graded,
+            persona: chosenPersona,
+            surface: "grading",
+            client,
+            apiKey,
+            usage: { taskType: "debrief_persona_restyle", source: usageSource, userId },
+            onDelta: (t) => controller.enqueue(encoder.encode(`data: ${JSON.stringify({ t })}\n\n`)),
+          });
+          graded = restyled.text;
+          if (restyled.outcome !== "applied") {
+            // The client has a discarded rewrite in its buffer. The {enriched} frame below replaces
+            // that buffer verbatim, so it self-corrects — but only if it is actually sent, which is
+            // why the catch below now fires on this case too.
+            console.warn(`[full-debrief] restyle not applied (${restyled.outcome}) for user ${userId}`);
+          }
+        }
+
+        let finalText = graded;
         try {
           await imageStreamer.flush();
-          const enriched = await enrichFeedbackWithImages(claimCheck.feedback, userId, imageAllowList);
+          const enriched = await enrichFeedbackWithImages(graded, userId, imageAllowList);
           finalText = enriched;
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched })}\n\n`));
         } catch (enrichErr) {
           console.error("full-debrief image enrichment failed:", enrichErr);
-          // Enrichment failed but the prose may still have been CORRECTED — the client is holding the
-          // uncorrected stream, so the corrected text has to reach it even without images.
-          if (claimCheck.regenerated) {
+          // Enrichment failed but the prose the client is holding may not be the final prose — it
+          // was corrected, or it was re-voiced (or re-voiced and then discarded, leaving the client
+          // with a rewrite the gate rejected). In every one of those cases the authoritative text
+          // has to reach it even without images.
+          if (claimCheck.regenerated || willRestyle) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ enriched: finalText })}\n\n`));
           }
         }
