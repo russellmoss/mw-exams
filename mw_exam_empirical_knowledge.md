@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0178).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 3 new entries (EK-0175, EK-0176, EK-0177).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0174).**
@@ -1363,6 +1364,11 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #458 / analysis #97 (accept); corpus `data/exams.json` — 2013 P1 Q1/Q2 (same country, different regions/varieties: 15 marks per wine for origin-as-closely-as-possible + variety, i.e. 30 of 50); 2016 P1 Q4 (Spain, 10+10 origin); EK-0165; EK-0171
 - **claim:** Heavy identification tariffs on a two-wine flight are corpus-authentic when the wines are reachable: 26 of 50 marks (10 variety + 16 origin) sits inside the attested band, and 2013 P1 Q1/Q2 pays 30 of 50 for the same shape. The ID-reachability constraint (EK-0165/EK-0171) bites on *unreachable* wines — zero- or low-precedent origins and fringe curveballs — not on a same-country pair of recognisable varieties (e.g. Stellenbosch Sauvignon Blanc + Cederberg Chenin Blanc). Do not down-tariff identification merely because it is a large share of a small flight.
 
+### EK-0178 · Pooled tariff = shared answer; per-wine varieties always take the `N x M marks` multiplier form
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #467 / analysis #107 (accept); corpus `data/exams.json` — 2018 P1 Q1 (four Chardonnays, pooled 20), 2014 P1 Q2 (four Rieslings, pooled 24), 2025 P1 Q2 (four Chardonnays, pooled 16), 2014 P1 Q1 (pooled 16 for the shared country); vs 2016 P1 Q5 (4 x 8), 2015 P1 Q3 (6 x 10), 2018 P1 Q2 (6 x 7), 2023 P1 Q2 (4 x 5)
+- **claim:** The mark-tariff FORM is the other half of the scope-header rule (EK-0172): the IMW pools marks into a single figure only when the flight has one shared answer to argue toward (all-Chardonnay, all-Riesling, one common country), and switches to the per-wine multiplier (`4 x 8 marks`) the moment the stem declares each wine a different variety or origin. A generated stem that says "each made from a different, single grape variety" and then asks "with reference to all four wines: identify the grape variety for each wine (16 marks)" mixes both forms and has no corpus precedent — it promises one integrated answer while marking four. This mismatch has now been reported twice, so it belongs in the validator rather than in prompt guidance alone.
+
 ---
 
 ## §6 · Question-generation learnings from feedback (the living ledger)
@@ -1428,6 +1434,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 455 | 94 | P1/F2 | accept | auto | country-ID flights need an anchor that unlocks the country; three cult/specialist USA whites are all curveballs | EK-0174, EK-0029, EK-0170, EK-0162 |
 | 433 | 87 | P1/F1 | accept | auto | four-country all-New-World Chardonnay flight (Argentina/Australia/Chile/NZ) has no Burgundian anchor and four curveballs — already fully covered by the Old-World-anchor and banker rules | EK-0169, EK-0029, EK-0034, EK-0097 |
 | 464 | 104 | P1/F3 | accept | auto | P1 Bordeaux-vs-CdP white blend pair is corpus-attested and correctly tariffed, but Beaucastel Blanc was keyed and answered as the estate's RED — the `blanc` exclusion in the colour resolver plus a grape-only label-conflict guard let it through | EK-0175, EK-0176, EK-0177, EK-0061, EK-0156, EK-0155, EK-0074 |
+| 467 | 107 | P1/F4 | accept | auto | collective 'with reference to all four wines' header + pooled 16-mark tariff used for four DIFFERENT varieties; corpus always pairs distinct-variety asks with a per-wine header and `4 x 8` multiplier | EK-0178, EK-0172, EK-0147, EK-0041 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
