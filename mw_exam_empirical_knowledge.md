@@ -37,6 +37,7 @@ features. Read the **relevant section on demand**; do not load the whole file ro
   `user_attempts.id` / `feedback_analyses.id` in the Neon `MW-exam` project.
 
 **Changelog**
+- **2026-08-09 — incremental: 1 feedback item(s) processed → 3 new entries (EK-0175, EK-0176, EK-0177).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 0 new entries.**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 1 new entry (EK-0174).**
 - **2026-08-09 — incremental: 1 feedback item(s) processed → 2 new entries (EK-0172, EK-0173).**
@@ -1148,6 +1149,16 @@ Scale of the build: ~**4,500 analytical files**, **12 subagents**, against a rea
 - **evidence:** ledger: attempt #455 / analysis #94 (accept); corpus `data/exams.json` — 2014 P1 Q1 (four Australian whites anchored by Hunter Semillon)
 - **claim:** When the stem pays marks for identifying the **country**, at least one wine must reliably unlock that country for a prepared candidate; the country call is meant to be reachable from the aggregate flight evidence, and the anchor is what makes the aggregation tractable (2014 P1 Q1's Hunter Semillon does this job for an otherwise diverse Australian flight). A three-wine USA same-country trio of Au Bon Climat 'Hildegard' (a Pinot Gris/Pinot Blanc/Aligoté blend), Calera Mount Harlan Viognier (cult single-winery AVA) and a Willamette Reserve Pinot Gris is three curveballs with no banker — none of them is a wine the candidate knows cold, so the country ask is a guess rather than a deduction. Extends EK-0029/EK-0170 to the country-identification ask specifically: recognisable New World anchors (e.g. Napa/Sonoma Chardonnay, Marlborough Sauvignon Blanc) must carry the flight.
 
+### EK-0175 · Bordeaux white blend vs Châteauneuf Blanc is an attested P1 same-country blend pair
+- **tier:** STRONG SIGNAL · **status:** live
+- **evidence:** ledger: attempt #464 / analysis #104 (accept); corpus `data/exams.json` — 2016 P1 Q1 (Château Brown, Pessac-Léognan + Vieux Télégraphe Châteauneuf-du-Pape Blanc, stem "Wines 1 and 2 are from the same country. They are both blends"); 2024 P1 Q3 (Jurançon Sec / Fieuzal / Château de Nalys CdP Blanc); 2025 P1 Q1 (two SB-Sémillon blends)
+- **claim:** A two-wine Paper 1 blend question pairing a Pessac-Léognan white blend against a Châteauneuf-du-Pape **Blanc** under a same-country constraint is one of the best-attested P1 F3 shapes — 2016 P1 Q1 uses the identical appellation pair and framing. The 6 / 2×8 / 2×7 / 2×7 tariff (50 marks for two wines) is standard and correctly balanced. Generation should treat this pairing as in-distribution, not as a stretch.
+
+### EK-0176 · Château de Beaucastel Blanc is Roussanne-dominant — never key the estate's red in its place
+- **tier:** PLAUSIBLE · **status:** live
+- **evidence:** ledger: attempt #464 / analysis #104 (accept)
+- **claim:** Château de Beaucastel **Blanc** is a white Châteauneuf-du-Pape, roughly 80% Roussanne balanced by Grenache Blanc, Clairette, Bourboulenc and Picardan (with a separate Roussanne Vieilles Vignes bottling above it), fermented approximately 30% in barrel / 70% in tank — a legitimate and rich Paper 1 winemaking subject. Any model answer describing garnet colour, kirsch, peppery spice or a Grenache/Syrah/Mourvèdre conclusion has silently substituted the estate's red and is invalid on the white paper.
+
 ---
 
 ## §5 · Question generation rules
@@ -1416,6 +1427,7 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 | 458 | 97 | P1/F2 | accept | auto | "with reference to both wines" scope header must match a shared-attribute ask; but the 26/50 ID tariff itself is corpus-authentic for a reachable two-wine pair | EK-0172, EK-0173, EK-0165, EK-0171, EK-0147 |
 | 455 | 94 | P1/F2 | accept | auto | country-ID flights need an anchor that unlocks the country; three cult/specialist USA whites are all curveballs | EK-0174, EK-0029, EK-0170, EK-0162 |
 | 433 | 87 | P1/F1 | accept | auto | four-country all-New-World Chardonnay flight (Argentina/Australia/Chile/NZ) has no Burgundian anchor and four curveballs — already fully covered by the Old-World-anchor and banker rules | EK-0169, EK-0029, EK-0034, EK-0097 |
+| 464 | 104 | P1/F3 | accept | auto | P1 Bordeaux-vs-CdP white blend pair is corpus-attested and correctly tariffed, but Beaucastel Blanc was keyed and answered as the estate's RED — the `blanc` exclusion in the colour resolver plus a grape-only label-conflict guard let it through | EK-0175, EK-0176, EK-0177, EK-0061, EK-0156, EK-0155, EK-0074 |
 
 ### EK-0054 · The pair + lone-wine structure is implausible for the MW exam
 - **tier:** PLAUSIBLE · **status:** live
@@ -2079,6 +2091,11 @@ into §2–§5 / §7 (cross-referenced by EK id). Maps to Neon `user_attempts` /
 - **tier:** PROCESS · **status:** live
 - **evidence:** ledger: attempt #190 / analysis #34 (reject)
 - **claim:** Symptom: a user clicked the feedback button three times on one question expecting three discrete records, but only the third submission was retained — earlier submissions were overwritten. Root cause: the feedback-submit path replaces the prior entry instead of appending a new record per submission. Workaround: submit all observations in a single entry. Fix: persist sequential feedback submissions as distinct records. UI/UX bug, no content/pipeline change.
+
+### EK-0177 · A "Blanc" cuvée suffix is a colour claim; excluding it wholesale mis-keys white wines as red
+- **tier:** PROCESS · **status:** live
+- **evidence:** ledger: attempt #464 / analysis #104 (accept); EK-0156 (French `blanc` excluded from the label-colour-word rule because Château Cheval Blanc is a red Saint-Émilion); EK-0061 (label-conflict guard in `resolveVariety`)
+- **claim:** **Symptom:** a served P1 question keyed *Château de Beaucastel Blanc* as a red Syrah/Mourvèdre blend, and the model answer reasoned a red wine on the white paper. **Root cause:** two guards both missed it. EK-0061's label-conflict guard only fires when the label names an explicit **grape**, and this label names none; EK-0156 deliberately excludes French `blanc` from the label-colour rule (because *Cheval Blanc* is red), so the resolver fell back to the producer's dominant — red — profile. The exclusion is too broad: `blanc` is part of the **producer name** in Cheval Blanc but is a **cuvée/colour suffix** in Beaucastel Blanc, Nalys Châteauneuf Blanc, Saint-Joseph Blanc. **Rule:** treat a trailing `Blanc`/`Bianco`/`Branco` after an appellation or cuvée as a colour claim that outranks the producer's usual colour; keep the exclusion only where the word is inside the producer/château name itself. Qualifies EK-0156's corollary and extends EK-0061 from grape-conflict to colour-conflict.
 
 ---
 
