@@ -25,7 +25,10 @@ import { applyAnswerContentRules } from "./answer-content-rules.mjs";
 // Per-wine style classifier (the SAME one the Paper 3 sampler and Exam Mix use), so the paper
 // style-mix rule tags a wine still/sparkling/fortified/sweet/rosé exactly as the rest of the system.
 import { classifyWineStyle } from "./p3-category.mjs";
-import { noteCompletenessViolations, type TastingValidationWine } from "./tasting-validators";
+import {
+  noteCompletenessViolations,
+  type TastingValidationWine,
+} from "./tasting-validators";
 // Rarity/precedent tier data + fortified category-integrity map. The wine knowledge lives in db.ts as
 // exported consts (so admins retag wines there); this module holds only the rules that read them.
 import {
@@ -39,7 +42,10 @@ import {
 export type StemSniperScoringModel = "per-wine" | "set";
 
 // Typed re-export of the shared scoring-model classifier (kept here for existing importers).
-export const stemSniperScoringModel = (questionText?: string, wineCount = 0): StemSniperScoringModel =>
+export const stemSniperScoringModel = (
+  questionText?: string,
+  wineCount = 0,
+): StemSniperScoringModel =>
   _stemSniperScoringModel(questionText, wineCount) as StemSniperScoringModel;
 
 export interface AuditWine {
@@ -85,7 +91,8 @@ export interface AuditWine {
 // ranks by AGEING (Crianza → Reserva → Gran Reserva); Chianti Classico / Gran Selezione is a HYBRID
 // of geography and structural/ageing tiers. Reveal feedback that "explains the hierarchy" must cite
 // the right one — geography alone is wrong for a producer or ageing ladder (fb_135).
-export type ClassificationModel = "producer" | "vineyard" | "geographic" | "ageing" | "hybrid";
+export type ClassificationModel =
+  "producer" | "vineyard" | "geographic" | "ageing" | "hybrid";
 export interface QuestionForAudit {
   questionId: string;
   paper: number;
@@ -180,14 +187,17 @@ const STEM_WORD_CAP = 40;
 function extractStem(questionText: string): string {
   const text = questionText || "";
   const marker = text.match(/(?:^|\s)[a-z]\)/i);
-  let stem = marker && marker.index != null ? text.slice(0, marker.index) : text;
+  let stem =
+    marker && marker.index != null ? text.slice(0, marker.index) : text;
   // Drop the neutral "For each wine:" / "For both wines:" scaffolding that trails the framing.
   stem = stem.replace(/\bFor (each|both) wines?:/gi, " ");
   return stem.trim();
 }
 
 // HARD violations for a stem that pre-announces the discriminator or runs over the word cap.
-export function stemPreannouncesDiscriminator(questionText: string): Violation[] {
+export function stemPreannouncesDiscriminator(
+  questionText: string,
+): Violation[] {
   const stem = extractStem(questionText);
   if (!stem) return [];
   const violations: Violation[] = [];
@@ -254,15 +264,143 @@ function blendSignal(w: AuditWine): string | null {
   if (w.is_blend) return "keyed as a blend";
   if ((w.varieties?.length || 0) >= 2)
     return `varieties list ${w.varieties.length} grapes (${w.varieties.join("/")})`;
-  const hay = norm([w.fullText, w.region, w.style, ...(w.varieties || [])].filter(Boolean).join(" "));
+  const hay = norm(
+    [w.fullText, w.region, w.style, ...(w.varieties || [])]
+      .filter(Boolean)
+      .join(" "),
+  );
   const hit = MULTI_VARIETY_APPELLATIONS.find((a) => a.re.test(hay));
   return hit ? `${hit.name} is a multi-variety appellation` : null;
 }
 
+/**
+ * The blend signal for the ASK rule (3b), which is deliberately STRICTER than `blendSignal` above.
+ *
+ * `blendSignal` runs its appellation arm even when the answer key resolved a single variety, and that
+ * is wrong here: white Rioja is keyed `["Viura"]` on three live questions (two of them real IMW papers,
+ * 2025 P1 Q4 among them) and the label arm would rewrite a correct singular ask into a hedge — or,
+ * worse, quarantine a printed past paper. A key that names exactly one grape is TRUSTED.
+ *
+ * The label arm survives only for slots the key could not resolve, and even then a varietal label
+ * ("Rasteau Grenache Noir") beats the appellation: the bottle names its grape.
+ */
+function askBlendSignal(w: AuditWine): string | null {
+  if (w.is_blend === true) return "keyed as a blend";
+  const n = w.varieties?.length || 0;
+  if (n >= 2) return `keyed varieties: ${w.varieties.join("/")}`;
+  if (n === 1) return null; // the key resolved one grape — do not second-guess it from the address
+  const hay = norm([w.fullText, w.region, w.style].filter(Boolean).join(" "));
+  const named = new Set<string>();
+  for (const re of [RED_GRAPE_INDICATORS, WHITE_GRAPE_INDICATORS]) {
+    const g = new RegExp(re.source, "gi");
+    let m: RegExpExecArray | null;
+    while ((m = g.exec(hay)) !== null) named.add(m[0].replace(/\s+/g, " "));
+  }
+  if (named.size === 1) return null; // a varietal label states its own grape
+  const hit = MULTI_VARIETY_APPELLATIONS.find((a) => a.re.test(hay));
+  return hit ? `${hit.name} is a multi-variety appellation` : null;
+}
+
+// ── The singular variety ASK, and the slots it addresses ───────────────────────────────────────────
+//
+// Feeds arm (3b) of crossCheckStemFacts. Kept here rather than folded into question-sections.ts because
+// that module resolves flight-vs-per-wine SCOPE for rendering and mark arithmetic; this needs the
+// narrower thing it does not model — the explicit SLOT SUBSET an addressee line names ("For each wine
+// 1-3:"), which is the only reason 2022 P2 Q1 survives the rule.
+
+/** An addressee line — the scope header a run of lettered sub-parts sits under. */
+const ADDRESSEE_LINE_RE =
+  /^\s*(?:for\b|with reference to\b|considering\b|in respect of\b)[^\n]*:\s*$/i;
+
+/** The slots an addressee line names, or null when it addresses the whole flight. */
+function addresseeSlots(line: string, allSlots: number[]): number[] | null {
+  const l = norm(line);
+  const range = l.match(/wines?\s*(\d+)\s*(?:-|–|—|\s+to\s+)\s*(\d+)/);
+  if (range) {
+    const [a, b] = [Number(range[1]), Number(range[2])].sort((x, y) => x - y);
+    return allSlots.filter((s) => s >= a && s <= b);
+  }
+  const list = l.match(/wines?\s*((?:\d+\s*(?:,|and|&)\s*)+\d+)/);
+  if (list) {
+    const nums = (list[1].match(/\d+/g) || []).map(Number);
+    return allSlots.filter((s) => nums.includes(s));
+  }
+  const single = l.match(/\bwine\s+(\d+)\b/);
+  if (single) return allSlots.filter((s) => s === Number(single[1]));
+  return null; // "For each wine" / "For both wines" / "For all four wines"
+}
+
+/** A command word must precede the noun, so "reasons for not blending the variety used" is not an ask. */
+const VARIETY_COMMAND_RE = /\b(?:identif|nam(?:e|ing)|stat(?:e|ing)|specif)/i;
+/** Qualifiers that already concede a blend (or make the phrase a back-reference rather than an ask). */
+const VARIETY_QUALIFIED_RE =
+  /\b(?:single|same|principal|predominant|predominantly|primary|main|dominant|common|shared|that|this|each|its)\s+(?:grape\s+)?$/i;
+/** Already hedged, in every spelling the corpus uses: "or varieties", "(ies)", "/ies", "(s)". */
+const VARIETY_HEDGED_RE =
+  /^\s*(?:\(?(?:or|and)\s+varieties|\(ies\)|\/ies|\(s\))/i;
+
+/**
+ * Every lettered sub-part carrying an UNHEDGED SINGULAR variety identification ask, with the slot set
+ * the part addresses. Parts under no addressee line address the whole flight.
+ */
+function varietyAskParts(
+  questionText: string,
+  allSlots: number[],
+): { ask: string; slots: Set<number> }[] {
+  const slots = [...allSlots].filter(Number.isFinite).sort((a, b) => a - b);
+  const out: { ask: string; slots: Set<number> }[] = [];
+  let scope: number[] | null = null;
+  let current: { line: string; slots: number[] | null } | null = null;
+
+  const flush = () => {
+    if (!current) return;
+    const text = current.line;
+    const inScope = current.slots === null ? slots : current.slots;
+    current = null;
+    if (!VARIETY_COMMAND_RE.test(text)) return;
+    const re = /\b(?:grape\s+)?variety\b/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      const before = text.slice(0, m.index);
+      if (!VARIETY_COMMAND_RE.test(before)) continue;
+      if (VARIETY_QUALIFIED_RE.test(before)) continue;
+      if (VARIETY_HEDGED_RE.test(text.slice(m.index + m[0].length))) continue;
+      out.push({ ask: text.trim().split("\n")[0], slots: new Set(inScope) });
+      return; // one violation per part is enough
+    }
+  };
+
+  for (const line of (questionText || "").split("\n")) {
+    if (ADDRESSEE_LINE_RE.test(line)) {
+      flush();
+      scope = addresseeSlots(line, slots);
+      continue;
+    }
+    if (/^\s*[a-z]\)\s*/.test(line)) {
+      flush();
+      current = { line, slots: scope };
+      continue;
+    }
+    if (current) current.line += "\n" + line;
+  }
+  flush();
+  return out;
+}
+
 // Word-number map for stem cardinality claims ("four different countries", "three different regions").
 const STEM_WORD_NUM: Record<string, number> = {
-  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6,
-  seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+  one: 1,
+  two: 2,
+  three: 3,
+  four: 4,
+  five: 5,
+  six: 6,
+  seven: 7,
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
 };
 function parseStemCount(token: string | undefined): number {
   if (!token) return 0;
@@ -274,17 +412,24 @@ function parseStemCount(token: string | undefined): number {
 // the P3 style_category and falls back to the free-text style.
 const countryOf = (w: AuditWine): string => canonCountry(w.country || "");
 const regionOf = (w: AuditWine): string => norm(w.region || "");
-const styleTag = (w: AuditWine): string => norm(w.style_category || w.style || "");
+const styleTag = (w: AuditWine): string =>
+  norm(w.style_category || w.style || "");
 
 // Why a wine contradicts a "has residual sugar" / "sweet" stem claim (or null). A resolved RS below
 // 5 g/L is bone dry; failing that, a dry style tag (still_dry, "dry"/"bone dry" text — but never the
 // off-dry / medium-dry families, which do carry residual sugar) is the fallback signal.
 function drySignal(w: AuditWine): string | null {
-  if (typeof w.rs === "number" && w.rs < 5) return `RS ${w.rs} g/L is below 5 g/L`;
+  if (typeof w.rs === "number" && w.rs < 5)
+    return `RS ${w.rs} g/L is below 5 g/L`;
   const s = norm([w.style, w.style_category].filter(Boolean).join(" "));
   if (!s) return null;
-  if (/\b(?:off|medium)[ -]?dry\b/.test(s) || /still_off_dry|still_sweet/.test(s)) return null;
-  if (/still_dry|\bbone[ -]?dry\b|\bdry\b/.test(s)) return `keyed dry (${w.style_category || w.style})`;
+  if (
+    /\b(?:off|medium)[ -]?dry\b/.test(s) ||
+    /still_off_dry|still_sweet/.test(s)
+  )
+    return null;
+  if (/still_dry|\bbone[ -]?dry\b|\bdry\b/.test(s))
+    return `keyed dry (${w.style_category || w.style})`;
   return null;
 }
 
@@ -302,7 +447,11 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   const subsetSplit = subsetScopedStem(q.questionText, wines.length);
 
   // (1) "the same (single) grape variety" — every resolved primary variety must be identical.
-  if (!subsetSplit && wines.length >= 2 && /\bsame (?:single )?grape variety\b/.test(stem)) {
+  if (
+    !subsetSplit &&
+    wines.length >= 2 &&
+    /\bsame (?:single )?grape variety\b/.test(stem)
+  ) {
     const known = wines.filter((w) => primaryVariety(w));
     if (known.length >= 2) {
       const base = primaryVariety(known[0]);
@@ -312,14 +461,17 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
           rule: "stem-fact-same-variety",
           severity: "hard",
           detail: `stem claims "the same single grape variety", but wine ${offender.slot} is ${primaryVariety(
-            offender
+            offender,
           )} while wine ${known[0].slot} is ${base}`,
         });
     }
   }
 
   // (2) "a different (single) grape variety" / "different grape varieties" — primaries pairwise distinct.
-  if (!subsetSplit && /different (?:single )?grape variet(?:y|ies)/.test(stem)) {
+  if (
+    !subsetSplit &&
+    /different (?:single )?grape variet(?:y|ies)/.test(stem)
+  ) {
     const seen = new Map<string, number>();
     for (const w of wines) {
       const pv = primaryVariety(w);
@@ -342,9 +494,12 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   // it (2015 P2 Q2, 2022 P2 Q5, 2025 P2 Q1 and Q3) and all four were rejected for the blends they
   // explicitly allow. normStem has already flattened the commas in the printed "single, or
   // predominant, grape variety".
-  const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(stem);
+  const hedged = /variety or varieties|variety ies\b|\bor predominant\b/.test(
+    stem,
+  );
   const singularClaim =
-    /\bsingle grape variety\b/.test(stem) || /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
+    /\bsingle grape variety\b/.test(stem) ||
+    /\bpredominantly\b[a-z ]{0,40}?\bgrape variety\b/.test(stem);
   if (!hedged && singularClaim && !subsetSplit) {
     for (const w of wines) {
       const why = blendSignal(w);
@@ -357,6 +512,43 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     }
   }
 
+  // (3b) The same defect one level down: the STEM may be innocent, but a sub-part ASKS the candidate to
+  // "Identify the grape variety" (singular, unhedged) while a wine that part addresses is a blend. The
+  // reviewer hit this repeatedly in Question Review — the ask demands one grape and there isn't one.
+  //
+  // The exam's own answer is the hedge, printed two ways: "grape variety(ies)" (2018 P2 Q1) and "grape
+  // variety/ies" (2023 P3 Q1). So the fix is a wording the corpus already uses, not an invention.
+  //
+  // SCOPE is what makes this safe. 2022 P2 Q1 asks "For each wine 1-3: a) Identify the grape variety"
+  // over a flight whose wine 4 IS a blend, and it is correct — wines 1-3 are monovarietal and wine 4 is
+  // handled by its own parts. So the blend test runs over the slots the part addresses, not the flight.
+  // Qualified asks ("the principal / predominant / dominant grape variety") already concede the blend
+  // and are a real exam ask ("Name the dominant grape variety", 2017 P3 Q4), so they stand down too.
+  //
+  // And so does a HEDGED STEM. 2025 P2 Q1 prints "Wines 1-3 are from the same single grape variety or
+  // predominant grape variety" and then asks, flatly, "a) Identify the grape variety. (12 marks)" over
+  // a Grenache/Syrah/Carignan blend. The candidate has already been told the flight may contain a
+  // blend, so the bare ask is not misleading — and without this guard the rule quarantines a printed
+  // past paper, which is the one outcome no wording rule may ever produce. `hedged` is the same test
+  // arm (3) uses.
+  if (!hedged)
+    for (const part of varietyAskParts(
+      q.questionText,
+      wines.map((w) => w.slot),
+    )) {
+      const offender = wines.find(
+        (w) => part.slots.has(w.slot) && askBlendSignal(w),
+      );
+      if (!offender) continue;
+      v.push({
+        rule: "singular-variety-ask-over-blend",
+        severity: "hard",
+        detail: `"${part.ask}" asks for ONE grape, but wine ${offender.slot} — which this part addresses — is a blend (${askBlendSignal(
+          offender,
+        )}). Write the exam's own hedge: "grape variety or varieties".`,
+      });
+    }
+
   // ── Non-variety stem PREDICATES — the four remaining axes beyond variety/blend ──────────────────
   // The shipped checker above only covers variety/blend assertions, so non-variety stem predicates
   // still passed unchecked (fb_121 served "four different countries" over two USA wines; fb_89
@@ -368,15 +560,15 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
   // (4) COUNTRY cardinality — "N different countries" needs N distinct; "the same country" needs one.
   {
     const distinctCount = stem.match(
-      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+countries\b/,
     );
     const required = subsetSplit
       ? 0
       : distinctCount
-      ? parseStemCount(distinctCount[1])
-      : /\bdifferent countries\b/.test(stem)
-        ? wines.length
-        : 0;
+        ? parseStemCount(distinctCount[1])
+        : /\bdifferent countries\b/.test(stem)
+          ? wines.length
+          : 0;
     if (required >= 2) {
       const placed = wines.filter((w) => countryOf(w));
       const distinct = new Set(placed.map(countryOf));
@@ -423,7 +615,11 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     // what the key resolves as each wine's region IS its sub-region — so a difference between them is
     // exactly what the stem predicts, not a contradiction of it.
     const subRegionSplit = /\bdifferent\s+sub\s?-?\s?regions?\b/.test(stem);
-    if (/\b(?:the )?same region\b/.test(stem) && !subsetSplit && !subRegionSplit) {
+    if (
+      /\b(?:the )?same region\b/.test(stem) &&
+      !subsetSplit &&
+      !subRegionSplit
+    ) {
       const placed = wines.filter((w) => regionOf(w));
       if (placed.length >= 2) {
         const base = placed[0];
@@ -437,7 +633,7 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
       }
     }
     const distinctRegions = stem.match(
-      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+regions\b/
+      /\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+different\s+regions\b/,
     );
     const requiredR = distinctRegions
       ? parseStemCount(distinctRegions[1])
@@ -455,7 +651,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
           seen.set(r, w.slot);
           return false;
         });
-        const dupNote = dup ? ` (wine ${dup.slot} repeats ${dup.region} from wine ${seen.get(regionOf(dup))})` : "";
+        const dupNote = dup
+          ? ` (wine ${dup.slot} repeats ${dup.region} from wine ${seen.get(regionOf(dup))})`
+          : "";
         v.push({
           rule: "STEM_PREDICATE_MISMATCH",
           severity: "hard",
@@ -476,7 +674,9 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
     /\bsweet wines?\b/.test(stem) ||
     /\b(?:both|all|each)\b[a-z ]{0,20}\bsweet\b/.test(stem)
   ) {
-    const predicate = /residual sugar/.test(stem) ? "have residual sugar" : "sweet wines";
+    const predicate = /residual sugar/.test(stem)
+      ? "have residual sugar"
+      : "sweet wines";
     for (const w of wines) {
       const why = drySignal(w);
       if (why)
@@ -553,8 +753,14 @@ export function crossCheckStemFacts(q: QuestionForAudit): Violation[] {
 type BankerSignal = { region: RegExp; variety?: RegExp; exclude?: RegExp };
 const BANKER_SIGNALS: BankerSignal[] = [
   // ── France ──
-  { region: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/ },
-  { region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/, variety: /pinot noir/ },
+  {
+    region:
+      /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|cote de beaune|\bbeaune\b/,
+  },
+  {
+    region: /gevrey|chambolle|\bvosne\b|pommard|volnay|cote de nuits/,
+    variety: /pinot noir/,
+  },
   { region: /\bsancerre\b|pouilly-?fume/, variety: /sauvignon/ },
   // Rouge only — the white is a curveball, not the anchor. See BankerSignal.exclude (attempt 249).
   { region: /chateauneuf/, exclude: /\bblanc\b/ },
@@ -565,13 +771,25 @@ const BANKER_SIGNALS: BankerSignal[] = [
   // Region-only is safe here in a way it is NOT for chateauneuf: Tavel is rosé by law and makes no red
   // or white, so there is no other colour for a bare region match to catch.
   { region: /\btavel\b/ },
-  { region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/, variety: /syrah|shiraz/ },
+  {
+    region: /cote-?rotie|\bhermitage\b|\bcornas\b|crozes/,
+    variety: /syrah|shiraz/,
+  },
   { region: /\bchampagne\b/ },
   { region: /\bsauternes\b|\bbarsac\b/ },
-  { region: /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bbordeaux\b/ },
-  { region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent/, variety: /gamay/ },
+  {
+    region:
+      /\bmedoc\b|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bbordeaux\b/,
+  },
+  {
+    region: /beaujolais|\bfleurie\b|\bmorgon\b|moulin-?a-?vent/,
+    variety: /gamay/,
+  },
   { region: /vouvray|savennieres|\bmontlouis\b/, variety: /chenin/ },
-  { region: /\balsace\b/, variety: /riesling|gewurztraminer|pinot gris|muscat|pinot blanc/ },
+  {
+    region: /\balsace\b/,
+    variety: /riesling|gewurztraminer|pinot gris|muscat|pinot blanc/,
+  },
   // ── Italy ──
   { region: /\bbarolo\b|barbaresco|\bbarbera\b\s*d/, variety: /nebbiolo/ },
   { region: /chianti|brunello|montalcino|vino nobile/, variety: /sangiovese/ },
@@ -585,7 +803,10 @@ const BANKER_SIGNALS: BankerSignal[] = [
   { region: /\bjerez\b|\bsherry\b|manzanilla|montilla/ },
   { region: /\bdouro\b|\bport\b|\bporto\b/ },
   // ── Germany / Austria ──
-  { region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen/, variety: /riesling/ },
+  {
+    region: /\bmosel\b|rheingau|\bpfalz\b|\bnahe\b|rheinhessen/,
+    variety: /riesling/,
+  },
   { region: /\bwachau\b|kamptal|kremstal/, variety: /gruner|riesling/ },
   // ── New World ──
   { region: /marlborough/, variety: /sauvignon/ },
@@ -619,17 +840,35 @@ const BANKER_SIGNALS: BankerSignal[] = [
   // EK-0029 note above. Also left out on the same judgement: Marlborough Pinot Noir (the region is a
   // banker for Sauvignon only), Oregon Pinot Gris, Baden Spätburgunder, Roussillon Grenache, Etna.
   { region: /\bburgundy\b|\bbourgogne\b/, variety: /pinot noir|chardonnay/ },
-  { region: /\bchinon\b|bourgueil|\bsaumur\b|\bloire\b/, variety: /cabernet franc/ },
+  {
+    region: /\bchinon\b|bourgueil|\bsaumur\b|\bloire\b/,
+    variety: /cabernet franc/,
+  },
   { region: /muscadet|\bloire\b/, variety: /melon de bourgogne/ },
   { region: /\bcondrieu\b|\brhone\b/, variety: /viognier/ },
   { region: /\bpenedes\b|\bcava\b/ },
   { region: /\btokaj/, variety: /furmint|harslevelu/ },
-  { region: /\bpiedmont\b|\bpiemonte\b|\basti\b|\balba\b/, variety: /barbera|dolcetto|nebbiolo|moscato/ },
+  {
+    region: /\bpiedmont\b|\bpiemonte\b|\basti\b|\balba\b/,
+    variety: /barbera|dolcetto|nebbiolo|moscato/,
+  },
   { region: /\bmadeira\b/ },
-  { region: /provence/, variety: /grenache|cinsault|mourvedre|syrah|rolle|vermentino/ },
-  { region: /\btuscany\b|\btoscana\b|bolgheri/, variety: /sangiovese|cabernet|merlot/ },
-  { region: /south australia/, variety: /shiraz|syrah|cabernet|riesling|chardonnay/ },
-  { region: /\bcalifornia\b/, variety: /zinfandel|cabernet|chardonnay|pinot noir|merlot/ },
+  {
+    region: /provence/,
+    variety: /grenache|cinsault|mourvedre|syrah|rolle|vermentino/,
+  },
+  {
+    region: /\btuscany\b|\btoscana\b|bolgheri/,
+    variety: /sangiovese|cabernet|merlot/,
+  },
+  {
+    region: /south australia/,
+    variety: /shiraz|syrah|cabernet|riesling|chardonnay/,
+  },
+  {
+    region: /\bcalifornia\b/,
+    variety: /zinfandel|cabernet|chardonnay|pinot noir|merlot/,
+  },
 ];
 
 /**
@@ -644,20 +883,25 @@ const BANKER_SIGNALS: BankerSignal[] = [
  * wines this detector was calling curveballs.
  */
 export function isBanker(w: AuditWine): boolean {
-  const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+  const origin = norm(
+    `${w.region || ""} ${w.country || ""} ${w.fullText || ""}`,
+  );
   const variety = norm((w.varieties || []).map(canonVariety).join(" "));
   return BANKER_SIGNALS.some(
     (s) =>
       s.region.test(origin) &&
       !(s.exclude && s.exclude.test(origin)) &&
-      (!s.variety || !variety || s.variety.test(variety))
+      (!s.variety || !variety || s.variety.test(variety)),
   );
 }
 
 function wineLabel(w: AuditWine): string {
-  const label = [((w.varieties || []).join("/")), w.region, w.country].filter(Boolean).join(", ");
+  const label = [(w.varieties || []).join("/"), w.region, w.country]
+    .filter(Boolean)
+    .join(", ");
   if (label) return `wine ${w.slot} (${label})`;
-  if (w.fullText) return `wine ${w.slot} (${w.fullText.length > 60 ? `${w.fullText.slice(0, 60)}…` : w.fullText})`;
+  if (w.fullText)
+    return `wine ${w.slot} (${w.fullText.length > 60 ? `${w.fullText.slice(0, 60)}…` : w.fullText})`;
   return `wine ${w.slot}`;
 }
 
@@ -740,12 +984,17 @@ export function flightCompositionViolations(wines: AuditWine[]): Violation[] {
 // For Chardonnay the home is Burgundy SPECIFICALLY (Chablis / Côte d'Or / Mâconnais), matching the
 // unbroken corpus pattern; a New World Chardonnay (Napa, Margaret River, Marlborough, Mendoza) never
 // satisfies it. Reds are intentionally absent — see the SCOPE note above (2018/2016 P2 Q2).
-const OLD_WORLD_ANCHOR_HOMES: { variety: RegExp; home: RegExp; label: string }[] = [
+const OLD_WORLD_ANCHOR_HOMES: {
+  variety: RegExp;
+  home: RegExp;
+  label: string;
+}[] = [
   // ── High-frequency whites (Paper 1) ──
   {
     variety: /chardonnay/,
     home: /\bchablis\b|\bmeursault\b|puligny|chassagne|montrachet|corton|\bmontagny\b|\brully\b|cote de beaune|cote de nuits|\bbeaune\b|maconnais|\bmacon\b|pouilly-?fuisse|\bpouilly-?vinzelles\b|saint-?veran|\bbourgogne\b|\bburgundy\b/,
-    label: "Burgundy (Chablis, Côte d'Or or Mâconnais) at village/1er cru/Grand Cru level",
+    label:
+      "Burgundy (Chablis, Côte d'Or or Mâconnais) at village/1er cru/Grand Cru level",
   },
   {
     variety: /riesling/,
@@ -814,7 +1063,11 @@ export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
   // the same guard the shared cardinality rules use, so a paired stem is not judged as one flight.
   if (subsetScopedStem(q.questionText, n)) return [];
   // A same-country / same-region flight is anchored by geography, not by an Old World reference wine.
-  if (/\b(?:the )?same country\b/.test(stem) || /\b(?:the )?same region\b/.test(stem)) return [];
+  if (
+    /\b(?:the )?same country\b/.test(stem) ||
+    /\b(?:the )?same region\b/.test(stem)
+  )
+    return [];
 
   // The flight must actually span multiple countries — an all-one-country flight is out of scope.
   const placed = wines.filter((w) => countryOf(w));
@@ -824,11 +1077,15 @@ export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
   // Resolve the shared variety (the stem asserts one). Use the first resolved primary variety.
   const flightVariety = wines.map(primaryVariety).find(Boolean) || "";
   if (!flightVariety) return [];
-  const spec = OLD_WORLD_ANCHOR_HOMES.find((s) => s.variety.test(flightVariety));
+  const spec = OLD_WORLD_ANCHOR_HOMES.find((s) =>
+    s.variety.test(flightVariety),
+  );
   if (!spec) return []; // variety with no documented Old World home — rule fails safe (does not fire)
 
   const hasAnchor = wines.some((w) => {
-    const origin = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
+    const origin = norm(
+      `${w.region || ""} ${w.country || ""} ${w.fullText || ""}`,
+    );
     return spec.home.test(origin);
   });
   if (hasAnchor) return [];
@@ -861,9 +1118,16 @@ export function validateOldWorldAnchor(q: QuestionForAudit): Violation[] {
 // against the label, region, country, keyed varieties and style category together.
 function rarityHaystack(w: AuditWine): string {
   return norm(
-    [w.fullText, w.region, w.country, ...(w.varieties || []), w.style, w.style_category]
+    [
+      w.fullText,
+      w.region,
+      w.country,
+      ...(w.varieties || []),
+      w.style,
+      w.style_category,
+    ]
       .filter(Boolean)
-      .join(" ")
+      .join(" "),
   );
 }
 
@@ -872,9 +1136,13 @@ function matchRarityRule(w: AuditWine): WineRarityRule | null {
   return WINE_RARITY_TIERS.find((rule) => rule.match.test(hay)) || null;
 }
 
-function matchFortifiedIntegrity(w: AuditWine): FortifiedCategoryIntegrity | null {
+function matchFortifiedIntegrity(
+  w: AuditWine,
+): FortifiedCategoryIntegrity | null {
   const hay = rarityHaystack(w);
-  return FORTIFIED_CATEGORY_INTEGRITY.find((rule) => rule.match.test(hay)) || null;
+  return (
+    FORTIFIED_CATEGORY_INTEGRITY.find((rule) => rule.match.test(hay)) || null
+  );
 }
 
 // The origin nobody has seen (Slovenia / the Brda–Collio amber belt, seeded in db.ts). Returns the
@@ -882,7 +1150,9 @@ function matchFortifiedIntegrity(w: AuditWine): FortifiedCategoryIntegrity | nul
 // the same combined descriptor as the rarity rules, so region, country, label and grape all count.
 function matchZeroPrecedentOrigin(w: AuditWine): string | null {
   const hay = rarityHaystack(w);
-  return ZERO_PRECEDENT_ORIGINS.find((rule) => rule.match.test(hay))?.label ?? null;
+  return (
+    ZERO_PRECEDENT_ORIGINS.find((rule) => rule.match.test(hay))?.label ?? null
+  );
 }
 
 export function validateRarityBudget(q: QuestionForAudit): Violation[] {
@@ -895,7 +1165,8 @@ export function validateRarityBudget(q: QuestionForAudit): Violation[] {
   for (const w of wines) {
     const rule = matchRarityRule(w);
     if (!rule) continue;
-    if (rule.examPrecedent === false) noPrecedent.push(`${wineLabel(w)} — ${rule.label}`);
+    if (rule.examPrecedent === false)
+      noPrecedent.push(`${wineLabel(w)} — ${rule.label}`);
     if (rule.rarityTier === 3) tier3.push(`${wineLabel(w)} — ${rule.label}`);
   }
 
@@ -926,8 +1197,11 @@ export function validateRarityBudget(q: QuestionForAudit): Violation[] {
     const varieties = w.varieties || [];
     const keyedSingleVariety = w.is_blend !== true && varieties.length === 1;
     // A legitimately single-varietal expression of this style (Palomino sherry) stands down.
-    const exempt = cat.singleVarietyOk ? varieties.some((g) => cat.singleVarietyOk!.test(norm(g))) : false;
-    const stemForcesSingle = singleVarietyStem && w.is_blend !== true && varieties.length === 0;
+    const exempt = cat.singleVarietyOk
+      ? varieties.some((g) => cat.singleVarietyOk!.test(norm(g)))
+      : false;
+    const stemForcesSingle =
+      singleVarietyStem && w.is_blend !== true && varieties.length === 0;
     if (!exempt && (keyedSingleVariety || stemForcesSingle)) {
       v.push({
         rule: "fortified-category-integrity",
@@ -969,15 +1243,24 @@ const SINGLE_WINE_ID_ASK_RE =
 // "For wines 1 and 2:" / "For wine 3 only:" scaffolding → the slots each sub-part block addresses.
 // Whole-flight blocks ("For all/each/both wines", "For all three wines") are skipped — they are not a
 // per-subset block. Only numeric slot lists within the paper's wine range are collected.
-function parseWineGroupScaffolds(questionText: string, wineCount: number): number[][] {
+function parseWineGroupScaffolds(
+  questionText: string,
+  wineCount: number,
+): number[][] {
   const text = questionText || "";
   const groups: number[][] = [];
-  const re = /\bfor\s+(?:all\s+|both\s+|each\s+|the\s+)*wines?\s+([a-z0-9 ,and&-]+?)\s*(?:only\s*)?[:.]/gi;
+  const re =
+    /\bfor\s+(?:all\s+|both\s+|each\s+|the\s+)*wines?\s+([a-z0-9 ,and&-]+?)\s*(?:only\s*)?[:.]/gi;
   let m: RegExpExecArray | null;
   while ((m = re.exec(text)) !== null) {
     const clause = m[1].toLowerCase();
     // "all / each / both / every / three / four …" address the whole flight, not a subset.
-    if (/\b(?:all|each|both|every|following|two|three|four|five|six)\b/.test(clause)) continue;
+    if (
+      /\b(?:all|each|both|every|following|two|three|four|five|six)\b/.test(
+        clause,
+      )
+    )
+      continue;
     const nums = [...clause.matchAll(/\d+/g)]
       .map((x) => Number(x[0]))
       .filter((num) => num >= 1 && num <= wineCount);
@@ -1000,7 +1283,9 @@ export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
 
   if (n === 1) {
     const wine = wines[0];
-    const scan = norm(text).replace(/[^a-z0-9 ,/()'-]+/g, " ").replace(/\s+/g, " ");
+    const scan = norm(text)
+      .replace(/[^a-z0-9 ,/()'-]+/g, " ")
+      .replace(/\s+/g, " ");
     if (SINGLE_WINE_ID_ASK_RE.test(scan)) {
       v.push({
         rule: "single-wine-flight",
@@ -1018,7 +1303,7 @@ export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
         rule: "single-wine-flight-banker",
         severity: "hard",
         detail: `single-wine flight is keyed on ${wineLabel(
-          wine
+          wine,
         )}, which reads as a banker — when the exam sets a lone wine it is a big curveball (e.g. a Qvevri or an orange wine), never a benchmark expression. Use a curveball wine or set 2+ wines.`,
       });
     }
@@ -1036,7 +1321,7 @@ export function validateSingleWineFlight(q: QuestionForAudit): Violation[] {
         rule: "single-wine-flight",
         severity: "hard",
         detail: `flight gives wines ${shared[0].join(
-          " and "
+          " and ",
         )} a shared sub-part block while wine ${n} gets its own private block — an unlikely MW structure. Either set the shared wines as an explicit paired comparison, or give the whole flight the same sub-parts.`,
       });
     }
@@ -1121,14 +1406,18 @@ const ID_PART_FLOOR = 5;
 // without wines keeps the old face-value reading rather than crashing; pass it whenever it is known.
 function parseMarkedParts(
   questionText: string,
-  wineCount = 0
+  wineCount = 0,
 ): { text: string; marks: number; perUnit: number }[] {
   const text = questionText || "";
   const { tokens } = expandMarkTokens(text, wineCount);
   const parts: { text: string; marks: number; perUnit: number }[] = [];
   let lastIndex = 0;
   for (const t of tokens) {
-    parts.push({ text: text.slice(lastIndex, t.start), marks: t.marks, perUnit: t.perUnit });
+    parts.push({
+      text: text.slice(lastIndex, t.start),
+      marks: t.marks,
+      perUnit: t.perUnit,
+    });
     lastIndex = t.end;
   }
   return parts;
@@ -1147,7 +1436,9 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
 
   const idMarks = idParts.reduce((s, p) => s + p.marks, 0);
   const total =
-    q.totalMarks && q.totalMarks > 0 ? q.totalMarks : parts.reduce((s, p) => s + p.marks, 0);
+    q.totalMarks && q.totalMarks > 0
+      ? q.totalMarks
+      : parts.reduce((s, p) => s + p.marks, 0);
   const v: Violation[] = [];
 
   // (0) Zero-precedent origin. When EVERY wine in the flight is from an origin nobody has seen in the
@@ -1176,7 +1467,8 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
   //     its p90 — "15 marks to identify the region" is real, "60 marks" is not.
   const biggest = idParts.reduce((a, b) => (b.perUnit > a.perUnit ? b : a));
   if (biggest.perUnit > ID_SINGLE_PART_SOFT) {
-    const label = biggest.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+    const label =
+      biggest.text.match(ID_PART_RE)?.[0] ?? "an identification part";
     const hard = biggest.perUnit > ID_SINGLE_PART_HARD;
     v.push({
       rule: "id-mark-allocation",
@@ -1189,9 +1481,12 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
 
   // (a2) …and the floor. A part the exam would never price this low is a mis-allocation just as much
   //      as an oversized one, and it is the arm that catches the real reviewer bin.
-  const starved = idParts.find((p) => p.perUnit > 0 && p.perUnit < ID_PART_FLOOR);
+  const starved = idParts.find(
+    (p) => p.perUnit > 0 && p.perUnit < ID_PART_FLOOR,
+  );
   if (starved) {
-    const label = starved.text.match(ID_PART_RE)?.[0] ?? "an identification part";
+    const label =
+      starved.text.match(ID_PART_RE)?.[0] ?? "an identification part";
     v.push({
       rule: "id-mark-allocation",
       severity: "hard",
@@ -1210,10 +1505,10 @@ export function idMarkAllocationViolations(q: QuestionForAudit): Violation[] {
       severity: hard ? "hard" : "soft",
       detail: hard
         ? `identification marks total ${idMarks} of ${total} (${share}%) — beyond the ${Math.round(
-            ID_SHARE_HARD * 100
+            ID_SHARE_HARD * 100,
           )}% the real exam has never exceeded. A question that is almost entirely "name it" leaves no marks for style, method or quality.`
         : `identification marks total ${idMarks} of ${total} (${share}%), above the ${Math.round(
-            ID_SHARE_SOFT * 100
+            ID_SHARE_SOFT * 100,
           )}% the real exam only reaches in its top decile. Worth checking the other parts carry their weight.`,
     });
   }
@@ -1280,7 +1575,8 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   },
   {
     id: "identify-origin",
-    label: "identify the country and/or region of origin as closely as possible",
+    label:
+      "identify the country and/or region of origin as closely as possible",
     re: /\bidentify\b[a-z0-9 ]{0,90}\b(?:country|countries|region|regions|origin|origins|appellation)\b/,
   },
   {
@@ -1294,16 +1590,19 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   {
     id: "style",
     label: "comment on the style and key characteristics",
-    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:styles?|key characteristics|character)\\b`),
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:styles?|key characteristics|character)\\b`,
+    ),
   },
   {
     id: "winemaking",
-    label: "comment on the key winemaking/production decisions and how they influenced style",
+    label:
+      "comment on the key winemaking/production decisions and how they influenced style",
     re: new RegExp(
       // `winemaker` is here because the exam asks about the person as readily as the process:
       // "Consider how the winemaker has sought to retain the wine's sense of place" (2017 P1 Q4),
       // "What has the winemaker done to maximise quality and regional typicity…" (2018 P2 Q1).
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:winemaking|wine making|winemakers?|vinification|maturation|elevage|viticultur[a-z]*|production (?:decisions?|methods?|techniques?)|methods? (?:of|used in|used for) (?:its )?production|production of|techniques?)\\b`
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:winemaking|wine making|winemakers?|vinification|maturation|elevage|viticultur[a-z]*|production (?:decisions?|methods?|techniques?)|methods? (?:of|used in|used for) (?:its )?production|production of|techniques?)\\b`,
     ),
   },
   {
@@ -1315,20 +1614,22 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
     id: "sweetness-method",
     label: "state/explain how the sweetness (residual sugar) has been achieved",
     // Corpus-attested P3 staple ("State how the level of sweetness in each wine has been achieved").
-    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:sweetness|residual sugar|sugar)\\b`),
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:sweetness|residual sugar|sugar)\\b`,
+    ),
   },
   {
     id: "blend-composition",
     label: "comment on the blend and the role of its components",
     re: new RegExp(
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:blends?|blending|blended|assemblage|components? (?:of|in) the blend|role played by each component)\\b`
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:blends?|blending|blended|assemblage|components? (?:of|in) the blend|role played by each component)\\b`,
     ),
   },
   {
     id: "quality",
     label: "comment on quality/faults",
     re: new RegExp(
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:quality|qualities|faults?|maturity|tier|classification|quality designation)\\b`
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:quality|qualities|faults?|maturity|tier|classification|quality designation)\\b`,
     ),
   },
   {
@@ -1352,7 +1653,7 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
     // exam usually asks this: who would BUY it, how would you SELL it, which MARKET or area of the
     // TRADE it belongs in, to whom it would APPEAL. Six real questions turned on those words.
     re: new RegExp(
-      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:commercial|appeal|markets?|market position|market potential|target market|price|pricing|value for money|sell|selling|buy|buyer|purchase|customers?|consumers?|trade)\\b`
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,90}\\b(?:commercial|appeal|markets?|market position|market potential|target market|price|pricing|value for money|sell|selling|buy|buyer|purchase|customers?|consumers?|trade)\\b`,
     ),
   },
   {
@@ -1363,7 +1664,9 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
     // giving reasons for your conclusion" (2014 P2 Q2), "Consider the likely vintage" (2017 P3 Q5),
     // "Comment on the age/vintage of each wine" (2011 P1 Q1). It is a staple, and the registry simply
     // did not have it.
-    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,60}\\b(?:vintages?|age of the wine|wine s age)\\b|\\bcomment on the age\\b`),
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,60}\\b(?:vintages?|age of the wine|wine s age)\\b|\\bcomment on the age\\b`,
+    ),
   },
   {
     id: "group-the-wines",
@@ -1380,13 +1683,16 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   },
   {
     id: "compare-wines",
-    label: "compare and contrast the wines (dimension carried by sibling clauses)",
+    label:
+      "compare and contrast the wines (dimension carried by sibling clauses)",
     re: /\bcompare(?: and contrast)?\b[a-z0-9 ]{0,40}\b(?:wines?|pairs?)\b/,
   },
   {
     id: "differences",
     label: "discuss how the wines differ",
-    re: new RegExp(`\\b${TASK_VERBS}\\b[a-z0-9 ]{0,50}\\bdiffer(?:s|ences?)?\\b`),
+    re: new RegExp(
+      `\\b${TASK_VERBS}\\b[a-z0-9 ]{0,50}\\bdiffer(?:s|ences?)?\\b`,
+    ),
   },
   {
     id: "how-made",
@@ -1400,7 +1706,8 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
   },
   {
     id: "state-analytic",
-    label: "state the residual sugar / sweetness (dosage) category / alcohol level",
+    label:
+      "state the residual sugar / sweetness (dosage) category / alcohol level",
     // Verb-OPTIONAL, unlike its siblings. The exam and the generator both write this one as a bare
     // noun phrase under a "For each wine:" header — "d) The level of residual sugar in grammes per
     // litre." The task is unambiguous from the object alone, and requiring a verb rejected a
@@ -1415,7 +1722,9 @@ export const ALLOWED_PART_TASKS: AllowedPartTask[] = [
 
 // The lettered parts of a question ("a) …" … up to the next label). Scaffolding before the first
 // label (the stem, "For each wine:") is excluded — the repertoire scan judges commands, not framing.
-function parseLetteredParts(questionText: string): { letter: string; text: string }[] {
+function parseLetteredParts(
+  questionText: string,
+): { letter: string; text: string }[] {
   const text = questionText || "";
   // The label must START a line or follow whitespace — `[^a-z0-9]` also matched a letter closing a
   // PARENTHESIS mid-word, so "Identify the grape variety and origin(s) as closely as possible"
@@ -1424,21 +1733,29 @@ function parseLetteredParts(questionText: string): { letter: string; text: strin
   // failed the repertoire scan, because a sentence fragment matches no task. Four of the thirty real
   // questions this rule rejected were this bug rather than a repertoire gap. `\(?` keeps the "(a)"
   // spelling working, since there the parenthesis OPENS the label instead of closing a word.
-  const labels = [...text.matchAll(/(?:^|[\s\n])\(?([a-z])\)\s/gi)].map((m) => ({
-    letter: m[1].toLowerCase(),
-    labelAt: m.index ?? 0,
-    start: (m.index ?? 0) + m[0].length,
-  }));
+  const labels = [...text.matchAll(/(?:^|[\s\n])\(?([a-z])\)\s/gi)].map(
+    (m) => ({
+      letter: m[1].toLowerCase(),
+      labelAt: m.index ?? 0,
+      start: (m.index ?? 0) + m[0].length,
+    }),
+  );
   return labels.map((l, i) => ({
     letter: l.letter,
-    text: text.slice(l.start, i + 1 < labels.length ? labels[i + 1].labelAt : text.length),
+    text: text.slice(
+      l.start,
+      i + 1 < labels.length ? labels[i + 1].labelAt : text.length,
+    ),
   }));
 }
 
 // Split a part into command clauses. Sentence boundaries first; then mechanism riders (", including
 // how …") and compound commands (", and explain …") are split off so each command is judged alone.
 function splitCommandClauses(partText: string): string[] {
-  const noMarks = (partText || "").replace(/\((?:\d+\s*[x×]\s*)?\d+\s*marks?\)/gi, " ");
+  const noMarks = (partText || "").replace(
+    /\((?:\d+\s*[x×]\s*)?\d+\s*marks?\)/gi,
+    " ",
+  );
   // "e.g." and friends are not sentence ends. Splitting on their dots tore
   // "State the approximate dosage category (e.g. Brut Nature, Brut, Demi-Sec)" into three pieces and
   // then rejected the orphan "brut nature brut demi sec" for setting no task. Decimal points ("13.5%")
@@ -1450,9 +1767,12 @@ function splitCommandClauses(partText: string): string[] {
   const clauses: string[] = [];
   for (const sentence of protectedText.split(/[.?!;:\n]+/)) {
     for (const clause of sentence.split(
-      /,?\s+including\s+(?=(?:how|why|whether)\b)|,\s+and\s+(?=(?:identify|comment|describe|discuss|assess|evaluate|compare|contrast|explain|state|estimate)\b)/i
+      /,?\s+including\s+(?=(?:how|why|whether)\b)|,\s+and\s+(?=(?:identify|comment|describe|discuss|assess|evaluate|compare|contrast|explain|state|estimate)\b)/i,
     )) {
-      const cleaned = norm(clause).replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+      const cleaned = norm(clause)
+        .replace(/[^a-z0-9 ]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
       // Skip fragments, mark-recap tables ("a 15 b 24 c 21 d 15 75", "3 x 8 24") and pure
       // scaffolding ("for each wine:", "for wines 1 and 2:", "be as precise as possible").
       const meaningful = cleaned
@@ -1462,12 +1782,21 @@ function splitCommandClauses(partText: string): string[] {
             t &&
             !/^\d+$/.test(t) &&
             !/^[a-z]$/.test(t) &&
-            !["x", "mark", "marks", "total", "per", "wine", "wines", "each"].includes(t)
+            ![
+              "x",
+              "mark",
+              "marks",
+              "total",
+              "per",
+              "wine",
+              "wines",
+              "each",
+            ].includes(t),
         );
       if (meaningful.length < 3) continue;
       if (
         /^(?:for (?:each|both|all|the)(?: of)?(?: the)?(?: \w+)? wines?(?: \d+(?: and \d+)*)?|with reference to (?:each|both|all)(?: \w+)? wines?|in each case|be as (?:precise|specific|accurate) as possible)$/.test(
-          cleaned
+          cleaned,
         )
       )
         continue;
@@ -1476,8 +1805,18 @@ function splitCommandClauses(partText: string): string[] {
       // task, and "In addition to being paired by variety they are also paired by country"
       // (2014 P1 Q3) is a statement about the flight that happens to sit inside a lettered part.
       // Judging either against a repertoire of COMMANDS is a category error.
-      if (/^(?:do not|don t|you (?:are )?(?:need |do )?not|there is no need to|avoid)\b/.test(cleaned)) continue;
-      if (/^(?:in addition to|as well as|note that|these wines are|they are)\b/.test(cleaned)) continue;
+      if (
+        /^(?:do not|don t|you (?:are )?(?:need |do )?not|there is no need to|avoid)\b/.test(
+          cleaned,
+        )
+      )
+        continue;
+      if (
+        /^(?:in addition to|as well as|note that|these wines are|they are)\b/.test(
+          cleaned,
+        )
+      )
+        continue;
       clauses.push(cleaned);
     }
   }
@@ -1557,17 +1896,34 @@ type ContrastDimension = {
 // Sweetness-mechanism signals, most-specific first (botrytis's "…beerenauslese" outranks the generic
 // "auslese" late-harvest term). Tested against norm(style + style_category + fullText).
 const SWEETNESS_MECHANISMS: { value: string; re: RegExp }[] = [
-  { value: "botrytis", re: /botrytis|noble rot|edelfaule|sauternes|barsac|aszu|trockenbeerenauslese|beerenauslese|tokaji/ },
+  {
+    value: "botrytis",
+    re: /botrytis|noble rot|edelfaule|sauternes|barsac|aszu|trockenbeerenauslese|beerenauslese|tokaji/,
+  },
   { value: "icewine", re: /icewine|ice wine|eiswein/ },
-  { value: "dried grape", re: /dried.grape|appassimento|passito|recioto|vin ?santo|straw wine|amarone|pedro ximenez/ },
-  { value: "fortification", re: /fortif|mutage|vin doux naturel|\bvdn\b|\bport\b(?!\s*phillip)|maury|banyuls|rutherglen|liqueur muscat|muscat de|rivesaltes/ },
-  { value: "arrested fermentation", re: /arrested fermentation|fermentation (?:was |is |been )?(?:stopped|arrested|halted)/ },
+  {
+    value: "dried grape",
+    re: /dried.grape|appassimento|passito|recioto|vin ?santo|straw wine|amarone|pedro ximenez/,
+  },
+  {
+    value: "fortification",
+    re: /fortif|mutage|vin doux naturel|\bvdn\b|\bport\b(?!\s*phillip)|maury|banyuls|rutherglen|liqueur muscat|muscat de|rivesaltes/,
+  },
+  {
+    value: "arrested fermentation",
+    re: /arrested fermentation|fermentation (?:was |is |been )?(?:stopped|arrested|halted)/,
+  },
   { value: "sweet reserve", re: /sweet reserve|sussreserve/ },
-  { value: "late harvest", re: /late.harvest|late.picked|vendange tardive|spatlese|auslese|noble late/ },
+  {
+    value: "late harvest",
+    re: /late.harvest|late.picked|vendange tardive|spatlese|auslese|noble late/,
+  },
 ];
 
 function sweetnessMechanism(w: AuditWine): string | null {
-  const hay = norm([w.style, w.style_category, w.fullText].filter(Boolean).join(" "));
+  const hay = norm(
+    [w.style, w.style_category, w.fullText].filter(Boolean).join(" "),
+  );
   if (!hay) return null;
   const hit = SWEETNESS_MECHANISMS.find((m) => m.re.test(hay));
   return hit ? hit.value : null;
@@ -1579,13 +1935,15 @@ const CONTRAST_DIMENSIONS: ContrastDimension[] = [
     label: "sweetness mechanism",
     // "explain the sweetness mechanism", "compare … the sweetness", "the method by/in which sweetness
     // has been achieved", "how the sweetness is imparted".
-    askRe: /(?:compare|contrast|explain|account for|describe|discuss)[^.?!]{0,60}sweet(?:ness)?|sweet(?:ness)?[^.?!]{0,50}(?:mechanism|achiev|impart|obtain|attain|arriv)|method (?:by|in) which[^.?!]{0,50}sweet/,
+    askRe:
+      /(?:compare|contrast|explain|account for|describe|discuss)[^.?!]{0,60}sweet(?:ness)?|sweet(?:ness)?[^.?!]{0,50}(?:mechanism|achiev|impart|obtain|attain|arriv)|method (?:by|in) which[^.?!]{0,50}sweet/,
     resolve: sweetnessMechanism,
   },
   {
     id: "method-of-production",
     label: "method of production",
-    askRe: /(?:compare|contrast)[^.?!]{0,60}(?:methods? of production|production methods?|(?:cask |barrel )?age?ing|maturation|winemaking|vinification)/,
+    askRe:
+      /(?:compare|contrast)[^.?!]{0,60}(?:methods? of production|production methods?|(?:cask |barrel )?age?ing|maturation|winemaking|vinification)/,
     resolve: (w) => methodClass(w.style, w.style_category),
   },
 ];
@@ -1600,7 +1958,8 @@ function parseDeclaredPairs(stem: string): [number, number][] {
   // "&" as well as "and": the real 2023 P1 Q1 writes "1 & 2 are a pair and 3 & 4 are a pair", where
   // matching only "and" found the single spurious span "2 are a pair and 3" and so read the stem as
   // having no declared pairs at all.
-  for (const m of s.matchAll(/\b(\d+)\s*(?:and|&)\s*(\d+)\b/g)) pairs.push([Number(m[1]), Number(m[2])]);
+  for (const m of s.matchAll(/\b(\d+)\s*(?:and|&)\s*(\d+)\b/g))
+    pairs.push([Number(m[1]), Number(m[2])]);
   return pairs.length >= 2 ? pairs : [];
 }
 
@@ -1614,7 +1973,8 @@ function findAskPart(questionText: string, askRe: RegExp): string | null {
   if (labels.length === 0) return null;
   for (let i = 0; i < labels.length; i++) {
     const end = i + 1 < labels.length ? labels[i + 1].index : text.length;
-    if (askRe.test(norm(text.slice(labels[i].index, end)))) return labels[i].letter;
+    if (askRe.test(norm(text.slice(labels[i].index, end))))
+      return labels[i].letter;
   }
   return null;
 }
@@ -1663,7 +2023,8 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
     for (const val of resolved) counts.set(val, (counts.get(val) || 0) + 1);
     let dominant = "";
     let dominantN = 0;
-    for (const [val, n] of counts) if (n > dominantN) [dominant, dominantN] = [val, n];
+    for (const [val, n] of counts)
+      if (n > dominantN) [dominant, dominantN] = [val, n];
     const n = resolved.length;
     if (counts.size === 1)
       v.push({
@@ -1705,11 +2066,16 @@ export function contrastIntegrityViolations(q: QuestionForAudit): Violation[] {
 
 /** The dominant style + rosé flag of a keyed wine, resolved from its style/style_category/label. */
 function wineStyleTags(w: AuditWine): { style: string; isRose: boolean } {
-  const text = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
+  const text = [w.style, w.style_category, w.fullText]
+    .filter(Boolean)
+    .join(" ");
   return classifyWineStyle(text);
 }
 
-export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violation[] {
+export function validatePaperStyleMix(
+  paper: number,
+  wines: AuditWine[],
+): Violation[] {
   const flight = wines || [];
   const n = flight.length;
   if (n === 0) return [];
@@ -1723,7 +2089,11 @@ export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violat
   };
   // Wines carrying a Paper-3 character style (rosé cross-cuts, so count each wine once).
   const p3Character = tagged.filter(
-    (t) => t.isRose || t.style === "sparkling" || t.style === "sweet" || t.style === "fortified"
+    (t) =>
+      t.isRose ||
+      t.style === "sparkling" ||
+      t.style === "sweet" ||
+      t.style === "fortified",
   ).length;
   const countsLabel = `sparkling ${counts.sparkling}, sweet ${counts.sweet}, fortified ${counts.fortified}, rosé ${counts.rose}`;
   const v: Violation[] = [];
@@ -1812,12 +2182,14 @@ export function validatePaperStyleMix(paper: number, wines: AuditWine[]): Violat
 // The collapsed enum. Retained because migration 052's wine_bank.colour CHECK constraint and the
 // generation-time LLM classifier both persist these seven values. New code should prefer
 // resolveWineScope() and read the two axes separately.
-export type WineColour = "white" | "red" | "rose" | "orange" | "sparkling" | "sweet" | "fortified";
+export type WineColour =
+  "white" | "red" | "rose" | "orange" | "sparkling" | "sweet" | "fortified";
 
 /** The colour axis alone — what is actually in the glass, independent of how it was made. */
 export type PureColour = "white" | "red" | "rose" | "orange";
 /** The style axis alone — how it was made, independent of colour. */
-export type WineStyleAxis = "still" | "sparkling" | "sweet" | "fortified" | "oxidative";
+export type WineStyleAxis =
+  "still" | "sparkling" | "sweet" | "fortified" | "oxidative";
 
 const COLOUR_STYLE_LABEL: Record<WineColour, string> = {
   white: "still white",
@@ -1831,13 +2203,15 @@ const COLOUR_STYLE_LABEL: Record<WineColour, string> = {
 
 // Orange / skin-contact whites — the shared style classifier folds these into "oxidative", but the
 // colour contract names them as their own blocked style, so they are resolved explicitly here.
-const ORANGE_STYLE_RE = /orange wine|skin[- ]?contact|amber wine|\bramato\b|\bqvevri\b|\bkvevri\b/;
+const ORANGE_STYLE_RE =
+  /orange wine|skin[- ]?contact|amber wine|\bramato\b|\bqvevri\b|\bkvevri\b/;
 // Free-text colour cues on the label/region, used to settle still red vs still white when the grape
 // indicators are silent. Accent-stripped (matched against norm()'d text).
 const RED_COLOUR_CUE = /\b(red|rouge|rosso|tinto|tinta|rot|noir|nero)\b/;
 // `branco` (Portuguese) was missing while RED_COLOUR_CUE carried the Iberian `tinto|tinta` pair, so
 // "Quinta dos Roques, Touriga Nacional Branco" — a WHITE wine — resolved red off its grape name.
-const WHITE_COLOUR_CUE = /\b(white|blanc|blanche|blanco|branco|bianco|weiss|weisser|weisswein|feher)\b/;
+const WHITE_COLOUR_CUE =
+  /\b(white|blanc|blanche|blanco|branco|bianco|weiss|weisser|weisswein|feher)\b/;
 
 // A colour qualifier strong enough to OVERRIDE the grape. A red grape carrying one of these is a white
 // bottling: Touriga Nacional Branco, Xinomavro White, Rioja Blanco.
@@ -1850,7 +2224,8 @@ const WHITE_COLOUR_CUE = /\b(white|blanc|blanche|blanco|branco|bianco|weiss|weis
 // The two `blanc de …` compounds ARE included: unlike a bare `blanc` they cannot be part of an estate
 // name, and both name a white wine outright. Blanc de Noirs is the one that needs saying — a white
 // wine from black grapes, so its variety list argues red and only the label is right.
-const WHITE_QUALIFIER_OVERRIDE = /\b(branco|blanco|bianco|white|weiss|weisswein|feher)\b|\bblanc de (?:blancs|noirs)\b/;
+const WHITE_QUALIFIER_OVERRIDE =
+  /\b(branco|blanco|bianco|white|weiss|weisswein|feher)\b|\bblanc de (?:blancs|noirs)\b/;
 
 // Varieties that RED_GRAPE_INDICATORS deliberately omits because the bare token is ambiguous for
 // VARIETY resolution, even though it is unambiguous for COLOUR. `montepulciano` is the case: adding it
@@ -1887,7 +2262,8 @@ const EXPLICIT_FORTIFIED =
 // The shared ROSE cue matches a bare `rose`, which collides with producer names once norm() strips
 // accents ("Cascina delle Rose" in Barbaresco — a red), and `cerasuolo`, which is a rosé in Abruzzo but
 // a RED DOCG in Vittoria. Both produced false rosé verdicts on real reds in the live bank.
-const ROSE_FALSE_POSITIVE = /\b(cerasuolo di vittoria|(?:delle|della|des|du|de la|la|le)\s+rose)\b/;
+const ROSE_FALSE_POSITIVE =
+  /\b(cerasuolo di vittoria|(?:delle|della|des|du|de la|la|le)\s+rose)\b/;
 
 // ---------------------------------------------------------------------------------------------------
 // EXPLICIT COLOUR SIGNALS — what the label SAYS and what the grapes ARE, as distinct from a regional
@@ -1908,7 +2284,8 @@ const ROSE_FALSE_POSITIVE = /\b(cerasuolo di vittoria|(?:delle|della|des|du|de l
 // Unambiguous rosé words. `rose` itself is kept (accents are stripped by norm(), so "rosé" arrives as
 // "rose") but stays subject to ROSE_FALSE_POSITIVE, and is required to stand alone rather than sit
 // inside a hyphenated proprietary name.
-const ROSE_LABEL_CUE = /\b(rosado|rosato|blush|weissherbst)\b|\bwhite zinfandel\b|(?:^|[^\w-])rose(?:[^\w-]|$)/;
+const ROSE_LABEL_CUE =
+  /\b(rosado|rosato|blush|weissherbst)\b|\bwhite zinfandel\b|(?:^|[^\w-])rose(?:[^\w-]|$)/;
 // Red colour words. `red` is here for "Sancerre Rouge"'s Anglophone cousins, but see the guard in
 // explicitColourSignal — "Red Car, Chardonnay" is a white wine from a producer called Red Car.
 const RED_LABEL_CUE = /\b(rouge|rosso|tinto|tinta|rotwein|red)\b/;
@@ -1941,8 +2318,10 @@ const BLANC_PROPRIETARY_RED = /\b(cheval blanc|chateau blanc|mas blanc)\b/;
 // contains "grenache", so RED_GRAPE_INDICATORS fires on a white grape. That collision is why five
 // legitimate white Rhône/Roussillon flights were quarantined as red. It cuts the other way too —
 // "Malvasia Nera" is a red grape whose name contains the white "malvasia".
-const VARIETY_WHITE_SUFFIX = /\b(blanc|blanche|blanca|blanco|bianco|branco|gris|grigio|weiss|weisser)$/;
-const VARIETY_RED_SUFFIX = /\b(noir|noire|nero|nera|negro|negra|tinto|tinta|rouge|rosso|preto)$/;
+const VARIETY_WHITE_SUFFIX =
+  /\b(blanc|blanche|blanca|blanco|bianco|branco|gris|grigio|weiss|weisser)$/;
+const VARIETY_RED_SUFFIX =
+  /\b(noir|noire|nero|nera|negro|negra|tinto|tinta|rouge|rosso|preto)$/;
 
 // The same qualifier, but written on the LABEL rather than in the resolved variety list: "Arnot-
 // Roberts, Trousseau Gris" is a white wine keyed simply as Trousseau. The preceding word must itself be
@@ -1999,19 +2378,26 @@ export type ColourSignal = { colour: PureColour; basis: "label" | "variety" };
  * qualifier outranks the grape (Touriga Nacional Branco), French `blanc` is not a qualifier (Château
  * Cheval Blanc), and rosé/orange are read before either.
  */
-export function explicitColourSignal(fullText?: string, varieties?: string[]): ColourSignal | null {
+export function explicitColourSignal(
+  fullText?: string,
+  varieties?: string[],
+): ColourSignal | null {
   const hay = norm(fullText || "");
   const vc = varietyColour(varieties);
   if (hay) {
     if (ORANGE_STYLE_RE.test(hay)) return { colour: "orange", basis: "label" };
-    if (ROSE_LABEL_CUE.test(hay) && !ROSE_FALSE_POSITIVE.test(hay)) return { colour: "rose", basis: "label" };
-    if (WHITE_QUALIFIER_OVERRIDE.test(hay)) return { colour: "white", basis: "label" };
-    if (FRENCH_BLANC.test(hay) && !BLANC_PROPRIETARY_RED.test(hay)) return { colour: "white", basis: "label" };
+    if (ROSE_LABEL_CUE.test(hay) && !ROSE_FALSE_POSITIVE.test(hay))
+      return { colour: "rose", basis: "label" };
+    if (WHITE_QUALIFIER_OVERRIDE.test(hay))
+      return { colour: "white", basis: "label" };
+    if (FRENCH_BLANC.test(hay) && !BLANC_PROPRIETARY_RED.test(hay))
+      return { colour: "white", basis: "label" };
     if (labelGrapeGris(hay)) return { colour: "white", basis: "label" };
     // A red word does NOT outrank a unanimously white grape list. The asymmetry is deliberate and
     // mirrors WHITE_QUALIFIER_OVERRIDE: white qualifiers are almost always the colour of the wine,
     // whereas `red`/`rosso` turn up in producer and place names ("Red Car, Chardonnay, Sonoma Coast").
-    if (RED_LABEL_CUE.test(hay) && vc !== "white") return { colour: "red", basis: "label" };
+    if (RED_LABEL_CUE.test(hay) && vc !== "white")
+      return { colour: "red", basis: "label" };
   }
   return vc ? { colour: vc, basis: "variety" } : null;
 }
@@ -2025,7 +2411,8 @@ export function explicitColourSignal(fullText?: string, varieties?: string[]): C
  */
 function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
   const explicit = explicitColourSignal(colourBearingText(w), w.varieties);
-  if (explicit?.colour === "white" || explicit?.colour === "red") return explicit.colour;
+  if (explicit?.colour === "white" || explicit?.colour === "red")
+    return explicit.colour;
 
   // Nothing stated and no usable grape list — fall back to the label/region text.
   const red = RED_GRAPE_INDICATORS.test(hay) || RED_COLOUR_CUE.test(hay);
@@ -2039,9 +2426,12 @@ function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
   // Moulin-à-Vent, Viña Tondonia — which name no grape at all and were the wines that reached
   // Paper 1 in production. NOTE: it depends on the appellation resolver being registered in the
   // calling process (import "@/lib/appellation-resolver"), or detectPrimaryVariety returns "unknown".
-  const primary = (w.varieties?.[0] && canonVariety(w.varieties[0])) || detectPrimaryVariety(w.fullText || "");
+  const primary =
+    (w.varieties?.[0] && canonVariety(w.varieties[0])) ||
+    detectPrimaryVariety(w.fullText || "");
   if (primary && primary !== "unknown") {
-    if (RED_GRAPE_INDICATORS.test(primary) || EXTRA_RED_VARIETIES.test(primary)) return "red";
+    if (RED_GRAPE_INDICATORS.test(primary) || EXTRA_RED_VARIETIES.test(primary))
+      return "red";
     if (WHITE_GRAPE_INDICATORS.test(primary)) return "white";
   }
 
@@ -2056,17 +2446,33 @@ function resolveStillColour(w: AuditWine, hay: string): "white" | "red" | null {
  * Resolve ONE wine onto the two independent axes. `colour` is null when a still wine's colour cannot
  * be positively determined; `style` always resolves (defaulting to "still").
  */
-export function resolveWineScope(w: AuditWine): { colour: PureColour | null; style: WineStyleAxis } {
-  const styleText = [w.style, w.style_category, w.fullText].filter(Boolean).join(" ");
-  const hay = norm([w.fullText, w.style, w.style_category, w.region, ...(w.varieties || [])].filter(Boolean).join(" "));
+export function resolveWineScope(w: AuditWine): {
+  colour: PureColour | null;
+  style: WineStyleAxis;
+} {
+  const styleText = [w.style, w.style_category, w.fullText]
+    .filter(Boolean)
+    .join(" ");
+  const hay = norm(
+    [w.fullText, w.style, w.style_category, w.region, ...(w.varieties || [])]
+      .filter(Boolean)
+      .join(" "),
+  );
   if (!hay && !styleText) return { colour: null, style: "still" };
 
   const { style: s, isRose } = classifyWineStyle(styleText || hay);
   let style: WineStyleAxis =
-    s === "fortified" || s === "sparkling" || s === "sweet" || s === "oxidative" ? s : "still";
+    s === "fortified" || s === "sparkling" || s === "sweet" || s === "oxidative"
+      ? s
+      : "still";
 
   // A dual-purpose VDN appellation needs an explicit fortification marker to count as fortified.
-  if (style === "fortified" && DUAL_VDN_APPELLATION.test(hay) && !EXPLICIT_FORTIFIED.test(hay)) style = "still";
+  if (
+    style === "fortified" &&
+    DUAL_VDN_APPELLATION.test(hay) &&
+    !EXPLICIT_FORTIFIED.test(hay)
+  )
+    style = "still";
 
   const reallyRose = isRose && !ROSE_FALSE_POSITIVE.test(hay);
 
@@ -2084,12 +2490,18 @@ export function resolveWineScope(w: AuditWine): { colour: PureColour | null; sty
   // and models follow regional fame; "Bianco" is not a judgement.
   const explicit = explicitColourSignal(colourBearingText(w), w.varieties);
   const labelContradiction =
-    explicit?.basis === "label" && w.colour && explicit.colour !== w.colour ? explicit.colour : null;
+    explicit?.basis === "label" && w.colour && explicit.colour !== w.colour
+      ? explicit.colour
+      : null;
 
   const colour: PureColour | null =
     labelContradiction ??
     w.colour ??
-    (ORANGE_STYLE_RE.test(hay) ? "orange" : reallyRose ? "rose" : resolveStillColour(w, hay));
+    (ORANGE_STYLE_RE.test(hay)
+      ? "orange"
+      : reallyRose
+        ? "rose"
+        : resolveStillColour(w, hay));
 
   return { colour, style };
 }
@@ -2117,7 +2529,10 @@ export function classifyWineColour(w: AuditWine): WineColour | null {
  * after a colour so a tasting descriptor ("white pepper") can never trip it; the unambiguous style
  * words (sparkling/fortified) stand alone. Returns one hard violation or null.
  */
-function stemColourConflict(paper: number, questionText: string | undefined): Violation | null {
+function stemColourConflict(
+  paper: number,
+  questionText: string | undefined,
+): Violation | null {
   const stem = normStem(questionText || "");
   if (!stem) return null;
   const forbidden =
@@ -2144,7 +2559,7 @@ export function validatePaperColour(
   paper: number,
   wines: AuditWine[],
   questionText?: string,
-  opts?: { blockIndeterminate?: boolean }
+  opts?: { blockIndeterminate?: boolean },
 ): Violation[] {
   if (paper !== 1 && paper !== 2) return [];
   const allowedColour: PureColour = paper === 1 ? "white" : "red";
@@ -2163,7 +2578,7 @@ export function validatePaperColour(
         rule: "wrong_colour_for_paper",
         severity: "hard",
         detail: `Paper ${paper} must serve ${allowedLabel} wine only, but ${wineLabel(
-          w
+          w,
         )} reads as ${style} (detected style "${style}"). Rule R-COLOUR is unconditional.`,
       });
       continue; // one verdict per wine — the style is the disqualifying fact
@@ -2175,7 +2590,7 @@ export function validatePaperColour(
         rule: "wrong_colour_for_paper",
         severity: "hard",
         detail: `Paper ${paper} must serve ${allowedLabel} wine only, but ${wineLabel(
-          w
+          w,
         )} reads as ${COLOUR_STYLE_LABEL[colour]} (detected colour "${colour}"). Rule R-COLOUR is unconditional.`,
       });
       continue;
@@ -2191,7 +2606,7 @@ export function validatePaperColour(
         rule: "wrong_colour_for_paper",
         severity: "hard",
         detail: `Paper ${paper} must serve ${allowedLabel} wine only, and ${wineLabel(
-          w
+          w,
         )} could not be positively resolved to a colour. Name the grape variety or use a wine whose colour is unambiguous.`,
       });
     }
@@ -2221,7 +2636,7 @@ export function validatePaperColour(
 export function checkNoteCompleteness(
   wineNotes: string[],
   wines: TastingValidationWine[],
-  paper?: number
+  paper?: number,
 ): Violation[] {
   return noteCompletenessViolations(wineNotes, wines, paper).map((x) => ({
     rule: x.code,
@@ -2257,7 +2672,12 @@ export function checkNoteCompleteness(
 
 // The five-mark-floor task categories (fb_73/fb_79), keyed to the shared ALLOWED_PART_TASKS ids:
 // commercial positioning, quality assessment, style, and method of production (the "winemaking" entry).
-const FLOOR_TASK_IDS = new Set(["commercial", "quality", "style", "winemaking"]);
+const FLOOR_TASK_IDS = new Set([
+  "commercial",
+  "quality",
+  "style",
+  "winemaking",
+]);
 const MARK_FLOOR_PER_WINE = 5;
 
 // The only ask the exam ever prices at 2 marks: a literal numeric readout of residual sugar or alcohol
@@ -2268,17 +2688,25 @@ const LITERAL_FACTUAL_ASK_RE =
 
 // A single un-multiplied total that is asked ACROSS the whole flight (fb_73's "overall … compare and
 // contrast across all wines … 18–24 points"). Such a part's floor is 5 × wineCount, not 5.
-const FLIGHT_WIDE_ASK_RE = /\bacross\b|\ball (?:the |\d+ )?wines\b|\boverall\b|\bthe flight\b|\bcompare(?: and contrast)?\b/;
+const FLIGHT_WIDE_ASK_RE =
+  /\bacross\b|\ball (?:the |\d+ )?wines\b|\boverall\b|\bthe flight\b|\bcompare(?: and contrast)?\b/;
 
 // norm()'d, punctuation-flattened text for task classification (mirrors splitCommandClauses' cleaning).
 function cleanForTask(text: string): string {
-  return norm(text || "").replace(/[^a-z0-9 ]+/g, " ").replace(/\s+/g, " ").trim();
+  return norm(text || "")
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 // The floor-task category (if any) a marked part sets, via the shared part-task classifier.
 function floorTaskFor(partText: string): AllowedPartTask | null {
   const cleaned = cleanForTask(partText);
-  return ALLOWED_PART_TASKS.find((t) => FLOOR_TASK_IDS.has(t.id) && t.re.test(cleaned)) || null;
+  return (
+    ALLOWED_PART_TASKS.find(
+      (t) => FLOOR_TASK_IDS.has(t.id) && t.re.test(cleaned),
+    ) || null
+  );
 }
 
 /**
@@ -2333,16 +2761,20 @@ export function validateMarkBudget(q: QuestionForAudit): Violation[] {
 
     const hasMultiplier = p.marks !== p.perUnit; // "n × m" was written (m is the per-wine value)
     const flightWide =
-      !hasMultiplier && wineCount > 1 && FLIGHT_WIDE_ASK_RE.test(cleanForTask(p.text));
+      !hasMultiplier &&
+      wineCount > 1 &&
+      FLIGHT_WIDE_ASK_RE.test(cleanForTask(p.text));
 
-    const floor = flightWide ? MARK_FLOOR_PER_WINE * wineCount : MARK_FLOOR_PER_WINE;
+    const floor = flightWide
+      ? MARK_FLOOR_PER_WINE * wineCount
+      : MARK_FLOOR_PER_WINE;
     const actual = hasMultiplier ? p.perUnit : p.marks;
     if (actual < floor) {
       const scope = flightWide
         ? `across the ${wineCount}-wine flight (floor ${floor})`
         : hasMultiplier
-        ? "per wine"
-        : "for this part";
+          ? "per wine"
+          : "for this part";
       v.push({
         rule: "MARKS_BELOW_FLOOR",
         severity: "hard",
@@ -2454,7 +2886,9 @@ function fnv1aHex(input: string): string {
 export function computeServedStemHash(questionText: string): string {
   const text = questionText || "";
   const stem = extractStem(text).replace(/\s+/g, " ").trim();
-  const parts = parseLetteredParts(text).map((p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`);
+  const parts = parseLetteredParts(text).map(
+    (p) => `${p.letter}:${p.text.replace(/\s+/g, " ").trim()}`,
+  );
   // Deliberately UNSCOPED (no wine count). This is a stored fingerprint compared against hashes
   // written by earlier builds; resolving section-header scope here would change the hash of every
   // scoped question already served and read as a re-derived stem (fb_344) on every one of them.
@@ -2487,11 +2921,14 @@ function parseStemWineCount(questionText: string): number | null {
   for (const m of stem.matchAll(RANGE_RE)) {
     const from = Number(m[1]);
     const to = parseStemCount(m[2]);
-    if (from >= 1 && to >= from && to - from < 12) for (let i = from; i <= to; i++) slots.add(i);
+    if (from >= 1 && to >= from && to - from < 12)
+      for (let i = from; i <= to; i++) slots.add(i);
   }
 
   // Enumerations, unioned across every group the stem declares.
-  for (const m of stem.matchAll(/\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/g)) {
+  for (const m of stem.matchAll(
+    /\bwines?\s+(\d+(?:\s*,\s*\d+)*(?:\s*,?\s*and\s+\d+)?)/g,
+  )) {
     for (const d of m[0].matchAll(/\d+/g)) slots.add(Number(d[0]));
   }
 
@@ -2514,11 +2951,20 @@ function parseMultiplierWineCount(questionText: string): number | null {
 
 // The anchor words (producer / region / appellation / country, plus the raw label as a fallback) that a
 // reveal asset must reference to be about one of the keyed answer wines. norm()'d, ≥3-char tokens only.
-function answerWineAnchorWords(wines: ServedQuestionPayload["wines"]): Set<string> {
+function answerWineAnchorWords(
+  wines: ServedQuestionPayload["wines"],
+): Set<string> {
   const words = new Set<string>();
   for (const w of wines || []) {
-    for (const field of [w.producer, w.region, w.appellation, w.country, w.fullText]) {
-      for (const tok of norm(field || "").split(/\s+/)) if (tok.length >= 3) words.add(tok);
+    for (const field of [
+      w.producer,
+      w.region,
+      w.appellation,
+      w.country,
+      w.fullText,
+    ]) {
+      for (const tok of norm(field || "").split(/\s+/))
+        if (tok.length >= 3) words.add(tok);
     }
   }
   return words;
@@ -2531,15 +2977,24 @@ function answerWineAnchorWords(wines: ServedQuestionPayload["wines"]): Set<strin
  */
 export function filterRevealMedia(
   media: ServedMediaAsset[],
-  wines: ServedQuestionPayload["wines"]
+  wines: ServedQuestionPayload["wines"],
 ): ServedMediaAsset[] {
   const anchors = answerWineAnchorWords(wines);
   if (anchors.size === 0) return media;
   return media.filter((asset) => {
     const text = norm(
-      [asset.tag, asset.caption, asset.alt, asset.title, asset.label, asset.producer, asset.region, asset.appellation]
+      [
+        asset.tag,
+        asset.caption,
+        asset.alt,
+        asset.title,
+        asset.label,
+        asset.producer,
+        asset.region,
+        asset.appellation,
+      ]
         .filter(Boolean)
-        .join(" ")
+        .join(" "),
     );
     const assetWords = String(text)
       .split(/\s+/)
@@ -2572,9 +3027,13 @@ export function filterRevealMedia(
 export function flightWineCountViolations(q: QuestionForAudit): Violation[] {
   const questionText = q.questionText || "";
   const wines = q.wines || [];
-  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
-  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
-  if (expected == null || renderedCount === 0 || renderedCount === expected) return [];
+  const renderedCount = new Set(
+    wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot))),
+  ).size;
+  const expected =
+    parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  if (expected == null || renderedCount === 0 || renderedCount === expected)
+    return [];
   return [
     {
       rule: "flight-wine-count",
@@ -2589,7 +3048,7 @@ export function flightWineCountViolations(q: QuestionForAudit): Violation[] {
 export function assertServedQuestionIntegrity(
   phase: ServePhase,
   served: ServedQuestionPayload,
-  priorHash?: string | null
+  priorHash?: string | null,
 ): ServedIntegrityResult {
   const questionText = served.questionText || "";
   const stemHash = computeServedStemHash(questionText);
@@ -2599,7 +3058,7 @@ export function assertServedQuestionIntegrity(
     throw new ServedQuestionIntegrityError(
       phase,
       "stem-hash",
-      `served stem/sub-parts/mark-table changed since the question was first served (hash ${priorHash} → ${stemHash}); a surface re-derived the stem instead of reading the stored record`
+      `served stem/sub-parts/mark-table changed since the question was first served (hash ${priorHash} → ${stemHash}); a surface re-derived the stem instead of reading the stored record`,
     );
   }
 
@@ -2608,20 +3067,26 @@ export function assertServedQuestionIntegrity(
   // The flight size is the number of DISTINCT SLOTS, not the array length: a stored wines array can
   // carry several candidate records per slot (one pool row holds 15 records across 5 slots), while a
   // rendered flight shows one wine per slot.
-  const renderedCount = new Set(wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot)))).size;
-  const expected = parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
+  const renderedCount = new Set(
+    wines.map((w, i) => (w?.slot == null ? `idx${i}` : String(w.slot))),
+  ).size;
+  const expected =
+    parseStemWineCount(questionText) ?? parseMultiplierWineCount(questionText);
   if (expected != null && renderedCount !== expected) {
     throw new ServedQuestionIntegrityError(
       phase,
       "wine-count",
       `the question declares ${expected} wine${expected === 1 ? "" : "s"} but the served flight rendered ${
         renderedCount
-      } — a flight must render every keyed wine, never a truncated subset`
+      } — a flight must render every keyed wine, never a truncated subset`,
     );
   }
 
   // Check 3 — at reveal, any attached media must be about one of the answer wines (drop the stragglers).
-  const media = phase === "reveal" ? filterRevealMedia(served.media || [], wines) : served.media || [];
+  const media =
+    phase === "reveal"
+      ? filterRevealMedia(served.media || [], wines)
+      : served.media || [];
 
   return { phase, stemHash, wineCount: renderedCount, media };
 }
@@ -2659,7 +3124,10 @@ export function assertServedQuestionIntegrity(
 // methodFacts — the production-method truth for a named sparkling/wine category. `mixed: true` means
 // the category is genuinely made by more than one method in commerce (so an ABSOLUTE quantifier about
 // its method is false). DATA-ONLY: extend the table, never the rule. Keys are norm()'d category names.
-export const methodFacts: Record<string, { methods: string[]; mixed: boolean }> = {
+export const methodFacts: Record<
+  string,
+  { methods: string[]; mixed: boolean }
+> = {
   // Prosecco is overwhelmingly tank (Charmat) method, but a real, quality-defining slice is
   // traditional method — the col fondo / metodo classico bottlings and the top Valdobbiadene
   // houses (fb_175). So an absolute "Prosecco is not traditional method" is false.
@@ -2669,7 +3137,7 @@ export const methodFacts: Record<string, { methods: string[]; mixed: boolean }> 
   // Single-method categories — an absolute quantifier about these is TRUE, so the rule stands down.
   champagne: { methods: ["traditional"], mixed: false },
   cava: { methods: ["traditional"], mixed: false },
-  "asti": { methods: ["tank"], mixed: false },
+  asti: { methods: ["tank"], mixed: false },
   "moscato d'asti": { methods: ["tank"], mixed: false },
 };
 
@@ -2677,26 +3145,40 @@ export const methodFacts: Record<string, { methods: string[]; mixed: boolean }> 
 const METHOD_TERM_RE =
   /\b(?:traditional|tank|charmat|ancestral|classical|classic|methode traditionnelle|metodo classico)\b/;
 // Absolute quantifiers that make a category-wide method claim (the ones the exam prose over-reaches on).
-const ABSOLUTE_QUANTIFIER_RE = /\b(?:never|always|not|only|the only|no |cannot|can not|isn't|is not)\b/;
+const ABSOLUTE_QUANTIFIER_RE =
+  /\b(?:never|always|not|only|the only|no |cannot|can not|isn't|is not)\b/;
 
 // REGION_CLASSIFICATION_MODELS — how each keyed region's appellation ladder is legally built. DATA-ONLY.
 // Keys are substrings tested against a wine's norm()'d region + country + label. Ordered most-specific
 // first so "chianti classico gran selezione" resolves as hybrid before the bare "chianti" geographic.
-const REGION_CLASSIFICATION_MODELS: { re: RegExp; model: ClassificationModel }[] = [
+const REGION_CLASSIFICATION_MODELS: {
+  re: RegExp;
+  model: ClassificationModel;
+}[] = [
   { re: /chianti classico gran selezione|gran selezione/, model: "hybrid" },
   { re: /chianti classico/, model: "hybrid" },
   { re: /\bchianti\b/, model: "hybrid" },
   { re: /\brioja\b/, model: "ageing" },
   { re: /ribera del duero/, model: "ageing" },
-  { re: /\bbordeaux\b|medoc|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bsauternes\b/, model: "producer" },
-  { re: /\bburgundy\b|bourgogne|cote de nuits|cote de beaune|gevrey|chambolle|\bvosne\b|puligny|chassagne|meursault|\bchablis\b/, model: "vineyard" },
+  {
+    re: /\bbordeaux\b|medoc|pauillac|margaux|saint-?julien|saint-?estephe|saint-?emilion|\bpomerol\b|pessac|\bgraves\b|\bsauternes\b/,
+    model: "producer",
+  },
+  {
+    re: /\bburgundy\b|bourgogne|cote de nuits|cote de beaune|gevrey|chambolle|\bvosne\b|puligny|chassagne|meursault|\bchablis\b/,
+    model: "vineyard",
+  },
 ];
 
 /** Resolve a keyed wine's classification model: its stored field first, else the region-name lookup. */
-export function regionClassificationModel(w: AuditWine): ClassificationModel | null {
+export function regionClassificationModel(
+  w: AuditWine,
+): ClassificationModel | null {
   if (w.classificationModel) return w.classificationModel;
   const hay = norm(`${w.region || ""} ${w.country || ""} ${w.fullText || ""}`);
-  return REGION_CLASSIFICATION_MODELS.find((m) => m.re.test(hay))?.model ?? null;
+  return (
+    REGION_CLASSIFICATION_MODELS.find((m) => m.re.test(hay))?.model ?? null
+  );
 }
 
 /**
@@ -2714,7 +3196,10 @@ export function regionClassificationModel(w: AuditWine): ClassificationModel | n
  * genuinely keyed `role` is authoritative and yields a HARD one — so the day roles are stored, fb_188
  * starts being enforced with no further change here.
  */
-function keyedRole(w: AuditWine): { role: "banker" | "curveball"; fromAnswerKey: boolean } {
+function keyedRole(w: AuditWine): {
+  role: "banker" | "curveball";
+  fromAnswerKey: boolean;
+} {
   if (w.role) return { role: w.role, fromAnswerKey: true };
   return { role: isBanker(w) ? "banker" : "curveball", fromAnswerKey: false };
 }
@@ -2780,7 +3265,9 @@ function clauseAssertsRole(clause: string, clauseNorm: string): boolean {
 
 // The explicit "wine N" slots a clause names (norm()'d clause). Empty when the clause names none.
 function clauseSlots(clauseNorm: string): number[] {
-  return [...clauseNorm.matchAll(/\bwines?\s+(\d+)\b/g)].map((m) => Number(m[1]));
+  return [...clauseNorm.matchAll(/\bwines?\s+(\d+)\b/g)].map((m) =>
+    Number(m[1]),
+  );
 }
 
 // Does this clause reference this wine? An explicit "wine N" slot is AUTHORITATIVE — when a clause
@@ -2802,22 +3289,36 @@ function clauseReferencesWine(clauseNorm: string, w: AuditWine): boolean {
 }
 
 // Which model families does the prose CITE? Terms are checked on the whole (norm()'d) feedback block.
-function citedClassificationModels(feedbackNorm: string): Set<ClassificationModel> {
+function citedClassificationModels(
+  feedbackNorm: string,
+): Set<ClassificationModel> {
   const cited = new Set<ClassificationModel>();
   // Geography in the APPELLATION-LADDER sense only. A bare /\bgeograph/ also matched "geography
   // (domestic/export)" — a sentence about commercial markets — which is how attempt 236 was flagged for
   // explaining a hierarchy geographically when it never discussed a hierarchy at all.
   if (
     /geographic(?:al)?\s+(?:delimitation|boundar|specificity|hierarch|ladder|precision)|\bdelimit|increasingly specific|narrower (?:appellation|geograph)|proximity|geographical boundar/.test(
-      feedbackNorm
+      feedbackNorm,
     )
   )
     cited.add("geographic");
-  if (/producer|chateau|\bestate\b|classified growth|cru classe|classement|1855|house classification/.test(feedbackNorm))
+  if (
+    /producer|chateau|\bestate\b|classified growth|cru classe|classement|1855|house classification/.test(
+      feedbackNorm,
+    )
+  )
     cited.add("producer");
-  if (/single vineyard|vineyard classification|\bclimat\b|grand cru|premier cru|\bcru\b/.test(feedbackNorm))
+  if (
+    /single vineyard|vineyard classification|\bclimat\b|grand cru|premier cru|\bcru\b/.test(
+      feedbackNorm,
+    )
+  )
     cited.add("vineyard");
-  if (/age?ing|\baged\b|crianza|reserva|gran reserva|riserva|barrel age|oak age|time in (?:barrel|cask|oak)|months? in/.test(feedbackNorm))
+  if (
+    /age?ing|\baged\b|crianza|reserva|gran reserva|riserva|barrel age|oak age|time in (?:barrel|cask|oak)|months? in/.test(
+      feedbackNorm,
+    )
+  )
     cited.add("ageing");
   return cited;
 }
@@ -2864,10 +3365,11 @@ export interface KeyedGroundWine {
  */
 export function answerKeyFlight(
   ground: readonly KeyedGroundWine[] | null | undefined,
-  wines: readonly { slot: number; fullText?: string }[] | null | undefined
+  wines: readonly { slot: number; fullText?: string }[] | null | undefined,
 ): AuditWine[] {
   const labelBySlot = new Map<number, string>();
-  for (const w of wines || []) if (w?.fullText) labelBySlot.set(w.slot, w.fullText);
+  for (const w of wines || [])
+    if (w?.fullText) labelBySlot.set(w.slot, w.fullText);
 
   const bySlot = new Map<number, AuditWine>();
   for (const g of ground || []) {
@@ -2887,7 +3389,8 @@ export function answerKeyFlight(
   }
   // Slots the key missed entirely: keep them as label-only wines.
   for (const [slot, fullText] of labelBySlot)
-    if (!bySlot.has(slot)) bySlot.set(slot, { slot, varieties: [], region: "", fullText });
+    if (!bySlot.has(slot))
+      bySlot.set(slot, { slot, varieties: [], region: "", fullText });
 
   return [...bySlot.values()].sort((a, b) => a.slot - b.slot);
 }
@@ -2899,7 +3402,10 @@ export function answerKeyFlight(
  * (role label ≠ stored role), Rule 2 (absolute method claim on a mixed category) and Rule 3 (a quality
  * hierarchy reduced to geography while a keyed region has a producer/vineyard/ageing/hybrid model).
  */
-export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): AnswerKeyClaimResult {
+export function validateAnswerKeyClaims(
+  feedback: string,
+  flight: AuditWine[],
+): AnswerKeyClaimResult {
   const wines = flight || [];
   const prose = feedback || "";
   const feedbackNorm = norm(prose);
@@ -2917,7 +3423,9 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
     // debrief reporting the candidate's own call. See clauseAssertsRole: without this the rule fired on
     // 24% of real debriefs, all false, each one rewriting prose that was already correct.
     if (!clauseAssertsRole(clause, clauseNorm)) continue;
-    const asserted: "banker" | "curveball" = saysBanker ? "banker" : "curveball";
+    const asserted: "banker" | "curveball" = saysBanker
+      ? "banker"
+      : "curveball";
     for (const w of wines) {
       if (!clauseReferencesWine(clauseNorm, w)) continue;
       const { role: keyed, fromAnswerKey } = keyedRole(w);
@@ -2941,12 +3449,15 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
     for (const [category, facts] of Object.entries(methodFacts)) {
       if (!facts.mixed) continue; // absolute claims about a single-method category are fine
       if (!clauseNorm.includes(category)) continue;
-      if (ABSOLUTE_QUANTIFIER_RE.test(clauseNorm) && METHOD_TERM_RE.test(clauseNorm)) {
+      if (
+        ABSOLUTE_QUANTIFIER_RE.test(clauseNorm) &&
+        METHOD_TERM_RE.test(clauseNorm)
+      ) {
         v.push({
           rule: "answer-key-claim-method",
           severity: "hard",
           detail: `feedback makes an absolute production-method claim about ${category} ("${clause.trim()}"), but ${category} is made by more than one method (${facts.methods.join(
-            ", "
+            ", ",
           )}); an absolute quantifier ("never"/"always"/"not"/"only") is false for a mixed-method category.`,
         });
         break; // one verdict per clause is enough
@@ -2960,7 +3471,7 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
   // is actually ABOUT the ladder.
   const explainsHierarchy =
     /hierarch|quality ladder|\bladder\b|ascend|classification (?:model|system)|appellation tiers?|(?:quality|appellation|cru) tiers?|tiers? of (?:quality|appellation)/.test(
-      feedbackNorm
+      feedbackNorm,
     );
   if (explainsHierarchy && wines.length > 0) {
     const cited = citedClassificationModels(feedbackNorm);
@@ -2970,10 +3481,13 @@ export function validateAnswerKeyClaims(feedback: string, flight: AuditWine[]): 
     const nonGeoModels = new Map<string, ClassificationModel>();
     for (const w of wines) {
       const model = regionClassificationModel(w);
-      if (model && model !== "geographic") nonGeoModels.set(w.region || wineLabel(w), model);
+      if (model && model !== "geographic")
+        nonGeoModels.set(w.region || wineLabel(w), model);
     }
     if (onlyGeography && nonGeoModels.size > 0) {
-      const offenders = [...nonGeoModels.entries()].map(([r, m]) => `${r} (${m})`).join("; ");
+      const offenders = [...nonGeoModels.entries()]
+        .map(([r, m]) => `${r} (${m})`)
+        .join("; ");
       v.push({
         rule: "answer-key-claim-hierarchy",
         severity: "hard",
@@ -3022,7 +3536,7 @@ export interface RegeneratedFeedback {
 export async function regenerateFeedbackOnce(
   feedback: string,
   flight: AuditWine[],
-  regenerate: (reason: string, violations: Violation[]) => Promise<string>
+  regenerate: (reason: string, violations: Violation[]) => Promise<string>,
 ): Promise<RegeneratedFeedback> {
   const first = validateAnswerKeyClaims(feedback, flight);
   if (first.ok) {
@@ -3073,7 +3587,7 @@ export async function regenerateFeedbackOnce(
 
 export function validateQuestion(
   q: QuestionForAudit,
-  opts?: { paperScope?: boolean }
+  opts?: { paperScope?: boolean },
 ): {
   ok: boolean;
   violations: Violation[];
@@ -3107,7 +3621,10 @@ export function validateQuestion(
   // one time in twenty is the wrong trade — 235 of the bank's violations were this rule. Making the
   // wine choice better at generation is right; deleting the question afterwards is not.
   violations.push(
-    ...flightCompositionViolations(q.wines).map((v) => ({ ...v, severity: "soft" as const }))
+    ...flightCompositionViolations(q.wines).map((v) => ({
+      ...v,
+      severity: "soft" as const,
+    })),
   );
   // R-OW-ANCHOR stays HARD in every path (unlike flight-composition, which is advisory here). An
   // all-New-World same-variety flight of a classic variety has NO precedent in the 2011–2026 corpus
@@ -3121,7 +3638,9 @@ export function validateQuestion(
   // The banker arm is a WINE choice ("pick a curveball instead") and survives a fixed stem; the two
   // `single-wine-flight` arms are stem edits, which this file already says of the ID-ask half.
   violations.push(
-    ...validateSingleWineFlight(q).filter((v) => !stemFixed || v.rule === "single-wine-flight-banker")
+    ...validateSingleWineFlight(q).filter(
+      (v) => !stemFixed || v.rule === "single-wine-flight-banker",
+    ),
   );
   violations.push(...validateMarkBudget(q));
   if (q.modelAnswer && q.modelAnswer.trim().length > 0) {
@@ -3130,7 +3649,7 @@ export function validateQuestion(
         questionText: q.questionText,
         answerText: q.modelAnswer,
         wines: q.wines,
-      }) as Violation[])
+      }) as Violation[]),
     );
   }
   violations.push(...crossCheckStemFacts(q));
@@ -3156,6 +3675,9 @@ export function validateQuestion(
   return {
     ok: !violations.some((x) => x.severity === "hard"),
     violations,
-    scoringModel: stemSniperScoringModel(q.questionText, (q.wines || []).length),
+    scoringModel: stemSniperScoringModel(
+      q.questionText,
+      (q.wines || []).length,
+    ),
   };
 }
