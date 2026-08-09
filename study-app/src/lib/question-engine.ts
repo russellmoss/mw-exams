@@ -1902,14 +1902,25 @@ ${repairContext.draft}`,
     // reviewer fault cluster this closes. ANCHOR_PAIRS is the SAME table the audit reads, so the
     // generator builds flights against exactly what judges them (ANCHOR_PAIRS is re-exported above so
     // this selection path — and its callers — can reason about the anchors a flight must include).
+    // SPLIT FROM `banker`, so the two can have different policies — see ADVISORY_RULES below.
+    // Folded together they shared one name and therefore one verdict, and anchor-pairing's
+    // false-positive rate is nothing like flight-composition's: measured against the real corpus it
+    // rejects 13.1% of past-paper flights, because the Institute genuinely sets anchorless ones (four
+    // Muscats in 2012 P3 Q4, Chinon + Spätburgunder + Pinotage + Lagrein in 2017 P2 Q3). As a bank-path
+    // blocker that cost a real question: re-importing hist_2023_p3_q1 — a stem that FORBIDS Champagne
+    // — failed all three attempts on "no anchor" after --redo had already deleted the row.
     const bankerViolations =
       pinned || shouldRelaxBanker(attempt, bankPath)
         ? []
-        : [
-            ...flightCompositionViolations(auditWines),
-            ...flightAnchorPairingViolations(auditWines),
-          ].map((v) => v.detail);
+        : flightCompositionViolations(auditWines).map((v) => v.detail);
     const bankerCheck = { valid: bankerViolations.length === 0, violations: bankerViolations };
+    // Advisory on EVERY path (it is in ADVISORY_RULES and not in BANK_BLOCKING_RULES), so it still
+    // steers the generator and still lands in generation_attempts.rules_fired — it just cannot be
+    // the reason a question fails to exist.
+    const anchorViolations = pinned
+      ? []
+      : flightAnchorPairingViolations(auditWines).map((v) => v.detail);
+    const anchorCheck = { valid: anchorViolations.length === 0, violations: anchorViolations };
     const flightSizeCheck = pinned || relaxNiceToHave
       ? { valid: true, violations: [] }
       // Anchored mode judges against the CORPUS maximum, not the generation maximum: a real question
@@ -1992,6 +2003,7 @@ ${repairContext.draft}`,
       composition: compositionCheck,
       price: priceCheck,
       banker: bankerCheck,
+      anchorPairing: anchorCheck,
       flightSize: flightSizeCheck,
       novelty: noveltyCheck,
       // Stem-disclosure (rule R10, shared with the audit where it is a soft flag): a stem that
@@ -2954,7 +2966,7 @@ export const BENCHMARK_APPELLATIONS = /\b(premier\s*cru|1er\s*cru|grand\s*cru|cr
 // lost — the prompt still teaches the banker rule in far richer terms than a regex can express
 // (classification level, noble varieties, EK-0131 on Alsace). It stays in generation_attempts.
 // rules_fired, so if a better detector ever earns it a hard gate, the evidence is already accruing.
-export const ADVISORY_RULES = new Set(["banker"]);
+export const ADVISORY_RULES = new Set(["banker", "anchorPairing"]);
 
 // Advisory rules that block anyway on the BANK path (batchId set — Fill-the-Bank / generate / cron
 // worker). The advisory demotion above is an interactive-latency trade: with a user watching the
@@ -2965,6 +2977,17 @@ export const ADVISORY_RULES = new Set(["banker"]);
 // outputs/feedback_analyses/mike_bin_reasons_2026-08-05.md, Class 2). The detector's poor recall
 // (44.3% of real benchmarks) means it also rejects flights that DO carry a real banker the regex
 // misses — on the bank path that costs retries, not quality, which is the right side to err on.
+// `anchorPairing` is deliberately ABSENT: it is advisory on every path, including the bank.
+//
+// It was folded into `banker` and inherited its bank-path blocking, but the two have very different
+// error rates. flight-composition's blocking is earned — bankerless flights are the largest defect
+// class in the reviewer bin corpus, and a rejected attempt costs a retry. Anchor-pairing rejects
+// 13.1% of REAL past-paper flights (measured, scripts/measure-banker-arm.mjs), because the Institute
+// sets anchorless flights on purpose, and on a FIXED stem a retry cannot help: re-importing
+// hist_2023_p3_q1 — "traditional method sparkling wines from four different countries, none from
+// Champagne" — burned all three attempts on "no anchor" and, because --redo deletes first, left the
+// question missing from the bank. A rule that can be unsatisfiable for a legitimate stem must not be
+// the thing that decides whether a question exists.
 export const BANK_BLOCKING_RULES = new Set(["banker"]);
 
 /**
