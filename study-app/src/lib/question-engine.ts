@@ -148,6 +148,7 @@ import {
   validatePaperStyleMix,
   validatePaperColour,
   validateSingleWineFlight,
+  validateOldWorldAnchor,
   type AuditWine,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
@@ -616,6 +617,24 @@ export function bankedServeRejection(q: GeneratedQuestion): string | null {
   const countryCheck = validateCountryDiversity(questionText, wines);
   if (!countryCheck.valid) {
     return `failed country diversity: ${countryCheck.violations[0]}`;
+  }
+
+  // R-OW-ANCHOR at serve time (EK-0155: a validator that runs in ONE place is not an enforcement). An
+  // all-New-World "same single grape variety" flight of a classic WHITE variety (Chardonnay et al.)
+  // carries no route-to-country reference wine and has no precedent in the 2011–2026 corpus (EK-0169).
+  // The banker/anchor is a WINE choice, so this survives a fixed/imported stem. winesFromText resolves
+  // the variety and country from each label (the appellation resolver is registered), and the rule also
+  // reads the raw fullText, so a Burgundian anchor ("Chablis 1er Cru", "Meursault") is recognised even
+  // though the serve-path wines carry no separate region field.
+  const owAnchor = validateOldWorldAnchor({
+    questionId: q.question_id,
+    paper: q.paper,
+    family: "",
+    questionText,
+    wines: winesFromText(wines).map((w) => ({ ...w, region: "" })),
+  });
+  if (owAnchor.length > 0) {
+    return `failed R-OW-ANCHOR: ${owAnchor[0].detail}`;
   }
 
   return null;
