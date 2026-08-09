@@ -19,7 +19,10 @@ import { MicButton } from "./MicButton";
 import {
   REVIEW_REASON_OPTIONS,
   MAX_REVIEW_NOTE_CHARS,
+  displayedRole,
   type ReviewCard as Card,
+  type RoleOverride,
+  type WineRole,
 } from "@/lib/question-review-shared";
 
 interface Props {
@@ -41,6 +44,13 @@ interface Props {
   onSkip: () => void;
   onReject: () => void;
   busy: boolean;
+  /**
+   * Per-wine banker/curveball corrections, lifted to the parent for the same reason the reject form
+   * is: they are submitted with whatever verdict the reviewer casts, including an approve, and the
+   * approve path is a window-level keypress that never touches this component's state.
+   */
+  roleOverrides: RoleOverride[];
+  onToggleRole: (slot: number, keyed: WineRole) => void;
 }
 
 function Chip({ children, tone = "muted" }: { children: React.ReactNode; tone?: "muted" | "accent" | "fail" | "success" }) {
@@ -105,9 +115,49 @@ function Collapsible({
   );
 }
 
+/**
+ * The banker/curveball chip — clickable, and the highest-value control on this card.
+ *
+ * The reviewers' most repeated judgement is about a wine's ROLE, and until now it could only be
+ * expressed as prose in a rejection note, which a human then hand-transcribed into a regex table.
+ * One click states the same thing as data.
+ *
+ * It stays live on every verdict, not just on reject: a question can be perfectly good and still have
+ * a mis-keyed role, and that correction is worth as much to the generator as a rejection.
+ */
+function RoleChip({
+  role, disputed, onClick, busy,
+}: { role: WineRole; disputed: boolean; onClick: () => void; busy: boolean }) {
+  const shown = disputed ? (role === "banker" ? "curveball" : "banker") : role;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={busy}
+      aria-pressed={disputed}
+      title={
+        disputed
+          ? `You've called this a ${shown}. Click to restore the system's "${role}".`
+          : `The system reads this as a ${role}. Click if you disagree — it's recorded as a ruling, adjudicated, and (if upheld) changes how wines are chosen.`
+      }
+      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-xs transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 ${
+        disputed
+          ? "border-fail bg-fail/15 text-fail"
+          : shown === "curveball"
+            ? "border-accent/40 text-accent hover:border-accent"
+            : "border-border text-muted hover:border-accent/40 hover:text-foreground"
+      }`}
+    >
+      {shown}
+      {disputed && <span aria-hidden className="text-[10px]">✎</span>}
+    </button>
+  );
+}
+
 export function QuestionReviewCard({
   card, rejecting, tags, note, onToggleTag, onNoteChange,
   onOpenReject, onCancelReject, onApprove, onSkip, onReject, busy,
+  roleOverrides, onToggleRole,
 }: Props) {
   const [showIntent, setShowIntent] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -153,6 +203,22 @@ export function QuestionReviewCard({
         </Chip>
         <span className="ml-auto font-mono text-[11px] text-muted">{card.id}</span>
       </div>
+
+      {/* ── Repaired since you last saw it ──────────────────────────────────────────────────────
+          A reviewer handed a question they already rejected, with nothing to say what moved, will
+          reasonably reject it again on their own earlier reasoning — and the repair loop would read
+          that as "the fix failed" when in fact nobody told them there had been one. */}
+      {card.repair && (
+        <div className="border-b border-accent/30 bg-accent/5 px-5 py-3">
+          <p className="text-xs font-semibold text-accent">
+            Repaired since your last ruling
+            {card.repair.count > 1 && ` (${card.repair.count} times)`}
+          </p>
+          {card.repair.note && (
+            <p className="mt-1 text-xs leading-relaxed text-foreground">{card.repair.note}</p>
+          )}
+        </div>
+      )}
 
       {/* ── The validator's verdict ────────────────────────────────────────────────────────────
           Shown BEFORE the reviewer decides, because the pane would otherwise show everything a
@@ -203,7 +269,18 @@ export function QuestionReviewCard({
                   )}
                 </td>
                 <td className="w-24 py-2.5 pr-5 text-right">
-                  {w.role && <Chip tone={w.role === "curveball" ? "accent" : "muted"}>{w.role}</Chip>}
+                  {(() => {
+                    const role = displayedRole(w);
+                    if (!role) return null;
+                    return (
+                      <RoleChip
+                        role={role}
+                        disputed={roleOverrides.some((o) => o.slot === w.slot)}
+                        onClick={() => onToggleRole(w.slot, role)}
+                        busy={busy}
+                      />
+                    );
+                  })()}
                 </td>
               </tr>
             ))}
@@ -225,6 +302,33 @@ export function QuestionReviewCard({
         open={showAnswer}
         onToggle={() => setShowAnswer((v) => !v)}
       />
+
+      {/* ── Outstanding role disputes ──────────────────────────────────────────────────────────
+          Stated back in words before the reviewer commits. A flipped chip is a small visual change
+          for a claim with large consequences — it can rewrite the calibration every future flight is
+          built against — so it should never be possible to submit one without having read it. */}
+      {roleOverrides.length > 0 && (
+        <div className="border-t border-accent/30 bg-accent/5 px-5 py-3">
+          <p className="text-xs font-semibold text-accent">
+            {/* The apostrophe is a literal ’ and not `&rsquo;`: inside a JS string expression an HTML
+                entity is not decoded by JSX, so the browser printed "a wine&rsquo;s role" verbatim. */}
+            You&rsquo;re disputing {roleOverrides.length === 1 ? "a wine’s role" : `${roleOverrides.length} wine roles`}
+          </p>
+          <ul className="mt-1 space-y-0.5">
+            {roleOverrides.map((o) => (
+              <li key={o.slot} className="text-xs text-foreground">
+                Wine {o.slot}: system says <span className="text-muted">{o.keyed}</span> → you say{" "}
+                <span className="font-semibold">{o.reviewer}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-muted">
+            Submitted with your verdict. Each one is adjudicated against the past-paper corpus — the
+            system will push back if it disagrees — and an upheld ruling changes which wines get
+            chosen from here on.
+          </p>
+        </div>
+      )}
 
       {/* ── The decision ───────────────────────────────────────────────────────────────────────── */}
       {!rejecting ? (

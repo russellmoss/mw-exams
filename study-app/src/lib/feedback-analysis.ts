@@ -10,6 +10,8 @@ import { synthesizeSpeech, isElevenLabsConfigured } from "@/lib/elevenlabs";
 import { resolveTavilyKey } from "@/lib/tavily-key";
 import { getUserPersona } from "@/lib/persona-server";
 import { personaBlock } from "@/lib/personas";
+import { getPendingRulingsForAttempt, recordRoleVerdicts } from "@/lib/wine-role-rulings";
+import { parseRoleRulings } from "@/lib/prompts/role-adjudication";
 
 /**
  * Server-side feedback analysis — the durable core of the "feedback → analysis →
@@ -433,6 +435,12 @@ export async function runFeedbackAnalysis(opts: {
     // Live empirical knowledge (paper-filtered) from the Neon projection — always current.
     const empiricalKnowledge = await getEmpiricalKnowledgeForAnalysis(attempt.paper as number);
 
+    // Per-wine banker/curveball claims filed with this rejection, if any. They are adjudicated INLINE
+    // rather than by a second call: this prompt already carries the flight, the corpus and the
+    // empirical knowledge, so a separate model call to rule on the same wines would pay the same
+    // ~$1.58 twice to look at the same evidence.
+    const roleDisputes = await getPendingRulingsForAttempt(attemptId);
+
     const prompt = buildFeedbackAnalysisPrompt({
       questionText: attempt.question_text as string,
       wines,
@@ -447,6 +455,7 @@ export async function runFeedbackAnalysis(opts: {
       // a nightly sweep or an admin re-run still writes back to the candidate who filed it.
       persona: await getUserPersona((attempt.user_id as number) ?? null),
       empiricalKnowledge,
+      roleDisputes,
       questionMetadata: metadata as Record<string, unknown> | null,
       reasoningTrace: attempt.reasoning_trace as string | null,
       attempt: {
@@ -488,6 +497,32 @@ export async function runFeedbackAnalysis(opts: {
       .join("");
 
     const recommendation = extractRecommendation(analysisText);
+
+    // Record the role verdicts BEFORE the "no verdict line" bail-out below.
+    //
+    // The two are independent: an analysis can rule cleanly on three wine roles and still stop short
+    // of its own Recommendation line (which is the LAST thing it writes, and the failure mode
+    // ANALYSIS_MAX_TOKENS exists for). Writing them after the bail-out would throw away good rulings
+    // because a different part of the same response was cut off, and the reviewer would see their
+    // claims still sitting at 'pending' with no explanation.
+    //
+    // Filtered to the ids we sent, so a hallucinated id cannot update a ruling nobody disputed.
+    if (roleDisputes.length > 0) {
+      try {
+        const sent = new Set(roleDisputes.map((d) => d.id));
+        const parsed = parseRoleRulings(analysisText).filter((p) => sent.has(p.id));
+        const written = await recordRoleVerdicts(parsed, analysis.id);
+        const unruled = roleDisputes.length - parsed.length;
+        console.log(
+          `[feedback-analysis] attempt ${attemptId}: ${written} role ruling(s) recorded` +
+            (unruled > 0 ? `, ${unruled} left pending (no parseable line)` : "")
+        );
+      } catch (roleErr) {
+        // Never fail the analysis over the role side-channel — the rulings stay 'pending' and the
+        // batch adjudicator picks them up.
+        console.error("[feedback-analysis] role ruling capture failed (non-fatal):", roleErr);
+      }
+    }
 
     const thread = [
       { role: "system" as const, content: analysisText, timestamp: new Date().toISOString() },

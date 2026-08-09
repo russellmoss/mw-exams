@@ -23,6 +23,7 @@ import {
   getReviewSpendToday,
   sanitizeReviewTags,
   sanitizeReviewNote,
+  sanitizeRoleOverrides,
   isReviewVerdict,
   staleBufferedIds,
 } from "@/lib/question-review";
@@ -44,6 +45,8 @@ export async function POST(request: Request) {
     // The ids the client is holding in its local buffer, so the response can tell it which have
     // stopped being servable since it fetched them. See staleBufferedIds.
     buffered: rawBuffered,
+    roleOverrides: rawRoles,
+    wines: rawWines,
   } = body as Record<string, unknown>;
 
   if (typeof questionId !== "string" || !questionId) {
@@ -55,6 +58,21 @@ export async function POST(request: Request) {
 
   const tags = sanitizeReviewTags(rawTags);
   const note = sanitizeReviewNote(rawNote);
+  const roleOverrides = sanitizeRoleOverrides(rawRoles);
+  // The wine labels come from the client only so a dispute can NAME the bottle in the feedback text
+  // and in the ruling row. They are never trusted for anything that decides an outcome — the
+  // adjudicator re-reads the wines from the question, and the slot number is what joins the two.
+  const wines = Array.isArray(rawWines)
+    ? (rawWines as Record<string, unknown>[])
+        .map((w) => ({
+          slot: Number(w.slot),
+          label: String(w.label ?? "").slice(0, 300),
+          variety: w.variety ? String(w.variety).slice(0, 120) : null,
+          region: w.region ? String(w.region).slice(0, 120) : null,
+          country: w.country ? String(w.country).slice(0, 120) : null,
+        }))
+        .filter((w) => Number.isInteger(w.slot))
+    : [];
 
   // A thumbs-down MUST say why. This is the whole point of the surface: an unexplained rejection
   // tells the feedback loop that something is wrong and nothing about what, which is the one input
@@ -75,6 +93,8 @@ export async function POST(request: Request) {
       verdict,
       tags,
       note,
+      roleOverrides,
+      wines,
       route: "/review",
     });
 
