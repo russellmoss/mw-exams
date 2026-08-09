@@ -150,6 +150,7 @@ import {
   validatePaperColour,
   validateSingleWineFlight,
   validateOldWorldAnchor,
+  validateModelAnswerPresent,
   type AuditWine,
 } from "@/lib/question-validator";
 // Shared rule layer (single source of truth). The engine delegates the cleanly-separable
@@ -559,6 +560,24 @@ export function bankedServeRejection(q: GeneratedQuestion): string | null {
   if (wineCount === 0) return "flight has no wines";
 
   const questionText = q.question_text || "";
+
+  // MODEL ANSWER first: a question with no keyed model answer — or one that does not cover every
+  // lettered sub-part of its stem — cannot be graded and produces an empty debrief, so it must never
+  // reach a candidate (fb_427/fb_368/fb_362). Refusing it here keeps the "No model answer available
+  // for this question yet." placeholder off the reveal screen for served questions: a candidate only
+  // ever sees a question whose answer is already written. The placeholder now belongs behind an
+  // explicit admin/debug view, not the serve path.
+  const modelAnswerCheck = validateModelAnswerPresent({
+    questionId: q.question_id,
+    paper: q.paper,
+    family: "",
+    questionText,
+    wines: [],
+    modelAnswer: q.model_answer,
+  });
+  if (modelAnswerCheck.length > 0) {
+    return `failed model-answer completeness: ${modelAnswerCheck[0].detail}`;
+  }
 
   // Run critical validators against banked questions.
   // Shape first: 12 banked questions hold slots containing the generator's reasoning rather than a
