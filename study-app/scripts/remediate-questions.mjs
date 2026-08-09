@@ -44,12 +44,12 @@ if (!process.env.DATABASE_URL || !APIKEY) {
   process.exit(1);
 }
 
-const { buildQuestionGenerationPrompt } = await import("../src/lib/prompts/question-generation-prompt.ts");
+const { buildQuestionGenerationPrompt, buildProducerExclusionBlock } = await import("../src/lib/prompts/question-generation-prompt.ts");
 const { buildModelAnswerPrompt, parseModelAnswerSections, modelAnswerMaxTokens, modelAnswerEffort } = await import("../src/lib/prompts/model-answer-prompt.ts");
 const { enrichWineProfiles } = await import("../src/lib/wine-enrichment.ts");
-const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions } = await import("../src/lib/db.ts");
+const { saveGeneratedQuestion, getQuestionsByFilter, getRecentGeneratedQuestions, getProducerTally, getRecentProducerKeys } = await import("../src/lib/db.ts");
 const { validateQuestion } = await import("../src/lib/question-validator.ts");
-const { normalizeMarkAllocation } = await import("../src/lib/question-engine.ts");
+const { normalizeMarkAllocation, buildGenerationProducerExclusion, PRODUCER_RECENT_WINDOW } = await import("../src/lib/question-engine.ts");
 const { getLatestOpus } = await import("../src/lib/model-resolver.ts");
 const { buildKeyForRow, upsertKey } = await import("./build-stem-answer-keys.mjs");
 const { checkWineReferenceShape } = await import("../src/lib/question-rules.mjs");
@@ -202,6 +202,30 @@ async function genModelAnswer(questionText, wines, paper, wineProfiles) {
 async function remediateOne(old, existingWines, latest) {
   const paper = old.paper, family = old.family;
   const prompt = await buildQuestionGenerationPrompt(paper, family, existingWines, latest);
+
+  // TELL THE GENERATOR WHICH PRODUCERS ARE BANNED, exactly as question-engine does after building the
+  // same prompt. Without this the exclusion existed only as validateProducerExclusion REJECTING the
+  // finished draft, so remediation kept reaching for the houses the reviewer has already banned and
+  // paying for it: the first live run drew Domaine Weinbach — a standing reviewer exclusion — on two
+  // separate questions, and each rejected attempt costs a full generation AND the Tavily enrichment
+  // that ran before validation (it even filed the banned wine into wine_bank on the way through).
+  // A retry is not free here, and this is a scheduled job now.
+  try {
+    const [tally, recentProducers] = await Promise.all([
+      getProducerTally(paper, { includeRetiredEvidence: true }),
+      getRecentProducerKeys(paper, PRODUCER_RECENT_WINDOW),
+    ]);
+    const excluded = buildGenerationProducerExclusion(tally.rows, recentProducers);
+    if (excluded.length > 0) {
+      prompt.system += buildProducerExclusionBlock(excluded.map((p) => p.display));
+      console.log(`    excluding ${excluded.length} producer(s) in the prompt`);
+    }
+  } catch (e) {
+    // Degrade to no exclusion rather than to a failed remediation — the validator still rejects a
+    // banned producer, so the worst case is the retry loop we had before.
+    console.warn(`    producer-exclusion fetch failed (non-fatal): ${e.message}`);
+  }
+
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const model = attempt === 1 ? OPUS : "claude-sonnet-4-6";
     let text;
