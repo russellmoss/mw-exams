@@ -212,6 +212,53 @@ export async function quarantineCohort(opts: {
 }
 
 /**
+ * Quarantine the ONE question a validated complaint was filed against.
+ *
+ * quarantineCohort handles the siblings; this handles the question itself, and before it existed
+ * that question usually stayed in circulation. An accept whose Kind routes to a code change
+ * (generation/validator/answer-key) ships a rule PR and touches nothing in the bank — only
+ * Kind:question pulls the row (see applyFeedbackChange) — and a partial never touched the bank at
+ * all. Measured on the 9-Aug review batch: of 167 down-votes, 26 accepted and 81 partial were still
+ * servable after their analyses resolved. The rule PR still lands either way; this pulls the
+ * question that drew the complaint so the remediation loop regenerates it under the rule it failed.
+ *
+ * Guards: only 'full' attempts (drill attempts reference stems, not bank rows) and only pool-scoped
+ * generated questions. Same reason payload as the Kind:question path — `feedback-question` is the
+ * rule audit-questions.mjs deliberately preserves when clearing stale flags, and the rule
+ * remediation refuses to "repair" in place, because it encodes a reviewer's judgment the validator
+ * cannot re-derive.
+ */
+async function quarantineAttemptQuestion(attemptId: number, recommendation: string): Promise<boolean> {
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = (await sql`
+    SELECT a.question_id, a.user_feedback
+    FROM user_attempts a
+    JOIN generated_questions g ON g.question_id = a.question_id
+    WHERE a.id = ${attemptId} AND a.mode = 'full' AND g.scope = 'pool'
+  `) as { question_id: string; user_feedback: string | null }[];
+  const row = rows[0];
+  if (!row) return false;
+  const verdictWord = recommendation === "accept" ? "valid" : "partially valid";
+  const detail =
+    `Quarantined from attempt ${attemptId}: the analysis found the complaint ${verdictWord} — ` +
+    `"${(row.user_feedback ?? "").slice(0, 160)}". Regenerate via remediation rather than deleting.`;
+  const payload = JSON.stringify([{ rule: "feedback-question", severity: "hard", detail }]);
+  await sql`
+    UPDATE generated_questions SET invalid_reasons = (
+      SELECT jsonb_agg(DISTINCT v) FROM jsonb_array_elements(
+        (CASE WHEN jsonb_typeof(invalid_reasons) = 'array' THEN invalid_reasons ELSE '[]'::jsonb END)
+        || ${payload}::jsonb) v)
+    WHERE question_id = ${row.question_id}
+  `;
+  await sql`
+    UPDATE stem_answer_keys SET validated = false, invalid_reasons = ${payload}::jsonb
+    WHERE question_id = ${row.question_id}
+  `;
+  console.log(`[quarantine] pulled ${row.question_id} (attempt ${attemptId}, ${recommendation})`);
+  return true;
+}
+
+/**
  * Execute the Auto-Apply decision for a resolved recommendation. Extracted so the initial
  * analysis AND a follow-up reply that changes the verdict drive the exact same logic. Does NOT
  * itself check the Auto-Apply master switch — callers gate on `isAutoApplyEnabled()`.
@@ -228,6 +275,14 @@ export async function applyRecommendation(
       r.autoApplied = true;
     } catch (applyErr) {
       console.error("auto-apply dispatch failed:", applyErr);
+    }
+    // The complaint was found valid, so the question that drew it leaves circulation even when the
+    // fix ships as a code PR (Kind:question already quarantined it inside applyFeedbackChange; the
+    // append is harmless there). Runs even if the dispatch above failed — the verdict stands.
+    try {
+      await quarantineAttemptQuestion(attemptId, recommendation);
+    } catch (qErr) {
+      console.error("attempt-question quarantine failed (non-fatal):", qErr);
     }
   } else if (recommendation === "reject") {
     try {
@@ -252,6 +307,13 @@ export async function applyRecommendation(
       r.autoPartial = true;
     } catch (partErr) {
       console.error("auto-partial failed:", partErr);
+    }
+    // "Some points valid" is still a fault the analysis confirmed. The question goes to remediation
+    // (regenerate, then back to the pool and the review queue) instead of staying servable.
+    try {
+      await quarantineAttemptQuestion(attemptId, recommendation);
+    } catch (qErr) {
+      console.error("attempt-question quarantine failed (non-fatal):", qErr);
     }
   } else if (recommendation === "endorse") {
     // Positive feedback: nothing to fix. Flag the question as an exemplar (feeds the generation
