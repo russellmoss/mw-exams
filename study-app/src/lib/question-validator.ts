@@ -768,7 +768,13 @@ const OLD_WORLD_ANCHOR_HOMES: { variety: RegExp; home: RegExp; label: string }[]
     label: "Alsace",
   },
   {
-    variety: /sauvignon blanc|^sauvignon$|\bsauvignon\b/,
+    // The bare `\bsauvignon\b` this used to carry also matched CABERNET SAUVIGNON, which put a red
+    // variety inside a whites-only rule and quarantined gen_p2_F1_1786073842960 (Napa + Western Cape
+    // Cabernet) for lacking a white-Bordeaux anchor. Reds are excluded from this table on purpose —
+    // the exam sets all-New-World red same-variety flights — so a red reaching it by substring defeats
+    // the scope the rule's whole false-positive argument rests on. Matched by lookbehind rather than by
+    // dropping the bare form, because the key resolves some labels to just "sauvignon".
+    variety: /sauvignon blanc|(?<!cabernet\s)\bsauvignon\b(?!\s+vert)/,
     home: /\bsancerre\b|pouilly-?fume|menetou-?salon|\bloire\b|\bbordeaux\b|\bgraves\b|pessac/,
     label: "the Loire (Sancerre / Pouilly-Fumé) or white Bordeaux",
   },
