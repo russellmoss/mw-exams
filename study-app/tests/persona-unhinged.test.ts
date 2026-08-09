@@ -86,14 +86,57 @@ describe("Unhinged — the floors that hold at any volume", () => {
   it("still credits a genuine strength", () => {
     expect(voice).toMatch(/Never withhold a real strength/i);
   });
+
+  it("extends the floor to third parties, who never opted into anything", () => {
+    // The candidate consented to this; their tutor did not. Mocking someone the candidate brings up
+    // is fine — they are not present and it is banter in a private tool — but the protected-
+    // characteristic rule covers them too.
+    expect(voice).toMatch(/ANYONE THEY BRING UP IS FAIR GAME/);
+    expect(voice).toMatch(/apply to anyone you are talking about, not just the candidate/i);
+  });
+
+  it("mocks third parties but never makes factual allegations about them", () => {
+    // "Your tutor sounds like a moron" is a joke. "Your tutor buys his marks" is a claim about a
+    // real, named person that could be screenshotted and repeated — a different kind of thing, and
+    // the one with actual consequences attached.
+    expect(voice).toMatch(/you mock, you do not allege/i);
+  });
 });
 
 describe("Unhinged — the delivery", () => {
   it("pins its own narration voice instead of offering a choice", () => {
     expect(getPersona("unhinged").lockedVoiceId).toBe(LEGACY_ELEVENLABS_VOICE_ID);
-    // And the narration path must actually honour it over the user's Settings choice.
-    const src = fs.readFileSync(path.join(appDir, "src/lib/feedback-analysis.ts"), "utf8");
-    expect(src).toMatch(/lockedVoiceId \?\? \(opts\.userId/);
+  });
+
+  it("makes EVERY synthesis path honour the pin, not just the one someone remembered", () => {
+    // The bug this replaces: the pin was applied inline in the verdict narration and nowhere else,
+    // so an Unhinged user pressed the speaker button on an answer and got a polite British
+    // narrator. Two call sites, one of them wrong, and nothing to catch it. Now there is one
+    // resolver and this test fails if a synthesis path resolves a voice any other way.
+    const dir = path.join(appDir, "src");
+    const walk = (d: string): string[] =>
+      fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
+        const full = path.join(d, e.name);
+        return e.isDirectory() ? walk(full) : /\.tsx?$/.test(e.name) ? [full] : [];
+      });
+
+    const offenders = walk(dir).filter((f) => {
+      const src = fs.readFileSync(f, "utf8");
+      // CALLERS only — elevenlabs.ts declares synthesizeSpeech and is the thing being called.
+      if (!src.includes("synthesizeSpeech(") || !src.includes('from "@/lib/elevenlabs"')) return false;
+      // voice-preview is the deliberate exception: the user is auditioning a SPECIFIC voice by id,
+      // so applying the persona pin there would play back something other than what they clicked.
+      const rel = path.relative(appDir, f).split(path.sep).join("/");
+      if (rel === "src/app/api/user/voice-preview/route.ts") return false;
+      // The trailing paren matters: an unused import of the resolver is not the same as calling it,
+      // and matching the bare name let a deliberately-broken call site pass this test.
+      return !src.includes("resolveSpokenVoiceId(");
+    });
+
+    expect(
+      offenders.map((f) => path.relative(appDir, f).split(path.sep).join("/")),
+      "a synthesis path is choosing a voice without the persona pin"
+    ).toEqual([]);
   });
 
   it("warns in its own words before it can be selected", () => {
